@@ -1,25 +1,21 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { GraphQLDateTime } from 'graphql-scalars';
 
+import { Account } from '../account';
+
 @ObjectType()
-export class EnvelopeModel {
+export class Message {
   @Field(() => ID)
-  id: number;
+  id: string;
 
   @Field(() => String)
-  name: string;
+  body: string;
 
-  @Field(() => String)
-  thumbnail: string;
+  @Field(() => Account)
+  author: Account;
 
-  @Field(() => String)
-  image: string;
-
-  @Field(() => String)
-  slug: string;
-
-  @Field(() => String)
-  description: string;
+  @Field(() => Boolean, { nullable: true })
+  isPageOwner?: boolean;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.',
@@ -32,15 +28,4 @@ export class EnvelopeModel {
     nullable: true
   })
   updatedAt?: Date;
-}
-
-export interface Envelope {
-  id: number;
-  name: string;
-  thumbnail: string;
-  image: string;
-  slug: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  description: string;
 }
