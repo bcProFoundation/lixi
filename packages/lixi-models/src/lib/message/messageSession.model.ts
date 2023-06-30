@@ -1,7 +1,7 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { GraphQLDateTime } from 'graphql-scalars';
 
-import { LixiModel } from '../lixi';
+import { LixiModel } from '../lixi/lixi.model';
 
 import { Message } from './message.model';
 import { PageMessageSession } from './pageMessageSession.model';
@@ -22,9 +22,6 @@ export class MessageSession {
 
   @Field(() => Number, { nullable: true })
   lixiAmount?: number;
-
-  @Field(() => Boolean, { nullable: true })
-  isPageOwner?: boolean;
 
   @Field(() => Boolean, { nullable: true })
   sessionOpen?: boolean;

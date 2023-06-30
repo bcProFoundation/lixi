@@ -1,39 +1,3 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { GraphQLDateTime } from 'graphql-scalars';
-
-@ObjectType()
-export class EnvelopeModel {
-  @Field(() => ID)
-  id: number;
-
-  @Field(() => String)
-  name: string;
-
-  @Field(() => String)
-  thumbnail: string;
-
-  @Field(() => String)
-  image: string;
-
-  @Field(() => String)
-  slug: string;
-
-  @Field(() => String)
-  description: string;
-
-  @Field(() => GraphQLDateTime, {
-    description: 'Identifies the date and time when the object was created.',
-    nullable: true
-  })
-  createdAt?: Date;
-
-  @Field(() => GraphQLDateTime, {
-    description: 'Identifies the date and time when the object was last updated.',
-    nullable: true
-  })
-  updatedAt?: Date;
-}
-
 export interface Envelope {
   id: number;
   name: string;

@@ -29,6 +29,8 @@ import { api as pagesApi } from './page/pages.api';
 import { pageReducer } from './page/reducer';
 import { PageState } from './page/state';
 import { api as postApi } from './post/posts.api';
+import { api as messageApi } from './message/message.api';
+import { api as pageMessageApi } from './message/pageMessageSession.api';
 import { postReducer } from './post/reducer';
 import { PostState } from './post/state';
 import { settingsReducer } from './settings/reducer';
@@ -188,6 +190,8 @@ export const appReducer = combineReducers({
   [postApi.reducerPath]: postApi.reducer,
   [commentsApi.reducerPath]: commentsApi.reducer,
   [worshipedPersonApi.reducerPath]: worshipedPersonApi.reducer,
+  [messageApi.reducerPath]: messageApi.reducer,
+  [pageMessageApi.reducerPath]: pageMessageApi.reducer,
   // This is use for useReduxEffect
   // Should be always at the end
   action: actionReducer

@@ -58,6 +58,9 @@ export class Account {
   @Field(() => Number, { nullable: true })
   followingsCount?: number;
 
+  @Field(() => Number, { nullable: true })
+  followingPagesCount?: number;
+
   @Field(() => [Message], { nullable: true })
   messages?: [Message];
 

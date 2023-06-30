@@ -52,6 +52,7 @@ import styled from 'styled-components';
 import { PageQuery } from '@store/page/pages.generated';
 import { useRepostMutation } from '@store/post/posts.api';
 import _ from 'lodash';
+import PageMessage from '@components/PageMessage';
 
 export type PageItem = PageQuery['page'];
 
@@ -988,19 +989,19 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                   <div className="about-content">
                     <SubAbout
                       dataItem={pageDetailData?.description}
-                      onClickIcon={() => { }}
+                      onClickIcon={() => {}}
                       icon={InfoCircleOutlined}
                       text={pageDetailData?.description}
                     />
                     <SubAbout
                       dataItem={pageDetailData?.address}
-                      onClickIcon={() => { }}
+                      onClickIcon={() => {}}
                       icon={CompassOutlined}
                       text={pageDetailData?.address}
                     />
                     <SubAbout
                       dataItem={pageDetailData?.website}
-                      onClickIcon={() => { }}
+                      onClickIcon={() => {}}
                       icon={HomeOutlined}
                       text={pageDetailData?.website}
                     />
@@ -1013,9 +1014,9 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                 </AboutBox>
               </LegacyProfile>
             </Tabs.TabPane>
-            {/* TODO: implement in the future */}
-            {/* <Tabs.TabPane tab="Friend" key="friend"></Tabs.TabPane>
-            <Tabs.TabPane tab="Picture" key="picture"></Tabs.TabPane> */}
+            <Tabs.TabPane tab="Message" key="message">
+              <PageMessage page={page} />
+            </Tabs.TabPane>
           </StyledMenu>
         </ProfileContentContainer>
       </StyledContainerProfileDetail>

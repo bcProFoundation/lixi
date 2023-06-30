@@ -1,0 +1,93 @@
+fragment PageMessageSessionFields on PageMessageSession {
+  id
+  page {
+    id
+    name
+  }
+  messageSessions {
+    id
+    lixi {
+      id
+    }
+    lixiAmount
+    sessionOpen
+    createdAt
+    updatedAt
+  }
+  createdAt
+  updatedAt
+}
+
+query PageMessageSession($id: String!) {
+  pageMessageSession(id: $id) {
+    ...PageMessageSessionFields
+  }
+}
+
+query PageMessageSessionByPageId(
+  $after: String
+  $before: String
+  $first: Int = 20
+  $last: Int
+  $id: String
+  $orderBy: PageMessageSessionOrder
+  $skip: Int
+) {
+  allPageMessageSessionByPageId(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    id: $id
+    orderBy: $orderBy
+    skip: $skip
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...PageMessageSessionFields
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
+    }
+  }
+}
+
+query PageMessageSessionByAccountId(
+  $after: String
+  $before: String
+  $first: Int = 20
+  $last: Int
+  $id: Int
+  $orderBy: PageMessageSessionOrder
+  $skip: Int
+) {
+  allPageMessageSessionByAccountId(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    id: $id
+    orderBy: $orderBy
+    skip: $skip
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...PageMessageSessionFields
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
+    }
+  }
+}
+
+mutation CreatePageMessageSession($input: CreatePageMessageInput!) {
+  createPageMessageSession(data: $input) {
+    ...PageMessageSessionFields
+  }
+}

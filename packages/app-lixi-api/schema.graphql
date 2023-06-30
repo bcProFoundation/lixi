@@ -15,9 +15,11 @@ type Account {
   followingsCount: Int
   id: ID!
   language: String!
+  messages: [Message!]
   mnemonic: String
   mnemonicHash: String
   name: String!
+  pageMessageSessions: [PageMessageSession!]
   pages: [Page!]
   publicKey: String
   secret: String
@@ -145,10 +147,22 @@ input CreateFollowPageInput {
   pageId: String!
 }
 
+input CreateMessageInput {
+  authorId: Int!
+  body: String!
+  isPageOwner: Boolean
+  messageSessionId: String!
+}
+
 input CreatePageInput {
   categoryId: String
   description: String!
   name: String!
+}
+
+input CreatePageMessageInput {
+  accountId: Int!
+  pageId: String!
 }
 
 input CreatePostInput {
@@ -220,6 +234,27 @@ input DeleteFollowAccountInput {
 input DeleteFollowPageInput {
   accountId: Int!
   pageId: String!
+}
+
+type DistributionModel {
+  address: String!
+  distributionType: String!
+  id: ID!
+  lixiId: Int!
+}
+
+type EnvelopeModel {
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime
+  description: String!
+  id: ID!
+  image: String!
+  name: String!
+  slug: String!
+  thumbnail: String!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime
 }
 
 type FollowAccount {
@@ -307,12 +342,121 @@ input ImportAccountInput {
   mnemonicHash: String
 }
 
+type LixiModel {
+  accountId: Int!
+
+  """Identifies the date and time when the object was activated."""
+  activationAt: DateTime
+  address: String!
+  amount: String!
+  balance: Int
+  claimCode: String
+  claimType: Int!
+  claimedNum: Int!
+  country: String
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime
+  distributions: [DistributionModel!]
+  dividedValue: Int!
+  encryptedClaimCode: String!
+  envelope: EnvelopeModel
+  envelopeId: Int
+  envelopeMessage: String
+
+  """Identifies the date and time when the object was expired."""
+  expiryAt: DateTime
+  fixedValue: Int!
+  id: ID!
+  inventoryStatus: String!
+  isClaimed: Boolean
+  isFamilyFriendly: Boolean!
+  isNFTEnabled: Boolean!
+  joinLotteryProgram: Boolean!
+  lixiType: Int!
+  maxClaim: Int!
+  maxValue: Int!
+  messageSession: MessageSession
+  minStaking: Int!
+  minValue: Int!
+  name: String!
+  networkType: String
+  numberLixiPerPackage: Int
+  numberOfSubLixi: Int
+  packageId: Int
+  parentId: Int
+  status: String!
+  subLixiBalance: Int
+  subLixiTotalClaim: Int
+  totalClaim: Int!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime
+}
+
+type Message {
+  author: Account!
+  body: String!
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime
+  id: ID!
+  isPageOwner: Boolean
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime
+}
+
+type MessageConnection {
+  edges: [MessageEdge!]
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type MessageEdge {
+  cursor: String!
+  node: Message!
+}
+
+input MessageOrder {
+  direction: OrderDirection!
+  field: MessageOrderField!
+}
+
+"""Properties by which message connections can be ordered."""
+enum MessageOrderField {
+  createdAt
+  id
+  updatedAt
+}
+
+type MessageSession {
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime
+  id: ID!
+  lixi: LixiModel
+  lixiAmount: Int
+  messages: [Message!]!
+  pageMessageSession: PageMessageSession
+  sessionOpen: Boolean
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime
+}
+
+type MessageSessionEdge {
+  cursor: String!
+  node: MessageSession!
+}
+
 type Mutation {
   createAccount(data: CreateAccountInput!): Account!
   createComment(data: CreateCommentInput!): Comment!
   createFollowAccount(data: CreateFollowAccountInput!): FollowAccount!
   createFollowPage(data: CreateFollowPageInput!): FollowPage!
+  createMessage(data: CreateMessageInput!): Message!
   createPage(data: CreatePageInput!): Page!
+  createPageMessageSession(data: CreatePageMessageInput!): PageMessageSession!
   createPost(data: CreatePostInput!): Post!
   createTemple(data: CreateTempleInput!): Temple!
   createToken(data: CreateTokenInput!): Token!
@@ -336,6 +480,7 @@ enum OrderDirection {
 }
 
 type Page {
+  accessMessageFee: Float
   address: String
   avatar: String
   category: Category!
@@ -350,14 +495,17 @@ type Page {
   createdAt: DateTime!
   description: String!
   encryptedMnemonic: String
+  followerFreeMessage: Boolean
   followersCount: Int
   id: ID!
   lotusBurnDown: Float!
   lotusBurnScore: Float!
   lotusBurnUp: Float!
+  minDanaForMessage: Float
   name: String!
   pageAccount: Account!
   pageAccountId: Int!
+  pageMessageSessions: [PageMessageSession!]
   parent: Page
   parentId: String
   salt: String
@@ -392,6 +540,42 @@ type PageInfo {
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
   startCursor: String
+}
+
+type PageMessageSession {
+  account: Account
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime
+  id: ID!
+  messageSessions: [MessageSession!]
+  page: Page
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime
+}
+
+type PageMessageSessionConnection {
+  edges: [PageMessageSessionEdge!]
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type PageMessageSessionEdge {
+  cursor: String!
+  node: PageMessageSession!
+}
+
+input PageMessageSessionOrder {
+  direction: OrderDirection!
+  field: PageMessageSessionOrderField!
+}
+
+"""Properties by which page message session connections can be ordered."""
+enum PageMessageSessionOrderField {
+  createdAt
+  id
+  updatedAt
 }
 
 input PageOrder {
@@ -525,7 +709,10 @@ type Query {
     query: String
   ): HashtagConnection!
   allHashtagByToken(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: HashtagOrder, skip: Int): HashtagConnection!
+  allMessageByMessageSessionId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: MessageOrder, skip: Int): MessageConnection!
   allOrphanPosts(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PostOrder, query: String, skip: Int): PostConnection!
+  allPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
+  allPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPages(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: [PageOrder!], query: String, skip: Int): PageConnection!
   allPagesByFollower(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PageOrder, skip: Int): PageConnection!
   allPagesByUserId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageOrder, skip: Int): PageConnection!
@@ -643,7 +830,9 @@ type Query {
   comment(id: String!): Comment!
   getAccountByAddress(address: String!): Account!
   hashtag(content: String!): Hashtag!
+  message(id: String!): Message!
   page(id: String!): Page!
+  pageMessageSession(id: String!): PageMessageSession!
   post(id: String!): Post!
   temple(id: String!): Temple!
   token(tokenId: String!): Token!
@@ -683,7 +872,9 @@ type Subscription {
   commentCreated: Comment!
   followAccountCreated: FollowAccount!
   hashtagCreated: Hashtag!
+  messageCreated: Message!
   pageCreated: Page!
+  pageMessageSessionCreated: PageMessageSession!
   postCreated: Post!
   templeCreated: Temple!
   tokenCreated: Token!
