@@ -13,13 +13,17 @@ import {
   PageConnection,
   PageOrder,
   AccountOrder,
-  AccountConnection
+  AccountConnection,
+  Page,
+  TokenOrder,
+  TokenConnection,
+  FollowPageConnection
 } from '@bcpros/lixi-models';
 import { NotificationLevel } from '@bcpros/lixi-prisma';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Int, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Int, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PubSub } from 'graphql-subscriptions';
 import { Redis } from 'ioredis';
@@ -88,7 +92,7 @@ export class FollowResolver {
         this.prisma.followAccount
           .findMany({
             where: {
-              followerAccountId: followerAccountId
+              followerAccountId: account.id
             },
             include: {
               followingAccount: true
@@ -100,7 +104,7 @@ export class FollowResolver {
       () =>
         this.prisma.followAccount.count({
           where: {
-            followerAccountId: followerAccountId
+            followerAccountId: account.id
           }
         }),
       { first, last, before, after }
@@ -127,7 +131,7 @@ export class FollowResolver {
         this.prisma.followAccount
           .findMany({
             where: {
-              followingAccountId: followingAccountId
+              followingAccountId: account.id
             },
             include: {
               followerAccount: true
@@ -139,7 +143,7 @@ export class FollowResolver {
       () =>
         this.prisma.followAccount.count({
           where: {
-            followingAccountId: followingAccountId
+            followingAccountId: account.id
           }
         }),
       { first, last, before, after }
@@ -258,28 +262,21 @@ export class FollowResolver {
   @UseGuards(GqlJwtAuthGuard)
   async checkIfFollowPage(
     @PageAccountEntity() account: Account,
-    @Args('pageId', { type: () => String }) pageId: string
+    @Args('pageId', { type: () => String, nullable: true }) pageId?: string,
+    @Args('tokenId', { type: () => String, nullable: true }) tokenId?: string
   ) {
     if (!account) {
       return false;
     }
 
     // We need to find out if the account follow the page or not
-    return await this.followCacheService.checkIfAccountFollowPage(account.id, pageId);
+    const pageOrTokenId = pageId ? pageId : (tokenId as string);
+    return await this.followCacheService.checkIfAccountFollowPage(account.id, pageOrTokenId);
   }
 
-  @Query(() => PageConnection)
+  @Query(() => FollowPageConnection)
   @UseGuards(GqlJwtAuthGuard)
-  async allPagesByFollower(
-    @AccountEntity() account: Account,
-    @Args() { after, before, first, last }: PaginationArgs,
-    @Args({
-      name: 'orderBy',
-      type: () => PageOrder,
-      nullable: true
-    })
-    orderBy: PageOrder
-  ) {
+  async allPagesByFollower(@AccountEntity() account: Account, @Args() { after, before, first, last }: PaginationArgs) {
     if (!account) {
       const accountNotExist = await this.i18n.t('account.messages.accountNotExist');
       throw Error(accountNotExist);
@@ -287,18 +284,18 @@ export class FollowResolver {
 
     const result = await findManyCursorConnection(
       paginationArgs => {
-        const pageFollowings = this.prisma.followPage
-          .findMany({
-            where: {
-              accountId: account.id
-            },
-            include: {
-              page: true
-            },
-            orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
-            ...paginationArgs
-          })
-          .then(followings => followings.map(following => following.page));
+        const pageFollowings = this.prisma.followPage.findMany({
+          where: {
+            accountId: account.id
+          },
+          include: {
+            page: true,
+            token: true
+          },
+          orderBy: { createdAt: 'asc' },
+          ...paginationArgs
+        });
+        // .then(followings => followings.map(following => following.page || following.token));
 
         return pageFollowings;
       },
@@ -317,7 +314,7 @@ export class FollowResolver {
   @Mutation(() => FollowPage)
   async createFollowPage(@AccountEntity() account: Account, @Args('data') data: CreateFollowPageInput) {
     try {
-      const { accountId, pageId } = data;
+      const { accountId, pageId, tokenId } = data;
 
       if (!account) {
         const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
@@ -331,8 +328,7 @@ export class FollowResolver {
 
       const existData = await this.prisma.followPage.findFirst({
         where: {
-          accountId: accountId,
-          pageId: pageId
+          AND: [{ accountId: accountId }, { OR: [{ pageId: pageId }, { tokenId: tokenId }] }]
         }
       });
 
@@ -341,44 +337,51 @@ export class FollowResolver {
       }
 
       const createdFollowPage = await this.prisma.followPage.create({
-        data: { ...data }
+        data: {
+          accountId: account.id,
+          pageId: pageId,
+          tokenId: tokenId
+        }
       });
 
       // Save to cache
-      await this.followCacheService.createFollowPage(accountId, pageId, createdFollowPage.createdAt);
+      pageId && (await this.followCacheService.createFollowPage(accountId, pageId, createdFollowPage.createdAt));
+      tokenId && (await this.followCacheService.createFollowToken(accountId, tokenId, createdFollowPage.createdAt));
 
-      const recipient = await this.prisma.account.findFirst({
-        where: {
-          pages: {
-            every: {
-              id: pageId
+      if (pageId) {
+        const recipient = await this.prisma.account.findFirst({
+          where: {
+            pages: {
+              every: {
+                id: pageId
+              }
             }
+          },
+          include: {
+            pages: true
           }
-        },
-        include: {
-          pages: true
-        }
-      });
+        });
 
-      if (!recipient) {
-        const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
-        throw new VError(accountNotExistMessage);
+        if (!recipient) {
+          const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
+          throw new VError(accountNotExistMessage);
+        }
+
+        const createNotif = {
+          senderId: account.id,
+          recipientId: recipient.id,
+          notificationTypeId: NOTIFICATION_TYPES.FOLLOW_PAGE,
+          level: NotificationLevel.INFO,
+          url: '/profile/' + account.address,
+          additionalData: {
+            senderName: account.name,
+            pageName: recipient.pages.find(page => page.id == pageId)?.name ?? undefined
+          }
+        };
+
+        createNotif.senderId !== createNotif.recipientId &&
+          (await this.notificationService.saveAndDispatchNotification(createNotif));
       }
-
-      const createNotif = {
-        senderId: account.id,
-        recipientId: recipient.id,
-        notificationTypeId: NOTIFICATION_TYPES.FOLLOW_PAGE,
-        level: NotificationLevel.INFO,
-        url: '/profile/' + account.address,
-        additionalData: {
-          senderName: account.name,
-          pageName: recipient.pages.find(page => page.id == pageId)?.name ?? undefined
-        }
-      };
-
-      createNotif.senderId !== createNotif.recipientId &&
-        (await this.notificationService.saveAndDispatchNotification(createNotif));
 
       pubSub.publish('followPageCreated', { followPageCreated: createdFollowPage });
       return createdFollowPage;
@@ -393,7 +396,7 @@ export class FollowResolver {
   @Mutation(() => Boolean)
   async deleteFollowPage(@AccountEntity() account: Account, @Args('data') data: DeleteFollowPageInput) {
     try {
-      const { accountId, pageId } = data;
+      const { accountId, pageId, tokenId } = data;
 
       if (!account) {
         const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
@@ -407,12 +410,12 @@ export class FollowResolver {
 
       const deletedFollowPage = await this.prisma.followPage.deleteMany({
         where: {
-          accountId: accountId,
-          pageId: pageId
+          ...data
         }
       });
 
-      await this.followCacheService.removeFollowPage(accountId, pageId);
+      pageId && (await this.followCacheService.removeFollowPage(accountId, pageId));
+      tokenId && (await this.followCacheService.removeFollowToken(accountId, tokenId));
 
       pubSub.publish('followPageDeleted', { followPageDeleted: deletedFollowPage });
       return deletedFollowPage ? true : false;
@@ -421,5 +424,49 @@ export class FollowResolver {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
+  }
+
+  @ResolveField('avatar', () => String)
+  async avatar(@Parent() page: Page) {
+    const uploadDetail = await this.prisma.page
+      .findUnique({
+        where: {
+          id: page.id
+        }
+      })
+      .avatar({
+        include: {
+          upload: true
+        }
+      });
+
+    if (_.isNil(uploadDetail)) return null;
+
+    const { upload } = uploadDetail;
+    const url = upload.bucket ? `${process.env.AWS_ENDPOINT}/${upload.bucket}/${upload.sha}` : upload.url;
+
+    return url;
+  }
+
+  @ResolveField('cover', () => String)
+  async cover(@Parent() page: Page) {
+    const uploadDetail = await this.prisma.page
+      .findUnique({
+        where: {
+          id: page.id
+        }
+      })
+      .cover({
+        include: {
+          upload: true
+        }
+      });
+
+    if (_.isNil(uploadDetail)) return null;
+
+    const { upload } = uploadDetail;
+    const url = upload.bucket ? `${process.env.AWS_ENDPOINT}/${upload.bucket}/${upload.sha}` : upload.url;
+
+    return url;
   }
 }

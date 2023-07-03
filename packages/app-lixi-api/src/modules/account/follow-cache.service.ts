@@ -88,7 +88,7 @@ export class FollowCacheService {
 
     const promises = [];
     for (const following of followings) {
-      promises.push(this.redis.zadd(key, following.createdAt.getTime(), following.pageId));
+      promises.push(this.redis.zadd(key, following.createdAt.getTime(), following.accountId));
     }
 
     return Promise.all(promises);
@@ -110,6 +110,15 @@ export class FollowCacheService {
       await this._cachePageFollowingOfAccount(key, accountId);
     }
     return !!(await this.redis.zscore(key, pageId));
+  }
+
+  async checkIfAccountFollowToken(accountId: number, tokenId: string) {
+    const key = `user:${accountId}:followingTokens`;
+    const exist = await this.redis.exists([key]);
+    if (!exist) {
+      await this._cachePageFollowingOfAccount(key, accountId);
+    }
+    return !!(await this.redis.zscore(key, tokenId));
   }
 
   async checkIfAccountFollowAccount(followerAccountId: number, followingAccountId: number) {
@@ -138,6 +147,13 @@ export class FollowCacheService {
     return Promise.all([this.redis.zrem(keyFollowers, followerAccountId), this.redis.zrem(keyFollowings, pageId)]);
   }
 
+  async removeFollowToken(followerAccountId: number, tokenId: string) {
+    const keyFollowers = `token:${tokenId}:followers`;
+    const keyFollowings = `user:${followerAccountId}:followingTokens`;
+
+    return Promise.all([this.redis.zrem(keyFollowers, followerAccountId), this.redis.zrem(keyFollowings, tokenId)]);
+  }
+
   async createFollowAccount(followerAccountId: number, followingAccountId: number, createdAt: Date) {
     const keyFollowers = `user:${followingAccountId}:followers`;
     const keyFollowings = `user:${followerAccountId}:followings`;
@@ -155,6 +171,16 @@ export class FollowCacheService {
     return Promise.all([
       this.redis.zadd(keyFollowers, createdAt.getTime(), followerAccountId),
       this.redis.zadd(keyFollowings, createdAt.getTime(), pageId)
+    ]);
+  }
+
+  async createFollowToken(followerAccountId: number, tokenId: string, createdAt: Date) {
+    const keyFollowers = `token:${tokenId}:followers`;
+    const keyFollowings = `user:${followerAccountId}:followingTokens`;
+
+    return Promise.all([
+      this.redis.zadd(keyFollowers, createdAt.getTime(), followerAccountId),
+      this.redis.zadd(keyFollowings, createdAt.getTime(), tokenId)
     ]);
   }
 }

@@ -10,7 +10,13 @@ import { currency } from '@components/Common/Ticker';
 import { InfoSubCard } from '@components/Lixi';
 import { IconBurn } from '@components/Posts/PostDetail';
 import PostListItem from '@components/Posts/PostListItem';
-import { HashtagOrderField, OrderDirection, PostOrderField } from '@generated/types.generated';
+import {
+  CreateFollowPageInput,
+  DeleteFollowPageInput,
+  HashtagOrderField,
+  OrderDirection,
+  PostOrderField
+} from '@generated/types.generated';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { setTransactionReady, addRecentHashtagAtToken } from '@store/account/actions';
 import { getRecentHashtagAtToken, getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';
@@ -23,7 +29,7 @@ import { showToast } from '@store/toast/actions';
 import { TokenQuery } from '@store/token/tokens.generated';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { formatBalance, fromSmallestDenomination } from '@utils/cashMethods';
-import { Image, Menu, MenuProps, Skeleton, Tabs, message, notification, Tag } from 'antd';
+import { Image, Menu, MenuProps, Skeleton, Tabs, message, notification, Tag, Button } from 'antd';
 import makeBlockie from 'ethereum-blockies-base64';
 import moment from 'moment';
 import { useRouter } from 'next/router';
@@ -34,9 +40,13 @@ import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import _ from 'lodash';
 import { useInfiniteHashtagByTokenQuery } from '@store/hashtag/useInfiniteHashtagByTokenQuery';
+import { useCreateFollowPageMutation, useDeleteFollowPageMutation } from '@store/follow/follows.api';
 
 export type TokenItem = TokenQuery['token'];
-
+export type BurnTokenData = {
+  data: TokenItem;
+  burnForType: BurnForType.Token;
+};
 const StyledTokensFeed = styled.div`
   margin: 1rem auto;
   width: 100%;
@@ -102,11 +112,18 @@ const BannerTicker = styled.div`
         justify-content: end;
         align-items: flex-start;
       }
-      .title-ticker {
-        margin: 0;
-        font-size: 28px;
-        line-height: 40px;
-        color: #fff;
+      .token-name-follow {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .title-ticker {
+          margin: 0;
+          font-size: 28px;
+          line-height: 40px;
+          color: #fff;
+        }
       }
       .ant-space {
         flex-direction: row;
@@ -193,10 +210,11 @@ const StyledTag = styled(Tag)`
 
 type TokenProps = {
   token: any;
+  hasFollowed: boolean;
   isMobile: boolean;
 };
 
-const TokensFeed = ({ token, isMobile }: TokenProps) => {
+const TokensFeed = ({ token, hasFollowed, isMobile }: TokenProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [tokenDetailData, setTokenDetailData] = useState<any>(token);
@@ -212,6 +230,7 @@ const TokensFeed = ({ token, isMobile }: TokenProps) => {
   const recentTagAtToken = useAppSelector(getRecentHashtagAtToken);
   const [query, setQuery] = useState<any>('');
   const [hashtags, setHashtags] = useState<any>([]);
+  const [isFollowed, setIsFollowed] = useState<boolean>(hasFollowed);
 
   let options = ['Withdraw', 'Rename', 'Export'];
 
@@ -254,6 +273,26 @@ const TokensFeed = ({ token, isMobile }: TokenProps) => {
     },
     false
   );
+
+  const [
+    createFollowPageTrigger,
+    {
+      isLoading: isLoadingCreateFollowPage,
+      isSuccess: isSuccessCreateFollowPage,
+      isError: isErrorCreateFollowPage,
+      error: errorOnCreateFollowPage
+    }
+  ] = useCreateFollowPageMutation();
+
+  const [
+    deleteFollowPageTrigger,
+    {
+      isLoading: isLoadingDeleteFollowPage,
+      isSuccess: isSuccessDeleteFollowPage,
+      isError: isErrorDeleteFollowPage,
+      error: errorOnDelete
+    }
+  ] = useDeleteFollowPageMutation();
 
   // useEffect(() => {
   //   const tokenId = token.id;
@@ -320,6 +359,14 @@ const TokensFeed = ({ token, isMobile }: TokenProps) => {
     if (slpBalancesAndUtxos === slpBalancesAndUtxosRef.current) return;
     dispatch(setTransactionReady());
   }, [slpBalancesAndUtxos.nonSlpUtxos]);
+
+  useEffect(() => {
+    if (isSuccessCreateFollowPage) setIsFollowed(true);
+  }, [isSuccessCreateFollowPage]);
+
+  useEffect(() => {
+    if (isSuccessDeleteFollowPage) setIsFollowed(false);
+  }, [isSuccessDeleteFollowPage]);
 
   useDidMountEffectNotification();
 
@@ -391,6 +438,24 @@ const TokensFeed = ({ token, isMobile }: TokenProps) => {
     }
 
     dispatch(addRecentHashtagAtToken({ id: token.id, hashtag: hashtag.substring(1) }));
+  };
+
+  const handleFollowPage = async () => {
+    const createFollowPageInput: CreateFollowPageInput = {
+      accountId: selectedAccountId,
+      tokenId: token.tokenId
+    };
+
+    await createFollowPageTrigger({ input: createFollowPageInput });
+  };
+
+  const handleUnfollowPage = async () => {
+    const deleteFollowPageInput: DeleteFollowPageInput = {
+      accountId: selectedAccountId,
+      tokenId: token.tokenId
+    };
+
+    await deleteFollowPageTrigger({ input: deleteFollowPageInput });
   };
 
   const showPosts = () => {
@@ -471,7 +536,12 @@ const TokensFeed = ({ token, isMobile }: TokenProps) => {
           {/* Show more info in token page */}
           <div className="info-ticker">
             <div className="info-ticker__left">
-              <h4 className="title-ticker">{tokenDetailData['ticker']}</h4>
+              <div className="token-name-follow">
+                <h4 className="title-ticker">{tokenDetailData['ticker']}</h4>
+                <Button onClick={isFollowed ? handleUnfollowPage : handleFollowPage}>
+                  {isFollowed ? intl.get('general.unfollow') : intl.get('general.follow')}
+                </Button>
+              </div>
               <InfoSubCard typeName={intl.get('token.ticker')} content={tokenDetailData.ticker} />
               <InfoSubCard typeName={intl.get('token.name')} content={tokenDetailData.name} />
               <InfoSubCard typeName={intl.get('token.burntxpi')} content={tokenDetailData.lotusBurnUp} />

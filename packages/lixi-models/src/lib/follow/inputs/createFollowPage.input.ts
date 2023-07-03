@@ -7,7 +7,9 @@ export class CreateFollowPageInput {
   @IsNotEmpty()
   accountId: number;
 
-  @Field(() => String)
-  @IsNotEmpty()
-  pageId: string;
+  @Field(() => String, { nullable: true })
+  pageId?: string;
+
+  @Field(() => String, { nullable: true })
+  tokenId?: string;
 }

@@ -16,7 +16,6 @@ import {
   PageInfoFieldsFragmentDoc,
   PostMeiliPageInfoFieldsFragmentDoc
 } from '../../graphql/fragments/page-info-fields.fragment.generated';
-import { PageFieldsFragmentDoc } from '../page/pages.generated';
 import { api } from 'src/api/baseApi';
 export type CheckIfFollowAccountQueryVariables = Types.Exact<{
   followingAccountId: Types.Scalars['Int'];
@@ -152,7 +151,8 @@ export type DeleteFollowAccountMutationVariables = Types.Exact<{
 export type DeleteFollowAccountMutation = { __typename?: 'Mutation'; deleteFollowAccount: boolean };
 
 export type CheckIfFollowPageQueryVariables = Types.Exact<{
-  pageId: Types.Scalars['String'];
+  pageId?: Types.InputMaybe<Types.Scalars['String']>;
+  tokenId?: Types.InputMaybe<Types.Scalars['String']>;
 }>;
 
 export type CheckIfFollowPageQuery = { __typename?: 'Query'; checkIfFollowPage: boolean };
@@ -162,49 +162,35 @@ export type AllPagesByFollowerQueryVariables = Types.Exact<{
   before?: Types.InputMaybe<Types.Scalars['String']>;
   first?: Types.InputMaybe<Types.Scalars['Int']>;
   last?: Types.InputMaybe<Types.Scalars['Int']>;
-  orderBy?: Types.InputMaybe<Types.PageOrder>;
   skip?: Types.InputMaybe<Types.Scalars['Int']>;
 }>;
 
 export type AllPagesByFollowerQuery = {
   __typename?: 'Query';
   allPagesByFollower: {
-    __typename?: 'PageConnection';
+    __typename?: 'FollowPageConnection';
     totalCount?: number | null;
     edges?: Array<{
-      __typename?: 'PageEdge';
+      __typename?: 'FollowPageEdge';
       cursor: string;
       node: {
-        __typename?: 'Page';
-        id: string;
-        pageAccountId: number;
-        name: string;
-        title?: string | null;
-        categoryId: string;
-        description: string;
-        avatar?: string | null;
-        cover?: string | null;
-        parentId?: string | null;
-        countryId?: string | null;
-        countryName?: string | null;
-        stateId?: string | null;
-        stateName?: string | null;
-        address?: string | null;
-        website?: string | null;
-        lotusBurnUp: number;
-        lotusBurnDown: number;
-        lotusBurnScore: number;
-        totalBurnForPage?: number | null;
-        followersCount?: number | null;
-        createPostFee: string;
-        createCommentFee: string;
+        __typename?: 'FollowPage';
+        id?: string | null;
+        accountId?: number | null;
+        pageId?: string | null;
+        tokenId?: string | null;
+        isFollowed?: boolean | null;
         createdAt: any;
         updatedAt: any;
-        totalPostsBurnUp: number;
-        totalPostsBurnDown: number;
-        totalPostsBurnScore: number;
-        pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
-        category: { __typename?: 'Category'; id: string; name: string };
+        account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
+        page?: {
+          __typename?: 'Page';
+          id: string;
+          name: string;
+          avatar?: string | null;
+          category: { __typename?: 'Category'; id: string; name: string };
+        } | null;
+        token?: { __typename?: 'Token'; id: string; tokenId: string; name: string } | null;
       };
     }> | null;
     pageInfo: {
@@ -222,11 +208,19 @@ export type FollowPageFieldsFragment = {
   id?: string | null;
   accountId?: number | null;
   pageId?: string | null;
+  tokenId?: string | null;
   isFollowed?: boolean | null;
   createdAt: any;
   updatedAt: any;
   account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
-  page?: { __typename?: 'Page'; id: string; name: string } | null;
+  page?: {
+    __typename?: 'Page';
+    id: string;
+    name: string;
+    avatar?: string | null;
+    category: { __typename?: 'Category'; id: string; name: string };
+  } | null;
+  token?: { __typename?: 'Token'; id: string; tokenId: string; name: string } | null;
 };
 
 export type CreateFollowPageMutationVariables = Types.Exact<{
@@ -240,11 +234,19 @@ export type CreateFollowPageMutation = {
     id?: string | null;
     accountId?: number | null;
     pageId?: string | null;
+    tokenId?: string | null;
     isFollowed?: boolean | null;
     createdAt: any;
     updatedAt: any;
     account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
-    page?: { __typename?: 'Page'; id: string; name: string } | null;
+    page?: {
+      __typename?: 'Page';
+      id: string;
+      name: string;
+      avatar?: string | null;
+      category: { __typename?: 'Category'; id: string; name: string };
+    } | null;
+    token?: { __typename?: 'Token'; id: string; tokenId: string; name: string } | null;
   };
 };
 
@@ -286,6 +288,17 @@ export const FollowPageFieldsFragmentDoc = `
   pageId
   page {
     id
+    name
+    avatar
+    category {
+      id
+      name
+    }
+  }
+  tokenId
+  token {
+    id
+    tokenId
     name
   }
   isFollowed
@@ -359,25 +372,24 @@ export const DeleteFollowAccountDocument = `
 }
     `;
 export const CheckIfFollowPageDocument = `
-    query checkIfFollowPage($pageId: String!) {
-  checkIfFollowPage(pageId: $pageId)
+    query checkIfFollowPage($pageId: String, $tokenId: String) {
+  checkIfFollowPage(pageId: $pageId, tokenId: $tokenId)
 }
     `;
 export const AllPagesByFollowerDocument = `
-    query allPagesByFollower($after: String, $before: String, $first: Int = 20, $last: Int, $orderBy: PageOrder, $skip: Int) {
+    query allPagesByFollower($after: String, $before: String, $first: Int = 20, $last: Int, $skip: Int) {
   allPagesByFollower(
     after: $after
     before: $before
     first: $first
     last: $last
-    orderBy: $orderBy
     skip: $skip
   ) {
     totalCount
     edges {
       cursor
       node {
-        ...PageFields
+        ...FollowPageFields
       }
     }
     pageInfo {
@@ -385,7 +397,7 @@ export const AllPagesByFollowerDocument = `
     }
   }
 }
-    ${PageFieldsFragmentDoc}
+    ${FollowPageFieldsFragmentDoc}
 ${PageInfoFieldsFragmentDoc}`;
 export const CreateFollowPageDocument = `
     mutation createFollowPage($input: CreateFollowPageInput!) {
@@ -417,7 +429,7 @@ const injectedRtkApi = api.injectEndpoints({
     deleteFollowAccount: build.mutation<DeleteFollowAccountMutation, DeleteFollowAccountMutationVariables>({
       query: variables => ({ document: DeleteFollowAccountDocument, variables })
     }),
-    checkIfFollowPage: build.query<CheckIfFollowPageQuery, CheckIfFollowPageQueryVariables>({
+    checkIfFollowPage: build.query<CheckIfFollowPageQuery, CheckIfFollowPageQueryVariables | void>({
       query: variables => ({ document: CheckIfFollowPageDocument, variables })
     }),
     allPagesByFollower: build.query<AllPagesByFollowerQuery, AllPagesByFollowerQueryVariables | void>({

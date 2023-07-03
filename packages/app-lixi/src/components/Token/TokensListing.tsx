@@ -1,4 +1,4 @@
-import { CopyOutlined, FilterOutlined, RightOutlined, SearchOutlined, SyncOutlined } from '@ant-design/icons';
+import Icon, { CopyOutlined, FilterOutlined, RightOutlined, SearchOutlined, SyncOutlined } from '@ant-design/icons';
 import BurnSvg from '@assets/icons/burn.svg';
 import UpVoteSvg from '@assets/icons/upVotePurple.svg';
 import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
@@ -6,9 +6,16 @@ import { Counter } from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { currency } from '@components/Common/Ticker';
 import { InfoSubCard } from '@components/Lixi';
-import { IconBurn } from '@components/Posts/PostDetail';
 import { WalletContext } from '@context/walletProvider';
-import { CreateTokenInput, OrderDirection, TokenEdge, TokenOrderField } from '@generated/types.generated';
+import {
+  CreateFollowPageInput,
+  CreateTokenInput,
+  DeleteFollowPageInput,
+  OrderDirection,
+  Token,
+  TokenEdge,
+  TokenOrderField
+} from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { setTransactionReady } from '@store/account/actions';
@@ -23,8 +30,7 @@ import {
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
 import { showToast } from '@store/toast/actions';
-import { useTokensQuery } from '@store/token/tokens.api';
-import { useCreateTokenMutation } from '@store/token/tokens.generated';
+import { useCreateTokenMutation, useTokenQuery, useTokensQuery } from '@store/token/tokens.api';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { formatBalance, fromSmallestDenomination } from '@utils/cashMethods';
 import { Button, Form, Image, Input, InputRef, Modal, Space, Table, Tooltip, notification } from 'antd';
@@ -42,14 +48,44 @@ import Highlighter from 'react-highlight-words';
 import { Controller, useForm } from 'react-hook-form';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
-import { TokenItem } from './TokensFeed';
+import { BurnTokenData, TokenItem } from './TokensFeed';
 import { getCurrentThemes } from '@store/settings';
+import { getSelectedAccountId } from '@store/account';
+import { useCreateFollowPageMutation, useDeleteFollowPageMutation } from '@store/follow/follows.api';
+import FollowSvg from '@assets/icons/follow.svg';
+import { OPTION_BURN_VALUE } from '@components/Posts/PostsListing';
+import { BurnData } from '@components/Posts/PostDetail';
+import ReactionToken from '@components/Common/ReactionToken';
 
 const StyledTokensListing = styled.div`
   .table-tokens {
     display: block;
     @media (max-width: 768px) {
       display: none;
+    }
+
+    .follow-btn {
+      width: 28px;
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: center;
+
+      span {
+        svg {
+          width: 28px;
+          height: 28px;
+          letter-spacing: 0.25px;
+          margin: 0;
+          filter: var(--filter-svg-gray-color);
+        }
+
+        &.isFollowed {
+          svg {
+            filter: var(--filter-color-primary);
+          }
+        }
+      }
     }
   }
   @media (max-width: 768px) {
@@ -126,6 +162,7 @@ const StyledNavBarHeader = styled.div`
 
 const TokensListing = () => {
   const dispatch = useAppDispatch();
+  const selectedAccountId = useAppSelector(getSelectedAccountId);
   const router = useRouter();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [valueInput, setValueInput] = useState('');
@@ -144,6 +181,7 @@ const TokensListing = () => {
   const walletStatus = useAppSelector(getWalletStatus);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
   const currentTheme = useAppSelector(getCurrentThemes);
+  const [hasFollowed, setHasFollowed] = useState([]);
   const { currentData: tokens, isLoading } = useTokensQuery({
     orderBy: {
       direction: OrderDirection.Desc,
@@ -160,6 +198,26 @@ const TokensListing = () => {
       error: errorOnCreate
     }
   ] = useCreateTokenMutation();
+
+  const [
+    createFollowPageTrigger,
+    {
+      isLoading: isLoadingCreateFollowPage,
+      isSuccess: isSuccessCreateFollowPage,
+      isError: isErrorCreateFollowPage,
+      error: errorOnCreateFollowPage
+    }
+  ] = useCreateFollowPageMutation();
+
+  const [
+    deleteFollowPageTrigger,
+    {
+      isLoading: isLoadingDeleteFollowPage,
+      isSuccess: isSuccessDeleteFollowPage,
+      isError: isErrorDeleteFollowPage,
+      error: errorOnDelete
+    }
+  ] = useDeleteFollowPageMutation();
 
   const {
     handleSubmit,
@@ -326,23 +384,20 @@ const TokensListing = () => {
       // fixed: 'right',
       render: (_, { node: record }) => (
         <Space size="middle">
-          <Tooltip title={intl.get('general.burnUp')}>
-            <Button
-              type="text"
-              className="outline-btn"
-              icon={<UpVoteSvg />}
-              style={{ fontSize: '27px' }}
-              onClick={() => burnToken(record.id, record.tokenId)}
-            />
-          </Tooltip>
-          <Tooltip title={intl.get('general.customBurn')}>
-            <Button
-              type="text"
-              className="outline-btn"
-              icon={<BurnSvg />}
-              style={{ fontSize: '27px' }}
-              onClick={() => openBurnModal(record)}
-            />
+          <ReactionToken token={record} handleBurnForToken={handleBurnForToken} />
+
+          <Tooltip title={intl.get('general.follow')}>
+            <Button type="text" className="follow-btn">
+              <Icon
+                component={() => <FollowSvg />}
+                className={hasFollowed.includes(record.tokenId) ? 'isFollowed' : ''}
+                onClick={
+                  hasFollowed.includes(record.tokenId)
+                    ? () => handleUnfollowPage(record.tokenId)
+                    : () => handleFollowPage(record.tokenId)
+                }
+              />
+            </Button>
           </Tooltip>
         </Space>
       )
@@ -364,30 +419,46 @@ const TokensListing = () => {
     dispatch(push(`/token/${token.tokenId}`));
   };
 
-  const handleBurnForToken = async (isUpVote: boolean, id: string, tokenId: string) => {
+  useDidMountEffectNotification();
+
+  const handleBurnForToken = async (isUpVote: boolean, token: any, optionBurn?: string) => {
+    isUpVote
+      ? handleBurn(true, { data: token, burnForType: BurnForType.Token }, optionBurn)
+      : handleBurn(false, { data: token, burnForType: BurnForType.Token }, optionBurn);
+  };
+
+  const handleBurn = async (isUpVote: boolean, burnData: BurnTokenData, optionBurn?: string) => {
     try {
-      const burnValue = '1';
+      const burnValue = optionBurn ? OPTION_BURN_VALUE[optionBurn] : '1';
+      const { data, burnForType } = burnData;
+      if (failQueue.length > 0) dispatch(clearFailQueue());
+      const fundingFirstUtxo = slpBalancesAndUtxos.nonSlpUtxos[0];
+      const currentWalletPath = walletPaths.filter(acc => acc.xAddress === fundingFirstUtxo.address).pop();
+      const { hash160, xAddress } = currentWalletPath;
+      const burnType = isUpVote ? BurnType.Up : BurnType.Down;
+      const burnedBy = hash160;
+      const burnForId = data.id;
+      let tipToAddresses: { address: string; amount: string }[] = [];
+      let queryParams;
+
       if (
         slpBalancesAndUtxos.nonSlpUtxos.length == 0 ||
         fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis) < parseInt(burnValue)
       ) {
         throw new Error(intl.get('account.insufficientFunds'));
       }
-      if (failQueue.length > 0) dispatch(clearFailQueue());
-      const fundingFirstUtxo = slpBalancesAndUtxos.nonSlpUtxos[0];
-      const currentWalletPath = walletPaths.filter(acc => acc.xAddress === fundingFirstUtxo.address).pop();
-      const { fundingWif, hash160 } = currentWalletPath;
-      const burnType = isUpVote ? BurnType.Up : BurnType.Down;
-      const burnedBy = hash160;
 
       const burnCommand: BurnQueueCommand = {
         defaultFee: currency.defaultFee,
         burnType,
-        burnForType: BurnForType.Token,
+        burnForType: burnForType,
         burnedBy,
-        burnForId: id,
-        tokenId: tokenId,
-        burnValue
+        burnForId: burnForId,
+        tokenId: data.tokenId,
+        burnValue,
+        tipToAddresses: tipToAddresses,
+        queryParams: queryParams,
+        minBurnFilter: 0
       };
 
       dispatch(addBurnQueue(burnCommand));
@@ -403,12 +474,34 @@ const TokensListing = () => {
     }
   };
 
-  const burnToken = (id: string, tokenId: string) => {
-    handleBurnForToken(true, id, tokenId);
-  };
-
   const openBurnModal = (token: TokenItem) => {
     dispatch(openModal('BurnModal', { burnForType: BurnForType.Token, id: token.tokenId }));
+  };
+
+  const handleFollowPage = async (tokenId: string) => {
+    const createFollowPageInput: CreateFollowPageInput = {
+      accountId: selectedAccountId,
+      tokenId: tokenId
+    };
+    setHasFollowed(prevState => [...prevState, tokenId]);
+
+    await createFollowPageTrigger({ input: createFollowPageInput });
+    if (isErrorCreateFollowPage || errorOnCreateFollowPage) {
+      setHasFollowed(prevState => prevState.filter(item => item !== tokenId));
+    }
+  };
+
+  const handleUnfollowPage = async (tokenId: string) => {
+    const deleteFollowPageInput: DeleteFollowPageInput = {
+      accountId: selectedAccountId,
+      tokenId: tokenId
+    };
+    setHasFollowed(prevState => prevState.filter(item => item !== tokenId));
+
+    await deleteFollowPageTrigger({ input: deleteFollowPageInput });
+    if (isErrorDeleteFollowPage || errorOnDelete) {
+      setHasFollowed(prevState => [...prevState, tokenId]);
+    }
   };
 
   const addTokenbyId = async data => {
@@ -455,6 +548,15 @@ const TokensListing = () => {
     if (slpBalancesAndUtxos === slpBalancesAndUtxosRef.current) return;
     dispatch(setTransactionReady());
   }, [slpBalancesAndUtxos.nonSlpUtxos]);
+
+  useEffect(() => {
+    tokens &&
+      tokens.allTokens.edges.map(token => {
+        if (token.node.isFollowed === true) {
+          setHasFollowed(prevState => [...prevState, token.node.tokenId]);
+        }
+      });
+  }, [tokens, isSuccessCreateFollowPage, isSuccessDeleteFollowPage]);
 
   useDidMountEffectNotification();
 
@@ -508,15 +610,18 @@ const TokensListing = () => {
                         />
                       </div>
                       <div className="group-action-btn">
-                        <IconBurn
-                          icon={UpvoteIcon}
-                          burnValue={formatBalance(token?.lotusBurnUp ?? 0)}
-                          key={`list-vertical-upvote-o-${token.id}`}
-                          dataItem={token}
-                          onClickIcon={e => burnToken(token.id, token.tokenId)}
-                        />
                         <Button type="text" onClick={() => openBurnModal(token)}>
                           <img src="/images/ico-burn-up.svg" alt="" />
+                        </Button>
+
+                        <Button type="text" className="follow-btn">
+                          <Icon
+                            component={() => <FollowSvg />}
+                            className={token.isFollowed ? 'isFollowed' : ''}
+                            onClick={
+                              token.isFollowed ? () => handleUnfollowPage(token.id) : () => handleFollowPage(token.id)
+                            }
+                          />
                         </Button>
 
                         <Button
@@ -524,7 +629,7 @@ const TokensListing = () => {
                           className="no-border-btn open-detail"
                           onClick={() => handleNavigateToken(token)}
                         >
-                          Open <RightOutlined />
+                          {intl.get('general.open')} <RightOutlined />
                         </Button>
                       </div>
                     </CardItemToken>

@@ -37,7 +37,7 @@ const TokenDetailPage = props => {
               cardType: 'summary_large_image'
             }}
           />
-          <TokensFeed token={currentToken} isMobile={isMobile} />
+          <TokensFeed token={currentToken} hasFollowed={currentToken.isFollowed} isMobile={isMobile} />
         </>
       )}
     </>

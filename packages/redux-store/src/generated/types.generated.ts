@@ -160,7 +160,8 @@ export type CreateFollowAccountInput = {
 
 export type CreateFollowPageInput = {
   accountId: Scalars['Int'];
-  pageId: Scalars['String'];
+  pageId?: InputMaybe<Scalars['String']>;
+  tokenId?: InputMaybe<Scalars['String']>;
 };
 
 export type CreatePageInput = {
@@ -229,11 +230,14 @@ export type DeleteFollowAccountInput = {
 
 export type DeleteFollowPageInput = {
   accountId: Scalars['Int'];
-  pageId: Scalars['String'];
+  pageId?: InputMaybe<Scalars['String']>;
+  tokenId?: InputMaybe<Scalars['String']>;
 };
 
 export type FollowAccount = {
   __typename?: 'FollowAccount';
+  avatar: Scalars['String'];
+  cover: Scalars['String'];
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
   followerAccount?: Maybe<Account>;
@@ -262,8 +266,17 @@ export type FollowPage = {
   isFollowed?: Maybe<Scalars['Boolean']>;
   page?: Maybe<Page>;
   pageId?: Maybe<Scalars['String']>;
+  token?: Maybe<Token>;
+  tokenId?: Maybe<Scalars['String']>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
+};
+
+export type FollowPageConnection = {
+  __typename?: 'FollowPageConnection';
+  edges?: Maybe<Array<FollowPageEdge>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']>;
 };
 
 export type FollowPageEdge = {
@@ -586,7 +599,7 @@ export type Query = {
   allHashtagByToken: HashtagConnection;
   allOrphanPosts: PostConnection;
   allPages: PageConnection;
-  allPagesByFollower: PageConnection;
+  allPagesByFollower: FollowPageConnection;
   allPagesByUserId: PageConnection;
   allPosts: PostConnection;
   allPostsByHashtagId: PostConnection;
@@ -721,7 +734,6 @@ export type QueryAllPagesByFollowerArgs = {
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
   minBurnFilter?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<PageOrder>;
   skip?: InputMaybe<Scalars['Int']>;
 };
 
@@ -933,7 +945,8 @@ export type QueryCheckIfFollowAccountArgs = {
 };
 
 export type QueryCheckIfFollowPageArgs = {
-  pageId: Scalars['String'];
+  pageId?: InputMaybe<Scalars['String']>;
+  tokenId?: InputMaybe<Scalars['String']>;
 };
 
 export type QueryCommentArgs = {
@@ -1073,6 +1086,7 @@ export type Token = {
   decimals: Scalars['Int'];
   id: Scalars['ID'];
   initialTokenQuantity?: Maybe<Scalars['String']>;
+  isFollowed?: Maybe<Scalars['Boolean']>;
   lotusBurnDown: Scalars['Float'];
   lotusBurnScore: Scalars['Float'];
   lotusBurnUp: Scalars['Float'];

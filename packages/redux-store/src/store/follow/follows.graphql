@@ -10,7 +10,14 @@ query allFollowersByFollowing(
   $orderBy: AccountOrder
   $skip: Int
 ) {
-  allFollowersByFollowing(after: $after, before: $before, first: $first, last: $last, orderBy: $orderBy, skip: $skip) {
+  allFollowersByFollowing(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    orderBy: $orderBy
+    skip: $skip
+  ) {
     totalCount
     edges {
       cursor
@@ -32,7 +39,14 @@ query allFollowingsByFollower(
   $orderBy: AccountOrder
   $skip: Int
 ) {
-  allFollowingsByFollower(after: $after, before: $before, first: $first, last: $last, orderBy: $orderBy, skip: $skip) {
+  allFollowingsByFollower(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    orderBy: $orderBy
+    skip: $skip
+  ) {
     totalCount
     edges {
       cursor
@@ -75,10 +89,8 @@ mutation deleteFollowAccount($input: DeleteFollowAccountInput!) {
   deleteFollowAccount(data: $input)
 }
 
-
-
-query checkIfFollowPage($pageId: String!) {
-  checkIfFollowPage(pageId: $pageId)
+query checkIfFollowPage($pageId: String, $tokenId: String) {
+  checkIfFollowPage(pageId: $pageId, tokenId: $tokenId)
 }
 
 query allPagesByFollower(
@@ -86,15 +98,20 @@ query allPagesByFollower(
   $before: String
   $first: Int = 20
   $last: Int
-  $orderBy: PageOrder
   $skip: Int
 ) {
-  allPagesByFollower(after: $after, before: $before, first: $first, last: $last, orderBy: $orderBy, skip: $skip) {
+  allPagesByFollower(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    skip: $skip
+  ) {
     totalCount
     edges {
       cursor
       node {
-        ...PageFields
+        ...FollowPageFields
       }
     }
     pageInfo {
@@ -114,6 +131,17 @@ fragment FollowPageFields on FollowPage {
   pageId
   page {
     id
+    name
+    avatar
+    category {
+      id
+      name
+    }
+  }
+  tokenId
+  token {
+    id
+    tokenId
     name
   }
   isFollowed
