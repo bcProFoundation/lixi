@@ -31,6 +31,8 @@ import { HashtagModule } from './modules/hashtag/hashtag.module';
 import { WalletModule } from './modules/wallet/wallet.module';
 import { WorshipModule } from './modules/worship/worship.module';
 import { MessageModule } from './modules/message/message.module';
+import { CloudflareModule } from './common/modules/cloudflare/cloudflare.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 //enabled serving multiple static for fastify
 type FastifyServeStaticModuleOptions = ServeStaticModuleOptions & {
@@ -53,6 +55,7 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
       isGlobal: true,
       load: [configuration]
     }),
+    ScheduleModule.forRoot(),
     CacheModule.registerAsync<RedisClientOptions>({
       isGlobal: true,
       inject: [ConfigService],
@@ -153,7 +156,8 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
           region: 'us-west-001'
         }
       })
-    })
+    }),
+    CloudflareModule
   ],
   controllers: [],
   providers: [
