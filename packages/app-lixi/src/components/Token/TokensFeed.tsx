@@ -70,9 +70,6 @@ const StyledTokensFeed = styled.div`
       top: 10px;
     }
   }
-  @media (max-width: 960px) {
-    padding-bottom: 7rem;
-  }
 `;
 
 const BannerTicker = styled.div`
@@ -544,7 +541,7 @@ const TokensFeed = ({ token, hasFollowed, isMobile }: TokenProps) => {
               </div>
               <InfoSubCard typeName={intl.get('token.ticker')} content={tokenDetailData.ticker} />
               <InfoSubCard typeName={intl.get('token.name')} content={tokenDetailData.name} />
-              <InfoSubCard typeName={intl.get('token.burntxpi')} content={tokenDetailData.lotusBurnUp} />
+              <InfoSubCard typeName={intl.get('general.dana')} content={tokenDetailData.lotusBurnUp} />
             </div>
             <div className="info-ticker__right">
               <CopyToClipboard text={tokenDetailData.tokenId} onCopy={() => handleOnCopy(tokenDetailData.tokenId)}>

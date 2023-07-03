@@ -18,6 +18,7 @@ const FilterStyle = styled.div`
   align-items: center;
   justify-content: flex-start;
   margin: 5px;
+  margin-top: 10px;
   p {
     margin: 0px;
     font-style: normal;
@@ -55,11 +56,13 @@ const FilterStyle = styled.div`
       }
     }
     .ant-input-disabled {
-      width: 54px;
+      width: 70px;
       color: #000;
       cursor: pointer;
       border: 0px;
       background: rgba(0, 0, 0, 0);
+      padding: 0;
+      text-align: center;
     }
   }
 `;
@@ -118,7 +121,7 @@ export const FilterBurnt = (props: FilterBurntProps) => {
               onClick={() => handleUpDownBtn(false)}
               disabled={valueForType === 0}
             />
-            <Input disabled value={valueForType} />
+            <Input disabled value={valueForType + intl.get('general.dana')} />
             <Button
               className="up-value"
               icon={<PlusOutlined />}

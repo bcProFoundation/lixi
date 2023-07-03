@@ -33,16 +33,16 @@ export default {
   'text.createPageDescription':
     'Viết về hoạt động kinh doanh của bạn, các dịch vụ bạn cung cấp hoặc mục đích của Trang.',
   'text.post': 'bài viết',
-  'text.selectXpi': 'Bạn muốn đốt bao nhiêu XPI cho {name}?',
+  'text.selectXpi': 'Bạn muốn ủng hộ bao nhiêu Dana?',
   'burn.selectXpi': 'Vui lòng chọn số lượng XPI bạn muốn đốt cho {name}',
-  'burn.youBurning': 'Bạn đang đốt ',
+  'burn.youOffering': 'Bạn đang ủng hộ ',
   'burn.post': 'bài viết',
   'burn.comment': 'bình luận',
   'burn.token': 'token',
   'burn.page': 'trang',
   'burn.account': 'tài khoản',
   'burn.doneBurning': 'Đốt thành công!',
-  'burn.sendXpi': 'Bạn sẽ gửi ',
+  'burn.sendDana': 'Bạn sẽ trả {cost} XPI (Chưa tính phí của thợ đào).',
   'burn.owner': ' tới chủ {name} ',
   'burn.feeMiner': 'Chưa tính phí thợ đào',
 
@@ -88,7 +88,7 @@ export default {
   'general.manageInfo': 'Quản lý thông tin',
   'general.managePage': 'Quản lý trang',
   'general.manageNotifications': 'Quản lý thông báo',
-  'general.feedPage': 'Khám phá và kết nối với các doanh nghiệp trên LixiLotus',
+  'general.feedPage': 'Khám phá và kết nối với các doanh nghiệp trên Lixi',
   'general.subTitleEditPage': 'Thay đổi thông tin trang của bạn',
   'general.subTitleClaimed': 'Chi tiết lì xì đâ nhận',
   'general.notFoundTitle': 'Opp! Không tìm thấy trang',
@@ -96,8 +96,8 @@ export default {
   'general.goBackToHome': 'Trở về trang chủ',
   'general.searchResults': 'Kết quả tìm kiếm của "{text}"',
   'general.post': 'Đăng',
-  'general.burnUp': 'Đốt lên',
-  'general.burnDown': 'Đốt xuống',
+  'general.voteUp': 'Ủng hộ',
+  'general.voteDown': 'Phản đối',
   'general.more': 'Thêm',
   'general.goodOrNot': 'Tốt hay không?',
   'general.customBurn': 'Tùy chọn đốt',
@@ -112,8 +112,10 @@ export default {
   'general.fee': 'Phí: ',
   'general.createPost': 'Bạn đang nghĩ gì vậy?...',
   'general.suggested': 'Đề xuất: ',
-  'general.postFilter': 'Lọc bài viết: ',
   'general.open': 'Mở',
+  'general.postFilter': 'Bài theo dõi: ',
+  'general.dana': ' Dana',
+  'general.support': 'Hỗ trợ',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Bạn cần nhập đúng cụm từ bảo mật',
@@ -405,11 +407,11 @@ export default {
   'onboarding.cancel': 'Hủy',
   'onboarding.importAccount': 'Khôi phục tài khoản',
   'onboarding.import': 'Khôi phục',
-  'onboarding.welcomeToLotus': 'Chào mừng bạn đến với LixiLotus!',
+  'onboarding.welcomeToLotus': 'Chào mừng bạn đến với Lixi!',
   'onboarding.lixiLotusIntroduce1':
-    'LixiLotus là một ví sử dụng tiền mã hóa Lotus hoạt động trên trình duyệt web với mã nguồn mở không bị giám sát. ',
-  'onboarding.lixiLotusIntroduce2': 'LixiLotus cho phép bạn cho đi Lotus một cách dễ dàng.',
-  'onboarding.lixiLotusIntroduce3': 'Để bắt đầu, hãy cài đặt LixiLotus vào thiết bị của bạn theo',
+    'Lixi là một ví sử dụng tiền mã hóa Lotus hoạt động trên trình duyệt web với mã nguồn mở không bị giám sát. ',
+  'onboarding.lixiLotusIntroduce2': 'Lixi cho phép bạn cho đi Lotus một cách dễ dàng.',
+  'onboarding.lixiLotusIntroduce3': 'Để bắt đầu, hãy cài đặt Lixi vào thiết bị của bạn theo',
   'onboarding.lixiLotusIntroduce4': 'hướng dẫn',
 
   /* 08.Envelope */
@@ -511,8 +513,8 @@ export default {
   'country.unablegetStates': 'Không thể tải tỉnh thành',
 
   /* 15.Post */
-  'general.allPost': 'Tất cả',
-  'general.topPost': 'Nổi bật',
+  'general.allPost': 'Bật',
+  'general.topPost': 'Tắt',
   'post.createNewPage': 'tạo bài viết mới',
   'post.createPage': 'tạo bài viết',
   'post.editPost': 'Sửa bài viết chưa đốt',
@@ -556,6 +558,9 @@ export default {
   'post.on': 'trên',
   'post.insufficientFeeCreatePost': 'Bạn cần Lotus để thực hiện hành động này.',
   'post.postTitle': 'Bài viết',
+  'post.postBy': 'Bài viết bởi ',
+  'post.showTranslate': 'Hiện bài dịch',
+  'post.hideTranslate': 'Ẩn bài dịch',
 
   /* 16.Token */
   'token.importToken': 'Thêm token',

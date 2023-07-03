@@ -7,8 +7,6 @@ const onChange = editorState => {
     // Read the contents of the EditorState here.
     const root = $getRoot();
     const selection = $getSelection();
-
-    // console.log(root, selection);
   });
 };
 

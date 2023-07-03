@@ -6,6 +6,7 @@ import {
   Post,
   PostConnection,
   PostOrder,
+  PostTranslation,
   RepostInput,
   Token,
   UpdatePostInput
@@ -35,6 +36,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { HASHTAG, POSTS } from './constants/meili.constants';
 import { MeiliService } from './meili.service';
 import { GqlThrottlerGuard } from '../auth/guards/gql-throttler.guard';
+import { FollowCacheService } from '../account/follow-cache.service';
 
 const pubSub = new PubSub();
 
@@ -45,6 +47,7 @@ export class PostResolver {
   private logger: Logger = new Logger(this.constructor.name);
 
   constructor(
+    private readonly followCacheService: FollowCacheService,
     private prisma: PrismaService,
     private meiliService: MeiliService,
     private readonly notificationService: NotificationService,
@@ -122,7 +125,7 @@ export class PostResolver {
       result = await findManyCursorConnection(
         async args => {
           const posts = await this.prisma.post.findMany({
-            include: { postAccount: true, comments: true, page: true, token: true },
+            include: { postAccount: true, comments: true, page: true, token: true, translations: true },
             where: queryPosts,
             orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
             ...args
@@ -273,7 +276,12 @@ export class PostResolver {
       result = await findManyCursorConnection(
         args =>
           this.prisma.post.findMany({
-            include: { postAccount: true, comments: true, reposts: { select: { account: true, accountId: true } } },
+            include: {
+              postAccount: true,
+              comments: true,
+              reposts: { select: { account: true, accountId: true } },
+              translations: true
+            },
             where: {
               OR: [
                 {
@@ -414,6 +422,7 @@ export class PostResolver {
       const postsId = _.map(posts, 'id');
 
       const searchPosts = await this.prisma.post.findMany({
+        include: { translations: true },
         where: {
           AND: [
             {
@@ -482,6 +491,7 @@ export class PostResolver {
     const postsId = _.map(posts, 'id');
 
     const searchPosts = await this.prisma.post.findMany({
+      include: { translations: true },
       where: {
         AND: [
           {
@@ -544,6 +554,7 @@ export class PostResolver {
     const postsId = _.map(posts, 'id');
 
     const searchPosts = await this.prisma.post.findMany({
+      include: { translations: true },
       where: {
         AND: [
           {
@@ -583,7 +594,7 @@ export class PostResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.post.findMany({
-          include: { postAccount: true, comments: true },
+          include: { postAccount: true, comments: true, translations: true },
           where: {
             OR: [
               {
@@ -753,7 +764,7 @@ export class PostResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.post.findMany({
-          include: { postAccount: true, comments: true, postHashtags: true },
+          include: { postAccount: true, comments: true, postHashtags: true, translations: true },
           where: {
             postHashtags: {
               some: {
@@ -779,8 +790,6 @@ export class PostResolver {
     return result;
   }
 
-  @Throttle(2, 1)
-  @UseGuards(GqlThrottlerGuard)
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Post)
   async createPost(@PostAccountEntity() account: Account, @Args('data') data: CreatePostInput) {
@@ -905,7 +914,7 @@ export class PostResolver {
     await this.meiliService.add(`${process.env.MEILISEARCH_BUCKET}_${POSTS}`, indexedPost, savedPost.id);
 
     pubSub.publish('postCreated', { postCreated: savedPost });
-
+    let listAccountFollowerIds: number[] = [];
     // Notification
     if (pageId && savedPost) {
       const page = await this.prisma.page.findFirst({
@@ -947,6 +956,38 @@ export class PostResolver {
       };
       createNotif.senderId !== createNotif.recipientId &&
         (await this.notificationService.saveAndDispatchNotification(jobData.notification));
+
+      // collect account id follow page
+      const followerPageIds = await this.followCacheService.getPageFollowers(page.id);
+      if (followerPageIds && followerPageIds.length > 0) {
+        const followerPageIdsMapped = followerPageIds.map(id => Number(id));
+        listAccountFollowerIds = listAccountFollowerIds.concat(followerPageIdsMapped);
+      }
+    }
+    // collect account id follow this account
+    const followerAccountIds = await this.followCacheService.getAccountFollowers(account.id);
+    if (followerAccountIds && followerAccountIds.length > 0) {
+      const followerAccountIdsMapped = followerAccountIds.map(id => Number(id));
+      listAccountFollowerIds = listAccountFollowerIds.concat(followerAccountIdsMapped);
+    }
+    if (listAccountFollowerIds && listAccountFollowerIds.length > 0) {
+      // filter account duplicate
+      listAccountFollowerIds = listAccountFollowerIds.filter(
+        (value, index) => listAccountFollowerIds.indexOf(value) === index
+      );
+      // filter out main account of follower list
+      listAccountFollowerIds = listAccountFollowerIds.filter(id => id !== account.id);
+      const followerDetails = await this.prisma.account.findMany({
+        where: { id: { in: listAccountFollowerIds } },
+        select: { address: true }
+      });
+      if (followerDetails && followerDetails.length > 0) {
+        const addressFollowerAccountDetails = followerDetails.map(item => item.address);
+        const createNotiNewPost = {
+          recipientAddresses: addressFollowerAccountDetails
+        };
+        await this.notificationService.saveAnddDispathNotificationNewPost(createNotiNewPost);
+      }
     }
 
     return savedPost;
@@ -1063,7 +1104,7 @@ export class PostResolver {
 
   @ResolveField('postAccount', () => Account)
   async postAccount(@Parent() post: Post) {
-    const account = this.prisma.account.findFirst({
+    const account = await this.prisma.account.findFirst({
       where: {
         id: post.postAccountId
       }
@@ -1086,7 +1127,7 @@ export class PostResolver {
   @ResolveField('page', () => Page)
   async page(@Parent() post: Post) {
     if (post.pageId) {
-      const page = this.prisma.page.findFirst({
+      const page = await this.prisma.page.findFirst({
         where: {
           id: post.pageId
         }
@@ -1100,7 +1141,7 @@ export class PostResolver {
   @ResolveField('token', () => Token)
   async token(@Parent() post: Post) {
     if (post.tokenId) {
-      const token = this.prisma.token.findFirst({
+      const token = await this.prisma.token.findFirst({
         where: {
           id: post.tokenId
         }
@@ -1111,9 +1152,23 @@ export class PostResolver {
     return null;
   }
 
+  @ResolveField('translations', () => PostTranslation)
+  async translations(@Parent() post: Post) {
+    if (post.translations) {
+      const translations = await this.prisma.postTranslation.findMany({
+        where: {
+          postId: post.id
+        }
+      });
+
+      return translations;
+    }
+    return null;
+  }
+
   @ResolveField()
   async uploads(@Parent() post: Post) {
-    const uploads = this.prisma.uploadDetail.findMany({
+    const uploads = await this.prisma.uploadDetail.findMany({
       where: {
         postId: post.id
       },
@@ -1127,7 +1182,9 @@ export class PostResolver {
             height: true,
             sha800: true,
             sha320: true,
-            sha40: true
+            sha40: true,
+            cfImageId: true,
+            cfImageFilename: true
           }
         }
       }

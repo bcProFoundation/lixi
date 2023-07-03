@@ -211,9 +211,6 @@ const StyledContainerPostDetail = styled.div`
   margin-top: 1rem;
   height: max-content;
   border-radius: 1rem;
-  @media (max-width: 960px) {
-    padding-bottom: 9rem;
-  }
   header {
     padding: 0 !important;
     margin-bottom: 1rem;
@@ -298,7 +295,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
 
   useEffect(() => {
     const mapImages = post.uploads.map(img => {
-      const imgUrl = `${process.env.NEXT_PUBLIC_AWS_ENDPOINT}/${img.upload.bucket}/${img.upload.sha}`;
+      const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.upload.cfImageId}/large`;
       let width = parseInt(img?.upload?.width) || 4;
       let height = parseInt(img?.upload?.height) || 3;
       let objImg = {

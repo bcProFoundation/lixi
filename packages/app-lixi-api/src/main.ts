@@ -12,19 +12,24 @@ import 'winston-daily-rotate-file';
 import loggerConfig from './logger.config';
 import { join } from 'path';
 import { contentParser } from 'fastify-multer';
+import { fastifyCors, FastifyCorsOptions } from '@fastify/cors';
 import { FastifyHelmetOptions } from '@fastify/helmet';
+import _ from 'lodash';
 
-const allowedOrigins = [
+const whitelistOrigins = [
   process.env.SENDLOTUS_URL,
   process.env.BASE_URL,
   process.env.ABCPAY_URL,
   process.env.ABCPAY_SWAP_URL,
-  process.env.LOTUSTEMPLE_URL
+  process.env.LOTUSTEMPLE_URL,
+  process.env.LIXI_SOCIAL_URL
 ];
 
-async function bootstrap() {
-  const POST_LIMIT = 1024 * 100; /* Max POST 100 kb */
+function stripTrailingSlash(str: string) {
+  return str.replace(/\/$/, '');
+}
 
+async function bootstrap() {
   const fastifyAdapter = new FastifyAdapter({
     trustProxy: true
   });
@@ -49,19 +54,30 @@ async function bootstrap() {
     console.log(err);
   });
 
-  process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'local'
-    ? app.enableCors()
-    : app.enableCors({
-        credentials: true,
-        origin: function (origin, callback) {
-          if (!origin) return callback(null, true);
-          if (allowedOrigins.indexOf(origin) === -1) {
-            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-            return callback(new Error(msg), false);
-          }
-          return callback(null, true);
-        }
-      });
+  const allowedOrigins = _.compact(whitelistOrigins).map(origin => stripTrailingSlash(origin));
+
+  const corsOptions: FastifyCorsOptions = {
+    credentials: true,
+    origin:
+      process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'local'
+        ? ['*']
+        : function (origin, callback) {
+            if (!origin) return callback(null, true);
+            if (allowedOrigins.indexOf(stripTrailingSlash(origin)) === -1) {
+              const msg = `The CORS policy for this site does not allow access from the specified Origin. ${origin}`;
+              callback(new Error(msg), true);
+            } else {
+              callback(null, false);
+            }
+          },
+    exposedHeaders: ['Authorization'],
+    allowedHeaders: 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe, Origin, Account-Secret',
+    methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
+    preflightContinue: false,
+    optionsSuccessStatus: 200
+  };
+
+  app.register(fastifyCors, corsOptions);
 
   // Prisma
   const prismaService: PrismaService = app.get(PrismaService);
@@ -69,8 +85,8 @@ async function bootstrap() {
 
   // Swagger
   const config = new DocumentBuilder()
-    .setTitle('LixiLotus API')
-    .setDescription('The LixiLotus API description')
+    .setTitle('Lixi API')
+    .setDescription('The Lixi API description')
     .setVersion('0.1')
     .build();
   const document = SwaggerModule.createDocument(app, config);

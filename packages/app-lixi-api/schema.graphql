@@ -433,6 +433,7 @@ type Post {
   lotusBurnDown: Float!
   lotusBurnScore: Float!
   lotusBurnUp: Float!
+  originalLanguage: String
   page: Page
   pageId: String
   postAccount: Account!
@@ -442,6 +443,7 @@ type Post {
   token: Token
   tokenId: String
   totalComments: Int!
+  translations: [PostTranslation!]
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
@@ -502,6 +504,17 @@ enum PostOrderField {
 type PostResponse {
   edges: [PostMeiliEdge!]
   pageInfo: PostMeiliPageInfo
+}
+
+type PostTranslation {
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  id: ID!
+  translateContent: String!
+  translateLanguage: String!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
 }
 
 type Query {
@@ -817,6 +830,8 @@ input UpdatePostInput {
 
 type Upload {
   bucket: String
+  cfImageFilename: String
+  cfImageId: String
   height: String
   id: ID!
   sha: String!

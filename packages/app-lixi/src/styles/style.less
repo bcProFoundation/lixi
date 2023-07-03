@@ -105,6 +105,7 @@ code {
   .ant-modal-body {
     background: #fff;
     padding: 1rem 24px;
+    border-radius: 12px;
     position: relative;
   }
 
@@ -342,6 +343,7 @@ code {
 }
 
 .ant-modal {
+  top: 30px;
   @media (max-width: 768px) {
     top: 1% !important;
     margin-bottom: 7rem;
@@ -380,6 +382,22 @@ code {
         }
       }
     }
+  }
+}
+
+.post-detail-custom-modal {
+  @media (max-width: 968px) {
+    width: 80vw !important;
+    margin-bottom: 0 !important;
+  }
+  @media (max-width: 468px) {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  .ant-modal-body {
+    padding: 0;
   }
 }
 
@@ -1174,6 +1192,50 @@ code {
       background: var(--border-color-dark-base) !important;
     }
   }
+
+  // PostDetailModal
+  .post-detail-modal {
+    background: var(--bg-color-dark-item) !important;
+    .ant-layout-header,
+    .action-post-bar,
+    .comment-input-container {
+      background: var(--bg-color-dark-item) !important;
+      border-color: var(--border-color-dark-base) !important;
+    }
+    .anticon {
+      color: #fff;
+    }
+    .ant-image {
+      width: 100%;
+      background: var(--bg-color-dark-item) !important;
+    }
+    .ant-comment {
+      background: var(--bg-color-dark-item) !important;
+      .ant-comment-content-author-name {
+        a {
+          color: var(--text-color-primary-dark) !important;
+        }
+      }
+      .ant-comment-content-author-time {
+        span {
+          color: gray;
+        }
+      }
+      .ant-comment-content-detail {
+        color: var(--text-color-on-dark);
+      }
+    }
+    .images-post {
+      .react-photo-gallery--gallery > div {
+        background: var(--bg-color-dark-item) !important;
+      }
+    }
+  }
+
+  // editor
+  .EditorLexical_hashtag {
+    background-color: var(--color-primary) !important;
+  }
 }
 
 .popover-dark {
@@ -1288,6 +1350,12 @@ code {
         color: var(--text-color-primary-dark) !important;
       }
     }
+    &.un-read {
+      background: var(--border-color-dark-base) !important;
+    }
+    &.readed {
+      background: var(--bg-color-dark-item) !important;
+    }
   }
 }
 
@@ -1354,6 +1422,12 @@ code {
       .ant-comment-content-detail {
         color: var(--text-color-primary-dark) !important;
       }
+    }
+    &.un-read {
+      background: var(--border-color-dark-base) !important;
+    }
+    &.readed {
+      background: var(--bg-color-dark-item) !important;
     }
   }
 
@@ -2005,6 +2079,14 @@ code {
         .avatar-account {
           border-color: var(--color-primary) !important;
         }
+        .icon-quick-item {
+          img {
+            filter: invert(100%) sepia(1%) saturate(7498%) hue-rotate(258deg) brightness(100%) contrast(101%);
+          }
+        }
+        .title-item {
+          color: var(--text-color-primary-dark);
+        }
       }
 
       h3 {
@@ -2053,6 +2135,10 @@ code {
     .react-photo-gallery--gallery>div {
       background: var(--bg-color-dark-item) !important;
     }
+  }
+
+  .blank-notification {
+    color: var(--text-color-on-dark);
   }
 
   //Token Listing

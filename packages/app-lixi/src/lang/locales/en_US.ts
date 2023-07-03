@@ -34,16 +34,16 @@ export default {
   'text.createPageDescription':
     'Write about what your business does, the services that you provide or the purpose of the Page.',
   'text.post': 'this post',
-  'text.selectXpi': 'How many XPI you want to burn for {name}?',
+  'text.selectXpi': 'How many Dana do you want to offer?',
   'burn.selectXpi': 'Please select Xpi you want to burn for {name}',
-  'burn.youBurning': 'You are burning ',
+  'burn.youOffering': 'You are offering ',
   'burn.post': 'post',
   'burn.comment': 'comment',
   'burn.token': 'token',
   'burn.page': 'page',
   'burn.account': 'account',
   'burn.doneBurning': 'Burning completed!',
-  'burn.sendXpi': 'You will send ',
+  'burn.sendDana': "You will pay {cost} XPI (Excluding miner's fees).",
   'burn.owner': ' to {name} owner',
   'burn.feeMiner': "Miners' fees excluded",
 
@@ -89,7 +89,7 @@ export default {
   'general.manageInfo': 'Manage Info',
   'general.managePage': 'Manage Page',
   'general.manageNotifications': 'Manage Notifications',
-  'general.feedPage': 'Discover and connect with businesses on LixiLotus',
+  'general.feedPage': 'Discover and connect with businesses on Lixi',
   'general.subTitleEditPage': 'Change information your page',
   'general.subTitleClaimed': 'Detail of claimed',
   'general.notFoundTitle': 'Opp! Page not found',
@@ -97,8 +97,8 @@ export default {
   'general.goBackToHome': 'Go back',
   'general.searchResults': 'Search results for "{text}"',
   'general.post': 'Post',
-  'general.burnUp': 'Burn up',
-  'general.burnDown': 'Burn down',
+  'general.voteUp': 'Vote up',
+  'general.voteDown': 'Vote down',
   'general.more': 'More',
   'general.goodOrNot': 'Good or not? Burn for it',
   'general.customBurn': 'Custom burn',
@@ -113,8 +113,10 @@ export default {
   'general.fee': 'Fee: ',
   'general.createPost': 'What do you think?...',
   'general.suggested': 'Suggested: ',
-  'general.postFilter': 'Posts Filter: ',
   'general.open': 'Open',
+  'general.postFilter': 'Followed Posts: ',
+  'general.dana': ' Dana',
+  'general.support': 'Support',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Valid mnemonic seed phrase required',
@@ -407,10 +409,10 @@ export default {
   'onboarding.newAccount': 'New Account',
   'onboarding.importAccount': 'Import Account',
   'onboarding.import': 'Import',
-  'onboarding.welcomeToLotus': 'Welcome to LixiLotus!',
-  'onboarding.lixiLotusIntroduce1': 'LixiLotus is an open-source, non-custodial web wallet for Lotus.',
-  'onboarding.lixiLotusIntroduce2': 'LixiLotus allow you to giveaway your Lotus effortlessly.',
-  'onboarding.lixiLotusIntroduce3': 'To start, install LixiLotus to your device follow',
+  'onboarding.welcomeToLotus': 'Welcome to Lixi!',
+  'onboarding.lixiLotusIntroduce1': 'Lixi is an open-source, non-custodial web wallet for Lotus.',
+  'onboarding.lixiLotusIntroduce2': 'Lixi allow you to giveaway your Lotus effortlessly.',
+  'onboarding.lixiLotusIntroduce3': 'To start, install Lixi to your device follow',
   'onboarding.lixiLotusIntroduce4': 'the guide',
 
   /* 08.Envelope */
@@ -512,8 +514,8 @@ export default {
   'country.unablegetStates': 'Unable to get states',
 
   /* 15.Post */
-  'general.allPost': 'All',
-  'general.topPost': 'Top',
+  'general.allPost': 'On',
+  'general.topPost': 'Off',
   'post.createNewPage': 'Create new post',
   'post.createPost': 'Create post',
   'post.editPost': 'Edit unburnt post',
@@ -558,6 +560,9 @@ export default {
   'post.on': 'on',
   'post.insufficientFeeCreatePost': 'You need Lotus to perform this action.',
   'post.postTitle': 'Post',
+  'post.postBy': 'Post by',
+  'post.showTranslate': 'Show translation',
+  'post.hideTranslate': 'Hide translation',
 
   /* 16.Token */
   'token.importToken': 'Import token',

@@ -22,6 +22,7 @@ import Reaction from '@components/Common/Reaction';
 import PostContent from './PostContent';
 import ActionPostBar from '@components/Common/ActionPostBar';
 import { setSelectedPost } from '@store/post/actions';
+import PostTranslate from './PostTranslate';
 
 export const CommentList = ({ comments }: { comments: CommentItem[] }) => (
   <List
@@ -133,6 +134,22 @@ const Content = styled.div`
       margin: 0;
     }
   }
+  .description-translate {
+    font-weight: 400;
+    line-height: 20px;
+    text-align: left;
+    word-break: break-word;
+    border-left: var(--color-primary) 1px solid;
+    padding: 3px 3px 3px 6px;
+    margin-bottom: 1rem;
+    p {
+      font-size: 14px;
+      line-height: 22px;
+    }
+    .read-more-more-module_btn__33IaH {
+      font-size: 14px;
+    }
+  }
   .image-cover {
     width: 100%;
     max-height: 300px;
@@ -210,6 +227,14 @@ export const GroupIconText = styled.div`
   }
 `;
 
+const StyledTranslate = styled.div`
+  cursor: pointer;
+  color: var(--color-primary);
+  text-align: left;
+  margin-bottom: 5px;
+  font-size: 12px;
+`;
+
 const PostListItemContainer = styled(List.Item)`
   display: flex;
   flex-direction: column;
@@ -264,23 +289,15 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
   const post: PostItem = item;
   const [showMoreImage, setShowMoreImage] = useState(true);
   const [imagesList, setImagesList] = useState([]);
+  const [showTranslation, setShowTranslation] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
   const { width } = useWindowDimensions();
 
   useEffect(() => {
     const mapImages = item.uploads.map(img => {
-      //Resize img with Sha
       let imgSha = img.upload.sha;
-      // TODO: check root cause image rotate not correct
-      // let imgSha;
-      // if (!img.upload.sha800 || !img.upload.sha320 || !img.upload.sha40) {
-      //   imgSha = img.upload.sha;
-      // } else if (width <= 1200) {
-      //   imgSha = img.upload.sha320;
-      // } else if (width > 1200) {
-      //   imgSha = img.upload.sha800;
-      // }
-      const imgUrl = `${process.env.NEXT_PUBLIC_AWS_ENDPOINT}/${img.upload.bucket}/${imgSha}`;
+
+      const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.upload.cfImageId}/large`;
       let imgWidth = parseInt(img?.upload?.width) || 4;
       let height = parseInt(img?.upload?.height) || 3;
       let objImg = {
@@ -299,6 +316,10 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
   }, [width]);
 
   if (!post) return null;
+
+  const openPostDetailModal = (postData: any) => {
+    dispatch(openModal('PostDetailModal', { post: postData }));
+  };
 
   const handlePostClick = e => {
     if (e.target.className === 'hashtag-link') {
@@ -331,11 +352,12 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
 
       return;
     }
-    if (e.target.className === 'read-more-more-module_btn__33IaH') {
+    if (e.target.className === 'read-more-more-module_btn__33IaH' || e.target.className.includes('post-translation')) {
       e.stopPropagation();
     } else {
-      dispatch(setSelectedPost(post.id));
-      router.push(`/post/${post.id}`);
+      // dispatch(setSelectedPost(post.id));
+      // router.push(`/post/${post.id}`);
+      openPostDetailModal(post);
     }
   };
 
@@ -379,6 +401,10 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
     return '';
   };
 
+  const translatePost = () => {
+    setShowTranslation(!showTranslation);
+  };
+
   return (
     <PostListItemContainer className="post-list-item" key={post.id} ref={ref}>
       <CardContainer className="card-container-post">
@@ -403,6 +429,23 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
           <div className="description-post">
             <PostContent postContent={post.content} />
           </div>
+
+          {post.translations &&
+            post.translations.length > 0 &&
+            (showTranslation ? (
+              <StyledTranslate onClick={translatePost} className="post-translation">
+                {intl.get('post.hideTranslate')}
+              </StyledTranslate>
+            ) : (
+              <StyledTranslate onClick={translatePost} className="post-translation">
+                {intl.get('post.showTranslate')}
+              </StyledTranslate>
+            ))}
+          {showTranslation && post.translations && post.translations.length > 0 && (
+            <div className="description-translate">
+              <PostTranslate postTranslate={post.translations[0].translateContent} />
+            </div>
+          )}
           {item.uploads.length != 0 && !showMoreImage && (
             <div className="images-post">
               <Gallery photos={imagesList.length > 3 ? imagesList.slice(0, 3) : imagesList} />

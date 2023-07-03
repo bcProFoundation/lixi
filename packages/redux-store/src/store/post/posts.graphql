@@ -343,6 +343,8 @@ fragment PostFields on Post {
       sha800
       sha320
       sha40
+      cfImageId
+      cfImageFilename
     }
   }
   postAccount {
@@ -382,6 +384,12 @@ fragment PostFields on Post {
   createdAt
   updatedAt
   followPostOwner
+  originalLanguage
+  translations {
+    id
+    translateContent
+    translateLanguage
+  }
 }
 
 fragment PostMeiliFields on Post {
@@ -398,6 +406,8 @@ fragment PostMeiliFields on Post {
       sha800
       sha320
       sha40
+      cfImageId
+      cfImageFilename
     }
   }
   postAccount {
@@ -436,6 +446,12 @@ fragment PostMeiliFields on Post {
   totalComments
   createdAt
   updatedAt
+  originalLanguage
+  translations {
+    id
+    translateContent
+    translateLanguage
+  }
 }
 
 mutation createPost($input: CreatePostInput!) {
@@ -451,5 +467,5 @@ mutation updatePost($input: UpdatePostInput!) {
 }
 
 mutation repost($input: RepostInput!) {
-  repost(data: $input) 
+  repost(data: $input)
 }

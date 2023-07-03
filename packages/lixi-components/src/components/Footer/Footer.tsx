@@ -10,13 +10,13 @@ import _ from 'lodash';
 const StyledFooter = styled.div`
   border-top: 1px solid ${props => props.theme.wallet.borders.color};
   position: fixed;
+  z-index: 9;
   bottom: 0;
   width: 100%;
   padding: 0;
   background: #fff;
   justify-content: space-around;
   display: none;
-  z-index: 9999;
   max-height: 60px;
   @media (max-width: 968px) {
     display: flex;
@@ -63,7 +63,7 @@ const Footer = ({ notifications }: { notifications?: any }) => {
         <Link href="/notifications" passHref>
           <NavButton active={currentPathName == '/notifications'}>
             <Badge
-              count={notifications.filter(item => _.isNil(item.readAt)).length}
+              count={notifications.filter(item => item && _.isNil(item.readAt)).length}
               overflowCount={9}
               offset={[notifications?.length < 10 ? 0 : 5, 8]}
               color="var(--color-primary)"

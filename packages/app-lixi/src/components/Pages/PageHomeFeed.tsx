@@ -47,9 +47,6 @@ const StyledPageFeed = styled.div`
       border-radius: 100px;
     }
   }
-  @media (max-width: 960px) {
-    padding-bottom: 7rem;
-  }
 `;
 
 const BlankPage = styled.div`
@@ -221,11 +218,7 @@ const CardPageItem = ({ item, onClickItem }: { item?: CardPageItem; onClickItem?
           {item.index ? '#' + item.index : ''} {item.name}
         </h3>
         <p className="page-category">{item.category}</p>
-        <p className="sub-text">
-          {item.totalBurnForPage > 0
-            ? `${item.totalBurnForPage} ${intl.get('page.xpiHasBurned')}`
-            : intl.get('page.noXpiHasBurned')}
-        </p>
+        <p className="sub-text">{item.totalBurnForPage + intl.get('general.dana')}</p>
       </div>
     </div>
   </StyledCardPage>

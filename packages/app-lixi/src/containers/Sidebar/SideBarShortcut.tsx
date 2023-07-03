@@ -23,6 +23,8 @@ import { stripHtml } from 'string-strip-html';
 import moment from 'moment';
 import { currency } from '@components/Common/Ticker';
 import { toggleCollapsedSideNav } from '@store/settings/actions';
+import { LeftOutlined } from '@ant-design/icons';
+import { setSelectedPost } from '@store/post/actions';
 
 const { Sider } = Layout;
 
@@ -48,6 +50,35 @@ export const ItemAccess = ({
           <img src={icon} />
         </div>
         {text && <span className="text-item">{text}</span>}
+      </Space>
+    </div>
+  );
+};
+
+export const ItemQuickAccess = ({
+  icon,
+  text,
+  direction,
+  isCollapse,
+  onClickItem
+}: {
+  icon: string;
+  text?: string;
+  direction?: string;
+  isCollapse?: boolean;
+  onClickItem?: () => void;
+}) => {
+  return (
+    <div onClick={onClickItem}>
+      <Space
+        direction={direction === 'horizontal' ? 'horizontal' : 'vertical'}
+        className={'item-quick-access'}
+        style={{ padding: isCollapse ? '0' : '' }}
+      >
+        <div className={classNames('icon-quick-item')}>
+          <img src={icon} />
+        </div>
+        {!isCollapse && text && <span className="title-item">{text}</span>}
       </Space>
     </div>
   );
@@ -199,6 +230,11 @@ export const ContainerAccess = styled.div`
       }
     }
     .social-digest {
+      .header-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+      }
       padding: 0 0.5rem;
       width: 100%;
       text-align: left;
@@ -206,6 +242,39 @@ export const ContainerAccess = styled.div`
       h3 {
         padding: 1rem 0;
         margin: 0;
+      }
+    }
+    .item-quick-access {
+      width: 100%;
+      gap: 8px !important;
+      padding: 0 8px;
+      border: 1px solid var(--border-color-base);
+      cursor: pointer;
+      margin-bottom: 0.5rem;
+      border-radius: 8px;
+      .icon-quick-item {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        img {
+          width: 25px;
+          height: 25px;
+        }
+      }
+      .title-item {
+        font-size: 14px;
+        font-weight: 500;
+      }
+      &:hover {
+        border-color: var(--color-primary);
+        img {
+          filter: var(--filter-color-primary) !important;
+        }
+        .title-item {
+          color: var(--color-primary);
+        }
       }
     }
   }
@@ -231,6 +300,11 @@ const ShortcutSideBar = styled(Sider)`
   box-shadow: 0 0 30px rgb(80 181 255 / 5%);
   min-width: 300px !important;
   max-width: 300px !important;
+  -ms-overflow-style: none; // Internet Explorer 10+
+  scrollbar-width: none; // Firefox
+  ::-webkit-scrollbar {
+    display: none; // Safari and Chrome
+  }
   // &::-webkit-scrollbar {
   //   width: 5px;
   // }
@@ -316,6 +390,7 @@ const SpaceShorcutItem = styled(Space)`
         margin: 0;
         text-align: left;
         line-height: 16px;
+        word-break: break-word;
       }
       .page-name {
         font-size: 14px;
@@ -434,6 +509,7 @@ const SidebarShortcut = () => {
   const navCollapsed = useAppSelector(getNavCollapsed);
   const router = useRouter();
   const currentPathName = router.pathname ?? '';
+  const [notificationsSelected, setNotificationsSelected] = useState([]);
   const notifications = useAppSelector(getAllNotifications);
   const filterValue = useAppSelector(getFilterPostsHome);
   const selectedAccountId = useAppSelector(getSelectedAccountId);
@@ -443,7 +519,7 @@ const SidebarShortcut = () => {
 
   const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext } = useInfinitePostsQuery(
     {
-      first: 30,
+      first: 50,
       minBurnFilter: filterValue,
       accountId: selectedAccountId ?? null,
       orderBy: [
@@ -563,9 +639,24 @@ const SidebarShortcut = () => {
             {!navCollapsed && (
               <>
                 <div className="social-digest">
-                  <h3>Digest</h3>
+                  <div className="header-bar">
+                    <h3>Digest</h3>
+                    <Button
+                      type="primary"
+                      className="no-border-btn animate__animated animate__heartBeat"
+                      icon={<LeftOutlined />}
+                      onClick={handleMenuClick}
+                    />
+                  </div>
+                  <ItemQuickAccess
+                    icon={'/images/ico-newfeeds.svg'}
+                    text={'Feeds'}
+                    direction="horizontal"
+                    isCollapse={navCollapsed}
+                    onClickItem={() => handleIconClick('/')}
+                  />
                   {filterGroup.map(item => {
-                    return <ShortCutItem item={item} onClickIcon={path => router.push(pathShortcutItem(item, path))} />;
+                    return <ShortCutItem item={item} onClickIcon={() => dispatch(setSelectedPost(item.id))} />;
                   })}
                 </div>
               </>
@@ -573,15 +664,28 @@ const SidebarShortcut = () => {
             {navCollapsed && (
               <>
                 <h3 style={{ marginBottom: '0' }} onClick={handleMenuClick}>
-                  <img width={22} height={22} src="/images/ico-hambuger.svg" alt="" />
+                  <img
+                    className="animate__animated animate__heartBeat"
+                    width={22}
+                    height={22}
+                    src="/images/ico-hambuger.svg"
+                    alt=""
+                  />
                 </h3>
                 <div className="social-feature" style={{ padding: navCollapsed ? '0.5rem' : '1rem' }}>
+                  <ItemQuickAccess
+                    icon={'/images/ico-newfeeds.svg'}
+                    text={'Feeds'}
+                    direction="horizontal"
+                    isCollapse={navCollapsed}
+                    onClickItem={() => handleIconClick('/')}
+                  />
                   {filterGroup.map(item => {
                     return (
                       <ShortCutItem
                         item={item}
                         isCollapse={navCollapsed}
-                        onClickIcon={path => router.push(pathShortcutItem(item, path))}
+                        onClickIcon={() => dispatch(setSelectedPost(item.id))}
                       />
                     );
                   })}

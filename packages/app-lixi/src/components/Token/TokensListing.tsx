@@ -88,9 +88,6 @@ const StyledTokensListing = styled.div`
       }
     }
   }
-  @media (max-width: 768px) {
-    padding-bottom: 7rem;
-  }
   .ant-btn {
     background: none !important;
     &:hover {
@@ -362,7 +359,7 @@ const TokensListing = () => {
       )
     },
     {
-      title: intl.get('label.burnXPI'),
+      title: intl.get('general.dana'),
       key: 'lotusBurn',
       sorter: ({ node: a }, { node: b }) => a.lotusBurnScore - b.lotusBurnScore,
       defaultSortOrder: 'descend',

@@ -1,6 +1,7 @@
 import {
   AppstoreOutlined,
   BellOutlined,
+  CheckCircleOutlined,
   FilterOutlined,
   HomeOutlined,
   SwapOutlined,
@@ -32,6 +33,7 @@ import React, { useEffect, useState } from 'react';
 import intl from 'react-intl-universal';
 import { fromSmallestDenomination } from 'src/utils/cashMethods';
 import styled from 'styled-components';
+import useWindowDimensions from '@hooks/useWindowDimensions';
 
 export type TopbarProps = {
   className?: string;
@@ -43,6 +45,13 @@ const PathDirection = styled.div`
   align-items: center;
   @media (max-width: 960px) {
     gap: 0;
+    .logo-app {
+      width: 60px;
+      height: 60px;
+    }
+  }
+  .logo-app-desktop {
+    padding: 1rem 0.5rem;
   }
   h3 {
     text-transform: capitalize;
@@ -58,6 +67,13 @@ const PathDirection = styled.div`
     margin-left: 6px;
     @media (max-width: 960px) {
       display: block;
+    }
+  }
+
+  .path-direction-text {
+    margin-left: 0.5rem;
+    @media (max-width: 960px) {
+      margin-left: 0;
     }
   }
 
@@ -150,6 +166,9 @@ const AccountBox = styled.div`
         }
       }
     }
+    &:last-child {
+      margin-bottom: 1rem;
+    }
   }
 `;
 
@@ -217,6 +236,7 @@ const BadgeStyled = styled(Badge)`
     min-width: 10px !important;
     height: 10px !important;
     margin-top: 0 !important;
+    right: 0px !important;
   }
   .ant-scroll-number-only {
     display: none !important;
@@ -233,16 +253,25 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
   const selectedAccount = useAppSelector(getSelectedAccount);
   const router = useRouter();
   const currentPathName = router.pathname ?? '';
+  const currentAbsolutePathName = router.asPath ?? '';
   const pathDirection = currentPathName.split('/', 2);
   const filterValue = useAppSelector(getFilterPostsHome);
   const selectedAccountId = useAppSelector(getSelectedAccountId);
   const notifications = useAppSelector(getAllNotifications);
   const [searchValue, setSearchValue] = useState<string | null>(null);
   const [hashtags, setHashtags] = useState([]);
+  const [openMoreOption, setOpenMoreOption] = useState(false);
   const [otherAccounts, setOtherAccounts] = useState<Account[]>([]);
   const savedAccounts: Account[] = useAppSelector(getAllAccounts);
   let isTop = useAppSelector(getIsTopPosts);
   const currentTheme = useAppSelector(getCurrentThemes);
+  const [isMobile, setIsMobile] = useState(false);
+  const { width } = useWindowDimensions();
+
+  useEffect(() => {
+    const isMobile = width < 968 ? true : false;
+    setIsMobile(isMobile);
+  }, [width]);
 
   useEffect(() => {
     if (selectedAccount) {
@@ -345,6 +374,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
     } else {
       dispatch(push(newPath));
     }
+    setOpenMoreOption(false);
   };
 
   const HandleMenuPosts = (checked: boolean) => {
@@ -372,29 +402,53 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
     </>
   );
 
+  const balanceAccount = (acc?: any) => {
+    let balanceString;
+    let amount;
+    acc?.balance && acc?.balance > 0 ? (amount = acc?.balance) : (amount = 0);
+    balanceString = amount > 0 ? `~ ${fromSmallestDenomination(amount).toFixed(2)}` : `0`;
+    return balanceString;
+  };
+
   const contentSelectAccount = (
     <AccountBox>
-      <h3>Switch accounts</h3>
-      {otherAccounts &&
-        otherAccounts.map((acc, index) => {
-          return (
-            <div className="sub-account" key={index}>
-              <div className="sub-account-info">
-                <p className="name">{acc?.name}</p>
-                <p className="address">~{fromSmallestDenomination(acc?.balance).toFixed(2)} XPI</p>
-              </div>
-              <Button
-                type="primary"
-                className="outline-btn"
-                icon={<UserSwitchOutlined />}
-                onClick={() => {
-                  dispatch(selectAccount(acc.id));
-                }}
-              ></Button>
+      {isMobile && (
+        <>
+          <h3>Current Accounts</h3>
+          <div className="sub-account" style={{ marginTop: '0', marginBottom: '1rem' }}>
+            <div className="sub-account-info">
+              <p className="name">{selectedAccount?.name}</p>
+              <p className="address">{balanceAccount(selectedAccount)} XPI</p>
             </div>
-          );
-        })}
-      <h3>Switch Theme</h3>
+            <Button type="primary" className="no-border-btn" icon={<CheckCircleOutlined />}></Button>
+          </div>
+        </>
+      )}
+      {otherAccounts.length > 0 && (
+        <>
+          <h3>Switch Accounts</h3>
+          {otherAccounts &&
+            otherAccounts.map((acc, index) => {
+              return (
+                <div className="sub-account" key={index}>
+                  <div className="sub-account-info">
+                    <p className="name">{acc?.name}</p>
+                    <p className="address">{balanceAccount(acc)} XPI</p>
+                  </div>
+                  <Button
+                    type="primary"
+                    className="outline-btn"
+                    icon={<UserSwitchOutlined />}
+                    onClick={() => {
+                      dispatch(selectAccount(acc.id));
+                    }}
+                  ></Button>
+                </div>
+              );
+            })}
+        </>
+      )}
+      <h3 style={{ marginTop: otherAccounts.length > 0 ? '1rem' : '' }}>Switch Theme</h3>
       <Button
         type="primary"
         className="outline-btn"
@@ -411,19 +465,13 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
   const contentMoreAction = (
     <PopoverStyled>
       <div className="social-menu">
-        <h3>Socical</h3>
-        <ItemAccess
-          icon={'/images/ico-newfeeds.svg'}
-          text={intl.get('general.newsfeed')}
-          active={currentPathName === '/' || currentPathName.includes('/post')}
-          direction="horizontal"
-          key="home"
-          onClickItem={() => handleIconClick('/')}
-        />
+        <h3>Social</h3>
         <ItemAccess
           icon={'/images/ico-page.svg'}
           text={intl.get('general.page')}
-          active={currentPathName.includes('/page')}
+          active={
+            currentPathName.includes('/page') && !currentAbsolutePathName.includes('page/clbm6r1v91486308n7w6za1qcu')
+          }
           direction="horizontal"
           key="page-feed"
           onClickItem={() => handleIconClick('/page/feed')}
@@ -435,6 +483,14 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
           direction="horizontal"
           key="notifications"
           onClickItem={() => handleIconClick('/notifications')}
+        />
+        <ItemAccess
+          icon={'/images/ico-support.png'}
+          text={intl.get('general.support')}
+          active={currentAbsolutePathName.includes('page/clbm6r1v91486308n7w6za1qcu')}
+          direction="horizontal"
+          key="support"
+          onClickItem={() => handleIconClick('/page/clbm6r1v91486308n7w6za1qcu')}
         />
       </div>
       <div className="social-feature">
@@ -475,6 +531,11 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
     </PopoverStyled>
   );
 
+  // <Header
+  //     style={{ boxShadow: 'none', position: 'fixed', zIndex: '999', top: 0, width: '100%' }}
+  //     className={className}
+  //   >
+
   return (
     <Header style={{ boxShadow: '0 10px 30px rgb(0 0 0 / 5%)' }} className={className}>
       <PathDirection>
@@ -482,16 +543,17 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
         {currentPathName == '/' && (
           <picture>
             <img
+              className={`${isMobile ? '' : 'logo-app-desktop'} logo-app`}
               height={'64px'}
-              src="/images/lixilotus-logo.svg"
+              src={`${isMobile ? '/images/lixilotus-logo.svg' : '/images/lixilotus-text.svg'}`}
               alt="lixilotus-logo"
               onClick={() => handleLogoClick()}
             />
           </picture>
         )}
-        <div
+        {/* <div
           onClick={handleMenuClick}
-          style={{ marginLeft: currentPathName == '/' ? '4rem' : '2rem' }}
+          style={{ marginLeft: currentPathName == '/' ? '2rem' : '0.5rem' }}
           className="menu-hamburger"
         >
           <input className="checkbox" type="checkbox" name="" id="" checked={navCollapsed} />
@@ -500,8 +562,8 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
             <span className="line line2"></span>
             <span className="line line3"></span>
           </div>
-        </div>
-        {pathDirection[1] != '' && <h3>{pathDirection[1]}</h3>}
+        </div> */}
+        {pathDirection[1] != '' && <h3 className="path-direction-text">{pathDirection[1]}</h3>}
       </PathDirection>
       <div className="filter-bar">
         <SearchBox />
@@ -529,7 +591,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
             placement="bottom"
           >
             <BadgeStyled
-              count={notifications.filter(item => _.isNil(item.readAt)).length}
+              count={notifications.filter(item => _.isNil(item.readAt)).length > 0 ? 1 : null}
               overflowCount={9}
               offset={[notifications?.length < 10 ? 0 : 5, 8]}
               color="var(--color-primary)"
@@ -538,10 +600,12 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
             </BadgeStyled>
           </Popover>
           <Popover
+            onOpenChange={visible => setOpenMoreOption(visible)}
             overlayClassName={`${currentTheme ? 'popover-dark' : ''} more-btn`}
             arrow={false}
             content={contentMoreAction}
             placement="bottom"
+            open={openMoreOption}
           >
             <Button className="animate__animated animate__heartBeat" type="text" icon={<AppstoreOutlined />} />
           </Popover>
@@ -557,7 +621,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
             <p className="account-info">
               <span className="account-name">{selectedAccount?.name}</span>
               <span className="account-balance">
-                ~ {fromSmallestDenomination(selectedAccount?.balance).toFixed(2)} <span className="unit">XPI</span>
+                {balanceAccount(selectedAccount)} <span className="unit">XPI</span>
               </span>
             </p>
           </Popover>

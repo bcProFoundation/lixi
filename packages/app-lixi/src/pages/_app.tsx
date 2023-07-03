@@ -30,7 +30,7 @@ const PersistGateServer = (props: any) => {
 const getDescription = (postAsString): string => {
   const post = JSON.parse(postAsString);
 
-  return `${post.postAccount.name} at LixiLotus: "${stripHtml(post.content).result}"`;
+  return `${post.postAccount.name} at Lixi: "${stripHtml(post.content).result}"`;
 };
 
 const getSitename = (postAsString): string => {
@@ -49,7 +49,7 @@ const LixiApp = ({ Component, ...rest }) => {
 
   const canonicalUrl = postId ? process.env.NEXT_PUBLIC_LIXI_URL + `post/${postId}` : process.env.NEXT_PUBLIC_LIXI_URL;
   const description = postId ? getDescription(postAsString) : 'Save your attention save the world!';
-  const sitename = postId ? getSitename(postAsString) : 'lixilotus.com';
+  const sitename = postId ? getSitename(postAsString) : 'lixi.social';
 
   // const router = useRouter();
 
@@ -63,20 +63,20 @@ const LixiApp = ({ Component, ...rest }) => {
   return (
     <Provider store={store}>
       <Head>
-        <title>LixiLotus</title>
+        <title>Lixi</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
         {/*This is for sharing on telegram. If didnt work remove next commit*/}
         <meta name="twitter:image:src" content={defaultImage} />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
       </Head>
       <NextSeo
-        title="LixiLotus"
+        title="Lixi"
         description="The lixi program send you a small gift ."
         canonical={canonicalUrl}
         openGraph={{
           type: 'website',
           url: canonicalUrl,
-          title: 'LixiLotus',
+          title: 'Lixi',
           description: description,
           images: [
             {
