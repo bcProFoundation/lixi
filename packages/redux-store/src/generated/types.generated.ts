@@ -1396,6 +1396,8 @@ export type UpdatePostInput = {
 export type Upload = {
   __typename?: 'Upload';
   bucket?: Maybe<Scalars['String']>;
+  cfImageFilename?: Maybe<Scalars['String']>;
+  cfImageId?: Maybe<Scalars['String']>;
   height?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   sha: Scalars['String'];
