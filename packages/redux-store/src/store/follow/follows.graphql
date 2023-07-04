@@ -99,6 +99,7 @@ query allPagesByFollower(
   $first: Int = 20
   $last: Int
   $skip: Int
+  $pagesOnly: Boolean
 ) {
   allPagesByFollower(
     after: $after
@@ -106,6 +107,7 @@ query allPagesByFollower(
     first: $first
     last: $last
     skip: $skip
+    pagesOnly: $pagesOnly
   ) {
     totalCount
     edges {

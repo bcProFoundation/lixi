@@ -35,6 +35,7 @@ const { selectAll, selectEntities, selectIds, selectTotal } = followPagesAdapter
 interface PageListByIdParams extends PaginationArgs {
   orderBy?: PageOrder;
   id?: number;
+  pagesOnly?: boolean;
 }
 
 export function useInfinitePagesByFollowerIdQuery(

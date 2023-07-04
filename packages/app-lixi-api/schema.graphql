@@ -540,7 +540,7 @@ type Query {
   allHashtagByToken(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: HashtagOrder, skip: Int): HashtagConnection!
   allOrphanPosts(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PostOrder, query: String, skip: Int): PostConnection!
   allPages(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: [PageOrder!], query: String, skip: Int): PageConnection!
-  allPagesByFollower(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): FollowPageConnection!
+  allPagesByFollower(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, pagesOnly: Boolean, skip: Int): FollowPageConnection!
   allPagesByUserId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageOrder, skip: Int): PageConnection!
   allPosts(accountId: Int, after: String, before: String, first: Int, isTop: String, last: Int, minBurnFilter: Int, orderBy: [PostOrder!], skip: Int): PostConnection!
   allPostsByHashtagId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!

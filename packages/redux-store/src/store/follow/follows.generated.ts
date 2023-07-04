@@ -163,6 +163,7 @@ export type AllPagesByFollowerQueryVariables = Types.Exact<{
   first?: Types.InputMaybe<Types.Scalars['Int']>;
   last?: Types.InputMaybe<Types.Scalars['Int']>;
   skip?: Types.InputMaybe<Types.Scalars['Int']>;
+  pagesOnly?: Types.InputMaybe<Types.Scalars['Boolean']>;
 }>;
 
 export type AllPagesByFollowerQuery = {
@@ -377,13 +378,14 @@ export const CheckIfFollowPageDocument = `
 }
     `;
 export const AllPagesByFollowerDocument = `
-    query allPagesByFollower($after: String, $before: String, $first: Int = 20, $last: Int, $skip: Int) {
+    query allPagesByFollower($after: String, $before: String, $first: Int = 20, $last: Int, $skip: Int, $pagesOnly: Boolean) {
   allPagesByFollower(
     after: $after
     before: $before
     first: $first
     last: $last
     skip: $skip
+    pagesOnly: $pagesOnly
   ) {
     totalCount
     edges {

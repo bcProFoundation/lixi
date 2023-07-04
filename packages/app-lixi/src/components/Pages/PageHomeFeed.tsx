@@ -273,7 +273,8 @@ const PageHome = () => {
   } = useInfinitePagesByFollowerIdQuery(
     {
       first: 10,
-      id: selectedAccountId
+      id: selectedAccountId,
+      pagesOnly: true
     },
     false
   );
@@ -392,9 +393,10 @@ const PageHome = () => {
                     scrollableTarget="scrollableDiv"
                   >
                     {pageFollowings.map((item, index) => {
+                      const { page } = item;
                       return (
                         <React.Fragment key={index}>
-                          <CardPageItem item={mapPageItem(item)} onClickItem={id => routerPageDetail(id)} />
+                          <CardPageItem item={mapPageItem(page)} onClickItem={id => routerPageDetail(id)} />
                         </React.Fragment>
                       );
                     })}
