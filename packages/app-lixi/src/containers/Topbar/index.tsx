@@ -233,9 +233,12 @@ const PopoverStyled = styled.div`
 `;
 
 const TitleFilterStyled = styled.span`
-  display: flex;
-  align-item: center;
-  gap: 0.3rem;
+  svg {
+    width: 12px;
+    height: 12px;
+    filter: invert(50%) sepia(12%) saturate(19%) hue-rotate(251deg) brightness(92%) contrast(85%);
+    margin-right: 7px;
+  }
 `;
 
 const BadgeStyled = styled(Badge)`
@@ -395,8 +398,8 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
       {router?.pathname == '/' && (
         <PopoverStyled>
           <TitleFilterStyled>
-            {intl.get('general.postFilter')} 
-            <Icon component={FollowSvg} />
+            {intl.get('general.postFilter')}
+            <Icon component={() => <FollowSvg />} />
             <Switch
               checkedChildren={intl.get('general.on')}
               unCheckedChildren={intl.get('general.off')}
