@@ -153,8 +153,12 @@ const StyledContainerPostDetail = styled.div`
   height: fit-content;
   max-height: 92vh;
   overflow: auto;
-  scrollbar-width: none;
   border-radius: 1rem;
+  -ms-overflow-style: none; // Internet Explorer 10+
+  scrollbar-width: none; // Firefox
+  ::-webkit-scrollbar {
+    display: none; // Safari and Chrome
+  }
   // &::-webkit-scrollbar {
   //   width: 5px;
   // }
@@ -166,10 +170,6 @@ const StyledContainerPostDetail = styled.div`
 
   @media (max-width: 968px) {
     max-height: 90vh;
-  }
-
-  @media (max-width: 468px) {
-    max-height: 100vh;
   }
 
   header {
@@ -245,7 +245,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
 
   useEffect(() => {
     const mapImages = post.uploads.map(img => {
-      const imgUrl = `${process.env.NEXT_PUBLIC_AWS_ENDPOINT}/${img.upload.bucket}/${img.upload.sha}`;
+      const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.upload.cfImageId}/public`;
       let width = parseInt(img?.upload?.width) || 4;
       let height = parseInt(img?.upload?.height) || 3;
       let objImg = {
