@@ -3,7 +3,10 @@ fragment MessageFields on Message {
   body
   author {
     id
+    name
+    address
   }
+  messageSessionId
   isPageOwner
   createdAt
   updatedAt

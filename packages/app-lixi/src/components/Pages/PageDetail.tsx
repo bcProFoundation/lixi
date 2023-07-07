@@ -52,7 +52,15 @@ import styled from 'styled-components';
 import { PageQuery } from '@store/page/pages.generated';
 import { useRepostMutation } from '@store/post/posts.api';
 import _ from 'lodash';
-import PageMessage from '@components/PageMessage';
+import PageMessage from '@components/PageMessage/PageMessageForOwner';
+import {
+  pageOwnerSubcribeToPageChannel,
+  startChannel,
+  stopChannel,
+  userSubcribeToMessageSession
+} from '@store/message/actions';
+import PageMessageForOwner from '@components/PageMessage/PageMessageForOwner';
+import PageMessageForUser from '@components/PageMessage/PageMessageForUser';
 
 export type PageItem = PageQuery['page'];
 
@@ -364,7 +372,6 @@ const StyledMenu = styled(Tabs)`
   width: 100%;
   // TODO: Display none to hide tabs untill add more option tabs
   .ant-tabs-nav {
-    display: none;
     border-bottom-right-radius: 20px;
     border-bottom-left-radius: 20px;
     padding: 1rem 24px;
@@ -437,6 +444,26 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const [hashtags, setHashtags] = useState<any>([]);
 
   useEffect(() => {
+    dispatch(startChannel());
+
+    return () => {
+      stopChannel();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (page.pageAccount.address === selectedAccount.address) {
+      dispatch(pageOwnerSubcribeToPageChannel(page.id));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (router.query.q) {
+      setQuery(router.query.q);
+    } else {
+      setQuery(null);
+    }
+
     if (router.query.hashtags) {
       setHashtags((router.query.hashtags as string).split(' '));
     } else {
@@ -1003,7 +1030,11 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
             {/* <Tabs.TabPane tab="Friend" key="friend"></Tabs.TabPane>
             <Tabs.TabPane tab="Picture" key="picture"></Tabs.TabPane> */}
             <Tabs.TabPane tab="Message" key="message">
-              <PageMessage page={page} />
+              {page.pageAccount.address === selectedAccount.address ? (
+                <PageMessageForOwner page={page} />
+              ) : (
+                <PageMessageForUser page={page} account={selectedAccount} />
+              )}
             </Tabs.TabPane>
           </StyledMenu>
         </ProfileContentContainer>

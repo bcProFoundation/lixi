@@ -170,6 +170,7 @@ export type CreateMessageInput = {
   body: Scalars['String'];
   isPageOwner?: InputMaybe<Scalars['Boolean']>;
   messageSessionId: Scalars['String'];
+  pageMessageSessionId: Scalars['String'];
 };
 
 export type CreatePageInput = {
@@ -412,6 +413,7 @@ export type Message = {
   createdAt?: Maybe<Scalars['DateTime']>;
   id: Scalars['ID'];
   isPageOwner?: Maybe<Scalars['Boolean']>;
+  messageSessionId: Scalars['String'];
   /** Identifies the date and time when the object was last updated. */
   updatedAt?: Maybe<Scalars['DateTime']>;
 };
@@ -827,6 +829,7 @@ export type Query = {
   post: Post;
   temple: Temple;
   token: Token;
+  userHadMessageToPage: PageMessageSession;
   worship: Worship;
   worshipedPerson: WorshipedPerson;
 };
@@ -1032,6 +1035,7 @@ export type QueryAllPostsBySearchWithHashtagArgs = {
   minBurnFilter?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<PostOrder>;
   query?: InputMaybe<Scalars['String']>;
+  skip?: InputMaybe<Scalars['Int']>;
 };
 
 export type QueryAllPostsBySearchWithHashtagAtPageArgs = {
@@ -1214,6 +1218,11 @@ export type QueryTempleArgs = {
 
 export type QueryTokenArgs = {
   tokenId: Scalars['String'];
+};
+
+export type QueryUserHadMessageToPageArgs = {
+  accountId?: InputMaybe<Scalars['Int']>;
+  pageId?: InputMaybe<Scalars['String']>;
 };
 
 export type QueryWorshipArgs = {

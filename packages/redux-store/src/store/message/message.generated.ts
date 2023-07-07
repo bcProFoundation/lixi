@@ -20,10 +20,11 @@ export type MessageFieldsFragment = {
   __typename?: 'Message';
   id: string;
   body: string;
+  messageSessionId: string;
   isPageOwner?: boolean | null;
   createdAt?: any | null;
   updatedAt?: any | null;
-  author: { __typename?: 'Account'; id: string };
+  author: { __typename?: 'Account'; id: string; name: string; address: string };
 };
 
 export type MessageQueryVariables = Types.Exact<{
@@ -36,10 +37,11 @@ export type MessageQuery = {
     __typename?: 'Message';
     id: string;
     body: string;
+    messageSessionId: string;
     isPageOwner?: boolean | null;
     createdAt?: any | null;
     updatedAt?: any | null;
-    author: { __typename?: 'Account'; id: string };
+    author: { __typename?: 'Account'; id: string; name: string; address: string };
   };
 };
 
@@ -65,10 +67,11 @@ export type MessageByMessageSessionIdQuery = {
         __typename?: 'Message';
         id: string;
         body: string;
+        messageSessionId: string;
         isPageOwner?: boolean | null;
         createdAt?: any | null;
         updatedAt?: any | null;
-        author: { __typename?: 'Account'; id: string };
+        author: { __typename?: 'Account'; id: string; name: string; address: string };
       };
     }> | null;
     pageInfo: {
@@ -91,10 +94,11 @@ export type CreateMessageMutation = {
     __typename?: 'Message';
     id: string;
     body: string;
+    messageSessionId: string;
     isPageOwner?: boolean | null;
     createdAt?: any | null;
     updatedAt?: any | null;
-    author: { __typename?: 'Account'; id: string };
+    author: { __typename?: 'Account'; id: string; name: string; address: string };
   };
 };
 
@@ -104,7 +108,10 @@ export const MessageFieldsFragmentDoc = `
   body
   author {
     id
+    name
+    address
   }
+  messageSessionId
   isPageOwner
   createdAt
   updatedAt

@@ -69,7 +69,14 @@ export class PageMessageSessionResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.pageMessageSession.findMany({
-          include: { messageSessions: true },
+          include: {
+            messageSessions: {
+              orderBy: {
+                createdAt: 'desc'
+              }
+            },
+            account: true
+          },
           where: {
             pageId: id
           },
@@ -119,6 +126,36 @@ export class PageMessageSessionResolver {
     return result;
   }
 
+  //This is for user only
+  @Query(() => PageMessageSession)
+  async userHadMessageToPage(
+    @Args({ name: 'accountId', type: () => Number, nullable: true }) accountId: number,
+    @Args({ name: 'pageId', type: () => String, nullable: true }) pageId: string
+  ) {
+    const result = await this.prisma.pageMessageSession.findFirst({
+      include: {
+        account: true,
+        page: true,
+        messageSessions: {
+          orderBy: {
+            createdAt: 'desc'
+          }
+        }
+      },
+      where: {
+        AND: [
+          {
+            accountId: accountId
+          },
+          {
+            pageId: pageId
+          }
+        ]
+      }
+    });
+    return result;
+  }
+
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => PageMessageSession)
   async createPageMessageSession(@AccountEntity() account: Account, @Args('data') data: CreatePageMessageInput) {
@@ -129,14 +166,40 @@ export class PageMessageSessionResolver {
 
     const { accountId, pageId } = data;
 
-    const message = await this.prisma.pageMessageSession.create({
-      data: {
-        account: { connect: { id: accountId } },
-        page: { connect: { id: pageId } }
+    //check if exsited else create new
+    const pageMessageSessionExsited = await this.prisma.pageMessageSession.findFirst({
+      where: {
+        AND: [
+          {
+            accountId: accountId
+          },
+          {
+            pageId: pageId
+          }
+        ]
       }
     });
 
-    return message;
+    if (!pageMessageSessionExsited) {
+      const result = await this.prisma.pageMessageSession.create({
+        include: {
+          page: true,
+          account: true,
+          messageSessions: true
+        },
+        data: {
+          account: { connect: { id: accountId } },
+          page: { connect: { id: pageId } },
+          messageSessions: {
+            create: {}
+          }
+        }
+      });
+
+      this.messageGateway.publishPageChannel(pageId, result);
+
+      return result;
+    }
   }
 
   // @UseGuards(GqlJwtAuthGuard)
@@ -292,11 +355,21 @@ export class PageMessageSessionResolver {
 
   @ResolveField()
   async messageSessions(@Parent() pageMessageSession: PageMessageSession) {
-    const messageSessions = this.prisma.messageSession.findFirst({
+    const messageSessions = await this.prisma.messageSession.findMany({
       where: {
         pageMessageSessionId: pageMessageSession.id
       }
     });
     return messageSessions;
+  }
+
+  @ResolveField()
+  async account(@Parent() pageMessageSession: PageMessageSession) {
+    const account = await this.prisma.account.findFirst({
+      where: {
+        id: pageMessageSession.account!.id
+      }
+    });
+    return account;
   }
 }

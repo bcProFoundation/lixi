@@ -1,24 +1,23 @@
-import { AccountDto as Account, NotificationDto } from '@bcpros/lixi-models';
-import { currency } from '@components/Common/Ticker';
 import { all, call, cancelled, fork, put, select, take, takeLatest } from '@redux-saga/core/effects';
-import { PayloadAction } from '@reduxjs/toolkit';
-import { getSelectedAccount } from '@store/account/selectors';
-import { notification } from 'antd';
-import { ArgsProps } from 'antd/lib/notification/interface';
-import Paragraph from 'antd/lib/typography/Paragraph';
-import BigNumber from 'bignumber.js';
 import { isMobile } from 'react-device-detect';
-import intl from 'react-intl-universal';
 import { eventChannel } from 'redux-saga';
 import { delay, race } from 'redux-saga/effects';
 import io, { Socket } from 'socket.io-client';
-import { downloadExportedLixi, refreshLixiSilent } from '../lixi/actions';
-import { hideLoading, showLoading } from '../loading/actions';
-import { showToast } from '../toast/actions';
-import { channelOff, channelOn, serverOff, serverOn, startChannel, stopChannel } from './actions';
+import {
+  channelOff,
+  channelOn,
+  pageOwnerSubcribeToPageChannel,
+  serverOff,
+  serverOn,
+  startChannel,
+  stopChannel,
+  userSubcribeToMessageSession
+} from './actions';
 import { api as messageApi } from './message.api';
-import { MessageOrderField, OrderDirection, WorshipOrderField } from '@generated/types.generated';
+import { Message, MessageOrderField, OrderDirection, PageMessageSession } from '@generated/types.generated';
 import { put as putAction } from 'redux-saga/effects';
+import { PayloadAction } from '@reduxjs/toolkit';
+import { api as pageMessageApi } from './pageMessageSession.api';
 
 const getDeviceNotificationStyle = () => {
   if (isMobile) {
@@ -82,30 +81,33 @@ function reconnect(): Promise<Socket> {
   });
 }
 
-function subscribe(messageSessionId: string) {
-  socket.emit('subscribe', messageSessionId);
-}
-
-function createSocketChannel(socket: Socket) {
+function createMessageSocketChannel(socket: Socket) {
   return eventChannel(emit => {
     const handler = (data: string) => {
       emit(data);
     };
     socket.on('publishMessage', handler);
-    socket.on('publishMessage', handler);
     return () => {
       socket.off('publishMessage', handler);
-      socket.on('publishMessage', handler);
     };
   });
 }
 
-function* listenConnectSaga(action) {
-  console.log(action.payload);
-  const messageSessionId = action.payload;
+function createPageSocketChannel(socket: Socket) {
+  return eventChannel(emit => {
+    const handler = (data: string) => {
+      emit(data);
+    };
+    socket.on('publishPageChannel', handler);
+    return () => {
+      socket.off('publishPageChannel', handler);
+    };
+  });
+}
+
+function* listenConnectSaga() {
   while (true) {
     yield call(reconnect);
-    yield call(subscribe, messageSessionId);
     yield put(serverOn());
   }
 }
@@ -113,13 +115,11 @@ function* listenConnectSaga(action) {
 function* listenDisconnectSaga() {
   while (true) {
     yield call(disconnect);
-    yield put(serverOn());
+    yield put(serverOff());
   }
 }
 
-function* listenServerSaga(action) {
-  console.log(action.payload);
-  const messageSessionId = action.payload;
+function* listenServerSaga() {
   try {
     yield put(channelOn());
     const { timeout } = yield race({
@@ -130,13 +130,24 @@ function* listenServerSaga(action) {
       yield put(serverOff());
     }
 
-    const socketChannel = yield call(createSocketChannel, socket);
+    const socketMessageChannel = yield call(createMessageSocketChannel, socket);
+    const socketPageChannel = yield call(createPageSocketChannel, socket);
     yield fork(listenDisconnectSaga);
-    yield fork(listenConnectSaga, messageSessionId);
+    yield fork(listenConnectSaga);
 
     while (true) {
-      const payload = yield take(socketChannel);
-      yield receiveLiveMessage(payload);
+      const { message, payload } = yield race({
+        message: take(socketMessageChannel),
+        payload: take(socketPageChannel)
+      });
+
+      if (message) {
+        yield receiveLiveMessage(message);
+      }
+
+      if (payload) {
+        yield receiveNewMessage(payload);
+      }
     }
   } catch (error) {
     console.log('error', error.message);
@@ -152,22 +163,17 @@ function* listenServerSaga(action) {
 
 function* startStopChannel() {
   while (true) {
-    const messageSessionId = yield take(startChannel.type);
-    yield race([yield call(listenServerSaga, messageSessionId), yield take(stopChannel.type)]);
+    yield take(startChannel.type);
+    yield race([yield call(listenServerSaga), yield take(stopChannel.type)]);
   }
 }
 
-function* receiveLiveMessage(payload) {
-  const { id } = payload;
+function* receiveLiveMessage(payload: any) {
+  console.log(payload);
+  const { id, messageSessionId, pageMessageSessionId } = payload;
   try {
-    const params = {
-      orderBy: {
-        direction: OrderDirection.Desc,
-        field: MessageOrderField.UpdatedAt
-      }
-    };
     yield putAction(
-      messageApi.util.updateQueryData('MessageByMessageSessionId', { ...params, id }, draft => {
+      messageApi.util.updateQueryData('MessageByMessageSessionId', { id: messageSessionId }, draft => {
         draft.allMessageByMessageSessionId.edges.unshift({
           cursor: payload.id,
           node: {
@@ -182,10 +188,52 @@ function* receiveLiveMessage(payload) {
   }
 }
 
+function* receiveNewMessage(payload: PageMessageSession) {
+  console.log(payload);
+  const { id, account, page } = payload;
+  try {
+    yield putAction(
+      pageMessageApi.util.updateQueryData('PageMessageSessionByPageId', { id: page.id }, draft => {
+        draft.allPageMessageSessionByPageId.edges.unshift({
+          cursor: id,
+          node: {
+            ...payload
+          }
+        });
+        draft.allPageMessageSessionByPageId.totalCount = draft.allPageMessageSessionByPageId.totalCount + 1;
+      })
+    );
+  } catch (error) {
+    console.log('error', error.message);
+  }
+}
+
+function* userSubcribeToMessageSessionSaga(action: PayloadAction<string>) {
+  const { payload } = action;
+  socket.emit('subscribeMessageSession', payload);
+}
+
+function* pageOwnerSubcribeToPageChannelSaga(action: PayloadAction<string>) {
+  const { payload } = action;
+  socket.emit('subscribePageChannel', payload);
+}
+
+function* watchUserSubcribeToMessageSession() {
+  yield takeLatest(userSubcribeToMessageSession.type, userSubcribeToMessageSessionSaga);
+}
+
+function* watchPageOwnerSubcribeToPageChannel() {
+  yield takeLatest(pageOwnerSubcribeToPageChannel.type, pageOwnerSubcribeToPageChannelSaga);
+}
+
 export default function* messageSaga() {
   if (typeof window === 'undefined') {
     yield all([]);
   } else {
-    yield all([fork(startStopChannel)]);
+    yield all([
+      fork(startStopChannel),
+      fork(watchUserSubcribeToMessageSession),
+      fork(watchPageOwnerSubcribeToPageChannel)
+    ]);
   }
 }

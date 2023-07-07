@@ -792,10 +792,10 @@ model Message {
 
 model PageMessageSession {
   id              String           @id @default(uuid())
-  page            Page?            @relation(fields: [pageId], references: [id])
-  pageId          String?
-  account         Account?         @relation(fields: [accountId], references: [id])
-  accountId       Int?
+  page            Page             @relation(fields: [pageId], references: [id])
+  pageId          String
+  account         Account          @relation(fields: [accountId], references: [id])
+  accountId       Int
   messageSessions MessageSession[]
   createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime         @default(now()) @map("updated_at") @db.Timestamptz

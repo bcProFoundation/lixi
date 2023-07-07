@@ -48,6 +48,16 @@ const enhancedApi = api.enhanceEndpoints({
           responseData.allPageMessageSessionByAccountId.totalCount;
       }
     },
+    UserHadMessageToPage: {
+      providesTags: (result, error, arg) => ['PageMessageSession'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { pageId, ...otherArgs } = queryArgs;
+          return { pageId };
+        }
+        return { queryArgs };
+      }
+    },
     CreatePageMessageSession: {}
   }
 });
@@ -61,5 +71,7 @@ export const {
   useLazyPageMessageSessionQuery,
   usePageMessageSessionByAccountIdQuery,
   usePageMessageSessionByPageIdQuery,
-  usePageMessageSessionQuery
+  usePageMessageSessionQuery,
+  useUserHadMessageToPageQuery,
+  useLazyUserHadMessageToPageQuery
 } = enhancedApi;

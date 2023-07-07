@@ -13,10 +13,6 @@ import {
 } from '@nestjs/websockets';
 import io, { Server, Socket } from 'socket.io';
 
-// https://build.diligent.com/message-queues-in-database-transactions-f830718f4f12
-// https://cloudificationzone.com/2021/08/13/notification-system-design/
-// https://towardsdatascience.com/designing-notification-system-with-message-queues-c30a2c9046de
-
 @Injectable()
 @WebSocketGateway({ namespace: 'ws/message', cors: true })
 export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -38,9 +34,13 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
     this.logger.log('Message gateway initialized');
   }
 
-  @SubscribeMessage('subscribe')
-  handleSubscription(@MessageBody() messageSessionId: string, @ConnectedSocket() client: Socket): WsResponse<string> {
+  @SubscribeMessage('subscribeMessageSession')
+  handleSubscriptionToMessageSession(
+    @MessageBody() messageSessionId: string,
+    @ConnectedSocket() client: Socket
+  ): WsResponse<string> {
     client.join(messageSessionId);
+    console.log('🚀 ~ file: message.gateway.ts:47 ~ MessageGateway ~ messageSessionId:', messageSessionId);
 
     return {
       event: 'subscribeMessageSession',
@@ -49,24 +49,25 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
   }
 
   //Code below is for page owner listening for new PageMessageSession
-  @SubscribeMessage('subscribePageMessageSession')
+  @SubscribeMessage('subscribePageChannel')
   handlePageMessageSessionSubscription(
     @MessageBody() pageMessageSessionId: string,
     @ConnectedSocket() client: Socket
   ): WsResponse<string> {
     client.join(pageMessageSessionId);
+    console.log('🚀 ~ file: message.gateway.ts:62 ~ MessageGateway ~ subscribePageChannel:', pageMessageSessionId);
 
     return {
-      event: 'subscribePageMessageSession',
+      event: 'subscribePageChannel',
       data: client.id
     };
   }
 
-  publishMessage(room: string, message: any) {
-    this.server.to(room).emit('publishMessage', message);
+  publishMessage(messageSessionId: string, message: any) {
+    this.server.to(messageSessionId).emit('publishMessage', message);
   }
 
-  publishPageMessageSession(pageMessageSessionId: string, message: any) {
-    this.server.to(pageMessageSessionId).emit('publishPageMessageSession', message);
+  publishPageChannel(pageChannelId: string, message: any) {
+    this.server.to(pageChannelId).emit('publishPageChannel', message);
   }
 }

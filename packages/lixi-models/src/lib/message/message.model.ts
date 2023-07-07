@@ -11,6 +11,9 @@ export class Message {
   @Field(() => String)
   body: string;
 
+  @Field(() => String)
+  messageSessionId: string;
+
   @Field(() => Account)
   author: Account;
 

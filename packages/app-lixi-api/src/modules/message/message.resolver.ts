@@ -92,7 +92,7 @@ export class MessageResolver {
       throw new Error(couldNotFindAccount);
     }
 
-    const { authorId, body, messageSessionId, isPageOwner } = data;
+    const { authorId, body, messageSessionId, isPageOwner, pageMessageSessionId } = data;
 
     const message = await this.prisma.message.create({
       data: {
@@ -104,15 +104,22 @@ export class MessageResolver {
       include: {
         author: {
           select: {
-            id: true
+            id: true,
+            name: true,
+            address: true
           }
         }
       }
     });
 
-    this.messageGateway.publishMessage(messageSessionId, message);
+    const result = {
+      ...message,
+      pageMessageSessionId: pageMessageSessionId
+    };
 
-    return message;
+    this.messageGateway.publishMessage(messageSessionId, result);
+
+    return result;
   }
 
   // @UseGuards(GqlJwtAuthGuard)

@@ -22,6 +22,7 @@ export type PageMessageSessionFieldsFragment = {
   createdAt?: any | null;
   updatedAt?: any | null;
   page?: { __typename?: 'Page'; id: string; name: string } | null;
+  account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
   messageSessions?: Array<{
     __typename?: 'MessageSession';
     id: string;
@@ -45,6 +46,7 @@ export type PageMessageSessionQuery = {
     createdAt?: any | null;
     updatedAt?: any | null;
     page?: { __typename?: 'Page'; id: string; name: string } | null;
+    account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
     messageSessions?: Array<{
       __typename?: 'MessageSession';
       id: string;
@@ -81,6 +83,7 @@ export type PageMessageSessionByPageIdQuery = {
         createdAt?: any | null;
         updatedAt?: any | null;
         page?: { __typename?: 'Page'; id: string; name: string } | null;
+        account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
         messageSessions?: Array<{
           __typename?: 'MessageSession';
           id: string;
@@ -126,6 +129,7 @@ export type PageMessageSessionByAccountIdQuery = {
         createdAt?: any | null;
         updatedAt?: any | null;
         page?: { __typename?: 'Page'; id: string; name: string } | null;
+        account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
         messageSessions?: Array<{
           __typename?: 'MessageSession';
           id: string;
@@ -147,6 +151,32 @@ export type PageMessageSessionByAccountIdQuery = {
   };
 };
 
+export type UserHadMessageToPageQueryVariables = Types.Exact<{
+  accountId?: Types.InputMaybe<Types.Scalars['Int']>;
+  pageId?: Types.InputMaybe<Types.Scalars['String']>;
+}>;
+
+export type UserHadMessageToPageQuery = {
+  __typename?: 'Query';
+  userHadMessageToPage: {
+    __typename?: 'PageMessageSession';
+    id: string;
+    createdAt?: any | null;
+    updatedAt?: any | null;
+    page?: { __typename?: 'Page'; id: string; name: string } | null;
+    account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
+    messageSessions?: Array<{
+      __typename?: 'MessageSession';
+      id: string;
+      lixiAmount?: number | null;
+      sessionOpen?: boolean | null;
+      createdAt?: any | null;
+      updatedAt?: any | null;
+      lixi?: { __typename?: 'LixiModel'; id: string } | null;
+    }> | null;
+  };
+};
+
 export type CreatePageMessageSessionMutationVariables = Types.Exact<{
   input: Types.CreatePageMessageInput;
 }>;
@@ -159,6 +189,7 @@ export type CreatePageMessageSessionMutation = {
     createdAt?: any | null;
     updatedAt?: any | null;
     page?: { __typename?: 'Page'; id: string; name: string } | null;
+    account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
     messageSessions?: Array<{
       __typename?: 'MessageSession';
       id: string;
@@ -177,6 +208,11 @@ export const PageMessageSessionFieldsFragmentDoc = `
   page {
     id
     name
+  }
+  account {
+    id
+    name
+    address
   }
   messageSessions {
     id
@@ -249,6 +285,13 @@ export const PageMessageSessionByAccountIdDocument = `
 }
     ${PageMessageSessionFieldsFragmentDoc}
 ${PageInfoFieldsFragmentDoc}`;
+export const UserHadMessageToPageDocument = `
+    query UserHadMessageToPage($accountId: Int, $pageId: String) {
+  userHadMessageToPage(accountId: $accountId, pageId: $pageId) {
+    ...PageMessageSessionFields
+  }
+}
+    ${PageMessageSessionFieldsFragmentDoc}`;
 export const CreatePageMessageSessionDocument = `
     mutation CreatePageMessageSession($input: CreatePageMessageInput!) {
   createPageMessageSession(data: $input) {
@@ -274,6 +317,9 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: variables => ({ document: PageMessageSessionByAccountIdDocument, variables })
     }),
+    UserHadMessageToPage: build.query<UserHadMessageToPageQuery, UserHadMessageToPageQueryVariables | void>({
+      query: variables => ({ document: UserHadMessageToPageDocument, variables })
+    }),
     CreatePageMessageSession: build.mutation<
       CreatePageMessageSessionMutation,
       CreatePageMessageSessionMutationVariables
@@ -291,5 +337,7 @@ export const {
   useLazyPageMessageSessionByPageIdQuery,
   usePageMessageSessionByAccountIdQuery,
   useLazyPageMessageSessionByAccountIdQuery,
+  useUserHadMessageToPageQuery,
+  useLazyUserHadMessageToPageQuery,
   useCreatePageMessageSessionMutation
 } = injectedRtkApi;

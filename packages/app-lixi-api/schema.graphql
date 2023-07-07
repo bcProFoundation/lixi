@@ -152,6 +152,7 @@ input CreateMessageInput {
   body: String!
   isPageOwner: Boolean
   messageSessionId: String!
+  pageMessageSessionId: String!
 }
 
 input CreatePageInput {
@@ -402,6 +403,7 @@ type Message {
   createdAt: DateTime
   id: ID!
   isPageOwner: Boolean
+  messageSessionId: String!
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
@@ -820,6 +822,7 @@ type Query {
   post(id: String!): Post!
   temple(id: String!): Temple!
   token(tokenId: String!): Token!
+  userHadMessageToPage(accountId: Int, pageId: String): PageMessageSession!
   worship(id: String!): Worship!
   worshipedPerson(id: String!): WorshipedPerson!
 }

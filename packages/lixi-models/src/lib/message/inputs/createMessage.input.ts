@@ -19,4 +19,8 @@ export class CreateMessageInput {
   @Field(() => String)
   @IsNotEmpty()
   messageSessionId: string;
+
+  @Field(() => String)
+  @IsNotEmpty()
+  pageMessageSessionId: string;
 }

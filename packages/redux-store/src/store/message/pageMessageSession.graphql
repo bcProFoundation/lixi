@@ -4,6 +4,11 @@ fragment PageMessageSessionFields on PageMessageSession {
     id
     name
   }
+  account {
+    id
+    name
+    address
+  }
   messageSessions {
     id
     lixi {
@@ -83,6 +88,12 @@ query PageMessageSessionByAccountId(
     pageInfo {
       ...PageInfoFields
     }
+  }
+}
+
+query UserHadMessageToPage($accountId: Int, $pageId: String) {
+  userHadMessageToPage(accountId: $accountId, pageId: $pageId) {
+    ...PageMessageSessionFields
   }
 }
 
