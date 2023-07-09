@@ -61,6 +61,8 @@ import {
 } from '@store/message/actions';
 import PageMessageForOwner from '@components/PageMessage/PageMessageForOwner';
 import PageMessageForUser from '@components/PageMessage/PageMessageForUser';
+import { getSelectedPostId } from '@store/post/selectors';
+import { setSelectedPost } from '@store/post/actions';
 
 export type PageItem = PageQuery['page'];
 
@@ -387,9 +389,9 @@ const StyledMenu = styled(Tabs)`
 `;
 
 const TagContainer = styled.div`
-  display: flex;
-  margin-bottom: 11px;
-  @media (max-width: 576px) {
+  margin-bottom: 1rem;
+  text-align: left;
+  @media (min-width: 968px) {
     display: none;
   }
 `;
@@ -442,6 +444,8 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const [suggestedHashtag, setSuggestedTags] = useState([]);
   const [query, setQuery] = useState<any>('');
   const [hashtags, setHashtags] = useState<any>([]);
+  const postIdSelected = useAppSelector(getSelectedPostId);
+  const refs = useRef([]);
 
   useEffect(() => {
     dispatch(startChannel());
@@ -557,6 +561,23 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
       fetchNext();
     }
   };
+
+  useEffect(() => {
+    if (refs.current[postIdSelected]) {
+      const listChildNodes = refs?.current[postIdSelected]?.offsetParent?.offsetParent?.childNodes;
+      let headerNode = null;
+      listChildNodes.forEach(node => {
+        if (node?.localName === 'header') {
+          headerNode = node;
+        }
+      });
+      headerNode ? (headerNode.style.display = 'none') : null;
+      refs.current[postIdSelected].firstChild.classList.add('active-post');
+      refs.current[postIdSelected].scrollIntoView({ behaviour: 'smooth' });
+      headerNode ? (headerNode.style.display = 'grid') : null;
+      dispatch(setSelectedPost(''));
+    }
+  }, [data, postIdSelected]);
 
   const navigateEditPage = () => {
     dispatch(openModal('EditPageModal', { page: pageDetailData }));
@@ -675,14 +696,14 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const QueryFooter = () => {
     if (isQueryLoading) return null;
     return (
-      <div
+      <b
         style={{
           padding: '1rem 2rem 2rem 2rem',
           textAlign: 'center'
         }}
       >
         {isFetchingQueryNext ? <Skeleton avatar active /> : "It's so empty here..."}
-      </div>
+      </b>
     );
   };
   //#endregion
@@ -732,15 +753,22 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
           >
             {data.map((item, index) => {
               return (
-                <PostListItem
-                  index={index}
-                  item={item}
+                <div
                   key={item.id}
-                  handleBurnForPost={handleBurnForPost}
-                  addToRecentHashtags={hashtag =>
-                    dispatch(addRecentHashtagAtPages({ id: page.id, hashtag: hashtag.substring(1) }))
-                  }
-                />
+                  ref={element => {
+                    refs.current[item.id] = element;
+                  }}
+                >
+                  <PostListItem
+                    index={index}
+                    item={item}
+                    key={item.id}
+                    handleBurnForPost={handleBurnForPost}
+                    addToRecentHashtags={hashtag =>
+                      dispatch(addRecentHashtagAtPages({ id: page.id, hashtag: hashtag.substring(1) }))
+                    }
+                  />
+                </div>
               );
             })}
           </InfiniteScroll>
@@ -755,15 +783,22 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
           >
             {queryData.map((item, index) => {
               return (
-                <PostListItem
-                  index={index}
-                  item={item}
+                <div
                   key={item.id}
-                  handleBurnForPost={handleBurnForPost}
-                  addToRecentHashtags={hashtag =>
-                    dispatch(addRecentHashtagAtPages({ id: page.id, hashtag: hashtag.substring(1) }))
-                  }
-                />
+                  ref={element => {
+                    refs.current[item.id] = element;
+                  }}
+                >
+                  <PostListItem
+                    index={index}
+                    item={item}
+                    key={item.id}
+                    handleBurnForPost={handleBurnForPost}
+                    addToRecentHashtags={hashtag =>
+                      dispatch(addRecentHashtagAtPages({ id: page.id, hashtag: hashtag.substring(1) }))
+                    }
+                  />
+                </div>
               );
             })}
           </InfiniteScroll>
@@ -980,6 +1015,13 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                 </TagContainer>
 
                 <Timeline>
+                  {/* <Button
+                    title="Change"
+                    onClick={() => {
+                      setHashtags(['#angular']);
+                      setQuery('angular');
+                    }}
+                  /> */}
                   {data.length == 0 && (
                     <div className="blank-timeline">
                       <img className="time-line-blank" src="/images/time-line-blank.svg" alt="" />
