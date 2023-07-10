@@ -5,3 +5,4 @@ export * from './QRCodeModal';
 export * from './postQueryTag';
 export * from './worship';
 export * from './category';
+export * from './translation';

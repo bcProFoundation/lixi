@@ -54,6 +54,7 @@ import { useRepostMutation } from '@store/post/posts.api';
 import _ from 'lodash';
 import { getSelectedPostId } from '@store/post/selectors';
 import { setSelectedPost } from '@store/post/actions';
+import { OPTION_BURN_VALUE } from '@components/Posts/PostsListing';
 
 export type PageItem = PageQuery['page'];
 
@@ -566,9 +567,9 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
 
   useDidMountEffectNotification();
 
-  const handleBurnForPost = async (isUpVote: boolean, post: any) => {
+  const handleBurnForPost = async (isUpVote: boolean, post: any, optionBurn?: string) => {
     try {
-      const burnValue = '1';
+      const burnValue = OPTION_BURN_VALUE[optionBurn];
       if (failQueue.length > 0) dispatch(clearFailQueue());
       const fundingFirstUtxo = slpBalancesAndUtxos.nonSlpUtxos[0];
       const currentWalletPath = walletPaths.filter(acc => acc.xAddress === fundingFirstUtxo.address).pop();
@@ -639,6 +640,8 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
 
     await deleteFollowPageTrigger({ input: deleteFollowPageInput });
   };
+
+  console.log(page.id);
 
   //#region QueryVirtuoso
   const { queryData, fetchNextQuery, hasNextQuery, isQueryFetching, isFetchingQueryNext, isQueryLoading, noMoreQuery } =
