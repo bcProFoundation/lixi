@@ -20,7 +20,6 @@ export class CreateMessageInput {
   @IsNotEmpty()
   messageSessionId: string;
 
-  @Field(() => String)
-  @IsNotEmpty()
-  pageMessageSessionId: string;
+  @Field(() => String, { nullable: true })
+  pageMessageSessionId?: string;
 }

@@ -152,7 +152,7 @@ input CreateMessageInput {
   body: String!
   isPageOwner: Boolean
   messageSessionId: String!
-  pageMessageSessionId: String!
+  pageMessageSessionId: String
 }
 
 input CreatePageInput {

@@ -22,6 +22,7 @@ import { userSubcribeToMessageSession } from '@store/message/actions';
 import { useCreateMessageMutation } from '@store/message/message.api';
 import { useForm, Controller } from 'react-hook-form';
 import { api as messageApi } from '@store/message/message.api';
+import Message from './Message';
 
 type PageMessageProps = {
   page: PageItem;
@@ -30,6 +31,7 @@ type PageMessageProps = {
 
 const StyledChatContainer = styled.div`
   background-color: white;
+  width: 100%;
   height: 600px;
   border-radius: var(--border-radius-primary);
   display: flex;
@@ -39,7 +41,9 @@ const StyledChatList = styled.div`
   width: 30%;
   border-right: 1px solid black;
 `;
-const StyledChatbox = styled.div``;
+const StyledChatbox = styled.div`
+  width: 100%;
+`;
 
 const InputContainer = styled.div`
   position: absolute;
@@ -147,13 +151,10 @@ const StyledMessage = styled(Space)`
   }
 `;
 
-const Message = ({ item, index }) => {
-  return (
-    <React.Fragment>
-      <p>{item?.body}</p>
-    </React.Fragment>
-  );
-};
+const StyledInfiniteScroll = styled(InfiniteScroll)`
+  display: flex;
+  flex-direction: column-reverse;
+`;
 
 const PageMessageForUser = ({ page, account }: PageMessageProps) => {
   const dispatch = useAppDispatch();
@@ -234,22 +235,18 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
         {_.isNil(pageMessageSessionData) ? (
           <Button onClick={() => createNewPageMessage()}>Create Message</Button>
         ) : (
-          <InfiniteScroll
+          <StyledInfiniteScroll
             dataLength={data.length}
             next={loadMoreItems}
             hasMore={hasNext}
             loader={<Skeleton avatar active />}
-            endMessage={
-              <p style={{ textAlign: 'center' }}>
-                <b>{data.length > 0 ? 'end reached' : ''}</b>
-              </p>
-            }
             scrollableTarget="scrollableDiv"
+            inverse
           >
-            {data.map((item, index) => {
-              return <Message index={index} item={item} key={item.id} />;
+            {data.map(item => {
+              return <Message message={item} key={item.id} authorAddress={account.address} />;
             })}
-          </InfiniteScroll>
+          </StyledInfiniteScroll>
         )}
       </StyledChatbox>
       <InputContainer>

@@ -170,7 +170,7 @@ export type CreateMessageInput = {
   body: Scalars['String'];
   isPageOwner?: InputMaybe<Scalars['Boolean']>;
   messageSessionId: Scalars['String'];
-  pageMessageSessionId: Scalars['String'];
+  pageMessageSessionId?: InputMaybe<Scalars['String']>;
 };
 
 export type CreatePageInput = {

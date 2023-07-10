@@ -1,4 +1,4 @@
-import { Button, Skeleton, Space } from 'antd';
+import { Button, Input, Skeleton, Space } from 'antd';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { getSelectedAccount, getSelectedAccountId } from '@store/account';
@@ -8,7 +8,10 @@ import { useInfinitePageMessageSessionByPageId } from '@store/message/useInfinit
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { userSubcribeToMessageSession } from '@store/message/actions';
 import { useInfiniteMessageByMessageSessionId } from '@store/message/useInfiniteMessageByMessageSessionId';
-import { MessageOrderField, OrderDirection } from '@generated/types.generated';
+import { CreateMessageInput, MessageOrderField, OrderDirection } from '@generated/types.generated';
+import Message from './Message';
+import { Controller, useForm } from 'react-hook-form';
+import { useCreateMessageMutation } from '@store/message/message.api';
 
 type PageMessageProps = {
   page: PageItem;
@@ -27,6 +30,7 @@ const StyledChatList = styled.div`
 `;
 const StyledChatbox = styled.div`
   width: 100%;
+  padding: 5px;
 `;
 
 const InputContainer = styled.div`
@@ -135,7 +139,12 @@ const StyledMessage = styled(Space)`
   }
 `;
 
-const ChatItem = ({ item, index, onClickMessage }) => {
+const StyledInfiniteScroll = styled(InfiniteScroll)`
+  display: flex;
+  flex-direction: column-reverse;
+`;
+
+const ChatUser = ({ item, index, onClickMessage }) => {
   return (
     <React.Fragment>
       <p onClick={() => onClickMessage(item.messageSessions[0].id)}>{item.account?.name}</p>
@@ -143,17 +152,15 @@ const ChatItem = ({ item, index, onClickMessage }) => {
   );
 };
 
-const Message = ({ item, index }) => {
-  return (
-    <React.Fragment>
-      <p>{item?.body}</p>
-    </React.Fragment>
-  );
-};
-
 const PageMessageForOwner = ({ page }: PageMessageProps) => {
   const dispatch = useAppDispatch();
   const [currentMessageId, setCurrentMessageId] = useState<string | null>(null);
+  const { control, getValues, setValue, setFocus } = useForm();
+
+  const [
+    createMessageTrigger,
+    { isLoading: isLoadingCreateMessage, isSuccess: isSuccessCreateMessage, isError: isErrorCreateMessage }
+  ] = useCreateMessageMutation();
 
   const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } =
     useInfinitePageMessageSessionByPageId(
@@ -198,7 +205,6 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
   }, [data]);
 
   const onClickMessage = (id: string) => {
-    console.log(id);
     setCurrentMessageId(id);
   };
 
@@ -208,6 +214,17 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
     } else if (messageHasNext) {
       messageFetchNext();
     }
+  };
+
+  const sendMessage = async () => {
+    const input: CreateMessageInput = {
+      authorId: parseInt(page.pageAccount.id),
+      body: getValues('message'),
+      messageSessionId: currentMessageId,
+      isPageOwner: true
+    };
+
+    await createMessageTrigger({ input }).unwrap();
   };
 
   return (
@@ -226,29 +243,44 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
           scrollableTarget="scrollableDiv"
         >
           {data.map((item, index) => {
-            return <ChatItem index={index} item={item} key={item.id} onClickMessage={onClickMessage} />;
+            return <ChatUser index={index} item={item} key={item.id} onClickMessage={onClickMessage} />;
           })}
         </InfiniteScroll>
       </StyledChatList>
       <StyledChatbox>
-        <InfiniteScroll
-          dataLength={messageData.length}
-          next={loadMoreMessages}
-          hasMore={messageHasNext}
-          loader={<Skeleton avatar active />}
-          endMessage={
-            <p style={{ textAlign: 'center' }}>
-              <b>{data.length > 0 ? 'end reached' : ''}</b>
-            </p>
-          }
-          scrollableTarget="scrollableDiv"
-        >
-          {messageData.map((item, index) => {
-            return <Message index={index} item={item} key={item.id} />;
-          })}
-        </InfiniteScroll>
-        <InputContainer>Input</InputContainer>
+        {messageData.length > 0 && (
+          <StyledInfiniteScroll
+            dataLength={messageData.length}
+            next={loadMoreMessages}
+            hasMore={messageHasNext}
+            loader={<Skeleton avatar active />}
+            endMessage={
+              <p style={{ textAlign: 'center' }}>
+                <b>{data.length > 0 ? 'end reached' : ''}</b>
+              </p>
+            }
+            scrollableTarget="scrollableDiv"
+            inverse
+          >
+            {messageData.map(item => {
+              return <Message message={item} key={item.id} authorAddress={page.pageAccount.address} />;
+            })}
+          </StyledInfiniteScroll>
+        )}
       </StyledChatbox>
+      <InputContainer>
+        <Controller
+          name="message"
+          control={control}
+          rules={{
+            required: true
+          }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input onChange={onChange} onBlur={onBlur} value={value} placeholder={'type me'} />
+          )}
+        />
+        <Button onClick={sendMessage}>Send</Button>
+      </InputContainer>
     </StyledChatContainer>
   );
 };
