@@ -19,6 +19,7 @@ import { RepostInput } from '@generated/types.generated';
 import { useRepostMutation } from '@store/post/posts.api';
 import { showToast } from '@store/toast/actions';
 import { useRouter } from 'next/router';
+import { Counter } from './Counter';
 
 const ActionBar = styled.div`
   display: flex;
@@ -147,6 +148,7 @@ const ActionPostBar = ({ post, handleBurnForPost, onClickIconComment, isSetBorde
           <Tooltip title={`${intl.get('page.repostFee')}: ${post.page.createPostFee} ${currency.ticker}`}>
             <Space style={{ padding: '8px' }} className="repost" size={5} onClick={() => handleRepost(post)}>
               <RetweetOutlined />
+              <Counter isShowXPI={false} num={post.repostCount ?? 0} />
             </Space>
           </Tooltip>
         )}
