@@ -6,7 +6,7 @@ import {
   InfoCircleOutlined,
   FireOutlined
 } from '@ant-design/icons';
-import { PostsQueryTag } from '@bcpros/lixi-models/constants';
+import { OPTION_BURN_VALUE, PostsQueryTag } from '@bcpros/lixi-models/constants';
 import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
 import { FilterType } from '@bcpros/lixi-models/lib/filter';
 import CreatePostCard from '@components/Common/CreatePostCard';
@@ -54,7 +54,6 @@ import { useRepostMutation } from '@store/post/posts.api';
 import _ from 'lodash';
 import { getSelectedPostId } from '@store/post/selectors';
 import { setSelectedPost } from '@store/post/actions';
-import { OPTION_BURN_VALUE } from '@components/Posts/PostsListing';
 
 export type PageItem = PageQuery['page'];
 
@@ -640,8 +639,6 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
 
     await deleteFollowPageTrigger({ input: deleteFollowPageInput });
   };
-
-  console.log(page.id);
 
   //#region QueryVirtuoso
   const { queryData, fetchNextQuery, hasNextQuery, isQueryFetching, isFetchingQueryNext, isQueryLoading, noMoreQuery } =

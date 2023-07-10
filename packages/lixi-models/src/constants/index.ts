@@ -6,3 +6,4 @@ export * from './postQueryTag';
 export * from './worship';
 export * from './category';
 export * from './translation';
+export * from './burn';

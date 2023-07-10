@@ -42,7 +42,7 @@ import Gallery from 'react-photo-gallery';
 import styled from 'styled-components';
 import CommentListItem, { CommentItem } from './CommentListItem';
 import { EditPostModalProps } from './EditPostModalPopup';
-import { OPTION_BURN_VALUE } from './PostsListing';
+import { OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants';
 import PostTranslate from './PostTranslate';
 
 export type PostItem = PostsQuery['allPosts']['edges'][0]['node'];

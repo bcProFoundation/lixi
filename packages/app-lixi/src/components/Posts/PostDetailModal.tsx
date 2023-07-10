@@ -38,7 +38,7 @@ import { getBurnQueue, getFailQueue } from '@store/burn';
 import { TokenItem } from '@components/Token/TokensFeed';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { getFilterPostsHome } from '@store/settings/selectors';
-import { OPTION_BURN_VALUE } from './PostsListing';
+import { OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants';
 import parse from 'html-react-parser';
 import ReactDomServer from 'react-dom/server';
 import ActionPostBar from '@components/Common/ActionPostBar';
