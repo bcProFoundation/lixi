@@ -701,6 +701,7 @@ export type Post = {
   postAccount: Account;
   postAccountId: Scalars['Int'];
   postHashtags?: Maybe<Array<PostHashtag>>;
+  repostCount?: Maybe<Scalars['Int']>;
   reposts?: Maybe<Array<Repost>>;
   token?: Maybe<Token>;
   tokenId?: Maybe<Scalars['String']>;

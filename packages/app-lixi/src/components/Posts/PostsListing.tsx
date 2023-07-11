@@ -1,4 +1,4 @@
-import { PostsQueryTag } from '@bcpros/lixi-models/constants';
+import { OPTION_BURN_VALUE, PostsQueryTag } from '@bcpros/lixi-models/constants';
 import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
 import CreatePostCard from '@components/Common/CreatePostCard';
 import { currency } from '@components/Common/Ticker';
@@ -25,7 +25,6 @@ import { setNewPostAvailable, setSelectedPost } from '@store/post/actions';
 import { getNewPostAvailable, getSelectedPostId } from '@store/post/selectors';
 import { useInfinitePostsBySearchQueryWithHashtag } from '@store/post/useInfinitePostsBySearchQueryWithHashtag';
 import { useInfinitePostsQuery } from '@store/post/useInfinitePostsQuery';
-import { saveTopPostsFilter } from '@store/settings/actions';
 import { getFilterPostsHome, getIsTopPosts } from '@store/settings/selectors';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
@@ -41,18 +40,6 @@ import styled from 'styled-components';
 import SearchBox from '../Common/SearchBox';
 import PostListItem from './PostListItem';
 import { api as postApi } from '@store/post/posts.api';
-
-export const OPTION_BURN_VALUE = {
-  LIKE: '1',
-  DISLIKE: '1',
-  LOVE: '10'
-};
-
-export const OPTION_BURN_TYPE = {
-  LIKE: 'LIKE',
-  DISLIKE: 'DISLIKE',
-  LOVE: 'LOVE'
-};
 
 type PostsListingProps = {
   className?: string;
@@ -206,6 +193,10 @@ const PostsListing: React.FC<PostsListingProps> = ({ className }: PostsListingPr
       accountId: selectedAccountId ?? null,
       isTop: String(isTop),
       orderBy: [
+        {
+          direction: OrderDirection.Desc,
+          field: PostOrderField.LastRepostAt
+        },
         {
           direction: OrderDirection.Desc,
           field: PostOrderField.UpdatedAt
