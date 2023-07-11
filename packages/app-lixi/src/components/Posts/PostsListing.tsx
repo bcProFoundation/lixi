@@ -25,7 +25,6 @@ import { setNewPostAvailable, setSelectedPost } from '@store/post/actions';
 import { getNewPostAvailable, getSelectedPostId } from '@store/post/selectors';
 import { useInfinitePostsBySearchQueryWithHashtag } from '@store/post/useInfinitePostsBySearchQueryWithHashtag';
 import { useInfinitePostsQuery } from '@store/post/useInfinitePostsQuery';
-import { saveTopPostsFilter } from '@store/settings/actions';
 import { getFilterPostsHome, getIsTopPosts } from '@store/settings/selectors';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
@@ -141,6 +140,10 @@ const StyledHeader = styled.div`
   }
 `;
 
+const StyledInfiniteScroll = styled(InfiniteScroll)`
+  overflow: inherit !important;
+`;
+
 const PostsListing: React.FC<PostsListingProps> = ({ className }: PostsListingProps) => {
   const [count, setCount] = useState(0);
   const dispatch = useAppDispatch();
@@ -165,22 +168,24 @@ const PostsListing: React.FC<PostsListingProps> = ({ className }: PostsListingPr
   const [suggestedHashtag, setSuggestedTags] = useState([]);
   const newPostAvailable = useAppSelector(getNewPostAvailable);
   let isTop = useAppSelector(getIsTopPosts);
-  const [query, setQuery] = useState<any>('');
-  const [hashtags, setHashtags] = useState<any>([]);
+  const [query, setQuery] = useState<string | null>(null);
+  const [hashtags, setHashtags] = useState<string[]>([]);
 
   useEffect(() => {
-    if (router.query.q) {
-      setQuery(router.query.q);
-    } else {
-      setQuery(null);
-    }
-
     if (router.query.hashtags) {
       setHashtags((router.query.hashtags as string).split(' '));
     } else {
       setHashtags([]);
     }
-  }, [router.query]);
+  }, [router.query.hashtags]);
+
+  useEffect(() => {
+    if (router.query.q) {
+      setQuery(router.query.q as string);
+    } else {
+      setQuery(null);
+    }
+  }, [router.query.q]);
 
   useEffect(() => dispatch(getLeaderboard()), []);
   const refs = useRef([]);
@@ -200,6 +205,10 @@ const PostsListing: React.FC<PostsListingProps> = ({ className }: PostsListingPr
       accountId: selectedAccountId ?? null,
       isTop: String(isTop),
       orderBy: [
+        {
+          direction: OrderDirection.Desc,
+          field: PostOrderField.LastRepostAt
+        },
         {
           direction: OrderDirection.Desc,
           field: PostOrderField.UpdatedAt
@@ -354,6 +363,7 @@ const PostsListing: React.FC<PostsListingProps> = ({ className }: PostsListingPr
               </p>
             }
             scrollableTarget="scrollableDiv"
+            scrollThreshold={0.7}
           >
             {data.map((item, index) => {
               return (
@@ -375,7 +385,7 @@ const PostsListing: React.FC<PostsListingProps> = ({ className }: PostsListingPr
             })}
           </InfiniteScroll>
         ) : (
-          <InfiniteScroll
+          <StyledInfiniteScroll
             dataLength={queryData.length}
             next={loadMoreQueryItems}
             hasMore={hasNextQuery}
@@ -394,7 +404,7 @@ const PostsListing: React.FC<PostsListingProps> = ({ className }: PostsListingPr
                 />
               );
             })}
-          </InfiniteScroll>
+          </StyledInfiniteScroll>
         )}
       </React.Fragment>
     );
@@ -452,7 +462,9 @@ const PostsListing: React.FC<PostsListingProps> = ({ className }: PostsListingPr
         postQueryTag: tag,
         pageId: post.page?.id,
         tokenId: post.token?.id,
-        minBurnFilter: filterValue
+        minBurnFilter: filterValue,
+        query: query,
+        hashtags: hashtags
       };
 
       dispatch(addBurnQueue(_.omit(burnCommand)));

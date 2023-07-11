@@ -109,6 +109,9 @@ export class PostResolver {
           {
             postAccount: { id: account.id }
           },
+          {
+            page: { id: { in: listFollowingsPageIds } }
+          },
           ...(isTop == 'true'
             ? [
                 {
@@ -125,20 +128,31 @@ export class PostResolver {
       result = await findManyCursorConnection(
         async args => {
           const posts = await this.prisma.post.findMany({
-            include: { postAccount: true, comments: true, page: true, token: true, translations: true },
+            include: {
+              postAccount: true,
+              comments: true,
+              page: true,
+              translations: true,
+              reposts: { select: { account: true, accountId: true } }
+            },
             where: queryPosts,
             orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
             ...args
           });
 
-          const result = posts.map(post => ({
-            ...post,
-            followPostOwner:
-              listFollowingsAccountIds.includes(post.postAccountId) ||
-              (post.pageId && listFollowingsPageIds.includes(post.pageId))
-                ? true
-                : false
-          }));
+          const result = await Promise.all(
+            posts.map(async post => ({
+              ...post,
+              followPostOwner:
+                listFollowingsAccountIds.includes(post.postAccountId) ||
+                (post.page && listFollowingsPageIds.includes(post.page.id))
+                  ? true
+                  : false,
+              repostCount: await this.prisma.repost.count({
+                where: { postId: post.id }
+              })
+            }))
+          );
 
           return result;
         },
@@ -274,8 +288,8 @@ export class PostResolver {
 
     if (account.id === page?.pageAccountId) {
       result = await findManyCursorConnection(
-        args =>
-          this.prisma.post.findMany({
+        async args => {
+          const posts = await this.prisma.post.findMany({
             include: {
               postAccount: true,
               comments: true,
@@ -294,7 +308,19 @@ export class PostResolver {
             },
             orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
             ...args
-          }),
+          });
+
+          const result = await Promise.all(
+            posts.map(async post => ({
+              ...post,
+              repostCount: await this.prisma.repost.count({
+                where: { postId: post.id }
+              })
+            }))
+          );
+
+          return result;
+        },
         () =>
           this.prisma.post.count({
             where: {
@@ -391,6 +417,8 @@ export class PostResolver {
     minBurnFilter: number,
     @Args()
     args: ConnectionArgs,
+    @Args() { after, before, first, last }: PaginationArgs,
+
     @Args({ name: 'query', type: () => String, nullable: true })
     query: string,
     @Args({ name: 'hashtags', type: () => [String], nullable: true })
@@ -421,27 +449,68 @@ export class PostResolver {
 
       const postsId = _.map(posts, 'id');
 
-      const searchPosts = await this.prisma.post.findMany({
-        include: { translations: true },
-        where: {
-          AND: [
-            {
-              id: { in: postsId }
-            },
-            {
-              lotusBurnScore: {
-                gte: minBurnFilter ?? 0
-              }
-            }
-          ]
-        },
-        orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined
-      });
+      //Testing new implement of searching
 
-      return connectionFromArraySlice(searchPosts, args, {
-        arrayLength: count || 0,
-        sliceStart: offset || 0
-      });
+      // const searchPosts = await this.prisma.post.findMany({
+      //   include: { translations: true },
+      //   where: {
+      //     AND: [
+      //       {
+      //         id: { in: postsId }
+      //       },
+      //       {
+      //         lotusBurnScore: {
+      //           gte: minBurnFilter ?? 0
+      //         }
+      //       }
+      //     ]
+      //   },
+      //   orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined
+      // });
+
+      const result = await findManyCursorConnection(
+        args =>
+          this.prisma.post.findMany({
+            include: { translations: true },
+            where: {
+              AND: [
+                {
+                  id: { in: postsId }
+                },
+                {
+                  lotusBurnScore: {
+                    gte: minBurnFilter ?? 0
+                  }
+                }
+              ]
+            },
+            orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
+            ...args
+          }),
+        () =>
+          this.prisma.post.count({
+            where: {
+              AND: [
+                {
+                  id: { in: postsId }
+                },
+                {
+                  lotusBurnScore: {
+                    gte: minBurnFilter ?? 0
+                  }
+                }
+              ]
+            },
+            orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined
+          }),
+        { first, last, before, after }
+      );
+      return result;
+
+      // return connectionFromArraySlice(searchPosts, args, {
+      //   arrayLength: count || 0,
+      //   sliceStart: offset || 0
+      // });
     } catch (err) {
       this.logger.error(err);
       if (err instanceof VError) {

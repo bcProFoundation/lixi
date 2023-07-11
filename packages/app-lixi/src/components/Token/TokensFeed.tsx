@@ -1,10 +1,7 @@
 import { CopyOutlined, LikeOutlined } from '@ant-design/icons';
-import UpVoteSvg from '@assets/icons/upVotePurple.svg';
 import { PostsQueryTag } from '@bcpros/lixi-models/constants';
 import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
-import { FilterType } from '@bcpros/lixi-models/lib/filter';
 import CreatePostCard from '@components/Common/CreatePostCard';
-import { FilterBurnt } from '@components/Common/FilterBurn';
 import SearchBox from '@components/Common/SearchBox';
 import { currency } from '@components/Common/Ticker';
 import { InfoSubCard } from '@components/Lixi';
@@ -18,9 +15,10 @@ import {
   PostOrderField
 } from '@generated/types.generated';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
-import { setTransactionReady, addRecentHashtagAtToken } from '@store/account/actions';
-import { getRecentHashtagAtToken, getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';
-import { addBurnQueue, addBurnTransaction, clearFailQueue, getBurnQueue, getFailQueue } from '@store/burn';
+import { addRecentHashtagAtToken, setTransactionReady } from '@store/account/actions';
+import { getSelectedAccountId } from '@store/account/selectors';
+import { addBurnQueue, addBurnTransaction, clearFailQueue, getFailQueue } from '@store/burn';
+import { useInfiniteHashtagByTokenQuery } from '@store/hashtag/useInfiniteHashtagByTokenQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { useInfinitePostsBySearchQueryWithHashtagAtToken } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtToken';
 import { useInfinitePostsByTokenIdQuery } from '@store/post/useInfinitePostsByTokenIdQuery';
@@ -29,7 +27,7 @@ import { showToast } from '@store/toast/actions';
 import { TokenQuery } from '@store/token/tokens.generated';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { formatBalance, fromSmallestDenomination } from '@utils/cashMethods';
-import { Image, Menu, MenuProps, Skeleton, Tabs, message, notification, Tag, Button } from 'antd';
+import { Image, Menu, Skeleton, Tabs, notification, Tag, Button } from 'antd';
 import makeBlockie from 'ethereum-blockies-base64';
 import moment from 'moment';
 import { useRouter } from 'next/router';
@@ -39,7 +37,6 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import _ from 'lodash';
-import { useInfiniteHashtagByTokenQuery } from '@store/hashtag/useInfiniteHashtagByTokenQuery';
 import { useCreateFollowTokenMutation, useDeleteFollowTokenMutation } from '@store/follow/follows.api';
 
 export type TokenItem = TokenQuery['token'];
@@ -215,16 +212,13 @@ const TokensFeed = ({ token, hasFollowed, isMobile }: TokenProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [tokenDetailData, setTokenDetailData] = useState<any>(token);
-  const selectedAccount = useAppSelector(getSelectedAccount);
   const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
   const walletPaths = useAppSelector(getAllWalletPaths);
-  const burnQueue = useAppSelector(getBurnQueue);
   const walletStatus = useAppSelector(getWalletStatus);
   const failQueue = useAppSelector(getFailQueue);
   const selectedAccountId = useAppSelector(getSelectedAccountId);
   const filterValue = useAppSelector(getFilterPostsToken);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
-  const recentTagAtToken = useAppSelector(getRecentHashtagAtToken);
   const [query, setQuery] = useState<any>('');
   const [hashtags, setHashtags] = useState<any>([]);
   const [isFollowed, setIsFollowed] = useState<boolean>(hasFollowed);
@@ -232,18 +226,20 @@ const TokensFeed = ({ token, hasFollowed, isMobile }: TokenProps) => {
   let options = ['Withdraw', 'Rename', 'Export'];
 
   useEffect(() => {
-    if (router.query.q) {
-      setQuery(router.query.q);
-    } else {
-      setQuery(null);
-    }
-
     if (router.query.hashtags) {
       setHashtags((router.query.hashtags as string).split(' '));
     } else {
       setHashtags([]);
     }
-  }, [router.query]);
+  }, [router.query.hashtags]);
+
+  useEffect(() => {
+    if (router.query.q) {
+      setQuery(router.query.q as string);
+    } else {
+      setQuery(null);
+    }
+  }, [router.query.q]);
 
   const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } = useInfinitePostsByTokenIdQuery(
     {
@@ -344,14 +340,6 @@ const TokensFeed = ({ token, hasFollowed, isMobile }: TokenProps) => {
 
   const menus = options.map(option => <Menu.Item key={option}>{option}</Menu.Item>);
 
-  const UpvoteIcon = () => {
-    return (
-      <>
-        <UpVoteSvg />
-      </>
-    );
-  };
-
   useEffect(() => {
     if (slpBalancesAndUtxos === slpBalancesAndUtxosRef.current) return;
     dispatch(setTransactionReady());
@@ -393,7 +381,9 @@ const TokensFeed = ({ token, hasFollowed, isMobile }: TokenProps) => {
         burnValue,
         postQueryTag: PostsQueryTag.PostsByTokenId,
         tokenId: post.token?.id,
-        minBurnFilter: filterValue
+        minBurnFilter: filterValue,
+        query: query,
+        hashtags: hashtags
       };
 
       dispatch(addBurnQueue(burnCommand));

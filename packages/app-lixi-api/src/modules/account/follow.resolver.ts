@@ -55,7 +55,7 @@ export class FollowResolver {
     private readonly notificationService: NotificationService,
     @I18n() private readonly i18n: I18nService,
     @InjectRedis() private readonly redis: Redis
-  ) { }
+  ) {}
 
   @Subscription(() => FollowAccount)
   followAccountCreated() {
@@ -304,11 +304,11 @@ export class FollowResolver {
     const queryFollowPagesWhere =
       pagesOnly == true
         ? {
-          AND: [{ accountId: account.id }, { token: null }]
-        }
+            AND: [{ accountId: account.id }, { token: null }]
+          }
         : {
-          accountId: account.id
-        };
+            accountId: account.id
+          };
 
     const result = await findManyCursorConnection(
       paginationArgs => {

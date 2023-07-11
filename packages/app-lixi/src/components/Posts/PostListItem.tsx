@@ -1,27 +1,21 @@
-import ReactDomServer from 'react-dom/server';
+import { PlusCircleOutlined, RetweetOutlined } from '@ant-design/icons';
+import ActionPostBar from '@components/Common/ActionPostBar';
 import CommentComponent, { CommentItem } from '@components/Common/Comment';
 import InfoCardUser from '@components/Common/InfoCardUser';
-import { ShareSocialButton } from '@components/Common/ShareSocialButton';
+import useWindowDimensions from '@hooks/useWindowDimensions';
+import { useAppDispatch } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
 import { PostsQuery } from '@store/post/posts.generated';
-import { formatBalance } from '@utils/cashMethods';
-import { List, Button, Space, Image, Carousel } from 'antd';
-import { PlusCircleOutlined, LeftOutlined, RightOutlined, RetweetOutlined } from '@ant-design/icons';
-import _, { truncate } from 'lodash';
+import { formatRelativeTime } from '@utils/formatting';
+import { Button, List } from 'antd';
+import _ from 'lodash';
 import { useRouter } from 'next/router';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import intl from 'react-intl-universal';
-import { useAppDispatch } from '@store/hooks';
+import Gallery from 'react-photo-gallery';
 import styled from 'styled-components';
 import { EditPostModalProps } from './EditPostModalPopup';
-import Gallery from 'react-photo-gallery';
-import useWindowDimensions from '@hooks/useWindowDimensions';
-import { formatRelativeTime } from '@utils/formatting';
-import { Counter } from '@components/Common/Counter';
-import Reaction from '@components/Common/Reaction';
 import PostContent from './PostContent';
-import ActionPostBar from '@components/Common/ActionPostBar';
-import { setSelectedPost } from '@store/post/actions';
 import PostTranslate from './PostTranslate';
 
 export const CommentList = ({ comments }: { comments: CommentItem[] }) => (
@@ -32,20 +26,6 @@ export const CommentList = ({ comments }: { comments: CommentItem[] }) => (
     renderItem={postComment => <CommentComponent data={postComment} />}
   />
 );
-
-export const SpaceIconNoneHover = styled(Space)`
-  min-height: 38px;
-  padding: 8px;
-  img {
-    transition: all 0.2s ease-in-out;
-    width: 28px;
-    height: 28px;
-  }
-
-  &:hover {
-    background: #faf1fa;
-  }
-`;
 
 const CardContainer = styled.div`
   display: flex;
@@ -133,6 +113,11 @@ const Content = styled.div`
     p {
       margin: 0;
     }
+    .read-more {
+      & > div > div {
+        max-height: 130px !important;
+      }
+    }
   }
   .description-translate {
     font-weight: 400;
@@ -196,37 +181,6 @@ const ActionBar = styled.div`
   }
 `;
 
-export const GroupIconText = styled.div`
-  align-items: center;
-  display: flex;
-  .ant-space {
-    cursor: pointer;
-    margin-right: 1rem;
-    align-items: end;
-    border-radius: 12px;
-    cursor: pointer;
-    @media (max-width: 960px) {
-      margin-right: 1rem;
-    }
-
-    &.repost {
-      svg {
-        color: var(--color-primary);
-        width: 28px;
-        height: 28px;
-      }
-    }
-  }
-  img {
-    width: 28px;
-    height: 28px;
-  }
-  .count {
-    color: rgba(30, 26, 29, 0.6);
-    font-size: 12px;
-  }
-`;
-
 const StyledTranslate = styled.div`
   cursor: pointer;
   color: var(--color-primary);
@@ -252,27 +206,6 @@ const PostListItemContainer = styled(List.Item)`
   transition: 0.5s;
 `;
 
-export const IconNoneHover = ({
-  value,
-  imgUrl,
-  classStyle,
-  onClickIcon
-}: {
-  value?: number;
-  imgUrl?: string;
-  classStyle?: string;
-  onClickIcon: (e: any) => void;
-}) => (
-  <SpaceIconNoneHover onClick={onClickIcon} size={5}>
-    {imgUrl && (
-      <picture>
-        <img className={classStyle} alt="burnIcon" src={imgUrl} />
-      </picture>
-    )}
-    {value && <Counter num={value ?? 0} />}
-  </SpaceIconNoneHover>
-);
-
 type PostItem = PostsQuery['allPosts']['edges'][0]['node'];
 
 type PostListItemProps = {
@@ -297,7 +230,7 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
     const mapImages = item.uploads.map(img => {
       let imgSha = img.upload.sha;
 
-      const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.upload.cfImageId}/large`;
+      const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.upload.cfImageId}/public`;
       let imgWidth = parseInt(img?.upload?.width) || 4;
       let height = parseInt(img?.upload?.height) || 3;
       let objImg = {
@@ -353,6 +286,7 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
       return;
     }
     if (e.target.className === 'read-more-more-module_btn__33IaH' || e.target.className.includes('post-translation')) {
+      openPostDetailModal(post);
       e.stopPropagation();
     } else {
       // dispatch(setSelectedPost(post.id));
@@ -379,24 +313,13 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
   };
 
   const reposted = () => {
-    if (!_.isNil(post.reposts) && post.reposts.length != 0) {
-      if (post.reposts.length - 1 == 0) {
-        return (
-          <p className="retweet">
-            <RetweetOutlined />{' '}
-            {intl.get('post.singleReposted', { repostName: post.reposts[post.reposts.length - 1].account.name })}
-          </p>
-        );
-      } else {
-        return (
-          <p className="retweet">
-            <RetweetOutlined />{' '}
-            {intl.get('post.multiReposted', {
-              repostName: `${post.reposts[post.reposts.length - 1].account.name} + ${post.reposts.length - 1}`
-            })}
-          </p>
-        );
-      }
+    if (!_.isNil(post.reposts) && post.reposts.length != 0 && post.followPostOwner) {
+      return (
+        <p className="retweet">
+          <RetweetOutlined />{' '}
+          {intl.get('post.singleReposted', { repostName: post.reposts[post.reposts.length - 1].account.name })}
+        </p>
+      );
     }
     return '';
   };

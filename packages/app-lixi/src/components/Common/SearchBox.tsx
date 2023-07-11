@@ -169,6 +169,8 @@ const SearchBox = () => {
 
     if (router.query.hashtags) {
       setTags((router.query.hashtags as string).split(' '));
+    } else {
+      setTags([]);
     }
   }, [router.query]);
 
@@ -176,16 +178,16 @@ const SearchBox = () => {
     //code is so ugly but work for now!
     if (router.pathname.includes('/page')) {
       const pageRecentHashtag = recentTagAtPages.find((page: any) => page.id === router.query.slug);
-      const recentHashtags: string[] = pageRecentHashtag?.hashtags || [];
+      const recentHashtags: string[] = pageRecentHashtag?.hashtags.map(hashtag => hashtag.toLowerCase()) || [];
 
       setRecentTags(recentHashtags);
     } else if (router.pathname.includes('/token')) {
       const tokenRecentHashtag = recentTagAtToken.find((token: any) => token.id === router.query.slug);
-      const recentHashtags: string[] = tokenRecentHashtag?.hashtags || [];
+      const recentHashtags: string[] = tokenRecentHashtag?.hashtags.map(hashtag => hashtag.toLowerCase()) || [];
 
       setRecentTags(recentHashtags);
     } else {
-      setRecentTags(recentTagAtHome);
+      setRecentTags(recentTagAtHome.map(hashtag => hashtag.toLowerCase()));
     }
   }, [recentTagAtPages, recentTagAtToken, recentTagAtHome]);
 
@@ -324,7 +326,7 @@ const SearchBox = () => {
         router.replace({
           query: {
             ...router.query,
-            hashtags: router.query.hashtags + ' ' + hashtag
+            hashtags: router.query.hashtags + ' ' + `#${hashtag.toLowerCase()}`
           }
         });
       }
@@ -333,7 +335,7 @@ const SearchBox = () => {
         query: {
           ...router.query,
           q: '',
-          hashtags: hashtag
+          hashtags: `#${hashtag.toLowerCase()}`
         }
       });
     }
@@ -386,7 +388,7 @@ const SearchBox = () => {
             </div>
             {recentTags.map(item => {
               return (
-                <div className="content-recent" onClick={e => onClickRecentTag(e)}>
+                <div className="content-recent" onClick={e => onClickRecentTag(e)} key={item}>
                   <div className="item-recent">
                     <HistoryOutlined className="recent-ico" />
                     <span className="text">{item}</span>
