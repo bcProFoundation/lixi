@@ -39,7 +39,7 @@ import { BurnTokenData, TokenItem } from './TokensFeed';
 import { getSelectedAccountId } from '@store/account';
 import { useCreateFollowTokenMutation, useDeleteFollowTokenMutation } from '@store/follow/follows.api';
 import FollowSvg from '@assets/icons/follow.svg';
-import { OPTION_BURN_VALUE } from '@components/Posts/PostsListing';
+import { OPTION_BURN_TYPE, OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants';
 import { BurnData } from '@components/Posts/PostDetail';
 import ReactionToken from '@components/Common/ReactionToken';
 import useAuthorization from '../Common/Authorization/use-authorization.hooks';
@@ -420,7 +420,7 @@ const TokensListing = () => {
       const { hash160, xAddress } = currentWalletPath;
       const burnType = isUpVote ? BurnType.Up : BurnType.Down;
       const burnedBy = hash160;
-      const burnForId = data.id;
+      const burnForId = data.tokenId;
       let tipToAddresses: { address: string; amount: string }[] = [];
       let queryParams;
 
