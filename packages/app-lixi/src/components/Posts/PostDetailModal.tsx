@@ -256,8 +256,8 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
 
   const dataSource = [
     {
-      label: '/lixi',
-      value: '/lixi'
+      label: '/give',
+      value: '/give'
     }
   ];
 
