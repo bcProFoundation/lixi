@@ -11,8 +11,8 @@ import { InfoSubCard } from '@components/Lixi';
 import { IconBurn } from '@components/Posts/PostDetail';
 import PostListItem from '@components/Posts/PostListItem';
 import {
-  CreateFollowPageInput,
-  DeleteFollowPageInput,
+  CreateFollowTokenInput,
+  DeleteFollowTokenInput,
   HashtagOrderField,
   OrderDirection,
   PostOrderField
@@ -40,7 +40,7 @@ import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import _ from 'lodash';
 import { useInfiniteHashtagByTokenQuery } from '@store/hashtag/useInfiniteHashtagByTokenQuery';
-import { useCreateFollowPageMutation, useDeleteFollowPageMutation } from '@store/follow/follows.api';
+import { useCreateFollowTokenMutation, useDeleteFollowTokenMutation } from '@store/follow/follows.api';
 
 export type TokenItem = TokenQuery['token'];
 export type BurnTokenData = {
@@ -272,24 +272,24 @@ const TokensFeed = ({ token, hasFollowed, isMobile }: TokenProps) => {
   );
 
   const [
-    createFollowPageTrigger,
+    createFollowTokenTrigger,
     {
-      isLoading: isLoadingCreateFollowPage,
-      isSuccess: isSuccessCreateFollowPage,
-      isError: isErrorCreateFollowPage,
-      error: errorOnCreateFollowPage
+      isLoading: isLoadingCreateFollowToken,
+      isSuccess: isSuccessCreateFollowToken,
+      isError: isErrorCreateFollowToken,
+      error: errorOnCreateFollowToken
     }
-  ] = useCreateFollowPageMutation();
+  ] = useCreateFollowTokenMutation();
 
   const [
-    deleteFollowPageTrigger,
+    deleteFollowTokenTrigger,
     {
-      isLoading: isLoadingDeleteFollowPage,
-      isSuccess: isSuccessDeleteFollowPage,
-      isError: isErrorDeleteFollowPage,
+      isLoading: isLoadingDeleteFollowToken,
+      isSuccess: isSuccessDeleteFollowToken,
+      isError: isErrorDeleteFollowToken,
       error: errorOnDelete
     }
-  ] = useDeleteFollowPageMutation();
+  ] = useDeleteFollowTokenMutation();
 
   // useEffect(() => {
   //   const tokenId = token.id;
@@ -358,12 +358,12 @@ const TokensFeed = ({ token, hasFollowed, isMobile }: TokenProps) => {
   }, [slpBalancesAndUtxos.nonSlpUtxos]);
 
   useEffect(() => {
-    if (isSuccessCreateFollowPage) setIsFollowed(true);
-  }, [isSuccessCreateFollowPage]);
+    if (isSuccessCreateFollowToken) setIsFollowed(true);
+  }, [isSuccessCreateFollowToken]);
 
   useEffect(() => {
-    if (isSuccessDeleteFollowPage) setIsFollowed(false);
-  }, [isSuccessDeleteFollowPage]);
+    if (isSuccessDeleteFollowToken) setIsFollowed(false);
+  }, [isSuccessDeleteFollowToken]);
 
   useDidMountEffectNotification();
 
@@ -437,22 +437,22 @@ const TokensFeed = ({ token, hasFollowed, isMobile }: TokenProps) => {
     dispatch(addRecentHashtagAtToken({ id: token.id, hashtag: hashtag.substring(1) }));
   };
 
-  const handleFollowPage = async () => {
-    const createFollowPageInput: CreateFollowPageInput = {
+  const handleFollowToken = async () => {
+    const createFollowTokenInput: CreateFollowTokenInput = {
       accountId: selectedAccountId,
       tokenId: token.tokenId
     };
 
-    await createFollowPageTrigger({ input: createFollowPageInput });
+    await createFollowTokenTrigger({ input: createFollowTokenInput });
   };
 
-  const handleUnfollowPage = async () => {
-    const deleteFollowPageInput: DeleteFollowPageInput = {
+  const handleUnfollowToken = async () => {
+    const deleteFollowTokenInput: DeleteFollowTokenInput = {
       accountId: selectedAccountId,
       tokenId: token.tokenId
     };
 
-    await deleteFollowPageTrigger({ input: deleteFollowPageInput });
+    await deleteFollowTokenTrigger({ input: deleteFollowTokenInput });
   };
 
   const showPosts = () => {
@@ -535,7 +535,7 @@ const TokensFeed = ({ token, hasFollowed, isMobile }: TokenProps) => {
             <div className="info-ticker__left">
               <div className="token-name-follow">
                 <h4 className="title-ticker">{tokenDetailData['ticker']}</h4>
-                <Button onClick={isFollowed ? handleUnfollowPage : handleFollowPage}>
+                <Button onClick={isFollowed ? handleUnfollowToken : handleFollowToken}>
                   {isFollowed ? intl.get('general.unfollow') : intl.get('general.follow')}
                 </Button>
               </div>

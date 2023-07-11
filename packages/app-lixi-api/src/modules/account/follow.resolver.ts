@@ -2,6 +2,7 @@ import {
   Account,
   CreateFollowAccountInput,
   CreateFollowPageInput,
+  CreateFollowTokenInput,
   DeleteFollowAccountInput,
   DeleteFollowPageInput,
   FollowAccount,
@@ -17,7 +18,8 @@ import {
   Page,
   TokenOrder,
   TokenConnection,
-  FollowPageConnection
+  FollowPageConnection,
+  DeleteFollowTokenInput
 } from '@bcpros/lixi-models';
 import { NotificationLevel } from '@bcpros/lixi-prisma';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
@@ -53,7 +55,7 @@ export class FollowResolver {
     private readonly notificationService: NotificationService,
     @I18n() private readonly i18n: I18nService,
     @InjectRedis() private readonly redis: Redis
-  ) {}
+  ) { }
 
   @Subscription(() => FollowAccount)
   followAccountCreated() {
@@ -92,7 +94,7 @@ export class FollowResolver {
         this.prisma.followAccount
           .findMany({
             where: {
-              followerAccountId: account.id
+              followerAccountId: followerAccountId
             },
             include: {
               followingAccount: true
@@ -104,7 +106,7 @@ export class FollowResolver {
       () =>
         this.prisma.followAccount.count({
           where: {
-            followerAccountId: account.id
+            followerAccountId: followerAccountId
           }
         }),
       { first, last, before, after }
@@ -131,7 +133,7 @@ export class FollowResolver {
         this.prisma.followAccount
           .findMany({
             where: {
-              followingAccountId: account.id
+              followingAccountId: followingAccountId
             },
             include: {
               followerAccount: true
@@ -143,7 +145,7 @@ export class FollowResolver {
       () =>
         this.prisma.followAccount.count({
           where: {
-            followingAccountId: account.id
+            followingAccountId: followingAccountId
           }
         }),
       { first, last, before, after }
@@ -262,7 +264,20 @@ export class FollowResolver {
   @UseGuards(GqlJwtAuthGuard)
   async checkIfFollowPage(
     @PageAccountEntity() account: Account,
-    @Args('pageId', { type: () => String, nullable: true }) pageId?: string,
+    @Args('pageId', { type: () => String, nullable: true }) pageId?: string
+  ) {
+    if (!account) {
+      return false;
+    }
+
+    // We need to find out if the account follow the page or not
+    return await this.followCacheService.checkIfAccountFollowPage(account.id, pageId!);
+  }
+
+  @Query(() => Boolean)
+  @UseGuards(GqlJwtAuthGuard)
+  async checkIfFollowToken(
+    @PageAccountEntity() account: Account,
     @Args('tokenId', { type: () => String, nullable: true }) tokenId?: string
   ) {
     if (!account) {
@@ -270,8 +285,7 @@ export class FollowResolver {
     }
 
     // We need to find out if the account follow the page or not
-    const pageOrTokenId = pageId ? pageId : (tokenId as string);
-    return await this.followCacheService.checkIfAccountFollowPage(account.id, pageOrTokenId);
+    return await this.followCacheService.checkIfAccountFollowToken(account.id, tokenId!);
   }
 
   @Query(() => FollowPageConnection)
@@ -290,11 +304,11 @@ export class FollowResolver {
     const queryFollowPagesWhere =
       pagesOnly == true
         ? {
-            AND: [{ accountId: account.id }, { token: null }]
-          }
+          AND: [{ accountId: account.id }, { token: null }]
+        }
         : {
-            accountId: account.id
-          };
+          accountId: account.id
+        };
 
     const result = await findManyCursorConnection(
       paginationArgs => {
@@ -321,7 +335,7 @@ export class FollowResolver {
   @Mutation(() => FollowPage)
   async createFollowPage(@AccountEntity() account: Account, @Args('data') data: CreateFollowPageInput) {
     try {
-      const { accountId, pageId, tokenId } = data;
+      const { accountId, pageId } = data;
 
       if (!account) {
         const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
@@ -335,7 +349,7 @@ export class FollowResolver {
 
       const existData = await this.prisma.followPage.findFirst({
         where: {
-          AND: [{ accountId: accountId }, { OR: [{ pageId: pageId }, { tokenId: tokenId }] }]
+          AND: [{ accountId: accountId }, { pageId: pageId }]
         }
       });
 
@@ -346,14 +360,12 @@ export class FollowResolver {
       const createdFollowPage = await this.prisma.followPage.create({
         data: {
           accountId: account.id,
-          pageId: pageId,
-          tokenId: tokenId
+          pageId: pageId
         }
       });
 
       // Save to cache
       pageId && (await this.followCacheService.createFollowPage(accountId, pageId, createdFollowPage.createdAt));
-      tokenId && (await this.followCacheService.createFollowToken(accountId, tokenId, createdFollowPage.createdAt));
 
       if (pageId) {
         const recipient = await this.prisma.account.findFirst({
@@ -400,10 +412,55 @@ export class FollowResolver {
   }
 
   @UseGuards(GqlJwtAuthGuard)
+  @Mutation(() => FollowPage)
+  async createFollowToken(@AccountEntity() account: Account, @Args('data') data: CreateFollowTokenInput) {
+    try {
+      const { accountId, tokenId } = data;
+
+      if (!account) {
+        const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
+        throw new Error(couldNotFindAccount);
+      }
+
+      if (account.id !== accountId) {
+        const invalidAccountMessage = await this.i18n.t('account.messages.invalidAccount');
+        throw new VError(invalidAccountMessage);
+      }
+
+      const existData = await this.prisma.followPage.findFirst({
+        where: {
+          AND: [{ accountId: accountId }, { tokenId: tokenId }]
+        }
+      });
+
+      if (existData) {
+        return existData;
+      }
+
+      const followTokenCreated = await this.prisma.followPage.create({
+        data: {
+          accountId: account.id,
+          tokenId: tokenId
+        }
+      });
+
+      // Save to cache
+      tokenId && (await this.followCacheService.createFollowToken(accountId, tokenId, followTokenCreated.createdAt));
+
+      pubSub.publish('followTokenCreated', { followTokenCreated: followTokenCreated });
+      return followTokenCreated;
+    } catch (err) {
+      if (err instanceof VError) {
+        throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
+  @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Boolean)
   async deleteFollowPage(@AccountEntity() account: Account, @Args('data') data: DeleteFollowPageInput) {
     try {
-      const { accountId, pageId, tokenId } = data;
+      const { accountId, pageId } = data;
 
       if (!account) {
         const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
@@ -422,6 +479,38 @@ export class FollowResolver {
       });
 
       pageId && (await this.followCacheService.removeFollowPage(accountId, pageId));
+
+      pubSub.publish('followPageDeleted', { followPageDeleted: deletedFollowPage });
+      return deletedFollowPage ? true : false;
+    } catch (err) {
+      if (err instanceof VError) {
+        throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
+  @UseGuards(GqlJwtAuthGuard)
+  @Mutation(() => Boolean)
+  async deleteFollowToken(@AccountEntity() account: Account, @Args('data') data: DeleteFollowTokenInput) {
+    try {
+      const { accountId, tokenId } = data;
+
+      if (!account) {
+        const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
+        throw new Error(couldNotFindAccount);
+      }
+
+      if (account.id !== accountId) {
+        const invalidAccountMessage = await this.i18n.t('account.messages.invalidAccount');
+        throw new VError(invalidAccountMessage);
+      }
+
+      const deletedFollowPage = await this.prisma.followPage.deleteMany({
+        where: {
+          ...data
+        }
+      });
+
       tokenId && (await this.followCacheService.removeFollowToken(accountId, tokenId));
 
       pubSub.publish('followPageDeleted', { followPageDeleted: deletedFollowPage });
@@ -450,7 +539,9 @@ export class FollowResolver {
     if (_.isNil(uploadDetail)) return null;
 
     const { upload } = uploadDetail;
-    const url = upload.bucket ? `${process.env.AWS_ENDPOINT}/${upload.bucket}/${upload.sha}` : upload.url;
+    const url = upload.bucket
+      ? `${process.env.CF_IMAGES_DELIVERY_URL}/${process.env.CF_ACCOUNT_HASH}/${upload.cfImageId}/xsmall`
+      : upload.url;
 
     return url;
   }
@@ -472,7 +563,9 @@ export class FollowResolver {
     if (_.isNil(uploadDetail)) return null;
 
     const { upload } = uploadDetail;
-    const url = upload.bucket ? `${process.env.AWS_ENDPOINT}/${upload.bucket}/${upload.sha}` : upload.url;
+    const url = upload.bucket
+      ? `${process.env.CF_IMAGES_DELIVERY_URL}/${process.env.CF_ACCOUNT_HASH}/${upload.cfImageId}/xsmall`
+      : upload.url;
 
     return url;
   }

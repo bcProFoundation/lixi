@@ -8,9 +8,9 @@ import { currency } from '@components/Common/Ticker';
 import { InfoSubCard } from '@components/Lixi';
 import { WalletContext } from '@context/walletProvider';
 import {
-  CreateFollowPageInput,
+  CreateFollowTokenInput,
   CreateTokenInput,
-  DeleteFollowPageInput,
+  DeleteFollowTokenInput,
   OrderDirection,
   Token,
   TokenEdge,
@@ -51,7 +51,7 @@ import styled from 'styled-components';
 import { BurnTokenData, TokenItem } from './TokensFeed';
 import { getCurrentThemes } from '@store/settings';
 import { getSelectedAccountId } from '@store/account';
-import { useCreateFollowPageMutation, useDeleteFollowPageMutation } from '@store/follow/follows.api';
+import { useCreateFollowTokenMutation, useDeleteFollowTokenMutation } from '@store/follow/follows.api';
 import FollowSvg from '@assets/icons/follow.svg';
 import { OPTION_BURN_VALUE } from '@components/Posts/PostsListing';
 import { BurnData } from '@components/Posts/PostDetail';
@@ -197,24 +197,24 @@ const TokensListing = () => {
   ] = useCreateTokenMutation();
 
   const [
-    createFollowPageTrigger,
+    createFollowTokenTrigger,
     {
-      isLoading: isLoadingCreateFollowPage,
-      isSuccess: isSuccessCreateFollowPage,
-      isError: isErrorCreateFollowPage,
-      error: errorOnCreateFollowPage
+      isLoading: isLoadingCreateFollowToken,
+      isSuccess: isSuccessCreateFollowToken,
+      isError: isErrorCreateFollowToken,
+      error: errorOnCreateFollowToken
     }
-  ] = useCreateFollowPageMutation();
+  ] = useCreateFollowTokenMutation();
 
   const [
-    deleteFollowPageTrigger,
+    deleteFollowTokenTrigger,
     {
-      isLoading: isLoadingDeleteFollowPage,
-      isSuccess: isSuccessDeleteFollowPage,
-      isError: isErrorDeleteFollowPage,
+      isLoading: isLoadingDeleteFollowToken,
+      isSuccess: isSuccessDeleteFollowToken,
+      isError: isErrorDeleteFollowToken,
       error: errorOnDelete
     }
-  ] = useDeleteFollowPageMutation();
+  ] = useDeleteFollowTokenMutation();
 
   const {
     handleSubmit,
@@ -390,8 +390,8 @@ const TokensListing = () => {
                 className={hasFollowed.includes(record.tokenId) ? 'isFollowed' : ''}
                 onClick={
                   hasFollowed.includes(record.tokenId)
-                    ? () => handleUnfollowPage(record.tokenId)
-                    : () => handleFollowPage(record.tokenId)
+                    ? () => handleUnfollowToken(record.tokenId)
+                    : () => handleFollowToken(record.tokenId)
                 }
               />
             </Button>
@@ -475,28 +475,28 @@ const TokensListing = () => {
     dispatch(openModal('BurnModal', { burnForType: BurnForType.Token, id: token.tokenId }));
   };
 
-  const handleFollowPage = async (tokenId: string) => {
-    const createFollowPageInput: CreateFollowPageInput = {
+  const handleFollowToken = async (tokenId: string) => {
+    const createFollowTokenInput: CreateFollowTokenInput = {
       accountId: selectedAccountId,
       tokenId: tokenId
     };
     setHasFollowed(prevState => [...prevState, tokenId]);
 
-    await createFollowPageTrigger({ input: createFollowPageInput });
-    if (isErrorCreateFollowPage || errorOnCreateFollowPage) {
+    await createFollowTokenTrigger({ input: createFollowTokenInput });
+    if (isErrorCreateFollowToken || errorOnCreateFollowToken) {
       setHasFollowed(prevState => prevState.filter(item => item !== tokenId));
     }
   };
 
-  const handleUnfollowPage = async (tokenId: string) => {
-    const deleteFollowPageInput: DeleteFollowPageInput = {
+  const handleUnfollowToken = async (tokenId: string) => {
+    const deleteFollowTokenInput: DeleteFollowTokenInput = {
       accountId: selectedAccountId,
       tokenId: tokenId
     };
     setHasFollowed(prevState => prevState.filter(item => item !== tokenId));
 
-    await deleteFollowPageTrigger({ input: deleteFollowPageInput });
-    if (isErrorDeleteFollowPage || errorOnDelete) {
+    await deleteFollowTokenTrigger({ input: deleteFollowTokenInput });
+    if (isErrorDeleteFollowToken || errorOnDelete) {
       setHasFollowed(prevState => [...prevState, tokenId]);
     }
   };
@@ -553,7 +553,7 @@ const TokensListing = () => {
           setHasFollowed(prevState => [...prevState, token.node.tokenId]);
         }
       });
-  }, [tokens, isSuccessCreateFollowPage, isSuccessDeleteFollowPage]);
+  }, [tokens, isSuccessCreateFollowToken, isSuccessDeleteFollowToken]);
 
   useDidMountEffectNotification();
 
@@ -616,7 +616,7 @@ const TokensListing = () => {
                             component={() => <FollowSvg />}
                             className={token.isFollowed ? 'isFollowed' : ''}
                             onClick={
-                              token.isFollowed ? () => handleUnfollowPage(token.id) : () => handleFollowPage(token.id)
+                              token.isFollowed ? () => handleUnfollowToken(token.id) : () => handleFollowToken(token.id)
                             }
                           />
                         </Button>

@@ -89,8 +89,12 @@ mutation deleteFollowAccount($input: DeleteFollowAccountInput!) {
   deleteFollowAccount(data: $input)
 }
 
-query checkIfFollowPage($pageId: String, $tokenId: String) {
-  checkIfFollowPage(pageId: $pageId, tokenId: $tokenId)
+query checkIfFollowPage($pageId: String) {
+  checkIfFollowPage(pageId: $pageId)
+}
+
+query checkIfFollowToken($tokenId: String) {
+  checkIfFollowToken(tokenId: $tokenId)
 }
 
 query allPagesByFollower(
@@ -159,4 +163,14 @@ mutation createFollowPage($input: CreateFollowPageInput!) {
 
 mutation deleteFollowPage($input: DeleteFollowPageInput!) {
   deleteFollowPage(data: $input)
+}
+
+mutation createFollowToken($input: CreateFollowTokenInput!) {
+  createFollowToken(data: $input) {
+    ...FollowPageFields
+  }
+}
+
+mutation deleteFollowToken($input: DeleteFollowTokenInput!) {
+  deleteFollowToken(data: $input)
 }

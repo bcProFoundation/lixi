@@ -88,7 +88,7 @@ export class FollowCacheService {
 
     const promises = [];
     for (const following of followings) {
-      promises.push(this.redis.zadd(key, following.createdAt.getTime(), following.accountId));
+      promises.push(this.redis.zadd(key, following.createdAt.getTime(), following.pageId!));
     }
 
     return Promise.all(promises);
@@ -99,6 +99,30 @@ export class FollowCacheService {
     const exist = await this.redis.exists([key]);
     if (!exist) {
       await this._cachePageFollowingOfAccount(key, accountId);
+    }
+    return await this.redis.zrevrange(key, 0, -1);
+  }
+
+  private async _cacheTokenFollowingOfAccount(key: string, accountId: number) {
+    const followings = await this.prisma.followPage.findMany({
+      where: {
+        accountId: accountId
+      }
+    });
+
+    const promises = [];
+    for (const following of followings) {
+      promises.push(this.redis.zadd(key, following.createdAt.getTime(), following.tokenId!));
+    }
+
+    return Promise.all(promises);
+  }
+
+  async getTokenFollowings(accountId: number) {
+    const key = `user:${accountId}:followingTokens`;
+    const exist = await this.redis.exists([key]);
+    if (!exist) {
+      await this._cacheTokenFollowingOfAccount(key, accountId);
     }
     return await this.redis.zrevrange(key, 0, -1);
   }
@@ -116,7 +140,7 @@ export class FollowCacheService {
     const key = `user:${accountId}:followingTokens`;
     const exist = await this.redis.exists([key]);
     if (!exist) {
-      await this._cachePageFollowingOfAccount(key, accountId);
+      await this._cacheTokenFollowingOfAccount(key, accountId);
     }
     return !!(await this.redis.zscore(key, tokenId));
   }

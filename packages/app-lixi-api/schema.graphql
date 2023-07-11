@@ -142,8 +142,12 @@ input CreateFollowAccountInput {
 
 input CreateFollowPageInput {
   accountId: Int!
-  pageId: String
-  tokenId: String
+  pageId: String!
+}
+
+input CreateFollowTokenInput {
+  accountId: Int!
+  tokenId: String!
 }
 
 input CreatePageInput {
@@ -220,8 +224,12 @@ input DeleteFollowAccountInput {
 
 input DeleteFollowPageInput {
   accountId: Int!
-  pageId: String
-  tokenId: String
+  pageId: String!
+}
+
+input DeleteFollowTokenInput {
+  accountId: Int!
+  tokenId: String!
 }
 
 type FollowAccount {
@@ -325,6 +333,7 @@ type Mutation {
   createComment(data: CreateCommentInput!): Comment!
   createFollowAccount(data: CreateFollowAccountInput!): FollowAccount!
   createFollowPage(data: CreateFollowPageInput!): FollowPage!
+  createFollowToken(data: CreateFollowTokenInput!): FollowPage!
   createPage(data: CreatePageInput!): Page!
   createPost(data: CreatePostInput!): Post!
   createTemple(data: CreateTempleInput!): Temple!
@@ -334,6 +343,7 @@ type Mutation {
   createWorshipedPerson(data: CreateWorshipedPersonInput!): WorshipedPerson!
   deleteFollowAccount(data: DeleteFollowAccountInput!): Boolean!
   deleteFollowPage(data: DeleteFollowPageInput!): Boolean!
+  deleteFollowToken(data: DeleteFollowTokenInput!): Boolean!
   importAccount(data: ImportAccountInput!): Account!
   repost(data: RepostInput!): Boolean!
   updatePage(data: UpdatePageInput!): Page!
@@ -652,7 +662,8 @@ type Query {
   allWorshipedPersonByUserId(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: WorshipedPersonOrder, skip: Int): WorshipedPersonConnection!
   allWorshipedPersonSpecialDate(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: WorshipedPersonOrder, skip: Int): WorshipedPersonConnection!
   checkIfFollowAccount(followingAccountId: Int!): Boolean!
-  checkIfFollowPage(pageId: String, tokenId: String): Boolean!
+  checkIfFollowPage(pageId: String): Boolean!
+  checkIfFollowToken(tokenId: String): Boolean!
   comment(id: String!): Comment!
   getAccountByAddress(address: String!): Account!
   hashtag(content: String!): Hashtag!

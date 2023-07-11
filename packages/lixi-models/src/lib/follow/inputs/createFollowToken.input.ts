@@ -2,12 +2,12 @@ import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty } from 'class-validator';
 
 @InputType()
-export class CreateFollowPageInput {
+export class CreateFollowTokenInput {
   @Field(() => Number)
   @IsNotEmpty()
   accountId: number;
 
   @Field(() => String)
   @IsNotEmpty()
-  pageId: string;
+  tokenId: string;
 }

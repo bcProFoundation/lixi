@@ -160,8 +160,12 @@ export type CreateFollowAccountInput = {
 
 export type CreateFollowPageInput = {
   accountId: Scalars['Int'];
-  pageId?: InputMaybe<Scalars['String']>;
-  tokenId?: InputMaybe<Scalars['String']>;
+  pageId: Scalars['String'];
+};
+
+export type CreateFollowTokenInput = {
+  accountId: Scalars['Int'];
+  tokenId: Scalars['String'];
 };
 
 export type CreatePageInput = {
@@ -230,8 +234,12 @@ export type DeleteFollowAccountInput = {
 
 export type DeleteFollowPageInput = {
   accountId: Scalars['Int'];
-  pageId?: InputMaybe<Scalars['String']>;
-  tokenId?: InputMaybe<Scalars['String']>;
+  pageId: Scalars['String'];
+};
+
+export type DeleteFollowTokenInput = {
+  accountId: Scalars['Int'];
+  tokenId: Scalars['String'];
 };
 
 export type FollowAccount = {
@@ -338,6 +346,7 @@ export type Mutation = {
   createComment: Comment;
   createFollowAccount: FollowAccount;
   createFollowPage: FollowPage;
+  createFollowToken: FollowPage;
   createPage: Page;
   createPost: Post;
   createTemple: Temple;
@@ -347,6 +356,7 @@ export type Mutation = {
   createWorshipedPerson: WorshipedPerson;
   deleteFollowAccount: Scalars['Boolean'];
   deleteFollowPage: Scalars['Boolean'];
+  deleteFollowToken: Scalars['Boolean'];
   importAccount: Account;
   repost: Scalars['Boolean'];
   updatePage: Page;
@@ -367,6 +377,10 @@ export type MutationCreateFollowAccountArgs = {
 
 export type MutationCreateFollowPageArgs = {
   data: CreateFollowPageInput;
+};
+
+export type MutationCreateFollowTokenArgs = {
+  data: CreateFollowTokenInput;
 };
 
 export type MutationCreatePageArgs = {
@@ -403,6 +417,10 @@ export type MutationDeleteFollowAccountArgs = {
 
 export type MutationDeleteFollowPageArgs = {
   data: DeleteFollowPageInput;
+};
+
+export type MutationDeleteFollowTokenArgs = {
+  data: DeleteFollowTokenInput;
 };
 
 export type MutationImportAccountArgs = {
@@ -635,6 +653,7 @@ export type Query = {
   allWorshipedPersonSpecialDate: WorshipedPersonConnection;
   checkIfFollowAccount: Scalars['Boolean'];
   checkIfFollowPage: Scalars['Boolean'];
+  checkIfFollowToken: Scalars['Boolean'];
   comment: Comment;
   getAccountByAddress: Account;
   hashtag: Hashtag;
@@ -960,6 +979,9 @@ export type QueryCheckIfFollowAccountArgs = {
 
 export type QueryCheckIfFollowPageArgs = {
   pageId?: InputMaybe<Scalars['String']>;
+};
+
+export type QueryCheckIfFollowTokenArgs = {
   tokenId?: InputMaybe<Scalars['String']>;
 };
 

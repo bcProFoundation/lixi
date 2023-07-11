@@ -7,9 +7,7 @@ export class DeleteFollowPageInput {
   @IsNotEmpty()
   accountId: number;
 
-  @Field(() => String, { nullable: true })
-  pageId?: string;
-
-  @Field(() => String, { nullable: true })
-  tokenId?: string;
+  @Field(() => String)
+  @IsNotEmpty()
+  pageId: string;
 }

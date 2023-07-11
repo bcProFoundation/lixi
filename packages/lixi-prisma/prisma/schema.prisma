@@ -90,7 +90,7 @@ model Token {
   createdAt            DateTime     @default(now()) @map("created_at") @db.Timestamptz
   createdDate          DateTime     @default(now()) @map("created_date") @db.Timestamptz
   posts                Post[]
-  FollowPage           FollowPage[]
+  followers            FollowPage[]
 
   @@map("token")
 }
