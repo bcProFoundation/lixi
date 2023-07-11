@@ -300,8 +300,8 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
 
   const dataSource = [
     {
-      label: '/give',
-      value: '/give'
+      label: '/lixi',
+      value: '/lixi'
     }
   ];
 

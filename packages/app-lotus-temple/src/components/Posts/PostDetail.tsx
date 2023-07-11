@@ -266,7 +266,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   const walletStatus = useAppSelector(getWalletStatus);
   const [open, setOpen] = useState(false);
 
-  const dataSource = ['/give'];
+  const dataSource = ['/lixi'];
 
   const { data, totalCount, fetchNext, hasNext, isFetching } = useInfiniteCommentsToPostIdQuery(
     {
@@ -419,7 +419,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
 
     if (text !== '' || !_.isNil(text)) {
       let tipHex;
-      if (text.trim().toLowerCase().split(' ')[0] === '/give') {
+      if (text.trim().toLowerCase().split(' ')[0] === '/lixi') {
         try {
           if (!isNumeric(text.trim().split(' ')[1])) {
             const error = new Error(intl.get('send.syntaxError') as string);
