@@ -12,6 +12,11 @@ import { CreateMessageInput, MessageOrderField, OrderDirection } from '@generate
 import Message from './Message';
 import { Controller, useForm } from 'react-hook-form';
 import { useCreateMessageMutation } from '@store/message/message.api';
+import { SendOutlined, SettingOutlined } from '@ant-design/icons';
+import _ from 'lodash';
+import { useMessageSessionByPageMessageSessionIdQuery } from '@store/message/messageSession.api';
+
+const { TextArea } = Input;
 
 type PageMessageProps = {
   page: PageItem;
@@ -27,116 +32,20 @@ const StyledChatContainer = styled.div`
 const StyledChatList = styled.div`
   width: 30%;
   border-right: 1px solid black;
+  overflow: auto;
 `;
+
 const StyledChatbox = styled.div`
   width: 100%;
   padding: 5px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column-reverse;
+  height: 100%;
 `;
 
 const InputContainer = styled.div`
-  position: absolute;
-  bottom: 0px;
-  width: inherit;
-`;
-
-const StyledMessage = styled(Space)`
-  width: 100%;
-  gap: 8px !important;
-  padding: 8px;
-  border: 1px solid var(--border-color-base);
-  cursor: pointer;
-  margin-bottom: 0.5rem;
-  &:hover {
-    background: var(--border-color-base);
-    .page-name {
-      color: var(--color-primary);
-    }
-  }
-  .ant-space-item {
-    &:last-child {
-      flex: 1;
-    }
-  }
-  .avatar-account {
-    border: 1px solid #fbf1fb;
-    border-radius: 50%;
-    width: fit-content;
-    .ant-avatar {
-      display: flex;
-      align-items: center;
-      font-size: 14px !important;
-      width: 46px;
-      height: 46px;
-    }
-    img {
-      object-fit: cover;
-      border-radius: 50%;
-      width: 46px;
-      height: 46px;
-    }
-  }
-  .content-account {
-    display: flex;
-    .info-account {
-      flex: 1;
-      p {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        line-clamp: 1;
-        -webkit-line-clamp: 1;
-        box-orient: vertical;
-        -webkit-box-orient: vertical;
-        margin: 0;
-        text-align: left;
-        line-height: 16px;
-      }
-      .page-name {
-        font-size: 14px;
-        font-weight: 500;
-      }
-      .account-name {
-        font-size: 12px;
-      }
-      .content {
-        font-size: 11px;
-        color: gray;
-      }
-    }
-    .time-score {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-end;
-      gap: 8px;
-      p {
-        margin: 0;
-        color: gray;
-        &.create-date {
-          font-size: 10px;
-        }
-        &.lotus-burn-score {
-          font-size: 10px;
-          color: #fff;
-        }
-      }
-      .content-score {
-        padding: 2px 4px;
-        background: #bfbfbf;
-        border-radius: 12px;
-      }
-    }
-  }
-  &.collapse {
-    img {
-      width: 30px;
-      height: 30px;
-    }
-    .ant-avatar {
-      width: 30px;
-      height: 30px;
-    }
-  }
+  display: flex;
 `;
 
 const StyledInfiniteScroll = styled(InfiniteScroll)`
@@ -144,18 +53,39 @@ const StyledInfiniteScroll = styled(InfiniteScroll)`
   flex-direction: column-reverse;
 `;
 
+const StyledContainer = styled.div`
+  display: flex;
+  width: 70%;
+  flex-direction: column;
+`;
+
+const IconContainer = styled.div`
+  display: flex;
+  width: 5%;
+  border: 1px solid black;
+  justify-content: center;
+  border-radius: 0px 5px 5px 0px;
+`;
+
+const StyledHeader = styled.div`
+  border-bottom: 1px solid black;
+`;
+
 const ChatUser = ({ item, index, onClickMessage }) => {
   return (
     <React.Fragment>
-      <p onClick={() => onClickMessage(item.messageSessions[0].id)}>{item.account?.name}</p>
+      <p onClick={() => onClickMessage(item.messageSessions[0].id, item.id)} style={{ cursor: 'pointer' }}>
+        {item.account?.name}
+      </p>
     </React.Fragment>
   );
 };
 
 const PageMessageForOwner = ({ page }: PageMessageProps) => {
   const dispatch = useAppDispatch();
-  const [currentMessageId, setCurrentMessageId] = useState<string | null>(null);
-  const { control, getValues, setValue, setFocus } = useForm();
+  const [currentMessageSessionId, setCurrentMessageSessionId] = useState<string | null>(null);
+  const [currentPageMessageSessionId, setCurrentPageMessageSessionId] = useState<string | null>(null);
+  const { control, getValues, resetField, setFocus } = useForm();
 
   const [
     createMessageTrigger,
@@ -170,6 +100,13 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
       },
       false
     );
+
+  const { data: messageSessionData } = useMessageSessionByPageMessageSessionIdQuery(
+    {
+      id: currentPageMessageSessionId
+    },
+    { skip: !currentPageMessageSessionId }
+  );
 
   const loadMoreItems = () => {
     if (hasNext && !isFetching) {
@@ -186,7 +123,7 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
     isFetching: messageIsFetching,
     isFetchingNext: messageIsFetchingNext
   } = useInfiniteMessageByMessageSessionId({
-    id: currentMessageId,
+    id: currentMessageSessionId,
     orderBy: {
       direction: OrderDirection.Desc,
       field: MessageOrderField.UpdatedAt
@@ -204,8 +141,14 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
     }
   }, [data]);
 
-  const onClickMessage = (id: string) => {
-    setCurrentMessageId(id);
+  useEffect(() => {
+    resetField('message');
+    setFocus('message');
+  }, [currentMessageSessionId]);
+
+  const onClickMessage = (messageSessionId: string, pageMessageSessionId: string) => {
+    setCurrentPageMessageSessionId(pageMessageSessionId);
+    setCurrentMessageSessionId(messageSessionId);
   };
 
   const loadMoreMessages = () => {
@@ -217,70 +160,92 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
   };
 
   const sendMessage = async () => {
+    if (_.isNil(getValues('message')) || getValues('message') === '' || currentMessageSessionId === null) {
+      return;
+    }
     const input: CreateMessageInput = {
       authorId: parseInt(page.pageAccount.id),
       body: getValues('message'),
-      messageSessionId: currentMessageId,
+      messageSessionId: currentMessageSessionId,
       isPageOwner: true
     };
 
     await createMessageTrigger({ input }).unwrap();
+    resetField('message');
+    setFocus('message');
+  };
+
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); // Prevent the default behavior of adding a new line
+      await sendMessage(); // Call your function to post the comment
+    }
   };
 
   return (
     <StyledChatContainer>
-      <StyledChatList>
+      <StyledChatList id="scrollableChatlist">
         <InfiniteScroll
           dataLength={data.length}
           next={loadMoreItems}
           hasMore={hasNext}
           loader={<Skeleton avatar active />}
-          endMessage={
-            <p style={{ textAlign: 'center' }}>
-              <b>{data.length > 0 ? 'end reached' : ''}</b>
-            </p>
-          }
-          scrollableTarget="scrollableDiv"
+          scrollableTarget="scrollableChatlist"
         >
           {data.map((item, index) => {
             return <ChatUser index={index} item={item} key={item.id} onClickMessage={onClickMessage} />;
           })}
         </InfiniteScroll>
       </StyledChatList>
-      <StyledChatbox>
-        {messageData.length > 0 && (
-          <StyledInfiniteScroll
-            dataLength={messageData.length}
-            next={loadMoreMessages}
-            hasMore={messageHasNext}
-            loader={<Skeleton avatar active />}
-            endMessage={
-              <p style={{ textAlign: 'center' }}>
-                <b>{data.length > 0 ? 'end reached' : ''}</b>
-              </p>
-            }
-            scrollableTarget="scrollableDiv"
-            inverse
-          >
-            {messageData.map(item => {
-              return <Message message={item} key={item.id} authorAddress={page.pageAccount.address} />;
-            })}
-          </StyledInfiniteScroll>
-        )}
-      </StyledChatbox>
-      <InputContainer>
-        <Controller
-          name="message"
-          control={control}
-          rules={{
-            required: true
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input onChange={onChange} onBlur={onBlur} value={value} placeholder={'type me'} />
+      <StyledContainer>
+        <StyledHeader>
+          {messageSessionData &&
+            `Session: ${messageSessionData.allMessageSessionByPageMessageSessionId.edges[0].node.id}`}
+        </StyledHeader>
+        <StyledChatbox id="scrollableChatbox">
+          {messageData.length > 0 && (
+            <StyledInfiniteScroll
+              dataLength={messageData.length}
+              next={loadMoreMessages}
+              hasMore={messageHasNext}
+              loader={<Skeleton active />}
+              inverse
+              scrollableTarget="scrollableChatbox"
+            >
+              {messageData.map(item => {
+                return <Message message={item} key={item.id} authorAddress={page.pageAccount.address} />;
+              })}
+            </StyledInfiniteScroll>
           )}
-        />
-        <Button onClick={sendMessage}>Send</Button>
-      </InputContainer>
+        </StyledChatbox>
+        {currentMessageSessionId && (
+          <InputContainer>
+            <Controller
+              name="message"
+              control={control}
+              rules={{
+                required: true
+              }}
+              render={({ field: { onChange, onBlur, value, ref } }) => (
+                <TextArea
+                  ref={ref}
+                  style={{ width: '95%' }}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                  placeholder={'Aa'}
+                  disabled={isLoadingCreateMessage}
+                  autoSize
+                  onKeyDown={handleKeyDown}
+                />
+              )}
+            />
+            <IconContainer>
+              <SendOutlined onClick={sendMessage} disabled={isLoadingCreateMessage} />
+            </IconContainer>
+          </InputContainer>
+        )}
+      </StyledContainer>
     </StyledChatContainer>
   );
 };

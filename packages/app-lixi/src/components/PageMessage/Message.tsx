@@ -17,16 +17,14 @@ const StyledChat = styled.p`
   margin-bottom: 10px;
   padding: 5px;
   border-radius: var(--border-radius-primary);
+  max-width: 50%;
+  word-wrap: break-word;
+  white-space-collapse: preserve;
+  text-align: left;
+  min-width: 10%;
 `;
 
 const Message = ({ message, authorAddress }: MessageItem) => {
-  console.log('🚀 ~ file: Message.tsx:19 ~ Message ~ authorAddress:', authorAddress);
-  console.log('🚀 ~ file: Message.tsx:23 ~ Message ~ message.author.address:', message.author.address);
-  console.log(
-    '🚀 ~ file: Message.tsx:25 ~ Message ~  message.author.address === authorAddress:',
-    message.author.address === authorAddress
-  );
-
   return (
     <React.Fragment>
       <StyledMessageContainer

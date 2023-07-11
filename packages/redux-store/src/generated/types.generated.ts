@@ -173,6 +173,10 @@ export type CreateMessageInput = {
   pageMessageSessionId?: InputMaybe<Scalars['String']>;
 };
 
+export type CreateMessageSessionInput = {
+  pageMessageSessionId: Scalars['String'];
+};
+
 export type CreatePageInput = {
   categoryId?: InputMaybe<Scalars['String']>;
   description: Scalars['String'];
@@ -457,11 +461,32 @@ export type MessageSession = {
   updatedAt?: Maybe<Scalars['DateTime']>;
 };
 
+export type MessageSessionConnection = {
+  __typename?: 'MessageSessionConnection';
+  edges?: Maybe<Array<MessageSessionEdge>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']>;
+};
+
 export type MessageSessionEdge = {
   __typename?: 'MessageSessionEdge';
   cursor: Scalars['String'];
   node: MessageSession;
 };
+
+export type MessageSessionOrder = {
+  direction: OrderDirection;
+  field: MessageSessionOrderField;
+};
+
+/** Properties by which message session connections can be ordered. */
+export enum MessageSessionOrderField {
+  CreatedAt = 'createdAt',
+  Id = 'id',
+  LixiAmount = 'lixiAmount',
+  SessionOpen = 'sessionOpen',
+  UpdatedAt = 'updatedAt'
+}
 
 export type Mutation = {
   __typename?: 'Mutation';
@@ -470,6 +495,7 @@ export type Mutation = {
   createFollowAccount: FollowAccount;
   createFollowPage: FollowPage;
   createMessage: Message;
+  createMessageSession: MessageSession;
   createPage: Page;
   createPageMessageSession: PageMessageSession;
   createPost: Post;
@@ -504,6 +530,10 @@ export type MutationCreateFollowPageArgs = {
 
 export type MutationCreateMessageArgs = {
   data: CreateMessageInput;
+};
+
+export type MutationCreateMessageSessionArgs = {
+  data: CreateMessageSessionInput;
 };
 
 export type MutationCreatePageArgs = {
@@ -794,6 +824,7 @@ export type Query = {
   allHashtagBySearch: HashtagConnection;
   allHashtagByToken: HashtagConnection;
   allMessageByMessageSessionId: MessageConnection;
+  allMessageSessionByPageMessageSessionId: MessageSessionConnection;
   allOrphanPosts: PostConnection;
   allPageMessageSessionByAccountId: PageMessageSessionConnection;
   allPageMessageSessionByPageId: PageMessageSessionConnection;
@@ -825,6 +856,7 @@ export type Query = {
   getAccountByAddress: Account;
   hashtag: Hashtag;
   message: Message;
+  messageSession: MessageSession;
   page: Page;
   pageMessageSession: PageMessageSession;
   post: Post;
@@ -916,6 +948,17 @@ export type QueryAllMessageByMessageSessionIdArgs = {
   last?: InputMaybe<Scalars['Int']>;
   minBurnFilter?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<MessageOrder>;
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
+export type QueryAllMessageSessionByPageMessageSessionIdArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  id?: InputMaybe<Scalars['String']>;
+  last?: InputMaybe<Scalars['Int']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<MessageSessionOrder>;
   skip?: InputMaybe<Scalars['Int']>;
 };
 
@@ -1201,6 +1244,10 @@ export type QueryMessageArgs = {
   id: Scalars['String'];
 };
 
+export type QueryMessageSessionArgs = {
+  id: Scalars['String'];
+};
+
 export type QueryPageArgs = {
   id: Scalars['String'];
 };
@@ -1268,6 +1315,7 @@ export type Subscription = {
   followAccountCreated: FollowAccount;
   hashtagCreated: Hashtag;
   messageCreated: Message;
+  messageSessionCreated: MessageSession;
   pageCreated: Page;
   pageMessageSessionCreated: PageMessageSession;
   postCreated: Post;

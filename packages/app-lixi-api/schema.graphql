@@ -155,6 +155,10 @@ input CreateMessageInput {
   pageMessageSessionId: String
 }
 
+input CreateMessageSessionInput {
+  pageMessageSessionId: String!
+}
+
 input CreatePageInput {
   categoryId: String
   description: String!
@@ -446,9 +450,29 @@ type MessageSession {
   updatedAt: DateTime
 }
 
+type MessageSessionConnection {
+  edges: [MessageSessionEdge!]
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
 type MessageSessionEdge {
   cursor: String!
   node: MessageSession!
+}
+
+input MessageSessionOrder {
+  direction: OrderDirection!
+  field: MessageSessionOrderField!
+}
+
+"""Properties by which message session connections can be ordered."""
+enum MessageSessionOrderField {
+  createdAt
+  id
+  lixiAmount
+  sessionOpen
+  updatedAt
 }
 
 type Mutation {
@@ -457,6 +481,7 @@ type Mutation {
   createFollowAccount(data: CreateFollowAccountInput!): FollowAccount!
   createFollowPage(data: CreateFollowPageInput!): FollowPage!
   createMessage(data: CreateMessageInput!): Message!
+  createMessageSession(data: CreateMessageSessionInput!): MessageSession!
   createPage(data: CreatePageInput!): Page!
   createPageMessageSession(data: CreatePageMessageInput!): PageMessageSession!
   createPost(data: CreatePostInput!): Post!
@@ -713,6 +738,7 @@ type Query {
   ): HashtagConnection!
   allHashtagByToken(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: HashtagOrder, skip: Int): HashtagConnection!
   allMessageByMessageSessionId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: MessageOrder, skip: Int): MessageConnection!
+  allMessageSessionByPageMessageSessionId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: MessageSessionOrder, skip: Int): MessageSessionConnection!
   allOrphanPosts(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PostOrder, query: String, skip: Int): PostConnection!
   allPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
@@ -818,6 +844,7 @@ type Query {
   getAccountByAddress(address: String!): Account!
   hashtag(content: String!): Hashtag!
   message(id: String!): Message!
+  messageSession(id: String!): MessageSession!
   page(id: String!): Page!
   pageMessageSession(id: String!): PageMessageSession!
   post(id: String!): Post!
@@ -861,6 +888,7 @@ type Subscription {
   followAccountCreated: FollowAccount!
   hashtagCreated: Hashtag!
   messageCreated: Message!
+  messageSessionCreated: MessageSession!
   pageCreated: Page!
   pageMessageSessionCreated: PageMessageSession!
   postCreated: Post!

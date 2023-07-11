@@ -1,4 +1,9 @@
-import { PageMessageSessionConnection, PageMessageSessionOrder } from '@bcpros/lixi-models';
+import {
+  MessageSessionConnection,
+  MessageSessionOrder,
+  PageMessageSessionConnection,
+  PageMessageSessionOrder
+} from '@bcpros/lixi-models';
 import {
   Account,
   CreatePageMessageInput,
@@ -201,157 +206,6 @@ export class PageMessageSessionResolver {
       return result;
     }
   }
-
-  // @UseGuards(GqlJwtAuthGuard)
-  // @Mutation(() => Worship)
-  // async createWorship(@AccountEntity() account: Account, @Args('data') data: CreateWorshipInput) {
-  //   if (!account) {
-  //     const couldNotFindAccount = this.i18n.t('post.messages.couldNotFindAccount');
-  //     throw new Error(couldNotFindAccount);
-  //   }
-
-  //   const { worshipedPersonId, worshipedAmount, location, longitude, latitude } = data;
-
-  //   const person = await this.prisma.worshipedPerson.findFirst({
-  //     where: {
-  //       id: worshipedPersonId
-  //     }
-  //   });
-
-  //   const newTotalAmount = person?.totalWorshipAmount ? person?.totalWorshipAmount + worshipedAmount : worshipedAmount;
-
-  //   if (!person) {
-  //     const couldNotFindPerson = this.i18n.t('worship.messages.couldNotFindPerson');
-  //     throw new Error(couldNotFindPerson);
-  //   }
-
-  //   const personToWorship = {
-  //     data: {
-  //       account: {
-  //         connect: {
-  //           id: account.id
-  //         }
-  //       },
-  //       worshipedPerson: {
-  //         connect: {
-  //           id: worshipedPersonId
-  //         }
-  //       },
-  //       worshipedAmount: worshipedAmount,
-  //       location: location || undefined,
-  //       latitude: latitude || undefined,
-  //       longitude: longitude || undefined
-  //     }
-  //   };
-  //   const worshipedPerson = await this.prisma.worship.create({
-  //     ...personToWorship,
-  //     include: {
-  //       account: {
-  //         select: {
-  //           id: true,
-  //           name: true,
-  //           address: true
-  //         }
-  //       },
-  //       worshipedPerson: {
-  //         select: {
-  //           id: true,
-  //           name: true,
-  //           totalWorshipAmount: true
-  //         }
-  //       }
-  //     }
-  //   });
-
-  //   await this.prisma.worshipedPerson.update({
-  //     where: {
-  //       id: person.id
-  //     },
-  //     data: {
-  //       totalWorshipAmount: newTotalAmount
-  //     }
-  //   });
-
-  //   if (person.yearOfDeath && moment().year() - person.yearOfDeath > 60)
-  //     this.worshipGateway.publishWorship(worshipedPerson);
-
-  //   pubSub.publish('personWorshiped', { personWorshiped: worshipedPerson });
-  //   return worshipedPerson;
-  // }
-
-  // @UseGuards(GqlJwtAuthGuard)
-  // @Mutation(() => Worship)
-  // async createWorshipTemple(@AccountEntity() account: Account, @Args('data') data: CreateWorshipInput) {
-  //   if (!account) {
-  //     const couldNotFindAccount = this.i18n.t('post.messages.couldNotFindAccount');
-  //     throw new Error(couldNotFindAccount);
-  //   }
-
-  //   const { templeId, worshipedAmount, location, longitude, latitude } = data;
-
-  //   const temple = await this.prisma.temple.findFirst({
-  //     where: {
-  //       id: templeId
-  //     }
-  //   });
-
-  //   const newTotalAmount = temple?.totalWorshipAmount ? temple?.totalWorshipAmount + worshipedAmount : worshipedAmount;
-
-  //   if (!temple) {
-  //     const couldNotFindTemple = this.i18n.t('worship.messages.couldNotFindTemple');
-  //     throw new Error(couldNotFindTemple);
-  //   }
-
-  //   const templeToWorship = {
-  //     data: {
-  //       account: {
-  //         connect: {
-  //           id: account.id
-  //         }
-  //       },
-  //       temple: {
-  //         connect: {
-  //           id: templeId
-  //         }
-  //       },
-  //       worshipedAmount: worshipedAmount,
-  //       location: location || undefined,
-  //       latitude: latitude || undefined,
-  //       longitude: longitude || undefined
-  //     }
-  //   };
-  //   const worshipedTemple = await this.prisma.worship.create({
-  //     ...templeToWorship,
-  //     include: {
-  //       account: {
-  //         select: {
-  //           id: true,
-  //           name: true,
-  //           address: true
-  //         }
-  //       },
-  //       temple: {
-  //         select: {
-  //           id: true,
-  //           name: true,
-  //           totalWorshipAmount: true
-  //         }
-  //       }
-  //     }
-  //   });
-
-  //   await this.prisma.temple.update({
-  //     where: {
-  //       id: temple.id
-  //     },
-  //     data: {
-  //       totalWorshipAmount: newTotalAmount
-  //     }
-  //   });
-
-  //   pubSub.publish('templeWorshiped', { templeWorshiped: worshipedTemple });
-  //   return worshipedTemple;
-  // }
 
   @ResolveField()
   async messageSessions(@Parent() pageMessageSession: PageMessageSession) {

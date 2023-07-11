@@ -10,7 +10,7 @@ import {
   useCreatePageMessageSessionMutation,
   useUserHadMessageToPageQuery
 } from '@store/message/pageMessageSession.api';
-import { Account } from '@bcpros/lixi-models';
+import { Account, CreateMessageSessionInput } from '@bcpros/lixi-models';
 import _ from 'lodash';
 import {
   CreateMessageInput,
@@ -23,6 +23,10 @@ import { useCreateMessageMutation } from '@store/message/message.api';
 import { useForm, Controller } from 'react-hook-form';
 import { api as messageApi } from '@store/message/message.api';
 import Message from './Message';
+import { SendOutlined } from '@ant-design/icons';
+import { useCreateMessageSessionMutation } from '@store/message/messageSession.api';
+
+const { TextArea } = Input;
 
 type PageMessageProps = {
   page: PageItem;
@@ -35,120 +39,28 @@ const StyledChatContainer = styled.div`
   height: 600px;
   border-radius: var(--border-radius-primary);
   display: flex;
+  flex-direction: column;
 `;
 
-const StyledChatList = styled.div`
-  width: 30%;
-  border-right: 1px solid black;
-`;
 const StyledChatbox = styled.div`
   width: 100%;
+  padding: 5px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column-reverse;
+  height: 100%;
 `;
 
 const InputContainer = styled.div`
-  position: absolute;
-  bottom: 0px;
-  width: inherit;
+  display: flex;
 `;
 
-const StyledMessage = styled(Space)`
-  width: 100%;
-  gap: 8px !important;
-  padding: 8px;
-  border: 1px solid var(--border-color-base);
-  cursor: pointer;
-  margin-bottom: 0.5rem;
-  &:hover {
-    background: var(--border-color-base);
-    .page-name {
-      color: var(--color-primary);
-    }
-  }
-  .ant-space-item {
-    &:last-child {
-      flex: 1;
-    }
-  }
-  .avatar-account {
-    border: 1px solid #fbf1fb;
-    border-radius: 50%;
-    width: fit-content;
-    .ant-avatar {
-      display: flex;
-      align-items: center;
-      font-size: 14px !important;
-      width: 46px;
-      height: 46px;
-    }
-    img {
-      object-fit: cover;
-      border-radius: 50%;
-      width: 46px;
-      height: 46px;
-    }
-  }
-  .content-account {
-    display: flex;
-    .info-account {
-      flex: 1;
-      p {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        line-clamp: 1;
-        -webkit-line-clamp: 1;
-        box-orient: vertical;
-        -webkit-box-orient: vertical;
-        margin: 0;
-        text-align: left;
-        line-height: 16px;
-      }
-      .page-name {
-        font-size: 14px;
-        font-weight: 500;
-      }
-      .account-name {
-        font-size: 12px;
-      }
-      .content {
-        font-size: 11px;
-        color: gray;
-      }
-    }
-    .time-score {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-end;
-      gap: 8px;
-      p {
-        margin: 0;
-        color: gray;
-        &.create-date {
-          font-size: 10px;
-        }
-        &.lotus-burn-score {
-          font-size: 10px;
-          color: #fff;
-        }
-      }
-      .content-score {
-        padding: 2px 4px;
-        background: #bfbfbf;
-        border-radius: 12px;
-      }
-    }
-  }
-  &.collapse {
-    img {
-      width: 30px;
-      height: 30px;
-    }
-    .ant-avatar {
-      width: 30px;
-      height: 30px;
-    }
-  }
+const IconContainer = styled.div`
+  display: flex;
+  width: 5%;
+  border: 1px solid black;
+  justify-content: center;
+  border-radius: 0px 5px 5px 0px;
 `;
 
 const StyledInfiniteScroll = styled(InfiniteScroll)`
@@ -156,9 +68,13 @@ const StyledInfiniteScroll = styled(InfiniteScroll)`
   flex-direction: column-reverse;
 `;
 
+const StyledHeader = styled.div`
+  border-bottom: 1px solid black;
+`;
+
 const PageMessageForUser = ({ page, account }: PageMessageProps) => {
   const dispatch = useAppDispatch();
-  const { control, getValues, setValue, setFocus } = useForm();
+  const { control, getValues, resetField, setFocus } = useForm();
   const [messageSessionId, setMessageSessionId] = useState<string | null>(null);
 
   const { data: pageMessageSessionData, refetch: pageMessageSessionRefetch } = useUserHadMessageToPageQuery({
@@ -189,6 +105,15 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
     { isLoading: isLoadingCreateMessage, isSuccess: isSuccessCreateMessage, isError: isErrorCreateMessage }
   ] = useCreateMessageMutation();
 
+  const [
+    createMessageSessionTrigger,
+    {
+      isLoading: isLoadingCreateMessageSession,
+      isSuccess: isSuccessCreateMessageSession,
+      isError: isErrorCreateMessageSession
+    }
+  ] = useCreateMessageSessionMutation();
+
   const loadMoreItems = () => {
     if (hasNext && !isFetching) {
       fetchNext();
@@ -209,6 +134,18 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
     }
   };
 
+  const createNewMessageSession = async () => {
+    const input: CreateMessageSessionInput = {
+      pageMessageSessionId: pageMessageSessionData.userHadMessageToPage.id
+    };
+    console.log('🚀 ~ file: PageMessageForUser.tsx:141 ~ createNewMessageSession ~ input:', input);
+    if (!_.isNil(pageMessageSessionData)) {
+      const result = await createMessageSessionTrigger({ input }).unwrap();
+
+      pageMessageSessionRefetch();
+    }
+  };
+
   useEffect(() => {
     if (pageMessageSessionData?.userHadMessageToPage?.id) {
       const id = pageMessageSessionData?.userHadMessageToPage?.messageSessions[0].id;
@@ -218,6 +155,9 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
   }, [pageMessageSessionData]);
 
   const sendMessage = async () => {
+    if (_.isNil(getValues('message')) || getValues('message') === '') {
+      return;
+    }
     const input: CreateMessageInput = {
       authorId: account.id,
       body: getValues('message'),
@@ -227,21 +167,34 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
     };
 
     await createMessageTrigger({ input }).unwrap();
+    resetField('message');
+    setFocus('message');
+  };
+
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); // Prevent the default behavior of adding a new line
+      await sendMessage(); // Call your function to post the comment
+    }
   };
 
   return (
     <StyledChatContainer>
-      <StyledChatbox>
-        {_.isNil(pageMessageSessionData) ? (
-          <Button onClick={() => createNewPageMessage()}>Create Message</Button>
-        ) : (
+      {!_.isNil(pageMessageSessionData) && (
+        <Button onClick={() => createNewMessageSession()}>Create Message Session</Button>
+      )}
+      <StyledHeader>{messageSessionId && `Session: ${messageSessionId}`}</StyledHeader>
+      {_.isNil(pageMessageSessionData) && <Button onClick={() => createNewPageMessage()}>Create Message</Button>}
+
+      <StyledChatbox id="scrollableChatbox">
+        {!_.isNil(pageMessageSessionData) && (
           <StyledInfiniteScroll
             dataLength={data.length}
             next={loadMoreItems}
             hasMore={hasNext}
             loader={<Skeleton avatar active />}
-            scrollableTarget="scrollableDiv"
             inverse
+            scrollableTarget="scrollableChatbox"
           >
             {data.map(item => {
               return <Message message={item} key={item.id} authorAddress={account.address} />;
@@ -256,11 +209,23 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
           rules={{
             required: true
           }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input onChange={onChange} onBlur={onBlur} value={value} placeholder={'type me'} />
+          render={({ field: { onChange, onBlur, value, ref } }) => (
+            <TextArea
+              ref={ref}
+              style={{ width: '95%' }}
+              onChange={onChange}
+              onBlur={onBlur}
+              value={value}
+              placeholder={'Aa'}
+              disabled={isLoadingCreateMessage}
+              autoSize
+              onKeyDown={handleKeyDown}
+            />
           )}
         />
-        <Button onClick={sendMessage}>Send</Button>
+        <IconContainer>
+          <SendOutlined onClick={sendMessage} disabled={isLoadingCreateMessage} />
+        </IconContainer>
       </InputContainer>
     </StyledChatContainer>
   );
