@@ -27,6 +27,7 @@ import ModalManager from '../../Common/ModalManager';
 import { GlobalStyle } from './GlobalStyle';
 import { theme } from './theme';
 import 'animate.css';
+import useWindowDimensions from '@hooks/useWindowDimensions';
 const { Content } = Layout;
 
 export const LoadingIcon = <LoadingOutlined className="loadingIcon" />;
@@ -131,7 +132,7 @@ export const AppContainer = styled.div`
       height: fit-content;
       margin-bottom: 4rem;
       @media (max-width: 968px) {
-        margin-bottom: 7rem;
+        margin-bottom: 0;
       }
     }
   }
@@ -205,6 +206,15 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
   const scrollRef = useRef(null);
   const graphqlRequestLoading = useAppSelector(getGraphqlRequestStatus);
   const currentTheme = useAppSelector(getCurrentThemes);
+  const [isMobile, setIsMobile] = useState(false);
+  const [prevScrollPos, setPrevScrollPos] = useState(0);
+  const [visible, setVisible] = useState(true);
+  const { width } = useWindowDimensions();
+
+  useEffect(() => {
+    const isMobile = width < 968 ? true : false;
+    setIsMobile(isMobile);
+  }, [width]);
 
   useEffect(() => {
     if (slpBalancesAndUtxos === slpBalancesAndUtxosRef.current) return;
@@ -263,6 +273,14 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
     setLoading(false);
   }, [selectedAccount]);
 
+  const handleScroll = e => {
+    if (isMobile) {
+      const currentScrollPos = e.currentTarget.scrollTop;
+      setVisible(prevScrollPos > currentScrollPos || currentScrollPos < 20);
+      setPrevScrollPos(currentScrollPos);
+    }
+  };
+
   return (
     <ThemeProvider theme={theme as DefaultTheme}>
       <GlobalStyle />
@@ -276,26 +294,29 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
                   <Sidebar className="sidebar-mobile" />
                   {/* Need to reimplement top bar */}
                   {/* <Topbar ref={ref}/> */}
-                  <Topbar ref={setRef} />
+                  <Topbar
+                    className={`animate__animated ${
+                      isMobile ? (visible ? 'animate__fadeInDown' : 'animate__fadeOutUp') : ''
+                    }`}
+                  />
                   {/* @ts-ignore */}
-                  <div className="container-content" id="scrollableDiv" ref={scrollRef}>
-                    {/* <Layout
-                            className="main-section-layout"
-                            style={{
-                              paddingRight: disableSideBarRanking.some(item => selectedKey.includes(item)) ? '2rem' : '0',
-                              maxWidth: disableSideBarRanking.some(item => selectedKey.includes(item)) ? '100%' : ''
-                            }}
-                            
-                          >
-                          </Layout> 
-                        */}
+                  <div
+                    className="container-content"
+                    style={{ paddingTop: isMobile ? 64 : 0 }}
+                    id="scrollableDiv"
+                    ref={scrollRef}
+                    onScroll={e => handleScroll(e)}
+                  >
                     <SidebarShortcut />
                     <div className="content-child animate__animated animate__fadeIn">{children}</div>
                     {/* This below is just a dummy sidebar */}
                     {/* TODO: Implement SidebarRanking in future */}
                     {(selectedKey === '/wallet' || selectedKey === '/') && <SidebarRanking></SidebarRanking>}
                     <DummySidebar />
-                    <Footer notifications={notifications} />
+                    <Footer
+                      classList={`animate__animated ${visible ? 'animate__fadeInUp' : 'animate__fadeOutDown'}`}
+                      notifications={notifications}
+                    />
                   </div>
                 </AppContainer>
               </AppBody>

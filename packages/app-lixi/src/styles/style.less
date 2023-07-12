@@ -48,6 +48,12 @@ body {
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  @media (prefers-color-scheme: light) {
+    background: #fff;
+  }
+  @media (prefers-color-scheme: dark) {
+    background: var(--bg-color-dark-theme);
+  }
 }
 
 code {
@@ -561,6 +567,12 @@ code {
   }
 }
 
+.ant-input {
+  &:focus {
+    box-shadow: none;
+  }
+}
+
 // custom default form input
 .ant-form-item-row {
   .ant-form-item-label {
@@ -1044,6 +1056,7 @@ code {
     background: #303031 !important;
     border-color: var(--border-color-dark-base) !important;
     color: var(--text-color-on-dark) !important;
+    border-radius: var(--border-radius-primary);
     &::placeholder {
       color: gray !important;
     }
@@ -1177,6 +1190,11 @@ code {
     .comment-input-container {
       background: var(--bg-color-dark-item) !important;
       border-color: var(--border-color-dark-base) !important;
+      .ant-input {
+        &:focus {
+          box-shadow: none !important;
+        }
+      }
     }
     .anticon {
       color: #fff;
@@ -1205,6 +1223,9 @@ code {
       .react-photo-gallery--gallery > div {
         background: var(--bg-color-dark-item) !important;
       }
+    }
+    .comment-container {
+      background: #303031;
     }
   }
 
@@ -1635,7 +1656,7 @@ code {
       background: var(--bg-color-dark-item) !important;
       color: #fff;
       .ico-img {
-        filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%);
+        filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%) !important;
       }
     }
   }
@@ -1916,7 +1937,7 @@ code {
 
   //CreatePostCar
   .create-post-card-container {
-    background: var(--bg-color-dark-item) !important;
+    background: var(--bg-color-dark-item);
   }
   .functional-images-bar {
     border-color: var(--border-color-dark-base) !important;
