@@ -1,11 +1,13 @@
-import {
+import Icon, {
   AppstoreOutlined,
   BellOutlined,
   CheckCircleOutlined,
   FilterOutlined,
   HomeOutlined,
   SwapOutlined,
-  UserSwitchOutlined
+  UserSwitchOutlined,
+  SendOutlined,
+  CopyOutlined
 } from '@ant-design/icons';
 import { Account } from '@bcpros/lixi-models';
 import { FilterType } from '@bcpros/lixi-models/lib/filter';
@@ -24,7 +26,7 @@ import { api as postApi } from '@store/post/posts.api';
 import { useInfinitePostsQuery } from '@store/post/useInfinitePostsQuery';
 import { saveTopPostsFilter, setDarkTheme, toggleCollapsedSideNav } from '@store/settings/actions';
 import { getCurrentThemes, getFilterPostsHome, getIsTopPosts, getNavCollapsed } from '@store/settings/selectors';
-import { Badge, Button, Popover, Space, Switch } from 'antd';
+import { Badge, Button, Popover, Space, Switch, message } from 'antd';
 import { Header } from 'antd/lib/layout/layout';
 import { push } from 'connected-next-router';
 import * as _ from 'lodash';
@@ -34,8 +36,11 @@ import intl from 'react-intl-universal';
 import { fromSmallestDenomination } from 'src/utils/cashMethods';
 import styled from 'styled-components';
 import useWindowDimensions from '@hooks/useWindowDimensions';
+import FollowSvg from '@assets/icons/follow.svg';
 import { AuthorizationContext } from '@context/index';
 import useAuthorization from '../../components/Common/Authorization/use-authorization.hooks';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import Link from 'next/link';
 
 export type TopbarProps = {
   className?: string;
@@ -172,6 +177,26 @@ const AccountBox = styled.div`
       margin-bottom: 1rem;
     }
   }
+
+  .current-name {
+    margin: 0;
+    color: var(--color-primary);
+  }
+  .profile-feature {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    span:first-child {
+      flex: 1;
+      font-size: 12px;
+    }
+    span:last-child {
+      font-size: 18px;
+      color: var(--color-primary);
+      padding: 0 3px;
+      cursor: pointer;
+    }
+  }
 `;
 
 const PopoverStyled = styled.div`
@@ -230,6 +255,15 @@ const PopoverStyled = styled.div`
         }
       }
     }
+  }
+`;
+
+const TitleFilterStyled = styled.span`
+  svg {
+    width: 12px;
+    height: 12px;
+    filter: invert(50%) sepia(12%) saturate(19%) hue-rotate(251deg) brightness(92%) contrast(85%);
+    margin-right: 7px;
   }
 `;
 
@@ -406,13 +440,16 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
     <>
       {router?.pathname == '/' && (
         <PopoverStyled>
-          {intl.get('general.postFilter')}
-          <Switch
-            checkedChildren={intl.get('general.allPost')}
-            unCheckedChildren={intl.get('general.topPost')}
-            defaultChecked={isTop}
-            onChange={HandleMenuPosts}
-          />
+          <TitleFilterStyled>
+            {intl.get('general.postFilter')}
+            <Icon component={() => <FollowSvg />} />
+            <Switch
+              checkedChildren={intl.get('general.on')}
+              unCheckedChildren={intl.get('general.off')}
+              defaultChecked={true}
+              onChange={HandleMenuPosts}
+            />
+          </TitleFilterStyled>
         </PopoverStyled>
       )}
       <PopoverStyled>
@@ -429,23 +466,39 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
     return balanceString;
   };
 
+  const handleOnCopy = () => {
+    message.info(intl.get('lixi.addressCopied'));
+  };
+
   const contentSelectAccount = (
     <AccountBox>
-      {isMobile && (
-        <>
-          <h3>Current Accounts</h3>
-          <div className="sub-account" style={{ marginTop: '0', marginBottom: '1rem' }}>
-            <div className="sub-account-info">
-              <p className="name">{selectedAccount?.name}</p>
-              <p className="address">{balanceAccount(selectedAccount)} XPI</p>
+      <div>
+        <h3>Current Account</h3>
+        <div>
+          <h3 className="current-name">{selectedAccount?.name}</h3>
+          <CopyToClipboard text={selectedAccount.address} onCopy={handleOnCopy}>
+            <div className="profile-feature">
+              <span>{selectedAccount.address.slice(-8) + ' '}</span>
+              <span>
+                <CopyOutlined />
+              </span>
             </div>
-            <Button type="primary" className="no-border-btn" icon={<CheckCircleOutlined />}></Button>
-          </div>
-        </>
-      )}
+          </CopyToClipboard>
+        </div>
+
+        <div className="profile-feature">
+          <span>{balanceAccount(selectedAccount)} XPI</span>
+          <Link href="/send">
+            <span>
+              <SendOutlined style={{ fontSize: '16px' }} />
+            </span>
+          </Link>
+        </div>
+      </div>
+
       {otherAccounts.length > 0 && (
         <>
-          <h3>Switch Accounts</h3>
+          <h3 style={{ marginTop: '1rem' }}>Switch Accounts</h3>
           {otherAccounts &&
             otherAccounts.map((acc, index) => {
               return (
@@ -635,7 +688,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
             <Button className="animate__animated animate__heartBeat" type="text" icon={<AppstoreOutlined />} />
           </Popover>
         </div>
-        <div className="account-bar">
+        <div className="account-bar" onClick={() => router.push(`/profile/${selectedAccount.address}`)}>
           <Popover
             overlayClassName={`${currentTheme ? 'popover-dark' : ''}`}
             arrow={false}
