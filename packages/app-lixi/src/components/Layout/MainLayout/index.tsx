@@ -18,7 +18,7 @@ import { setTransactionReady } from '@store/account/actions';
 import { getIsGlobalLoading } from '@store/loading/selectors';
 import { fetchNotifications } from '@store/notification/actions';
 import { getAllNotifications } from '@store/notification/selectors';
-import { loadLocale } from '@store/settings/actions';
+import { loadLocale, setDarkTheme } from '@store/settings/actions';
 import { getCurrentLocale, getCurrentThemes, getIntlInitStatus } from '@store/settings/selectors';
 import { getSlpBalancesAndUtxos } from '@store/wallet';
 import { Header } from 'antd/lib/layout/layout';
@@ -28,6 +28,7 @@ import { GlobalStyle } from './GlobalStyle';
 import { theme } from './theme';
 import 'animate.css';
 import useWindowDimensions from '@hooks/useWindowDimensions';
+import useThemeDetector from '@local-hooks/useThemeDetector';
 const { Content } = Layout;
 
 export const LoadingIcon = <LoadingOutlined className="loadingIcon" />;
@@ -210,6 +211,11 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [visible, setVisible] = useState(true);
   const { width } = useWindowDimensions();
+  const currentDeviceTheme = useThemeDetector();
+
+  useEffect(() => {
+    dispatch(setDarkTheme(currentDeviceTheme));
+  }, [currentDeviceTheme]);
 
   useEffect(() => {
     const isMobile = width < 968 ? true : false;
