@@ -4,6 +4,7 @@ import { Order } from '../../../core';
 
 export enum PageMessageSessionOrderField {
   id = 'id',
+  status = 'status',
   createdAt = 'createdAt',
   updatedAt = 'updatedAt'
 }

@@ -1,24 +1,43 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Account } from '../account';
+import { LixiModel } from '../lixi/lixi.model';
 import { Page } from '../page';
 
-import { MessageSession } from './messageSession.model';
+import { Message } from './message.model';
 
 @ObjectType()
 export class PageMessageSession {
   @Field(() => ID)
   id: string;
 
-  @Field(() => Page, { nullable: true })
-  page?: Page;
+  @Field(() => Page)
+  page: Page;
 
-  @Field(() => Account, { nullable: true })
-  account?: Account;
+  @Field(() => Account)
+  account: Account;
 
-  @Field(() => [MessageSession], { nullable: true })
-  messageSessions?: [MessageSession];
+  @Field(() => LixiModel, { nullable: true })
+  lixi?: LixiModel;
+
+  @Field(() => [Message], { nullable: true })
+  messages?: [Message];
+
+  @Field(() => GraphQLDateTime, {
+    description: 'Identifies the date and time when the session was opened.',
+    nullable: true
+  })
+  sessionOpenedAt?: Date;
+
+  @Field(() => GraphQLDateTime, {
+    description: 'Identifies the date and time when the session was closed.',
+    nullable: true
+  })
+  sessionClosedAt?: Date;
+
+  @Field(() => PageMessageSessionStatus)
+  status: PageMessageSessionStatus;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.',
@@ -32,3 +51,14 @@ export class PageMessageSession {
   })
   updatedAt?: Date;
 }
+
+export enum PageMessageSessionStatus {
+  PENDING = 'PENDING',
+  OPEN = 'OPEN',
+  ClOSE = 'ClOSE'
+}
+
+registerEnumType(PageMessageSessionStatus, {
+  name: 'PageMessageSessionStatus',
+  description: 'Properties by status of the current PageMessageSession.'
+});

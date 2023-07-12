@@ -53,7 +53,7 @@ export class MessageResolver {
   }
 
   @Query(() => MessageConnection)
-  async allMessageByMessageSessionId(
+  async allMessageByPageMessageSessionId(
     @Args() { after, before, first, last }: PaginationArgs,
     @Args({ name: 'id', type: () => String, nullable: true }) id: string,
     @Args({
@@ -68,7 +68,7 @@ export class MessageResolver {
         this.prisma.message.findMany({
           include: { author: true },
           where: {
-            messageSessionId: id
+            pageMessageSessionId: id
           },
           orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
           ...args
@@ -76,7 +76,7 @@ export class MessageResolver {
       () =>
         this.prisma.message.count({
           where: {
-            messageSessionId: id
+            pageMessageSessionId: id
           }
         }),
       { first, last, before, after }
@@ -92,14 +92,14 @@ export class MessageResolver {
       throw new Error(couldNotFindAccount);
     }
 
-    const { authorId, body, messageSessionId, isPageOwner, pageMessageSessionId } = data;
+    const { authorId, body, isPageOwner, pageMessageSessionId } = data;
 
     const message = await this.prisma.message.create({
       data: {
         body: body,
         isPageOwner: isPageOwner ?? false,
         author: { connect: { id: authorId } },
-        messageSession: { connect: { id: messageSessionId } }
+        pageMessageSession: { connect: { id: pageMessageSessionId } }
       },
       include: {
         author: {
@@ -117,7 +117,7 @@ export class MessageResolver {
       pageMessageSessionId: pageMessageSessionId
     };
 
-    this.messageGateway.publishMessage(messageSessionId, result);
+    this.messageGateway.publishMessage(pageMessageSessionId!, result);
 
     return result;
   }

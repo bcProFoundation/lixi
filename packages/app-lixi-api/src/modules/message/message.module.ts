@@ -4,19 +4,11 @@ import { MessageResolver } from './message.resolver';
 import { MessageGateway } from './message.gateway';
 import { MeiliService } from '../page/meili.service';
 import { PageMessageSessionResolver } from './pageMessageSession.resolver';
-import { MessageSessionResolver } from './messageSession.resolver';
 
 @Module({
   imports: [AuthModule],
   controllers: [],
-  providers: [
-    MessageGateway,
-    MessageResolver,
-    PageMessageSessionResolver,
-    MessageSessionResolver,
-    Logger,
-    MeiliService
-  ],
+  providers: [MessageGateway, MessageResolver, PageMessageSessionResolver, Logger, MeiliService],
   exports: [MessageGateway, MessageResolver, Logger]
 })
 export class MessageModule {}

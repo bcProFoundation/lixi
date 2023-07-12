@@ -1,7 +1,7 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { GraphQLDateTime } from 'graphql-scalars';
 
-import { MessageSession } from '../message';
+import { PageMessageSession } from '../message';
 
 @ObjectType()
 export class LixiModel {
@@ -113,8 +113,8 @@ export class LixiModel {
   @Field(() => [DistributionModel], { nullable: true })
   distributions?: [DistributionModel];
 
-  @Field(() => MessageSession, { nullable: true })
-  messageSession?: MessageSession;
+  @Field(() => PageMessageSession, { nullable: true })
+  pageMessageSession?: PageMessageSession;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was expired.',

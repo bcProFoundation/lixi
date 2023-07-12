@@ -3,6 +3,8 @@ import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Account } from '../account';
 
+import { PageMessageSession } from './pageMessageSession.model';
+
 @ObjectType()
 export class Message {
   @Field(() => ID)
@@ -11,8 +13,8 @@ export class Message {
   @Field(() => String)
   body: string;
 
-  @Field(() => String)
-  messageSessionId: string;
+  @Field(() => PageMessageSession)
+  pageMessageSession: PageMessageSession;
 
   @Field(() => Account)
   author: Account;

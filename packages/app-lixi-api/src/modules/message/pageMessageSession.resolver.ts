@@ -75,12 +75,8 @@ export class PageMessageSessionResolver {
       args =>
         this.prisma.pageMessageSession.findMany({
           include: {
-            messageSessions: {
-              orderBy: {
-                createdAt: 'desc'
-              }
-            },
-            account: true
+            account: true,
+            lixi: true
           },
           where: {
             pageId: id
@@ -113,7 +109,10 @@ export class PageMessageSessionResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.pageMessageSession.findMany({
-          include: { messageSessions: true },
+          include: {
+            page: true,
+            lixi: true
+          },
           where: {
             accountId: id
           },
@@ -140,12 +139,7 @@ export class PageMessageSessionResolver {
     const result = await this.prisma.pageMessageSession.findFirst({
       include: {
         account: true,
-        page: true,
-        messageSessions: {
-          orderBy: {
-            createdAt: 'desc'
-          }
-        }
+        page: true
       },
       where: {
         AND: [
@@ -189,15 +183,11 @@ export class PageMessageSessionResolver {
       const result = await this.prisma.pageMessageSession.create({
         include: {
           page: true,
-          account: true,
-          messageSessions: true
+          account: true
         },
         data: {
           account: { connect: { id: accountId } },
-          page: { connect: { id: pageId } },
-          messageSessions: {
-            create: {}
-          }
+          page: { connect: { id: pageId } }
         }
       });
 
@@ -208,22 +198,34 @@ export class PageMessageSessionResolver {
   }
 
   @ResolveField()
-  async messageSessions(@Parent() pageMessageSession: PageMessageSession) {
-    const messageSessions = await this.prisma.messageSession.findMany({
+  async lixi(@Parent() pageMessageSession: PageMessageSession) {
+    const lixi = await this.prisma.lixi.findFirst({
       where: {
-        pageMessageSessionId: pageMessageSession.id
+        pageMessageSession: {
+          id: pageMessageSession.id
+        }
       }
     });
-    return messageSessions;
+    return lixi;
   }
 
   @ResolveField()
   async account(@Parent() pageMessageSession: PageMessageSession) {
     const account = await this.prisma.account.findFirst({
       where: {
-        id: pageMessageSession.account!.id
+        id: pageMessageSession.account.id
       }
     });
     return account;
+  }
+
+  @ResolveField()
+  async page(@Parent() pageMessageSession: PageMessageSession) {
+    const page = await this.prisma.page.findFirst({
+      where: {
+        id: pageMessageSession.page.id
+      }
+    });
+    return page;
   }
 }
