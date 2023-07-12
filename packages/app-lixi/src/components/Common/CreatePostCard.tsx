@@ -49,6 +49,7 @@ const MobileCreatePost = styled.div`
     position: fixed;
     right: 15px;
     bottom: 70px;
+    background: transparent !important;
     .fab-btn {
       padding: 16px;
       background: #ffdbd1;
