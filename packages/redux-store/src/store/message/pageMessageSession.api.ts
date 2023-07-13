@@ -13,7 +13,7 @@ const enhancedApi = api.enhanceEndpoints({
     PageMessageSession: {
       providesTags: (result, error, arg) => ['PageMessageSession']
     },
-    PageMessageSessionByPageId: {
+    PendingPageMessageSessionByPageId: {
       providesTags: (result, error, arg) => ['PageMessageSession'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
@@ -23,10 +23,32 @@ const enhancedApi = api.enhanceEndpoints({
         return { queryArgs };
       },
       merge(currentCacheData, responseData) {
-        currentCacheData.allPageMessageSessionByPageId.edges.push(...responseData.allPageMessageSessionByPageId.edges);
-        currentCacheData.allPageMessageSessionByPageId.pageInfo = responseData.allPageMessageSessionByPageId.pageInfo;
-        currentCacheData.allPageMessageSessionByPageId.totalCount =
-          responseData.allPageMessageSessionByPageId.totalCount;
+        currentCacheData.allPendingPageMessageSessionByPageId.edges.push(
+          ...responseData.allPendingPageMessageSessionByPageId.edges
+        );
+        currentCacheData.allPendingPageMessageSessionByPageId.pageInfo =
+          responseData.allPendingPageMessageSessionByPageId.pageInfo;
+        currentCacheData.allPendingPageMessageSessionByPageId.totalCount =
+          responseData.allPendingPageMessageSessionByPageId.totalCount;
+      }
+    },
+    OpenPageMessageSessionByPageId: {
+      providesTags: (result, error, arg) => ['PageMessageSession'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { id, ...otherArgs } = queryArgs;
+          return { id };
+        }
+        return { queryArgs };
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.allOpenPageMessageSessionByPageId.edges.push(
+          ...responseData.allOpenPageMessageSessionByPageId.edges
+        );
+        currentCacheData.allOpenPageMessageSessionByPageId.pageInfo =
+          responseData.allOpenPageMessageSessionByPageId.pageInfo;
+        currentCacheData.allOpenPageMessageSessionByPageId.totalCount =
+          responseData.allOpenPageMessageSessionByPageId.totalCount;
       }
     },
     PageMessageSessionByAccountId: {
@@ -67,10 +89,12 @@ export { enhancedApi as api };
 export const {
   useCreatePageMessageSessionMutation,
   useLazyPageMessageSessionByAccountIdQuery,
-  useLazyPageMessageSessionByPageIdQuery,
+  useLazyOpenPageMessageSessionByPageIdQuery,
   useLazyPageMessageSessionQuery,
   usePageMessageSessionByAccountIdQuery,
-  usePageMessageSessionByPageIdQuery,
+  useOpenPageMessageSessionByPageIdQuery,
+  useLazyPendingPageMessageSessionByPageIdQuery,
+  usePendingPageMessageSessionByPageIdQuery,
   usePageMessageSessionQuery,
   useUserHadMessageToPageQuery,
   useLazyUserHadMessageToPageQuery

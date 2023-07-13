@@ -34,16 +34,16 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
     this.logger.log('Message gateway initialized');
   }
 
-  @SubscribeMessage('subscribeMessageSession')
+  @SubscribeMessage('subscribePageMessageSession')
   handleSubscriptionToMessageSession(
-    @MessageBody() messageSessionId: string,
+    @MessageBody() pageMessageSessionId: string,
     @ConnectedSocket() client: Socket
   ): WsResponse<string> {
-    client.join(messageSessionId);
-    console.log('🚀 ~ file: message.gateway.ts:47 ~ MessageGateway ~ messageSessionId:', messageSessionId);
+    client.join(pageMessageSessionId);
+    console.log('🚀 ~ file: message.gateway.ts:47 ~ MessageGateway ~ pageMessageSessionId:', pageMessageSessionId);
 
     return {
-      event: 'subscribeMessageSession',
+      event: 'subscribePageMessageSession',
       data: client.id
     };
   }
@@ -51,11 +51,11 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
   //Code below is for page owner listening for new PageMessageSession
   @SubscribeMessage('subscribePageChannel')
   handlePageMessageSessionSubscription(
-    @MessageBody() pageMessageSessionId: string,
+    @MessageBody() pageChannelId: string,
     @ConnectedSocket() client: Socket
   ): WsResponse<string> {
-    client.join(pageMessageSessionId);
-    console.log('🚀 ~ file: message.gateway.ts:62 ~ MessageGateway ~ subscribePageChannel:', pageMessageSessionId);
+    client.join(pageChannelId);
+    console.log('🚀 ~ file: message.gateway.ts:62 ~ MessageGateway ~ subscribePageChannel:', pageChannelId);
 
     return {
       event: 'subscribePageChannel',
@@ -63,8 +63,8 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
     };
   }
 
-  publishMessage(messageSessionId: string, message: any) {
-    this.server.to(messageSessionId).emit('publishMessage', message);
+  publishMessage(pageMessageSessionId: string, message: any) {
+    this.server.to(pageMessageSessionId).emit('publishMessage', message);
   }
 
   publishPageChannel(pageChannelId: string, message: any) {

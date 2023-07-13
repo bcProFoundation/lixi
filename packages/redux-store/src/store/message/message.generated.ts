@@ -20,11 +20,11 @@ export type MessageFieldsFragment = {
   __typename?: 'Message';
   id: string;
   body: string;
-  messageSessionId: string;
   isPageOwner?: boolean | null;
   createdAt?: any | null;
   updatedAt?: any | null;
   author: { __typename?: 'Account'; id: string; name: string; address: string };
+  pageMessageSession?: { __typename?: 'PageMessageSession'; id: string } | null;
 };
 
 export type MessageQueryVariables = Types.Exact<{
@@ -37,15 +37,15 @@ export type MessageQuery = {
     __typename?: 'Message';
     id: string;
     body: string;
-    messageSessionId: string;
     isPageOwner?: boolean | null;
     createdAt?: any | null;
     updatedAt?: any | null;
     author: { __typename?: 'Account'; id: string; name: string; address: string };
+    pageMessageSession?: { __typename?: 'PageMessageSession'; id: string } | null;
   };
 };
 
-export type MessageByMessageSessionIdQueryVariables = Types.Exact<{
+export type MessageByPageMessageSessionIdQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
   before?: Types.InputMaybe<Types.Scalars['String']>;
   first?: Types.InputMaybe<Types.Scalars['Int']>;
@@ -55,9 +55,9 @@ export type MessageByMessageSessionIdQueryVariables = Types.Exact<{
   skip?: Types.InputMaybe<Types.Scalars['Int']>;
 }>;
 
-export type MessageByMessageSessionIdQuery = {
+export type MessageByPageMessageSessionIdQuery = {
   __typename?: 'Query';
-  allMessageByMessageSessionId: {
+  allMessageByPageMessageSessionId: {
     __typename?: 'MessageConnection';
     totalCount?: number | null;
     edges?: Array<{
@@ -67,11 +67,11 @@ export type MessageByMessageSessionIdQuery = {
         __typename?: 'Message';
         id: string;
         body: string;
-        messageSessionId: string;
         isPageOwner?: boolean | null;
         createdAt?: any | null;
         updatedAt?: any | null;
         author: { __typename?: 'Account'; id: string; name: string; address: string };
+        pageMessageSession?: { __typename?: 'PageMessageSession'; id: string } | null;
       };
     }> | null;
     pageInfo: {
@@ -94,11 +94,11 @@ export type CreateMessageMutation = {
     __typename?: 'Message';
     id: string;
     body: string;
-    messageSessionId: string;
     isPageOwner?: boolean | null;
     createdAt?: any | null;
     updatedAt?: any | null;
     author: { __typename?: 'Account'; id: string; name: string; address: string };
+    pageMessageSession?: { __typename?: 'PageMessageSession'; id: string } | null;
   };
 };
 
@@ -111,7 +111,9 @@ export const MessageFieldsFragmentDoc = `
     name
     address
   }
-  messageSessionId
+  pageMessageSession {
+    id
+  }
   isPageOwner
   createdAt
   updatedAt
@@ -124,9 +126,9 @@ export const MessageDocument = `
   }
 }
     ${MessageFieldsFragmentDoc}`;
-export const MessageByMessageSessionIdDocument = `
-    query MessageByMessageSessionId($after: String, $before: String, $first: Int = 20, $last: Int, $id: String, $orderBy: MessageOrder, $skip: Int) {
-  allMessageByMessageSessionId(
+export const MessageByPageMessageSessionIdDocument = `
+    query MessageByPageMessageSessionId($after: String, $before: String, $first: Int = 20, $last: Int, $id: String, $orderBy: MessageOrder, $skip: Int) {
+  allMessageByPageMessageSessionId(
     after: $after
     before: $before
     first: $first
@@ -162,11 +164,11 @@ const injectedRtkApi = api.injectEndpoints({
     Message: build.query<MessageQuery, MessageQueryVariables>({
       query: variables => ({ document: MessageDocument, variables })
     }),
-    MessageByMessageSessionId: build.query<
-      MessageByMessageSessionIdQuery,
-      MessageByMessageSessionIdQueryVariables | void
+    MessageByPageMessageSessionId: build.query<
+      MessageByPageMessageSessionIdQuery,
+      MessageByPageMessageSessionIdQueryVariables | void
     >({
-      query: variables => ({ document: MessageByMessageSessionIdDocument, variables })
+      query: variables => ({ document: MessageByPageMessageSessionIdDocument, variables })
     }),
     CreateMessage: build.mutation<CreateMessageMutation, CreateMessageMutationVariables>({
       query: variables => ({ document: CreateMessageDocument, variables })
@@ -178,7 +180,7 @@ export { injectedRtkApi as api };
 export const {
   useMessageQuery,
   useLazyMessageQuery,
-  useMessageByMessageSessionIdQuery,
-  useLazyMessageByMessageSessionIdQuery,
+  useMessageByPageMessageSessionIdQuery,
+  useLazyMessageByPageMessageSessionIdQuery,
   useCreateMessageMutation
 } = injectedRtkApi;

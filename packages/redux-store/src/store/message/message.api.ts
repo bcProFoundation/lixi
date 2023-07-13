@@ -13,7 +13,7 @@ const enhancedApi = api.enhanceEndpoints({
     Message: {
       providesTags: (result, error, arg) => ['Message']
     },
-    MessageByMessageSessionId: {
+    MessageByPageMessageSessionId: {
       providesTags: (result, error, arg) => ['Message'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
@@ -23,9 +23,13 @@ const enhancedApi = api.enhanceEndpoints({
         return { queryArgs };
       },
       merge(currentCacheData, responseData) {
-        currentCacheData.allMessageByMessageSessionId.edges.push(...responseData.allMessageByMessageSessionId.edges);
-        currentCacheData.allMessageByMessageSessionId.pageInfo = responseData.allMessageByMessageSessionId.pageInfo;
-        currentCacheData.allMessageByMessageSessionId.totalCount = responseData.allMessageByMessageSessionId.totalCount;
+        currentCacheData.allMessageByPageMessageSessionId.edges.push(
+          ...responseData.allMessageByPageMessageSessionId.edges
+        );
+        currentCacheData.allMessageByPageMessageSessionId.pageInfo =
+          responseData.allMessageByPageMessageSessionId.pageInfo;
+        currentCacheData.allMessageByPageMessageSessionId.totalCount =
+          responseData.allMessageByPageMessageSessionId.totalCount;
       }
     },
     CreateMessage: {}
@@ -36,8 +40,8 @@ export { enhancedApi as api };
 
 export const {
   useCreateMessageMutation,
-  useLazyMessageByMessageSessionIdQuery,
+  useLazyMessageByPageMessageSessionIdQuery,
   useLazyMessageQuery,
-  useMessageByMessageSessionIdQuery,
+  useMessageByPageMessageSessionIdQuery,
   useMessageQuery
 } = enhancedApi;

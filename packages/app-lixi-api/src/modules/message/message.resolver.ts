@@ -6,6 +6,7 @@ import {
   MessageOrder,
   PaginationArgs
 } from '@bcpros/lixi-models';
+import { PageMessageSessionStatus } from '@bcpros/lixi-prisma';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
@@ -66,7 +67,7 @@ export class MessageResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.message.findMany({
-          include: { author: true },
+          include: { author: true, pageMessageSession: true },
           where: {
             pageMessageSessionId: id
           },
@@ -94,129 +95,59 @@ export class MessageResolver {
 
     const { authorId, body, isPageOwner, pageMessageSessionId } = data;
 
-    const message = await this.prisma.message.create({
-      data: {
-        body: body,
-        isPageOwner: isPageOwner ?? false,
-        author: { connect: { id: authorId } },
-        pageMessageSession: { connect: { id: pageMessageSessionId } }
-      },
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            address: true
+    //check pageMessageSession is open
+    const pageMessageSession = await this.prisma.pageMessageSession.findUnique({
+      where: {
+        id: pageMessageSessionId
+      }
+    });
+
+    if (pageMessageSession && pageMessageSession.status === PageMessageSessionStatus.OPEN) {
+      const message = await this.prisma.message.create({
+        data: {
+          body: body,
+          isPageOwner: isPageOwner ?? false,
+          author: { connect: { id: authorId } },
+          pageMessageSession: { connect: { id: pageMessageSessionId } }
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              address: true
+            }
+          },
+          pageMessageSession: {
+            select: {
+              pageId: true
+            }
+          }
+        }
+      });
+
+      const result = {
+        ...message,
+        pageMessageSessionId: pageMessageSessionId
+      };
+
+      this.messageGateway.publishMessage(pageMessageSessionId!, result);
+
+      return result;
+    }
+  }
+
+  @ResolveField()
+  async pageMessageSession(@Parent() message: Message) {
+    const pageMessageSession = await this.prisma.pageMessageSession.findFirst({
+      where: {
+        messages: {
+          some: {
+            id: message.id
           }
         }
       }
     });
-
-    const result = {
-      ...message,
-      pageMessageSessionId: pageMessageSessionId
-    };
-
-    this.messageGateway.publishMessage(pageMessageSessionId!, result);
-
-    return result;
+    return pageMessageSession;
   }
-
-  // @UseGuards(GqlJwtAuthGuard)
-  // @Mutation(() => Worship)
-  // async createWorshipTemple(@AccountEntity() account: Account, @Args('data') data: CreateWorshipInput) {
-  //   if (!account) {
-  //     const couldNotFindAccount = this.i18n.t('post.messages.couldNotFindAccount');
-  //     throw new Error(couldNotFindAccount);
-  //   }
-
-  //   const { templeId, worshipedAmount, location, longitude, latitude } = data;
-
-  //   const temple = await this.prisma.temple.findFirst({
-  //     where: {
-  //       id: templeId
-  //     }
-  //   });
-
-  //   const newTotalAmount = temple?.totalWorshipAmount ? temple?.totalWorshipAmount + worshipedAmount : worshipedAmount;
-
-  //   if (!temple) {
-  //     const couldNotFindTemple = this.i18n.t('worship.messages.couldNotFindTemple');
-  //     throw new Error(couldNotFindTemple);
-  //   }
-
-  //   const templeToWorship = {
-  //     data: {
-  //       account: {
-  //         connect: {
-  //           id: account.id
-  //         }
-  //       },
-  //       temple: {
-  //         connect: {
-  //           id: templeId
-  //         }
-  //       },
-  //       worshipedAmount: worshipedAmount,
-  //       location: location || undefined,
-  //       latitude: latitude || undefined,
-  //       longitude: longitude || undefined
-  //     }
-  //   };
-  //   const worshipedTemple = await this.prisma.worship.create({
-  //     ...templeToWorship,
-  //     include: {
-  //       account: {
-  //         select: {
-  //           id: true,
-  //           name: true,
-  //           address: true
-  //         }
-  //       },
-  //       temple: {
-  //         select: {
-  //           id: true,
-  //           name: true,
-  //           totalWorshipAmount: true
-  //         }
-  //       }
-  //     }
-  //   });
-
-  //   await this.prisma.temple.update({
-  //     where: {
-  //       id: temple.id
-  //     },
-  //     data: {
-  //       totalWorshipAmount: newTotalAmount
-  //     }
-  //   });
-
-  //   pubSub.publish('templeWorshiped', { templeWorshiped: worshipedTemple });
-  //   return worshipedTemple;
-  // }
-
-  // @ResolveField()
-  // async avatar(@Parent() worshipedPerson: WorshipedPerson) {
-  //   const avatar = this.prisma.uploadDetail.findFirst({
-  //     where: {
-  //       worshipedPersonAvatarId: worshipedPerson.id
-  //     },
-  //     include: {
-  //       upload: {
-  //         select: {
-  //           id: true,
-  //           sha: true,
-  //           bucket: true,
-  //           width: true,
-  //           height: true,
-  //           sha800: true,
-  //           sha320: true,
-  //           sha40: true
-  //         }
-  //       }
-  //     }
-  //   });
-  //   return avatar;
-  // }
 }

@@ -14,6 +14,7 @@ import {
   PageMessageSession,
   PaginationArgs
 } from '@bcpros/lixi-models';
+import { PageMessageSessionStatus } from '@bcpros/lixi-prisma';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
@@ -61,7 +62,7 @@ export class PageMessageSessionResolver {
   }
 
   @Query(() => PageMessageSessionConnection)
-  async allPageMessageSessionByPageId(
+  async allOpenPageMessageSessionByPageId(
     @Args() { after, before, first, last }: PaginationArgs,
     @Args({ name: 'id', type: () => String, nullable: true }) id: string,
     @Args({
@@ -76,10 +77,18 @@ export class PageMessageSessionResolver {
         this.prisma.pageMessageSession.findMany({
           include: {
             account: true,
+            page: true,
             lixi: true
           },
           where: {
-            pageId: id
+            AND: [
+              {
+                pageId: id
+              },
+              {
+                status: PageMessageSessionStatus.OPEN
+              }
+            ]
           },
           orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
           ...args
@@ -87,7 +96,64 @@ export class PageMessageSessionResolver {
       () =>
         this.prisma.pageMessageSession.count({
           where: {
-            pageId: id
+            AND: [
+              {
+                pageId: id
+              },
+              {
+                status: PageMessageSessionStatus.OPEN
+              }
+            ]
+          }
+        }),
+      { first, last, before, after }
+    );
+    return result;
+  }
+
+  @Query(() => PageMessageSessionConnection)
+  async allPendingPageMessageSessionByPageId(
+    @Args() { after, before, first, last }: PaginationArgs,
+    @Args({ name: 'id', type: () => String, nullable: true }) id: string,
+    @Args({
+      name: 'orderBy',
+      type: () => PageMessageSessionOrder,
+      nullable: true
+    })
+    orderBy: PageMessageSessionOrder
+  ) {
+    const result = await findManyCursorConnection(
+      args =>
+        this.prisma.pageMessageSession.findMany({
+          include: {
+            account: true,
+            page: true,
+            lixi: true
+          },
+          where: {
+            AND: [
+              {
+                pageId: id
+              },
+              {
+                status: PageMessageSessionStatus.PENDING
+              }
+            ]
+          },
+          orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
+          ...args
+        }),
+      () =>
+        this.prisma.pageMessageSession.count({
+          where: {
+            AND: [
+              {
+                pageId: id
+              },
+              {
+                status: PageMessageSessionStatus.PENDING
+              }
+            ]
           }
         }),
       { first, last, before, after }
@@ -111,6 +177,7 @@ export class PageMessageSessionResolver {
         this.prisma.pageMessageSession.findMany({
           include: {
             page: true,
+            account: true,
             lixi: true
           },
           where: {
@@ -148,6 +215,16 @@ export class PageMessageSessionResolver {
           },
           {
             pageId: pageId
+          },
+          {
+            OR: [
+              {
+                status: PageMessageSessionStatus.PENDING
+              },
+              {
+                status: PageMessageSessionStatus.OPEN
+              }
+            ]
           }
         ]
       }
@@ -165,21 +242,27 @@ export class PageMessageSessionResolver {
 
     const { accountId, pageId } = data;
 
-    //check if exsited else create new
-    const pageMessageSessionExsited = await this.prisma.pageMessageSession.findFirst({
+    //check if there already pending message or already open
+    const pendingOrOpenPageMessageSession = await this.prisma.pageMessageSession.findMany({
       where: {
-        AND: [
+        pageId: pageId,
+        accountId: accountId,
+        OR: [
           {
-            accountId: accountId
+            status: PageMessageSessionStatus.PENDING
           },
           {
-            pageId: pageId
+            status: PageMessageSessionStatus.OPEN
           }
         ]
       }
     });
+    console.log(
+      '🚀 ~ file: pageMessageSession.resolver.ts:253 ~ PageMessageSessionResolver ~ createPageMessageSession ~ pendingOrOpenPageMessageSession:',
+      pendingOrOpenPageMessageSession
+    );
 
-    if (!pageMessageSessionExsited) {
+    if (pendingOrOpenPageMessageSession.length === 0) {
       const result = await this.prisma.pageMessageSession.create({
         include: {
           page: true,
@@ -187,7 +270,8 @@ export class PageMessageSessionResolver {
         },
         data: {
           account: { connect: { id: accountId } },
-          page: { connect: { id: pageId } }
+          page: { connect: { id: pageId } },
+          status: PageMessageSessionStatus.PENDING
         }
       });
 

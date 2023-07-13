@@ -53,12 +53,7 @@ import { PageQuery } from '@store/page/pages.generated';
 import { useRepostMutation } from '@store/post/posts.api';
 import _ from 'lodash';
 import PageMessage from '@components/PageMessage/PageMessageForOwner';
-import {
-  pageOwnerSubcribeToPageChannel,
-  startChannel,
-  stopChannel,
-  userSubcribeToMessageSession
-} from '@store/message/actions';
+import { pageOwnerSubcribeToPageChannel, startChannel, stopChannel } from '@store/message/actions';
 import PageMessageForOwner from '@components/PageMessage/PageMessageForOwner';
 import PageMessageForUser from '@components/PageMessage/PageMessageForUser';
 import { getSelectedPostId } from '@store/post/selectors';

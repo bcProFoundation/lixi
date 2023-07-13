@@ -55,7 +55,7 @@ export class PageMessageSession {
 export enum PageMessageSessionStatus {
   PENDING = 'PENDING',
   OPEN = 'OPEN',
-  ClOSE = 'ClOSE'
+  CLOSE = 'CLOSE'
 }
 
 registerEnumType(PageMessageSessionStatus, {

@@ -11,13 +11,14 @@ import {
   serverOn,
   startChannel,
   stopChannel,
-  userSubcribeToMessageSession
+  userSubcribeToPageMessageSession
 } from './actions';
 import { api as messageApi } from './message.api';
 import { Message, MessageOrderField, OrderDirection, PageMessageSession } from '@generated/types.generated';
 import { put as putAction } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { api as pageMessageApi } from './pageMessageSession.api';
+import _ from 'lodash';
 
 const getDeviceNotificationStyle = () => {
   if (isMobile) {
@@ -170,18 +171,43 @@ function* startStopChannel() {
 
 function* receiveLiveMessage(payload: any) {
   console.log(payload);
-  const { id, messageSessionId, pageMessageSessionId } = payload;
+  const { pageMessageSessionId, pageMessageSession } = payload;
   try {
     yield putAction(
-      messageApi.util.updateQueryData('MessageByMessageSessionId', { id: messageSessionId }, draft => {
-        draft.allMessageByMessageSessionId.edges.unshift({
+      messageApi.util.updateQueryData('MessageByPageMessageSessionId', { id: pageMessageSessionId }, draft => {
+        draft.allMessageByPageMessageSessionId.edges.unshift({
           cursor: payload.id,
           node: {
             ...payload
           }
         });
-        draft.allMessageByMessageSessionId.totalCount = draft.allMessageByMessageSessionId.totalCount + 1;
+        draft.allMessageByPageMessageSessionId.totalCount = draft.allMessageByPageMessageSessionId.totalCount + 1;
       })
+    );
+    yield putAction(
+      pageMessageApi.util.updateQueryData(
+        'OpenPageMessageSessionByPageId',
+        { id: pageMessageSession.pageId },
+        draft => {
+          const index = draft.allOpenPageMessageSessionByPageId.edges.findIndex(
+            edge => edge.node.id === pageMessageSessionId
+          );
+
+          const object = draft.allOpenPageMessageSessionByPageId.edges.find(
+            edge => edge.node.id === pageMessageSessionId
+          );
+
+          if (index > -1) {
+            draft.allOpenPageMessageSessionByPageId.edges.splice(index, 1);
+            draft.allOpenPageMessageSessionByPageId.edges.unshift({
+              cursor: object.cursor,
+              node: {
+                ...object.node
+              }
+            });
+          }
+        }
+      )
     );
   } catch (error) {
     console.log('error', error.message);
@@ -193,14 +219,15 @@ function* receiveNewMessage(payload: PageMessageSession) {
   const { id, account, page } = payload;
   try {
     yield putAction(
-      pageMessageApi.util.updateQueryData('PageMessageSessionByPageId', { id: page.id }, draft => {
-        draft.allPageMessageSessionByPageId.edges.unshift({
+      pageMessageApi.util.updateQueryData('PendingPageMessageSessionByPageId', { id: page.id }, draft => {
+        draft.allPendingPageMessageSessionByPageId.edges.unshift({
           cursor: id,
           node: {
             ...payload
           }
         });
-        draft.allPageMessageSessionByPageId.totalCount = draft.allPageMessageSessionByPageId.totalCount + 1;
+        draft.allPendingPageMessageSessionByPageId.totalCount =
+          draft.allPendingPageMessageSessionByPageId.totalCount + 1;
       })
     );
   } catch (error) {
@@ -208,9 +235,9 @@ function* receiveNewMessage(payload: PageMessageSession) {
   }
 }
 
-function* userSubcribeToMessageSessionSaga(action: PayloadAction<string>) {
+function* userSubcribeToPageMessageSessionSaga(action: PayloadAction<string>) {
   const { payload } = action;
-  socket.emit('subscribeMessageSession', payload);
+  socket.emit('subscribePageMessageSession', payload);
 }
 
 function* pageOwnerSubcribeToPageChannelSaga(action: PayloadAction<string>) {
@@ -218,8 +245,8 @@ function* pageOwnerSubcribeToPageChannelSaga(action: PayloadAction<string>) {
   socket.emit('subscribePageChannel', payload);
 }
 
-function* watchUserSubcribeToMessageSession() {
-  yield takeLatest(userSubcribeToMessageSession.type, userSubcribeToMessageSessionSaga);
+function* watchUserSubcribeToPageMessageSession() {
+  yield takeLatest(userSubcribeToPageMessageSession.type, userSubcribeToPageMessageSessionSaga);
 }
 
 function* watchPageOwnerSubcribeToPageChannel() {
@@ -232,7 +259,7 @@ export default function* messageSaga() {
   } else {
     yield all([
       fork(startStopChannel),
-      fork(watchUserSubcribeToMessageSession),
+      fork(watchUserSubcribeToPageMessageSession),
       fork(watchPageOwnerSubcribeToPageChannel)
     ]);
   }

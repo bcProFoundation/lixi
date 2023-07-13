@@ -9,16 +9,15 @@ fragment PageMessageSessionFields on PageMessageSession {
     name
     address
   }
-  messageSessions {
+  lixi {
     id
-    lixi {
-      id
-    }
-    lixiAmount
-    sessionOpen
-    createdAt
-    updatedAt
+    name
+    amount
+    balance
   }
+  sessionOpenedAt
+  sessionClosedAt
+  status
   createdAt
   updatedAt
 }
@@ -29,7 +28,7 @@ query PageMessageSession($id: String!) {
   }
 }
 
-query PageMessageSessionByPageId(
+query OpenPageMessageSessionByPageId(
   $after: String
   $before: String
   $first: Int = 20
@@ -38,7 +37,38 @@ query PageMessageSessionByPageId(
   $orderBy: PageMessageSessionOrder
   $skip: Int
 ) {
-  allPageMessageSessionByPageId(
+  allOpenPageMessageSessionByPageId(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    id: $id
+    orderBy: $orderBy
+    skip: $skip
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...PageMessageSessionFields
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
+    }
+  }
+}
+
+query PendingPageMessageSessionByPageId(
+  $after: String
+  $before: String
+  $first: Int = 20
+  $last: Int
+  $id: String
+  $orderBy: PageMessageSessionOrder
+  $skip: Int
+) {
+  allPendingPageMessageSessionByPageId(
     after: $after
     before: $before
     first: $first

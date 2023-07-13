@@ -165,21 +165,16 @@ export type CreateFollowPageInput = {
   pageId: Scalars['String'];
 };
 
+export type CreateFollowTokenInput = {
+  accountId: Scalars['Int'];
+  tokenId: Scalars['String'];
+};
+
 export type CreateMessageInput = {
   authorId: Scalars['Int'];
   body: Scalars['String'];
   isPageOwner?: InputMaybe<Scalars['Boolean']>;
-  messageSessionId: Scalars['String'];
   pageMessageSessionId?: InputMaybe<Scalars['String']>;
-};
-
-export type CreateMessageSessionInput = {
-  pageMessageSessionId: Scalars['String'];
-};
-
-export type CreateFollowTokenInput = {
-  accountId: Scalars['Int'];
-  tokenId: Scalars['String'];
 };
 
 export type CreatePageInput = {
@@ -256,6 +251,11 @@ export type DeleteFollowPageInput = {
   pageId: Scalars['String'];
 };
 
+export type DeleteFollowTokenInput = {
+  accountId: Scalars['Int'];
+  tokenId: Scalars['String'];
+};
+
 export type DistributionModel = {
   __typename?: 'DistributionModel';
   address: Scalars['String'];
@@ -276,11 +276,6 @@ export type EnvelopeModel = {
   thumbnail: Scalars['String'];
   /** Identifies the date and time when the object was last updated. */
   updatedAt?: Maybe<Scalars['DateTime']>;
-};
-
-export type DeleteFollowTokenInput = {
-  accountId: Scalars['Int'];
-  tokenId: Scalars['String'];
 };
 
 export type FollowAccount = {
@@ -413,7 +408,6 @@ export type LixiModel = {
   lixiType: Scalars['Int'];
   maxClaim: Scalars['Int'];
   maxValue: Scalars['Int'];
-  messageSession?: Maybe<MessageSession>;
   minStaking: Scalars['Int'];
   minValue: Scalars['Int'];
   name: Scalars['String'];
@@ -421,6 +415,7 @@ export type LixiModel = {
   numberLixiPerPackage?: Maybe<Scalars['Int']>;
   numberOfSubLixi?: Maybe<Scalars['Int']>;
   packageId?: Maybe<Scalars['Int']>;
+  pageMessageSession?: Maybe<PageMessageSession>;
   parentId?: Maybe<Scalars['Int']>;
   status: Scalars['String'];
   subLixiBalance?: Maybe<Scalars['Int']>;
@@ -438,7 +433,7 @@ export type Message = {
   createdAt?: Maybe<Scalars['DateTime']>;
   id: Scalars['ID'];
   isPageOwner?: Maybe<Scalars['Boolean']>;
-  messageSessionId: Scalars['String'];
+  pageMessageSession?: Maybe<PageMessageSession>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt?: Maybe<Scalars['DateTime']>;
 };
@@ -482,32 +477,11 @@ export type MessageSession = {
   updatedAt?: Maybe<Scalars['DateTime']>;
 };
 
-export type MessageSessionConnection = {
-  __typename?: 'MessageSessionConnection';
-  edges?: Maybe<Array<MessageSessionEdge>>;
-  pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
-};
-
 export type MessageSessionEdge = {
   __typename?: 'MessageSessionEdge';
   cursor: Scalars['String'];
   node: MessageSession;
 };
-
-export type MessageSessionOrder = {
-  direction: OrderDirection;
-  field: MessageSessionOrderField;
-};
-
-/** Properties by which message session connections can be ordered. */
-export enum MessageSessionOrderField {
-  CreatedAt = 'createdAt',
-  Id = 'id',
-  LixiAmount = 'lixiAmount',
-  SessionOpen = 'sessionOpen',
-  UpdatedAt = 'updatedAt'
-}
 
 export type Mutation = {
   __typename?: 'Mutation';
@@ -515,9 +489,8 @@ export type Mutation = {
   createComment: Comment;
   createFollowAccount: FollowAccount;
   createFollowPage: FollowPage;
-  createMessage: Message;
-  createMessageSession: MessageSession;
   createFollowToken: FollowPage;
+  createMessage: Message;
   createPage: Page;
   createPageMessageSession: PageMessageSession;
   createPost: Post;
@@ -551,16 +524,12 @@ export type MutationCreateFollowPageArgs = {
   data: CreateFollowPageInput;
 };
 
-export type MutationCreateMessageArgs = {
-  data: CreateMessageInput;
-};
-
-export type MutationCreateMessageSessionArgs = {
-  data: CreateMessageSessionInput;
-};
-
 export type MutationCreateFollowTokenArgs = {
   data: CreateFollowTokenInput;
+};
+
+export type MutationCreateMessageArgs = {
+  data: CreateMessageInput;
 };
 
 export type MutationCreatePageArgs = {
@@ -695,12 +664,18 @@ export type PageInfo = {
 
 export type PageMessageSession = {
   __typename?: 'PageMessageSession';
-  account?: Maybe<Account>;
+  account: Account;
   /** Identifies the date and time when the object was created. */
   createdAt?: Maybe<Scalars['DateTime']>;
   id: Scalars['ID'];
-  messageSessions?: Maybe<Array<MessageSession>>;
-  page?: Maybe<Page>;
+  lixi?: Maybe<LixiModel>;
+  messages?: Maybe<Array<Message>>;
+  page: Page;
+  /** Identifies the date and time when the session was closed. */
+  sessionClosedAt?: Maybe<Scalars['DateTime']>;
+  /** Identifies the date and time when the session was opened. */
+  sessionOpenedAt?: Maybe<Scalars['DateTime']>;
+  status: PageMessageSessionStatus;
   /** Identifies the date and time when the object was last updated. */
   updatedAt?: Maybe<Scalars['DateTime']>;
 };
@@ -727,7 +702,15 @@ export type PageMessageSessionOrder = {
 export enum PageMessageSessionOrderField {
   CreatedAt = 'createdAt',
   Id = 'id',
+  Status = 'status',
   UpdatedAt = 'updatedAt'
+}
+
+/** Properties by status of the current PageMessageSession. */
+export enum PageMessageSessionStatus {
+  Close = 'CLOSE',
+  Open = 'OPEN',
+  Pending = 'PENDING'
 }
 
 export type PageOrder = {
@@ -854,14 +837,14 @@ export type Query = {
   allHashtagByPage: HashtagConnection;
   allHashtagBySearch: HashtagConnection;
   allHashtagByToken: HashtagConnection;
-  allMessageByMessageSessionId: MessageConnection;
-  allMessageSessionByPageMessageSessionId: MessageSessionConnection;
+  allMessageByPageMessageSessionId: MessageConnection;
+  allOpenPageMessageSessionByPageId: PageMessageSessionConnection;
   allOrphanPosts: PostConnection;
   allPageMessageSessionByAccountId: PageMessageSessionConnection;
-  allPageMessageSessionByPageId: PageMessageSessionConnection;
   allPages: PageConnection;
   allPagesByFollower: FollowPageConnection;
   allPagesByUserId: PageConnection;
+  allPendingPageMessageSessionByPageId: PageMessageSessionConnection;
   allPosts: PostConnection;
   allPostsByHashtagId: PostConnection;
   allPostsByPageId: PostConnection;
@@ -888,7 +871,6 @@ export type Query = {
   getAccountByAddress: Account;
   hashtag: Hashtag;
   message: Message;
-  messageSession: MessageSession;
   page: Page;
   pageMessageSession: PageMessageSession;
   post: Post;
@@ -972,7 +954,7 @@ export type QueryAllHashtagByTokenArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
-export type QueryAllMessageByMessageSessionIdArgs = {
+export type QueryAllMessageByPageMessageSessionIdArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -983,14 +965,14 @@ export type QueryAllMessageByMessageSessionIdArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
-export type QueryAllMessageSessionByPageMessageSessionIdArgs = {
+export type QueryAllOpenPageMessageSessionByPageIdArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   id?: InputMaybe<Scalars['String']>;
   last?: InputMaybe<Scalars['Int']>;
   minBurnFilter?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<MessageSessionOrder>;
+  orderBy?: InputMaybe<PageMessageSessionOrder>;
   skip?: InputMaybe<Scalars['Int']>;
 };
 
@@ -1010,17 +992,6 @@ export type QueryAllPageMessageSessionByAccountIdArgs = {
   before?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   id?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<PageMessageSessionOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
-};
-
-export type QueryAllPageMessageSessionByPageIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['String']>;
   last?: InputMaybe<Scalars['Int']>;
   minBurnFilter?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<PageMessageSessionOrder>;
@@ -1056,6 +1027,17 @@ export type QueryAllPagesByUserIdArgs = {
   last?: InputMaybe<Scalars['Int']>;
   minBurnFilter?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<PageOrder>;
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
+export type QueryAllPendingPageMessageSessionByPageIdArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  id?: InputMaybe<Scalars['String']>;
+  last?: InputMaybe<Scalars['Int']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<PageMessageSessionOrder>;
   skip?: InputMaybe<Scalars['Int']>;
 };
 
@@ -1111,6 +1093,7 @@ export type QueryAllPostsBySearchWithHashtagArgs = {
   minBurnFilter?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<PostOrder>;
   query?: InputMaybe<Scalars['String']>;
+  skip?: InputMaybe<Scalars['Int']>;
 };
 
 export type QueryAllPostsBySearchWithHashtagAtPageArgs = {
@@ -1279,10 +1262,6 @@ export type QueryMessageArgs = {
   id: Scalars['String'];
 };
 
-export type QueryMessageSessionArgs = {
-  id: Scalars['String'];
-};
-
 export type QueryPageArgs = {
   id: Scalars['String'];
 };
@@ -1350,7 +1329,6 @@ export type Subscription = {
   followAccountCreated: FollowAccount;
   hashtagCreated: Hashtag;
   messageCreated: Message;
-  messageSessionCreated: MessageSession;
   pageCreated: Page;
   pageMessageSessionCreated: PageMessageSession;
   postCreated: Post;

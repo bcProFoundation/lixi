@@ -13,8 +13,8 @@ export class Message {
   @Field(() => String)
   body: string;
 
-  @Field(() => PageMessageSession)
-  pageMessageSession: PageMessageSession;
+  @Field(() => PageMessageSession, { nullable: true })
+  pageMessageSession?: PageMessageSession;
 
   @Field(() => Account)
   author: Account;

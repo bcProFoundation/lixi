@@ -1,34 +1,34 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
 import {
-  useLazyPageMessageSessionByPageIdQuery,
-  usePageMessageSessionByPageIdQuery
-} from '@store/message/pageMessageSession.api';
+  useMessageByPageMessageSessionIdQuery,
+  useLazyMessageByPageMessageSessionIdQuery
+} from '@store/message/message.api';
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { PageMessageSessionOrder } from '@generated/types.generated';
+import { MessageOrder } from '@generated/types.generated';
 import _ from 'lodash';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { PageMessageSessionQuery } from './pageMessageSession.generated';
+import { MessageQuery } from './message.generated';
 
-const pageMessageSessionAdapter = createEntityAdapter<PageMessageSessionQuery['pageMessageSession']>({
+const messageAdapter = createEntityAdapter<MessageQuery['message']>({
   selectId: pageMessageSession => pageMessageSession.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });
 
-const { selectAll, selectEntities, selectIds, selectTotal } = pageMessageSessionAdapter.getSelectors();
+const { selectAll, selectEntities, selectIds, selectTotal } = messageAdapter.getSelectors();
 
 export interface PageMessageSessionListParams extends PaginationArgs {
-  orderBy?: PageMessageSessionOrder;
+  orderBy?: MessageOrder;
   id: string;
 }
 
-export function useInfinitePageMessageSessionByPageId(
+export function useInfiniteMessageByPageMessageSessionId(
   params: PageMessageSessionListParams,
   fetchAll: boolean = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const baseResult = usePageMessageSessionByPageIdQuery(params); //dont query when it is not the owner
+  const baseResult = useMessageByPageMessageSessionIdQuery(params, { skip: _.isNil(params.id) });
 
-  const [trigger, nextResult] = useLazyPageMessageSessionByPageIdQuery();
-  const [combinedData, setCombinedData] = useState(pageMessageSessionAdapter.getInitialState({}));
+  const [trigger, nextResult] = useLazyMessageByPageMessageSessionIdQuery();
+  const [combinedData, setCombinedData] = useState(messageAdapter.getInitialState({}));
 
   const isBaseReady = useRef(false);
   const isNextDone = useRef(true);
@@ -43,13 +43,13 @@ export function useInfinitePageMessageSessionByPageId(
 
   // Base result
   useEffect(() => {
-    next.current = baseResult.data?.allPageMessageSessionByPageId?.pageInfo?.endCursor;
-    if (baseResult?.data?.allPageMessageSessionByPageId) {
+    next.current = baseResult.data?.allMessageByPageMessageSessionId?.pageInfo?.endCursor;
+    if (baseResult?.data?.allMessageByPageMessageSessionId) {
       isBaseReady.current = true;
 
-      const adapterSetAll = pageMessageSessionAdapter.setAll(
+      const adapterSetAll = messageAdapter.setAll(
         combinedData,
-        baseResult.data.allPageMessageSessionByPageId.edges.map(item => item.node)
+        baseResult.data.allMessageByPageMessageSessionId.edges.map(item => item.node)
       );
 
       setCombinedData(adapterSetAll);
@@ -83,7 +83,7 @@ export function useInfinitePageMessageSessionByPageId(
 
   return {
     data: data ?? [],
-    totalCount: baseResult?.data?.allPageMessageSessionByPageId?.totalCount ?? 0,
+    totalCount: baseResult?.data?.allMessageByPageMessageSessionId?.totalCount ?? 0,
     error: baseResult?.error,
     isError: baseResult?.isError,
     isLoading: baseResult?.isLoading,
@@ -91,7 +91,7 @@ export function useInfinitePageMessageSessionByPageId(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allPageMessageSessionByPageId?.pageInfo?.endCursor !== null,
+    hasNext: baseResult.data?.allMessageByPageMessageSessionId?.pageInfo?.endCursor !== null,
     fetchNext,
     refetch
   };

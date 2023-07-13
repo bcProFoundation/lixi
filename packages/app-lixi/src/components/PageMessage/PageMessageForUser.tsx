@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { getSelectedAccount, getSelectedAccountId } from '@store/account';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { PageItem } from '@components/Pages/PageDetail';
-import { useInfiniteMessageByMessageSessionId } from '@store/message/useInfiniteMessageByMessageSessionId';
+import { useInfiniteMessageByPageMessageSessionId } from '@store/message/useInfiniteMessageByPageMessageSessionId';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import {
   useCreatePageMessageSessionMutation,
@@ -18,13 +18,12 @@ import {
   MessageOrderField,
   OrderDirection
 } from '@generated/types.generated';
-import { userSubcribeToMessageSession } from '@store/message/actions';
+import { userSubcribeToPageMessageSession } from '@store/message/actions';
 import { useCreateMessageMutation } from '@store/message/message.api';
 import { useForm, Controller } from 'react-hook-form';
 import { api as messageApi } from '@store/message/message.api';
 import Message from './Message';
 import { SendOutlined } from '@ant-design/icons';
-import { useCreateMessageSessionMutation } from '@store/message/messageSession.api';
 
 const { TextArea } = Input;
 
@@ -75,7 +74,7 @@ const StyledHeader = styled.div`
 const PageMessageForUser = ({ page, account }: PageMessageProps) => {
   const dispatch = useAppDispatch();
   const { control, getValues, resetField, setFocus } = useForm();
-  const [messageSessionId, setMessageSessionId] = useState<string | null>(null);
+  const [pageMessageSessionId, setPageMessageSessionId] = useState<string | null>(null);
 
   const { data: pageMessageSessionData, refetch: pageMessageSessionRefetch } = useUserHadMessageToPageQuery({
     accountId: account.id,
@@ -83,8 +82,8 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
   });
 
   const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } =
-    useInfiniteMessageByMessageSessionId({
-      id: messageSessionId,
+    useInfiniteMessageByPageMessageSessionId({
+      id: pageMessageSessionId,
       orderBy: {
         direction: OrderDirection.Desc,
         field: MessageOrderField.UpdatedAt
@@ -104,15 +103,6 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
     createMessageTrigger,
     { isLoading: isLoadingCreateMessage, isSuccess: isSuccessCreateMessage, isError: isErrorCreateMessage }
   ] = useCreateMessageMutation();
-
-  const [
-    createMessageSessionTrigger,
-    {
-      isLoading: isLoadingCreateMessageSession,
-      isSuccess: isSuccessCreateMessageSession,
-      isError: isErrorCreateMessageSession
-    }
-  ] = useCreateMessageSessionMutation();
 
   const loadMoreItems = () => {
     if (hasNext && !isFetching) {
@@ -134,13 +124,14 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
     }
   };
 
-  const createNewMessageSession = async () => {
-    const input: CreateMessageSessionInput = {
-      pageMessageSessionId: pageMessageSessionData.userHadMessageToPage.id
+  const createNewPageMessageSession = async () => {
+    const input: CreatePageMessageInput = {
+      accountId: account.id,
+      pageId: page.id
     };
     console.log('🚀 ~ file: PageMessageForUser.tsx:141 ~ createNewMessageSession ~ input:', input);
     if (!_.isNil(pageMessageSessionData)) {
-      const result = await createMessageSessionTrigger({ input }).unwrap();
+      const result = await createPageMessageSessionTrigger({ input }).unwrap();
 
       pageMessageSessionRefetch();
     }
@@ -148,9 +139,9 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
 
   useEffect(() => {
     if (pageMessageSessionData?.userHadMessageToPage?.id) {
-      const id = pageMessageSessionData?.userHadMessageToPage?.messageSessions[0].id;
-      setMessageSessionId(id);
-      dispatch(userSubcribeToMessageSession(id));
+      const id = pageMessageSessionData?.userHadMessageToPage?.id;
+      setPageMessageSessionId(id);
+      dispatch(userSubcribeToPageMessageSession(id));
     }
   }, [pageMessageSessionData]);
 
@@ -161,9 +152,8 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
     const input: CreateMessageInput = {
       authorId: account.id,
       body: getValues('message'),
-      messageSessionId: messageSessionId,
-      isPageOwner: false,
-      pageMessageSessionId: pageMessageSessionData?.userHadMessageToPage?.id
+      pageMessageSessionId: pageMessageSessionId,
+      isPageOwner: false
     };
 
     await createMessageTrigger({ input }).unwrap();
@@ -181,9 +171,9 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
   return (
     <StyledChatContainer>
       {!_.isNil(pageMessageSessionData) && (
-        <Button onClick={() => createNewMessageSession()}>Create Message Session</Button>
+        <Button onClick={() => createNewPageMessageSession()}>Create Page Message Session</Button>
       )}
-      <StyledHeader>{messageSessionId && `Session: ${messageSessionId}`}</StyledHeader>
+      <StyledHeader>{pageMessageSessionId && `Session: ${pageMessageSessionId}`}</StyledHeader>
       {_.isNil(pageMessageSessionData) && <Button onClick={() => createNewPageMessage()}>Create Message</Button>}
 
       <StyledChatbox id="scrollableChatbox">

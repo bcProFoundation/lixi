@@ -16,10 +16,6 @@ export class CreateMessageInput {
   @IsOptional()
   isPageOwner?: boolean;
 
-  @Field(() => String)
-  @IsNotEmpty()
-  messageSessionId: string;
-
   @Field(() => String, { nullable: true })
   pageMessageSessionId?: string;
 }

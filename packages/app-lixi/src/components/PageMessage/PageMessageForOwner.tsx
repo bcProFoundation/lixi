@@ -1,26 +1,34 @@
-import { Button, Input, Skeleton, Space } from 'antd';
+import { Button, Input, Skeleton, Space, Tabs } from 'antd';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { getSelectedAccount, getSelectedAccountId } from '@store/account';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { PageItem } from '@components/Pages/PageDetail';
-import { useInfinitePageMessageSessionByPageId } from '@store/message/useInfinitePageMessageSessionByPageId';
+import { useInfinitePendingPageMessageSessionByPageId } from '@store/message/useInfinitePendingPageMessageSessionByPageId';
+import { useInfiniteOpenPageMessageSessionByPageId } from '@store/message/useInfiniteOpenPageMessageSessionByPageId';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { userSubcribeToMessageSession } from '@store/message/actions';
-import { useInfiniteMessageByMessageSessionId } from '@store/message/useInfiniteMessageByMessageSessionId';
-import { CreateMessageInput, MessageOrderField, OrderDirection } from '@generated/types.generated';
+import { userSubcribeToPageMessageSession } from '@store/message/actions';
+import { useInfiniteMessageByPageMessageSessionId } from '@store/message/useInfiniteMessageByPageMessageSessionId';
+import {
+  CreateMessageInput,
+  MessageOrderField,
+  OrderDirection,
+  PageMessageSessionStatus
+} from '@generated/types.generated';
 import Message from './Message';
 import { Controller, useForm } from 'react-hook-form';
 import { useCreateMessageMutation } from '@store/message/message.api';
 import { SendOutlined, SettingOutlined } from '@ant-design/icons';
 import _ from 'lodash';
-import { useMessageSessionByPageMessageSessionIdQuery } from '@store/message/messageSession.api';
+import { PageMessageSessionQuery } from '../../../../redux-store/src/store/message/pageMessageSession.generated';
 
 const { TextArea } = Input;
 
 type PageMessageProps = {
   page: PageItem;
 };
+
+type PageMessageSessionItem = PageMessageSessionQuery['pageMessageSession'];
 
 const StyledChatContainer = styled.div`
   background-color: white;
@@ -74,7 +82,7 @@ const StyledHeader = styled.div`
 const ChatUser = ({ item, index, onClickMessage }) => {
   return (
     <React.Fragment>
-      <p onClick={() => onClickMessage(item.messageSessions[0].id, item.id)} style={{ cursor: 'pointer' }}>
+      <p onClick={() => onClickMessage(item.id)} style={{ cursor: 'pointer' }}>
         {item.account?.name}
       </p>
     </React.Fragment>
@@ -83,8 +91,9 @@ const ChatUser = ({ item, index, onClickMessage }) => {
 
 const PageMessageForOwner = ({ page }: PageMessageProps) => {
   const dispatch = useAppDispatch();
-  const [currentMessageSessionId, setCurrentMessageSessionId] = useState<string | null>(null);
   const [currentPageMessageSessionId, setCurrentPageMessageSessionId] = useState<string | null>(null);
+  const [currentPageMessageSession, setCurrentPageMessageSession] = useState<PageMessageSessionItem | null>(null);
+  const [tab, setCurrentTab] = useState<string | null>(null);
   const { control, getValues, resetField, setFocus } = useForm();
 
   const [
@@ -93,20 +102,13 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
   ] = useCreateMessageMutation();
 
   const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } =
-    useInfinitePageMessageSessionByPageId(
+    useInfiniteOpenPageMessageSessionByPageId(
       {
         first: 10,
         id: page.id
       },
       false
     );
-
-  const { data: messageSessionData } = useMessageSessionByPageMessageSessionIdQuery(
-    {
-      id: currentPageMessageSessionId
-    },
-    { skip: !currentPageMessageSessionId }
-  );
 
   const loadMoreItems = () => {
     if (hasNext && !isFetching) {
@@ -117,13 +119,37 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
   };
 
   const {
+    data: pendingData,
+    totalCount: pendingTotalCount,
+    fetchNext: pendingFetchNext,
+    hasNext: pendingHasNext,
+    isFetching: pendingIsFetching,
+    isFetchingNext: pendingIsFetchingNext,
+    refetch: pendingRefetch
+  } = useInfinitePendingPageMessageSessionByPageId(
+    {
+      first: 10,
+      id: page.id
+    },
+    false
+  );
+
+  const loadMorePendingItems = () => {
+    if (pendingHasNext && !pendingIsFetching) {
+      pendingFetchNext();
+    } else if (pendingHasNext) {
+      pendingFetchNext();
+    }
+  };
+
+  const {
     data: messageData,
     fetchNext: messageFetchNext,
     hasNext: messageHasNext,
     isFetching: messageIsFetching,
     isFetchingNext: messageIsFetchingNext
-  } = useInfiniteMessageByMessageSessionId({
-    id: currentMessageSessionId,
+  } = useInfiniteMessageByPageMessageSessionId({
+    id: currentPageMessageSessionId,
     orderBy: {
       direction: OrderDirection.Desc,
       field: MessageOrderField.UpdatedAt
@@ -134,9 +160,7 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
   useEffect(() => {
     if (data) {
       data.map(item => {
-        if (item.messageSessions) {
-          dispatch(userSubcribeToMessageSession(item.messageSessions[0].id));
-        }
+        if (item.status === PageMessageSessionStatus.Open) dispatch(userSubcribeToPageMessageSession(item.id));
       });
     }
   }, [data]);
@@ -144,11 +168,11 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
   useEffect(() => {
     resetField('message');
     setFocus('message');
-  }, [currentMessageSessionId]);
+  }, [currentPageMessageSessionId]);
 
-  const onClickMessage = (messageSessionId: string, pageMessageSessionId: string) => {
+  const onClickMessage = (pageMessageSession: PageMessageSessionItem, pageMessageSessionId: string) => {
+    setCurrentPageMessageSession(pageMessageSession);
     setCurrentPageMessageSessionId(pageMessageSessionId);
-    setCurrentMessageSessionId(messageSessionId);
   };
 
   const loadMoreMessages = () => {
@@ -160,13 +184,13 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
   };
 
   const sendMessage = async () => {
-    if (_.isNil(getValues('message')) || getValues('message') === '' || currentMessageSessionId === null) {
+    if (_.isNil(getValues('message')) || getValues('message') === '' || currentPageMessageSessionId === null) {
       return;
     }
     const input: CreateMessageInput = {
       authorId: parseInt(page.pageAccount.id),
       body: getValues('message'),
-      messageSessionId: currentMessageSessionId,
+      pageMessageSessionId: currentPageMessageSessionId,
       isPageOwner: true
     };
 
@@ -182,26 +206,50 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
     }
   };
 
+  const acceptMessage = async () => {};
+
   return (
     <StyledChatContainer>
       <StyledChatList id="scrollableChatlist">
-        <InfiniteScroll
-          dataLength={data.length}
-          next={loadMoreItems}
-          hasMore={hasNext}
-          loader={<Skeleton avatar active />}
-          scrollableTarget="scrollableChatlist"
-        >
-          {data.map((item, index) => {
-            return <ChatUser index={index} item={item} key={item.id} onClickMessage={onClickMessage} />;
-          })}
-        </InfiniteScroll>
+        <Tabs>
+          <Tabs.TabPane tab="Open" key="open">
+            <InfiniteScroll
+              dataLength={data.length}
+              next={loadMoreItems}
+              hasMore={hasNext}
+              loader={<Skeleton avatar active />}
+              scrollableTarget="scrollableChatlist"
+            >
+              {data.map(item => {
+                return (
+                  <p onClick={() => onClickMessage(item, item.id)} style={{ cursor: 'pointer' }} key={item.id}>
+                    {item.account?.name}
+                  </p>
+                );
+              })}
+            </InfiniteScroll>
+          </Tabs.TabPane>
+          <Tabs.TabPane tab="Pending" key="pending">
+            <InfiniteScroll
+              dataLength={pendingData.length}
+              next={loadMorePendingItems}
+              hasMore={pendingHasNext}
+              loader={<Skeleton avatar active />}
+              scrollableTarget="scrollableChatlist"
+            >
+              {pendingData.map(item => {
+                return (
+                  <p onClick={() => onClickMessage(item, item.id)} style={{ cursor: 'pointer' }} key={item.id}>
+                    {item.account?.name}
+                  </p>
+                );
+              })}
+            </InfiniteScroll>
+          </Tabs.TabPane>
+        </Tabs>
       </StyledChatList>
       <StyledContainer>
-        <StyledHeader>
-          {messageSessionData &&
-            `Session: ${messageSessionData.allMessageSessionByPageMessageSessionId.edges[0].node.id}`}
-        </StyledHeader>
+        <StyledHeader>{currentPageMessageSessionId && `Session: ${currentPageMessageSessionId}`}</StyledHeader>
         <StyledChatbox id="scrollableChatbox">
           {messageData.length > 0 && (
             <StyledInfiniteScroll
@@ -218,7 +266,7 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
             </StyledInfiniteScroll>
           )}
         </StyledChatbox>
-        {currentMessageSessionId && (
+        {currentPageMessageSessionId && (
           <InputContainer>
             <Controller
               name="message"
@@ -233,15 +281,20 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
                   onChange={onChange}
                   onBlur={onBlur}
                   value={value}
-                  placeholder={'Aa'}
-                  disabled={isLoadingCreateMessage}
+                  placeholder={currentPageMessageSession.status === PageMessageSessionStatus.Open ? 'Aa' : 'Read only'}
+                  disabled={
+                    isLoadingCreateMessage || currentPageMessageSession.status !== PageMessageSessionStatus.Open
+                  }
                   autoSize
                   onKeyDown={handleKeyDown}
                 />
               )}
             />
             <IconContainer>
-              <SendOutlined onClick={sendMessage} disabled={isLoadingCreateMessage} />
+              <SendOutlined
+                onClick={sendMessage}
+                disabled={isLoadingCreateMessage || currentPageMessageSession.status !== PageMessageSessionStatus.Open}
+              />
             </IconContainer>
           </InputContainer>
         )}

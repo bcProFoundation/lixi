@@ -6,7 +6,9 @@ fragment MessageFields on Message {
     name
     address
   }
-  messageSessionId
+  pageMessageSession {
+    id
+  }
   isPageOwner
   createdAt
   updatedAt
@@ -18,7 +20,7 @@ query Message($id: String!) {
   }
 }
 
-query MessageByMessageSessionId(
+query MessageByPageMessageSessionId(
   $after: String
   $before: String
   $first: Int = 20
@@ -27,7 +29,7 @@ query MessageByMessageSessionId(
   $orderBy: MessageOrder
   $skip: Int
 ) {
-  allMessageByMessageSessionId(
+  allMessageByPageMessageSessionId(
     after: $after
     before: $before
     first: $first
