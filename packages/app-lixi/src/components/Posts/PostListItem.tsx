@@ -288,10 +288,16 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
     if (e.target.className === 'read-more-more-module_btn__33IaH' || e.target.className.includes('post-translation')) {
       openPostDetailModal(post);
       e.stopPropagation();
+      console.log(post.content);
+      console.log(e);
+      console.log('clicked');
     } else {
       // dispatch(setSelectedPost(post.id));
       // router.push(`/post/${post.id}`);
       openPostDetailModal(post);
+      console.log(post);
+      console.log(e);
+      console.log('clicked');
     }
   };
 
