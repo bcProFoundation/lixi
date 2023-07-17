@@ -1,4 +1,4 @@
-import { Button, Input, Skeleton, Space, Tabs } from 'antd';
+import { Button, Input, Skeleton, Space, Tabs, Dropdown } from 'antd';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { getSelectedAccount, getSelectedAccountId } from '@store/account';
@@ -10,6 +10,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { userSubcribeToPageMessageSession } from '@store/message/actions';
 import { useInfiniteMessageByPageMessageSessionId } from '@store/message/useInfiniteMessageByPageMessageSessionId';
 import {
+  ClosePageMessageSessionInput,
   CreateMessageInput,
   MessageOrderField,
   OrderDirection,
@@ -20,7 +21,13 @@ import { Controller, useForm } from 'react-hook-form';
 import { useCreateMessageMutation } from '@store/message/message.api';
 import { SendOutlined, SettingOutlined } from '@ant-design/icons';
 import _ from 'lodash';
-import { PageMessageSessionQuery } from '../../../../redux-store/src/store/message/pageMessageSession.generated';
+import {
+  PageMessageSessionQuery,
+  useClosePageMessageSessionMutation
+} from '@store/message/pageMessageSession.generated';
+import type { MenuProps } from 'antd';
+import { setPageMessageSession } from '@store/page/action';
+import { getCurrentPageMessageSession } from '@store/page/selectors';
 
 const { TextArea } = Input;
 
@@ -77,6 +84,12 @@ const IconContainer = styled.div`
 
 const StyledHeader = styled.div`
   border-bottom: 1px solid black;
+  display: flex;
+`;
+
+const StyledTextHeader = styled.p`
+  margin: 0px;
+  width: 95%;
 `;
 
 const ChatUser = ({ item, index, onClickMessage }) => {
@@ -92,7 +105,7 @@ const ChatUser = ({ item, index, onClickMessage }) => {
 const PageMessageForOwner = ({ page }: PageMessageProps) => {
   const dispatch = useAppDispatch();
   const [currentPageMessageSessionId, setCurrentPageMessageSessionId] = useState<string | null>(null);
-  const [currentPageMessageSession, setCurrentPageMessageSession] = useState<PageMessageSessionItem | null>(null);
+  const currentPageMessageSession = useAppSelector(getCurrentPageMessageSession);
   const [tab, setCurrentTab] = useState<string | null>(null);
   const { control, getValues, resetField, setFocus } = useForm();
 
@@ -100,6 +113,26 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
     createMessageTrigger,
     { isLoading: isLoadingCreateMessage, isSuccess: isSuccessCreateMessage, isError: isErrorCreateMessage }
   ] = useCreateMessageMutation();
+
+  const [
+    closePageMessageSessionTrigger,
+    {
+      isLoading: isLoadingClosePageMessageSession,
+      isSuccess: isSuccessClosePageMessageSession,
+      isError: isErrorClosePageMessageSession
+    }
+  ] = useClosePageMessageSessionMutation();
+
+  const items: MenuProps['items'] = [
+    {
+      key: 'closeSession',
+      label: (
+        <p style={{ margin: '0px' }} onClick={() => closeSession()}>
+          Close session
+        </p>
+      )
+    }
+  ];
 
   const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } =
     useInfiniteOpenPageMessageSessionByPageId(
@@ -171,7 +204,7 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
   }, [currentPageMessageSessionId]);
 
   const onClickMessage = (pageMessageSession: PageMessageSessionItem, pageMessageSessionId: string) => {
-    setCurrentPageMessageSession(pageMessageSession);
+    dispatch(setPageMessageSession(pageMessageSession));
     setCurrentPageMessageSessionId(pageMessageSessionId);
   };
 
@@ -207,6 +240,13 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
   };
 
   const acceptMessage = async () => {};
+
+  const closeSession = async () => {
+    const input: ClosePageMessageSessionInput = {
+      pageMessageSessionId: currentPageMessageSessionId
+    };
+    await closePageMessageSessionTrigger({ input }).unwrap();
+  };
 
   return (
     <StyledChatContainer>
@@ -249,7 +289,14 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
         </Tabs>
       </StyledChatList>
       <StyledContainer>
-        <StyledHeader>{currentPageMessageSessionId && `Session: ${currentPageMessageSessionId}`}</StyledHeader>
+        {currentPageMessageSessionId && (
+          <StyledHeader>
+            <StyledTextHeader>{`Session: ${currentPageMessageSessionId}`}</StyledTextHeader>
+            <Dropdown menu={{ items }} trigger={['click']}>
+              <SettingOutlined />
+            </Dropdown>
+          </StyledHeader>
+        )}
         <StyledChatbox id="scrollableChatbox">
           {messageData.length > 0 && (
             <StyledInfiniteScroll
@@ -281,9 +328,13 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
                   onChange={onChange}
                   onBlur={onBlur}
                   value={value}
-                  placeholder={currentPageMessageSession.status === PageMessageSessionStatus.Open ? 'Aa' : 'Read only'}
+                  placeholder={
+                    currentPageMessageSession.status === PageMessageSessionStatus.Open ? 'Aa' : 'Session is closed'
+                  }
                   disabled={
-                    isLoadingCreateMessage || currentPageMessageSession.status !== PageMessageSessionStatus.Open
+                    isLoadingClosePageMessageSession ||
+                    isLoadingCreateMessage ||
+                    currentPageMessageSession.status !== PageMessageSessionStatus.Open
                   }
                   autoSize
                   onKeyDown={handleKeyDown}
@@ -293,7 +344,11 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
             <IconContainer>
               <SendOutlined
                 onClick={sendMessage}
-                disabled={isLoadingCreateMessage || currentPageMessageSession.status !== PageMessageSessionStatus.Open}
+                disabled={
+                  isLoadingClosePageMessageSession ||
+                  isLoadingCreateMessage ||
+                  currentPageMessageSession.status !== PageMessageSessionStatus.Open
+                }
               />
             </IconContainer>
           </InputContainer>

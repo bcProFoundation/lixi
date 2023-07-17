@@ -70,6 +70,10 @@ type City {
   state: State!
 }
 
+input ClosePageMessageSessionInput {
+  pageMessageSessionId: String!
+}
+
 type Comment {
   commentAccount: Account!
   commentAccountId: Int
@@ -472,6 +476,7 @@ type MessageSessionEdge {
 }
 
 type Mutation {
+  closePageMessageSession(data: ClosePageMessageSessionInput!): PageMessageSession!
   createAccount(data: CreateAccountInput!): Account!
   createComment(data: CreateCommentInput!): Comment!
   createFollowAccount(data: CreateFollowAccountInput!): FollowAccount!

@@ -132,3 +132,9 @@ mutation CreatePageMessageSession($input: CreatePageMessageInput!) {
     ...PageMessageSessionFields
   }
 }
+
+mutation ClosePageMessageSession($input: ClosePageMessageSessionInput!) {
+  closePageMessageSession(data: $input) {
+    ...PageMessageSessionFields
+  }
+}

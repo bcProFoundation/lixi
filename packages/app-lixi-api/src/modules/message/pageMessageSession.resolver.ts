@@ -1,4 +1,5 @@
 import {
+  ClosePageMessageSessionInput,
   MessageSessionConnection,
   MessageSessionOrder,
   PageMessageSessionConnection,
@@ -279,6 +280,36 @@ export class PageMessageSessionResolver {
 
       return result;
     }
+  }
+
+  @UseGuards(GqlJwtAuthGuard)
+  @Mutation(() => PageMessageSession)
+  async closePageMessageSession(@AccountEntity() account: Account, @Args('data') data: ClosePageMessageSessionInput) {
+    if (!account) {
+      const couldNotFindAccount = this.i18n.t('post.messages.couldNotFindAccount');
+      throw new Error(couldNotFindAccount);
+    }
+
+    const { pageMessageSessionId } = data;
+
+    const result = await this.prisma.pageMessageSession.update({
+      where: {
+        id: pageMessageSessionId
+      },
+      data: {
+        status: PageMessageSessionStatus.ClOSE,
+        sessionClosedAt: new Date()
+      },
+      include: {
+        account: true,
+        lixi: true,
+        page: true
+      }
+    });
+
+    this.messageGateway.sessionAction(pageMessageSessionId, result);
+
+    return result;
   }
 
   @ResolveField()

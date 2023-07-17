@@ -97,5 +97,6 @@ export const {
   usePendingPageMessageSessionByPageIdQuery,
   usePageMessageSessionQuery,
   useUserHadMessageToPageQuery,
+  useClosePageMessageSessionMutation,
   useLazyUserHadMessageToPageQuery
 } = enhancedApi;

@@ -213,6 +213,26 @@ export type CreatePageMessageSessionMutation = {
   };
 };
 
+export type ClosePageMessageSessionMutationVariables = Types.Exact<{
+  input: Types.ClosePageMessageSessionInput;
+}>;
+
+export type ClosePageMessageSessionMutation = {
+  __typename?: 'Mutation';
+  closePageMessageSession: {
+    __typename?: 'PageMessageSession';
+    id: string;
+    sessionOpenedAt?: any | null;
+    sessionClosedAt?: any | null;
+    status: Types.PageMessageSessionStatus;
+    createdAt?: any | null;
+    updatedAt?: any | null;
+    page: { __typename?: 'Page'; id: string; name: string };
+    account: { __typename?: 'Account'; id: string; name: string; address: string };
+    lixi?: { __typename?: 'LixiModel'; id: string; name: string; amount: string; balance?: number | null } | null;
+  };
+};
+
 export const PageMessageSessionFieldsFragmentDoc = `
     fragment PageMessageSessionFields on PageMessageSession {
   id
@@ -334,6 +354,13 @@ export const CreatePageMessageSessionDocument = `
   }
 }
     ${PageMessageSessionFieldsFragmentDoc}`;
+export const ClosePageMessageSessionDocument = `
+    mutation ClosePageMessageSession($input: ClosePageMessageSessionInput!) {
+  closePageMessageSession(data: $input) {
+    ...PageMessageSessionFields
+  }
+}
+    ${PageMessageSessionFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
   endpoints: build => ({
@@ -366,6 +393,9 @@ const injectedRtkApi = api.injectEndpoints({
       CreatePageMessageSessionMutationVariables
     >({
       query: variables => ({ document: CreatePageMessageSessionDocument, variables })
+    }),
+    ClosePageMessageSession: build.mutation<ClosePageMessageSessionMutation, ClosePageMessageSessionMutationVariables>({
+      query: variables => ({ document: ClosePageMessageSessionDocument, variables })
     })
   })
 });
@@ -382,5 +412,6 @@ export const {
   useLazyPageMessageSessionByAccountIdQuery,
   useUserHadMessageToPageQuery,
   useLazyUserHadMessageToPageQuery,
-  useCreatePageMessageSessionMutation
+  useCreatePageMessageSessionMutation,
+  useClosePageMessageSessionMutation
 } = injectedRtkApi;

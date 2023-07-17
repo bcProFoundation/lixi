@@ -115,7 +115,8 @@ const claimsPersistConfig: PersistConfig<ClaimsState> = {
 
 const shopPersistConfig: PersistConfig<PageState> = {
   key: 'pages',
-  storage: storage('lixi-indexeddb')
+  storage: storage('lixi-indexeddb'),
+  blacklist: ['currentPageMessageSession']
 };
 
 const settingsPersistConfig: PersistConfig<SettingsState> = {

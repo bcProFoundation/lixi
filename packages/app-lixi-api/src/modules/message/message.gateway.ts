@@ -70,4 +70,8 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
   publishPageChannel(pageChannelId: string, message: any) {
     this.server.to(pageChannelId).emit('publishPageChannel', message);
   }
+
+  sessionAction(pageMessageSessionId: string, message: any) {
+    this.server.to(pageMessageSessionId).emit('sessionAction', message);
+  }
 }

@@ -86,6 +86,10 @@ export type City = {
   state: State;
 };
 
+export type ClosePageMessageSessionInput = {
+  pageMessageSessionId: Scalars['String'];
+};
+
 export type Comment = {
   __typename?: 'Comment';
   commentAccount: Account;
@@ -485,6 +489,7 @@ export type MessageSessionEdge = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  closePageMessageSession: PageMessageSession;
   createAccount: Account;
   createComment: Comment;
   createFollowAccount: FollowAccount;
@@ -506,6 +511,10 @@ export type Mutation = {
   repost: Scalars['Boolean'];
   updatePage: Page;
   updatePost: Post;
+};
+
+export type MutationClosePageMessageSessionArgs = {
+  data: ClosePageMessageSessionInput;
 };
 
 export type MutationCreateAccountArgs = {

@@ -74,21 +74,28 @@ const StyledHeader = styled.div`
 const PageMessageForUser = ({ page, account }: PageMessageProps) => {
   const dispatch = useAppDispatch();
   const { control, getValues, resetField, setFocus } = useForm();
-  const [pageMessageSessionId, setPageMessageSessionId] = useState<string | null>(null);
+  const [currentPageMessageSessionId, setCurrentPageMessageSessionId] = useState<string | null>(null);
 
   const { data: pageMessageSessionData, refetch: pageMessageSessionRefetch } = useUserHadMessageToPageQuery({
     accountId: account.id,
     pageId: page.id
   });
 
-  const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } =
-    useInfiniteMessageByPageMessageSessionId({
-      id: pageMessageSessionId,
-      orderBy: {
-        direction: OrderDirection.Desc,
-        field: MessageOrderField.UpdatedAt
-      }
-    });
+  const {
+    data: messageData,
+    totalCount,
+    fetchNext: messageFetchNext,
+    hasNext: messageHasNext,
+    isFetching: messageIsFetching,
+    isFetchingNext: messageIsFetchingNext,
+    refetch
+  } = useInfiniteMessageByPageMessageSessionId({
+    id: currentPageMessageSessionId,
+    orderBy: {
+      direction: OrderDirection.Desc,
+      field: MessageOrderField.UpdatedAt
+    }
+  });
 
   const [
     createPageMessageSessionTrigger,
@@ -104,11 +111,11 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
     { isLoading: isLoadingCreateMessage, isSuccess: isSuccessCreateMessage, isError: isErrorCreateMessage }
   ] = useCreateMessageMutation();
 
-  const loadMoreItems = () => {
-    if (hasNext && !isFetching) {
-      fetchNext();
-    } else if (hasNext) {
-      fetchNext();
+  const loadMoreMessages = () => {
+    if (messageHasNext && !messageIsFetching) {
+      messageFetchNext();
+    } else if (messageHasNext) {
+      messageFetchNext();
     }
   };
 
@@ -140,7 +147,7 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
   useEffect(() => {
     if (pageMessageSessionData?.userHadMessageToPage?.id) {
       const id = pageMessageSessionData?.userHadMessageToPage?.id;
-      setPageMessageSessionId(id);
+      setCurrentPageMessageSessionId(id);
       dispatch(userSubcribeToPageMessageSession(id));
     }
   }, [pageMessageSessionData]);
@@ -152,7 +159,7 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
     const input: CreateMessageInput = {
       authorId: account.id,
       body: getValues('message'),
-      pageMessageSessionId: pageMessageSessionId,
+      pageMessageSessionId: currentPageMessageSessionId,
       isPageOwner: false
     };
 
@@ -173,20 +180,20 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
       {!_.isNil(pageMessageSessionData) && (
         <Button onClick={() => createNewPageMessageSession()}>Create Page Message Session</Button>
       )}
-      <StyledHeader>{pageMessageSessionId && `Session: ${pageMessageSessionId}`}</StyledHeader>
+      <StyledHeader>{currentPageMessageSessionId && `Session: ${currentPageMessageSessionId}`}</StyledHeader>
       {_.isNil(pageMessageSessionData) && <Button onClick={() => createNewPageMessage()}>Create Message</Button>}
 
       <StyledChatbox id="scrollableChatbox">
         {!_.isNil(pageMessageSessionData) && (
           <StyledInfiniteScroll
-            dataLength={data.length}
-            next={loadMoreItems}
-            hasMore={hasNext}
-            loader={<Skeleton avatar active />}
+            dataLength={messageData.length}
+            next={loadMoreMessages}
+            hasMore={messageHasNext}
+            loader={<Skeleton active />}
             inverse
             scrollableTarget="scrollableChatbox"
           >
-            {data.map(item => {
+            {messageData.map(item => {
               return <Message message={item} key={item.id} authorAddress={account.address} />;
             })}
           </StyledInfiniteScroll>

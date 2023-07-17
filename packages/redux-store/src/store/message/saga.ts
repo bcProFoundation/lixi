@@ -19,6 +19,7 @@ import { put as putAction } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { api as pageMessageApi } from './pageMessageSession.api';
 import _ from 'lodash';
+import { setPageMessageSession } from '@store/page/action';
 
 const getDeviceNotificationStyle = () => {
   if (isMobile) {
@@ -106,6 +107,18 @@ function createPageSocketChannel(socket: Socket) {
   });
 }
 
+function createSessionActionSocketChannel(socket: Socket) {
+  return eventChannel(emit => {
+    const handler = (data: string) => {
+      emit(data);
+    };
+    socket.on('sessionAction', handler);
+    return () => {
+      socket.off('sessionAction', handler);
+    };
+  });
+}
+
 function* listenConnectSaga() {
   while (true) {
     yield call(reconnect);
@@ -133,13 +146,15 @@ function* listenServerSaga() {
 
     const socketMessageChannel = yield call(createMessageSocketChannel, socket);
     const socketPageChannel = yield call(createPageSocketChannel, socket);
+    const sessionActionSocketChannel = yield call(createSessionActionSocketChannel, socket);
     yield fork(listenDisconnectSaga);
     yield fork(listenConnectSaga);
 
     while (true) {
-      const { message, payload } = yield race({
+      const { message, payload, sessionAction } = yield race({
         message: take(socketMessageChannel),
-        payload: take(socketPageChannel)
+        payload: take(socketPageChannel),
+        sessionAction: take(sessionActionSocketChannel)
       });
 
       if (message) {
@@ -148,6 +163,10 @@ function* listenServerSaga() {
 
       if (payload) {
         yield receiveNewMessage(payload);
+      }
+
+      if (sessionAction) {
+        yield receiveSessionAction(sessionAction);
       }
     }
   } catch (error) {
@@ -228,6 +247,24 @@ function* receiveNewMessage(payload: PageMessageSession) {
         });
         draft.allPendingPageMessageSessionByPageId.totalCount =
           draft.allPendingPageMessageSessionByPageId.totalCount + 1;
+      })
+    );
+  } catch (error) {
+    console.log('error', error.message);
+  }
+}
+
+function* receiveSessionAction(payload: PageMessageSession) {
+  console.log(payload);
+  const { id, account, page } = payload;
+  try {
+    yield put(setPageMessageSession(payload));
+    yield putAction(
+      pageMessageApi.util.updateQueryData('OpenPageMessageSessionByPageId', { id: page.id }, draft => {
+        const index = draft.allOpenPageMessageSessionByPageId.edges.findIndex(edge => edge.node.id === id);
+        if (index > -1) {
+          draft.allOpenPageMessageSessionByPageId.edges.splice(index, 1);
+        }
       })
     );
   } catch (error) {
