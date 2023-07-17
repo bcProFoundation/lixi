@@ -609,7 +609,7 @@ export const ShortCutTopicItem = ({
   posts?: any;
   classStyle?: string;
   isCollapse?: boolean;
-  onClickIcon?: (e: any) => void;
+  onClickIcon?: (e: any, isFilter?: boolean) => void;
 }) => {
   const [showMore, setShowMore] = useState<boolean>(false);
   const dispatch = useAppDispatch();
@@ -659,14 +659,18 @@ export const ShortCutTopicItem = ({
                     className={`${showMore ? 'animation-rotage' : ''}`}
                     type="text"
                     icon={<RightOutlined />}
-                    onClick={() => setShowMore(!showMore)}
+                    onClick={() => onClickIcon(topicName, true)}
+                    // TODO: can change in future
+                    // () => setShowMore(!showMore)
                   ></Button>
                 </div>
               </div>
             </SpaceShorcutItem>
             <div hidden={!showMore} className="post-of-topic">
               {posts.map(post => {
-                return <ShortCutPageItem item={post} onClickIcon={() => dispatch(setSelectedPost(post.id))} />;
+                return (
+                  <ShortCutPageItem key={post.id} item={post} onClickIcon={() => dispatch(setSelectedPost(post.id))} />
+                );
               })}
             </div>
           </>
@@ -979,7 +983,8 @@ const SidebarShortcut = () => {
       Object.entries(filterPage).map(([key, value]) => {
         return (
           <ShortCutTopicItem
-            onClickIcon={topicName => onTopHashtagClick(`#${topicName}`, value)}
+            key={key}
+            onClickIcon={(topicName, isFilter) => onTopHashtagClick(`#${topicName}`, value, isFilter)}
             topicName={key}
             posts={value}
           />
@@ -1002,8 +1007,8 @@ const SidebarShortcut = () => {
   const showShortCutItemForHome = () => {
     return (
       <>
-        {filterPosts.map(item => {
-          return <ShortCutItem item={item} onClickIcon={() => dispatch(setSelectedPost(item.id))} />;
+        {filterPosts.map((item, index) => {
+          return <ShortCutItem key={index} item={item} onClickIcon={() => dispatch(setSelectedPost(item.id))} />;
         })}
       </>
     );
@@ -1014,7 +1019,8 @@ const SidebarShortcut = () => {
       Object.entries(filterPage).map(([key, value]) => {
         return (
           <ShortCutTopicItem
-            onClickIcon={topicName => onTopHashtagClick(`#${topicName}`, value)}
+            key={key}
+            onClickIcon={(topicName, isFilter) => onTopHashtagClick(`#${topicName}`, value, isFilter)}
             topicName={key}
             posts={value}
             isCollapse={navCollapsed}
@@ -1039,9 +1045,10 @@ const SidebarShortcut = () => {
   const showShortCutForHomeNavCollapse = () => {
     return (
       <div className="social-feature" style={{ padding: navCollapsed ? '0.5rem' : '1rem' }}>
-        {filterPosts.map(item => {
+        {filterPosts.map((item, index) => {
           return (
             <ShortCutItem
+              key={index}
               item={item}
               isCollapse={navCollapsed}
               onClickIcon={() => dispatch(setSelectedPost(item.id))}
@@ -1056,9 +1063,10 @@ const SidebarShortcut = () => {
     let parrentTopic = [];
     parrentTopic = posts;
 
-    return parrentTopic.map(post => {
+    return parrentTopic.map((post, index) => {
       return (
         <ShortCutPageItem
+          key={index}
           item={post}
           onClickIcon={() => dispatch(setSelectedPost(post.id))}
           isCollapse={navCollapsed}
@@ -1070,7 +1078,7 @@ const SidebarShortcut = () => {
   const showChildTopic = (topic, posts) => {
     return (
       <ShortCutTopicItem
-        onClickIcon={topicName => onTopHashtagClick(`#${topicName}`, posts)}
+        onClickIcon={(topicName, isFilter) => onTopHashtagClick(`#${topicName}`, posts, isFilter)}
         topicName={topic}
         posts={posts}
         isCollapse={navCollapsed}
@@ -1078,8 +1086,8 @@ const SidebarShortcut = () => {
     );
   };
 
-  const onTopHashtagClick = (hashtag, posts?) => {
-    if (hashtag !== '#general') {
+  const onTopHashtagClick = (hashtag, posts?, isFilter?) => {
+    if (hashtag !== '#general' && isFilter) {
       if (router.query.hashtags) {
         //Check dup before adding to query
         const queryHashtags = (router.query.hashtags as string).split(' ');
@@ -1107,8 +1115,14 @@ const SidebarShortcut = () => {
         dispatch(setSelectedPost(posts[0].id));
       }, 500);
     } else {
-      dispatch(setSelectedPost(posts[cachePostIdGeneral].id));
-      cachePostIdGeneral < posts.length - 1 ? setCachePostIdGeneral(cachePostIdGeneral + 1) : setCachePostIdGeneral(0);
+      if (hashtag === '#general') {
+        dispatch(setSelectedPost(posts[cachePostIdGeneral].id));
+        cachePostIdGeneral < posts.length - 1
+          ? setCachePostIdGeneral(cachePostIdGeneral + 1)
+          : setCachePostIdGeneral(0);
+      } else {
+        dispatch(setSelectedPost(posts[0].id));
+      }
     }
   };
 

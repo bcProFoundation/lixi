@@ -38,6 +38,10 @@ const CardContainer = styled.div`
     margin: 0px 0px 5px 5px;
     color: gray;
   }
+
+  @media (max-width: 520px) {
+    padding: 12px 12px 0 12px;
+  }
 `;
 
 const CardHeader = styled.div`
@@ -164,6 +168,35 @@ const Content = styled.div`
       font-size: 26px;
       font-weight: 500;
     }
+    &.images-post-mobile {
+      display: flex;
+      overflow-x: auto;
+      gap: 5px;
+      -ms-overflow-style: none; // Internet Explorer 10+
+      scrollbar-width: none; // Firefox
+      ::-webkit-scrollbar {
+        display: none; // Safari and Chrome
+      }
+      img {
+        // max-width: fit-content;
+        // height: 100%;
+        // max-height: 50vh;
+        // object-fit: contain;
+        // border-radius: 0;
+        width: auto;
+        max-width: 75vw;
+        max-height: 50vh;
+        object-fit: cover;
+        border-radius: var(--border-radius-primary);
+        border: 1px solid var(--lt-color-gray-100);
+      }
+      &.only-one-image {
+        justify-content: center;
+        img {
+          max-width: 100%;
+        }
+      }
+    }
   }
 `;
 
@@ -204,6 +237,9 @@ const PostListItemContainer = styled(List.Item)`
     background: rgb(252, 252, 252);
   }
   transition: 0.5s;
+  @media (max-width: 520px) {
+    margin-bottom: 8px;
+  }
 `;
 
 type PostItem = PostsQuery['allPosts']['edges'][0]['node'];
@@ -346,6 +382,7 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
             isDropdown={true}
             lotusBurnScore={post.lotusBurnScore}
             followPostOwner={post.followPostOwner}
+            post={post}
           />
         </CardHeader>
         <Content onClick={e => handlePostClick(e)}>
@@ -371,7 +408,7 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
           )}
           {item.uploads.length != 0 && !showMoreImage && (
             <div className="images-post">
-              <Gallery photos={imagesList.length > 3 ? imagesList.slice(0, 3) : imagesList} />
+              <Gallery photos={imagesList.length > 3 ? imagesList.slice(0, 4) : imagesList} />
               {item.uploads.length > 3 && (
                 <Button type="link" className="show-more-desktop show-more-image no-border-btn">
                   {'+ ' + (item.uploads.length - 1)}
@@ -381,15 +418,22 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
           )}
           {item.uploads.length != 0 && showMoreImage && (
             <>
-              <div className="images-post">
-                <Gallery photos={imagesList.slice(0, 1)} />
-                {item.uploads.length > 1 && (
-                  <Button type="link" className="show-more-image no-border-btn">
-                    {'More ' + (item.uploads.length - 1) + ' images'}
-                    <PlusCircleOutlined />
-                  </Button>
-                )}
-              </div>
+              {item.uploads.length > 1 && (
+                <div className="images-post images-post-mobile">
+                  {imagesList.map((img, index) => {
+                    return <img key={index} src={img.src} />;
+                  })}
+                </div>
+              )}
+              {item.uploads.length === 1 && (
+                <>
+                  <div className="images-post images-post-mobile only-one-image">
+                    {imagesList.map((img, index) => {
+                      return <img key={index} src={img.src} />;
+                    })}
+                  </div>
+                </>
+              )}
             </>
           )}
         </Content>

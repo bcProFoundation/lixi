@@ -24,11 +24,13 @@ import { getSlpBalancesAndUtxos } from '@store/wallet';
 import { Header } from 'antd/lib/layout/layout';
 import { injectStore } from 'src/utils/axiosClient';
 import ModalManager from '../../Common/ModalManager';
+import ActionSheet from '../../Common/ActionSheet';
 import { GlobalStyle } from './GlobalStyle';
 import { theme } from './theme';
 import 'animate.css';
 import useWindowDimensions from '@hooks/useWindowDimensions';
 import useThemeDetector from '@local-hooks/useThemeDetector';
+import { setShowCreatePost } from '@store/post/actions';
 const { Content } = Layout;
 
 export const LoadingIcon = <LoadingOutlined className="loadingIcon" />;
@@ -91,11 +93,6 @@ export const AppContainer = styled.div`
   height: 100vh;
   overflow: hidden;
   background: ${props => props.theme.wallet.background};
-  @media (max-width: 960px) {
-    width: 100%;
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
-  }
   .ant-layout.ant-layout-has-sider {
     display: flex;
     justify-content: space-between;
@@ -110,8 +107,14 @@ export const AppContainer = styled.div`
     gap: 1rem;
     justify-content: flex-start;
     @media (max-width: 960px) {
+      height: auto;
       margin-left: 0 !important;
       padding: 0 8px;
+      -ms-overflow-style: none; // Internet Explorer 10+
+      scrollbar-width: none; // Firefox
+      ::-webkit-scrollbar {
+        display: none; // Safari and Chrome
+      }
     }
 
     @media (min-width: 960px) {
@@ -134,14 +137,25 @@ export const AppContainer = styled.div`
       margin-bottom: 4rem;
       @media (max-width: 968px) {
         margin-bottom: 0;
+        height: 100vh;
       }
     }
   }
   .ant-drawer {
-    position: inherit;
+    .ant-drawer-body {
+      -ms-overflow-style: none; // Internet Explorer 10+
+      scrollbar-width: none; // Firefox
+      ::-webkit-scrollbar {
+        display: none; // Safari and Chrome
+      }
+    }
+    @media (min-width: 960px) {
+      position: inherit;
+    }
   }
   @media (max-width: 960px) {
-    position: absolute;
+    height: auto;
+    min-height: auto;
   }
 `;
 
@@ -213,12 +227,13 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
   const { width } = useWindowDimensions();
   const currentDeviceTheme = useThemeDetector();
 
-  useEffect(() => {
-    dispatch(setDarkTheme(currentDeviceTheme));
-  }, [currentDeviceTheme]);
+  // TODO: feature auto change theme
+  // useEffect(() => {
+  //   dispatch(setDarkTheme(currentDeviceTheme));
+  // }, [currentDeviceTheme]);
 
   useEffect(() => {
-    const isMobile = width < 968 ? true : false;
+    const isMobile = width < 960 ? true : false;
     setIsMobile(isMobile);
   }, [width]);
 
@@ -281,8 +296,9 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
 
   const handleScroll = e => {
     if (isMobile) {
-      const currentScrollPos = e.currentTarget.scrollTop;
+      const currentScrollPos = e?.currentTarget?.scrollTop;
       setVisible(prevScrollPos > currentScrollPos || currentScrollPos < 20);
+      dispatch(setShowCreatePost(visible));
       setPrevScrollPos(currentScrollPos);
     }
   };
@@ -325,6 +341,7 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
                     />
                   </div>
                 </AppContainer>
+                <ActionSheet />
               </AppBody>
             </Layout>
           </LixiApp>
