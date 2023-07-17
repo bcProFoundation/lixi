@@ -20,7 +20,6 @@ body {
 
   /* Firefox */
   @media (max-width: 968px) {
-    padding-bottom: 60px;
     background: var(--bg-color-dark-theme);
   }
 
@@ -54,6 +53,16 @@ body {
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  @media (prefers-color-scheme: light) {
+    background: #fff;
+  }
+  @media (prefers-color-scheme: dark) {
+    background: var(--bg-color-dark-theme);
+  }
+  @media (max-width: 968px) {
+    width: auto !important;
+    height: auto !important;
+  }
 }
 
 code {
@@ -386,11 +395,30 @@ code {
   }
 }
 
+.ant-image-preview {
+  background: #000;
+}
+
 .infinite-scroll-component {
   overflow: unset !important;
 }
 
 .post-detail-custom-modal {
+  .ant-modal-close {
+    left: 0;
+    padding: 5px;
+    margin-left: 0.5rem;
+    .ant-modal-close-x {
+      font-size: 22px;
+    }
+  }
+
+  .no-border-color {
+    header {
+      border-color: transparent !important;
+    }
+  }
+
   @media (max-width: 968px) {
     width: 80vw !important;
     margin-bottom: 0 !important;
@@ -401,6 +429,7 @@ code {
     max-width: 100vw !important;
     top: 0 !important;
     margin-bottom: 0 !important;
+    padding: 0 !important;
   }
 
   .ant-modal-body {
@@ -412,6 +441,10 @@ code {
       font-size: 20px;
       margin: 5px;
     }
+  }
+
+  .images-post {
+    background: transparent !important;
   }
 }
 
@@ -573,6 +606,12 @@ code {
   }
 }
 
+.ant-input {
+  &:focus {
+    box-shadow: none;
+  }
+}
+
 // custom default form input
 .ant-form-item-row {
   .ant-form-item-label {
@@ -591,7 +630,6 @@ code {
 
   .ant-form-item-control {
     .ant-form-item-control-input-content {
-
       input,
       textarea {
         padding: 9px 1rem;
@@ -885,7 +923,7 @@ code {
     }
   }
 
-  .ant-popover-arrow>.ant-popover-arrow-content::before {
+  .ant-popover-arrow > .ant-popover-arrow-content::before {
     background: var(--color-primary);
   }
 
@@ -1046,7 +1084,6 @@ code {
 }
 
 .ant-modal-dark {
-
   h1,
   h2,
   h3,
@@ -1070,7 +1107,7 @@ code {
     background: #303031 !important;
     border-color: var(--border-color-dark-base) !important;
     color: var(--text-color-on-dark) !important;
-
+    border-radius: var(--border-radius-primary);
     &::placeholder {
       color: gray !important;
     }
@@ -1217,6 +1254,11 @@ code {
     .comment-input-container {
       background: var(--bg-color-dark-item) !important;
       border-color: var(--border-color-dark-base) !important;
+      .ant-input {
+        &:focus {
+          box-shadow: none !important;
+        }
+      }
     }
 
     .anticon {
@@ -1249,9 +1291,25 @@ code {
     }
 
     .images-post {
-      .react-photo-gallery--gallery>div {
+      .react-photo-gallery--gallery > div {
         background: var(--bg-color-dark-item) !important;
       }
+      .ant-image {
+        width: 100%;
+        height: 100%;
+        img {
+          height: 100%;
+          object-fit: contain;
+        }
+      }
+      &.images-post-mobile {
+        img {
+          border-color: var(--border-color-dark-base) !important;
+        }
+      }
+    }
+    .comment-container {
+      background: #303031;
     }
   }
 
@@ -1259,10 +1317,23 @@ code {
   .EditorLexical_hashtag {
     background-color: var(--color-primary) !important;
   }
+
+  &.post-detail-custom-modal {
+    .no-border-color {
+      header {
+        border-color: transparent !important;
+      }
+    }
+    a {
+      color: var(--color-primary) !important;
+      span {
+        color: var(--color-primary) !important;
+      }
+    }
+  }
 }
 
 .popover-dark {
-
   h1,
   h2,
   h3,
@@ -1412,14 +1483,15 @@ code {
   }
 
   .ant-skeleton.ant-skeleton-active {
-
     .ant-skeleton-avatar,
     .ant-skeleton-title,
     li {
-      background: linear-gradient(90deg,
-          rgba(48, 48, 49, 0.7819721638655462) 25%,
-          rgba(48, 48, 49, 0.8239889705882353) 46%,
-          rgba(48, 48, 49, 1) 68%);
+      background: linear-gradient(
+        90deg,
+        rgba(48, 48, 49, 0.7819721638655462) 25%,
+        rgba(48, 48, 49, 0.8239889705882353) 46%,
+        rgba(48, 48, 49, 1) 68%
+      );
       background-size: 400% 100% !important;
     }
   }
@@ -1471,7 +1543,6 @@ code {
     color: var(--text-color-on-dark);
 
     .ant-table-thead {
-
       th,
       td {
         background: #1e1e1e;
@@ -1494,7 +1565,7 @@ code {
     }
 
     tr.ant-table-row:hover {
-      >td {
+      > td {
         background: #303031;
       }
     }
@@ -1503,7 +1574,7 @@ code {
       background: var(--bg-color-dark-item);
     }
 
-    .ant-table-tbody>tr.ant-table-placeholder:hover>td {
+    .ant-table-tbody > tr.ant-table-placeholder:hover > td {
       background: var(--bg-color-dark-item) !important;
     }
 
@@ -1667,7 +1738,7 @@ code {
 
   .card-container-page,
   .card-container-post {
-    background: var(--bg-color-dark-item) !important;
+    // background: var(--bg-color-dark-item) !important;
   }
 
   .card {
@@ -1701,6 +1772,12 @@ code {
     .ant-btn {
       background: transparent;
     }
+
+    .images-post-mobile {
+      img {
+        border-color: var(--border-color-dark-base) !important;
+      }
+    }
   }
 
   //Register Pack
@@ -1733,7 +1810,7 @@ code {
       color: #fff;
 
       .ico-img {
-        filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%);
+        filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%) !important;
       }
     }
   }
@@ -2001,7 +2078,7 @@ code {
 
       .distance {
         .ant-space-item {
-          >div {
+          > div {
             color: var(--text-color-primary-dark) !important;
           }
 
@@ -2053,7 +2130,7 @@ code {
 
   //ActionPostBar
   .action-post-bar {
-    background: var(--bg-color-dark-item) !important;
+    // background: var(--bg-color-dark-item) !important;
     border-color: var(--border-color-dark-base) !important;
 
     .ant-space,
@@ -2066,7 +2143,7 @@ code {
 
   //CreatePostCar
   .create-post-card-container {
-    background: var(--bg-color-dark-item) !important;
+    background: var(--bg-color-dark-item);
   }
 
   .functional-images-bar {
@@ -2169,7 +2246,7 @@ code {
   }
 
   .images-post {
-    .react-photo-gallery--gallery>div {
+    .react-photo-gallery--gallery > div {
       background: var(--bg-color-dark-item) !important;
     }
   }

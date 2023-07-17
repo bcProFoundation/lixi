@@ -8,10 +8,9 @@ import { useEffect } from 'react';
 import _ from 'lodash';
 
 const StyledFooter = styled.div`
-  border-top: 1px solid ${props => props.theme.wallet.borders.color};
   position: fixed;
   z-index: 9;
-  bottom: 0;
+  bottom: -1px;
   width: 100%;
   padding: 0;
   background: #fff;
@@ -24,13 +23,13 @@ const StyledFooter = styled.div`
   }
 `;
 
-const Footer = ({ notifications }: { notifications?: any }) => {
+const Footer = ({ notifications, classList }: { notifications?: any; classList?: any }) => {
   const router = useRouter();
   const currentPathName = router.pathname ?? '';
 
   return (
     <>
-      <StyledFooter className="footer-component">
+      <StyledFooter className={`footer-component ${classList}`}>
         <Link href="/" passHref>
           <NavButton active={currentPathName == '/'}>
             <img

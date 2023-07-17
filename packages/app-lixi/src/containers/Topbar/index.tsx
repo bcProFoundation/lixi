@@ -282,6 +282,16 @@ const BadgeStyled = styled(Badge)`
   }
 `;
 
+const StyledHeader = styled(Header)`
+  @media (max-width: 960px) {
+    position: fixed;
+    top: 0;
+    z-index: 9;
+    width: 100%;
+    height: 64px;
+  }
+`;
+
 // eslint-disable-next-line react/display-name
 const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallback<HTMLElement>) => {
   const dispatch = useAppDispatch();
@@ -462,29 +472,33 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
 
   const contentSelectAccount = (
     <AccountBox>
-      <div>
-        <h3>Current Account</h3>
-        <div>
-          <h3 className="current-name">{selectedAccount?.name}</h3>
-          <CopyToClipboard text={selectedAccount.address} onCopy={handleOnCopy}>
-            <div className="profile-feature">
-              <span>{selectedAccount.address.slice(-8) + ' '}</span>
-              <span>
-                <CopyOutlined />
-              </span>
+      {selectedAccount && (
+        <>
+          <div>
+            <h3>Current Account</h3>
+            <div>
+              <h3 className="current-name">{selectedAccount?.name}</h3>
+              <CopyToClipboard text={selectedAccount?.address} onCopy={handleOnCopy}>
+                <div className="profile-feature">
+                  <span>{selectedAccount?.address.slice(-8) + ' '}</span>
+                  <span>
+                    <CopyOutlined />
+                  </span>
+                </div>
+              </CopyToClipboard>
             </div>
-          </CopyToClipboard>
-        </div>
 
-        <div className="profile-feature">
-          <span>{balanceAccount(selectedAccount)} XPI</span>
-          <Link href="/send">
-            <span>
-              <SendOutlined style={{ fontSize: '16px' }} />
-            </span>
-          </Link>
-        </div>
-      </div>
+            <div className="profile-feature">
+              <span>{balanceAccount(selectedAccount)} XPI</span>
+              <Link href="/send">
+                <span>
+                  <SendOutlined style={{ fontSize: '16px' }} />
+                </span>
+              </Link>
+            </div>
+          </div>
+        </>
+      )}
 
       {otherAccounts.length > 0 && (
         <>
@@ -605,7 +619,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
   //   >
 
   return (
-    <Header style={{ boxShadow: '0 10px 30px rgb(0 0 0 / 5%)' }} className={className}>
+    <StyledHeader style={{ boxShadow: '0 10px 30px rgb(0 0 0 / 5%)' }} className={className}>
       <PathDirection>
         <img className="menu-mobile" src="/images/ico-menu.svg" alt="" onClick={handleMenuClick} />
         {currentPathName == '/' && (
@@ -678,24 +692,31 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
             <Button className="animate__animated animate__heartBeat" type="text" icon={<AppstoreOutlined />} />
           </Popover>
         </div>
-        <div className="account-bar" onClick={() => router.push(`/profile/${selectedAccount.address}`)}>
+        <div className="account-bar">
           <Popover
             overlayClassName={`${currentTheme ? 'popover-dark' : ''}`}
             arrow={false}
             content={contentSelectAccount}
             placement="bottom"
           >
-            <AvatarUser name={selectedAccount?.name} isMarginRight={false} />
-            <p className="account-info">
-              <span className="account-name">{selectedAccount?.name}</span>
-              <span className="account-balance">
-                {balanceAccount(selectedAccount)} <span className="unit">XPI</span>
-              </span>
-            </p>
+            <div
+              onClick={() => {
+                if (authorization.authorized) router.push(`/profile/${selectedAccount.address}`);
+                else askAuthorization();
+              }}
+            >
+              <AvatarUser name={selectedAccount?.name} isMarginRight={false} />
+              <p className="account-info">
+                <span className="account-name">{selectedAccount?.name}</span>
+                <span className="account-balance">
+                  {balanceAccount(selectedAccount)} <span className="unit">XPI</span>
+                </span>
+              </p>
+            </div>
           </Popover>
         </div>
       </SpaceStyled>
-    </Header>
+    </StyledHeader>
   );
 });
 
