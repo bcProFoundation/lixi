@@ -477,7 +477,12 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
           <div>
             <h3>Current Account</h3>
             <div>
-              <h3 className="current-name">{selectedAccount?.name}</h3>
+              <h3
+                className="current-name"
+                onClick={() => isMobile && router.push(`/profile/${selectedAccount.address}`)}
+              >
+                {selectedAccount?.name}
+              </h3>
               <CopyToClipboard text={selectedAccount?.address} onCopy={handleOnCopy}>
                 <div className="profile-feature">
                   <span>{selectedAccount?.address.slice(-8) + ' '}</span>
@@ -538,6 +543,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
     </AccountBox>
   );
 
+  let clicked: Boolean = false;
   const contentMoreAction = (
     <PopoverStyled>
       <div className="social-menu">
@@ -587,7 +593,12 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
           key="wallet-lotus"
           onClickItem={() => {
             if (authorization.authorized) handleIconClick('/wallet');
-            else askAuthorization();
+            else {
+              if (!clicked) {
+                askAuthorization();
+                clicked = true;
+              }
+            }
           }}
         />
         <ItemAccess
@@ -598,7 +609,12 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
           key="lixi"
           onClickItem={() => {
             if (authorization.authorized) handleIconClick('/lixi');
-            else askAuthorization();
+            else {
+              if (!clicked) {
+                askAuthorization();
+                clicked = true;
+              }
+            }
           }}
         />
         <ItemAccess
@@ -701,7 +717,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
           >
             <div
               onClick={() => {
-                if (authorization.authorized) router.push(`/profile/${selectedAccount.address}`);
+                if (authorization.authorized) !isMobile && router.push(`/profile/${selectedAccount.address}`);
                 else askAuthorization();
               }}
             >
