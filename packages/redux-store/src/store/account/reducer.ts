@@ -40,6 +40,8 @@ const initialState: AccountsState = accountsAdapter.getInitialState({
   selectedId: null,
   lixiIdsById: {},
   envelopeUpload: null,
+  accountAvatarUpload: null,
+  accountCoverUpload: null,
   pageAvatarUpload: null,
   pageCoverUpload: null,
   postCoverUploads: [],
@@ -61,11 +63,11 @@ export const accountReducer = createReducer(initialState, builder => {
     .addCase(setAccount, (state, action) => {
       const account = action.payload;
       accountsAdapter.upsertOne(state, account);
-      state.selectedId = account.id ?? null;
+      state.selectedId = _.toSafeInteger(account.id) ?? null;
     })
     .addCase(selectAccountSuccess, (state, action) => {
       const { account, lixies } = action.payload;
-      const id = account.id;
+      const id = _.toSafeInteger(account.id);
       state.selectedId = id;
       const lixiIds = lixies.map(lixi => lixi.id);
       state.lixiIdsById[id] = lixiIds;
@@ -73,7 +75,7 @@ export const accountReducer = createReducer(initialState, builder => {
     })
     .addCase(importAccountSuccess, (state, action) => {
       const { account, lixies } = action.payload;
-      const id = account.id;
+      const id = _.toSafeInteger(account.id);
       state.selectedId = id;
       const lixiIds = lixies.map(lixi => lixi.id);
       state.lixiIdsById[id] = lixiIds;
@@ -99,6 +101,12 @@ export const accountReducer = createReducer(initialState, builder => {
         case UPLOAD_TYPES.ENVELOPE:
           state.envelopeUpload = upload;
           break;
+        case UPLOAD_TYPES.ACCOUNT_AVATAR:
+          state.accountAvatarUpload = upload;
+          break;
+        case UPLOAD_TYPES.ACCOUNT_COVER:
+          state.accountCoverUpload = upload;
+          break;
         case UPLOAD_TYPES.PAGE_AVATAR:
           state.pageAvatarUpload = upload;
           break;
@@ -116,6 +124,12 @@ export const accountReducer = createReducer(initialState, builder => {
       switch (type) {
         case UPLOAD_TYPES.ENVELOPE:
           state.envelopeUpload = null;
+          break;
+        case UPLOAD_TYPES.ACCOUNT_AVATAR:
+          state.accountAvatarUpload = null;
+          break;
+        case UPLOAD_TYPES.ACCOUNT_AVATAR:
+          state.accountCoverUpload = null;
           break;
         case UPLOAD_TYPES.PAGE_AVATAR:
           state.pageAvatarUpload = null;

@@ -38,6 +38,10 @@ const CardContainer = styled.div`
     margin: 0px 0px 5px 5px;
     color: gray;
   }
+
+  @media (max-width: 520px) {
+    padding: 12px 12px 0 12px;
+  }
 `;
 
 const CardHeader = styled.div`
@@ -233,6 +237,9 @@ const PostListItemContainer = styled(List.Item)`
     background: rgb(252, 252, 252);
   }
   transition: 0.5s;
+  @media (max-width: 520px) {
+    margin-bottom: 8px;
+  }
 `;
 
 type PostItem = PostsQuery['allPosts']['edges'][0]['node'];
@@ -363,7 +370,7 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
         {reposted()}
         <CardHeader>
           <InfoCardUser
-            imgUrl={post.page ? post.page.avatar : ''}
+            imgUrl={post.postAccount.avatar ? post.postAccount.avatar : ''}
             name={showUsername()}
             title={formatRelativeTime(post.createdAt)}
             postAccountAddress={post.postAccount ? post.postAccount.address : undefined}
@@ -375,6 +382,7 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
             isDropdown={true}
             lotusBurnScore={post.lotusBurnScore}
             followPostOwner={post.followPostOwner}
+            post={post}
           />
         </CardHeader>
         <Content onClick={e => handlePostClick(e)}>
@@ -400,7 +408,7 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
           )}
           {item.uploads.length != 0 && !showMoreImage && (
             <div className="images-post">
-              <Gallery photos={imagesList.length > 3 ? imagesList.slice(0, 3) : imagesList} />
+              <Gallery photos={imagesList.length > 3 ? imagesList.slice(0, 4) : imagesList} />
               {item.uploads.length > 3 && (
                 <Button type="link" className="show-more-desktop show-more-image no-border-btn">
                   {'+ ' + (item.uploads.length - 1)}

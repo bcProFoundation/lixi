@@ -541,7 +541,11 @@ export const ShortCutItem = ({
     <div className="avatar-account">
       {item?.page && <img src={item?.page?.avatar || '/images/default-avatar.jpg'} />}
       {item?.token && <img src={`${currency.tokenIconsUrl}/64/${item?.token?.tokenId}.png`} />}
-      {!item?.page && !item?.token && <Avatar>{transformShortName(item?.postAccount?.name)}</Avatar>}
+      {!item?.page && !item?.token && (
+        <Avatar src={item?.postAccount?.avatar ? item?.postAccount?.avatar : ''}>
+          {transformShortName(item?.postAccount?.name)}
+        </Avatar>
+      )}{' '}
     </div>
     {!isCollapse && (
       <>
@@ -609,7 +613,7 @@ export const ShortCutTopicItem = ({
   posts?: any;
   classStyle?: string;
   isCollapse?: boolean;
-  onClickIcon?: (e: any) => void;
+  onClickIcon?: (e: any, isFilter?: boolean) => void;
 }) => {
   const [showMore, setShowMore] = useState<boolean>(false);
   const dispatch = useAppDispatch();
@@ -659,7 +663,9 @@ export const ShortCutTopicItem = ({
                     className={`${showMore ? 'animation-rotage' : ''}`}
                     type="text"
                     icon={<RightOutlined />}
-                    onClick={() => setShowMore(!showMore)}
+                    onClick={() => onClickIcon(topicName, true)}
+                    // TODO: can change in future
+                    // () => setShowMore(!showMore)
                   ></Button>
                 </div>
               </div>
@@ -982,7 +988,7 @@ const SidebarShortcut = () => {
         return (
           <ShortCutTopicItem
             key={key}
-            onClickIcon={topicName => onTopHashtagClick(`#${topicName}`, value)}
+            onClickIcon={(topicName, isFilter) => onTopHashtagClick(`#${topicName}`, value, isFilter)}
             topicName={key}
             posts={value}
           />
@@ -1018,7 +1024,7 @@ const SidebarShortcut = () => {
         return (
           <ShortCutTopicItem
             key={key}
-            onClickIcon={topicName => onTopHashtagClick(`#${topicName}`, value)}
+            onClickIcon={(topicName, isFilter) => onTopHashtagClick(`#${topicName}`, value, isFilter)}
             topicName={key}
             posts={value}
             isCollapse={navCollapsed}
@@ -1076,7 +1082,7 @@ const SidebarShortcut = () => {
   const showChildTopic = (topic, posts) => {
     return (
       <ShortCutTopicItem
-        onClickIcon={topicName => onTopHashtagClick(`#${topicName}`, posts)}
+        onClickIcon={(topicName, isFilter) => onTopHashtagClick(`#${topicName}`, posts, isFilter)}
         topicName={topic}
         posts={posts}
         isCollapse={navCollapsed}
@@ -1084,8 +1090,8 @@ const SidebarShortcut = () => {
     );
   };
 
-  const onTopHashtagClick = (hashtag, posts?) => {
-    if (hashtag !== '#general') {
+  const onTopHashtagClick = (hashtag, posts?, isFilter?) => {
+    if (hashtag !== '#general' && isFilter) {
       if (router.query.hashtags) {
         //Check dup before adding to query
         const queryHashtags = (router.query.hashtags as string).split(' ');
@@ -1113,8 +1119,14 @@ const SidebarShortcut = () => {
         dispatch(setSelectedPost(posts[0].id));
       }, 500);
     } else {
-      dispatch(setSelectedPost(posts[cachePostIdGeneral].id));
-      cachePostIdGeneral < posts.length - 1 ? setCachePostIdGeneral(cachePostIdGeneral + 1) : setCachePostIdGeneral(0);
+      if (hashtag === '#general') {
+        dispatch(setSelectedPost(posts[cachePostIdGeneral].id));
+        cachePostIdGeneral < posts.length - 1
+          ? setCachePostIdGeneral(cachePostIdGeneral + 1)
+          : setCachePostIdGeneral(0);
+      } else {
+        dispatch(setSelectedPost(posts[0].id));
+      }
     }
   };
 

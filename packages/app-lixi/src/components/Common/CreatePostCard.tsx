@@ -31,6 +31,7 @@ import { SocialsEnum } from './Embed';
 import EditorLexical from './Lexical/EditorLexical';
 import { currency } from './Ticker';
 import useAuthorization from './Authorization/use-authorization.hooks';
+import { getShowCreatePost } from '@store/post/selectors';
 
 type ErrorType = 'unsupported' | 'invalid';
 
@@ -227,6 +228,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
   const { sendXpi } = useXPI();
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
+  const showCreatePostMobile = useAppSelector(getShowCreatePost);
 
   const [
     createPostTrigger,
@@ -468,7 +470,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
       <DesktopCreatePost className="create-post-card-container" onClick={handleNewPostClick}>
         <div className="box-create-post">
           <div className="avatar">
-            <AvatarUser name={selectedAccount?.name} isMarginRight={false} />
+            <AvatarUser icon={selectedAccount.avatar} name={selectedAccount?.name} isMarginRight={false} />
             <Input
               bordered={false}
               placeholder={
@@ -498,7 +500,13 @@ const CreatePostCard = (props: CreatePostCardProp) => {
         </div>
       </DesktopCreatePost>
 
-      <MobileCreatePost className="create-post-card-container" onClick={handleNewPostClick}>
+      <MobileCreatePost
+        hidden={!showCreatePostMobile}
+        className={`animate__animated ${
+          showCreatePostMobile ? 'animate__fadeIn' : 'animate__fadeOut'
+        } create-post-card-container`}
+        onClick={handleNewPostClick}
+      >
         <div className="fab-btn">
           <img src="/images/ico-create-post.svg" alt="" />
         </div>
@@ -514,7 +522,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
         >
           <UserCreate>
             <div className="user-create-post">
-              <img src="/images/xpi.svg" alt="" />
+              <AvatarUser icon={selectedAccount.avatar} name={selectedAccount?.name} isMarginRight={false} />
               <div className="user-info">
                 <p className="title-user">{selectedAccount?.name}</p>
                 <div className="location-fee">
