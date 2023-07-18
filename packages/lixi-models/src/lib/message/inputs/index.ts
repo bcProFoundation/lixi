@@ -1,6 +1,7 @@
 export * from './createMessage.input';
 export * from './createPageMessageSession.input';
 export * from './closePageMessageSession.input';
+export * from './openPageMessageSession.input';
 export * from './createMessageSession.input';
 export * from './message-order.input';
 export * from './message-order.input';

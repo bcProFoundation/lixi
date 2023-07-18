@@ -16,11 +16,13 @@ import { currency } from '@components/Common/Ticker';
 import PostListItem from '@components/Posts/PostListItem';
 import {
   CreateFollowPageInput,
+  CreatePageMessageInput,
   DeleteFollowPageInput,
   HashtagOrderField,
   OrderDirection,
   PostOrderField,
-  RepostInput
+  RepostInput,
+  PageMessageSessionStatus
 } from '@generated/types.generated';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import {
@@ -58,6 +60,10 @@ import PageMessageForOwner from '@components/PageMessage/PageMessageForOwner';
 import PageMessageForUser from '@components/PageMessage/PageMessageForUser';
 import { getSelectedPostId } from '@store/post/selectors';
 import { setSelectedPost } from '@store/post/actions';
+import {
+  useCreatePageMessageSessionMutation,
+  useUserHadMessageToPageQuery
+} from '@store/message/pageMessageSession.generated';
 
 export type PageItem = PageQuery['page'];
 
@@ -498,6 +504,23 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     }
   ] = useDeleteFollowPageMutation();
 
+  const [
+    createPageMessageSessionTrigger,
+    {
+      isLoading: isLoadingCreatePageMessageSession,
+      isSuccess: isSuccessCreatePageMessageSession,
+      isError: isErrorCreatePageMessageSession
+    }
+  ] = useCreatePageMessageSessionMutation();
+
+  const { data: pageMessageSessionData, refetch: pageMessageSessionRefetch } = useUserHadMessageToPageQuery(
+    {
+      accountId: selectedAccount.id,
+      pageId: page.id
+    },
+    { skip: selectedAccount.id === page.pageAccountId }
+  );
+
   useEffect(() => {
     if (isSuccessCreateFollowPage) setIsFollowed(true);
   }, [isSuccessCreateFollowPage]);
@@ -802,6 +825,18 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     );
   };
 
+  const createNewPageMessageSession = async () => {
+    const input: CreatePageMessageInput = {
+      accountId: selectedAccount.id,
+      pageId: page.id
+    };
+    if (_.isNil(pageMessageSessionData)) {
+      const result = await createPageMessageSessionTrigger({ input }).unwrap();
+
+      pageMessageSessionRefetch();
+    }
+  };
+
   return (
     <React.Fragment>
       <StyledContainerProfileDetail className="page-detail">
@@ -842,6 +877,20 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                   {intl.get('page.editCoverPhoto')}
                 </Button>
               </div>
+            )}
+            {/* Chat */}
+            {selectedAccountId != pageDetailData?.pageAccountId && _.isNil(pageMessageSessionData) && (
+              <Button onClick={() => createNewPageMessageSession()}>Chat with me</Button>
+            )}
+            {selectedAccountId != pageDetailData?.pageAccountId && pageMessageSessionData && (
+              <React.Fragment>
+                {
+                  {
+                    [PageMessageSessionStatus.Open]: <Button>Open message</Button>,
+                    [PageMessageSessionStatus.Pending]: <Button disabled>Pending Message</Button>
+                  }[pageMessageSessionData.userHadMessageToPage.status]
+                }
+              </React.Fragment>
             )}
             {/* Follow */}
             {selectedAccountId != pageDetailData?.pageAccountId && (

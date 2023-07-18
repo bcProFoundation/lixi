@@ -20,6 +20,9 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { api as pageMessageApi } from './pageMessageSession.api';
 import _ from 'lodash';
 import { setPageMessageSession } from '@store/page/action';
+import { SessionAction, SessionActionEnum } from '@bcpros/lixi-models/lib/sessionAction';
+import { AccountDto } from '@bcpros/lixi-models';
+import { getAccountById } from '@store/account/selectors';
 
 const getDeviceNotificationStyle = () => {
   if (isMobile) {
@@ -166,6 +169,7 @@ function* listenServerSaga() {
       }
 
       if (sessionAction) {
+        console.log('🚀 ~ file: saga.ts:172 ~ function*listenServerSaga ~ sessionAction:', sessionAction);
         yield receiveSessionAction(sessionAction);
       }
     }
@@ -254,22 +258,119 @@ function* receiveNewMessage(payload: PageMessageSession) {
   }
 }
 
-function* receiveSessionAction(payload: PageMessageSession) {
-  console.log(payload);
-  const { id, account, page } = payload;
-  try {
-    yield put(setPageMessageSession(payload));
-    yield putAction(
-      pageMessageApi.util.updateQueryData('OpenPageMessageSessionByPageId', { id: page.id }, draft => {
-        const index = draft.allOpenPageMessageSessionByPageId.edges.findIndex(edge => edge.node.id === id);
-        if (index > -1) {
-          draft.allOpenPageMessageSessionByPageId.edges.splice(index, 1);
+function* receiveSessionAction(action: SessionAction) {
+  console.log(action);
+  const { payload, type }: { payload: PageMessageSession; type: SessionActionEnum } = action;
+  const pageAccount: AccountDto = yield select(getAccountById(payload.page.pageAccountId));
+  console.log('🚀 ~ file: saga.ts:263 ~ function*receiveSessionAction ~ pageAccount:', pageAccount);
+
+  switch (type) {
+    case SessionActionEnum.OPEN:
+      try {
+        yield put(setPageMessageSession(payload));
+        if (pageAccount) {
+          yield putAction(
+            pageMessageApi.util.updateQueryData('PendingPageMessageSessionByPageId', { id: payload.page.id }, draft => {
+              const index = draft.allPendingPageMessageSessionByPageId.edges.findIndex(
+                edge => edge.node.id === payload.id
+              );
+              if (index > -1) {
+                draft.allPendingPageMessageSessionByPageId.edges.splice(index, 1);
+              }
+            })
+          );
+
+          yield putAction(
+            pageMessageApi.util.updateQueryData('OpenPageMessageSessionByPageId', { id: payload.page.id }, draft => {
+              draft.allOpenPageMessageSessionByPageId.edges.unshift({
+                cursor: payload.id,
+                node: {
+                  ...payload
+                }
+              });
+              draft.allOpenPageMessageSessionByPageId.totalCount =
+                draft.allOpenPageMessageSessionByPageId.totalCount + 1;
+            })
+          );
+        } else {
+          yield putAction(
+            pageMessageApi.util.updateQueryData(
+              'PendingPageMessageSessionByAccountId',
+              { id: parseInt(payload.account.id) },
+              draft => {
+                const index = draft.allPendingPageMessageSessionByAccountId.edges.findIndex(
+                  edge => edge.node.id === payload.id
+                );
+                if (index > -1) {
+                  draft.allPendingPageMessageSessionByAccountId.edges.splice(index, 1);
+                }
+              }
+            )
+          );
+          yield putAction(
+            pageMessageApi.util.updateQueryData(
+              'OpenPageMessageSessionByAccountId',
+              { id: parseInt(payload.account.id) },
+              draft => {
+                draft.allOpenPageMessageSessionByAccountId.edges.unshift({
+                  cursor: payload.id,
+                  node: {
+                    ...payload
+                  }
+                });
+                draft.allOpenPageMessageSessionByAccountId.totalCount =
+                  draft.allOpenPageMessageSessionByAccountId.totalCount + 1;
+              }
+            )
+          );
         }
-      })
-    );
-  } catch (error) {
-    console.log('error', error.message);
+      } catch (error) {
+        console.log('error', error.message);
+      }
+      break;
+    case SessionActionEnum.CLOSE:
+      try {
+        yield put(setPageMessageSession(payload));
+        yield putAction(
+          pageMessageApi.util.updateQueryData('OpenPageMessageSessionByPageId', { id: payload.page.id }, draft => {
+            const index = draft.allOpenPageMessageSessionByPageId.edges.findIndex(edge => edge.node.id === payload.id);
+            if (index > -1) {
+              draft.allOpenPageMessageSessionByPageId.edges.splice(index, 1);
+            }
+          })
+        );
+        yield putAction(
+          pageMessageApi.util.updateQueryData(
+            'OpenPageMessageSessionByAccountId',
+            { id: parseInt(payload.account.id) },
+            draft => {
+              const index = draft.allOpenPageMessageSessionByAccountId.edges.findIndex(
+                edge => edge.node.id === payload.id
+              );
+              if (index > -1) {
+                draft.allOpenPageMessageSessionByAccountId.edges.splice(index, 1);
+              }
+            }
+          )
+        );
+      } catch (error) {
+        console.log('error', error.message);
+      }
+      break;
   }
+  // try {
+  //   yield put(setPageMessageSession(payload as PageMessageSession));
+  //   yield putAction(
+  //     pageMessageApi.util.updateQueryData('OpenPageMessageSessionByPageId', { id: page.id }, draft => {
+  //       const index = draft.allOpenPageMessageSessionByPageId.edges.findIndex(edge => edge.node.id === id);
+  //       if (index > -1) {
+  //         draft.allOpenPageMessageSessionByPageId.edges.splice(index, 1);
+  //       }
+  //     })
+  //   );
+  // } catch (error) {
+  //   console.log('error', error.message);
+  // }
 }
 
 function* userSubcribeToPageMessageSessionSaga(action: PayloadAction<string>) {

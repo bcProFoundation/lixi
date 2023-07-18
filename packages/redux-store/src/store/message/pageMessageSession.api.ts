@@ -51,6 +51,44 @@ const enhancedApi = api.enhanceEndpoints({
           responseData.allOpenPageMessageSessionByPageId.totalCount;
       }
     },
+    PendingPageMessageSessionByAccountId: {
+      providesTags: (result, error, arg) => ['PageMessageSession'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { id, ...otherArgs } = queryArgs;
+          return { id };
+        }
+        return { queryArgs };
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.allPendingPageMessageSessionByAccountId.edges.push(
+          ...responseData.allPendingPageMessageSessionByAccountId.edges
+        );
+        currentCacheData.allPendingPageMessageSessionByAccountId.pageInfo =
+          responseData.allPendingPageMessageSessionByAccountId.pageInfo;
+        currentCacheData.allPendingPageMessageSessionByAccountId.totalCount =
+          responseData.allPendingPageMessageSessionByAccountId.totalCount;
+      }
+    },
+    OpenPageMessageSessionByAccountId: {
+      providesTags: (result, error, arg) => ['PageMessageSession'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { id, ...otherArgs } = queryArgs;
+          return { id };
+        }
+        return { queryArgs };
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.allOpenPageMessageSessionByAccountId.edges.push(
+          ...responseData.allOpenPageMessageSessionByAccountId.edges
+        );
+        currentCacheData.allOpenPageMessageSessionByAccountId.pageInfo =
+          responseData.allOpenPageMessageSessionByAccountId.pageInfo;
+        currentCacheData.allOpenPageMessageSessionByAccountId.totalCount =
+          responseData.allOpenPageMessageSessionByAccountId.totalCount;
+      }
+    },
     PageMessageSessionByAccountId: {
       providesTags: (result, error, arg) => ['PageMessageSession'],
       serializeQueryArgs({ queryArgs }) {
@@ -80,6 +118,9 @@ const enhancedApi = api.enhanceEndpoints({
         return { queryArgs };
       }
     },
+
+    ClosePageMessageSession: {},
+    OpenPageMessageSession: {},
     CreatePageMessageSession: {}
   }
 });
@@ -95,8 +136,13 @@ export const {
   useOpenPageMessageSessionByPageIdQuery,
   useLazyPendingPageMessageSessionByPageIdQuery,
   usePendingPageMessageSessionByPageIdQuery,
+  useLazyOpenPageMessageSessionByAccountIdQuery,
+  useLazyPendingPageMessageSessionByAccountIdQuery,
+  useOpenPageMessageSessionByAccountIdQuery,
+  usePendingPageMessageSessionByAccountIdQuery,
   usePageMessageSessionQuery,
   useUserHadMessageToPageQuery,
   useClosePageMessageSessionMutation,
+  useOpenPageMessageSessionMutation,
   useLazyUserHadMessageToPageQuery
 } = enhancedApi;

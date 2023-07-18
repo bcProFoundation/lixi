@@ -1,4 +1,4 @@
-import { Button, Input, Skeleton, Space } from 'antd';
+import { Button, Input, Skeleton, Space, Tabs } from 'antd';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { getSelectedAccount, getSelectedAccountId } from '@store/account';
@@ -10,20 +10,25 @@ import {
   useCreatePageMessageSessionMutation,
   useUserHadMessageToPageQuery
 } from '@store/message/pageMessageSession.api';
-import { Account, CreateMessageSessionInput } from '@bcpros/lixi-models';
+import { Account } from '@bcpros/lixi-models';
 import _ from 'lodash';
 import {
   CreateMessageInput,
   CreatePageMessageInput,
   MessageOrderField,
-  OrderDirection
+  OrderDirection,
+  PageMessageSessionStatus
 } from '@generated/types.generated';
 import { userSubcribeToPageMessageSession } from '@store/message/actions';
 import { useCreateMessageMutation } from '@store/message/message.api';
 import { useForm, Controller } from 'react-hook-form';
-import { api as messageApi } from '@store/message/message.api';
 import Message from './Message';
 import { SendOutlined } from '@ant-design/icons';
+import { useInfinitePendingPageMessageSessionByAccountId } from '@store/message/useInfinitePendingPageMessageSessionByAccountId';
+import { useInfiniteOpenPageMessageSessionByAccountId } from '@store/message/useInfiniteOpenPageMessageSessionByAccountId';
+import { getCurrentPageMessageSession } from '@store/page/selectors';
+import { setPageMessageSession } from '@store/page/action';
+import { PageMessageSessionQuery } from '@store/message/pageMessageSession.generated';
 
 const { TextArea } = Input;
 
@@ -32,12 +37,24 @@ type PageMessageProps = {
   account: Account;
 };
 
+type PageMessageSessionItem = PageMessageSessionQuery['pageMessageSession'];
+
 const StyledChatContainer = styled.div`
   background-color: white;
-  width: 100%;
   height: 600px;
   border-radius: var(--border-radius-primary);
   display: flex;
+`;
+
+const StyledChatList = styled.div`
+  width: 30%;
+  border-right: 1px solid black;
+  overflow: auto;
+`;
+
+const StyledContainer = styled.div`
+  display: flex;
+  width: 70%;
   flex-direction: column;
 `;
 
@@ -73,22 +90,22 @@ const StyledHeader = styled.div`
 
 const PageMessageForUser = ({ page, account }: PageMessageProps) => {
   const dispatch = useAppDispatch();
+  const selectedAccount = useAppSelector(getSelectedAccount);
   const { control, getValues, resetField, setFocus } = useForm();
   const [currentPageMessageSessionId, setCurrentPageMessageSessionId] = useState<string | null>(null);
+  const currentPageMessageSession = useAppSelector(getCurrentPageMessageSession);
 
   const { data: pageMessageSessionData, refetch: pageMessageSessionRefetch } = useUserHadMessageToPageQuery({
-    accountId: account.id,
+    accountId: selectedAccount.id,
     pageId: page.id
   });
 
   const {
     data: messageData,
-    totalCount,
     fetchNext: messageFetchNext,
     hasNext: messageHasNext,
     isFetching: messageIsFetching,
-    isFetchingNext: messageIsFetchingNext,
-    refetch
+    isFetchingNext: messageIsFetchingNext
   } = useInfiniteMessageByPageMessageSessionId({
     id: currentPageMessageSessionId,
     orderBy: {
@@ -119,16 +136,50 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
     }
   };
 
-  const createNewPageMessage = async () => {
-    const input: CreatePageMessageInput = {
-      accountId: account.id,
-      pageId: page.id
-    };
-    if (_.isNil(pageMessageSessionData)) {
-      const result = await createPageMessageSessionTrigger({ input }).unwrap();
+  const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } =
+    useInfiniteOpenPageMessageSessionByAccountId(
+      {
+        first: 10,
+        id: selectedAccount.id
+      },
+      false
+    );
 
-      pageMessageSessionRefetch();
+  const loadMoreItems = () => {
+    if (hasNext && !isFetching) {
+      fetchNext();
+    } else if (hasNext) {
+      fetchNext();
     }
+  };
+
+  const {
+    data: pendingData,
+    totalCount: pendingTotalCount,
+    fetchNext: pendingFetchNext,
+    hasNext: pendingHasNext,
+    isFetching: pendingIsFetching,
+    isFetchingNext: pendingIsFetchingNext,
+    refetch: pendingRefetch
+  } = useInfinitePendingPageMessageSessionByAccountId(
+    {
+      first: 10,
+      id: selectedAccount.id
+    },
+    false
+  );
+
+  const loadMorePendingItems = () => {
+    if (pendingHasNext && !pendingIsFetching) {
+      pendingFetchNext();
+    } else if (pendingHasNext) {
+      pendingFetchNext();
+    }
+  };
+
+  const onClickMessage = (pageMessageSession: PageMessageSessionItem, pageMessageSessionId: string) => {
+    dispatch(setPageMessageSession(pageMessageSession));
+    setCurrentPageMessageSessionId(pageMessageSessionId);
   };
 
   const createNewPageMessageSession = async () => {
@@ -136,7 +187,6 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
       accountId: account.id,
       pageId: page.id
     };
-    console.log('🚀 ~ file: PageMessageForUser.tsx:141 ~ createNewMessageSession ~ input:', input);
     if (!_.isNil(pageMessageSessionData)) {
       const result = await createPageMessageSessionTrigger({ input }).unwrap();
 
@@ -147,7 +197,6 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
   useEffect(() => {
     if (pageMessageSessionData?.userHadMessageToPage?.id) {
       const id = pageMessageSessionData?.userHadMessageToPage?.id;
-      setCurrentPageMessageSessionId(id);
       dispatch(userSubcribeToPageMessageSession(id));
     }
   }, [pageMessageSessionData]);
@@ -175,55 +224,108 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
     }
   };
 
+  useEffect(() => {
+    resetField('message');
+    setFocus('message');
+  }, [currentPageMessageSessionId]);
+
   return (
     <StyledChatContainer>
-      {!_.isNil(pageMessageSessionData) && (
-        <Button onClick={() => createNewPageMessageSession()}>Create Page Message Session</Button>
-      )}
-      <StyledHeader>{currentPageMessageSessionId && `Session: ${currentPageMessageSessionId}`}</StyledHeader>
-      {_.isNil(pageMessageSessionData) && <Button onClick={() => createNewPageMessage()}>Create Message</Button>}
-
-      <StyledChatbox id="scrollableChatbox">
-        {!_.isNil(pageMessageSessionData) && (
-          <StyledInfiniteScroll
-            dataLength={messageData.length}
-            next={loadMoreMessages}
-            hasMore={messageHasNext}
-            loader={<Skeleton active />}
-            inverse
-            scrollableTarget="scrollableChatbox"
-          >
-            {messageData.map(item => {
-              return <Message message={item} key={item.id} authorAddress={account.address} />;
-            })}
-          </StyledInfiniteScroll>
-        )}
-      </StyledChatbox>
-      <InputContainer>
-        <Controller
-          name="message"
-          control={control}
-          rules={{
-            required: true
-          }}
-          render={({ field: { onChange, onBlur, value, ref } }) => (
-            <TextArea
-              ref={ref}
-              style={{ width: '95%' }}
-              onChange={onChange}
-              onBlur={onBlur}
-              value={value}
-              placeholder={'Aa'}
-              disabled={isLoadingCreateMessage}
-              autoSize
-              onKeyDown={handleKeyDown}
-            />
+      <StyledChatList id="scrollableChatlist">
+        <Tabs>
+          <Tabs.TabPane tab="Open" key="open">
+            {data.length > 0 && (
+              <InfiniteScroll
+                dataLength={data.length}
+                next={loadMoreItems}
+                hasMore={hasNext}
+                loader={<Skeleton avatar active />}
+                scrollableTarget="scrollableChatlist"
+              >
+                {data.map(item => {
+                  return (
+                    <p onClick={() => onClickMessage(item, item.id)} style={{ cursor: 'pointer' }} key={item.id}>
+                      {item.page.name}
+                    </p>
+                  );
+                })}
+              </InfiniteScroll>
+            )}
+          </Tabs.TabPane>
+          <Tabs.TabPane tab="Pending" key="pending">
+            {pendingData.length > 0 && (
+              <InfiniteScroll
+                dataLength={pendingData.length}
+                next={loadMorePendingItems}
+                hasMore={pendingHasNext}
+                loader={<Skeleton avatar active />}
+                scrollableTarget="scrollableChatlist"
+              >
+                {pendingData.map(item => {
+                  return (
+                    <p onClick={() => onClickMessage(item, item.id)} style={{ cursor: 'pointer' }} key={item.id}>
+                      {item.page.name}
+                    </p>
+                  );
+                })}
+              </InfiniteScroll>
+            )}
+          </Tabs.TabPane>
+        </Tabs>
+      </StyledChatList>
+      <StyledContainer>
+        {currentPageMessageSessionId && <StyledHeader>{`Session: ${currentPageMessageSessionId}`}</StyledHeader>}
+        <StyledChatbox id="scrollableChatbox">
+          {messageData.length > 0 && (
+            <StyledInfiniteScroll
+              dataLength={messageData.length}
+              next={loadMoreMessages}
+              hasMore={messageHasNext}
+              loader={<Skeleton active />}
+              inverse
+              scrollableTarget="scrollableChatbox"
+            >
+              {messageData.map(item => {
+                return <Message message={item} key={item.id} authorAddress={account.address} />;
+              })}
+            </StyledInfiniteScroll>
           )}
-        />
-        <IconContainer>
-          <SendOutlined onClick={sendMessage} disabled={isLoadingCreateMessage} />
-        </IconContainer>
-      </InputContainer>
+        </StyledChatbox>
+        {currentPageMessageSession && (
+          <InputContainer>
+            <Controller
+              name="message"
+              control={control}
+              rules={{
+                required: true
+              }}
+              render={({ field: { onChange, onBlur, value, ref } }) => (
+                <TextArea
+                  ref={ref}
+                  style={{ width: '95%' }}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                  placeholder={
+                    currentPageMessageSession.status === PageMessageSessionStatus.Open ? 'Aa' : 'Session is closed'
+                  }
+                  disabled={
+                    isLoadingCreateMessage || currentPageMessageSession.status !== PageMessageSessionStatus.Open
+                  }
+                  autoSize
+                  onKeyDown={handleKeyDown}
+                />
+              )}
+            />
+            <IconContainer>
+              <SendOutlined
+                onClick={sendMessage}
+                disabled={isLoadingCreateMessage || currentPageMessageSession.status !== PageMessageSessionStatus.Open}
+              />
+            </IconContainer>
+          </InputContainer>
+        )}
+      </StyledContainer>
     </StyledChatContainer>
   );
 };

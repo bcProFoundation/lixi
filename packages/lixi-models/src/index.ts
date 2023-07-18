@@ -15,6 +15,7 @@ export * from './lib/token';
 export * from './lib/post';
 export * from './lib/comment';
 export * from './lib/upload';
+export * from './lib/sessionAction';
 export * from './lib/burn';
 export * from './lib/geo-location';
 export * from './lib/worshiped-person';

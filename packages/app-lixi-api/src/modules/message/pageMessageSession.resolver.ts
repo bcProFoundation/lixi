@@ -1,9 +1,12 @@
 import {
   ClosePageMessageSessionInput,
+  OpenPageMessageSessionInput,
   MessageSessionConnection,
   MessageSessionOrder,
   PageMessageSessionConnection,
-  PageMessageSessionOrder
+  PageMessageSessionOrder,
+  SessionAction,
+  SessionActionEnum
 } from '@bcpros/lixi-models';
 import {
   Account,
@@ -163,6 +166,106 @@ export class PageMessageSessionResolver {
   }
 
   @Query(() => PageMessageSessionConnection)
+  async allOpenPageMessageSessionByAccountId(
+    @Args() { after, before, first, last }: PaginationArgs,
+    @Args({ name: 'id', type: () => Number, nullable: true }) id: number,
+    @Args({
+      name: 'orderBy',
+      type: () => PageMessageSessionOrder,
+      nullable: true
+    })
+    orderBy: PageMessageSessionOrder
+  ) {
+    const result = await findManyCursorConnection(
+      args =>
+        this.prisma.pageMessageSession.findMany({
+          include: {
+            account: true,
+            page: true,
+            lixi: true
+          },
+          where: {
+            AND: [
+              {
+                accountId: id
+              },
+              {
+                status: PageMessageSessionStatus.OPEN
+              }
+            ]
+          },
+          orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
+          ...args
+        }),
+      () =>
+        this.prisma.pageMessageSession.count({
+          where: {
+            AND: [
+              {
+                accountId: id
+              },
+              {
+                status: PageMessageSessionStatus.OPEN
+              }
+            ]
+          }
+        }),
+      { first, last, before, after }
+    );
+    return result;
+  }
+
+  @Query(() => PageMessageSessionConnection)
+  async allPendingPageMessageSessionByAccountId(
+    @Args() { after, before, first, last }: PaginationArgs,
+    @Args({ name: 'id', type: () => Number, nullable: true }) id: number,
+    @Args({
+      name: 'orderBy',
+      type: () => PageMessageSessionOrder,
+      nullable: true
+    })
+    orderBy: PageMessageSessionOrder
+  ) {
+    const result = await findManyCursorConnection(
+      args =>
+        this.prisma.pageMessageSession.findMany({
+          include: {
+            account: true,
+            page: true,
+            lixi: true
+          },
+          where: {
+            AND: [
+              {
+                accountId: id
+              },
+              {
+                status: PageMessageSessionStatus.PENDING
+              }
+            ]
+          },
+          orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
+          ...args
+        }),
+      () =>
+        this.prisma.pageMessageSession.count({
+          where: {
+            AND: [
+              {
+                accountId: id
+              },
+              {
+                status: PageMessageSessionStatus.PENDING
+              }
+            ]
+          }
+        }),
+      { first, last, before, after }
+    );
+    return result;
+  }
+
+  @Query(() => PageMessageSessionConnection)
   async allPageMessageSessionByAccountId(
     @Args() { after, before, first, last }: PaginationArgs,
     @Args({ name: 'id', type: () => Number, nullable: true }) id: number,
@@ -258,10 +361,6 @@ export class PageMessageSessionResolver {
         ]
       }
     });
-    console.log(
-      '🚀 ~ file: pageMessageSession.resolver.ts:253 ~ PageMessageSessionResolver ~ createPageMessageSession ~ pendingOrOpenPageMessageSession:',
-      pendingOrOpenPageMessageSession
-    );
 
     if (pendingOrOpenPageMessageSession.length === 0) {
       const result = await this.prisma.pageMessageSession.create({
@@ -307,7 +406,47 @@ export class PageMessageSessionResolver {
       }
     });
 
-    this.messageGateway.sessionAction(pageMessageSessionId, result);
+    const sessionAction: SessionAction = {
+      type: SessionActionEnum.CLOSE,
+      payload: result
+    };
+
+    this.messageGateway.sessionAction(pageMessageSessionId, sessionAction);
+
+    return result;
+  }
+
+  @UseGuards(GqlJwtAuthGuard)
+  @Mutation(() => PageMessageSession)
+  async openPageMessageSession(@AccountEntity() account: Account, @Args('data') data: OpenPageMessageSessionInput) {
+    if (!account) {
+      const couldNotFindAccount = this.i18n.t('post.messages.couldNotFindAccount');
+      throw new Error(couldNotFindAccount);
+    }
+
+    const { pageMessageSessionId } = data;
+
+    const result = await this.prisma.pageMessageSession.update({
+      where: {
+        id: pageMessageSessionId
+      },
+      data: {
+        status: PageMessageSessionStatus.OPEN,
+        sessionOpenedAt: new Date()
+      },
+      include: {
+        account: true,
+        lixi: true,
+        page: true
+      }
+    });
+
+    const sessionAction: SessionAction = {
+      type: SessionActionEnum.OPEN,
+      payload: result
+    };
+
+    this.messageGateway.sessionAction(pageMessageSessionId, sessionAction);
 
     return result;
   }

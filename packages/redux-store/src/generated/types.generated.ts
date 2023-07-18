@@ -508,6 +508,7 @@ export type Mutation = {
   deleteFollowPage: Scalars['Boolean'];
   deleteFollowToken: Scalars['Boolean'];
   importAccount: Account;
+  openPageMessageSession: PageMessageSession;
   repost: Scalars['Boolean'];
   updatePage: Page;
   updatePost: Post;
@@ -589,6 +590,10 @@ export type MutationImportAccountArgs = {
   data: ImportAccountInput;
 };
 
+export type MutationOpenPageMessageSessionArgs = {
+  data: OpenPageMessageSessionInput;
+};
+
 export type MutationRepostArgs = {
   data: RepostInput;
 };
@@ -599,6 +604,10 @@ export type MutationUpdatePageArgs = {
 
 export type MutationUpdatePostArgs = {
   data: UpdatePostInput;
+};
+
+export type OpenPageMessageSessionInput = {
+  pageMessageSessionId: Scalars['String'];
 };
 
 /** Possible directions in which to order a list of items when provided an `orderBy` argument. */
@@ -847,12 +856,14 @@ export type Query = {
   allHashtagBySearch: HashtagConnection;
   allHashtagByToken: HashtagConnection;
   allMessageByPageMessageSessionId: MessageConnection;
+  allOpenPageMessageSessionByAccountId: PageMessageSessionConnection;
   allOpenPageMessageSessionByPageId: PageMessageSessionConnection;
   allOrphanPosts: PostConnection;
   allPageMessageSessionByAccountId: PageMessageSessionConnection;
   allPages: PageConnection;
   allPagesByFollower: FollowPageConnection;
   allPagesByUserId: PageConnection;
+  allPendingPageMessageSessionByAccountId: PageMessageSessionConnection;
   allPendingPageMessageSessionByPageId: PageMessageSessionConnection;
   allPosts: PostConnection;
   allPostsByHashtagId: PostConnection;
@@ -974,6 +985,17 @@ export type QueryAllMessageByPageMessageSessionIdArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+export type QueryAllOpenPageMessageSessionByAccountIdArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  id?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<PageMessageSessionOrder>;
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
 export type QueryAllOpenPageMessageSessionByPageIdArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1036,6 +1058,17 @@ export type QueryAllPagesByUserIdArgs = {
   last?: InputMaybe<Scalars['Int']>;
   minBurnFilter?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<PageOrder>;
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
+export type QueryAllPendingPageMessageSessionByAccountIdArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  id?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<PageMessageSessionOrder>;
   skip?: InputMaybe<Scalars['Int']>;
 };
 

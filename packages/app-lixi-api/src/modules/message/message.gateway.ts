@@ -1,4 +1,4 @@
-import { Message } from '@bcpros/lixi-models';
+import { Message, SessionAction } from '@bcpros/lixi-models';
 import { Injectable, Logger } from '@nestjs/common';
 import {
   ConnectedSocket,
@@ -71,7 +71,7 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
     this.server.to(pageChannelId).emit('publishPageChannel', message);
   }
 
-  sessionAction(pageMessageSessionId: string, message: any) {
+  sessionAction(pageMessageSessionId: string, message: SessionAction) {
     this.server.to(pageMessageSessionId).emit('sessionAction', message);
   }
 }

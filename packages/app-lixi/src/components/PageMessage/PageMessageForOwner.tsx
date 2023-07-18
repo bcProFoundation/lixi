@@ -13,6 +13,7 @@ import {
   ClosePageMessageSessionInput,
   CreateMessageInput,
   MessageOrderField,
+  OpenPageMessageSessionInput,
   OrderDirection,
   PageMessageSessionStatus
 } from '@generated/types.generated';
@@ -23,7 +24,8 @@ import { SendOutlined, SettingOutlined } from '@ant-design/icons';
 import _ from 'lodash';
 import {
   PageMessageSessionQuery,
-  useClosePageMessageSessionMutation
+  useClosePageMessageSessionMutation,
+  useOpenPageMessageSessionMutation
 } from '@store/message/pageMessageSession.generated';
 import type { MenuProps } from 'antd';
 import { setPageMessageSession } from '@store/page/action';
@@ -92,16 +94,6 @@ const StyledTextHeader = styled.p`
   width: 95%;
 `;
 
-const ChatUser = ({ item, index, onClickMessage }) => {
-  return (
-    <React.Fragment>
-      <p onClick={() => onClickMessage(item.id)} style={{ cursor: 'pointer' }}>
-        {item.account?.name}
-      </p>
-    </React.Fragment>
-  );
-};
-
 const PageMessageForOwner = ({ page }: PageMessageProps) => {
   const dispatch = useAppDispatch();
   const [currentPageMessageSessionId, setCurrentPageMessageSessionId] = useState<string | null>(null);
@@ -123,12 +115,29 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
     }
   ] = useClosePageMessageSessionMutation();
 
-  const items: MenuProps['items'] = [
+  const [
+    openPageMessageSessionTrigger,
     {
+      isLoading: isLoadingOpenPageMessageSession,
+      isSuccess: isSuccessOpenPageMessageSession,
+      isError: isErrorOpenPageMessageSession
+    }
+  ] = useOpenPageMessageSessionMutation();
+
+  const items: MenuProps['items'] = [
+    currentPageMessageSession?.status === PageMessageSessionStatus.Open && {
       key: 'closeSession',
       label: (
         <p style={{ margin: '0px' }} onClick={() => closeSession()}>
           Close session
+        </p>
+      )
+    },
+    currentPageMessageSession?.status === PageMessageSessionStatus.Pending && {
+      key: 'openSession',
+      label: (
+        <p style={{ margin: '0px' }} onClick={() => openSession()}>
+          Open session
         </p>
       )
     }
@@ -193,10 +202,18 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
   useEffect(() => {
     if (data) {
       data.map(item => {
-        if (item.status === PageMessageSessionStatus.Open) dispatch(userSubcribeToPageMessageSession(item.id));
+        dispatch(userSubcribeToPageMessageSession(item.id));
       });
     }
   }, [data]);
+
+  useEffect(() => {
+    if (pendingData) {
+      pendingData.map(item => {
+        dispatch(userSubcribeToPageMessageSession(item.id));
+      });
+    }
+  }, [pendingData]);
 
   useEffect(() => {
     resetField('message');
@@ -239,7 +256,12 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
     }
   };
 
-  const acceptMessage = async () => {};
+  const openSession = async () => {
+    const input: OpenPageMessageSessionInput = {
+      pageMessageSessionId: currentPageMessageSessionId
+    };
+    await openPageMessageSessionTrigger({ input }).unwrap();
+  };
 
   const closeSession = async () => {
     const input: ClosePageMessageSessionInput = {
@@ -253,38 +275,42 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
       <StyledChatList id="scrollableChatlist">
         <Tabs>
           <Tabs.TabPane tab="Open" key="open">
-            <InfiniteScroll
-              dataLength={data.length}
-              next={loadMoreItems}
-              hasMore={hasNext}
-              loader={<Skeleton avatar active />}
-              scrollableTarget="scrollableChatlist"
-            >
-              {data.map(item => {
-                return (
-                  <p onClick={() => onClickMessage(item, item.id)} style={{ cursor: 'pointer' }} key={item.id}>
-                    {item.account?.name}
-                  </p>
-                );
-              })}
-            </InfiniteScroll>
+            {data.length > 0 && (
+              <InfiniteScroll
+                dataLength={data.length}
+                next={loadMoreItems}
+                hasMore={hasNext}
+                loader={<Skeleton avatar active />}
+                scrollableTarget="scrollableChatlist"
+              >
+                {data.map(item => {
+                  return (
+                    <p onClick={() => onClickMessage(item, item.id)} style={{ cursor: 'pointer' }} key={item.id}>
+                      {item.account?.name}
+                    </p>
+                  );
+                })}
+              </InfiniteScroll>
+            )}
           </Tabs.TabPane>
           <Tabs.TabPane tab="Pending" key="pending">
-            <InfiniteScroll
-              dataLength={pendingData.length}
-              next={loadMorePendingItems}
-              hasMore={pendingHasNext}
-              loader={<Skeleton avatar active />}
-              scrollableTarget="scrollableChatlist"
-            >
-              {pendingData.map(item => {
-                return (
-                  <p onClick={() => onClickMessage(item, item.id)} style={{ cursor: 'pointer' }} key={item.id}>
-                    {item.account?.name}
-                  </p>
-                );
-              })}
-            </InfiniteScroll>
+            {pendingData.length > 0 && (
+              <InfiniteScroll
+                dataLength={pendingData.length}
+                next={loadMorePendingItems}
+                hasMore={pendingHasNext}
+                loader={<Skeleton avatar active />}
+                scrollableTarget="scrollableChatlist"
+              >
+                {pendingData.map(item => {
+                  return (
+                    <p onClick={() => onClickMessage(item, item.id)} style={{ cursor: 'pointer' }} key={item.id}>
+                      {item.account?.name}
+                    </p>
+                  );
+                })}
+              </InfiniteScroll>
+            )}
           </Tabs.TabPane>
         </Tabs>
       </StyledChatList>

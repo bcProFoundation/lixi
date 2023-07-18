@@ -90,6 +90,68 @@ query PendingPageMessageSessionByPageId(
   }
 }
 
+query OpenPageMessageSessionByAccountId(
+  $after: String
+  $before: String
+  $first: Int = 20
+  $last: Int
+  $id: Int
+  $orderBy: PageMessageSessionOrder
+  $skip: Int
+) {
+  allOpenPageMessageSessionByAccountId(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    id: $id
+    orderBy: $orderBy
+    skip: $skip
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...PageMessageSessionFields
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
+    }
+  }
+}
+
+query PendingPageMessageSessionByAccountId(
+  $after: String
+  $before: String
+  $first: Int = 20
+  $last: Int
+  $id: Int
+  $orderBy: PageMessageSessionOrder
+  $skip: Int
+) {
+  allPendingPageMessageSessionByAccountId(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    id: $id
+    orderBy: $orderBy
+    skip: $skip
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...PageMessageSessionFields
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
+    }
+  }
+}
+
 query PageMessageSessionByAccountId(
   $after: String
   $before: String
@@ -135,6 +197,12 @@ mutation CreatePageMessageSession($input: CreatePageMessageInput!) {
 
 mutation ClosePageMessageSession($input: ClosePageMessageSessionInput!) {
   closePageMessageSession(data: $input) {
+    ...PageMessageSessionFields
+  }
+}
+
+mutation OpenPageMessageSession($input: OpenPageMessageSessionInput!) {
+  openPageMessageSession(data: $input) {
     ...PageMessageSessionFields
   }
 }

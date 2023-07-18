@@ -131,6 +131,88 @@ export type PendingPageMessageSessionByPageIdQuery = {
   };
 };
 
+export type OpenPageMessageSessionByAccountIdQueryVariables = Types.Exact<{
+  after?: Types.InputMaybe<Types.Scalars['String']>;
+  before?: Types.InputMaybe<Types.Scalars['String']>;
+  first?: Types.InputMaybe<Types.Scalars['Int']>;
+  last?: Types.InputMaybe<Types.Scalars['Int']>;
+  id?: Types.InputMaybe<Types.Scalars['Int']>;
+  orderBy?: Types.InputMaybe<Types.PageMessageSessionOrder>;
+  skip?: Types.InputMaybe<Types.Scalars['Int']>;
+}>;
+
+export type OpenPageMessageSessionByAccountIdQuery = {
+  __typename?: 'Query';
+  allOpenPageMessageSessionByAccountId: {
+    __typename?: 'PageMessageSessionConnection';
+    totalCount?: number | null;
+    edges?: Array<{
+      __typename?: 'PageMessageSessionEdge';
+      cursor: string;
+      node: {
+        __typename?: 'PageMessageSession';
+        id: string;
+        sessionOpenedAt?: any | null;
+        sessionClosedAt?: any | null;
+        status: Types.PageMessageSessionStatus;
+        createdAt?: any | null;
+        updatedAt?: any | null;
+        page: { __typename?: 'Page'; id: string; name: string };
+        account: { __typename?: 'Account'; id: string; name: string; address: string };
+        lixi?: { __typename?: 'LixiModel'; id: string; name: string; amount: string; balance?: number | null } | null;
+      };
+    }> | null;
+    pageInfo: {
+      __typename?: 'PageInfo';
+      endCursor?: string | null;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+      startCursor?: string | null;
+    };
+  };
+};
+
+export type PendingPageMessageSessionByAccountIdQueryVariables = Types.Exact<{
+  after?: Types.InputMaybe<Types.Scalars['String']>;
+  before?: Types.InputMaybe<Types.Scalars['String']>;
+  first?: Types.InputMaybe<Types.Scalars['Int']>;
+  last?: Types.InputMaybe<Types.Scalars['Int']>;
+  id?: Types.InputMaybe<Types.Scalars['Int']>;
+  orderBy?: Types.InputMaybe<Types.PageMessageSessionOrder>;
+  skip?: Types.InputMaybe<Types.Scalars['Int']>;
+}>;
+
+export type PendingPageMessageSessionByAccountIdQuery = {
+  __typename?: 'Query';
+  allPendingPageMessageSessionByAccountId: {
+    __typename?: 'PageMessageSessionConnection';
+    totalCount?: number | null;
+    edges?: Array<{
+      __typename?: 'PageMessageSessionEdge';
+      cursor: string;
+      node: {
+        __typename?: 'PageMessageSession';
+        id: string;
+        sessionOpenedAt?: any | null;
+        sessionClosedAt?: any | null;
+        status: Types.PageMessageSessionStatus;
+        createdAt?: any | null;
+        updatedAt?: any | null;
+        page: { __typename?: 'Page'; id: string; name: string };
+        account: { __typename?: 'Account'; id: string; name: string; address: string };
+        lixi?: { __typename?: 'LixiModel'; id: string; name: string; amount: string; balance?: number | null } | null;
+      };
+    }> | null;
+    pageInfo: {
+      __typename?: 'PageInfo';
+      endCursor?: string | null;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+      startCursor?: string | null;
+    };
+  };
+};
+
 export type PageMessageSessionByAccountIdQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
   before?: Types.InputMaybe<Types.Scalars['String']>;
@@ -233,6 +315,26 @@ export type ClosePageMessageSessionMutation = {
   };
 };
 
+export type OpenPageMessageSessionMutationVariables = Types.Exact<{
+  input: Types.OpenPageMessageSessionInput;
+}>;
+
+export type OpenPageMessageSessionMutation = {
+  __typename?: 'Mutation';
+  openPageMessageSession: {
+    __typename?: 'PageMessageSession';
+    id: string;
+    sessionOpenedAt?: any | null;
+    sessionClosedAt?: any | null;
+    status: Types.PageMessageSessionStatus;
+    createdAt?: any | null;
+    updatedAt?: any | null;
+    page: { __typename?: 'Page'; id: string; name: string };
+    account: { __typename?: 'Account'; id: string; name: string; address: string };
+    lixi?: { __typename?: 'LixiModel'; id: string; name: string; amount: string; balance?: number | null } | null;
+  };
+};
+
 export const PageMessageSessionFieldsFragmentDoc = `
     fragment PageMessageSessionFields on PageMessageSession {
   id
@@ -315,6 +417,56 @@ export const PendingPageMessageSessionByPageIdDocument = `
 }
     ${PageMessageSessionFieldsFragmentDoc}
 ${PageInfoFieldsFragmentDoc}`;
+export const OpenPageMessageSessionByAccountIdDocument = `
+    query OpenPageMessageSessionByAccountId($after: String, $before: String, $first: Int = 20, $last: Int, $id: Int, $orderBy: PageMessageSessionOrder, $skip: Int) {
+  allOpenPageMessageSessionByAccountId(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    id: $id
+    orderBy: $orderBy
+    skip: $skip
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...PageMessageSessionFields
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
+    }
+  }
+}
+    ${PageMessageSessionFieldsFragmentDoc}
+${PageInfoFieldsFragmentDoc}`;
+export const PendingPageMessageSessionByAccountIdDocument = `
+    query PendingPageMessageSessionByAccountId($after: String, $before: String, $first: Int = 20, $last: Int, $id: Int, $orderBy: PageMessageSessionOrder, $skip: Int) {
+  allPendingPageMessageSessionByAccountId(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    id: $id
+    orderBy: $orderBy
+    skip: $skip
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...PageMessageSessionFields
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
+    }
+  }
+}
+    ${PageMessageSessionFieldsFragmentDoc}
+${PageInfoFieldsFragmentDoc}`;
 export const PageMessageSessionByAccountIdDocument = `
     query PageMessageSessionByAccountId($after: String, $before: String, $first: Int = 20, $last: Int, $id: Int, $orderBy: PageMessageSessionOrder, $skip: Int) {
   allPageMessageSessionByAccountId(
@@ -361,6 +513,13 @@ export const ClosePageMessageSessionDocument = `
   }
 }
     ${PageMessageSessionFieldsFragmentDoc}`;
+export const OpenPageMessageSessionDocument = `
+    mutation OpenPageMessageSession($input: OpenPageMessageSessionInput!) {
+  openPageMessageSession(data: $input) {
+    ...PageMessageSessionFields
+  }
+}
+    ${PageMessageSessionFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
   endpoints: build => ({
@@ -379,6 +538,18 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: variables => ({ document: PendingPageMessageSessionByPageIdDocument, variables })
     }),
+    OpenPageMessageSessionByAccountId: build.query<
+      OpenPageMessageSessionByAccountIdQuery,
+      OpenPageMessageSessionByAccountIdQueryVariables | void
+    >({
+      query: variables => ({ document: OpenPageMessageSessionByAccountIdDocument, variables })
+    }),
+    PendingPageMessageSessionByAccountId: build.query<
+      PendingPageMessageSessionByAccountIdQuery,
+      PendingPageMessageSessionByAccountIdQueryVariables | void
+    >({
+      query: variables => ({ document: PendingPageMessageSessionByAccountIdDocument, variables })
+    }),
     PageMessageSessionByAccountId: build.query<
       PageMessageSessionByAccountIdQuery,
       PageMessageSessionByAccountIdQueryVariables | void
@@ -396,6 +567,9 @@ const injectedRtkApi = api.injectEndpoints({
     }),
     ClosePageMessageSession: build.mutation<ClosePageMessageSessionMutation, ClosePageMessageSessionMutationVariables>({
       query: variables => ({ document: ClosePageMessageSessionDocument, variables })
+    }),
+    OpenPageMessageSession: build.mutation<OpenPageMessageSessionMutation, OpenPageMessageSessionMutationVariables>({
+      query: variables => ({ document: OpenPageMessageSessionDocument, variables })
     })
   })
 });
@@ -408,10 +582,15 @@ export const {
   useLazyOpenPageMessageSessionByPageIdQuery,
   usePendingPageMessageSessionByPageIdQuery,
   useLazyPendingPageMessageSessionByPageIdQuery,
+  useOpenPageMessageSessionByAccountIdQuery,
+  useLazyOpenPageMessageSessionByAccountIdQuery,
+  usePendingPageMessageSessionByAccountIdQuery,
+  useLazyPendingPageMessageSessionByAccountIdQuery,
   usePageMessageSessionByAccountIdQuery,
   useLazyPageMessageSessionByAccountIdQuery,
   useUserHadMessageToPageQuery,
   useLazyUserHadMessageToPageQuery,
   useCreatePageMessageSessionMutation,
-  useClosePageMessageSessionMutation
+  useClosePageMessageSessionMutation,
+  useOpenPageMessageSessionMutation
 } = injectedRtkApi;
