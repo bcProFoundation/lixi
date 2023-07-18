@@ -809,7 +809,6 @@ input UpdateAccountInput {
   cover: String
   id: ID!
   language: String
-  mnemonic: String
   name: String
 }
 

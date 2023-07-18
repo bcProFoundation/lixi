@@ -272,7 +272,7 @@ export class AccountResolver {
         id: _.toSafeInteger(account.id)
       },
       data: {
-        ..._.omit(data, ['id', 'mnemonic', 'avatar', 'cover']),
+        ..._.omit(data, ['id', 'avatar', 'cover']),
         updatedAt: new Date(),
         avatar: { connect: uploadAvatarDetail ? { id: uploadAvatarDetail.id } : undefined },
         cover: { connect: uploadCoverDetail ? { id: uploadCoverDetail.id } : undefined }
@@ -310,8 +310,7 @@ export class AccountResolver {
 
     const { upload } = uploadDetail;
     const cfUrl = `${process.env.CF_IMAGES_DELIVERY_URL}/${process.env.CF_ACCOUNT_HASH}/${upload.cfImageId}/public`;
-    const awsUrl = `${process.env.AWS_ENDPOINT}/${upload.bucket}/${upload.sha}`;
-    const url = upload.cfImageId ? cfUrl : upload.sha ? awsUrl : upload.url;
+    const url = upload.cfImageId ? cfUrl : upload.url;
 
     return url;
   }
@@ -334,8 +333,7 @@ export class AccountResolver {
 
     const { upload } = uploadDetail;
     const cfUrl = `${process.env.CF_IMAGES_DELIVERY_URL}/${process.env.CF_ACCOUNT_HASH}/${upload.cfImageId}/public`;
-    const awsUrl = `${process.env.AWS_ENDPOINT}/${upload.bucket}/${upload.sha}`;
-    const url = upload.cfImageId ? cfUrl : upload.sha ? awsUrl : upload.url;
+    const url = upload.cfImageId ? cfUrl : upload.url;
 
     return url;
   }

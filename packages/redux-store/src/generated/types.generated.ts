@@ -1180,7 +1180,6 @@ export type UpdateAccountInput = {
   cover?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
   language?: InputMaybe<Scalars['String']>;
-  mnemonic?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
 };
 

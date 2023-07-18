@@ -709,7 +709,8 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
                 name={selectedAccount?.name}
                 icon={selectedAccount.avatar ? selectedAccount.avatar : selectedAccount.name}
                 isMarginRight={false}
-              />              <p className="account-info">
+              />
+              <p className="account-info">
                 <span className="account-name">{selectedAccount?.name}</span>
                 <span className="account-balance">
                   {balanceAccount(selectedAccount)} <span className="unit">XPI</span>

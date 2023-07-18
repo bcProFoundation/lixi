@@ -12,9 +12,6 @@ export class UpdateAccountInput {
   language?: string;
 
   @Field(() => String, { nullable: true })
-  mnemonic?: string;
-
-  @Field(() => String, { nullable: true })
   avatar?: string;
 
   @Field(() => String, { nullable: true })
