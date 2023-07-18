@@ -32,7 +32,6 @@ import styled from 'styled-components';
 import { Button } from 'antd';
 import { CheckOutlined, EditOutlined } from '@ant-design/icons';
 
-//Minh
 import { useAppSelector } from '@store/hooks';
 import { getCurrentThemes } from '@store/settings/selectors';
 import { get } from 'lodash';
@@ -233,12 +232,12 @@ function FloatingLinkEditor({
   };
 
   const currentTheme = useAppSelector(getCurrentThemes);
-  const linkInput = currentTheme ? 'link-input-dark' : 'link-input';
-  const styledFloating = currentTheme ? 'StyledFloatingDark' : 'StyledFloating';
+  const linkInputClassName = currentTheme ? 'link-input-dark' : 'link-input';
+  const styledFloatingClassName = currentTheme ? 'StyledFloatingDark' : 'StyledFloating';
 
   return (
-    <StyledFloating className={styledFloating} ref={editorRef}>
-      <div className={linkInput}>
+    <StyledFloating className={styledFloatingClassName} ref={editorRef}>
+      <div className={linkInputClassName}>
         <input
           ref={inputRef}
           onChange={event => {
