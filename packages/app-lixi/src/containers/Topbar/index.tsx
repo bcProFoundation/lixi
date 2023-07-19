@@ -41,6 +41,7 @@ import { AuthorizationContext } from '@context/index';
 import useAuthorization from '../../components/Common/Authorization/use-authorization.hooks';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Link from 'next/link';
+import { getModals } from '../../../../redux-store/src/store/modal/selectors';
 
 export type TopbarProps = {
   className?: string;
@@ -315,6 +316,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
   const { width } = useWindowDimensions();
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
+  const currentModal = useAppSelector(getModals);
 
   useEffect(() => {
     const isMobile = width < 968 ? true : false;
@@ -543,7 +545,6 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
     </AccountBox>
   );
 
-  let clicked: Boolean = false;
   const contentMoreAction = (
     <PopoverStyled>
       <div className="social-menu">
@@ -594,10 +595,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
           onClickItem={() => {
             if (authorization.authorized) handleIconClick('/wallet');
             else {
-              if (!clicked) {
-                askAuthorization();
-                clicked = true;
-              }
+              currentModal.length === 0 && askAuthorization();
             }
           }}
         />
@@ -610,10 +608,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
           onClickItem={() => {
             if (authorization.authorized) handleIconClick('/lixi');
             else {
-              if (!clicked) {
-                askAuthorization();
-                clicked = true;
-              }
+              currentModal.length === 0 && askAuthorization();
             }
           }}
         />
