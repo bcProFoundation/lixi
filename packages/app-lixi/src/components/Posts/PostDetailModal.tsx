@@ -790,7 +790,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
           </CommentContainer>
           <CommentInputContainer className="comment-input-container">
             <div className="ava-ico-cmt" onClick={() => router.push(`/profile/${selectedAccount.address}`)}>
-              <AvatarUser name={selectedAccount?.name} isMarginRight={false} />
+              <AvatarUser icon={selectedAccount?.avatar} name={selectedAccount?.name} isMarginRight={false} />
             </div>
             <StyledCommentContainer className="comment-container">
               <Controller
