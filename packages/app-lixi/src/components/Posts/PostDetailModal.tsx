@@ -127,6 +127,9 @@ const PostContentDetail = styled.div`
     a {
       cursor: pointer;
     }
+    div {
+      max-width: 100%;
+    }
   }
   .images-post {
     cursor: pointer;
@@ -680,15 +683,14 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
     <>
       <Modal
         width={'50vw'}
-        className={`${classStyle} post-detail-custom-modal ${
-          isMobile
-            ? openPost
-              ? 'animate__animated animate__faster animate__slideInRight'
-              : 'animate__animated animate__faster animate__slideOutRight'
-            : openPost
+        className={`${classStyle} post-detail-custom-modal ${isMobile
+          ? openPost
+            ? 'animate__animated animate__faster animate__slideInRight'
+            : 'animate__animated animate__faster animate__slideOutRight'
+          : openPost
             ? 'animate__animated animate__faster animate__zoomIn'
             : 'animate__animated animate__faster animate__zoomOut'
-        }`}
+          }`}
         transitionName=""
         style={{ top: 30 }}
         open={true}
@@ -787,7 +789,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
           </CommentContainer>
           <CommentInputContainer className="comment-input-container">
             <div className="ava-ico-cmt" onClick={() => router.push(`/profile/${selectedAccount.address}`)}>
-              <AvatarUser name={selectedAccount?.name} isMarginRight={false} />
+              <AvatarUser icon={selectedAccount?.avatar} name={selectedAccount?.name} isMarginRight={false} />
             </div>
             <StyledCommentContainer className="comment-container">
               <Controller
