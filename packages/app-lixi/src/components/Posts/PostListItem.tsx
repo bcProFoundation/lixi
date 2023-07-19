@@ -119,7 +119,7 @@ const Content = styled.div`
     }
     .read-more {
       & > div > div {
-        max-height: 130px !important;
+        // max-height: 130px !important;
       }
     }
   }
@@ -396,7 +396,7 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
         </CardHeader>
         <Content onClick={e => handlePostClick(e)}>
           <div className="description-post">
-            <PostContent postContent={post.content} />
+            <PostContent post={post} />
           </div>
 
           {post.translations &&
