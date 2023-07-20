@@ -1,10 +1,10 @@
-import { getGraphqlRequestStatus, getSelectedAccount } from '@store/account/selectors';
+import { getGraphqlRequestStatus, getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { Button, Layout, Spin } from 'antd';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
-
+import { useGetAccountByAddressQuery } from '@store/account/accounts.api';
 import { LoadingOutlined } from '@ant-design/icons';
 
 import { Footer } from '@bcpros/lixi-components/components';
@@ -14,7 +14,7 @@ import DummySidebar from '@containers/Sidebar/DummySidebar';
 import SidebarRanking from '@containers/Sidebar/SideBarRanking';
 import SidebarShortcut from '@containers/Sidebar/SideBarShortcut';
 import Topbar from '@containers/Topbar';
-import { setTransactionReady } from '@store/account/actions';
+import { setAccountInfoTemp, setTransactionReady } from '@store/account/actions';
 import { getIsGlobalLoading } from '@store/loading/selectors';
 import { fetchNotifications } from '@store/notification/actions';
 import { getAllNotifications } from '@store/notification/selectors';
@@ -153,6 +153,14 @@ export const AppContainer = styled.div`
       position: inherit;
     }
   }
+  .sidebar-mobile {
+    .ant-drawer-body {
+      padding: 0 !important;
+      .wrapper {
+        padding: 0.5rem;
+      }
+    }
+  }
   @media (max-width: 960px) {
     height: auto;
     min-height: auto;
@@ -226,6 +234,14 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
   const [visible, setVisible] = useState(true);
   const { width } = useWindowDimensions();
   const currentDeviceTheme = useThemeDetector();
+
+  let userInfo;
+  const { currentData: currentDataGetAccount, isSuccess: isSuccessGetAccount } = useGetAccountByAddressQuery({
+    address: selectedAccount?.address
+  });
+
+  if (isSuccessGetAccount) userInfo = currentDataGetAccount?.getAccountByAddress;
+  dispatch(setAccountInfoTemp(userInfo));
 
   // TODO: feature auto change theme
   // useEffect(() => {
@@ -322,15 +338,14 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
                     }`}
                   />
                   {/* @ts-ignore */}
-                  <div
-                    className="container-content"
-                    style={{ paddingTop: isMobile ? 64 : 0 }}
-                    id="scrollableDiv"
-                    ref={scrollRef}
-                    onScroll={e => handleScroll(e)}
-                  >
+                  <div className="container-content" id="scrollableDiv" ref={scrollRef} onScroll={e => handleScroll(e)}>
                     <SidebarShortcut />
-                    <div className="content-child animate__animated animate__fadeIn">{children}</div>
+                    <div
+                      className="content-child animate__animated animate__fadeIn"
+                      style={{ paddingTop: isMobile ? 64 : 0 }}
+                    >
+                      {children}
+                    </div>
                     {/* This below is just a dummy sidebar */}
                     {/* TODO: Implement SidebarRanking in future */}
                     {(selectedKey === '/wallet' || selectedKey === '/') && <SidebarRanking></SidebarRanking>}

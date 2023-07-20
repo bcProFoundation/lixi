@@ -237,19 +237,25 @@ export const ContainerAccess = styled.div`
         }
       }
     }
-    .social-digest {
-      .header-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        .button {
-          border-radius: 4px;
-          .anticon {
-            font-size: 18px;
-            margin: 10px;
-          }
+    .header-bar {
+      position: sticky;
+      top: 0;
+      z-index: 9;
+      width: 100%;
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-left: 0.5rem;
+      .button {
+        border-radius: 4px;
+        .anticon {
+          font-size: 18px;
+          margin: 10px;
         }
       }
+    }
+    .social-digest {
       padding: 0 0.5rem;
       width: 100%;
       text-align: left;
@@ -541,7 +547,11 @@ export const ShortCutItem = ({
     <div className="avatar-account">
       {item?.page && <img src={item?.page?.avatar || '/images/default-avatar.jpg'} />}
       {item?.token && <img src={`${currency.tokenIconsUrl}/64/${item?.token?.tokenId}.png`} />}
-      {!item?.page && !item?.token && <Avatar>{transformShortName(item?.postAccount?.name)}</Avatar>}
+      {!item?.page && !item?.token && (
+        <Avatar src={item?.postAccount?.avatar ? item?.postAccount?.avatar : ''}>
+          {transformShortName(item?.postAccount?.name)}
+        </Avatar>
+      )}{' '}
     </div>
     {!isCollapse && (
       <>
@@ -1159,16 +1169,16 @@ const SidebarShortcut = () => {
           <div className="wrapper">
             {!navCollapsed && (
               <>
+                <div className="header-bar">
+                  <h3>Digest</h3>
+                  <Button
+                    type="primary"
+                    className="no-border-btn animate__animated animate__heartBeat"
+                    icon={<LeftOutlined />}
+                    onClick={handleMenuClick}
+                  />
+                </div>
                 <div className="social-digest">
-                  <div className="header-bar">
-                    <h3>Digest</h3>
-                    <Button
-                      type="primary"
-                      className="no-border-btn animate__animated animate__heartBeat"
-                      icon={<LeftOutlined />}
-                      onClick={handleMenuClick}
-                    />
-                  </div>
                   <ItemQuickAccess
                     icon={'/images/ico-newfeeds.svg'}
                     text={'Feeds'}

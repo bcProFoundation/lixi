@@ -358,6 +358,7 @@ fragment PostFields on Post {
     address
     id
     name
+    avatar
   }
   page {
     avatar
@@ -392,6 +393,7 @@ fragment PostFields on Post {
   createdAt
   updatedAt
   followPostOwner
+  followedPage
   originalLanguage
   translations {
     id
@@ -422,6 +424,7 @@ fragment PostMeiliFields on Post {
     address
     id
     name
+    avatar
   }
   page {
     avatar

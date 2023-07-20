@@ -12,7 +12,7 @@ import {
 } from '@generated/types.generated';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { setTransactionReady } from '@store/account/actions';
-import { getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';
+import { getAccountInfoTemp, getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';
 import { addBurnQueue, addBurnTransaction, clearFailQueue, getFailQueue } from '@store/burn';
 import { useCreateFollowAccountMutation, useDeleteFollowAccountMutation } from '@store/follow/follows.api';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
@@ -33,6 +33,9 @@ import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import { WithAuthorizeAction } from '../Common/Authorization/WithAuthorizeAction';
 import { CameraOutlined, EditOutlined } from '@ant-design/icons';
+
+const URL_AVATAR_DEFAULT = '/images/default-avatar.jpg';
+const URL_COVER_DEFAULT = '/images/default-avatar.jpg';
 
 const AuthorizedButton = WithAuthorizeAction(Button);
 
@@ -75,6 +78,7 @@ const StyledContainerProfileDetail = styled.div`
 
 const ProfileCardHeader = styled.div`
   .cover-img {
+    object-fit: cover;
     width: 100%;
     height: 200px;
     border-top-right-radius: var(--border-radius-item);
@@ -101,6 +105,7 @@ const ProfileCardHeader = styled.div`
       .avatar-img {
         width: 150px;
         height: 150px;
+        object-fit: cover;
         border-radius: 50%;
       }
       @media (max-width: 768px) {
@@ -441,6 +446,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const [listsFriend, setListsFriend] = useState<any>([]);
   const [listsPicture, setListsPicture] = useState<any>([]);
   const selectedAccountId = useAppSelector(getSelectedAccountId);
+  const accountInfoTemp = useAppSelector(getAccountInfoTemp);
 
   const [
     createFollowAccountTrigger,
@@ -592,17 +598,37 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
     dispatch(openModal('UploadAvatarCoverModal', { profile: userDetailData, isAvatar: isAvatar }));
   };
 
+  const getAvatarAccount = () => {
+    let urlAvatarAccount = '';
+    if (selectedAccountId == userDetailData?.id) {
+      urlAvatarAccount = accountInfoTemp?.avatar || URL_AVATAR_DEFAULT;
+    } else {
+      urlAvatarAccount = userDetailData?.avatar || URL_AVATAR_DEFAULT;
+    }
+    return urlAvatarAccount;
+  };
+
+  const getCoverAccount = () => {
+    let urlCoverAccount = '';
+    if (selectedAccountId == userDetailData?.id) {
+      urlCoverAccount = accountInfoTemp?.cover || URL_COVER_DEFAULT;
+    } else {
+      urlCoverAccount = userDetailData?.cover || URL_COVER_DEFAULT;
+    }
+    return urlCoverAccount;
+  };
+
   return (
     <>
       <StyledContainerProfileDetail className="profile-detail">
         <ProfileCardHeader>
           <div className="container-img">
-            <img className="cover-img" src={userDetailData.cover || '/images/default-cover.jpg'} alt="" />
+            <img className="cover-img" src={getCoverAccount()} alt="" />
           </div>
           <div className="info-profile">
             <div className="wrapper-avatar">
               <picture>
-                <img className="avatar-img" src={userDetailData.avatar || '/images/default-avatar.jpg'} alt="" />
+                <img className="avatar-img" src={getAvatarAccount()} alt="" />
               </picture>
               {selectedAccountId == userDetailData.id && (
                 <div className="btn-upload-avatar" onClick={() => uploadModal(true)}>

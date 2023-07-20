@@ -18,7 +18,7 @@ import NotificationPopup from '@components/NotificationPopup';
 import { ItemAccess } from '@containers/Sidebar/SideBarShortcut';
 import { OrderDirection, PostOrderField } from '@generated/types.generated';
 import { selectAccount, setGraphqlRequestLoading } from '@store/account/actions';
-import { getAllAccounts, getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';
+import { getAccountInfoTemp, getAllAccounts, getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { fetchNotifications, startChannel, stopChannel } from '@store/notification/actions';
 import { getAllNotifications } from '@store/notification/selectors';
@@ -41,6 +41,7 @@ import { AuthorizationContext } from '@context/index';
 import useAuthorization from '../../components/Common/Authorization/use-authorization.hooks';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Link from 'next/link';
+import { getModals } from '@store/modal/selectors';
 
 export type TopbarProps = {
   className?: string;
@@ -297,6 +298,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
   const dispatch = useAppDispatch();
   const navCollapsed = useAppSelector(getNavCollapsed);
   const selectedAccount = useAppSelector(getSelectedAccount);
+  const accountInfoTemp = useAppSelector(getAccountInfoTemp);
   const router = useRouter();
   const currentPathName = router.pathname ?? '';
   const currentAbsolutePathName = router.asPath ?? '';
@@ -315,6 +317,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
   const { width } = useWindowDimensions();
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
+  const currentModal = useAppSelector(getModals);
 
   useEffect(() => {
     const isMobile = width < 968 ? true : false;
@@ -477,7 +480,12 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
           <div>
             <h3>Current Account</h3>
             <div>
-              <h3 className="current-name">{selectedAccount?.name}</h3>
+              <h3
+                className="current-name"
+                onClick={() => isMobile && router.push(`/profile/${selectedAccount.address}`)}
+              >
+                {selectedAccount?.name}
+              </h3>
               <CopyToClipboard text={selectedAccount?.address} onCopy={handleOnCopy}>
                 <div className="profile-feature">
                   <span>{selectedAccount?.address.slice(-8) + ' '}</span>
@@ -587,7 +595,9 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
           key="wallet-lotus"
           onClickItem={() => {
             if (authorization.authorized) handleIconClick('/wallet');
-            else askAuthorization();
+            else {
+              currentModal.length === 0 && askAuthorization();
+            }
           }}
         />
         <ItemAccess
@@ -598,7 +608,9 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
           key="lixi"
           onClickItem={() => {
             if (authorization.authorized) handleIconClick('/lixi');
-            else askAuthorization();
+            else {
+              currentModal.length === 0 && askAuthorization();
+            }
           }}
         />
         <ItemAccess
@@ -701,15 +713,11 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
           >
             <div
               onClick={() => {
-                if (authorization.authorized) router.push(`/profile/${selectedAccount.address}`);
+                if (authorization.authorized) !isMobile && router.push(`/profile/${selectedAccount.address}`);
                 else askAuthorization();
               }}
             >
-              <AvatarUser
-                name={selectedAccount?.name}
-                icon={selectedAccount.avatar ? selectedAccount.avatar : selectedAccount.name}
-                isMarginRight={false}
-              />
+              <AvatarUser name={selectedAccount?.name || null} icon={accountInfoTemp?.avatar} isMarginRight={false} />
               <p className="account-info">
                 <span className="account-name">{selectedAccount?.name}</span>
                 <span className="account-balance">

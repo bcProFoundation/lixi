@@ -27,6 +27,7 @@ type InfoCardProps = {
   isDropdown?: boolean;
   lotusBurnScore?: number;
   followPostOwner?: boolean;
+  followedPage?: boolean;
   post?: any;
 };
 
@@ -90,6 +91,12 @@ const CardUser = styled.div`
         background: #bfbfbf;
         font-size: 12px;
       }
+      .ant-avatar {
+        img {
+          border: 1px solid var(--border-color-dark-base);
+          border-radius: 50%;
+        }
+      }
     }
     .image-page {
       object-fit: cover;
@@ -142,6 +149,7 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
     isDropdown,
     lotusBurnScore,
     followPostOwner,
+    followedPage,
     post
   } = props;
   const selectedAccount = useAppSelector(getSelectedAccount);
@@ -167,16 +175,18 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
   };
 
   const postActionSheet = (postContent, page?) => {
-    let isEditPost = selectedAccount && selectedAccount.address === postAccountAddress;
-    if (isEditPost) {
-      dispatch(
-        openActionSheet('PostActionSheet', {
-          isEditPost: isEditPost,
-          post: postContent,
-          page: page
-        })
-      );
-    }
+    // let isEditPost = selectedAccount && selectedAccount.address === postAccountAddress;
+    // if (isEditPost) {
+    dispatch(
+      openActionSheet('PostActionSheet', {
+        isEditPost: selectedAccount.address === postAccountAddress ? true : false,
+        post: postContent,
+        page: page,
+        followPostOwner: followPostOwner,
+        followedPage: followedPage
+      })
+    );
+    // }
   };
 
   //if not token or page, nothing will be displayed. If it is a page, it will display the page name and have an Arrow. If it is a token, it will show the token name and have an Arrow
@@ -209,7 +219,7 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
             <div className="card-container">
               <div className="page-bar" onClick={() => history.push(`/page/${page.id}}`)}>
                 <img className="image-page" src={page?.avatar ? page?.avatar : '/images/default-avatar.jpg'} />
-                <AvatarUser name={name} isMarginRight={true} />
+                <AvatarUser icon={imgUrl} name={name} isMarginRight={true} />
               </div>
               <div className="card-info">
                 <span className="name" onClick={() => history.push(`/page/${page.id}`)}>

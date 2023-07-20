@@ -13,7 +13,7 @@ import { CommentOrderField, CreateCommentInput, OrderDirection, RepostInput } fr
 import useXPI from '@hooks/useXPI';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
-import { getSelectedAccount } from '@store/account/selectors';
+import { getAccountInfoTemp, getSelectedAccount } from '@store/account/selectors';
 import { getBurnQueue, getFailQueue } from '@store/burn';
 import { addBurnQueue, addBurnTransaction, clearFailQueue } from '@store/burn/actions';
 import { api as commentsApi, useCreateCommentMutation } from '@store/comment/comments.api';
@@ -291,6 +291,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   const [open, setOpen] = useState(false);
   const filterValue = useAppSelector(getFilterPostsHome);
   const [showTranslation, setShowTranslation] = useState(false);
+  const accountInfoTemp = useAppSelector(getAccountInfoTemp);
 
   const [repostTrigger, { isLoading: isLoadingRepost, isSuccess: isSuccessRepost, isError: isErrorRepost }] =
     useRepostMutation();
@@ -660,7 +661,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
           </PathDirection>
         </NavBarHeader>
         <InfoCardUser
-          imgUrl={post.page ? post.page.avatar : ''}
+          imgUrl={post.postAccount.avatar ? post.postAccount.avatar : ''}
           name={post.postAccount.name}
           title={moment(post.createdAt).fromNow().toString()}
           postAccountAddress={post.postAccount ? post.postAccount.address : undefined}
@@ -718,8 +719,8 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
           </InfiniteScroll>
         </CommentContainer>
         <CommentInputContainer>
-          <div className="ava-ico-cmt" onClick={() => router.push(`/profile/${selectedAccount.address}`)}>
-            <AvatarUser name={selectedAccount?.name} isMarginRight={false} />
+          <div className="ava-ico-cmt" onClick={() => router.push(`/profile/${selectedAccount?.address}`)}>
+            <AvatarUser icon={accountInfoTemp?.avatar} name={selectedAccount?.name} isMarginRight={false} />
           </div>
           <StyledCommentContainer>
             <Controller
