@@ -309,6 +309,7 @@ code {
   /** Light theme **/
   // Color
   --color-primary: #9e2a9c;
+  --color-primary-light: #d061d5; 
   --color-secondary: #74546f;
   --color-tertiary: #8f4c39;
   --color-danger: #ba1a1a;
@@ -1490,6 +1491,45 @@ code {
   }
 }
 
+.link-input-dark {
+  display: flex;
+  justify-content: space-between;
+  background: var(--bg-color-dark-theme)!important;
+  align-items: center;
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 15px;
+  button {
+    span {
+      font-size: 22px;
+    }
+    &:hover {
+      span {
+        color: var(--color-primary);
+      }
+    }
+  }
+  input {
+    flex-grow: 1;
+  }
+}
+.StyledFloatingDark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  max-width: 400px;
+  width: 100%;
+  opacity: 0;
+  background-color: #303031 !important;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  transition: opacity 0.5s;
+  will-change: transform;
+  padding: 8px;
+}
+
+
 .dark {
   background-color: var(--bg-color-dark-theme) !important;
 
@@ -2054,9 +2094,17 @@ code {
 
     .description-profile {
       background: var(--bg-color-dark-item) !important;
-
       p {
         color: var(--text-color-primary-dark);
+      }
+      Button {
+        color: #fff;
+        border: 1px solid var(--border-color-dark-base);
+      }
+      Button:hover {
+        background-color: var(--bg-color-dark) !important;
+        border: 1px solid var(--border-color-dark-base);
+        color: #fff !important;
       }
     }
 

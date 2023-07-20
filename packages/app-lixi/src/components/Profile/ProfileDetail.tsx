@@ -166,10 +166,23 @@ const ProfileCardHeader = styled.div`
     padding-left: calc(0px + 48px);
     padding-bottom: 15px;
     text-align: left;
-    display: flex;
+    display: block;
     @media (max-width: 768px) {
       margin-left: 0;
       text-align: center;
+      justify-content: space-evenly;
+      padding-left: 0px;
+      Button {
+        display: inline-block !important;
+        height: fit-content;
+        .NumberDisplayClass {
+          display: block !important;
+        }
+        .ButtonDisplayClass {
+          display: block !important;
+          margin-right: 0px !important;
+        }
+      }
     }
     h2 {
       font-weight: 600;
@@ -177,7 +190,29 @@ const ProfileCardHeader = styled.div`
       text-transform: capitalize;
     }
     Button {
+      align-items: flex-end;
+      position: relative;
       margin: 0px 5px;
+      display: inline-flex;
+      height: fit-content;
+      color: #000;
+      border: 1px solid var(--border-color-base);
+      .NumberDisplayClass {
+        color: var(--color-primary);
+        font-weight: 600;
+        font-size: 16pt;
+        display: inline-block;
+      }
+      .ButtonDisplayClass {
+        display: inline-block;
+        align-self: center;
+        margin-right: 5px;
+      }
+    }
+    Button:hover {
+      background-color: rgba(158, 42, 156, 0.08) !important;
+      border: 1px solid var(--border-color-base);
+      color: #000 !important;
     }
   }
 `;
@@ -611,15 +646,18 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
           </div>
           {selectedAccount.id == userDetailData.id && (
             <div className="description-profile">
-              <Button onClick={() => openFollowModal(Follow.Followers)}>{`${userDetailData.followersCount} ${intl.get(
-                'general.followers'
-              )}`}</Button>
-              <Button onClick={() => openFollowModal(Follow.Followees)}>{`${userDetailData.followingsCount} ${intl.get(
-                'general.youFollow'
-              )}`}</Button>
-              <Button onClick={() => openFollowModal(Follow.FollowingPages)}>{`${
-                userDetailData.followingPagesCount
-              } ${intl.get('general.followingPages')}`}</Button>
+              <Button onClick={() => openFollowModal(Follow.Followers)}>
+                <div className="ButtonDisplayClass">{intl.get('general.followers')}</div>
+                <div className="NumberDisplayClass">{userDetailData.followersCount}</div>
+              </Button>
+              <Button onClick={() => openFollowModal(Follow.Followees)}>
+                <div className="ButtonDisplayClass">{intl.get('general.youFollow')}</div>
+                <div className="NumberDisplayClass">{userDetailData.followingsCount}</div>
+              </Button>
+              <Button onClick={() => openFollowModal(Follow.FollowingPages)}>
+                <div className="ButtonDisplayClass">{intl.get('general.followingPages')}</div>
+                <div className="NumberDisplayClass">{userDetailData.followingPagesCount}</div>
+              </Button>
             </div>
           )}
         </ProfileCardHeader>
