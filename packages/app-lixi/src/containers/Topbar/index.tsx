@@ -41,7 +41,7 @@ import { AuthorizationContext } from '@context/index';
 import useAuthorization from '../../components/Common/Authorization/use-authorization.hooks';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Link from 'next/link';
-import { getModals } from '../../../../redux-store/src/store/modal/selectors';
+import { getModals } from '@store/modal/selectors';
 
 export type TopbarProps = {
   className?: string;
