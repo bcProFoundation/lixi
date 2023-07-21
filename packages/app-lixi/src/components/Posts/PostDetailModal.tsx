@@ -427,7 +427,8 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
       const errorMessage = e.message || intl.get('post.unableToBurn');
       dispatch(
         showToast('error', {
-          message: errorMessage,
+          message: intl.get('toast.error'),
+          description: errorMessage,
           duration: 3
         })
       );
@@ -656,7 +657,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
       () => {
         dispatch(closeModal());
       },
-      isMobile ? 500 : 200
+      isMobile ? 400 : 200
     );
   };
 
