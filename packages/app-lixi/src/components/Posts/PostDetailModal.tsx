@@ -1,4 +1,4 @@
-import { DashOutlined, SendOutlined, DownloadOutlined, LeftOutlined } from '@ant-design/icons';
+import { DashOutlined, SendOutlined, DownloadOutlined, LeftOutlined, CloseOutlined } from '@ant-design/icons';
 import { PostsQueryTag } from '@bcpros/lixi-models/constants';
 import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
 import { AvatarUser } from '@components/Common/AvatarUser';
@@ -697,7 +697,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
         style={{ top: 30 }}
         open={true}
         onCancel={handleOnCancel}
-        closeIcon={<LeftOutlined />}
+        closeIcon={isMobile ? <LeftOutlined /> : <CloseOutlined />}
         footer={null}
       >
         <StyledContainerPostDetail
