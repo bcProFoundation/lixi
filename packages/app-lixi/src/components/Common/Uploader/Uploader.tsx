@@ -13,7 +13,7 @@ import axiosClient from '@utils/axiosClient';
 import { UPLOAD_API_S3 } from '@bcpros/lixi-models/constants';
 import _ from 'lodash';
 import { ButtonType } from 'antd/lib/button';
-import { showToast } from '../../../../../redux-store/src/store/toast/actions';
+import { showToast } from '@store/toast/actions';
 
 const getBase64 = (file: RcFile): Promise<string> =>
   new Promise((resolve, reject) => {
