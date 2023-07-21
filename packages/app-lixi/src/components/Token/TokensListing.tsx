@@ -274,11 +274,12 @@ const TokensListing = () => {
   });
 
   const handleOnCopy = (id: string) => {
-    notification.info({
-      message: intl.get('token.copyId'),
-      description: id,
-      placement: 'top'
-    });
+    dispatch(
+      showToast('info', {
+        message: intl.get('token.copyId'),
+        description: id
+      })
+    );
   };
 
   const columns: ColumnsType<TokenEdge> = [
