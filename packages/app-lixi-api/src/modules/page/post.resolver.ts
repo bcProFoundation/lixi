@@ -1061,11 +1061,6 @@ export class PostResolver {
       }
     }
 
-    // //Testing
-    // this.messageGateway.publishPageChannel('ola', savedPost.id);
-
-    // this.messageGateway.publishMessage('hello', pureContent);
-
     return savedPost;
   }
 

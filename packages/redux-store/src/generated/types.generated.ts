@@ -189,6 +189,8 @@ export type CreatePageInput = {
 
 export type CreatePageMessageInput = {
   accountId: Scalars['Int'];
+  accountSecret?: InputMaybe<Scalars['String']>;
+  lixiId?: InputMaybe<Scalars['Int']>;
   pageId: Scalars['String'];
 };
 
@@ -687,6 +689,7 @@ export type PageMessageSession = {
   createdAt?: Maybe<Scalars['DateTime']>;
   id: Scalars['ID'];
   lixi?: Maybe<LixiModel>;
+  lixiClaimCode?: Maybe<Scalars['String']>;
   messages?: Maybe<Array<Message>>;
   page: Page;
   /** Identifies the date and time when the session was closed. */

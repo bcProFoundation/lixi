@@ -21,6 +21,9 @@ export class PageMessageSession {
   @Field(() => LixiModel, { nullable: true })
   lixi?: LixiModel;
 
+  @Field(() => String, { nullable: true })
+  lixiClaimCode?: string;
+
   @Field(() => [Message], { nullable: true })
   messages?: [Message];
 

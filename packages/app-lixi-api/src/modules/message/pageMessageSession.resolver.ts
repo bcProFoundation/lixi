@@ -30,6 +30,7 @@ import { I18n, I18nService } from 'nestjs-i18n';
 import { connectionFromArraySlice } from 'src/common/custom-graphql-relay/arrayConnection';
 import { AccountEntity } from 'src/decorators/account.decorator';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
+import { aesGcmDecrypt, numberToBase58 } from 'src/utils/encryptionMethods';
 import ConnectionArgs, { getPagingParameters } from '../../common/custom-graphql-relay/connection.args';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
 import { PERSON } from '../page/constants/meili.constants';
@@ -344,7 +345,7 @@ export class PageMessageSessionResolver {
       throw new Error(couldNotFindAccount);
     }
 
-    const { accountId, pageId } = data;
+    const { accountId, pageId, lixiId, accountSecret } = data;
 
     //check if there already pending message or already open
     const pendingOrOpenPageMessageSession = await this.prisma.pageMessageSession.findMany({
@@ -362,15 +363,30 @@ export class PageMessageSessionResolver {
       }
     });
 
-    if (pendingOrOpenPageMessageSession.length === 0) {
+    const lixi = await this.prisma.lixi.findUnique({
+      where: {
+        id: lixiId
+      }
+    });
+
+    if (pendingOrOpenPageMessageSession.length === 0 && lixi !== null) {
+      let claimCode = '';
+      if (accountSecret && !_.isNil(accountSecret)) {
+        const claimPart = await aesGcmDecrypt(lixi.encryptedClaimCode, accountSecret);
+        const encodedId = numberToBase58(lixi.id);
+        claimCode = claimPart + encodedId;
+      }
       const result = await this.prisma.pageMessageSession.create({
         include: {
           page: true,
-          account: true
+          account: true,
+          lixi: true
         },
         data: {
           account: { connect: { id: accountId } },
           page: { connect: { id: pageId } },
+          lixi: lixiId ? { connect: { id: lixiId } } : undefined,
+          lixiClaimCode: claimCode,
           status: PageMessageSessionStatus.PENDING
         }
       });
@@ -396,7 +412,7 @@ export class PageMessageSessionResolver {
         id: pageMessageSessionId
       },
       data: {
-        status: PageMessageSessionStatus.ClOSE,
+        status: PageMessageSessionStatus.CLOSE,
         sessionClosedAt: new Date()
       },
       include: {
@@ -411,7 +427,7 @@ export class PageMessageSessionResolver {
       payload: result
     };
 
-    this.messageGateway.sessionAction(pageMessageSessionId, sessionAction);
+    // this.messageGateway.publishSessionAction(pageMessageSessionId, sessionAction);
 
     return result;
   }
@@ -446,7 +462,7 @@ export class PageMessageSessionResolver {
       payload: result
     };
 
-    this.messageGateway.sessionAction(pageMessageSessionId, sessionAction);
+    this.messageGateway.publishSessionAction(pageMessageSessionId, sessionAction);
 
     return result;
   }

@@ -806,11 +806,12 @@ model PageMessageSession {
   // messageSessions MessageSession[]
   lixi            Lixi?                     @relation(fields: [lixiId], references: [id])
   lixiId          Int?                      @unique
+  lixiClaimCode   String?                   @map("lixi_claim_code")
   // lixiAmount      Float?                    @default(0) @map("lixi_amount")
   messages        Message[]
   sessionOpenedAt DateTime?                 @map("session_opened_at")
   sessionClosedAt DateTime?                 @map("session_closed_at")
-  status          PageMessageSessionStatus? @default(ClOSE)
+  status          PageMessageSessionStatus? @default(CLOSE)
   createdAt       DateTime                  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime                  @default(now()) @map("updated_at") @db.Timestamptz
 
@@ -820,7 +821,7 @@ model PageMessageSession {
 enum PageMessageSessionStatus {
   PENDING
   OPEN
-  ClOSE
+  CLOSE
 }
 
 // model MessageSession {

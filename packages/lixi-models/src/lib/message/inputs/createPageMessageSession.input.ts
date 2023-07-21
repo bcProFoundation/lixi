@@ -10,4 +10,10 @@ export class CreatePageMessageInput {
   @Field(() => Number)
   @IsNotEmpty()
   accountId: number;
+
+  @Field(() => Number, { nullable: true })
+  lixiId?: number;
+
+  @Field(() => String, { nullable: true })
+  accountSecret?: string;
 }

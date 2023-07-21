@@ -34,6 +34,7 @@ export interface GenerateLixiCommand {
   staffAddress?: string;
   charityAddress?: string;
   joinLotteryProgram: boolean;
+  pageId?: string;
 }
 
 export interface CreateLixiCommand {

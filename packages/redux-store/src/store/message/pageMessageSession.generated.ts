@@ -19,6 +19,7 @@ import { api } from 'src/api/baseApi';
 export type PageMessageSessionFieldsFragment = {
   __typename?: 'PageMessageSession';
   id: string;
+  lixiClaimCode?: string | null;
   sessionOpenedAt?: any | null;
   sessionClosedAt?: any | null;
   status: Types.PageMessageSessionStatus;
@@ -26,7 +27,15 @@ export type PageMessageSessionFieldsFragment = {
   updatedAt?: any | null;
   page: { __typename?: 'Page'; id: string; name: string };
   account: { __typename?: 'Account'; id: string; name: string; address: string };
-  lixi?: { __typename?: 'LixiModel'; id: string; name: string; amount: string; balance?: number | null } | null;
+  lixi?: {
+    __typename?: 'LixiModel';
+    id: string;
+    name: string;
+    amount: string;
+    expiryAt?: any | null;
+    activationAt?: any | null;
+    status: string;
+  } | null;
 };
 
 export type PageMessageSessionQueryVariables = Types.Exact<{
@@ -38,6 +47,7 @@ export type PageMessageSessionQuery = {
   pageMessageSession: {
     __typename?: 'PageMessageSession';
     id: string;
+    lixiClaimCode?: string | null;
     sessionOpenedAt?: any | null;
     sessionClosedAt?: any | null;
     status: Types.PageMessageSessionStatus;
@@ -45,7 +55,15 @@ export type PageMessageSessionQuery = {
     updatedAt?: any | null;
     page: { __typename?: 'Page'; id: string; name: string };
     account: { __typename?: 'Account'; id: string; name: string; address: string };
-    lixi?: { __typename?: 'LixiModel'; id: string; name: string; amount: string; balance?: number | null } | null;
+    lixi?: {
+      __typename?: 'LixiModel';
+      id: string;
+      name: string;
+      amount: string;
+      expiryAt?: any | null;
+      activationAt?: any | null;
+      status: string;
+    } | null;
   };
 };
 
@@ -70,6 +88,7 @@ export type OpenPageMessageSessionByPageIdQuery = {
       node: {
         __typename?: 'PageMessageSession';
         id: string;
+        lixiClaimCode?: string | null;
         sessionOpenedAt?: any | null;
         sessionClosedAt?: any | null;
         status: Types.PageMessageSessionStatus;
@@ -77,7 +96,15 @@ export type OpenPageMessageSessionByPageIdQuery = {
         updatedAt?: any | null;
         page: { __typename?: 'Page'; id: string; name: string };
         account: { __typename?: 'Account'; id: string; name: string; address: string };
-        lixi?: { __typename?: 'LixiModel'; id: string; name: string; amount: string; balance?: number | null } | null;
+        lixi?: {
+          __typename?: 'LixiModel';
+          id: string;
+          name: string;
+          amount: string;
+          expiryAt?: any | null;
+          activationAt?: any | null;
+          status: string;
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -111,6 +138,7 @@ export type PendingPageMessageSessionByPageIdQuery = {
       node: {
         __typename?: 'PageMessageSession';
         id: string;
+        lixiClaimCode?: string | null;
         sessionOpenedAt?: any | null;
         sessionClosedAt?: any | null;
         status: Types.PageMessageSessionStatus;
@@ -118,7 +146,15 @@ export type PendingPageMessageSessionByPageIdQuery = {
         updatedAt?: any | null;
         page: { __typename?: 'Page'; id: string; name: string };
         account: { __typename?: 'Account'; id: string; name: string; address: string };
-        lixi?: { __typename?: 'LixiModel'; id: string; name: string; amount: string; balance?: number | null } | null;
+        lixi?: {
+          __typename?: 'LixiModel';
+          id: string;
+          name: string;
+          amount: string;
+          expiryAt?: any | null;
+          activationAt?: any | null;
+          status: string;
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -152,6 +188,7 @@ export type OpenPageMessageSessionByAccountIdQuery = {
       node: {
         __typename?: 'PageMessageSession';
         id: string;
+        lixiClaimCode?: string | null;
         sessionOpenedAt?: any | null;
         sessionClosedAt?: any | null;
         status: Types.PageMessageSessionStatus;
@@ -159,7 +196,15 @@ export type OpenPageMessageSessionByAccountIdQuery = {
         updatedAt?: any | null;
         page: { __typename?: 'Page'; id: string; name: string };
         account: { __typename?: 'Account'; id: string; name: string; address: string };
-        lixi?: { __typename?: 'LixiModel'; id: string; name: string; amount: string; balance?: number | null } | null;
+        lixi?: {
+          __typename?: 'LixiModel';
+          id: string;
+          name: string;
+          amount: string;
+          expiryAt?: any | null;
+          activationAt?: any | null;
+          status: string;
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -193,6 +238,7 @@ export type PendingPageMessageSessionByAccountIdQuery = {
       node: {
         __typename?: 'PageMessageSession';
         id: string;
+        lixiClaimCode?: string | null;
         sessionOpenedAt?: any | null;
         sessionClosedAt?: any | null;
         status: Types.PageMessageSessionStatus;
@@ -200,7 +246,15 @@ export type PendingPageMessageSessionByAccountIdQuery = {
         updatedAt?: any | null;
         page: { __typename?: 'Page'; id: string; name: string };
         account: { __typename?: 'Account'; id: string; name: string; address: string };
-        lixi?: { __typename?: 'LixiModel'; id: string; name: string; amount: string; balance?: number | null } | null;
+        lixi?: {
+          __typename?: 'LixiModel';
+          id: string;
+          name: string;
+          amount: string;
+          expiryAt?: any | null;
+          activationAt?: any | null;
+          status: string;
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -234,6 +288,7 @@ export type PageMessageSessionByAccountIdQuery = {
       node: {
         __typename?: 'PageMessageSession';
         id: string;
+        lixiClaimCode?: string | null;
         sessionOpenedAt?: any | null;
         sessionClosedAt?: any | null;
         status: Types.PageMessageSessionStatus;
@@ -241,7 +296,15 @@ export type PageMessageSessionByAccountIdQuery = {
         updatedAt?: any | null;
         page: { __typename?: 'Page'; id: string; name: string };
         account: { __typename?: 'Account'; id: string; name: string; address: string };
-        lixi?: { __typename?: 'LixiModel'; id: string; name: string; amount: string; balance?: number | null } | null;
+        lixi?: {
+          __typename?: 'LixiModel';
+          id: string;
+          name: string;
+          amount: string;
+          expiryAt?: any | null;
+          activationAt?: any | null;
+          status: string;
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -264,6 +327,7 @@ export type UserHadMessageToPageQuery = {
   userHadMessageToPage: {
     __typename?: 'PageMessageSession';
     id: string;
+    lixiClaimCode?: string | null;
     sessionOpenedAt?: any | null;
     sessionClosedAt?: any | null;
     status: Types.PageMessageSessionStatus;
@@ -271,7 +335,15 @@ export type UserHadMessageToPageQuery = {
     updatedAt?: any | null;
     page: { __typename?: 'Page'; id: string; name: string };
     account: { __typename?: 'Account'; id: string; name: string; address: string };
-    lixi?: { __typename?: 'LixiModel'; id: string; name: string; amount: string; balance?: number | null } | null;
+    lixi?: {
+      __typename?: 'LixiModel';
+      id: string;
+      name: string;
+      amount: string;
+      expiryAt?: any | null;
+      activationAt?: any | null;
+      status: string;
+    } | null;
   };
 };
 
@@ -284,6 +356,7 @@ export type CreatePageMessageSessionMutation = {
   createPageMessageSession: {
     __typename?: 'PageMessageSession';
     id: string;
+    lixiClaimCode?: string | null;
     sessionOpenedAt?: any | null;
     sessionClosedAt?: any | null;
     status: Types.PageMessageSessionStatus;
@@ -291,7 +364,15 @@ export type CreatePageMessageSessionMutation = {
     updatedAt?: any | null;
     page: { __typename?: 'Page'; id: string; name: string };
     account: { __typename?: 'Account'; id: string; name: string; address: string };
-    lixi?: { __typename?: 'LixiModel'; id: string; name: string; amount: string; balance?: number | null } | null;
+    lixi?: {
+      __typename?: 'LixiModel';
+      id: string;
+      name: string;
+      amount: string;
+      expiryAt?: any | null;
+      activationAt?: any | null;
+      status: string;
+    } | null;
   };
 };
 
@@ -304,6 +385,7 @@ export type ClosePageMessageSessionMutation = {
   closePageMessageSession: {
     __typename?: 'PageMessageSession';
     id: string;
+    lixiClaimCode?: string | null;
     sessionOpenedAt?: any | null;
     sessionClosedAt?: any | null;
     status: Types.PageMessageSessionStatus;
@@ -311,7 +393,15 @@ export type ClosePageMessageSessionMutation = {
     updatedAt?: any | null;
     page: { __typename?: 'Page'; id: string; name: string };
     account: { __typename?: 'Account'; id: string; name: string; address: string };
-    lixi?: { __typename?: 'LixiModel'; id: string; name: string; amount: string; balance?: number | null } | null;
+    lixi?: {
+      __typename?: 'LixiModel';
+      id: string;
+      name: string;
+      amount: string;
+      expiryAt?: any | null;
+      activationAt?: any | null;
+      status: string;
+    } | null;
   };
 };
 
@@ -324,6 +414,7 @@ export type OpenPageMessageSessionMutation = {
   openPageMessageSession: {
     __typename?: 'PageMessageSession';
     id: string;
+    lixiClaimCode?: string | null;
     sessionOpenedAt?: any | null;
     sessionClosedAt?: any | null;
     status: Types.PageMessageSessionStatus;
@@ -331,7 +422,15 @@ export type OpenPageMessageSessionMutation = {
     updatedAt?: any | null;
     page: { __typename?: 'Page'; id: string; name: string };
     account: { __typename?: 'Account'; id: string; name: string; address: string };
-    lixi?: { __typename?: 'LixiModel'; id: string; name: string; amount: string; balance?: number | null } | null;
+    lixi?: {
+      __typename?: 'LixiModel';
+      id: string;
+      name: string;
+      amount: string;
+      expiryAt?: any | null;
+      activationAt?: any | null;
+      status: string;
+    } | null;
   };
 };
 
@@ -351,8 +450,11 @@ export const PageMessageSessionFieldsFragmentDoc = `
     id
     name
     amount
-    balance
+    expiryAt
+    activationAt
+    status
   }
+  lixiClaimCode
   sessionOpenedAt
   sessionClosedAt
   status

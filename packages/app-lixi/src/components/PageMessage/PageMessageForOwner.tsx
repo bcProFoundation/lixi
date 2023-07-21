@@ -30,8 +30,13 @@ import {
 import type { MenuProps } from 'antd';
 import { setPageMessageSession } from '@store/page/action';
 import { getCurrentPageMessageSession } from '@store/page/selectors';
+import { postClaim } from '@store/claim/actions';
+import { getCurrentAddress } from '@store/claim/selectors';
+import { CreateClaimDto } from '@bcpros/lixi-models/lib/claim';
+import { WalletContext } from '@context/walletProvider';
 
 const { TextArea } = Input;
+const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
 
 type PageMessageProps = {
   page: PageItem;
@@ -94,12 +99,48 @@ const StyledTextHeader = styled.p`
   width: 95%;
 `;
 
+const LixiContainer = styled.div`
+  display: flex;
+  width: 100%;
+  padding: 5px;
+  border: 1px solid black;
+  border-radius: var(--border-radius-primary);
+  justify-content: center;
+`;
+
 const PageMessageForOwner = ({ page }: PageMessageProps) => {
   const dispatch = useAppDispatch();
   const [currentPageMessageSessionId, setCurrentPageMessageSessionId] = useState<string | null>(null);
   const currentPageMessageSession = useAppSelector(getCurrentPageMessageSession);
   const [tab, setCurrentTab] = useState<string | null>(null);
   const { control, getValues, resetField, setFocus } = useForm();
+  const currentAddress = useAppSelector(getCurrentAddress);
+  const Wallet = React.useContext(WalletContext);
+  const { XPI } = Wallet;
+
+  useEffect(() => {
+    const loadScriptByURL = (id: string, url: string, callback: { (): void; (): void }) => {
+      const isScriptExist = document.getElementById(id);
+
+      if (!isScriptExist) {
+        let script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = url;
+        script.id = id;
+        script.onload = function () {
+          if (callback) callback();
+        };
+        document.body.appendChild(script);
+      }
+
+      if (isScriptExist && callback) callback();
+    };
+
+    // load the script by passing the URL
+    loadScriptByURL('recaptcha-key', `https://www.google.com/recaptcha/enterprise.js?render=${SITE_KEY}`, function () {
+      console.info('Script loaded!');
+    });
+  }, []);
 
   const [
     createMessageTrigger,
@@ -257,6 +298,34 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
   };
 
   const openSession = async () => {
+    // let captcha = (window as any).grecaptcha.enterprise;
+    // // Get the param-free address
+    // let cleanAddress = currentAddress.split('?')[0];
+
+    // const isValidAddress = XPI.Address.isXAddress(cleanAddress);
+
+    // if (!isValidAddress) {
+    //   alert('Not valid address');
+    // }
+    // if (captcha) {
+    //   captcha.ready(() => {
+    //     captcha.execute(SITE_KEY, { action: 'submit' }).then(async (token: any) => {
+    //       dispatch(
+    //         postClaim({
+    //           claimAddress: cleanAddress,
+    //           claimCode: currentPageMessageSession.lixiClaimCode,
+    //           captchaToken: token
+    //         } as CreateClaimDto)
+    //       );
+    //     });
+    //   });
+
+    //   console.log('run this');
+    //   const input: OpenPageMessageSessionInput = {
+    //     pageMessageSessionId: currentPageMessageSessionId
+    //   };
+    //   await openPageMessageSessionTrigger({ input }).unwrap();
+    // }
     const input: OpenPageMessageSessionInput = {
       pageMessageSessionId: currentPageMessageSessionId
     };
@@ -323,22 +392,36 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
             </Dropdown>
           </StyledHeader>
         )}
-        <StyledChatbox id="scrollableChatbox">
-          {messageData.length > 0 && (
-            <StyledInfiniteScroll
-              dataLength={messageData.length}
-              next={loadMoreMessages}
-              hasMore={messageHasNext}
-              loader={<Skeleton active />}
-              inverse
-              scrollableTarget="scrollableChatbox"
-            >
-              {messageData.map(item => {
-                return <Message message={item} key={item.id} authorAddress={page.pageAccount.address} />;
-              })}
-            </StyledInfiniteScroll>
-          )}
-        </StyledChatbox>
+        {
+          <StyledChatbox
+            id="scrollableChatbox"
+            style={{
+              justifyContent:
+                currentPageMessageSession?.status !== PageMessageSessionStatus.Pending ? 'normal' : 'center'
+            }}
+          >
+            {currentPageMessageSession?.status !== PageMessageSessionStatus.Pending ? (
+              messageData.length > 0 && (
+                <StyledInfiniteScroll
+                  dataLength={messageData.length}
+                  next={loadMoreMessages}
+                  hasMore={messageHasNext}
+                  loader={<Skeleton active />}
+                  inverse
+                  scrollableTarget="scrollableChatbox"
+                >
+                  {messageData.map(item => {
+                    return <Message message={item} key={item.id} authorAddress={page.pageAccount.address} />;
+                  })}
+                </StyledInfiniteScroll>
+              )
+            ) : (
+              <LixiContainer>
+                <p>{`${currentPageMessageSession?.account.name} want to give you ${currentPageMessageSession?.lixi.amount} XPI for messaging`}</p>
+              </LixiContainer>
+            )}
+          </StyledChatbox>
+        }
         {currentPageMessageSessionId && (
           <InputContainer>
             <Controller
@@ -355,12 +438,12 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
                   onBlur={onBlur}
                   value={value}
                   placeholder={
-                    currentPageMessageSession.status === PageMessageSessionStatus.Open ? 'Aa' : 'Session is closed'
+                    currentPageMessageSession?.status === PageMessageSessionStatus.Open ? 'Aa' : 'Session is closed'
                   }
                   disabled={
                     isLoadingClosePageMessageSession ||
                     isLoadingCreateMessage ||
-                    currentPageMessageSession.status !== PageMessageSessionStatus.Open
+                    currentPageMessageSession?.status !== PageMessageSessionStatus.Open
                   }
                   autoSize
                   onKeyDown={handleKeyDown}
@@ -373,7 +456,7 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
                 disabled={
                   isLoadingClosePageMessageSession ||
                   isLoadingCreateMessage ||
-                  currentPageMessageSession.status !== PageMessageSessionStatus.Open
+                  currentPageMessageSession?.status !== PageMessageSessionStatus.Open
                 }
               />
             </IconContainer>

@@ -825,16 +825,8 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     );
   };
 
-  const createNewPageMessageSession = async () => {
-    const input: CreatePageMessageInput = {
-      accountId: selectedAccount.id,
-      pageId: page.id
-    };
-    if (_.isNil(pageMessageSessionData)) {
-      const result = await createPageMessageSessionTrigger({ input }).unwrap();
-
-      pageMessageSessionRefetch();
-    }
+  const openPageMessageLixiModal = () => {
+    dispatch(openModal('PageMessageLixiModal', { account: selectedAccount, page: page, wallet: walletStatus }));
   };
 
   return (
@@ -880,7 +872,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
             )}
             {/* Chat */}
             {selectedAccountId != pageDetailData?.pageAccountId && _.isNil(pageMessageSessionData) && (
-              <Button onClick={() => createNewPageMessageSession()}>Chat with me</Button>
+              <Button onClick={() => openPageMessageLixiModal()}>Chat with me</Button>
             )}
             {selectedAccountId != pageDetailData?.pageAccountId && pageMessageSessionData && (
               <React.Fragment>

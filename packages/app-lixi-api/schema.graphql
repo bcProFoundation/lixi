@@ -171,6 +171,8 @@ input CreatePageInput {
 
 input CreatePageMessageInput {
   accountId: Int!
+  accountSecret: String
+  lixiId: Int
   pageId: String!
 }
 
@@ -583,6 +585,7 @@ type PageMessageSession {
   createdAt: DateTime
   id: ID!
   lixi: LixiModel
+  lixiClaimCode: String
   messages: [Message!]
   page: Page!
 

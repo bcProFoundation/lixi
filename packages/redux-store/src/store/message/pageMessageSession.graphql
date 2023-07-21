@@ -13,8 +13,11 @@ fragment PageMessageSessionFields on PageMessageSession {
     id
     name
     amount
-    balance
+    expiryAt
+    activationAt
+    status
   }
+  lixiClaimCode
   sessionOpenedAt
   sessionClosedAt
   status
