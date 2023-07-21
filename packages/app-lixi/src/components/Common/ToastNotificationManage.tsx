@@ -5,7 +5,6 @@ import { getCurrentThemes } from '@store/settings';
 import _ from 'lodash';
 import { getToastNotification } from '@store/toast/selectors';
 import { ReactSVG } from 'react-svg';
-import { closeToast } from '@store/toast/actions';
 import { ToastType } from '@store/toast/state';
 import intl from 'react-intl-universal';
 
@@ -14,7 +13,6 @@ const DURATION_DEFAULT = 1.5;
 const ToastNotificationManage = () => {
   const currentToast = useAppSelector(getToastNotification);
   const currentTheme = useAppSelector(getCurrentThemes);
-  const dispatch = useAppDispatch();
 
   const getIconToast = (typeToast: ToastType) => {
     switch (typeToast) {
@@ -54,39 +52,36 @@ const ToastNotificationManage = () => {
   };
 
   useEffect(() => {
-    if (currentToast.length > 0) {
-      currentToast.map((toastItem, index) => {
-        if (index === 0) {
-          const { type, config } = toastItem;
-          const newConfig = _.cloneDeep(config);
-          newConfig.placement = 'top';
-          newConfig.className = `custom-toast-notification ${
-            currentTheme ? 'custom-toast-notification-dark' : 'custom-toast-notification-light'
-          }`;
-          newConfig.icon = getIconToast(type);
-          newConfig.message = newConfig?.message || intl.get(`toast.${type}`);
-          newConfig.duration = newConfig?.duration || DURATION_DEFAULT;
+    if (currentToast) {
+      const { type, config } = currentToast;
+      if (config) {
+        const newConfig = _.cloneDeep(config);
+        newConfig.placement = 'top';
+        newConfig.className = `custom-toast-notification ${
+          currentTheme ? 'custom-toast-notification-dark' : 'custom-toast-notification-light'
+        }`;
+        newConfig.icon = getIconToast(type);
+        newConfig.message = newConfig?.message || intl.get(`toast.${type}`);
+        newConfig.duration = newConfig?.duration || DURATION_DEFAULT;
 
-          dispatch(closeToast());
-          switch (type) {
-            case 'success':
-              return notification.success(newConfig);
-            case 'error':
-              return notification.error(newConfig);
-            case 'warning':
-              return notification.warning(newConfig);
-            case 'open':
-              return notification.open(newConfig);
-            case 'info':
-              return notification.info(newConfig);
-            case 'burn':
-              newConfig.className = newConfig.className + ' burn-toast-notification';
-              return notification.error(newConfig);
-            default:
-              break;
-          }
+        switch (type) {
+          case 'success':
+            return notification.success(newConfig);
+          case 'error':
+            return notification.error(newConfig);
+          case 'warning':
+            return notification.warning(newConfig);
+          case 'open':
+            return notification.open(newConfig);
+          case 'info':
+            return notification.info(newConfig);
+          case 'burn':
+            newConfig.className = newConfig.className + ' burn-toast-notification';
+            return notification.error(newConfig);
+          default:
+            break;
         }
-      });
+      }
     }
   }, [currentToast]);
 

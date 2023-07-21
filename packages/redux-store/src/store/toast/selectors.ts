@@ -6,5 +6,5 @@ import { ToastState } from './state';
 
 export const getToastNotification = createSelector(
   (state: RootState) => state.toast,
-  (state: ToastState) => state.toastStates
+  (state: ToastState) => state
 );

@@ -1,24 +1,18 @@
 import { createReducer } from '@reduxjs/toolkit';
 import _ from 'lodash';
 
-import { closeToast, showToast } from './actions';
-import { ToastItemState, ToastState } from './state';
+import { showToast } from './actions';
+import { ToastState } from './state';
 
 const initialState: ToastState = {
-  toastStates: []
+  type: 'success',
+  config: null,
 };
 
-export const toastReducer = createReducer(initialState, builder => {
-  builder
-    .addCase(showToast, (state, action) => {
-      const { type, config } = action.payload;
-      let newToast: ToastItemState = {
-        type: type,
-        config: config
-      };
-      state.toastStates.push(newToast);
-    })
-    .addCase(closeToast, (state, action) => {
-      state.toastStates = [];
-    });
+export const toastReducer = createReducer(initialState, (builder) => {
+  builder.addCase(showToast, (state, action) => {
+    const { type, config } = action.payload;
+    state.type = type;
+    state.config = config as any;
+  });
 });
