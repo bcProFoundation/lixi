@@ -4,17 +4,17 @@ import { closeActionSheet, openActionSheet } from './actions';
 import { ActionSheetState } from './state';
 
 const initialState: ActionSheetState = {
-  actionSheets: []
+  actionSheets: [],
 };
 
-export const actionSheetReducer = createReducer(initialState, builder => {
+export const actionSheetReducer = createReducer(initialState, (builder) => {
   builder
     .addCase(openActionSheet, (state, action) => {
       const { actionSheetType, actionSheetProps } = action.payload;
 
       state.actionSheets.push({
         actionSheetType,
-        actionSheetProps
+        actionSheetProps,
       });
     })
     .addCase(closeActionSheet, (state, action) => {
