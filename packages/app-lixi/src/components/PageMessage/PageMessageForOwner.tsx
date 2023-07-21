@@ -166,7 +166,8 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
   ] = useOpenPageMessageSessionMutation();
 
   const items: MenuProps['items'] = [
-    currentPageMessageSession?.status === PageMessageSessionStatus.Open && {
+    (currentPageMessageSession?.status === PageMessageSessionStatus.Pending ||
+      currentPageMessageSession?.status === PageMessageSessionStatus.Open) && {
       key: 'closeSession',
       label: (
         <p style={{ margin: '0px' }} onClick={() => closeSession()}>
@@ -298,38 +299,33 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
   };
 
   const openSession = async () => {
-    // let captcha = (window as any).grecaptcha.enterprise;
-    // // Get the param-free address
-    // let cleanAddress = currentAddress.split('?')[0];
+    let captcha = (window as any).grecaptcha.enterprise;
+    // Get the param-free address
+    let cleanAddress = currentAddress.split('?')[0];
 
-    // const isValidAddress = XPI.Address.isXAddress(cleanAddress);
+    const isValidAddress = XPI.Address.isXAddress(cleanAddress);
 
-    // if (!isValidAddress) {
-    //   alert('Not valid address');
-    // }
-    // if (captcha) {
-    //   captcha.ready(() => {
-    //     captcha.execute(SITE_KEY, { action: 'submit' }).then(async (token: any) => {
-    //       dispatch(
-    //         postClaim({
-    //           claimAddress: cleanAddress,
-    //           claimCode: currentPageMessageSession.lixiClaimCode,
-    //           captchaToken: token
-    //         } as CreateClaimDto)
-    //       );
-    //     });
-    //   });
+    if (!isValidAddress) {
+      alert('Not valid address');
+    }
+    if (captcha) {
+      captcha.ready(() => {
+        captcha.execute(SITE_KEY, { action: 'submit' }).then(async (token: any) => {
+          dispatch(
+            postClaim({
+              claimAddress: cleanAddress,
+              claimCode: currentPageMessageSession.lixiClaimCode,
+              captchaToken: token
+            } as CreateClaimDto)
+          );
+        });
+      });
 
-    //   console.log('run this');
-    //   const input: OpenPageMessageSessionInput = {
-    //     pageMessageSessionId: currentPageMessageSessionId
-    //   };
-    //   await openPageMessageSessionTrigger({ input }).unwrap();
-    // }
-    const input: OpenPageMessageSessionInput = {
-      pageMessageSessionId: currentPageMessageSessionId
-    };
-    await openPageMessageSessionTrigger({ input }).unwrap();
+      const input: OpenPageMessageSessionInput = {
+        pageMessageSessionId: currentPageMessageSessionId
+      };
+      await openPageMessageSessionTrigger({ input }).unwrap();
+    }
   };
 
   const closeSession = async () => {
@@ -407,6 +403,7 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
                   next={loadMoreMessages}
                   hasMore={messageHasNext}
                   loader={<Skeleton active />}
+                  endMessage={<p>{`You accepted lixi from ${currentPageMessageSession.account.name}`}</p>}
                   inverse
                   scrollableTarget="scrollableChatbox"
                 >

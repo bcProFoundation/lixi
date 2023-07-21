@@ -37,7 +37,6 @@ import { HASHTAG, POSTS } from './constants/meili.constants';
 import { MeiliService } from './meili.service';
 import { GqlThrottlerGuard } from '../auth/guards/gql-throttler.guard';
 import { FollowCacheService } from '../account/follow-cache.service';
-import { MessageGateway } from '../message/message.gateway';
 
 const pubSub = new PubSub();
 
@@ -53,7 +52,6 @@ export class PostResolver {
     private meiliService: MeiliService,
     private readonly notificationService: NotificationService,
     private hashtagService: HashtagService,
-    // private messageGateway: MessageGateway,
     @Inject('xpijs') private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @I18n() private i18n: I18nService

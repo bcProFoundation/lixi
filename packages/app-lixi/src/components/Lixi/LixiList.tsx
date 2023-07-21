@@ -26,7 +26,6 @@ import {
 } from '@bcpros/lixi-models/lib/lixi';
 import { RenameLixiModalProps } from './RenameLixiModal';
 import { useRouter } from 'next/router';
-import { WrapperPage } from '@components/Settings';
 
 const { Text } = Typography;
 
@@ -280,6 +279,7 @@ const LixiList = ({ lixies }: LixiListProps) => {
 
   const handleSelectLixi = (lixiId: number) => {
     dispatch(selectLixi(lixiId));
+    router.push(`lixi/${lixiId}`);
   };
 
   const handleClickMenu = (e, lixi) => {

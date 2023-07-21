@@ -410,7 +410,7 @@ function* selectLixiSuccessSaga(action: PayloadAction<any>) {
   const { lixi } = action.payload;
   yield put(refreshLixiSilent(lixi.id));
   yield put(hideLoading(selectLixi.type));
-  yield put(push(`/lixi/${lixi.id}`));
+  // yield put(push(`/lixi/${lixi.id}`)); Dont need to push here
 }
 
 function* selectLixiFailureSaga(action: PayloadAction<string>) {

@@ -88,6 +88,15 @@ const StyledHeader = styled.div`
   border-bottom: 1px solid black;
 `;
 
+const LixiContainer = styled.div`
+  display: flex;
+  width: 100%;
+  padding: 5px;
+  border: 1px solid black;
+  border-radius: var(--border-radius-primary);
+  justify-content: center;
+`;
+
 const PageMessageForUser = ({ page, account }: PageMessageProps) => {
   const dispatch = useAppDispatch();
   const selectedAccount = useAppSelector(getSelectedAccount);
@@ -275,20 +284,32 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
       </StyledChatList>
       <StyledContainer>
         {currentPageMessageSessionId && <StyledHeader>{`Session: ${currentPageMessageSessionId}`}</StyledHeader>}
-        <StyledChatbox id="scrollableChatbox">
-          {messageData.length > 0 && (
-            <StyledInfiniteScroll
-              dataLength={messageData.length}
-              next={loadMoreMessages}
-              hasMore={messageHasNext}
-              loader={<Skeleton active />}
-              inverse
-              scrollableTarget="scrollableChatbox"
-            >
-              {messageData.map(item => {
-                return <Message message={item} key={item.id} authorAddress={account.address} />;
-              })}
-            </StyledInfiniteScroll>
+        <StyledChatbox
+          id="scrollableChatbox"
+          style={{
+            justifyContent: currentPageMessageSession?.status !== PageMessageSessionStatus.Pending ? 'normal' : 'center'
+          }}
+        >
+          {currentPageMessageSession?.status !== PageMessageSessionStatus.Pending ? (
+            messageData.length > 0 && (
+              <StyledInfiniteScroll
+                dataLength={messageData.length}
+                next={loadMoreMessages}
+                hasMore={messageHasNext}
+                loader={<Skeleton active />}
+                endMessage={<p>{`${currentPageMessageSession?.page.name} accepted your lixi`}</p>}
+                inverse
+                scrollableTarget="scrollableChatbox"
+              >
+                {messageData.map(item => {
+                  return <Message message={item} key={item.id} authorAddress={page.pageAccount.address} />;
+                })}
+              </StyledInfiniteScroll>
+            )
+          ) : (
+            <LixiContainer>
+              <p>{`Waiting for ${currentPageMessageSession?.page?.name} to accept your lixi. Patience is a Virtue!`}</p>
+            </LixiContainer>
           )}
         </StyledChatbox>
         {currentPageMessageSession && (

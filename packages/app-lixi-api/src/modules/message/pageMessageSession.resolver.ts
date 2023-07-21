@@ -83,7 +83,16 @@ export class PageMessageSessionResolver {
           include: {
             account: true,
             page: true,
-            lixi: true
+            lixi: {
+              select: {
+                id: true,
+                name: true,
+                amount: true,
+                expiryAt: true,
+                activationAt: true,
+                status: true
+              }
+            }
           },
           where: {
             AND: [
@@ -133,7 +142,16 @@ export class PageMessageSessionResolver {
           include: {
             account: true,
             page: true,
-            lixi: true
+            lixi: {
+              select: {
+                id: true,
+                name: true,
+                amount: true,
+                expiryAt: true,
+                activationAt: true,
+                status: true
+              }
+            }
           },
           where: {
             AND: [
@@ -183,7 +201,16 @@ export class PageMessageSessionResolver {
           include: {
             account: true,
             page: true,
-            lixi: true
+            lixi: {
+              select: {
+                id: true,
+                name: true,
+                amount: true,
+                expiryAt: true,
+                activationAt: true,
+                status: true
+              }
+            }
           },
           where: {
             AND: [
@@ -233,7 +260,16 @@ export class PageMessageSessionResolver {
           include: {
             account: true,
             page: true,
-            lixi: true
+            lixi: {
+              select: {
+                id: true,
+                name: true,
+                amount: true,
+                expiryAt: true,
+                activationAt: true,
+                status: true
+              }
+            }
           },
           where: {
             AND: [
@@ -283,7 +319,16 @@ export class PageMessageSessionResolver {
           include: {
             page: true,
             account: true,
-            lixi: true
+            lixi: {
+              select: {
+                id: true,
+                name: true,
+                amount: true,
+                expiryAt: true,
+                activationAt: true,
+                status: true
+              }
+            }
           },
           where: {
             accountId: id
@@ -380,7 +425,16 @@ export class PageMessageSessionResolver {
         include: {
           page: true,
           account: true,
-          lixi: true
+          lixi: {
+            select: {
+              id: true,
+              name: true,
+              amount: true,
+              expiryAt: true,
+              activationAt: true,
+              status: true
+            }
+          }
         },
         data: {
           account: { connect: { id: accountId } },
@@ -417,7 +471,16 @@ export class PageMessageSessionResolver {
       },
       include: {
         account: true,
-        lixi: true,
+        lixi: {
+          select: {
+            id: true,
+            name: true,
+            amount: true,
+            expiryAt: true,
+            activationAt: true,
+            status: true
+          }
+        },
         page: true
       }
     });
@@ -427,7 +490,7 @@ export class PageMessageSessionResolver {
       payload: result
     };
 
-    // this.messageGateway.publishSessionAction(pageMessageSessionId, sessionAction);
+    this.messageGateway.publishSessionAction(pageMessageSessionId, sessionAction);
 
     return result;
   }
@@ -452,7 +515,16 @@ export class PageMessageSessionResolver {
       },
       include: {
         account: true,
-        lixi: true,
+        lixi: {
+          select: {
+            id: true,
+            name: true,
+            amount: true,
+            expiryAt: true,
+            activationAt: true,
+            status: true
+          }
+        },
         page: true
       }
     });
