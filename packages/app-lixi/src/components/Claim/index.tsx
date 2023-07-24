@@ -117,6 +117,12 @@ const ClaimComponent = ({ isClaimFromAccount, claimCodeFromURL }: ClaimProps) =>
     }
   }, []);
 
+  useEffect(() => {
+    if (claimCodeFromURL) {
+      dispatch(saveClaimCode(claimCodeFromURL));
+    }
+  }, [claimCodeFromURL]);
+
   const handleOnClick = e => {
     e.preventDefault();
     let captcha = (window as any).grecaptcha.enterprise;
