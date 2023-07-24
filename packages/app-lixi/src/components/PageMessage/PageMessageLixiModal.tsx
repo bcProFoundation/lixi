@@ -59,8 +59,11 @@ const PageMessageLixiModal = ({ account, page, wallet }: PageMessageLixiModalPro
       claimType: 0,
       lixiType: 1,
       networkType: 'single-ip',
-      activationAt: moment.utc().format(),
-      expiryAt: moment.utc().add(3, 'days').format(),
+      // Remove comment when handle activationAt and expiryAt
+      // activationAt: moment.utc().format(),
+      // expiryAt: moment.utc().add(3, 'days').format(),
+      activationAt: null,
+      expiryAt: null,
       pageId: page.id
     };
 

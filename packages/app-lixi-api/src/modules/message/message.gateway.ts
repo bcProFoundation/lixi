@@ -39,13 +39,25 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
     @MessageBody() pageMessageSessionId: string,
     @ConnectedSocket() client: Socket
   ): WsResponse<string> {
-    client.join(pageMessageSessionId);
-    console.log('🚀 ~ file: message.gateway.ts:47 ~ MessageGateway ~ pageMessageSessionId:', pageMessageSessionId);
+    //Check if already join a room
+    const joinedRoom = Array.from(client.rooms).find(room => {
+      return room === pageMessageSessionId;
+    });
 
-    return {
-      event: 'subscribePageMessageSession',
-      data: client.id
-    };
+    if (!joinedRoom) {
+      client.join(pageMessageSessionId);
+      console.log('🚀 ~ file: message.gateway.ts:47 ~ MessageGateway ~ pageMessageSessionId:', pageMessageSessionId);
+
+      return {
+        event: 'subscribePageMessageSession',
+        data: client.id
+      };
+    } else {
+      return {
+        event: '',
+        data: client.id
+      };
+    }
   }
 
   //Code below is for page owner listening for new PageMessageSession
@@ -54,13 +66,25 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
     @MessageBody() pageChannelId: string,
     @ConnectedSocket() client: Socket
   ): WsResponse<string> {
-    client.join(pageChannelId);
-    console.log('🚀 ~ file: message.gateway.ts:62 ~ MessageGateway ~ subscribePageChannel:', pageChannelId);
+    //Check if already join a room
+    const joinedRoom = Array.from(client.rooms).find(room => {
+      return room === pageChannelId;
+    });
 
-    return {
-      event: 'subscribePageChannel',
-      data: client.id
-    };
+    if (!joinedRoom) {
+      client.join(pageChannelId);
+      console.log('🚀 ~ file: message.gateway.ts:47 ~ MessageGateway ~ pageChannelId:', pageChannelId);
+
+      return {
+        event: 'pageChannelId',
+        data: client.id
+      };
+    } else {
+      return {
+        event: '',
+        data: client.id
+      };
+    }
   }
 
   publishMessage(pageMessageSessionId: string, message: any) {

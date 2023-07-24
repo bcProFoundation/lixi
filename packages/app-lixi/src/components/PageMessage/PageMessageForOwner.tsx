@@ -166,20 +166,20 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
   ] = useOpenPageMessageSessionMutation();
 
   const items: MenuProps['items'] = [
+    currentPageMessageSession?.status === PageMessageSessionStatus.Pending && {
+      key: 'openSession',
+      label: (
+        <p style={{ margin: '0px' }} onClick={() => openSession()}>
+          Open session
+        </p>
+      )
+    },
     (currentPageMessageSession?.status === PageMessageSessionStatus.Pending ||
       currentPageMessageSession?.status === PageMessageSessionStatus.Open) && {
       key: 'closeSession',
       label: (
         <p style={{ margin: '0px' }} onClick={() => closeSession()}>
           Close session
-        </p>
-      )
-    },
-    currentPageMessageSession?.status === PageMessageSessionStatus.Pending && {
-      key: 'openSession',
-      label: (
-        <p style={{ margin: '0px' }} onClick={() => openSession()}>
-          Open session
         </p>
       )
     }
@@ -309,7 +309,7 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
       alert('Not valid address');
     }
     if (captcha) {
-      captcha.ready(() => {
+      await captcha.ready(() => {
         captcha.execute(SITE_KEY, { action: 'submit' }).then(async (token: any) => {
           dispatch(
             postClaim({
@@ -318,13 +318,13 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
               captchaToken: token
             } as CreateClaimDto)
           );
+
+          const input: OpenPageMessageSessionInput = {
+            pageMessageSessionId: currentPageMessageSessionId
+          };
+          await openPageMessageSessionTrigger({ input }).unwrap();
         });
       });
-
-      const input: OpenPageMessageSessionInput = {
-        pageMessageSessionId: currentPageMessageSessionId
-      };
-      await openPageMessageSessionTrigger({ input }).unwrap();
     }
   };
 

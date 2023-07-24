@@ -9,7 +9,9 @@ import {
   PaginationResult,
   PostLixiResponseDto,
   RegisterLixiPackCommand,
-  RenameLixiCommand
+  RenameLixiCommand,
+  SessionAction,
+  SessionActionEnum
 } from '@bcpros/lixi-models';
 import MinimalBCHWallet from '@bcpros/minimal-xpi-slp-wallet';
 import BCHJS from '@bcpros/xpi-js';
@@ -37,7 +39,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
-import { Claim as ClaimDb, Lixi } from '@prisma/client';
+import { Claim as ClaimDb, Lixi, PageMessageSessionStatus } from '@prisma/client';
 import { Queue } from 'bullmq';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { createReadStream } from 'fs';
@@ -55,6 +57,7 @@ import {
   WITHDRAW_SUB_LIXIES_QUEUE
 } from 'src/modules/core/lixi/constants/lixi.constants';
 import { LixiService } from 'src/modules/core/lixi/lixi.service';
+import { MessageGateway } from 'src/modules/message/message.gateway';
 import { WalletService } from 'src/modules/wallet/wallet.service';
 import { aesGcmDecrypt, base58ToNumber, numberToBase58 } from 'src/utils/encryptionMethods';
 import { VError } from 'verror';
@@ -74,6 +77,7 @@ export class LixiController {
     private readonly notificationService: NotificationService,
     @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
     @Inject('xpijs') private XPI: BCHJS,
+    private messageGateway: MessageGateway,
     @InjectQueue(EXPORT_SUB_LIXIES_QUEUE) private exportSubLixiesQueue: Queue,
     @InjectQueue(WITHDRAW_SUB_LIXIES_QUEUE) private withdrawSubLixiesQueue: Queue
   ) {}
@@ -696,6 +700,46 @@ export class LixiController {
         const receivingAccount = [{ address: account.address, amountXpi: totalAmount }];
 
         const amount: any = await this.walletService.sendAmount(lixi.address, receivingAccount, keyPair, i18n);
+
+        //If lixi claimed other page owner, the session will closed automatically
+        const pageMessageSession = await this.prisma.pageMessageSession.findUnique({
+          where: {
+            lixiId: lixi.id
+          }
+        });
+
+        if (pageMessageSession) {
+          const result = await this.prisma.pageMessageSession.update({
+            where: {
+              id: pageMessageSession.id
+            },
+            data: {
+              status: PageMessageSessionStatus.CLOSE,
+              sessionClosedAt: new Date()
+            },
+            include: {
+              account: true,
+              lixi: {
+                select: {
+                  id: true,
+                  name: true,
+                  amount: true,
+                  expiryAt: true,
+                  activationAt: true,
+                  status: true
+                }
+              },
+              page: true
+            }
+          });
+
+          const sessionAction: SessionAction = {
+            type: SessionActionEnum.CLOSE,
+            payload: result
+          };
+
+          this.messageGateway.publishSessionAction(pageMessageSession.id, sessionAction);
+        }
 
         let resultApi: LixiDto = {
           ...lixi,

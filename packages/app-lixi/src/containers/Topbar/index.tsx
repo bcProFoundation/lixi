@@ -560,7 +560,9 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
           icon={'/images/ico-page.svg'}
           text={intl.get('general.page')}
           active={
-            currentPathName.includes('/page') && !currentAbsolutePathName.includes('page/clbm6r1v91486308n7w6za1qcu')
+            currentPathName.includes('/page') &&
+            !currentAbsolutePathName.includes('page/clbm6r1v91486308n7w6za1qcu') &&
+            !currentAbsolutePathName.includes('/page-message')
           }
           direction="horizontal"
           key="page-feed"
@@ -581,6 +583,14 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
           direction="horizontal"
           key="support"
           onClickItem={() => handleIconClick('/page/clbm6r1v91486308n7w6za1qcu')}
+        />
+        <ItemAccess
+          icon={'/images/ico-support.png'}
+          text={'Page Message'}
+          active={currentPathName === '/page-message'}
+          direction="horizontal"
+          key="support"
+          onClickItem={() => handleIconClick('/page-message')}
         />
       </div>
       <div className="social-feature">

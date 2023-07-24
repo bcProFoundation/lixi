@@ -33,7 +33,7 @@ import { PageMessageSessionQuery } from '@store/message/pageMessageSession.gener
 const { TextArea } = Input;
 
 type PageMessageProps = {
-  page: PageItem;
+  page?: PageItem;
   account: Account;
 };
 
@@ -104,10 +104,10 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
   const [currentPageMessageSessionId, setCurrentPageMessageSessionId] = useState<string | null>(null);
   const currentPageMessageSession = useAppSelector(getCurrentPageMessageSession);
 
-  const { data: pageMessageSessionData, refetch: pageMessageSessionRefetch } = useUserHadMessageToPageQuery({
-    accountId: selectedAccount.id,
-    pageId: page.id
-  });
+  // const { data: pageMessageSessionData, refetch: pageMessageSessionRefetch } = useUserHadMessageToPageQuery({
+  //   accountId: selectedAccount.id,
+  //   pageId: page.id
+  // });
 
   const {
     data: messageData,
@@ -191,24 +191,29 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
     setCurrentPageMessageSessionId(pageMessageSessionId);
   };
 
-  const createNewPageMessageSession = async () => {
-    const input: CreatePageMessageInput = {
-      accountId: account.id,
-      pageId: page.id
-    };
-    if (!_.isNil(pageMessageSessionData)) {
-      const result = await createPageMessageSessionTrigger({ input }).unwrap();
-
-      pageMessageSessionRefetch();
-    }
-  };
+  // useEffect(() => {
+  //   if (pageMessageSessionData?.userHadMessageToPage?.id) {
+  //     const id = pageMessageSessionData?.userHadMessageToPage?.id;
+  //     dispatch(userSubcribeToPageMessageSession(id));
+  //   }
+  // }, [pageMessageSessionData]);
 
   useEffect(() => {
-    if (pageMessageSessionData?.userHadMessageToPage?.id) {
-      const id = pageMessageSessionData?.userHadMessageToPage?.id;
-      dispatch(userSubcribeToPageMessageSession(id));
+    if (data.length > 0) {
+      console.log('🚀 ~ file: PageMessageForUser.tsx:203 ~ useEffect ~ data:', data);
+      data.map(item => {
+        dispatch(userSubcribeToPageMessageSession(item.id));
+      });
     }
-  }, [pageMessageSessionData]);
+  }, [data]);
+
+  useEffect(() => {
+    if (pendingData.length > 0) {
+      pendingData.map(item => {
+        dispatch(userSubcribeToPageMessageSession(item.id));
+      });
+    }
+  }, [pendingData]);
 
   const sendMessage = async () => {
     if (_.isNil(getValues('message')) || getValues('message') === '') {
@@ -302,7 +307,7 @@ const PageMessageForUser = ({ page, account }: PageMessageProps) => {
                 scrollableTarget="scrollableChatbox"
               >
                 {messageData.map(item => {
-                  return <Message message={item} key={item.id} authorAddress={page.pageAccount.address} />;
+                  return <Message message={item} key={item.id} authorAddress={selectedAccount.address} />;
                 })}
               </StyledInfiniteScroll>
             )
