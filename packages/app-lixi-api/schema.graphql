@@ -4,7 +4,9 @@
 
 type Account {
   address: String!
+  avatar: String
   balance: Int!
+  cover: String
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
@@ -499,6 +501,7 @@ type Mutation {
   importAccount(data: ImportAccountInput!): Account!
   openPageMessageSession(data: OpenPageMessageSessionInput!): PageMessageSession!
   repost(data: RepostInput!): Boolean!
+  updateAccount(data: UpdateAccountInput!): Account!
   updatePage(data: UpdatePageInput!): Page!
   updatePost(data: UpdatePostInput!): Post!
 }
@@ -653,6 +656,7 @@ type Post {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   followPostOwner: Boolean
+  followedPage: Boolean
   id: ID!
   lotusBurnDown: Float!
   lotusBurnScore: Float!
@@ -1024,6 +1028,14 @@ enum TokenOrderField {
   name
   ticker
   tokenId
+}
+
+input UpdateAccountInput {
+  avatar: String
+  cover: String
+  id: ID!
+  language: String
+  name: String
 }
 
 input UpdatePageInput {

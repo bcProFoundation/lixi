@@ -19,7 +19,9 @@ export type Scalars = {
 export type Account = {
   __typename?: 'Account';
   address: Scalars['String'];
+  avatar?: Maybe<Scalars['String']>;
   balance: Scalars['Int'];
+  cover?: Maybe<Scalars['String']>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
   encryptedMnemonic?: Maybe<Scalars['String']>;
@@ -512,6 +514,7 @@ export type Mutation = {
   importAccount: Account;
   openPageMessageSession: PageMessageSession;
   repost: Scalars['Boolean'];
+  updateAccount: Account;
   updatePage: Page;
   updatePost: Post;
 };
@@ -598,6 +601,10 @@ export type MutationOpenPageMessageSessionArgs = {
 
 export type MutationRepostArgs = {
   data: RepostInput;
+};
+
+export type MutationUpdateAccountArgs = {
+  data: UpdateAccountInput;
 };
 
 export type MutationUpdatePageArgs = {
@@ -756,6 +763,7 @@ export type Post = {
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
   followPostOwner?: Maybe<Scalars['Boolean']>;
+  followedPage?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   lotusBurnDown: Scalars['Float'];
   lotusBurnScore: Scalars['Float'];
@@ -1486,6 +1494,14 @@ export enum TokenOrderField {
   Ticker = 'ticker',
   TokenId = 'tokenId'
 }
+
+export type UpdateAccountInput = {
+  avatar?: InputMaybe<Scalars['String']>;
+  cover?: InputMaybe<Scalars['String']>;
+  id: Scalars['ID'];
+  language?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+};
 
 export type UpdatePageInput = {
   address?: InputMaybe<Scalars['String']>;

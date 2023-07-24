@@ -9,6 +9,8 @@ export interface AccountsState extends EntityState<Account> {
     [key: number]: Array<number>;
   };
   envelopeUpload: Upload;
+  accountCoverUpload: Upload;
+  accountAvatarUpload: Upload;
   pageCoverUpload: Upload;
   pageAvatarUpload: Upload;
   postCoverUploads: Upload[];
@@ -34,4 +36,5 @@ export interface AccountsState extends EntityState<Account> {
         }
       ]
     | [];
+  accountInfoTemp: Account;
 }

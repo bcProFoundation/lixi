@@ -21,11 +21,26 @@ export const getSelectedAccount = createSelector(
   (accounts: AccountsState) => (accounts.selectedId ? accounts.entities[accounts.selectedId] : undefined)
 );
 
+export const getAccountInfoTemp = createSelector(
+  (state: RootState) => state.accounts,
+  (accounts: AccountsState) => accounts.accountInfoTemp
+);
+
 export const getAccountById = (id: number) => createSelector(getAllAccountsEntities, accounts => accounts?.[id]);
 
 export const getEnvelopeUpload = createSelector(
   (state: RootState) => state.accounts,
   (accounts: AccountsState) => accounts.envelopeUpload
+);
+
+export const getAccountCoverUpload = createSelector(
+  (state: RootState) => state.accounts,
+  (accounts: AccountsState) => accounts.accountCoverUpload
+);
+
+export const getAccountAvatarUpload = createSelector(
+  (state: RootState) => state.accounts,
+  (accounts: AccountsState) => accounts.accountAvatarUpload
 );
 
 export const getPageCoverUpload = createSelector(

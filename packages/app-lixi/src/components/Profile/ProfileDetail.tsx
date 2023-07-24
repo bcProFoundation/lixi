@@ -12,7 +12,7 @@ import {
 } from '@generated/types.generated';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { setTransactionReady } from '@store/account/actions';
-import { getSelectedAccount } from '@store/account/selectors';
+import { getAccountInfoTemp, getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';
 import { addBurnQueue, addBurnTransaction, clearFailQueue, getFailQueue } from '@store/burn';
 import { useCreateFollowAccountMutation, useDeleteFollowAccountMutation } from '@store/follow/follows.api';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
@@ -32,6 +32,10 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import { WithAuthorizeAction } from '../Common/Authorization/WithAuthorizeAction';
+import { CameraOutlined, EditOutlined } from '@ant-design/icons';
+
+const URL_AVATAR_DEFAULT = '/images/default-avatar.jpg';
+const URL_COVER_DEFAULT = '/images/default-avatar.jpg';
 
 const AuthorizedButton = WithAuthorizeAction(Button);
 
@@ -74,6 +78,7 @@ const StyledContainerProfileDetail = styled.div`
 
 const ProfileCardHeader = styled.div`
   .cover-img {
+    object-fit: cover;
     width: 100%;
     height: 200px;
     border-top-right-radius: var(--border-radius-item);
@@ -100,6 +105,7 @@ const ProfileCardHeader = styled.div`
       .avatar-img {
         width: 150px;
         height: 150px;
+        object-fit: cover;
         border-radius: 50%;
       }
       @media (max-width: 768px) {
@@ -166,17 +172,26 @@ const ProfileCardHeader = styled.div`
     padding-bottom: 15px;
     text-align: left;
     display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+    button {
+      height: fit-content;
+      @media (min-width: 768px) {
+        display: inline-flex;
+        gap: 4px;
+      }
+    }
     @media (max-width: 768px) {
       margin-left: 0;
       text-align: center;
+      padding-left: 0;
+      justify-content: center;
     }
     h2 {
       font-weight: 600;
       margin-bottom: 0;
       text-transform: capitalize;
-    }
-    Button {
-      margin: 0px 5px;
     }
   }
 `;
@@ -404,6 +419,8 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const [isFollowed, setIsFollowed] = useState<boolean>(checkIsFollowed);
   const [listsFriend, setListsFriend] = useState<any>([]);
   const [listsPicture, setListsPicture] = useState<any>([]);
+  const selectedAccountId = useAppSelector(getSelectedAccountId);
+  const accountInfoTemp = useAppSelector(getAccountInfoTemp);
 
   const [
     createFollowAccountTrigger,
@@ -520,7 +537,8 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
       const errorMessage = e.message || intl.get('post.unableToBurn');
       dispatch(
         showToast('error', {
-          message: errorMessage,
+          message: intl.get('toast.error'),
+          description: errorMessage,
           duration: 3
         })
       );
@@ -551,24 +569,47 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
     dispatch(openModal('FollowModal', { accountId: selectedAccount.id, type: type }));
   };
 
+  const uploadModal = (isAvatar: boolean) => {
+    dispatch(openModal('UploadAvatarCoverModal', { profile: userDetailData, isAvatar: isAvatar }));
+  };
+
+  const getAvatarAccount = () => {
+    let urlAvatarAccount = '';
+    if (selectedAccountId == userDetailData?.id) {
+      urlAvatarAccount = accountInfoTemp?.avatar || URL_AVATAR_DEFAULT;
+    } else {
+      urlAvatarAccount = userDetailData?.avatar || URL_AVATAR_DEFAULT;
+    }
+    return urlAvatarAccount;
+  };
+
+  const getCoverAccount = () => {
+    let urlCoverAccount = '';
+    if (selectedAccountId == userDetailData?.id) {
+      urlCoverAccount = accountInfoTemp?.cover || URL_COVER_DEFAULT;
+    } else {
+      urlCoverAccount = userDetailData?.cover || URL_COVER_DEFAULT;
+    }
+    return urlCoverAccount;
+  };
+
   return (
     <>
       <StyledContainerProfileDetail className="profile-detail">
         <ProfileCardHeader>
           <div className="container-img">
-            <img className="cover-img" src={userDetailData.cover || '/images/default-cover.jpg'} alt="" />
+            <img className="cover-img" src={getCoverAccount()} alt="" />
           </div>
           <div className="info-profile">
             <div className="wrapper-avatar">
               <picture>
-                <img className="avatar-img" src={userDetailData.avatar || '/images/default-avatar.jpg'} alt="" />
+                <img className="avatar-img" src={getAvatarAccount()} alt="" />
               </picture>
-              {/* TODO: implement in the future */}
-              {/* {selectedAccountId == userDetailData.id && (
-                <div className="btn-upload-avatar" onClick={navigateEditPage}>
+              {selectedAccountId == userDetailData.id && (
+                <div className="btn-upload-avatar" onClick={() => uploadModal(true)}>
                   <CameraOutlined />
                 </div>
-              )} */}
+              )}
             </div>
             <div className="title-profile">
               <div>
@@ -586,9 +627,9 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
             )}
 
             {/* TODO: implement in the future */}
-            {/* {selectedAccountId == userDetailData.id && (
+            {selectedAccountId == userDetailData.id && (
               <div className="action-profile">
-                <Button
+                {/* <Button
                   style={{ marginRight: '1rem' }}
                   type="primary"
                   className="outline-btn"
@@ -596,25 +637,27 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                 >
                   <EditOutlined />
                   Edit profile
-                </Button>
-                <Button type="primary" className="outline-btn" onClick={navigateEditPage}>
+                </Button> */}
+                <Button type="primary" className="outline-btn" onClick={() => uploadModal(false)}>
                   <CameraOutlined />
                   Edit cover photo
                 </Button>
               </div>
-            )} */}
+            )}
           </div>
           {selectedAccount.id == userDetailData.id && (
             <div className="description-profile">
-              <Button onClick={() => openFollowModal(Follow.Followers)}>{`${userDetailData.followersCount} ${intl.get(
-                'general.followers'
-              )}`}</Button>
-              <Button onClick={() => openFollowModal(Follow.Followees)}>{`${userDetailData.followingsCount} ${intl.get(
-                'general.youFollow'
-              )}`}</Button>
-              <Button onClick={() => openFollowModal(Follow.FollowingPages)}>{`${
-                userDetailData.followingPagesCount
-              } ${intl.get('general.followingPages')}`}</Button>
+              <Button onClick={() => openFollowModal(Follow.Followers)}>
+                {userDetailData.followersCount}
+                <br />
+                {intl.get('general.followers')}
+              </Button>
+              <Button onClick={() => openFollowModal(Follow.Followees)}>
+                {userDetailData.followingsCount} <br /> {intl.get('general.followings')}
+              </Button>
+              <Button onClick={() => openFollowModal(Follow.FollowingPages)}>
+                {userDetailData.followingPagesCount} <br /> {intl.get('general.followingPages')}
+              </Button>
             </div>
           )}
         </ProfileCardHeader>

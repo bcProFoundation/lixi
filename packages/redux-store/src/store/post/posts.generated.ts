@@ -34,6 +34,7 @@ export type PostQuery = {
     createdAt: any;
     updatedAt: any;
     followPostOwner?: boolean | null;
+    followedPage?: boolean | null;
     originalLanguage?: string | null;
     uploads?: Array<{
       __typename?: 'UploadDetail';
@@ -52,7 +53,7 @@ export type PostQuery = {
         cfImageFilename?: string | null;
       };
     }> | null;
-    postAccount: { __typename?: 'Account'; address: string; id: string; name: string };
+    postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
     page?: {
       __typename?: 'Page';
       avatar?: string | null;
@@ -109,6 +110,7 @@ export type PostsQuery = {
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
+        followedPage?: boolean | null;
         originalLanguage?: string | null;
         uploads?: Array<{
           __typename?: 'UploadDetail';
@@ -127,7 +129,7 @@ export type PostsQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string };
+        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -192,6 +194,7 @@ export type OrphanPostsQuery = {
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
+        followedPage?: boolean | null;
         originalLanguage?: string | null;
         uploads?: Array<{
           __typename?: 'UploadDetail';
@@ -210,7 +213,7 @@ export type OrphanPostsQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string };
+        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -275,6 +278,7 @@ export type PostsByPageIdQuery = {
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
+        followedPage?: boolean | null;
         originalLanguage?: string | null;
         uploads?: Array<{
           __typename?: 'UploadDetail';
@@ -293,7 +297,7 @@ export type PostsByPageIdQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string };
+        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -358,6 +362,7 @@ export type PostsByUserIdQuery = {
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
+        followedPage?: boolean | null;
         originalLanguage?: string | null;
         uploads?: Array<{
           __typename?: 'UploadDetail';
@@ -376,7 +381,7 @@ export type PostsByUserIdQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string };
+        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -441,6 +446,7 @@ export type PostsByHashtagIdQuery = {
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
+        followedPage?: boolean | null;
         originalLanguage?: string | null;
         uploads?: Array<{
           __typename?: 'UploadDetail';
@@ -459,7 +465,7 @@ export type PostsByHashtagIdQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string };
+        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -524,6 +530,7 @@ export type PostsByTokenIdQuery = {
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
+        followedPage?: boolean | null;
         originalLanguage?: string | null;
         uploads?: Array<{
           __typename?: 'UploadDetail';
@@ -542,7 +549,7 @@ export type PostsByTokenIdQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string };
+        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -620,7 +627,7 @@ export type PostsBySearchQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string };
+        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -700,7 +707,7 @@ export type PostsBySearchWithHashtagQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string };
+        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -781,7 +788,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string };
+        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -862,7 +869,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string };
+        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -908,6 +915,7 @@ export type PostFieldsFragment = {
   createdAt: any;
   updatedAt: any;
   followPostOwner?: boolean | null;
+  followedPage?: boolean | null;
   originalLanguage?: string | null;
   uploads?: Array<{
     __typename?: 'UploadDetail';
@@ -926,7 +934,7 @@ export type PostFieldsFragment = {
       cfImageFilename?: string | null;
     };
   }> | null;
-  postAccount: { __typename?: 'Account'; address: string; id: string; name: string };
+  postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
   page?: {
     __typename?: 'Page';
     avatar?: string | null;
@@ -978,7 +986,7 @@ export type PostMeiliFieldsFragment = {
       cfImageFilename?: string | null;
     };
   }> | null;
-  postAccount: { __typename?: 'Account'; address: string; id: string; name: string };
+  postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
   page?: {
     __typename?: 'Page';
     avatar?: string | null;
@@ -1020,6 +1028,7 @@ export type CreatePostMutation = {
     createdAt: any;
     updatedAt: any;
     followPostOwner?: boolean | null;
+    followedPage?: boolean | null;
     originalLanguage?: string | null;
     uploads?: Array<{
       __typename?: 'UploadDetail';
@@ -1038,7 +1047,7 @@ export type CreatePostMutation = {
         cfImageFilename?: string | null;
       };
     }> | null;
-    postAccount: { __typename?: 'Account'; address: string; id: string; name: string };
+    postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
     page?: {
       __typename?: 'Page';
       avatar?: string | null;
@@ -1081,6 +1090,7 @@ export type UpdatePostMutation = {
     createdAt: any;
     updatedAt: any;
     followPostOwner?: boolean | null;
+    followedPage?: boolean | null;
     originalLanguage?: string | null;
     uploads?: Array<{
       __typename?: 'UploadDetail';
@@ -1099,7 +1109,7 @@ export type UpdatePostMutation = {
         cfImageFilename?: string | null;
       };
     }> | null;
-    postAccount: { __typename?: 'Account'; address: string; id: string; name: string };
+    postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
     page?: {
       __typename?: 'Page';
       avatar?: string | null;
@@ -1153,6 +1163,7 @@ export const PostFieldsFragmentDoc = `
     address
     id
     name
+    avatar
   }
   page {
     avatar
@@ -1187,6 +1198,7 @@ export const PostFieldsFragmentDoc = `
   createdAt
   updatedAt
   followPostOwner
+  followedPage
   originalLanguage
   translations {
     id
@@ -1218,6 +1230,7 @@ export const PostMeiliFieldsFragmentDoc = `
     address
     id
     name
+    avatar
   }
   page {
     avatar

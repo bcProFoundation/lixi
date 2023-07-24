@@ -66,4 +66,10 @@ export class Account {
 
   @Field(() => [PageMessageSession], { nullable: true })
   pageMessageSessions?: [PageMessageSession];
+
+  @Field(() => String, { nullable: true })
+  avatar: string;
+
+  @Field(() => String, { nullable: true })
+  cover: string;
 }

@@ -34,16 +34,21 @@ type SidebarContentProps = {
 const ContainerSideBarContent = styled.div`
   height: 100%;
   text-align: left;
-  margin: 1rem 0;
   .wrapper {
     padding-bottom: 5rem;
     h3 {
       margin-bottom: 1rem !important;
     }
     .header-bar {
+      position: sticky;
+      top: 0;
+      z-index: 9;
+      width: 100%;
+      background: #fff;
       display: flex;
       justify-content: space-between;
       align-items: baseline;
+      padding-left: 0.5rem;
       button {
         border-radius: 4px;
         .anticon {
@@ -104,6 +109,7 @@ const SidebarContent = ({ className }: SidebarContentProps) => {
   const [query, setQuery] = useState<any>('');
   const [hashtags, setHashtags] = useState<any>([]);
   const pageId = router.pathname.includes('page') && (router.query?.slug as string);
+  const [cachePostIdGeneral, setCachePostIdGeneral] = useState(0);
 
   let { data: PostsData } = useInfinitePostsQuery(
     {
@@ -282,7 +288,9 @@ const SidebarContent = ({ className }: SidebarContentProps) => {
   const showChildTopic = (topic, posts) => {
     return (
       <ShortCutTopicItem
-        onClickIcon={topicName => onTopHashtagClick(`${topicName !== 'general' ? `#${topicName}` : ''}`)}
+        onClickIcon={(topicName, isFilter) =>
+          onTopHashtagClick(`${topicName !== 'general' ? `#${topicName}` : ''}`, posts, isFilter)
+        }
         topicName={topic}
         posts={posts}
         isCollapse={navCollapsed}
@@ -295,7 +303,9 @@ const SidebarContent = ({ className }: SidebarContentProps) => {
       Object.entries(filterPage).map(([key, value]) => {
         return (
           <ShortCutTopicItem
-            onClickIcon={topicName => onTopHashtagClick(`${topicName !== 'general' ? `#${topicName}` : ''}`)}
+            onClickIcon={(topicName, isFilter) =>
+              onTopHashtagClick(`${topicName !== 'general' ? `#${topicName}` : ''}`, value, isFilter)
+            }
             topicName={key}
             posts={value}
           />
@@ -319,38 +329,55 @@ const SidebarContent = ({ className }: SidebarContentProps) => {
     return (
       <>
         {filterPosts.map(item => {
-          return <ShortCutItem item={item} onClickIcon={() => dispatch(setSelectedPost(item.id))} />;
+          return <ShortCutItem item={item} onClickIcon={() => handleClickShortCutItemForHome(item?.id)} />;
         })}
       </>
     );
   };
 
-  const onTopHashtagClick = hashtag => {
-    console.log('hashtag', hashtag);
-    if (router.query.hashtags) {
-      //Check dup before adding to query
-      const queryHashtags = (router.query.hashtags as string).split(' ');
-      const hashtagExistedIndex = queryHashtags.findIndex(h => h.toLowerCase() === hashtag.toLowerCase());
+  const handleClickShortCutItemForHome = id => {
+    dispatch(setSelectedPost(id));
+    dispatch(toggleCollapsedSideNav(!navCollapsed));
+  };
 
-      if (hashtagExistedIndex === -1) {
+  const onTopHashtagClick = (hashtag, posts?, isFilter?) => {
+    if (hashtag !== '#general' && isFilter) {
+      if (router.query.hashtags) {
+        //Check dup before adding to query
+        const queryHashtags = (router.query.hashtags as string).split(' ');
+        const hashtagExistedIndex = queryHashtags.findIndex(h => h.toLowerCase() === hashtag.toLowerCase());
+
+        if (hashtagExistedIndex === -1) {
+          router.replace({
+            query: {
+              ...router.query,
+              hashtags: router.query.hashtags + ' ' + hashtag
+            }
+          });
+        }
+      } else {
         router.replace({
           query: {
             ...router.query,
-            hashtags: router.query.hashtags + ' ' + hashtag
+            q: '',
+            hashtags: hashtag
           }
         });
       }
+      dispatch(addRecentHashtagAtPages({ id: pageId, hashtag: hashtag.substring(1) }));
+      setTimeout(() => {
+        dispatch(setSelectedPost(posts[0].id));
+      }, 500);
     } else {
-      router.replace({
-        query: {
-          ...router.query,
-          q: '',
-          hashtags: hashtag
-        }
-      });
+      if (hashtag === '#general') {
+        dispatch(setSelectedPost(posts[cachePostIdGeneral].id));
+        cachePostIdGeneral < posts.length - 1
+          ? setCachePostIdGeneral(cachePostIdGeneral + 1)
+          : setCachePostIdGeneral(0);
+      } else {
+        dispatch(setSelectedPost(posts[0].id));
+      }
     }
-
-    dispatch(addRecentHashtagAtPages({ id: pageId, hashtag: hashtag.substring(1) }));
   };
 
   const handleTagClose = removedTag => {
@@ -378,16 +405,16 @@ const SidebarContent = ({ className }: SidebarContentProps) => {
     <>
       <ContainerSideBarContent className="side-bar-content">
         <div className="wrapper">
+          <div className="header-bar">
+            <h3>Digest</h3>
+            <Button
+              type="primary"
+              className="no-border-btn animate__animated animate__heartBeat"
+              icon={<LeftOutlined />}
+              onClick={() => dispatch(toggleCollapsedSideNav(!navCollapsed))}
+            />
+          </div>
           <div className="social-digest">
-            <div className="header-bar">
-              <h3>Digest</h3>
-              <Button
-                type="primary"
-                className="no-border-btn animate__animated animate__heartBeat"
-                icon={<LeftOutlined />}
-                onClick={() => dispatch(toggleCollapsedSideNav(!navCollapsed))}
-              />
-            </div>
             <ItemQuickAccess
               icon={'/images/ico-newfeeds.svg'}
               text={'Feeds'}

@@ -5,12 +5,13 @@ import Icon, { GlobalOutlined, DollarOutlined, ShopOutlined } from '@ant-design/
 import { Avatar, Dropdown, Menu } from 'antd';
 import { AvatarUser } from './AvatarUser';
 import intl from 'react-intl-universal';
-import { useAppSelector } from '@store/hooks';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { getSelectedAccount } from '@store/account/selectors';
 import type { MenuProps } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
 import FollowSvg from '@assets/icons/follow.svg';
 import { currency } from '@components/Common/Ticker';
+import { openActionSheet } from '@store/action-sheet/actions';
 
 type InfoCardProps = {
   imgUrl: any;
@@ -26,6 +27,8 @@ type InfoCardProps = {
   isDropdown?: boolean;
   lotusBurnScore?: number;
   followPostOwner?: boolean;
+  followedPage?: boolean;
+  post?: any;
 };
 
 const CardUser = styled.div`
@@ -88,6 +91,12 @@ const CardUser = styled.div`
         background: #bfbfbf;
         font-size: 12px;
       }
+      .ant-avatar {
+        img {
+          border: 1px solid var(--border-color-dark-base);
+          border-radius: 50%;
+        }
+      }
     }
     .image-page {
       object-fit: cover;
@@ -139,10 +148,13 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
     postEdited,
     isDropdown,
     lotusBurnScore,
-    followPostOwner
+    followPostOwner,
+    followedPage,
+    post
   } = props;
   const selectedAccount = useAppSelector(getSelectedAccount);
   const history = useRouter();
+  const dispatch = useAppDispatch();
 
   const items: MenuProps['items'] = [
     {
@@ -160,6 +172,21 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
     } else {
       return <ShopOutlined />;
     }
+  };
+
+  const postActionSheet = (postContent, page?) => {
+    // let isEditPost = selectedAccount && selectedAccount.address === postAccountAddress;
+    // if (isEditPost) {
+    dispatch(
+      openActionSheet('PostActionSheet', {
+        isEditPost: selectedAccount.address === postAccountAddress ? true : false,
+        post: postContent,
+        page: page,
+        followPostOwner: followPostOwner,
+        followedPage: followedPage
+      })
+    );
+    // }
   };
 
   //if not token or page, nothing will be displayed. If it is a page, it will display the page name and have an Arrow. If it is a token, it will show the token name and have an Arrow
@@ -192,7 +219,7 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
             <div className="card-container">
               <div className="page-bar" onClick={() => history.push(`/page/${page.id}}`)}>
                 <img className="image-page" src={page?.avatar ? page?.avatar : '/images/default-avatar.jpg'} />
-                <AvatarUser name={name} isMarginRight={true} />
+                <AvatarUser icon={imgUrl} name={name} isMarginRight={true} />
               </div>
               <div className="card-info">
                 <span className="name" onClick={() => history.push(`/page/${page.id}`)}>
@@ -240,16 +267,14 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
         </CardUser>
         {isDropdown && (
           <>
-            <Dropdown
-              menu={{ items }}
-              trigger={[selectedAccount && selectedAccount.address === postAccountAddress ? 'click' : 'contextMenu']}
-              arrow={{ pointAtCenter: true }}
-              placement="bottomRight"
-            >
-              <Action>
-                <img className="action-post" src="/images/ico-more-vertical.svg" alt="" />
-              </Action>
-            </Dropdown>
+            <Action>
+              <img
+                onClick={() => postActionSheet(post, page)}
+                className="action-post"
+                src="/images/ico-more-vertical.svg"
+                alt=""
+              />
+            </Action>
           </>
         )}
       </InfoCardUserContainer>

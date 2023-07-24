@@ -1,4 +1,4 @@
-import { DashOutlined, SendOutlined, DownloadOutlined, LeftOutlined } from '@ant-design/icons';
+import { DashOutlined, SendOutlined, DownloadOutlined, LeftOutlined, CloseOutlined } from '@ant-design/icons';
 import { PostsQueryTag } from '@bcpros/lixi-models/constants';
 import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
 import { AvatarUser } from '@components/Common/AvatarUser';
@@ -8,7 +8,7 @@ import { NavBarHeader } from '@components/Layout/MainLayout';
 import { WalletContext } from '@context/walletProvider';
 import useXPI from '@hooks/useXPI';
 import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
-import { getSelectedAccount } from '@store/account/selectors';
+import { getAccountInfoTemp, getSelectedAccount } from '@store/account/selectors';
 import { addBurnQueue, addBurnTransaction, clearFailQueue } from '@store/burn/actions';
 import { api as commentsApi, useCreateCommentMutation } from '@store/comment/comments.api';
 import { useInfiniteCommentsToPostIdQuery } from '@store/comment/useInfiniteCommentsToPostIdQuery';
@@ -127,6 +127,9 @@ const PostContentDetail = styled.div`
     a {
       cursor: pointer;
     }
+    div {
+      max-width: 100%;
+    }
   }
   .images-post {
     cursor: pointer;
@@ -203,6 +206,7 @@ const StyledContainerPostDetail = styled.div`
   @media (max-width: 520px) {
     border-radius: 0;
     height: 100vh;
+    max-height: 100vh;
     -ms-overflow-style: none; // Internet Explorer 10+
     scrollbar-width: none; // Firefox
     ::-webkit-scrollbar {
@@ -296,6 +300,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
   const [isMobile, setIsMobile] = useState(false);
   const [borderColorHeader, setBorderColorHeader] = useState(false);
   const { width } = useWindowDimensions();
+  const accountInfoTemp = useAppSelector(getAccountInfoTemp);
 
   useEffect(() => {
     const isMobileDetail = width < 960 ? true : false;
@@ -422,7 +427,8 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
       const errorMessage = e.message || intl.get('post.unableToBurn');
       dispatch(
         showToast('error', {
-          message: errorMessage,
+          message: intl.get('toast.error'),
+          description: errorMessage,
           duration: 3
         })
       );
@@ -651,7 +657,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
       () => {
         dispatch(closeModal());
       },
-      isMobile ? 500 : 200
+      isMobile ? 400 : 200
     );
   };
 
@@ -692,7 +698,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
         style={{ top: 30 }}
         open={true}
         onCancel={handleOnCancel}
-        closeIcon={<LeftOutlined />}
+        closeIcon={isMobile ? <LeftOutlined /> : <CloseOutlined />}
         footer={null}
       >
         <StyledContainerPostDetail
@@ -701,7 +707,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
         >
           <NavBarHeader>
             <InfoCardUser
-              imgUrl={post.page ? post.page.avatar : ''}
+              imgUrl={post.postAccount.avatar ? post.postAccount.avatar : ''}
               name={post.postAccount.name}
               title={moment(post.createdAt).fromNow().toString()}
               postAccountAddress={post.postAccount ? post.postAccount.address : undefined}
@@ -785,8 +791,8 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
             </InfiniteScroll>
           </CommentContainer>
           <CommentInputContainer className="comment-input-container">
-            <div className="ava-ico-cmt" onClick={() => router.push(`/profile/${selectedAccount.address}`)}>
-              <AvatarUser name={selectedAccount?.name} isMarginRight={false} />
+            <div className="ava-ico-cmt" onClick={() => router.push(`/profile/${selectedAccount?.address}`)}>
+              <AvatarUser icon={accountInfoTemp?.avatar} name={selectedAccount?.name} isMarginRight={false} />
             </div>
             <StyledCommentContainer className="comment-container">
               <Controller

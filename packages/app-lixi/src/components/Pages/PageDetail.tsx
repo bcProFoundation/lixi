@@ -31,7 +31,13 @@ import {
   removeRecentHashtagAtPages,
   setTransactionReady
 } from '@store/account/actions';
-import { getRecentHashtagAtPages, getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';
+import {
+  getPageAvatarUpload,
+  getPageCoverUpload,
+  getRecentHashtagAtPages,
+  getSelectedAccount,
+  getSelectedAccountId
+} from '@store/account/selectors';
 import { addBurnQueue, addBurnTransaction, clearFailQueue, getFailQueue } from '@store/burn';
 import { useCreateFollowPageMutation, useDeleteFollowPageMutation } from '@store/follow/follows.api';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
@@ -447,6 +453,23 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const [hashtags, setHashtags] = useState<any>([]);
   const postIdSelected = useAppSelector(getSelectedPostId);
   const refs = useRef([]);
+  const pageAvatarUpload = useAppSelector(getPageAvatarUpload);
+  const pageCoverUpload = useAppSelector(getPageCoverUpload);
+  const [urlPageAvatarUpload, setUrlPageAvatarUpload] = useState('');
+  const [urlPageCoverUpload, setUrlPageCoverUpload] = useState('');
+
+  useEffect(() => {
+    if (!_.isNil(pageAvatarUpload?.cfImageId)) {
+      setUrlPageAvatarUpload(
+        `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${pageAvatarUpload?.cfImageId}/public`
+      );
+    }
+    if (!_.isNil(pageCoverUpload?.cfImageId)) {
+      setUrlPageCoverUpload(
+        `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${pageCoverUpload?.cfImageId}/public`
+      );
+    }
+  }, [pageAvatarUpload, pageCoverUpload]);
 
   useEffect(() => {
     dispatch(startChannel());
@@ -661,7 +684,8 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
       const errorMessage = e.message || intl.get('post.unableToBurn');
       dispatch(
         showToast('error', {
-          message: errorMessage,
+          message: intl.get('toast.error'),
+          description: errorMessage,
           duration: 3
         })
       );
@@ -834,12 +858,20 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
       <StyledContainerProfileDetail className="page-detail">
         <ProfileCardHeader>
           <div className="container-img">
-            <img className="cover-img" src={pageDetailData.cover || '/images/default-cover.jpg'} alt="" />
+            <img
+              className="cover-img"
+              src={urlPageCoverUpload || pageDetailData.cover || '/images/default-cover.jpg'}
+              alt=""
+            />
           </div>
           <div className="info-profile">
             <div className="wrapper-avatar">
               <picture>
-                <img className="avatar-img" src={pageDetailData.avatar || '/images/default-avatar.jpg'} alt="" />
+                <img
+                  className="avatar-img"
+                  src={urlPageAvatarUpload || pageDetailData.avatar || '/images/default-avatar.jpg'}
+                  alt=""
+                />
               </picture>
               {/* TODO: implement in the future */}
               {selectedAccountId == pageDetailData?.pageAccountId && (
