@@ -54,7 +54,7 @@ const PageMessageLixiModal = ({ account, page, wallet }: PageMessageLixiModalPro
       accountId: account?.id,
       mnemonic: account?.mnemonic,
       mnemonicHash: account?.mnemonicHash,
-      amount: data.amount,
+      amount: (parseFloat(data.amount) + fromSmallestDenomination(txFee)).toString(),
       fixedValue: data.amount,
       claimType: 0,
       lixiType: 1,

@@ -796,8 +796,6 @@ model Message {
   isPageOwner          Boolean?
   createdAt            DateTime            @default(now()) @map("created_at") @db.Timestamptz
   updatedAt            DateTime            @default(now()) @map("updated_at") @db.Timestamptz
-  // messageSession   MessageSession? @relation(fields: [messageSessionId], references: [id])
-  // messageSessionId String?
   pageMessageSession   PageMessageSession? @relation(fields: [pageMessageSessionId], references: [id])
   pageMessageSessionId String?
 
@@ -811,12 +809,11 @@ model PageMessageSession {
   pageId          String
   account         Account                   @relation(fields: [accountId], references: [id])
   accountId       Int
-  // messageSessions MessageSession[]
   lixi            Lixi?                     @relation(fields: [lixiId], references: [id])
   lixiId          Int?                      @unique
   lixiClaimCode   String?                   @map("lixi_claim_code")
-  // lixiAmount      Float?                    @default(0) @map("lixi_amount")
   messages        Message[]
+  latestMessage   String?
   sessionOpenedAt DateTime?                 @map("session_opened_at")
   sessionClosedAt DateTime?                 @map("session_closed_at")
   status          PageMessageSessionStatus? @default(CLOSE)
@@ -831,18 +828,3 @@ enum PageMessageSessionStatus {
   OPEN
   CLOSE
 }
-
-// model MessageSession {
-//   id                   String              @id @default(uuid())
-//   messages             Message[]
-//   pageMessageSession   PageMessageSession? @relation(fields: [pageMessageSessionId], references: [id])
-//   pageMessageSessionId String?
-//   lixi                 Lixi?               @relation(fields: [lixiId], references: [id])
-//   lixiId               Int?                @unique
-//   lixiAmount           Float               @default(0) @map("lixi_amount")
-//   sessionOpen          Boolean?            @default(false)
-//   createdAt            DateTime            @default(now()) @map("created_at") @db.Timestamptz
-//   updatedAt            DateTime            @default(now()) @map("updated_at") @db.Timestamptz
-
-//   @@map("message_session")
-// }

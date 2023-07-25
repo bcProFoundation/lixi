@@ -9,3 +9,4 @@ export const serverOff = createAction('message/serverOff');
 export const receiveLiveMessage = createAction('message/receiveLiveMessage');
 export const userSubcribeToPageMessageSession = createAction<string>('message/userSubcribeToPageMessageSession');
 export const pageOwnerSubcribeToPageChannel = createAction<string>('message/pageOwnerSubcribeToPageChannel');
+export const userSubcribeToAddressChannel = createAction<string>('message/userSubcribeToAddressChannel');

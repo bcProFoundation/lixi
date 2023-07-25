@@ -331,7 +331,27 @@ export class PageMessageSessionResolver {
             }
           },
           where: {
-            accountId: id
+            AND: [
+              {
+                OR: [
+                  {
+                    page: {
+                      pageAccountId: id
+                    }
+                  },
+                  {
+                    accountId: id
+                  }
+                ]
+              },
+              {
+                NOT: [
+                  {
+                    status: PageMessageSessionStatus.CLOSE
+                  }
+                ]
+              }
+            ]
           },
           orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
           ...args
@@ -339,7 +359,27 @@ export class PageMessageSessionResolver {
       () =>
         this.prisma.pageMessageSession.count({
           where: {
-            accountId: id
+            AND: [
+              {
+                OR: [
+                  {
+                    page: {
+                      pageAccountId: id
+                    }
+                  },
+                  {
+                    accountId: id
+                  }
+                ]
+              },
+              {
+                NOT: [
+                  {
+                    status: PageMessageSessionStatus.CLOSE
+                  }
+                ]
+              }
+            ]
           }
         }),
       { first, last, before, after }
@@ -423,7 +463,11 @@ export class PageMessageSessionResolver {
       }
       const result = await this.prisma.pageMessageSession.create({
         include: {
-          page: true,
+          page: {
+            include: {
+              pageAccount: true
+            }
+          },
           account: true,
           lixi: {
             select: {
@@ -445,7 +489,7 @@ export class PageMessageSessionResolver {
         }
       });
 
-      this.messageGateway.publishPageChannel(pageId, result);
+      this.messageGateway.publishAddressChannel(result.page.pageAccount.address, result);
 
       return result;
     }
@@ -470,6 +514,11 @@ export class PageMessageSessionResolver {
         sessionClosedAt: new Date()
       },
       include: {
+        page: {
+          include: {
+            pageAccount: true
+          }
+        },
         account: true,
         lixi: {
           select: {
@@ -480,8 +529,7 @@ export class PageMessageSessionResolver {
             activationAt: true,
             status: true
           }
-        },
-        page: true
+        }
       }
     });
 
@@ -514,6 +562,11 @@ export class PageMessageSessionResolver {
         sessionOpenedAt: new Date()
       },
       include: {
+        page: {
+          include: {
+            pageAccount: true
+          }
+        },
         account: true,
         lixi: {
           select: {
@@ -524,8 +577,7 @@ export class PageMessageSessionResolver {
             activationAt: true,
             status: true
           }
-        },
-        page: true
+        }
       }
     });
 

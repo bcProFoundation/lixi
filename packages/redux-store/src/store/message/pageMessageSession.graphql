@@ -3,6 +3,11 @@ fragment PageMessageSessionFields on PageMessageSession {
   page {
     id
     name
+    pageAccount {
+      id
+      name
+      address
+    }
   }
   account {
     id
@@ -17,6 +22,7 @@ fragment PageMessageSessionFields on PageMessageSession {
     activationAt
     status
   }
+  latestMessage
   lixiClaimCode
   sessionOpenedAt
   sessionClosedAt

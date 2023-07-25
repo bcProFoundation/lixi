@@ -11,6 +11,7 @@ import {
   serverOn,
   startChannel,
   stopChannel,
+  userSubcribeToAddressChannel,
   userSubcribeToPageMessageSession
 } from './actions';
 import { api as messageApi } from './message.api';
@@ -22,7 +23,7 @@ import _ from 'lodash';
 import { setPageMessageSession } from '@store/page/action';
 import { SessionAction, SessionActionEnum } from '@bcpros/lixi-models/lib/sessionAction';
 import { AccountDto } from '@bcpros/lixi-models';
-import { getAccountById } from '@store/account/selectors';
+import { getAccountById, getSelectedAccount } from '@store/account/selectors';
 
 const getDeviceNotificationStyle = () => {
   if (isMobile) {
@@ -98,14 +99,14 @@ function createMessageSocketChannel(socket: Socket) {
   });
 }
 
-function createPageSocketChannel(socket: Socket) {
+function createAddressSocketChannel(socket: Socket) {
   return eventChannel(emit => {
     const handler = (data: string) => {
       emit(data);
     };
-    socket.on('publishPageChannel', handler);
+    socket.on('publishAddressChannel', handler);
     return () => {
-      socket.off('publishPageChannel', handler);
+      socket.off('publishAddressChannel', handler);
     };
   });
 }
@@ -148,7 +149,7 @@ function* listenServerSaga() {
     }
 
     const socketMessageChannel = yield call(createMessageSocketChannel, socket);
-    const socketPageChannel = yield call(createPageSocketChannel, socket);
+    const socketAddressChannel = yield call(createAddressSocketChannel, socket);
     const sessionActionSocketChannel = yield call(createSessionActionSocketChannel, socket);
     yield fork(listenDisconnectSaga);
     yield fork(listenConnectSaga);
@@ -156,7 +157,7 @@ function* listenServerSaga() {
     while (true) {
       const { message, payload, sessionAction } = yield race({
         message: take(socketMessageChannel),
-        payload: take(socketPageChannel),
+        payload: take(socketAddressChannel),
         sessionAction: take(sessionActionSocketChannel)
       });
 
@@ -194,7 +195,9 @@ function* startStopChannel() {
 
 function* receiveLiveMessage(payload: any) {
   console.log(payload);
-  const { pageMessageSessionId, pageMessageSession } = payload;
+  const { pageMessageSessionId, body } = payload;
+  const account: AccountDto = yield select(getSelectedAccount);
+
   try {
     yield putAction(
       messageApi.util.updateQueryData('MessageByPageMessageSessionId', { id: pageMessageSessionId }, draft => {
@@ -208,29 +211,24 @@ function* receiveLiveMessage(payload: any) {
       })
     );
     yield putAction(
-      pageMessageApi.util.updateQueryData(
-        'OpenPageMessageSessionByPageId',
-        { id: pageMessageSession.pageId },
-        draft => {
-          const index = draft.allOpenPageMessageSessionByPageId.edges.findIndex(
-            edge => edge.node.id === pageMessageSessionId
-          );
+      pageMessageApi.util.updateQueryData('PageMessageSessionByAccountId', { id: account.id }, draft => {
+        const index = draft.allPageMessageSessionByAccountId.edges.findIndex(
+          edge => edge.node.id === pageMessageSessionId
+        );
 
-          const object = draft.allOpenPageMessageSessionByPageId.edges.find(
-            edge => edge.node.id === pageMessageSessionId
-          );
+        const object = draft.allPageMessageSessionByAccountId.edges.find(edge => edge.node.id === pageMessageSessionId);
 
-          if (index > -1) {
-            draft.allOpenPageMessageSessionByPageId.edges.splice(index, 1);
-            draft.allOpenPageMessageSessionByPageId.edges.unshift({
-              cursor: object.cursor,
-              node: {
-                ...object.node
-              }
-            });
-          }
+        if (index > -1) {
+          draft.allPageMessageSessionByAccountId.edges.splice(index, 1);
+          draft.allPageMessageSessionByAccountId.edges.unshift({
+            cursor: object.cursor,
+            node: {
+              ...object.node,
+              latestMessage: body
+            }
+          });
         }
-      )
+      })
     );
   } catch (error) {
     console.log('error', error.message);
@@ -239,18 +237,19 @@ function* receiveLiveMessage(payload: any) {
 
 function* receiveNewMessage(payload: PageMessageSession) {
   console.log(payload);
-  const { id, account, page } = payload;
+  const { id, page } = payload;
+  const account: AccountDto = yield select(getSelectedAccount);
+
   try {
     yield putAction(
-      pageMessageApi.util.updateQueryData('PendingPageMessageSessionByPageId', { id: page.id }, draft => {
-        draft.allPendingPageMessageSessionByPageId.edges.unshift({
+      pageMessageApi.util.updateQueryData('PageMessageSessionByAccountId', { id: account.id }, draft => {
+        draft.allPageMessageSessionByAccountId.edges.unshift({
           cursor: id,
           node: {
             ...payload
           }
         });
-        draft.allPendingPageMessageSessionByPageId.totalCount =
-          draft.allPendingPageMessageSessionByPageId.totalCount + 1;
+        draft.allPageMessageSessionByAccountId.totalCount = draft.allPageMessageSessionByAccountId.totalCount + 1;
       })
     );
   } catch (error) {
@@ -262,68 +261,30 @@ function* receiveSessionAction(action: SessionAction) {
   console.log(action);
   const { payload, type }: { payload: PageMessageSession; type: SessionActionEnum } = action;
   const pageAccount: AccountDto = yield select(getAccountById(payload.page.pageAccountId));
+  const account: AccountDto = yield select(getSelectedAccount);
   console.log('🚀 ~ file: saga.ts:263 ~ function*receiveSessionAction ~ pageAccount:', pageAccount);
 
   switch (type) {
     case SessionActionEnum.OPEN:
       try {
         yield put(setPageMessageSession(payload));
-        if (pageAccount) {
-          yield putAction(
-            pageMessageApi.util.updateQueryData('PendingPageMessageSessionByPageId', { id: payload.page.id }, draft => {
-              const index = draft.allPendingPageMessageSessionByPageId.edges.findIndex(
-                edge => edge.node.id === payload.id
-              );
-              if (index > -1) {
-                draft.allPendingPageMessageSessionByPageId.edges.splice(index, 1);
-              }
-            })
-          );
+        yield putAction(
+          pageMessageApi.util.updateQueryData('PageMessageSessionByAccountId', { id: account.id }, draft => {
+            const index = draft.allPageMessageSessionByAccountId.edges.findIndex(edge => edge.node.id === payload.id);
 
-          yield putAction(
-            pageMessageApi.util.updateQueryData('OpenPageMessageSessionByPageId', { id: payload.page.id }, draft => {
-              draft.allOpenPageMessageSessionByPageId.edges.unshift({
-                cursor: payload.id,
-                node: {
-                  ...payload
-                }
-              });
-              draft.allOpenPageMessageSessionByPageId.totalCount =
-                draft.allOpenPageMessageSessionByPageId.totalCount + 1;
-            })
-          );
-        } else {
-          yield putAction(
-            pageMessageApi.util.updateQueryData(
-              'PendingPageMessageSessionByAccountId',
-              { id: parseInt(payload.account.id) },
-              draft => {
-                const index = draft.allPendingPageMessageSessionByAccountId.edges.findIndex(
-                  edge => edge.node.id === payload.id
-                );
-                if (index > -1) {
-                  draft.allPendingPageMessageSessionByAccountId.edges.splice(index, 1);
-                }
+            const object = draft.allPageMessageSessionByAccountId.edges.find(edge => edge.node.id === payload.id);
+
+            if (index > -1) {
+              draft.allPageMessageSessionByAccountId.edges.splice(index, 1);
+            }
+            draft.allPageMessageSessionByAccountId.edges.unshift({
+              cursor: object.cursor,
+              node: {
+                ...object.node
               }
-            )
-          );
-          yield putAction(
-            pageMessageApi.util.updateQueryData(
-              'OpenPageMessageSessionByAccountId',
-              { id: parseInt(payload.account.id) },
-              draft => {
-                draft.allOpenPageMessageSessionByAccountId.edges.unshift({
-                  cursor: payload.id,
-                  node: {
-                    ...payload
-                  }
-                });
-                draft.allOpenPageMessageSessionByAccountId.totalCount =
-                  draft.allOpenPageMessageSessionByAccountId.totalCount + 1;
-              }
-            )
-          );
-        }
+            });
+          })
+        );
       } catch (error) {
         console.log('error', error.message);
       }
@@ -332,45 +293,18 @@ function* receiveSessionAction(action: SessionAction) {
       try {
         yield put(setPageMessageSession(payload));
         yield putAction(
-          pageMessageApi.util.updateQueryData('OpenPageMessageSessionByPageId', { id: payload.page.id }, draft => {
-            const index = draft.allOpenPageMessageSessionByPageId.edges.findIndex(edge => edge.node.id === payload.id);
+          pageMessageApi.util.updateQueryData('PageMessageSessionByAccountId', { id: account.id }, draft => {
+            const index = draft.allPageMessageSessionByAccountId.edges.findIndex(edge => edge.node.id === payload.id);
             if (index > -1) {
-              draft.allOpenPageMessageSessionByPageId.edges.splice(index, 1);
+              draft.allPageMessageSessionByAccountId.edges.splice(index, 1);
             }
           })
-        );
-        yield putAction(
-          pageMessageApi.util.updateQueryData(
-            'OpenPageMessageSessionByAccountId',
-            { id: parseInt(payload.account.id) },
-            draft => {
-              const index = draft.allOpenPageMessageSessionByAccountId.edges.findIndex(
-                edge => edge.node.id === payload.id
-              );
-              if (index > -1) {
-                draft.allOpenPageMessageSessionByAccountId.edges.splice(index, 1);
-              }
-            }
-          )
         );
       } catch (error) {
         console.log('error', error.message);
       }
       break;
   }
-  // try {
-  //   yield put(setPageMessageSession(payload as PageMessageSession));
-  //   yield putAction(
-  //     pageMessageApi.util.updateQueryData('OpenPageMessageSessionByPageId', { id: page.id }, draft => {
-  //       const index = draft.allOpenPageMessageSessionByPageId.edges.findIndex(edge => edge.node.id === id);
-  //       if (index > -1) {
-  //         draft.allOpenPageMessageSessionByPageId.edges.splice(index, 1);
-  //       }
-  //     })
-  //   );
-  // } catch (error) {
-  //   console.log('error', error.message);
-  // }
 }
 
 function* userSubcribeToPageMessageSessionSaga(action: PayloadAction<string>) {
@@ -383,12 +317,21 @@ function* pageOwnerSubcribeToPageChannelSaga(action: PayloadAction<string>) {
   socket.emit('subscribePageChannel', payload);
 }
 
+function* userSubcribeToAddressChannelSaga(action: PayloadAction<string>) {
+  const { payload } = action;
+  socket.emit('subscribeAddressChannel', payload);
+}
+
 function* watchUserSubcribeToPageMessageSession() {
   yield takeLatest(userSubcribeToPageMessageSession.type, userSubcribeToPageMessageSessionSaga);
 }
 
 function* watchPageOwnerSubcribeToPageChannel() {
   yield takeLatest(pageOwnerSubcribeToPageChannel.type, pageOwnerSubcribeToPageChannelSaga);
+}
+
+function* watchUserSubcribeToAddressChannel() {
+  yield takeLatest(userSubcribeToAddressChannel.type, userSubcribeToAddressChannelSaga);
 }
 
 export default function* messageSaga() {
@@ -398,7 +341,8 @@ export default function* messageSaga() {
     yield all([
       fork(startStopChannel),
       fork(watchUserSubcribeToPageMessageSession),
-      fork(watchPageOwnerSubcribeToPageChannel)
+      fork(watchPageOwnerSubcribeToPageChannel),
+      fork(watchUserSubcribeToAddressChannel)
     ]);
   }
 }

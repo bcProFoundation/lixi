@@ -115,6 +115,7 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
   const [tab, setCurrentTab] = useState<string | null>(null);
   const { control, getValues, resetField, setFocus } = useForm();
   const currentAddress = useAppSelector(getCurrentAddress);
+  const selectedAccount = useAppSelector(getSelectedAccount);
   const Wallet = React.useContext(WalletContext);
   const { XPI } = Wallet;
 
@@ -301,7 +302,7 @@ const PageMessageForOwner = ({ page }: PageMessageProps) => {
   const openSession = async () => {
     let captcha = (window as any).grecaptcha.enterprise;
     // Get the param-free address
-    let cleanAddress = currentAddress.split('?')[0];
+    let cleanAddress = selectedAccount.address.split('?')[0];
 
     const isValidAddress = XPI.Address.isXAddress(cleanAddress);
 

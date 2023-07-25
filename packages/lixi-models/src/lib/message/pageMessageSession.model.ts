@@ -27,6 +27,9 @@ export class PageMessageSession {
   @Field(() => [Message], { nullable: true })
   messages?: [Message];
 
+  @Field(() => String, { nullable: true })
+  latestMessage?: string;
+
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the session was opened.',
     nullable: true

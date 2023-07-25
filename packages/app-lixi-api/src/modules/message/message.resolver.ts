@@ -103,27 +103,41 @@ export class MessageResolver {
     });
 
     if (pageMessageSession && pageMessageSession.status === PageMessageSessionStatus.OPEN) {
-      const message = await this.prisma.message.create({
-        data: {
-          body: body,
-          isPageOwner: isPageOwner ?? false,
-          author: { connect: { id: authorId } },
-          pageMessageSession: { connect: { id: pageMessageSessionId } }
-        },
-        include: {
-          author: {
-            select: {
-              id: true,
-              name: true,
-              address: true
-            }
+      const message = await this.prisma.$transaction(async prisma => {
+        const result = await prisma.message.create({
+          data: {
+            body: body,
+            isPageOwner: isPageOwner ?? false,
+            author: { connect: { id: authorId } },
+            pageMessageSession: { connect: { id: pageMessageSessionId } }
           },
-          pageMessageSession: {
-            select: {
-              pageId: true
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                address: true
+              }
+            },
+            pageMessageSession: {
+              select: {
+                pageId: true
+              }
             }
           }
-        }
+        });
+
+        await prisma.pageMessageSession.update({
+          where: {
+            id: pageMessageSession.id
+          },
+          data: {
+            updatedAt: new Date(),
+            latestMessage: body
+          }
+        });
+
+        return result;
       });
 
       const result = {

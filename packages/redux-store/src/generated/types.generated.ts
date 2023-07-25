@@ -695,6 +695,7 @@ export type PageMessageSession = {
   /** Identifies the date and time when the object was created. */
   createdAt?: Maybe<Scalars['DateTime']>;
   id: Scalars['ID'];
+  latestMessage?: Maybe<Scalars['String']>;
   lixi?: Maybe<LixiModel>;
   lixiClaimCode?: Maybe<Scalars['String']>;
   messages?: Maybe<Array<Message>>;

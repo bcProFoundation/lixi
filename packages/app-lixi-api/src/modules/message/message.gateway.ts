@@ -87,12 +87,42 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
     }
   }
 
+  @SubscribeMessage('subscribeAddressChannel')
+  handleAddressChannelSubscription(
+    @MessageBody() userAddress: string,
+    @ConnectedSocket() client: Socket
+  ): WsResponse<string> {
+    //Check if already join a room
+    const joinedRoom = Array.from(client.rooms).find(room => {
+      return room === userAddress;
+    });
+
+    if (!joinedRoom) {
+      client.join(userAddress);
+      console.log('🚀 ~ file: message.gateway.ts:47 ~ MessageGateway ~ userAddress:', userAddress);
+
+      return {
+        event: 'userAddress',
+        data: client.id
+      };
+    } else {
+      return {
+        event: '',
+        data: client.id
+      };
+    }
+  }
+
   publishMessage(pageMessageSessionId: string, message: any) {
     this.server.to(pageMessageSessionId).emit('publishMessage', message);
   }
 
   publishPageChannel(pageChannelId: string, message: any) {
     this.server.to(pageChannelId).emit('publishPageChannel', message);
+  }
+
+  publishAddressChannel(address: string, message: any) {
+    this.server.to(address).emit('publishAddressChannel', message);
   }
 
   publishSessionAction(pageMessageSessionId: string, message: SessionAction) {
