@@ -360,30 +360,35 @@ const PageHome = () => {
       askAuthorization();
     }
   };
-  console.log(userPage.length === 0)
-  const createPageButton = (userPage.length === 0) ? <BlankPage className="card">
-      <picture>
-        <img src="/images/page-blank.svg" alt="page-blank-placeholder" />
-      </picture>
-      <div>
-        <p className="sub-page">{intl.get('text.createPage')} </p>
-        <Button type="primary" className="outline-btn" onClick={onCreatePage}>
-          {intl.get('page.createYourPage')}
-        </Button>
-      </div>
-    </BlankPage>
-    : <Button type="primary" className="outline-btn" onClick={onCreatePage}>
-      Create your page
+  const createPageButton =
+    userPage.length === 0 ? (
+      <BlankPage className="card">
+        <picture>
+          <img src="/images/page-blank.svg" alt="page-blank-placeholder" />
+        </picture>
+        <div>
+          <p className="sub-page">{intl.get('text.createPage')} </p>
+          <Button type="primary" className="outline-btn" onClick={onCreatePage}>
+            {intl.get('page.createYourPage')}
+          </Button>
+        </div>
+      </BlankPage>
+    ) : (
+      <Button type="primary" className="outline-btn" onClick={onCreatePage}>
+        {intl.get('page.createYourPage')}
       </Button>
+    );
 
   return (
     <>
       <StyledPageFeed ref={refPagesListing} onScroll={e => triggerSrollbar(e)}>
         <YourPageContainer>
-          
           {currentUserPages && currentUserPages.allPagesByUserId.edges.length > 0 ? (
             <>
-              <h2>{intl.get('page.yourPage')}{createPageButton}</h2>
+              <h2>
+                {intl.get('page.yourPage')}
+                {createPageButton}
+              </h2>
               <ListCard>
                 <React.Fragment>
                   <InfiniteScroll
