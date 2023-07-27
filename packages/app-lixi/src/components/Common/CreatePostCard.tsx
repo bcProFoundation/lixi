@@ -15,7 +15,8 @@ import {
   getCurrentThemes,
   getFilterPostsHome,
   getFilterPostsPage,
-  getFilterPostsToken
+  getFilterPostsToken,
+  getIsTopPosts
 } from '@store/settings/selectors';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
@@ -49,7 +50,7 @@ const MobileCreatePost = styled.div`
     display: block;
     position: fixed;
     right: 15px;
-    bottom: 70px;
+    bottom: 5rem;
     background: transparent !important;
     .fab-btn {
       padding: 16px;
@@ -230,6 +231,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
   const askAuthorization = useAuthorization();
   const showCreatePostMobile = useAppSelector(getShowCreatePost);
   const accountInfoTemp = useAppSelector(getAccountInfoTemp);
+  const isTop = useAppSelector(getIsTopPosts);
 
   const [
     createPostTrigger,
@@ -246,7 +248,11 @@ const CreatePostCard = (props: CreatePostCardProp) => {
     hashtagId?: string
   ) => {
     dispatch(
-      postApi.util.updateQueryData('Posts', { minBurnFilter: filterValue }, draft => {
+      /* 
+        Becasue in post.api.ts Posts query we pass isTop in serializeQueryArgs so we need it here
+        If we dont need isTop then remove it from serializeQueryArgs
+      */
+      postApi.util.updateQueryData('Posts', { minBurnFilter: filterValue, isTop: String(isTop) }, draft => {
         draft.allPosts.edges.unshift({
           cursor: result.createPost.id,
           node: {
@@ -515,7 +521,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
 
       <WrapEditor>
         <Modal
-          className={`${currentTheme ? 'ant-modal-dark' : ''} custom-modal-editor`}
+          className={`${currentTheme === 'dark' ? 'ant-modal-dark' : ''} custom-modal-editor`}
           title="Create Post"
           open={enableEditor}
           footer={null}

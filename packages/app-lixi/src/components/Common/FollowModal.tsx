@@ -145,7 +145,6 @@ export const FollowModal: React.FC<FollowModalProps> = (props: FollowModalProps)
   const handleCloseModal = () => {
     dispatch(closeModal());
   };
-  console.log('ahihi', props.classStyle);
 
   return (
     <>
@@ -178,7 +177,7 @@ export const FollowModal: React.FC<FollowModalProps> = (props: FollowModalProps)
                         <ShortcutItemAccess
                           icon={''}
                           name={item.name}
-                          href={`/profile/${item.id}`}
+                          href={`/profile/${item.address}`}
                           onClickItem={handleCloseModal}
                         />
                       </React.Fragment>
@@ -208,7 +207,7 @@ export const FollowModal: React.FC<FollowModalProps> = (props: FollowModalProps)
                         <ShortcutItemAccess
                           icon={''}
                           name={item.name}
-                          href={`/profile/${item.id}`}
+                          href={`/profile/${item.address}`}
                           onClickItem={handleCloseModal}
                         />
                       </React.Fragment>

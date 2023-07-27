@@ -18,6 +18,7 @@ const StyledFooter = styled.div`
   display: none;
   max-height: 60px;
   @media (max-width: 968px) {
+    max-height: fit-content;
     display: flex;
     left: 0;
   }
