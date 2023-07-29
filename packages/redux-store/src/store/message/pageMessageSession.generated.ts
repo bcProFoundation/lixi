@@ -30,9 +30,10 @@ export type PageMessageSessionFieldsFragment = {
     __typename?: 'Page';
     id: string;
     name: string;
+    avatar?: string | null;
     pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
   };
-  account: { __typename?: 'Account'; id: string; name: string; address: string };
+  account: { __typename?: 'Account'; id: string; name: string; address: string; avatar?: string | null };
   lixi?: {
     __typename?: 'LixiModel';
     id: string;
@@ -64,9 +65,10 @@ export type PageMessageSessionQuery = {
       __typename?: 'Page';
       id: string;
       name: string;
+      avatar?: string | null;
       pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
     };
-    account: { __typename?: 'Account'; id: string; name: string; address: string };
+    account: { __typename?: 'Account'; id: string; name: string; address: string; avatar?: string | null };
     lixi?: {
       __typename?: 'LixiModel';
       id: string;
@@ -111,9 +113,10 @@ export type OpenPageMessageSessionByPageIdQuery = {
           __typename?: 'Page';
           id: string;
           name: string;
+          avatar?: string | null;
           pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
         };
-        account: { __typename?: 'Account'; id: string; name: string; address: string };
+        account: { __typename?: 'Account'; id: string; name: string; address: string; avatar?: string | null };
         lixi?: {
           __typename?: 'LixiModel';
           id: string;
@@ -167,9 +170,10 @@ export type PendingPageMessageSessionByPageIdQuery = {
           __typename?: 'Page';
           id: string;
           name: string;
+          avatar?: string | null;
           pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
         };
-        account: { __typename?: 'Account'; id: string; name: string; address: string };
+        account: { __typename?: 'Account'; id: string; name: string; address: string; avatar?: string | null };
         lixi?: {
           __typename?: 'LixiModel';
           id: string;
@@ -223,9 +227,10 @@ export type OpenPageMessageSessionByAccountIdQuery = {
           __typename?: 'Page';
           id: string;
           name: string;
+          avatar?: string | null;
           pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
         };
-        account: { __typename?: 'Account'; id: string; name: string; address: string };
+        account: { __typename?: 'Account'; id: string; name: string; address: string; avatar?: string | null };
         lixi?: {
           __typename?: 'LixiModel';
           id: string;
@@ -279,9 +284,10 @@ export type PendingPageMessageSessionByAccountIdQuery = {
           __typename?: 'Page';
           id: string;
           name: string;
+          avatar?: string | null;
           pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
         };
-        account: { __typename?: 'Account'; id: string; name: string; address: string };
+        account: { __typename?: 'Account'; id: string; name: string; address: string; avatar?: string | null };
         lixi?: {
           __typename?: 'LixiModel';
           id: string;
@@ -335,9 +341,10 @@ export type PageMessageSessionByAccountIdQuery = {
           __typename?: 'Page';
           id: string;
           name: string;
+          avatar?: string | null;
           pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
         };
-        account: { __typename?: 'Account'; id: string; name: string; address: string };
+        account: { __typename?: 'Account'; id: string; name: string; address: string; avatar?: string | null };
         lixi?: {
           __typename?: 'LixiModel';
           id: string;
@@ -380,9 +387,10 @@ export type UserHadMessageToPageQuery = {
       __typename?: 'Page';
       id: string;
       name: string;
+      avatar?: string | null;
       pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
     };
-    account: { __typename?: 'Account'; id: string; name: string; address: string };
+    account: { __typename?: 'Account'; id: string; name: string; address: string; avatar?: string | null };
     lixi?: {
       __typename?: 'LixiModel';
       id: string;
@@ -415,9 +423,10 @@ export type CreatePageMessageSessionMutation = {
       __typename?: 'Page';
       id: string;
       name: string;
+      avatar?: string | null;
       pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
     };
-    account: { __typename?: 'Account'; id: string; name: string; address: string };
+    account: { __typename?: 'Account'; id: string; name: string; address: string; avatar?: string | null };
     lixi?: {
       __typename?: 'LixiModel';
       id: string;
@@ -450,9 +459,10 @@ export type ClosePageMessageSessionMutation = {
       __typename?: 'Page';
       id: string;
       name: string;
+      avatar?: string | null;
       pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
     };
-    account: { __typename?: 'Account'; id: string; name: string; address: string };
+    account: { __typename?: 'Account'; id: string; name: string; address: string; avatar?: string | null };
     lixi?: {
       __typename?: 'LixiModel';
       id: string;
@@ -485,9 +495,10 @@ export type OpenPageMessageSessionMutation = {
       __typename?: 'Page';
       id: string;
       name: string;
+      avatar?: string | null;
       pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
     };
-    account: { __typename?: 'Account'; id: string; name: string; address: string };
+    account: { __typename?: 'Account'; id: string; name: string; address: string; avatar?: string | null };
     lixi?: {
       __typename?: 'LixiModel';
       id: string;
@@ -511,11 +522,13 @@ export const PageMessageSessionFieldsFragmentDoc = `
       name
       address
     }
+    avatar
   }
   account {
     id
     name
     address
+    avatar
   }
   lixi {
     id

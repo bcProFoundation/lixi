@@ -90,6 +90,7 @@ const StyledPageContainer = styled.div`
 
 const StyledChatContainer = styled.div`
   display: flex;
+  width: 80%;
   flex-direction: column;
 `;
 
@@ -99,7 +100,7 @@ const StyledChatbox = styled.div`
   overflow: auto;
   display: flex;
   flex-direction: column-reverse;
-  height: 100%;
+  height: 500px;
 `;
 
 const InputContainer = styled.div`
@@ -141,6 +142,7 @@ const PageMessage = () => {
   const selectedAccount = useAppSelector(getSelectedAccount);
   const dispatch = useAppDispatch();
   const [currentPageMessageSessionId, setCurrentPageMessageSessionId] = useState<string | null>(null);
+  const [isPageOwner, setIsPageOwner] = useState<boolean>(false);
   const currentPageMessageSession = useAppSelector(getCurrentPageMessageSession);
   const { control, getValues, resetField, setFocus } = useForm();
   const Wallet = React.useContext(WalletContext);
@@ -213,6 +215,12 @@ const PageMessage = () => {
     }
   ];
 
+  useEffect(() => {
+    if (currentPageMessageSession && currentPageMessageSession.page.pageAccount.address === selectedAccount.address) {
+      setIsPageOwner(true);
+    }
+  }, [currentPageMessageSession]);
+
   const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } =
     useInfinitePageMessageSessionByAccountId(
       {
@@ -269,9 +277,10 @@ const PageMessage = () => {
     if (_.isNil(getValues('message')) || getValues('message') === '') {
       return;
     }
+    const trimValue = getValues('message').trim();
     const input: CreateMessageInput = {
       authorId: selectedAccount.id,
-      body: getValues('message'),
+      body: trimValue,
       pageMessageSessionId: currentPageMessageSessionId,
       isPageOwner: false
     };
@@ -387,84 +396,81 @@ const PageMessage = () => {
         )}
       </StyledSideContainer>
 
-      <div style={{ width: '80%' }}>
-        <StyledChatContainer>
-          <StyledTextHeader>{`Session: ${currentPageMessageSessionId}`}</StyledTextHeader>
-          {currentPageMessageSessionId &&
-            currentPageMessageSession.page.pageAccount.address === selectedAccount.address && (
-              <StyledHeader>
-                <Dropdown menu={{ items }} trigger={['click']}>
-                  <SettingOutlined />
-                </Dropdown>
-              </StyledHeader>
-            )}
-          <StyledChatbox
-            id="scrollableChatbox"
-            style={{
-              justifyContent:
-                currentPageMessageSession?.status !== PageMessageSessionStatus.Pending ? 'normal' : 'center'
-            }}
-          >
-            {currentPageMessageSession?.status !== PageMessageSessionStatus.Pending ? (
-              messageData.length > 0 && (
-                <StyledInfiniteScroll
-                  dataLength={messageData.length}
-                  next={loadMoreMessages}
-                  hasMore={messageHasNext}
-                  loader={<Skeleton active />}
-                  endMessage={<p>{`${currentPageMessageSession?.page.name} accepted your lixi`}</p>}
-                  inverse
-                  scrollableTarget="scrollableChatbox"
-                >
-                  {messageData.map(item => {
-                    return <Message message={item} key={item.id} authorAddress={selectedAccount.address} />;
-                  })}
-                </StyledInfiniteScroll>
-              )
-            ) : (
-              <LixiContainer>
-                <p>{`Waiting for ${currentPageMessageSession?.page?.name} to accept your lixi. Patience is a Virtue!`}</p>
-              </LixiContainer>
-            )}
-          </StyledChatbox>
-          {currentPageMessageSession && (
-            <InputContainer>
-              <Controller
-                name="message"
-                control={control}
-                rules={{
-                  required: true
-                }}
-                render={({ field: { onChange, onBlur, value, ref } }) => (
-                  <TextArea
-                    ref={ref}
-                    style={{ width: '95%' }}
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    value={value}
-                    placeholder={
-                      currentPageMessageSession.status === PageMessageSessionStatus.Open ? 'Aa' : 'Session is closed'
-                    }
-                    disabled={
-                      isLoadingCreateMessage || currentPageMessageSession.status !== PageMessageSessionStatus.Open
-                    }
-                    autoSize
-                    onKeyDown={handleKeyDown}
-                  />
-                )}
-              />
-              <IconContainer>
-                <SendOutlined
-                  onClick={sendMessage}
+      <StyledChatContainer>
+        <StyledTextHeader>{currentPageMessageSessionId && `Session: ${currentPageMessageSessionId}`}</StyledTextHeader>
+        {currentPageMessageSessionId && isPageOwner && (
+          <StyledHeader>
+            <Dropdown menu={{ items }} trigger={['click']}>
+              <SettingOutlined />
+            </Dropdown>
+          </StyledHeader>
+        )}
+        <StyledChatbox
+          id="scrollableChatbox"
+          style={{
+            justifyContent: currentPageMessageSession?.status !== PageMessageSessionStatus.Pending ? 'normal' : 'center'
+          }}
+        >
+          {currentPageMessageSession?.status !== PageMessageSessionStatus.Pending ? (
+            messageData.length > 0 && (
+              <StyledInfiniteScroll
+                dataLength={messageData.length}
+                next={loadMoreMessages}
+                hasMore={messageHasNext}
+                loader={<Skeleton active />}
+                endMessage={<p>{`${currentPageMessageSession?.page.name} accepted your lixi`}</p>}
+                inverse
+                scrollableTarget="scrollableChatbox"
+              >
+                {messageData.map(item => {
+                  return <Message message={item} key={item.id} authorAddress={selectedAccount.address} />;
+                })}
+              </StyledInfiniteScroll>
+            )
+          ) : (
+            <LixiContainer>
+              <p>{`Waiting for ${currentPageMessageSession?.page?.name} to accept your lixi. Patience is a Virtue!`}</p>
+            </LixiContainer>
+          )}
+        </StyledChatbox>
+        {currentPageMessageSession && (
+          <InputContainer>
+            <Controller
+              name="message"
+              control={control}
+              rules={{
+                required: true,
+                validate: value => {
+                  return !!value.trim();
+                }
+              }}
+              render={({ field: { onChange, onBlur, value, ref } }) => (
+                <TextArea
+                  ref={ref}
+                  style={{ width: '95%' }}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                  placeholder={
+                    currentPageMessageSession.status === PageMessageSessionStatus.Open ? 'Aa' : 'Session is closed'
+                  }
                   disabled={
                     isLoadingCreateMessage || currentPageMessageSession.status !== PageMessageSessionStatus.Open
                   }
+                  autoSize
+                  onKeyDown={handleKeyDown}
                 />
-              </IconContainer>
-            </InputContainer>
-          )}
-        </StyledChatContainer>
-      </div>
+              )}
+            />
+            <IconContainer>
+              <SendOutlined
+                onClick={sendMessage}
+                disabled={isLoadingCreateMessage || currentPageMessageSession.status !== PageMessageSessionStatus.Open}
+              />
+            </IconContainer>
+          </InputContainer>
+        )}
+      </StyledChatContainer>
     </StyledContainer>
   );
 };

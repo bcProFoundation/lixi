@@ -244,7 +244,17 @@ function* postLixiSaga(action: PayloadAction<{ command: CreateLixiCommand; pageI
         })
       );
       yield promise;
-      // data = yield promise.unwrap();
+
+      const promiseToRefetch = yield putEffect(
+        pageMessageApi.endpoints.UserHadMessageToPage.initiate(
+          {
+            accountId: account.id,
+            pageId: pageId
+          },
+          { subscribe: false, forceRefetch: true }
+        )
+      );
+      yield promiseToRefetch;
     }
 
     yield put(postLixiSuccess(lixi));

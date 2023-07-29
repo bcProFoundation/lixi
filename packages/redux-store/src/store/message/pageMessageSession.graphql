@@ -8,11 +8,13 @@ fragment PageMessageSessionFields on PageMessageSession {
       name
       address
     }
+    avatar
   }
   account {
     id
     name
     address
+    avatar
   }
   lixi {
     id
