@@ -204,6 +204,15 @@ export class PageResolver {
         })
       : undefined;
 
+    const updateStateId = !data.stateId && await this.prisma.page.update({
+      where: {
+        id: data.id
+      },
+      data: {
+        stateId : null
+      }
+    })
+
     const updatedPage = await this.prisma.page.update({
       where: {
         id: data.id
