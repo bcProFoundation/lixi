@@ -49,7 +49,7 @@ const ModalManager = () => {
     const ModalComponent = modalComponentLookupTable[modalType];
 
     return (
-      <ConfigProvider theme={currentTheme ? darkTheme : lightTheme} key={modalType + index}>
+      <ConfigProvider theme={currentTheme === 'dark' ? darkTheme : lightTheme} key={modalType + index}>
         <ModalComponent {...newModalProps} />
       </ConfigProvider>
     );

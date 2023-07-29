@@ -13,7 +13,7 @@ export class Account {
   name: string;
 
   @Field(() => Number)
-  balance: number;
+  balance?: number;
 
   @Field(() => String, { nullable: true })
   mnemonic?: string;
@@ -68,8 +68,8 @@ export class Account {
   pageMessageSessions?: [PageMessageSession];
 
   @Field(() => String, { nullable: true })
-  avatar: string;
+  avatar?: string;
 
   @Field(() => String, { nullable: true })
-  cover: string;
+  cover?: string;
 }

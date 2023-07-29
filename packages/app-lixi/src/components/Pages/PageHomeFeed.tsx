@@ -26,6 +26,9 @@ const StyledPageFeed = styled.div`
     font-size: 20px;
     margin-bottom: 1rem;
     text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
   .ant-btn {
     display: flex;
@@ -94,6 +97,11 @@ const YourPageContainer = styled.div`
         width: 100% !important;
         height: 100px !important;
       }
+    }
+  }
+  h2 {
+    button {
+      padding: 0.5rem 1rem !important;
     }
   }
 `;
@@ -354,25 +362,35 @@ const PageHome = () => {
       askAuthorization();
     }
   };
+  const createPageButton =
+    userPage.length === 0 ? (
+      <BlankPage className="card">
+        <picture>
+          <img src="/images/page-blank.svg" alt="page-blank-placeholder" />
+        </picture>
+        <div>
+          <p className="sub-page">{intl.get('text.createPage')} </p>
+          <Button type="primary" className="outline-btn" onClick={onCreatePage}>
+            {intl.get('page.createYourPage')}
+          </Button>
+        </div>
+      </BlankPage>
+    ) : (
+      <Button type="primary" className="outline-btn" onClick={onCreatePage}>
+        {intl.get('page.createYourPage')}
+      </Button>
+    );
 
   return (
     <>
       <StyledPageFeed ref={refPagesListing} onScroll={e => triggerSrollbar(e)}>
         <YourPageContainer>
-          <BlankPage className="card">
-            <picture>
-              <img src="/images/page-blank.svg" alt="page-blank-placeholder" />
-            </picture>
-            <div>
-              <p className="sub-page">{intl.get('text.createPage')} </p>
-              <Button type="primary" className="outline-btn" onClick={onCreatePage}>
-                {intl.get('page.createYourPage')}
-              </Button>
-            </div>
-          </BlankPage>
-          {currentUserPages && currentUserPages.allPagesByUserId.edges.length > 0 && (
+          {currentUserPages && currentUserPages.allPagesByUserId.edges.length > 0 ? (
             <>
-              <h2>{intl.get('page.yourPage')}</h2>
+              <h2>
+                {intl.get('page.yourPage')}
+                {createPageButton}
+              </h2>
               <ListCard>
                 <React.Fragment>
                   <InfiniteScroll
@@ -393,6 +411,8 @@ const PageHome = () => {
                 </React.Fragment>
               </ListCard>
             </>
+          ) : (
+            createPageButton
           )}
         </YourPageContainer>
 
