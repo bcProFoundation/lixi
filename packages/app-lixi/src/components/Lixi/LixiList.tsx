@@ -159,6 +159,7 @@ interface LixiType {
   remaining: string | number;
   status: string;
   claimType: ClaimType;
+  pageMessageSession: any;
 }
 
 const LixiList = ({ lixies }: LixiListProps) => {
@@ -203,7 +204,8 @@ const LixiList = ({ lixies }: LixiListProps) => {
           : (lixi.subLixiBalance - lixi.subLixiTotalClaim).toFixed(2),
         budget: lixi.claimType == ClaimType.Single ? lixi.amount.toFixed(3) : lixi?.subLixiBalance?.toFixed(3) || 0.0,
         status: lixi.status,
-        claimType: lixi.claimType
+        claimType: lixi.claimType,
+        pageMessageSession: lixi.pageMessageSession
       };
       newListLixiType.push(objLixiType);
     });
@@ -213,7 +215,9 @@ const LixiList = ({ lixies }: LixiListProps) => {
   const mapActionLixi = (lixi: Lixi) => {
     let defaultActionLixi = ['Withdraw', 'Rename'];
 
-    lixi.status === 'locked' ? defaultActionLixi.unshift('Unarchive') : defaultActionLixi.unshift('Archive');
+    if (!lixi.pageMessageSession) {
+      lixi.status === 'locked' ? defaultActionLixi.unshift('Unarchive') : defaultActionLixi.unshift('Archive');
+    }
     lixi.claimType === ClaimType.OneTime && defaultActionLixi.push('Export');
 
     return (

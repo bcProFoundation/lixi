@@ -311,8 +311,6 @@ const Lixi = props => {
 
   subLixies = _.sortBy(subLixies, ['isClaimed', 'packageId']);
 
-  console.log('🚀 ~ file: index.tsx:287 ~ Lixi ~ lixi:', lixi);
-
   const { width } = useWindowDimensions();
   const [isMobileDetailLixi, setIsMobileDetailLixi] = useState(false);
 
@@ -686,7 +684,7 @@ const Lixi = props => {
     return (
       <>
         <div className="group-action-btn">
-          <StyleButton shape="round" onClick={archiveButton}>
+          <StyleButton shape="round" onClick={archiveButton} disabled={selectedLixi.pageMessageSession}>
             {selectedLixi.status == 'active' ? intl.get('lixi.archive') : intl.get('lixi.unarchive')}
           </StyleButton>
           <StyleButton shape="round" onClick={withdrawButton}>

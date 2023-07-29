@@ -1,4 +1,4 @@
-import { Account } from '../';
+import { Account, PageMessageSession } from '../';
 
 import { Distribution } from './distribution';
 import { Envelope } from './envelope';
@@ -153,6 +153,7 @@ export interface Lixi {
   packageId?: Nullable<number>;
   joinLotteryProgram: boolean;
   distributions?: Nullable<Distribution[]>;
+  pageMessageSession?: PageMessageSession;
 }
 
 export interface RegisterLixiPackCommand {

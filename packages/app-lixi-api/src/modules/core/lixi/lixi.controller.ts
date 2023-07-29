@@ -531,6 +531,45 @@ export class LixiController {
           }
         });
 
+        const pageMessageSession = await this.prisma.pageMessageSession.findUnique({
+          where: {
+            lixiId: lixi.id
+          }
+        });
+
+        if (pageMessageSession) {
+          const result = await this.prisma.pageMessageSession.update({
+            where: {
+              id: pageMessageSession.id
+            },
+            data: {
+              status: PageMessageSessionStatus.CLOSE,
+              sessionClosedAt: new Date()
+            },
+            include: {
+              account: true,
+              lixi: {
+                select: {
+                  id: true,
+                  name: true,
+                  amount: true,
+                  expiryAt: true,
+                  activationAt: true,
+                  status: true
+                }
+              },
+              page: true
+            }
+          });
+
+          const sessionAction: SessionAction = {
+            type: SessionActionEnum.CLOSE,
+            payload: result
+          };
+
+          this.messageGateway.publishSessionAction(pageMessageSession.id, sessionAction);
+        }
+
         if (lixi) {
           let resultApi: LixiDto = {
             ...lixi,
@@ -701,7 +740,7 @@ export class LixiController {
 
         const amount: any = await this.walletService.sendAmount(lixi.address, receivingAccount, keyPair, i18n);
 
-        //If lixi claimed other page owner, the session will closed automatically
+        //If lixi is withdrew before session open then close session
         const pageMessageSession = await this.prisma.pageMessageSession.findUnique({
           where: {
             lixiId: lixi.id

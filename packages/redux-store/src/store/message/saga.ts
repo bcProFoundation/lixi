@@ -262,7 +262,6 @@ function* receiveSessionAction(action: SessionAction) {
   const { payload, type }: { payload: PageMessageSession; type: SessionActionEnum } = action;
   const pageAccount: AccountDto = yield select(getAccountById(payload.page.pageAccountId));
   const account: AccountDto = yield select(getSelectedAccount);
-  console.log('🚀 ~ file: saga.ts:263 ~ function*receiveSessionAction ~ pageAccount:', pageAccount);
 
   switch (type) {
     case SessionActionEnum.OPEN:

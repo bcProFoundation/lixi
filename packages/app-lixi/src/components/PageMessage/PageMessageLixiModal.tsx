@@ -50,7 +50,7 @@ const PageMessageLixiModal = ({ account, page, wallet }: PageMessageLixiModalPro
   const handleOk = data => {
     //pageMessageLixi only need this data so we split the data here for easier management
     const pageMessageLixiData = {
-      name: `${page.name}.${moment.utc().format('DD-MM-YYYY')}`,
+      name: `${page.name.substring(0, 6)}.${moment.utc().format('DD-MM-YYYY')}`,
       accountId: account?.id,
       mnemonic: account?.mnemonic,
       mnemonicHash: account?.mnemonicHash,

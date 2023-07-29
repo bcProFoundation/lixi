@@ -418,7 +418,13 @@ const PageMessage = () => {
                 next={loadMoreMessages}
                 hasMore={messageHasNext}
                 loader={<Skeleton active />}
-                endMessage={<p>{`${currentPageMessageSession?.page.name} accepted your lixi`}</p>}
+                endMessage={
+                  isPageOwner ? (
+                    <p>{`You accepted lixi from ${currentPageMessageSession.account.name}`}</p>
+                  ) : (
+                    <p>{`${currentPageMessageSession?.page.name} accepted your lixi`}</p>
+                  )
+                }
                 inverse
                 scrollableTarget="scrollableChatbox"
               >
@@ -429,7 +435,11 @@ const PageMessage = () => {
             )
           ) : (
             <LixiContainer>
-              <p>{`Waiting for ${currentPageMessageSession?.page?.name} to accept your lixi. Patience is a Virtue!`}</p>
+              {isPageOwner ? (
+                <p>{`${currentPageMessageSession?.account.name} want to give you ${currentPageMessageSession?.lixi.amount} XPI for messaging`}</p>
+              ) : (
+                <p>{`Waiting for ${currentPageMessageSession?.page?.name} to accept your lixi. Patience is a Virtue!`}</p>
+              )}
             </LixiContainer>
           )}
         </StyledChatbox>
