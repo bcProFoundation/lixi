@@ -1,7 +1,7 @@
 import { Comment } from '@ant-design/compatible';
 import { Account, NotificationDto as Notification } from '@bcpros/lixi-models';
 import { AvatarUser } from '@components/Common/AvatarUser';
-import { getSelectedAccount } from '@store/account/selectors';
+import { getSelectedAccountId } from '@store/account/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { downloadExportedLixi } from '@store/lixi/actions';
 import {
@@ -176,7 +176,7 @@ const BlankNotification = styled.p`
 const NotificationPopup = (notifications: Notification[], account: Account, isPopover?: boolean) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const selectedAccountId = useAppSelector(getSelectedAccountId);
 
   const handleDelete = (account: Account, notificationId: string) => {
     dispatch(deleteNotification({ mnemonichHash: account.mnemonicHash, notificationId }));
@@ -192,13 +192,10 @@ const NotificationPopup = (notifications: Notification[], account: Account, isPo
   };
 
   const handleReadAll = () => {
-    dispatch(readAllNotifications());
-    dispatch(
-      fetchNotifications({
-        accountId: selectedAccount.id,
-        mnemonichHash: selectedAccount.mnemonicHash
-      })
-    );
+    dispatch(readAllNotifications({
+      accountId: selectedAccountId,
+      mnemonichHash: account.mnemonicHash
+    }));
   };
 
   const menuItems = [{ label: 'All', key: 'all' }];
@@ -237,7 +234,7 @@ const NotificationPopup = (notifications: Notification[], account: Account, isPo
             ) : (
               <>
                 <Button type="primary" className="no-border-btn" onClick={onClickMenu}>
-                  {intl.get('general.all')}
+                  All
                 </Button>
               </>
             )}
