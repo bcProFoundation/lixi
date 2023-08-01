@@ -94,9 +94,15 @@ const ProfileCardHeader = styled.div`
       }
     }
     button {
+      display: block;
       position: absolute;
       bottom: 0.5rem;
       right: 0.5rem;
+    }
+    @media (max-width: 960px) {
+      button {
+        display: none;
+      }
     }
   }
   .info-profile {
@@ -161,21 +167,26 @@ const ProfileCardHeader = styled.div`
     .action-profile {
       display: flex;
       align-self: center;
-      @media (max-width: 1001px) {
-        max-width: 160px;
+      gap: 8px;
+      .btn-edit-cover {
+        display: none;
+      }
+      @media (max-width: 960px) {
         text-align: center;
         button {
           margin-bottom: 4px;
         }
-      }
-      @media (max-width: 426px) {
-        display: none;
+        .btn-edit-cover {
+          display: block;
+        }
       }
       button {
-        svg {
-          filter: var(--filter-color-primary);
-          width: 16px;
-          height: 16px;
+        .anticon-custom {
+          svg {
+            filter: var(--filter-color-primary);
+            width: 16px;
+            height: 16px;
+          }
         }
       }
     }
@@ -668,6 +679,10 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                   onClick={() => showPopulatedRenameAccountModal(selectedAccount as Account)}
                 >
                   {intl.get('account.edit')}
+                </Button>
+                <Button type="primary" className="outline-btn btn-edit-cover" onClick={() => uploadModal(false)}>
+                  <CameraOutlined />
+                  {intl.get('page.editCoverPhoto')}
                 </Button>
               </div>
             )}
