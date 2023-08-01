@@ -313,7 +313,7 @@ const NotificationPopup = (notifications: Notification[], account: Account, isPo
                           name={
                             !!notification && !!notification.additionalData && notification.additionalData.senderName
                           }
-                          isMarginRight={false}
+                          isMarginRight={true}
                         />
                       </div>
                     }

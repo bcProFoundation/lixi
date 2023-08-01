@@ -11,8 +11,8 @@ const StyledAvatar = styled(Avatar)`
   justify-content: center;
 
   img {
-    width: 46px !important;
-    height: 46px !important;
+    width: 100% !important;
+    height: 100% !important;
   }
 `;
 
