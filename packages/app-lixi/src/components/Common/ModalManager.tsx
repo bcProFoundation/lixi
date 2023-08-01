@@ -19,7 +19,6 @@ import { PostDetailModal } from '../Posts/PostDetailModal';
 import { AuthorizationModal } from './Authorization/AuthorizationModal';
 import { getCurrentThemes } from '@store/settings';
 import darkTheme from 'src/styles/themes/darkTheme';
-import { CreateAccountModel } from './CreateAccountModal';
 
 const modalComponentLookupTable = {
   CreateLixiConfirmationModal,
@@ -36,7 +35,6 @@ const modalComponentLookupTable = {
   FollowModal,
   PostDetailModal,
   AuthorizationModal,
-  CreateAccountModel
 };
 
 const ModalManager = () => {

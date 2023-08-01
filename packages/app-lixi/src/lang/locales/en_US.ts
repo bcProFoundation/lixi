@@ -354,7 +354,6 @@ export default {
   'claim.pleaseCopyManually': 'Please copy the code manually',
   'claim.withdrawSuccess': 'Withdraw successfully',
   'claim.refreshSuccess': 'Refresh successfully',
-  'claim.dontHaveAccount': "You don't have account to claim yet! Do you want to create new account?",
 
   /* 05.Settings */
   'settings.languages': 'Languages',

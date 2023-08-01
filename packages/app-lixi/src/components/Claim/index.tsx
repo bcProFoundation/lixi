@@ -20,6 +20,7 @@ import { getSelectedAccount } from '@store/account/selectors';
 import styled from 'styled-components';
 import { WalletContext } from '@context/index';
 import { openModal } from '@store/modal/actions';
+import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
 
@@ -86,6 +87,7 @@ const ClaimComponent = ({ isClaimFromAccount, claimCodeFromURL }: ClaimProps) =>
   const currentAddress = useAppSelector(getCurrentAddress);
   const currentClaimCode = claimCodeFromURL ?? useSelector(getCurrentClaimCode);
   const selectedAccount = useAppSelector(getSelectedAccount);
+  const askAuthorization = useAuthorization();
 
   const [claimXpiAddressError, setClaimXpiAddressError] = useState<string | boolean>(false);
 
@@ -139,7 +141,7 @@ const ClaimComponent = ({ isClaimFromAccount, claimCodeFromURL }: ClaimProps) =>
   async function submit(token) {
     let claimCode = currentClaimCode;
     if (!currentAddress || !currentClaimCode) {
-      dispatch(openModal('CreateAccountModel', { classStyle: 'ahihi' }));
+      askAuthorization();
       return;
     } else if (currentClaimCode.includes('lixi_')) {
       claimCode = claimCode.match('(?<=lixi_).*')[0];

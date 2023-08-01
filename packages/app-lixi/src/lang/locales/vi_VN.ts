@@ -351,7 +351,6 @@ export default {
   'claim.pleaseCopyManually': 'Hãy thử sao chép mã Lì xì và tiếp tục',
   'claim.withdrawSuccess': 'Rút thành công',
   'claim.refreshSuccess': 'Làm mới thành công',
-  'claim.dontHaveAccount': "Bạn chưa có tài khoản để nhận! Bạn có muốn tạo tài khoản mới?",
 
   /* 05.Settings */
   'settings.languages': 'Ngôn ngữ',
