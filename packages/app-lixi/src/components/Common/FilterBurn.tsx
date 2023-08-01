@@ -17,6 +17,7 @@ import { SliderMarks } from 'antd/es/slider';
 const FilterStyle = styled.div`
   display: flex;
   align-items: baseline;
+  gap: 4px;
   p {
     margin: 0;
     font-weight: 500;
@@ -102,7 +103,7 @@ export const FilterBurnt = (props: FilterBurntProps) => {
     <>
       <FilterContainer>
         <FilterStyle>
-          <p>{intl.get('general.level')}:</p>
+          <p>{intl.get('general.level')}: </p>
           <Input.Group>
             <Button
               className="down-value"
