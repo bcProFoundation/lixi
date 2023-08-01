@@ -19,6 +19,7 @@ import { useSelector } from 'react-redux';
 import { getSelectedAccount } from '@store/account/selectors';
 import styled from 'styled-components';
 import { WalletContext } from '@context/index';
+import { openModal } from '@store/modal/actions';
 
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
 
@@ -138,6 +139,7 @@ const ClaimComponent = ({ isClaimFromAccount, claimCodeFromURL }: ClaimProps) =>
   async function submit(token) {
     let claimCode = currentClaimCode;
     if (!currentAddress || !currentClaimCode) {
+      dispatch(openModal('CreateAccountModel', { classStyle: 'ahihi' }));
       return;
     } else if (currentClaimCode.includes('lixi_')) {
       claimCode = claimCode.match('(?<=lixi_).*')[0];
