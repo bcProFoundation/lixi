@@ -508,10 +508,11 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
         burnForId,
         burnValue,
         tipToAddresses: tipToAddresses,
-        postQueryTag: PostsQueryTag.PostsByUserId,
-        userId: post.postAccount?.id as string,
-        //TODO: minBurnFilter undefined cause not optimistic update. Fix it in future update!
-        minBurnFilter: filterValue
+        extraArguments: {
+          postQueryTag: PostsQueryTag.PostsByUserId,
+          userId: post.postAccount?.id as string,
+          minBurnFilter: filterValue
+        }
       };
 
       dispatch(addBurnQueue(burnCommand));
