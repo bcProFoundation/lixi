@@ -100,6 +100,16 @@ const YourPageContainer = styled.div`
     button {
       padding: 0.5rem 1rem !important;
       font-size: 14pt !important;
+      display: inline-block !important;
+    }
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    @media (max-width: 350px) {
+      font-size: 11pt !important;
+      button {
+        font-size: 11pt !important;
+      }
     }
   }
 `;
