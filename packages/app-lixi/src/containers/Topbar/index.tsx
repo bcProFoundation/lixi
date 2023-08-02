@@ -474,7 +474,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
 
   const balanceAccount = (acc?: any) => {
     let balanceString;
-    balanceString = fromSmallestDenomination(acc.balance ?? 0).toFixed(2);
+    balanceString = fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis ?? 0).toFixed(2);
 
     return balanceString;
   };
