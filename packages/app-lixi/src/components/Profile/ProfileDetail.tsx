@@ -11,7 +11,7 @@ import {
   PostOrderField
 } from '@generated/types.generated';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
-import { setTransactionReady } from '@store/account/actions';
+import { renameAccount, setTransactionReady } from '@store/account/actions';
 import { getAccountInfoTemp, getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';
 import { addBurnQueue, addBurnTransaction, clearFailQueue, getFailQueue } from '@store/burn';
 import { useCreateFollowAccountMutation, useDeleteFollowAccountMutation } from '@store/follow/follows.api';
@@ -33,6 +33,9 @@ import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import { WithAuthorizeAction } from '../Common/Authorization/WithAuthorizeAction';
 import { CameraOutlined, EditOutlined } from '@ant-design/icons';
+import { ReactSVG } from 'react-svg';
+import { Account, RenameAccountCommand } from '@bcpros/lixi-models';
+import { RenameAccountModalProps } from '@components/Settings/RenameAccountModal';
 
 const URL_AVATAR_DEFAULT = '/images/default-avatar.jpg';
 const URL_COVER_DEFAULT = '/images/default-avatar.jpg';
@@ -77,15 +80,29 @@ const StyledContainerProfileDetail = styled.div`
 `;
 
 const ProfileCardHeader = styled.div`
-  .cover-img {
-    object-fit: cover;
-    width: 100%;
-    height: 200px;
-    border-top-right-radius: var(--border-radius-item);
-    border-top-left-radius: var(--border-radius-item);
-    @media (max-width: 768px) {
-      border-radius: 0;
+  .container-img {
+    position: relative;
+    .cover-img {
+      object-fit: cover;
+      width: 100%;
       height: 200px;
+      border-top-right-radius: var(--border-radius-item);
+      border-top-left-radius: var(--border-radius-item);
+      @media (max-width: 768px) {
+        border-radius: 0;
+        height: 200px;
+      }
+    }
+    button {
+      display: block;
+      position: absolute;
+      bottom: 0.5rem;
+      right: 0.5rem;
+    }
+    @media (max-width: 960px) {
+      button {
+        display: none;
+      }
     }
   }
   .info-profile {
@@ -148,15 +165,29 @@ const ProfileCardHeader = styled.div`
       }
     }
     .action-profile {
-      @media (max-width: 1001px) {
-        max-width: 160px;
+      display: flex;
+      align-self: center;
+      gap: 8px;
+      .btn-edit-cover {
+        display: none;
+      }
+      @media (max-width: 960px) {
         text-align: center;
         button {
           margin-bottom: 4px;
         }
+        .btn-edit-cover {
+          display: block;
+        }
       }
-      @media (max-width: 426px) {
-        display: none;
+      button {
+        .anticon-custom {
+          svg {
+            filter: var(--filter-color-primary);
+            width: 16px;
+            height: 16px;
+          }
+        }
       }
     }
     @media (max-width: 768px) {
@@ -412,11 +443,11 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
   const failQueue = useAppSelector(getFailQueue);
   const filterValue = useAppSelector(getFilterPostsProfile);
-  const selectedAccount = useAppSelector(getSelectedAccount);
   const [isFollowed, setIsFollowed] = useState<boolean>(checkIsFollowed);
   const [listsPicture, setListsPicture] = useState<any>([]);
   const selectedAccountId = useAppSelector(getSelectedAccountId);
   const accountInfoTemp = useAppSelector(getAccountInfoTemp);
+  const selectedAccount = useAppSelector(getSelectedAccount);
 
   const [
     createFollowAccountTrigger,
@@ -509,10 +540,11 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
         burnForId,
         burnValue,
         tipToAddresses: tipToAddresses,
-        postQueryTag: PostsQueryTag.PostsByUserId,
-        userId: post.postAccount?.id as string,
-        //TODO: minBurnFilter undefined cause not optimistic update. Fix it in future update!
-        minBurnFilter: filterValue
+        extraArguments: {
+          postQueryTag: PostsQueryTag.PostsByUserId,
+          userId: post.postAccount?.id as string,
+          minBurnFilter: filterValue
+        }
       };
 
       dispatch(addBurnQueue(burnCommand));
@@ -534,7 +566,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const handleFollow = async () => {
     const createFollowAccountInput: CreateFollowAccountInput = {
       followingAccountId: parseInt(user.id),
-      followerAccountId: selectedAccount.id
+      followerAccountId: selectedAccountId
     };
 
     await createFollowAccountTrigger({ input: createFollowAccountInput });
@@ -543,14 +575,14 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const handleUnfollow = async () => {
     const deleteFollowAccountInput: DeleteFollowAccountInput = {
       followingAccountId: parseInt(user.id),
-      followerAccountId: selectedAccount.id
+      followerAccountId: selectedAccountId
     };
 
     await deleteFollowAccountTrigger({ input: deleteFollowAccountInput });
   };
 
   const openFollowModal = (type: Follow) => {
-    dispatch(openModal('FollowModal', { accountId: selectedAccount.id, type: type }));
+    dispatch(openModal('FollowModal', { accountId: selectedAccountId, type: type }));
   };
 
   const uploadModal = (isAvatar: boolean) => {
@@ -573,10 +605,23 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
     if (selectedAccountId == user?.id) {
       urlCoverAccount = accountInfoTemp?.cover || URL_COVER_DEFAULT;
     } else {
-      const cfUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${user?.avatar.upload.cfImageId}/public`;
+      const cfUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${user?.cover.upload.cfImageId}/public`;
       urlCoverAccount = cfUrl || URL_COVER_DEFAULT;
     }
     return urlCoverAccount;
+  };
+
+  const showPopulatedRenameAccountModal = (account: Account) => {
+    const command: RenameAccountCommand = {
+      id: account.id,
+      mnemonic: account.mnemonic,
+      name: account.name
+    };
+    const renameAcountModalProps: RenameAccountModalProps = {
+      account: account,
+      onOkAction: renameAccount(command)
+    };
+    dispatch(openModal('RenameAccountModal', renameAcountModalProps));
   };
 
   return (
@@ -585,6 +630,12 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
         <ProfileCardHeader>
           <div className="container-img">
             <img className="cover-img" src={getCoverAccount()} alt="" />
+            {selectedAccountId == user.id && (
+              <Button type="primary" className="no-border-btn" onClick={() => uploadModal(false)}>
+                <CameraOutlined />
+                {intl.get('page.editCoverPhoto')}
+              </Button>
+            )}
           </div>
           <div className="info-profile">
             <div className="wrapper-avatar">
@@ -604,7 +655,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
               </div>
             </div>
             {/* Follow */}
-            {user.id != selectedAccount.id && (
+            {user.id != selectedAccountId && (
               <AuthorizedButton id="follow-button" onClick={isFollowed ? () => handleUnfollow() : () => handleFollow()}>
                 {isFollowed ? intl.get('general.unfollow') : intl.get('general.follow')}
               </AuthorizedButton>
@@ -622,14 +673,24 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                   <EditOutlined />
                   Edit profile
                 </Button> */}
-                <Button type="primary" className="outline-btn" onClick={() => uploadModal(false)}>
+                <Button
+                  type="primary"
+                  icon={
+                    <ReactSVG wrapper="span" className="anticon anticon-custom" src="/images/ico-edit-square.svg" />
+                  }
+                  className="outline-btn"
+                  onClick={() => showPopulatedRenameAccountModal(selectedAccount as Account)}
+                >
+                  {intl.get('account.edit')}
+                </Button>
+                <Button type="primary" className="outline-btn btn-edit-cover" onClick={() => uploadModal(false)}>
                   <CameraOutlined />
                   {intl.get('page.editCoverPhoto')}
                 </Button>
               </div>
             )}
           </div>
-          {selectedAccount.id == user.id && (
+          {selectedAccountId == user.id && (
             <div className="description-profile">
               <Button onClick={() => openFollowModal(Follow.Followers)}>
                 {user.followersCount}

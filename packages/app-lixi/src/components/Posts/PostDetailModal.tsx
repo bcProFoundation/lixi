@@ -17,12 +17,12 @@ import { sendXPIFailure } from '@store/send/actions';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { fromSmallestDenomination, fromXpiToSatoshis, getUtxoWif } from '@utils/cashMethods';
-import { Image, Input, Skeleton, AutoComplete, Modal, Space } from 'antd';
+import { Image, Input, Skeleton, AutoComplete, Modal, Space, Button } from 'antd';
 import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 import moment from 'moment';
 import { useRouter } from 'next/router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactHtmlParser from 'react-html-parser';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
@@ -286,6 +286,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
   const { XPI, chronik } = Wallet;
   const { createBurnTransaction, sendXpi } = useXPI();
   const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
+  const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
   const burnQueue = useAppSelector(getBurnQueue);
   const failQueue = useAppSelector(getFailQueue);
   const walletPaths = useAppSelector(getAllWalletPaths);
@@ -301,6 +302,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
   const [borderColorHeader, setBorderColorHeader] = useState(false);
   const { width } = useWindowDimensions();
   const accountInfoTemp = useAppSelector(getAccountInfoTemp);
+  const [isSendingXPI, setIsSendingXPI] = useState<boolean>(false);
 
   useEffect(() => {
     const isMobileDetail = width < 960 ? true : false;
@@ -367,6 +369,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
       const burnedBy = hash160;
       const burnForId = data.id;
       let queryParams;
+      let postId: string;
 
       let tipToAddresses: { address: string; amount: string }[] = [];
 
@@ -387,12 +390,10 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
             amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
           });
 
+          postId = comment.commentToId;
           queryParams = {
-            id: comment.commentToId,
-            orderBy: {
-              direction: OrderDirection.Asc,
-              field: CommentOrderField.UpdatedAt
-            }
+            direction: OrderDirection.Asc,
+            field: CommentOrderField.UpdatedAt
           };
           break;
       }
@@ -416,9 +417,12 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
         burnForId,
         burnValue,
         tipToAddresses: tipToAddresses,
-        postQueryTag: PostsQueryTag.Post,
-        queryParams: queryParams,
-        minBurnFilter: filterValue
+        extraArguments: {
+          postQueryTag: PostsQueryTag.Post,
+          postId: postId,
+          orderBy: queryParams,
+          minBurnFilter: filterValue
+        }
       };
 
       dispatch(addBurnQueue(burnCommand));
@@ -434,6 +438,11 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
       );
     }
   };
+
+  useEffect(() => {
+    if (slpBalancesAndUtxos === slpBalancesAndUtxosRef.current) return;
+    setIsSendingXPI(false);
+  }, [slpBalancesAndUtxos.nonSlpUtxos]);
 
   const loadMoreComments = () => {
     if (hasNext && !isFetching) {
@@ -459,28 +468,55 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
 
     if (open) return;
 
-    if (text !== '' || !_.isNil(text)) {
-      let tipHex;
-      let createFeeHex;
-      if (text.trim().toLowerCase().split(' ')[0] === '/give') {
-        try {
-          if (!isNumeric(text.trim().split(' ')[1])) {
-            const error = new Error(intl.get('send.syntaxError') as string);
-            throw error;
-          }
+    let tipHex;
+    let createFeeHex;
+    if (text.trim().toLowerCase().split(' ')[0] === '/give') {
+      setIsSendingXPI(true);
+      try {
+        if (!isNumeric(text.trim().split(' ')[1])) {
+          const error = new Error(intl.get('send.syntaxError') as string);
+          throw error;
+        }
 
+        const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
+        tipHex = await sendXpi(
+          XPI,
+          chronik,
+          walletPaths,
+          slpBalancesAndUtxos.nonSlpUtxos,
+          currency.defaultFee,
+          text,
+          false, // indicate send mode is one to one
+          null,
+          post.postAccount.address,
+          text.trim().split(' ')[1],
+          isEncryptedOptionalOpReturnMsg,
+          fundingWif,
+          true
+        );
+      } catch (e) {
+        const message = e.message || e.error || JSON.stringify(e);
+        dispatch(sendXPIFailure(message));
+      }
+    }
+
+    if (post.page) {
+      if (selectedAccount.id != parseInt(post.page.pageAccount.id) && post.page.createCommentFee != '0') {
+        setIsSendingXPI(true);
+
+        try {
           const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-          tipHex = await sendXpi(
+          createFeeHex = await sendXpi(
             XPI,
             chronik,
             walletPaths,
             slpBalancesAndUtxos.nonSlpUtxos,
             currency.defaultFee,
-            text,
+            '',
             false, // indicate send mode is one to one
             null,
-            post.postAccount.address,
-            text.trim().split(' ')[1],
+            post.page.pageAccount.address,
+            post.page.createCommentFee,
             isEncryptedOptionalOpReturnMsg,
             fundingWif,
             true
@@ -490,81 +526,52 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
           dispatch(sendXPIFailure(message));
         }
       }
+    }
 
-      if (post.page) {
-        if (selectedAccount.id != parseInt(post.page.pageAccount.id) && post.page.createCommentFee != '0') {
-          try {
-            const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-            createFeeHex = await sendXpi(
-              XPI,
-              chronik,
-              walletPaths,
-              slpBalancesAndUtxos.nonSlpUtxos,
-              currency.defaultFee,
-              '',
-              false, // indicate send mode is one to one
-              null,
-              post.page.pageAccount.address,
-              post.page.createCommentFee,
-              isEncryptedOptionalOpReturnMsg,
-              fundingWif,
-              true
-            );
-          } catch (e) {
-            const message = e.message || e.error || JSON.stringify(e);
-            dispatch(sendXPIFailure(message));
+    const createCommentInput: CreateCommentInput = {
+      commentText: text,
+      commentToId: post.id,
+      tipHex: tipHex,
+      createFeeHex: createFeeHex
+    };
+
+    const params = {
+      orderBy: {
+        direction: OrderDirection.Asc,
+        field: CommentOrderField.UpdatedAt
+      }
+    };
+
+    let patches: PatchCollection;
+    try {
+      const result = await createCommentTrigger({ input: createCommentInput }).unwrap();
+      patches = dispatch(
+        commentsApi.util.updateQueryData(
+          'CommentsToPostId',
+          { id: createCommentInput.commentToId, ...params },
+          draft => {
+            draft.allCommentsToPostId.edges.unshift({
+              cursor: result.createComment.id,
+              node: {
+                ...result.createComment
+              }
+            });
+            draft.allCommentsToPostId.totalCount = draft.allCommentsToPostId.totalCount + 1;
           }
-        }
+        )
+      );
+    } catch (error) {
+      const message = intl.get('comment.unableCreateComment');
+      if (patches) {
+        dispatch(commentsApi.util.patchQueryData('CommentsToPostId', params, patches.inversePatches));
       }
-
-      const createCommentInput: CreateCommentInput = {
-        commentText: text,
-        commentToId: post.id,
-        tipHex: tipHex,
-        createFeeHex: createFeeHex
-      };
-
-      const params = {
-        orderBy: {
-          direction: OrderDirection.Asc,
-          field: CommentOrderField.UpdatedAt
-        }
-      };
-
-      let patches: PatchCollection;
-      try {
-        const result = await createCommentTrigger({ input: createCommentInput }).unwrap();
-        patches = dispatch(
-          commentsApi.util.updateQueryData(
-            'CommentsToPostId',
-            { id: createCommentInput.commentToId, ...params },
-            draft => {
-              draft.allCommentsToPostId.edges.unshift({
-                cursor: result.createComment.id,
-                node: {
-                  ...result.createComment
-                }
-              });
-              draft.allCommentsToPostId.totalCount = draft.allCommentsToPostId.totalCount + 1;
-            }
-          )
-        );
-      } catch (error) {
-        const message = intl.get('comment.unableCreateComment');
-        if (patches) {
-          dispatch(commentsApi.util.patchQueryData('CommentsToPostId', params, patches.inversePatches));
-        }
-        dispatch(
-          showToast('error', {
-            message: 'Error',
-            description: message,
-            duration: 3
-          })
-        );
-      }
-
-      // setFocus('comment', { shouldSelect: true });
-      // setValue('comment', '');
+      dispatch(
+        showToast('error', {
+          message: 'Error',
+          description: message,
+          duration: 3
+        })
+      );
     }
 
     resetField('comment');
@@ -682,7 +689,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
   };
 
   return (
-    <>
+    <React.Fragment>
       <Modal
         width={'50vw'}
         className={`${classStyle} post-detail-custom-modal ${
@@ -819,7 +826,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
                     }}
                     defaultActiveFirstOption
                     getPopupContainer={trigger => trigger.parentElement}
-                    disabled={isLoadingCreateComment}
+                    disabled={isLoadingCreateComment || isSendingXPI}
                     style={{ width: '-webkit-fill-available', textAlign: 'left' }}
                   >
                     <StyledTextArea
@@ -837,15 +844,20 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
                 )}
               />
               <StyledIconContainer>
-                <SendOutlined
-                  style={{ fontSize: '20px' }}
-                  onClick={() => handleCreateNewComment(getValues('comment'))}
+                <Button
+                  type="text"
+                  disabled={isLoadingCreateComment || isSendingXPI}
+                  style={{ borderColor: 'transparent !important' }}
+                  onClick={async () => {
+                    await handleCreateNewComment(getValues('comment'));
+                  }}
+                  icon={<SendOutlined style={{ fontSize: '20px' }} />}
                 />
               </StyledIconContainer>
             </StyledCommentContainer>
           </CommentInputContainer>
         </StyledContainerPostDetail>
       </Modal>
-    </>
+    </React.Fragment>
   );
 };

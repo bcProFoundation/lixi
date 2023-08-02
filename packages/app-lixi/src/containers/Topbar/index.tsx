@@ -24,7 +24,7 @@ import { fetchNotifications, startChannel, stopChannel } from '@store/notificati
 import { getAllNotifications } from '@store/notification/selectors';
 import { api as postApi } from '@store/post/posts.api';
 import { useInfinitePostsQuery } from '@store/post/useInfinitePostsQuery';
-import { saveTopPostsFilter, setDarkTheme, toggleCollapsedSideNav } from '@store/settings/actions';
+import { saveTopPostsFilter, toggleCollapsedSideNav } from '@store/settings/actions';
 import { getCurrentThemes, getFilterPostsHome, getIsTopPosts, getNavCollapsed } from '@store/settings/selectors';
 import { Badge, Button, Popover, Space, Switch, message } from 'antd';
 import { Header } from 'antd/lib/layout/layout';
@@ -74,10 +74,12 @@ const PathDirection = styled.div`
 
   .menu-mobile {
     display: none;
-    margin-left: 6px;
+    margin: 0 10px;
     @media (max-width: 960px) {
       display: block;
     }
+    max-width: 22px;
+    max-height: 22px;
   }
 
   .path-direction-text {
@@ -262,6 +264,11 @@ const PopoverStyled = styled.div`
 `;
 
 const TitleFilterStyled = styled.span`
+  display: flex;
+  justify-content: space-between;
+  .follow-title {
+    font-weight: 500;
+  }
   svg {
     width: 12px;
     height: 12px;
@@ -447,8 +454,9 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
       {router?.pathname == '/' && (
         <PopoverStyled>
           <TitleFilterStyled>
-            {intl.get('general.postFilter')}
-            <Icon component={() => <FollowSvg />} />
+            <p className="follow-title">
+              {intl.get('general.postFilter')} <Icon component={() => <FollowSvg />} />
+            </p>
             <Switch
               checkedChildren={intl.get('general.on')}
               unCheckedChildren={intl.get('general.off')}
@@ -539,17 +547,6 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
             })}
         </>
       )}
-      <h3 style={{ marginTop: otherAccounts.length > 0 ? '1rem' : '' }}>Switch Theme</h3>
-      <Button
-        type="primary"
-        className="outline-btn"
-        icon={<SwapOutlined />}
-        onClick={() => {
-          dispatch(setDarkTheme(!currentTheme));
-        }}
-      >
-        {!currentTheme ? 'Dark theme' : 'Light theme'}
-      </Button>
     </AccountBox>
   );
 
@@ -640,7 +637,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
   return (
     <StyledHeader style={{ boxShadow: '0 10px 30px rgb(0 0 0 / 5%)' }} className={className}>
       <PathDirection>
-        <img className="menu-mobile" src="/images/ico-menu.svg" alt="" onClick={handleMenuClick} />
+        <img className="menu-mobile" src="/images/ico-list-bullet_2.svg" alt="" onClick={handleMenuClick} />
         {currentPathName == '/' && (
           <picture>
             <img
@@ -678,7 +675,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
             icon={<HomeOutlined />}
           />
           <Popover
-            overlayClassName={`${currentTheme ? 'popover-dark' : ''} filter-btn`}
+            overlayClassName={`${currentTheme === 'dark' ? 'popover-dark' : ''} filter-btn`}
             arrow={false}
             content={contentFilterBurn}
             placement="bottom"
@@ -686,7 +683,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
             <Button className="animate__animated animate__heartBeat" type="text" icon={<FilterOutlined />} />
           </Popover>
           <Popover
-            overlayClassName={`${currentTheme ? 'popover-dark' : ''} nofication-btn`}
+            overlayClassName={`${currentTheme === 'dark' ? 'popover-dark' : ''} nofication-btn`}
             arrow={false}
             content={contentNotification}
             placement="bottom"
@@ -702,7 +699,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
           </Popover>
           <Popover
             onOpenChange={visible => setOpenMoreOption(visible)}
-            overlayClassName={`${currentTheme ? 'popover-dark' : ''} more-btn`}
+            overlayClassName={`${currentTheme === 'dark' ? 'popover-dark' : ''} more-btn`}
             arrow={false}
             content={contentMoreAction}
             placement="bottom"
@@ -713,7 +710,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
         </div>
         <div className="account-bar">
           <Popover
-            overlayClassName={`${currentTheme ? 'popover-dark' : ''}`}
+            overlayClassName={`${currentTheme === 'dark' ? 'popover-dark' : ''}`}
             arrow={false}
             content={contentSelectAccount}
             placement="bottom"

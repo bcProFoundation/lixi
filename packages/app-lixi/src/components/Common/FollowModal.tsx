@@ -145,7 +145,6 @@ export const FollowModal: React.FC<FollowModalProps> = (props: FollowModalProps)
   const handleCloseModal = () => {
     dispatch(closeModal());
   };
-  console.log('ahihi', props.classStyle);
 
   return (
     <>

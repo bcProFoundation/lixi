@@ -21,34 +21,46 @@ const ToastNotificationManage = () => {
       case 'success':
         return (
           <ReactSVG
-            src={`${currentTheme ? '/images/ico-toast-success-dark.svg' : '/images/ico-toast-success-light.svg'}`}
+            src={`${
+              currentTheme === 'dark' ? '/images/ico-toast-success-dark.svg' : '/images/ico-toast-success-light.svg'
+            }`}
           />
         );
       case 'error':
         return (
           <ReactSVG
-            src={`${currentTheme ? '/images/ico-toast-error-dark.svg' : '/images/ico-toast-error-light.svg'}`}
+            src={`${
+              currentTheme === 'dark' ? '/images/ico-toast-error-dark.svg' : '/images/ico-toast-error-light.svg'
+            }`}
           />
         );
       case 'warning':
         return (
           <ReactSVG
-            src={`${currentTheme ? '/images/ico-toast-warning-dark.svg' : '/images/ico-toast-warning-light.svg'}`}
+            src={`${
+              currentTheme === 'dark' ? '/images/ico-toast-warning-dark.svg' : '/images/ico-toast-warning-light.svg'
+            }`}
           />
         );
       case 'open':
         return (
-          <ReactSVG src={`${currentTheme ? '/images/ico-toast-info-dark.svg' : '/images/ico-toast-info-light.svg'}`} />
+          <ReactSVG
+            src={`${currentTheme === 'dark' ? '/images/ico-toast-info-dark.svg' : '/images/ico-toast-info-light.svg'}`}
+          />
         );
       case 'info':
         return (
-          <ReactSVG src={`${currentTheme ? '/images/ico-toast-info-dark.svg' : '/images/ico-toast-info-light.svg'}`} />
+          <ReactSVG
+            src={`${currentTheme === 'dark' ? '/images/ico-toast-info-dark.svg' : '/images/ico-toast-info-light.svg'}`}
+          />
         );
       case 'burn':
         return <ReactSVG src="/images/ico-fire-toast.svg" />;
       default:
         return (
-          <ReactSVG src={`${currentTheme ? '/images/ico-toast-info-dark.svg' : '/images/ico-toast-info-light.svg'}`} />
+          <ReactSVG
+            src={`${currentTheme === 'dark' ? '/images/ico-toast-info-dark.svg' : '/images/ico-toast-info-light.svg'}`}
+          />
         );
     }
   };
@@ -60,7 +72,7 @@ const ToastNotificationManage = () => {
         const newConfig = _.cloneDeep(config);
         newConfig.placement = 'top';
         newConfig.className = `custom-toast-notification ${
-          currentTheme ? 'custom-toast-notification-dark' : 'custom-toast-notification-light'
+          currentTheme === 'dark' ? 'custom-toast-notification-dark' : 'custom-toast-notification-light'
         }`;
         newConfig.icon = getIconToast(type);
         newConfig.message = newConfig?.message || intl.get(`toast.${type}`);

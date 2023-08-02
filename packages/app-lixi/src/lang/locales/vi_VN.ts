@@ -116,6 +116,7 @@ export default {
   'general.postFilter': 'Bài theo dõi: ',
   'general.dana': ' Dana',
   'general.support': 'Hỗ trợ',
+  'general.all': 'Tất cả',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Bạn cần nhập đúng cụm từ bảo mật',
@@ -350,8 +351,6 @@ export default {
   'claim.pleaseCopyManually': 'Hãy thử sao chép mã Lì xì và tiếp tục',
   'claim.withdrawSuccess': 'Rút thành công',
   'claim.refreshSuccess': 'Làm mới thành công',
-
-  'settings.settings': 'Cài đặt',
 
   /* 05.Settings */
   'settings.languages': 'Ngôn ngữ',

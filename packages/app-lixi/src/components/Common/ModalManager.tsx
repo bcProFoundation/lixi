@@ -34,7 +34,7 @@ const modalComponentLookupTable = {
   BurnModal,
   FollowModal,
   PostDetailModal,
-  AuthorizationModal
+  AuthorizationModal,
 };
 
 const ModalManager = () => {
@@ -43,11 +43,11 @@ const ModalManager = () => {
   const renderedModals = currentModals.map((modalDescription, index) => {
     const { modalType, modalProps = {} } = modalDescription;
     let newModalProps = { ...modalProps };
-    newModalProps.classStyle = currentTheme ? 'ant-modal-dark' : '';
+    newModalProps.classStyle = currentTheme === 'dark' ? 'ant-modal-dark' : '';
     const ModalComponent = modalComponentLookupTable[modalType];
 
     return (
-      <ConfigProvider theme={currentTheme ? darkTheme : lightTheme}>
+      <ConfigProvider theme={currentTheme === 'dark' ? darkTheme : lightTheme}>
         <ModalComponent {...newModalProps} key={modalType + index} />
       </ConfigProvider>
     );

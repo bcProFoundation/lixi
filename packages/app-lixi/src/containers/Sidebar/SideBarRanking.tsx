@@ -338,6 +338,15 @@ const SidebarRanking = () => {
     }, 700);
   };
 
+  const getTopAccountAvatar = (item: any) => {
+    if (item.avatar) {
+      const { upload } = item.avatar;
+      return `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${upload.cfImageId}/public`;
+    } else {
+      return '';
+    }
+  };
+
   return (
     <RankingSideBar
       className="sidebar-ranking"
@@ -406,7 +415,7 @@ const SidebarRanking = () => {
             </div>
             <img
               className="animation-top-ranking"
-              src={`${currentTheme ? '/images/ico-fire-static.png' : '/images/ico-fire-animation.gif'}`}
+              src={`${currentTheme === 'dark' ? '/images/ico-fire-static.png' : '/images/ico-fire-animation.gif'}`}
               alt=""
             />
           </div>
@@ -428,7 +437,7 @@ const SidebarRanking = () => {
                         <h4 className="distance" key={`${item.id}-${item.address}`}>
                           <ShortcutItemAccess
                             burnValue={item.totalBurned}
-                            icon={item.avatar ? item.avatar : ''}
+                            icon={getTopAccountAvatar(item)}
                             text={item.name}
                             href={`/profile/${item.address}`}
                             icoRanking="/images/ico-circled-1-ranking.png"
@@ -474,7 +483,9 @@ const SidebarRanking = () => {
             </div>
             <img
               className="animation-top-ranking"
-              src={`${currentTheme ? '/images/ico-fire-heart-static.png' : '/images/ico-fire-heart-animation.gif'}`}
+              src={`${
+                currentTheme === 'dark' ? '/images/ico-fire-heart-static.png' : '/images/ico-fire-heart-animation.gif'
+              }`}
               alt=""
             />
           </div>
@@ -566,7 +577,7 @@ const SidebarRanking = () => {
       )}
 
       <StyledModal
-        className={`${currentTheme ? 'ant-modal-dark' : ''}`}
+        className={`${currentTheme === 'dark' ? 'ant-modal-dark' : ''}`}
         title="Import account"
         open={open}
         footer={null}

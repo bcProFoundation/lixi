@@ -160,6 +160,7 @@ input CreatePageInput {
 
 input CreatePostInput {
   createFeeHex: String
+  extraArguments: ExtraArguments
   htmlContent: String!
   pageAccountId: Int
   pageId: String
@@ -234,9 +235,17 @@ input DeleteFollowTokenInput {
   tokenId: String!
 }
 
+input ExtraArguments {
+  hashtagId: String
+  hashtags: [String!]
+  isTop: String
+  minBurnFilter: Int
+  orderBy: PostOrder
+  query: String
+}
+
 type FollowAccount {
   avatar: String!
-  cover: String!
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
