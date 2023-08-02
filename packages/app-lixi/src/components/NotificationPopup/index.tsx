@@ -234,7 +234,7 @@ const NotificationPopup = (notifications: Notification[], account: Account, isPo
             ) : (
               <>
                 <Button type="primary" className="no-border-btn" onClick={onClickMenu}>
-                  All
+                  {intl.get('general.all')}
                 </Button>
               </>
             )}
