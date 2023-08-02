@@ -791,7 +791,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                 >
                   <PostListItem
                     index={index}
-                    item={item}
+                    item={{ ...item, page: undefined }}
                     key={item.id}
                     handleBurnForPost={handleBurnForPost}
                     addToRecentHashtags={hashtag =>
@@ -821,7 +821,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                 >
                   <PostListItem
                     index={index}
-                    item={item}
+                    item={{ ...item, page: undefined }}
                     key={item.id}
                     handleBurnForPost={handleBurnForPost}
                     addToRecentHashtags={hashtag =>
