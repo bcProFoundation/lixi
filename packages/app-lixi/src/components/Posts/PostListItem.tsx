@@ -17,7 +17,7 @@ import styled from 'styled-components';
 import { EditPostModalProps } from './EditPostModalPopup';
 import PostContent from './PostContent';
 import PostTranslate from './PostTranslate';
-import { PostItemType } from '@bcpros/lixi-models/constants';
+import { PostListType } from '@bcpros/lixi-models/constants';
 
 export const CommentList = ({ comments }: { comments: CommentItem[] }) => (
   <List
@@ -258,7 +258,7 @@ type PostListItemProps = {
   index: number;
   item: PostItem;
   searchValue?: string;
-  postItemType?: PostItemType;
+  postListType?: PostListType;
   handleBurnForPost?: (isUpVote: boolean, post: any, optionBurn?: string) => Promise<void>;
   addToRecentHashtags?: (hashtag: string) => any;
 };
@@ -267,7 +267,7 @@ const PostListItem = ({
   index,
   item,
   searchValue,
-  postItemType,
+  postListType,
   handleBurnForPost,
   addToRecentHashtags
 }: PostListItemProps) => {
@@ -402,7 +402,7 @@ const PostListItem = ({
             followPostOwner={post.followPostOwner}
             followedPage={post.followedPage}
             post={post}
-            postItemType={postItemType}
+            postListType={postListType}
           />
         </CardHeader>
         <Content onClick={e => handlePostClick(e)}>

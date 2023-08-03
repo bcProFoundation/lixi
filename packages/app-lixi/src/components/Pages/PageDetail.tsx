@@ -61,7 +61,7 @@ import _ from 'lodash';
 import { getSelectedPostId } from '@store/post/selectors';
 import { setSelectedPost } from '@store/post/actions';
 import { ReactSVG } from 'react-svg';
-import { PostItemType } from '@bcpros/lixi-models/constants';
+import { PostListType } from '@bcpros/lixi-models/constants';
 
 export type PageItem = PageQuery['page'];
 
@@ -795,7 +795,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                     item={item}
                     key={item.id}
                     handleBurnForPost={handleBurnForPost}
-                    postItemType={PostItemType.Page}
+                    postListType={PostListType.Page}
                     addToRecentHashtags={hashtag =>
                       dispatch(addRecentHashtagAtPages({ id: page.id, hashtag: hashtag.substring(1) }))
                     }
@@ -826,7 +826,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                     item={item}
                     key={item.id}
                     handleBurnForPost={handleBurnForPost}
-                    postItemType={PostItemType.Page}
+                    postListType={PostListType.Page}
                     addToRecentHashtags={hashtag =>
                       dispatch(addRecentHashtagAtPages({ id: page.id, hashtag: hashtag.substring(1) }))
                     }

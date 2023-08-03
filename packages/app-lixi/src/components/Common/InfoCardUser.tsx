@@ -12,7 +12,7 @@ import { CaretRightOutlined } from '@ant-design/icons';
 import FollowSvg from '@assets/icons/follow.svg';
 import { currency } from '@components/Common/Ticker';
 import { openActionSheet } from '@store/action-sheet/actions';
-import { PostItemType } from '@bcpros/lixi-models/constants';
+import { PostListType } from '@bcpros/lixi-models/constants';
 
 type InfoCardProps = {
   imgUrl: any;
@@ -30,7 +30,7 @@ type InfoCardProps = {
   followPostOwner?: boolean;
   followedPage?: boolean;
   post?: any;
-  postItemType?: PostItemType;
+  postListType?: PostListType;
 };
 
 const CardUser = styled.div`
@@ -153,7 +153,7 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
     followPostOwner,
     followedPage,
     post,
-    postItemType
+    postListType
   } = props;
   const selectedAccount = useAppSelector(getSelectedAccount);
   const history = useRouter();
@@ -220,7 +220,7 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
           {!page && !token && normalInfor}
           {page &&
             page?.name &&
-            (postItemType === PostItemType.Page ? (
+            (postListType === PostListType.Page ? (
               normalInfor
             ) : (
               <div className="card-container">
