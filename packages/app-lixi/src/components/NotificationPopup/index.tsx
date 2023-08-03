@@ -1,7 +1,7 @@
 import { Comment } from '@ant-design/compatible';
 import { Account, NotificationDto as Notification } from '@bcpros/lixi-models';
 import { AvatarUser } from '@components/Common/AvatarUser';
-import { getSelectedAccount } from '@store/account/selectors';
+import { getSelectedAccountId } from '@store/account/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { downloadExportedLixi } from '@store/lixi/actions';
 import {
@@ -104,6 +104,12 @@ const StyledComment = styled(Comment)`
     letter-spacing: 0.5px;
     color: #1e1a1d;
   }
+  .ant-avatar {
+    img {
+      width: 100% !important;
+      height: 100% !important;
+    }
+  }
   &.readed {
     background: #fff;
   }
@@ -176,7 +182,7 @@ const BlankNotification = styled.p`
 const NotificationPopup = (notifications: Notification[], account: Account, isPopover?: boolean) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const selectedAccountId = useAppSelector(getSelectedAccountId);
 
   const handleDelete = (account: Account, notificationId: string) => {
     dispatch(deleteNotification({ mnemonichHash: account.mnemonicHash, notificationId }));
@@ -192,11 +198,10 @@ const NotificationPopup = (notifications: Notification[], account: Account, isPo
   };
 
   const handleReadAll = () => {
-    dispatch(readAllNotifications());
     dispatch(
-      fetchNotifications({
-        accountId: selectedAccount.id,
-        mnemonichHash: selectedAccount.mnemonicHash
+      readAllNotifications({
+        accountId: selectedAccountId,
+        mnemonichHash: account.mnemonicHash
       })
     );
   };
@@ -316,7 +321,7 @@ const NotificationPopup = (notifications: Notification[], account: Account, isPo
                           name={
                             !!notification && !!notification.additionalData && notification.additionalData.senderName
                           }
-                          isMarginRight={false}
+                          isMarginRight={true}
                         />
                       </div>
                     }

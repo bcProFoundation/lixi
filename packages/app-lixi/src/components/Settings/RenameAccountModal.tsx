@@ -13,6 +13,7 @@ import { AnyAction } from '@reduxjs/toolkit';
 export type RenameAccountModalProps = {
   account: Account;
   onOkAction?: AnyAction;
+  classStyle?: string;
 };
 
 export const RenameAccountModal: React.FC<RenameAccountModalProps> = (props: RenameAccountModalProps) => {
@@ -30,6 +31,7 @@ export const RenameAccountModal: React.FC<RenameAccountModalProps> = (props: Ren
       dispatch(newAction);
     }
     dispatch(closeModal());
+    location.reload();
   };
 
   const handleOnCancel = () => {
@@ -51,6 +53,7 @@ export const RenameAccountModal: React.FC<RenameAccountModalProps> = (props: Ren
     <>
       <Modal
         title={`${intl.get('settings.enterAccountName')} ${account.name}`}
+        className={`${props?.classStyle}`}
         open={true}
         onOk={handleOnOk}
         onCancel={handleOnCancel}

@@ -198,6 +198,7 @@ export type CreatePageMessageInput = {
 
 export type CreatePostInput = {
   createFeeHex?: InputMaybe<Scalars['String']>;
+  extraArguments?: InputMaybe<ExtraArguments>;
   htmlContent: Scalars['String'];
   pageAccountId?: InputMaybe<Scalars['Int']>;
   pageId?: InputMaybe<Scalars['String']>;
@@ -286,10 +287,18 @@ export type EnvelopeModel = {
   updatedAt?: Maybe<Scalars['DateTime']>;
 };
 
+export type ExtraArguments = {
+  hashtagId?: InputMaybe<Scalars['String']>;
+  hashtags?: InputMaybe<Array<Scalars['String']>>;
+  isTop?: InputMaybe<Scalars['String']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<PostOrder>;
+  query?: InputMaybe<Scalars['String']>;
+};
+
 export type FollowAccount = {
   __typename?: 'FollowAccount';
   avatar: Scalars['String'];
-  cover: Scalars['String'];
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
   followerAccount?: Maybe<Account>;

@@ -44,6 +44,7 @@ import CommentListItem, { CommentItem } from './CommentListItem';
 import { EditPostModalProps } from './EditPostModalPopup';
 import { OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants';
 import PostTranslate from './PostTranslate';
+import useWindowDimensions from '@hooks/useWindowDimensions';
 
 export type PostItem = PostsQuery['allPosts']['edges'][0]['node'];
 export type BurnData = {
@@ -192,6 +193,49 @@ const PostContentDetail = styled.div`
       max-width: 100%;
       max-height: 100vh;
       object-fit: contain;
+      border-radius: var(--border-radius-primary);
+    }
+    &.images-post-mobile {
+      display: flex;
+      overflow-x: auto;
+      gap: 5px;
+      -ms-overflow-style: none; // Internet Explorer 10+
+      scrollbar-width: none; // Firefox
+      ::-webkit-scrollbar {
+        display: none; // Safari and Chrome
+      }
+      .ant-image {
+        width: auto !important;
+        height: auto !important;
+      }
+      img {
+        width: auto;
+        height: 100% !important;
+        max-width: 50vw;
+        max-height: 60vh;
+        object-fit: cover !important;
+        border-radius: var(--border-radius-primary);
+        border: 1px solid var(--lt-color-gray-100);
+        @media (max-width: 468px) {
+          max-width: 75vw;
+          max-height: 50vh;
+        }
+      }
+      &.only-one-image {
+        justify-content: center;
+        img {
+          max-width: 100%;
+        }
+      }
+    }
+    &.images-post-desktop {
+      img {
+        object-fit: cover;
+      }
+    }
+    .react-photo-gallery--gallery > div {
+      gap: 4px;
+      background: #fff;
     }
   }
 `;
@@ -296,6 +340,13 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   const filterValue = useAppSelector(getFilterPostsHome);
   const [showTranslation, setShowTranslation] = useState(false);
   const accountInfoTemp = useAppSelector(getAccountInfoTemp);
+  const [isMobileView, setIsMobileView] = useState(false);
+  const { width } = useWindowDimensions();
+
+  useEffect(() => {
+    const isMobile = width < 960 ? true : false;
+    setIsMobileView(isMobile);
+  }, [width]);
 
   const [repostTrigger, { isLoading: isLoadingRepost, isSuccess: isSuccessRepost, isError: isErrorRepost }] =
     useRepostMutation();
@@ -357,6 +408,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
       const burnedBy = hash160;
       const burnForId = data.id;
       let queryParams;
+      let postId: string;
 
       let tipToAddresses: { address: string; amount: string }[] = [];
 
@@ -377,12 +429,10 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
             amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
           });
 
+          postId = comment.commentToId;
           queryParams = {
-            id: comment.commentToId,
-            orderBy: {
-              direction: OrderDirection.Asc,
-              field: CommentOrderField.UpdatedAt
-            }
+            direction: OrderDirection.Asc,
+            field: CommentOrderField.UpdatedAt
           };
           break;
       }
@@ -406,9 +456,12 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
         burnForId,
         burnValue,
         tipToAddresses: tipToAddresses,
-        postQueryTag: PostsQueryTag.Post,
-        queryParams: queryParams,
-        minBurnFilter: filterValue
+        extraArguments: {
+          postQueryTag: PostsQueryTag.Post,
+          orderBy: queryParams,
+          postId: postId,
+          minBurnFilter: filterValue
+        }
       };
 
       dispatch(addBurnQueue(burnCommand));
@@ -658,7 +711,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
 
   return (
     <>
-      <StyledContainerPostDetail className="post-detail">
+      <StyledContainerPostDetail className="post-detail" style={{ paddingBottom: isMobileView ? '3rem' : '1rem' }}>
         <NavBarHeader onClick={() => router.back()}>
           <LeftOutlined style={{ marginRight: '0.5rem' }} />
           <InfoCardUser
@@ -693,10 +746,34 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
               <PostTranslate postTranslate={post.translations[0].translateContent} />
             </div>
           )}
-          {post.uploads.length != 0 && (
-            <div className="images-post">
+          {post.uploads.length != 0 && isMobileView && (
+            <>
+              {post.uploads.length > 1 && (
+                <div className="images-post images-post-mobile">
+                  <Image.PreviewGroup>
+                    {imagesList.map((img, index) => {
+                      return <Image key={index} src={img.src} />;
+                    })}
+                  </Image.PreviewGroup>
+                </div>
+              )}
+              {post.uploads.length === 1 && (
+                <>
+                  <div className="images-post images-post-mobile only-one-image">
+                    <Image.PreviewGroup>
+                      {imagesList.map((img, index) => {
+                        return <Image key={index} src={img.src} />;
+                      })}
+                    </Image.PreviewGroup>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+          {post.uploads.length != 0 && !isMobileView && (
+            <div className={`images-post ${imagesList.length > 1 ? 'images-post-desktop' : ''}`}>
               <Image.PreviewGroup>
-                <Gallery photos={imagesList} renderImage={imageRenderer} />
+                <Gallery margin={4} photos={imagesList} renderImage={imageRenderer} />
               </Image.PreviewGroup>
             </div>
           )}

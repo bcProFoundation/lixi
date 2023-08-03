@@ -238,111 +238,6 @@ const CreatePostCard = (props: CreatePostCardProp) => {
     { isLoading: isLoadingCreatePost, isSuccess: isSuccessCreatePost, isError: isErrorCreatePost }
   ] = useCreatePostMutation();
 
-  const updatePost = (
-    tag: string,
-    params,
-    filterValue: number,
-    result: CreatePostMutation,
-    pageId?: string,
-    tokenPrimaryId?: string,
-    hashtagId?: string
-  ) => {
-    dispatch(
-      /* 
-        Becasue in post.api.ts Posts query we pass isTop in serializeQueryArgs so we need it here
-        If we dont need isTop then remove it from serializeQueryArgs
-      */
-      postApi.util.updateQueryData('Posts', { minBurnFilter: filterValue, isTop: String(isTop) }, draft => {
-        draft.allPosts.edges.unshift({
-          cursor: result.createPost.id,
-          node: {
-            ...result.createPost
-          }
-        });
-        draft.allPosts.totalCount = draft.allPosts.totalCount + 1;
-      })
-    );
-    dispatch(
-      postApi.util.updateQueryData('PostsByHashtagId', { id: hashtagId }, draft => {
-        draft.allPostsByHashtagId.edges.unshift({
-          cursor: result.createPost.id,
-          node: {
-            ...result.createPost
-          }
-        });
-        draft.allPostsByHashtagId.totalCount = draft.allPostsByHashtagId.totalCount + 1;
-      })
-    );
-    dispatch(
-      postApi.util.updateQueryData(
-        'PostsBySearchWithHashtag',
-        { hashtags: hashtags, query: query, minBurnFilter: filterValue },
-        draft => {
-          draft.allPostsBySearchWithHashtag.edges.unshift({
-            cursor: result.createPost.id,
-            node: {
-              ...result.createPost
-            }
-          });
-        }
-      )
-    );
-    switch (tag) {
-      case 'PostsByPageId':
-        dispatch(
-          postApi.util.updateQueryData(
-            'PostsBySearchWithHashtagAtPage',
-            { minBurnFilter: filterValue, pageId: pageId, hashtags: hashtags, query: query },
-            draft => {
-              draft.allPostsBySearchWithHashtagAtPage.edges.unshift({
-                cursor: result.createPost.id,
-                node: {
-                  ...result.createPost
-                }
-              });
-            }
-          )
-        );
-        return dispatch(
-          postApi.util.updateQueryData('PostsByPageId', { id: pageId, minBurnFilter: filterValue }, draft => {
-            draft.allPostsByPageId.edges.unshift({
-              cursor: result.createPost.id,
-              node: {
-                ...result.createPost
-              }
-            });
-            draft.allPostsByPageId.totalCount = draft.allPostsByPageId.totalCount + 1;
-          })
-        );
-      case 'PostsByTokenId':
-        dispatch(
-          postApi.util.updateQueryData(
-            'PostsBySearchWithHashtagAtToken',
-            { minBurnFilter: filterValue, tokenId: tokenPrimaryId, hashtags: hashtags, query: query },
-            draft => {
-              draft.allPostsBySearchWithHashtagAtToken.edges.unshift({
-                cursor: result.createPost.id,
-                node: {
-                  ...result.createPost
-                }
-              });
-            }
-          )
-        );
-        return dispatch(
-          postApi.util.updateQueryData('PostsByTokenId', { id: tokenPrimaryId, minBurnFilter: filterValue }, draft => {
-            draft.allPostsByTokenId.edges.unshift({
-              cursor: result.createPost.id,
-              node: {
-                ...result.createPost
-              }
-            });
-            draft.allPostsByTokenId.totalCount = draft.allPostsByTokenId.totalCount + 1;
-          })
-        );
-    }
-  };
-
   const handleNewPostClick = () => {
     if (authorization.authorized) {
       setEnableEditor(!enableEditor);
@@ -362,7 +257,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
 
     try {
       let filterValue: number;
-      if (pureContent === '' || _.isNil(pureContent)) {
+      if (_.trim(pureContent) === '' || _.isNil(pureContent)) {
         return;
       }
 
@@ -404,21 +299,22 @@ const CreatePostCard = (props: CreatePostCardProp) => {
         pureContent: pureContent,
         pageId: pageId || undefined,
         tokenPrimaryId: tokenPrimaryId || undefined,
-        createFeeHex: createFeeHex
+        createFeeHex: createFeeHex,
+        extraArguments: {
+          hashtagId: hashtagId,
+          hashtags: hashtags,
+          query: query,
+          isTop: String(isTop),
+          minBurnFilter: filterValue,
+          orderBy: {
+            direction: OrderDirection.Desc,
+            field: PostOrderField.UpdatedAt
+          }
+        }
       };
 
-      const result = await createPostTrigger({ input: createPostInput }).unwrap();
-      let tag: string;
+      await createPostTrigger({ input: createPostInput }).unwrap();
 
-      if (_.isNil(pageId) && _.isNil(tokenPrimaryId)) {
-        tag = PostsQueryTag.Posts;
-      } else if (pageId) {
-        tag = PostsQueryTag.PostsByPageId;
-      } else if (tokenPrimaryId) {
-        tag = PostsQueryTag.PostsByTokenId;
-      }
-
-      patches = updatePost(tag, params, filterValue, result, pageId, tokenPrimaryId, hashtagId);
       dispatch(
         showToast('success', {
           message: 'Success',
@@ -483,10 +379,10 @@ const CreatePostCard = (props: CreatePostCardProp) => {
               placeholder={
                 hashtags && hashtags.length > 0
                   ? `Write about ${hashtags
-                      .map(hashtag => {
-                        return `${hashtag}`;
-                      })
-                      .join(' ')}`
+                    .map(hashtag => {
+                      return `${hashtag}`;
+                    })
+                    .join(' ')}`
                   : `What's on your mind?`
               }
               value=""
@@ -509,9 +405,8 @@ const CreatePostCard = (props: CreatePostCardProp) => {
 
       <MobileCreatePost
         hidden={!showCreatePostMobile}
-        className={`animate__animated ${
-          showCreatePostMobile ? 'animate__fadeIn' : 'animate__fadeOut'
-        } create-post-card-container`}
+        className={`animate__animated ${showCreatePostMobile ? 'animate__fadeIn' : 'animate__fadeOut'
+          } create-post-card-container`}
         onClick={handleNewPostClick}
       >
         <div className="fab-btn">

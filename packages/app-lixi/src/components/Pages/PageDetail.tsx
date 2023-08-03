@@ -70,6 +70,7 @@ import {
   useCreatePageMessageSessionMutation,
   useUserHadMessageToPageQuery
 } from '@store/message/pageMessageSession.generated';
+import { ReactSVG } from 'react-svg';
 
 export type PageItem = PageQuery['page'];
 
@@ -115,15 +116,29 @@ const ProfileCardHeader = styled.div`
   border-bottom: 0;
   border-top-left-radius: var(--border-radius-item);
   border-top-right-radius: var(--border-radius-item);
-  .cover-img {
-    width: 100%;
-    height: 200px;
-    border-top-right-radius: var(--border-radius-item);
-    border-top-left-radius: var(--border-radius-item);
-    object-fit: cover;
-    @media (max-width: 768px) {
-      border-radius: 0;
+  .container-img {
+    position: relative;
+    .cover-img {
+      width: 100%;
       height: 200px;
+      border-top-right-radius: var(--border-radius-item);
+      border-top-left-radius: var(--border-radius-item);
+      object-fit: cover;
+      @media (max-width: 768px) {
+        border-radius: 0;
+        height: 200px;
+      }
+    }
+    button {
+      display: block;
+      position: absolute;
+      bottom: 0.5rem;
+      right: 0.5rem;
+    }
+    @media (max-width: 960px) {
+      button {
+        display: none;
+      }
     }
   }
   .info-profile {
@@ -183,10 +198,27 @@ const ProfileCardHeader = styled.div`
     }
     .action-profile {
       display: flex;
-      @media (max-width: 1001px) {
+      align-self: center;
+      gap: 8px;
+      .btn-edit-cover {
+        display: none;
+      }
+      @media (max-width: 960px) {
         text-align: center;
         button {
           margin-bottom: 4px;
+        }
+        .btn-edit-cover {
+          display: block;
+        }
+      }
+      button {
+        .anticon-custom {
+          svg {
+            filter: var(--filter-color-primary);
+            width: 16px;
+            height: 16px;
+          }
         }
       }
     }
@@ -671,11 +703,13 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
         burnForId,
         burnValue,
         tipToAddresses: tipToAddresses,
-        postQueryTag: PostsQueryTag.PostsByPageId,
-        pageId: post.page?.id,
-        minBurnFilter: filterValue,
-        query: query,
-        hashtags: hashtags
+        extraArguments: {
+          postQueryTag: PostsQueryTag.PostsByPageId,
+          pageId: post.page?.id,
+          minBurnFilter: filterValue,
+          query: query,
+          hashtags: hashtags
+        }
       };
 
       dispatch(addBurnQueue(burnCommand));
@@ -860,16 +894,22 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
           <div className="container-img">
             <img
               className="cover-img"
-              src={urlPageCoverUpload || pageDetailData.cover || '/images/default-cover.jpg'}
+              src={urlPageCoverUpload || pageDetailData?.cover || '/images/default-cover.jpg'}
               alt=""
             />
+            {selectedAccountId == pageDetailData?.pageAccountId && (
+              <Button type="primary" className="no-border-btn" onClick={() => uploadModal(false)}>
+                <CameraOutlined />
+                {intl.get('page.editCoverPhoto')}
+              </Button>
+            )}
           </div>
           <div className="info-profile">
             <div className="wrapper-avatar">
               <picture>
                 <img
                   className="avatar-img"
-                  src={urlPageAvatarUpload || pageDetailData.avatar || '/images/default-avatar.jpg'}
+                  src={urlPageAvatarUpload || pageDetailData?.avatar || '/images/default-avatar.jpg'}
                   alt=""
                 />
               </picture>
@@ -888,15 +928,16 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
             {selectedAccountId == pageDetailData?.pageAccountId && (
               <div className="action-profile">
                 <Button
-                  style={{ marginRight: '1rem' }}
                   type="primary"
                   className="outline-btn"
+                  icon={
+                    <ReactSVG wrapper="span" className="anticon anticon-custom" src="/images/ico-edit-square.svg" />
+                  }
                   onClick={navigateEditPage}
                 >
-                  <EditOutlined />
                   {intl.get('page.editPage')}
                 </Button>
-                <Button type="primary" className="outline-btn" onClick={() => uploadModal(false)}>
+                <Button type="primary" className="outline-btn btn-edit-cover" onClick={() => uploadModal(false)}>
                   <CameraOutlined />
                   {intl.get('page.editCoverPhoto')}
                 </Button>

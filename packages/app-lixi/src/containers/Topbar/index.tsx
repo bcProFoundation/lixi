@@ -74,10 +74,12 @@ const PathDirection = styled.div`
 
   .menu-mobile {
     display: none;
-    margin-left: 6px;
+    margin: 0 10px;
     @media (max-width: 960px) {
       display: block;
     }
+    max-width: 22px;
+    max-height: 22px;
   }
 
   .path-direction-text {
@@ -262,6 +264,11 @@ const PopoverStyled = styled.div`
 `;
 
 const TitleFilterStyled = styled.span`
+  display: flex;
+  justify-content: space-between;
+  .follow-title {
+    font-weight: 500;
+  }
   svg {
     width: 12px;
     height: 12px;
@@ -447,8 +454,9 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
       {router?.pathname == '/' && (
         <PopoverStyled>
           <TitleFilterStyled>
-            {intl.get('general.postFilter')}
-            <Icon component={() => <FollowSvg />} />
+            <p className="follow-title">
+              {intl.get('general.postFilter')} <Icon component={() => <FollowSvg />} />
+            </p>
             <Switch
               checkedChildren={intl.get('general.on')}
               unCheckedChildren={intl.get('general.off')}
@@ -466,8 +474,9 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
 
   const balanceAccount = (acc?: any) => {
     let balanceString;
-    balanceString = fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis ?? 0).toFixed(2);
-
+    let amount;
+    acc?.balance && acc?.balance > 0 ? (amount = acc?.balance) : (amount = 0);
+    balanceString = amount > 0 ? `~ ${fromSmallestDenomination(amount).toFixed(2)}` : `0`;
     return balanceString;
   };
 
@@ -639,7 +648,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
   return (
     <StyledHeader style={{ boxShadow: '0 10px 30px rgb(0 0 0 / 5%)' }} className={className}>
       <PathDirection>
-        <img className="menu-mobile" src="/images/ico-menu.svg" alt="" onClick={handleMenuClick} />
+        <img className="menu-mobile" src="/images/ico-list-bullet_2.svg" alt="" onClick={handleMenuClick} />
         {currentPathName == '/' && (
           <picture>
             <img
