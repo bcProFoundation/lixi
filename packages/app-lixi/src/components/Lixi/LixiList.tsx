@@ -26,6 +26,7 @@ import {
 } from '@bcpros/lixi-models/lib/lixi';
 import { RenameLixiModalProps } from './RenameLixiModal';
 import { useRouter } from 'next/router';
+import { PageMessageSession } from '@bcpros/lixi-models';
 
 const { Text } = Typography;
 
@@ -159,7 +160,7 @@ interface LixiType {
   remaining: string | number;
   status: string;
   claimType: ClaimType;
-  pageMessageSession: any;
+  pageMessageSession: PageMessageSession;
 }
 
 const LixiList = ({ lixies }: LixiListProps) => {

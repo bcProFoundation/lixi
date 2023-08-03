@@ -142,9 +142,9 @@ model Page {
   totalPostsBurnDown  Float                @default(0.0) @map("total_posts_burn_down")
   totalPostsBurnScore Float                @default(0.0) @map("total_posts_burn_score")
   pageMessageSessions PageMessageSession[]
-  accessMessageFee    Float?               @default(0.0) @map("access_chat_fee")
+  accessMessageFee    Float?               @default(0.0) @map("access_message_fee")
   minDanaForMessage   Float?               @default(0.0) @map("min_dana_for_message")
-  followerFreeMessage Boolean?             @default(false)
+  followerFreeMessage Boolean?             @default(false) @map("follower_free_message")
 
   @@map("page")
 }
@@ -789,31 +789,31 @@ model PostTranslation {
 }
 
 model Message {
-  id                   String              @id @default(uuid())
+  id                   String              @id @default(cuid())
   body                 String
   author               Account             @relation(fields: [authorId], references: [id])
-  authorId             Int
-  isPageOwner          Boolean?
+  authorId             Int                 @map("author_id")
+  isPageOwner          Boolean?            @map("is_page_owner")
   createdAt            DateTime            @default(now()) @map("created_at") @db.Timestamptz
   updatedAt            DateTime            @default(now()) @map("updated_at") @db.Timestamptz
   pageMessageSession   PageMessageSession? @relation(fields: [pageMessageSessionId], references: [id])
-  pageMessageSessionId String?
+  pageMessageSessionId String?             @map("page_message_session_id")
 
   @@map("message")
 }
 
 model PageMessageSession {
-  id              String                    @id @default(uuid())
+  id              String                    @id @default(cuid())
   name            String?
   page            Page                      @relation(fields: [pageId], references: [id])
-  pageId          String
+  pageId          String                    @map("page_id")
   account         Account                   @relation(fields: [accountId], references: [id])
-  accountId       Int
+  accountId       Int                       @map("account_id")
   lixi            Lixi?                     @relation(fields: [lixiId], references: [id])
-  lixiId          Int?                      @unique
+  lixiId          Int?                      @unique @map("lixi_id")
   lixiClaimCode   String?                   @map("lixi_claim_code")
   messages        Message[]
-  latestMessage   String?
+  latestMessage   String?                   @map("latest_message")
   sessionOpenedAt DateTime?                 @map("session_opened_at")
   sessionClosedAt DateTime?                 @map("session_closed_at")
   status          PageMessageSessionStatus? @default(CLOSE)

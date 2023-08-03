@@ -432,6 +432,10 @@ export class PageMessageSessionResolver {
 
     const { accountId, pageId, lixiId, accountSecret } = data;
 
+    if (account.id !== accountId) {
+      return null;
+    }
+
     //check if there already pending message or already open
     const pendingOrOpenPageMessageSession = await this.prisma.pageMessageSession.findMany({
       where: {
@@ -505,6 +509,23 @@ export class PageMessageSessionResolver {
 
     const { pageMessageSessionId } = data;
 
+    const pageMessageSession = await this.prisma.pageMessageSession.findUnique({
+      where: {
+        id: pageMessageSessionId
+      },
+      include: {
+        page: {
+          select: {
+            pageAccountId: true
+          }
+        }
+      }
+    });
+
+    if (pageMessageSession?.page.pageAccountId !== account.id) {
+      return null;
+    }
+
     const result = await this.prisma.pageMessageSession.update({
       where: {
         id: pageMessageSessionId
@@ -552,6 +573,23 @@ export class PageMessageSessionResolver {
     }
 
     const { pageMessageSessionId } = data;
+
+    const pageMessageSession = await this.prisma.pageMessageSession.findUnique({
+      where: {
+        id: pageMessageSessionId
+      },
+      include: {
+        page: {
+          select: {
+            pageAccountId: true
+          }
+        }
+      }
+    });
+
+    if (pageMessageSession?.page.pageAccountId !== account.id) {
+      return null;
+    }
 
     const result = await this.prisma.pageMessageSession.update({
       where: {

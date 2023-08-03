@@ -95,6 +95,10 @@ export class MessageResolver {
 
     const { authorId, body, isPageOwner, pageMessageSessionId } = data;
 
+    if (account.id !== authorId) {
+      return null;
+    }
+
     //check pageMessageSession is open
     const pageMessageSession = await this.prisma.pageMessageSession.findUnique({
       where: {
