@@ -23,7 +23,7 @@ import intl from 'react-intl-universal';
 import { CommentOrderField, OrderDirection } from '@generated/types.generated';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { BurnData } from './PostDetail';
-import { AuthorizationContext } from '../../../../redux-store/src/context';
+import { AuthorizationContext } from '@context/index';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 
 export type CommentItem = CommentQuery['comment'];
