@@ -16,6 +16,7 @@ import * as _ from 'lodash';
 import moment from 'moment';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { connectionFromArraySlice } from 'src/common/custom-graphql-relay/arrayConnection';
+import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { AccountEntity } from 'src/decorators/account.decorator';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import ConnectionArgs, { getPagingParameters } from '../../common/custom-graphql-relay/connection.args';
@@ -36,7 +37,7 @@ export class MessageResolver {
     private prisma: PrismaService,
     private meiliService: MeiliService,
     @I18n() private i18n: I18nService,
-    private messageGateway: MessageGateway
+    private notificationGateway: NotificationGateway
   ) {}
 
   @Subscription(() => Message)
@@ -149,7 +150,7 @@ export class MessageResolver {
         pageMessageSessionId: pageMessageSessionId
       };
 
-      this.messageGateway.publishMessage(pageMessageSessionId!, result);
+      this.notificationGateway.publishMessage(pageMessageSessionId!, result);
 
       return result;
     }

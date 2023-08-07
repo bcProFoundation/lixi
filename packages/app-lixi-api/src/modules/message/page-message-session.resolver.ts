@@ -28,6 +28,7 @@ import * as _ from 'lodash';
 import moment from 'moment';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { connectionFromArraySlice } from 'src/common/custom-graphql-relay/arrayConnection';
+import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { AccountEntity } from 'src/decorators/account.decorator';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { aesGcmDecrypt, numberToBase58 } from 'src/utils/encryptionMethods';
@@ -49,7 +50,7 @@ export class PageMessageSessionResolver {
     private prisma: PrismaService,
     private meiliService: MeiliService,
     @I18n() private i18n: I18nService,
-    private messageGateway: MessageGateway
+    private notificationGateway: NotificationGateway
   ) {}
 
   @Subscription(() => PageMessageSession)
@@ -433,7 +434,7 @@ export class PageMessageSessionResolver {
     const { accountId, pageId, lixiId, accountSecret } = data;
 
     if (account.id !== accountId) {
-      return null;
+      throw new Error('Unauthorized to create page message session');
     }
 
     //check if there already pending message or already open
@@ -493,7 +494,7 @@ export class PageMessageSessionResolver {
         }
       });
 
-      this.messageGateway.publishAddressChannel(result.page.pageAccount.address, result);
+      this.notificationGateway.publishAddressChannel(result.page.pageAccount.address, result);
 
       return result;
     }
@@ -559,7 +560,7 @@ export class PageMessageSessionResolver {
       payload: result
     };
 
-    this.messageGateway.publishSessionAction(pageMessageSessionId, sessionAction);
+    this.notificationGateway.publishSessionAction(pageMessageSessionId, sessionAction);
 
     return result;
   }
@@ -624,7 +625,7 @@ export class PageMessageSessionResolver {
       payload: result
     };
 
-    this.messageGateway.publishSessionAction(pageMessageSessionId, sessionAction);
+    this.notificationGateway.publishSessionAction(pageMessageSessionId, sessionAction);
 
     return result;
   }

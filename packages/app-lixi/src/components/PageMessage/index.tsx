@@ -36,6 +36,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { useCreateMessageMutation } from '@store/message/message.generated';
 import { postClaim } from '@store/claim/actions';
 import { WalletContext } from '@context/walletProvider';
+import { useSocket } from '@context/index';
 
 type PageMessageSessionItem = PageMessageSessionQuery['pageMessageSession'];
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
@@ -147,6 +148,7 @@ const PageMessage = () => {
   const { control, getValues, resetField, setFocus } = useForm();
   const Wallet = React.useContext(WalletContext);
   const { XPI } = Wallet;
+  const socket = useSocket();
 
   const [
     createMessageTrigger,
@@ -238,13 +240,13 @@ const PageMessage = () => {
     }
   };
 
-  useEffect(() => {
-    dispatch(startChannel());
+  // useEffect(() => {
+  //   dispatch(startChannel());
 
-    return () => {
-      stopChannel();
-    };
-  }, []);
+  //   return () => {
+  //     stopChannel();
+  //   };
+  // }, []);
 
   const onClickMessage = (pageMessageSession: PageMessageSessionItem, pageMessageSessionId: string) => {
     dispatch(setPageMessageSession(pageMessageSession));
@@ -340,16 +342,18 @@ const PageMessage = () => {
   }, [currentPageMessageSessionId]);
 
   useEffect(() => {
-    if (data.length > 0) {
+    if (data.length > 0 && socket) {
       data.map(item => {
         dispatch(userSubcribeToPageMessageSession(item.id));
       });
     }
-  }, [data]);
+  }, [data, socket]);
 
   useEffect(() => {
-    dispatch(userSubcribeToAddressChannel(selectedAccount.address));
-  }, []);
+    if (socket) {
+      dispatch(userSubcribeToAddressChannel(selectedAccount.address));
+    }
+  }, [socket]);
 
   return (
     <StyledContainer>

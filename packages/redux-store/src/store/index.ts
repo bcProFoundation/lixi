@@ -23,6 +23,7 @@ export * from './settings';
 export * from './store';
 export * from './toast';
 export * from './token';
+export * from './websocket';
 export * as wallet from './wallet';
 export * as worship from './worship';
 export * as temple from './temple';

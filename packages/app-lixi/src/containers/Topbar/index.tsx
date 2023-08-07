@@ -349,12 +349,12 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
     setOtherAccounts(_.filter(savedAccounts, acc => acc && acc.id !== selectedAccount?.id));
   }, [savedAccounts]);
 
-  useEffect(() => {
-    dispatch(startChannel());
-    return () => {
-      stopChannel();
-    };
-  }, []);
+  // useEffect(() => {
+  //   dispatch(startChannel());
+  //   return () => {
+  //     stopChannel();
+  //   };
+  // }, []);
 
   const handleMenuClick = e => {
     dispatch(toggleCollapsedSideNav(!navCollapsed));

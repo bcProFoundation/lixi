@@ -24,6 +24,7 @@ import { setPageMessageSession } from '@store/page/action';
 import { SessionAction, SessionActionEnum } from '@bcpros/lixi-models/lib/sessionAction';
 import { AccountDto } from '@bcpros/lixi-models';
 import { getAccountById, getSelectedAccount } from '@store/account/selectors';
+import { callConfig } from '@context/shareContext';
 
 const getDeviceNotificationStyle = () => {
   if (isMobile) {
@@ -308,16 +309,19 @@ function* receiveSessionAction(action: SessionAction) {
 
 function* userSubcribeToPageMessageSessionSaga(action: PayloadAction<string>) {
   const { payload } = action;
+  const socket = callConfig.call.socketContext;
   socket.emit('subscribePageMessageSession', payload);
 }
 
 function* pageOwnerSubcribeToPageChannelSaga(action: PayloadAction<string>) {
   const { payload } = action;
+  const socket = callConfig.call.socketContext;
   socket.emit('subscribePageChannel', payload);
 }
 
 function* userSubcribeToAddressChannelSaga(action: PayloadAction<string>) {
   const { payload } = action;
+  const socket = callConfig.call.socketContext;
   socket.emit('subscribeAddressChannel', payload);
 }
 
