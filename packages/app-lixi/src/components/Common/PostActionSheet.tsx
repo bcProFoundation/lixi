@@ -83,6 +83,10 @@ export const ItemActionSheet = styled.div`
     width: 17px;
     height: 17px;
     filter: var(--filter-svg-gray-color);
+
+    &.isFollowed {
+      filter: var(--filter-color-primary) !important;
+    }
   }
 `;
 
@@ -222,6 +226,7 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
             <ItemActionSheetBottom
               text={`${intl.get('general.unfollow')} ${page?.name}`}
               icon="/images/follow.svg"
+              className={isFollowedPage ? "isFollowed" : ""}
               onClickItem={handleUnfollowPage}
             />
           )}
@@ -236,6 +241,7 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
             <ItemActionSheetBottom
               text={`${intl.get('general.unfollow')} ${post.postAccount?.name}`}
               icon="/images/follow.svg"
+              className={isFollowedAccount ? "isFollowed" : ""}
               onClickItem={handleUnfollowAccount}
             />
           )}
