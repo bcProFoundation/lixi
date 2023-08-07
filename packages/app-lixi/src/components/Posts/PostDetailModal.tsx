@@ -131,6 +131,22 @@ const PostContentDetail = styled.div`
       max-width: 100%;
     }
   }
+  .description-translate {
+    font-weight: 400;
+    line-height: 20px;
+    text-align: left;
+    word-break: break-word;
+    border-left: var(--color-primary) 1px solid;
+    padding: 3px 3px 3px 6px;
+    margin-bottom: 1rem;
+    p {
+      font-size: 14px;
+      line-height: 22px;
+    }
+    .read-more-more-module_btn__33IaH {
+      font-size: 14px;
+    }
+  }
   .images-post {
     cursor: pointer;
     width: 100%;
@@ -276,7 +292,7 @@ const StyledTextArea = styled(TextArea)`
 `;
 
 const StyledCommentContainer = styled.div`
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-color-dark-base);
   border-radius: var(--border-radius-primary);
   width: 100%;
   padding: 0px 0px 10px 0px;
@@ -701,6 +717,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
   return (
     <React.Fragment>
       <Modal
+        transitionName=""
         width={'50vw'}
         className={`${classStyle} post-detail-custom-modal ${
           isMobile
@@ -711,7 +728,6 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
             ? 'animate__animated animate__faster animate__zoomIn'
             : 'animate__animated animate__faster animate__zoomOut'
         }`}
-        transitionName=""
         style={{ top: 30 }}
         open={true}
         onCancel={handleOnCancel}
@@ -722,7 +738,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
           className={`${!borderColorHeader ? 'no-border-color' : ''} post-detail-modal`}
           onScroll={e => handleSrcolling(e)}
         >
-          <NavBarHeader>
+          <NavBarHeader onClick={handleOnCancel}>
             <InfoCardUser
               imgUrl={post.postAccount.avatar ? post.postAccount.avatar : ''}
               name={post.postAccount.name}

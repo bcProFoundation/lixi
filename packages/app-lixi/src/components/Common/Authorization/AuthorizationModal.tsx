@@ -126,6 +126,7 @@ export const AuthorizationModal = ({ classStyle }: AuthorizationModalProps) => {
       width={450}
       className={`${classStyle} authorixation-modal`}
       open={true}
+      transitionName=""
       onCancel={handleOnCancel}
       style={{ textAlign: 'center' }}
       footer={null}

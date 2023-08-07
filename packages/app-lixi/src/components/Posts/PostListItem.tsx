@@ -17,6 +17,7 @@ import styled from 'styled-components';
 import { EditPostModalProps } from './EditPostModalPopup';
 import PostContent from './PostContent';
 import PostTranslate from './PostTranslate';
+import { PostListType } from '@bcpros/lixi-models/constants';
 
 export const CommentList = ({ comments }: { comments: CommentItem[] }) => (
   <List
@@ -229,6 +230,7 @@ const StyledTranslate = styled.div`
   text-align: left;
   margin-bottom: 5px;
   font-size: 12px;
+  pointer-events: none;
 `;
 
 const PostListItemContainer = styled(List.Item)`
@@ -257,11 +259,19 @@ type PostListItemProps = {
   index: number;
   item: PostItem;
   searchValue?: string;
+  postListType?: PostListType;
   handleBurnForPost?: (isUpVote: boolean, post: any, optionBurn?: string) => Promise<void>;
   addToRecentHashtags?: (hashtag: string) => any;
 };
 
-const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecentHashtags }: PostListItemProps) => {
+const PostListItem = ({
+  index,
+  item,
+  searchValue,
+  postListType,
+  handleBurnForPost,
+  addToRecentHashtags
+}: PostListItemProps) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const post: PostItem = item;
@@ -389,10 +399,11 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
             onEditPostClick={editPost}
             postEdited={post.createdAt !== post.updatedAt}
             isDropdown={true}
-            lotusBurnScore={post.lotusBurnScore}
+            danaBurnScore={post.danaBurnScore}
             followPostOwner={post.followPostOwner}
             followedPage={post.followedPage}
             post={post}
+            postListType={postListType}
           />
         </CardHeader>
         <Content onClick={e => handlePostClick(e)}>
