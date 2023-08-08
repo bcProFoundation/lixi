@@ -44,6 +44,12 @@ import burnApi from './api';
 import { getBurnQueue, getFailQueue } from './selectors';
 import { api as worshipApi } from '@store/worship/worshipedPerson.api';
 import { api as templeApi } from '@store/temple/temple.api';
+import { currency } from '@components/Common/Ticker';
+import { fromSatoshisToXpi } from '@utils/cashMethods';
+import { ChronikClient, Tx } from 'chronik-client';
+import BigNumber from 'bignumber.js';
+
+const chronik = new ChronikClient('https://chronik.be.cash/xpi');
 
 function* createTxHexSaga(action: PayloadAction<BurnQueueCommand>) {
   const data = action.payload;
@@ -93,6 +99,27 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
     };
 
     const data: Burn = yield call(burnApi.post, dataApi);
+
+    let incomingTxDetails: Tx;
+    let minerFee: BigNumber;
+
+    try {
+      incomingTxDetails = yield chronik.tx(data.txid);
+
+      let feeInput = new BigNumber(0);
+      let feeOutput = new BigNumber(0);
+      incomingTxDetails.inputs.forEach(tx => {
+        feeInput = feeInput.plus(BigNumber(tx.value));
+      });
+      incomingTxDetails.outputs.forEach(tx => {
+        feeOutput = feeOutput.plus(BigNumber(tx.value));
+      });
+
+      minerFee = fromSatoshisToXpi(feeInput.minus(feeOutput));
+    } catch (err) {
+      // In this case, no notification
+      console.log(`Error in chronik.tx(${data.txid} while processing an incoming websocket tx`, err);
+    }
 
     switch (command.burnForType) {
       case BurnForType.Token:
@@ -150,7 +177,15 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
     }
 
     yield put(removeBurnQueue());
-    yield put(burnForUpDownVoteSuccess(data));
+    yield put(
+      burnForUpDownVoteSuccess(data) &&
+        showToast('success', {
+          message: intl.get(`toast.success`),
+          description: `You have given ${burnValue} Dana for ${
+            burnValue + burnValue * currency.burnFee + Number(minerFee)
+          } XPI`
+        })
+    );
   } catch (err) {
     let message;
     yield put(removeBurnQueue());
