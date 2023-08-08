@@ -180,6 +180,28 @@ const PostContentDetail = styled.div`
     a {
       cursor: pointer;
     }
+    iframe {
+      max-width: 100%;
+      @media (max-width: 960px) {
+        height: 35vh;
+      }
+    }
+  }
+  .description-translate {
+    font-weight: 400;
+    line-height: 20px;
+    text-align: left;
+    word-break: break-word;
+    border-left: var(--color-primary) 1px solid;
+    padding: 3px 3px 3px 6px;
+    margin-bottom: 1rem;
+    p {
+      font-size: 14px;
+      line-height: 22px;
+    }
+    .read-more-more-module_btn__33IaH {
+      font-size: 14px;
+    }
   }
   .images-post {
     cursor: pointer;
@@ -224,6 +246,7 @@ const PostContentDetail = styled.div`
       &.only-one-image {
         justify-content: center;
         img {
+          width: 100%;
           max-width: 100%;
         }
       }
@@ -283,7 +306,7 @@ const StyledTextArea = styled(TextArea)`
 `;
 
 const StyledCommentContainer = styled.div`
-  border: 1px solid black;
+  border: 1px solid var(--border-color-dark-base);
   border-radius: var(--border-radius-primary);
   width: 100%;
   padding: 0px 0px 10px 0px;

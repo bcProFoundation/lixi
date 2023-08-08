@@ -6,8 +6,20 @@ const StyledAvatar = styled(Avatar)`
   width: 46px;
   height: 46px;
   font-size: 18px;
-  display: flex;
+  display: flex !important;
   align-items: center;
+  border-radius: 50%;
+  .ant-avatar-string {
+    position: absolute;
+    left: 50%;
+    transform-origin: 0 center;
+  }
+  > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
 `;
 
 type AvatarUserProps = {

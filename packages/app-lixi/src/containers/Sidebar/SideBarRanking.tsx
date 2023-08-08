@@ -268,7 +268,7 @@ const SidebarRanking = () => {
       orderBy: [
         {
           direction: OrderDirection.Desc,
-          field: PageOrderField.LotusBurnScore
+          field: PageOrderField.DanaBurnScore
         },
         {
           direction: OrderDirection.Desc,
@@ -579,6 +579,7 @@ const SidebarRanking = () => {
       <StyledModal
         className={`${currentTheme === 'dark' ? 'ant-modal-dark' : ''}`}
         title="Import account"
+        transitionName=""
         open={open}
         footer={null}
         onCancel={() => setOpen(false)}

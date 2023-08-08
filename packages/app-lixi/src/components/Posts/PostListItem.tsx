@@ -17,6 +17,7 @@ import styled from 'styled-components';
 import { EditPostModalProps } from './EditPostModalPopup';
 import PostContent from './PostContent';
 import PostTranslate from './PostTranslate';
+import { PostListType } from '@bcpros/lixi-models/constants';
 
 export const CommentList = ({ comments }: { comments: CommentItem[] }) => (
   <List
@@ -90,7 +91,15 @@ const Content = styled.div`
       }
     }
     iframe {
-      width: 100% !important;
+      min-width: 560px !important;
+      width: 750px !important;
+      max-width: 100% !important;
+      height: 50vh;
+      @media (max-width: 960px) {
+        min-width: auto !important;
+        width: 560px !important;
+        height: 30vh;
+      }
       // &#twitter-widget-0 {
       //   height: 750px !important;
       //   @media (min-width: 960px) {
@@ -197,6 +206,7 @@ const Content = styled.div`
       &.only-one-image {
         justify-content: center;
         img {
+          width: 100%;
           max-width: 100%;
         }
       }
@@ -229,6 +239,7 @@ const StyledTranslate = styled.div`
   text-align: left;
   margin-bottom: 5px;
   font-size: 12px;
+  pointer-events: none;
 `;
 
 const PostListItemContainer = styled(List.Item)`
@@ -257,11 +268,19 @@ type PostListItemProps = {
   index: number;
   item: PostItem;
   searchValue?: string;
+  postListType?: PostListType;
   handleBurnForPost?: (isUpVote: boolean, post: any, optionBurn?: string) => Promise<void>;
   addToRecentHashtags?: (hashtag: string) => any;
 };
 
-const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecentHashtags }: PostListItemProps) => {
+const PostListItem = ({
+  index,
+  item,
+  searchValue,
+  postListType,
+  handleBurnForPost,
+  addToRecentHashtags
+}: PostListItemProps) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const post: PostItem = item;
@@ -358,7 +377,7 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
   };
 
   const reposted = () => {
-    if (!_.isNil(post.reposts) && post.reposts.length != 0 && post.followPostOwner) {
+    if (!_.isNil(post.reposts) && post.reposts.length != 0) {
       return (
         <p className="retweet">
           <RetweetOutlined />{' '}
@@ -389,10 +408,11 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost, addToRecent
             onEditPostClick={editPost}
             postEdited={post.createdAt !== post.updatedAt}
             isDropdown={true}
-            lotusBurnScore={post.lotusBurnScore}
+            danaBurnScore={post.danaBurnScore}
             followPostOwner={post.followPostOwner}
             followedPage={post.followedPage}
             post={post}
+            postListType={postListType}
           />
         </CardHeader>
         <Content onClick={e => handlePostClick(e)}>

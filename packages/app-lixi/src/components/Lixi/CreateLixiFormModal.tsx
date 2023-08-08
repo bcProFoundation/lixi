@@ -974,6 +974,7 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
         width={1240}
         className={`${classStyle} custom-create-lixi-modal`}
         title={intl.get('lixi.createLixi')}
+        transitionName=""
         open={true}
         onCancel={handleOnCancel}
         footer={

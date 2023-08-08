@@ -379,10 +379,10 @@ const CreatePostCard = (props: CreatePostCardProp) => {
               placeholder={
                 hashtags && hashtags.length > 0
                   ? `Write about ${hashtags
-                    .map(hashtag => {
-                      return `${hashtag}`;
-                    })
-                    .join(' ')}`
+                      .map(hashtag => {
+                        return `${hashtag}`;
+                      })
+                      .join(' ')}`
                   : `What's on your mind?`
               }
               value=""
@@ -405,8 +405,9 @@ const CreatePostCard = (props: CreatePostCardProp) => {
 
       <MobileCreatePost
         hidden={!showCreatePostMobile}
-        className={`animate__animated ${showCreatePostMobile ? 'animate__fadeIn' : 'animate__fadeOut'
-          } create-post-card-container`}
+        className={`animate__animated ${
+          showCreatePostMobile ? 'animate__fadeIn' : 'animate__fadeOut'
+        } create-post-card-container`}
         onClick={handleNewPostClick}
       >
         <div className="fab-btn">
@@ -417,6 +418,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
       <WrapEditor>
         <Modal
           className={`${currentTheme === 'dark' ? 'ant-modal-dark' : ''} custom-modal-editor`}
+          transitionName=""
           title="Create Post"
           open={enableEditor}
           footer={null}
