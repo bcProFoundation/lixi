@@ -53,6 +53,8 @@ const CardUser = styled.div`
         }
       }
       .title {
+        display: flex;
+        align-items: baseline;
         font-size: 11px;
         letter-spacing: 0.25px;
         margin: 0;
@@ -202,8 +204,10 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
           {name}
         </span>
         <p className="title">
-          {title}
-          <span style={{ marginLeft: '4px', fontSize: '10px' }}>
+          {title} ·
+          <span
+            style={{ marginLeft: '4px', fontSize: '10px', display: 'inline-flex', alignItems: 'center', gap: '1px' }}
+          >
             {activatePostLocation && postLocation()}&nbsp;
             {followPostOwner && <Icon className="follow-icon" component={() => <FollowSvg />} />}
           </span>
@@ -240,7 +244,15 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
                       {name}
                     </span>{' '}
                     · {title} ·
-                    <span style={{ marginLeft: '4px', fontSize: '10px' }}>
+                    <span
+                      style={{
+                        marginLeft: '4px',
+                        fontSize: '10px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '1px'
+                      }}
+                    >
                       {activatePostLocation && postLocation()}&nbsp;
                       {(followPostOwner || followedPage) && (
                         <Icon className="follow-icon" component={() => <FollowSvg />} />
@@ -272,7 +284,15 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
                       {name}
                     </span>{' '}
                     · {title} ·
-                    <span style={{ marginLeft: '4px', fontSize: '10px' }}>
+                    <span
+                      style={{
+                        marginLeft: '4px',
+                        fontSize: '10px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '1px'
+                      }}
+                    >
                       {activatePostLocation && postLocation()}&nbsp;
                       {followPostOwner ||
                         (followedPage && <Icon className="follow-icon" component={() => <FollowSvg />} />)}

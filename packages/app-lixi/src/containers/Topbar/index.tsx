@@ -45,6 +45,8 @@ import { getModals } from '@store/modal/selectors';
 import { showToast } from '@store/toast/actions';
 import { getSelectedWalletPath, getWalletStatus } from '@store/wallet';
 import { ReactSVG } from 'react-svg';
+import { currency } from '@bcpros/lixi-components/components/Common/Ticker';
+import { openActionSheet } from '@store/action-sheet/actions';
 
 export type TopbarProps = {
   className?: string;
@@ -167,6 +169,9 @@ const AccountBox = styled.div`
       }
     }
     .sub-account-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
       flex: 1;
       p {
         margin: 0;
@@ -457,6 +462,11 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
     setOpenMoreOption(false);
   };
 
+  const handleClickInstall = () => {
+    setOpenMoreOption(false);
+    dispatch(openActionSheet('InstallPwaGuide', {}));
+  };
+
   const HandleMenuPosts = (checked: boolean) => {
     dispatch(saveTopPostsFilter(checked));
   };
@@ -487,11 +497,8 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
   );
 
   const balanceAccount = (acc?: any) => {
-    let balanceString;
-    let amount;
-    acc?.balance && acc?.balance > 0 ? (amount = acc?.balance) : (amount = 0);
-    balanceString = amount > 0 ? `~ ${fromSmallestDenomination(amount).toFixed(2)}` : `0`;
-    return balanceString;
+    const balanceString = fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis ?? 0);
+    return `~ ${balanceString.toFixed(2)}`;
   };
 
   const handleOnCopy = () => {
@@ -527,7 +534,9 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
             </div>
 
             <div className="profile-feature">
-              <span>{balanceAccount(selectedAccount)} XPI</span>
+              <span>
+                {balanceAccount(selectedAccount)} {currency.ticker}
+              </span>
               <Link href="/send">
                 <span>
                   <SendOutlined style={{ fontSize: '16px' }} />
@@ -546,8 +555,8 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
               return (
                 <div className="sub-account" key={index}>
                   <div className="sub-account-info">
-                    <p className="name">{acc?.name}</p>
-                    <p className="address">{balanceAccount(acc)} XPI</p>
+                    <AvatarUser name={acc?.name || null} icon={acc?.avatar} isMarginRight={false} />
+                    <span className="name">{acc?.name}</span>
                   </div>
                   <Button
                     type="primary"
@@ -601,6 +610,14 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
           direction="horizontal"
           key="support"
           onClickItem={() => handleIconClick('/page/clbm6r1v91486308n7w6za1qcu')}
+        />
+        <ItemAccess
+          icon={'/images/ico-download.svg'}
+          text={intl.get('general.installApp')}
+          active={null}
+          direction="horizontal"
+          key="support"
+          onClickItem={handleClickInstall}
         />
         <ItemAccess
           icon={'/images/ico-support.png'}
@@ -772,7 +789,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
               <p className="account-info">
                 <span className="account-name">{selectedAccount?.name}</span>
                 <span className="account-balance">
-                  {balanceAccount(selectedAccount)} <span className="unit">XPI</span>
+                  {balanceAccount(selectedAccount)} <span className="unit">{currency.ticker}</span>
                 </span>
               </p>
             </div>
