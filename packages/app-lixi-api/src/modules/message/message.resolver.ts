@@ -24,7 +24,6 @@ import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
 import { PERSON } from '../page/constants/meili.constants';
 import { MeiliService } from '../page/meili.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { MessageGateway } from './message.gateway';
 
 const pubSub = new PubSub();
 

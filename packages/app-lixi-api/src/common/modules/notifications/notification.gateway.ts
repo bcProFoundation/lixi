@@ -112,7 +112,10 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
 
     if (!joinedRoom) {
       client.join(pageMessageSessionId);
-      console.log('🚀 ~ file: message.gateway.ts:47 ~ MessageGateway ~ pageMessageSessionId:', pageMessageSessionId);
+      this.logger.log(
+        '🚀 ~ file: message.gateway.ts:47 ~ MessageGateway ~ pageMessageSessionId:',
+        pageMessageSessionId
+      );
 
       return {
         event: 'subscribePageMessageSession',
@@ -139,7 +142,7 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
 
     if (!joinedRoom) {
       client.join(pageChannelId);
-      console.log('🚀 ~ file: message.gateway.ts:47 ~ MessageGateway ~ pageChannelId:', pageChannelId);
+      this.logger.log('🚀 ~ file: message.gateway.ts:47 ~ MessageGateway ~ pageChannelId:', pageChannelId);
 
       return {
         event: 'pageChannelId',
@@ -165,7 +168,7 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
 
     if (!joinedRoom) {
       client.join(userAddress);
-      console.log('🚀 ~ file: message.gateway.ts:47 ~ MessageGateway ~ userAddress:', userAddress);
+      this.logger.log('🚀 ~ file: message.gateway.ts:47 ~ MessageGateway ~ userAddress:', userAddress);
 
       return {
         event: 'userAddress',

@@ -26,11 +26,11 @@ import moment from 'moment';
 import { I18n, I18nContext } from 'nestjs-i18n';
 import { ReqSocket } from 'src/decorators/req.socket.decorator';
 import { LixiService } from 'src/modules/core/lixi/lixi.service';
-import { MessageGateway } from 'src/modules/message/message.gateway';
 import { WalletService } from 'src/modules/wallet/wallet.service';
 import { aesGcmDecrypt, base58ToNumber } from 'src/utils/encryptionMethods';
 import { VError } from 'verror';
 import { PrismaService } from '../../prisma/prisma.service';
+import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
 const PROJECT_ID = 'lixilotus';
@@ -46,7 +46,7 @@ export class ClaimController {
     @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
     @Inject('xpijs') private XPI: BCHJS,
     private readonly config: ConfigService,
-    private messageGateway: MessageGateway
+    private notificationGateway: NotificationGateway
   ) {}
 
   @Get(':id')
@@ -578,7 +578,7 @@ export class ClaimController {
               payload: result
             };
 
-            this.messageGateway.publishSessionAction(pageMessageSession.id, sessionAction);
+            this.notificationGateway.publishSessionAction(pageMessageSession.id, sessionAction);
           }
 
           let result: ViewClaimDto = {

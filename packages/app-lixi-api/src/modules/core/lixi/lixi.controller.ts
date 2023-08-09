@@ -57,11 +57,11 @@ import {
   WITHDRAW_SUB_LIXIES_QUEUE
 } from 'src/modules/core/lixi/constants/lixi.constants';
 import { LixiService } from 'src/modules/core/lixi/lixi.service';
-import { MessageGateway } from 'src/modules/message/message.gateway';
 import { WalletService } from 'src/modules/wallet/wallet.service';
 import { aesGcmDecrypt, base58ToNumber, numberToBase58 } from 'src/utils/encryptionMethods';
 import { VError } from 'verror';
 import { PrismaService } from '../../prisma/prisma.service';
+import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 
 @SkipThrottle()
 @Controller('lixies')
@@ -75,9 +75,9 @@ export class LixiController {
     private readonly walletService: WalletService,
     private readonly lixiService: LixiService,
     private readonly notificationService: NotificationService,
+    private notificationGateway: NotificationGateway,
     @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
     @Inject('xpijs') private XPI: BCHJS,
-    private messageGateway: MessageGateway,
     @InjectQueue(EXPORT_SUB_LIXIES_QUEUE) private exportSubLixiesQueue: Queue,
     @InjectQueue(WITHDRAW_SUB_LIXIES_QUEUE) private withdrawSubLixiesQueue: Queue
   ) {}
@@ -567,7 +567,7 @@ export class LixiController {
             payload: result
           };
 
-          this.messageGateway.publishSessionAction(pageMessageSession.id, sessionAction);
+          this.notificationGateway.publishSessionAction(pageMessageSession.id, sessionAction);
         }
 
         if (lixi) {
@@ -777,7 +777,7 @@ export class LixiController {
             payload: result
           };
 
-          this.messageGateway.publishSessionAction(pageMessageSession.id, sessionAction);
+          this.notificationGateway.publishSessionAction(pageMessageSession.id, sessionAction);
         }
 
         let resultApi: LixiDto = {

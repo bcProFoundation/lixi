@@ -63,6 +63,7 @@ const getDeviceNotificationStyle = () => {
 let socket: Socket;
 const baseUrl = process.env.NEXT_PUBLIC_LIXI_API ? process.env.NEXT_PUBLIC_LIXI_API : 'https://lixi.social/';
 const socketServerUrl = `${baseUrl}ws/notifications`;
+// will remove socket init in message first to check for error then move to this file
 
 const NOTIFICATION_TYPES = {
   CREATE_SUB_LIXIES: 1,

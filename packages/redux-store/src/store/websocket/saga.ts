@@ -29,7 +29,6 @@ function createMessageSocketChannel(socket: Socket) {
     const handler = (data: string) => {
       emit(data);
     };
-    console.log('createMessageSocketChannel');
     socket.on('publishMessage', handler);
     return () => {
       socket.off('publishMessage', handler);
@@ -110,7 +109,6 @@ function* connectToChannelsSaga() {
 }
 
 function* receiveLiveMessage(payload: any) {
-  console.log(payload);
   const { pageMessageSessionId, body } = payload;
   const account: AccountDto = yield select(getSelectedAccount);
 

@@ -6,9 +6,9 @@ import { connectToChannels } from '@store/websocket';
 
 export const SocketContext = createContext<Socket | null>(null);
 
-export function useSocket() {
+export const useSocket = () => {
   return useContext(SocketContext);
-}
+};
 
 export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
