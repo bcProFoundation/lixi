@@ -774,7 +774,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
         </div>
         <div className="account-bar">
           <Popover
-            overlayClassName={`${currentTheme === 'dark' ? 'popover-dark' : ''}`}
+            overlayClassName={`${currentTheme === 'dark' ? 'popover-dark' : ''} account-popover`}
             arrow={false}
             content={contentSelectAccount}
             placement="bottom"
