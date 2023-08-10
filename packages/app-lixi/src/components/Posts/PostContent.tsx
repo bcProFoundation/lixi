@@ -64,7 +64,7 @@ const PostContent = ({ post }) => {
         readLessText={' '}
         btnStyles={{ color: 'var(--color-primary)', pointerEvents: 'none' }}
       />
-      {iFrameEmbed && ReactHtmlParser(iFrameEmbed)}
+      <div className="iframe-social">{iFrameEmbed && ReactHtmlParser(iFrameEmbed)}</div>
     </div>
   );
 };

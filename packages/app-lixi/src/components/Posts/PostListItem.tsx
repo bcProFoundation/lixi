@@ -83,6 +83,13 @@ const Content = styled.div`
     .read-more-more-module_btn__33IaH {
       font-size: 14px;
     }
+    .iframe-social {
+      display: flex;
+      justify-content: center;
+      div {
+        max-width: 100%;
+      }
+    }
     @media (max-width: 960px) {
       div {
         &[data-lexical-decorator='true'] > div > div {
@@ -99,7 +106,7 @@ const Content = styled.div`
         min-width: auto !important;
         width: 560px !important;
         height: 30vh;
-        max-height: 60vh;
+        max-height: 70vh;
       }
       // &#twitter-widget-0 {
       //   height: 750px !important;
