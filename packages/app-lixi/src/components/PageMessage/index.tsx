@@ -1,5 +1,5 @@
 import { Avatar, Button, Dropdown, Input, MenuProps, Popover, Skeleton } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { getAllAccounts, getSelectedAccount } from '@store/account';
@@ -411,7 +411,6 @@ const PageMessage = () => {
   const currentPageMessageSession = useAppSelector(getCurrentPageMessageSession);
   const { control, getValues, resetField, setFocus } = useForm();
   const [open, setOpen] = useState(false);
-  const [groupPageChat, setGroupPageChat] = useState([]);
   const Wallet = React.useContext(WalletContext);
   const { XPI } = Wallet;
   const socket = useSocket();
@@ -519,15 +518,15 @@ const PageMessage = () => {
     setCurrentPageMessageSessionId(pageMessageSessionId);
   };
 
-  useEffect(() => {
+  const groupPageChat = useMemo(() => {
     let cloneChats = _.cloneDeep(data);
     cloneChats = _.orderBy(cloneChats, ['updatedAt'], ['desc']);
     let groupPageChats = _.values(_.groupBy(cloneChats, 'page.id'));
-    setGroupPageChat([...groupPageChats]);
     if (data.length > 0) {
       dispatch(setPageMessageSession(data[data.length - 1]));
       setCurrentPageMessageSessionId(data[data.length - 1]?.id);
     }
+    return groupPageChats;
   }, [data]);
 
   const {
