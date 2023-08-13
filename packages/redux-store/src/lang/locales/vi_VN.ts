@@ -601,8 +601,8 @@ export default {
   'comment.unableCreateComment': 'Không thể tạo bình luận',
   'comment.unableToBurn': 'Không thể đốt cho bình luận',
   'comment.writeComment': 'Viết bình luận...',
-  'comment.writeCommentFree': 'Viết bình luận miễn phí trên trang này...',
-  'comment.writeCommentXpi': '{commentFee} để bình luận trên trang này...',
+  'comment.writeCommentFree': 'Viết bình luận miễn phí trên bài viết này...',
+  'comment.writeCommentXpi': '{commentFee} để bình luận trên bài viết này...',
 
   /* 18. Category */
   'category.art': 'Mỹ thuật',
