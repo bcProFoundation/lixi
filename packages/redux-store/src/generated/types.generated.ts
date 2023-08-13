@@ -21,9 +21,12 @@ export type Account = {
   address: Scalars['String'];
   avatar?: Maybe<Scalars['String']>;
   balance: Scalars['Int'];
+  birthday?: Maybe<Scalars['DateTime']>;
   cover?: Maybe<Scalars['String']>;
+  createCommentFee: Scalars['String'];
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
+  description?: Maybe<Scalars['String']>;
   encryptedMnemonic?: Maybe<Scalars['String']>;
   encryptedSecret?: Maybe<Scalars['String']>;
   followersCount?: Maybe<Scalars['Int']>;
@@ -41,6 +44,7 @@ export type Account = {
   secret?: Maybe<Scalars['String']>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
+  website?: Maybe<Scalars['String']>;
 };
 
 export type AccountConnection = {
@@ -1507,10 +1511,14 @@ export enum TokenOrderField {
 
 export type UpdateAccountInput = {
   avatar?: InputMaybe<Scalars['String']>;
+  birthday?: InputMaybe<Scalars['DateTime']>;
   cover?: InputMaybe<Scalars['String']>;
+  createCommentFee: Scalars['String'];
+  description?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
   language?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
+  website?: InputMaybe<Scalars['String']>;
 };
 
 export type UpdatePageInput = {

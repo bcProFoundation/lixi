@@ -940,7 +940,14 @@ code {
       }
 
       .ant-input-affix-wrapper,
-      .ant-picker,
+      .ant-picker {
+        width: 100%;
+        padding-left: 0px;
+        
+        input {
+          border: none;
+        }
+      }
       .ant-select {
         border: 2px solid var(--border-color-base);
         background: #fff;
@@ -1029,6 +1036,13 @@ code {
         &:not(:first-child) {
           border-top-left-radius: 0 !important;
           border-bottom-left-radius: 0 !important;
+        }
+      }
+
+      .ant-input-show-count {
+        textarea {
+          margin-right: -1rem;
+          border: none;
         }
       }
     }
@@ -2428,6 +2442,14 @@ code {
     background: var(--bg-color-dark-theme) !important;
 
     .description-profile {
+      background: var(--bg-color-dark-item) !important;
+
+      p {
+        color: var(--text-color-primary-dark);
+      }
+    }
+
+    .follow-profile {
       background: var(--bg-color-dark-item) !important;
 
       p {

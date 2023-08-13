@@ -288,7 +288,11 @@ export class AccountResolver {
         ..._.omit(data, ['id', 'avatar', 'cover']),
         updatedAt: new Date(),
         avatar: { connect: uploadAvatarDetail ? { id: uploadAvatarDetail.id } : undefined },
-        cover: { connect: uploadCoverDetail ? { id: uploadCoverDetail.id } : undefined }
+        cover: { connect: uploadCoverDetail ? { id: uploadCoverDetail.id } : undefined },
+        birthday: data.birthday,
+        dayOfBirth: data.birthday ? new Date(data.birthday).getDate() : undefined,
+        monthOfBirth: data.birthday ? new Date(data.birthday).getMonth() + 1 : undefined,
+        yearOfBirth: data.birthday ? new Date(data.birthday).getFullYear() : undefined
       }
     });
 

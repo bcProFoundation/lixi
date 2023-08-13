@@ -95,7 +95,11 @@ export class AuthService {
       const verified = await new TokenVerifier('ES256K', account.publicKey).verifyAsync(token);
 
       if (verified) {
-        return { ...account, avatar: url ?? undefined };
+        return {
+          ...account,
+          birthday: account.birthday ?? undefined,
+          avatar: url ?? undefined
+        };
       }
     } catch (err) {
       throw new Error('Invalid account');

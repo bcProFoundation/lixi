@@ -211,6 +211,10 @@ export default {
   'account.burning': 'Đang đốt',
   'account.burningList': 'Đang đốt {burnForType} với {burnValue} XPI',
   'account.edit': 'Chỉnh sửa trang cá nhân',
+  'account.birthday': 'Sinh nhật',
+  'account.updateProfileSuccessful': 'Hồ sơ đã được cập nhật thành công',
+  'account.unableUpdateProfile': 'Không thể cập nhật hồ sơ.',
+
   /* 03.Lixi */
   'lixi.createLixi': 'Tạo lixi mới',
   'lixi.sectionCreateLixi': 'Tạo lixi mới',

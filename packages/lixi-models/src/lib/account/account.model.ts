@@ -1,4 +1,5 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Message, PageMessageSession } from '../message';
@@ -72,4 +73,17 @@ export class Account {
 
   @Field(() => String, { nullable: true })
   cover?: string;
+
+  @Field(() => String, { nullable: true })
+  description?: string;
+
+  @Field(() => String, { nullable: true })
+  website?: string;
+
+  @Field(() => GraphQLDateTime, { nullable: true })
+  @IsOptional()
+  birthday?: Date;
+
+  @Field(() => String)
+  createCommentFee: string;
 }

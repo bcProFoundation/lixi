@@ -6,10 +6,13 @@ type Account {
   address: String!
   avatar: String
   balance: Int!
+  birthday: DateTime
   cover: String
+  createCommentFee: String!
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
+  description: String
   encryptedMnemonic: String
   encryptedSecret: String
   followersCount: Int
@@ -28,6 +31,7 @@ type Account {
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
+  website: String
 }
 
 type AccountConnection {
@@ -1042,10 +1046,14 @@ enum TokenOrderField {
 
 input UpdateAccountInput {
   avatar: String
+  birthday: DateTime
   cover: String
+  createCommentFee: String!
+  description: String
   id: ID!
   language: String
   name: String
+  website: String
 }
 
 input UpdatePageInput {

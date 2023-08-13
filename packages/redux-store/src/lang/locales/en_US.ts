@@ -213,6 +213,9 @@ export default {
   'account.burning': 'Burning',
   'account.burningList': 'Burning {burnForType} for {burnValue} XPI',
   'account.edit': 'Edit Profile',
+  'account.birthday': 'Birthday',
+  'account.updateProfileSuccessful': 'Update the profile successful',
+  'account.unableUpdateProfile': 'Unable to update the profile.',
 
   /* 03.Lixi */
   'lixi.createLixi': 'Create new lixi',
