@@ -519,12 +519,13 @@ export const transformCreatedAt = date => {
   let dateFormated = '';
   const today = new Date();
   if (moment(date).isSame(today, 'day')) {
-    dateFormated = moment(date).format('HH:SS');
+    dateFormated = moment(date).format('HH:mm');
   } else if (moment(date).isSame(today, 'week')) {
     dateFormated = moment(date).format('ddd');
   } else {
     dateFormated = moment(date).format('DD/MM');
   }
+
   return dateFormated;
 };
 

@@ -118,6 +118,21 @@ const enhancedApi = api.enhanceEndpoints({
         return { queryArgs };
       }
     },
+    ClosedPageMessageSession: {
+      providesTags: (result, error, arg) => ['PageMessageSession'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { accountId, pageId, ...otherArgs } = queryArgs;
+          return { accountId, pageId };
+        }
+        return { queryArgs };
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.allClosedPageMessageSession.edges.push(...responseData.allClosedPageMessageSession.edges);
+        currentCacheData.allClosedPageMessageSession.pageInfo = responseData.allClosedPageMessageSession.pageInfo;
+        currentCacheData.allClosedPageMessageSession.totalCount = responseData.allClosedPageMessageSession.totalCount;
+      }
+    },
 
     ClosePageMessageSession: {},
     OpenPageMessageSession: {},
@@ -159,6 +174,8 @@ export const {
   useOpenPageMessageSessionByAccountIdQuery,
   usePendingPageMessageSessionByAccountIdQuery,
   usePageMessageSessionQuery,
+  useLazyClosedPageMessageSessionQuery,
+  useClosedPageMessageSessionQuery,
   useUserHadMessageToPageQuery,
   useClosePageMessageSessionMutation,
   useOpenPageMessageSessionMutation,
