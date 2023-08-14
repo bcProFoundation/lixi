@@ -80,9 +80,17 @@ export class Account {
   @Field(() => String, { nullable: true })
   website?: string;
 
-  @Field(() => GraphQLDateTime, { nullable: true })
+  @Field(() => Number, { nullable: true })
   @IsOptional()
-  birthday?: Date;
+  dayOfBirth?: number;
+
+  @Field(() => Number, { nullable: true })
+  @IsOptional()
+  monthOfBirth?: number;
+
+  @Field(() => Number, { nullable: true })
+  @IsOptional()
+  yearOfBirth?: number;
 
   @Field(() => String)
   createCommentFee: string;

@@ -53,7 +53,6 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ profile, cla
       name: profile.name,
       description: profile.description,
       website: profile.website,
-      birthday: profile.birthday,
       createCommentFee: profile.createCommentFee
     }
   });
