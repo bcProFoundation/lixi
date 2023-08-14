@@ -178,7 +178,7 @@ export default {
   'account.accountRenamedSuccess': 'Tài khoản được sửa lại thành {accountName}.',
   'account.accountDeleteSuccess': 'Xóa tài khoản thành công.',
   'account.accountImportSuccess': 'Tài khoản được nhập thành công.',
-  'account.accountChangeLocaleSuccess': 'Ngôn ngữ được cập nhật thành {language}.',
+  'account.accountChangeLocaleSuccess': 'Ngôn ngữ được cập nhật thành Tiếng Việt.',
   'account.login': 'Đăng nhập',
   'account.register': 'Đăng ký',
   'account.verify': 'Xác thực',
@@ -675,5 +675,8 @@ export default {
     'Cài đặt ứng dụng trên thiết bị của bạn để dễ dàng truy cập bất cứ lúc nào. Không có cửa hàng ứng dụng. Không tải xuống. Không có rắc rối.',
   'guide.descOne': '1. Mở trình duyệt Safari (Tuỳ chọn)',
   'guide.descTwo': '2. Ấn vào',
-  'guide.descThree': '3. Chọn'
+  'guide.descThree': '3. Chọn',
+
+  /* 23. Messenger */
+  'messenger.chat': 'Nhắn tin với'
 };

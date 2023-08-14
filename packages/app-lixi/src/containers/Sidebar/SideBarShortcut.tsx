@@ -357,6 +357,11 @@ const ShortcutSideBar = styled(Sider)`
       text-align: center;
     }
   }
+
+  &.hide-side-bar-shortcut {
+    width: 0 !important;
+    min-width: 0 !important;
+  }
 `;
 
 export const SpaceShorcutItem = styled(Space)`
@@ -985,6 +990,9 @@ const SidebarShortcut = () => {
       className = '';
     } else {
       className = 'minimize-short-cut';
+    }
+    if (currentPathName == '/page-message') {
+      className = className + ' hide-side-bar-shortcut';
     }
     return className;
   };

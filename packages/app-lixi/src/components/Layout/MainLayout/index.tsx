@@ -353,6 +353,7 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
                     {/* @ts-ignore */}
                     <div
                       className="container-content"
+                      style={{ padding: selectedKey === '/page-message' ? '0' : '' }}
                       id="scrollableDiv"
                       ref={scrollRef}
                       onScroll={e => handleScroll(e)}

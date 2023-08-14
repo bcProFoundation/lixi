@@ -566,7 +566,9 @@ export class PageMessageSessionResolver {
         }
       });
 
+      //publish to page account and user account
       this.notificationGateway.publishAddressChannel(result.page.pageAccount.address, result);
+      this.notificationGateway.publishAddressChannel(result.account.address, result);
 
       return result;
     }
