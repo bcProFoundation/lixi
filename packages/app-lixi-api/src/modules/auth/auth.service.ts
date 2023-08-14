@@ -97,7 +97,6 @@ export class AuthService {
       if (verified) {
         return {
           ...account,
-          birthday: account.birthday ?? undefined,
           avatar: url ?? undefined
         };
       }
