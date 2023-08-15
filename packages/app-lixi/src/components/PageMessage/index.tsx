@@ -40,6 +40,7 @@ import { SpaceShorcutItem, transformCreatedAt } from '@containers/Sidebar/SideBa
 import { transformShortName } from '@components/Common/AvatarUser';
 import { ReactSVG } from 'react-svg';
 import useWindowDimensions from '@hooks/useWindowDimensions';
+import { useRouter } from 'next/router';
 
 type PageMessageSessionItem = PageMessageSessionQuery['pageMessageSession'];
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
@@ -154,6 +155,19 @@ const StyledSideContainer = styled.div`
       }
     }
   }
+  .blank-chat {
+    border: 0;
+    padding: 0.5rem 1rem;
+    .avatar-account-page {
+      border-radius: 8px;
+      img {
+        border-radius: 8px;
+      }
+    }
+    &:hover {
+      background: transparent;
+    }
+  }
   @media (max-width: 526px) {
     &.hide-side-message {
       display: none;
@@ -213,6 +227,9 @@ const InputContainer = styled.div`
 const IconContainer = styled.div`
   display: flex;
   justify-content: center;
+  button {
+    border-radius: 12px;
+  }
 `;
 
 const StyledInfiniteScroll = styled(InfiniteScroll)`
@@ -509,6 +526,7 @@ const PageMessage = () => {
   const { XPI } = Wallet;
   const [isMobile, setIsMobile] = useState(false);
   const { width } = useWindowDimensions();
+  const router = useRouter();
 
   useEffect(() => {
     const isMobile = width < 526 ? true : false;
@@ -698,7 +716,7 @@ const PageMessage = () => {
     <StyledContainer className="card page-message">
       <StyledSideContainer
         className={`${currentPageMessageSession ? 'hide-side-message' : 'show-side-message'} ${
-          isMobile ? 'animate__faster animate__animated animate__slideInLeft' : ''
+          isMobile ? 'animate__faster animate__animated animate__slideInRight' : ''
         }`}
       >
         <h2 className="title-chat">
@@ -728,12 +746,25 @@ const PageMessage = () => {
                 })}
             </InfiniteScroll>
           )}
+          {data.length === 0 && (
+            <SpaceShorcutItem className="blank-chat" size={5} onClick={() => router.push('/page/feed')}>
+              <div className="avatar-account avatar-account-page">
+                <img src={'/images/ico-add-chat.png'} />
+              </div>
+              <div className="content-account" style={{ paddingRight: '0.5rem' }}>
+                <div className="info-account">
+                  <p className="page-name">Create a new chat</p>
+                  <p className="content">Give some XPI to page you like</p>
+                </div>
+              </div>
+            </SpaceShorcutItem>
+          )}
         </div>
       </StyledSideContainer>
 
       <StyledChatContainer
         className={`${currentPageMessageSession ? 'full-content-chat' : 'hide-content-chat'} ${
-          isMobile ? 'animate__faster animate__animated animate__slideInRight' : ''
+          isMobile ? 'animate__faster animate__animated animate__slideInLeft' : ''
         }`}
       >
         <StyledChatHeader>
