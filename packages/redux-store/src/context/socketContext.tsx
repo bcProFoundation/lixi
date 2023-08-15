@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { connectToChannels } from '@store/websocket';
 import { getSelectedAccount } from '@store/account';
 import { userSubcribeToAddressChannel, userSubcribeToMultiPageMessageSession } from '@store/message/actions';
+import usePrevious from '@hooks/usePrevious';
 
 export const SocketContext = createContext<Socket | null>(null);
 
@@ -16,7 +17,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const dispatch = useAppDispatch();
   const selectedAccount = useAppSelector(getSelectedAccount);
-  const selectedAccountRef = useRef(selectedAccount);
+  const previousSelectedAccount = usePrevious(selectedAccount);
 
   useEffect(() => {
     const setupSocket = async () => {
@@ -48,8 +49,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     //if change account, disconnect socket and reconnect
-    if (selectedAccount !== selectedAccountRef.current) {
-      console.log('change account');
+    if (previousSelectedAccount && selectedAccount !== previousSelectedAccount) {
       if (socket) socket.disconnect();
 
       const setupSocket = async () => {
@@ -58,7 +58,6 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       };
 
       setupSocket();
-      selectedAccountRef.current = selectedAccount;
     }
   }, [selectedAccount]);
 
