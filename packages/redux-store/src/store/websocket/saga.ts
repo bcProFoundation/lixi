@@ -1,6 +1,6 @@
 import { eventChannel } from 'redux-saga';
 import { all, call, fork, put, race, select, take, takeEvery, takeLatest } from 'redux-saga/effects';
-import { connectWebSocket } from './websocketUtils'; // Implement this function
+import { NOTIFICATION_TYPES } from '@bcpros/lixi-models/constants';
 import { io, Socket } from 'socket.io-client';
 import { SessionAction, SessionActionEnum } from '@bcpros/lixi-models/lib/sessionAction';
 import { AccountDto, NotificationDto as Notification, SocketUser } from '@bcpros/lixi-models';
@@ -16,13 +16,6 @@ import { downloadExportedLixi, refreshLixiSilent } from '../lixi/actions';
 import { setNewPostAvailable } from '@store/post/actions';
 import { showToast } from '../toast/actions';
 import { callConfig } from '@context/shareContext';
-
-const NOTIFICATION_TYPES = {
-  CREATE_SUB_LIXIES: 1,
-  WITHDRAW_SUB_LIXIES: 2,
-  EXPORT_SUB_LIXIES: 3,
-  NEW_POST: 14
-};
 
 function createMessageSocketChannel(socket: Socket) {
   return eventChannel(emit => {
@@ -97,7 +90,6 @@ function* connectToChannelsSaga() {
     }
 
     if (sessionAction) {
-      console.log('🚀 ~ file: saga.ts:172 ~ function*listenServerSaga ~ sessionAction:', sessionAction);
       yield receiveSessionAction(sessionAction);
     }
 
@@ -109,7 +101,7 @@ function* connectToChannelsSaga() {
 }
 
 function* receiveLiveMessage(payload: any) {
-  const { pageMessageSessionId, body } = payload;
+  const { pageMessageSessionId, body, updatedAt } = payload;
   const account: AccountDto = yield select(getSelectedAccount);
 
   try {
@@ -138,7 +130,8 @@ function* receiveLiveMessage(payload: any) {
             cursor: object.cursor,
             node: {
               ...object.node,
-              latestMessage: body
+              latestMessage: body,
+              updatedAt: updatedAt
             }
           });
         }
@@ -150,9 +143,11 @@ function* receiveLiveMessage(payload: any) {
 }
 
 function* receiveNewMessage(payload: PageMessageSession) {
-  console.log(payload);
   const { id, page } = payload;
   const account: AccountDto = yield select(getSelectedAccount);
+  // subcribe to new message session
+  const socket = callConfig.call.socketContext;
+  socket.emit('subscribePageMessageSession', id);
 
   try {
     yield putAction(
@@ -193,7 +188,7 @@ function* receiveSessionAction(action: SessionAction) {
             draft.allPageMessageSessionByAccountId.edges.unshift({
               cursor: object.cursor,
               node: {
-                ...object.node
+                ...payload
               }
             });
           })

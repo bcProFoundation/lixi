@@ -1,7 +1,7 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
 import {
-  useLazyPageMessageSessionByAccountIdQuery,
-  usePageMessageSessionByAccountIdQuery
+  useLazyClosedPageMessageSessionQuery,
+  useClosedPageMessageSessionQuery
 } from '@store/message/pageMessageSession.api';
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { PageMessageSessionOrder } from '@generated/types.generated';
@@ -16,20 +16,21 @@ const pageMessageSessionAdapter = createEntityAdapter<PageMessageSessionQuery['p
 
 const { selectAll, selectEntities, selectIds, selectTotal } = pageMessageSessionAdapter.getSelectors();
 
-export interface PageMessageSessionListParams extends PaginationArgs {
+export interface ClosedPageMessageSessionListParams extends PaginationArgs {
   orderBy?: PageMessageSessionOrder;
-  id: number;
+  accountId: number;
+  pageId: string;
 }
 
-export function useInfinitePageMessageSessionByAccountId(
-  params: PageMessageSessionListParams,
+export function useInfiniteClosedPageMessageSession(
+  params: ClosedPageMessageSessionListParams,
   fetchAll: boolean = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const baseResult = usePageMessageSessionByAccountIdQuery(params, {
-    skip: !params.id
-  }); //dont query when it is not the owner
+  const baseResult = useClosedPageMessageSessionQuery(params, {
+    skip: !params.accountId || !params.pageId
+  });
 
-  const [trigger, nextResult] = useLazyPageMessageSessionByAccountIdQuery();
+  const [trigger, nextResult] = useLazyClosedPageMessageSessionQuery();
   const [combinedData, setCombinedData] = useState(pageMessageSessionAdapter.getInitialState({}));
 
   const isBaseReady = useRef(false);
@@ -45,13 +46,13 @@ export function useInfinitePageMessageSessionByAccountId(
 
   // Base result
   useEffect(() => {
-    next.current = baseResult.data?.allPageMessageSessionByAccountId?.pageInfo?.endCursor;
-    if (baseResult?.data?.allPageMessageSessionByAccountId) {
+    next.current = baseResult.data?.allClosedPageMessageSession?.pageInfo?.endCursor;
+    if (baseResult?.data?.allClosedPageMessageSession) {
       isBaseReady.current = true;
 
       const adapterSetAll = pageMessageSessionAdapter.setAll(
         combinedData,
-        baseResult.data.allPageMessageSessionByAccountId.edges.map(item => item.node)
+        baseResult.data.allClosedPageMessageSession.edges.map(item => item.node)
       );
 
       setCombinedData(adapterSetAll);
@@ -85,7 +86,7 @@ export function useInfinitePageMessageSessionByAccountId(
 
   return {
     data: data ?? [],
-    totalCount: baseResult?.data?.allPageMessageSessionByAccountId?.totalCount ?? 0,
+    totalCount: baseResult?.data?.allClosedPageMessageSession?.totalCount ?? 0,
     error: baseResult?.error,
     isError: baseResult?.isError,
     isLoading: baseResult?.isLoading,
@@ -93,7 +94,7 @@ export function useInfinitePageMessageSessionByAccountId(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allPageMessageSessionByAccountId?.pageInfo?.endCursor !== null,
+    hasNext: baseResult.data?.allClosedPageMessageSession?.pageInfo?.endCursor !== null,
     fetchNext,
     refetch
   };

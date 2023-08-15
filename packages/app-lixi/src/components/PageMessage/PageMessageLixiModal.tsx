@@ -17,6 +17,7 @@ type PageMessageLixiModalProps = {
   account?: Account;
   page?: PageItem;
   wallet: WalletStatus;
+  classStyle?: String;
 };
 
 const StyledModal = styled(Modal)`
@@ -27,6 +28,15 @@ const StyledModal = styled(Modal)`
     border-radius: 20px !important;
   }
 
+  .ant-descriptions-row {
+    border-bottom: 0 !important;
+    .ant-descriptions-item-content {
+      input {
+        border-color: var(--border-color-dark-base);
+      }
+    }
+  }
+
   .ant-descriptions-bordered .ant-descriptions-item-label,
   .ant-descriptions-bordered .ant-descriptions-item-content {
     padding: 0px 24px;
@@ -34,7 +44,7 @@ const StyledModal = styled(Modal)`
   }
 `;
 
-const PageMessageLixiModal = ({ account, page, wallet }: PageMessageLixiModalProps) => {
+const PageMessageLixiModal = ({ account, page, wallet, classStyle }: PageMessageLixiModalProps) => {
   const dispatch = useAppDispatch();
   const {
     control,
@@ -98,12 +108,13 @@ const PageMessageLixiModal = ({ account, page, wallet }: PageMessageLixiModalPro
 
   return (
     <StyledModal
+      className={`${classStyle}`}
       width={490}
       open={true}
       onOk={handleSubmit(handleOk)}
       onCancel={handleCancel}
       closable={false}
-      title={<div className="custom-burn-header">Create Lixi</div>}
+      title={<div className="custom-burn-header">Create lixi to chat with {page.name}</div>}
     >
       <Descriptions bordered column={1}>
         <Descriptions.Item>
@@ -131,7 +142,7 @@ const PageMessageLixiModal = ({ account, page, wallet }: PageMessageLixiModalPro
                 onBlur={onBlur}
                 value={value}
                 type="number"
-                placeholder={'min amount'}
+                placeholder={'Input amount...'}
               />
             )}
           />

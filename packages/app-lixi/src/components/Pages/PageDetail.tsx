@@ -60,10 +60,6 @@ import styled from 'styled-components';
 import { PageQuery } from '@store/page/pages.generated';
 import { useRepostMutation } from '@store/post/posts.api';
 import _ from 'lodash';
-import PageMessage from '@components/PageMessage/PageMessageForOwner';
-import { pageOwnerSubcribeToPageChannel, startChannel, stopChannel } from '@store/message/actions';
-import PageMessageForOwner from '@components/PageMessage/PageMessageForOwner';
-import PageMessageForUser from '@components/PageMessage/PageMessageForUser';
 import { getSelectedPostId } from '@store/post/selectors';
 import { setSelectedPost } from '@store/post/actions';
 import {
@@ -239,8 +235,6 @@ const ProfileCardHeader = styled.div`
     text-align: left;
     display: flex;
     flex-direction: column;
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
     @media (max-width: 768px) {
       margin-left: 0;
       text-align: center;
@@ -508,20 +502,6 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   }, [pageAvatarUpload, pageCoverUpload]);
 
   useEffect(() => {
-    dispatch(startChannel());
-
-    return () => {
-      stopChannel();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (page.pageAccount.address === selectedAccount.address) {
-      dispatch(pageOwnerSubcribeToPageChannel(page.id));
-    }
-  }, []);
-
-  useEffect(() => {
     if (router.query.q) {
       setQuery(router.query.q);
     } else {
@@ -711,7 +691,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
       dispatch(addBurnQueue(burnCommand));
       dispatch(addBurnTransaction(burnCommand));
     } catch (e) {
-      const errorMessage = e.message || intl.get('post.unableToBurn');
+      const errorMessage = intl.get('post.unableToBurn');
       dispatch(
         showToast('error', {
           message: intl.get('toast.error'),
@@ -949,24 +929,39 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                 </Button>
               </div>
             )}
-            {/* Chat */}
-            {selectedAccountId != pageDetailData?.pageAccountId && _.isNil(pageMessageSessionData) && (
-              <Button onClick={() => openPageMessageLixiModal()}>Chat with me</Button>
-            )}
-            {selectedAccountId != pageDetailData?.pageAccountId && pageMessageSessionData && (
-              <React.Fragment>
-                {
-                  {
-                    [PageMessageSessionStatus.Open]: <Button>Open message</Button>,
-                    [PageMessageSessionStatus.Pending]: <Button disabled>Pending Message</Button>
-                  }[pageMessageSessionData.userHadMessageToPage.status]
-                }
-              </React.Fragment>
-            )}
             {/* Follow */}
             {selectedAccountId != pageDetailData?.pageAccountId && (
               <div>
-                <Button onClick={checkIsFollowed ? handleUnfollowPage : handleFollowPage}>
+                {/* Chat */}
+                {selectedAccountId != pageDetailData?.pageAccountId && _.isNil(pageMessageSessionData) && (
+                  <Button type="primary" className="outline-btn" onClick={() => openPageMessageLixiModal()}>
+                    {intl.get('messenger.chatPage')}
+                  </Button>
+                )}
+                {selectedAccountId != pageDetailData?.pageAccountId && pageMessageSessionData && (
+                  <React.Fragment>
+                    {
+                      {
+                        [PageMessageSessionStatus.Open]: (
+                          <Button type="primary" className="outline-btn">
+                            {intl.get('messenger.openMessage')}
+                          </Button>
+                        ),
+                        [PageMessageSessionStatus.Pending]: (
+                          <Button type="primary" className="outline-btn" disabled>
+                            {intl.get('messenger.pendingMessage')}
+                          </Button>
+                        )
+                      }[pageMessageSessionData.userHadMessageToPage.status]
+                    }
+                  </React.Fragment>
+                )}
+                <Button
+                  type="primary"
+                  className="outline-btn"
+                  style={{ marginLeft: '0.5rem' }}
+                  onClick={checkIsFollowed ? handleUnfollowPage : handleFollowPage}
+                >
                   {checkIsFollowed ? intl.get('general.unfollow') : intl.get('general.follow')}
                 </Button>
               </div>
@@ -1186,13 +1181,6 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
             {/* TODO: implement in the future */}
             {/* <Tabs.TabPane tab="Friend" key="friend"></Tabs.TabPane>
             <Tabs.TabPane tab="Picture" key="picture"></Tabs.TabPane> */}
-            <Tabs.TabPane tab="Message" key="message">
-              {page.pageAccount.address === selectedAccount.address ? (
-                <PageMessageForOwner page={page} />
-              ) : (
-                <PageMessageForUser page={page} account={selectedAccount} />
-              )}
-            </Tabs.TabPane>
           </StyledMenu>
         </ProfileContentContainer>
       </StyledContainerProfileDetail>

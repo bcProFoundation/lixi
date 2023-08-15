@@ -357,6 +357,11 @@ const ShortcutSideBar = styled(Sider)`
       text-align: center;
     }
   }
+
+  &.hide-side-bar-shortcut {
+    width: 0 !important;
+    min-width: 0 !important;
+  }
 `;
 
 export const SpaceShorcutItem = styled(Space)`
@@ -519,12 +524,13 @@ export const transformCreatedAt = date => {
   let dateFormated = '';
   const today = new Date();
   if (moment(date).isSame(today, 'day')) {
-    dateFormated = moment(date).format('HH:SS');
+    dateFormated = moment(date).format('HH:mm');
   } else if (moment(date).isSame(today, 'week')) {
     dateFormated = moment(date).format('ddd');
   } else {
     dateFormated = moment(date).format('DD/MM');
   }
+
   return dateFormated;
 };
 
@@ -919,17 +925,6 @@ const SidebarShortcut = () => {
   };
 
   useEffect(() => {
-    if (selectedAccount) {
-      dispatch(
-        fetchNotifications({
-          accountId: selectedAccount.id,
-          mnemonichHash: selectedAccount.mnemonicHash
-        })
-      );
-    }
-  }, []);
-
-  useEffect(() => {
     const newArrFilter = _.uniqBy(PostsData, item => {
       return item?.page?.id || item?.token?.tokenId || item?.postAccount.address;
     });
@@ -984,6 +979,9 @@ const SidebarShortcut = () => {
       className = '';
     } else {
       className = 'minimize-short-cut';
+    }
+    if (currentPathName == '/page-message') {
+      className = className + ' hide-side-bar-shortcut';
     }
     return className;
   };

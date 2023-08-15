@@ -178,7 +178,7 @@ export default {
   'account.renameFailed': 'Rename failed. All accounts must have a unique name.',
   'account.deleteFailed': 'Delete failed. Could not delete the account.',
   'account.accountRenamedSuccess': 'Account has renamed to {accountName}',
-  'account.accountChangeLocaleSuccess': 'Account locale has changed to {language}',
+  'account.accountChangeLocaleSuccess': 'Account locale has changed to English',
   'account.accountDeleteSuccess': 'The account has been deleted successfully.',
   'account.accountImportSuccess': 'The account has been imported successfully.',
   'account.login': 'Sign In',
@@ -679,5 +679,27 @@ export default {
   'guide.body': 'Install the app on your device to easily access it anytime. No app store. No download. No hassle.',
   'guide.descOne': '1. Open in Safari (optional)',
   'guide.descTwo': '2. Tap on',
-  'guide.descThree': '3. Select'
+  'guide.descThree': '3. Select',
+
+  /* 23. Messenger */
+  'messenger.welcome': 'Welcome to Lixi Chat',
+  'messenger.selectChat': 'Select a chat to start messaging',
+  'messenger.chat': 'Chat with ',
+  'messenger.blankTitle': 'Create a new chat',
+  'messenger.blankBody': 'Give some XPI to page you like',
+  'messenger.accept': 'Accept',
+  'messenger.deny': 'Deny',
+  'messenger.closeSession': 'Close session',
+  'messenger.acceptToChat': 'Accept to chat...',
+  'messenger.sessionClose': 'Session is close',
+  'messenger.youAccepted': 'You accepted lixi from',
+  'messenger.acceptedYourLixi': 'accepted your lixi',
+  'messenger.giveYou': 'Give you',
+  'messenger.forMessaging': 'for messaging.',
+  'messenger.pending': 'Pending',
+  'messenger.open': 'Open',
+  'messenger.total': 'Total:',
+  'messenger.pendingMessage': 'Pending message',
+  'messenger.openMessage': 'Open message',
+  'messenger.chatPage': 'Chat with me'
 };
