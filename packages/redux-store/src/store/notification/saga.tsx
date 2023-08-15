@@ -72,9 +72,7 @@ const getDeviceNotificationStyle = () => {
   }
 };
 
-function* fetchNotificationsSaga(
-  action: PayloadAction<{ accountId: number; mnemonichHash }>
-) {
+function* fetchNotificationsSaga(action: PayloadAction<{ accountId: number; mnemonichHash }>) {
   try {
     yield put(showLoading(fetchNotifications.type));
     const { accountId, mnemonichHash } = action.payload;
@@ -270,10 +268,7 @@ function* watchFetchNotificationsSuccess() {
 }
 
 function* watchFetchNotificationsFailure() {
-  yield takeLatest(
-    fetchNotificationsFailure.type,
-    fetchNotificationsFailureSaga
-  );
+  yield takeLatest(fetchNotificationsFailure.type, fetchNotificationsFailureSaga);
 }
 
 function* watchDeleteNotification() {
@@ -318,10 +313,7 @@ function* watchReadAllNotificationsSuccess() {
 }
 
 function* watchReadAllNotificationsFailure() {
-  yield takeLatest(
-    readAllNotificationsFailure.type,
-    readAllNotificationsFailureSaga
-  );
+  yield takeLatest(readAllNotificationsFailure.type, readAllNotificationsFailureSaga);
 }
 
 function* watchSendXpiNotificationSaga() {
