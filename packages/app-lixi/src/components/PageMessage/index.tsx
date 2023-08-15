@@ -41,6 +41,7 @@ import { transformShortName } from '@components/Common/AvatarUser';
 import { ReactSVG } from 'react-svg';
 import useWindowDimensions from '@hooks/useWindowDimensions';
 import { useRouter } from 'next/router';
+import intl from 'react-intl-universal';
 
 type PageMessageSessionItem = PageMessageSessionQuery['pageMessageSession'];
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
@@ -421,7 +422,9 @@ export const PageGroupItem = ({
                         )}
                       </div>
                       <div className="time-score" onClick={() => setCollapse(!collapse)}>
-                        <p className="create-date">Total: {messages.length}</p>
+                        <p className="create-date">
+                          {intl.get('messenger.total')} {messages.length}
+                        </p>
                         <div className="content-score">
                           <p className="lotus-burn-score">{transformCreatedAt(item?.updatedAt)}</p>
                         </div>
@@ -712,6 +715,8 @@ const PageMessage = () => {
     dispatch(setPageMessageSession(null));
   };
 
+  console.log('AHI', currentPageMessageSession);
+
   return (
     <StyledContainer className="card page-message">
       <StyledSideContainer
@@ -753,8 +758,8 @@ const PageMessage = () => {
               </div>
               <div className="content-account" style={{ paddingRight: '0.5rem' }}>
                 <div className="info-account">
-                  <p className="page-name">Create a new chat</p>
-                  <p className="content">Give some XPI to page you like</p>
+                  <p className="page-name">{intl.get('messenger.blankTitle')}</p>
+                  <p className="content">{intl.get('messenger.blankBody')}</p>
                 </div>
               </div>
             </SpaceShorcutItem>
@@ -792,7 +797,7 @@ const PageMessage = () => {
                   </div>
                   <div className="chat-header-action">
                     <div className={`${currentPageMessageSession?.status.toLowerCase()} status-current-session`}>
-                      {currentPageMessageSession?.status}
+                      {intl.get(`messenger.${currentPageMessageSession?.status?.toLowerCase()}`)}
                     </div>
                     <Popover
                       content={
@@ -801,7 +806,7 @@ const PageMessage = () => {
                           type="primary"
                           onClick={closeSession}
                         >
-                          Close session
+                          {intl.get('messenger.closeSession')}
                         </Button>
                       }
                       placement="bottomRight"
@@ -835,14 +840,14 @@ const PageMessage = () => {
                   </div>
                   <div className="chat-header-action">
                     <div className={`${currentPageMessageSession?.status.toLowerCase()} status-current-session`}>
-                      {currentPageMessageSession?.status}
+                      {intl.get(`messenger.${currentPageMessageSession?.status?.toLowerCase()}`)}
                     </div>
                   </div>
                 </>
               )}
             </>
           ) : (
-            <h2>Welcome Lixi Chat</h2>
+            <h2>{intl.get('messenger.welcome')}</h2>
           )}
         </StyledChatHeader>
         <StyledChatbox
@@ -866,9 +871,9 @@ const PageMessage = () => {
                     loader={<Skeleton active />}
                     endMessage={
                       isPageOwner ? (
-                        <p>{`You accepted lixi from ${currentPageMessageSession?.account?.name}`}</p>
+                        <p>{`${intl.get('messenger.youAccepted')} ${currentPageMessageSession?.account?.name}`}</p>
                       ) : (
-                        <p>{`${currentPageMessageSession?.page?.name} accepted your lixi`}</p>
+                        <p>{`${currentPageMessageSession?.page?.name} ${intl.get('messenger.acceptedYourLixi')}`}</p>
                       )
                     }
                     inverse
@@ -896,13 +901,15 @@ const PageMessage = () => {
                       </Avatar>
                       <h4 className="sender-name">{currentPageMessageSession?.account?.name}</h4>
                       <p className="sender-created-at">{transformCreatedAt(currentPageMessageSession?.createdAt)}</p>
-                      <p className="sender-message-amount">{`Give you ${currentPageMessageSession?.lixi.amount} XPI for messaging`}</p>
+                      <p className="sender-message-amount">{`${intl.get('messenger.giveYou')} ${Math.round(
+                        Number(currentPageMessageSession?.lixi.amount)
+                      )} XPI ${intl.get('messenger.forMessaging')}`}</p>
                       <div className="group-action-session">
                         <Button type="primary" className="outline-btn" onClick={() => openSession()}>
-                          Accept
+                          {intl.get('messenger.accept')}
                         </Button>
                         <Button type="primary" className="outline-btn" onClick={() => closeSession()}>
-                          Deny
+                          {intl.get('messenger.deny')}
                         </Button>
                       </div>
                     </div>
@@ -921,7 +928,7 @@ const PageMessage = () => {
               )}
             </React.Fragment>
           ) : (
-            <span className="blank-chat">Select a chat to start messaging</span>
+            <span className="blank-chat">{intl.get('messenger.selectChat')}</span>
           )}
         </StyledChatbox>
         {currentPageMessageSession && (
@@ -946,8 +953,8 @@ const PageMessage = () => {
                     currentPageMessageSession.status === PageMessageSessionStatus.Open
                       ? 'Aa'
                       : currentPageMessageSession.status === PageMessageSessionStatus.Pending
-                      ? 'Accept to chat...'
-                      : 'Session is close'
+                      ? `${intl.get('messenger.acceptToChat')}`
+                      : `${intl.get('messenger.sessionClose')}`
                   }
                   disabled={
                     isLoadingCreateMessage || currentPageMessageSession.status !== PageMessageSessionStatus.Open
