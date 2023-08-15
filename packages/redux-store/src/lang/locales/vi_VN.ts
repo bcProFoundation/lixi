@@ -178,7 +178,7 @@ export default {
   'account.accountRenamedSuccess': 'Tài khoản được sửa lại thành {accountName}.',
   'account.accountDeleteSuccess': 'Xóa tài khoản thành công.',
   'account.accountImportSuccess': 'Tài khoản được nhập thành công.',
-  'account.accountChangeLocaleSuccess': 'Ngôn ngữ được cập nhật thành {language}.',
+  'account.accountChangeLocaleSuccess': 'Ngôn ngữ được cập nhật thành Tiếng Việt.',
   'account.login': 'Đăng nhập',
   'account.register': 'Đăng ký',
   'account.verify': 'Xác thực',
@@ -373,6 +373,7 @@ export default {
   'settings.backupAccountWarning':
     'Cụm từ bảo mật gốc là chìa khóa duy nhất để bạn lấy lại ví. Viết ra và lưu cụm từ bảo mật gốc ở nơi an toàn.',
   'settings.backupAccountHint': 'Sao chép và dán cụm từ bảo mật của bạn bên dưới để khôi phục tài khoản hiện có',
+  'settings.accountNameEmpty': 'Tên tài khoản không được để trống',
   'settings.accountLengthMessage': 'Tên tài khoản phải là một chuỗi dài từ 1 đến 24 ký tự',
   'settings.enterAccountName': 'Nhập tên tài khoản',
   'settings.renameAccount': 'Đổi tên tài khoản',
@@ -674,5 +675,8 @@ export default {
     'Cài đặt ứng dụng trên thiết bị của bạn để dễ dàng truy cập bất cứ lúc nào. Không có cửa hàng ứng dụng. Không tải xuống. Không có rắc rối.',
   'guide.descOne': '1. Mở trình duyệt Safari (Tuỳ chọn)',
   'guide.descTwo': '2. Ấn vào',
-  'guide.descThree': '3. Chọn'
+  'guide.descThree': '3. Chọn',
+
+  /* 23. Messenger */
+  'messenger.chat': 'Nhắn tin với'
 };

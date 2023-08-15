@@ -16,11 +16,13 @@ import { currency } from '@components/Common/Ticker';
 import PostListItem from '@components/Posts/PostListItem';
 import {
   CreateFollowPageInput,
+  CreatePageMessageInput,
   DeleteFollowPageInput,
   HashtagOrderField,
   OrderDirection,
   PostOrderField,
-  RepostInput
+  RepostInput,
+  PageMessageSessionStatus
 } from '@generated/types.generated';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import {
@@ -60,6 +62,10 @@ import { useRepostMutation } from '@store/post/posts.api';
 import _ from 'lodash';
 import { getSelectedPostId } from '@store/post/selectors';
 import { setSelectedPost } from '@store/post/actions';
+import {
+  useCreatePageMessageSessionMutation,
+  useUserHadMessageToPageQuery
+} from '@store/message/pageMessageSession.generated';
 import { ReactSVG } from 'react-svg';
 import { PostListType } from '@bcpros/lixi-models/constants';
 import { AuthorizationContext } from '@context/index';
@@ -229,8 +235,6 @@ const ProfileCardHeader = styled.div`
     text-align: left;
     display: flex;
     flex-direction: column;
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
     @media (max-width: 768px) {
       margin-left: 0;
       text-align: center;
@@ -406,7 +410,6 @@ const StyledMenu = styled(Tabs)`
   width: 100%;
   // TODO: Display none to hide tabs untill add more option tabs
   .ant-tabs-nav {
-    display: none;
     border-bottom-right-radius: 20px;
     border-bottom-left-radius: 20px;
     padding: 1rem 24px;
@@ -499,6 +502,12 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   }, [pageAvatarUpload, pageCoverUpload]);
 
   useEffect(() => {
+    if (router.query.q) {
+      setQuery(router.query.q);
+    } else {
+      setQuery(null);
+    }
+
     if (router.query.hashtags) {
       setHashtags((router.query.hashtags as string).split(' '));
     } else {
@@ -533,6 +542,23 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
       error: errorOnDelete
     }
   ] = useDeleteFollowPageMutation();
+
+  const [
+    createPageMessageSessionTrigger,
+    {
+      isLoading: isLoadingCreatePageMessageSession,
+      isSuccess: isSuccessCreatePageMessageSession,
+      isError: isErrorCreatePageMessageSession
+    }
+  ] = useCreatePageMessageSessionMutation();
+
+  const { data: pageMessageSessionData, refetch: pageMessageSessionRefetch } = useUserHadMessageToPageQuery(
+    {
+      accountId: selectedAccount.id,
+      pageId: page.id
+    },
+    { skip: selectedAccount.id === page.pageAccountId }
+  );
 
   const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } = useInfinitePostsByPageIdQuery(
     {
@@ -665,7 +691,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
       dispatch(addBurnQueue(burnCommand));
       dispatch(addBurnTransaction(burnCommand));
     } catch (e) {
-      const errorMessage = e.message || intl.get('post.unableToBurn');
+      const errorMessage = intl.get('post.unableToBurn');
       dispatch(
         showToast('error', {
           message: intl.get('toast.error'),
@@ -843,6 +869,10 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     );
   };
 
+  const openPageMessageLixiModal = () => {
+    dispatch(openModal('PageMessageLixiModal', { account: selectedAccount, page: page, wallet: walletStatus }));
+  };
+
   return (
     <React.Fragment>
       <StyledContainerProfileDetail className="page-detail">
@@ -902,7 +932,24 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
             {/* Follow */}
             {selectedAccountId != pageDetailData?.pageAccountId && (
               <div>
-                <Button onClick={checkIsFollowed ? handleUnfollowPage : handleFollowPage}>
+                {/* Chat */}
+                {selectedAccountId != pageDetailData?.pageAccountId && _.isNil(pageMessageSessionData) && (
+                  <Button onClick={() => openPageMessageLixiModal()}>Chat with me</Button>
+                )}
+                {selectedAccountId != pageDetailData?.pageAccountId && pageMessageSessionData && (
+                  <React.Fragment>
+                    {
+                      {
+                        [PageMessageSessionStatus.Open]: <Button>Open message</Button>,
+                        [PageMessageSessionStatus.Pending]: <Button disabled>Pending Message</Button>
+                      }[pageMessageSessionData.userHadMessageToPage.status]
+                    }
+                  </React.Fragment>
+                )}
+                <Button
+                  style={{ marginLeft: '0.5rem' }}
+                  onClick={checkIsFollowed ? handleUnfollowPage : handleFollowPage}
+                >
                   {checkIsFollowed ? intl.get('general.unfollow') : intl.get('general.follow')}
                 </Button>
               </div>
@@ -1099,19 +1146,19 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                   <div className="about-content">
                     <SubAbout
                       dataItem={pageDetailData?.description}
-                      onClickIcon={() => { }}
+                      onClickIcon={() => {}}
                       icon={InfoCircleOutlined}
                       text={pageDetailData?.description}
                     />
                     <SubAbout
                       dataItem={pageDetailData?.address}
-                      onClickIcon={() => { }}
+                      onClickIcon={() => {}}
                       icon={CompassOutlined}
                       text={pageDetailData?.address}
                     />
                     <SubAbout
                       dataItem={pageDetailData?.website}
-                      onClickIcon={() => { }}
+                      onClickIcon={() => {}}
                       icon={HomeOutlined}
                       text={pageDetailData?.website}
                     />

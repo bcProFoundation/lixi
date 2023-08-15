@@ -257,10 +257,6 @@ const CreatePostCard = (props: CreatePostCardProp) => {
 
     try {
       let filterValue: number;
-      if (_.trim(pureContent) === '' || _.isNil(pureContent)) {
-        return;
-      }
-
       let createFeeHex;
       if (pathname.includes('/token')) {
         filterValue = filterToken;
@@ -287,7 +283,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
             );
           }
         } catch (error) {
-          throw new Error(intl.get('post.insufficientFeeCreatePost'));
+          throw new Error(intl.get('account.insufficientFunds'));
         }
       } else {
         filterValue = filterHome;
@@ -328,7 +324,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
       dispatch(deleteEditorTextFromCache());
     } catch (error) {
       let message;
-      if (error.message === intl.get('post.insufficientFeeCreatePost')) {
+      if (error.message === intl.get('account.insufficientFunds')) {
         message = error.message;
       } else {
         message = intl.get('post.unableCreatePostServer');

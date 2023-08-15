@@ -178,6 +178,10 @@ const PostContentDetail = styled.div`
     margin: 1rem 0;
     text-align: left;
     word-break: break-word;
+    div[data-lexical-decorator] {
+      display: flex;
+      justify-content: center;
+    }
     a {
       cursor: pointer;
     }
@@ -493,7 +497,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
       dispatch(addBurnQueue(burnCommand));
       dispatch(addBurnTransaction(burnCommand));
     } catch (e) {
-      const errorMessage = e.message || intl.get('post.unableToBurn');
+      const errorMessage = intl.get('post.unableToBurn');
       dispatch(
         showToast('error', {
           message: intl.get('toast.error'),

@@ -131,6 +131,10 @@ const PostContentDetail = styled.div`
     div {
       max-width: 100%;
     }
+    div[data-lexical-decorator] {
+      display: flex;
+      justify-content: center;
+    }
     iframe {
       max-width: 100%;
       @media (max-width: 960px) {
@@ -464,7 +468,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
       dispatch(addBurnQueue(burnCommand));
       dispatch(addBurnTransaction(burnCommand));
     } catch (e) {
-      const errorMessage = e.message || intl.get('post.unableToBurn');
+      const errorMessage = intl.get('post.unableToBurn');
       dispatch(
         showToast('error', {
           message: intl.get('toast.error'),
@@ -558,8 +562,15 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
             true
           );
         } catch (e) {
-          const message = e.message || e.error || JSON.stringify(e);
-          dispatch(sendXPIFailure(message));
+          const message = intl.get('account.insufficientFunds');
+          dispatch(
+            showToast('error', {
+              message: intl.get('toast.error'),
+              description: message,
+              duration: 5
+            })
+          );
+          return null;
         }
       }
     }

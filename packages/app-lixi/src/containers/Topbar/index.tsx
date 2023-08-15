@@ -65,6 +65,7 @@ const PathDirection = styled.div`
   }
   .logo-app-desktop {
     padding: 1rem 0.5rem;
+    cursor: pointer;
   }
   h3 {
     text-transform: capitalize;
@@ -368,12 +369,12 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
     setOtherAccounts(_.filter(savedAccounts, acc => acc && acc.id !== selectedAccount?.id));
   }, [savedAccounts]);
 
-  useEffect(() => {
-    dispatch(startChannel());
-    return () => {
-      stopChannel();
-    };
-  }, []);
+  // useEffect(() => {
+  //   dispatch(startChannel());
+  //   return () => {
+  //     stopChannel();
+  //   };
+  // }, []);
 
   const handleMenuClick = e => {
     dispatch(toggleCollapsedSideNav(!navCollapsed));
@@ -497,7 +498,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
   );
 
   const balanceAccount = (acc?: any) => {
-    const balanceString = fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis ?? 0)
+    const balanceString = fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis ?? 0);
     return `~ ${balanceString.toFixed(2)}`;
   };
 
@@ -534,7 +535,9 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
             </div>
 
             <div className="profile-feature">
-              <span>{balanceAccount(selectedAccount)} {currency.ticker}</span>
+              <span>
+                {balanceAccount(selectedAccount)} {currency.ticker}
+              </span>
               <Link href="/send">
                 <span>
                   <SendOutlined style={{ fontSize: '16px' }} />
@@ -577,10 +580,26 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
       <div className="social-menu">
         <h3>Social</h3>
         <ItemAccess
+          icon={'/images/ico-message-heart-circle.svg'}
+          text={'Messenger'}
+          active={currentPathName === '/page-message'}
+          direction="horizontal"
+          key="support"
+          onClickItem={() => {
+            if (authorization.authorized) {
+              handleIconClick('/page-message');
+            } else {
+              askAuthorization();
+            }
+          }}
+        />
+        <ItemAccess
           icon={'/images/ico-page.svg'}
           text={intl.get('general.page')}
           active={
-            currentPathName.includes('/page') && !currentAbsolutePathName.includes('page/clbm6r1v91486308n7w6za1qcu')
+            currentPathName.includes('/page') &&
+            !currentAbsolutePathName.includes('page/clbm6r1v91486308n7w6za1qcu') &&
+            !currentAbsolutePathName.includes('/page-message')
           }
           direction="horizontal"
           key="page-feed"
@@ -678,14 +697,14 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
     <StyledHeader style={{ boxShadow: '0 10px 30px rgb(0 0 0 / 5%)' }} className={className}>
       <PathDirection>
         <img className="menu-mobile" src="/images/ico-list-bullet_2.svg" alt="" onClick={handleMenuClick} />
-        {currentPathName == '/' && (
+        {(currentPathName == '/' || currentPathName == '/page-message') && (
           <picture>
             <img
               className={`${isMobile ? '' : 'logo-app-desktop'} logo-app`}
               height={'64px'}
               src={`${isMobile ? '/images/lixilotus-logo.svg' : '/images/lixilotus-text.svg'}`}
               alt="lixilotus-logo"
-              onClick={() => handleLogoClick()}
+              onClick={() => handleIconClick('/')}
             />
           </picture>
         )}
@@ -701,7 +720,9 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
             <span className="line line3"></span>
           </div>
         </div> */}
-        {pathDirection[1] != '' && <h3 className="path-direction-text">{pathDirection[1]}</h3>}
+        {pathDirection[1] != '' && currentPathName != '/page-message' && (
+          <h3 className="path-direction-text">{pathDirection[1]}</h3>
+        )}
       </PathDirection>
       <div className="filter-bar">
         <SearchBox />
@@ -709,10 +730,16 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
       <SpaceStyled direction="horizontal" size={15}>
         <div className="action-bar-header">
           <ButtonTopbar
-            onClick={() => handleIconClick('/')}
+            onClick={() => {
+              if (authorization.authorized) {
+                handleIconClick('/page-message');
+              } else {
+                askAuthorization();
+              }
+            }}
             className="btn-topbar home-btn animate__animated animate__heartBeat"
             type="text"
-            icon={<ReactSVG wrapper="span" className="anticon" src={'/images/ico-home-topbar.svg'} />}
+            icon={<ReactSVG wrapper="span" className="anticon" src={'/images/ico-message-heart-circle.svg'} />}
           />
           <Popover
             overlayClassName={`${currentTheme === 'dark' ? 'popover-dark' : ''} filter-btn`}
@@ -762,7 +789,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
         </div>
         <div className="account-bar">
           <Popover
-            overlayClassName={`${currentTheme === 'dark' ? 'popover-dark' : ''}`}
+            overlayClassName={`${currentTheme === 'dark' ? 'popover-dark' : ''} account-popover`}
             arrow={false}
             content={contentSelectAccount}
             placement="bottom"
@@ -875,6 +902,14 @@ const StyledTopbar = styled(Topbar)`
         width: 20px;
         height: 20px;
         filter: var(--filter-color-primary);
+      }
+    }
+  }
+  .home-btn {
+    .anticon {
+      svg {
+        width: 28px;
+        height: 28px;
       }
     }
   }

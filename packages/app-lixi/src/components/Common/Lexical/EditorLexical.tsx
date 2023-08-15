@@ -8,13 +8,11 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import TreeViewPlugin from './plugins/TreeViewPlugin';
-// import EmoticonPlugin from './plugins/EmoticonPlugin';
 import MyCustomAutoFocusPlugin from './plugins/MyCustomAutoFocusPlugin';
 import editorConfig from './editorConfig';
 import CustomButtonSubmitPlugin from './plugins/CustomButtonSubmitPlugin';
 import onChange from './onChange';
 import EmojisPlugin from './plugins/EmojisPlugin';
-import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
 import TwitterPlugin from './plugins/TwitterPlugin';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
@@ -175,6 +173,8 @@ const EditorLexical = (props: EditorLexicalProps) => {
     };
     return objImg;
   });
+  const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
+  const [currentContent, setCurrentContent] = useState<String>('');
 
   useEffect(() => {
     const isMobile = width < 960 ? true : false;
@@ -225,6 +225,13 @@ const EditorLexical = (props: EditorLexicalProps) => {
     );
   }, []);
 
+  const setUploadingImage = state => {
+    setIsUploadingImage(state);
+  };
+  const setContent = content => {
+    setCurrentContent(content);
+  };
+
   return (
     <React.Fragment>
       <StyledEditorLexical>
@@ -239,16 +246,11 @@ const EditorLexical = (props: EditorLexicalProps) => {
               placeholder={Placeholder}
               ErrorBoundary={LexicalErrorBoundary}
             />
-            <OnChangePlugin onChange={onChange} />
-            {/* <OnChangePlugin
-              onChange={(editorState, editor) => {
-                editorState.read(() => {
-                  const value = JSON.stringify(editorState); // or JSON.stringify(editorState.toJSON())
-                  console.log(value + editor.getEditorState());
-                });
-              }}
-            /> */}
+            <OnChangePlugin onChange={editorState => onChange(editorState, setContent)} />
             {/* <TreeViewPlugin /> */}
+            <TwitterPlugin />
+            <YouTubePlugin />
+            <FigmaPlugin />
             <EmojisPlugin />
             <HistoryPlugin />
             <AutoLinkPlugin />
@@ -315,7 +317,6 @@ const EditorLexical = (props: EditorLexicalProps) => {
               )}
             </div>
             <div className="EditorLexical_action">
-              <EmojiPickerPlugin />
               <MultiUploader
                 type={UPLOAD_TYPES.POST}
                 isIcon={true}
@@ -323,12 +324,19 @@ const EditorLexical = (props: EditorLexicalProps) => {
                 buttonName=" "
                 buttonType="text"
                 showUploadList={false}
+                loading={isUploadingImage}
+                setUploadingImage={setUploadingImage}
               />
               <ButtonLinkPlugin />
-              <TwitterPlugin />
             </div>
           </div>
-          <CustomButtonSubmitPlugin onSubmit={value => onSubmit(value)} loading={loading} isEditMode={isEditMode} />
+          <CustomButtonSubmitPlugin
+            onSubmit={value => onSubmit(value)}
+            loading={loading || isUploadingImage}
+            isEditMode={isEditMode}
+            currentContent={currentContent}
+            image={postCoverUploads}
+          />
         </LexicalComposer>
       </StyledEditorLexical>
     </React.Fragment>

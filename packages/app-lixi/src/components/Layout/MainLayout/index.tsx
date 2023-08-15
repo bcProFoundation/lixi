@@ -31,10 +31,11 @@ import 'animate.css';
 import useWindowDimensions from '@hooks/useWindowDimensions';
 import useThemeDetector from '@local-hooks/useThemeDetector';
 import { setShowCreatePost } from '@store/post/actions';
-const { Content } = Layout;
 import ToastNotificationManage from '@components/Common/ToastNotificationManage';
 import lightTheme from 'src/styles/themes/lightTheme';
 import darkTheme from 'src/styles/themes/darkTheme';
+import { useSocket } from '@context/index';
+import { userSubcribeToAddressChannel, userSubcribeToMultiPageMessageSession } from '@store/message/actions';
 
 export const LoadingIcon = <LoadingOutlined className="loadingIcon" />;
 
@@ -352,6 +353,7 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
                     {/* @ts-ignore */}
                     <div
                       className="container-content"
+                      style={{ padding: selectedKey === '/page-message' ? '0' : '' }}
                       id="scrollableDiv"
                       ref={scrollRef}
                       onScroll={e => handleScroll(e)}

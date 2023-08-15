@@ -178,7 +178,7 @@ export default {
   'account.renameFailed': 'Rename failed. All accounts must have a unique name.',
   'account.deleteFailed': 'Delete failed. Could not delete the account.',
   'account.accountRenamedSuccess': 'Account has renamed to {accountName}',
-  'account.accountChangeLocaleSuccess': 'Account locale has changed to {language}',
+  'account.accountChangeLocaleSuccess': 'Account locale has changed to English',
   'account.accountDeleteSuccess': 'The account has been deleted successfully.',
   'account.accountImportSuccess': 'The account has been imported successfully.',
   'account.login': 'Sign In',
@@ -374,6 +374,7 @@ export default {
   'settings.backupAccountWarning':
     'Your seed phrase is the only way to restore your account. Write it down. Keep it safe.',
   'settings.backupAccountHint': 'Copy and paste your mnemonic seed phrase below to import an existing account',
+  'settings.accountNameEmpty': 'Account name must must not be empty',
   'settings.accountLengthMessage': 'Account name must be a string between 1 and 24 characters long',
   'settings.enterAccountName': 'Enter new account name',
   'settings.renameAccount': 'Rename Account',
@@ -675,5 +676,8 @@ export default {
   'guide.body': 'Install the app on your device to easily access it anytime. No app store. No download. No hassle.',
   'guide.descOne': '1. Open in Safari (optional)',
   'guide.descTwo': '2. Tap on',
-  'guide.descThree': '3. Select'
+  'guide.descThree': '3. Select',
+
+  /* 23. Messenger */
+  'messenger.chat': 'Chat with '
 };

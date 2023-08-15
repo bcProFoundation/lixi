@@ -1,4 +1,4 @@
-import { NotificationDto as Notification, SocketUser } from '@bcpros/lixi-models';
+import { NotificationDto as Notification, SessionAction, SocketUser } from '@bcpros/lixi-models';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
@@ -16,6 +16,8 @@ import {
   WsResponse
 } from '@nestjs/websockets';
 import io, { Server, Socket } from 'socket.io';
+import { PrismaService } from 'src/modules/prisma/prisma.service';
+import { PageMessageSessionStatus } from '@bcpros/lixi-prisma';
 
 // https://build.diligent.com/message-queues-in-database-transactions-f830718f4f12
 // https://cloudificationzone.com/2021/08/13/notification-system-design/
@@ -29,7 +31,7 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
 
   private logger: Logger = new Logger('NotificationGateway');
 
-  constructor(@InjectRedis() private readonly redis: Redis) {}
+  constructor(@InjectRedis() private readonly redis: Redis, private prisma: PrismaService) {}
 
   handleConnection(client: Socket, ...args: any[]) {
     this.logger.log(`Client connected: ${client.id}`);
@@ -100,11 +102,158 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
     return true;
   }
 
+  @SubscribeMessage('subscribePageMessageSession')
+  handleSubscriptionToMessageSession(
+    @MessageBody() pageMessageSessionId: string,
+    @ConnectedSocket() client: Socket
+  ): WsResponse<string> {
+    //Check if already join a room
+    const joinedRoom = Array.from(client.rooms).find(room => {
+      return room === pageMessageSessionId;
+    });
+
+    if (!joinedRoom) {
+      client.join(pageMessageSessionId);
+      this.logger.log(
+        '🚀 ~ file: message.gateway.ts:47 ~ MessageGateway ~ pageMessageSessionId:',
+        pageMessageSessionId
+      );
+
+      return {
+        event: 'subscribePageMessageSession',
+        data: client.id
+      };
+    } else {
+      return {
+        event: '',
+        data: client.id
+      };
+    }
+  }
+
+  @SubscribeMessage('subscribeMultiPageMessageSession')
+  async handleSubscriptionToMultiPageMessageSession(
+    @MessageBody() accountId: number,
+    @ConnectedSocket() client: Socket
+  ): Promise<WsResponse<string>> {
+    const pageMessageSessionIds = await this.prisma.pageMessageSession.findMany({
+      where: {
+        AND: [
+          {
+            OR: [
+              {
+                page: {
+                  pageAccountId: accountId
+                }
+              },
+              {
+                accountId: accountId
+              }
+            ]
+          },
+          {
+            OR: [
+              {
+                status: PageMessageSessionStatus.OPEN
+              },
+              {
+                status: PageMessageSessionStatus.PENDING
+              }
+            ]
+          }
+        ]
+      }
+    });
+
+    if (pageMessageSessionIds.length > 0) {
+      client.join(pageMessageSessionIds.map(pageMessageSession => pageMessageSession.id));
+
+      return {
+        event: 'subscribeMultiPageMessageSession',
+        data: client.id
+      };
+    } else {
+      return {
+        event: '',
+        data: client.id
+      };
+    }
+  }
+
+  //Code below is for page owner listening for new PageMessageSession
+  @SubscribeMessage('subscribePageChannel')
+  handlePageMessageSessionSubscription(
+    @MessageBody() pageChannelId: string,
+    @ConnectedSocket() client: Socket
+  ): WsResponse<string> {
+    //Check if already join a room
+    const joinedRoom = Array.from(client.rooms).find(room => {
+      return room === pageChannelId;
+    });
+
+    if (!joinedRoom) {
+      client.join(pageChannelId);
+      this.logger.log('🚀 ~ file: message.gateway.ts:47 ~ MessageGateway ~ pageChannelId:', pageChannelId);
+
+      return {
+        event: 'pageChannelId',
+        data: client.id
+      };
+    } else {
+      return {
+        event: '',
+        data: client.id
+      };
+    }
+  }
+
+  @SubscribeMessage('subscribeAddressChannel')
+  handleAddressChannelSubscription(
+    @MessageBody() userAddress: string,
+    @ConnectedSocket() client: Socket
+  ): WsResponse<string> {
+    //Check if already join a room
+    const joinedRoom = Array.from(client.rooms).find(room => {
+      return room === userAddress;
+    });
+
+    if (!joinedRoom) {
+      client.join(userAddress);
+      this.logger.log('🚀 ~ file: message.gateway.ts:47 ~ MessageGateway ~ userAddress:', userAddress);
+
+      return {
+        event: 'userAddress',
+        data: client.id
+      };
+    } else {
+      return {
+        event: '',
+        data: client.id
+      };
+    }
+  }
+
   sendNotification(room: string, notification: Notification) {
     this.server.to(room).emit('notification', notification);
   }
 
   sendNewPostEvent(room: string, data: any) {
     this.server.to(room).emit('newpost', data);
+  }
+
+  publishMessage(pageMessageSessionId: string, message: any) {
+    this.server.to(pageMessageSessionId).emit('publishMessage', message);
+  }
+
+  publishPageChannel(pageChannelId: string, message: any) {
+    this.server.to(pageChannelId).emit('publishPageChannel', message);
+  }
+
+  publishAddressChannel(address: string, message: any) {
+    this.server.to(address).emit('publishAddressChannel', message);
+  }
+
+  publishSessionAction(pageMessageSessionId: string, message: SessionAction) {
+    this.server.to(pageMessageSessionId).emit('sessionAction', message);
   }
 }
