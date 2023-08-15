@@ -101,16 +101,6 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ profile, cla
         onCancel={handleOnCancel}
         style={{ top: '0 !important' }}
       >
-        {/* <Tabs tabPosition="left" defaultActiveKey="profile">
-          <Tabs.TabPane
-            tab={
-              <span>
-                <UserOutlined />
-                {intl.get('general.profile')}
-              </span>
-            }
-            key="profile"
-          > */}
         <CreateForm className="form-parent">
           <CreateForm
             className="form-child edit-page"
@@ -173,16 +163,6 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ profile, cla
               />
             </Form.Item>
 
-            {/* <Form.Item label={intl.get('account.birthday')}>
-                <Controller
-                  name="birthday"
-                  control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <DatePicker onChange={onChange} />
-                  )}
-                />
-              </Form.Item> */}
-
             <Form.Item name="post-comment-fee" label={intl.get('page.createCommentFee')}>
               <Controller
                 name="createCommentFee"
@@ -217,18 +197,6 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ profile, cla
             {intl.get('page.editPage')}
           </Button>
         </div>
-        {/* </Tabs.TabPane> */}
-
-        {/* TODO: in future, separate profile information and other information */}
-        {/* <Tabs.TabPane
-            tab={ <span> <FileOutlined /> {intl.get('post.postTitle')} </span> }
-            key="posts"
-          >
-            <Form>
-            
-            </Form>
-          </Tabs.TabPane>
-        </Tabs> */}
       </Modal>
     </>
   );

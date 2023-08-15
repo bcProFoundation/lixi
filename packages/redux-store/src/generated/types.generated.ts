@@ -21,11 +21,11 @@ export type Account = {
   address: Scalars['String'];
   avatar?: Maybe<Scalars['String']>;
   balance: Scalars['Int'];
-  birthday?: Maybe<Scalars['DateTime']>;
   cover?: Maybe<Scalars['String']>;
   createCommentFee: Scalars['String'];
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
+  dayOfBirth?: Maybe<Scalars['Int']>;
   description?: Maybe<Scalars['String']>;
   encryptedMnemonic?: Maybe<Scalars['String']>;
   encryptedSecret?: Maybe<Scalars['String']>;
@@ -37,6 +37,7 @@ export type Account = {
   messages?: Maybe<Array<Message>>;
   mnemonic?: Maybe<Scalars['String']>;
   mnemonicHash?: Maybe<Scalars['String']>;
+  monthOfBirth?: Maybe<Scalars['Int']>;
   name: Scalars['String'];
   pageMessageSessions?: Maybe<Array<PageMessageSession>>;
   pages?: Maybe<Array<Page>>;
@@ -45,6 +46,7 @@ export type Account = {
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
   website?: Maybe<Scalars['String']>;
+  yearOfBirth?: Maybe<Scalars['Int']>;
 };
 
 export type AccountConnection = {

@@ -97,6 +97,9 @@ export class AuthService {
       if (verified) {
         return {
           ...account,
+          dayOfBirth: account.dayOfBirth ?? undefined,
+          monthOfBirth: account.monthOfBirth ?? undefined,
+          yearOfBirth: account.yearOfBirth ?? undefined,
           avatar: url ?? undefined
         };
       }
