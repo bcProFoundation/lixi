@@ -40,6 +40,9 @@ import { SpaceShorcutItem, transformCreatedAt } from '@containers/Sidebar/SideBa
 import { transformShortName } from '@components/Common/AvatarUser';
 import { ReactSVG } from 'react-svg';
 import useWindowDimensions from '@hooks/useWindowDimensions';
+import { useRouter } from 'next/router';
+import intl from 'react-intl-universal';
+import { useSwipeable } from 'react-swipeable';
 
 type PageMessageSessionItem = PageMessageSessionQuery['pageMessageSession'];
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
@@ -56,6 +59,9 @@ const StyledContainer = styled.div`
     margin: 0;
     border-radius: 0;
     height: calc(100% - 60px);
+    &.detail-chat {
+      height: 100%;
+    }
   }
 `;
 
@@ -154,6 +160,19 @@ const StyledSideContainer = styled.div`
       }
     }
   }
+  .blank-chat {
+    border: 0;
+    padding: 0.5rem 1rem;
+    .avatar-account-page {
+      border-radius: 8px;
+      img {
+        border-radius: 8px;
+      }
+    }
+    &:hover {
+      background: transparent;
+    }
+  }
   @media (max-width: 526px) {
     &.hide-side-message {
       display: none;
@@ -194,12 +213,15 @@ const StyledChatbox = styled.div`
 `;
 
 const InputContainer = styled.div`
+  position: sticky;
+  z-index: 999;
+  bottom: 0;
   display: flex;
   align-items: center;
   border-radius: 12px;
   border: 2px solid #e2e8f0;
   background: #fff;
-  margin: 1rem;
+  margin: 0.5rem 1rem 1rem 1rem;
   height: fit-content;
   .ant-input {
     height: 100%;
@@ -213,6 +235,9 @@ const InputContainer = styled.div`
 const IconContainer = styled.div`
   display: flex;
   justify-content: center;
+  button {
+    border-radius: 12px;
+  }
 `;
 
 const StyledInfiniteScroll = styled(InfiniteScroll)`
@@ -266,6 +291,9 @@ const LixiContainer = styled.div`
 `;
 
 const StyledChatHeader = styled.div`
+  position: sticky;
+  z-index: 999;
+  top: 0;
   width: 100%;
   margin: 0;
   padding: 1rem;
@@ -404,7 +432,9 @@ export const PageGroupItem = ({
                         )}
                       </div>
                       <div className="time-score" onClick={() => setCollapse(!collapse)}>
-                        <p className="create-date">Total: {messages.length}</p>
+                        <p className="create-date">
+                          {intl.get('messenger.total')} {messages.length}
+                        </p>
                         <div className="content-score">
                           <p className="lotus-burn-score">{transformCreatedAt(item?.updatedAt)}</p>
                         </div>
@@ -509,6 +539,7 @@ const PageMessage = () => {
   const { XPI } = Wallet;
   const [isMobile, setIsMobile] = useState(false);
   const { width } = useWindowDimensions();
+  const router = useRouter();
 
   useEffect(() => {
     const isMobile = width < 526 ? true : false;
@@ -694,17 +725,44 @@ const PageMessage = () => {
     dispatch(setPageMessageSession(null));
   };
 
+  const handlersSwip = useSwipeable({
+    onSwipedRight: eventData => backToChat()
+  });
+
   return (
-    <StyledContainer className="card page-message">
+    <StyledContainer className={`card page-message ${currentPageMessageSession ? 'detail-chat' : ''}`}>
       <StyledSideContainer
         className={`${currentPageMessageSession ? 'hide-side-message' : 'show-side-message'} ${
-          isMobile ? 'animate__faster animate__animated animate__slideInLeft' : ''
+          isMobile ? 'animate__faster animate__animated animate__slideInRight' : ''
         }`}
       >
         <h2 className="title-chat">
           Chats <span className="badge-total-message">{data.length}</span>
         </h2>
         <div className="groups-page-message">
+          <SpaceShorcutItem
+            className="blank-chat"
+            style={{ paddingRight: '0.5rem' }}
+            size={5}
+            onClick={() => router.push('/page/feed')}
+          >
+            <div className="avatar-account avatar-account-page">
+              <img src={'/images/ico-add-chat.png'} />
+            </div>
+            <div className="content-account" style={{ paddingRight: '0.5rem' }}>
+              <div className="info-account">
+                <p className="page-name">{intl.get('messenger.blankTitle')}</p>
+                <p className="content">{intl.get('messenger.blankBody')}</p>
+              </div>
+            </div>
+            <div className="action" style={{ textAlign: 'right' }}>
+              <Button
+                type="primary"
+                className="no-border-btn"
+                icon={<ReactSVG src="/images/ico-arrow-right.svg" wrapper="span" className="anticon custom-svg" />}
+              />
+            </div>
+          </SpaceShorcutItem>
           {data.length > 0 && (
             <InfiniteScroll
               dataLength={data.length}
@@ -732,8 +790,9 @@ const PageMessage = () => {
       </StyledSideContainer>
 
       <StyledChatContainer
+        {...handlersSwip}
         className={`${currentPageMessageSession ? 'full-content-chat' : 'hide-content-chat'} ${
-          isMobile ? 'animate__faster animate__animated animate__slideInRight' : ''
+          isMobile ? 'animate__faster animate__animated animate__slideInLeft' : ''
         }`}
       >
         <StyledChatHeader>
@@ -761,7 +820,7 @@ const PageMessage = () => {
                   </div>
                   <div className="chat-header-action">
                     <div className={`${currentPageMessageSession?.status.toLowerCase()} status-current-session`}>
-                      {currentPageMessageSession?.status}
+                      {intl.get(`messenger.${currentPageMessageSession?.status?.toLowerCase()}`)}
                     </div>
                     <Popover
                       content={
@@ -770,7 +829,7 @@ const PageMessage = () => {
                           type="primary"
                           onClick={closeSession}
                         >
-                          Close session
+                          {intl.get('messenger.closeSession')}
                         </Button>
                       }
                       placement="bottomRight"
@@ -804,14 +863,14 @@ const PageMessage = () => {
                   </div>
                   <div className="chat-header-action">
                     <div className={`${currentPageMessageSession?.status.toLowerCase()} status-current-session`}>
-                      {currentPageMessageSession?.status}
+                      {intl.get(`messenger.${currentPageMessageSession?.status?.toLowerCase()}`)}
                     </div>
                   </div>
                 </>
               )}
             </>
           ) : (
-            <h2>Welcome Lixi Chat</h2>
+            <h2>{intl.get('messenger.welcome')}</h2>
           )}
         </StyledChatHeader>
         <StyledChatbox
@@ -835,9 +894,9 @@ const PageMessage = () => {
                     loader={<Skeleton active />}
                     endMessage={
                       isPageOwner ? (
-                        <p>{`You accepted lixi from ${currentPageMessageSession?.account?.name}`}</p>
+                        <p>{`${intl.get('messenger.youAccepted')} ${currentPageMessageSession?.account?.name}`}</p>
                       ) : (
-                        <p>{`${currentPageMessageSession?.page?.name} accepted your lixi`}</p>
+                        <p>{`${currentPageMessageSession?.page?.name} ${intl.get('messenger.acceptedYourLixi')}`}</p>
                       )
                     }
                     inverse
@@ -865,13 +924,15 @@ const PageMessage = () => {
                       </Avatar>
                       <h4 className="sender-name">{currentPageMessageSession?.account?.name}</h4>
                       <p className="sender-created-at">{transformCreatedAt(currentPageMessageSession?.createdAt)}</p>
-                      <p className="sender-message-amount">{`Give you ${currentPageMessageSession?.lixi.amount} XPI for messaging`}</p>
+                      <p className="sender-message-amount">{`${intl.get('messenger.giveYou')} ${Math.round(
+                        Number(currentPageMessageSession?.lixi.amount)
+                      )} XPI ${intl.get('messenger.forMessaging')}`}</p>
                       <div className="group-action-session">
                         <Button type="primary" className="outline-btn" onClick={() => openSession()}>
-                          Accept
+                          {intl.get('messenger.accept')}
                         </Button>
                         <Button type="primary" className="outline-btn" onClick={() => closeSession()}>
-                          Deny
+                          {intl.get('messenger.deny')}
                         </Button>
                       </div>
                     </div>
@@ -890,7 +951,7 @@ const PageMessage = () => {
               )}
             </React.Fragment>
           ) : (
-            <span className="blank-chat">Select a chat to start messaging</span>
+            <span className="blank-chat">{intl.get('messenger.selectChat')}</span>
           )}
         </StyledChatbox>
         {currentPageMessageSession && (
@@ -915,8 +976,8 @@ const PageMessage = () => {
                     currentPageMessageSession.status === PageMessageSessionStatus.Open
                       ? 'Aa'
                       : currentPageMessageSession.status === PageMessageSessionStatus.Pending
-                      ? 'Accept to chat...'
-                      : 'Session is close'
+                      ? `${intl.get('messenger.acceptToChat')}`
+                      : `${intl.get('messenger.sessionClose')}`
                   }
                   disabled={
                     isLoadingCreateMessage || currentPageMessageSession.status !== PageMessageSessionStatus.Open

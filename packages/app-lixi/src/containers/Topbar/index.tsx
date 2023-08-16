@@ -308,6 +308,11 @@ const StyledHeader = styled(Header)`
     width: 100%;
     height: 64px;
   }
+  @media (max-width: 526px) {
+    &.hide-header {
+      display: none;
+    }
+  }
 `;
 
 const ButtonTopbar = styled(Button)`
@@ -353,17 +358,6 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
     const isMobile = width < 968 ? true : false;
     setIsMobile(isMobile);
   }, [width]);
-
-  useEffect(() => {
-    if (selectedAccount) {
-      dispatch(
-        fetchNotifications({
-          accountId: selectedAccount.id,
-          mnemonichHash: selectedAccount.mnemonicHash
-        })
-      );
-    }
-  }, []);
 
   useEffect(() => {
     setOtherAccounts(_.filter(savedAccounts, acc => acc && acc.id !== selectedAccount?.id));
@@ -729,6 +723,14 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
       </div>
       <SpaceStyled direction="horizontal" size={15}>
         <div className="action-bar-header">
+          {!isMobile && (
+            <ButtonTopbar
+              onClick={() => handleIconClick('/')}
+              className="btn-topbar"
+              type="text"
+              icon={<ReactSVG wrapper="span" className="anticon" src={'/images/ico-home-topbar.svg'} />}
+            />
+          )}
           <ButtonTopbar
             onClick={() => {
               if (authorization.authorized) {
@@ -737,9 +739,9 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
                 askAuthorization();
               }
             }}
-            className="btn-topbar home-btn animate__animated animate__heartBeat"
+            className="btn-topbar home-btn"
             type="text"
-            icon={<ReactSVG wrapper="span" className="anticon" src={'/images/ico-message-heart-circle.svg'} />}
+            icon={<ReactSVG wrapper="span" className="anticon" src={'/images/ico-message-heart-circle-topbar.svg'} />}
           />
           <Popover
             overlayClassName={`${currentTheme === 'dark' ? 'popover-dark' : ''} filter-btn`}
@@ -748,7 +750,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
             placement="bottom"
           >
             <ButtonTopbar
-              className="btn-topbar animate__animated animate__heartBeat"
+              className="btn-topbar"
               type="text"
               icon={<ReactSVG wrapper="span" className="anticon" src={'/images/ico-filter.svg'} />}
             />
@@ -781,7 +783,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
             open={openMoreOption}
           >
             <ButtonTopbar
-              className="btn-topbar animate__animated animate__heartBeat"
+              className="btn-topbar"
               type="text"
               icon={<ReactSVG wrapper="span" className="anticon" src={'/images/ico-category.svg'} />}
             />
