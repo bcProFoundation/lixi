@@ -39,6 +39,7 @@ import useXPI from '@hooks/useXPI';
 import { currency } from '@components/Common/Ticker';
 import { sendXPIFailure, sendXPISuccess } from '@store/send/actions';
 import { fromSmallestDenomination } from '@utils/cashMethods';
+import { useSwipeable } from 'react-swipeable';
 
 type PageMessageSessionItem = PageMessageSessionQuery['pageMessageSession'];
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
@@ -813,6 +814,10 @@ const PageMessage = () => {
     dispatch(setPageMessageSession(null));
   };
 
+  const handlersSwip = useSwipeable({
+    onSwipedRight: eventData => backToChat()
+  });
+
   return (
     <StyledContainer className={`card page-message ${currentPageMessageSession ? 'detail-chat' : ''}`}>
       <StyledSideContainer
@@ -824,6 +829,29 @@ const PageMessage = () => {
           Chats <span className="badge-total-message">{data.length}</span>
         </h2>
         <div className="groups-page-message">
+          <SpaceShorcutItem
+            className="blank-chat"
+            style={{ paddingRight: '0.5rem' }}
+            size={5}
+            onClick={() => router.push('/page/feed')}
+          >
+            <div className="avatar-account avatar-account-page">
+              <img src={'/images/ico-add-chat.png'} />
+            </div>
+            <div className="content-account" style={{ paddingRight: '0.5rem' }}>
+              <div className="info-account">
+                <p className="page-name">{intl.get('messenger.blankTitle')}</p>
+                <p className="content">{intl.get('messenger.blankBody')}</p>
+              </div>
+            </div>
+            <div className="action" style={{ textAlign: 'right' }}>
+              <Button
+                type="primary"
+                className="no-border-btn"
+                icon={<ReactSVG src="/images/ico-arrow-right.svg" wrapper="span" className="anticon custom-svg" />}
+              />
+            </div>
+          </SpaceShorcutItem>
           {data.length > 0 && (
             <InfiniteScroll
               dataLength={data.length}
@@ -847,23 +875,11 @@ const PageMessage = () => {
                 })}
             </InfiniteScroll>
           )}
-          {data.length === 0 && (
-            <SpaceShorcutItem className="blank-chat" size={5} onClick={() => router.push('/page/feed')}>
-              <div className="avatar-account avatar-account-page">
-                <img src={'/images/ico-add-chat.png'} />
-              </div>
-              <div className="content-account" style={{ paddingRight: '0.5rem' }}>
-                <div className="info-account">
-                  <p className="page-name">{intl.get('messenger.blankTitle')}</p>
-                  <p className="content">{intl.get('messenger.blankBody')}</p>
-                </div>
-              </div>
-            </SpaceShorcutItem>
-          )}
         </div>
       </StyledSideContainer>
 
       <StyledChatContainer
+        {...handlersSwip}
         className={`${currentPageMessageSession ? 'full-content-chat' : 'hide-content-chat'} ${
           isMobile ? 'animate__faster animate__animated animate__slideInLeft' : ''
         }`}
