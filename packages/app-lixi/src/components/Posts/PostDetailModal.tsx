@@ -619,6 +619,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
           duration: 3
         })
       );
+      setIsSendingXPI(false);
     }
 
     resetField('comment');
@@ -738,7 +739,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
   return (
     <React.Fragment>
       <Modal
-        transitionName='none'
+        transitionName="none"
         width={'50vw'}
         className={`${classStyle} post-detail-custom-modal`}
         style={{ top: 30 }}
