@@ -159,9 +159,10 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
       burnForUpDownVoteSuccess(data) &&
         showToast('success', {
           message: intl.get(`toast.success`),
-          description: `You have given ${burnValue} Dana for ${
-            burnValue + burnValue * currency.burnFee + Number(minerFee)
-          } XPI`
+          description: intl.get('burn.totalBurn', {
+            burnValue: burnValue,
+            totalAmount: burnValue + burnValue * currency.burnFee + Number(minerFee)
+          })
         })
     );
   } catch (err) {
