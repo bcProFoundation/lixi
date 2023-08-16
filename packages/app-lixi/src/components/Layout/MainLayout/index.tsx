@@ -147,6 +147,11 @@ export const AppContainer = styled.div`
         margin-bottom: 0;
         height: 100vh;
       }
+      @media (max-width: 526px) {
+        > div:not(.page-message) {
+          padding-bottom: 3rem;
+        }
+      }
     }
   }
   .ant-drawer {
