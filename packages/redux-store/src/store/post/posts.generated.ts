@@ -53,7 +53,7 @@ export type PostQuery = {
         cfImageFilename?: string | null;
       };
     }> | null;
-    postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
+    postAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
     page?: {
       __typename?: 'Page';
       avatar?: string | null;
@@ -61,13 +61,13 @@ export type PostQuery = {
       id: string;
       createPostFee: string;
       createCommentFee: string;
-      pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
+      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
     } | null;
     token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
     reposts?: Array<{
       __typename?: 'Repost';
       accountId?: number | null;
-      account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
+      account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
     }> | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
@@ -129,7 +129,7 @@ export type PostsQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
+        postAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -137,13 +137,13 @@ export type PostsQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
+          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
@@ -213,7 +213,7 @@ export type OrphanPostsQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
+        postAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -221,13 +221,13 @@ export type OrphanPostsQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
+          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
@@ -297,7 +297,7 @@ export type PostsByPageIdQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
+        postAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -305,13 +305,13 @@ export type PostsByPageIdQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
+          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
@@ -381,7 +381,7 @@ export type PostsByUserIdQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
+        postAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -389,13 +389,13 @@ export type PostsByUserIdQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
+          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
@@ -465,7 +465,7 @@ export type PostsByHashtagIdQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
+        postAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -473,13 +473,13 @@ export type PostsByHashtagIdQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
+          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
@@ -549,7 +549,7 @@ export type PostsByTokenIdQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
+        postAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -557,13 +557,13 @@ export type PostsByTokenIdQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
+          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
@@ -627,7 +627,7 @@ export type PostsBySearchQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
+        postAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -635,13 +635,13 @@ export type PostsBySearchQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
+          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
@@ -707,7 +707,7 @@ export type PostsBySearchWithHashtagQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
+        postAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -715,13 +715,13 @@ export type PostsBySearchWithHashtagQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
+          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
@@ -788,7 +788,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
+        postAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -796,13 +796,13 @@ export type PostsBySearchWithHashtagAtPageQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
+          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
@@ -869,7 +869,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
             cfImageFilename?: string | null;
           };
         }> | null;
-        postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
+        postAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
         page?: {
           __typename?: 'Page';
           avatar?: string | null;
@@ -877,13 +877,13 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
+          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
@@ -934,7 +934,7 @@ export type PostFieldsFragment = {
       cfImageFilename?: string | null;
     };
   }> | null;
-  postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
+  postAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
   page?: {
     __typename?: 'Page';
     avatar?: string | null;
@@ -942,13 +942,13 @@ export type PostFieldsFragment = {
     id: string;
     createPostFee: string;
     createCommentFee: string;
-    pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
+    pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
   } | null;
   token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
   reposts?: Array<{
     __typename?: 'Repost';
     accountId?: number | null;
-    account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
+    account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
   }> | null;
   translations?: Array<{
     __typename?: 'PostTranslation';
@@ -986,7 +986,7 @@ export type PostMeiliFieldsFragment = {
       cfImageFilename?: string | null;
     };
   }> | null;
-  postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
+  postAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
   page?: {
     __typename?: 'Page';
     avatar?: string | null;
@@ -994,13 +994,13 @@ export type PostMeiliFieldsFragment = {
     id: string;
     createPostFee: string;
     createCommentFee: string;
-    pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
+    pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
   } | null;
   token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
   reposts?: Array<{
     __typename?: 'Repost';
     accountId?: number | null;
-    account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
+    account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
   }> | null;
   translations?: Array<{
     __typename?: 'PostTranslation';
@@ -1047,7 +1047,7 @@ export type CreatePostMutation = {
         cfImageFilename?: string | null;
       };
     }> | null;
-    postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
+    postAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
     page?: {
       __typename?: 'Page';
       avatar?: string | null;
@@ -1055,13 +1055,13 @@ export type CreatePostMutation = {
       id: string;
       createPostFee: string;
       createCommentFee: string;
-      pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
+      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
     } | null;
     token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
     reposts?: Array<{
       __typename?: 'Repost';
       accountId?: number | null;
-      account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
+      account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
     }> | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
@@ -1109,7 +1109,7 @@ export type UpdatePostMutation = {
         cfImageFilename?: string | null;
       };
     }> | null;
-    postAccount: { __typename?: 'Account'; address: string; id: string; name: string; avatar?: string | null };
+    postAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
     page?: {
       __typename?: 'Page';
       avatar?: string | null;
@@ -1117,13 +1117,13 @@ export type UpdatePostMutation = {
       id: string;
       createPostFee: string;
       createCommentFee: string;
-      pageAccount: { __typename?: 'Account'; id: string; name: string; address: string };
+      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
     } | null;
     token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
     reposts?: Array<{
       __typename?: 'Repost';
       accountId?: number | null;
-      account?: { __typename?: 'Account'; id: string; name: string; address: string } | null;
+      account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
     }> | null;
     translations?: Array<{
       __typename?: 'PostTranslation';

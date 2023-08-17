@@ -15,7 +15,7 @@ type Account {
   followersCount: Int
   followingPagesCount: Int
   followingsCount: Int
-  id: ID!
+  id: Int!
   language: String!
   messages: [Message!]
   mnemonic: String
@@ -1045,7 +1045,7 @@ enum TokenOrderField {
 input UpdateAccountInput {
   avatar: String
   cover: String
-  id: ID!
+  id: Int!
   language: String
   name: String
 }

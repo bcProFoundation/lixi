@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Message, PageMessageSession } from '../message';
@@ -6,7 +6,7 @@ import { Page } from '../page';
 
 @ObjectType()
 export class Account {
-  @Field(() => ID)
+  @Field(() => Number)
   id: number;
 
   @Field(() => String)
