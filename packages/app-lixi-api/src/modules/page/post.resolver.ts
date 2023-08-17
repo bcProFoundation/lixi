@@ -68,12 +68,12 @@ export class PostResolver {
   async post(@Args('id', { type: () => String }) id: string) {
     return this.prisma.post.findUnique({
       where: { id: id },
-      include: { 
+      include: {
         postAccount: true,
         comments: true,
         page: true,
         translations: true,
-        reposts: { select: { account: true, accountId: true }}
+        reposts: { select: { account: true, accountId: true } }
       }
     });
   }
@@ -289,7 +289,12 @@ export class PostResolver {
       result = await findManyCursorConnection(
         args =>
           this.prisma.post.findMany({
-            include: { postAccount: true, comments: true, reposts: { select: { account: true, accountId: true } }, translations: true },
+            include: {
+              postAccount: true,
+              comments: true,
+              reposts: { select: { account: true, accountId: true } },
+              translations: true
+            },
             where: {
               OR: [
                 {
@@ -376,7 +381,12 @@ export class PostResolver {
       result = await findManyCursorConnection(
         args =>
           this.prisma.post.findMany({
-            include: { postAccount: true, comments: true, reposts: { select: { account: true, accountId: true } }, translations: true },
+            include: {
+              postAccount: true,
+              comments: true,
+              reposts: { select: { account: true, accountId: true } },
+              translations: true
+            },
             where: {
               OR: [
                 {
@@ -769,7 +779,7 @@ export class PostResolver {
       result = await findManyCursorConnection(
         args =>
           this.prisma.post.findMany({
-            include: { postAccount: true, comments: true , translations: true},
+            include: { postAccount: true, comments: true, translations: true },
             where: {
               AND: [
                 {

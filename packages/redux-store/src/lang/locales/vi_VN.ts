@@ -840,5 +840,5 @@ export default {
   'code.xh': 'Xhosa',
   'code.yi': 'Yiddish',
   'code.yo': 'Yoruba',
-  'code.zu': 'Zulu',
+  'code.zu': 'Zulu'
 };
