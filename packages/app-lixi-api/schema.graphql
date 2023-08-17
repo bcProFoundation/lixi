@@ -160,10 +160,11 @@ input CreateFollowTokenInput {
 
 input CreateMessageInput {
   authorId: Int!
-  body: String!
+  body: String
   isPageOwner: Boolean
   pageMessageSessionId: String
   tipHex: String
+  uploadIds: [String!]
 }
 
 input CreatePageInput {
@@ -435,7 +436,7 @@ type LixiModel {
 
 type Message {
   author: Account!
-  body: String!
+  body: String
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime
@@ -445,6 +446,7 @@ type Message {
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
+  uploads: [UploadDetail!]
 }
 
 type MessageConnection {

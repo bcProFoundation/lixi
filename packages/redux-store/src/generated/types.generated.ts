@@ -178,10 +178,11 @@ export type CreateFollowTokenInput = {
 
 export type CreateMessageInput = {
   authorId: Scalars['Int'];
-  body: Scalars['String'];
+  body?: InputMaybe<Scalars['String']>;
   isPageOwner?: InputMaybe<Scalars['Boolean']>;
   pageMessageSessionId?: InputMaybe<Scalars['String']>;
   tipHex?: InputMaybe<Scalars['String']>;
+  uploadIds?: InputMaybe<Array<Scalars['String']>>;
 };
 
 export type CreatePageInput = {
@@ -446,7 +447,7 @@ export type LixiModel = {
 export type Message = {
   __typename?: 'Message';
   author: Account;
-  body: Scalars['String'];
+  body?: Maybe<Scalars['String']>;
   /** Identifies the date and time when the object was created. */
   createdAt?: Maybe<Scalars['DateTime']>;
   id: Scalars['ID'];
@@ -454,6 +455,7 @@ export type Message = {
   pageMessageSession?: Maybe<PageMessageSession>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt?: Maybe<Scalars['DateTime']>;
+  uploads?: Maybe<Array<UploadDetail>>;
 };
 
 export type MessageConnection = {

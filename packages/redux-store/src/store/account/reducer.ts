@@ -31,7 +31,8 @@ import {
   addRecentHashtagAtToken,
   removeRecentHashtagAtToken,
   clearRecentHashtagAtToken,
-  setAccountInfoTemp
+  setAccountInfoTemp,
+  removeAllMessageUpload
 } from './actions';
 import { AccountsState } from './state';
 
@@ -54,7 +55,8 @@ const initialState: AccountsState = accountsAdapter.getInitialState({
   recentHashtagAtHome: [],
   recentHashtagAtPages: [],
   recentHashtagAtToken: [],
-  accountInfoTemp: null
+  accountInfoTemp: null,
+  messageUploads: []
 });
 
 const numberOfRecentHashtags = 3;
@@ -118,6 +120,9 @@ export const accountReducer = createReducer(initialState, builder => {
         case UPLOAD_TYPES.POST:
           state.postCoverUploads.push(upload);
           break;
+        case UPLOAD_TYPES.MESSAGE:
+          state.messageUploads.push(upload);
+          break;
       }
     })
     .addCase(removeUpload, (state, action) => {
@@ -141,10 +146,18 @@ export const accountReducer = createReducer(initialState, builder => {
             return image.id !== id;
           });
           break;
+        case UPLOAD_TYPES.MESSAGE:
+          state.messageUploads = state.messageUploads.filter(image => {
+            return image.id !== id;
+          });
+          break;
       }
     })
     .addCase(removeAllUpload, (state, action) => {
       state.postCoverUploads.length = 0;
+    })
+    .addCase(removeAllMessageUpload, (state, action) => {
+      state.messageUploads.length = 0;
     })
     .addCase(saveEditorTextToCache, (state, action) => {
       const tempPost = action.payload;
