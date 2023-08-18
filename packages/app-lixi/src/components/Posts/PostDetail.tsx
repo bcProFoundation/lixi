@@ -573,7 +573,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
       }
 
       if (post.page) {
-        if (selectedAccount.id != parseInt(post.page.pageAccount.id) && post.page.createCommentFee != '0') {
+        if (selectedAccount.id != post.page.pageAccount.id && post.page.createCommentFee != '0') {
           try {
             const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
             createFeeHex = await sendXpi(
@@ -667,6 +667,10 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
     if (post.page) {
       return post.page.createCommentFee != '0'
         ? intl.get('comment.writeCommentXpi', { commentFee: `${post.page.createCommentFee} ${currency.ticker}` })
+        : intl.get('comment.writeCommentFree');
+    } else if (post.postAccount.createCommentFee && _.isNil(post.page)) {
+      return post.postAccount.createCommentFee != '0'
+        ? intl.get('comment.writeCommentXpi', { commentFee: `${post.postAccount.createCommentFee} ${currency.ticker}` })
         : intl.get('comment.writeCommentFree');
     } else {
       return intl.get('comment.writeComment');
