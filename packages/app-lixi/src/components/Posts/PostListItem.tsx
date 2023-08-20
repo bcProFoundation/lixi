@@ -3,7 +3,7 @@ import ActionPostBar from '@components/Common/ActionPostBar';
 import CommentComponent, { CommentItem } from '@components/Common/Comment';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import useWindowDimensions from '@hooks/useWindowDimensions';
-import { useAppDispatch } from '@store/hooks';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
 import { PostsQuery } from '@store/post/posts.generated';
 import { formatRelativeTime } from '@utils/formatting';
@@ -20,6 +20,7 @@ import PostTranslate from './PostTranslate';
 import { PostListType } from '@bcpros/lixi-models/constants';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import { LoadingIcon } from '@components/Layout/MainLayout';
+import { getCurrentLocale } from '@store/settings/selectors';
 
 export const CommentList = ({ comments }: { comments: CommentItem[] }) => (
   <List
@@ -259,9 +260,10 @@ const PostListItem = ({
   const post: PostItem = item;
   const [showMoreImage, setShowMoreImage] = useState(true);
   const [imagesList, setImagesList] = useState([]);
-  const [showTranslation, setShowTranslation] = useState(true);
+  const [showTranslation, setShowTranslation] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
   const { width } = useWindowDimensions();
+  const currentLocale = useAppSelector(getCurrentLocale);
 
   useEffect(() => {
     const mapImages = item.uploads.map(img => {
@@ -367,6 +369,16 @@ const PostListItem = ({
 
   const handleCodeToLanguage = intl.get(`code.${post.originalLanguage}`);
 
+  const toggleAutoTranslate = () => {
+    if (post.originalLanguage !== currentLocale) {
+      translatePost();
+    }
+  };
+
+  useEffect(() => {
+    toggleAutoTranslate();
+  }, []);
+
   return (
     <PostListItemContainer className="post-list-item" key={post.id} ref={ref}>
       <CardContainer className="card-container-post">
@@ -392,7 +404,7 @@ const PostListItem = ({
         </CardHeader>
         <Content>
           <div onClick={e => handlePostClick(e)} className="description-post">
-            <PostContent post={post} showTranslation={showTranslation} />
+            <PostContent post={post} showTranslation={showTranslation} currentLocale={currentLocale} />
           </div>
 
           {post.translations &&
