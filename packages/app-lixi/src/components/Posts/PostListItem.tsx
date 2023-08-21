@@ -367,10 +367,10 @@ const PostListItem = ({
     setShowTranslation(!showTranslation);
   };
 
-  const handleCodeToLanguage = intl.get(`code.${post.originalLanguage}`);
+  const handleCodeToLanguage = intl.get(`code.${post?.originalLanguage}`);
 
   const toggleAutoTranslate = () => {
-    if (post.originalLanguage !== currentLocale) {
+    if (post?.originalLanguage !== currentLocale) {
       translatePost();
     }
   };
