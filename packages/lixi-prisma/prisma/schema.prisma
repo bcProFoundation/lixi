@@ -160,7 +160,7 @@ model Post {
   content          String            @default("")
   createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz
   updatedAt        DateTime          @default(now()) @map("updated_at") @db.Timestamptz
-  uploadedCovers   UploadDetail[]    @relation("PostCover")
+  uploads          UploadDetail[]    @relation("PostCover")
   danaBurnUp       Float             @default(0.0) @map("dana_burn_up")
   danaBurnDown     Float             @default(0.0) @map("dana_burn_down")
   danaBurnScore    Float             @default(0.0) @map("dana_burn_score")
