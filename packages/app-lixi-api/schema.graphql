@@ -999,6 +999,18 @@ enum TempleOrderField {
   updatedAt
 }
 
+type TimelineItem {
+  data: TimelineItemData
+  id: ID!
+}
+
+union TimelineItemData = Post
+
+type TimelineItemEdge {
+  cursor: String!
+  node: TimelineItem!
+}
+
 type Token {
   """Identifies the date and time when the object was last comments."""
   comments: DateTime
