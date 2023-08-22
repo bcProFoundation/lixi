@@ -2141,10 +2141,10 @@ code {
     }
   }
 
-  .card-container-page,
-  .card-container-post {
-    // background: var(--bg-color-dark-item) !important;
-  }
+  // .card-container-page,
+  // .card-container-post {
+  //   // background: var(--bg-color-dark-item) !important;
+  // }
 
   .card {
     background: var(--bg-color-dark-item) !important;
@@ -2854,6 +2854,78 @@ code {
   .react-svg-custom {
     svg {
       filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%) !important;
+    }
+  }
+
+  .send-component {
+    div {
+      color: var(--text-color-on-dark);
+      .ant-checkbox {
+        .ant-checkbox-input {
+          background: var(--bg-color-dark-item) !important;
+          border-color: var(--border-color-dark-base) !important;
+        }
+        .ant-checkbox-inner {
+          background: var(--bg-color-dark-item) !important;
+          border-color: var(--border-color-dark-base) !important;
+        }
+      }
+    }
+    .ant-input-affix-wrapper {
+      background: #303031 !important;
+      border-color: var(--border-color-dark-base) !important;
+      input {
+        background: #303031 !important;
+        color: var(--text-color-on-dark) !important;
+        border-color: var(--border-color-dark-base) !important;
+      }
+    }
+    .ant-input-group-addon {
+      background: #303031 !important;
+      border-color: var(--border-color-dark-base) !important;
+      span {
+        background: #303031 !important;
+        color: var(--text-color-on-dark) !important;
+        border-color: var(--border-color-dark-base) !important;
+      }
+    }
+    .ant-select-selector {
+      background: #303031 !important;
+      border-color: var(--border-color-dark-base) !important;
+      .ant-select-selection-item {
+        color: var(--text-color-on-dark) !important;
+      }
+    }
+    .ant-input-group {
+      background: #303031 !important;
+      border-color: var(--border-color-dark-base) !important;
+      span {
+        background: #303031 !important;
+        color: var(--text-color-on-dark) !important;
+        border-color: var(--border-color-dark-base) !important;
+      }
+    }
+    .ant-form-item-control-input-content {
+      textarea {
+        background: #303031 !important;
+        color: var(--text-color-on-dark) !important;
+        border-color: var(--border-color-dark-base) !important;
+
+      }
+    }
+  }
+  .optional-message {
+    color: var(--text-color-on-dark) !important;
+    background: #303031 !important;
+    .heading {
+      color: var(--text-color-on-dark) !important;
+      background-color: #303031 !important;
+      ul {
+        li {
+          color: var(--text-color-on-dark) !important;
+          background-color: #303031 !important;
+        }
+      }
     }
   }
 }

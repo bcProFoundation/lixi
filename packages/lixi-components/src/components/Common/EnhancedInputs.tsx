@@ -153,7 +153,7 @@ export const SendXpiInput = ({ onMax, inputProps, selectProps, activeFiatCode, .
     <Select
       defaultValue={currency.ticker}
       className="select-after"
-      style={{ width: '25%', padding: '0', border: '0' }}
+      style={{ width: '25%', height: '60px', padding: '0', border: '0',}}
       {...selectProps}
     >
       {currencyOptions}
@@ -406,7 +406,7 @@ export const OpReturnMessageInput = ({ value, onChange, maxByteLength, labelTop,
           title: 'Optional Message',
           maskClosable: true,
           content: (
-            <OpReturnMessageHelp>
+            <OpReturnMessageHelp className='optional-message'>
               <div className="heading">Higher Fee</div>
               <ul>
                 <li>
