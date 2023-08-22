@@ -45,15 +45,6 @@ export class Upload {
   sha: string;
 
   @Field(() => String, { nullable: true })
-  sha800?: Nullable<string>;
-
-  @Field(() => String, { nullable: true })
-  sha320?: Nullable<string>;
-
-  @Field(() => String, { nullable: true })
-  sha40: Nullable<string>;
-
-  @Field(() => String, { nullable: true })
   cfImageId?: Nullable<string>;
 
   @Field(() => String, { nullable: true })

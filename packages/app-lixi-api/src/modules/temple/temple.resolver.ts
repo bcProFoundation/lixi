@@ -227,9 +227,6 @@ export class TempleResolver {
             bucket: true,
             width: true,
             height: true,
-            sha800: true,
-            sha320: true,
-            sha40: true
           }
         }
       }

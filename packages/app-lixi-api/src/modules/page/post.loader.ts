@@ -45,9 +45,6 @@ export default class PostLoader {
         postId: item.postId,
         upload: {
           ...item.upload,
-          sha40: '',
-          sha320: '',
-          sha800: '',
           sha: item.upload.sha || ''
         }
       };

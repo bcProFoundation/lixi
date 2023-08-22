@@ -426,9 +426,6 @@ model Upload {
   thumbnailHeight  Int?          @map("thumbnail_height")
   type             String?       @db.VarChar(15)
   uploadDetail     UploadDetail?
-  sha800           String?
-  sha320           String?
-  sha40            String?
   bucket           String?
   cfImageId        String?       @map("cf_image_id")
   cfImageFilename  String?       @map("cf_image_filename")
