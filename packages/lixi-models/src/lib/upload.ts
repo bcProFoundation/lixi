@@ -17,11 +17,11 @@ export class Upload {
   originalFilename: string;
   fileSize?: number;
 
-  @Field(() => String, { nullable: true })
-  width?: number;
+  @Field(() => Number, { nullable: true })
+  width?: Nullable<number>;
 
-  @Field(() => String, { nullable: true })
-  height?: number;
+  @Field(() => Number, { nullable: true })
+  height?: Nullable<number>;
 
   url?: string;
   createdAt?: Date;
@@ -40,18 +40,27 @@ export class Upload {
   sha40: string;
 
   @Field(() => String, { nullable: true })
-  cfImageId?: string;
+  cfImageId?: Nullable<string>;
 
   @Field(() => String, { nullable: true })
-  cfImageFilename: string;
-
-  extension: string;
-  thumbnailWidth?: number;
-  thumbnailHeight?: number;
-  type: string;
-  lixiId: number;
-  accountId: number;
+  cfImageFilename?: Nullable<string>;
 
   @Field(() => String, { nullable: true })
-  bucket?: string;
+  extension?: Nullable<string>;
+
+  @Field(() => Number, { nullable: true })
+  thumbnailWidth?: Nullable<number>;
+
+  @Field(() => Number, { nullable: true })
+  thumbnailHeight?: Nullable<number>;
+
+  @Field(() => String, { nullable: true })
+  type?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  bucket?: Nullable<string>;
+
+  constructor(partial: Partial<Upload>) {
+    Object.assign(this, partial);
+  }
 }
