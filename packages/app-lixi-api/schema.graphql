@@ -540,9 +540,9 @@ type Page {
   accessMessageFee: Float
   address: String
   avatar: String
-  category: Category!
-  categoryId: String!
-  countryId: String
+  category: Category
+  categoryId: Int
+  countryId: Int
   countryName: String
   cover: String
   createCommentFee: String!
@@ -566,7 +566,7 @@ type Page {
   parent: Page
   parentId: String
   salt: String
-  stateId: String
+  stateId: Int
   stateName: String
   title: String
 
@@ -758,8 +758,8 @@ type PostTranslation {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   id: ID!
-  translateContent: String!
-  translateLanguage: String!
+  translateContent: String
+  translateLanguage: String
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
