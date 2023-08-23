@@ -289,8 +289,8 @@ const SendComponent: React.FC = () => {
 
   // Only Send Mesage Checkbox
   const sendOnlyMessageCheckbox = (
-    <div style={{ textAlign: 'right' }}>
-      {intl.get('send.onlyMessage')} &nbsp;
+    <div className="hint" style={{ textAlign: 'right' }}>
+      <span>{intl.get('send.onlyMessage')} &nbsp;</span>
       <StyledCheckbox
         defaultChecked={false}
         onChange={() =>
@@ -313,12 +313,7 @@ const SendComponent: React.FC = () => {
 
   return (
     <>
-      <Modal
-        title="Modal. Send"
-        open={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-      >
+      <Modal title="Modal. Send" open={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
         <p>
           {intl.get('send.sendModalTitle', {
             value: formData.value,
@@ -342,7 +337,7 @@ const SendComponent: React.FC = () => {
         )}
 
         {/* <Row type="flex"> */}
-        <Row>
+        <Row style={{ marginTop: '2rem' }}>
           <Col span={24}>
             <Form
               style={{
@@ -452,6 +447,5 @@ const SendComponent: React.FC = () => {
     </>
   );
 };
-
 
 export default SendComponent;
