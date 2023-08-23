@@ -5,6 +5,7 @@ import intl from 'react-intl-universal';
 import { ReadMoreMore } from 'read-more-more';
 import ReactHtmlParser from 'react-html-parser';
 import { Language } from '@bcpros/lixi-models/constants/translation';
+import next from 'next/types';
 
 const PostContent = ({ post, showTranslation, currentLocale }) => {
   let postContent;
@@ -36,12 +37,14 @@ const PostContent = ({ post, showTranslation, currentLocale }) => {
       }
     } else if (postScore > 10) {
       let n1 = 0,
-        n2 = 10;
+        n2 = 10,
+        next = 0;
 
       while (postScore > n2 || lineNum === 20) {
         lineNum++;
-        n2 += n1;
+        next = n1 + n2;
         n1 = n2;
+        n2 = next;
       }
     }
     return lineNum;
