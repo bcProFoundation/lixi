@@ -1,14 +1,4 @@
-import Icon, {
-  AppstoreOutlined,
-  BellOutlined,
-  CheckCircleOutlined,
-  FilterOutlined,
-  HomeOutlined,
-  SwapOutlined,
-  UserSwitchOutlined,
-  SendOutlined,
-  CopyOutlined
-} from '@ant-design/icons';
+import Icon, { UserSwitchOutlined, SendOutlined, CopyOutlined, SyncOutlined } from '@ant-design/icons';
 import { Account } from '@bcpros/lixi-models';
 import { FilterType } from '@bcpros/lixi-models/lib/filter';
 import { AvatarUser } from '@components/Common/AvatarUser';
@@ -26,12 +16,12 @@ import { api as postApi } from '@store/post/posts.api';
 import { useInfinitePostsQuery } from '@store/post/useInfinitePostsQuery';
 import { saveTopPostsFilter, toggleCollapsedSideNav } from '@store/settings/actions';
 import { getCurrentThemes, getFilterPostsHome, getIsTopPosts, getNavCollapsed } from '@store/settings/selectors';
-import { Badge, Button, Popover, Space, Switch, message } from 'antd';
+import { Badge, Button, Popover, Space, Switch, message, Spin } from 'antd';
 import { Header } from 'antd/lib/layout/layout';
 import { push } from 'connected-next-router';
 import * as _ from 'lodash';
 import { useRouter } from 'next/router';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import intl from 'react-intl-universal';
 import { fromSmallestDenomination } from '@utils/cashMethods';
 import styled from 'styled-components';
@@ -43,10 +33,12 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Link from 'next/link';
 import { getModals } from '@store/modal/selectors';
 import { showToast } from '@store/toast/actions';
-import { getSelectedWalletPath, getWalletStatus } from '@store/wallet';
+import { getSelectedWalletPath, getWalletHasUpdated, getWalletStatus } from '@store/wallet';
 import { ReactSVG } from 'react-svg';
 import { currency } from '@bcpros/lixi-components/components/Common/Ticker';
 import { openActionSheet } from '@store/action-sheet/actions';
+import { usePageQuery } from '@store/page/pages.generated';
+import { useGetAccountByAddressQuery } from '@store/account/accounts.generated';
 
 export type TopbarProps = {
   className?: string;
@@ -89,11 +81,18 @@ const PathDirection = styled.div`
     cursor: pointer;
     width: 32px;
     height: 30px;
-    margin-left: 4px;
-    margin-right: 8px;
+    margin: 0 8px;
   }
 
   .path-direction-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    line-clamp: 1;
+    -webkit-line-clamp: 1;
+    box-orient: vertical;
+    -webkit-box-orient: vertical;
+    text-align: left;
   }
 
   .checkbox {
@@ -304,6 +303,8 @@ const BadgeStyled = styled(Badge)`
 `;
 
 const StyledHeader = styled(Header)`
+  background-color: rgba(255, 255, 255, 0.65) !important;
+  backdrop-filter: blur(12px);
   @media (max-width: 960px) {
     position: fixed;
     top: 0;
@@ -356,22 +357,37 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
   const askAuthorization = useAuthorization();
   const currentModal = useAppSelector(getModals);
   const walletStatus = useAppSelector(getWalletStatus);
+  const walletHasUpdated = useAppSelector(getWalletHasUpdated);
+
+  const slug: string = _.isArray(router?.query?.slug) ? router?.query?.slug[0] : router?.query?.slug;
+  const { currentData: currentDataPageQuery } = usePageQuery({ id: slug });
+  const { currentData: currentDataGetAccount } = useGetAccountByAddressQuery(
+    {
+      address: slug
+    },
+    { skip: !slug }
+  );
 
   useEffect(() => {
     const isMobile = width < 968 ? true : false;
     setIsMobile(isMobile);
   }, [width]);
 
+  const handlePathDirection = useMemo(() => {
+    let pathName = '';
+    if (router.pathname === '/page/[slug]') {
+      pathName = currentDataPageQuery?.page?.name || 'Page';
+    } else if (router.pathname === '/profile/[slug]') {
+      pathName = currentDataGetAccount?.getAccountByAddress?.name || 'Profile';
+    } else {
+      pathName = pathDirection[1];
+    }
+    return pathName;
+  }, [currentDataPageQuery, currentDataGetAccount, router]);
+
   useEffect(() => {
     setOtherAccounts(_.filter(savedAccounts, acc => acc && acc.id !== selectedAccount?.id));
   }, [savedAccounts]);
-
-  // useEffect(() => {
-  //   dispatch(startChannel());
-  //   return () => {
-  //     stopChannel();
-  //   };
-  // }, []);
 
   const handleMenuClick = e => {
     dispatch(toggleCollapsedSideNav(!navCollapsed));
@@ -536,9 +552,16 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
             </div>
 
             <div className="profile-feature">
-              <span>
-                {balanceAccount(selectedAccount)} {currency.ticker}
-              </span>
+              {walletHasUpdated ? (
+                <span>
+                  {balanceAccount(selectedAccount)} {currency.ticker}
+                </span>
+              ) : (
+                <React.Fragment>
+                  <SyncOutlined spin /> {currency.ticker}
+                </React.Fragment>
+              )}
+
               <Link href="/send">
                 <span>
                   <SendOutlined style={{ fontSize: '16px' }} />
@@ -689,23 +712,13 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
     </PopoverStyled>
   );
 
-  // <Header
-  //     style={{ boxShadow: 'none', position: 'fixed', zIndex: '999', top: 0, width: '100%' }}
-  //     className={className}
-  //   >
-
   return (
-    <StyledHeader style={{ boxShadow: '0 10px 30px rgb(0 0 0 / 5%)' }} className={className}>
+    <StyledHeader style={{ boxShadow: '0 10px 30px rgb(0 0 0 / 5%)' }} className={`${className} header-component`}>
       <PathDirection>
         {currentPathName === '/' || currentPathName === '/page/[slug]' ? (
           <img className="menu-mobile" src="/images/ico-list-bullet_2.svg" alt="" onClick={handleMenuClick} />
         ) : (
-          <img
-            className="navigate-back-btn animate__animated animate__heartBeat"
-            src="/images/ico-arrow-left.svg"
-            alt=""
-            onClick={handleNavigateBack}
-          />
+          <img className="navigate-back-btn" src="/images/ico-back-topbar.svg" alt="" onClick={handleNavigateBack} />
         )}
         {(currentPathName == '/' || currentPathName == '/page-message') && (
           <picture>
@@ -731,7 +744,9 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
           </div>
         </div> */}
         {pathDirection[1] != '' && currentPathName != '/page-message' && (
-          <h3 className="path-direction-text">{pathDirection[1]}</h3>
+          <h3 style={{ marginLeft: currentPathName === '/page/[slug]' ? '8px' : '0' }} className="path-direction-text">
+            {handlePathDirection}
+          </h3>
         )}
       </PathDirection>
       <div className="filter-bar">
@@ -821,9 +836,15 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
               <AvatarUser name={selectedAccount?.name || null} icon={accountInfoTemp?.avatar} isMarginRight={false} />
               <p className="account-info">
                 <span className="account-name">{selectedAccount?.name}</span>
-                <span className="account-balance">
-                  {balanceAccount(selectedAccount)} <span className="unit">{currency.ticker}</span>
-                </span>
+                {walletHasUpdated ? (
+                  <span className="account-balance">
+                    {balanceAccount(selectedAccount)} <span className="unit">{currency.ticker}</span>
+                  </span>
+                ) : (
+                  <React.Fragment>
+                    <SyncOutlined spin /> <span className="unit">{currency.ticker}</span>
+                  </React.Fragment>
+                )}
               </p>
             </div>
           </Popover>
