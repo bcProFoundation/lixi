@@ -7,7 +7,6 @@ import { getSelectorsByUserAgent } from 'react-device-detect';
 import { END } from 'redux-saga';
 import InApp from '@utils/inapp';
 import CheckBrowser from '@components/InApp/check-browser';
-import { BrowserRouter as Router } from 'react-router-dom';
 
 const ClaimPage = props => {
   const inapp = new InApp(navigator.userAgent || navigator.vendor);
@@ -15,10 +14,10 @@ const ClaimPage = props => {
   const { userAddress, isMobile } = props;
 
   return (
-    <Router>
+    <>
       <CheckBrowser />
-      {!inapp?.isInApp && <FullWalletComponent claimCode={userAddress} isMobile={isMobile} />}
-    </Router>
+      {!inapp?.isInApp && <FullWalletComponent claimCode={userAddress}/>}
+    </>
   );
 };
 
