@@ -72,4 +72,4 @@ export const getIsTopPosts = createSelector(
 export const getLanguageNotAutoTrans = createSelector(
   (state: RootState) => state.settings,
   (state: SettingsState) => state.languageNotAutoTrans
-)
+);

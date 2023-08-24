@@ -33,7 +33,7 @@ const initialState: SettingsState = {
   isTopPosts: false,
   currentThemes: 'system',
   isSystemThemes: true,
-  languageNotAutoTrans: null,
+  languageNotAutoTrans: null
 };
 
 export const settingsReducer = createReducer(initialState, builder => {
@@ -84,5 +84,5 @@ export const settingsReducer = createReducer(initialState, builder => {
     })
     .addCase(setLanguageNotAutoTrans, (state, action) => {
       state.languageNotAutoTrans = action.payload;
-    })
+    });
 });
