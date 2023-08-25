@@ -8,8 +8,8 @@ const enhancedApi = api.enhanceEndpoints({
       providesTags: ['TimelineItem'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
-          const { after, first, level } = queryArgs;
-          return { after, first, level };
+          const { level, ...otherArgs } = queryArgs;
+          return { level };
         }
         return { queryArgs };
       },

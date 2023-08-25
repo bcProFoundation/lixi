@@ -23,7 +23,7 @@ import { api as postApi } from '@store/post/posts.api';
 import { getNewPostAvailable, getSelectedPostId } from '@store/post/selectors';
 import { useInfinitePostsBySearchQueryWithHashtag } from '@store/post/useInfinitePostsBySearchQueryWithHashtag';
 import { getFilterPostsHome, getIsTopPosts, getLevelFilter } from '@store/settings/selectors';
-import { TimelineListParams, useInfiniteHomeTimelineQuery } from '@store/timeline/useInfiniteHomeTimelineQuery';
+import { useInfiniteHomeTimelineQuery } from '@store/timeline/useInfiniteHomeTimelineQuery';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { fromSmallestDenomination, fromXpiToSatoshis } from '@utils/cashMethods';

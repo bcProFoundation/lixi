@@ -357,7 +357,7 @@ const PostListItem = ({
       return (
         <p className="retweet">
           <RetweetOutlined />{' '}
-          {intl.get('post.singleReposted', { repostName: post.reposts[post.reposts.length - 1].account.name })}
+          {intl.get('post.singleReposted', { repostName: post.reposts[post.reposts.length - 1]?.account?.name })}
         </p>
       );
     }

@@ -34,6 +34,7 @@ export function useInfiniteHomeTimelineQuery(
 
   const data = useMemo(() => {
     const result = selectAll(combinedData);
+    console.log('result', result);
     return result;
   }, [combinedData]);
 

@@ -12,7 +12,7 @@ import { Burn, Post } from '@bcpros/lixi-prisma';
 import { FollowCacheService } from '../../account/follow-cache.service';
 
 @Injectable()
-@Processor(BURN_FANOUT_QUEUE, { concurrency: 1 })
+@Processor(BURN_FANOUT_QUEUE, { concurrency: 50 })
 export class BurnFanoutProcessor extends WorkerHost {
 
   private logger: Logger = new Logger(this.constructor.name);
@@ -31,7 +31,7 @@ export class BurnFanoutProcessor extends WorkerHost {
   public async process(job: Job<{ burn: Burn, post: Post }, boolean, string>): Promise<boolean> {
     try {
       const { burn, post } = job.data;
-      const id = `post-${post.id}`;
+      const id = `${post.id}`;
 
       // Invalidate the cache
       const epoch = '2023-01-01 00:00:00';

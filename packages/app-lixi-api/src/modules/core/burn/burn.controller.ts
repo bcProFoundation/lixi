@@ -34,7 +34,7 @@ export class BurnController {
     @Inject('xpijs') private XPI: BCHJS,
     @InjectQueue(BURN_FANOUT_QUEUE) private burnFanoutQueue: Queue,
     private translateService: TranslateService
-  ) {}
+  ) { }
 
   @Post()
   async burn(@Body() command: BurnCommand): Promise<Burn> {
@@ -206,6 +206,12 @@ export class BurnController {
               })
             );
           }
+
+          // Put burn result to fanout
+          await this.burnFanoutQueue.add(BURN_FANOUT_QUEUE, {
+            burn: savedBurn,
+            post: post
+          });
         } else if (command.burnForType === BurnForType.Token) {
           const token = await this.prisma.token.findFirst({
             where: {
@@ -363,8 +369,8 @@ export class BurnController {
           notificationTypeId: post.page
             ? NOTIFICATION_TYPES.RECEIVE_BURN_PAGE
             : command.burnForType == BurnForType.Comment
-            ? NOTIFICATION_TYPES.RECEIVE_BURN_COMMENT_ACCOUNT
-            : NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT,
+              ? NOTIFICATION_TYPES.RECEIVE_BURN_COMMENT_ACCOUNT
+              : NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT,
           level: NotificationLevel.INFO,
           url:
             command.burnForType == BurnForType.Comment

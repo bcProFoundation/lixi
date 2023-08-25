@@ -75,7 +75,7 @@ export class TimelineResolver {
       });
 
       const timelineItem: TimelineItem = {
-        id: `post-${dbPost.id}`,
+        id: `${dbPost.id}`,
         data: post
       };
       const buffer = encode(post);
@@ -85,7 +85,7 @@ export class TimelineResolver {
     } else {
       const data = decode(buffers[0]) as Post;
       const timelineItem: TimelineItem = {
-        id: `post-${data.id}`,
+        id: `${data.id}`,
         data
       };
       return timelineItem;
@@ -164,17 +164,17 @@ export class TimelineResolver {
           const buffer = encode(post);
           buffers[i] = Buffer.from(buffer);
           const timelineItem: TimelineItem = {
-            id: `post-${dbPost.id}`,
+            id: `${dbPost.id}`,
             data: post
           };
           timelineItems.push(timelineItem);
           pipeline.hset(hashPrefix, timelineItem.id, buffers[i]!);
         }
       } else {
-        const data = decode(buffers[i]) as Post;
+        const post = decode(buffers[i]) as Post;
         const timelineItem: TimelineItem = {
-          id: `post-${data.id}`,
-          data
+          id: `${post.id}`,
+          data: new Post({ ...post })
         };
         timelineItems.push(timelineItem);
       }
@@ -182,7 +182,7 @@ export class TimelineResolver {
     }
     await pipeline.exec();
 
-    return {
+    const result = {
       totalCount: timelineIds.totalCount,
       pageInfo: timelineIds.pageInfo,
       edges: timelineIds.edges.map((item, index) => {
@@ -192,5 +192,6 @@ export class TimelineResolver {
         }
       })
     };
+    return result;
   }
 }
