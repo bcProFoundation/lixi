@@ -33,7 +33,7 @@ import {
   getIsSystemThemes,
   getLanguageNotAutoTrans
 } from '@store/settings/selectors';
-import { Alert, Collapse, Form, Input, Modal, Select, Spin, Switch } from 'antd';
+import { Alert, Button, Collapse, Form, Input, Modal, Select, Spin } from 'antd';
 import axios from 'axios';
 import * as _ from 'lodash';
 import React, { useEffect, useState } from 'react';
@@ -99,6 +99,9 @@ const SWButtonCtn = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  button {
+    min-width: 100px;
+  }
   @media (max-width: 500px) {
     width: 100%;
     justify-content: center;
@@ -440,7 +443,9 @@ const Settings: React.FC = () => {
                           <span onClick={() => showPopulatedDeleteAccountModal(selectedAccount as Account)}>
                             <Trashcan />
                           </span>
-                          <h4>{intl.get('settings.activated')}</h4>
+                          <Button disabled={true} type="primary" className="no-border-btn">
+                            {intl.get('settings.activated')}
+                          </Button>
                         </SWButtonCtn>
                       </AWRow>
                     }
@@ -459,7 +464,13 @@ const Settings: React.FC = () => {
                               <span onClick={() => showPopulatedDeleteAccountModal(acc)}>
                                 <Trashcan />
                               </span>
-                              <button onClick={() => dispatch(selectAccount(acc.id))}>Activate</button>
+                              <Button
+                                type="primary"
+                                className="outline-btn"
+                                onClick={() => dispatch(selectAccount(acc.id))}
+                              >
+                                Activate
+                              </Button>
                             </SWButtonCtn>
                           </SWRow>
                         ))}
@@ -537,9 +548,12 @@ const Settings: React.FC = () => {
             </AntdFormWrapper>
           </SettingBar>
           <SettingBar>
-            <h2 style={{ color: 'var(--color-primary)' }}>{intl.get('settings.general')}</h2>
-            <LockAppSetting />
+            <h2 style={{ color: 'var(--color-primary)' }}>{intl.get('settings.notifications')}</h2>
             <PushNotificationSetting />
+          </SettingBar>
+          <SettingBar>
+            <h2 style={{ color: 'var(--color-primary)' }}>{intl.get('settings.lockApp')}</h2>
+            <LockAppSetting />
           </SettingBar>
         </Spin>
       </WrapperPage>
