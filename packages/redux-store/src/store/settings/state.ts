@@ -14,4 +14,5 @@ export interface SettingsState {
   currentThemes: string;
   isSystemThemes: boolean;
   levelFilter: number;
+  languageNotAutoTrans: string;
 }
