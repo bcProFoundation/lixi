@@ -46,7 +46,7 @@ export class MessageResolver {
     @Inject('xpijs') private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     private readonly notificationService: NotificationService
-  ) { }
+  ) {}
 
   @Subscription(() => Message)
   messageCreated() {
@@ -166,10 +166,10 @@ export class MessageResolver {
               connect:
                 uploadDetailIds.length > 0
                   ? uploadDetailIds.map((uploadDetail: any) => {
-                    return {
-                      id: uploadDetail
-                    };
-                  })
+                      return {
+                        id: uploadDetail
+                      };
+                    })
                   : undefined
             },
             messageType: uploadDetailIds.length > 0 ? MessageType.IMAGE : MessageType.TEXT
@@ -222,17 +222,17 @@ export class MessageResolver {
           const { txid } = broadcastResponse;
           const determineAddress = isPageOwner
             ? {
-              fromAddress: pageMessageSession.page.pageAccount.address,
-              fromAccountId: pageMessageSession.page.pageAccount.id,
-              toAddress: pageMessageSession.account.address,
-              toAccountId: pageMessageSession.account.id
-            }
+                fromAddress: pageMessageSession.page.pageAccount.address,
+                fromAccountId: pageMessageSession.page.pageAccount.id,
+                toAddress: pageMessageSession.account.address,
+                toAccountId: pageMessageSession.account.id
+              }
             : {
-              fromAddress: pageMessageSession.account.address,
-              fromAccountId: pageMessageSession.account.id,
-              toAddress: pageMessageSession.page.pageAccount.address,
-              toAccountId: pageMessageSession.page.pageAccount.id
-            };
+                fromAddress: pageMessageSession.account.address,
+                fromAccountId: pageMessageSession.account.id,
+                toAddress: pageMessageSession.page.pageAccount.address,
+                toAccountId: pageMessageSession.page.pageAccount.id
+              };
 
           const transactionTip = {
             txid,

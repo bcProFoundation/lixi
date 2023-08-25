@@ -2,9 +2,7 @@ import _ from 'lodash';
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { saveLevelFilter } from '@store/settings/actions';
-import {
-  getLevelFilter
-} from '@store/settings/selectors';
+import { getLevelFilter } from '@store/settings/selectors';
 import 'animate.css';
 import { Button, Input } from 'antd';
 import { useEffect } from 'react';
@@ -59,7 +57,6 @@ const FilterStyle = styled.div`
 
 const FilterContainer = styled.div``;
 
-
 export const FilterLevel = () => {
   const dispatch = useAppDispatch();
   const level = useAppSelector(getLevelFilter);
@@ -68,7 +65,7 @@ export const FilterLevel = () => {
     if (_.isNil(level) || level <= 0 || level > 5) {
       dispatch(saveLevelFilter(3));
     }
-  }, [level])
+  }, [level]);
 
   const handleUpDownBtn = (isUp: boolean) => {
     let newLevel = level;

@@ -56,7 +56,7 @@ export class PostResolver {
     @Inject('xpijs') private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @I18n() private i18n: I18nService
-  ) { }
+  ) {}
 
   @Subscription(() => Post)
   postCreated() {
@@ -936,10 +936,10 @@ export class PostResolver {
         connect:
           uploadDetailIds.length > 0
             ? uploadDetailIds.map((uploadDetail: any) => {
-              return {
-                id: uploadDetail
-              };
-            })
+                return {
+                  id: uploadDetail
+                };
+              })
             : undefined
       },
       page: {
@@ -1228,11 +1228,13 @@ export class PostResolver {
 
   @ResolveField('reposts', () => Repost)
   async reposts(@Parent() post: Post) {
-    const reposts = await this.prisma.post.findUnique({
-      where: {
-        id: post.id
-      }
-    }).reposts();
+    const reposts = await this.prisma.post
+      .findUnique({
+        where: {
+          id: post.id
+        }
+      })
+      .reposts();
     return reposts;
   }
 
@@ -1249,11 +1251,13 @@ export class PostResolver {
 
   @ResolveField('postAccount', () => Account)
   async postAccount(@Parent() post: Post) {
-    const account = await this.prisma.post.findUnique({
-      where: {
-        id: post.id
-      }
-    }).postAccount();
+    const account = await this.prisma.post
+      .findUnique({
+        where: {
+          id: post.id
+        }
+      })
+      .postAccount();
 
     return account;
   }
@@ -1272,11 +1276,13 @@ export class PostResolver {
   @ResolveField('page', () => Page)
   async page(@Parent() post: Post) {
     if (post.pageId) {
-      const page = await this.prisma.post.findUnique({
-        where: {
-          id: post.id
-        }
-      }).page();
+      const page = await this.prisma.post
+        .findUnique({
+          where: {
+            id: post.id
+          }
+        })
+        .page();
 
       return page;
     }
@@ -1286,11 +1292,13 @@ export class PostResolver {
   @ResolveField('token', () => Token)
   async token(@Parent() post: Post) {
     if (post.tokenId) {
-      const token = await this.prisma.post.findUnique({
-        where: {
-          id: post.id
-        }
-      }).token();
+      const token = await this.prisma.post
+        .findUnique({
+          where: {
+            id: post.id
+          }
+        })
+        .token();
 
       return token;
     }
@@ -1300,11 +1308,13 @@ export class PostResolver {
   @ResolveField('translations', () => [PostTranslation])
   async translations(@Parent() post: Post) {
     if (post.translations) {
-      const translations = await this.prisma.post.findUnique({
-        where: {
-          id: post.id
-        }
-      }).translations();
+      const translations = await this.prisma.post
+        .findUnique({
+          where: {
+            id: post.id
+          }
+        })
+        .translations();
 
       return translations;
     }
@@ -1313,25 +1323,27 @@ export class PostResolver {
 
   @ResolveField('uploads', () => [UploadDetail])
   async uploads(@Parent() post: Post) {
-    const uploads = await this.prisma.post.findUnique({
-      where: {
-        id: post.id
-      }
-    }).uploads({
-      include: {
-        upload: {
-          select: {
-            id: true,
-            sha: true,
-            bucket: true,
-            width: true,
-            height: true,
-            cfImageId: true,
-            cfImageFilename: true
+    const uploads = await this.prisma.post
+      .findUnique({
+        where: {
+          id: post.id
+        }
+      })
+      .uploads({
+        include: {
+          upload: {
+            select: {
+              id: true,
+              sha: true,
+              bucket: true,
+              width: true,
+              height: true,
+              cfImageId: true,
+              cfImageFilename: true
+            }
           }
         }
-      }
-    });
+      });
 
     return uploads;
   }

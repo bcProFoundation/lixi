@@ -32,7 +32,7 @@ const pubSub = new PubSub();
 export class PageResolver {
   private logger: Logger = new Logger(this.constructor.name);
 
-  constructor(private prisma: PrismaService, @I18n() private i18n: I18nService, @Inject('xpijs') private XPI: BCHJS) { }
+  constructor(private prisma: PrismaService, @I18n() private i18n: I18nService, @Inject('xpijs') private XPI: BCHJS) {}
 
   @Subscription(() => Page)
   pageCreated() {
@@ -189,18 +189,18 @@ export class PageResolver {
 
     const uploadAvatarDetail = data.avatar
       ? await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: data.avatar
-        }
-      })
+          where: {
+            uploadId: data.avatar
+          }
+        })
       : undefined;
 
     const uploadCoverDetail = data.cover
       ? await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: data.cover
-        }
-      })
+          where: {
+            uploadId: data.cover
+          }
+        })
       : undefined;
 
     const updatedPage = await this.prisma.page.update({
@@ -215,23 +215,23 @@ export class PageResolver {
         category: {
           connect: data.categoryId
             ? {
-              id: Number(data.categoryId)
-            }
+                id: Number(data.categoryId)
+              }
             : undefined
         },
         country: {
           connect: data.countryId
             ? {
-              id: Number(data.countryId)
-            }
+                id: Number(data.countryId)
+              }
             : undefined
         },
         state: {
           disconnect: !data.stateId,
           connect: data.stateId
             ? {
-              id: Number(data.stateId)
-            }
+                id: Number(data.stateId)
+              }
             : undefined
         }
       }
@@ -291,22 +291,26 @@ export class PageResolver {
 
   @ResolveField('pageAccount', () => Account)
   async pageAccount(@Parent() page: Page) {
-    const pageAccount = this.prisma.page.findUnique({
-      where: {
-        id: page.id
-      }
-    }).pageAccount();
+    const pageAccount = this.prisma.page
+      .findUnique({
+        where: {
+          id: page.id
+        }
+      })
+      .pageAccount();
 
     return pageAccount;
   }
 
   @ResolveField('category', () => Category)
   async category(@Parent() page: Page) {
-    const category = this.prisma.page.findUnique({
-      where: {
-        id: page.id
-      }
-    }).category();
+    const category = this.prisma.page
+      .findUnique({
+        where: {
+          id: page.id
+        }
+      })
+      .category();
 
     return category;
   }

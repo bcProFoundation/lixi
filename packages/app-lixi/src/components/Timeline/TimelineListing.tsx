@@ -11,12 +11,7 @@ import {
   getSelectedAccount,
   getSelectedAccountId
 } from '@store/account/selectors';
-import {
-  addBurnQueue,
-  addBurnTransaction,
-  clearFailQueue,
-  getFailQueue
-} from '@store/burn';
+import { addBurnQueue, addBurnTransaction, clearFailQueue, getFailQueue } from '@store/burn';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { setNewPostAvailable, setSelectedPost } from '@store/post/actions';
 import { api as postApi } from '@store/post/posts.api';

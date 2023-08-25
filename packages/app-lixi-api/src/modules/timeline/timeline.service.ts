@@ -12,26 +12,26 @@ import SortedSet from 'redis-sorted-set';
 
 @Injectable()
 export class TimelineService {
-
   private logger: Logger = new Logger(this.constructor.name);
 
   static inNetworkSourceKey = 'timeline:innetworksource';
   static outNetworkSourceKey = 'timeline:outnetworksource';
   static ratioSteps = [0.1, 0.3, 0.5, 0.7, 0.9];
 
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly followCacheService: FollowCacheService,
     @InjectRedis() private readonly redis: Redis,
     @I18n() private i18n: I18nService
-  ) { }
+  ) {}
 
   async cacheInNetworkByTime(accountId: number) {
     const key = `${TimelineService.inNetworkSourceKey}:${accountId}`;
     try {
-      const accountFollowings = (await this.followCacheService.getAccountFollowings(accountId)).map(item => _.toSafeInteger(item));
-      const pageFollowings = (await this.followCacheService.getPageFollowings(accountId));
+      const accountFollowings = (await this.followCacheService.getAccountFollowings(accountId)).map(item =>
+        _.toSafeInteger(item)
+      );
+      const pageFollowings = await this.followCacheService.getPageFollowings(accountId);
       // get all the post of the following accounts, order by time
       const posts = await this.prisma.post.findMany({
         select: {
@@ -65,7 +65,7 @@ export class TimelineService {
         const id = `${post.id}`;
 
         const diffHour = moment.duration(moment(post.createdAt).diff(moment(epoch))).asHours();
-        const score = Math.pow(2, (diffHour / 12));
+        const score = Math.pow(2, diffHour / 12);
         pipeline.zincrby(key, score, id);
       }
       pipeline.expire(key, 2592000);
@@ -75,18 +75,18 @@ export class TimelineService {
     }
   }
 
-
   async cacheInNetworkByScore(accountId: number) {
     const key = `${TimelineService.inNetworkSourceKey}:${accountId}`;
     const postBurnType = BurnForType.Post;
     const epoch = '2023-01-01 00:00:00';
     const halfLife = '12 hours';
     try {
-      const followings = (await this.followCacheService.getAccountFollowings(accountId)).map(item => _.toSafeInteger(item));
-      if (_.isNil(followings) || _.isEmpty(followings))
-        return;
+      const followings = (await this.followCacheService.getAccountFollowings(accountId)).map(item =>
+        _.toSafeInteger(item)
+      );
+      if (_.isNil(followings) || _.isEmpty(followings)) return;
 
-      const posts = await this.prisma.$queryRaw<{ id: string, score: number }[]>(
+      const posts = await this.prisma.$queryRaw<{ id: string; score: number }[]>(
         Prisma.sql`
             SELECT
               post.id,
@@ -139,7 +139,7 @@ export class TimelineService {
     const epoch = '2023-01-01 00:00:00';
     const halfLife = '12 hours';
     try {
-      const posts = await this.prisma.$queryRaw<{ id: string, score: number }[]>(
+      const posts = await this.prisma.$queryRaw<{ id: string; score: number }[]>(
         Prisma.sql`
             SELECT
               post.id,
@@ -185,7 +185,7 @@ export class TimelineService {
 
   private mergeByRatio(arr1: string[], arr2: string[], ratio: number): string[] {
     if (ratio < 0 || ratio > 1) {
-      throw new Error("Ratio should be between 0 and 1");
+      throw new Error('Ratio should be between 0 and 1');
     }
 
     const totalLength = Math.max(Math.min(arr1.length + arr2.length, arr1.length / ratio), 500);
@@ -195,7 +195,9 @@ export class TimelineService {
     const result: string[] = [];
     const seen = new Set<string>();
 
-    let i = 0, j = 0, k = 0;
+    let i = 0,
+      j = 0,
+      k = 0;
     while (k < totalLength) {
       if (i < countFromArr1 && j < countFromArr2) {
         if (!seen.has(arr1[i])) {
@@ -227,10 +229,14 @@ export class TimelineService {
     return result;
   }
 
-  async getTimelineIdsByLevel(level: number, accountId: number, first: number = 20, after?: string): Promise<IPaginatedType<string>> {
-
+  async getTimelineIdsByLevel(
+    level: number,
+    accountId: number,
+    first: number = 20,
+    after?: string
+  ): Promise<IPaginatedType<string>> {
     if (level < 1 || level > 5) {
-      throw new Error("Level should be between 1 and 5");
+      throw new Error('Level should be between 1 and 5');
     }
 
     const ratio = TimelineService.ratioSteps[level - 1];
@@ -279,7 +285,7 @@ export class TimelineService {
             hasPreviousPage: true,
             hasNextPage: endOffset < totalCount
           }
-        }
+        };
       }
     } else {
       // Get data from start
@@ -303,7 +309,7 @@ export class TimelineService {
           hasPreviousPage: true,
           hasNextPage: endOffset < totalCount
         }
-      }
+      };
     }
   }
 }

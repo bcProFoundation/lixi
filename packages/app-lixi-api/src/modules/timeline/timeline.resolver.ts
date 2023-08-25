@@ -1,4 +1,14 @@
-import { Account, Page, PaginationArgs, Post, PostConnection, Repost, TimelineItem, TimelineItemConnection, UploadDetail } from '@bcpros/lixi-models';
+import {
+  Account,
+  Page,
+  PaginationArgs,
+  Post,
+  PostConnection,
+  Repost,
+  TimelineItem,
+  TimelineItemConnection,
+  UploadDetail
+} from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger, UseGuards, UseFilters } from '@nestjs/common';
 import { Args, Query, Resolver } from '@nestjs/graphql';
@@ -30,13 +40,12 @@ export class TimelineResolver {
     private readonly timelineService: TimelineService,
     @InjectRedis() private readonly redis: Redis,
     @I18n() private readonly i18n: I18nService
-  ) { }
+  ) {}
 
   @SkipThrottle()
   @Query(returns => TimelineItem)
   @UseGuards(GqlJwtAuthGuardByPass)
   async timeline(@Args('id', { type: () => String }) id: string) {
-
     const postId = id;
     if (!postId) throw new Error('Invalid argument');
 
@@ -68,10 +77,10 @@ export class TimelineResolver {
       const post: Post = new Post({
         ...dbPost,
         id: dbPost.id,
-        uploads: uploads ? uploads as UploadDetail[] : [],
-        page: page ? page as Page : null,
+        uploads: uploads ? (uploads as UploadDetail[]) : [],
+        page: page ? (page as Page) : null,
         repostCount: dbPost._count.reposts,
-        reposts: reposts ? reposts as Repost[] : [],
+        reposts: reposts ? (reposts as Repost[]) : []
       });
 
       const timelineItem: TimelineItem = {
@@ -100,7 +109,6 @@ export class TimelineResolver {
     @Args() { after, first }: PaginationArgs,
     @Args({ name: 'level', type: () => Number, nullable: true }) level: number
   ) {
-
     const timelineIds = await this.timelineService.getTimelineIdsByLevel(level, account.id, first, after);
 
     const ids = timelineIds.edges.map(item => {
@@ -144,21 +152,21 @@ export class TimelineResolver {
     for (let i = 0; i < ids.length; i++) {
       if (!buffers[i]) {
         const dbPost = uncachedPosts.find(item => {
-          return item.id === ids[i]
+          return item.id === ids[i];
         });
         if (dbPost) {
           const page = arrPages.find(item => {
             if (item instanceof Error) return false;
-            return (item.id == dbPost.pageId);
+            return item.id == dbPost.pageId;
           });
 
           const post: Post = new Post({
             ...dbPost,
             id: dbPost.id,
-            uploads: arrUploads[i] ? arrUploads[i] as UploadDetail[] : [],
-            page: page ? page as Page : null,
+            uploads: arrUploads[i] ? (arrUploads[i] as UploadDetail[]) : [],
+            page: page ? (page as Page) : null,
             repostCount: dbPost._count.reposts,
-            reposts: arrReposts[i] ? arrReposts[i] as Repost[] : [],
+            reposts: arrReposts[i] ? (arrReposts[i] as Repost[]) : []
           });
 
           const buffer = encode(post);
@@ -178,7 +186,6 @@ export class TimelineResolver {
         };
         timelineItems.push(timelineItem);
       }
-
     }
     await pipeline.exec();
 
@@ -189,7 +196,7 @@ export class TimelineResolver {
         return {
           cursor: item.cursor,
           node: timelineItems[index]
-        }
+        };
       })
     };
     return result;

@@ -14,7 +14,6 @@ import { FollowCacheService } from '../../account/follow-cache.service';
 @Injectable()
 @Processor(BURN_FANOUT_QUEUE, { concurrency: 50 })
 export class BurnFanoutProcessor extends WorkerHost {
-
   private logger: Logger = new Logger(this.constructor.name);
 
   static inNetworkSourceKey = 'timeline:innetworksource';
@@ -28,7 +27,7 @@ export class BurnFanoutProcessor extends WorkerHost {
     super();
   }
 
-  public async process(job: Job<{ burn: Burn, post: Post }, boolean, string>): Promise<boolean> {
+  public async process(job: Job<{ burn: Burn; post: Post }, boolean, string>): Promise<boolean> {
     try {
       const { burn, post } = job.data;
       const id = `${post.id}`;
@@ -36,9 +35,9 @@ export class BurnFanoutProcessor extends WorkerHost {
       // Invalidate the cache
       const epoch = '2023-01-01 00:00:00';
       const diffHour = moment.duration(moment(burn.createdAt).diff(moment(epoch))).asHours();
-      const score = burn.burnType ?
-        burn.burnedValue * Math.pow(2, (diffHour / 12)) :
-        -burn.burnedValue * Math.pow(2, (diffHour / 12));
+      const score = burn.burnType
+        ? burn.burnedValue * Math.pow(2, diffHour / 12)
+        : -burn.burnedValue * Math.pow(2, diffHour / 12);
 
       const postAccountId = post.postAccountId;
       const pageAccountId = post?.pageId;
@@ -53,7 +52,6 @@ export class BurnFanoutProcessor extends WorkerHost {
 
       const pipeline = this.redis.pipeline();
 
-
       // Update score for outnetwork
       const keyOutnetwork = BurnFanoutProcessor.outNetworkSourceKey;
       pipeline.zincrby(keyOutnetwork, score, id);
@@ -65,7 +63,6 @@ export class BurnFanoutProcessor extends WorkerHost {
       }
 
       await pipeline.exec();
-
     } catch (error) {
       this.logger.error(error);
       return false;

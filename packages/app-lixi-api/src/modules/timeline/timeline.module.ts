@@ -5,15 +5,8 @@ import { AuthModule } from '../auth/auth.module';
 import { PageModule } from '../page/page.module';
 
 @Module({
-  imports: [
-    AuthModule,
-    PageModule
-  ],
-  providers: [
-    Logger,
-    TimelineService,
-    TimelineResolver
-  ],
+  imports: [AuthModule, PageModule],
+  providers: [Logger, TimelineService, TimelineResolver],
   exports: []
 })
-export class TimelineModule { }
+export class TimelineModule {}

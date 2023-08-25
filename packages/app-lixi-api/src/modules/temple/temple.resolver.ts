@@ -23,7 +23,7 @@ const pubSub = new PubSub();
 export class TempleResolver {
   private logger: Logger = new Logger(this.constructor.name);
 
-  constructor(private prisma: PrismaService, private meiliService: MeiliService, @I18n() private i18n: I18nService) { }
+  constructor(private prisma: PrismaService, private meiliService: MeiliService, @I18n() private i18n: I18nService) {}
 
   @Subscription(() => Temple)
   templeCreated() {
@@ -152,22 +152,22 @@ export class TempleResolver {
         city: {
           connect: cityId
             ? {
-              id: _.toSafeInteger(cityId)
-            }
+                id: _.toSafeInteger(cityId)
+              }
             : undefined
         },
         state: {
           connect: stateId
             ? {
-              id: _.toSafeInteger(stateId)
-            }
+                id: _.toSafeInteger(stateId)
+              }
             : undefined
         },
         country: {
           connect: countryId
             ? {
-              id: _.toSafeInteger(countryId)
-            }
+                id: _.toSafeInteger(countryId)
+              }
             : undefined
         }
       }
@@ -205,7 +205,7 @@ export class TempleResolver {
             sha: true,
             bucket: true,
             width: true,
-            height: true,
+            height: true
           }
         }
       }
@@ -226,7 +226,7 @@ export class TempleResolver {
             sha: true,
             bucket: true,
             width: true,
-            height: true,
+            height: true
           }
         }
       }

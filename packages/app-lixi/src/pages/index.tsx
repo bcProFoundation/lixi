@@ -28,7 +28,7 @@ const HomePage = ({ isMobile, localUser }: HomePageProps) => {
     await axios.post(url);
   };
 
-  return <TimelineListing />
+  return <TimelineListing />;
 };
 
 export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) =>

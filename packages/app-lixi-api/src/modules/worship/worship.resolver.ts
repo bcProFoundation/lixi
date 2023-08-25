@@ -40,7 +40,7 @@ export class WorshipResolver {
     private meiliService: MeiliService,
     @I18n() private i18n: I18nService,
     private worshipGateway: WorshipGateway
-  ) { }
+  ) {}
 
   @Subscription(() => WorshipedPerson)
   worshipedPersonCreated() {
@@ -355,22 +355,22 @@ export class WorshipResolver {
         city: {
           connect: cityId
             ? {
-              id: _.toSafeInteger(cityId)
-            }
+                id: _.toSafeInteger(cityId)
+              }
             : undefined
         },
         state: {
           connect: stateId
             ? {
-              id: _.toSafeInteger(stateId)
-            }
+                id: _.toSafeInteger(stateId)
+              }
             : undefined
         },
         country: {
           connect: countryId
             ? {
-              id: _.toSafeInteger(countryId)
-            }
+                id: _.toSafeInteger(countryId)
+              }
             : undefined
         }
       }
@@ -547,7 +547,7 @@ export class WorshipResolver {
             sha: true,
             bucket: true,
             width: true,
-            height: true,
+            height: true
           }
         }
       }

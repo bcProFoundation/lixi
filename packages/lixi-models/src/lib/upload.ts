@@ -1,4 +1,5 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+
 import { Account } from './account';
 
 @ObjectType()
@@ -10,13 +11,13 @@ export class UploadDetail {
   upload: Upload;
 
   @Field(() => Account, { nullable: true })
-  account?: Nullable<Account>
+  account?: Nullable<Account>;
 
   @Field(() => Number, { nullable: true })
-  accountId?: Nullable<number>
+  accountId?: Nullable<number>;
 
   @Field(() => String, { nullable: true })
-  postId?: Nullable<string>
+  postId?: Nullable<string>;
 
   constructor(partial: Partial<UploadDetail>) {
     Object.assign(this, partial);

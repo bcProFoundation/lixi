@@ -4,17 +4,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import DataLoader from 'dataloader';
 import { Page, Repost, UploadDetail } from '@bcpros/lixi-models';
 
-
 @Injectable({ scope: Scope.REQUEST })
 export default class PostLoader {
-  constructor(
-    private prisma: PrismaService,
-  ) {
-  }
+  constructor(private prisma: PrismaService) {}
 
-  public async getPostsUploadsByBatch(
-    postIds: readonly string[]
-  ): Promise<(UploadDetail | any)[]> {
+  public async getPostsUploadsByBatch(postIds: readonly string[]): Promise<(UploadDetail | any)[]> {
     const ids = postIds as unknown as string[];
     const uploadsDb = await this.prisma.uploadDetail.findMany({
       where: {
@@ -52,7 +46,7 @@ export default class PostLoader {
     });
 
     return postIds.map(postId => {
-      return uploads.filter(item => item.postId == postId) || null
+      return uploads.filter(item => item.postId == postId) || null;
     });
   }
 
@@ -60,9 +54,8 @@ export default class PostLoader {
     return await this.getPostsUploadsByBatch(postIds);
   });
 
-
   public readonly batchPages = new DataLoader(async (pageIds: readonly string[]) => {
-    const ids = pageIds as unknown as string[] ?? [];
+    const ids = (pageIds as unknown as string[]) ?? [];
     const pagesDb = await this.prisma.page.findMany({
       include: {
         pageAccount: true,
@@ -86,11 +79,13 @@ export default class PostLoader {
         upload: true
       }
     });
-    const avatarsMap = new Map(avatarsDb.map(item => {
-      const { upload } = item;
-      const avatarUrl = `${process.env.CF_IMAGES_DELIVERY_URL}/${process.env.CF_ACCOUNT_HASH}/${upload?.cfImageId}/public`
-      return [item.id, avatarUrl];
-    }));
+    const avatarsMap = new Map(
+      avatarsDb.map(item => {
+        const { upload } = item;
+        const avatarUrl = `${process.env.CF_IMAGES_DELIVERY_URL}/${process.env.CF_ACCOUNT_HASH}/${upload?.cfImageId}/public`;
+        return [item.id, avatarUrl];
+      })
+    );
 
     const coversDb = await this.prisma.uploadDetail.findMany({
       where: {
@@ -101,30 +96,34 @@ export default class PostLoader {
       }
     });
 
-    const coversMap = new Map(coversDb.map(item => {
-      const { upload } = item;
-      const url = `${process.env.CF_IMAGES_DELIVERY_URL}/${process.env.CF_ACCOUNT_HASH}/${upload?.cfImageId}/public`
-      return [item.id, url];
-    }));
+    const coversMap = new Map(
+      coversDb.map(item => {
+        const { upload } = item;
+        const url = `${process.env.CF_IMAGES_DELIVERY_URL}/${process.env.CF_ACCOUNT_HASH}/${upload?.cfImageId}/public`;
+        return [item.id, url];
+      })
+    );
 
-    const pagesMap = new Map(pagesDb.map(item => {
-      const { avatar, cover } = item
-      const page = new Page({
-        ...item,
-        avatar: avatar?.id ? avatarsMap.get(avatar?.id) : '',
-        cover: cover?.id ? coversMap.get(cover?.id) : '',
-      });
-      return [item.id, page]
-    }));
+    const pagesMap = new Map(
+      pagesDb.map(item => {
+        const { avatar, cover } = item;
+        const page = new Page({
+          ...item,
+          avatar: avatar?.id ? avatarsMap.get(avatar?.id) : '',
+          cover: cover?.id ? coversMap.get(cover?.id) : ''
+        });
+        return [item.id, page];
+      })
+    );
 
     const data = pageIds.map(pageId => {
-      return pagesMap.get(pageId) ?? new Error(pageId)
+      return pagesMap.get(pageId) ?? new Error(pageId);
     });
     return Promise.resolve(data);
   });
 
   public readonly batchReposts = new DataLoader(async (postIds: readonly string[]) => {
-    const ids = postIds as unknown as string[] ?? [];
+    const ids = (postIds as unknown as string[]) ?? [];
 
     const repostsDb = await this.prisma.repost.findMany({
       where: {
@@ -136,11 +135,10 @@ export default class PostLoader {
     const reposts = repostsDb.map(item => {
       return new Repost({
         ...item
-      })
+      });
     });
     return postIds.map(postId => {
-      return reposts.filter(item => item.postId == postId) || null
+      return reposts.filter(item => item.postId == postId) || null;
     });
   });
-
 }

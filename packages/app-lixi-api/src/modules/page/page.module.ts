@@ -32,4 +32,4 @@ import PostLoader from './post.loader';
   ],
   exports: [MeiliService, NotificationService, FollowCacheService, PostLoader]
 })
-export class PageModule { }
+export class PageModule {}

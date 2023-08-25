@@ -85,7 +85,7 @@ export const settingsReducer = createReducer(initialState, builder => {
       state.isSystemThemes = action.payload;
     })
     .addCase(saveLevelFilter, (state, action) => {
-      state.levelFilter = action.payload
+      state.levelFilter = action.payload;
     })
     .addCase(setLanguageNotAutoTrans, (state, action) => {
       state.languageNotAutoTrans = action.payload;

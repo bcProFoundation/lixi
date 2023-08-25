@@ -1,4 +1,3 @@
-
 import { api } from './timeline.generated';
 
 const enhancedApi = api.enhanceEndpoints({
@@ -24,9 +23,4 @@ const enhancedApi = api.enhanceEndpoints({
 
 export { enhancedApi as api };
 
-export const {
-  useTimelineQuery,
-  useLazyTimelineQuery,
-  useHomeTimelineQuery,
-  useLazyHomeTimelineQuery
-} = enhancedApi;
+export const { useTimelineQuery, useLazyTimelineQuery, useHomeTimelineQuery, useLazyHomeTimelineQuery } = enhancedApi;
