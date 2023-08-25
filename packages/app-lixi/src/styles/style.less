@@ -784,6 +784,7 @@ code {
       .banner-item {
         display: flex;
         gap: 8px;
+        align-items: center;
 
         .anticon {
           font-size: 18px;
@@ -1572,6 +1573,10 @@ code {
         &.ant-radio-button-wrapper-checked {
           color: #1e1a1d !important;
           background: #ffd7f6;
+
+          span {
+            color: var(--color-primary) !important;
+          }
         }
       }
     }
@@ -2652,9 +2657,9 @@ code {
     }
   }
 
-  .header-component {
-    background-color: rgba(30, 30, 30, 0.85) !important;
-  }
+  // .header-component {
+  //   background-color: rgba(30, 30, 30, 0.85) !important;
+  // }
 
   .ant-space-item .ant-badge sup {
     background: #303031 !important;
