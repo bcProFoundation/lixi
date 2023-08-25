@@ -24467,6 +24467,11 @@ redis-parser@^3.0.0:
   dependencies:
     redis-errors "^1.0.0"
 
+redis-sorted-set@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/redis-sorted-set/-/redis-sorted-set-2.0.0.tgz#9e1ce6ac63a72196bc3b194378c2ee89160921fa"
+  integrity sha512-QwqUMazboq7EcYyToHgfilneFzzM6hQwNQ4jmsT6tyeruTTbmz51T1K0DHqNql0dzA/JjBXMkkT1wgszMR+hBQ==
+
 redux-persist-indexeddb-storage@^1.0.4:
   version "1.0.4"
   resolved "https://registry.npmjs.org/redux-persist-indexeddb-storage/-/redux-persist-indexeddb-storage-1.0.4.tgz#ded532bcbf7f8a50d0c6dfa99874846dc4e99457"

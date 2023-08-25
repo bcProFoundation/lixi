@@ -1,15 +1,14 @@
-import _ from 'lodash';
-import moment from 'moment';
+import { BurnForType, IPaginatedType } from '@bcpros/lixi-models';
+import { Prisma } from '@bcpros/lixi-prisma';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
+import _ from 'lodash';
+import moment from 'moment';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { PrismaService } from '../prisma/prisma.service';
 import { FollowCacheService } from '../account/follow-cache.service';
-import { Prisma } from '@bcpros/lixi-prisma';
-import { BurnForType, IPaginatedType, PageInfo } from '@bcpros/lixi-models';
-import { Connection } from '../../common/custom-graphql-relay/connection';
-
+import { PrismaService } from '../prisma/prisma.service';
+import SortedSet from 'redis-sorted-set';
 
 @Injectable()
 export class TimelineService {
@@ -17,7 +16,7 @@ export class TimelineService {
   private logger: Logger = new Logger(this.constructor.name);
 
   static inNetworkSourceKey = 'timeline:innetworksource';
-  static outNetworkSourceKey = 'timeline:outnetworksource;';
+  static outNetworkSourceKey = 'timeline:outnetworksource';
   static ratioSteps = [0.1, 0.3, 0.5, 0.7, 0.9];
 
 
@@ -31,7 +30,8 @@ export class TimelineService {
   async cacheInNetworkByTime(accountId: number) {
     const key = `${TimelineService.inNetworkSourceKey}:${accountId}`;
     try {
-      const followings = (await this.followCacheService.getAccountFollowings(accountId)).map(item => _.toSafeInteger(item));
+      const accountFollowings = (await this.followCacheService.getAccountFollowings(accountId)).map(item => _.toSafeInteger(item));
+      const pageFollowings = (await this.followCacheService.getPageFollowings(accountId));
       // get all the post of the following accounts, order by time
       const posts = await this.prisma.post.findMany({
         select: {
@@ -40,9 +40,18 @@ export class TimelineService {
           createdAt: true
         },
         where: {
-          postAccountId: {
-            in: followings
-          }
+          OR: [
+            {
+              pageId: {
+                in: pageFollowings
+              }
+            },
+            {
+              postAccountId: {
+                in: accountFollowings
+              }
+            }
+          ]
         },
         orderBy: {
           createdAt: 'desc'
@@ -53,7 +62,7 @@ export class TimelineService {
       const epoch = '2023-01-01 00:00:00';
       const pipeline = this.redis.pipeline();
       for (const post of posts) {
-        const id = `post-${post.id}`;
+        const id = `${post.id}`;
 
         const diffHour = moment.duration(moment(post.createdAt).diff(moment(epoch))).asHours();
         const score = Math.pow(2, (diffHour / 12));
@@ -74,6 +83,9 @@ export class TimelineService {
     const halfLife = '12 hours';
     try {
       const followings = (await this.followCacheService.getAccountFollowings(accountId)).map(item => _.toSafeInteger(item));
+      if (_.isNil(followings) || _.isEmpty(followings))
+        return;
+
       const posts = await this.prisma.$queryRaw<{ id: string, score: number }[]>(
         Prisma.sql`
             SELECT
@@ -98,7 +110,7 @@ export class TimelineService {
 
       const pipeline = this.redis.pipeline();
       for (const post of posts) {
-        const id = `post-${post.id}`;
+        const id = `${post.id}`;
         pipeline.zincrby(key, post.score, id);
       }
       pipeline.expire(key, 2592000);
@@ -150,7 +162,7 @@ export class TimelineService {
 
       const pipeline = this.redis.pipeline();
       for (const post of posts) {
-        const id = `post-${post.id}`;
+        const id = `${post.id}`;
         pipeline.zadd(key, post.score, id);
       }
       pipeline.expire(key, 2592000);
@@ -176,7 +188,7 @@ export class TimelineService {
       throw new Error("Ratio should be between 0 and 1");
     }
 
-    const totalLength = Math.min(arr1.length + arr2.length, arr1.length / ratio);
+    const totalLength = Math.max(Math.min(arr1.length + arr2.length, arr1.length / ratio), 500);
     const countFromArr1 = Math.round(totalLength * ratio);
     const countFromArr2 = totalLength - countFromArr1;
 
@@ -222,27 +234,20 @@ export class TimelineService {
     }
 
     const ratio = TimelineService.ratioSteps[level - 1];
-    const key = `home_timeline:${accountId}:level:${level}`;
-    const exist = await this.redis.exists([key]);
 
-    if (!exist) {
-      const inNetwork = await this.getInNetwork(accountId);
-      const outNetwork = await this.getOutNetwork();
-      const timeline = this.mergeByRatio(inNetwork, outNetwork, ratio);
-      const pipeline = this.redis.pipeline();
-      let index = 0;
-      for (const item of timeline) {
-        const id = `post-${item}`;
-        pipeline.zadd(key, index, id);
-        index += 1;
-      }
-      pipeline.expire(key, 86400);
-      await pipeline.exec();
+    const timelineSortedSet = new SortedSet();
+    const inNetwork = await this.getInNetwork(accountId);
+    const outNetwork = await this.getOutNetwork();
+    const timeline = this.mergeByRatio(inNetwork, outNetwork, ratio);
+    let index = 0;
+    for (const id of timeline) {
+      timelineSortedSet.add(id, index);
+      index += 1;
     }
 
-    const totalCount = await this.redis.zcount(key, 0, 4000);
+    const totalCount = timelineSortedSet.length;
     if (after) {
-      const startOffset = await this.redis.zrank(key, after);
+      const startOffset = timelineSortedSet.rank(after);
       if (startOffset === null) {
         // Cannot find cursor in the sorted set
         return {
@@ -256,7 +261,7 @@ export class TimelineService {
         };
       } else {
         const endOffset = startOffset + first;
-        const ids = await this.redis.zrange(key, startOffset + 1, startOffset + first);
+        const ids: string[] = await timelineSortedSet.range(startOffset + 1, startOffset + first);
         const edges = ids.map((value, index) => {
           return {
             cursor: value,
@@ -280,7 +285,7 @@ export class TimelineService {
       // Get data from start
       const startOffset = 0;
       const endOffset = startOffset + first;
-      const ids = await this.redis.zrange(key, startOffset + 1, startOffset + first);
+      const ids: string[] = timelineSortedSet.range(startOffset + 1, startOffset + first);
       const edges = ids.map((value, index) => {
         return {
           cursor: value,

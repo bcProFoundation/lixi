@@ -16,6 +16,7 @@ import rootSaga from './rootSaga';
 import { api as worshipedPersonApi } from './worship/worshipedPerson.api';
 import { api as messageApi } from './message/message.api';
 import { api as pageMessageApi } from './message/pageMessageSession.api';
+import { api as timelineApi } from './timeline/timeline.api';
 
 export interface SagaStore extends Store {
   __sagaTask: Task;
@@ -65,14 +66,15 @@ const makeStore = (context: Context) => {
           .concat(worshipedPersonApi.middleware)
           .concat(messageApi.middleware)
           .concat(pageMessageApi.middleware)
+          .concat(timelineApi.middleware)
           .concat(sagaMiddleware, routerMiddleware);
       },
       devTools:
         process.env.NODE_ENV === 'production'
           ? false
           : {
-              actionsDenylist: ['wallet/writeWalletStatus']
-            },
+            actionsDenylist: ['wallet/writeWalletStatus']
+          },
       preloadedState: initialState
     });
     setupListeners(store.dispatch);

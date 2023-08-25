@@ -7,7 +7,6 @@ import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotific
 import { addRecentHashtagAtHome, getLeaderboard, setGraphqlRequestDone } from '@store/account/actions';
 import {
   getGraphqlRequestStatus,
-  getLeaderBoard,
   getRecentHashtagAtHome,
   getSelectedAccount,
   getSelectedAccountId
@@ -16,20 +15,19 @@ import {
   addBurnQueue,
   addBurnTransaction,
   clearFailQueue,
-  getBurnQueue,
-  getFailQueue,
-  getLatestBurnForPost
+  getFailQueue
 } from '@store/burn';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { setNewPostAvailable, setSelectedPost } from '@store/post/actions';
+import { api as postApi } from '@store/post/posts.api';
 import { getNewPostAvailable, getSelectedPostId } from '@store/post/selectors';
 import { useInfinitePostsBySearchQueryWithHashtag } from '@store/post/useInfinitePostsBySearchQueryWithHashtag';
-import { useInfinitePostsQuery } from '@store/post/useInfinitePostsQuery';
-import { getFilterPostsHome, getIsTopPosts } from '@store/settings/selectors';
+import { getFilterPostsHome, getIsTopPosts, getLevelFilter } from '@store/settings/selectors';
+import { TimelineListParams, useInfiniteHomeTimelineQuery } from '@store/timeline/useInfiniteHomeTimelineQuery';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { fromSmallestDenomination, fromXpiToSatoshis } from '@utils/cashMethods';
-import { MenuProps, Skeleton, Switch } from 'antd';
+import { Skeleton } from 'antd';
 import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
@@ -38,14 +36,13 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import SearchBox from '../Common/SearchBox';
-import PostListItem from './PostListItem';
-import { api as postApi } from '@store/post/posts.api';
+import PostListItem from '../Posts/PostListItem';
 
-type PostsListingProps = {
+type TimelineListingProps = {
   className?: string;
 };
 
-const StyledPostsListing = styled.div`
+const StyledTimelineListing = styled.div`
   margin: 1rem auto;
   width: 100%;
   max-width: 700px;
@@ -132,24 +129,20 @@ const StyledInfiniteScroll = styled(InfiniteScroll)`
   overflow: inherit !important;
 `;
 
-const PostsListing: React.FC<PostsListingProps> = ({ className }: PostsListingProps) => {
+const TimelineListing: React.FC<TimelineListingProps> = ({ className }: TimelineListingProps) => {
   const [count, setCount] = useState(0);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const selectedAccountId = useAppSelector(getSelectedAccountId);
-  const [searchValue, setSearchValue] = useState<string | null>(null);
   const refPostsListing = useRef<HTMLDivElement | null>(null);
   const [tab, setTab] = useState<any>('all');
   const [showNewPost, setShowNewPost] = useState<boolean>(false);
   const selectedAccount = useAppSelector(getSelectedAccount);
-  const latestBurnForPost = useAppSelector(getLatestBurnForPost);
   const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
   const walletPaths = useAppSelector(getAllWalletPaths);
-  const burnQueue = useAppSelector(getBurnQueue);
   const walletStatus = useAppSelector(getWalletStatus);
   const failQueue = useAppSelector(getFailQueue);
   const filterValue = useAppSelector(getFilterPostsHome);
-  const leaderboard = useAppSelector(getLeaderBoard);
   const graphqlRequestLoading = useAppSelector(getGraphqlRequestStatus);
   const recentTagAtHome = useAppSelector(getRecentHashtagAtHome);
   const postIdSelected = useAppSelector(getSelectedPostId);
@@ -158,6 +151,7 @@ const PostsListing: React.FC<PostsListingProps> = ({ className }: PostsListingPr
   let isTop = useAppSelector(getIsTopPosts);
   const [query, setQuery] = useState<string | null>(null);
   const [hashtags, setHashtags] = useState<string[]>([]);
+  const level = useAppSelector(getLevelFilter);
 
   useEffect(() => {
     if (router.query.hashtags) {
@@ -183,22 +177,10 @@ const PostsListing: React.FC<PostsListingProps> = ({ className }: PostsListingPr
       dispatch(setNewPostAvailable(false));
     }
   }, []);
-  const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } = useInfinitePostsQuery(
+  const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } = useInfiniteHomeTimelineQuery(
     {
       first: 20,
-      minBurnFilter: filterValue,
-      accountId: selectedAccountId ?? null,
-      isTop: String(isTop),
-      orderBy: [
-        {
-          direction: OrderDirection.Desc,
-          field: PostOrderField.LastRepostAt
-        },
-        {
-          direction: OrderDirection.Desc,
-          field: PostOrderField.UpdatedAt
-        }
-      ]
+      level: level
     },
     false
   );
@@ -360,7 +342,7 @@ const PostsListing: React.FC<PostsListingProps> = ({ className }: PostsListingPr
                 >
                   <PostListItem
                     index={index}
-                    item={item}
+                    item={item.data}
                     key={item.id}
                     handleBurnForPost={handleBurnForPost}
                     addToRecentHashtags={hashtag => dispatch(addRecentHashtagAtHome(hashtag.substring(1)))}
@@ -469,12 +451,12 @@ const PostsListing: React.FC<PostsListingProps> = ({ className }: PostsListingPr
   };
 
   return (
-    <StyledPostsListing>
+    <StyledTimelineListing>
       <SearchBox />
       <Header />
       {graphqlRequestLoading ? <Skeleton avatar active /> : showPosts()}
-    </StyledPostsListing>
+    </StyledTimelineListing>
   );
 };
 
-export default PostsListing;
+export default TimelineListing;

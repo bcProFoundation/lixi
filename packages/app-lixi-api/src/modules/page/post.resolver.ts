@@ -66,7 +66,7 @@ export class PostResolver {
   @SkipThrottle()
   @Query(() => Post)
   async post(@Args('id', { type: () => String }) id: string) {
-    return this.prisma.post.findUnique({
+    return await this.prisma.post.findUnique({
       where: { id: id },
       include: {
         postAccount: true,

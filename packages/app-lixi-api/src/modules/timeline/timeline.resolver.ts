@@ -33,6 +33,66 @@ export class TimelineResolver {
   ) { }
 
   @SkipThrottle()
+  @Query(returns => TimelineItem)
+  @UseGuards(GqlJwtAuthGuardByPass)
+  async timeline(@Args('id', { type: () => String }) id: string) {
+
+    const postId = id;
+    if (!postId) throw new Error('Invalid argument');
+
+    const hashPrefix = `posts:item-data`;
+    const buffers = await this.redis.hmgetBuffer(hashPrefix, postId);
+    if (!buffers[0]) {
+      // cache miss
+      const dbPost = await this.prisma.post.findUnique({
+        where: { id: id },
+        include: {
+          uploads: true,
+          token: true,
+          _count: {
+            select: { reposts: true, comments: true }
+          },
+          postAccount: true,
+          translations: true
+        }
+      });
+
+      if (!dbPost) return null;
+
+      const [page, reposts, uploads] = await Promise.all([
+        dbPost.pageId ? this.postLoader.batchPages.load(dbPost.pageId) : Promise.resolve(null),
+        this.postLoader.batchReposts.load(dbPost.id),
+        this.postLoader.batchUploads.load(dbPost.id)
+      ]);
+
+      const post: Post = new Post({
+        ...dbPost,
+        id: dbPost.id,
+        uploads: uploads ? uploads as UploadDetail[] : [],
+        page: page ? page as Page : null,
+        repostCount: dbPost._count.reposts,
+        reposts: reposts ? reposts as Repost[] : [],
+      });
+
+      const timelineItem: TimelineItem = {
+        id: `post-${dbPost.id}`,
+        data: post
+      };
+      const buffer = encode(post);
+      this.redis.hset(hashPrefix, timelineItem.id, Buffer.from(buffer));
+
+      return timelineItem;
+    } else {
+      const data = decode(buffers[0]) as Post;
+      const timelineItem: TimelineItem = {
+        id: `post-${data.id}`,
+        data
+      };
+      return timelineItem;
+    }
+  }
+
+  @SkipThrottle()
   @Query(returns => TimelineItemConnection)
   @UseGuards(GqlJwtAuthGuardByPass)
   async homeTimeline(
@@ -44,9 +104,7 @@ export class TimelineResolver {
     const timelineIds = await this.timelineService.getTimelineIdsByLevel(level, account.id, first, after);
 
     const ids = timelineIds.edges.map(item => {
-      const parts = item.cursor.split('-');
-      const id = parts[1];
-      return id;
+      return item.cursor;
     });
 
     const hashPrefix = `posts:item-data`;
@@ -110,7 +168,7 @@ export class TimelineResolver {
             data: post
           };
           timelineItems.push(timelineItem);
-          pipeline.hset(hashPrefix, buffers[i]!);
+          pipeline.hset(hashPrefix, timelineItem.id, buffers[i]!);
         }
       } else {
         const data = decode(buffers[i]) as Post;
@@ -135,6 +193,4 @@ export class TimelineResolver {
       })
     };
   }
-
-
 }

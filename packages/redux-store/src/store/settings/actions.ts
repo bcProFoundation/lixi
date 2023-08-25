@@ -19,3 +19,4 @@ export const saveBurnFilter = createAction<FilterBurnCommand>('settings/saveBurn
 export const saveTopPostsFilter = createAction<boolean>('settings/saveTopPostsFilter');
 export const saveWebPushNotifConfig = createAction<WebPushNotifConfig>('settings/saveWebPushNotifConfig');
 export const saveAllowPushNotification = createAction<boolean>('settings/saveAllowPushNotification');
+export const saveLevelFilter = createAction<number>('settings/saveLevelFilter');

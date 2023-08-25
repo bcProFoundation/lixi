@@ -951,6 +951,7 @@ export type Query = {
   pageMessageSession: PageMessageSession;
   post: Post;
   temple: Temple;
+  timeline: TimelineItem;
   token: Token;
   userHadMessageToPage: PageMessageSession;
   worship: Worship;
@@ -1444,6 +1445,11 @@ export type QueryPostArgs = {
 
 
 export type QueryTempleArgs = {
+  id: Scalars['String'];
+};
+
+
+export type QueryTimelineArgs = {
   id: Scalars['String'];
 };
 

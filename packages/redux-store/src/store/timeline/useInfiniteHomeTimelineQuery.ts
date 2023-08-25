@@ -1,34 +1,30 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { useAppDispatch } from '@store/hooks';
-import { useLazyPostsByPageIdQuery, usePostsByPageIdQuery } from '@store/post/posts.generated';
+import { api as timelineApi, useLazyHomeTimelineQuery } from '@store/timeline/timeline.api';
 import _ from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Post, PostOrder } from '@generated/types.generated';
 
-import { PostQuery } from './posts.generated';
+import { TimelineQuery, useTimelineQuery } from './timeline.generated';
+import { useHomeTimelineQuery } from './timeline.api';
 
-const postsAdapter = createEntityAdapter<PostQuery['post']>({
-  selectId: post => post.id,
-  sortComparer: (a, b) => b.createdAt - a.createdAt
+const homeTimelineAdapter = createEntityAdapter<TimelineQuery['timeline']>({
+  selectId: item => item.id
 });
 
-const { selectAll, selectEntities, selectIds, selectTotal } = postsAdapter.getSelectors();
+const { selectAll } = homeTimelineAdapter.getSelectors();
 
-export interface PostListByIdParams extends PaginationArgs {
-  orderBy?: PostOrder[];
-  id?: string;
-  accountId?: number;
+export interface TimelineListParams extends PaginationArgs {
+  level: number;
 }
 
-export function useInfinitePostsByPageIdQuery(
-  params: PostListByIdParams,
+export function useInfiniteHomeTimelineQuery(
+  params: TimelineListParams,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const baseResult = usePostsByPageIdQuery(params, { skip: !params.id });
+  const baseResult = useHomeTimelineQuery(params);
 
-  const [trigger, nextResult, lastPromiseInfo] = useLazyPostsByPageIdQuery();
-  const [combinedData, setCombinedData] = useState(postsAdapter.getInitialState({}));
+  const [trigger, nextResult] = useLazyHomeTimelineQuery();
+  const [combinedData, setCombinedData] = useState(homeTimelineAdapter.getInitialState({}));
 
   const isBaseReady = useRef(false);
   const isNextDone = useRef(true);
@@ -43,14 +39,13 @@ export function useInfinitePostsByPageIdQuery(
 
   // Base result
   useEffect(() => {
-    next.current = baseResult.data?.allPostsByPageId?.pageInfo?.endCursor;
-    if (baseResult?.data?.allPostsByPageId) {
+    next.current = baseResult.data?.homeTimeline?.pageInfo?.endCursor;
+    if (baseResult?.data?.homeTimeline) {
       isBaseReady.current = true;
 
-      const baseResultParse = baseResult.data.allPostsByPageId.edges.map(item => item.node);
-      const adapterSetAll = postsAdapter.setAll(
+      const adapterSetAll = homeTimelineAdapter.setAll(
         combinedData,
-        baseResult.data.allPostsByPageId.edges.map(item => item.node)
+        baseResult.data.homeTimeline.edges.map(item => item.node)
       );
 
       setCombinedData(adapterSetAll);
@@ -79,12 +74,13 @@ export function useInfinitePostsByPageIdQuery(
   const refetch = async () => {
     isBaseReady.current = false;
     next.current = null; // restart
+    data.length = 0; // delete data from memo
     await baseResult.refetch(); // restart with a whole new refetching
   };
 
   return {
     data: data ?? [],
-    totalCount: baseResult?.data?.allPostsByPageId?.totalCount ?? 0,
+    totalCount: baseResult?.data?.homeTimeline?.totalCount ?? 0,
     error: baseResult?.error,
     isError: baseResult?.isError,
     isLoading: baseResult?.isLoading,
@@ -92,7 +88,7 @@ export function useInfinitePostsByPageIdQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allPostsByPageId?.pageInfo?.endCursor !== null,
+    hasNext: baseResult.data?.homeTimeline?.pageInfo?.endCursor !== null,
     fetchNext,
     refetch
   };
