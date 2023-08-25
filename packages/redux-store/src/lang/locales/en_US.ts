@@ -363,7 +363,7 @@ export default {
 
   /* 05.Settings */
   'settings.themes': 'Themes',
-  'settings.languages': 'Primary language',
+  'settings.languages': 'Languages',
   'settings.general': 'General Settings',
   'settings.lockApp': 'Lock App',
   'settings.notifications': 'Notifications',
@@ -401,6 +401,7 @@ export default {
   'settings.howEnableNotification': 'How to enable notification',
   'settings.deviceSupport': 'This feature works best with Chrome or Brave on Android device',
   'settings.twoStepEnableNotification': '2 steps to enable notification',
+  'settings.primaryLanguage': 'Primary language',
   'settings.secondLanguage': 'Secondary language (Do not auto translate)',
   'settings.selectLanguageNotTransSuccess': '{language} will not auto translate',
   'settings.removeLanguageNotTrans': 'Every post will be automatically translated to primary language.',

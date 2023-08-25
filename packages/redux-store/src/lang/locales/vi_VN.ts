@@ -363,7 +363,7 @@ export default {
 
   /* 05.Settings */
   'settings.themes': 'Chủ đề',
-  'settings.languages': 'Ngôn ngữ chính',
+  'settings.languages': 'Ngôn ngữ',
   'settings.general': 'Thiết lập chung',
   'settings.lockApp': 'Khóa ứng dụng',
   'settings.notifications': 'Thông báo',
@@ -400,6 +400,7 @@ export default {
   'settings.howEnableNotification': 'Làm thế nào để bật thông báo',
   'settings.deviceSupport': 'Tính năng này hoạt động tốt nhất với Chrome hoặc Brave trên thiết bị Android',
   'settings.twoStepEnableNotification': '2 bước để bật thông báo',
+  'settings.primaryLanguage': 'Ngôn ngữ chính',
   'settings.secondLanguage': 'Ngôn ngữ 2 (Không tự động dịch)',
   'settings.selectLanguageNotTransSuccess': '{language} sẽ không tự động dịch',
   'settings.removeLanguageNotTrans': 'Tất cả bài viết sẽ tự động dịch theo ngôn ngữ chính',

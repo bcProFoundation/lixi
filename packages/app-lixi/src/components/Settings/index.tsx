@@ -472,7 +472,7 @@ const Settings: React.FC = () => {
             )}
           </SettingBar>
           <SettingBar className="language-bar">
-            <h2 style={{ color: 'var(--color-primary)' }}>{intl.get('settings.languages')}</h2>
+            <h2 style={{ color: 'var(--color-primary)' }}>{intl.get('settings.primaryLanguage')}</h2>
             <AntdFormWrapper>
               <LanguageSelectDropdown
                 defaultValue={currentLocale}
