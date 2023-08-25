@@ -5,7 +5,6 @@ import intl from 'react-intl-universal';
 import { ReadMoreMore } from 'read-more-more';
 import ReactHtmlParser from 'react-html-parser';
 import { Language } from '@bcpros/lixi-models/constants/translation';
-import next from 'next/types';
 
 const PostContent = ({ post, showTranslation, currentLocale }) => {
   let postContent;
