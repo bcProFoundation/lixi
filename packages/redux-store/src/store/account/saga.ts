@@ -78,8 +78,9 @@ import {
   verifyEmailFailure,
   verifyEmailSuccess
 } from './actions';
-import { getAccountById, getSelectedAccount } from './selectors';
+import { getAccountById, getSelectedAccount, getSelectedAccountId } from './selectors';
 import { saveClaimAddress } from '@store/claim';
+import { setInitIntlStatus, updateLocale } from '@store/settings/actions';
 
 const nameConfigGenerator: Config = {
   dictionaries: [names, names],
@@ -314,20 +315,29 @@ function* importAccountFailureSaga(action: PayloadAction<string>) {
 function* selectAccountSaga(action: PayloadAction<number>) {
   try {
     yield put(showLoading(selectAccount.type));
+    const preAccountId = yield select(getSelectedAccountId);
+    const preAccount = yield select(getAccountById(preAccountId));
     const accountId = action.payload;
     const data = yield call(accountApi.getById, accountId);
     const account = data as Account;
     const lixiesData = yield call(lixiApi.getByAccountId, accountId);
     const lixies = (lixiesData ?? []) as Lixi[];
-    yield put(selectAccountSuccess({ account: account, lixies: lixies }));
+
+    yield put(selectAccountSuccess({ account: account, lixies: lixies, preAccount: preAccount }));
   } catch (err) {
     const message = (err as Error).message ?? intl.get('account.unableToSelect');
     yield put(selectAccountFailure(message));
   }
 }
 
-function* selectAccountSuccessSaga(action: PayloadAction<{ account: Account; lixies: Lixi[] }>) {
+function* selectAccountSuccessSaga(action: PayloadAction<{ account: Account; lixies: Lixi[]; preAccount: Account }>) {
   const account = yield select(getAccountById(action.payload.account.id));
+
+  if (action.payload.preAccount.language != account.language) {
+    yield put(setInitIntlStatus(false));
+    yield put(updateLocale(account.language));
+  }
+
   const localAccount: LocalUserAccount = {
     mnemonic: account.mnemonic,
     language: account.language,
@@ -420,6 +430,7 @@ function* renameAccountFailureSaga(action: PayloadAction<string>) {
 function* changeAccountLocaleSaga(action: PayloadAction<ChangeAccountLocaleCommand>) {
   try {
     yield put(showLoading(changeAccountLocale.type));
+
     const { id } = action.payload;
     const patchAccountCommand: PatchAccountCommand = {
       id: action.payload.id,
@@ -438,7 +449,9 @@ function* changeAccountLocaleSaga(action: PayloadAction<ChangeAccountLocaleComma
 
 function* changeAccountLocaleSuccessSaga(action: PayloadAction<Account>) {
   const account = action.payload;
+  console.log('bug2.5');
   yield put(hideLoading(changeAccountLocale.type));
+  console.log('bug3');
   yield put(
     showToast('success', {
       message: intl.get('toast.success'),
