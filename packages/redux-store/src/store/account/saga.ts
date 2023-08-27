@@ -430,7 +430,6 @@ function* renameAccountFailureSaga(action: PayloadAction<string>) {
 function* changeAccountLocaleSaga(action: PayloadAction<ChangeAccountLocaleCommand>) {
   try {
     yield put(showLoading(changeAccountLocale.type));
-
     const { id } = action.payload;
     const patchAccountCommand: PatchAccountCommand = {
       id: action.payload.id,
@@ -449,9 +448,7 @@ function* changeAccountLocaleSaga(action: PayloadAction<ChangeAccountLocaleComma
 
 function* changeAccountLocaleSuccessSaga(action: PayloadAction<Account>) {
   const account = action.payload;
-  console.log('bug2.5');
   yield put(hideLoading(changeAccountLocale.type));
-  console.log('bug3');
   yield put(
     showToast('success', {
       message: intl.get('toast.success'),
