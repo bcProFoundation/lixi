@@ -1,4 +1,4 @@
-import { DislikeOutlined, LikeOutlined } from '@ant-design/icons';
+import { CopyOutlined, DislikeOutlined, LikeOutlined } from '@ant-design/icons';
 import DownVoteSvg from '@assets/icons/downVote.svg';
 import UpDownSvg from '@assets/icons/upDownIcon.svg';
 import UpVoteSvg from '@assets/icons/upVote.svg';
@@ -18,7 +18,7 @@ import { useCommentQuery } from '@store/comment/comments.generated';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { closeModal } from '@store/modal/actions';
 import { usePostQuery } from '@store/post/posts.generated';
-import { getFilterPostsHome, getIsTopPosts } from '@store/settings/selectors';
+import { getFilterPostsHome, getIsTopPosts, getLevelFilter } from '@store/settings/selectors';
 import { showToast } from '@store/toast/actions';
 import { useTokenQuery } from '@store/token/tokens.generated';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
@@ -32,6 +32,10 @@ import { Controller, useForm } from 'react-hook-form';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import { TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models/constants/translation';
+import { CURRENCIES, WalletItem, decimalFormatBalance } from '@components/Wallet/ListWallet';
+import { QRCodeModal } from './QRCodeModal';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { ReactSVG } from 'react-svg';
 
 const UpDownButton = styled(Button)`
   background: rgb(158, 42, 156);
@@ -130,7 +134,28 @@ export const BurnModal = ({ id, burnForType, isPage, classStyle }: BurnModalProp
   const postQuery = usePostQuery({ id: id }, { skip: burnForType !== BurnForType.Post }).currentData;
   const commentQuery = useCommentQuery({ id: id }, { skip: burnForType !== BurnForType.Comment }).currentData;
   const filterValue = useAppSelector(getFilterPostsHome);
+  const level = useAppSelector(getLevelFilter);
   let isTop = useAppSelector(getIsTopPosts);
+  const [openSelectCurrencies, setOpenSelectCurrencies] = useState(false);
+  const [selectCurrencies, setSelectCurrencies] = useState(null);
+  const defaultSelected = {
+    name: 'Lotus',
+    symbol: 'xpi',
+    icon: '/images/currencies/xpi.svg',
+    bg: '/images/currencies/bg-xpi.svg',
+    balance: selectedAccount?.balance,
+    address: selectedAccount?.address
+  };
+
+  const handleBurnValueMultiCoin = () => {
+    let burnValue = _.isNil(control._formValues.burnedValue)
+      ? DefaultXpiBurnValues[0]
+      : control._formValues.burnedValue;
+    if (selectCurrencies?.symbol !== 'xpi') {
+      burnValue = 1;
+    }
+    return burnValue;
+  };
 
   const handleBurn = async (isUpVote: boolean) => {
     try {
@@ -141,9 +166,7 @@ export const BurnModal = ({ id, burnForType, isPage, classStyle }: BurnModalProp
       let tokenId;
       let userId;
       let id: string;
-      const burnValue = _.isNil(control._formValues.burnedValue)
-        ? DefaultXpiBurnValues[0]
-        : control._formValues.burnedValue;
+      let burnValue = handleBurnValueMultiCoin();
       if (failQueue.length > 0) dispatch(clearFailQueue());
       const fundingFirstUtxo = slpBalancesAndUtxos.nonSlpUtxos[0];
       const currentWalletPath = walletPaths.filter(acc => acc.xAddress === fundingFirstUtxo.address).pop();
@@ -230,7 +253,11 @@ export const BurnModal = ({ id, burnForType, isPage, classStyle }: BurnModalProp
           tokenId: tokenId,
           orderBy: queryParams,
           pageId: pageId,
-          minBurnFilter: filterValue
+          minBurnFilter: filterValue,
+          coin: selectCurrencies?.symbol,
+          fakeAmountMulti: calcAmountBurn(currency.burnFee * selectedAmount + selectedAmount, selectCurrencies?.symbol),
+          selectAmountDanaMultiCoin: selectedAmount,
+          level: level
         }
       };
 
@@ -294,6 +321,153 @@ export const BurnModal = ({ id, burnForType, isPage, classStyle }: BurnModalProp
     }
   };
 
+  const calcAmountBurn = (initialAmount: number, coin: string) => {
+    let resultAmount = initialAmount;
+    switch (coin) {
+      case 'xpi':
+        resultAmount = initialAmount;
+        return resultAmount;
+      case 'xec':
+        resultAmount = initialAmount / 2;
+        return resultAmount;
+      case 'eth':
+        resultAmount = initialAmount / 1000;
+        return resultAmount;
+      case 'near':
+        resultAmount = initialAmount / 50;
+        return resultAmount;
+      case 'dot':
+        resultAmount = initialAmount / 100;
+        return resultAmount;
+      case 'sol':
+        resultAmount = initialAmount / 150;
+        return resultAmount;
+      default:
+        return resultAmount;
+    }
+  };
+
+  const handleOnCopy = (id: string) => {
+    dispatch(
+      showToast('info', {
+        message: intl.get('token.copyId'),
+        description: id
+      })
+    );
+  };
+
+  const modalSelectWallet = () => {
+    return (
+      <Modal
+        transitionName=""
+        width={'auto'}
+        className={`${classStyle} custom-select-currencies-burn-modal`}
+        open={openSelectCurrencies}
+        onCancel={handleOnCancel}
+        title={<h3>Select Wallet To Burn</h3>}
+        footer={
+          <Button type="primary" onClick={() => setOpenSelectCurrencies(!openSelectCurrencies)}>
+            Finish
+          </Button>
+        }
+        style={{ top: '0 !important' }}
+      >
+        {selectCurrencies && (
+          <div className="current-selected">
+            <WalletItem className="wallet-item" style={{ backgroundImage: `url(${selectCurrencies.bg})` }}>
+              <div className="wallet-card-header">
+                <div className="wallet-info" onClick={() => router.push(`/wallet/${selectCurrencies.symbol}`)}>
+                  <img className="ico-currency" src={selectCurrencies.icon} alt="" />
+                  <span className="wallet-name">{selectCurrencies.name}</span>
+                </div>
+                <div className="address-code">
+                  <QRCodeModal logoImage={selectCurrencies.icon} address={selectCurrencies.address} type={'address'} />
+                </div>
+              </div>
+              <div className="wallet-card-content">
+                <span className="balance">
+                  {decimalFormatBalance(selectCurrencies.balance, selectCurrencies?.symbol)}{' '}
+                  <span className="wallet-symbol">{selectCurrencies?.symbol}</span>
+                </span>
+              </div>
+              <div className="wallet-card-footer">
+                <CopyToClipboard text={selectCurrencies.address} onCopy={() => handleOnCopy(selectCurrencies.address)}>
+                  <Button type="primary" className="no-border-btn" icon={<CopyOutlined />}>
+                    {selectCurrencies.address.slice(-10) + ' '}
+                  </Button>
+                </CopyToClipboard>
+              </div>
+            </WalletItem>
+            <div className="selected-status" onClick={() => setSelectCurrencies(null)}>
+              <ReactSVG src="/images/ico-trash.svg" />
+            </div>
+          </div>
+        )}
+        {!selectCurrencies && (
+          <div className="current-selected default-selected">
+            <WalletItem className="wallet-item" style={{ backgroundImage: `url(${defaultSelected.bg})` }}>
+              <div className="wallet-card-header">
+                <div className="wallet-info" onClick={() => router.push(`/wallet/${defaultSelected?.symbol}`)}>
+                  <img className="ico-currency" src={defaultSelected.icon} alt="" />
+                  <span className="wallet-name">{defaultSelected.name}</span>
+                </div>
+                <div className="address-code">
+                  <QRCodeModal logoImage={defaultSelected.icon} address={defaultSelected.address} type={'address'} />
+                </div>
+              </div>
+              <div className="wallet-card-content">
+                <span className="balance">
+                  {decimalFormatBalance(defaultSelected.balance, defaultSelected?.symbol)}{' '}
+                  <span className="wallet-symbol">{defaultSelected.symbol}</span>
+                </span>
+              </div>
+              <div className="wallet-card-footer">
+                <CopyToClipboard text={defaultSelected.address} onCopy={() => handleOnCopy(defaultSelected.address)}>
+                  <Button type="primary" className="no-border-btn" icon={<CopyOutlined />}>
+                    {defaultSelected.address.slice(-10) + ' '}
+                  </Button>
+                </CopyToClipboard>
+              </div>
+            </WalletItem>
+          </div>
+        )}
+        <div className="switch-coin-to-burn">
+          {CURRENCIES.map(coin => {
+            if (coin.symbol === 'xpi') {
+              coin = defaultSelected;
+            }
+            return (
+              <WalletItem style={{ backgroundImage: `url(${coin.bg})` }} onClick={() => setSelectCurrencies(coin)}>
+                <div className="wallet-card-header">
+                  <div className="wallet-info" onClick={() => router.push(`/wallet/${coin.symbol}`)}>
+                    <img className="ico-currency" src={coin.icon} alt="" />
+                    <span className="wallet-name">{coin.name}</span>
+                  </div>
+                  <div className="address-code">
+                    <QRCodeModal logoImage={coin.icon} address={coin.address} type={'address'} />
+                  </div>
+                </div>
+                <div className="wallet-card-content">
+                  <span className="balance">
+                    {decimalFormatBalance(coin.balance, coin?.symbol)}{' '}
+                    <span className="wallet-symbol">{coin.symbol}</span>
+                  </span>
+                </div>
+                <div className="wallet-card-footer">
+                  <CopyToClipboard text={coin.address} onCopy={() => handleOnCopy(coin.address)}>
+                    <Button type="primary" className="no-border-btn" icon={<CopyOutlined />}>
+                      {coin.address.slice(-10) + ' '}
+                    </Button>
+                  </CopyToClipboard>
+                </div>
+              </WalletItem>
+            );
+          })}
+        </div>
+      </Modal>
+    );
+  };
+
   return (
     <Modal
       transitionName=""
@@ -319,24 +493,92 @@ export const BurnModal = ({ id, burnForType, isPage, classStyle }: BurnModalProp
               </div>
             </div>
           </div>
+          {selectCurrencies && (
+            <>
+              <WalletItem className="current-wallet-burn" style={{ backgroundImage: `url(${selectCurrencies.bg})` }}>
+                <div className="wallet-card-header">
+                  <div className="wallet-info" onClick={() => router.push(`/wallet/${selectCurrencies.symbol}`)}>
+                    <img className="ico-currency" src={selectCurrencies.icon} alt="" />
+                    <span className="wallet-name">{selectCurrencies.name}</span>
+                  </div>
+                  <div className="address-code">
+                    <QRCodeModal
+                      logoImage={selectCurrencies.icon}
+                      address={selectCurrencies.address}
+                      type={'address'}
+                    />
+                  </div>
+                </div>
+                <div className="wallet-card-content">
+                  <span className="balance">
+                    {decimalFormatBalance(selectCurrencies.balance, selectCurrencies?.symbol)}{' '}
+                    <span className="wallet-symbol">{selectCurrencies.symbol}</span>
+                  </span>
+                </div>
+                <div className="wallet-card-footer">
+                  <CopyToClipboard
+                    text={selectCurrencies.address}
+                    onCopy={() => handleOnCopy(selectCurrencies.address)}
+                  >
+                    <Button type="primary" className="no-border-btn" icon={<CopyOutlined />}>
+                      {selectCurrencies.address.slice(-10) + ' '}
+                    </Button>
+                  </CopyToClipboard>
+                </div>
+              </WalletItem>
+            </>
+          )}
+          {!selectCurrencies && (
+            <>
+              <WalletItem className="current-wallet-burn" style={{ backgroundImage: `url(${defaultSelected.bg})` }}>
+                <div className="wallet-card-header">
+                  <div className="wallet-info" onClick={() => router.push(`/wallet/${defaultSelected.symbol}`)}>
+                    <img className="ico-currency" src={defaultSelected.icon} alt="" />
+                    <span className="wallet-name">{defaultSelected.name}</span>
+                  </div>
+                  <div className="address-code">
+                    <QRCodeModal logoImage={defaultSelected.icon} address={defaultSelected.address} type={'address'} />
+                  </div>
+                </div>
+                <div className="wallet-card-content">
+                  <span className="balance">
+                    {decimalFormatBalance(defaultSelected.balance, defaultSelected?.symbol)}{' '}
+                    <span className="wallet-symbol">{defaultSelected.symbol}</span>
+                  </span>
+                </div>
+                <div className="wallet-card-footer">
+                  <CopyToClipboard text={defaultSelected.address} onCopy={() => handleOnCopy(defaultSelected.address)}>
+                    <Button type="primary" className="no-border-btn" icon={<CopyOutlined />}>
+                      {defaultSelected.address.slice(-10) + ' '}
+                    </Button>
+                  </CopyToClipboard>
+                </div>
+              </WalletItem>
+            </>
+          )}
         </div>
       }
       footer={
         <Button.Group style={{ width: '100%' }}>
-          <UpDownButton className="upVote" onClick={() => handleBurn(true)}>
-            <UpVoteSvg />
-            &nbsp; {intl.get('general.voteUp')}
-          </UpDownButton>
           <UpDownButton className="downVote" onClick={() => handleBurn(false)}>
             <DownVoteSvg />
             &nbsp; {intl.get('general.voteDown')}
+          </UpDownButton>
+          <UpDownButton className="upVote" onClick={() => handleBurn(true)}>
+            <UpVoteSvg />
+            &nbsp; {intl.get('general.voteUp')}
           </UpDownButton>
         </Button.Group>
       }
       style={{ top: '0 !important' }}
     >
       <Form>
-        <p className="question-txt">{intl.get('text.selectXpi')}</p>
+        <p className="question-txt">
+          {intl.get('text.selectXpi')}{' '}
+          <Button type="primary" onClick={() => setOpenSelectCurrencies(!openSelectCurrencies)}>
+            Select Currencies
+          </Button>
+        </p>
 
         <Controller
           name="burnedValue"
@@ -370,15 +612,16 @@ export const BurnModal = ({ id, burnForType, isPage, classStyle }: BurnModalProp
 
       <p className="fee-burn">
         {intl.get('burn.sendDana', {
-          cost: currency.burnFee * selectedAmount + selectedAmount
+          cost: calcAmountBurn(currency.burnFee * selectedAmount + selectedAmount, selectCurrencies?.symbol),
+          coin: selectCurrencies?.symbol?.toUpperCase() || 'XPI'
         })}
       </p>
-
       <p className="trans-amount">
         {intl.get('burn.trans', {
           amount: TRANSLATION_REQUIRE_AMOUNT
         })}
       </p>
+      <>{modalSelectWallet()}</>
     </Modal>
   );
 };

@@ -1,14 +1,4 @@
-import Icon, {
-  AppstoreOutlined,
-  BellOutlined,
-  CheckCircleOutlined,
-  FilterOutlined,
-  HomeOutlined,
-  SwapOutlined,
-  UserSwitchOutlined,
-  SendOutlined,
-  CopyOutlined
-} from '@ant-design/icons';
+import Icon, { UserSwitchOutlined, SendOutlined, CopyOutlined, SyncOutlined } from '@ant-design/icons';
 import { Account } from '@bcpros/lixi-models';
 import { FilterType } from '@bcpros/lixi-models/lib/filter';
 import { AvatarUser } from '@components/Common/AvatarUser';
@@ -26,7 +16,7 @@ import { api as postApi } from '@store/post/posts.api';
 import { useInfinitePostsQuery } from '@store/post/useInfinitePostsQuery';
 import { saveTopPostsFilter, toggleCollapsedSideNav } from '@store/settings/actions';
 import { getCurrentThemes, getFilterPostsHome, getIsTopPosts, getNavCollapsed } from '@store/settings/selectors';
-import { Badge, Button, Popover, Space, Switch, message } from 'antd';
+import { Badge, Button, Popover, Space, Switch, message, Spin } from 'antd';
 import { Header } from 'antd/lib/layout/layout';
 import { push } from 'connected-next-router';
 import * as _ from 'lodash';
@@ -43,12 +33,13 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Link from 'next/link';
 import { getModals } from '@store/modal/selectors';
 import { showToast } from '@store/toast/actions';
-import { getSelectedWalletPath, getWalletStatus } from '@store/wallet';
+import { getSelectedWalletPath, getWalletHasUpdated, getWalletStatus } from '@store/wallet';
 import { ReactSVG } from 'react-svg';
 import { currency } from '@bcpros/lixi-components/components/Common/Ticker';
 import { openActionSheet } from '@store/action-sheet/actions';
 import { usePageQuery } from '@store/page/pages.generated';
 import { useGetAccountByAddressQuery } from '@store/account/accounts.generated';
+import { FilterLevel } from '../../components/Common/FilterLevel';
 
 export type TopbarProps = {
   className?: string;
@@ -313,8 +304,6 @@ const BadgeStyled = styled(Badge)`
 `;
 
 const StyledHeader = styled(Header)`
-  background-color: rgba(255, 255, 255, 0.65) !important;
-  backdrop-filter: blur(12px);
   @media (max-width: 960px) {
     position: fixed;
     top: 0;
@@ -367,6 +356,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
   const askAuthorization = useAuthorization();
   const currentModal = useAppSelector(getModals);
   const walletStatus = useAppSelector(getWalletStatus);
+  const walletHasUpdated = useAppSelector(getWalletHasUpdated);
 
   const slug: string = _.isArray(router?.query?.slug) ? router?.query?.slug[0] : router?.query?.slug;
   const { currentData: currentDataPageQuery } = usePageQuery({ id: slug });
@@ -461,19 +451,6 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
     }
   };
 
-  const SearchBoxType = () => {
-    switch (pathDirection[1]) {
-      case '':
-        return 'posts';
-      case 'page':
-        return 'page';
-      case 'token':
-        return 'token';
-      default:
-        return 'posts';
-    }
-  };
-
   const handleIconClick = (newPath?: string) => {
     if (currentPathName === '/' && newPath === '/') {
       dispatch(postApi.util.resetApiState());
@@ -490,7 +467,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
     dispatch(openActionSheet('InstallPwaGuide', {}));
   };
 
-  const HandleMenuPosts = (checked: boolean) => {
+  const handleMenuPosts = (checked: boolean) => {
     dispatch(saveTopPostsFilter(checked));
   };
 
@@ -498,7 +475,7 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
 
   const contentFilterBurn = (
     <>
-      {router?.pathname == '/' && (
+      {router?.pathname && router?.pathname != '/' ? (
         <PopoverStyled>
           <TitleFilterStyled>
             <p className="follow-title">
@@ -508,14 +485,16 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
               checkedChildren={intl.get('general.on')}
               unCheckedChildren={intl.get('general.off')}
               defaultChecked={true}
-              onChange={HandleMenuPosts}
+              onChange={handleMenuPosts}
             />
           </TitleFilterStyled>
+          <FilterBurnt filterForType={filterType()} />
+        </PopoverStyled>
+      ) : (
+        <PopoverStyled>
+          <FilterLevel />
         </PopoverStyled>
       )}
-      <PopoverStyled>
-        <FilterBurnt filterForType={filterType()} />
-      </PopoverStyled>
     </>
   );
 
@@ -561,9 +540,16 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
             </div>
 
             <div className="profile-feature">
-              <span>
-                {balanceAccount(selectedAccount)} {currency.ticker}
-              </span>
+              {walletHasUpdated ? (
+                <span>
+                  {balanceAccount(selectedAccount)} {currency.ticker}
+                </span>
+              ) : (
+                <React.Fragment>
+                  <SyncOutlined spin /> {currency.ticker}
+                </React.Fragment>
+              )}
+
               <Link href="/send">
                 <span>
                   <SendOutlined style={{ fontSize: '16px' }} />
@@ -717,10 +703,11 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
   return (
     <StyledHeader style={{ boxShadow: '0 10px 30px rgb(0 0 0 / 5%)' }} className={`${className} header-component`}>
       <PathDirection>
-        {currentPathName === '/' || currentPathName === '/page/[slug]' ? (
-          <img className="menu-mobile" src="/images/ico-list-bullet_2.svg" alt="" onClick={handleMenuClick} />
-        ) : (
+        {currentPathName !== '/' && (
           <img className="navigate-back-btn" src="/images/ico-back-topbar.svg" alt="" onClick={handleNavigateBack} />
+        )}
+        {(currentPathName === '/' || currentPathName === '/page/[slug]') && (
+          <img className="menu-mobile" src="/images/ico-list-bullet_2.svg" alt="" onClick={handleMenuClick} />
         )}
         {(currentPathName == '/' || currentPathName == '/page-message') && (
           <picture>
@@ -838,9 +825,15 @@ const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallb
               <AvatarUser name={selectedAccount?.name || null} icon={accountInfoTemp?.avatar} isMarginRight={false} />
               <p className="account-info">
                 <span className="account-name">{selectedAccount?.name}</span>
-                <span className="account-balance">
-                  {balanceAccount(selectedAccount)} <span className="unit">{currency.ticker}</span>
-                </span>
+                {walletHasUpdated ? (
+                  <span className="account-balance">
+                    {balanceAccount(selectedAccount)} <span className="unit">{currency.ticker}</span>
+                  </span>
+                ) : (
+                  <React.Fragment>
+                    <SyncOutlined spin /> <span className="unit">{currency.ticker}</span>
+                  </React.Fragment>
+                )}
               </p>
             </div>
           </Popover>

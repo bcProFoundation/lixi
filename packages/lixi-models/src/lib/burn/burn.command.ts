@@ -75,6 +75,8 @@ export class BurnExtraArguments {
 
   minBurnFilter?: number;
 
+  level?: number;
+
   pageId?: string;
 
   tokenId?: string;
@@ -86,4 +88,10 @@ export class BurnExtraArguments {
   hashtagId?: string;
 
   orderBy?: any;
+
+  coin?: string;
+
+  fakeAmountMulti?: number;
+
+  selectAmountDanaMultiCoin?: number;
 }
