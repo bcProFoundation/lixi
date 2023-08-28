@@ -23,19 +23,19 @@ async function main() {
 
   const countryUS = await prisma.country.updateMany({
     where: {
-      name : "United state"
+      name : "United State"
     },
     data: {
-      name : "United State"
+      name : "United States"
     }
   })
   
   const countryUSIsland = await prisma.country.updateMany({
     where: {
-      name : "United state Minor Outlying Islands"
+      name : "United State Minor Outlying Islands"
     }, 
     data: {
-      name : "United State Minor Outlying Islands"
+      name : "United States Minor Outlying Islands"
     }
   })
     
