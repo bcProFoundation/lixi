@@ -378,13 +378,13 @@ const PostListItem = ({
 
   const toggleAutoTranslate = () => {
     if (!_.isNil(post.originalLanguage)) {
-      var doc = new DOMParser().parseFromString(post.content, 'text/html');
+      const doc = new DOMParser().parseFromString(post.content, 'text/html');
       const content = doc.querySelector('.EditorLexical_paragraph')?.textContent;
 
       if (!post.originalLanguage.includes(languageNotAutoTrans) && post.originalLanguage !== currentLocale) {
         translatePost();
       }
-      if (post.originalLanguage === currentLocale || content === '') {
+      if (post.originalLanguage === currentLocale || content === '' || post.content.trim() === '') {
         setShowFeatureTrans(false);
       }
     }

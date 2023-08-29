@@ -23,22 +23,26 @@ async function main() {
 
   const countryUS = await prisma.country.updateMany({
     where: {
-      name : "United State"
+      name : "United state"
     },
     data: {
-      name : "United States"
+      name : "United State"
     }
   })
   
   const countryUSIsland = await prisma.country.updateMany({
     where: {
-      name : "United State Minor Outlying Islands"
+      name : "United state Minor Outlying Islands"
     }, 
     data: {
-      name : "United States Minor Outlying Islands"
+      name : "United State Minor Outlying Islands"
     }
   })
-    
+
+  await prisma.$transaction([
+    prisma.country.updateMany({where: {name : "United State"}, data: {name: "United States"}}),
+    prisma.country.updateMany({where: {name : "United State Minor Outlying Islands"}, data: {name: "United States Minor Outlying Islands"}})
+  ])
 }
 
 main()

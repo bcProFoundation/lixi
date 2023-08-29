@@ -315,27 +315,31 @@ function* importAccountFailureSaga(action: PayloadAction<string>) {
 function* selectAccountSaga(action: PayloadAction<number>) {
   try {
     yield put(showLoading(selectAccount.type));
-    const preAccountId = yield select(getSelectedAccountId);
-    const preAccount = yield select(getAccountById(preAccountId));
+    const previousAccountId = yield select(getSelectedAccountId);
+    const previousAccountData = yield call(accountApi.getById, previousAccountId);
+    const previousAccount = previousAccountData as Account;
     const accountId = action.payload;
     const data = yield call(accountApi.getById, accountId);
     const account = data as Account;
     const lixiesData = yield call(lixiApi.getByAccountId, accountId);
     const lixies = (lixiesData ?? []) as Lixi[];
 
-    yield put(selectAccountSuccess({ account: account, lixies: lixies, preAccount: preAccount }));
+    yield put(selectAccountSuccess({ account: account, lixies: lixies, previousAccount }));
   } catch (err) {
     const message = (err as Error).message ?? intl.get('account.unableToSelect');
     yield put(selectAccountFailure(message));
   }
 }
 
-function* selectAccountSuccessSaga(action: PayloadAction<{ account: Account; lixies: Lixi[]; preAccount: Account }>) {
+function* selectAccountSuccessSaga(
+  action: PayloadAction<{ account: Account; lixies: Lixi[]; previousAccount: Account }>
+) {
+  const { account: currentAccount, previousAccount } = action.payload;
   const account = yield select(getAccountById(action.payload.account.id));
 
-  if (action.payload.preAccount.language != account.language) {
+  if (previousAccount?.language != currentAccount?.language) {
     yield put(setInitIntlStatus(false));
-    yield put(updateLocale(account.language));
+    yield put(updateLocale(currentAccount.language));
   }
 
   const localAccount: LocalUserAccount = {
