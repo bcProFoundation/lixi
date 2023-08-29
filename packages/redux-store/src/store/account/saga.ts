@@ -80,7 +80,7 @@ import {
 } from './actions';
 import { getAccountById, getSelectedAccount, getSelectedAccountId } from './selectors';
 import { saveClaimAddress } from '@store/claim';
-import { setInitIntlStatus, updateLocale } from '@store/settings/actions';
+import { changeCurrentLocale, setInitIntlStatus } from '@store/settings/actions';
 
 const nameConfigGenerator: Config = {
   dictionaries: [names, names],
@@ -339,7 +339,7 @@ function* selectAccountSuccessSaga(
 
   if (previousAccount?.language != currentAccount?.language) {
     yield put(setInitIntlStatus(false));
-    yield put(updateLocale(currentAccount.language));
+    yield put(changeCurrentLocale(currentAccount.language))
   }
 
   const localAccount: LocalUserAccount = {
