@@ -10,7 +10,7 @@ type FeatureProviderProps = {
   enabledFeatures: string[];
 };
 
-export const useFeatureToggle = () => {
+export const getAllFeatures = () => {
   const { enabledFeatures } = useContext(FeatureToggleContext);
   return enabledFeatures;
 };
