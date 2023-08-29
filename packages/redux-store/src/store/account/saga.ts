@@ -638,7 +638,7 @@ function* setSecondaryLanguageAccountSaga(action: PayloadAction<SecondaryLanguag
     const patchAccountCommand: PatchAccountCommand = {
       id,
       mnemonic,
-      secondaryLanguage: secondaryLanguage
+      secondaryLanguage
     };
 
     const data = yield call(accountApi.patch, id, patchAccountCommand);
