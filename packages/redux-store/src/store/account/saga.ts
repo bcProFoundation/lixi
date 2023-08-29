@@ -339,7 +339,7 @@ function* selectAccountSuccessSaga(
 
   if (previousAccount?.language != currentAccount?.language) {
     yield put(setInitIntlStatus(false));
-    yield put(changeCurrentLocale(currentAccount.language))
+    yield put(changeCurrentLocale(currentAccount.language));
   }
 
   const localAccount: LocalUserAccount = {

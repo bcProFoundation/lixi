@@ -93,5 +93,5 @@ export const settingsReducer = createReducer(initialState, builder => {
     })
     .addCase(changeCurrentLocale, (state, action) => {
       state.locale = action.payload;
-    })
+    });
 });
