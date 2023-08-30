@@ -83,15 +83,9 @@ export class BurnExtraArguments {
 
   postId?: string;
 
-  userId?: string;
+  userId?: number;
 
   hashtagId?: string;
 
   orderBy?: any;
-
-  coin?: string;
-
-  fakeAmountMulti?: number;
-
-  selectAmountDanaMultiCoin?: number;
 }
