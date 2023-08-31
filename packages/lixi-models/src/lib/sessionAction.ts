@@ -1,6 +1,8 @@
 export enum SessionActionEnum {
   OPEN = 'OPEN',
-  CLOSE = 'CLOSE'
+  CLOSE = 'CLOSE',
+  SEEN = 'SEEN',
+  TYPING = 'TYPING'
 }
 
 export interface SessionAction {

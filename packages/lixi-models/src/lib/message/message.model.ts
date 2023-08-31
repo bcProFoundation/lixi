@@ -26,6 +26,9 @@ export class Message {
   @Field(() => [UploadDetail], { nullable: true })
   uploads?: [UploadDetail];
 
+  @Field(() => PageMessageSession, { nullable: true })
+  isLatestIn?: PageMessageSession;
+
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.',
     nullable: true

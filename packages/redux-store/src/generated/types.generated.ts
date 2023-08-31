@@ -44,6 +44,7 @@ export type Account = {
   pageMessageSessions?: Maybe<Array<PageMessageSession>>;
   pages?: Maybe<Array<Page>>;
   publicKey?: Maybe<Scalars['String']>;
+  secondaryLanguage?: Maybe<Scalars['String']>;
   secret?: Maybe<Scalars['String']>;
   totalDana?: Maybe<Scalars['Float']>;
   /** Identifies the date and time when the object was last updated. */
@@ -460,6 +461,7 @@ export type Message = {
   /** Identifies the date and time when the object was created. */
   createdAt?: Maybe<Scalars['DateTime']>;
   id: Scalars['ID'];
+  isLatestIn?: Maybe<PageMessageSession>;
   isPageOwner?: Maybe<Scalars['Boolean']>;
   pageMessageSession?: Maybe<PageMessageSession>;
   /** Identifies the date and time when the object was last updated. */
@@ -715,8 +717,9 @@ export type PageMessageSession = {
   account: Account;
   /** Identifies the date and time when the object was created. */
   createdAt?: Maybe<Scalars['DateTime']>;
+  hasSeen?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
-  latestMessage?: Maybe<Scalars['String']>;
+  latestMessage?: Maybe<Message>;
   lixi?: Maybe<LixiModel>;
   lixiClaimCode?: Maybe<Scalars['String']>;
   messages?: Maybe<Array<Message>>;

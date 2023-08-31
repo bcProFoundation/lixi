@@ -45,7 +45,8 @@ import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
 import { URL_AVATAR_DEFAULT } from '@components/Profile/ProfileDetail';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import { LoadingIcon } from '@components/Layout/MainLayout';
-import { CloseOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { userSeenPageMessageSession } from '@store/message/actions';
 
 type PageMessageSessionItem = PageMessageSessionQuery['pageMessageSession'];
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
@@ -479,11 +480,18 @@ export const PageGroupItem = ({
                         {item?.page?.name && <p className="page-name">{item?.page?.name}</p>}
                         <p className="account-name">{item?.account?.name}</p>
                         {item?.latestMessage ? (
-                          <p className="content">{item?.latestMessage}</p>
+                          <p className="content">{item?.latestMessage.body}</p>
                         ) : (
                           <p className="content">
                             Give you {Math.round(parseFloat(item?.lixi?.amount))} XPI for messaging
                           </p>
+                        )}
+                        {item.hasSeen ? (
+                          <React.Fragment>
+                            <CheckOutlined /> <CheckOutlined />
+                          </React.Fragment>
+                        ) : (
+                          <CheckOutlined />
                         )}
                       </div>
                       <div className="time-score" onClick={() => setCollapse(!collapse)}>
@@ -526,9 +534,16 @@ export const PageGroupItem = ({
                       <div className="info-account" onClick={() => onClickIcon(item)}>
                         {item?.page?.name && <p className="page-name">{item?.page?.name}</p>}
                         {item?.latestMessage ? (
-                          <p className="content">{item?.latestMessage}</p>
+                          <p className="content">{item?.latestMessage.body}</p>
                         ) : (
                           <p className="content">Give {Math.round(parseFloat(item?.lixi?.amount))} XPI for messaging</p>
+                        )}
+                        {item.hasSeen ? (
+                          <React.Fragment>
+                            <CheckOutlined /> <CheckOutlined />
+                          </React.Fragment>
+                        ) : (
+                          <CheckOutlined />
                         )}
                       </div>
                       <div className="time-score" onClick={() => onClickIcon(item)}>
@@ -547,7 +562,7 @@ export const PageGroupItem = ({
       {collapse &&
         triggerCheckIsPageOwner() &&
         messages &&
-        messages.map((item, index) => {
+        messages.map((item: PageMessageSessionItem, index) => {
           return (
             <SpaceShorcutItem
               key={item?.id}
@@ -564,9 +579,16 @@ export const PageGroupItem = ({
                 <div className="info-account">
                   {item?.page?.name && <p className="page-name">{item?.account?.name}</p>}
                   {item?.latestMessage ? (
-                    <p className="content">{item?.latestMessage}</p>
+                    <p className="content">{item?.latestMessage.body}</p>
                   ) : (
                     <p className="content">Give you {Math.round(parseFloat(item?.lixi?.amount))} XPI for messaging</p>
+                  )}
+                  {item.hasSeen ? (
+                    <React.Fragment>
+                      <CheckOutlined /> <CheckOutlined />
+                    </React.Fragment>
+                  ) : (
+                    <CheckOutlined />
                   )}
                 </div>
                 <div className="time-score">
@@ -697,6 +719,17 @@ const PageMessage = () => {
 
   const onClickMessage = (pageMessageSession: PageMessageSessionItem, pageMessageSessionId: string) => {
     dispatch(setPageMessageSession(pageMessageSession));
+    onClickSeenMessage(pageMessageSession);
+  };
+
+  const onClickSeenMessage = (pageMessageSession: PageMessageSessionItem) => {
+    if (
+      pageMessageSession &&
+      pageMessageSession?.latestMessage?.author?.address !== selectedAccount?.address &&
+      !pageMessageSession?.hasSeen
+    ) {
+      dispatch(userSeenPageMessageSession(pageMessageSession?.id));
+    }
   };
 
   const groupPageChat = useMemo(() => {
@@ -916,7 +949,10 @@ const PageMessage = () => {
   };
 
   return (
-    <StyledContainer className={`card page-message ${currentPageMessageSession ? 'detail-chat' : ''}`}>
+    <StyledContainer
+      className={`card page-message ${currentPageMessageSession ? 'detail-chat' : ''}`}
+      onClick={() => onClickSeenMessage(currentPageMessageSession)}
+    >
       <StyledSideContainer
         className={`${currentPageMessageSession ? 'hide-side-message' : 'show-side-message'} ${
           isMobile ? 'animate__faster animate__animated animate__slideInRight' : ''
@@ -1073,45 +1109,53 @@ const PageMessage = () => {
             <React.Fragment>
               {currentPageMessageSession?.status !== PageMessageSessionStatus.Pending ? (
                 messageData.length > 0 && (
-                  <StyledInfiniteScroll
-                    dataLength={messageData.length}
-                    next={loadMoreMessages}
-                    hasMore={messageHasNext}
-                    loader={<Skeleton active />}
-                    endMessage={
-                      isPageOwner ? (
-                        <p>{`${intl.get('messenger.youAccepted')} ${currentPageMessageSession?.account?.name}`}</p>
+                  <React.Fragment>
+                    {currentPageMessageSession?.latestMessage?.author.address === selectedAccount?.address &&
+                      (currentPageMessageSession?.hasSeen ? (
+                        <p style={{ textAlign: 'right' }}>Seen</p>
                       ) : (
-                        <p>{`${currentPageMessageSession?.page?.name} ${intl.get('messenger.acceptedYourLixi')}`}</p>
-                      )
-                    }
-                    inverse
-                    scrollableTarget="scrollableChatbox"
-                    scrollThreshold={0.7}
-                  >
-                    {messageData.map((item, index) => {
-                      const checkIfPreviousMessageIsSameAuthor =
-                        index > 0 && item.author.id === messageData[index - 1].author.id;
-                      return (
-                        <Message
-                          previousMessage={checkIfPreviousMessageIsSameAuthor}
-                          senderAvatar={
-                            isPageOwner
-                              ? currentPageMessageSession?.page?.avatar || URL_AVATAR_DEFAULT
-                              : currentPageMessageSession?.account?.avatar
-                          }
-                          receiverAvatar={
-                            isPageOwner
-                              ? currentPageMessageSession?.account?.avatar
-                              : currentPageMessageSession?.page?.avatar || URL_AVATAR_DEFAULT
-                          }
-                          message={item}
-                          key={item.id}
-                          authorAddress={selectedAccount.address}
-                        />
-                      );
-                    })}
-                  </StyledInfiniteScroll>
+                        <p style={{ textAlign: 'right' }}>Sent</p>
+                      ))}
+                    <StyledInfiniteScroll
+                      dataLength={messageData.length}
+                      next={loadMoreMessages}
+                      hasMore={messageHasNext}
+                      loader={<Skeleton active />}
+                      endMessage={
+                        isPageOwner ? (
+                          <p>{`${intl.get('messenger.youAccepted')} ${currentPageMessageSession?.account?.name}`}</p>
+                        ) : (
+                          <p>{`${currentPageMessageSession?.page?.name} ${intl.get('messenger.acceptedYourLixi')}`}</p>
+                        )
+                      }
+                      inverse
+                      scrollableTarget="scrollableChatbox"
+                      scrollThreshold={0.7}
+                    >
+                      {messageData.map((item, index) => {
+                        const checkIfPreviousMessageIsSameAuthor =
+                          index > 0 && item.author.id === messageData[index - 1].author.id;
+                        return (
+                          <Message
+                            previousMessage={checkIfPreviousMessageIsSameAuthor}
+                            senderAvatar={
+                              isPageOwner
+                                ? currentPageMessageSession?.page?.avatar || URL_AVATAR_DEFAULT
+                                : currentPageMessageSession?.account?.avatar
+                            }
+                            receiverAvatar={
+                              isPageOwner
+                                ? currentPageMessageSession?.account?.avatar
+                                : currentPageMessageSession?.page?.avatar || URL_AVATAR_DEFAULT
+                            }
+                            message={item}
+                            key={item.id}
+                            authorAddress={selectedAccount.address}
+                          />
+                        );
+                      })}
+                    </StyledInfiniteScroll>
+                  </React.Fragment>
                 )
               ) : (
                 <LixiContainer>

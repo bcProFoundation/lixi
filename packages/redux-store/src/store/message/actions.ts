@@ -11,4 +11,5 @@ export const userSubcribeToPageMessageSession = createAction<string>('message/us
 export const userSubcribeToMultiPageMessageSession = createAction<number>(
   'message/userSubcribeToMultiPageMessageSession'
 );
+export const userSeenPageMessageSession = createAction<string>('message/userSeenPageMessageSession');
 export const userSubcribeToAddressChannel = createAction<string>('message/userSubcribeToAddressChannel');

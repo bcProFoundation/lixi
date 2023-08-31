@@ -1,4 +1,4 @@
-import { NotificationDto as Notification, SessionAction, SocketUser } from '@bcpros/lixi-models';
+import { NotificationDto as Notification, SessionAction, SessionActionEnum, SocketUser } from '@bcpros/lixi-models';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
@@ -103,7 +103,7 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
   }
 
   @SubscribeMessage('subscribePageMessageSession')
-  handleSubscriptionToMessageSession(
+  handleSubscriptionToPageMessageSession(
     @MessageBody() pageMessageSessionId: string,
     @ConnectedSocket() client: Socket
   ): WsResponse<string> {
@@ -231,6 +231,42 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
         data: client.id
       };
     }
+  }
+
+  @SubscribeMessage('userSeenPageMessageSession')
+  async handleUserSeenPageMessageSession(
+    @MessageBody() pageMessageSessionId: string,
+    @ConnectedSocket() client: Socket
+  ) {
+    const pageMessageSession = await this.prisma.pageMessageSession.update({
+      where: {
+        id: pageMessageSessionId
+      },
+      data: {
+        hasSeen: true
+      },
+      include: {
+        account: true,
+        lixi: {
+          select: {
+            id: true,
+            name: true,
+            amount: true,
+            expiryAt: true,
+            activationAt: true,
+            status: true
+          }
+        },
+        page: true
+      }
+    });
+
+    const message: SessionAction = {
+      type: SessionActionEnum.SEEN,
+      payload: pageMessageSession
+    };
+
+    this.server.to(pageMessageSessionId).emit('sessionAction', message);
   }
 
   sendNotification(room: string, notification: Notification) {

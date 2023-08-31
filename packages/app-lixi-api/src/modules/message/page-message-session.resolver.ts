@@ -790,4 +790,25 @@ export class PageMessageSessionResolver {
     });
     return page;
   }
+
+  @ResolveField()
+  async latestMessage(@Parent() pageMessageSession: PageMessageSession) {
+    const latestMessage = await this.prisma.message.findFirst({
+      where: {
+        isLatestIn: {
+          id: pageMessageSession.id
+        }
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            address: true
+          }
+        }
+      }
+    });
+    return latestMessage;
+  }
 }

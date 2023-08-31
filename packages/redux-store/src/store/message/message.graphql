@@ -24,6 +24,9 @@ fragment MessageFields on Message {
   isPageOwner
   createdAt
   updatedAt
+  isLatestIn {
+    id
+  }
 }
 
 query Message($id: String!) {

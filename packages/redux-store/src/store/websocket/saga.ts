@@ -17,6 +17,7 @@ import { setNewPostAvailable } from '@store/post/actions';
 import { showToast } from '../toast/actions';
 import { callConfig } from '@context/shareContext';
 import { receiveNotification } from '../notification/actions';
+import { getCurrentPageMessageSession } from '@store/page/selectors';
 
 function createMessageSocketChannel(socket: Socket) {
   return eventChannel(emit => {
@@ -101,8 +102,9 @@ function* connectToChannelsSaga() {
 }
 
 function* receiveLiveMessage(payload: any) {
-  const { pageMessageSessionId, body, updatedAt } = payload;
+  const { pageMessageSessionId, body, updatedAt, author } = payload;
   const account: AccountDto = yield select(getSelectedAccount);
+  const currentPageMessageSession: PageMessageSession = yield select(getCurrentPageMessageSession);
 
   try {
     yield putAction(
@@ -130,13 +132,33 @@ function* receiveLiveMessage(payload: any) {
             cursor: object.cursor,
             node: {
               ...object.node,
-              latestMessage: body,
+              latestMessage: {
+                body: body,
+                author: { ...author },
+                id: payload.id
+              },
+              hasSeen: false,
               updatedAt: updatedAt
             }
           });
         }
       })
     );
+
+    if (currentPageMessageSession?.id === pageMessageSessionId) {
+      yield put(
+        setPageMessageSession({
+          ...currentPageMessageSession,
+          latestMessage: {
+            body: body,
+            author: { ...author },
+            id: payload.id
+          },
+          hasSeen: false,
+          updatedAt: updatedAt
+        })
+      );
+    }
   } catch (error) {
     console.log('error', error.message);
   }
@@ -171,6 +193,7 @@ function* receiveSessionAction(action: SessionAction) {
   const { payload, type }: { payload: PageMessageSession; type: SessionActionEnum } = action;
   const pageAccount: AccountDto = yield select(getAccountById(payload.page.pageAccountId));
   const account: AccountDto = yield select(getSelectedAccount);
+  const currentPageMessageSession: PageMessageSession = yield select(getCurrentPageMessageSession);
 
   switch (type) {
     case SessionActionEnum.OPEN:
@@ -208,6 +231,29 @@ function* receiveSessionAction(action: SessionAction) {
             }
           })
         );
+      } catch (error) {
+        console.log('error', error.message);
+      }
+      break;
+    case SessionActionEnum.SEEN:
+      try {
+        yield putAction(
+          pageMessageApi.util.updateQueryData('PageMessageSessionByAccountId', { id: account.id }, draft => {
+            const index = draft.allPageMessageSessionByAccountId.edges.findIndex(edge => edge.node.id === payload.id);
+            if (index > -1) {
+              draft.allPageMessageSessionByAccountId.edges[index].node.hasSeen = true;
+            }
+          })
+        );
+
+        if (currentPageMessageSession?.id === payload.id) {
+          yield put(
+            setPageMessageSession({
+              ...currentPageMessageSession,
+              hasSeen: payload.hasSeen
+            })
+          );
+        }
       } catch (error) {
         console.log('error', error.message);
       }

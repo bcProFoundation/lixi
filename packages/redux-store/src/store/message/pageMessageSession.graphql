@@ -24,11 +24,19 @@ fragment PageMessageSessionFields on PageMessageSession {
     activationAt
     status
   }
-  latestMessage
   lixiClaimCode
   sessionOpenedAt
   sessionClosedAt
+  latestMessage {
+    id
+    body
+    author {
+      id
+      address
+    }
+  }
   status
+  hasSeen
   createdAt
   updatedAt
 }

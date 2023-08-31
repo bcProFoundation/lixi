@@ -202,7 +202,12 @@ export class MessageResolver {
           },
           data: {
             updatedAt: updatedAt,
-            latestMessage: body
+            hasSeen: false,
+            latestMessage: {
+              connect: {
+                id: result.id
+              }
+            }
           }
         });
 
@@ -289,6 +294,20 @@ export class MessageResolver {
       }
     });
     return pageMessageSession;
+  }
+
+  @ResolveField()
+  async isLatestIn(@Parent() message: Message) {
+    const isLatestIn = await this.prisma.pageMessageSession.findFirst({
+      where: {
+        messages: {
+          some: {
+            id: message.id
+          }
+        }
+      }
+    });
+    return isLatestIn;
   }
 
   @ResolveField()
