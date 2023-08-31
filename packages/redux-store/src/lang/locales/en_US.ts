@@ -106,6 +106,11 @@ export default {
   'general.burnForType': 'Burn For Type',
   'general.failed': 'Failed',
   'general.level': 'Level',
+  'general.levelMostlyFollowing': 'Mostly Following',
+  'general.levelMoreFollowing': 'More Following',
+  'general.levelBalanced': 'Balanced',
+  'general.levelLessFollowing': 'Less Following',
+  'general.levelOnlyTopPosts': 'Only Top Post',
   'general.showMore': 'Show more',
   'general.showLess': 'Show less',
   'general.topAccounts': 'Top Accounts',
@@ -217,6 +222,7 @@ export default {
   'account.birthday': 'Birthday',
   'account.updateProfileSuccessful': 'Update the profile successful',
   'account.unableUpdateProfile': 'Unable to update the profile.',
+  'account.unableSetSecondLanguage': 'Unable to set secondary language',
 
   /* 03.Lixi */
   'lixi.createLixi': 'Create new lixi',

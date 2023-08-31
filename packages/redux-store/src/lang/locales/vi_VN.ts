@@ -105,6 +105,11 @@ export default {
   'general.burnForType': 'Đốt cho loại',
   'general.failed': 'Thất bại',
   'general.level': 'Cấp độ',
+  'general.levelMostlyFollowing': 'Nhiều bài theo dõi nhất',
+  'general.levelMoreFollowing': 'Nhiều bài theo dõi',
+  'general.levelBalanced': 'Cân bằng',
+  'general.levelLessFollowing': 'Ít bài theo dõi',
+  'general.levelOnlyTopPosts': 'Bài đang nổi',
   'general.showMore': 'Xem thêm',
   'general.showLess': 'Xem ít',
   'general.topAccounts': 'Xếp hạng tài khoản',
@@ -215,6 +220,7 @@ export default {
   'account.birthday': 'Sinh nhật',
   'account.updateProfileSuccessful': 'Hồ sơ đã được cập nhật thành công',
   'account.unableUpdateProfile': 'Không thể cập nhật hồ sơ.',
+  'account.unableSetSecondLanguage': 'Không thể chọn ngôn ngữ thứ 2',
 
   /* 03.Lixi */
   'lixi.createLixi': 'Tạo lixi mới',
