@@ -25,6 +25,8 @@ export type Account = {
   createCommentFee?: Maybe<Scalars['String']>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
+  danaGiven?: Maybe<Scalars['Float']>;
+  danaReceived?: Maybe<Scalars['Float']>;
   dayOfBirth?: Maybe<Scalars['Int']>;
   description?: Maybe<Scalars['String']>;
   encryptedMnemonic?: Maybe<Scalars['String']>;
@@ -43,6 +45,7 @@ export type Account = {
   pages?: Maybe<Array<Page>>;
   publicKey?: Maybe<Scalars['String']>;
   secret?: Maybe<Scalars['String']>;
+  totalDana?: Maybe<Scalars['Float']>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
   website?: Maybe<Scalars['String']>;

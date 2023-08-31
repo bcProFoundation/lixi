@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
@@ -94,6 +94,15 @@ export class Account {
 
   @Field(() => String, { nullable: true })
   createCommentFee?: Nullable<string>;
+
+  @Field(() => Float, { nullable: true })
+  danaGiven?: number;
+
+  @Field(() => Float, { nullable: true })
+  danaReceived?: number;
+
+  @Field(() => Float, { nullable: true })
+  totalDana?: number;
 
   constructor(partial: Partial<Account>) {
     Object.assign(this, partial);

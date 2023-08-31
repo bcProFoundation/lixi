@@ -124,55 +124,60 @@ export class AccountController {
   }
 
   @Get('leaderboard')
-  async getLeaderboard(@Query('limit') limit: number, @I18n() i18n: I18nContext): Promise<any> {
+  async getLeaderboard(@Query('limit') limit: number, @I18n() i18n: I18nContext): Promise<AccountDb[]> {
     try {
-      const leaderboardAccounts = await this.prisma.burn.groupBy({
-        by: ['burnedBy'],
-        _sum: {
-          burnedValue: true
-        },
-        orderBy: {
-          _sum: {
-            burnedValue: 'desc'
-          }
-        },
-        take: toSafeInteger(limit)
+      const leaderboardAccounts = await this.prisma.account.findMany({
+        take: toSafeInteger(limit),
+        orderBy: { totalDana: 'desc' }
       });
 
-      const addressAndTotalBurntArray = leaderboardAccounts.map((account: any) => {
-        const burnedBy = account.burnedBy.toString('hex');
+      // const leaderboardAccounts = await this.prisma.burn.groupBy({
+      //   by: ['burnedBy'],
+      //   _sum: {
+      //     burnedValue: true
+      //   },
+      //   orderBy: {
+      //     _sum: {
+      //       burnedValue: 'desc'
+      //     }
+      //   },
+      //   take: toSafeInteger(limit)
+      // });
 
-        const legacyAddress = this.XPI.Address.hash160ToLegacy(burnedBy);
+      // const addressAndTotalBurntArray = leaderboardAccounts.map((account: any) => {
+      //   const burnedBy = account.burnedBy.toString('hex');
 
-        const publicAddress = this.XPI.Address.toXAddress(legacyAddress);
+      //   const legacyAddress = this.XPI.Address.hash160ToLegacy(burnedBy);
 
-        const totalBurned: number = account._sum.burnedValue;
-        return {
-          address: publicAddress,
-          totalBurned
-        };
-      });
+      //   const publicAddress = this.XPI.Address.toXAddress(legacyAddress);
 
-      const accountAddresses = _.map(addressAndTotalBurntArray, 'address');
+      //   const totalBurned: number = account._sum.burnedValue;
+      //   return {
+      //     address: publicAddress,
+      //     totalBurned
+      //   };
+      // });
 
-      const accountsWithAddresses = await this.prisma.account.findMany({
-        where: {
-          address: {
-            in: accountAddresses
-          }
-        },
-        include: {
-          avatar: { include: { upload: true } }
-        }
-      });
+      // const accountAddresses = _.map(addressAndTotalBurntArray, 'address');
 
-      const accounts = addressAndTotalBurntArray.map(addressAndTotalBurntItem => {
-        const account = accountsWithAddresses.find(account => account.address === addressAndTotalBurntItem.address);
-        return { ...account, ...addressAndTotalBurntItem };
-      });
+      // const accountsWithAddresses = await this.prisma.account.findMany({
+      //   where: {
+      //     address: {
+      //       in: accountAddresses
+      //     }
+      //   },
+      //   include: {
+      //     avatar: { include: { upload: true } }
+      //   }
+      // });
 
-      const result = _.compact(accounts).map(data => _.omit({ ...data }, 'publicAddress'));
-      return result ?? [];
+      // const accounts = addressAndTotalBurntArray.map(addressAndTotalBurntItem => {
+      //   const account = accountsWithAddresses.find(account => account.address === addressAndTotalBurntItem.address);
+      //   return { ...account, ...addressAndTotalBurntItem };
+      // });
+
+      // const result = _.compact(accounts).map(data => _.omit({ ...data }, 'publicAddress'));
+      return leaderboardAccounts;
     } catch (err: unknown) {
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);

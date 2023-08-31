@@ -11,6 +11,8 @@ type Account {
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
+  danaGiven: Float
+  danaReceived: Float
   dayOfBirth: Int
   description: String
   encryptedMnemonic: String
@@ -29,6 +31,7 @@ type Account {
   pages: [Page!]
   publicKey: String
   secret: String
+  totalDana: Float
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!

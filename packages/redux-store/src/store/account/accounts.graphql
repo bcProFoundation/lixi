@@ -24,6 +24,9 @@ fragment AccountFields on Account {
   updatedAt
   avatar
   cover
+  danaGiven
+  danaReceived
+  totalDana
 }
 
 mutation createAccount($input: CreateAccountInput!) {
