@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import intl from 'react-intl-universal';
 import { message, Upload, Button, Modal } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
@@ -83,6 +83,13 @@ export const MultiUploader = ({
   const [previewTitle, setPreviewTitle] = useState('');
   const [previewVisible, setPreviewVisible] = useState(false);
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    document.addEventListener('paste', handlePasteImage);
+    return () => {
+      document.removeEventListener('paste', handlePasteImage);
+    };
+  });
 
   const uploadButton = (
     <StyledButton
@@ -173,6 +180,62 @@ export const MultiUploader = ({
         );
         break;
     }
+  };
+
+  const handlePasteImage = evt => {
+    const clipboardItems = evt.clipboardData.items;
+    const items = [].slice.call(clipboardItems).filter(function (item) {
+      // Filter the image items only
+      return /^image\//.test(item.type);
+    });
+    if (items.length === 0) {
+      return;
+    }
+
+    const item = items[0];
+    const blob = item.getAsFile();
+
+    let file = new File([blob], "file name", { type: "image/jpeg", lastModified: new Date().getTime() }, 'utf-8');
+    uploadImageFromClipboard({ file: file });
+  }
+
+  const uploadImageFromClipboard = async options => {
+    const { file } = options;
+    const url = UPLOAD_API_S3_MULTIPLE;
+    const formData = new FormData();
+
+    formData.append('files', file);
+    formData.append('type', type);
+
+    const config = {
+      headers: { 'content-type': 'multipart/form-data' },
+      withCredentials: true,
+    };
+    setUploadingImage(true);
+    await axiosClient
+      .post(url, formData, config)
+      .then(response => {
+        setUploadingImage(false);
+        const { data } = response;
+        data.map(image => {
+          dispatch(setUpload({ upload: image, type: type }));
+        });
+        dispatch(
+          showToast('success', {
+            message: intl.get('toast.success'),
+            description: intl.get('lixi.fileUploadSuccess')
+          })
+        );
+      })
+      .catch(err => {
+        const { response } = err;
+        dispatch(
+          showToast('error', {
+            message: intl.get('toast.error'),
+            description: intl.get('lixi.fileUploadError')
+          })
+        );
+      });
   };
 
   const uploadImage = async options => {
