@@ -26,13 +26,13 @@ import {
   Request,
   UseGuards
 } from '@nestjs/common';
-import { Account as AccountDb } from '@prisma/client';
+import { Account as AccountDb, AccountDana } from '@prisma/client';
 import { FastifyRequest } from 'fastify';
 
 import BCHJS from '@bcpros/xpi-js';
 import { SkipThrottle } from '@nestjs/throttler';
 import * as _ from 'lodash';
-import { toSafeInteger } from 'lodash';
+import { orderBy, toSafeInteger } from 'lodash';
 import { I18n, I18nContext } from 'nestjs-i18n';
 import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwtauth.guard';
@@ -126,58 +126,30 @@ export class AccountController {
   @Get('leaderboard')
   async getLeaderboard(@Query('limit') limit: number, @I18n() i18n: I18nContext): Promise<AccountDb[]> {
     try {
-      const leaderboardAccounts = await this.prisma.account.findMany({
+      const topAccountsDana = await this.prisma.accountDana.findMany({
         take: toSafeInteger(limit),
-        orderBy: { totalDana: 'desc' }
+        orderBy: {
+          danaGiven: 'desc'
+        }
       });
 
-      // const leaderboardAccounts = await this.prisma.burn.groupBy({
-      //   by: ['burnedBy'],
-      //   _sum: {
-      //     burnedValue: true
-      //   },
-      //   orderBy: {
-      //     _sum: {
-      //       burnedValue: 'desc'
-      //     }
-      //   },
-      //   take: toSafeInteger(limit)
-      // });
+      const accounts = await this.prisma.account.findMany({
+        where: {
+          id: {
+            in: topAccountsDana.map(item => item.accountId)
+          }
+        },
+        include: {
+          accountDana: true
+        },
+        orderBy: {
+          accountDana: {
+            danaGiven: 'desc'
+          }
+        }
+      });
 
-      // const addressAndTotalBurntArray = leaderboardAccounts.map((account: any) => {
-      //   const burnedBy = account.burnedBy.toString('hex');
-
-      //   const legacyAddress = this.XPI.Address.hash160ToLegacy(burnedBy);
-
-      //   const publicAddress = this.XPI.Address.toXAddress(legacyAddress);
-
-      //   const totalBurned: number = account._sum.burnedValue;
-      //   return {
-      //     address: publicAddress,
-      //     totalBurned
-      //   };
-      // });
-
-      // const accountAddresses = _.map(addressAndTotalBurntArray, 'address');
-
-      // const accountsWithAddresses = await this.prisma.account.findMany({
-      //   where: {
-      //     address: {
-      //       in: accountAddresses
-      //     }
-      //   },
-      //   include: {
-      //     avatar: { include: { upload: true } }
-      //   }
-      // });
-
-      // const accounts = addressAndTotalBurntArray.map(addressAndTotalBurntItem => {
-      //   const account = accountsWithAddresses.find(account => account.address === addressAndTotalBurntItem.address);
-      //   return { ...account, ...addressAndTotalBurntItem };
-      // });
-
-      // const result = _.compact(accounts).map(data => _.omit({ ...data }, 'publicAddress'));
-      return leaderboardAccounts;
+      return accounts;
     } catch (err: unknown) {
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -300,7 +272,12 @@ export class AccountController {
         };
 
         const createdAccount: AccountDb = await this.prisma.account.create({
-          data: accountToInsert
+          data: {
+            ...accountToInsert,
+            accountDana: {
+              create: {}
+            }
+          }
         });
 
         const resultApi: AccountDto = _.omit(

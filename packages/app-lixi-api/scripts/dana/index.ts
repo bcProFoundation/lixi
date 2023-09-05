@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, BurnType as BurnTypePrisma, AccountDanaHistoryType } from '@prisma/client';
 import BCHJS from '@bcpros/xpi-js';
 
 require('dotenv').config();
@@ -28,70 +28,132 @@ const convertBurnedByToAddress = (burnedBy: string): string => {
   return publicAddress;
 };
 
-const updateAccountsDana = async (
+const updateAccountsDanaHistory = async (
   burnType: BurnType,
+  burnForType: BurnForType,
   amount: number,
-  givenDanaAddress?: string,
-  receivedDanaAddress?: string,
-  isUpvote?: boolean
+  givenDanaAddress: string,
+  receivedDanaAddress: string,
+  burnForId: string,
+  txid: string
 ) => {
-  //Check if self burn
   if (givenDanaAddress === receivedDanaAddress) {
-    console.log('self burn');
     await prismaClient.$transaction(async prisma => {
-      const account = await prisma.account.findFirst({
+      let givenUpValue = 0.0;
+      let givenDownValue = 0.0;
+
+      switch (burnType) {
+        case BurnType.Up:
+          givenUpValue = amount;
+          break;
+        case BurnType.Down:
+          givenDownValue = amount;
+          break;
+      }
+
+      const accountDana = await prisma.accountDana.findFirst({
         where: {
-          address: givenDanaAddress
+          account: {
+            address: givenDanaAddress
+          }
         },
         orderBy: {
           createdAt: 'desc'
         }
       });
 
-      const danaGiven = account?.danaGiven! + amount;
-      const totalDana = danaGiven + account?.danaReceived!;
+      const danaGiven = accountDana?.danaGiven! + amount;
 
-      await prisma.account.update({
+      const updatedAccountDana = await prisma.accountDana.update({
         where: {
-          id: account?.id
+          id: accountDana?.id
         },
         data: {
-          danaGiven: danaGiven,
-          totalDana: totalDana
+          danaGiven: danaGiven
+        }
+      });
+
+      await prisma.accountDanaHistory.create({
+        data: {
+          txid: txid,
+          burnType: burnType ? BurnTypePrisma.UPVOTE : BurnTypePrisma.DOWNVOTE,
+          accountDana: {
+            connect: {
+              id: updatedAccountDana?.id
+            }
+          },
+          burnForId: burnForId,
+          burnForType: burnForType,
+          type: AccountDanaHistoryType.GIVEN,
+          givenUpValue: givenUpValue,
+          givenDownValue: givenDownValue
         }
       });
     });
   } else {
     await prismaClient.$transaction(async prisma => {
-      //update given account
-      console.log('burn for other');
+      let givenUpValue = 0.0;
+      let givenDownValue = 0.0;
+      let receivedUpValue = 0.0;
+      let receivedDownValue = 0.0;
 
-      const givenDanaAccount = await prisma.account.findFirst({
+      switch (burnType) {
+        case BurnType.Up:
+          givenUpValue = amount;
+          receivedUpValue = amount;
+          break;
+        case BurnType.Down:
+          givenDownValue = amount;
+          receivedDownValue = amount;
+          break;
+      }
+
+      //update given account
+      const givenAccountDana = await prisma.accountDana.findFirst({
         where: {
-          address: givenDanaAddress
+          account: {
+            address: givenDanaAddress
+          }
         },
         orderBy: {
           createdAt: 'desc'
         }
       });
 
-      const danaGivenAccount = givenDanaAccount?.danaGiven! + amount;
-      const totalDanaGivenAccount = danaGivenAccount + givenDanaAccount?.danaReceived!;
+      const danaGiven = givenAccountDana?.danaGiven! + amount;
 
-      await prisma.account.update({
+      const updatedGivenAccountDana = await prisma.accountDana.update({
         where: {
-          id: givenDanaAccount?.id
+          id: givenAccountDana?.id
         },
         data: {
-          danaGiven: danaGivenAccount,
-          totalDana: totalDanaGivenAccount
+          danaGiven: danaGiven
+        }
+      });
+
+      await prisma.accountDanaHistory.create({
+        data: {
+          txid: txid,
+          burnType: burnType ? BurnTypePrisma.UPVOTE : BurnTypePrisma.DOWNVOTE,
+          accountDana: {
+            connect: {
+              id: updatedGivenAccountDana?.id
+            }
+          },
+          burnForId: burnForId,
+          burnForType: burnForType,
+          type: AccountDanaHistoryType.GIVEN,
+          givenUpValue: givenUpValue,
+          givenDownValue: givenDownValue
         }
       });
 
       //update received account
-      const receivedDanaAccount = await prisma.account.findFirst({
+      const receivedAccountDana = await prisma.accountDana.findFirst({
         where: {
-          address: receivedDanaAddress
+          account: {
+            address: receivedDanaAddress
+          }
         },
         orderBy: {
           createdAt: 'desc'
@@ -100,17 +162,32 @@ const updateAccountsDana = async (
 
       const danaReceived =
         burnType === BurnType.Up
-          ? receivedDanaAccount?.danaReceived! + amount
-          : receivedDanaAccount?.danaReceived! - amount;
-      const totalDanaReceivedAccount = danaReceived + receivedDanaAccount?.danaGiven!;
+          ? receivedAccountDana?.danaReceived! + amount
+          : receivedAccountDana?.danaReceived! - amount;
 
-      await prisma.account.update({
+      const updatedRecivedAccountDana = await prisma.accountDana.update({
         where: {
-          id: receivedDanaAccount?.id
+          id: receivedAccountDana?.id
         },
         data: {
-          danaReceived: danaReceived,
-          totalDana: totalDanaReceivedAccount
+          danaReceived: danaReceived
+        }
+      });
+
+      await prisma.accountDanaHistory.create({
+        data: {
+          txid: txid,
+          burnType: burnType ? BurnTypePrisma.UPVOTE : BurnTypePrisma.DOWNVOTE,
+          accountDana: {
+            connect: {
+              id: updatedRecivedAccountDana?.id
+            }
+          },
+          burnForId: burnForId,
+          burnForType: burnForType,
+          type: AccountDanaHistoryType.RECEIVED,
+          receivedUpValue: receivedUpValue,
+          receivedDownValue: receivedDownValue
         }
       });
     });
@@ -118,15 +195,29 @@ const updateAccountsDana = async (
 };
 
 async function main() {
+  const accounts = await prismaClient.account.findMany({});
+  console.log(`Creating account dana for all accounts`);
+  await prismaClient.accountDana.createMany({
+    data: accounts.map(account => ({
+      accountId: account.id,
+      danaGiven: 0,
+      danaReceived: 0
+    })),
+    skipDuplicates: true
+  });
+  console.log(`Done`);
+
   console.log(`Calculating dana for all accounts based on burn table`);
   const burns = await prismaClient.burn.findMany({});
   for (const burn of burns) {
-    let burnAddress = '';
     const burnType = burn.burnType === true ? BurnType.Up : BurnType.Down;
     const burnForType = burn.burnForType;
+    const burnAddress = convertBurnedByToAddress(burn.burnedBy.toString('hex'));
+    const burnForId = burn.burnForId;
+    const txid = burn.txid;
+
     switch (burnForType) {
       case BurnForType.Post:
-        burnAddress = convertBurnedByToAddress(burn.burnedBy.toString('hex'));
         const post = await prismaClient.post.findUnique({
           where: { id: burn.burnForId },
           include: {
@@ -137,10 +228,17 @@ async function main() {
             }
           }
         });
-        await updateAccountsDana(burnType, burn.burnedValue, burnAddress, post?.postAccount.address);
+        await updateAccountsDanaHistory(
+          burnType,
+          burnForType,
+          burn.burnedValue,
+          burnAddress,
+          post?.postAccount!.address!,
+          burnForId,
+          txid
+        );
         break;
       case BurnForType.Comment:
-        burnAddress = convertBurnedByToAddress(burn.burnedBy.toString('hex'));
         const comment = await prismaClient.comment.findUnique({
           where: { id: burn.burnForId },
           include: {
@@ -151,42 +249,79 @@ async function main() {
             }
           }
         });
-        await updateAccountsDana(burnType, burn.burnedValue, burnAddress, comment?.commentAccount!.address);
+        await updateAccountsDanaHistory(
+          burnType,
+          burnForType,
+          burn.burnedValue,
+          burnAddress,
+          comment?.commentAccount!.address!,
+          burnForId,
+          txid
+        );
 
         break;
       case BurnForType.Token:
-        burnAddress = convertBurnedByToAddress(burn.burnedBy.toString('hex'));
-        const burnAccount = await prismaClient.account.findFirst({
-          where: {
-            address: burnAddress
-          },
-          orderBy: {
-            createdAt: 'desc'
-          }
-        });
+        let givenUpValue = 0.0;
+        let givenDownValue = 0.0;
+        const xpiValue = burn.burnedValue;
 
-        const danaGiven = burnAccount?.danaGiven! + burn.burnedValue;
-        const totalDana = danaGiven + burnAccount?.danaReceived!;
+        switch (burnType) {
+          case BurnType.Up:
+            givenUpValue = xpiValue;
+            break;
+          case BurnType.Down:
+            givenDownValue = xpiValue;
+            break;
+        }
 
-        await prismaClient.account.update({
-          where: {
-            id: burnAccount?.id
-          },
-          data: {
-            danaGiven,
-            totalDana
-          }
+        await prismaClient.$transaction(async prisma => {
+          const accountDana = await prisma.accountDana.findFirst({
+            where: {
+              account: {
+                address: burnAddress
+              }
+            },
+            orderBy: {
+              createdAt: 'desc'
+            }
+          });
+
+          const danaGiven = accountDana?.danaGiven! + xpiValue;
+
+          const updatedAccountDana = await prisma.accountDana.update({
+            where: {
+              id: accountDana?.id
+            },
+            data: {
+              danaGiven: danaGiven
+            }
+          });
+
+          await prisma.accountDanaHistory.create({
+            data: {
+              txid: txid,
+              burnType: burnType ? BurnTypePrisma.UPVOTE : BurnTypePrisma.DOWNVOTE,
+              accountDana: {
+                connect: {
+                  id: updatedAccountDana?.id
+                }
+              },
+              burnForId: burnForId,
+              burnForType: burnForType,
+              type: AccountDanaHistoryType.GIVEN,
+              givenUpValue: givenUpValue,
+              givenDownValue: givenDownValue
+            }
+          });
         });
 
         break;
     }
 
-    //sleep for 2 seconds
-    console.log(`Sleeping for 2 seconds`);
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    //sleep for 1.5 seconds
+    console.log(`Update account ${burnAddress} completed. Sleeping for 1.5 seconds`);
+    await new Promise(resolve => setTimeout(resolve, 1500));
   }
-
-  console.log(`Done`);
 }
 
 main()

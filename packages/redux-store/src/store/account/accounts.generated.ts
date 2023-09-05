@@ -35,10 +35,8 @@ export type GetAccountByAddressQuery = {
     updatedAt: any;
     avatar?: string | null;
     cover?: string | null;
-    danaGiven?: number | null;
-    danaReceived?: number | null;
-    totalDana?: number | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+    accountDana?: { __typename?: 'AccountDana'; danaGiven?: number | null; danaReceived?: number | null } | null;
   };
 };
 
@@ -59,10 +57,8 @@ export type AccountFieldsFragment = {
   updatedAt: any;
   avatar?: string | null;
   cover?: string | null;
-  danaGiven?: number | null;
-  danaReceived?: number | null;
-  totalDana?: number | null;
   pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+  accountDana?: { __typename?: 'AccountDana'; danaGiven?: number | null; danaReceived?: number | null } | null;
 };
 
 export type CreateAccountMutationVariables = Types.Exact<{
@@ -88,10 +84,8 @@ export type CreateAccountMutation = {
     updatedAt: any;
     avatar?: string | null;
     cover?: string | null;
-    danaGiven?: number | null;
-    danaReceived?: number | null;
-    totalDana?: number | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+    accountDana?: { __typename?: 'AccountDana'; danaGiven?: number | null; danaReceived?: number | null } | null;
   };
 };
 
@@ -118,10 +112,8 @@ export type ImportAccountMutation = {
     updatedAt: any;
     avatar?: string | null;
     cover?: string | null;
-    danaGiven?: number | null;
-    danaReceived?: number | null;
-    totalDana?: number | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+    accountDana?: { __typename?: 'AccountDana'; danaGiven?: number | null; danaReceived?: number | null } | null;
   };
 };
 
@@ -148,10 +140,8 @@ export type UpdateAccountMutation = {
     updatedAt: any;
     avatar?: string | null;
     cover?: string | null;
-    danaGiven?: number | null;
-    danaReceived?: number | null;
-    totalDana?: number | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+    accountDana?: { __typename?: 'AccountDana'; danaGiven?: number | null; danaReceived?: number | null } | null;
   };
 };
 
@@ -176,9 +166,10 @@ export const AccountFieldsFragmentDoc = `
   updatedAt
   avatar
   cover
-  danaGiven
-  danaReceived
-  totalDana
+  accountDana {
+    danaGiven
+    danaReceived
+  }
 }
     `;
 export const GetAccountByAddressDocument = `
