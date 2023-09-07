@@ -179,13 +179,11 @@ const EditorLexical = (props: EditorLexicalProps) => {
   const [currentContent, setCurrentContent] = useState<String>('');
 
   useEffect(() => {
-    const isMobile = width < 960 ? true : false;
-    setIsMobile(isMobile);
     inputText.current?.addEventListener('paste', handlePasteImage);
     return () => {
       inputText.current?.removeEventListener('paste', handlePasteImage);
     };
-  }, [width]);
+  }, []);
 
   const Placeholder = () => {
     return <div className="EditorLexical_placeholder">{intl.get('general.createPost')}</div>;
