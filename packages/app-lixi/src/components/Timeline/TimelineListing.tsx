@@ -174,7 +174,7 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
   }, []);
   const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } = useInfiniteHomeTimelineQuery(
     {
-      first: 20,
+      first: 40,
       level: level ?? 3
     },
     false
@@ -325,7 +325,7 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
               </p>
             }
             scrollableTarget="scrollableDiv"
-            scrollThreshold={0.7}
+            scrollThreshold={'100px'}
           >
             {data.map((item, index) => {
               return (
