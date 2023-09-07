@@ -262,7 +262,7 @@ model AccountDanaHistory {
   burnType          BurnType                @map("burn_type")
   burnForType       Int                     @map("burn_for_type")
   burnForId         String                  @map("burned_for_id")
-  givenUpValue      Float?                  @default(0.0) @map("burned_value")
+  givenUpValue      Float?                  @default(0.0) @map("given_up_value")
   givenDownValue    Float?                  @default(0.0) @map("given_down_value")
   receivedUpValue   Float?                  @default(0.0) @map("received_up_value")
   receivedDownValue Float?                  @default(0.0) @map("received_down_value")

@@ -360,11 +360,13 @@ export class AccountResolver {
 
   @ResolveField('accountDana', () => AccountDana)
   async accountDana(@Parent() account: Account) {
-    const accountDana = await this.prisma.accountDana.findUnique({
-      where: {
-        accountId: account.id
-      }
-    });
+    const accountDana = await this.prisma.account
+      .findUnique({
+        where: {
+          id: account.id
+        }
+      })
+      .accountDana();
 
     return accountDana;
   }

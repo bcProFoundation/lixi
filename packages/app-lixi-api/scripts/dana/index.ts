@@ -35,7 +35,9 @@ const updateAccountsDanaHistory = async (
   givenDanaAddress: string,
   receivedDanaAddress: string,
   burnForId: string,
-  txid: string
+  txid: string,
+  createdAt: Date,
+  updatedAt: Date
 ) => {
   if (givenDanaAddress === receivedDanaAddress) {
     await prismaClient.$transaction(async prisma => {
@@ -86,7 +88,9 @@ const updateAccountsDanaHistory = async (
           burnForType: burnForType,
           type: AccountDanaHistoryType.GIVEN,
           givenUpValue: givenUpValue,
-          givenDownValue: givenDownValue
+          givenDownValue: givenDownValue,
+          createdAt: createdAt,
+          updatedAt: updatedAt
         }
       });
     });
@@ -144,7 +148,9 @@ const updateAccountsDanaHistory = async (
           burnForType: burnForType,
           type: AccountDanaHistoryType.GIVEN,
           givenUpValue: givenUpValue,
-          givenDownValue: givenDownValue
+          givenDownValue: givenDownValue,
+          createdAt: createdAt,
+          updatedAt: updatedAt
         }
       });
 
@@ -214,6 +220,8 @@ async function main() {
     const burnForType = burn.burnForType;
     const burnAddress = convertBurnedByToAddress(burn.burnedBy.toString('hex'));
     const burnForId = burn.burnForId;
+    const burnCreatedAt = burn.createdAt!;
+    const burnUpdatedAt = burn.updatedAt!;
     const txid = burn.txid;
 
     switch (burnForType) {
@@ -235,7 +243,9 @@ async function main() {
           burnAddress,
           post?.postAccount!.address!,
           burnForId,
-          txid
+          txid,
+          burnCreatedAt,
+          burnUpdatedAt
         );
         break;
       case BurnForType.Comment:
@@ -256,7 +266,9 @@ async function main() {
           burnAddress,
           comment?.commentAccount!.address!,
           burnForId,
-          txid
+          txid,
+          burnCreatedAt,
+          burnUpdatedAt
         );
 
         break;
@@ -310,7 +322,9 @@ async function main() {
               burnForType: burnForType,
               type: AccountDanaHistoryType.GIVEN,
               givenUpValue: givenUpValue,
-              givenDownValue: givenDownValue
+              givenDownValue: givenDownValue,
+              createdAt: burnCreatedAt,
+              updatedAt: burnUpdatedAt
             }
           });
         });
