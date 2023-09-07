@@ -43,9 +43,9 @@ import parse from 'html-react-parser';
 import ReactDomServer from 'react-dom/server';
 import ActionPostBar from '@components/Common/ActionPostBar';
 import PostTranslate from './PostTranslate';
-import useWindowDimensions from '@hooks/useWindowDimensions';
 import { useSwipeable } from 'react-swipeable';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
+import useDetectMobileView from '@local-hooks/useDetectMobileView';
 
 export type PostItem = PostsQuery['allPosts']['edges'][0]['node'];
 export type BurnData = {
@@ -342,17 +342,11 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
   const filterValue = useAppSelector(getFilterPostsHome);
   const [showTranslation, setShowTranslation] = useState(false);
   const [openPost, setOpenPost] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useDetectMobileView();
   const [borderColorHeader, setBorderColorHeader] = useState(false);
-  const { width } = useWindowDimensions();
   const accountInfoTemp = useAppSelector(getAccountInfoTemp);
   const [isSendingXPI, setIsSendingXPI] = useState<boolean>(false);
   const level = useAppSelector(getLevelFilter);
-
-  useEffect(() => {
-    const isMobileDetail = width < 960 ? true : false;
-    setIsMobile(isMobileDetail);
-  }, [width]);
 
   const [repostTrigger, { isLoading: isLoadingRepost, isSuccess: isSuccessRepost, isError: isErrorRepost }] =
     useRepostMutation();
