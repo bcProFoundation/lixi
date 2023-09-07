@@ -32,8 +32,6 @@ import { removeUpload } from '@store/account';
 import useWindowDimensions from '@hooks/useWindowDimensions';
 import YouTubePlugin from './plugins/YouTubePlugin';
 import FigmaPlugin from './plugins/FigmaPlugin';
-import { showToast } from '../../../../../redux-store/src/store/toast/actions';
-import axiosClient from '../../../../../redux-store/src/utils/axiosClient';
 
 export type EditorLexicalProps = {
   initialContent?: string;
@@ -189,7 +187,6 @@ const EditorLexical = (props: EditorLexicalProps) => {
     };
   }, [width]);
 
-
   const Placeholder = () => {
     return <div className="EditorLexical_placeholder">{intl.get('general.createPost')}</div>;
   };
@@ -213,7 +210,6 @@ const EditorLexical = (props: EditorLexicalProps) => {
   };
 
   const handlePasteImage = evt => {
-
     const clipboardItems = evt.clipboardData.items;
     const items = [].slice.call(clipboardItems).filter(function (item) {
       // Filter the image items only
@@ -226,11 +222,10 @@ const EditorLexical = (props: EditorLexicalProps) => {
     const item = items[0];
     const blob = item.getAsFile();
 
-    let file = new File([blob], "file name", { type: "image/jpeg", lastModified: new Date().getTime() }, 'utf-8');
-    console.log('hehe: ', file);
+    let file = new File([blob], 'file name', { type: 'image/jpeg', lastModified: new Date().getTime() }, 'utf-8');
 
     multiUploader.current?.uploadImageFromClipboard({ file: file });
-  }
+  };
 
   const imageRenderer = useCallback(({ photo }) => {
     return (
