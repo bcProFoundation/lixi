@@ -62,6 +62,7 @@ export type AllFollowersByFollowingQuery = {
         danaReceived?: number | null;
         totalDana?: number | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+        accountDana?: { __typename?: 'AccountDana'; danaGiven?: number | null; danaReceived?: number | null } | null;
       };
     }> | null;
     pageInfo: {
@@ -113,6 +114,7 @@ export type AllFollowingsByFollowerQuery = {
         danaReceived?: number | null;
         totalDana?: number | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+        accountDana?: { __typename?: 'AccountDana'; danaGiven?: number | null; danaReceived?: number | null } | null;
       };
     }> | null;
     pageInfo: {

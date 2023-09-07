@@ -1,5 +1,5 @@
 import { Burn, BurnCommand, BurnForType, BurnType, TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models';
-import { NotificationLevel, Token } from '@bcpros/lixi-prisma';
+import { NotificationLevel, Token, BurnType as BurnTypePrisma, AccountDanaHistoryType } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -19,7 +19,7 @@ import { parseBurnOutput } from 'src/utils/opReturnBurn';
 import { VError } from 'verror';
 import { TranslateProvider } from '../translate/translate.constant';
 import { TranslateService } from '../translate/translate.service';
-import { BURN_FANOUT_QUEUE } from './burn.constants';
+import { ACCOUNT_DANA_QUEUE, BURN_FANOUT_QUEUE } from './burn.constants';
 
 @SkipThrottle()
 @Controller('burn')
@@ -33,94 +33,124 @@ export class BurnController {
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @Inject('xpijs') private XPI: BCHJS,
     @InjectQueue(BURN_FANOUT_QUEUE) private burnFanoutQueue: Queue,
+    @InjectQueue(ACCOUNT_DANA_QUEUE) private accountDanaQueue: Queue,
     private translateService: TranslateService
   ) {}
 
-  private async updateAccountsDana(
-    burnType: BurnType,
-    amount: number,
-    givenDanaAddress?: string,
-    receivedDanaAddress?: string,
-    isUpvote?: boolean
-  ) {
-    //Check if self burn
-    if (givenDanaAddress === receivedDanaAddress) {
-      await this.prisma.$transaction(async prisma => {
-        const account = await prisma.account.findFirst({
-          where: {
-            address: givenDanaAddress
-          },
-          orderBy: {
-            createdAt: 'desc'
-          }
-        });
+  // private async updateAccountsDana(
+  //   burnType: BurnType,
+  //   amount: number,
+  //   command: BurnCommand,
+  //   txid: string,
+  //   givenDanaAddress?: string,
+  //   receivedDanaAddress?: string,
+  //   isUpvote?: boolean
+  // ) {
+  //   //Check if self burn
+  //   if (givenDanaAddress === receivedDanaAddress) {
+  //     await this.prisma.$transaction(async prisma => {
+  //       const account = await prisma.account.findFirst({
+  //         where: {
+  //           address: givenDanaAddress
+  //         },
+  //         orderBy: {
+  //           createdAt: 'desc'
+  //         }
+  //       });
 
-        const danaGiven = account?.danaGiven! + amount;
-        const totalDana = danaGiven + account?.danaReceived!;
+  //       const danaGiven = account?.danaGiven! + amount;
 
-        await prisma.account.update({
-          where: {
-            id: account?.id
-          },
-          data: {
-            danaGiven: danaGiven,
-            totalDana: totalDana
-          }
-        });
-      });
-    } else {
-      await this.prisma.$transaction(async prisma => {
-        //update given account
-        const givenDanaAccount = await prisma.account.findFirst({
-          where: {
-            address: givenDanaAddress
-          },
-          orderBy: {
-            createdAt: 'desc'
-          }
-        });
+  //       const updatedAccount = await prisma.account.update({
+  //         where: {
+  //           id: account?.id
+  //         },
+  //         data: {
+  //           danaGiven: danaGiven
+  //         }
+  //       });
 
-        const danaGivenAccount = givenDanaAccount?.danaGiven! + amount;
-        const totalDanaGivenAccount = danaGivenAccount + givenDanaAccount?.danaReceived!;
+  //       await prisma.accountDanaHistory.create({
+  //         data: {
+  //           txid: txid,
+  //           burnType: command.burnType ? BurnTypePrisma.UPVOTE : BurnTypePrisma.DOWNVOTE,
+  //           burnedByAccount: {
+  //             connect: {
+  //               id: account?.id
+  //             }
+  //           },
+  //           burnForId: command.burnForId,
+  //           burnForType: command.burnForType,
+  //           burnedValue: amount,
+  //           danaScoreAfterBurn: updatedAccount?.danaGiven! + updatedAccount?.danaReceived!
+  //         }
+  //       });
+  //     });
+  //   } else {
+  //     await this.prisma.$transaction(async prisma => {
+  //       //update given account
+  //       const givenDanaAccount = await prisma.account.findFirst({
+  //         where: {
+  //           address: givenDanaAddress
+  //         },
+  //         orderBy: {
+  //           createdAt: 'desc'
+  //         }
+  //       });
 
-        await prisma.account.update({
-          where: {
-            id: givenDanaAccount?.id
-          },
-          data: {
-            danaGiven: danaGivenAccount,
-            totalDana: totalDanaGivenAccount
-          }
-        });
+  //       const danaGivenAccount = givenDanaAccount?.danaGiven! + amount;
 
-        //update received account
-        const receivedDanaAccount = await prisma.account.findFirst({
-          where: {
-            address: receivedDanaAddress
-          },
-          orderBy: {
-            createdAt: 'desc'
-          }
-        });
+  //       const givenDanaAccountUpdated = await prisma.account.update({
+  //         where: {
+  //           id: givenDanaAccount?.id
+  //         },
+  //         data: {
+  //           danaGiven: danaGivenAccount
+  //         }
+  //       });
 
-        const danaReceived =
-          burnType === BurnType.Up
-            ? receivedDanaAccount?.danaReceived! + amount
-            : receivedDanaAccount?.danaReceived! - amount;
-        const totalDanaReceivedAccount = danaReceived + receivedDanaAccount?.danaGiven!;
+  //       await prisma.accountDanaHistory.create({
+  //         data: {
+  //           txid: txid,
+  //           burnType: command.burnType ? BurnTypePrisma.UPVOTE : BurnTypePrisma.DOWNVOTE,
+  //           burnedByAccount: {
+  //             connect: {
+  //               id: givenDanaAccount?.id
+  //             }
+  //           },
+  //           burnForId: command.burnForId,
+  //           burnForType: command.burnForType,
+  //           burnedValue: amount,
+  //           danaScoreAfterBurn: givenDanaAccountUpdated?.danaGiven! + givenDanaAccountUpdated?.danaReceived!
+  //         }
+  //       });
 
-        await prisma.account.update({
-          where: {
-            id: receivedDanaAccount?.id
-          },
-          data: {
-            danaReceived: danaReceived,
-            totalDana: totalDanaReceivedAccount
-          }
-        });
-      });
-    }
-  }
+  //       //update received account
+  //       const receivedDanaAccount = await prisma.account.findFirst({
+  //         where: {
+  //           address: receivedDanaAddress
+  //         },
+  //         orderBy: {
+  //           createdAt: 'desc'
+  //         }
+  //       });
+
+  //       const danaReceived =
+  //         burnType === BurnType.Up
+  //           ? receivedDanaAccount?.danaReceived! + amount
+  //           : receivedDanaAccount?.danaReceived! - amount;
+  //       const totalDanaReceivedAccount = danaReceived + receivedDanaAccount?.danaGiven!;
+
+  //       await prisma.account.update({
+  //         where: {
+  //           id: receivedDanaAccount?.id
+  //         },
+  //         data: {
+  //           danaReceived: danaReceived
+  //         }
+  //       });
+  //     });
+  //   }
+  // }
 
   private convertBurnedByToAddress(burnedBy: string): string {
     const legacyAddress = this.XPI.Address.hash160ToLegacy(burnedBy);
@@ -247,7 +277,13 @@ export class BurnController {
 
             const burnByAddress = this.convertBurnedByToAddress(command.burnedBy);
 
-            await this.updateAccountsDana(command.burnType, xpiValue, burnByAddress, post?.postAccount?.address);
+            this.accountDanaQueue.add(ACCOUNT_DANA_QUEUE, {
+              command: command,
+              txid: savedBurn.txid,
+              amount: xpiValue,
+              givenDanaAddress: burnByAddress,
+              receivedDanaAddress: post?.postAccount?.address
+            });
           });
 
           //Translate if danaBurnScore >= TRANSLATION_REQUIRE_AMOUNT and hasnt been translate before
@@ -315,18 +351,20 @@ export class BurnController {
           });
         } else if (command.burnForType === BurnForType.Token) {
           const burnByAddress = this.convertBurnedByToAddress(command.burnedBy);
+          const xpiValue = value;
 
-          const burnAccount = await this.prisma.account.findFirst({
+          const accountDana = await this.prisma.accountDana.findFirst({
             where: {
-              address: burnByAddress
+              account: {
+                address: burnByAddress
+              }
             },
             orderBy: {
               createdAt: 'desc'
             }
           });
 
-          const danaGiven = burnAccount?.danaGiven! + value;
-          const totalDana = danaGiven + burnAccount?.danaReceived!;
+          const danaGiven = accountDana?.danaGiven! + xpiValue;
 
           const token = await this.prisma.token.findFirst({
             where: {
@@ -336,7 +374,6 @@ export class BurnController {
 
           let danaBurnUp = token?.danaBurnUp ?? 0;
           let danaBurnDown = token?.danaBurnDown ?? 0;
-          const xpiValue = value;
 
           if (command.burnType == BurnType.Up) {
             danaBurnUp = danaBurnUp + xpiValue;
@@ -346,6 +383,18 @@ export class BurnController {
           const danaBurnScore = danaBurnUp - danaBurnDown;
 
           const updatedToken = await this.prisma.$transaction(async prisma => {
+            let givenUpValue = 0.0;
+            let givenDownValue = 0.0;
+
+            switch (command.burnType) {
+              case BurnType.Up:
+                givenUpValue = xpiValue;
+                break;
+              case BurnType.Down:
+                givenDownValue = xpiValue;
+                break;
+            }
+
             const token = await prisma.token.update({
               where: {
                 tokenId: command.burnForId
@@ -357,13 +406,29 @@ export class BurnController {
               }
             });
 
-            await prisma.account.update({
+            const updatedAccountDana = await prisma.accountDana.update({
               where: {
-                id: burnAccount?.id
+                id: accountDana?.id
               },
               data: {
-                danaGiven,
-                totalDana
+                danaGiven: danaGiven
+              }
+            });
+
+            await prisma.accountDanaHistory.create({
+              data: {
+                txid: savedBurn.txid,
+                burnType: command.burnType ? BurnTypePrisma.UPVOTE : BurnTypePrisma.DOWNVOTE,
+                accountDana: {
+                  connect: {
+                    id: updatedAccountDana?.id
+                  }
+                },
+                burnForId: command.burnForId,
+                burnForType: command.burnForType,
+                type: AccountDanaHistoryType.GIVEN,
+                givenUpValue: givenUpValue,
+                givenDownValue: givenDownValue
               }
             });
 
@@ -409,7 +474,13 @@ export class BurnController {
 
           const burnByAddress = this.convertBurnedByToAddress(command.burnedBy);
 
-          await this.updateAccountsDana(command.burnType, xpiValue, burnByAddress, comment?.commentAccount?.address);
+          this.accountDanaQueue.add(ACCOUNT_DANA_QUEUE, {
+            command: command,
+            txid: savedBurn.txid,
+            amount: xpiValue,
+            givenDanaAddress: burnByAddress,
+            receivedDanaAddress: comment?.commentAccount?.address
+          });
         }
       }
 

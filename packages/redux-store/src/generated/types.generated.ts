@@ -18,6 +18,7 @@ export type Scalars = {
 
 export type Account = {
   __typename?: 'Account';
+  accountDana?: Maybe<AccountDana>;
   address: Scalars['String'];
   avatar?: Maybe<Scalars['String']>;
   balance: Scalars['Int'];
@@ -58,6 +59,19 @@ export type AccountConnection = {
   edges?: Maybe<Array<AccountEdge>>;
   pageInfo: PageInfo;
   totalCount?: Maybe<Scalars['Int']>;
+};
+
+export type AccountDana = {
+  __typename?: 'AccountDana';
+  accountDanaHistory?: Maybe<Array<AccountDanaHistory>>;
+  danaGiven?: Maybe<Scalars['Float']>;
+  danaReceived?: Maybe<Scalars['Float']>;
+  id: Scalars['ID'];
+};
+
+export type AccountDanaHistory = {
+  __typename?: 'AccountDanaHistory';
+  id: Scalars['ID'];
 };
 
 export type AccountEdge = {

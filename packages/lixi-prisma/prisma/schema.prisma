@@ -228,9 +228,7 @@ model Account {
   messages            Message[]
   pageMessageSessions PageMessageSession[]
   //dana
-  danaGiven           Float                @default(0.0) @map("dana_given")
-  danaReceived        Float                @default(0.0) @map("dana_received")
-  totalDana           Float                @default(0.0) @map("total_dana")
+  accountDana         AccountDana?
   //profile 
   avatar              UploadDetail?        @relation("avatar")
   cover               UploadDetail?        @relation("cover")
@@ -243,6 +241,46 @@ model Account {
 
   @@index([mnemonicHash], type: Hash)
   @@map("account")
+}
+
+model AccountDana {
+  id                 String               @id @default(cuid())
+  account            Account              @relation(fields: [accountId], references: [id])
+  accountId          Int                  @unique @map("account_id")
+  danaGiven          Float                @default(0.0) @map("dana_given")
+  danaReceived       Float                @default(0.0) @map("dana_received")
+  accountDanaHistory AccountDanaHistory[]
+  createdAt          DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime             @default(now()) @map("updated_at") @db.Timestamptz
+}
+
+model AccountDanaHistory {
+  id                String                  @id @default(cuid())
+  accountDana       AccountDana?            @relation(fields: [accountDanaId], references: [id])
+  accountDanaId     String?
+  txid              String
+  burnType          BurnType                @map("burn_type")
+  burnForType       Int                     @map("burn_for_type")
+  burnForId         String                  @map("burned_for_id")
+  givenUpValue      Float?                  @default(0.0) @map("given_up_value")
+  givenDownValue    Float?                  @default(0.0) @map("given_down_value")
+  receivedUpValue   Float?                  @default(0.0) @map("received_up_value")
+  receivedDownValue Float?                  @default(0.0) @map("received_down_value")
+  type              AccountDanaHistoryType? @map("type")
+  createdAt         DateTime                @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime                @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("account_dana_history")
+}
+
+enum BurnType {
+  UPVOTE
+  DOWNVOTE
+}
+
+enum AccountDanaHistoryType {
+  GIVEN
+  RECEIVED
 }
 
 model Lixi {

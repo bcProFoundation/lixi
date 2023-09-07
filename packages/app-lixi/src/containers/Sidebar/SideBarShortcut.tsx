@@ -1,18 +1,17 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
-import { Account, NotificationDto } from '@bcpros/lixi-models';
+import { NotificationDto } from '@bcpros/lixi-models';
 import { transformShortName } from '@components/Common/AvatarUser';
 import { currency } from '@components/Common/Ticker';
 import { HashtagOrderField, OrderDirection, Post, PostOrderField } from '@generated/types.generated';
 import { addRecentHashtagAtPages, setGraphqlRequestLoading } from '@store/account/actions';
-import { getAllAccounts, getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';
+import { getSelectedAccountId } from '@store/account/selectors';
 import { useInfiniteHashtagByPageQuery } from '@store/hashtag/useInfiniteHashtagByPageQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { getAllNotifications } from '@store/notification/selectors';
 import { setSelectedPost } from '@store/post/actions';
 import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
 import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
 import { toggleCollapsedSideNav } from '@store/settings/actions';
-import { getFilterPostsHome, getIsTopPosts, getLevelFilter, getNavCollapsed } from '@store/settings/selectors';
+import { getFilterPostsHome, getLevelFilter, getNavCollapsed } from '@store/settings/selectors';
 import { api as timelineApi } from '@store/timeline/timeline.api';
 import { useInfiniteHomeTimelineQuery } from '@store/timeline/useInfiniteHomeTimelineQuery';
 import axiosClient from '@utils/axiosClient';
@@ -21,7 +20,6 @@ import classNames from 'classnames';
 import { push } from 'connected-next-router';
 import _ from 'lodash';
 import moment from 'moment';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import intl from 'react-intl-universal';
@@ -126,25 +124,6 @@ export const ItemAccessNotification = ({
     </div>
   );
 };
-
-export const ItemAccessBarcode = ({
-  icon,
-  component,
-  active
-}: {
-  icon: React.FC;
-  component: JSX.Element;
-  active: boolean;
-}) => (
-  <Link href="">
-    <a>
-      <Space direction="vertical" className={'item-access'}>
-        <div className={classNames('icon-item', { 'active-item-access': active })}>{React.createElement(icon)}</div>
-        <span className="text-item">{component}</span>
-      </Space>
-    </a>
-  </Link>
-);
 
 export const ContainerAccess = styled.div`
   display: flex;
@@ -297,15 +276,6 @@ export const ContainerAccess = styled.div`
         }
       }
     }
-  }
-`;
-
-const StyledLogo = styled.div`
-  margin: 2rem 0;
-  cursor: pointer;
-  background: #fff;
-  @media (max-height: 768px) {
-    margin: 0.8rem 0;
   }
 `;
 
@@ -526,15 +496,19 @@ const SpaceShortCutTopicItem = styled(Space)`
 `;
 
 export const transformCreatedAt = date => {
+  let dateFromNow = '';
   let dateFormated = '';
-  const today = new Date();
-  if (moment(date).isSame(today, 'day')) {
-    dateFormated = moment(date).format('HH:mm');
-  } else if (moment(date).isSame(today, 'week')) {
-    dateFormated = moment(date).format('ddd');
-  } else {
-    dateFormated = moment(date).format('DD/MM');
-  }
+  dateFromNow = moment(date).fromNow();
+  if (dateFromNow.includes('seconds') || dateFromNow === 'a minute ago') dateFormated = '1m';
+  if (dateFromNow.includes('minutes')) dateFormated = dateFromNow.replace(' minutes ago', 'm');
+  if (dateFromNow === 'an hour ago') dateFormated = '1h';
+  if (dateFromNow.includes('hours')) dateFormated = dateFromNow.replace(' hours ago', 'h');
+  if (dateFromNow === 'a day ago') dateFormated = '1d';
+  if (dateFromNow.includes('days')) dateFormated = dateFromNow.replace(' days ago', 'd');
+  if (dateFromNow === 'a month ago') dateFormated = '1mo';
+  if (dateFromNow.includes('months')) dateFormated = dateFromNow.replace(' months ago', 'mo');
+  if (dateFromNow === 'a year ago') dateFormated = '1y';
+  if (dateFromNow.includes('years')) dateFormated = dateFromNow.replace(' years ago', 'y');
 
   return dateFormated;
 };
@@ -747,18 +721,11 @@ export const ShortCutPageItem = ({
 const SidebarShortcut = () => {
   const refSidebarShortcut = useRef<HTMLDivElement | null>(null);
   const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const savedAccounts: Account[] = useAppSelector(getAllAccounts);
-  const [isCollapse, setIsCollapse] = useState(false);
-  const [showMore, setShowMore] = useState(false);
   const navCollapsed = useAppSelector(getNavCollapsed);
   const router = useRouter();
   const currentPathName = router.pathname ?? '';
-  const [notificationsSelected, setNotificationsSelected] = useState([]);
-  const notifications = useAppSelector(getAllNotifications);
   const filterValue = useAppSelector(getFilterPostsHome);
   const selectedAccountId = useAppSelector(getSelectedAccountId);
-  let isTop = useAppSelector(getIsTopPosts);
   const [filterPage, setFilterPage] = useState({});
   const [filterPageQuery, setFilterPageQuery] = useState<typeFilterPageQuery>({});
   const [query, setQuery] = useState<any>('');
@@ -771,7 +738,7 @@ const SidebarShortcut = () => {
 
   let { data: timelineData, refetch } = useInfiniteHomeTimelineQuery(
     {
-      first: 20,
+      first: 40,
       level: level ?? 3
     },
     false
@@ -1189,4 +1156,4 @@ const SidebarShortcut = () => {
     </>
   );
 };
-export default SidebarShortcut;
+export default React.memo(SidebarShortcut);
