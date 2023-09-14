@@ -202,7 +202,11 @@ export class MessageResolver {
           },
           data: {
             updatedAt: updatedAt,
-            latestMessage: body
+            latestMessage: {
+              connect: {
+                id: result.id
+              }
+            }
           }
         });
 
@@ -310,5 +314,17 @@ export class MessageResolver {
       }
     });
     return uploads;
+  }
+
+  @ResolveField()
+  async isLatestIn(@Parent() message: Message) {
+    const isLatestIn = await this.prisma.message
+      .findUnique({
+        where: {
+          id: message.id
+        }
+      })
+      .pageMessageSession();
+    return isLatestIn;
   }
 }

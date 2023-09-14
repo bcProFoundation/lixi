@@ -317,7 +317,8 @@ export class PageMessageSessionResolver {
                 activationAt: true,
                 status: true
               }
-            }
+            },
+            latestMessage: true
           },
           where: {
             AND: [
@@ -793,5 +794,21 @@ export class PageMessageSessionResolver {
       })
       .page();
     return page;
+  }
+
+  @ResolveField()
+  async latestMessage(@Parent() pageMessageSession: PageMessageSession) {
+    const latestMessage = await this.prisma.pageMessageSession
+      .findUnique({
+        where: {
+          id: pageMessageSession.id
+        }
+      })
+      .latestMessage({
+        include: {
+          author: true
+        }
+      });
+    return latestMessage;
   }
 }

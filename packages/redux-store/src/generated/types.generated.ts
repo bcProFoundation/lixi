@@ -472,6 +472,7 @@ export type Message = {
   /** Identifies the date and time when the object was created. */
   createdAt?: Maybe<Scalars['DateTime']>;
   id: Scalars['ID'];
+  isLatestIn?: Maybe<PageMessageSession>;
   isPageOwner?: Maybe<Scalars['Boolean']>;
   pageMessageSession?: Maybe<PageMessageSession>;
   /** Identifies the date and time when the object was last updated. */
@@ -728,7 +729,7 @@ export type PageMessageSession = {
   /** Identifies the date and time when the object was created. */
   createdAt?: Maybe<Scalars['DateTime']>;
   id: Scalars['ID'];
-  latestMessage?: Maybe<Scalars['String']>;
+  latestMessage?: Maybe<Message>;
   lixi?: Maybe<LixiModel>;
   lixiClaimCode?: Maybe<Scalars['String']>;
   messages?: Maybe<Array<Message>>;

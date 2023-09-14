@@ -460,6 +460,7 @@ type Message {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime
   id: ID!
+  isLatestIn: PageMessageSession
   isPageOwner: Boolean
   pageMessageSession: PageMessageSession
 
@@ -618,7 +619,7 @@ type PageMessageSession {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime
   id: ID!
-  latestMessage: String
+  latestMessage: Message
   lixi: LixiModel
   lixiClaimCode: String
   messages: [Message!]

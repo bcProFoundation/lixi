@@ -46,6 +46,8 @@ import { PhotoProvider, PhotoView } from 'react-photo-view';
 import { LoadingIcon } from '@components/Layout/MainLayout';
 import { CloseOutlined } from '@ant-design/icons';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
+import { removePageMessageSession, upsertPageMessageSession } from '@store/message/actions';
+import { getPageMessageSessionState, getPageMessageSessionStateById } from '@store/message/selectors';
 
 type PageMessageSessionItem = PageMessageSessionQuery['pageMessageSession'];
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
@@ -439,13 +441,14 @@ export const PageGroupItem = ({
   accountAddress,
   onClickIcon
 }: {
-  messages?: any;
+  messages?: PageMessageSessionItem[];
   classStyle?: string;
   accountAddress?: string;
   currentSessionId?: string;
   onClickIcon?: (e: any) => void;
 }) => {
   const [collapse, setCollapse] = useState(true);
+  const localPageMessageSessionState = useAppSelector(getPageMessageSessionState);
 
   const triggerCheckIsPageOwner = () => {
     let isPageOwner = false;
@@ -461,6 +464,12 @@ export const PageGroupItem = ({
     <React.Fragment>
       {messages &&
         messages.map((item: PageMessageSessionItem, index) => {
+          const hasSeen = localPageMessageSessionState.some(local => {
+            if (local.pageMessageSessionId === item.id && local.latestMessageId >= item.latestMessage?.id) {
+              return true;
+            }
+            return false;
+          });
           if (index == 0) {
             return (
               <SpaceShorcutItem
@@ -479,7 +488,9 @@ export const PageGroupItem = ({
                         {item?.page?.name && <p className="page-name">{item?.page?.name}</p>}
                         <p className="account-name">{item?.account?.name}</p>
                         {item?.latestMessage ? (
-                          <p className="content">{item?.latestMessage}</p>
+                          <p className="content" style={{ fontWeight: hasSeen ? 'normal' : 'bold' }}>
+                            {item?.latestMessage?.body}
+                          </p>
                         ) : (
                           <p className="content">
                             Give you {Math.round(parseFloat(item?.lixi?.amount))} XPI for messaging
@@ -526,7 +537,9 @@ export const PageGroupItem = ({
                       <div className="info-account" onClick={() => onClickIcon(item)}>
                         {item?.page?.name && <p className="page-name">{item?.page?.name}</p>}
                         {item?.latestMessage ? (
-                          <p className="content">{item?.latestMessage}</p>
+                          <p className="content" style={{ fontWeight: hasSeen ? 'normal' : 'bold' }}>
+                            {item?.latestMessage?.body}
+                          </p>
                         ) : (
                           <p className="content">Give {Math.round(parseFloat(item?.lixi?.amount))} XPI for messaging</p>
                         )}
@@ -548,6 +561,12 @@ export const PageGroupItem = ({
         triggerCheckIsPageOwner() &&
         messages &&
         messages.map((item, index) => {
+          const hasSeen = localPageMessageSessionState.some(local => {
+            if (local.pageMessageSessionId === item.id && local.latestMessageId >= item.latestMessage?.id) {
+              return true;
+            }
+            return false;
+          });
           return (
             <SpaceShorcutItem
               key={item?.id}
@@ -564,7 +583,9 @@ export const PageGroupItem = ({
                 <div className="info-account">
                   {item?.page?.name && <p className="page-name">{item?.account?.name}</p>}
                   {item?.latestMessage ? (
-                    <p className="content">{item?.latestMessage}</p>
+                    <p className="content" style={{ fontWeight: hasSeen ? 'normal' : 'bold' }}>
+                      {item?.latestMessage?.body}
+                    </p>
                   ) : (
                     <p className="content">Give you {Math.round(parseFloat(item?.lixi?.amount))} XPI for messaging</p>
                   )}
@@ -691,6 +712,19 @@ const PageMessage = () => {
 
   const onClickMessage = (pageMessageSession: PageMessageSessionItem, pageMessageSessionId: string) => {
     dispatch(setPageMessageSession(pageMessageSession));
+    onClickSeenMessage(pageMessageSession);
+  };
+
+  const onClickSeenMessage = (pageMessageSession: PageMessageSessionItem) => {
+    if (pageMessageSession && pageMessageSession?.latestMessage?.author?.address !== selectedAccount?.address) {
+      dispatch(
+        upsertPageMessageSession({
+          pageMessageSessionId: pageMessageSession?.id,
+          latestMessageId: pageMessageSession?.latestMessage?.id,
+          senderAddress: pageMessageSession?.latestMessage?.author?.address
+        })
+      );
+    }
   };
 
   const groupPageChat = useMemo(() => {
@@ -766,7 +800,14 @@ const PageMessage = () => {
           isPageOwner: isPageOwner
         };
 
-        await createMessageTrigger({ input }).unwrap();
+        const result = await createMessageTrigger({ input }).unwrap();
+        dispatch(
+          upsertPageMessageSession({
+            pageMessageSessionId: currentPageMessageSession?.id,
+            latestMessageId: result.createMessage.id,
+            senderAddress: result.createMessage.author.address
+          })
+        );
         resetField('message');
       }
       //no message but there is picture
@@ -880,6 +921,7 @@ const PageMessage = () => {
       pageMessageSessionId: currentPageMessageSession?.id
     };
     await closePageMessageSessionTrigger({ input }).unwrap();
+    dispatch(removePageMessageSession(currentPageMessageSession?.id));
   };
 
   useEffect(() => {
@@ -910,7 +952,10 @@ const PageMessage = () => {
   };
 
   return (
-    <StyledContainer className={`card page-message ${currentPageMessageSession ? 'detail-chat' : ''}`}>
+    <StyledContainer
+      className={`card page-message ${currentPageMessageSession ? 'detail-chat' : ''}`}
+      onClick={() => onClickSeenMessage(data.find(item => item.id === currentPageMessageSession?.id))}
+    >
       <StyledSideContainer
         className={`${currentPageMessageSession ? 'hide-side-message' : 'show-side-message'} ${
           isMobile ? 'animate__faster animate__animated animate__slideInRight' : ''

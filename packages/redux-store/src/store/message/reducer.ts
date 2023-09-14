@@ -1,33 +1,34 @@
 import { NotificationDto } from '@bcpros/lixi-models/lib/common/notification';
 import { createEntityAdapter, createReducer, Update } from '@reduxjs/toolkit';
-import {
-  channelOff,
-  channelOn,
-  // receiveNotification,
-  serverOff,
-  serverOn
-} from './actions';
-import { MessageState } from './state';
+import { removePageMessageSession, upsertPageMessageSession } from './actions';
+import { PageMessageState } from './state';
 
-export const worshipAdapter = createEntityAdapter<any>({});
+export const pageMessageAdapter = createEntityAdapter<any>({});
 
-const initialState: MessageState = worshipAdapter.getInitialState({
-  channelStatusOn: false,
-  serverStatusOn: false
+const initialState: PageMessageState = pageMessageAdapter.getInitialState({
+  pageMessageSessionState: []
 });
 
 export const messageReducer = createReducer(initialState, builder => {
   builder
-    .addCase(channelOff, (state, action) => {
-      state.channelStatusOn = false;
+    .addCase(removePageMessageSession, (state, action) => {
+      const index = state.pageMessageSessionState.findIndex(x => x.pageMessageSessionId === action.payload);
+      if (index !== -1) {
+        state.pageMessageSessionState.splice(index, 1);
+      }
     })
-    .addCase(channelOn, (state, action) => {
-      state.channelStatusOn = true;
-    })
-    .addCase(serverOff, (state, action) => {
-      state.serverStatusOn = false;
-    })
-    .addCase(serverOn, (state, action) => {
-      state.serverStatusOn = true;
+    .addCase(upsertPageMessageSession, (state, action) => {
+      const { pageMessageSessionId, senderAddress, latestMessageId } = action.payload;
+      const index = state.pageMessageSessionState.findIndex(x => x.pageMessageSessionId === pageMessageSessionId);
+      if (index !== -1) {
+        state.pageMessageSessionState[index].senderAddress = senderAddress;
+        state.pageMessageSessionState[index].latestMessageId = latestMessageId;
+      } else {
+        state.pageMessageSessionState.push({
+          pageMessageSessionId,
+          senderAddress,
+          latestMessageId
+        });
+      }
     });
 });
