@@ -252,6 +252,8 @@ model AccountDana {
   accountDanaHistory AccountDanaHistory[]
   createdAt          DateTime             @default(now()) @map("created_at") @db.Timestamptz
   updatedAt          DateTime             @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("account_dana")
 }
 
 model AccountDanaHistory {

@@ -5,6 +5,12 @@ import { ConfigService } from '@nestjs/config';
 import IORedis from 'ioredis';
 import * as _ from 'lodash';
 import { AuthModule } from 'src/modules/auth/auth.module';
+import {
+  CREATE_SUB_LIXIES_QUEUE,
+  EXPORT_SUB_LIXIES_QUEUE,
+  WITHDRAW_SUB_LIXIES_QUEUE
+} from 'src/modules/core/lixi/constants/lixi.constants';
+import { BURN_FANOUT_QUEUE } from '../../../modules/core/burn/burn.constants';
 import { NOTIFICATION_OUTBOUND_QUEUE, WEBPUSH_NOTIFICATION_QUEUE } from './notification.constants';
 import { NotificationController } from './notification.controller';
 import { NotificationGateway } from './notification.gateway';
@@ -12,12 +18,7 @@ import { NotificationOutboundProcessor } from './notification.processor';
 import { NotificationService } from './notification.service';
 import { WebpushNotificationProcessor } from './webpush-notification.process';
 import { WebpushController } from './webpush.controller';
-import {
-  CREATE_SUB_LIXIES_QUEUE,
-  EXPORT_SUB_LIXIES_QUEUE,
-  WITHDRAW_SUB_LIXIES_QUEUE
-} from 'src/modules/core/lixi/constants/lixi.constants';
-import { BURN_FANOUT_QUEUE } from '../../../modules/core/burn/burn.constants';
+import { AccountCacheService } from '../../../modules/account/account-cache.service';
 
 @Module({
   imports: [
@@ -123,7 +124,13 @@ import { BURN_FANOUT_QUEUE } from '../../../modules/core/burn/burn.constants';
     RedisModule
   ],
   controllers: [NotificationController, WebpushController],
-  providers: [NotificationGateway, NotificationService, NotificationOutboundProcessor, WebpushNotificationProcessor],
+  providers: [
+    NotificationGateway,
+    NotificationService,
+    NotificationOutboundProcessor,
+    WebpushNotificationProcessor,
+    AccountCacheService
+  ],
   exports: [
     NotificationGateway,
     NotificationService,
@@ -132,4 +139,4 @@ import { BURN_FANOUT_QUEUE } from '../../../modules/core/burn/burn.constants';
     BullModule
   ]
 })
-export class NotificationModule {}
+export class NotificationModule { }

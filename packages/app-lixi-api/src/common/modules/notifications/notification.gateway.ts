@@ -1,4 +1,4 @@
-import { NotificationDto as Notification, SessionAction, SocketUser } from '@bcpros/lixi-models';
+import { AnalyticEvent, NotificationDto as Notification, SessionAction, SocketUser } from '@bcpros/lixi-models';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
@@ -31,7 +31,7 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
 
   private logger: Logger = new Logger('NotificationGateway');
 
-  constructor(@InjectRedis() private readonly redis: Redis, private prisma: PrismaService) {}
+  constructor(@InjectRedis() private readonly redis: Redis, private prisma: PrismaService) { }
 
   handleConnection(client: Socket, ...args: any[]) {
     this.logger.log(`Client connected: ${client.id}`);
@@ -219,7 +219,6 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
 
     if (!joinedRoom) {
       client.join(userAddress);
-      this.logger.log('🚀 ~ file: message.gateway.ts:47 ~ MessageGateway ~ userAddress:', userAddress);
 
       return {
         event: 'userAddress',
@@ -255,5 +254,18 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
 
   publishSessionAction(pageMessageSessionId: string, message: SessionAction) {
     this.server.to(pageMessageSessionId).emit('sessionAction', message);
+  }
+
+  /// Analytic events
+  @SubscribeMessage('analyticEvents')
+  handleAnalyticEvents(
+    @MessageBody() events: AnalyticEvent[],
+    @ConnectedSocket() client: Socket
+  ) {
+    console.log(events);
+    return {
+      event: 'analyticEvents',
+      data: client.id
+    };
   }
 }

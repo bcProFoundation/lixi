@@ -43,6 +43,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { HASHTAG, POSTS } from './constants/meili.constants';
 import { POST_FANOUT_QUEUE } from './constants/post.constants';
 import { MeiliService } from './meili.service';
+import { AccountCacheService } from '../account/account-cache.service';
 
 const pubSub = new PubSub();
 
@@ -62,8 +63,9 @@ export class PostResolver {
     @InjectQueue(POST_FANOUT_QUEUE) private postFanoutQueue: Queue,
     @Inject('xpijs') private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
-    @I18n() private i18n: I18nService
-  ) {}
+    @I18n() private i18n: I18nService,
+    private readonly accountCacheService: AccountCacheService
+  ) { }
 
   @Subscription(() => Post)
   postCreated() {
@@ -72,7 +74,12 @@ export class PostResolver {
 
   @SkipThrottle()
   @Query(() => Post)
-  async post(@Args('id', { type: () => String }) id: string) {
+  @UseGuards(GqlJwtAuthGuardByPass)
+  async post(
+    @PostAccountEntity() account: Account,
+    @Args('id', { type: () => String }) id: string
+  ) {
+
     return await this.prisma.post.findUnique({
       where: { id: id },
       include: {
@@ -943,10 +950,10 @@ export class PostResolver {
         connect:
           uploadDetailIds.length > 0
             ? uploadDetailIds.map((uploadDetail: any) => {
-                return {
-                  id: uploadDetail
-                };
-              })
+              return {
+                id: uploadDetail
+              };
+            })
             : undefined
       },
       page: {
@@ -1050,12 +1057,7 @@ export class PostResolver {
         throw new VError(accountNotExistMessage);
       }
 
-      const recipient = await this.prisma.account.findFirst({
-        where: {
-          id: _.toSafeInteger(page.pageAccountId)
-        }
-      });
-
+      const recipient = await this.accountCacheService.getById(page.pageAccountId);
       if (!recipient) {
         const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
         throw new VError(accountNotExistMessage);

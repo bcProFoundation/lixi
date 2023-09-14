@@ -22,6 +22,9 @@ import { PhotoProvider, PhotoView } from 'react-photo-view';
 import { LoadingIcon } from '@components/Layout/MainLayout';
 import { getCurrentLocale } from '@store/settings/selectors';
 import { getSelectedAccount } from '@store/account';
+import { Waypoint } from 'react-waypoint';
+import { analyticEvent } from '@store/analytic-event';
+import { AnalyticEvent } from '@bcpros/lixi-models';
 
 export const CommentList = ({ comments }: { comments: CommentItem[] }) => (
   <List
@@ -324,6 +327,16 @@ const PostListItem = ({
 
       addToRecentHashtags(hashtag);
 
+      // analytic event
+      const payload: AnalyticEvent = {
+        eventType: 'click',
+        eventData: {
+          id: post.id,
+          type: 'post'
+        }
+      };
+      dispatch(analyticEvent(payload));
+
       return;
     }
     if (e.target.className === 'read-more-more-module_btn__33IaH' || e.target.className.includes('post-translation')) {
@@ -398,8 +411,20 @@ const PostListItem = ({
     toggleAutoTranslate();
   }, []);
 
+  const onEnterPostItem = () => {
+    const payload: AnalyticEvent = {
+      eventType: 'impression',
+      eventData: {
+        id: post.id,
+        type: 'post'
+      }
+    };
+    dispatch(analyticEvent(payload));
+  }
+
   return (
     <PostListItemContainer className="post-list-item" key={post.id} ref={ref}>
+      <Waypoint onEnter={onEnterPostItem} />
       <CardContainer className="card-container-post">
         {reposted()}
         <CardHeader>

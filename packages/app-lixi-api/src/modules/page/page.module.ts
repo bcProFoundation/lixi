@@ -16,6 +16,7 @@ import { PageResolver } from './page.resolver';
 import { PostFanoutProcessor } from './post-fanout.processor';
 import PostLoader from './post.loader';
 import { PostResolver } from './post.resolver';
+import { AccountCacheService } from '../account/account-cache.service';
 
 @Module({
   imports: [
@@ -49,9 +50,10 @@ import { PostResolver } from './post.resolver';
     NotificationService,
     HashtagModule,
     FollowCacheService,
+    AccountCacheService,
     PostLoader,
     PostFanoutProcessor
   ],
   exports: [MeiliService, NotificationService, FollowCacheService, PostLoader]
 })
-export class PageModule {}
+export class PageModule { }

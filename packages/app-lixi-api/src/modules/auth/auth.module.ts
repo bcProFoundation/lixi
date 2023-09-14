@@ -1,10 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { GqlThrottlerGuard } from './guards/gql-throttler.guard';
 import { JwtStrategy } from './jwt.strategy';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { AccountModule } from '../account/account.module';
+import { AccountCacheService } from '../account/account-cache.service';
 
 @Module({
   imports: [
@@ -15,7 +17,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     })
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, GqlThrottlerGuard],
+  providers: [AuthService, JwtStrategy, GqlThrottlerGuard, AccountCacheService],
   exports: [AuthService, GqlThrottlerGuard]
 })
-export class AuthModule {}
+export class AuthModule { }

@@ -23,6 +23,7 @@ import VError from 'verror';
 import { NOTIFICATION_TYPES } from '../../common/modules/notifications/notification.constants';
 import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
+import { AccountCacheService } from '../account/account-cache.service';
 
 const pubSub = new PubSub();
 
@@ -36,8 +37,9 @@ export class CommentResolver {
     @I18n() private i18n: I18nService,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @Inject('xpijs') private XPI: BCHJS,
-    private readonly notificationService: NotificationService
-  ) {}
+    private readonly notificationService: NotificationService,
+    private readonly accountCacheService: AccountCacheService
+  ) { }
 
   @Subscription(() => Comment)
   commentCreated() {
@@ -81,47 +83,47 @@ export class CommentResolver {
         },
         ...(account && account.id
           ? [
-              {
-                AND: [
-                  { commentToId: id },
-                  {
-                    commentAccount: {
-                      id: account.id
-                    }
+            {
+              AND: [
+                { commentToId: id },
+                {
+                  commentAccount: {
+                    id: account.id
                   }
-                ]
-              }
-            ]
+                }
+              ]
+            }
+          ]
           : []),
         ...(account && account.id
           ? [
-              {
-                AND: [
-                  { commentToId: id },
-                  {
-                    commentTo: {
-                      postAccountId: account.id
-                    }
+            {
+              AND: [
+                { commentToId: id },
+                {
+                  commentTo: {
+                    postAccountId: account.id
                   }
-                ]
-              }
-            ]
+                }
+              ]
+            }
+          ]
           : []),
         ...(account && account.id
           ? [
-              {
-                AND: [
-                  { commentToId: id },
-                  {
-                    commentTo: {
-                      page: {
-                        pageAccountId: account.id
-                      }
+            {
+              AND: [
+                { commentToId: id },
+                {
+                  commentTo: {
+                    page: {
+                      pageAccountId: account.id
                     }
                   }
-                ]
-              }
-            ]
+                }
+              ]
+            }
+          ]
           : [])
       ]
     };
@@ -235,12 +237,7 @@ export class CommentResolver {
       pubSub.publish('commentCreated', { commentCreated: savedComment });
 
       if (savedComment) {
-        const recipient = await this.prisma.account.findFirst({
-          where: {
-            id: _.toSafeInteger(post?.postAccountId)
-          }
-        });
-
+        const recipient = await this.accountCacheService.getById(_.toSafeInteger(post?.postAccountId));
         if (!recipient) {
           const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
           throw new VError(accountNotExistMessage);
@@ -299,12 +296,7 @@ export class CommentResolver {
 
   @ResolveField('commentAccount', () => Account)
   async postAccount(@Parent() comment: Comment) {
-    const account = this.prisma.account.findFirst({
-      where: {
-        id: comment.commentAccountId ?? 0
-      }
-    });
-
+    const account = await this.accountCacheService.getById(_.toSafeInteger(comment.commentAccountId));
     return account;
   }
 }

@@ -21,6 +21,7 @@ import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { WalletService } from '../wallet/wallet.service';
 import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
+import { AccountCacheService } from './account-cache.service';
 
 const pubSub = new PubSub();
 
@@ -29,12 +30,12 @@ const pubSub = new PubSub();
 @UseFilters(GqlHttpExceptionFilter)
 export class AccountResolver {
   constructor(
-    private logger: Logger,
     private prisma: PrismaService,
     private readonly walletService: WalletService,
     @I18n() private i18n: I18nService,
-    @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet
-  ) {}
+    @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
+    private readonly accountCacheService: AccountCacheService
+  ) { }
 
   @Subscription(() => Account)
   accountCreated() {
@@ -146,6 +147,7 @@ export class AccountResolver {
         const createdAccount = await this.prisma.account.create({
           data: accountToInsert
         });
+        await this.accountCacheService.deleteById(createdAccount.id);
 
         const resultApi = _.omit(
           {
@@ -213,6 +215,7 @@ export class AccountResolver {
         const createdAccount = await this.prisma.account.create({
           data: accountToInsert
         });
+        await this.accountCacheService.deleteById(createdAccount.id);
         const balance: number = await this.xpiWallet.getBalance(createdAccount.address);
 
         const resultApi = _.omit(
@@ -273,18 +276,18 @@ export class AccountResolver {
 
     const uploadAvatarDetail = data.avatar
       ? await this.prisma.uploadDetail.findFirst({
-          where: {
-            uploadId: data.avatar
-          }
-        })
+        where: {
+          uploadId: data.avatar
+        }
+      })
       : undefined;
 
     const uploadCoverDetail = data.cover
       ? await this.prisma.uploadDetail.findFirst({
-          where: {
-            uploadId: data.cover
-          }
-        })
+        where: {
+          uploadId: data.cover
+        }
+      })
       : undefined;
 
     const updatedAccount = await this.prisma.account.update({
@@ -298,6 +301,7 @@ export class AccountResolver {
         cover: { connect: uploadCoverDetail ? { id: uploadCoverDetail.id } : undefined }
       }
     });
+    await this.accountCacheService.deleteById(updatedAccount.id);
 
     const result = _.omit(
       {
