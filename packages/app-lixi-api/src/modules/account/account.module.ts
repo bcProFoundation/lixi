@@ -5,20 +5,19 @@ import { AccountResolver } from './account.resolver';
 import { FollowCacheService } from './follow-cache.service';
 import { FollowResolver } from './follow.resolver';
 import { AccountCacheService } from './account-cache.service';
+import { AccountDanaCacheService } from './account-dana-cache.service';
 
 @Module({
-  imports: [
-    AuthModule,
-    NotificationModule
-  ],
+  imports: [AuthModule, NotificationModule],
   controllers: [],
   providers: [
     AccountResolver,
     FollowResolver,
     Logger,
     FollowCacheService,
-    AccountCacheService
+    AccountCacheService,
+    AccountDanaCacheService
   ],
-  exports: [FollowCacheService, AccountCacheService]
+  exports: [FollowCacheService, AccountCacheService, AccountDanaCacheService]
 })
-export class AccountModule { }
+export class AccountModule {}

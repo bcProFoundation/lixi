@@ -21,6 +21,7 @@ import { TranslateProvider } from '../translate/translate.constant';
 import { TranslateService } from '../translate/translate.service';
 import { ACCOUNT_DANA_QUEUE, BURN_FANOUT_QUEUE } from './burn.constants';
 import { AccountCacheService } from '../../account/account-cache.service';
+import { AccountDanaCacheService } from '../../account/account-dana-cache.service';
 
 @SkipThrottle()
 @Controller('burn')
@@ -36,8 +37,9 @@ export class BurnController {
     @InjectQueue(BURN_FANOUT_QUEUE) private burnFanoutQueue: Queue,
     @InjectQueue(ACCOUNT_DANA_QUEUE) private accountDanaQueue: Queue,
     private translateService: TranslateService,
-    private readonly accountCacheService: AccountCacheService
-  ) { }
+    private readonly accountCacheService: AccountCacheService,
+    private readonly accountDanaCacheService: AccountDanaCacheService
+  ) {}
 
   private convertBurnedByToAddress(burnedBy: string): string {
     const legacyAddress = this.XPI.Address.hash160ToLegacy(burnedBy);
@@ -301,6 +303,7 @@ export class BurnController {
                 danaGiven: danaGiven
               }
             });
+            await this.accountDanaCacheService.setDanaGiven(updatedAccountDana.accountId, danaGiven);
 
             await prisma.accountDanaHistory.create({
               data: {
@@ -405,7 +408,7 @@ export class BurnController {
 
           commentAccountId = comment?.commentAccountId;
           commentPostId = comment?.commentToId;
-          commentAccount = await this.accountCacheService.getById(_.toSafeInteger(commentAccountId))
+          commentAccount = await this.accountCacheService.getById(_.toSafeInteger(commentAccountId));
         }
 
         const postId = command.burnForType == BurnForType.Comment ? commentPostId : command.burnForId;
@@ -454,8 +457,8 @@ export class BurnController {
           notificationTypeId: post.page
             ? NOTIFICATION_TYPES.RECEIVE_BURN_PAGE
             : command.burnForType == BurnForType.Comment
-              ? NOTIFICATION_TYPES.RECEIVE_BURN_COMMENT_ACCOUNT
-              : NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT,
+            ? NOTIFICATION_TYPES.RECEIVE_BURN_COMMENT_ACCOUNT
+            : NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT,
           level: NotificationLevel.INFO,
           url:
             command.burnForType == BurnForType.Comment

@@ -1,6 +1,6 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { take, takeEvery, put, select, fork, delay, race, all } from 'redux-saga/effects';
-import { analyticEvent, batchEvents, cancelBatch } from "./actions";
+import { analyticEvent, batchEvents, cancelBatch } from './actions';
 import { AnalyticEvent } from '@bcpros/lixi-models';
 import { callConfig } from '@context/shareContext';
 
@@ -30,7 +30,7 @@ function* watchAnalyticEvent(actionType, duration) {
         while (true) {
           const { cancel, continueTimer } = yield race({
             cancel: take(cancelBatch), // Replace with your cancel action type
-            continueTimer: delay(duration),
+            continueTimer: delay(duration)
           });
 
           if (cancel) {
@@ -52,10 +52,6 @@ function* watchAnalyticEvent(actionType, duration) {
   }
 }
 
-
 export default function* analyticEventSaga() {
-  yield all([
-    watchAnalyticEvent(analyticEvent.type, 1000),
-    fork(watchBatchAnalyticEvents)
-  ]);
+  yield all([watchAnalyticEvent(analyticEvent.type, 1000), fork(watchBatchAnalyticEvents)]);
 }

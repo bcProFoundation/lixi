@@ -2,7 +2,7 @@ import { Redis, Cluster } from 'ioredis';
 
 export type IItem<T> = T & {
   id: string | number;
-}
+};
 
 export interface IPaginatedItems<T> {
   items: IItem<T>[];

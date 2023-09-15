@@ -5,9 +5,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
-import { PrismaService } from 'src/modules/prisma/prisma.service';
-import { EVENTS_ANALYTIC_QUEUE } from './events-analytic.constants';
 import ReBloom from '../../common/redis/redis-bloom';
+import { AccountDanaCacheService } from '../account/account-dana-cache.service';
+import { DanaViewScoreService } from '../page/dana-view-score.service';
+import { EVENTS_ANALYTIC_QUEUE, EVENT_ANALYTIC_TYPES } from './events-analytic.constants';
 
 @Injectable()
 @Processor(EVENTS_ANALYTIC_QUEUE, { concurrency: 5 })
@@ -15,20 +16,22 @@ export class EventsAnalyticProcessor extends WorkerHost {
   private logger: Logger = new Logger(this.constructor.name);
   private reBloom: ReBloom;
 
-  constructor(@InjectRedis() private readonly redis: Redis, private prisma: PrismaService) {
+  constructor(
+    @InjectRedis() private readonly redis: Redis,
+    private readonly danaViewCountService: DanaViewScoreService,
+    private readonly accountDanaCacheService: AccountDanaCacheService
+  ) {
     super();
     this.reBloom = new ReBloom(this.redis);
   }
 
-  public async process(
-    job: Job<
-      { events: AnalyticEvent[], accountId: number },
-      boolean,
-      string
-    >
-  ) {
+  public async process(job: Job<{ events: AnalyticEvent[]; accountId?: number }, boolean, string>) {
     try {
-      const { events } = job.data;
+      const { events, accountId } = job.data;
+      if (!accountId) {
+        this.handleAnonymousEvents();
+        return true;
+      }
       const groups = _.groupBy(events, 'eventType');
       const groupKeys = Object.keys(groups);
       for (const groupKey of groupKeys) {
@@ -38,11 +41,12 @@ export class EventsAnalyticProcessor extends WorkerHost {
         }
 
         // Process the events
-
+        if (groupKey === EVENT_ANALYTIC_TYPES.IMPRESSION) {
+          await this.processImpressionEvents(events, accountId);
+        } else if (groupKey === EVENT_ANALYTIC_TYPES.CLICK) {
+          await this.processViewEvents(events, accountId);
+        }
       }
-
-
-
     } catch (error) {
       this.logger.error(error);
       return false;
@@ -52,30 +56,39 @@ export class EventsAnalyticProcessor extends WorkerHost {
 
   private async processImpressionEvents(events: AnalyticEvent[], accountId: number) {
     const accountPostImpressionBfKey = `post-impression-exist-bf:${accountId}`;
-    const accountPostImpressionBfExist = await this.redis.exists(accountPostImpressionBfKey);
+    const accountPostImpressionBfExist = await this.redis.exists([accountPostImpressionBfKey]);
     if (!accountPostImpressionBfExist) {
       await this.reBloom.reserve(accountPostImpressionBfKey, 0.001, 1000);
     }
-    const reBloomPromises = [];
+    const accountDana = await this.accountDanaCacheService.getAccountDana(accountId);
+    const danaGiven = _.toNumber(accountDana.danaGiven);
+    const promises = [];
     for (const event of events) {
       const postId = event.eventData.id;
-      reBloomPromises.push(this.reBloom.add(accountPostImpressionBfKey, postId));
+      promises.push(this.reBloom.add(accountPostImpressionBfKey, postId));
+      promises.push(this.danaViewCountService.incrBy(postId, danaGiven * 0.5));
     }
-    await Promise.allSettled(reBloomPromises);
+    await Promise.allSettled(promises);
   }
 
   private async processViewEvents(events: AnalyticEvent[], accountId: number) {
     const accountPostViewBfKey = `post-view-exist-bf:${accountId}`;
-    const accountPostViewBfExist = await this.redis.exists(accountPostViewBfKey);
+    const accountPostViewBfExist = await this.redis.exists([accountPostViewBfKey]);
     if (!accountPostViewBfExist) {
       await this.reBloom.reserve(accountPostViewBfKey, 0.001, 1000);
     }
-    const reBloomPromises = [];
+    const accountDana = await this.accountDanaCacheService.getAccountDana(accountId);
+    const danaGiven = _.toNumber(accountDana.danaGiven);
+    const promises = [];
     for (const event of events) {
       const postId = event.eventData.id;
-      reBloomPromises.push(this.reBloom.add(accountPostViewBfKey, postId));
+      promises.push(this.reBloom.add(accountPostViewBfKey, postId));
+      promises.push(this.danaViewCountService.incrBy(postId, danaGiven * 0.5));
     }
-    await Promise.allSettled(reBloomPromises);
+    await Promise.allSettled(promises);
   }
 
+  private async handleAnonymousEvents() {
+    // Todo to handle anonymous events
+  }
 }

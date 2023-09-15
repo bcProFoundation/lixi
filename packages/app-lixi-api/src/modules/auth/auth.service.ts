@@ -25,7 +25,7 @@ export class AuthService implements OnModuleInit {
     private walletService: WalletService,
     @I18n() private i18n: I18nService,
     private moduleRef: ModuleRef
-  ) { }
+  ) {}
 
   onModuleInit() {
     this.accountCacheService = this.moduleRef.get(AccountCacheService);
@@ -51,7 +51,6 @@ export class AuthService implements OnModuleInit {
       throw new VError(accountNotExistMessage);
     }
 
-    console.log('xyz');
     const { publicKey, wifKey } = await this.walletService.deriveAddress(mnemonic, 0);
     if (!account.publicKey) {
       // There're  no public key, old account
@@ -64,7 +63,6 @@ export class AuthService implements OnModuleInit {
         }
       });
       await this.accountCacheService.deleteById(account.id);
-
     }
 
     const dataToSign = {
@@ -78,7 +76,7 @@ export class AuthService implements OnModuleInit {
     return token;
   }
 
-  public async verifyJwt(token: string): Promise<Account> {
+  public async verifyJwt(token: string) {
     try {
       const tokenDecoded = decodeToken(token);
       const { id } = JSON.parse(tokenDecoded.payload as string);

@@ -8,14 +8,11 @@ import ItemRepository from '../../common/redis/repository';
 
 @Injectable()
 export class AccountCacheService {
-
   private logger: Logger = new Logger(this.constructor.name);
 
   private accountRepository: ItemRepository<Account>;
 
-  constructor(
-    private readonly prisma: PrismaService,
-    @InjectRedis() private readonly redis: Redis) {
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {
     this.accountRepository = new ItemRepository<Account>('accounts', this.redis);
   }
 
@@ -41,7 +38,7 @@ export class AccountCacheService {
       });
 
       if (dbAccount) {
-        await this.accountRepository.set(dbAccount, 600)
+        await this.accountRepository.set(dbAccount, 600);
       }
       return dbAccount;
     }
@@ -55,5 +52,4 @@ export class AccountCacheService {
   async set(account: Account, expirationInSeconds: number = 600) {
     await this.accountRepository.set(account, expirationInSeconds);
   }
-
 }

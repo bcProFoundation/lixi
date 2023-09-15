@@ -1,11 +1,13 @@
-import { Logger, Module } from '@nestjs/common';
-import { NotificationModule } from 'src/common/modules/notifications/notification.module';
+import { Module } from '@nestjs/common';
+import { AccountModule } from '../account/account.module';
 import { AuthModule } from '../auth/auth.module';
+import { EventsAnalyticProcessor } from './events-analytic.processor';
+import { PageModule } from '../page/page.module';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, AccountModule, PageModule],
   controllers: [],
-  providers: [],
-  exports: []
+  providers: [EventsAnalyticProcessor],
+  exports: [EventsAnalyticProcessor]
 })
-export class EventsAnalyticModule { }
+export class EventsAnalyticModule {}

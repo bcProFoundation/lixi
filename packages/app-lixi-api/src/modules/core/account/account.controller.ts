@@ -51,7 +51,7 @@ export class AccountController {
     @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
     @Inject('xpijs') private XPI: BCHJS,
     private readonly accountCacheService: AccountCacheService
-  ) { }
+  ) {}
 
   @Get(':id')
   async getAccount(@Param('id') id: string, @I18n() i18n: I18nContext) {
@@ -198,7 +198,10 @@ export class AccountController {
           mnemonicHash: mnemonicHash,
           id: undefined,
           address: address,
-          publicKey: publicKey
+          publicKey: publicKey,
+          accountDana: {
+            create: {}
+          }
         };
         const createdAccount: AccountDb = await this.prisma.account.create({
           data: accountToInsert

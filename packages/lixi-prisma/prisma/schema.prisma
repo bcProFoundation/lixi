@@ -253,6 +253,7 @@ model AccountDana {
   createdAt          DateTime             @default(now()) @map("created_at") @db.Timestamptz
   updatedAt          DateTime             @default(now()) @map("updated_at") @db.Timestamptz
 
+  @@index([accountId])
   @@map("account_dana")
 }
 

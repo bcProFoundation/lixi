@@ -35,6 +35,7 @@ import { TokenModule } from './modules/token/token.module';
 import { WalletModule } from './modules/wallet/wallet.module';
 import { WorshipModule } from './modules/worship/worship.module';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
+import { EventsAnalyticModule } from './modules/events-analytic/events-analytic.module';
 
 //enabled serving multiple static for fastify
 type FastifyServeStaticModuleOptions = ServeStaticModuleOptions & {
@@ -171,8 +172,9 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
       })
     }),
     CloudflareModule,
+    EventsAnalyticModule,
     DevtoolsModule.register({
-      http: process.env.NODE_ENV !== 'production',
+      http: process.env.NODE_ENV !== 'production'
     })
   ],
   controllers: [],

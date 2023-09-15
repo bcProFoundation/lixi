@@ -49,7 +49,7 @@ export class FollowResolver {
     @I18n() private readonly i18n: I18nService,
     @InjectRedis() private readonly redis: Redis,
     private readonly accountCacheService: AccountCacheService
-  ) { }
+  ) {}
 
   @Subscription(() => FollowAccount)
   followAccountCreated() {
@@ -296,11 +296,11 @@ export class FollowResolver {
     const queryFollowPagesWhere =
       pagesOnly == true
         ? {
-          AND: [{ accountId: account.id }, { token: null }]
-        }
+            AND: [{ accountId: account.id }, { token: null }]
+          }
         : {
-          accountId: account.id
-        };
+            accountId: account.id
+          };
 
     const result = await findManyCursorConnection(
       async paginationArgs => {
@@ -315,9 +315,9 @@ export class FollowResolver {
           ...row,
           page: row.page
             ? {
-              ...row.page,
-              totalBurnForPage: row.page.danaBurnScore + row.page.totalPostsBurnScore
-            }
+                ...row.page,
+                totalBurnForPage: row.page.danaBurnScore + row.page.totalPostsBurnScore
+              }
             : null
         }));
 

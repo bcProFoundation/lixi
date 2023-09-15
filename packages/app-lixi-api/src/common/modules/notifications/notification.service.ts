@@ -36,8 +36,8 @@ export class NotificationService implements OnModuleInit {
     @InjectQueue(NOTIFICATION_OUTBOUND_QUEUE) private notificationOutboundQueue: Queue,
     @InjectQueue(WEBPUSH_NOTIFICATION_QUEUE) private webpushQueue: Queue,
     @InjectRedis() private readonly redis: Redis,
-    @I18n() private i18n: I18nService,
-  ) { }
+    @I18n() private i18n: I18nService
+  ) {}
 
   onModuleInit() {
     this.accountCacheService = this.moduleRef.get(AccountCacheService);

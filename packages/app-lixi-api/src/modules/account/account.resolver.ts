@@ -35,7 +35,7 @@ export class AccountResolver {
     @I18n() private i18n: I18nService,
     @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
     private readonly accountCacheService: AccountCacheService
-  ) { }
+  ) {}
 
   @Subscription(() => Account)
   accountCreated() {
@@ -141,7 +141,10 @@ export class AccountResolver {
           mnemonicHash: data.mnemonicHash,
           id: undefined,
           address: address,
-          publicKey: publicKey
+          publicKey: publicKey,
+          accountDana: {
+            create: {}
+          }
         };
 
         const createdAccount = await this.prisma.account.create({
@@ -210,7 +213,10 @@ export class AccountResolver {
           mnemonicHash: mnemonicHash,
           id: undefined,
           address: address,
-          publicKey: publicKey
+          publicKey: publicKey,
+          accountDana: {
+            create: {}
+          }
         };
         const createdAccount = await this.prisma.account.create({
           data: accountToInsert
@@ -276,18 +282,18 @@ export class AccountResolver {
 
     const uploadAvatarDetail = data.avatar
       ? await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: data.avatar
-        }
-      })
+          where: {
+            uploadId: data.avatar
+          }
+        })
       : undefined;
 
     const uploadCoverDetail = data.cover
       ? await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: data.cover
-        }
-      })
+          where: {
+            uploadId: data.cover
+          }
+        })
       : undefined;
 
     const updatedAccount = await this.prisma.account.update({
