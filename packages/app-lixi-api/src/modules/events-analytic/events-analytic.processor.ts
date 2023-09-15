@@ -49,7 +49,7 @@ export class EventsAnalyticProcessor extends WorkerHost {
       }
     } catch (error) {
       this.logger.error(error);
-      return false;
+      return true;
     }
     return true;
   }
