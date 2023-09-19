@@ -36,6 +36,7 @@ export type PostQuery = {
     followPostOwner?: boolean | null;
     followedPage?: boolean | null;
     originalLanguage?: string | null;
+    danaViewScore?: number | null;
     uploads?: Array<{
       __typename?: 'UploadDetail';
       id: string;
@@ -82,183 +83,6 @@ export type PostQuery = {
   };
 };
 
-export type PostsQueryVariables = Types.Exact<{
-  after?: Types.InputMaybe<Types.Scalars['String']>;
-  before?: Types.InputMaybe<Types.Scalars['String']>;
-  first?: Types.InputMaybe<Types.Scalars['Int']>;
-  last?: Types.InputMaybe<Types.Scalars['Int']>;
-  orderBy?: Types.InputMaybe<Array<Types.PostOrder> | Types.PostOrder>;
-  skip?: Types.InputMaybe<Types.Scalars['Int']>;
-  accountId?: Types.InputMaybe<Types.Scalars['Int']>;
-  minBurnFilter?: Types.InputMaybe<Types.Scalars['Int']>;
-  isTop?: Types.InputMaybe<Types.Scalars['String']>;
-}>;
-
-export type PostsQuery = {
-  __typename?: 'Query';
-  allPosts: {
-    __typename?: 'PostConnection';
-    totalCount?: number | null;
-    edges?: Array<{
-      __typename?: 'PostEdge';
-      cursor: string;
-      node: {
-        __typename?: 'Post';
-        id: string;
-        content: string;
-        repostCount?: number | null;
-        danaBurnUp: number;
-        danaBurnDown: number;
-        danaBurnScore: number;
-        totalComments: number;
-        createdAt: any;
-        updatedAt: any;
-        followPostOwner?: boolean | null;
-        followedPage?: boolean | null;
-        originalLanguage?: string | null;
-        uploads?: Array<{
-          __typename?: 'UploadDetail';
-          id: string;
-          upload: {
-            __typename?: 'Upload';
-            id: string;
-            sha: string;
-            bucket?: string | null;
-            width?: number | null;
-            height?: number | null;
-            cfImageId?: string | null;
-            cfImageFilename?: string | null;
-          };
-        }> | null;
-        postAccount: {
-          __typename?: 'Account';
-          address: string;
-          id: number;
-          name: string;
-          avatar?: string | null;
-          createCommentFee?: string | null;
-        };
-        page?: {
-          __typename?: 'Page';
-          avatar?: string | null;
-          name: string;
-          id: string;
-          createPostFee: string;
-          createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
-        } | null;
-        token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
-        reposts?: Array<{
-          __typename?: 'Repost';
-          accountId?: number | null;
-          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
-        }> | null;
-        translations?: Array<{
-          __typename?: 'PostTranslation';
-          id: string;
-          translateContent?: string | null;
-          translateLanguage?: string | null;
-        }> | null;
-      };
-    }> | null;
-    pageInfo: {
-      __typename?: 'PageInfo';
-      endCursor?: string | null;
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor?: string | null;
-    };
-  };
-};
-
-export type OrphanPostsQueryVariables = Types.Exact<{
-  after?: Types.InputMaybe<Types.Scalars['String']>;
-  before?: Types.InputMaybe<Types.Scalars['String']>;
-  first?: Types.InputMaybe<Types.Scalars['Int']>;
-  last?: Types.InputMaybe<Types.Scalars['Int']>;
-  orderBy?: Types.InputMaybe<Types.PostOrder>;
-  query?: Types.InputMaybe<Types.Scalars['String']>;
-  skip?: Types.InputMaybe<Types.Scalars['Int']>;
-  minBurnFilter?: Types.InputMaybe<Types.Scalars['Int']>;
-}>;
-
-export type OrphanPostsQuery = {
-  __typename?: 'Query';
-  allOrphanPosts: {
-    __typename?: 'PostConnection';
-    totalCount?: number | null;
-    edges?: Array<{
-      __typename?: 'PostEdge';
-      cursor: string;
-      node: {
-        __typename?: 'Post';
-        id: string;
-        content: string;
-        repostCount?: number | null;
-        danaBurnUp: number;
-        danaBurnDown: number;
-        danaBurnScore: number;
-        totalComments: number;
-        createdAt: any;
-        updatedAt: any;
-        followPostOwner?: boolean | null;
-        followedPage?: boolean | null;
-        originalLanguage?: string | null;
-        uploads?: Array<{
-          __typename?: 'UploadDetail';
-          id: string;
-          upload: {
-            __typename?: 'Upload';
-            id: string;
-            sha: string;
-            bucket?: string | null;
-            width?: number | null;
-            height?: number | null;
-            cfImageId?: string | null;
-            cfImageFilename?: string | null;
-          };
-        }> | null;
-        postAccount: {
-          __typename?: 'Account';
-          address: string;
-          id: number;
-          name: string;
-          avatar?: string | null;
-          createCommentFee?: string | null;
-        };
-        page?: {
-          __typename?: 'Page';
-          avatar?: string | null;
-          name: string;
-          id: string;
-          createPostFee: string;
-          createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
-        } | null;
-        token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
-        reposts?: Array<{
-          __typename?: 'Repost';
-          accountId?: number | null;
-          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
-        }> | null;
-        translations?: Array<{
-          __typename?: 'PostTranslation';
-          id: string;
-          translateContent?: string | null;
-          translateLanguage?: string | null;
-        }> | null;
-      };
-    }> | null;
-    pageInfo: {
-      __typename?: 'PageInfo';
-      endCursor?: string | null;
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor?: string | null;
-    };
-  };
-};
-
 export type PostsByPageIdQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
   before?: Types.InputMaybe<Types.Scalars['String']>;
@@ -292,6 +116,7 @@ export type PostsByPageIdQuery = {
         followPostOwner?: boolean | null;
         followedPage?: boolean | null;
         originalLanguage?: string | null;
+        danaViewScore?: number | null;
         uploads?: Array<{
           __typename?: 'UploadDetail';
           id: string;
@@ -380,6 +205,7 @@ export type PostsByUserIdQuery = {
         followPostOwner?: boolean | null;
         followedPage?: boolean | null;
         originalLanguage?: string | null;
+        danaViewScore?: number | null;
         uploads?: Array<{
           __typename?: 'UploadDetail';
           id: string;
@@ -468,6 +294,7 @@ export type PostsByHashtagIdQuery = {
         followPostOwner?: boolean | null;
         followedPage?: boolean | null;
         originalLanguage?: string | null;
+        danaViewScore?: number | null;
         uploads?: Array<{
           __typename?: 'UploadDetail';
           id: string;
@@ -556,6 +383,7 @@ export type PostsByTokenIdQuery = {
         followPostOwner?: boolean | null;
         followedPage?: boolean | null;
         originalLanguage?: string | null;
+        danaViewScore?: number | null;
         uploads?: Array<{
           __typename?: 'UploadDetail';
           id: string;
@@ -638,6 +466,7 @@ export type PostsBySearchQuery = {
         createdAt: any;
         updatedAt: any;
         originalLanguage?: string | null;
+        danaViewScore?: number | null;
         uploads?: Array<{
           __typename?: 'UploadDetail';
           id: string;
@@ -722,6 +551,7 @@ export type PostsBySearchWithHashtagQuery = {
         createdAt: any;
         updatedAt: any;
         originalLanguage?: string | null;
+        danaViewScore?: number | null;
         uploads?: Array<{
           __typename?: 'UploadDetail';
           id: string;
@@ -807,6 +637,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
         createdAt: any;
         updatedAt: any;
         originalLanguage?: string | null;
+        danaViewScore?: number | null;
         uploads?: Array<{
           __typename?: 'UploadDetail';
           id: string;
@@ -892,6 +723,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
         createdAt: any;
         updatedAt: any;
         originalLanguage?: string | null;
+        danaViewScore?: number | null;
         uploads?: Array<{
           __typename?: 'UploadDetail';
           id: string;
@@ -961,6 +793,7 @@ export type PostFieldsFragment = {
   followPostOwner?: boolean | null;
   followedPage?: boolean | null;
   originalLanguage?: string | null;
+  danaViewScore?: number | null;
   uploads?: Array<{
     __typename?: 'UploadDetail';
     id: string;
@@ -1017,6 +850,7 @@ export type PostMeiliFieldsFragment = {
   createdAt: any;
   updatedAt: any;
   originalLanguage?: string | null;
+  danaViewScore?: number | null;
   uploads?: Array<{
     __typename?: 'UploadDetail';
     id: string;
@@ -1082,6 +916,7 @@ export type CreatePostMutation = {
     followPostOwner?: boolean | null;
     followedPage?: boolean | null;
     originalLanguage?: string | null;
+    danaViewScore?: number | null;
     uploads?: Array<{
       __typename?: 'UploadDetail';
       id: string;
@@ -1148,6 +983,7 @@ export type UpdatePostMutation = {
     followPostOwner?: boolean | null;
     followedPage?: boolean | null;
     originalLanguage?: string | null;
+    danaViewScore?: number | null;
     uploads?: Array<{
       __typename?: 'UploadDetail';
       id: string;
@@ -1263,6 +1099,7 @@ export const PostFieldsFragmentDoc = `
     translateContent
     translateLanguage
   }
+  danaViewScore
 }
     `;
 export const PostMeiliFieldsFragmentDoc = `
@@ -1325,6 +1162,7 @@ export const PostMeiliFieldsFragmentDoc = `
     translateContent
     translateLanguage
   }
+  danaViewScore
 }
     `;
 export const PostDocument = `
@@ -1334,59 +1172,6 @@ export const PostDocument = `
   }
 }
     ${PostFieldsFragmentDoc}`;
-export const PostsDocument = `
-    query Posts($after: String, $before: String, $first: Int = 20, $last: Int, $orderBy: [PostOrder!], $skip: Int, $accountId: Int, $minBurnFilter: Int, $isTop: String) {
-  allPosts(
-    after: $after
-    before: $before
-    first: $first
-    last: $last
-    orderBy: $orderBy
-    skip: $skip
-    accountId: $accountId
-    minBurnFilter: $minBurnFilter
-    isTop: $isTop
-  ) {
-    totalCount
-    edges {
-      cursor
-      node {
-        ...PostFields
-      }
-    }
-    pageInfo {
-      ...PageInfoFields
-    }
-  }
-}
-    ${PostFieldsFragmentDoc}
-${PageInfoFieldsFragmentDoc}`;
-export const OrphanPostsDocument = `
-    query OrphanPosts($after: String, $before: String, $first: Int = 20, $last: Int, $orderBy: PostOrder, $query: String, $skip: Int, $minBurnFilter: Int) {
-  allOrphanPosts(
-    after: $after
-    before: $before
-    first: $first
-    last: $last
-    orderBy: $orderBy
-    query: $query
-    skip: $skip
-    minBurnFilter: $minBurnFilter
-  ) {
-    totalCount
-    edges {
-      cursor
-      node {
-        ...PostFields
-      }
-    }
-    pageInfo {
-      ...PageInfoFields
-    }
-  }
-}
-    ${PostFieldsFragmentDoc}
-${PageInfoFieldsFragmentDoc}`;
 export const PostsByPageIdDocument = `
     query PostsByPageId($after: String, $before: String, $first: Int = 20, $last: Int, $orderBy: [PostOrder!], $id: String, $skip: Int, $minBurnFilter: Int) {
   allPostsByPageId(
@@ -1616,12 +1401,6 @@ const injectedRtkApi = api.injectEndpoints({
     Post: build.query<PostQuery, PostQueryVariables>({
       query: variables => ({ document: PostDocument, variables })
     }),
-    Posts: build.query<PostsQuery, PostsQueryVariables | void>({
-      query: variables => ({ document: PostsDocument, variables })
-    }),
-    OrphanPosts: build.query<OrphanPostsQuery, OrphanPostsQueryVariables | void>({
-      query: variables => ({ document: OrphanPostsDocument, variables })
-    }),
     PostsByPageId: build.query<PostsByPageIdQuery, PostsByPageIdQueryVariables | void>({
       query: variables => ({ document: PostsByPageIdDocument, variables })
     }),
@@ -1670,10 +1449,6 @@ export { injectedRtkApi as api };
 export const {
   usePostQuery,
   useLazyPostQuery,
-  usePostsQuery,
-  useLazyPostsQuery,
-  useOrphanPostsQuery,
-  useLazyOrphanPostsQuery,
   usePostsByPageIdQuery,
   useLazyPostsByPageIdQuery,
   usePostsByUserIdQuery,

@@ -800,6 +800,7 @@ export type Post = {
   danaBurnDown: Scalars['Float'];
   danaBurnScore: Scalars['Float'];
   danaBurnUp: Scalars['Float'];
+  danaViewScore?: Maybe<Scalars['Int']>;
   followPostOwner?: Maybe<Scalars['Boolean']>;
   followedPage?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
@@ -905,14 +906,12 @@ export type Query = {
   allMessageByPageMessageSessionId: MessageConnection;
   allOpenPageMessageSessionByAccountId: PageMessageSessionConnection;
   allOpenPageMessageSessionByPageId: PageMessageSessionConnection;
-  allOrphanPosts: PostConnection;
   allPageMessageSessionByAccountId: PageMessageSessionConnection;
   allPages: PageConnection;
   allPagesByFollower: FollowPageConnection;
   allPagesByUserId: PageConnection;
   allPendingPageMessageSessionByAccountId: PageMessageSessionConnection;
   allPendingPageMessageSessionByPageId: PageMessageSessionConnection;
-  allPosts: PostConnection;
   allPostsByHashtagId: PostConnection;
   allPostsByPageId: PostConnection;
   allPostsBySearch: PostResponse;
@@ -945,7 +944,7 @@ export type Query = {
   temple: Temple;
   timeline: TimelineItem;
   token: Token;
-  userHadMessageToPage: PageMessageSession;
+  userHadMessageToPage?: Maybe<PageMessageSession>;
   worship: Worship;
   worshipedPerson: WorshipedPerson;
 };
@@ -1068,17 +1067,6 @@ export type QueryAllOpenPageMessageSessionByPageIdArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
-export type QueryAllOrphanPostsArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<PostOrder>;
-  query?: InputMaybe<Scalars['String']>;
-  skip?: InputMaybe<Scalars['Int']>;
-};
-
 export type QueryAllPageMessageSessionByAccountIdArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1141,18 +1129,6 @@ export type QueryAllPendingPageMessageSessionByPageIdArgs = {
   last?: InputMaybe<Scalars['Int']>;
   minBurnFilter?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<PageMessageSessionOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
-};
-
-export type QueryAllPostsArgs = {
-  accountId?: InputMaybe<Scalars['Int']>;
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  isTop?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Array<PostOrder>>;
   skip?: InputMaybe<Scalars['Int']>;
 };
 

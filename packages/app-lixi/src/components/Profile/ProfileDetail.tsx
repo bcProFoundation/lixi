@@ -1,6 +1,6 @@
 import { CameraOutlined, CompassOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { Account } from '@bcpros/lixi-models';
-import { PostsQueryTag } from '@bcpros/lixi-models/constants';
+import { PostListType, PostsQueryTag } from '@bcpros/lixi-models/constants';
 import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
 import { Follow } from '@bcpros/lixi-models/lib/follow/follow.model';
 import { transformShortName } from '@components/Common/AvatarUser';
@@ -33,12 +33,12 @@ import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
 import { WithAuthorizeAction } from '../Common/Authorization/WithAuthorizeAction';
-import { PostsQuery } from '@store/post/posts.generated';
+import { PostQuery } from '@store/post/posts.generated';
 
 export const URL_AVATAR_DEFAULT = '/images/default-avatar.jpg';
 export const URL_COVER_DEFAULT = '/images/default-avatar.jpg';
 
-type PostItem = PostsQuery['allPosts']['edges'][0]['node'];
+type PostItem = PostQuery['post'];
 
 const AuthorizedButton = WithAuthorizeAction(Button);
 
@@ -465,7 +465,6 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
   const failQueue = useAppSelector(getFailQueue);
   const filterValue = useAppSelector(getFilterPostsProfile);
-  const [isFollowed, setIsFollowed] = useState<boolean>(checkIsFollowed);
   const selectedAccountId = useAppSelector(getSelectedAccountId);
   const accountInfoTemp = useAppSelector(getAccountInfoTemp);
   const level = useAppSelector(getLevelFilter);
@@ -508,14 +507,6 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
     if (slpBalancesAndUtxos === slpBalancesAndUtxosRef.current) return;
     dispatch(setTransactionReady());
   }, [slpBalancesAndUtxos.nonSlpUtxos]);
-
-  useEffect(() => {
-    if (isSuccessCreateFollowAccount) setIsFollowed(true);
-  }, [isSuccessCreateFollowAccount]);
-
-  useEffect(() => {
-    if (isSuccessDeleteFollowAccount) setIsFollowed(false);
-  }, [isSuccessDeleteFollowAccount]);
 
   const loadMoreItems = () => {
     if (hasNext && !isFetching) {
@@ -673,8 +664,11 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
             </div>
             {/* Follow */}
             {user.id != selectedAccountId && (
-              <AuthorizedButton id="follow-button" onClick={isFollowed ? () => handleUnfollow() : () => handleFollow()}>
-                {isFollowed ? intl.get('general.unfollow') : intl.get('general.follow')}
+              <AuthorizedButton
+                id="follow-button"
+                onClick={checkIsFollowed ? () => handleUnfollow() : () => handleFollow()}
+              >
+                {checkIsFollowed ? intl.get('general.unfollow') : intl.get('general.follow')}
               </AuthorizedButton>
             )}
 
@@ -884,7 +878,13 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                     >
                       {data.map((item, index) => {
                         return (
-                          <PostListItem index={index} item={item} key={item.id} handleBurnForPost={handleBurnForPost} />
+                          <PostListItem
+                            index={index}
+                            item={item}
+                            key={item.id}
+                            handleBurnForPost={handleBurnForPost}
+                            postListType={PostListType.Profile}
+                          />
                         );
                       })}
                     </InfiniteScroll>

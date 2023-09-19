@@ -691,6 +691,7 @@ type Post {
   danaBurnDown: Float!
   danaBurnScore: Float!
   danaBurnUp: Float!
+  danaViewScore: Int
   followPostOwner: Boolean
   followedPage: Boolean
   id: ID!
@@ -804,14 +805,12 @@ type Query {
   allMessageByPageMessageSessionId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: MessageOrder, skip: Int): MessageConnection!
   allOpenPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allOpenPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
-  allOrphanPosts(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PostOrder, query: String, skip: Int): PostConnection!
   allPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPages(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: [PageOrder!], query: String, skip: Int): PageConnection!
   allPagesByFollower(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, pagesOnly: Boolean, skip: Int): FollowPageConnection!
   allPagesByUserId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageOrder, skip: Int): PageConnection!
   allPendingPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPendingPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
-  allPosts(accountId: Int, after: String, before: String, first: Int, isTop: String, last: Int, minBurnFilter: Int, orderBy: [PostOrder!], skip: Int): PostConnection!
   allPostsByHashtagId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
   allPostsByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: [PostOrder!], skip: Int): PostConnection!
   allPostsBySearch(
@@ -918,7 +917,7 @@ type Query {
   temple(id: String!): Temple!
   timeline(id: String!): TimelineItem!
   token(tokenId: String!): Token!
-  userHadMessageToPage(accountId: Int, pageId: String): PageMessageSession!
+  userHadMessageToPage(accountId: Int, pageId: String): PageMessageSession
   worship(id: String!): Worship!
   worshipedPerson(id: String!): WorshipedPerson!
 }
@@ -958,7 +957,6 @@ type Subscription {
   messageCreated: Message!
   pageCreated: Page!
   pageMessageSessionCreated: PageMessageSession!
-  postCreated: Post!
   templeCreated: Temple!
   tokenCreated: Token!
   worshipedPersonCreated: WorshipedPerson!
