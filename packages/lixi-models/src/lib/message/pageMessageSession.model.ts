@@ -58,6 +58,21 @@ export class PageMessageSession {
   updatedAt?: Date;
 }
 
+@ObjectType()
+export class LatestMessage {
+  @Field(() => ID, { nullable: true })
+  id?: string;
+
+  @Field(() => String, { nullable: true })
+  body?: string;
+
+  @Field(() => Object, { nullable: true })
+  author?: {
+    id: string;
+    address: string;
+  };
+}
+
 export enum PageMessageSessionStatus {
   PENDING = 'PENDING',
   OPEN = 'OPEN',

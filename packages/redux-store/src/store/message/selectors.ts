@@ -2,14 +2,28 @@ import { createSelector } from 'reselect';
 
 import { RootState } from '../store';
 
-import { PageMessageState } from './state';
+import { PageMessageSessionState } from './state';
+
+import { pageMessageSessionAdapter } from './reducer';
 
 export const getPageMessageSessionState = createSelector(
   (state: RootState) => state.pageMessage,
-  (state: PageMessageState) => state.pageMessageSessionState
+  (pageMessageSessionState: PageMessageSessionState) => pageMessageSessionState
 );
 
-export const getPageMessageSessionStateById = (id: string) =>
-  createSelector(getPageMessageSessionState, pageMessageSessionState =>
-    pageMessageSessionState?.find(x => x.pageMessageSessionId === id)
-  );
+const { selectAll, selectEntities, selectIds, selectTotal } = pageMessageSessionAdapter.getSelectors();
+
+export const getAllPageMessageSession = createSelector((state: RootState) => state.pageMessageSessionState, selectAll);
+
+export const getAllPageMessageSessionEntities = createSelector((state: RootState) => {
+  if (state.pageMessage) {
+    return state.pageMessage;
+  } else {
+    return {};
+  }
+}, selectEntities);
+
+export const getPageMessageSessionById = (id: string) =>
+  createSelector(getAllPageMessageSessionEntities, pageMessageSessions => {
+    return pageMessageSessions?.[id];
+  });

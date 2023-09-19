@@ -40,7 +40,7 @@ import { toastReducer } from './toast/reducer';
 import { tokenReducer, TokenState } from './token';
 import { walletStateReducer } from './wallet/reducer';
 import { api as worshipedPersonApi } from './worship/worshipedPerson.api';
-import { messageReducer, PageMessageState } from './message';
+import { messageReducer, PageMessageSessionState } from './message';
 
 const migration = {
   0: state => {
@@ -146,7 +146,7 @@ const categoryPersistConfig: PersistConfig<CategoriesState> = {
   storage: storage('lixi-indexeddb')
 };
 
-const pageMessagePersistConfig: PersistConfig<PageMessageState> = {
+const pageMessagePersistConfig: PersistConfig<PageMessageSessionState> = {
   key: 'pageMessage',
   storage: storage('lixi-indexeddb')
 };

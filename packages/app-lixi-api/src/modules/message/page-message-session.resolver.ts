@@ -25,6 +25,7 @@ import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
 import { MeiliService } from '../page/meili.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
+import { PageMessageSessionCacheService } from './page-message-session-cache.service';
 
 const pubSub = new PubSub();
 
@@ -38,7 +39,8 @@ export class PageMessageSessionResolver {
     private meiliService: MeiliService,
     @I18n() private i18n: I18nService,
     private notificationGateway: NotificationGateway,
-    private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService,
+    private readonly pageMessageSessionCacheService: PageMessageSessionCacheService
   ) {}
 
   @Subscription(() => PageMessageSession)
@@ -303,8 +305,8 @@ export class PageMessageSessionResolver {
     orderBy: PageMessageSessionOrder
   ) {
     const result = await findManyCursorConnection(
-      args =>
-        this.prisma.pageMessageSession.findMany({
+      async args => {
+        const pageMessageSessions = await this.prisma.pageMessageSession.findMany({
           include: {
             page: true,
             account: true,
@@ -317,8 +319,7 @@ export class PageMessageSessionResolver {
                 activationAt: true,
                 status: true
               }
-            },
-            latestMessage: true
+            }
           },
           where: {
             AND: [
@@ -345,7 +346,30 @@ export class PageMessageSessionResolver {
           },
           orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
           ...args
-        }),
+        });
+
+        const latestMessageCache = await this.pageMessageSessionCacheService.getMultiplePageMessageSessionCache(
+          pageMessageSessions.map(pageMessageSession => pageMessageSession.id)
+        );
+
+        //combine cache and db
+        const result = pageMessageSessions.map(pageMessageSession => {
+          const cache = latestMessageCache.find(cache => cache.id === pageMessageSession.id);
+          return {
+            ...pageMessageSession,
+            latestMessage: {
+              body: cache?.latestMessage,
+              id: cache?.latestMessageId,
+              author: {
+                id: cache?.authorId,
+                address: cache?.authorAddress
+              }
+            }
+          };
+        });
+
+        return result;
+      },
       () =>
         this.prisma.pageMessageSession.count({
           where: {
@@ -794,21 +818,5 @@ export class PageMessageSessionResolver {
       })
       .page();
     return page;
-  }
-
-  @ResolveField()
-  async latestMessage(@Parent() pageMessageSession: PageMessageSession) {
-    const latestMessage = await this.prisma.pageMessageSession
-      .findUnique({
-        where: {
-          id: pageMessageSession.id
-        }
-      })
-      .latestMessage({
-        include: {
-          author: true
-        }
-      });
-    return latestMessage;
   }
 }

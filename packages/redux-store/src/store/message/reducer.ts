@@ -1,34 +1,26 @@
-import { NotificationDto } from '@bcpros/lixi-models/lib/common/notification';
 import { createEntityAdapter, createReducer, Update } from '@reduxjs/toolkit';
-import { removePageMessageSession, upsertPageMessageSession } from './actions';
-import { PageMessageState } from './state';
+import { removePageMessageSession, upsertPageMessageSession, removeAllPageMessageSession } from './actions';
+import { IPageMessageSessionState, PageMessageSessionState } from './state';
 
-export const pageMessageAdapter = createEntityAdapter<any>({});
+export const pageMessageSessionAdapter = createEntityAdapter<IPageMessageSessionState>({
+  selectId: pageMessageSession => pageMessageSession.pageMessageSessionId
+});
 
-const initialState: PageMessageState = pageMessageAdapter.getInitialState({
-  pageMessageSessionState: []
+const initialState: PageMessageSessionState = pageMessageSessionAdapter.getInitialState({
+  selectedId: ''
 });
 
 export const messageReducer = createReducer(initialState, builder => {
   builder
     .addCase(removePageMessageSession, (state, action) => {
-      const index = state.pageMessageSessionState.findIndex(x => x.pageMessageSessionId === action.payload);
-      if (index !== -1) {
-        state.pageMessageSessionState.splice(index, 1);
-      }
+      const pageMessageSessionId = action.payload;
+      pageMessageSessionAdapter.removeOne(state, pageMessageSessionId);
     })
     .addCase(upsertPageMessageSession, (state, action) => {
-      const { pageMessageSessionId, senderAddress, latestMessageId } = action.payload;
-      const index = state.pageMessageSessionState.findIndex(x => x.pageMessageSessionId === pageMessageSessionId);
-      if (index !== -1) {
-        state.pageMessageSessionState[index].senderAddress = senderAddress;
-        state.pageMessageSessionState[index].latestMessageId = latestMessageId;
-      } else {
-        state.pageMessageSessionState.push({
-          pageMessageSessionId,
-          senderAddress,
-          latestMessageId
-        });
-      }
+      const pageMessageSession: IPageMessageSessionState = action.payload;
+      pageMessageSessionAdapter.upsertOne(state, pageMessageSession);
+    })
+    .addCase(removeAllPageMessageSession, (state, action) => {
+      pageMessageSessionAdapter.removeAll(state);
     });
 });

@@ -850,7 +850,6 @@ model Message {
   updatedAt            DateTime            @default(now()) @map("updated_at") @db.Timestamptz
   pageMessageSession   PageMessageSession? @relation("page_message_session", fields: [pageMessageSessionId], references: [id])
   pageMessageSessionId String?             @map("page_message_session_id")
-  isLatestIn           PageMessageSession? @relation("latestMessage")
   giveTipMessage       GiveTipMessage?
   uploads              UploadDetail[]
   messageType          MessageType?        @default(TEXT)
@@ -875,8 +874,6 @@ model PageMessageSession {
   lixiId          Int?                      @unique @map("lixi_id")
   lixiClaimCode   String?                   @map("lixi_claim_code")
   messages        Message[]                 @relation("page_message_session")
-  latestMessage   Message?                  @relation(name: "latestMessage", fields: [latestMessageId], references: [id])
-  latestMessageId String?                   @unique
   sessionOpenedAt DateTime?                 @map("session_opened_at")
   sessionClosedAt DateTime?                 @map("session_closed_at")
   status          PageMessageSessionStatus? @default(CLOSE)

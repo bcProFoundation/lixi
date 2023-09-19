@@ -472,7 +472,6 @@ export type Message = {
   /** Identifies the date and time when the object was created. */
   createdAt?: Maybe<Scalars['DateTime']>;
   id: Scalars['ID'];
-  isLatestIn?: Maybe<PageMessageSession>;
   isPageOwner?: Maybe<Scalars['Boolean']>;
   pageMessageSession?: Maybe<PageMessageSession>;
   /** Identifies the date and time when the object was last updated. */
@@ -1424,7 +1423,6 @@ export type Subscription = {
   messageCreated: Message;
   pageCreated: Page;
   pageMessageSessionCreated: PageMessageSession;
-  postCreated: Post;
   templeCreated: Temple;
   tokenCreated: Token;
   worshipedPersonCreated: WorshipedPerson;

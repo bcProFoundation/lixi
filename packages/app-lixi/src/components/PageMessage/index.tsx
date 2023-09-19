@@ -47,7 +47,7 @@ import { LoadingIcon } from '@components/Layout/MainLayout';
 import { CloseOutlined } from '@ant-design/icons';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import { removePageMessageSession, upsertPageMessageSession } from '@store/message/actions';
-import { getPageMessageSessionState, getPageMessageSessionStateById } from '@store/message/selectors';
+import { getAllPageMessageSessionEntities, getPageMessageSessionById } from '@store/message/selectors';
 
 type PageMessageSessionItem = PageMessageSessionQuery['pageMessageSession'];
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
@@ -448,7 +448,8 @@ export const PageGroupItem = ({
   onClickIcon?: (e: any) => void;
 }) => {
   const [collapse, setCollapse] = useState(true);
-  const localPageMessageSessionState = useAppSelector(getPageMessageSessionState);
+  const pageMessageSessionEntities = useAppSelector(getAllPageMessageSessionEntities);
+  const dispatch = useAppDispatch();
 
   const triggerCheckIsPageOwner = () => {
     let isPageOwner = false;
@@ -460,16 +461,31 @@ export const PageGroupItem = ({
     return isPageOwner;
   };
 
+  const hasSeenSession = (item: PageMessageSessionItem) => {
+    //find pageMessageSession in entities
+    const pageMessageSession = pageMessageSessionEntities?.[item?.id];
+
+    if (!pageMessageSession) {
+      dispatch(
+        upsertPageMessageSession({
+          latestMessageId: item?.latestMessage?.id,
+          pageMessageSessionId: item?.id,
+          senderAddress: item?.latestMessage?.author?.address
+        })
+      );
+    }
+
+    if (pageMessageSession?.latestMessageId >= item?.latestMessage?.id) {
+      return true;
+    }
+
+    return false;
+  };
+
   return (
     <React.Fragment>
       {messages &&
         messages.map((item: PageMessageSessionItem, index) => {
-          const hasSeen = localPageMessageSessionState.some(local => {
-            if (local.pageMessageSessionId === item.id && local.latestMessageId >= item.latestMessage?.id) {
-              return true;
-            }
-            return false;
-          });
           if (index == 0) {
             return (
               <SpaceShorcutItem
@@ -488,7 +504,7 @@ export const PageGroupItem = ({
                         {item?.page?.name && <p className="page-name">{item?.page?.name}</p>}
                         <p className="account-name">{item?.account?.name}</p>
                         {item?.latestMessage ? (
-                          <p className="content" style={{ fontWeight: hasSeen ? 'normal' : 'bold' }}>
+                          <p className="content" style={{ fontWeight: hasSeenSession(item) ? 'normal' : 'bold' }}>
                             {item?.latestMessage?.body}
                           </p>
                         ) : (
@@ -537,7 +553,7 @@ export const PageGroupItem = ({
                       <div className="info-account" onClick={() => onClickIcon(item)}>
                         {item?.page?.name && <p className="page-name">{item?.page?.name}</p>}
                         {item?.latestMessage ? (
-                          <p className="content" style={{ fontWeight: hasSeen ? 'normal' : 'bold' }}>
+                          <p className="content" style={{ fontWeight: hasSeenSession(item) ? 'normal' : 'bold' }}>
                             {item?.latestMessage?.body}
                           </p>
                         ) : (
@@ -561,12 +577,6 @@ export const PageGroupItem = ({
         triggerCheckIsPageOwner() &&
         messages &&
         messages.map((item, index) => {
-          const hasSeen = localPageMessageSessionState.some(local => {
-            if (local.pageMessageSessionId === item.id && local.latestMessageId >= item.latestMessage?.id) {
-              return true;
-            }
-            return false;
-          });
           return (
             <SpaceShorcutItem
               key={item?.id}
@@ -583,7 +593,7 @@ export const PageGroupItem = ({
                 <div className="info-account">
                   {item?.page?.name && <p className="page-name">{item?.account?.name}</p>}
                   {item?.latestMessage ? (
-                    <p className="content" style={{ fontWeight: hasSeen ? 'normal' : 'bold' }}>
+                    <p className="content" style={{ fontWeight: hasSeenSession(item) ? 'normal' : 'bold' }}>
                       {item?.latestMessage?.body}
                     </p>
                   ) : (
