@@ -117,4 +117,14 @@ export class PageMessageSessionCacheService {
     ]);
     await this.redis.hmset(this.keyPrefix, fieldValues);
   }
+
+  async removeLatestMessage(pageMessageSessionId: string) {
+    const fieldValues = [
+      `latestMessage:${pageMessageSessionId}`,
+      `latestMessageId:${pageMessageSessionId}`,
+      `authorId:${pageMessageSessionId}`,
+      `authorAddress:${pageMessageSessionId}`
+    ];
+    await this.redis.hdel(this.keyPrefix, ...fieldValues);
+  }
 }

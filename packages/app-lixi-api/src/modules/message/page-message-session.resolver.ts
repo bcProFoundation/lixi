@@ -361,7 +361,7 @@ export class PageMessageSessionResolver {
               body: cache?.latestMessage,
               id: cache?.latestMessageId,
               author: {
-                id: cache?.authorId,
+                id: cache?.authorId === '' ? 0 : _.toSafeInteger(cache?.authorId),
                 address: cache?.authorAddress
               }
             }
@@ -684,6 +684,8 @@ export class PageMessageSessionResolver {
 
       await this.notificationService.saveAndDispatchNotification(notification);
     }
+
+    await this.pageMessageSessionCacheService.removeLatestMessage(pageMessageSession.id);
 
     this.notificationGateway.publishSessionAction(pageMessageSessionId, sessionAction);
 

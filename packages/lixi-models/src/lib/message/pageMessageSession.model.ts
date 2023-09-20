@@ -68,8 +68,8 @@ export class LatestMessage {
 
   @Field(() => Object, { nullable: true })
   author?: {
-    id: string;
-    address: string;
+    id?: number;
+    address?: string;
   };
 }
 

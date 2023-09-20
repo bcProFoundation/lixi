@@ -503,7 +503,7 @@ export const PageGroupItem = ({
                       <div className="info-account" onClick={() => setCollapse(!collapse)}>
                         {item?.page?.name && <p className="page-name">{item?.page?.name}</p>}
                         <p className="account-name">{item?.account?.name}</p>
-                        {item?.latestMessage ? (
+                        {item?.latestMessage?.id !== '' ? (
                           <p className="content" style={{ fontWeight: hasSeenSession(item) ? 'normal' : 'bold' }}>
                             {item?.latestMessage?.body}
                           </p>
@@ -552,7 +552,7 @@ export const PageGroupItem = ({
                     <div className="content-account" style={{ paddingRight: '0.5rem' }}>
                       <div className="info-account" onClick={() => onClickIcon(item)}>
                         {item?.page?.name && <p className="page-name">{item?.page?.name}</p>}
-                        {item?.latestMessage ? (
+                        {item?.latestMessage?.id !== '' ? (
                           <p className="content" style={{ fontWeight: hasSeenSession(item) ? 'normal' : 'bold' }}>
                             {item?.latestMessage?.body}
                           </p>
@@ -592,7 +592,7 @@ export const PageGroupItem = ({
               <div className="content-account">
                 <div className="info-account">
                   {item?.page?.name && <p className="page-name">{item?.account?.name}</p>}
-                  {item?.latestMessage ? (
+                  {item?.latestMessage?.id !== '' ? (
                     <p className="content" style={{ fontWeight: hasSeenSession(item) ? 'normal' : 'bold' }}>
                       {item?.latestMessage?.body}
                     </p>
