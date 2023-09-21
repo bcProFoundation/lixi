@@ -111,6 +111,24 @@ export class TimelineResolver {
     @Args({ name: 'level', type: () => Number, nullable: true }) level: number
   ) {
     const accountId = account ? account.id : undefined;
+
+    const followingPages = await this.prisma.followPage.findMany({
+      where: { accountId: accountId },
+      select: { pageId: true }
+    });
+    const followingTokens = await this.prisma.followPage.findMany({
+      where: { accountId },
+      select: { tokenId: true }
+    });
+    const followingAccounts = await this.prisma.followAccount.findMany({
+      where: { followerAccountId: accountId },
+      select: { followingAccountId: true }
+    });
+
+    const listFollowingPageId = followingPages.filter(item => item.pageId != null).map(item => item.pageId);
+    const listFollowingTokenId = followingTokens.filter(item => item.tokenId != null).map(item => item.tokenId);
+    const listFollowingAccountId = followingAccounts.map(item => item.followingAccountId);
+
     const timelineIds = await this.timelineService.getTimelineIdsByLevel(level, accountId, first, after);
 
     const ids = timelineIds
@@ -186,7 +204,10 @@ export class TimelineResolver {
             danaViewScore: (arrDanaViewScore[i] ?? 0) as number,
             page: page ? (page as Page) : null,
             repostCount: dbPost._count.reposts,
-            reposts: arrReposts[i] ? (arrReposts[i] as Repost[]) : []
+            reposts: arrReposts[i] ? (arrReposts[i] as Repost[]) : [],
+            followedPage: dbPost?.pageId && listFollowingPageId.includes(dbPost.pageId) ? true : false,
+            followedToken: dbPost?.token?.tokenId && listFollowingTokenId.includes(dbPost.token.tokenId) ? true : false,
+            followPostOwner: listFollowingAccountId.includes(dbPost?.postAccountId) ? true : false
           });
 
           const buffer = encode(post);
@@ -204,7 +225,10 @@ export class TimelineResolver {
           id: `${post.id}`,
           data: new Post({
             ...post,
-            danaViewScore: (arrDanaViewScore[i] ?? 0) as number
+            danaViewScore: (arrDanaViewScore[i] ?? 0) as number,
+            followedPage: post?.pageId && listFollowingPageId.includes(post.pageId) ? true : false,
+            followedToken: post?.token?.tokenId && listFollowingTokenId.includes(post.token.tokenId) ? true : false,
+            followPostOwner: listFollowingAccountId.includes(post?.postAccountId) ? true : false
           })
         };
         timelineItems.push(timelineItem);

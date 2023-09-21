@@ -172,6 +172,18 @@ export class PostResolver {
       return result;
     }
 
+    const followingPages = await this.prisma.followPage.findMany({
+      where: { accountId: account.id },
+      select: { pageId: true }
+    });
+    const followingAccounts = await this.prisma.followAccount.findMany({
+      where: { followerAccountId: account.id },
+      select: { followingAccountId: true }
+    });
+
+    const listFollowingPageId = followingPages.filter(item => item.pageId != null).map(item => item.pageId);
+    const listFollowingAccountId = followingAccounts.map(item => item.followingAccountId);
+
     if (account?.id === page?.pageAccountId) {
       result = await findManyCursorConnection(
         async args => {
@@ -180,7 +192,8 @@ export class PostResolver {
               postAccount: true,
               comments: true,
               reposts: { select: { account: true, accountId: true } },
-              translations: true
+              translations: true,
+              page: true
             },
             where: {
               OR: [
@@ -199,6 +212,8 @@ export class PostResolver {
           const result = await Promise.all(
             posts.map(async post => ({
               ...post,
+              followedPage: post?.pageId && listFollowingPageId.includes(post.pageId) ? true : false,
+              followPostOwner: listFollowingAccountId.includes(post?.postAccountId) ? true : false,
               repostCount: await this.prisma.repost.count({
                 where: { postId: post.id }
               })
@@ -224,13 +239,14 @@ export class PostResolver {
       );
     } else if (account) {
       result = await findManyCursorConnection(
-        args =>
-          this.prisma.post.findMany({
+        async args => {
+          const posts = await this.prisma.post.findMany({
             include: {
               postAccount: true,
               comments: true,
               reposts: { select: { account: true, accountId: true } },
-              translations: true
+              translations: true,
+              page: true
             },
             where: {
               OR: [
@@ -244,7 +260,18 @@ export class PostResolver {
             },
             orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
             ...args
-          }),
+          });
+
+          const result = await Promise.all(
+            posts.map(async post => ({
+              ...post,
+              followedPage: post?.pageId && listFollowingPageId.includes(post.pageId) ? true : false,
+              followPostOwner: listFollowingAccountId.includes(post?.postAccountId) ? true : false
+            }))
+          );
+
+          return result;
+        },
         () =>
           this.prisma.post.count({
             where: {
@@ -267,7 +294,9 @@ export class PostResolver {
 
   @SkipThrottle()
   @Query(() => PostResponse, { name: 'allPostsBySearch' })
+  @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearch(
+    @PostAccountEntity() account: Account,
     @Args() args: ConnectionArgs,
     @Args({ name: 'query', type: () => String, nullable: true })
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
@@ -292,10 +321,37 @@ export class PostResolver {
     const searchPosts = await this.prisma.post.findMany({
       where: {
         id: { in: postsId }
+      },
+      include: {
+        token: true
       }
     });
 
-    return connectionFromArraySlice(searchPosts, args, {
+    const followingPages = await this.prisma.followPage.findMany({
+      where: { accountId: account.id },
+      select: { pageId: true }
+    });
+    const followingTokens = await this.prisma.followPage.findMany({
+      where: { accountId: account.id },
+      select: { tokenId: true }
+    });
+    const followingAccounts = await this.prisma.followAccount.findMany({
+      where: { followerAccountId: account.id },
+      select: { followingAccountId: true }
+    });
+
+    const listFollowingPageId = followingPages.filter(item => item.pageId != null).map(item => item.pageId);
+    const listFollowingTokenId = followingTokens.filter(item => item.tokenId != null).map(item => item.tokenId);
+    const listFollowingAccountId = followingAccounts.map(item => item.followingAccountId);
+
+    const resultSearchedPosts = searchPosts.map(post => ({
+      ...post,
+      followedPage: post?.pageId && listFollowingPageId.includes(post?.pageId) ? true : false,
+      followedToken: post?.token?.tokenId && listFollowingTokenId.includes(post.token.tokenId) ? true : false,
+      followPostOwner: listFollowingAccountId.includes(post?.postAccountId) ? true : false
+    }));
+
+    return connectionFromArraySlice(resultSearchedPosts, args, {
       arrayLength: count || 0,
       sliceStart: offset || 0
     });
@@ -303,7 +359,9 @@ export class PostResolver {
 
   @SkipThrottle()
   @Query(() => PostResponse, { name: 'allPostsBySearchWithHashtag' })
+  @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearchWithHashtag(
+    @PostAccountEntity() account: Account,
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
     minBurnFilter: number,
     @Args()
@@ -340,10 +398,27 @@ export class PostResolver {
 
       const postsId = _.map(posts, 'id');
 
+      const followingPages = await this.prisma.followPage.findMany({
+        where: { accountId: account.id },
+        select: { pageId: true }
+      });
+      const followingTokens = await this.prisma.followPage.findMany({
+        where: { accountId: account.id },
+        select: { tokenId: true }
+      });
+      const followingAccounts = await this.prisma.followAccount.findMany({
+        where: { followerAccountId: account.id },
+        select: { followingAccountId: true }
+      });
+
+      const listFollowingPageId = followingPages.filter(item => item.pageId != null).map(item => item.pageId);
+      const listFollowingTokenId = followingTokens.filter(item => item.tokenId != null).map(item => item.tokenId);
+      const listFollowingAccountId = followingAccounts.map(item => item.followingAccountId);
+
       const result = await findManyCursorConnection(
-        args =>
-          this.prisma.post.findMany({
-            include: { translations: true },
+        async args => {
+          const allPost = await this.prisma.post.findMany({
+            include: { translations: true, page: true, token: true },
             where: {
               AND: [
                 {
@@ -358,7 +433,19 @@ export class PostResolver {
             },
             orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
             ...args
-          }),
+          });
+
+          const result = await Promise.all(
+            allPost.map(async post => ({
+              ...post,
+              followedPage: post?.pageId && listFollowingPageId.includes(post.pageId) ? true : false,
+              followedToken: post?.token?.tokenId && listFollowingTokenId.includes(post.token.tokenId) ? true : false,
+              followPostOwner: listFollowingAccountId.includes(post?.postAccountId) ? true : false
+            }))
+          );
+
+          return result;
+        },
         () =>
           this.prisma.post.count({
             where: {
@@ -387,8 +474,10 @@ export class PostResolver {
   }
 
   @SkipThrottle()
+  @UseGuards(GqlJwtAuthGuardByPass)
   @Query(() => PostResponse, { name: 'allPostsBySearchWithHashtagAtPage' })
   async allPostsBySearchWithHashtagAtPage(
+    @PostAccountEntity() account: Account,
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
     minBurnFilter: number,
     @Args()
@@ -443,15 +532,35 @@ export class PostResolver {
       orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined
     });
 
-    return connectionFromArraySlice(searchPosts, args, {
+    const followingPages = await this.prisma.followPage.findMany({
+      where: { accountId: account.id },
+      select: { pageId: true }
+    });
+    const followingAccounts = await this.prisma.followAccount.findMany({
+      where: { followerAccountId: account.id },
+      select: { followingAccountId: true }
+    });
+
+    const listFollowingPageId = followingPages.filter(item => item.pageId != null).map(item => item.pageId);
+    const listFollowingAccountId = followingAccounts.map(item => item.followingAccountId);
+
+    const resultSearchedPosts = searchPosts.map(post => ({
+      ...post,
+      followedPage: post?.pageId && listFollowingPageId.includes(post.pageId) ? true : false,
+      followPostOwner: listFollowingAccountId.includes(post?.postAccountId) ? true : false
+    }));
+
+    return connectionFromArraySlice(resultSearchedPosts, args, {
       arrayLength: count || 0,
       sliceStart: offset || 0
     });
   }
 
   @SkipThrottle()
+  @UseGuards(GqlJwtAuthGuardByPass)
   @Query(() => PostResponse, { name: 'allPostsBySearchWithHashtagAtToken' })
   async allPostsBySearchWithHashtagAtToken(
+    @PostAccountEntity() account: Account,
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
     minBurnFilter: number,
     @Args()
@@ -490,7 +599,7 @@ export class PostResolver {
     const postsId = _.map(posts, 'id');
 
     const searchPosts = await this.prisma.post.findMany({
-      include: { translations: true },
+      include: { translations: true, token: true },
       where: {
         AND: [
           {
@@ -506,7 +615,24 @@ export class PostResolver {
       orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined
     });
 
-    return connectionFromArraySlice(searchPosts, args, {
+    const followingTokens = await this.prisma.followPage.findMany({
+      where: { accountId: account.id },
+      select: { tokenId: true }
+    });
+    const followingAccounts = await this.prisma.followAccount.findMany({
+      where: { followerAccountId: account.id },
+      select: { followingAccountId: true }
+    });
+
+    const listFollowingTokenId = followingTokens.filter(item => item.tokenId != null).map(item => item.tokenId);
+    const listFollowingAccountId = followingAccounts.map(item => item.followingAccountId);
+    const resultSearchedPosts = searchPosts.map(post => ({
+      ...post,
+      followedToken: post?.token?.tokenId && listFollowingTokenId.includes(post.token.tokenId) ? true : false,
+      followPostOwner: listFollowingAccountId.includes(post?.postAccountId) ? true : false
+    }));
+
+    return connectionFromArraySlice(resultSearchedPosts, args, {
       arrayLength: count || 0,
       sliceStart: offset || 0
     });
@@ -527,10 +653,22 @@ export class PostResolver {
     })
     orderBy: PostOrder
   ) {
+    const followingTokens = await this.prisma.followPage.findMany({
+      where: { accountId: account.id },
+      select: { tokenId: true }
+    });
+    const followingAccounts = await this.prisma.followAccount.findMany({
+      where: { followerAccountId: account.id },
+      select: { followingAccountId: true }
+    });
+
+    const listFollowingTokenId = followingTokens.filter(item => item.tokenId != null).map(item => item.tokenId);
+    const listFollowingAccountId = followingAccounts.map(item => item.followingAccountId);
+
     const result = await findManyCursorConnection(
-      args =>
-        this.prisma.post.findMany({
-          include: { postAccount: true, comments: true, translations: true },
+      async args => {
+        const posts = await this.prisma.post.findMany({
+          include: { postAccount: true, comments: true, translations: true, token: true },
           where: {
             OR: [
               {
@@ -552,7 +690,19 @@ export class PostResolver {
           },
           orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
           ...args
-        }),
+        });
+
+        const result = await Promise.all(
+          posts.map(async post => ({
+            ...post,
+            followedToken: post?.token?.tokenId && listFollowingTokenId.includes(post.token.tokenId) ? true : false,
+            followPostOwner: listFollowingAccountId.includes(post?.postAccountId) ? true : false
+          }))
+        );
+
+        return result;
+      },
+
       () =>
         this.prisma.post.count({
           where: {
@@ -595,6 +745,13 @@ export class PostResolver {
     })
     orderBy: PostOrder
   ) {
+    const followingAccounts = await this.prisma.followAccount.findMany({
+      where: { followerAccountId: account.id },
+      select: { followingAccountId: true }
+    });
+
+    const listFollowingAccountId = followingAccounts.map(item => item.followingAccountId);
+
     let result;
     if (account.id === _.toSafeInteger(id)) {
       result = await findManyCursorConnection(
@@ -639,8 +796,8 @@ export class PostResolver {
       );
     } else {
       result = await findManyCursorConnection(
-        args =>
-          this.prisma.post.findMany({
+        async args => {
+          const posts = await this.prisma.post.findMany({
             include: { postAccount: true, page: false, token: false, translations: true },
             where: {
               AND: [
@@ -658,7 +815,17 @@ export class PostResolver {
             },
             orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
             ...args
-          }),
+          });
+
+          const result = await Promise.all(
+            posts.map(async post => ({
+              ...post,
+              followPostOwner: listFollowingAccountId.includes(post?.postAccountId) ? true : false
+            }))
+          );
+
+          return result;
+        },
         () =>
           this.prisma.post.count({
             where: {
@@ -697,10 +864,27 @@ export class PostResolver {
     })
     orderBy: PostOrder
   ) {
+    const followingPages = await this.prisma.followPage.findMany({
+      where: { accountId: account.id },
+      select: { pageId: true }
+    });
+    const followingTokens = await this.prisma.followPage.findMany({
+      where: { accountId: account.id },
+      select: { tokenId: true }
+    });
+    const followingAccounts = await this.prisma.followAccount.findMany({
+      where: { followerAccountId: account.id },
+      select: { followingAccountId: true }
+    });
+
+    const listFollowingPageId = followingPages.filter(item => item.pageId != null).map(item => item.pageId);
+    const listFollowingTokenId = followingTokens.filter(item => item.tokenId != null).map(item => item.tokenId);
+    const listFollowingAccountId = followingAccounts.map(item => item.followingAccountId);
+
     const result = await findManyCursorConnection(
-      args =>
-        this.prisma.post.findMany({
-          include: { postAccount: true, comments: true, postHashtags: true, translations: true },
+      async args => {
+        const posts = await this.prisma.post.findMany({
+          include: { postAccount: true, comments: true, postHashtags: true, translations: true, token: true },
           where: {
             postHashtags: {
               some: {
@@ -710,7 +894,19 @@ export class PostResolver {
           },
           orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
           ...args
-        }),
+        });
+
+        const result = await Promise.all(
+          posts.map(async post => ({
+            ...post,
+            followedPage: post?.pageId && listFollowingPageId.includes(post.pageId) ? true : false,
+            followedToken: post?.token?.tokenId && listFollowingTokenId.includes(post.token.tokenId) ? true : false,
+            followPostOwner: listFollowingAccountId.includes(post?.postAccountId) ? true : false
+          }))
+        );
+
+        return result;
+      },
       () =>
         this.prisma.post.count({
           where: {
