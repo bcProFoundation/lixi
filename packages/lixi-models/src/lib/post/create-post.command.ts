@@ -1,4 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
+
 import { FollowForType } from '../follow';
 
 export class CreatePostCommand {
