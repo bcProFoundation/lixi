@@ -306,6 +306,7 @@ export class PageMessageSessionResolver {
   ) {
     const result = await findManyCursorConnection(
       async args => {
+        let sessions = [];
         const pageMessageSessions = await this.prisma.pageMessageSession.findMany({
           include: {
             page: true,
@@ -353,22 +354,19 @@ export class PageMessageSessionResolver {
         );
 
         //combine cache and db
-        const result = pageMessageSessions.map(pageMessageSession => {
-          const cache = latestMessageCache.find(cache => cache.id === pageMessageSession.id);
-          return {
-            ...pageMessageSession,
-            latestMessage: {
-              body: cache?.latestMessage,
-              id: cache?.latestMessageId,
-              author: {
-                id: cache?.authorId === '' ? 0 : _.toSafeInteger(cache?.authorId),
-                address: cache?.authorAddress
-              }
+        for (let i = 0; i < pageMessageSessions.length; i++) {
+          const latestMessage = {
+            id: latestMessageCache[i]?.latestMessageId,
+            body: latestMessageCache[i]?.latestMessage,
+            author: {
+              id: latestMessageCache[i]?.authorId,
+              address: latestMessageCache[i]?.authorAddress
             }
           };
-        });
+          sessions.push({ ...pageMessageSessions[i], latestMessage: latestMessage });
+        }
 
-        return result;
+        return sessions;
       },
       () =>
         this.prisma.pageMessageSession.count({

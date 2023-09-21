@@ -42,10 +42,10 @@ export class PageMessageSessionCacheService {
     }
 
     return {
-      latestMessage: pageMessageSessionCache[0] ?? 0,
-      latestMessageId: pageMessageSessionCache[1] ?? 0,
-      authorId: pageMessageSessionCache[2] ?? 0,
-      authorAddress: pageMessageSessionCache[3] ?? 0
+      latestMessage: pageMessageSessionCache[0] ?? '',
+      latestMessageId: pageMessageSessionCache[1] ?? '',
+      authorId: pageMessageSessionCache[2] ?? '',
+      authorAddress: pageMessageSessionCache[3] ?? ''
     };
   }
 

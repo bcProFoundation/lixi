@@ -27,8 +27,8 @@ export class PageMessageSession {
   @Field(() => [Message], { nullable: true })
   messages?: [Message];
 
-  @Field(() => Message, { nullable: true })
-  latestMessage?: Message;
+  @Field(() => LatestMessage, { nullable: true })
+  latestMessage?: LatestMessage;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the session was opened.',
@@ -66,11 +66,17 @@ export class LatestMessage {
   @Field(() => String, { nullable: true })
   body?: string;
 
-  @Field(() => Object, { nullable: true })
-  author?: {
-    id?: number;
-    address?: string;
-  };
+  @Field(() => LatestMessageAuthor, { nullable: true })
+  author?: LatestMessageAuthor;
+}
+
+@ObjectType()
+export class LatestMessageAuthor {
+  @Field(() => Number, { nullable: true })
+  id?: number;
+
+  @Field(() => String, { nullable: true })
+  address?: string;
 }
 
 export enum PageMessageSessionStatus {
