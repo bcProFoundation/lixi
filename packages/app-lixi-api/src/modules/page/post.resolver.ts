@@ -269,6 +269,7 @@ export class PostResolver {
 
   @SkipThrottle()
   @Query(() => PostResponse, { name: 'allPostsBySearch' })
+  @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearch(
     @Args() args: ConnectionArgs,
     @Args({ name: 'query', type: () => String, nullable: true })
@@ -294,7 +295,8 @@ export class PostResolver {
     const searchPosts = await this.prisma.post.findMany({
       where: {
         id: { in: postsId }
-      }
+      },
+      include: { postAccount: true }
     });
 
     return connectionFromArraySlice(searchPosts, args, {
@@ -305,6 +307,7 @@ export class PostResolver {
 
   @SkipThrottle()
   @Query(() => PostResponse, { name: 'allPostsBySearchWithHashtag' })
+  @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearchWithHashtag(
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
     minBurnFilter: number,
@@ -345,7 +348,7 @@ export class PostResolver {
       const result = await findManyCursorConnection(
         args =>
           this.prisma.post.findMany({
-            include: { translations: true },
+            include: { translations: true, postAccount: true },
             where: {
               AND: [
                 {
@@ -390,6 +393,7 @@ export class PostResolver {
 
   @SkipThrottle()
   @Query(() => PostResponse, { name: 'allPostsBySearchWithHashtagAtPage' })
+  @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearchWithHashtagAtPage(
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
     minBurnFilter: number,
@@ -429,7 +433,7 @@ export class PostResolver {
     const postsId = _.map(posts, 'id');
 
     const searchPosts = await this.prisma.post.findMany({
-      include: { translations: true },
+      include: { translations: true, postAccount: true },
       where: {
         AND: [
           {
@@ -453,6 +457,7 @@ export class PostResolver {
 
   @SkipThrottle()
   @Query(() => PostResponse, { name: 'allPostsBySearchWithHashtagAtToken' })
+  @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearchWithHashtagAtToken(
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
     minBurnFilter: number,
@@ -492,7 +497,7 @@ export class PostResolver {
     const postsId = _.map(posts, 'id');
 
     const searchPosts = await this.prisma.post.findMany({
-      include: { translations: true },
+      include: { translations: true, postAccount: true },
       where: {
         AND: [
           {
@@ -1179,29 +1184,24 @@ export class PostResolver {
   }
 
   @ResolveField('followPostOwner', () => Boolean)
-  @UseGuards(GqlJwtAuthGuardByPass)
   async followPostOwner(@Parent() post: Post, @PostAccountEntity() account: Account) {
     const payload = {
       followingAccountId: post.postAccount.id,
       accountId: account.id
     };
-
     return this.postLoader.batchCheckAccountFollowAllAccount.load(payload);
   }
 
   @ResolveField('followedPage', () => Boolean)
-  @UseGuards(GqlJwtAuthGuardByPass)
   async followedPage(@Parent() post: Post, @PostAccountEntity() account: Account) {
     const payload = {
       pageId: post?.page?.id || '',
       accountId: account.id
     };
-
     return this.postLoader.batchCheckAccountFollowAllPage.load(payload);
   }
 
   @ResolveField('followedToken', () => Boolean)
-  @UseGuards(GqlJwtAuthGuardByPass)
   async followedToken(@Parent() post: Post, @PostAccountEntity() account: Account) {
     const payload = {
       tokenId: post?.token?.tokenId || '',
