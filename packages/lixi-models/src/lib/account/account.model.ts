@@ -1,9 +1,10 @@
-import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Message, PageMessageSession } from '../message';
 import { Page } from '../page';
+import { AccountDana } from './account-dana.model';
 
 @ObjectType()
 export class Account {
@@ -106,25 +107,4 @@ export class Account {
   }
 }
 
-@ObjectType()
-export class AccountDana {
-  @Field(() => ID)
-  id: string;
 
-  @Field(() => Float, { nullable: true })
-  danaGiven?: number;
-
-  @Field(() => Float, { nullable: true })
-  danaReceived?: number;
-
-  @Field(() => [AccountDanaHistory], { nullable: true })
-  accountDanaHistory?: [AccountDanaHistory];
-}
-
-@ObjectType()
-export class AccountDanaHistory {
-  @Field(() => ID)
-  id: string;
-
-  //Add more if needed
-}

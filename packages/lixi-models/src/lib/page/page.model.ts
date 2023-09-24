@@ -5,6 +5,7 @@ import { GraphQLDateTime } from 'graphql-scalars';
 import { Account } from '../account';
 import { Category } from '../category/';
 import { PageMessageSession } from '../message';
+import { PageDana } from './page-dana.model';
 
 @ObjectType()
 export class Page {
@@ -120,6 +121,10 @@ export class Page {
 
   @Field(() => Boolean, { nullable: true })
   followerFreeMessage?: Nullable<boolean>;
+
+  @IsOptional()
+  @Field(() => PageDana, { nullable: true })
+  pageDana?: Nullable<PageDana>
 
   constructor(partial: Partial<Page>) {
     Object.assign(this, partial);

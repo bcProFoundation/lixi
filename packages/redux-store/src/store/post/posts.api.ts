@@ -9,10 +9,10 @@ export interface PostApiState extends EntityState<PostQuery['post']> {
 }
 
 const enhancedApi = api.enhanceEndpoints({
-  addTagTypes: ['Post'],
+  addTagTypes: ['Post', 'Posts'],
   endpoints: {
     PostsBySearch: {
-      providesTags: (result, error, arg) => ['Post'],
+      providesTags: (result, error, arg) => ['Posts'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
           const { query, minBurnFilter, ...otherArgs } = queryArgs;
@@ -26,7 +26,7 @@ const enhancedApi = api.enhanceEndpoints({
       }
     },
     PostsBySearchWithHashtag: {
-      providesTags: (result, error, arg) => ['Post'],
+      providesTags: (result, error, arg) => ['Posts'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
           const { hashtags, query, minBurnFilter, ...otherArgs } = queryArgs;
@@ -40,7 +40,7 @@ const enhancedApi = api.enhanceEndpoints({
       }
     },
     PostsBySearchWithHashtagAtPage: {
-      providesTags: (result, error, arg) => ['Post'],
+      providesTags: (result, error, arg) => ['Posts'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
           const { hashtags, query, minBurnFilter, pageId, ...otherArgs } = queryArgs;
@@ -57,7 +57,7 @@ const enhancedApi = api.enhanceEndpoints({
       }
     },
     PostsBySearchWithHashtagAtToken: {
-      providesTags: (result, error, arg) => ['Post'],
+      providesTags: (result, error, arg) => ['Posts'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
           const { hashtags, query, minBurnFilter, tokenId, ...otherArgs } = queryArgs;
@@ -74,7 +74,7 @@ const enhancedApi = api.enhanceEndpoints({
       }
     },
     PostsByPageId: {
-      providesTags: (result, error, arg) => ['Post'],
+      providesTags: (result, error, arg) => ['Posts'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
           const { id, minBurnFilter, ...otherArgs } = queryArgs;
@@ -90,7 +90,7 @@ const enhancedApi = api.enhanceEndpoints({
       }
     },
     PostsByTokenId: {
-      providesTags: (result, error, arg) => ['Post'],
+      providesTags: (result, error, arg) => ['Posts'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
           const { id, minBurnFilter, ...otherArgs } = queryArgs;
@@ -106,7 +106,7 @@ const enhancedApi = api.enhanceEndpoints({
       }
     },
     PostsByUserId: {
-      providesTags: (result, error, arg) => ['Post'],
+      providesTags: (result, error, arg) => ['Posts'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
           const { id, minBurnFilter, ...otherArgs } = queryArgs;
@@ -125,7 +125,7 @@ const enhancedApi = api.enhanceEndpoints({
       providesTags: (result, error, arg) => ['Post']
     },
     PostsByHashtagId: {
-      providesTags: (result, error, arg) => ['Post'],
+      providesTags: (result, error, arg) => ['Posts'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
           const { id, ...otherArgs } = queryArgs;
@@ -244,7 +244,7 @@ const enhancedApi = api.enhanceEndpoints({
               )
             );
           }
-        } catch {}
+        } catch { }
       }
     },
     updatePost: {
@@ -253,7 +253,7 @@ const enhancedApi = api.enhanceEndpoints({
         const { isTop, minBurnFilter } = extraArguments;
         try {
           const { data: result } = await queryFulfilled;
-        } catch {}
+        } catch { }
       }
     },
     repost: {}

@@ -1,16 +1,23 @@
-import { Burn, BurnCommand, BurnQueueCommand } from '@bcpros/lixi-models';
+import { Burn, BurnCommand, BurnForType, BurnQueueCommand } from '@bcpros/lixi-models';
 import { createAction } from '@reduxjs/toolkit';
+import { BurnForItem } from '../../generated';
 
-export const burnForUpDownVote = createAction<BurnCommand>('post/burnForUpDownVote');
-export const burnForUpDownVoteSuccess = createAction<Burn>('post/burnForUpDownVoteSuccess');
-export const burnForUpDownVoteFailure = createAction<string>('post/burnForUpDownVoteFailure');
-export const addBurnTransaction = createAction<BurnQueueCommand>('post/addBurnTransaction');
-export const createTxHex = createAction<any>('post/createTxHex');
-export const returnTxHex = createAction<{ rawTxHex: string; minerFee: string }>('post/returnTxHex');
-export const addBurnQueue = createAction<any>('post/addBurnQueue');
-export const removeBurnQueue = createAction('post/removeBurnQueue');
-export const clearBurnQueue = createAction('post/clearBurnQueue');
-export const addFailQueue = createAction<any>('post/addFailQueue');
-export const removeFailQueue = createAction('post/removeFailQueue');
-export const clearFailQueue = createAction('post/clearFailQueue');
-export const moveAllBurnToFailQueue = createAction('post/moveAllBurnToFailQueue');
+export const burnForUpDownVote = createAction<BurnCommand>('burn/burnForUpDownVote');
+export const burnForUpDownVoteSuccess = createAction<Burn>('burn/burnForUpDownVoteSuccess');
+export const burnForUpDownVoteFailure = createAction<string>('burn/burnForUpDownVoteFailure');
+export const addBurnTransaction = createAction<BurnQueueCommand>('burn/addBurnTransaction');
+export const createTxHex = createAction<any>('burn/createTxHex');
+export const returnTxHex = createAction<{ rawTxHex: string; minerFee: string }>('burn/returnTxHex');
+export const prepareBurnCommand = createAction<{
+  isUpVote: boolean;
+  burnForItem: BurnForItem,
+  burnForType: BurnForType,
+  burnValue: string
+}>('burn/prepareBurnCommand');
+export const addBurnQueue = createAction<any>('burn/addBurnQueue');
+export const removeBurnQueue = createAction('burn/removeBurnQueue');
+export const clearBurnQueue = createAction('burn/clearBurnQueue');
+export const addFailQueue = createAction<any>('burn/addFailQueue');
+export const removeFailQueue = createAction('burn/removeFailQueue');
+export const clearFailQueue = createAction('burn/clearFailQueue');
+export const moveAllBurnToFailQueue = createAction('burn/moveAllBurnToFailQueue');

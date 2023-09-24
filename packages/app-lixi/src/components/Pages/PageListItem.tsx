@@ -77,16 +77,6 @@ const Content = styled.div`
     }
     iframe {
       width: 100% !important;
-      // &#twitter-widget-0 {
-      //   height: 750px !important;
-      //   @media (min-width: 960px) {
-      //     width: 550px !important;
-      //     margin: auto !important;
-      //   }
-      //   @media (max-width: 960px) {
-      //     height: 620px !important;
-      //   }
-      // }
       &#reddit-embed {
         height: 500px !important;
         @media (max-width: 960px) {
@@ -342,7 +332,7 @@ const PageListItem = ({ index, item }) => {
               text={Math.floor(Math.random() * 10).toString()}
               key={`list-vertical-share-o-${item.id}`}
               dataItem={item}
-              onClickIcon={() => {}}
+              onClickIcon={() => { }}
             />
           </CountBar>
           <div className="line"></div>

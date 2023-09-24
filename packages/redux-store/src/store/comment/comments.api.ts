@@ -9,9 +9,10 @@ export interface CommentApiState extends EntityState<CommentQuery['comment']> {
 }
 
 const enhancedApi = api.enhanceEndpoints({
-  addTagTypes: ['Comment'],
+  addTagTypes: ['Comment', 'Comments'],
   endpoints: {
     CommentsToPostId: {
+      providesTags: ['Comments'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
           const { orderBy, id, ...otherArgs } = queryArgs;

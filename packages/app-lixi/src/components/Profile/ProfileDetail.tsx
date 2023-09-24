@@ -553,7 +553,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
         burnValue,
         tipToAddresses: tipToAddresses,
         extraArguments: {
-          postQueryTag: PostsQueryTag.PostsByUserId,
+          postQueryTags: [PostsQueryTag.PostsByUserId],
           userId: post.postAccount?.id,
           minBurnFilter: filterValue,
           level: level

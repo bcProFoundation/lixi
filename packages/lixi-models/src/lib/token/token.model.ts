@@ -1,6 +1,7 @@
 import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
+import { TokenDana } from './token-dana.model';
 
 @ObjectType()
 export class Token {
@@ -62,6 +63,10 @@ export class Token {
 
   @Field(() => Boolean, { nullable: true })
   isFollowed?: Nullable<boolean>;
+
+  @IsOptional()
+  @Field(() => TokenDana, { nullable: true })
+  tokenDana?: Nullable<TokenDana>
 
   constructor(partial: Partial<Token>) {
     Object.assign(this, partial);

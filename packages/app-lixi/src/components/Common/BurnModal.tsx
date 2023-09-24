@@ -13,7 +13,7 @@ import { WalletContext } from '@context/walletProvider';
 import { CommentOrderField, OrderDirection } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
 import { getSelectedAccount } from '@store/account/selectors';
-import { addBurnQueue, addBurnTransaction, clearFailQueue, getBurnQueue, getFailQueue } from '@store/burn';
+import { addBurnQueue, addBurnTransaction, clearFailQueue, getBurnQueue, getFailQueue, prepareBurnCommand } from '@store/burn';
 import { useCommentQuery } from '@store/comment/comments.generated';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { closeModal } from '@store/modal/actions';
@@ -36,6 +36,7 @@ import { CURRENCIES, WalletItem, decimalFormatBalance } from '@components/Wallet
 import { QRCodeModal } from './QRCodeModal';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { ReactSVG } from 'react-svg';
+import { BurnForItem } from '@generated/index';
 
 const UpDownButton = styled(Button)`
   background: rgb(158, 42, 156);
@@ -105,15 +106,13 @@ const RadioStyle = styled(Radio.Group)`
 
 const DefaultXpiBurnValues = [1, 10, 50, 100, 200, 500, 1000];
 
-type BurnForItem = PostItem | CommentItem | TokenItem;
 interface BurnModalProps {
-  id?: string;
+  burnForItem: BurnForItem;
   burnForType: BurnForType;
-  isPage?: boolean;
   classStyle?: string;
 }
 
-export const BurnModal = ({ id, burnForType, isPage, classStyle }: BurnModalProps) => {
+export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalProps) => {
   const {
     formState: { errors },
     control
@@ -121,8 +120,6 @@ export const BurnModal = ({ id, burnForType, isPage, classStyle }: BurnModalProp
   const dispatch = useAppDispatch();
   const selectedAccount = useAppSelector(getSelectedAccount);
   const Wallet = React.useContext(WalletContext);
-  const { XPI, chronik } = Wallet;
-  const { createBurnTransaction } = useXPI();
   const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
   const walletPaths = useAppSelector(getAllWalletPaths);
   const [selectedAmount, setSelectedAmount] = useState(1);
@@ -159,12 +156,13 @@ export const BurnModal = ({ id, burnForType, isPage, classStyle }: BurnModalProp
       const burnValue = _.isNil(control._formValues.burnedValue)
         ? DefaultXpiBurnValues[0]
         : control._formValues.burnedValue;
-      if (failQueue.length > 0) dispatch(clearFailQueue());
-      const fundingFirstUtxo = slpBalancesAndUtxos.nonSlpUtxos[0];
-      const currentWalletPath = walletPaths.filter(acc => acc.xAddress === fundingFirstUtxo.address).pop();
-      const { fundingWif, hash160 } = currentWalletPath;
-      const burnType = isUpVote ? BurnType.Up : BurnType.Down;
-      const burnedBy = hash160;
+
+      dispatch(prepareBurnCommand({
+        isUpVote,
+        burnForId: burnForItem.id.toString(),
+        burnForType,
+        burnValue
+      }));
 
       switch (burnForType) {
         case BurnForType.Post:
@@ -241,7 +239,7 @@ export const BurnModal = ({ id, burnForType, isPage, classStyle }: BurnModalProp
         tipToAddresses: tipToAddresses,
         extraArguments: {
           isTop: isTop,
-          postQueryTag: tag,
+          postQueryTags: [tag],
           tokenId: tokenId,
           orderBy: queryParams,
           pageId: pageId,

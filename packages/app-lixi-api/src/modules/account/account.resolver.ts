@@ -35,12 +35,82 @@ export class AccountResolver {
     @I18n() private i18n: I18nService,
     @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
     private readonly accountCacheService: AccountCacheService
-  ) {}
+  ) { }
 
   @Subscription(() => Account)
   accountCreated() {
     return pubSub.asyncIterator('accountCreated');
   }
+
+  @Query(() => Account)
+  @UseGuards(GqlJwtAuthGuard)
+  async account(@AccountEntity() myAccount: Account, @Args('id', { type: () => Number }) id: number) {
+
+    if (!myAccount) {
+      const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
+      throw new VError(accountNotExistMessage);
+    }
+
+    if (myAccount.id !== id) {
+      const noPermissionMessage = await this.i18n.t('account.messages.noPermission');
+      throw new VError(noPermissionMessage);
+    }
+
+    try {
+      let account = await this.accountCacheService.getById(id);
+
+      if (!account) {
+        const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
+        throw new VError(accountNotExistMessage);
+      }
+
+      let followersCount = 0;
+      let followingsCount = 0;
+      let followingPagesCount = 0;
+      if (myAccount.id === account.id) {
+        const followingsCountPromise = this.prisma.followAccount.count({
+          where: { followerAccountId: myAccount.id }
+        });
+        const followersCountPromise = this.prisma.followAccount.count({
+          where: { followingAccountId: myAccount.id }
+        });
+        const followingPagesCountPromise = this.prisma.followPage.count({
+          where: { accountId: myAccount.id }
+        });
+
+        [followersCount, followingsCount, followingPagesCount] = await Promise.all([
+          followersCountPromise,
+          followingsCountPromise,
+          followingPagesCountPromise
+        ]);
+      }
+
+      const result = _.omit(
+        {
+          ...account,
+          followersCount: followersCount,
+          followingsCount: followingsCount,
+          followingPagesCount: followingPagesCount
+        },
+        'encryptedMnemonic',
+        'encryptedSecret',
+        'mnemonicHash',
+        'notifications'
+      );
+
+      return result;
+
+    } catch (err: unknown) {
+      if (err instanceof VError) {
+        throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      } else {
+        const unableGetAccountMessage = await this.i18n.t('account.messages.unableGetAccount');
+        const error = new VError.WError(err as Error, unableGetAccountMessage);
+        throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
 
   @Query(() => Account)
   @UseGuards(GqlJwtAuthGuard)
@@ -282,18 +352,18 @@ export class AccountResolver {
 
     const uploadAvatarDetail = data.avatar
       ? await this.prisma.uploadDetail.findFirst({
-          where: {
-            uploadId: data.avatar
-          }
-        })
+        where: {
+          uploadId: data.avatar
+        }
+      })
       : undefined;
 
     const uploadCoverDetail = data.cover
       ? await this.prisma.uploadDetail.findFirst({
-          where: {
-            uploadId: data.cover
-          }
-        })
+        where: {
+          uploadId: data.cover
+        }
+      })
       : undefined;
 
     const updatedAccount = await this.prisma.account.update({

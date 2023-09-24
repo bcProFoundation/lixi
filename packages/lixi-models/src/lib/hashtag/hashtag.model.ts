@@ -2,6 +2,8 @@ import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { PostHashtag } from './postHashtag.model';
+import { IsOptional } from 'class-validator';
+import { HashtagDana } from './hashtag-dana.model';
 
 @ObjectType()
 export class Hashtag {
@@ -25,6 +27,10 @@ export class Hashtag {
 
   @Field(() => Float)
   danaBurnScore: number;
+
+  @IsOptional()
+  @Field(() => HashtagDana, { nullable: true })
+  hashtagDana?: Nullable<HashtagDana>;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.',

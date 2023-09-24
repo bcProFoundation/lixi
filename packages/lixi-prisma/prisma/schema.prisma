@@ -91,8 +91,20 @@ model Token {
   createdDate          DateTime     @default(now()) @map("created_date") @db.Timestamptz
   posts                Post[]
   followers            FollowPage[]
+  TokenDana            TokenDana?
 
   @@map("token")
+}
+
+model TokenDana {
+  danaBurnUp    Float  @default(0.0) @map("dana_burn_up")
+  danaBurnDown  Float  @default(0.0) @map("dana_burn_down")
+  danaBurnScore Float  @default(0.0) @map("dana_burn_score")
+  token         Token  @relation(fields: [tokenId], references: [id])
+  tokenId       String @unique @map("token_id")
+
+  @@index([tokenId])
+  @@map("token_dana")
 }
 
 model Category {
@@ -145,8 +157,20 @@ model Page {
   accessMessageFee    Float?               @default(0.0) @map("access_message_fee")
   minDanaForMessage   Float?               @default(0.0) @map("min_dana_for_message")
   followerFreeMessage Boolean?             @default(false) @map("follower_free_message")
+  PageDana            PageDana?
 
   @@map("page")
+}
+
+model PageDana {
+  danaBurnUp    Float  @default(0.0) @map("dana_burn_up")
+  danaBurnDown  Float  @default(0.0) @map("dana_burn_down")
+  danaBurnScore Float  @default(0.0) @map("dana_burn_score")
+  page          Page   @relation(fields: [pageId], references: [id])
+  pageId        String @unique @map("page_id")
+
+  @@index([pageId])
+  @@map("page_dana")
 }
 
 model Post {
@@ -172,31 +196,55 @@ model Post {
   lastRepostAt     DateTime          @default(now()) @map("updated_repost_at") @db.Timestamptz
   originalLanguage String?           @map("original_language")
   translations     PostTranslation[]
+  PostDana         PostDana?
 
   @@map("post")
 }
 
+model PostDana {
+  danaBurnUp    Float  @default(0.0) @map("dana_burn_up")
+  danaBurnDown  Float  @default(0.0) @map("dana_burn_down")
+  danaBurnScore Float  @default(0.0) @map("dana_burn_score")
+  post          Post   @relation(fields: [postId], references: [id])
+  postId        String @unique @map("post_id")
+
+  @@index([postId])
+  @@map("post_dana")
+}
+
 model Comment {
-  id                 String   @id @default(cuid())
-  commentAccount     Account? @relation(fields: [commentAccountId], references: [id])
-  commentAccountId   Int?     @map("comment_account_id")
-  commentTo          Post     @relation(fields: [commentToId], references: [id])
-  commentByPublicKey String?  @map("comment_by_public_key")
-  commentToId        String   @map("comment_to_id")
-  commentText        String   @default("") @map("comment_text")
-  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt          DateTime @default(now()) @map("updated_at") @db.Timestamptz
-  danaBurnUp         Float    @default(0.0) @map("dana_burn_up")
-  danaBurnDown       Float    @default(0.0) @map("dana_burn_down")
-  danaBurnScore      Float    @default(0.0) @map("dana_burn_score")
+  id                 String       @id @default(cuid())
+  commentAccount     Account?     @relation(fields: [commentAccountId], references: [id])
+  commentAccountId   Int?         @map("comment_account_id")
+  commentTo          Post         @relation(fields: [commentToId], references: [id])
+  commentByPublicKey String?      @map("comment_by_public_key")
+  commentToId        String       @map("comment_to_id")
+  commentText        String       @default("") @map("comment_text")
+  createdAt          DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime     @default(now()) @map("updated_at") @db.Timestamptz
+  danaBurnUp         Float        @default(0.0) @map("dana_burn_up")
+  danaBurnDown       Float        @default(0.0) @map("dana_burn_down")
+  danaBurnScore      Float        @default(0.0) @map("dana_burn_score")
   giveTip            GiveTip?
-  createFee          Float?   @map("create_fee")
+  createFee          Float?       @map("create_fee")
   txid               String?
+  CommentDana        CommentDana?
 
   @@index([commentAccountId], map: "index_comment_on_account")
   @@index([commentByPublicKey], map: "index_comment_by_public_key")
   @@index([commentToId], map: "index_comment_on_post")
   @@map("comment")
+}
+
+model CommentDana {
+  danaBurnUp    Float   @default(0.0) @map("dana_burn_up")
+  danaBurnDown  Float   @default(0.0) @map("dana_burn_down")
+  danaBurnScore Float   @default(0.0) @map("dana_burn_score")
+  comment       Comment @relation(fields: [commentId], references: [id])
+  commentId     String  @unique @map("comment_id")
+
+  @@index([commentId])
+  @@map("comment_dana")
 }
 
 model Account {
@@ -227,9 +275,7 @@ model Account {
   reposts             Repost[]
   messages            Message[]
   pageMessageSessions PageMessageSession[]
-  //dana
   accountDana         AccountDana?
-  //profile 
   avatar              UploadDetail?        @relation("avatar")
   cover               UploadDetail?        @relation("cover")
   description         String               @default("") @map("description") @db.VarChar(1000)
@@ -250,8 +296,6 @@ model AccountDana {
   danaGiven          Float                @default(0.0) @map("dana_given")
   danaReceived       Float                @default(0.0) @map("dana_received")
   accountDanaHistory AccountDanaHistory[]
-  createdAt          DateTime             @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt          DateTime             @default(now()) @map("updated_at") @db.Timestamptz
 
   @@index([accountId])
   @@map("account_dana")
@@ -809,9 +853,21 @@ model Hashtag {
   danaBurnScore     Float         @default(0.0) @map("dana_burn_score")
   createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime      @default(now()) @map("updated_at") @db.Timestamptz
+  HashtagDana       HashtagDana?
 
   @@index(content)
   @@map("hashtag")
+}
+
+model HashtagDana {
+  danaBurnUp    Float   @default(0.0) @map("dana_burn_up")
+  danaBurnDown  Float   @default(0.0) @map("dana_burn_down")
+  danaBurnScore Float   @default(0.0) @map("dana_burn_score")
+  hashtag       Hashtag @relation(fields: [hashtagId], references: [id])
+  hashtagId     String  @unique @map("hashtag_id")
+
+  @@index([hashtagId])
+  @@map("hashtag_dana")
 }
 
 model Repost {

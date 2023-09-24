@@ -167,7 +167,7 @@ const ReactionToken = ({ token, handleBurnForToken }: ReactionTokenProps) => {
         burnForType: BurnForType.Token,
         id: dataItem.tokenId,
         isPage: dataItem.page ? true : false,
-        classStyle: 'ahihi'
+        classStyle: ''
       })
     );
     hideReact();

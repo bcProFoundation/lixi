@@ -422,7 +422,7 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
         tipToAddresses: tipToAddresses,
         extraArguments: {
           isTop: isTop,
-          postQueryTag: tag,
+          postQueryTags: [tag],
           pageId: post.page?.id,
           tokenId: post.token?.id,
           minBurnFilter: filterValue,

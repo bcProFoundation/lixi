@@ -380,7 +380,7 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
         burnForId,
         burnValue,
         extraArguments: {
-          postQueryTag: PostsQueryTag.PostsByTokenId,
+          postQueryTags: [PostsQueryTag.PostsByTokenId],
           tokenId: post.token?.id,
           minBurnFilter: filterValue,
           query: query,

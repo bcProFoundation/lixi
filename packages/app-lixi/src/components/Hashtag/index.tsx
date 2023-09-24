@@ -21,6 +21,7 @@ import { currency } from '@components/Common/Ticker';
 import _ from 'lodash';
 import { getFilterPostsHome, getLevelFilter } from '@store/settings';
 import CreatePostCard from '@components/Common/CreatePostCard';
+import { PostItem } from '../Posts/PostDetail';
 
 type HashtagItem = HashtagQuery['hashtag'];
 
@@ -78,7 +79,7 @@ const Hashtag = ({ hashtag, isMobile }: HashtagProps) => {
 
   useDidMountEffectNotification();
 
-  const handleBurnForPost = async (isUpVote: boolean, post: any) => {
+  const handleBurnForPost = async (isUpVote: boolean, post: PostItem) => {
     try {
       const burnValue = '1';
       if (
@@ -133,7 +134,7 @@ const Hashtag = ({ hashtag, isMobile }: HashtagProps) => {
           tokenId: post.token?.id,
           hashtagId: hashtag.id,
           minBurnFilter: filterValue,
-          postQueryTag: tag,
+          postQueryTags: [tag],
           level: level
         }
       };
