@@ -530,7 +530,7 @@ export class PostResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.post.findMany({
-          include: { postAccount: true, comments: true, translations: true },
+          include: { postAccount: true, comments: true, translations: true, token: true },
           where: {
             OR: [
               {
@@ -1174,5 +1174,38 @@ export class PostResolver {
   @ResolveField('danaViewScore', () => Number)
   async danaViewScore(@Parent() post: Post) {
     return this.postLoader.batchDanaViewScores.load(post.id);
+  }
+
+  @ResolveField('followPostOwner', () => Boolean)
+  @UseGuards(GqlJwtAuthGuardByPass)
+  async followPostOwner(@Parent() post: Post, @PostAccountEntity() account: Account) {
+    const payload = {
+      followingAccountId: post.postAccount.id,
+      accountId: account.id
+    };
+
+    return this.postLoader.batchCheckAccountFollowAllAccount.load(payload);
+  }
+
+  @ResolveField('followedPage', () => Boolean)
+  @UseGuards(GqlJwtAuthGuardByPass)
+  async followedPage(@Parent() post: Post, @PostAccountEntity() account: Account) {
+    const payload = {
+      pageId: post?.page?.id || '',
+      accountId: account.id
+    };
+
+    return this.postLoader.batchCheckAccountFollowAllPage.load(payload);
+  }
+
+  @ResolveField('followedToken', () => Boolean)
+  @UseGuards(GqlJwtAuthGuardByPass)
+  async followedToken(@Parent() post: Post, @PostAccountEntity() account: Account) {
+    const payload = {
+      tokenId: post?.token?.tokenId || '',
+      accountId: account.id
+    };
+
+    return this.postLoader.batchCheckAccountFollowAllToken.load(payload);
   }
 }
