@@ -728,7 +728,7 @@ export type PageMessageSession = {
   /** Identifies the date and time when the object was created. */
   createdAt?: Maybe<Scalars['DateTime']>;
   id: Scalars['ID'];
-  latestMessage?: Maybe<Scalars['String']>;
+  latestMessage?: Maybe<Message>;
   lixi?: Maybe<LixiModel>;
   lixiClaimCode?: Maybe<Scalars['String']>;
   messages?: Maybe<Array<Message>>;
@@ -1144,6 +1144,7 @@ export type QueryAllPostsByHashtagIdArgs = {
 };
 
 export type QueryAllPostsByPageIdArgs = {
+  accountId?: InputMaybe<Scalars['Int']>;
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
