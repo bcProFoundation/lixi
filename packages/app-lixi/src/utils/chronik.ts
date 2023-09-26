@@ -1,4 +1,3 @@
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import BCHJS from '@bcpros/xpi-js';
 import { currency } from '@components/Common/Ticker';
 import { walletAdapter, WalletState } from '@store/wallet';
@@ -6,11 +5,7 @@ import BigNumber from 'bignumber.js';
 import { ChronikClient, Tx, TxHistoryPage, Utxo } from 'chronik-client';
 import { decryptOpReturnMsg, getHashArrayFromWallet, getUtxoWif, parseOpReturn } from './cashMethods';
 import { parseBurnOutput, ParseBurnResult } from './opReturnBurn';
-
-export interface Hash160AndAddress {
-  address: string;
-  hash160: string;
-}
+import { Hash160AndAddress } from '@bcpros/lixi-models';
 
 export interface ParsedChronikTx {
   incoming: boolean;
@@ -374,7 +369,7 @@ export const parseChronikTx = async (
           const legacyDestinationAddress = XPI.Address.fromOutputScript(Buffer.from(thisOutput.outputScript, 'hex'));
           destinationAddress = XPI.Address.toXAddress(legacyDestinationAddress);
         }
-      } catch (err) {}
+      } catch (err) { }
     }
   }
 
@@ -392,7 +387,7 @@ export const parseChronikTx = async (
   let otherPublicKey;
   try {
     otherPublicKey = await getRecipientPublicKey(XPI, chronik, theOtherAddress);
-  } catch (err) {}
+  } catch (err) { }
 
   if (
     isLotusMessage &&

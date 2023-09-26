@@ -3,7 +3,9 @@ import { WalletContextValue } from '@context/index';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { xpiReceivedNotificationWebSocket } from '@store/notification/actions';
 import {
-  activateWallet,
+  WalletPathAddressInfo,
+  WalletState,
+  WalletStatus,
   getAllWalletPaths,
   getSelectedWalletPath,
   getWaletRefreshInterval,
@@ -14,28 +16,24 @@ import {
   setWalletHasUpdated,
   setWalletPaths,
   setWalletRefreshInterval,
-  WalletPathAddressInfo,
-  WalletState,
-  WalletStatus,
   writeWalletStatus
 } from '@store/wallet';
 import { getHashArrayFromWallet, getWalletBalanceFromUtxos } from '@utils/cashMethods';
 import {
   getTxHistoryChronik,
   getUtxosChronik,
-  Hash160AndAddress,
   organizeUtxosByType,
   parseChronikTx
 } from '@utils/chronik';
 import isEqualIgnoreUndefined from '@utils/comparision';
 import { ChronikClient, SubscribeMsg, Tx, Utxo } from 'chronik-client';
-import _, { isEqual } from 'lodash';
+import _ from 'lodash';
 import { useEffect, useState } from 'react';
 // @ts-ignore
+import { Account, Hash160AndAddress } from '@bcpros/lixi-models';
+import { getAllAccounts } from '@store/account';
 import useInterval from './useInterval';
 import useXPI from './useXPI';
-import { getAllAccounts } from '@store/account';
-import { Account } from '@bcpros/lixi-models';
 
 const chronik = new ChronikClient('https://chronik.be.cash/xpi');
 const websocketConnectedRefreshInterval = 10000;
