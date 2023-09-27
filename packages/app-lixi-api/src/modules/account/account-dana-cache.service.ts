@@ -9,12 +9,12 @@ export class AccountDanaCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:accountdana';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
 
   async getAccountDana(id: number) {
     const keyFields = [`danaGiven:${id}`, `danaReceived:${id}`];
     const accountDana = await this.redis.hmget(this.keyPrefix, ...keyFields);
-    if (_.isNil(accountDana[0] || _.isNil(accountDana[1]))) {
+    if (_.isNil(accountDana[0]) || _.isNil(accountDana[1])) {
       // No value set yet
       const dbValue = await this.prisma.accountDana.findUnique({
         where: {
@@ -40,12 +40,12 @@ export class AccountDanaCacheService {
 
   async incrDanaGivenBy(id: number, value: number) {
     const keyField = `danaGiven:${id}`;
-    await this.redis.hincrby(this.keyPrefix, keyField, value);
+    await this.redis.hincrbyfloat(this.keyPrefix, keyField, value);
   }
 
   async incrDanaReceivedBy(id: number, value: number) {
     const keyField = `danaReceived:${id}`;
-    await this.redis.hincrby(this.keyPrefix, keyField, value);
+    await this.redis.hincrbyfloat(this.keyPrefix, keyField, value);
   }
 
   async setDanaGiven(id: number, value: number) {

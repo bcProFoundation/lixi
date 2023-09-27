@@ -72,6 +72,9 @@ export class Post {
   @Field(() => Boolean, { nullable: true })
   followedPage?: Nullable<boolean>;
 
+  @Field(() => Boolean, { nullable: true })
+  followedToken?: Nullable<boolean>;
+
   @Field(() => Number, { nullable: true })
   repostCount?: Nullable<number>;
 
@@ -84,7 +87,7 @@ export class Post {
   @Field(() => [PostTranslation], { nullable: true })
   translations?: Nullable<PostTranslation[]>;
 
-  @Field(() => Number, { nullable: true })
+  @Field(() => Float, { nullable: true })
   danaViewScore?: Nullable<number>;
 
   @IsOptional()

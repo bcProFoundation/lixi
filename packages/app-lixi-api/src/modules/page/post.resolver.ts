@@ -116,6 +116,8 @@ export class PostResolver {
     @Args() { after, before, first, last, minBurnFilter }: PaginationArgs,
     @Args({ name: 'id', type: () => String, nullable: true })
     id: string,
+    @Args({ name: 'accountId', type: () => Number, nullable: true })
+    accountId: number,
     @Args({
       name: 'orderBy',
       type: () => [PostOrder!],
@@ -180,15 +182,16 @@ export class PostResolver {
               postAccount: true,
               comments: true,
               reposts: { select: { account: true, accountId: true } },
-              translations: true
+              translations: true,
+              page: true
             },
             where: {
               OR: [
                 {
-                  AND: [{ postAccountId: account.id }, { pageId: id }]
+                  AND: [{ postAccountId: accountId }, { pageId: id }]
                 },
                 {
-                  AND: [{ pageId: id }, { danaBurnScore: { gte: minBurnFilter ?? 0 } }]
+                  AND: [{ pageId: id }]
                 }
               ]
             },
@@ -212,7 +215,7 @@ export class PostResolver {
             where: {
               OR: [
                 {
-                  AND: [{ postAccountId: account.id }, { pageId: id }]
+                  AND: [{ postAccountId: accountId }, { pageId: id }]
                 },
                 {
                   AND: [{ pageId: id }, { danaBurnScore: { gte: minBurnFilter ?? 0 } }]
@@ -230,12 +233,13 @@ export class PostResolver {
               postAccount: true,
               comments: true,
               reposts: { select: { account: true, accountId: true } },
-              translations: true
+              translations: true,
+              page: true
             },
             where: {
               OR: [
                 {
-                  AND: [{ postAccountId: account.id }, { pageId: id }]
+                  AND: [{ postAccountId: accountId }, { pageId: id }]
                 },
                 {
                   AND: [{ pageId: id }, { danaBurnScore: { gte: minBurnFilter ?? 0 } }]
@@ -250,7 +254,7 @@ export class PostResolver {
             where: {
               OR: [
                 {
-                  AND: [{ postAccountId: account.id }, { pageId: id }]
+                  AND: [{ postAccountId: accountId }, { pageId: id }]
                 },
                 {
                   AND: [{ pageId: id }, { danaBurnScore: { gte: minBurnFilter ?? 0 } }]
@@ -267,6 +271,7 @@ export class PostResolver {
 
   @SkipThrottle()
   @Query(() => PostResponse, { name: 'allPostsBySearch' })
+  @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearch(
     @Args() args: ConnectionArgs,
     @Args({ name: 'query', type: () => String, nullable: true })
@@ -292,7 +297,8 @@ export class PostResolver {
     const searchPosts = await this.prisma.post.findMany({
       where: {
         id: { in: postsId }
-      }
+      },
+      include: { postAccount: true }
     });
 
     return connectionFromArraySlice(searchPosts, args, {
@@ -303,6 +309,7 @@ export class PostResolver {
 
   @SkipThrottle()
   @Query(() => PostResponse, { name: 'allPostsBySearchWithHashtag' })
+  @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearchWithHashtag(
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
     minBurnFilter: number,
@@ -343,7 +350,7 @@ export class PostResolver {
       const result = await findManyCursorConnection(
         args =>
           this.prisma.post.findMany({
-            include: { translations: true },
+            include: { translations: true, postAccount: true, page: true, token: true },
             where: {
               AND: [
                 {
@@ -388,6 +395,7 @@ export class PostResolver {
 
   @SkipThrottle()
   @Query(() => PostResponse, { name: 'allPostsBySearchWithHashtagAtPage' })
+  @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearchWithHashtagAtPage(
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
     minBurnFilter: number,
@@ -427,7 +435,7 @@ export class PostResolver {
     const postsId = _.map(posts, 'id');
 
     const searchPosts = await this.prisma.post.findMany({
-      include: { translations: true },
+      include: { translations: true, postAccount: true, page: true },
       where: {
         AND: [
           {
@@ -451,6 +459,7 @@ export class PostResolver {
 
   @SkipThrottle()
   @Query(() => PostResponse, { name: 'allPostsBySearchWithHashtagAtToken' })
+  @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearchWithHashtagAtToken(
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
     minBurnFilter: number,
@@ -490,7 +499,7 @@ export class PostResolver {
     const postsId = _.map(posts, 'id');
 
     const searchPosts = await this.prisma.post.findMany({
-      include: { translations: true },
+      include: { translations: true, postAccount: true, token: true },
       where: {
         AND: [
           {
@@ -530,7 +539,7 @@ export class PostResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.post.findMany({
-          include: { postAccount: true, comments: true, translations: true },
+          include: { postAccount: true, comments: true, translations: true, token: true },
           where: {
             OR: [
               {
@@ -1174,5 +1183,32 @@ export class PostResolver {
   @ResolveField('danaViewScore', () => Number)
   async danaViewScore(@Parent() post: Post) {
     return this.postLoader.batchDanaViewScores.load(post.id);
+  }
+
+  @ResolveField('followPostOwner', () => Boolean)
+  async followPostOwner(@Parent() post: Post, @PostAccountEntity() account: Account) {
+    const payload = {
+      followingAccountId: post?.postAccount?.id,
+      accountId: account?.id
+    };
+    return this.postLoader.batchCheckAccountFollowAllAccount.load(payload);
+  }
+
+  @ResolveField('followedPage', () => Boolean)
+  async followedPage(@Parent() post: Post, @PostAccountEntity() account: Account) {
+    const payload = {
+      pageId: post?.page?.id || '',
+      accountId: account?.id
+    };
+    return this.postLoader.batchCheckAccountFollowAllPage.load(payload);
+  }
+
+  @ResolveField('followedToken', () => Boolean)
+  async followedToken(@Parent() post: Post, @PostAccountEntity() account: Account) {
+    const payload = {
+      tokenId: post?.token?.tokenId || '',
+      accountId: account?.id
+    };
+    return this.postLoader.batchCheckAccountFollowAllToken.load(payload);
   }
 }

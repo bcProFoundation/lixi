@@ -416,6 +416,19 @@ export type ImportAccountInput = {
   mnemonicHash?: InputMaybe<Scalars['String']>;
 };
 
+export type LatestMessage = {
+  __typename?: 'LatestMessage';
+  author?: Maybe<LatestMessageAuthor>;
+  body?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['ID']>;
+};
+
+export type LatestMessageAuthor = {
+  __typename?: 'LatestMessageAuthor';
+  address?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['Int']>;
+};
+
 export type LixiModel = {
   __typename?: 'LixiModel';
   accountId: Scalars['Int'];
@@ -752,7 +765,7 @@ export type PageMessageSession = {
   /** Identifies the date and time when the object was created. */
   createdAt?: Maybe<Scalars['DateTime']>;
   id: Scalars['ID'];
-  latestMessage?: Maybe<Scalars['String']>;
+  latestMessage?: Maybe<LatestMessage>;
   lixi?: Maybe<LixiModel>;
   lixiClaimCode?: Maybe<Scalars['String']>;
   messages?: Maybe<Array<Message>>;
@@ -823,9 +836,10 @@ export type Post = {
   danaBurnDown: Scalars['Float'];
   danaBurnScore: Scalars['Float'];
   danaBurnUp: Scalars['Float'];
-  danaViewScore?: Maybe<Scalars['Int']>;
+  danaViewScore?: Maybe<Scalars['Float']>;
   followPostOwner?: Maybe<Scalars['Boolean']>;
   followedPage?: Maybe<Scalars['Boolean']>;
+  followedToken?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   originalLanguage?: Maybe<Scalars['String']>;
   page?: Maybe<Page>;
@@ -1192,6 +1206,7 @@ export type QueryAllPostsByHashtagIdArgs = {
 
 
 export type QueryAllPostsByPageIdArgs = {
+  accountId?: InputMaybe<Scalars['Int']>;
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;

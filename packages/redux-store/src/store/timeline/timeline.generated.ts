@@ -18,8 +18,141 @@ export type TimelineQueryVariables = Types.Exact<{
   id: Types.Scalars['String'];
 }>;
 
+export type TimelineQuery = {
+  __typename?: 'Query';
+  timeline: {
+    __typename?: 'TimelineItem';
+    id: string;
+    data?: {
+      __typename?: 'Post';
+      id: string;
+      content: string;
+      repostCount?: number | null;
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      totalComments: number;
+      createdAt: any;
+      updatedAt: any;
+      followPostOwner?: boolean | null;
+      followedPage?: boolean | null;
+      originalLanguage?: string | null;
+      danaViewScore?: number | null;
+      uploads?: Array<{
+        __typename?: 'UploadDetail';
+        id: string;
+        upload: {
+          __typename?: 'Upload';
+          id: string;
+          sha: string;
+          bucket?: string | null;
+          width?: number | null;
+          height?: number | null;
+          cfImageId?: string | null;
+          cfImageFilename?: string | null;
+        };
+      }> | null;
+      postAccount: {
+        __typename?: 'Account';
+        address: string;
+        id: number;
+        name: string;
+        avatar?: string | null;
+        createCommentFee?: string | null;
+      };
+      page?: {
+        __typename?: 'Page';
+        avatar?: string | null;
+        name: string;
+        id: string;
+        createPostFee: string;
+        createCommentFee: string;
+        pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+      } | null;
+      token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
+      reposts?: Array<{
+        __typename?: 'Repost';
+        accountId?: number | null;
+        account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+      }> | null;
+      translations?: Array<{
+        __typename?: 'PostTranslation';
+        id: string;
+        translateContent?: string | null;
+        translateLanguage?: string | null;
+      }> | null;
+    } | null;
+  };
+};
 
 export type TimelineQuery = { __typename?: 'Query', timeline: { __typename?: 'TimelineItem', id: string, data?: { __typename?: 'Post', id: string, content: string, repostCount?: number | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, totalComments: number, createdAt: any, updatedAt: any, followPostOwner?: boolean | null, followedPage?: boolean | null, originalLanguage?: string | null, danaViewScore?: number | null, uploads?: Array<{ __typename?: 'UploadDetail', id: string, upload: { __typename?: 'Upload', id: string, sha: string, bucket?: string | null, width?: number | null, height?: number | null, cfImageId?: string | null, cfImageFilename?: string | null } }> | null, postAccount: { __typename?: 'Account', address: string, id: number, name: string, avatar?: string | null, createCommentFee?: string | null }, page?: { __typename?: 'Page', avatar?: string | null, name: string, id: string, createPostFee: string, createCommentFee: string, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } } | null, token?: { __typename?: 'Token', id: string, name: string, tokenId: string } | null, reposts?: Array<{ __typename?: 'Repost', accountId?: number | null, account?: { __typename?: 'Account', id: number, name: string, address: string } | null }> | null, translations?: Array<{ __typename?: 'PostTranslation', id: string, translateContent?: string | null, translateLanguage?: string | null }> | null } | null } };
+export type TimelineQuery = {
+  __typename?: 'Query';
+  timeline: {
+    __typename?: 'TimelineItem';
+    id: string;
+    data?: {
+      __typename?: 'Post';
+      id: string;
+      content: string;
+      repostCount?: number | null;
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      totalComments: number;
+      createdAt: any;
+      updatedAt: any;
+      followPostOwner?: boolean | null;
+      followedPage?: boolean | null;
+      followedToken?: boolean | null;
+      originalLanguage?: string | null;
+      danaViewScore?: number | null;
+      uploads?: Array<{
+        __typename?: 'UploadDetail';
+        id: string;
+        upload: {
+          __typename?: 'Upload';
+          id: string;
+          sha: string;
+          bucket?: string | null;
+          width?: number | null;
+          height?: number | null;
+          cfImageId?: string | null;
+          cfImageFilename?: string | null;
+        };
+      }> | null;
+      postAccount: {
+        __typename?: 'Account';
+        address: string;
+        id: number;
+        name: string;
+        avatar?: string | null;
+        createCommentFee?: string | null;
+      };
+      page?: {
+        __typename?: 'Page';
+        avatar?: string | null;
+        name: string;
+        id: string;
+        createPostFee: string;
+        createCommentFee: string;
+        pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+      } | null;
+      token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
+      reposts?: Array<{
+        __typename?: 'Repost';
+        accountId?: number | null;
+        account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+      }> | null;
+      translations?: Array<{
+        __typename?: 'PostTranslation';
+        id: string;
+        translateContent?: string | null;
+        translateLanguage?: string | null;
+      }> | null;
+    } | null;
+  };
+};
 
 export type HomeTimelineQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
@@ -27,8 +160,57 @@ export type HomeTimelineQueryVariables = Types.Exact<{
   level?: Types.InputMaybe<Types.Scalars['Int']>;
 }>;
 
+export type HomeTimelineQuery = {
+  __typename?: 'Query';
+  homeTimeline: {
+    __typename?: 'TimelineItemConnection';
+    totalCount?: number | null;
+    edges?: Array<{
+      __typename?: 'TimelineItemEdge';
+      cursor: string;
+      node: {
+        __typename?: 'TimelineItem';
+        id: string;
+        data?: {
+          __typename?: 'Post';
+          id: string;
+          content: string;
+          repostCount?: number | null;
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          totalComments: number;
+          createdAt: any;
+          updatedAt: any;
+          followPostOwner?: boolean | null;
+          followedPage?: boolean | null;
 
 export type HomeTimelineQuery = { __typename?: 'Query', homeTimeline: { __typename?: 'TimelineItemConnection', totalCount?: number | null, edges?: Array<{ __typename?: 'TimelineItemEdge', cursor: string, node: { __typename?: 'TimelineItem', id: string, data?: { __typename?: 'Post', id: string, content: string, repostCount?: number | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, totalComments: number, createdAt: any, updatedAt: any, followPostOwner?: boolean | null, followedPage?: boolean | null, originalLanguage?: string | null, danaViewScore?: number | null, uploads?: Array<{ __typename?: 'UploadDetail', id: string, upload: { __typename?: 'Upload', id: string, sha: string, bucket?: string | null, width?: number | null, height?: number | null, cfImageId?: string | null, cfImageFilename?: string | null } }> | null, postAccount: { __typename?: 'Account', address: string, id: number, name: string, avatar?: string | null, createCommentFee?: string | null }, page?: { __typename?: 'Page', avatar?: string | null, name: string, id: string, createPostFee: string, createCommentFee: string, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } } | null, token?: { __typename?: 'Token', id: string, name: string, tokenId: string } | null, reposts?: Array<{ __typename?: 'Repost', accountId?: number | null, account?: { __typename?: 'Account', id: number, name: string, address: string } | null }> | null, translations?: Array<{ __typename?: 'PostTranslation', id: string, translateContent?: string | null, translateLanguage?: string | null }> | null } | null } }> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+export type HomeTimelineQuery = {
+  __typename?: 'Query';
+  homeTimeline: {
+    __typename?: 'TimelineItemConnection';
+    totalCount?: number | null;
+    edges?: Array<{
+      __typename?: 'TimelineItemEdge';
+      cursor: string;
+      node: {
+        __typename?: 'TimelineItem';
+        id: string;
+        data?: {
+          __typename?: 'Post';
+          id: string;
+          content: string;
+          repostCount?: number | null;
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          totalComments: number;
+          createdAt: any;
+          updatedAt: any;
+          followPostOwner?: boolean | null;
+          followedPage?: boolean | null;
+          followedToken?: boolean | null;
 
 
 export const TimelineDocument = `

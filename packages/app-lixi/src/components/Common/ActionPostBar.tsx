@@ -136,6 +136,8 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
   const { XPI, chronik } = Wallet;
   const { sendXpi } = useXPI();
 
+  const roundDanaViewScore = Math.round(post.danaViewScore || 0);
+
   useEffect(() => {
     selectedKey.includes('post') || isSetBorderBottom ? setBorderBottom(true) : setBorderBottom(false);
   }, [selectedKey]);
@@ -224,10 +226,10 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
             </Space>
           </Tooltip>
         )}
-        <Tooltip title={`${intl.get('post.danaViewScore')}: ${post.danaViewScore ?? 0}`}>
+        <Tooltip title={`${intl.get('post.danaViewScore')}: ${roundDanaViewScore}`}>
           <Space style={{ padding: '8px' }} className="dana-view-score" size={5}>
             <BarChartOutlined />
-            <Counter isShowXPI={false} num={post.danaViewScore ?? 0} />
+            <Counter isShowXPI={false} num={roundDanaViewScore} />
           </Space>
         </Tooltip>
       </GroupIconText>

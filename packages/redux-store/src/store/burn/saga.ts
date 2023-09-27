@@ -204,13 +204,14 @@ function* createTxHexSaga(action: PayloadAction<BurnQueueCommand>) {
       data.burnValue,
       tipToAddresses
     );
+
     const payload = {
       rawTxHex: rawTxHex,
       minerFee: _.toString(fromSatoshisToXpi(minerFee))
     };
 
     yield put({ type: returnTxHex.type, payload });
-  } catch {
+  } catch (e) {
     yield put(moveAllBurnToFailQueue());
     yield put(clearBurnQueue());
   }
