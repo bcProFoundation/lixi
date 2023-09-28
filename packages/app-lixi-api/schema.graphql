@@ -74,6 +74,48 @@ enum AccountOrderField {
   updatedAt
 }
 
+type Bookmark {
+  account: Account!
+  bookmarkId: String!
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime
+  id: ID!
+  type: BookmarkType
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime
+}
+
+type BookmarkConnection {
+  edges: [BookmarkEdge!]
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type BookmarkEdge {
+  cursor: String!
+  node: Bookmark!
+}
+
+input BookmarkOrder {
+  direction: OrderDirection!
+  field: BookmarkOrderField!
+}
+
+"""Properties by which message connections can be ordered."""
+enum BookmarkOrderField {
+  createdAt
+  id
+  updatedAt
+}
+
+"""The type of bookmark."""
+enum BookmarkType {
+  COMMENT
+  POST
+}
+
 type Category {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
@@ -152,6 +194,11 @@ input CreateAccountInput {
   language: String!
   mnemonic: String!
   mnemonicHash: String!
+}
+
+input CreateBookmarkInput {
+  bookmarkId: String!
+  bookmarkType: BookmarkType!
 }
 
 input CreateCommentInput {
@@ -524,6 +571,7 @@ type MessageSessionEdge {
 type Mutation {
   closePageMessageSession(data: ClosePageMessageSessionInput!): PageMessageSession!
   createAccount(data: CreateAccountInput!): Account!
+  createBookmark(data: CreateBookmarkInput!): Bookmark!
   createComment(data: CreateCommentInput!): Comment!
   createFollowAccount(data: CreateFollowAccountInput!): FollowAccount!
   createFollowPage(data: CreateFollowPageInput!): FollowPage!
@@ -542,6 +590,7 @@ type Mutation {
   deleteFollowToken(data: DeleteFollowTokenInput!): Boolean!
   importAccount(data: ImportAccountInput!): Account!
   openPageMessageSession(data: OpenPageMessageSessionInput!): PageMessageSession!
+  removeBookmark(data: RemoveBookmarkInput!): Bookmark!
   repost(data: RepostInput!): Boolean!
   updateAccount(data: UpdateAccountInput!): Account!
   updatePage(data: UpdatePageInput!): Page!
@@ -792,6 +841,7 @@ type PostTranslation {
 }
 
 type Query {
+  allBookmarkByAccountId(after: String, before: String, bookmarkType: BookmarkType!, first: Int, id: Int!, last: Int, minBurnFilter: Int, orderBy: BookmarkOrder, skip: Int): BookmarkConnection!
   allClosedPageMessageSession(accountId: Int, after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, pageId: String, skip: Int): PageMessageSessionConnection!
   allCommentsToPostId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: CommentOrder, skip: Int): CommentConnection!
   allFollowersByFollowing(after: String, before: String, first: Int, followingAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
@@ -914,6 +964,7 @@ type Query {
   ): WorshipedPersonConnection!
   allWorshipedPersonByUserId(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: WorshipedPersonOrder, skip: Int): WorshipedPersonConnection!
   allWorshipedPersonSpecialDate(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: WorshipedPersonOrder, skip: Int): WorshipedPersonConnection!
+  bookmark(id: String!): Bookmark!
   checkIfFollowAccount(followingAccountId: Int!): Boolean!
   checkIfFollowPage(pageId: String): Boolean!
   checkIfFollowToken(tokenId: String): Boolean!
@@ -931,6 +982,10 @@ type Query {
   userHadMessageToPage(accountId: Int, pageId: String): PageMessageSession
   worship(id: String!): Worship!
   worshipedPerson(id: String!): WorshipedPerson!
+}
+
+input RemoveBookmarkInput {
+  id: String!
 }
 
 type Repost {
@@ -962,6 +1017,7 @@ type State {
 
 type Subscription {
   accountCreated: Account!
+  bookmarkCreated: Bookmark!
   commentCreated: Comment!
   followAccountCreated: FollowAccount!
   hashtagCreated: Hashtag!
