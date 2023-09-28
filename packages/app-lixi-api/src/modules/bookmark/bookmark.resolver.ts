@@ -159,11 +159,11 @@ export class BookmarkResolver {
       throw new Error(couldNotFindAccount);
     }
 
-    const { id } = data;
+    const { bookmarkId } = data;
 
     const bookmark = await this.prisma.bookmark.findFirst({
       where: {
-        bookmarkId: id,
+        bookmarkId: bookmarkId,
         account: {
           id: account.id
         }
@@ -184,7 +184,7 @@ export class BookmarkResolver {
       }
     });
 
-    await this.bookmarkCacheService.removeBookmark(account.id, id, bookmark.type!);
+    await this.bookmarkCacheService.removeBookmark(account.id, bookmarkId, bookmark.type!);
 
     return result;
   }

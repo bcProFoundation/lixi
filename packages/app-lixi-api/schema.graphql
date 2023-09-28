@@ -986,7 +986,7 @@ type Query {
 }
 
 input RemoveBookmarkInput {
-  id: String!
+  bookmarkId: String!
 }
 
 type Repost {

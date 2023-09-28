@@ -73,7 +73,7 @@ const enhancedApi = api.enhanceEndpoints({
     },
     RemoveBookmark: {
       async onQueryStarted({ input }, { dispatch, queryFulfilled }) {
-        const { id } = input;
+        const { bookmarkId } = input;
         try {
           const { data: result } = await queryFulfilled;
           const { id: accountId } = result.removeBookmark.account;
@@ -81,7 +81,7 @@ const enhancedApi = api.enhanceEndpoints({
           dispatch(
             api.util.updateQueryData(
               'CheckIfHasBookmarked',
-              { bookmarkId: result.removeBookmark.bookmarkId, bookmarkType: result.removeBookmark.type },
+              { bookmarkId: bookmarkId, bookmarkType: result.removeBookmark.type },
               draft => {
                 draft.checkIfHasBookmarked = false;
               }
@@ -93,7 +93,9 @@ const enhancedApi = api.enhanceEndpoints({
               'BookmarkByAccountId',
               { accountId: accountId, bookmarkType: result.removeBookmark.type },
               draft => {
-                const index = draft.allBookmarkByAccountId.edges.findIndex(edge => edge.node.id === id);
+                const index = draft.allBookmarkByAccountId.edges.findIndex(
+                  edge => edge.node.id === result.removeBookmark.id
+                );
                 draft.allBookmarkByAccountId.edges.splice(index, 1);
                 draft.allBookmarkByAccountId.totalCount--;
               }

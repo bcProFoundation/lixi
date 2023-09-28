@@ -309,7 +309,7 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
 
   const removeBookmarkPost = async () => {
     const removeBookmarkPostInput: RemoveBookmarkInput = {
-      id: post?.id
+      bookmarkId: post?.id
     };
 
     await removeBookmarkTrigger({ input: removeBookmarkPostInput });

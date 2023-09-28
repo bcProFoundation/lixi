@@ -1485,7 +1485,7 @@ export type QueryWorshipedPersonArgs = {
 };
 
 export type RemoveBookmarkInput = {
-  id: Scalars['String'];
+  bookmarkId: Scalars['String'];
 };
 
 export type Repost = {
