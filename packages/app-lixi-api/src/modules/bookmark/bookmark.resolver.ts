@@ -19,6 +19,7 @@ import { AccountEntity } from 'src/decorators/account.decorator';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
+import { BookmarkCacheService } from './bookmark-cache.service';
 
 const pubSub = new PubSub();
 
@@ -26,7 +27,12 @@ const pubSub = new PubSub();
 @Resolver(() => Bookmark)
 @UseFilters(GqlHttpExceptionFilter)
 export class BookmarkResolver {
-  constructor(private logger: Logger, private prisma: PrismaService, @I18n() private i18n: I18nService) {}
+  constructor(
+    private logger: Logger,
+    private prisma: PrismaService,
+    @I18n() private i18n: I18nService,
+    private bookmarkCacheService: BookmarkCacheService
+  ) {}
 
   @Subscription(() => Bookmark)
   bookmarkCreated() {
@@ -48,7 +54,7 @@ export class BookmarkResolver {
     @AccountEntity() account: Account,
     @Args() { after, before, first, last }: PaginationArgs,
     @Args('bookmarkType', { type: () => BookmarkTypeEnum }) bookmarkType: BookmarkTypeEnum,
-    @Args({ name: 'id', type: () => Number })
+    @Args({ name: 'accountId', type: () => Number })
     accountId: number,
     @Args({
       name: 'orderBy',
@@ -110,6 +116,21 @@ export class BookmarkResolver {
 
     const { bookmarkId, bookmarkType } = data;
 
+    const exsitedBookmark = await this.prisma.bookmark.findFirst({
+      where: {
+        account: {
+          id: account.id
+        },
+        bookmarkId: bookmarkId,
+        type: bookmarkType
+      }
+    });
+
+    if (exsitedBookmark) {
+      const bookmarkExisted = 'Bookmark existed';
+      throw new Error(bookmarkExisted);
+    }
+
     const result = await this.prisma.bookmark.create({
       data: {
         account: {
@@ -119,8 +140,13 @@ export class BookmarkResolver {
         },
         bookmarkId: bookmarkId,
         type: bookmarkType
+      },
+      include: {
+        account: true
       }
     });
+
+    await this.bookmarkCacheService.createBookmark(account.id, bookmarkId, bookmarkType, result.createdAt);
 
     return result;
   }
@@ -135,12 +161,46 @@ export class BookmarkResolver {
 
     const { id } = data;
 
-    const result = await this.prisma.bookmark.delete({
+    const bookmark = await this.prisma.bookmark.findFirst({
       where: {
-        id: id
+        bookmarkId: id,
+        account: {
+          id: account.id
+        }
       }
     });
 
+    if (!bookmark) {
+      const bookmarkNotFound = 'Bookmark not found';
+      throw new Error(bookmarkNotFound);
+    }
+
+    const result = await this.prisma.bookmark.delete({
+      where: {
+        id: bookmark.id
+      },
+      include: {
+        account: true
+      }
+    });
+
+    await this.bookmarkCacheService.removeBookmark(account.id, id, bookmark.type!);
+
     return result;
+  }
+
+  @Query(() => Boolean)
+  @UseGuards(GqlJwtAuthGuard)
+  async checkIfHasBookmarked(
+    @AccountEntity() account: Account,
+    @Args('bookmarkId', { type: () => String }) bookmarkId: string,
+    @Args('bookmarkType', { type: () => BookmarkTypeEnum }) bookmarkType: BookmarkTypeEnum
+  ) {
+    if (!account) {
+      return false;
+    }
+
+    // We need to find out if the account follow the page or not
+    return await this.bookmarkCacheService.checkIfAccountBookmarked(account.id, bookmarkId!, bookmarkType);
   }
 }

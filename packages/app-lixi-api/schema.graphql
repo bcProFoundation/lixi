@@ -841,7 +841,7 @@ type PostTranslation {
 }
 
 type Query {
-  allBookmarkByAccountId(after: String, before: String, bookmarkType: BookmarkType!, first: Int, id: Int!, last: Int, minBurnFilter: Int, orderBy: BookmarkOrder, skip: Int): BookmarkConnection!
+  allBookmarkByAccountId(accountId: Int!, after: String, before: String, bookmarkType: BookmarkType!, first: Int, last: Int, minBurnFilter: Int, orderBy: BookmarkOrder, skip: Int): BookmarkConnection!
   allClosedPageMessageSession(accountId: Int, after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, pageId: String, skip: Int): PageMessageSessionConnection!
   allCommentsToPostId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: CommentOrder, skip: Int): CommentConnection!
   allFollowersByFollowing(after: String, before: String, first: Int, followingAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
@@ -968,6 +968,7 @@ type Query {
   checkIfFollowAccount(followingAccountId: Int!): Boolean!
   checkIfFollowPage(pageId: String): Boolean!
   checkIfFollowToken(tokenId: String): Boolean!
+  checkIfHasBookmarked(bookmarkId: String!, bookmarkType: BookmarkType!): Boolean!
   comment(id: String!): Comment!
   getAccountByAddress(address: String!): Account!
   hashtag(content: String!): Hashtag!
