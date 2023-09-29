@@ -6,7 +6,7 @@ import {
   NotificationDto,
   SendNotificationJobData,
   WebpushNotification,
-  burnForTypeString
+  BurnForTypeString
 } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -223,20 +223,30 @@ export class NotificationService implements OnModuleInit {
     return post.page ? burnValue * 0.04 : burnValue * 0.08;
   }
 
-  contentNotification(templateObject: { template: string }[], data: any, language: string | undefined) {
+  contentNotification(
+    templateObject: { template: string; language: string }[],
+    data: any,
+    accountLanguage: string | undefined
+  ) {
     switch (data?.burnForType) {
-      case burnForTypeString.post:
-        data.burnForType = this.i18n.t('burn.messages.post', { lang: language });
+      case BurnForTypeString.post:
+        data.burnForType = this.i18n.t('burn.messages.post', { lang: accountLanguage });
         break;
-      case burnForTypeString.comment:
-        data.burnForType = this.i18n.t('burn.messages.comment', { lang: language });
+      case BurnForTypeString.comment:
+        data.burnForType = this.i18n.t('burn.messages.comment', { lang: accountLanguage });
         break;
       default:
         break;
     }
 
-    const templateString =
-      language === 'en' ? templateObject[Language.en].template : templateObject[Language.vi].template;
+    let templateString: string = '';
+    templateObject.every(item => {
+      if (item.language === accountLanguage) {
+        templateString = item.template;
+        return false;
+      }
+      return true;
+    });
 
     const content = template(templateString, data);
     return content;

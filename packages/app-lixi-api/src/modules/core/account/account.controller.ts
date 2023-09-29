@@ -525,7 +525,9 @@ export class AccountController {
           recipientId: accountId
         },
         include: {
-          notificationType: { include: { notificationTypeTranslations: { select: { template: true } } } }
+          notificationType: {
+            include: { notificationTypeTranslations: { select: { template: true, language: true } } }
+          }
         },
         orderBy: [
           {

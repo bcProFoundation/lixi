@@ -193,7 +193,7 @@ export const notificationTypeTranslations = [
   {
     id: 28,
     notificationTypeId: 15,
-    language: 'en',
+    language: 'vi',
     isDefault: false,
     template: '{{senderName}} đã gửi {{lixiAmount}} với mong muốn trò chuyện với trang {{pageName}} của bạn'
   },

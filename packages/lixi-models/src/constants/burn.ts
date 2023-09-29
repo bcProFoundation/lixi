@@ -10,7 +10,7 @@ export const OPTION_BURN_TYPE = {
   LOVE: 'LOVE'
 };
 
-export const burnForTypeString = {
+export const BurnForTypeString = {
   post: 'post',
   comment: 'comment'
 };
