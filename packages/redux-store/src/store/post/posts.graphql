@@ -278,6 +278,7 @@ fragment PostFields on Post {
       cfImageFilename
     }
   }
+  postAccountId
   postAccount {
     address
     id
@@ -314,6 +315,11 @@ fragment PostFields on Post {
   danaBurnUp
   danaBurnDown
   danaBurnScore
+  postDana {
+    danaBurnUp
+    danaBurnDown
+    danaBurnScore
+  }
   totalComments
   createdAt
   updatedAt

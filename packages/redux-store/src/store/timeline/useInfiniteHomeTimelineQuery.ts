@@ -1,13 +1,12 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { api as timelineApi, useLazyHomeTimelineQuery } from '@store/timeline/timeline.api';
-import _ from 'lodash';
+import { useLazyHomeTimelineQuery } from '@store/timeline/timeline.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { TimelineQuery, useTimelineQuery } from './timeline.generated';
+import { TimelineItem } from '@generated/index';
 import { useHomeTimelineQuery } from './timeline.api';
 
-const homeTimelineAdapter = createEntityAdapter<TimelineQuery['timeline']>({
+const homeTimelineAdapter = createEntityAdapter<TimelineItem>({
   selectId: item => item.id
 });
 

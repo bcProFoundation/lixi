@@ -46,6 +46,9 @@ type AccountConnection {
 
 type AccountDana {
   accountDanaHistory: [AccountDanaHistory!]
+  danaBurnDown: Float!
+  danaBurnScore: Float!
+  danaBurnUp: Float!
   danaGiven: Float
   danaReceived: Float
   id: ID!

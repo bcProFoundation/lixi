@@ -1,54 +1,26 @@
-import { PostsQueryTag } from '@bcpros/lixi-models/constants';
-import { BurnCommand, BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn';
+import { PlusCircleOutlined } from '@ant-design/icons';
 import CommentComponent, { CommentItem } from '@components/Common/Comment';
-import { Counter } from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { ShareSocialButton } from '@components/Common/ShareSocialButton';
-import { currency } from '@components/Common/Ticker';
 import { WalletContext } from '@context/walletProvider';
+import { Post } from '@generated/types.generated';
+import useWindowDimensions from '@hooks/useWindowDimensions';
 import useXPI from '@hooks/useXPI';
 import { getSelectedAccount } from '@store/account/selectors';
-import { addBurnQueue, addBurnTransaction, burnForUpDownVote } from '@store/burn/actions';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
-import { PostQuery } from '@store/post/posts.generated';
-import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
-import { formatBalance, fromXpiToSatoshis } from '@utils/cashMethods';
-import { List, Space, Button, Image, notification } from 'antd';
-import { FireTwoTone, PlusCircleOutlined } from '@ant-design/icons';
-import BigNumber from 'bignumber.js';
+import { formatBalance } from '@utils/cashMethods';
+import { Button, List } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import { useRouter } from 'next/router';
 import React, { useEffect, useRef, useState } from 'react';
 import ReactHtmlParser from 'react-html-parser';
-import intl from 'react-intl-universal';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import Gallery from 'react-photo-gallery';
 import styled from 'styled-components';
 import { EditPostModalProps } from './EditPostModalPopup';
-import Gallery from 'react-photo-gallery';
-import useWindowDimensions from '@hooks/useWindowDimensions';
 import { IconBurn } from './PostDetail';
-
-// export const IconBurn = ({
-//   icon,
-//   burnValue,
-//   dataItem,
-//   imgUrl,
-//   onClickIcon
-// }: {
-//   icon?: React.FC;
-//   burnValue?: number;
-//   dataItem: any;
-//   imgUrl?: string;
-//   onClickIcon: (e) => void;
-// }) => (
-//   <Space onClick={onClickIcon}>
-//     {icon && React.createElement(icon)}
-//     {imgUrl && React.createElement('img', { src: imgUrl, width: '28' }, null)}
-//     <Counter num={burnValue ?? 0} />
-//   </Space>
-// );
 
 export const CommentList = ({ comments }: { comments: CommentItem[] }) => (
   <List
@@ -217,11 +189,9 @@ const PostListItemContainer = styled(List.Item)`
   }
 `;
 
-type PostItem = PostQuery['post'];
-
 type PostListItemProps = {
   index: number;
-  item: PostItem;
+  item: Post;
   searchValue?: string;
   handleBurnForPost?: (isUpVote: boolean, post: PostItem) => Promise<void>;
 };
@@ -229,7 +199,7 @@ type PostListItemProps = {
 const PostListItem = ({ index, item, searchValue, handleBurnForPost }: PostListItemProps) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const post: PostItem = item;
+  const post: Post = item;
   const [isCollapseComment, setIsCollapseComment] = useState(false);
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [submitting, setSubmitting] = useState(false);

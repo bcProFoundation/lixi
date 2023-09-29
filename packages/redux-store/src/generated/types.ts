@@ -1,8 +1,10 @@
-import { Account, Comment, Page, Post, Token } from "./types.generated";
+import { Account, Comment, Hashtag, Page, Post, Token, Worship } from "./types.generated";
 
 export type BurnForItem =
   Post |
   Page |
   Comment |
   Token |
-  Account;
+  Hashtag |
+  Account |
+  Worship;

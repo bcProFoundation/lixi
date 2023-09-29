@@ -12,9 +12,21 @@ export class AccountDanaCacheService {
   constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
 
   async getAccountDana(id: number) {
-    const keyFields = [`danaGiven:${id}`, `danaReceived:${id}`];
+    const keyFields = [
+      `danaGiven:${id}`,
+      `danaReceived:${id}`,
+      `danaBurnUp:${id}`,
+      `danaBurnDown:${id}`,
+      `danaBurnScore:${id}`
+    ];
     const accountDana = await this.redis.hmget(this.keyPrefix, ...keyFields);
-    if (_.isNil(accountDana[0]) || _.isNil(accountDana[1])) {
+    if (
+      _.isNil(accountDana[0]) ||
+      _.isNil(accountDana[1]) ||
+      _.isNil(accountDana[2]) ||
+      _.isNil(accountDana[3]) ||
+      _.isNil(accountDana[4])
+    ) {
       // No value set yet
       const dbValue = await this.prisma.accountDana.findUnique({
         where: {
@@ -23,7 +35,10 @@ export class AccountDanaCacheService {
       });
       const fieldValues = new Map([
         [`danaGiven:${id}`, dbValue?.danaGiven ?? 0],
-        [`danaReceived:${id}`, dbValue?.danaReceived ?? 0]
+        [`danaReceived:${id}`, dbValue?.danaReceived ?? 0],
+        [`danaBurnUp:${id}`, dbValue?.danaBurnUp ?? 0],
+        [`danaBurnDown:${id}`, dbValue?.danaBurnDown ?? 0],
+        [`danaBurnScore:${id}`, dbValue?.danaBurnScore ?? 0]
       ]);
       await this.redis.hmset(this.keyPrefix, fieldValues);
 
@@ -36,6 +51,24 @@ export class AccountDanaCacheService {
       danaGiven: accountDana[0] ?? 0,
       danaReceived: accountDana[1] ?? 0
     };
+  }
+
+  async incrDana(id: number, value: number) {
+    const danaBurnUpField = `danaBurnUp:${id}`;
+    const danaBurnScoreField = `danaBurnScore:${id}`;
+    await Promise.all([
+      this.redis.hincrbyfloat(this.keyPrefix, danaBurnUpField, value),
+      this.redis.hincrbyfloat(this.keyPrefix, danaBurnScoreField, value),
+    ]);
+  }
+
+  async decrDana(id: number, value: number) {
+    const danaBurnDownField = `danaBurnDown:${id}`;
+    const danaBurnScoreField = `danaBurnScore:${id}`;
+    await Promise.all([
+      this.redis.hincrbyfloat(this.keyPrefix, danaBurnDownField, value),
+      this.redis.hincrbyfloat(this.keyPrefix, danaBurnScoreField, value * (-1))
+    ]);
   }
 
   async incrDanaGivenBy(id: number, value: number) {

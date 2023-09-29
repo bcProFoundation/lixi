@@ -34,6 +34,9 @@ fragment AccountFields on Account {
   accountDana {
     danaGiven
     danaReceived
+    danaBurnUp
+    danaBurnDown
+    danaBurnScore
   }
 }
 

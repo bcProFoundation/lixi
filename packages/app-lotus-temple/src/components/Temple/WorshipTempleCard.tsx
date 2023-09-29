@@ -1,18 +1,16 @@
-import React, { useState } from 'react';
-import style from 'styled-components';
-import { AvatarUser } from '@components/Common/AvatarUser';
-import { Space } from 'antd';
 import { FireOutlined } from '@ant-design/icons';
-import { WorshipQuery } from '@store/worship/worshipedPerson.generated';
+import { AvatarUser } from '@components/Common/AvatarUser';
+import { Worship } from '@generated/index';
+import { Space } from 'antd';
 import moment from 'moment';
-import intl from 'react-intl-universal';
 import { useRouter } from 'next/router';
-
-export type WorshipItem = WorshipQuery['worship'];
+import { useState } from 'react';
+import intl from 'react-intl-universal';
+import style from 'styled-components';
 
 type WorshipTempleCardProps = {
   index: number;
-  item: WorshipItem;
+  item: Worship;
   isPublic?: boolean;
   templeName?: string;
   templeId?: string;

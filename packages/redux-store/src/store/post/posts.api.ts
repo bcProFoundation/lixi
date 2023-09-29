@@ -1,9 +1,9 @@
-import { PageInfo } from '@generated/types.generated';
+import { PageInfo, Post } from '@generated/types.generated';
 import { EntityState } from '@reduxjs/toolkit';
 
-import { api, PostQuery } from './posts.generated';
+import { api } from './posts.generated';
 
-export interface PostApiState extends EntityState<PostQuery['post']> {
+export interface PostApiState extends EntityState<Post> {
   pageInfo: PageInfo;
   totalCount: number;
 }

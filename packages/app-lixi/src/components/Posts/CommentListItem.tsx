@@ -1,10 +1,13 @@
-import { Comment } from '@ant-design/compatible';
+import { Comment as AntdComment } from '@ant-design/compatible';
 import { DislikeFilled, DislikeOutlined, LikeFilled, LikeOutlined } from '@ant-design/icons';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import AvatarUser from '@components/Common/AvatarUser';
 import { Counter } from '@components/Common/Counter';
-import { CommentQuery } from '@store/comment/comments.generated';
-import { PostQuery } from '@store/post/posts.generated';
+import { AuthorizationContext } from '@context/index';
+import { Comment, Post } from '@generated/types.generated';
+import { prepareBurnCommand } from '@store/burn';
+import { useAppDispatch } from '@store/hooks';
 import { formatBalance } from '@utils/cashMethods';
 import { Space, Tooltip } from 'antd';
 import _ from 'lodash';
@@ -12,12 +15,6 @@ import moment from 'moment';
 import { useRouter } from 'next/router';
 import React, { useContext, useMemo } from 'react';
 import intl from 'react-intl-universal';
-import { BurnData } from './PostDetail';
-import { AuthorizationContext } from '@context/index';
-import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
-
-export type CommentItem = CommentQuery['comment'];
-type PostItem = PostQuery['post'];
 
 const ACTION_VOTE = {
   UP_VOTE: 'upVote',
@@ -26,13 +23,12 @@ const ACTION_VOTE = {
 const DEFAULT_USERNAME = 'Anonymous';
 
 type CommentListItemProps = {
-  index?: number;
-  item: CommentItem;
-  post?: PostItem;
-  handleBurn: (isUpVote: boolean, burnData: BurnData) => Promise<void>;
+  item: Comment;
+  post?: Post;
 };
 
-const CommentListItem = ({ index, item, post, handleBurn }: CommentListItemProps) => {
+const CommentListItem = ({ item, post }: CommentListItemProps) => {
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
@@ -41,18 +37,16 @@ const CommentListItem = ({ index, item, post, handleBurn }: CommentListItemProps
     return _.isNil(item?.commentAccount) ? DEFAULT_USERNAME : item?.commentAccount?.name;
   }, [item?.commentAccount]);
 
-  const actionsComment = (dataItem: CommentItem, action: string) => {
+  const actionsComment = (dataItem: Comment, action: string) => {
     if (authorization.authorized) {
-      switch (action) {
-        case ACTION_VOTE.UP_VOTE:
-          handleBurn(true, { data: dataItem, burnForType: BurnForType.Comment });
-          break;
-        case ACTION_VOTE.DOWN_VOTE:
-          handleBurn(false, { data: dataItem, burnForType: BurnForType.Comment });
-          break;
-        default:
-          break;
-      }
+      const isUpVote = action == ACTION_VOTE.UP_VOTE ? true : false;
+      const burnForType = BurnForType.Comment;
+      dispatch(prepareBurnCommand({
+        isUpVote,
+        burnForItem: dataItem,
+        burnForType,
+        burnValue: '1'
+      }));
     } else {
       askAuthorization();
     }
@@ -77,7 +71,7 @@ const CommentListItem = ({ index, item, post, handleBurn }: CommentListItemProps
   ];
 
   return (
-    <Comment
+    <AntdComment
       className="comment-item"
       actions={actions}
       author={<a href={`/profile/${item.commentAccount.address}`}>{userName}</a>}

@@ -163,7 +163,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         burnForItem: dataItem,
         burnForType,
         burnValue,
-      }))
+      }));
     } else {
       askAuthorization();
     }

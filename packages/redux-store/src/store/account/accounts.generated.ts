@@ -17,37 +17,37 @@ export type AccountQueryVariables = Types.Exact<{
 }>;
 
 
-export type AccountQuery = { __typename?: 'Query', account: { __typename?: 'Account', id: number, name: string, address: string, mnemonicHash?: string | null, encryptedMnemonic?: string | null, encryptedSecret?: string | null, publicKey?: string | null, language: string, followersCount?: number | null, followingsCount?: number | null, followingPagesCount?: number | null, createdAt: any, updatedAt: any, avatar?: string | null, cover?: string | null, pages?: Array<{ __typename?: 'Page', id: string, name: string }> | null, accountDana?: { __typename?: 'AccountDana', danaGiven?: number | null, danaReceived?: number | null } | null } };
+export type AccountQuery = { __typename?: 'Query', account: { __typename?: 'Account', id: number, name: string, address: string, mnemonicHash?: string | null, encryptedMnemonic?: string | null, encryptedSecret?: string | null, publicKey?: string | null, language: string, followersCount?: number | null, followingsCount?: number | null, followingPagesCount?: number | null, createdAt: any, updatedAt: any, avatar?: string | null, cover?: string | null, pages?: Array<{ __typename?: 'Page', id: string, name: string }> | null, accountDana?: { __typename?: 'AccountDana', danaGiven?: number | null, danaReceived?: number | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number } | null } };
 
 export type GetAccountByAddressQueryVariables = Types.Exact<{
   address: Types.Scalars['String'];
 }>;
 
 
-export type GetAccountByAddressQuery = { __typename?: 'Query', getAccountByAddress: { __typename?: 'Account', id: number, name: string, address: string, mnemonicHash?: string | null, encryptedMnemonic?: string | null, encryptedSecret?: string | null, publicKey?: string | null, language: string, followersCount?: number | null, followingsCount?: number | null, followingPagesCount?: number | null, createdAt: any, updatedAt: any, avatar?: string | null, cover?: string | null, pages?: Array<{ __typename?: 'Page', id: string, name: string }> | null, accountDana?: { __typename?: 'AccountDana', danaGiven?: number | null, danaReceived?: number | null } | null } };
+export type GetAccountByAddressQuery = { __typename?: 'Query', getAccountByAddress: { __typename?: 'Account', id: number, name: string, address: string, mnemonicHash?: string | null, encryptedMnemonic?: string | null, encryptedSecret?: string | null, publicKey?: string | null, language: string, followersCount?: number | null, followingsCount?: number | null, followingPagesCount?: number | null, createdAt: any, updatedAt: any, avatar?: string | null, cover?: string | null, pages?: Array<{ __typename?: 'Page', id: string, name: string }> | null, accountDana?: { __typename?: 'AccountDana', danaGiven?: number | null, danaReceived?: number | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number } | null } };
 
-export type AccountFieldsFragment = { __typename?: 'Account', id: number, name: string, address: string, mnemonicHash?: string | null, encryptedMnemonic?: string | null, encryptedSecret?: string | null, publicKey?: string | null, language: string, followersCount?: number | null, followingsCount?: number | null, followingPagesCount?: number | null, createdAt: any, updatedAt: any, avatar?: string | null, cover?: string | null, pages?: Array<{ __typename?: 'Page', id: string, name: string }> | null, accountDana?: { __typename?: 'AccountDana', danaGiven?: number | null, danaReceived?: number | null } | null };
+export type AccountFieldsFragment = { __typename?: 'Account', id: number, name: string, address: string, mnemonicHash?: string | null, encryptedMnemonic?: string | null, encryptedSecret?: string | null, publicKey?: string | null, language: string, followersCount?: number | null, followingsCount?: number | null, followingPagesCount?: number | null, createdAt: any, updatedAt: any, avatar?: string | null, cover?: string | null, pages?: Array<{ __typename?: 'Page', id: string, name: string }> | null, accountDana?: { __typename?: 'AccountDana', danaGiven?: number | null, danaReceived?: number | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number } | null };
 
 export type CreateAccountMutationVariables = Types.Exact<{
   input: Types.CreateAccountInput;
 }>;
 
 
-export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: number, name: string, address: string, mnemonicHash?: string | null, encryptedMnemonic?: string | null, encryptedSecret?: string | null, publicKey?: string | null, language: string, followersCount?: number | null, followingsCount?: number | null, followingPagesCount?: number | null, createdAt: any, updatedAt: any, avatar?: string | null, cover?: string | null, pages?: Array<{ __typename?: 'Page', id: string, name: string }> | null, accountDana?: { __typename?: 'AccountDana', danaGiven?: number | null, danaReceived?: number | null } | null } };
+export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: number, name: string, address: string, mnemonicHash?: string | null, encryptedMnemonic?: string | null, encryptedSecret?: string | null, publicKey?: string | null, language: string, followersCount?: number | null, followingsCount?: number | null, followingPagesCount?: number | null, createdAt: any, updatedAt: any, avatar?: string | null, cover?: string | null, pages?: Array<{ __typename?: 'Page', id: string, name: string }> | null, accountDana?: { __typename?: 'AccountDana', danaGiven?: number | null, danaReceived?: number | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number } | null } };
 
 export type ImportAccountMutationVariables = Types.Exact<{
   input: Types.ImportAccountInput;
 }>;
 
 
-export type ImportAccountMutation = { __typename?: 'Mutation', importAccount: { __typename?: 'Account', id: number, name: string, address: string, mnemonicHash?: string | null, encryptedMnemonic?: string | null, encryptedSecret?: string | null, publicKey?: string | null, language: string, followersCount?: number | null, followingsCount?: number | null, followingPagesCount?: number | null, createdAt: any, updatedAt: any, avatar?: string | null, cover?: string | null, pages?: Array<{ __typename?: 'Page', id: string, name: string }> | null, accountDana?: { __typename?: 'AccountDana', danaGiven?: number | null, danaReceived?: number | null } | null } };
+export type ImportAccountMutation = { __typename?: 'Mutation', importAccount: { __typename?: 'Account', id: number, name: string, address: string, mnemonicHash?: string | null, encryptedMnemonic?: string | null, encryptedSecret?: string | null, publicKey?: string | null, language: string, followersCount?: number | null, followingsCount?: number | null, followingPagesCount?: number | null, createdAt: any, updatedAt: any, avatar?: string | null, cover?: string | null, pages?: Array<{ __typename?: 'Page', id: string, name: string }> | null, accountDana?: { __typename?: 'AccountDana', danaGiven?: number | null, danaReceived?: number | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number } | null } };
 
 export type UpdateAccountMutationVariables = Types.Exact<{
   input: Types.UpdateAccountInput;
 }>;
 
 
-export type UpdateAccountMutation = { __typename?: 'Mutation', updateAccount: { __typename?: 'Account', id: number, name: string, address: string, mnemonicHash?: string | null, encryptedMnemonic?: string | null, encryptedSecret?: string | null, publicKey?: string | null, language: string, followersCount?: number | null, followingsCount?: number | null, followingPagesCount?: number | null, createdAt: any, updatedAt: any, avatar?: string | null, cover?: string | null, pages?: Array<{ __typename?: 'Page', id: string, name: string }> | null, accountDana?: { __typename?: 'AccountDana', danaGiven?: number | null, danaReceived?: number | null } | null } };
+export type UpdateAccountMutation = { __typename?: 'Mutation', updateAccount: { __typename?: 'Account', id: number, name: string, address: string, mnemonicHash?: string | null, encryptedMnemonic?: string | null, encryptedSecret?: string | null, publicKey?: string | null, language: string, followersCount?: number | null, followingsCount?: number | null, followingPagesCount?: number | null, createdAt: any, updatedAt: any, avatar?: string | null, cover?: string | null, pages?: Array<{ __typename?: 'Page', id: string, name: string }> | null, accountDana?: { __typename?: 'AccountDana', danaGiven?: number | null, danaReceived?: number | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number } | null } };
 
 export const AccountFieldsFragmentDoc = `
     fragment AccountFields on Account {
@@ -73,6 +73,9 @@ export const AccountFieldsFragmentDoc = `
   accountDana {
     danaGiven
     danaReceived
+    danaBurnUp
+    danaBurnDown
+    danaBurnScore
   }
 }
     `;

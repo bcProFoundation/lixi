@@ -61,6 +61,9 @@ export type AccountConnection = {
 export type AccountDana = {
   __typename?: 'AccountDana';
   accountDanaHistory?: Maybe<Array<AccountDanaHistory>>;
+  danaBurnDown: Scalars['Float'];
+  danaBurnScore: Scalars['Float'];
+  danaBurnUp: Scalars['Float'];
   danaGiven?: Maybe<Scalars['Float']>;
   danaReceived?: Maybe<Scalars['Float']>;
   id: Scalars['ID'];
@@ -118,6 +121,7 @@ export type Comment = {
   commentAccount: Account;
   commentAccountId?: Maybe<Scalars['Int']>;
   commentByPublicKey?: Maybe<Scalars['String']>;
+  commentDana?: Maybe<CommentDana>;
   commentText: Scalars['String'];
   commentTo: Post;
   commentToId: Scalars['String'];
@@ -137,6 +141,15 @@ export type CommentConnection = {
   edges?: Maybe<Array<CommentEdge>>;
   pageInfo: PageInfo;
   totalCount?: Maybe<Scalars['Int']>;
+};
+
+export type CommentDana = {
+  __typename?: 'CommentDana';
+  comment?: Maybe<Comment>;
+  commentId?: Maybe<Scalars['String']>;
+  danaBurnDown: Scalars['Float'];
+  danaBurnScore: Scalars['Float'];
+  danaBurnUp: Scalars['Float'];
 };
 
 export type CommentEdge = {
@@ -377,6 +390,7 @@ export type Hashtag = {
   danaBurnDown: Scalars['Float'];
   danaBurnScore: Scalars['Float'];
   danaBurnUp: Scalars['Float'];
+  hashtagDana?: Maybe<HashtagDana>;
   id: Scalars['ID'];
   normalizedContent: Scalars['String'];
   postHashtags?: Maybe<Array<PostHashtag>>;
@@ -389,6 +403,15 @@ export type HashtagConnection = {
   edges?: Maybe<Array<HashtagEdge>>;
   pageInfo: PageInfo;
   totalCount?: Maybe<Scalars['Int']>;
+};
+
+export type HashtagDana = {
+  __typename?: 'HashtagDana';
+  danaBurnDown: Scalars['Float'];
+  danaBurnScore: Scalars['Float'];
+  danaBurnUp: Scalars['Float'];
+  hashtag?: Maybe<Hashtag>;
+  hashtagId?: Maybe<Scalars['String']>;
 };
 
 export type HashtagEdge = {
@@ -721,6 +744,7 @@ export type Page = {
   name: Scalars['String'];
   pageAccount: Account;
   pageAccountId: Scalars['Int'];
+  pageDana?: Maybe<PageDana>;
   pageMessageSessions?: Maybe<Array<PageMessageSession>>;
   parent?: Maybe<Page>;
   parentId?: Maybe<Scalars['String']>;
@@ -743,6 +767,15 @@ export type PageConnection = {
   edges?: Maybe<Array<PageEdge>>;
   pageInfo: PageInfo;
   totalCount?: Maybe<Scalars['Int']>;
+};
+
+export type PageDana = {
+  __typename?: 'PageDana';
+  danaBurnDown: Scalars['Float'];
+  danaBurnScore: Scalars['Float'];
+  danaBurnUp: Scalars['Float'];
+  page?: Maybe<Page>;
+  pageId?: Maybe<Scalars['String']>;
 };
 
 export type PageEdge = {
@@ -846,6 +879,7 @@ export type Post = {
   pageId?: Maybe<Scalars['String']>;
   postAccount: Account;
   postAccountId: Scalars['Int'];
+  postDana?: Maybe<PostDana>;
   postHashtags?: Maybe<Array<PostHashtag>>;
   repostCount?: Maybe<Scalars['Int']>;
   reposts?: Maybe<Array<Repost>>;
@@ -863,6 +897,15 @@ export type PostConnection = {
   edges?: Maybe<Array<PostEdge>>;
   pageInfo: PageInfo;
   totalCount?: Maybe<Scalars['Int']>;
+};
+
+export type PostDana = {
+  __typename?: 'PostDana';
+  danaBurnDown: Scalars['Float'];
+  danaBurnScore: Scalars['Float'];
+  danaBurnUp: Scalars['Float'];
+  post?: Maybe<Post>;
+  postId?: Maybe<Scalars['String']>;
 };
 
 export type PostEdge = {
@@ -1614,6 +1657,7 @@ export type Token = {
   name: Scalars['String'];
   rank?: Maybe<Scalars['Int']>;
   ticker: Scalars['String'];
+  tokenDana?: Maybe<TokenDana>;
   tokenDocumentUrl?: Maybe<Scalars['String']>;
   tokenId: Scalars['String'];
   tokenType: Scalars['String'];
@@ -1626,6 +1670,15 @@ export type TokenConnection = {
   edges?: Maybe<Array<TokenEdge>>;
   pageInfo: PageInfo;
   totalCount?: Maybe<Scalars['Int']>;
+};
+
+export type TokenDana = {
+  __typename?: 'TokenDana';
+  danaBurnDown: Scalars['Float'];
+  danaBurnScore: Scalars['Float'];
+  danaBurnUp: Scalars['Float'];
+  token?: Maybe<Token>;
+  tokenId?: Maybe<Scalars['String']>;
 };
 
 export type TokenEdge = {

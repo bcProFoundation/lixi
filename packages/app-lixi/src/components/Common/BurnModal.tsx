@@ -3,40 +3,26 @@ import DownVoteSvg from '@assets/icons/downVote.svg';
 import UpDownSvg from '@assets/icons/upDownIcon.svg';
 import UpVoteSvg from '@assets/icons/upVote.svg';
 import { Burn } from '@bcpros/lixi-models';
-import { PostsQueryTag } from '@bcpros/lixi-models/constants';
-import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
+import { TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models/constants/translation';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import { currency } from '@components/Common/Ticker';
-import { CommentItem } from '@components/Posts/CommentListItem';
-import { PostItem } from '@components/Posts/PostDetail';
-import { TokenItem } from '@components/Token/TokensFeed';
-import { WalletContext } from '@context/walletProvider';
-import { CommentOrderField, OrderDirection } from '@generated/types.generated';
-import useXPI from '@hooks/useXPI';
+import { CURRENCIES, WalletItem, decimalFormatBalance } from '@components/Wallet/ListWallet';
+import { Account, BurnForItem, Comment, Page, Post, Token } from '@generated/index';
 import { getSelectedAccount } from '@store/account/selectors';
-import { addBurnQueue, addBurnTransaction, clearFailQueue, getBurnQueue, getFailQueue, prepareBurnCommand } from '@store/burn';
-import { useCommentQuery } from '@store/comment/comments.generated';
+import { prepareBurnCommand } from '@store/burn';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { closeModal } from '@store/modal/actions';
-import { usePostQuery } from '@store/post/posts.generated';
-import { getFilterPostsHome, getIsTopPosts, getLevelFilter } from '@store/settings/selectors';
 import { showToast } from '@store/toast/actions';
-import { useTokenQuery } from '@store/token/tokens.generated';
-import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
-import { fromSmallestDenomination, fromXpiToSatoshis } from '@utils/cashMethods';
 import { Button, Form, Modal, Radio } from 'antd';
-import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 import router from 'next/router';
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Controller, useForm } from 'react-hook-form';
 import intl from 'react-intl-universal';
-import styled from 'styled-components';
-import { TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models/constants/translation';
-import { CURRENCIES, WalletItem, decimalFormatBalance } from '@components/Wallet/ListWallet';
-import { QRCodeModal } from './QRCodeModal';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { ReactSVG } from 'react-svg';
-import { BurnForItem } from '@generated/index';
+import styled from 'styled-components';
+import { QRCodeModal } from './QRCodeModal';
 
 const UpDownButton = styled(Button)`
   background: rgb(158, 42, 156);
@@ -119,20 +105,7 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
   } = useForm<Burn>();
   const dispatch = useAppDispatch();
   const selectedAccount = useAppSelector(getSelectedAccount);
-  const Wallet = React.useContext(WalletContext);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
   const [selectedAmount, setSelectedAmount] = useState(1);
-  const burnQueue = useAppSelector(getBurnQueue);
-  const failQueue = useAppSelector(getFailQueue);
-  const walletStatus = useAppSelector(getWalletStatus);
-  const pathName = router.pathname ?? '';
-  const tokenQuery = useTokenQuery({ tokenId: id }, { skip: burnForType !== BurnForType.Token }).currentData;
-  const postQuery = usePostQuery({ id: id }, { skip: burnForType !== BurnForType.Post }).currentData;
-  const commentQuery = useCommentQuery({ id: id }, { skip: burnForType !== BurnForType.Comment }).currentData;
-  const filterValue = useAppSelector(getFilterPostsHome);
-  const level = useAppSelector(getLevelFilter);
-  let isTop = useAppSelector(getIsTopPosts);
   const [openSelectCurrencies, setOpenSelectCurrencies] = useState(false);
   const [selectCurrencies, setSelectCurrencies] = useState(null);
   const defaultSelected = {
@@ -146,110 +119,16 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
 
   const handleBurn = async (isUpVote: boolean) => {
     try {
-      let queryParams;
-      let tipToAddresses: { address: string; amount: string }[] = [];
-      let tag;
-      let pageId;
-      let tokenId;
-      let userId;
-      let id: string;
       const burnValue = _.isNil(control._formValues.burnedValue)
         ? DefaultXpiBurnValues[0]
         : control._formValues.burnedValue;
 
       dispatch(prepareBurnCommand({
         isUpVote,
-        burnForId: burnForItem.id.toString(),
+        burnForItem,
         burnForType,
         burnValue
       }));
-
-      switch (burnForType) {
-        case BurnForType.Post:
-          const post = postQuery.post as PostItem;
-          id = post.id;
-
-          if (_.isNil(post.page) && _.isNil(post.token)) {
-            if (pathName.includes('/profile/')) {
-              tag = PostsQueryTag.PostsByUserId;
-            } else {
-              tag = PostsQueryTag.Post;
-            }
-            tipToAddresses.push({
-              address: post.postAccount.address,
-              amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
-            });
-          } else if (post.page) {
-            tag = PostsQueryTag.PostsByPageId;
-            tipToAddresses.push({
-              address: post.page.pageAccount.address,
-              amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
-            });
-          } else if (post.token) {
-            tag = PostsQueryTag.PostsByTokenId;
-          }
-
-          pageId = post.page?.id;
-          tokenId = post.token?.id;
-          userId = post.postAccount.id;
-          break;
-
-        case BurnForType.Comment:
-          const comment = commentQuery.comment as CommentItem;
-          id = comment.id;
-
-          const pageAddress = comment.commentTo.page.pageAccount.address;
-          const postAddress = comment.commentTo.postAccount.address;
-          tipToAddresses.push({
-            address: pageAddress ?? postAddress,
-            amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
-          });
-
-          queryParams = {
-            direction: OrderDirection.Asc,
-            field: CommentOrderField.UpdatedAt
-          };
-          break;
-
-        case BurnForType.Token:
-          const token = tokenQuery.token as TokenItem;
-          tokenId = token.tokenId;
-          id = token.tokenId;
-          break;
-      }
-
-      tipToAddresses = tipToAddresses.filter(item => item.address != selectedAccount.address);
-      const totalTip = fromSmallestDenomination(
-        tipToAddresses.reduce((total, item) => total + parseFloat(item.amount), 0)
-      );
-      if (
-        slpBalancesAndUtxos.nonSlpUtxos.length == 0 ||
-        fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis) < parseInt(burnValue) + totalTip
-      ) {
-        throw new Error(intl.get('account.insufficientFunds'));
-      }
-
-      const burnCommand: BurnQueueCommand = {
-        defaultFee: currency.defaultFee,
-        burnType,
-        burnForType: burnForType,
-        burnedBy,
-        burnForId: id,
-        burnValue,
-        tipToAddresses: tipToAddresses,
-        extraArguments: {
-          isTop: isTop,
-          postQueryTags: [tag],
-          tokenId: tokenId,
-          orderBy: queryParams,
-          pageId: pageId,
-          minBurnFilter: filterValue,
-          level: level
-        }
-      };
-
-      dispatch(addBurnQueue(burnCommand));
-      dispatch(addBurnTransaction(burnCommand));
       dispatch(closeModal());
     } catch (e) {
       const errorMessage = intl.get('post.unableToBurn');
@@ -267,29 +146,24 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
     dispatch(closeModal());
   };
 
-  const getName = (burnForType: BurnForType) => {
-    switch (burnForType) {
-      case BurnForType.Token:
-        return tokenQuery && tokenQuery.token.ticker;
-      case BurnForType.Comment:
-        return intl.get('burn.comment');
-      case BurnForType.Page:
-        return intl.get('burn.page');
-      case BurnForType.Account:
-        return intl.get('burn.account');
-      default:
-        return intl.get('burn.post');
-    }
-  };
 
   const getDanaBurnUp = (burnForType: BurnForType) => {
     switch (burnForType) {
       case BurnForType.Token:
-        return (tokenQuery && tokenQuery.token.danaBurnUp) || 0;
+        const token = burnForItem as Token;
+        return token?.tokenDana?.danaBurnUp || 0;
       case BurnForType.Comment:
-        return (commentQuery && commentQuery.comment.danaBurnUp) || 0;
+        const comment = burnForItem as Comment;
+        return comment?.commentDana?.danaBurnUp || 0;
       case BurnForType.Post:
-        return (postQuery && postQuery.post.danaBurnUp) || 0;
+        const post = burnForItem as Post;
+        return post?.postDana?.danaBurnUp || 0;
+      case BurnForType.Account:
+        const account = burnForItem as Account;
+        return account?.accountDana?.danaBurnUp || 0;
+      case BurnForType.Page:
+        const page = burnForItem as Page;
+        return page?.pageDana?.danaBurnUp || 0;
       default:
         return 0;
     }
@@ -298,39 +172,22 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
   const getDanaBurnDown = (burnForType: BurnForType) => {
     switch (burnForType) {
       case BurnForType.Token:
-        return (tokenQuery && tokenQuery.token.danaBurnDown) || 0;
+        const token = burnForItem as Token;
+        return token?.tokenDana?.danaBurnDown || 0;
       case BurnForType.Comment:
-        return (commentQuery && commentQuery.comment.danaBurnDown) || 0;
+        const comment = burnForItem as Comment;
+        return comment?.commentDana?.danaBurnDown || 0;
       case BurnForType.Post:
-        return (postQuery && postQuery.post.danaBurnDown) || 0;
+        const post = burnForItem as Post;
+        return post?.postDana?.danaBurnDown || 0;
+      case BurnForType.Account:
+        const account = burnForItem as Account;
+        return account?.accountDana?.danaBurnDown || 0;
+      case BurnForType.Page:
+        const page = burnForItem as Page;
+        return page?.pageDana?.danaBurnDown || 0;
       default:
         return 0;
-    }
-  };
-
-  const calcAmountBurn = (initialAmount: number, coin: string) => {
-    let resultAmount = initialAmount;
-    switch (coin) {
-      case 'xpi':
-        resultAmount = initialAmount;
-        return resultAmount;
-      case 'xec':
-        resultAmount = initialAmount / 2;
-        return resultAmount;
-      case 'eth':
-        resultAmount = initialAmount / 1000;
-        return resultAmount;
-      case 'near':
-        resultAmount = initialAmount / 50;
-        return resultAmount;
-      case 'dot':
-        resultAmount = initialAmount / 100;
-        return resultAmount;
-      case 'sol':
-        resultAmount = initialAmount / 150;
-        return resultAmount;
-      default:
-        return resultAmount;
     }
   };
 

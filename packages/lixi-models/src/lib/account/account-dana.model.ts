@@ -11,6 +11,15 @@ export class AccountDana {
   @Field(() => Float, { nullable: true })
   danaReceived?: number;
 
+  @Field(() => Float)
+  danaBurnUp: number;
+
+  @Field(() => Float)
+  danaBurnDown: number;
+
+  @Field(() => Float)
+  danaBurnScore: number;
+
   @Field(() => [AccountDanaHistory], { nullable: true })
   accountDanaHistory?: [AccountDanaHistory];
 }

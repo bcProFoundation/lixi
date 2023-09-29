@@ -1,34 +1,28 @@
 import {
   CameraOutlined,
   CompassOutlined,
-  EditOutlined,
+  FireOutlined,
   HomeOutlined,
-  InfoCircleOutlined,
-  FireOutlined
+  InfoCircleOutlined
 } from '@ant-design/icons';
-import { OPTION_BURN_VALUE, PostsQueryTag } from '@bcpros/lixi-models/constants';
-import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
-import { FilterType } from '@bcpros/lixi-models/lib/filter';
+import { PostListType } from '@bcpros/lixi-models/constants';
+import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import CreatePostCard from '@components/Common/CreatePostCard';
 import SearchBox from '@components/Common/SearchBox';
-import { FilterBurnt } from '@components/Common/FilterBurn';
-import { currency } from '@components/Common/Ticker';
 import PostListItem from '@components/Posts/PostListItem';
+import { AuthorizationContext } from '@context/index';
 import {
   CreateFollowPageInput,
-  CreatePageMessageInput,
   DeleteFollowPageInput,
   HashtagOrderField,
   OrderDirection,
-  PostOrderField,
-  RepostInput,
-  PageMessageSessionStatus
-} from '@generated/types.generated';
+  Page,
+  PageMessageSessionStatus,
+  PostOrderField
+} from '@generated/index';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import {
   addRecentHashtagAtPages,
-  clearRecentHashtagAtPages,
-  removeRecentHashtagAtPages,
   setTransactionReady
 } from '@store/account/actions';
 import {
@@ -38,43 +32,32 @@ import {
   getSelectedAccount,
   getSelectedAccountId
 } from '@store/account/selectors';
-import { addBurnQueue, addBurnTransaction, clearFailQueue, getFailQueue } from '@store/burn';
+import { getFailQueue } from '@store/burn';
 import { useCreateFollowPageMutation, useDeleteFollowPageMutation } from '@store/follow/follows.api';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { openModal } from '@store/modal/actions';
-import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
-import { getFilterPostsPage, getLevelFilter } from '@store/settings/selectors';
-import { showToast } from '@store/toast/actions';
-import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
-import { fromSmallestDenomination, fromXpiToSatoshis } from '@utils/cashMethods';
-import { Button, Skeleton, Space, Tabs, Tag } from 'antd';
-import axios from 'axios';
-import BigNumber from 'bignumber.js';
-import { useRouter } from 'next/router';
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
 import { useInfiniteHashtagByPageQuery } from '@store/hashtag/useInfiniteHashtagByPageQuery';
-import intl from 'react-intl-universal';
-import styled from 'styled-components';
-import { PageQuery } from '@store/page/pages.generated';
-import { useRepostMutation } from '@store/post/posts.api';
-import _ from 'lodash';
-import { getSelectedPostId } from '@store/post/selectors';
-import { setSelectedPost } from '@store/post/actions';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
 import {
   useCreatePageMessageSessionMutation,
   useUserHadMessageToPageQuery
 } from '@store/message/pageMessageSession.generated';
+import { openModal } from '@store/modal/actions';
+import { setSelectedPost } from '@store/post/actions';
+import { getSelectedPostId } from '@store/post/selectors';
+import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
+import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
+import { getFilterPostsPage, getLevelFilter } from '@store/settings/selectors';
+import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
+import { Button, Skeleton, Space, Tabs, Tag } from 'antd';
+import _ from 'lodash';
+import { useRouter } from 'next/router';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
-import { PostListType } from '@bcpros/lixi-models/constants';
-import { AuthorizationContext } from '@context/index';
-import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
-
-export type PageItem = PageQuery['page'];
+import styled from 'styled-components';
 
 type PageDetailProps = {
-  page: PageItem;
+  page: Page;
   isMobile: boolean;
   checkIsFollowed: boolean;
 };
@@ -644,66 +627,6 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
 
   useDidMountEffectNotification();
 
-  const handleBurnForPost = async (isUpVote: boolean, post: any, optionBurn?: string) => {
-    try {
-      const burnValue = OPTION_BURN_VALUE[optionBurn];
-      if (failQueue.length > 0) dispatch(clearFailQueue());
-      const fundingFirstUtxo = slpBalancesAndUtxos.nonSlpUtxos[0];
-      const currentWalletPath = walletPaths.filter(acc => acc.xAddress === fundingFirstUtxo.address).pop();
-      const { hash160, xAddress } = currentWalletPath;
-      const burnType = isUpVote ? BurnType.Up : BurnType.Down;
-      const burnedBy = hash160;
-      const burnForId = post.id;
-      let tipToAddresses: { address: string; amount: string }[] = [
-        {
-          address: page.pageAccount.address,
-          amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
-        }
-      ];
-
-      tipToAddresses = tipToAddresses.filter(item => item.address != selectedAccount.address);
-      const totalTip = fromSmallestDenomination(
-        tipToAddresses.reduce((total, item) => total + parseFloat(item.amount), 0)
-      );
-      if (
-        slpBalancesAndUtxos.nonSlpUtxos.length == 0 ||
-        fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis) < parseInt(burnValue) + totalTip
-      ) {
-        throw new Error(intl.get('account.insufficientFunds'));
-      }
-
-      const burnCommand: BurnQueueCommand = {
-        defaultFee: currency.defaultFee,
-        burnType,
-        burnForType: BurnForType.Post,
-        burnedBy,
-        burnForId,
-        burnValue,
-        tipToAddresses: tipToAddresses,
-        extraArguments: {
-          postQueryTag: PostsQueryTag.PostsByPageId,
-          pageId: post.page?.id,
-          minBurnFilter: filterValue,
-          query: query,
-          hashtags: hashtags,
-          level: level
-        }
-      };
-
-      dispatch(addBurnQueue(burnCommand));
-      dispatch(addBurnTransaction(burnCommand));
-    } catch (e) {
-      const errorMessage = intl.get('post.unableToBurn');
-      dispatch(
-        showToast('error', {
-          message: intl.get('toast.error'),
-          description: errorMessage,
-          duration: 3
-        })
-      );
-    }
-  };
-
   const handleFollowPage = async () => {
     if (authorization.authorized) {
       const createFollowPageInput: CreateFollowPageInput = {
@@ -822,10 +745,8 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                   }}
                 >
                   <PostListItem
-                    index={index}
                     item={item}
                     key={item.id}
-                    handleBurnForPost={handleBurnForPost}
                     postListType={PostListType.Page}
                     addToRecentHashtags={hashtag =>
                       dispatch(addRecentHashtagAtPages({ id: page.id, hashtag: hashtag.substring(1) }))
@@ -853,10 +774,8 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                   }}
                 >
                   <PostListItem
-                    index={index}
                     item={item}
                     key={item.id}
-                    handleBurnForPost={handleBurnForPost}
                     postListType={PostListType.Page}
                     addToRecentHashtags={hashtag =>
                       dispatch(addRecentHashtagAtPages({ id: page.id, hashtag: hashtag.substring(1) }))

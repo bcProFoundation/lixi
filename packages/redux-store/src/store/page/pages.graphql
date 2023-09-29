@@ -89,6 +89,11 @@ fragment PageFields on Page {
   danaBurnUp
   danaBurnDown
   danaBurnScore
+  pageDana {
+    danaBurnUp
+    danaBurnDown
+    danaBurnScore
+  }
   totalBurnForPage
   followersCount
   createPostFee

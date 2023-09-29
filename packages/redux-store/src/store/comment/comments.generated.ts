@@ -18,7 +18,7 @@ export type CommentQueryVariables = Types.Exact<{
 }>;
 
 
-export type CommentQuery = { __typename?: 'Query', comment: { __typename?: 'Comment', id: string, commentText: string, commentByPublicKey?: string | null, commentToId: string, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, createdAt: any, updatedAt: any, commentAccount: { __typename?: 'Account', address: string, id: number, name: string, avatar?: string | null }, commentTo: { __typename?: 'Post', id: string, postAccount: { __typename?: 'Account', address: string, id: number, name: string }, page?: { __typename?: 'Page', avatar?: string | null, name: string, id: string, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } } | null } } };
+export type CommentQuery = { __typename?: 'Query', comment: { __typename?: 'Comment', id: string, commentText: string, commentByPublicKey?: string | null, commentToId: string, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, createdAt: any, updatedAt: any, commentAccount: { __typename?: 'Account', address: string, id: number, name: string, avatar?: string | null }, commentTo: { __typename?: 'Post', id: string, postAccount: { __typename?: 'Account', address: string, id: number, name: string }, page?: { __typename?: 'Page', avatar?: string | null, name: string, id: string, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } } | null }, commentDana?: { __typename?: 'CommentDana', danaBurnUp: number, danaBurnDown: number, danaBurnScore: number } | null } };
 
 export type CommentsToPostIdQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
@@ -31,16 +31,16 @@ export type CommentsToPostIdQueryVariables = Types.Exact<{
 }>;
 
 
-export type CommentsToPostIdQuery = { __typename?: 'Query', allCommentsToPostId: { __typename?: 'CommentConnection', totalCount?: number | null, edges?: Array<{ __typename?: 'CommentEdge', cursor: string, node: { __typename?: 'Comment', id: string, commentText: string, commentByPublicKey?: string | null, commentToId: string, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, createdAt: any, updatedAt: any, commentAccount: { __typename?: 'Account', address: string, id: number, name: string, avatar?: string | null }, commentTo: { __typename?: 'Post', id: string, postAccount: { __typename?: 'Account', address: string, id: number, name: string }, page?: { __typename?: 'Page', avatar?: string | null, name: string, id: string, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } } | null } } }> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+export type CommentsToPostIdQuery = { __typename?: 'Query', allCommentsToPostId: { __typename?: 'CommentConnection', totalCount?: number | null, edges?: Array<{ __typename?: 'CommentEdge', cursor: string, node: { __typename?: 'Comment', id: string, commentText: string, commentByPublicKey?: string | null, commentToId: string, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, createdAt: any, updatedAt: any, commentAccount: { __typename?: 'Account', address: string, id: number, name: string, avatar?: string | null }, commentTo: { __typename?: 'Post', id: string, postAccount: { __typename?: 'Account', address: string, id: number, name: string }, page?: { __typename?: 'Page', avatar?: string | null, name: string, id: string, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } } | null }, commentDana?: { __typename?: 'CommentDana', danaBurnUp: number, danaBurnDown: number, danaBurnScore: number } | null } }> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
 
-export type CommentFieldsFragment = { __typename?: 'Comment', id: string, commentText: string, commentByPublicKey?: string | null, commentToId: string, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, createdAt: any, updatedAt: any, commentAccount: { __typename?: 'Account', address: string, id: number, name: string, avatar?: string | null }, commentTo: { __typename?: 'Post', id: string, postAccount: { __typename?: 'Account', address: string, id: number, name: string }, page?: { __typename?: 'Page', avatar?: string | null, name: string, id: string, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } } | null } };
+export type CommentFieldsFragment = { __typename?: 'Comment', id: string, commentText: string, commentByPublicKey?: string | null, commentToId: string, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, createdAt: any, updatedAt: any, commentAccount: { __typename?: 'Account', address: string, id: number, name: string, avatar?: string | null }, commentTo: { __typename?: 'Post', id: string, postAccount: { __typename?: 'Account', address: string, id: number, name: string }, page?: { __typename?: 'Page', avatar?: string | null, name: string, id: string, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } } | null }, commentDana?: { __typename?: 'CommentDana', danaBurnUp: number, danaBurnDown: number, danaBurnScore: number } | null };
 
 export type CreateCommentMutationVariables = Types.Exact<{
   input: Types.CreateCommentInput;
 }>;
 
 
-export type CreateCommentMutation = { __typename?: 'Mutation', createComment: { __typename?: 'Comment', id: string, commentText: string, commentByPublicKey?: string | null, commentToId: string, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, createdAt: any, updatedAt: any, commentAccount: { __typename?: 'Account', address: string, id: number, name: string, avatar?: string | null }, commentTo: { __typename?: 'Post', id: string, postAccount: { __typename?: 'Account', address: string, id: number, name: string }, page?: { __typename?: 'Page', avatar?: string | null, name: string, id: string, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } } | null } } };
+export type CreateCommentMutation = { __typename?: 'Mutation', createComment: { __typename?: 'Comment', id: string, commentText: string, commentByPublicKey?: string | null, commentToId: string, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, createdAt: any, updatedAt: any, commentAccount: { __typename?: 'Account', address: string, id: number, name: string, avatar?: string | null }, commentTo: { __typename?: 'Post', id: string, postAccount: { __typename?: 'Account', address: string, id: number, name: string }, page?: { __typename?: 'Page', avatar?: string | null, name: string, id: string, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } } | null }, commentDana?: { __typename?: 'CommentDana', danaBurnUp: number, danaBurnDown: number, danaBurnScore: number } | null } };
 
 export const CommentFieldsFragmentDoc = `
     fragment CommentFields on Comment {
@@ -75,6 +75,11 @@ export const CommentFieldsFragmentDoc = `
   danaBurnUp
   danaBurnDown
   danaBurnScore
+  commentDana {
+    danaBurnUp
+    danaBurnDown
+    danaBurnScore
+  }
   createdAt
   updatedAt
 }

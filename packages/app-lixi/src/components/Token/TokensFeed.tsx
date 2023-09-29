@@ -1,11 +1,9 @@
-import { CopyOutlined, LikeOutlined } from '@ant-design/icons';
-import { PostListType, PostsQueryTag } from '@bcpros/lixi-models/constants';
-import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
+import { CopyOutlined } from '@ant-design/icons';
+import { PostListType } from '@bcpros/lixi-models/constants';
 import CreatePostCard from '@components/Common/CreatePostCard';
 import SearchBox from '@components/Common/SearchBox';
 import { currency } from '@components/Common/Ticker';
 import { InfoSubCard } from '@components/Lixi';
-import { IconBurn } from '@components/Posts/PostDetail';
 import PostListItem from '@components/Posts/PostListItem';
 import {
   CreateFollowTokenInput,
@@ -17,17 +15,16 @@ import {
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { addRecentHashtagAtToken, setTransactionReady } from '@store/account/actions';
 import { getSelectedAccountId } from '@store/account/selectors';
-import { addBurnQueue, addBurnTransaction, clearFailQueue, getFailQueue } from '@store/burn';
+import { getFailQueue } from '@store/burn';
+import { useCreateFollowTokenMutation, useDeleteFollowTokenMutation } from '@store/follow/follows.api';
 import { useInfiniteHashtagByTokenQuery } from '@store/hashtag/useInfiniteHashtagByTokenQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { useInfinitePostsBySearchQueryWithHashtagAtToken } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtToken';
 import { useInfinitePostsByTokenIdQuery } from '@store/post/useInfinitePostsByTokenIdQuery';
 import { getFilterPostsToken } from '@store/settings/selectors';
 import { showToast } from '@store/toast/actions';
-import { TokenQuery } from '@store/token/tokens.generated';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
-import { formatBalance, fromSmallestDenomination } from '@utils/cashMethods';
-import { Image, Menu, Skeleton, Tabs, notification, Tag, Button } from 'antd';
+import { Button, Image, Menu, Skeleton, Tabs, Tag } from 'antd';
 import makeBlockie from 'ethereum-blockies-base64';
 import moment from 'moment';
 import { useRouter } from 'next/router';
@@ -36,14 +33,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
-import _ from 'lodash';
-import { useCreateFollowTokenMutation, useDeleteFollowTokenMutation } from '@store/follow/follows.api';
 
-export type TokenItem = TokenQuery['token'];
-export type BurnTokenData = {
-  data: TokenItem;
-  burnForType: BurnForType.Token;
-};
 const StyledTokensFeed = styled.div`
   margin: 1rem auto;
   width: 100%;
@@ -355,52 +345,6 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
 
   useDidMountEffectNotification();
 
-  const handleBurnForPost = async (isUpVote: boolean, post: any) => {
-    try {
-      const burnValue = '1';
-      if (
-        slpBalancesAndUtxos.nonSlpUtxos.length == 0 ||
-        fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis) < parseInt(burnValue)
-      ) {
-        throw new Error(intl.get('account.insufficientFunds'));
-      }
-      if (failQueue.length > 0) dispatch(clearFailQueue());
-      const fundingFirstUtxo = slpBalancesAndUtxos.nonSlpUtxos[0];
-      const currentWalletPath = walletPaths.filter(acc => acc.xAddress === fundingFirstUtxo.address).pop();
-      const { hash160, xAddress } = currentWalletPath;
-      const burnType = isUpVote ? BurnType.Up : BurnType.Down;
-      const burnedBy = hash160;
-      const burnForId = post.id;
-
-      const burnCommand: BurnQueueCommand = {
-        defaultFee: currency.defaultFee,
-        burnType,
-        burnForType: BurnForType.Post,
-        burnedBy,
-        burnForId,
-        burnValue,
-        extraArguments: {
-          postQueryTags: [PostsQueryTag.PostsByTokenId],
-          tokenId: post.token?.id,
-          minBurnFilter: filterValue,
-          query: query,
-          hashtags: hashtags
-        }
-      };
-
-      dispatch(addBurnQueue(burnCommand));
-      dispatch(addBurnTransaction(burnCommand));
-    } catch (e) {
-      const errorMessage = intl.get('post.unableToBurn');
-      dispatch(
-        showToast('error', {
-          message: errorMessage,
-          duration: 3
-        })
-      );
-    }
-  };
-
   const onTopHashtagClick = e => {
     const hashtag = e.currentTarget.innerText;
     if (router.query.hashtags) {
@@ -466,10 +410,8 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
             {data.map((item, index) => {
               return (
                 <PostListItem
-                  index={index}
                   item={item}
                   key={item.id}
-                  handleBurnForPost={handleBurnForPost}
                   addToRecentHashtags={hashtag =>
                     dispatch(addRecentHashtagAtToken({ id: token.id, hashtag: hashtag.substring(1) }))
                   }
@@ -494,10 +436,8 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
             {queryData.map((item, index) => {
               return (
                 <PostListItem
-                  index={index}
                   item={item}
                   key={item.id}
-                  handleBurnForPost={handleBurnForPost}
                   addToRecentHashtags={hashtag =>
                     dispatch(addRecentHashtagAtToken({ id: token.id, hashtag: hashtag.substring(1) }))
                   }
@@ -556,17 +496,6 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
             </div>
           </div>
         </div>
-        {/* TODO: Temp remove func not working */}
-        {/* <div className="score-ticker">
-          <LikeOutlined style={{ marginRight: '10px', fontSize: '1.2rem' }} />
-          <IconBurn
-            imgUrl="/images/ico-burn-up.svg"
-            burnValue={formatBalance(tokenDetailData?.danaBurnUp ?? 0)}
-            key={`list-vertical-upvote-o-${tokenDetailData.id}`}
-            dataItem={tokenDetailData}
-            onClickIcon={() => {}}
-          />
-        </div> */}
         <div style={{ marginTop: '1rem', textAlign: 'right' }}>
           <Button
             style={{ background: 'transparent !important', fontWeight: '700' }}

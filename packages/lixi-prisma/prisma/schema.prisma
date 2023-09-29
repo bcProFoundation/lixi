@@ -295,6 +295,9 @@ model AccountDana {
   accountId          Int                  @unique @map("account_id")
   danaGiven          Float                @default(0.0) @map("dana_given")
   danaReceived       Float                @default(0.0) @map("dana_received")
+  danaBurnUp         Float                @default(0.0) @map("dana_burn_up")
+  danaBurnDown       Float                @default(0.0) @map("dana_burn_down")
+  danaBurnScore      Float                @default(0.0) @map("dana_burn_score")
   accountDanaHistory AccountDanaHistory[]
 
   @@index([accountId])

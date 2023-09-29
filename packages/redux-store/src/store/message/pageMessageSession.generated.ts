@@ -13,81 +13,14 @@ import * as Types from '../../generated/types.generated';
 
 import { PageInfoFieldsFragmentDoc, PostMeiliPageInfoFieldsFragmentDoc } from '../../graphql/fragments/page-info-fields.fragment.generated';
 import { api } from 'src/api/baseApi';
-export type PageMessageSessionFieldsFragment = { __typename?: 'PageMessageSession', id: string, latestMessage?: string | null, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null };
-export type PageMessageSessionFieldsFragment = {
-  __typename?: 'PageMessageSession';
-  id: string;
-  lixiClaimCode?: string | null;
-  sessionOpenedAt?: any | null;
-  sessionClosedAt?: any | null;
-  status: Types.PageMessageSessionStatus;
-  createdAt?: any | null;
-  updatedAt?: any | null;
-  page: {
-    __typename?: 'Page';
-    id: string;
-    name: string;
-    avatar?: string | null;
-    pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
-  };
-  account: { __typename?: 'Account'; id: number; name: string; address: string; avatar?: string | null };
-  lixi?: {
-    __typename?: 'LixiModel';
-    id: string;
-    name: string;
-    amount: string;
-    expiryAt?: any | null;
-    activationAt?: any | null;
-    status: string;
-  } | null;
-  latestMessage?: {
-    __typename?: 'LatestMessage';
-    id?: string | null;
-    body?: string | null;
-    author?: { __typename?: 'LatestMessageAuthor'; id?: number | null; address?: string | null } | null;
-  } | null;
-};
+export type PageMessageSessionFieldsFragment = { __typename?: 'PageMessageSession', id: string, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null, latestMessage?: { __typename?: 'LatestMessage', id?: string | null, body?: string | null, author?: { __typename?: 'LatestMessageAuthor', id?: number | null, address?: string | null } | null } | null };
 
 export type PageMessageSessionQueryVariables = Types.Exact<{
   id: Types.Scalars['String'];
 }>;
 
-export type PageMessageSessionQuery = {
-  __typename?: 'Query';
-  pageMessageSession: {
-    __typename?: 'PageMessageSession';
-    id: string;
-    lixiClaimCode?: string | null;
-    sessionOpenedAt?: any | null;
-    sessionClosedAt?: any | null;
-    status: Types.PageMessageSessionStatus;
-    createdAt?: any | null;
-    updatedAt?: any | null;
-    page: {
-      __typename?: 'Page';
-      id: string;
-      name: string;
-      avatar?: string | null;
-      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
-    };
-    account: { __typename?: 'Account'; id: number; name: string; address: string; avatar?: string | null };
-    lixi?: {
-      __typename?: 'LixiModel';
-      id: string;
-      name: string;
-      amount: string;
-      expiryAt?: any | null;
-      activationAt?: any | null;
-      status: string;
-    } | null;
-    latestMessage?: {
-      __typename?: 'LatestMessage';
-      id?: string | null;
-      body?: string | null;
-      author?: { __typename?: 'LatestMessageAuthor'; id?: number | null; address?: string | null } | null;
-    } | null;
-  };
-};
+
+export type PageMessageSessionQuery = { __typename?: 'Query', pageMessageSession: { __typename?: 'PageMessageSession', id: string, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null, latestMessage?: { __typename?: 'LatestMessage', id?: string | null, body?: string | null, author?: { __typename?: 'LatestMessageAuthor', id?: number | null, address?: string | null } | null } | null } };
 
 export type OpenPageMessageSessionByPageIdQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
@@ -99,14 +32,8 @@ export type OpenPageMessageSessionByPageIdQueryVariables = Types.Exact<{
   skip?: Types.InputMaybe<Types.Scalars['Int']>;
 }>;
 
-        latestMessage?: {
-          __typename?: 'LatestMessage';
-          id?: string | null;
-          body?: string | null;
-          author?: { __typename?: 'LatestMessageAuthor'; id?: number | null; address?: string | null } | null;
-        } | null;
 
-export type OpenPageMessageSessionByPageIdQuery = { __typename?: 'Query', allOpenPageMessageSessionByPageId: { __typename?: 'PageMessageSessionConnection', totalCount?: number | null, edges?: Array<{ __typename?: 'PageMessageSessionEdge', cursor: string, node: { __typename?: 'PageMessageSession', id: string, latestMessage?: string | null, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null } }> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+export type OpenPageMessageSessionByPageIdQuery = { __typename?: 'Query', allOpenPageMessageSessionByPageId: { __typename?: 'PageMessageSessionConnection', totalCount?: number | null, edges?: Array<{ __typename?: 'PageMessageSessionEdge', cursor: string, node: { __typename?: 'PageMessageSession', id: string, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null, latestMessage?: { __typename?: 'LatestMessage', id?: string | null, body?: string | null, author?: { __typename?: 'LatestMessageAuthor', id?: number | null, address?: string | null } | null } | null } }> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
 
 export type PendingPageMessageSessionByPageIdQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
@@ -118,57 +45,8 @@ export type PendingPageMessageSessionByPageIdQueryVariables = Types.Exact<{
   skip?: Types.InputMaybe<Types.Scalars['Int']>;
 }>;
 
-export type PendingPageMessageSessionByPageIdQuery = {
-  __typename?: 'Query';
-  allPendingPageMessageSessionByPageId: {
-    __typename?: 'PageMessageSessionConnection';
-    totalCount?: number | null;
-    edges?: Array<{
-      __typename?: 'PageMessageSessionEdge';
-      cursor: string;
-      node: {
-        __typename?: 'PageMessageSession';
-        id: string;
-        lixiClaimCode?: string | null;
-        sessionOpenedAt?: any | null;
-        sessionClosedAt?: any | null;
-        status: Types.PageMessageSessionStatus;
-        createdAt?: any | null;
-        updatedAt?: any | null;
-        page: {
-          __typename?: 'Page';
-          id: string;
-          name: string;
-          avatar?: string | null;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
-        };
-        account: { __typename?: 'Account'; id: number; name: string; address: string; avatar?: string | null };
-        lixi?: {
-          __typename?: 'LixiModel';
-          id: string;
-          name: string;
-          amount: string;
-          expiryAt?: any | null;
-          activationAt?: any | null;
-          status: string;
-        } | null;
-        latestMessage?: {
-          __typename?: 'LatestMessage';
-          id?: string | null;
-          body?: string | null;
-          author?: { __typename?: 'LatestMessageAuthor'; id?: number | null; address?: string | null } | null;
-        } | null;
-      };
-    }> | null;
-    pageInfo: {
-      __typename?: 'PageInfo';
-      endCursor?: string | null;
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor?: string | null;
-    };
-  };
-};
+
+export type PendingPageMessageSessionByPageIdQuery = { __typename?: 'Query', allPendingPageMessageSessionByPageId: { __typename?: 'PageMessageSessionConnection', totalCount?: number | null, edges?: Array<{ __typename?: 'PageMessageSessionEdge', cursor: string, node: { __typename?: 'PageMessageSession', id: string, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null, latestMessage?: { __typename?: 'LatestMessage', id?: string | null, body?: string | null, author?: { __typename?: 'LatestMessageAuthor', id?: number | null, address?: string | null } | null } | null } }> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
 
 export type OpenPageMessageSessionByAccountIdQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
@@ -180,14 +58,8 @@ export type OpenPageMessageSessionByAccountIdQueryVariables = Types.Exact<{
   skip?: Types.InputMaybe<Types.Scalars['Int']>;
 }>;
 
-        latestMessage?: {
-          __typename?: 'LatestMessage';
-          id?: string | null;
-          body?: string | null;
-          author?: { __typename?: 'LatestMessageAuthor'; id?: number | null; address?: string | null } | null;
-        } | null;
 
-export type OpenPageMessageSessionByAccountIdQuery = { __typename?: 'Query', allOpenPageMessageSessionByAccountId: { __typename?: 'PageMessageSessionConnection', totalCount?: number | null, edges?: Array<{ __typename?: 'PageMessageSessionEdge', cursor: string, node: { __typename?: 'PageMessageSession', id: string, latestMessage?: string | null, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null } }> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+export type OpenPageMessageSessionByAccountIdQuery = { __typename?: 'Query', allOpenPageMessageSessionByAccountId: { __typename?: 'PageMessageSessionConnection', totalCount?: number | null, edges?: Array<{ __typename?: 'PageMessageSessionEdge', cursor: string, node: { __typename?: 'PageMessageSession', id: string, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null, latestMessage?: { __typename?: 'LatestMessage', id?: string | null, body?: string | null, author?: { __typename?: 'LatestMessageAuthor', id?: number | null, address?: string | null } | null } | null } }> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
 
 export type PendingPageMessageSessionByAccountIdQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
@@ -199,14 +71,8 @@ export type PendingPageMessageSessionByAccountIdQueryVariables = Types.Exact<{
   skip?: Types.InputMaybe<Types.Scalars['Int']>;
 }>;
 
-        latestMessage?: {
-          __typename?: 'LatestMessage';
-          id?: string | null;
-          body?: string | null;
-          author?: { __typename?: 'LatestMessageAuthor'; id?: number | null; address?: string | null } | null;
-        } | null;
 
-export type PendingPageMessageSessionByAccountIdQuery = { __typename?: 'Query', allPendingPageMessageSessionByAccountId: { __typename?: 'PageMessageSessionConnection', totalCount?: number | null, edges?: Array<{ __typename?: 'PageMessageSessionEdge', cursor: string, node: { __typename?: 'PageMessageSession', id: string, latestMessage?: string | null, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null } }> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+export type PendingPageMessageSessionByAccountIdQuery = { __typename?: 'Query', allPendingPageMessageSessionByAccountId: { __typename?: 'PageMessageSessionConnection', totalCount?: number | null, edges?: Array<{ __typename?: 'PageMessageSessionEdge', cursor: string, node: { __typename?: 'PageMessageSession', id: string, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null, latestMessage?: { __typename?: 'LatestMessage', id?: string | null, body?: string | null, author?: { __typename?: 'LatestMessageAuthor', id?: number | null, address?: string | null } | null } | null } }> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
 
 export type ClosedPageMessageSessionQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
@@ -219,57 +85,8 @@ export type ClosedPageMessageSessionQueryVariables = Types.Exact<{
   skip?: Types.InputMaybe<Types.Scalars['Int']>;
 }>;
 
-export type ClosedPageMessageSessionQuery = {
-  __typename?: 'Query';
-  allClosedPageMessageSession: {
-    __typename?: 'PageMessageSessionConnection';
-    totalCount?: number | null;
-    edges?: Array<{
-      __typename?: 'PageMessageSessionEdge';
-      cursor: string;
-      node: {
-        __typename?: 'PageMessageSession';
-        id: string;
-        lixiClaimCode?: string | null;
-        sessionOpenedAt?: any | null;
-        sessionClosedAt?: any | null;
-        status: Types.PageMessageSessionStatus;
-        createdAt?: any | null;
-        updatedAt?: any | null;
-        page: {
-          __typename?: 'Page';
-          id: string;
-          name: string;
-          avatar?: string | null;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
-        };
-        account: { __typename?: 'Account'; id: number; name: string; address: string; avatar?: string | null };
-        lixi?: {
-          __typename?: 'LixiModel';
-          id: string;
-          name: string;
-          amount: string;
-          expiryAt?: any | null;
-          activationAt?: any | null;
-          status: string;
-        } | null;
-        latestMessage?: {
-          __typename?: 'LatestMessage';
-          id?: string | null;
-          body?: string | null;
-          author?: { __typename?: 'LatestMessageAuthor'; id?: number | null; address?: string | null } | null;
-        } | null;
-      };
-    }> | null;
-    pageInfo: {
-      __typename?: 'PageInfo';
-      endCursor?: string | null;
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor?: string | null;
-    };
-  };
-};
+
+export type ClosedPageMessageSessionQuery = { __typename?: 'Query', allClosedPageMessageSession: { __typename?: 'PageMessageSessionConnection', totalCount?: number | null, edges?: Array<{ __typename?: 'PageMessageSessionEdge', cursor: string, node: { __typename?: 'PageMessageSession', id: string, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null, latestMessage?: { __typename?: 'LatestMessage', id?: string | null, body?: string | null, author?: { __typename?: 'LatestMessageAuthor', id?: number | null, address?: string | null } | null } | null } }> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
 
 export type PageMessageSessionByAccountIdQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
@@ -281,194 +98,37 @@ export type PageMessageSessionByAccountIdQueryVariables = Types.Exact<{
   skip?: Types.InputMaybe<Types.Scalars['Int']>;
 }>;
 
-export type PageMessageSessionByAccountIdQuery = {
-  __typename?: 'Query';
-  allPageMessageSessionByAccountId: {
-    __typename?: 'PageMessageSessionConnection';
-    totalCount?: number | null;
-    edges?: Array<{
-      __typename?: 'PageMessageSessionEdge';
-      cursor: string;
-      node: {
-        __typename?: 'PageMessageSession';
-        id: string;
-        lixiClaimCode?: string | null;
-        sessionOpenedAt?: any | null;
-        sessionClosedAt?: any | null;
-        status: Types.PageMessageSessionStatus;
-        createdAt?: any | null;
-        updatedAt?: any | null;
-        page: {
-          __typename?: 'Page';
-          id: string;
-          name: string;
-          avatar?: string | null;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
-        };
-        account: { __typename?: 'Account'; id: number; name: string; address: string; avatar?: string | null };
-        lixi?: {
-          __typename?: 'LixiModel';
-          id: string;
-          name: string;
-          amount: string;
-          expiryAt?: any | null;
-          activationAt?: any | null;
-          status: string;
-        } | null;
-        latestMessage?: {
-          __typename?: 'LatestMessage';
-          id?: string | null;
-          body?: string | null;
-          author?: { __typename?: 'LatestMessageAuthor'; id?: number | null; address?: string | null } | null;
-        } | null;
-      };
-    }> | null;
-    pageInfo: {
-      __typename?: 'PageInfo';
-      endCursor?: string | null;
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor?: string | null;
-    };
-  };
-};
+
+export type PageMessageSessionByAccountIdQuery = { __typename?: 'Query', allPageMessageSessionByAccountId: { __typename?: 'PageMessageSessionConnection', totalCount?: number | null, edges?: Array<{ __typename?: 'PageMessageSessionEdge', cursor: string, node: { __typename?: 'PageMessageSession', id: string, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null, latestMessage?: { __typename?: 'LatestMessage', id?: string | null, body?: string | null, author?: { __typename?: 'LatestMessageAuthor', id?: number | null, address?: string | null } | null } | null } }> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
 
 export type UserHadMessageToPageQueryVariables = Types.Exact<{
   accountId?: Types.InputMaybe<Types.Scalars['Int']>;
   pageId?: Types.InputMaybe<Types.Scalars['String']>;
 }>;
 
-export type UserHadMessageToPageQuery = {
-  __typename?: 'Query';
-  userHadMessageToPage?: {
-    __typename?: 'PageMessageSession';
-    id: string;
-    lixiClaimCode?: string | null;
-    sessionOpenedAt?: any | null;
-    sessionClosedAt?: any | null;
-    status: Types.PageMessageSessionStatus;
-    createdAt?: any | null;
-    updatedAt?: any | null;
-    page: {
-      __typename?: 'Page';
-      id: string;
-      name: string;
-      avatar?: string | null;
-      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
-    };
-    account: { __typename?: 'Account'; id: number; name: string; address: string; avatar?: string | null };
-    lixi?: {
-      __typename?: 'LixiModel';
-      id: string;
-      name: string;
-      amount: string;
-      expiryAt?: any | null;
-      activationAt?: any | null;
-      status: string;
-    } | null;
-    latestMessage?: {
-      __typename?: 'LatestMessage';
-      id?: string | null;
-      body?: string | null;
-      author?: { __typename?: 'LatestMessageAuthor'; id?: number | null; address?: string | null } | null;
-    } | null;
-  } | null;
-};
+
+export type UserHadMessageToPageQuery = { __typename?: 'Query', userHadMessageToPage?: { __typename?: 'PageMessageSession', id: string, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null, latestMessage?: { __typename?: 'LatestMessage', id?: string | null, body?: string | null, author?: { __typename?: 'LatestMessageAuthor', id?: number | null, address?: string | null } | null } | null } | null };
 
 export type CreatePageMessageSessionMutationVariables = Types.Exact<{
   input: Types.CreatePageMessageInput;
 }>;
 
-export type CreatePageMessageSessionMutation = {
-  __typename?: 'Mutation';
-  createPageMessageSession: {
-    __typename?: 'PageMessageSession';
-    id: string;
-    lixiClaimCode?: string | null;
-    sessionOpenedAt?: any | null;
-    sessionClosedAt?: any | null;
-    status: Types.PageMessageSessionStatus;
-    createdAt?: any | null;
-    updatedAt?: any | null;
-    page: {
-      __typename?: 'Page';
-      id: string;
-      name: string;
-      avatar?: string | null;
-      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
-    };
-    account: { __typename?: 'Account'; id: number; name: string; address: string; avatar?: string | null };
-    lixi?: {
-      __typename?: 'LixiModel';
-      id: string;
-      name: string;
-      amount: string;
-      expiryAt?: any | null;
-      activationAt?: any | null;
-      status: string;
-    } | null;
-    latestMessage?: {
-      __typename?: 'LatestMessage';
-      id?: string | null;
-      body?: string | null;
-      author?: { __typename?: 'LatestMessageAuthor'; id?: number | null; address?: string | null } | null;
-    } | null;
-  };
-};
+
+export type CreatePageMessageSessionMutation = { __typename?: 'Mutation', createPageMessageSession: { __typename?: 'PageMessageSession', id: string, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null, latestMessage?: { __typename?: 'LatestMessage', id?: string | null, body?: string | null, author?: { __typename?: 'LatestMessageAuthor', id?: number | null, address?: string | null } | null } | null } };
 
 export type ClosePageMessageSessionMutationVariables = Types.Exact<{
   input: Types.ClosePageMessageSessionInput;
 }>;
 
-    latestMessage?: {
-      __typename?: 'LatestMessage';
-      id?: string | null;
-      body?: string | null;
-      author?: { __typename?: 'LatestMessageAuthor'; id?: number | null; address?: string | null } | null;
-    } | null;
 
-export type ClosePageMessageSessionMutation = { __typename?: 'Mutation', closePageMessageSession: { __typename?: 'PageMessageSession', id: string, latestMessage?: string | null, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null } };
+export type ClosePageMessageSessionMutation = { __typename?: 'Mutation', closePageMessageSession: { __typename?: 'PageMessageSession', id: string, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null, latestMessage?: { __typename?: 'LatestMessage', id?: string | null, body?: string | null, author?: { __typename?: 'LatestMessageAuthor', id?: number | null, address?: string | null } | null } | null } };
 
 export type OpenPageMessageSessionMutationVariables = Types.Exact<{
   input: Types.OpenPageMessageSessionInput;
 }>;
 
-export type OpenPageMessageSessionMutation = {
-  __typename?: 'Mutation';
-  openPageMessageSession: {
-    __typename?: 'PageMessageSession';
-    id: string;
-    lixiClaimCode?: string | null;
-    sessionOpenedAt?: any | null;
-    sessionClosedAt?: any | null;
-    status: Types.PageMessageSessionStatus;
-    createdAt?: any | null;
-    updatedAt?: any | null;
-    page: {
-      __typename?: 'Page';
-      id: string;
-      name: string;
-      avatar?: string | null;
-      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
-    };
-    account: { __typename?: 'Account'; id: number; name: string; address: string; avatar?: string | null };
-    lixi?: {
-      __typename?: 'LixiModel';
-      id: string;
-      name: string;
-      amount: string;
-      expiryAt?: any | null;
-      activationAt?: any | null;
-      status: string;
-    } | null;
-    latestMessage?: {
-      __typename?: 'LatestMessage';
-      id?: string | null;
-      body?: string | null;
-      author?: { __typename?: 'LatestMessageAuthor'; id?: number | null; address?: string | null } | null;
-    } | null;
-  };
-};
+
+export type OpenPageMessageSessionMutation = { __typename?: 'Mutation', openPageMessageSession: { __typename?: 'PageMessageSession', id: string, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null, latestMessage?: { __typename?: 'LatestMessage', id?: string | null, body?: string | null, author?: { __typename?: 'LatestMessageAuthor', id?: number | null, address?: string | null } | null } | null } };
 
 export const PageMessageSessionFieldsFragmentDoc = `
     fragment PageMessageSessionFields on PageMessageSession {

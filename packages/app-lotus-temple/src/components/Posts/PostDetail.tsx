@@ -1,50 +1,40 @@
 import { DashOutlined, LeftOutlined } from '@ant-design/icons';
-import { PostsQueryTag } from '@bcpros/lixi-models/constants';
-import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import { AvatarUser } from '@components/Common/AvatarUser';
 import { Counter } from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
+import { ShareSocialButton } from '@components/Common/ShareSocialButton';
 import { currency } from '@components/Common/Ticker';
 import { NavBarHeader, PathDirection } from '@components/Layout/MainLayout';
 import { WalletContext } from '@context/walletProvider';
+import { CommentOrderField, CreateCommentInput, OrderDirection, Post } from '@generated/index';
 import useXPI from '@hooks/useXPI';
+import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { getSelectedAccount } from '@store/account/selectors';
-import { addBurnQueue, addBurnTransaction, clearFailQueue } from '@store/burn/actions';
+import { prepareBurnCommand } from '@store/burn/actions';
 import { api as commentsApi, useCreateCommentMutation } from '@store/comment/comments.api';
 import { useInfiniteCommentsToPostIdQuery } from '@store/comment/useInfiniteCommentsToPostIdQuery';
-import { PostQuery } from '@store/post/posts.generated';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { openModal } from '@store/modal/actions';
 import { sendXPIFailure } from '@store/send/actions';
 import { showToast } from '@store/toast/actions';
-import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
-import { formatBalance, fromSmallestDenomination, fromXpiToSatoshis, getUtxoWif } from '@utils/cashMethods';
-import { Image, Input, Skeleton, Space, AutoComplete } from 'antd';
-import BigNumber from 'bignumber.js';
+import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
+import { formatBalance, getUtxoWif } from '@utils/cashMethods';
+import { AutoComplete, Image, Input, Skeleton, Space } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import { useRouter } from 'next/router';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import ReactHtmlParser from 'react-html-parser';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
-import { CommentOrderField, CreateCommentInput, OrderDirection } from '@generated/types.generated';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import styled from 'styled-components';
-import CommentListItem, { CommentItem } from './CommentListItem';
-import { useForm, Controller } from 'react-hook-form';
-import { openModal } from '@store/modal/actions';
-import { EditPostModalProps } from './EditPostModalPopup';
-import { ShareSocialButton } from '@components/Common/ShareSocialButton';
 import Gallery from 'react-photo-gallery';
-import { getTransactionStatus } from '@store/account/selectors';
-import { getBurnQueue, getFailQueue } from '@store/burn';
-import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
+import styled from 'styled-components';
+import CommentListItem from './CommentListItem';
+import { EditPostModalProps } from './EditPostModalPopup';
 
-export type PostItem = PostQuery['post'];
-export type BurnData = {
-  data: PostItem | CommentItem;
-  burnForType: BurnForType;
-};
 
 const { Search } = Input;
 
@@ -101,7 +91,7 @@ export const IconBurn = ({
 );
 
 type PostDetailProps = {
-  post: PostItem;
+  post: Post;
   isMobile: boolean;
 };
 
@@ -250,20 +240,14 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   const dispatch = useAppDispatch();
   const { control, getValues, setValue, setFocus } = useForm();
   const router = useRouter();
-  const baseUrl = process.env.NEXT_PUBLIC_LIXI_URL;
-  const refCommentsListing = useRef<HTMLDivElement | null>(null);
   const Wallet = React.useContext(WalletContext);
   const { XPI, chronik } = Wallet;
-  const { createBurnTransaction, sendXpi } = useXPI();
+  const { sendXpi } = useXPI();
   const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const transactionStatus = useAppSelector(getTransactionStatus);
-  const burnQueue = useAppSelector(getBurnQueue);
-  const failQueue = useAppSelector(getFailQueue);
   const walletPaths = useAppSelector(getAllWalletPaths);
   const selectedAccount = useAppSelector(getSelectedAccount);
   const [imagesList, setImagesList] = useState([]);
   const [isEncryptedOptionalOpReturnMsg, setIsEncryptedOptionalOpReturnMsg] = useState(true);
-  const walletStatus = useAppSelector(getWalletStatus);
   const [open, setOpen] = useState(false);
 
   const dataSource = ['/give'];
@@ -300,84 +284,23 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
     { isLoading: isLoadingCreateComment, isSuccess: isSuccessCreateComment, isError: isErrorCreateComment }
   ] = useCreateCommentMutation();
 
-  const upVotePost = (dataItem: PostItem) => {
-    handleBurn(true, { data: dataItem, burnForType: BurnForType.Post });
+  const upVotePost = (dataItem: Post) => {
+    dispatch(prepareBurnCommand({
+      isUpVote: true,
+      burnForItem: dataItem,
+      burnForType: BurnForType.Post,
+      burnValue: '1'
+    }));
   };
 
-  const downVotePost = (dataItem: PostItem) => {
-    handleBurn(false, { data: dataItem, burnForType: BurnForType.Post });
+  const downVotePost = (dataItem: Post) => {
+    dispatch(prepareBurnCommand({
+      isUpVote: false,
+      burnForItem: dataItem,
+      burnForType: BurnForType.Post,
+      burnValue: '1'
+    }));
   };
-
-  const handleBurn = async (isUpVote: boolean, burnData: BurnData) => {
-    try {
-      const burnValue = '1';
-      const { data, burnForType } = burnData;
-      if (
-        slpBalancesAndUtxos.nonSlpUtxos.length == 0 ||
-        fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis) < parseInt(burnValue)
-      ) {
-        throw new Error(intl.get('account.insufficientFunds'));
-      }
-      if (failQueue.length > 0) dispatch(clearFailQueue());
-      const fundingFirstUtxo = slpBalancesAndUtxos.nonSlpUtxos[0];
-      const currentWalletPath = walletPaths.filter(acc => acc.xAddress === fundingFirstUtxo.address).pop();
-      const { hash160, xAddress } = currentWalletPath;
-      const burnType = isUpVote ? BurnType.Up : BurnType.Down;
-      const burnedBy = hash160;
-      const burnForId = data.id;
-      let queryParams;
-
-      let tipToAddresses: { address: string; amount: string }[] = [
-        {
-          address: post.postAccount.address,
-          amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(0.04)).valueOf().toString()
-        }
-      ];
-
-      switch (burnForType) {
-        case BurnForType.Post:
-          const post = data as PostItem;
-          if (burnType === BurnType.Up && selectedAccount.address !== post.postAccount.address) {
-            tipToAddresses.push({
-              address: post.postAccount.address,
-              amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(0.04)).valueOf().toString()
-            });
-          }
-          break;
-        case BurnForType.Comment:
-          const comment = data as CommentItem;
-          if (burnType === BurnType.Up && selectedAccount.address != comment?.commentAccount?.address) {
-            tipToAddresses.push({
-              address: comment?.commentAccount?.address,
-              amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(0.04)).valueOf().toString()
-            });
-          }
-          queryParams = {
-            id: comment.commentToId,
-            orderBy: {
-              direction: OrderDirection.Asc,
-              field: CommentOrderField.UpdatedAt
-            }
-          };
-          break;
-      }
-
-      tipToAddresses = tipToAddresses.filter(item => item.address != selectedAccount.address);
-
-    } catch (e) {
-      const errorMessage = e.message || intl.get('post.unableToBurn');
-      dispatch(
-        showToast('error', {
-          message: errorMessage,
-          duration: 3
-        })
-      );
-    }
-  };
-
-  const ShareButton = styled.span`
-    margin-left: 10px;
-  `;
 
   const loadMoreComments = () => {
     if (hasNext && !isFetching) {
@@ -569,7 +492,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
             scrollableTarget="scrollableDiv"
           >
             {data.map((item, index) => {
-              return <CommentListItem index={index} item={item} post={post} key={item.id} handleBurn={handleBurn} />;
+              return <CommentListItem index={index} item={item} post={post} key={item.id} />;
             })}
           </InfiniteScroll>
         </CommentContainer>

@@ -18,23 +18,23 @@ export type TokenQueryVariables = Types.Exact<{
 }>;
 
 
-export type TokenQuery = { __typename?: 'Query', token: { __typename?: 'Token', id: string, tokenId: string, tokenType: string, name: string, ticker: string, decimals: number, tokenDocumentUrl?: string | null, totalBurned?: string | null, totalMinted?: string | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, initialTokenQuantity?: string | null, comments?: any | null, createdDate: any, isFollowed?: boolean | null } };
+export type TokenQuery = { __typename?: 'Query', token: { __typename?: 'Token', id: string, tokenId: string, tokenType: string, name: string, ticker: string, decimals: number, tokenDocumentUrl?: string | null, totalBurned?: string | null, totalMinted?: string | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, initialTokenQuantity?: string | null, comments?: any | null, createdDate: any, isFollowed?: boolean | null, tokenDana?: { __typename?: 'TokenDana', danaBurnUp: number, danaBurnDown: number, danaBurnScore: number } | null } };
 
 export type TokensQueryVariables = Types.Exact<{
   orderBy?: Types.InputMaybe<Types.TokenOrder>;
 }>;
 
 
-export type TokensQuery = { __typename?: 'Query', allTokens: { __typename?: 'TokenConnection', totalCount?: number | null, edges?: Array<{ __typename?: 'TokenEdge', node: { __typename?: 'Token', id: string, tokenId: string, tokenType: string, name: string, ticker: string, decimals: number, tokenDocumentUrl?: string | null, totalBurned?: string | null, totalMinted?: string | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, initialTokenQuantity?: string | null, comments?: any | null, createdDate: any, isFollowed?: boolean | null } }> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+export type TokensQuery = { __typename?: 'Query', allTokens: { __typename?: 'TokenConnection', totalCount?: number | null, edges?: Array<{ __typename?: 'TokenEdge', node: { __typename?: 'Token', id: string, tokenId: string, tokenType: string, name: string, ticker: string, decimals: number, tokenDocumentUrl?: string | null, totalBurned?: string | null, totalMinted?: string | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, initialTokenQuantity?: string | null, comments?: any | null, createdDate: any, isFollowed?: boolean | null, tokenDana?: { __typename?: 'TokenDana', danaBurnUp: number, danaBurnDown: number, danaBurnScore: number } | null } }> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
 
-export type TokenFieldsFragment = { __typename?: 'Token', id: string, tokenId: string, tokenType: string, name: string, ticker: string, decimals: number, tokenDocumentUrl?: string | null, totalBurned?: string | null, totalMinted?: string | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, initialTokenQuantity?: string | null, comments?: any | null, createdDate: any, isFollowed?: boolean | null };
+export type TokenFieldsFragment = { __typename?: 'Token', id: string, tokenId: string, tokenType: string, name: string, ticker: string, decimals: number, tokenDocumentUrl?: string | null, totalBurned?: string | null, totalMinted?: string | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, initialTokenQuantity?: string | null, comments?: any | null, createdDate: any, isFollowed?: boolean | null, tokenDana?: { __typename?: 'TokenDana', danaBurnUp: number, danaBurnDown: number, danaBurnScore: number } | null };
 
 export type CreateTokenMutationVariables = Types.Exact<{
   input: Types.CreateTokenInput;
 }>;
 
 
-export type CreateTokenMutation = { __typename?: 'Mutation', createToken: { __typename?: 'Token', id: string, tokenId: string, tokenType: string, name: string, ticker: string, decimals: number, tokenDocumentUrl?: string | null, totalBurned?: string | null, totalMinted?: string | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, initialTokenQuantity?: string | null, comments?: any | null, createdDate: any, isFollowed?: boolean | null } };
+export type CreateTokenMutation = { __typename?: 'Mutation', createToken: { __typename?: 'Token', id: string, tokenId: string, tokenType: string, name: string, ticker: string, decimals: number, tokenDocumentUrl?: string | null, totalBurned?: string | null, totalMinted?: string | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, initialTokenQuantity?: string | null, comments?: any | null, createdDate: any, isFollowed?: boolean | null, tokenDana?: { __typename?: 'TokenDana', danaBurnUp: number, danaBurnDown: number, danaBurnScore: number } | null } };
 
 export const TokenFieldsFragmentDoc = `
     fragment TokenFields on Token {
@@ -50,6 +50,11 @@ export const TokenFieldsFragmentDoc = `
   danaBurnUp
   danaBurnDown
   danaBurnScore
+  tokenDana {
+    danaBurnUp
+    danaBurnDown
+    danaBurnScore
+  }
   initialTokenQuantity
   comments
   createdDate

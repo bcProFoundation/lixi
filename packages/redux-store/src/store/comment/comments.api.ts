@@ -1,9 +1,9 @@
+import { Comment, PageInfo } from '@generated/types.generated';
 import { EntityState } from '@reduxjs/toolkit';
-import { PageInfo } from '@generated/types.generated';
 
-import { api, CommentQuery } from './comments.generated';
+import { api } from './comments.generated';
 
-export interface CommentApiState extends EntityState<CommentQuery['comment']> {
+export interface CommentApiState extends EntityState<Comment> {
   pageInfo: PageInfo;
   totalCount: number;
 }

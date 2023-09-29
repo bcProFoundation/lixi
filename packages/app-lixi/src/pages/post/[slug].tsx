@@ -13,11 +13,12 @@ import intl from 'react-intl-universal';
 import { AnalyticEvent } from '@bcpros/lixi-models';
 import { analyticEvent } from '@store/analytic-event';
 import { useAppDispatch } from '@store/hooks';
+import { Post } from '@generated/index';
 
 const PostDetailPage = props => {
   const dispatch = useAppDispatch();
   const { postId, isMobile, postAsString } = props;
-  const post = JSON.parse(postAsString);
+  const post: Post = JSON.parse(postAsString);
   const canonicalUrl = process.env.NEXT_PUBLIC_LIXI_URL + `post/${postId}`;
 
   const postQuery = usePostQuery({ id: postId });
@@ -70,7 +71,7 @@ const PostDetailPage = props => {
           appId: '264679442628200'
         }}
       />
-      {postQuery && postQuery.isSuccess && <PostDetail post={postQuery.data.post} isMobile={isMobile} />}
+      {postQuery && postQuery.isSuccess && <PostDetail post={postQuery.data.post as Post} isMobile={isMobile} />}
     </React.Fragment>
   );
 };

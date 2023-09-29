@@ -1,16 +1,13 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
-import {
-  useLazyAllWorshipedByTempleIdQuery,
-  useAllWorshipedByTempleIdQuery
-} from '@store/worship/worshipedPerson.generated';
-import { useEffect, useRef, useState, useMemo } from 'react';
-import { WorshipOrder } from '@generated/types.generated';
-import _ from 'lodash';
-import { WorshipQuery } from './worshipedPerson.generated';
-import { useAppDispatch } from '@store/hooks';
+import { Worship, WorshipOrder } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
+import {
+  useAllWorshipedByTempleIdQuery,
+  useLazyAllWorshipedByTempleIdQuery
+} from '@store/worship/worshipedPerson.generated';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-const worshipAdapter = createEntityAdapter<WorshipQuery['worship']>({
+const worshipAdapter = createEntityAdapter<Worship>({
   selectId: worship => worship.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });

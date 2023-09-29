@@ -12,7 +12,7 @@ import { Post, PostOrder } from '@generated/types.generated';
 
 import { PostQuery } from './posts.generated';
 
-const postsAdapter = createEntityAdapter<PostQuery['post']>({
+const postsAdapter = createEntityAdapter<Post>({
   selectId: post => post.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });
