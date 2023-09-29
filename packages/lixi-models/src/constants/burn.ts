@@ -9,3 +9,8 @@ export const OPTION_BURN_TYPE = {
   DISLIKE: 'DISLIKE',
   LOVE: 'LOVE'
 };
+
+export const burnForTypeString = {
+  post: 'post',
+  comment: 'comment'
+};

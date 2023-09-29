@@ -41,6 +41,7 @@ import { aesGcmDecrypt, aesGcmEncrypt, generateRandomBase58Str, hashMnemonic } f
 import { AccountCacheService } from '../../account/account-cache.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { WalletService } from '../../wallet/wallet.service';
+import { NotificationService } from 'src/common/modules/notifications/notification.service';
 
 @SkipThrottle()
 @Controller('accounts')
@@ -50,7 +51,8 @@ export class AccountController {
     private readonly walletService: WalletService,
     @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
     @Inject('xpijs') private XPI: BCHJS,
-    private readonly accountCacheService: AccountCacheService
+    private readonly accountCacheService: AccountCacheService,
+    private readonly notificationService: NotificationService
   ) {}
 
   @Get(':id')
@@ -523,7 +525,7 @@ export class AccountController {
           recipientId: accountId
         },
         include: {
-          notificationType: true
+          notificationType: { include: { notificationTypeTranslations: { select: { template: true } } } }
         },
         orderBy: [
           {
@@ -535,7 +537,12 @@ export class AccountController {
 
       return notifications.map(item => {
         return {
-          ...item
+          ...item,
+          contentNotification: this.notificationService.contentNotification(
+            item.notificationType.notificationTypeTranslations,
+            item.additionalData,
+            account.language
+          )
         } as NotificationDto;
       });
     } catch (err) {
