@@ -4,6 +4,7 @@ import { PostListType } from '@bcpros/lixi-models/constants';
 import { Follow } from '@bcpros/lixi-models/lib/follow/follow.model';
 import { transformShortName } from '@components/Common/AvatarUser';
 import PostListItem from '@components/Posts/PostListItem';
+import CreatePostCard from '@components/Common/CreatePostCard';
 import {
   CreateFollowAccountInput,
   DeleteFollowAccountInput,
@@ -460,6 +461,9 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const selectedAccountId = useAppSelector(getSelectedAccountId);
   const accountInfoTemp = useAppSelector(getAccountInfoTemp);
   const level = useAppSelector(getLevelFilter);
+  const [query, setQuery] = useState<any>('');
+  const [hashtags, setHashtags] = useState<any>([]);
+
 
   const [
     createFollowAccountTrigger,
@@ -786,7 +790,9 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                 {/* <div className="search-bar">
                   <FilterBurnt filterForType={FilterType.PostsProfile} />
                 </div> */}
-
+                {selectedAccountId == user.id && (
+                  <CreatePostCard userId={user.id} hashtags={hashtags} query={query} />
+                )}
                 <Timeline>
                   {data.length == 0 && !isLoading && (
                     <div className="blank-timeline">

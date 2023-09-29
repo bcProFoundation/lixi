@@ -306,7 +306,7 @@ const NotificationPopup = (notifications: Notification[], account: Account, isPo
                         }
                         content={
                           <div style={{ fontWeight: notification.readAt != null ? 'normal' : 'bold' }}>
-                            {notification.message}
+                            {notification.contentNotification}
                           </div>
                         }
                       />
@@ -347,7 +347,7 @@ const NotificationPopup = (notifications: Notification[], account: Account, isPo
                           style={{ fontWeight: notification.readAt != null ? 'normal' : 'bold', cursor: 'pointer' }}
                           onClick={() => handleRead(account, notification)}
                         >
-                          {notification.message}
+                          {notification.contentNotification}
                         </div>
                         {/* <CloseCircleOutlined onClick={() => handleDelete(account, notification.id)} /> */}
                       </Space>
@@ -394,7 +394,7 @@ const NotificationPopup = (notifications: Notification[], account: Account, isPo
                           style={{ fontWeight: notification.readAt != null ? 'normal' : 'bold', cursor: 'pointer' }}
                           onClick={() => handleRead(account, notification)}
                         >
-                          {notification.message}
+                          {notification.contentNotification}
                         </div>
                         {/* <CloseCircleOutlined onClick={() => handleDelete(account, notification.id)} /> */}
                       </Space>
