@@ -23,7 +23,7 @@ import { getFilterPostsProfile, getLevelFilter } from '@store/settings/selectors
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { Avatar, Button, Skeleton, Space, Tabs } from 'antd';
 import _ from 'lodash';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
@@ -461,8 +461,8 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const selectedAccountId = useAppSelector(getSelectedAccountId);
   const accountInfoTemp = useAppSelector(getAccountInfoTemp);
   const level = useAppSelector(getLevelFilter);
-  const [query, setQuery] = useState<any>('');
-  const [hashtags, setHashtags] = useState<any>([]);
+  const [query, setQuery] = useState('');
+  const [hashtags, setHashtags] = useState([]);
 
 
   const [

@@ -5,23 +5,21 @@ import InfoCardUser from '@components/Common/InfoCardUser';
 import { currency } from '@components/Common/Ticker';
 import { LoadingIcon, NavBarHeader } from '@components/Layout/MainLayout';
 import { WalletContext } from '@context/walletProvider';
-import { CommentOrderField, CreateCommentInput, OrderDirection, Post, RepostInput } from '@generated/types.generated';
+import { PostQueryItem } from '@generated/index';
+import { CommentOrderField, CreateCommentInput, OrderDirection } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { getAccountInfoTemp, getSelectedAccount } from '@store/account/selectors';
-import { getBurnQueue, getFailQueue } from '@store/burn';
 import { api as commentsApi, useCreateCommentMutation } from '@store/comment/comments.api';
 import { useInfiniteCommentsToPostIdQuery } from '@store/comment/useInfiniteCommentsToPostIdQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { closeModal, openModal } from '@store/modal/actions';
 import { usePostQuery, useRepostMutation } from '@store/post/posts.generated';
-import { sendXPIFailure } from '@store/send/actions';
-import { getFilterPostsHome, getLevelFilter } from '@store/settings/selectors';
 import { sendXPIFailure, sendXPISuccess } from '@store/send/actions';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
-import { getUtxoWif } from '@utils/cashMethods';
+import { fromSmallestDenomination, getUtxoWif } from '@utils/cashMethods';
 import { AutoComplete, Button, Image, Input, Modal, Skeleton, Spin } from 'antd';
 import parse from 'html-react-parser';
 import _ from 'lodash';
@@ -40,7 +38,6 @@ import styled from 'styled-components';
 import CommentListItem from './CommentListItem';
 import { EditPostModalProps } from './EditPostModalPopup';
 import PostTranslate from './PostTranslate';
-import { PostQueryItem } from '@generated/index';
 
 type PostDetailProps = {
   initialPost: PostQueryItem;
@@ -320,6 +317,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
   const Wallet = React.useContext(WalletContext);
   const { XPI, chronik } = Wallet;
   const { sendXpi } = useXPI();
+  const walletStatus = useAppSelector(getWalletStatus);
   const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
   const walletPaths = useAppSelector(getAllWalletPaths);
@@ -525,7 +523,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
     }
   };
 
-  const giveXPIAsFee = async (post: PostItem): Promise<string> => {
+  const giveXPIAsFee = async (post: PostQueryItem): Promise<string> => {
     setIsSendingXPI(true);
     try {
       let createFeeHex = undefined;
@@ -709,15 +707,14 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
       <Modal
         transitionName={isMobile ? '' : 'none'}
         width={'50vw'}
-        className={`${classStyle} post-detail-custom-modal ${
-          isMobile
-            ? openPost
-              ? 'animate__animated animate__faster animate__slideInRight'
-              : 'animate__animated animate__faster animate__slideOutRight'
-            : openPost
+        className={`${classStyle} post-detail-custom-modal ${isMobile
+          ? openPost
+            ? 'animate__animated animate__faster animate__slideInRight'
+            : 'animate__animated animate__faster animate__slideOutRight'
+          : openPost
             ? 'animate__animated animate__faster animate__zoomIn'
             : 'animate__animated animate__faster animate__zoomOut'
-        }`}
+          }`}
         style={{ top: 30 }}
         open={true}
         onCancel={handleOnCancel}

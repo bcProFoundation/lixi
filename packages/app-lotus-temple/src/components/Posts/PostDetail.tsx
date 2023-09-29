@@ -495,7 +495,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
             scrollableTarget="scrollableDiv"
           >
             {data.map((item, index) => {
-              return <CommentListItem index={index} item={item} post={post} key={item.id} />;
+              return <CommentListItem item={item} post={post} key={item.id} />;
             })}
           </InfiniteScroll>
         </CommentContainer>

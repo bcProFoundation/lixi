@@ -3,7 +3,6 @@ import { DislikeFilled, DislikeOutlined, LikeFilled, LikeOutlined } from '@ant-d
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import { AvatarUser } from '@components/Common/AvatarUser';
 import { Counter } from '@components/Common/Counter';
-import { WalletContext } from '@context/walletProvider';
 import { CommentQueryItem, PostQueryItem } from '@generated/index';
 import { prepareBurnCommand } from '@store/burn';
 import { useAppDispatch } from '@store/hooks';
@@ -16,14 +15,13 @@ import React from 'react';
 import intl from 'react-intl-universal';
 
 type CommentListItemProps = {
-  item: Comment;
+  item: CommentQueryItem;
   post: PostQueryItem;
 };
 
 const CommentListItem = ({ item, post }: CommentListItemProps) => {
   const dispatch = useAppDispatch();
   const history = useRouter();
-  const Wallet = React.useContext(WalletContext);
 
   const upVoteComment = (dataItem: CommentQueryItem) => {
     dispatch(

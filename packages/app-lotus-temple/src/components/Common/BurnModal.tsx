@@ -22,6 +22,7 @@ import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
+import { BurnForItem, CommentQueryItem, PostQueryItem } from '@generated/index';
 
 const UpDownButton = styled(Button)`
   background: rgb(158, 42, 156);
@@ -90,8 +91,6 @@ const RadioStyle = styled(Radio.Group)`
 `;
 
 const DefaultXpiBurnValues = [1, 8, 50, 100, 200, 500, 1000];
-
-type BurnForItem = PostItem | CommentItem;
 interface BurnModalProps {
   data: BurnForItem;
   burnForType: BurnForType;
@@ -139,7 +138,7 @@ export const BurnModal = ({ data, burnForType }: BurnModalProps) => {
 
       switch (burnForType) {
         case BurnForType.Post:
-          const post = data as PostItem;
+          const post = data as PostQueryItem;
 
           tipToAddresses = [
             {
@@ -166,7 +165,7 @@ export const BurnModal = ({ data, burnForType }: BurnModalProps) => {
           tokenId = post.token?.id;
           break;
         case BurnForType.Comment:
-          const comment = data as CommentItem;
+          const comment = data as CommentQueryItem;
           if (burnType === BurnType.Up && selectedAccount.address != comment?.commentAccount?.address) {
             tipToAddresses.push({
               address: comment?.commentAccount?.address,
@@ -211,14 +210,14 @@ export const BurnModal = ({ data, burnForType }: BurnModalProps) => {
             <div className="banner-item">
               <LikeOutlined />
               <div className="count-bar">
-                <p className="title">{data.danaBurnUp + ' XPI'}</p>
+                <p className="title">{(data as PostQueryItem).danaBurnUp + ' XPI'}</p>
                 <p className="sub-title">burnt to up</p>
               </div>
             </div>
             <div className="banner-item">
               <DislikeOutlined />
               <div className="count-bar">
-                <p className="title">{data.danaBurnDown + ' XPI'}</p>
+                <p className="title">{(data as PostQueryItem).danaBurnDown + ' XPI'}</p>
                 <p className="sub-title">burnt to down</p>
               </div>
             </div>
