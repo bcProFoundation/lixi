@@ -849,7 +849,7 @@ const PageMessage = () => {
         walletPaths,
         slpBalancesAndUtxos.nonSlpUtxos,
         currency.defaultFee,
-        text,
+        '',
         false, // indicate send mode is one to one
         null,
         isPageOwner

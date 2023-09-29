@@ -13,7 +13,7 @@ import { addBurnQueue, addBurnTransaction, clearFailQueue } from '@store/burn/ac
 import { api as commentsApi, useCreateCommentMutation } from '@store/comment/comments.api';
 import { useInfiniteCommentsToPostIdQuery } from '@store/comment/useInfiniteCommentsToPostIdQuery';
 import { PostQuery, useRepostMutation } from '@store/post/posts.generated';
-import { sendXPIFailure } from '@store/send/actions';
+import { sendXPIFailure, sendXPISuccess } from '@store/send/actions';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { fromSmallestDenomination, fromXpiToSatoshis, getUtxoWif } from '@utils/cashMethods';
@@ -346,6 +346,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
   const accountInfoTemp = useAppSelector(getAccountInfoTemp);
   const [isSendingXPI, setIsSendingXPI] = useState<boolean>(false);
   const level = useAppSelector(getLevelFilter);
+  const txFee = Math.ceil(Wallet.XPI.BitcoinCash.getByteCount({ P2PKH: 1 }, { P2PKH: 1 }) * 2.01); //satoshi
 
   const [repostTrigger, { isLoading: isLoadingRepost, isSuccess: isSuccessRepost, isError: isErrorRepost }] =
     useRepostMutation();
@@ -493,131 +494,175 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
     }
   };
 
-  const isNumeric = (num: string) => {
-    num = num.replace(',', '.');
-    return !isNaN(num as unknown as number) && Number(num) > 0;
+  const processComment = async (comment: string) => {
+    //Check if the message is not empty
+    if (comment && comment !== '') {
+      const trimComment = comment.trim();
+
+      if (_.isNil(trimComment) || trimComment === '') {
+        return;
+      }
+
+      //Check if comment is tip
+      if (trimComment.toLowerCase().split(' ')[0] === '/give') {
+        const amount: string = trimComment.toLowerCase().split(' ')[1];
+
+        //check if amount is valid
+        if (validateXPIAmount(amount)) {
+          let tipHex = undefined;
+          tipHex = await giveXPIAsTip(trimComment, amount).then(result => {
+            return result;
+          });
+
+          if (tipHex) {
+            dispatch(sendXPISuccess(parseFloat(amount).toFixed(2)));
+
+            const createCommentInput: CreateCommentInput = {
+              commentText: trimComment,
+              commentToId: post.id,
+              tipHex: tipHex
+            };
+
+            await createComment(createCommentInput);
+          } else {
+            dispatch(sendXPIFailure(intl.get('send.syntaxError')));
+          }
+        } else {
+          dispatch(sendXPIFailure(intl.get('send.syntaxError')));
+        }
+      } else if (
+        //Check if post owner self comment
+        (post.page &&
+          post?.page?.createCommentFee !== '0' &&
+          selectedAccount.address !== post?.page?.pageAccount.address) ||
+        (post?.postAccount?.createCommentFee !== '0' && selectedAccount.address !== post?.postAccount?.address)
+      ) {
+        try {
+          let createFeeHex = undefined;
+          createFeeHex = await giveXPIAsFee(post);
+
+          if (createFeeHex) {
+            const createCommentInput: CreateCommentInput = {
+              commentText: trimComment,
+              commentToId: post.id,
+              createFeeHex: createFeeHex
+            };
+
+            await createComment(createCommentInput);
+          } else {
+            throw new Error(intl.get('account.insufficientFunds'));
+          }
+        } catch (e: any) {
+          dispatch(sendXPIFailure(e.message));
+        }
+      } else {
+        const createCommentInput: CreateCommentInput = {
+          commentText: trimComment,
+          commentToId: post.id
+        };
+
+        await createComment(createCommentInput);
+      }
+    }
   };
 
-  const handleCreateNewComment = async (text: string) => {
-    if (_.isNil(text) || _.isEmpty(text) || text === '/') {
-      return;
-    }
+  const validateXPIAmount = (value: string): boolean => {
+    if (!value) return false;
 
-    if (open) return;
+    //check if value is number;
+    if (isNaN(parseFloat(value))) return false;
 
-    let tipHex;
-    let createFeeHex;
-    //Give XPI only to post account when there is no page and no fee
+    //check if value is positive number
+    if (parseFloat(value) <= 0) return false;
+
+    //check if balance is smaller than value + txFee
     if (
-      text.trim().toLowerCase().split(' ')[0] === '/give' &&
-      _.isNil(post.page) &&
-      post.postAccount.createCommentFee === '0'
-    ) {
-      setIsSendingXPI(true);
-      try {
-        if (!isNumeric(text.trim().split(' ')[1])) {
-          const error = new Error(intl.get('send.syntaxError') as string);
-          throw error;
-        }
+      fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis) <=
+      parseFloat(value) + fromSmallestDenomination(txFee)
+    )
+      return false;
 
-        const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-        tipHex = await sendXpi(
+    return true;
+  };
+
+  const giveXPIAsTip = async (text: string, amount: string): Promise<string> => {
+    setIsSendingXPI(true);
+    try {
+      let tipHex;
+      const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
+      tipHex = await sendXpi(
+        XPI,
+        chronik,
+        walletPaths,
+        slpBalancesAndUtxos.nonSlpUtxos,
+        currency.defaultFee,
+        '',
+        false, // indicate send mode is one to one
+        null,
+        post.postAccount.address,
+        amount,
+        isEncryptedOptionalOpReturnMsg,
+        fundingWif,
+        true
+      ).catch(error => {
+        throw error;
+      });
+
+      return tipHex;
+    } catch (e) {
+      const message = e.message || e.error || JSON.stringify(e);
+      setIsSendingXPI(false);
+
+      dispatch(sendXPIFailure(message));
+    }
+  };
+
+  const giveXPIAsFee = async (post: PostItem): Promise<string> => {
+    setIsSendingXPI(true);
+    try {
+      let createFeeHex = undefined;
+      const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
+      if (post.page && post.page.createCommentFee !== '0') {
+        createFeeHex = await sendXpi(
           XPI,
           chronik,
           walletPaths,
           slpBalancesAndUtxos.nonSlpUtxos,
           currency.defaultFee,
-          text,
+          '',
           false, // indicate send mode is one to one
           null,
-          post.postAccount.address,
-          text.trim().split(' ')[1],
+          post.page.pageAccount.address,
+          post.page.createCommentFee,
           isEncryptedOptionalOpReturnMsg,
           fundingWif,
           true
         );
-      } catch (e) {
-        const message = e.message || e.error || JSON.stringify(e);
-        dispatch(sendXPIFailure(message));
+      } else if (post.postAccount.createCommentFee !== '0') {
+        createFeeHex = await sendXpi(
+          XPI,
+          chronik,
+          walletPaths,
+          slpBalancesAndUtxos.nonSlpUtxos,
+          currency.defaultFee,
+          '',
+          false, // indicate send mode is one to one
+          null,
+          post.postAccount.address,
+          post.postAccount.createCommentFee,
+          isEncryptedOptionalOpReturnMsg,
+          fundingWif,
+          true
+        );
       }
+
+      return createFeeHex;
+    } catch (e) {
+      setIsSendingXPI(false);
     }
+  };
 
-    //Give XPI only to post account when there is no page and has fee
-    if (_.isNil(post.page)) {
-      if (selectedAccount.id != post.postAccount.id && post.postAccount.createCommentFee !== '0') {
-        setIsSendingXPI(true);
-
-        try {
-          const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-          createFeeHex = await sendXpi(
-            XPI,
-            chronik,
-            walletPaths,
-            slpBalancesAndUtxos.nonSlpUtxos,
-            currency.defaultFee,
-            '',
-            true, // indicate send mode is one to one
-            [
-              `${post.postAccount.address}, ${text.trim().split(' ')[1]}`,
-              `${post.postAccount.address}, ${post.postAccount.createCommentFee}`
-            ],
-            undefined,
-            undefined,
-            isEncryptedOptionalOpReturnMsg,
-            fundingWif,
-            true
-          );
-        } catch (e) {
-          const message = e.message || e.error || JSON.stringify(e);
-          dispatch(sendXPIFailure(message));
-        }
-      }
-    } else {
-      //Give XPI only to post account when there is page and has fee
-      if (selectedAccount.id != post.page.pageAccount.id && post.page.createCommentFee !== '0') {
-        setIsSendingXPI(true);
-
-        try {
-          const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-          createFeeHex = await sendXpi(
-            XPI,
-            chronik,
-            walletPaths,
-            slpBalancesAndUtxos.nonSlpUtxos,
-            currency.defaultFee,
-            '',
-            true, // indicate send mode is one to one
-            [
-              `${post.postAccount.address}, ${text.trim().split(' ')[1]}`,
-              `${post.page.pageAccount.address}, ${post.page.createCommentFee}`
-            ],
-            undefined,
-            undefined,
-            isEncryptedOptionalOpReturnMsg,
-            fundingWif,
-            true
-          );
-        } catch (e) {
-          const message = intl.get('account.insufficientFunds');
-          dispatch(
-            showToast('error', {
-              message: intl.get('toast.error'),
-              description: message,
-              duration: 5
-            })
-          );
-          return null;
-        }
-      }
-    }
-
-    const createCommentInput: CreateCommentInput = {
-      commentText: text,
-      commentToId: post.id,
-      tipHex: tipHex,
-      createFeeHex: createFeeHex
-    };
-
+  const createComment = async (input: CreateCommentInput) => {
     const params = {
       orderBy: {
         direction: OrderDirection.Asc,
@@ -627,21 +672,17 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
 
     let patches: PatchCollection;
     try {
-      const result = await createCommentTrigger({ input: createCommentInput }).unwrap();
+      const result = await createCommentTrigger({ input: input }).unwrap();
       patches = dispatch(
-        commentsApi.util.updateQueryData(
-          'CommentsToPostId',
-          { id: createCommentInput.commentToId, ...params },
-          draft => {
-            draft.allCommentsToPostId.edges.unshift({
-              cursor: result.createComment.id,
-              node: {
-                ...result.createComment
-              }
-            });
-            draft.allCommentsToPostId.totalCount = draft.allCommentsToPostId.totalCount + 1;
-          }
-        )
+        commentsApi.util.updateQueryData('CommentsToPostId', { id: input.commentToId, ...params }, draft => {
+          draft.allCommentsToPostId.edges.unshift({
+            cursor: result.createComment.id,
+            node: {
+              ...result.createComment
+            }
+          });
+          draft.allCommentsToPostId.totalCount = draft.allCommentsToPostId.totalCount + 1;
+        })
       );
     } catch (error) {
       const message = intl.get('comment.unableCreateComment');
@@ -765,7 +806,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault(); // Prevent the default behavior of adding a new line
-      await handleCreateNewComment(e.currentTarget.value); // Call your function to post the comment
+      await processComment(e.currentTarget.value); // Call your function to post the comment
     }
   };
 
@@ -948,7 +989,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
                   disabled={isLoadingCreateComment || isSendingXPI}
                   style={{ borderColor: 'transparent !important' }}
                   onClick={async () => {
-                    await handleCreateNewComment(getValues('comment'));
+                    await processComment(getValues('comment'));
                   }}
                   icon={<SendOutlined style={{ fontSize: '20px' }} />}
                 />
