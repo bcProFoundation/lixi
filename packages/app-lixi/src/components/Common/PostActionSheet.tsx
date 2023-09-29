@@ -377,7 +377,9 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
           {post.page && isSuccessPageQuery && (
             <>
               <ItemActionSheetBottom
-                text={`${intl.get('page.createPostFeeOn')} ${currentDataPageQuery?.page?.name}`}
+                text={`${
+                  post.page.createPostFee == 0 ? intl.get('page.createFreePostOn') : intl.get('page.createPostFeeOn')
+                } ${currentDataPageQuery?.page?.name}`}
                 icon="/images/ico-create-post.svg"
                 onClickItem={openCreatePostPage}
               />
