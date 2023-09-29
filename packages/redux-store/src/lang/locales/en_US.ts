@@ -522,6 +522,7 @@ export default {
   'page.inputAddress': 'Please input address',
   'page.createPostFee': 'Create post fee',
   'page.createPostFeeOn': 'Create post fee on',
+  'page.createFreePostOn': 'Create a free post on',
   'page.createCommentFee': 'Create comment fee',
   'page.repostFee': 'Repost fee',
   'page.couldNotpostPage': 'Could not create page',

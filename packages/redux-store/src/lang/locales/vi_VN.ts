@@ -521,6 +521,7 @@ export default {
   'page.inputAddress': 'Vui lòng nhập địa chỉ',
   'page.createPostFee': 'Tạo bài viết phí',
   'page.createPostFeeOn': 'Tạo bài viết phí trên',
+  'page.createFreePostOn': 'Tạo bài viết miễn phí trên',
   'page.createCommentFee': 'Phí bình luận',
   'page.repostFee': 'Phí đăng lại',
   'page.couldNotpostPage': 'Tạo trang không thành công',
