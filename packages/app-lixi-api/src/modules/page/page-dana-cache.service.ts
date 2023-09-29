@@ -9,7 +9,7 @@ export class PageDanaCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:pagedana';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
 
   async getPageDana(id: string) {
     const keyFields = [`danaBurnUp:${id}`, `danaBurnDown:${id}`, `danaBurnScore:${id}`];
@@ -46,7 +46,7 @@ export class PageDanaCacheService {
     const danaBurnScoreField = `danaBurnScore:${id}`;
     await Promise.all([
       this.redis.hincrbyfloat(this.keyPrefix, danaBurnUpField, value),
-      this.redis.hincrbyfloat(this.keyPrefix, danaBurnScoreField, value),
+      this.redis.hincrbyfloat(this.keyPrefix, danaBurnScoreField, value)
     ]);
   }
 
@@ -55,7 +55,7 @@ export class PageDanaCacheService {
     const danaBurnScoreField = `danaBurnScore:${id}`;
     await Promise.all([
       this.redis.hincrbyfloat(this.keyPrefix, danaBurnDownField, value),
-      this.redis.hincrbyfloat(this.keyPrefix, danaBurnScoreField, value * (-1))
+      this.redis.hincrbyfloat(this.keyPrefix, danaBurnScoreField, value * -1)
     ]);
   }
 }

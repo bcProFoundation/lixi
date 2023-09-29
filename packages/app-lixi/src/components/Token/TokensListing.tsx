@@ -8,7 +8,7 @@ import ReactionToken from '@components/Common/ReactionToken';
 import { currency } from '@components/Common/Ticker';
 import { InfoSubCard } from '@components/Lixi';
 import { AuthorizationContext } from '@context/index';
-import { CreateTokenInput, OrderDirection, TokenEdge, TokenOrderField } from '@generated/types.generated';
+import { CreateTokenInput, OrderDirection, TokenEdge, TokenOrderField, TokenQueryItem } from '@generated/index';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { getSelectedAccountId } from '@store/account';
 import { setTransactionReady } from '@store/account/actions';
@@ -37,7 +37,6 @@ import { Controller, useForm } from 'react-hook-form';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import useAuthorization from '../Common/Authorization/use-authorization.hooks';
-import { TokenItem } from './TokensFeed';
 
 const StyledTokensListing = styled.div`
   .table-tokens {
@@ -361,7 +360,7 @@ const TokensListing = () => {
       // fixed: 'right',
       render: (_, { node: record }) => (
         <Space size="middle">
-          <ReactionToken token={record} handleBurnForToken={handleBurnForToken} />
+          <ReactionToken token={record} />
 
           <Tooltip title={intl.get('general.follow')}>
             <Button type="text" className="follow-btn">
@@ -398,7 +397,7 @@ const TokensListing = () => {
 
   useDidMountEffectNotification();
 
-  const openBurnModal = (token: TokenItem) => {
+  const openBurnModal = (token: TokenQueryItem) => {
     if (authorization.authorized) {
       dispatch(openModal('BurnModal', { burnForType: BurnForType.Token, id: token.tokenId }));
     } else {

@@ -10,9 +10,9 @@ export const createTxHex = createAction<any>('burn/createTxHex');
 export const returnTxHex = createAction<{ rawTxHex: string; minerFee: string }>('burn/returnTxHex');
 export const prepareBurnCommand = createAction<{
   isUpVote: boolean;
-  burnForItem: BurnForItem,
-  burnForType: BurnForType,
-  burnValue: string
+  burnForItem: BurnForItem;
+  burnForType: BurnForType;
+  burnValue: string;
 }>('burn/prepareBurnCommand');
 export const addBurnQueue = createAction<any>('burn/addBurnQueue');
 export const removeBurnQueue = createAction('burn/removeBurnQueue');

@@ -1,14 +1,13 @@
 import { SendOutlined } from '@ant-design/icons';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import ActionPostBar from '@components/Common/ActionPostBar';
 import AvatarUser from '@components/Common/AvatarUser';
 import { Counter } from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { currency } from '@components/Common/Ticker';
 import { LoadingIcon, NavBarHeader } from '@components/Layout/MainLayout';
-import { TokenItem } from '@components/Token/TokensFeed';
 import { WalletContext } from '@context/walletProvider';
-import { CommentOrderField, CreateCommentInput, OrderDirection, Post, RepostInput } from '@generated/types.generated';
+import { PostQueryItem } from '@generated/index';
+import { CommentOrderField, CreateCommentInput, OrderDirection, RepostInput } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
@@ -19,7 +18,7 @@ import { api as commentsApi, useCreateCommentMutation } from '@store/comment/com
 import { useInfiniteCommentsToPostIdQuery } from '@store/comment/useInfiniteCommentsToPostIdQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
-import { PostQuery, useRepostMutation } from '@store/post/posts.generated';
+import { useRepostMutation } from '@store/post/posts.generated';
 import { sendXPIFailure } from '@store/send/actions';
 import { getFilterPostsHome, getLevelFilter } from '@store/settings/selectors';
 import { showToast } from '@store/toast/actions';
@@ -39,10 +38,9 @@ import intl from 'react-intl-universal';
 import Gallery from 'react-photo-gallery';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import styled from 'styled-components';
-import CommentListItem, { CommentItem } from './CommentListItem';
+import CommentListItem from './CommentListItem';
 import { EditPostModalProps } from './EditPostModalPopup';
 import PostTranslate from './PostTranslate';
-
 
 const { Search, TextArea } = Input;
 
@@ -106,7 +104,7 @@ export const IconComment = ({
 );
 
 type PostDetailProps = {
-  post: Post;
+  post: PostQueryItem;
   isMobile: boolean;
 };
 
@@ -391,7 +389,10 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
 
   useEffect(() => {
     const mapImages = post.uploads.map(img => {
-      const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.upload.cfImageId}/public`;
+      const imgUrl = img.upload
+        ? `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.upload.cfImageId}/public`
+        : '';
+
       let width = img?.upload?.width || 4;
       let height = img?.upload?.height || 3;
       let objImg = {
@@ -408,7 +409,6 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
     createCommentTrigger,
     { isLoading: isLoadingCreateComment, isSuccess: isSuccessCreateComment, isError: isErrorCreateComment }
   ] = useCreateCommentMutation();
-
 
   const ShareButton = styled.span`
     margin-left: 10px;
@@ -716,10 +716,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
               </Image.PreviewGroup>
             </div>
           )}
-          <ActionPostBar
-            post={post}
-            onClickIconComment={e => setFocus('comment', { shouldSelect: true })}
-          />
+          <ActionPostBar post={post} onClickIconComment={e => setFocus('comment', { shouldSelect: true })} />
         </PostContentDetail>
 
         <CommentContainer>
@@ -731,7 +728,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
             scrollableTarget="scrollableDiv"
           >
             {data.map((item, index) => {
-              return <CommentListItem index={index} item={item} post={post} key={item.id} handleBurn={handleBurn} />;
+              return <CommentListItem item={item} post={post} key={item.id} />;
             })}
           </InfiniteScroll>
         </CommentContainer>

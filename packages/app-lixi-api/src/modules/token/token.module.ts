@@ -6,17 +6,9 @@ import { FollowCacheService } from '../account/follow-cache.service';
 import { TokenDanaCacheService } from './token-dana-cache.service';
 
 @Module({
-  imports: [
-    AuthModule,
-    NotificationModule
-  ],
+  imports: [AuthModule, NotificationModule],
   controllers: [],
-  providers: [
-    TokenResolver,
-    Logger,
-    FollowCacheService,
-    TokenDanaCacheService
-  ],
+  providers: [TokenResolver, Logger, FollowCacheService, TokenDanaCacheService],
   exports: []
 })
-export class TokenModule { }
+export class TokenModule {}

@@ -787,18 +787,6 @@ type PostHashtag {
   updatedAt: DateTime
 }
 
-type PostMeiliEdge {
-  cursor: String
-  node: Post
-}
-
-type PostMeiliPageInfo {
-  endCursor: String
-  hasNextPage: Boolean!
-  hasPreviousPage: Boolean!
-  startCursor: String
-}
-
 input PostOrder {
   direction: OrderDirection!
   field: PostOrderField!
@@ -812,11 +800,6 @@ enum PostOrderField {
   id
   lastRepostAt
   updatedAt
-}
-
-type PostResponse {
-  edges: [PostMeiliEdge!]
-  pageInfo: PostMeiliPageInfo
 }
 
 type PostTranslation {
@@ -878,8 +861,8 @@ type Query {
     last: Int
     minBurnFilter: Int
     query: String
-  ): PostResponse!
-  allPostsBySearchWithHashtag(after: String, before: String, first: Int, hashtags: [String!], last: Int, minBurnFilter: Int, orderBy: PostOrder, query: String, skip: Int): PostResponse!
+  ): PostConnection!
+  allPostsBySearchWithHashtag(after: String, before: String, first: Int, hashtags: [String!], last: Int, minBurnFilter: Int, orderBy: PostOrder, query: String, skip: Int): PostConnection!
   allPostsBySearchWithHashtagAtPage(
     """Paginate after opaque cursor"""
     after: String
@@ -897,7 +880,7 @@ type Query {
     orderBy: PostOrder
     pageId: String
     query: String
-  ): PostResponse!
+  ): PostConnection!
   allPostsBySearchWithHashtagAtToken(
     """Paginate after opaque cursor"""
     after: String
@@ -915,7 +898,7 @@ type Query {
     orderBy: PostOrder
     query: String
     tokenId: String
-  ): PostResponse!
+  ): PostConnection!
   allPostsByTokenId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
   allPostsByUserId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
   allTemple(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: TempleOrder, skip: Int): TempleConnection!

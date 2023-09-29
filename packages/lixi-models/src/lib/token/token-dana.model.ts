@@ -1,5 +1,6 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
+
 import { Token } from './token.model';
 
 @ObjectType()

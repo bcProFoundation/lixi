@@ -9,7 +9,7 @@ export class AccountDanaCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:accountdana';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
 
   async getAccountDana(id: number) {
     const keyFields = [
@@ -58,7 +58,7 @@ export class AccountDanaCacheService {
     const danaBurnScoreField = `danaBurnScore:${id}`;
     await Promise.all([
       this.redis.hincrbyfloat(this.keyPrefix, danaBurnUpField, value),
-      this.redis.hincrbyfloat(this.keyPrefix, danaBurnScoreField, value),
+      this.redis.hincrbyfloat(this.keyPrefix, danaBurnScoreField, value)
     ]);
   }
 
@@ -67,7 +67,7 @@ export class AccountDanaCacheService {
     const danaBurnScoreField = `danaBurnScore:${id}`;
     await Promise.all([
       this.redis.hincrbyfloat(this.keyPrefix, danaBurnDownField, value),
-      this.redis.hincrbyfloat(this.keyPrefix, danaBurnScoreField, value * (-1))
+      this.redis.hincrbyfloat(this.keyPrefix, danaBurnScoreField, value * -1)
     ]);
   }
 

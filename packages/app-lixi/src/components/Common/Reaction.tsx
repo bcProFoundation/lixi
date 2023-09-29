@@ -1,7 +1,7 @@
 import { OPTION_BURN_TYPE, OPTION_BURN_VALUE, PostsQueryTag } from '@bcpros/lixi-models/constants';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import { AuthorizationContext } from '@context/index';
-import { Account, Comment, Page, Post, Token } from '@generated/index';
+import { AccountQueryItem, CommentQueryItem, PageQueryItem, PostQueryItem, TokenQueryItem } from '@generated/index';
 import { BurnForItem } from '@generated/types';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import { prepareBurnCommand } from '@store/burn';
@@ -120,7 +120,6 @@ const SpaceContentBurn = styled(Space)`
   }
 `;
 
-
 type ReactionProps = {
   burnForType: BurnForType;
   dataItem: BurnForItem;
@@ -134,13 +133,12 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
   const currentTheme = useAppSelector(getCurrentThemes);
 
   const burnValue: number = match(burnForType)
-    .with(BurnForType.Post, () => (dataItem as Post).danaBurnScore)
-    .with(BurnForType.Page, () => (dataItem as Page).danaBurnScore)
-    .with(BurnForType.Account, () => (dataItem as Account).accountDana.danaGiven)
-    .with(BurnForType.Comment, () => (dataItem as Comment).danaBurnScore)
-    .with(BurnForType.Token, () => (dataItem as Token).danaBurnScore)
+    .with(BurnForType.Post, () => (dataItem as PostQueryItem).danaBurnScore)
+    .with(BurnForType.Page, () => (dataItem as PageQueryItem).danaBurnScore)
+    .with(BurnForType.Account, () => (dataItem as AccountQueryItem).accountDana.danaGiven)
+    .with(BurnForType.Comment, () => (dataItem as CommentQueryItem).danaBurnScore)
+    .with(BurnForType.Token, () => (dataItem as TokenQueryItem).danaBurnScore)
     .otherwise(() => 0);
-
 
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
@@ -153,17 +151,24 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
 
   const contentHoverCustom = <Hint>Custom</Hint>;
 
-  const handleBurnOption = (e: React.MouseEvent<HTMLElement>, dataItem: BurnForItem, optionBurn: string, isUpVote: boolean) => {
+  const handleBurnOption = (
+    e: React.MouseEvent<HTMLElement>,
+    dataItem: BurnForItem,
+    optionBurn: string,
+    isUpVote: boolean
+  ) => {
     e.preventDefault();
     e.stopPropagation();
     if (authorization.authorized) {
       const burnValue = optionBurn ? OPTION_BURN_VALUE[optionBurn] : '1';
-      dispatch(prepareBurnCommand({
-        isUpVote,
-        burnForItem: dataItem,
-        burnForType,
-        burnValue,
-      }));
+      dispatch(
+        prepareBurnCommand({
+          isUpVote,
+          burnForItem: dataItem,
+          burnForType,
+          burnValue
+        })
+      );
     } else {
       askAuthorization();
     }

@@ -1,10 +1,10 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
+
 import { Hashtag } from './hashtag.model';
 
 @ObjectType()
 export class HashtagDana {
-
   @Field(() => Float)
   danaBurnUp: number;
 
@@ -21,5 +21,4 @@ export class HashtagDana {
   @IsOptional()
   @Field(() => Hashtag, { nullable: true })
   hashtag?: Nullable<Hashtag>;
-
 }

@@ -4,6 +4,7 @@ import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Message, PageMessageSession } from '../message';
 import { Page } from '../page';
+
 import { AccountDana } from './account-dana.model';
 
 @ObjectType()
@@ -106,5 +107,3 @@ export class Account {
     Object.assign(this, partial);
   }
 }
-
-

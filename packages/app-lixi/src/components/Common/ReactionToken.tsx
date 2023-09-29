@@ -1,14 +1,15 @@
-import styled from 'styled-components';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { Space, Popover } from 'antd';
-import { openModal } from '@store/modal/actions';
-import React, { useState } from 'react';
 import { OPTION_BURN_TYPE, OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants';
-import { formatBalance } from 'src/utils/cashMethods';
-import { getCurrentThemes } from '@store/settings';
-import { TokenItem } from '@components/Token/TokensFeed';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import { TokenQueryItem } from '@generated/index';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
+import { prepareBurnCommand } from '@store/burn';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { openModal } from '@store/modal/actions';
+import { getCurrentThemes } from '@store/settings';
+import { Popover, Space } from 'antd';
+import React, { useState } from 'react';
+import { formatBalance } from 'src/utils/cashMethods';
+import styled from 'styled-components';
 
 const SpaceIconBurnHover = styled(Space)`
   min-height: 38px;
@@ -55,8 +56,6 @@ const StyledBurnIconHover = styled.img`
       transform: translateY(0);
     }
   }
-
-}
 `;
 
 const Hint = styled.span`
@@ -118,11 +117,10 @@ const SpaceContentBurn = styled(Space)`
 `;
 
 type ReactionTokenProps = {
-  token?: TokenItem;
-  handleBurnForToken?: (isUpVote: boolean, token: any, optionBurn?: string) => Promise<void>;
+  token?: TokenQueryItem;
 };
 
-const ReactionToken = ({ token, handleBurnForToken }: ReactionTokenProps) => {
+const ReactionToken = ({ token }: ReactionTokenProps) => {
   const dispatch = useAppDispatch();
   const isMobile = useDetectMobileView();
   const [clicked, setClicked] = useState(false);
@@ -137,10 +135,26 @@ const ReactionToken = ({ token, handleBurnForToken }: ReactionTokenProps) => {
 
   const contentHoverCustom = <Hint>Custom</Hint>;
 
-  const handleBurnOption = (e: React.MouseEvent<HTMLElement>, dataItem: any, optionBurn: string, isUpVote: boolean) => {
+  const handleBurnOption = (
+    e: React.MouseEvent<HTMLElement>,
+    dataItem: TokenQueryItem,
+    optionBurn: string,
+    isUpVote: boolean
+  ) => {
     e.preventDefault();
     e.stopPropagation();
-    handleBurnForToken(isUpVote, dataItem, optionBurn);
+
+    const burnValue = optionBurn ? OPTION_BURN_VALUE[optionBurn] : '1';
+
+    dispatch(
+      prepareBurnCommand({
+        isUpVote,
+        burnForItem: dataItem,
+        burnForType: BurnForType.Token,
+        burnValue
+      })
+    );
+
     hideReact();
   };
 

@@ -809,13 +809,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                       scrollableTarget="scrollableDiv"
                     >
                       {data.map((item, index) => {
-                        return (
-                          <PostListItem
-                            item={item}
-                            key={item.id}
-                            postListType={PostListType.Profile}
-                          />
-                        );
+                        return <PostListItem item={item} key={item.id} postListType={PostListType.Profile} />;
                       })}
                     </InfiniteScroll>
                   </React.Fragment>

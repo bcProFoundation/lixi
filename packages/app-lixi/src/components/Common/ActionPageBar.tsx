@@ -1,8 +1,7 @@
 import { BurnForType } from '@bcpros/lixi-models';
-import { Post } from '@generated/index';
+import { PageQueryItem } from '@generated/index';
 import { Space } from 'antd';
 import React from 'react';
-import { formatBalance } from 'src/utils/cashMethods';
 import styled from 'styled-components';
 import { WithAuthorizeAction } from './Authorization/WithAuthorizeAction';
 import { Counter } from './Counter';
@@ -103,20 +102,19 @@ const ActionBar = styled.div`
 `;
 
 type ActionPageBarProps = {
-  post: Post;
+  page: PageQueryItem;
 };
 
 const AuthorizeReaction = WithAuthorizeAction(BaseReaction);
 
-const ActionPostBar = ({ post }: ActionPageBarProps) => {
-
+const ActionPageBar = ({ page }: ActionPageBarProps) => {
   return (
     <ActionBar className={`action-post-bar 'border-bottom'`}>
       <GroupIconText>
-        <AuthorizeReaction dataItem={post} burnForType={BurnForType.Page} />
+        <AuthorizeReaction dataItem={page} burnForType={BurnForType.Page} />
       </GroupIconText>
     </ActionBar>
   );
 };
 
-export default React.memo(ActionPostBar);
+export default React.memo(ActionPageBar);

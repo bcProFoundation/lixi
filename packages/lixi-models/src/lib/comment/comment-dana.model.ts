@@ -1,10 +1,10 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
+
 import { Comment } from './comment.model';
 
 @ObjectType()
 export class CommentDana {
-
   @Field(() => Float)
   danaBurnUp: number;
 

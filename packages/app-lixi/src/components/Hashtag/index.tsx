@@ -69,7 +69,6 @@ const Hashtag = ({ hashtag, isMobile }: HashtagProps) => {
 
   useDidMountEffectNotification();
 
-
   return (
     <StyledContainer>
       <StyledHeader>{`#${hashtag.content}`}</StyledHeader>

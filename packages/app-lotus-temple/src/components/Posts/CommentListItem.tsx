@@ -4,49 +4,47 @@ import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import { AvatarUser } from '@components/Common/AvatarUser';
 import { Counter } from '@components/Common/Counter';
 import { WalletContext } from '@context/walletProvider';
-import { Comment, Post } from '@generated/types.generated';
-import useXPI from '@hooks/useXPI';
-import { getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
+import { CommentQueryItem, PostQueryItem } from '@generated/index';
+import { prepareBurnCommand } from '@store/burn';
+import { useAppDispatch } from '@store/hooks';
 import { formatBalance } from '@utils/cashMethods';
 import { Space, Tooltip } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import { useRouter } from 'next/router';
-import React, { useRef } from 'react';
+import React from 'react';
 import intl from 'react-intl-universal';
-import { prepareBurnCommand } from '@store/burn';
-
 
 type CommentListItemProps = {
-  index: number;
   item: Comment;
-  post: Post;
+  post: PostQueryItem;
 };
 
-const CommentListItem = ({ index, item, post }: CommentListItemProps) => {
+const CommentListItem = ({ item, post }: CommentListItemProps) => {
   const dispatch = useAppDispatch();
   const history = useRouter();
   const Wallet = React.useContext(WalletContext);
-  const { XPI, chronik } = Wallet;
 
-  const upVoteComment = (dataItem: Comment) => {
-    dispatch(prepareBurnCommand({
-      isUpVote: true,
-      burnForItem: dataItem,
-      burnForType: BurnForType.Comment,
-      burnValue: '1'
-    }));
+  const upVoteComment = (dataItem: CommentQueryItem) => {
+    dispatch(
+      prepareBurnCommand({
+        isUpVote: true,
+        burnForItem: dataItem,
+        burnForType: BurnForType.Comment,
+        burnValue: '1'
+      })
+    );
   };
 
-  const downVoteComment = (dataItem: Comment) => {
-    dispatch(prepareBurnCommand({
-      isUpVote: false,
-      burnForItem: dataItem,
-      burnForType: BurnForType.Comment,
-      burnValue: '1'
-    }));
+  const downVoteComment = (dataItem: CommentQueryItem) => {
+    dispatch(
+      prepareBurnCommand({
+        isUpVote: false,
+        burnForItem: dataItem,
+        burnForType: BurnForType.Comment,
+        burnValue: '1'
+      })
+    );
   };
 
   const showUsername = () => {

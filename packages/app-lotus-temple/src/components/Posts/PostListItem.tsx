@@ -3,7 +3,7 @@ import CommentComponent, { CommentItem } from '@components/Common/Comment';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { ShareSocialButton } from '@components/Common/ShareSocialButton';
 import { WalletContext } from '@context/walletProvider';
-import { Post } from '@generated/types.generated';
+import { PostQueryItem } from '@generated/index';
 import useWindowDimensions from '@hooks/useWindowDimensions';
 import useXPI from '@hooks/useXPI';
 import { getSelectedAccount } from '@store/account/selectors';
@@ -191,29 +191,20 @@ const PostListItemContainer = styled(List.Item)`
 
 type PostListItemProps = {
   index: number;
-  item: Post;
+  item: PostQueryItem;
   searchValue?: string;
-  handleBurnForPost?: (isUpVote: boolean, post: PostItem) => Promise<void>;
 };
 
-const PostListItem = ({ index, item, searchValue, handleBurnForPost }: PostListItemProps) => {
+const PostListItem = ({ index, item, searchValue }: PostListItemProps) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const post: Post = item;
+  const post: PostQueryItem = item;
   const [isCollapseComment, setIsCollapseComment] = useState(false);
   const [comments, setComments] = useState<CommentItem[]>([]);
-  const [submitting, setSubmitting] = useState(false);
-  const [value, setValue] = useState('');
   const [showMore, setShowMore] = useState(false);
   const [showMoreImage, setShowMoreImage] = useState(true);
   const [imagesList, setImagesList] = useState([]);
   const ref = useRef<HTMLDivElement | null>(null);
-  const Wallet = React.useContext(WalletContext);
-  const { XPI, chronik } = Wallet;
-  const { createBurnTransaction } = useXPI();
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
-  const selectedAccount = useAppSelector(getSelectedAccount);
   useEffect(() => {
     const mapImages = item.uploads.map(img => {
       const imgUrl = `${process.env.NEXT_PUBLIC_AWS_ENDPOINT}/${img.upload.bucket}/${img.upload.sha}`;
@@ -264,16 +255,14 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost }: PostListI
     }
   };
 
-  const upVotePost = (e: React.MouseEvent<HTMLElement>, dataItem: PostItem) => {
+  const upVotePost = (e: React.MouseEvent<HTMLElement>, dataItem: PostQueryItem) => {
     e.preventDefault();
     e.stopPropagation();
-    handleBurnForPost(true, dataItem);
   };
 
-  const downVotePost = (e: React.MouseEvent<HTMLElement>, dataItem: PostItem) => {
+  const downVotePost = (e: React.MouseEvent<HTMLElement>, dataItem: PostQueryItem) => {
     e.preventDefault();
     e.stopPropagation();
-    handleBurnForPost(false, dataItem);
   };
 
   const showUsername = () => {

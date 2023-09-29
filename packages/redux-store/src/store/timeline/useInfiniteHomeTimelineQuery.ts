@@ -3,10 +3,10 @@ import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useLazyHomeTimelineQuery } from '@store/timeline/timeline.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { TimelineItem } from '@generated/index';
+import { TimelineQueryItem } from '@generated/index';
 import { useHomeTimelineQuery } from './timeline.api';
 
-const homeTimelineAdapter = createEntityAdapter<TimelineItem>({
+const homeTimelineAdapter = createEntityAdapter<TimelineQueryItem>({
   selectId: item => item.id
 });
 

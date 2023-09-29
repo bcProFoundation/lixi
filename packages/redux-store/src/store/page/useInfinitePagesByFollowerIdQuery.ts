@@ -1,13 +1,13 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
-import { Page, PageOrder, Token } from '@generated/index';
+import { PageQueryItem, PageOrder, TokenQueryItem } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useAllPagesByFollowerQuery, useLazyAllPagesByFollowerQuery } from '@store/follow/follows.generated';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 type PageOrToken = {
   id: string | number;
-  page?: Page;
-  token?: Token
+  page?: PageQueryItem;
+  token?: TokenQueryItem;
 };
 
 const followPagesAdapter = createEntityAdapter<PageOrToken>({
@@ -23,11 +23,11 @@ const followPagesAdapter = createEntityAdapter<PageOrToken>({
   }
 });
 
-function isPageEntity(entity: PageOrToken): entity is Page {
+function isPageEntity(entity: PageOrToken): entity is PageQueryItem {
   return !!entity.page && entity.page.__typename === 'Page';
 }
 
-function isTokenEntity(entity: PageOrToken): entity is Token {
+function isTokenEntity(entity: PageOrToken): entity is TokenQueryItem {
   return !!entity.token && entity.token.__typename === 'Token';
 }
 

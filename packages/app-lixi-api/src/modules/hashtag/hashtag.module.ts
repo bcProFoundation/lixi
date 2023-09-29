@@ -8,17 +8,7 @@ import { HashtagDanaCacheService } from './hashtag-dana-cache.service';
 @Module({
   imports: [AuthModule],
   controllers: [],
-  providers: [
-    HashtagResolver,
-    Logger,
-    MeiliService,
-    HashtagService,
-    HashtagDanaCacheService
-  ],
-  exports: [
-    HashtagResolver,
-    Logger,
-    HashtagService
-  ]
+  providers: [HashtagResolver, Logger, MeiliService, HashtagService, HashtagDanaCacheService],
+  exports: [HashtagResolver, Logger, HashtagService]
 })
-export class HashtagModule { }
+export class HashtagModule {}

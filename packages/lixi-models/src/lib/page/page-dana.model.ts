@@ -1,10 +1,10 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
+
 import { Page } from './page.model';
 
 @ObjectType()
 export class PageDana {
-
   @Field(() => Float)
   danaBurnUp: number;
 
@@ -21,5 +21,4 @@ export class PageDana {
   @IsOptional()
   @Field(() => Page, { nullable: true })
   page?: Nullable<Page>;
-
 }

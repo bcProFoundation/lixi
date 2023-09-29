@@ -1,12 +1,11 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
-import { Post, PostOrder } from '@generated/index';
+import { PostOrder, PostQueryItem } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useAppDispatch } from '@store/hooks';
 import { useLazyPostsBySearchWithHashtagQuery, usePostsBySearchWithHashtagQuery } from '@store/post/posts.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-
-const postsAdapter = createEntityAdapter<Post>({
+const postsAdapter = createEntityAdapter<PostQueryItem>({
   selectId: post => post.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });
@@ -48,7 +47,6 @@ export function useInfinitePostsBySearchQueryWithHashtag(
     if (baseResult?.data?.allPostsBySearchWithHashtag) {
       isBaseReady.current = true;
 
-      const baseResultParse = baseResult.data.allPostsBySearchWithHashtag.edges.map(item => item.node);
       const adapterSetAll = postsAdapter.setAll(
         combinedData,
         baseResult.data.allPostsBySearchWithHashtag.edges.map(item => item.node)

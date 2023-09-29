@@ -2,7 +2,7 @@ import { BarChartOutlined, RetweetOutlined } from '@ant-design/icons';
 import { currency } from '@bcpros/lixi-components/components/Common/Ticker';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import { WalletContext } from '@context/walletProvider';
-import { Post, RepostInput } from '@generated/types.generated';
+import { PostQueryItem, RepostInput } from '@generated/index';
 import useXPI from '@hooks/useXPI';
 import { getSelectedAccount } from '@store/account';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
@@ -116,7 +116,7 @@ const ActionBar = styled.div`
 `;
 
 type ActionPostBarProps = {
-  post: Post;
+  post: PostQueryItem;
   onClickIconComment?: (e) => void;
   isSetBorderBottom?: boolean;
 };
@@ -145,7 +145,7 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
   const [repostTrigger, { isLoading: isLoadingRepost, isSuccess: isSuccessRepost, isError: isErrorRepost }] =
     useRepostMutation();
 
-  const handleRepost = async (post: Post) => {
+  const handleRepost = async (post: PostQueryItem) => {
     try {
       let txHex;
 

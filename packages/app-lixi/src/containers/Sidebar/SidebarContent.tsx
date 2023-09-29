@@ -1,13 +1,21 @@
-import { HashtagOrderField, OrderDirection, PostOrderField } from '@generated/types.generated';
+import { LeftOutlined } from '@ant-design/icons';
+import { HashtagOrderField, OrderDirection, PostOrderField, PostQueryItem } from '@generated/index';
+import { addRecentHashtagAtPages } from '@store/account';
 import { getSelectedAccountId } from '@store/account/selectors';
+import { useInfiniteHashtagByPageQuery } from '@store/hashtag/useInfiniteHashtagByPageQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { useInfiniteHomeTimelineQuery } from '@store/timeline/useInfiniteHomeTimelineQuery';
+import { setSelectedPost } from '@store/post/actions';
+import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
+import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
 import { toggleCollapsedSideNav } from '@store/settings/actions';
-import { getFilterPostsHome, getIsTopPosts, getLevelFilter, getNavCollapsed } from '@store/settings/selectors';
+import { getFilterPostsHome, getLevelFilter, getNavCollapsed } from '@store/settings/selectors';
+import { useInfiniteHomeTimelineQuery } from '@store/timeline/useInfiniteHomeTimelineQuery';
+import { Button } from 'antd';
 import { push } from 'connected-next-router';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useSwipeable } from 'react-swipeable';
 import styled from 'styled-components';
 import {
   ItemQuickAccess,
@@ -17,15 +25,6 @@ import {
   ShortCutTopicItem,
   typeFilterPageQuery
 } from './SideBarShortcut';
-import { Button } from 'antd';
-import { LeftOutlined } from '@ant-design/icons';
-import { setSelectedPost } from '@store/post/actions';
-import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
-import { useInfiniteHashtagByPageQuery } from '@store/hashtag/useInfiniteHashtagByPageQuery';
-import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
-import { addRecentHashtagAtPages } from '@store/account';
-import { useSwipeable } from 'react-swipeable';
-import { Post } from '@bcpros/lixi-models';
 
 type SidebarContentProps = {
   className?: string;
@@ -243,7 +242,7 @@ const SidebarContent = ({ className }: SidebarContentProps) => {
 
   const timelineItems = useMemo(() => {
     return _.uniqBy(timelineData, item => {
-      const post: Post = item.data as Post;
+      const post: PostQueryItem = item.data as PostQueryItem;
       return post?.page?.id || post?.token?.tokenId || post?.postAccount?.address;
     });
   }, [timelineData]);

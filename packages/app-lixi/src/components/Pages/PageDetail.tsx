@@ -1,10 +1,4 @@
-import {
-  CameraOutlined,
-  CompassOutlined,
-  FireOutlined,
-  HomeOutlined,
-  InfoCircleOutlined
-} from '@ant-design/icons';
+import { CameraOutlined, CompassOutlined, FireOutlined, HomeOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { PostListType } from '@bcpros/lixi-models/constants';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import CreatePostCard from '@components/Common/CreatePostCard';
@@ -16,15 +10,12 @@ import {
   DeleteFollowPageInput,
   HashtagOrderField,
   OrderDirection,
-  Page,
   PageMessageSessionStatus,
+  PageQueryItem,
   PostOrderField
 } from '@generated/index';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
-import {
-  addRecentHashtagAtPages,
-  setTransactionReady
-} from '@store/account/actions';
+import { addRecentHashtagAtPages, setTransactionReady } from '@store/account/actions';
 import {
   getPageAvatarUpload,
   getPageCoverUpload,
@@ -57,7 +48,7 @@ import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
 
 type PageDetailProps = {
-  page: Page;
+  page: PageQueryItem;
   isMobile: boolean;
   checkIsFollowed: boolean;
 };
@@ -452,13 +443,10 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const selectedAccountId = useAppSelector(getSelectedAccountId);
   const [pageDetailData, setPageDetailData] = useState<any>(page);
   const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
   const walletStatus = useAppSelector(getWalletStatus);
-  const failQueue = useAppSelector(getFailQueue);
   const filterValue = useAppSelector(getFilterPostsPage);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
   const recentTagAtPages = useAppSelector(getRecentHashtagAtPages);
-  const [searchValue, setSearchValue] = useState<string | null>(null);
   const [suggestedHashtag, setSuggestedTags] = useState([]);
   const [query, setQuery] = useState<any>('');
   const [hashtags, setHashtags] = useState<any>([]);
@@ -466,7 +454,6 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const refs = useRef([]);
   const pageAvatarUpload = useAppSelector(getPageAvatarUpload);
   const pageCoverUpload = useAppSelector(getPageCoverUpload);
-  const level = useAppSelector(getLevelFilter);
   const [urlPageAvatarUpload, setUrlPageAvatarUpload] = useState('');
   const [urlPageCoverUpload, setUrlPageCoverUpload] = useState('');
   const authorization = useContext(AuthorizationContext);

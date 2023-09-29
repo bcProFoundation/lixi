@@ -7,7 +7,14 @@ import { TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models/constants/transl
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import { currency } from '@components/Common/Ticker';
 import { CURRENCIES, WalletItem, decimalFormatBalance } from '@components/Wallet/ListWallet';
-import { Account, BurnForItem, Comment, Page, Post, Token } from '@generated/index';
+import {
+  AccountQueryItem,
+  BurnForItem,
+  CommentQueryItem,
+  PageQueryItem,
+  PostQueryItem,
+  TokenQueryItem
+} from '@generated/index';
 import { getSelectedAccount } from '@store/account/selectors';
 import { prepareBurnCommand } from '@store/burn';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
@@ -123,12 +130,14 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
         ? DefaultXpiBurnValues[0]
         : control._formValues.burnedValue;
 
-      dispatch(prepareBurnCommand({
-        isUpVote,
-        burnForItem,
-        burnForType,
-        burnValue
-      }));
+      dispatch(
+        prepareBurnCommand({
+          isUpVote,
+          burnForItem,
+          burnForType,
+          burnValue
+        })
+      );
       dispatch(closeModal());
     } catch (e) {
       const errorMessage = intl.get('post.unableToBurn');
@@ -146,23 +155,22 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
     dispatch(closeModal());
   };
 
-
   const getDanaBurnUp = (burnForType: BurnForType) => {
     switch (burnForType) {
       case BurnForType.Token:
-        const token = burnForItem as Token;
+        const token = burnForItem as TokenQueryItem;
         return token?.tokenDana?.danaBurnUp || 0;
       case BurnForType.Comment:
-        const comment = burnForItem as Comment;
+        const comment = burnForItem as CommentQueryItem;
         return comment?.commentDana?.danaBurnUp || 0;
       case BurnForType.Post:
-        const post = burnForItem as Post;
+        const post = burnForItem as PostQueryItem;
         return post?.postDana?.danaBurnUp || 0;
       case BurnForType.Account:
-        const account = burnForItem as Account;
+        const account = burnForItem as AccountQueryItem;
         return account?.accountDana?.danaBurnUp || 0;
       case BurnForType.Page:
-        const page = burnForItem as Page;
+        const page = burnForItem as PageQueryItem;
         return page?.pageDana?.danaBurnUp || 0;
       default:
         return 0;
@@ -172,19 +180,19 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
   const getDanaBurnDown = (burnForType: BurnForType) => {
     switch (burnForType) {
       case BurnForType.Token:
-        const token = burnForItem as Token;
+        const token = burnForItem as TokenQueryItem;
         return token?.tokenDana?.danaBurnDown || 0;
       case BurnForType.Comment:
-        const comment = burnForItem as Comment;
+        const comment = burnForItem as CommentQueryItem;
         return comment?.commentDana?.danaBurnDown || 0;
       case BurnForType.Post:
-        const post = burnForItem as Post;
+        const post = burnForItem as PostQueryItem;
         return post?.postDana?.danaBurnDown || 0;
       case BurnForType.Account:
-        const account = burnForItem as Account;
+        const account = burnForItem as AccountQueryItem;
         return account?.accountDana?.danaBurnDown || 0;
       case BurnForType.Page:
-        const page = burnForItem as Page;
+        const page = burnForItem as PageQueryItem;
         return page?.pageDana?.danaBurnDown || 0;
       default:
         return 0;

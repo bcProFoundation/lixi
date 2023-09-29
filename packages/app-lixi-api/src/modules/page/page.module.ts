@@ -64,12 +64,6 @@ import { CommentDanaCacheService } from './comment-dana-cache.service';
     PostDanaCacheService,
     CommentDanaCacheService
   ],
-  exports: [
-    MeiliService,
-    NotificationService,
-    FollowCacheService,
-    PostLoader,
-    DanaViewScoreService
-  ]
+  exports: [MeiliService, NotificationService, FollowCacheService, PostLoader, DanaViewScoreService]
 })
-export class PageModule { }
+export class PageModule {}

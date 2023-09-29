@@ -1,16 +1,11 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
-import {
-  useLazyWorshipedPeopleQuery,
-  useWorshipedPeopleQuery,
-  api as worshipedPeopleApi
-} from '@store/worship/worshipedPerson.api';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { WorshipedPerson, WorshipedPersonOrder } from '@generated/types.generated';
-import _ from 'lodash';
-import { WorshipedPersonQuery } from './worshipedPerson.generated';
+import { WorshipedPersonQueryItem } from '@generated/index';
+import { WorshipedPersonOrder } from '@generated/types.generated';
 import { createEntityAdapter } from '@reduxjs/toolkit';
+import { useLazyWorshipedPeopleQuery, useWorshipedPeopleQuery } from '@store/worship/worshipedPerson.api';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-const worshipedPeopleAdapter = createEntityAdapter<WorshipedPersonQuery['worshipedPerson']>({
+const worshipedPeopleAdapter = createEntityAdapter<WorshipedPersonQueryItem>({
   selectId: person => person.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });

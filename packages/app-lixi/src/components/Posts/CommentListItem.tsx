@@ -15,6 +15,7 @@ import moment from 'moment';
 import { useRouter } from 'next/router';
 import React, { useContext, useMemo } from 'react';
 import intl from 'react-intl-universal';
+import { PostQueryItem, CommentQueryItem } from '@generated/index';
 
 const ACTION_VOTE = {
   UP_VOTE: 'upVote',
@@ -23,8 +24,8 @@ const ACTION_VOTE = {
 const DEFAULT_USERNAME = 'Anonymous';
 
 type CommentListItemProps = {
-  item: Comment;
-  post?: Post;
+  item: CommentQueryItem;
+  post?: PostQueryItem;
 };
 
 const CommentListItem = ({ item, post }: CommentListItemProps) => {
@@ -37,16 +38,18 @@ const CommentListItem = ({ item, post }: CommentListItemProps) => {
     return _.isNil(item?.commentAccount) ? DEFAULT_USERNAME : item?.commentAccount?.name;
   }, [item?.commentAccount]);
 
-  const actionsComment = (dataItem: Comment, action: string) => {
+  const actionsComment = (dataItem: CommentQueryItem, action: string) => {
     if (authorization.authorized) {
       const isUpVote = action == ACTION_VOTE.UP_VOTE ? true : false;
       const burnForType = BurnForType.Comment;
-      dispatch(prepareBurnCommand({
-        isUpVote,
-        burnForItem: dataItem,
-        burnForType,
-        burnValue: '1'
-      }));
+      dispatch(
+        prepareBurnCommand({
+          isUpVote,
+          burnForItem: dataItem,
+          burnForType,
+          burnValue: '1'
+        })
+      );
     } else {
       askAuthorization();
     }

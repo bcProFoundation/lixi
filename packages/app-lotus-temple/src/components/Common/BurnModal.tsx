@@ -182,7 +182,6 @@ export const BurnModal = ({ data, burnForType }: BurnModalProps) => {
           };
           break;
       }
-
     } catch (e) {
       const errorMessage = e.message || intl.get('post.unableToBurn');
       dispatch(

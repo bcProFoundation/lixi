@@ -1,18 +1,14 @@
-import { Button, Descriptions, message, Modal, Skeleton, Space, Tabs } from 'antd';
-import React, { useState } from 'react';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { useInfiniteFollowersByFollowingQuery } from '@store/account/useInfiniteFollowersByFollowingQuery';
+import { useInfiniteFollowingsByFollowerQuery } from '@store/account/useInfiniteFollowingsByFollowerQuery';
+import { useAppDispatch } from '@store/hooks';
+import { closeModal } from '@store/modal/actions';
+import { useInfinitePagesByFollowerIdQuery } from '@store/page/useInfinitePagesByFollowerIdQuery';
+import { Modal, Skeleton, Space, Tabs } from 'antd';
+import Link from 'next/link';
+import React from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
-import { CloseCircleOutlined, CopyOutlined } from '@ant-design/icons';
-import { QRCode } from './QRCodeModal';
-import { AntdFormWrapper } from './EnhancedInputs';
-import { closeModal } from '@store/modal/actions';
-import { useAppDispatch } from '@store/hooks';
-import { useInfinitePagesByFollowerIdQuery } from '@store/page/useInfinitePagesByFollowerIdQuery';
-import { useInfiniteFollowingsByFollowerQuery } from '@store/account/useInfiniteFollowingsByFollowerQuery';
-import { useInfiniteFollowersByFollowingQuery } from '@store/account/useInfiniteFollowersByFollowingQuery';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import Link from 'next/link';
 import AvatarUser from './AvatarUser';
 import { currency } from './Ticker';
 
@@ -236,10 +232,10 @@ export const FollowModal: React.FC<FollowModalProps> = (props: FollowModalProps)
                       <React.Fragment key={index}>
                         <ShortcutItemAccess
                           icon={
-                            item.token
+                            item?.token
                               ? `${currency.tokenIconsUrl}/32/${item.token.tokenId}.png`
-                              : item.page
-                              ? item.page.avatar
+                              : item?.page
+                              ? item?.page?.avatar
                               : '/images/default-avatar.jpg'
                           }
                           name={item.page ? item.page.name : item.token.name}

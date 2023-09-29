@@ -7,7 +7,7 @@ import { ShareSocialButton } from '@components/Common/ShareSocialButton';
 import { currency } from '@components/Common/Ticker';
 import { NavBarHeader, PathDirection } from '@components/Layout/MainLayout';
 import { WalletContext } from '@context/walletProvider';
-import { CommentOrderField, CreateCommentInput, OrderDirection, Post } from '@generated/index';
+import { CommentOrderField, CreateCommentInput, OrderDirection, PostQueryItem } from '@generated/index';
 import useXPI from '@hooks/useXPI';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
@@ -34,7 +34,6 @@ import Gallery from 'react-photo-gallery';
 import styled from 'styled-components';
 import CommentListItem from './CommentListItem';
 import { EditPostModalProps } from './EditPostModalPopup';
-
 
 const { Search } = Input;
 
@@ -91,7 +90,7 @@ export const IconBurn = ({
 );
 
 type PostDetailProps = {
-  post: Post;
+  post: PostQueryItem;
   isMobile: boolean;
 };
 
@@ -284,22 +283,26 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
     { isLoading: isLoadingCreateComment, isSuccess: isSuccessCreateComment, isError: isErrorCreateComment }
   ] = useCreateCommentMutation();
 
-  const upVotePost = (dataItem: Post) => {
-    dispatch(prepareBurnCommand({
-      isUpVote: true,
-      burnForItem: dataItem,
-      burnForType: BurnForType.Post,
-      burnValue: '1'
-    }));
+  const upVotePost = (dataItem: PostQueryItem) => {
+    dispatch(
+      prepareBurnCommand({
+        isUpVote: true,
+        burnForItem: dataItem,
+        burnForType: BurnForType.Post,
+        burnValue: '1'
+      })
+    );
   };
 
-  const downVotePost = (dataItem: Post) => {
-    dispatch(prepareBurnCommand({
-      isUpVote: false,
-      burnForItem: dataItem,
-      burnForType: BurnForType.Post,
-      burnValue: '1'
-    }));
+  const downVotePost = (dataItem: PostQueryItem) => {
+    dispatch(
+      prepareBurnCommand({
+        isUpVote: false,
+        burnForItem: dataItem,
+        burnForType: BurnForType.Post,
+        burnValue: '1'
+      })
+    );
   };
 
   const loadMoreComments = () => {

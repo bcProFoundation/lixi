@@ -1,6 +1,6 @@
 import { FireOutlined } from '@ant-design/icons';
 import { AvatarUser } from '@components/Common/AvatarUser';
-import { Worship } from '@generated/index';
+import { WorshipQueryItem } from '@generated/index';
 import { Space } from 'antd';
 import moment from 'moment';
 import { useRouter } from 'next/router';
@@ -10,7 +10,7 @@ import style from 'styled-components';
 
 type WorshipTempleCardProps = {
   index: number;
-  item: Worship;
+  item: WorshipQueryItem;
   isPublic?: boolean;
   templeName?: string;
   templeId?: string;

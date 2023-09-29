@@ -35,7 +35,7 @@ export class AccountResolver {
     @I18n() private i18n: I18nService,
     @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
     private readonly accountCacheService: AccountCacheService
-  ) { }
+  ) {}
 
   @Subscription(() => Account)
   accountCreated() {
@@ -45,7 +45,6 @@ export class AccountResolver {
   @Query(() => Account)
   @UseGuards(GqlJwtAuthGuard)
   async account(@AccountEntity() myAccount: Account, @Args('id', { type: () => Number }) id: number) {
-
     if (!myAccount) {
       const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
       throw new VError(accountNotExistMessage);
@@ -99,7 +98,6 @@ export class AccountResolver {
       );
 
       return result;
-
     } catch (err: unknown) {
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -110,7 +108,6 @@ export class AccountResolver {
       }
     }
   }
-
 
   @Query(() => Account)
   @UseGuards(GqlJwtAuthGuard)
@@ -352,18 +349,18 @@ export class AccountResolver {
 
     const uploadAvatarDetail = data.avatar
       ? await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: data.avatar
-        }
-      })
+          where: {
+            uploadId: data.avatar
+          }
+        })
       : undefined;
 
     const uploadCoverDetail = data.cover
       ? await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: data.cover
-        }
-      })
+          where: {
+            uploadId: data.cover
+          }
+        })
       : undefined;
 
     const updatedAccount = await this.prisma.account.update({

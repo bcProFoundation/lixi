@@ -5,7 +5,7 @@ import ActionPostBar from '@components/Common/ActionPostBar';
 import CommentComponent, { CommentItem } from '@components/Common/Comment';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { LoadingIcon } from '@components/Layout/MainLayout';
-import { Post } from '@generated/types.generated';
+import { PostQueryItem } from '@generated/index';
 import useWindowDimensions from '@hooks/useWindowDimensions';
 import { getSelectedAccount } from '@store/account';
 import { analyticEvent } from '@store/analytic-event';
@@ -239,16 +239,12 @@ const PostListItemContainer = styled(List.Item)`
 `;
 
 type PostListItemProps = {
-  item: Post;
+  item: PostQueryItem;
   postListType?: PostListType;
   addToRecentHashtags?: (hashtag: string) => any;
 };
 
-const PostListItem = ({
-  item,
-  postListType,
-  addToRecentHashtags
-}: PostListItemProps) => {
+const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemProps) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const post = item;
@@ -283,12 +279,11 @@ const PostListItem = ({
 
   if (!post) return null;
 
-  const openPostDetailModal = (postData: Post) => {
-    dispatch(openModal('PostDetailModal', { post: postData }));
+  const openPostDetailModal = (postData: PostQueryItem) => {
+    dispatch(openModal('PostDetailModal', { initialPost: postData }));
   };
 
   const handlePostClick = e => {
-
     // analytic event
     const payload: AnalyticEvent = {
       eventType: 'view',

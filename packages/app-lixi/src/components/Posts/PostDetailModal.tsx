@@ -15,7 +15,7 @@ import { api as commentsApi, useCreateCommentMutation } from '@store/comment/com
 import { useInfiniteCommentsToPostIdQuery } from '@store/comment/useInfiniteCommentsToPostIdQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { closeModal, openModal } from '@store/modal/actions';
-import { useRepostMutation } from '@store/post/posts.generated';
+import { usePostQuery, useRepostMutation } from '@store/post/posts.generated';
 import { sendXPIFailure } from '@store/send/actions';
 import { getFilterPostsHome, getLevelFilter } from '@store/settings/selectors';
 import { showToast } from '@store/toast/actions';
@@ -39,10 +39,10 @@ import styled from 'styled-components';
 import CommentListItem from './CommentListItem';
 import { EditPostModalProps } from './EditPostModalPopup';
 import PostTranslate from './PostTranslate';
-
+import { PostQueryItem } from '@generated/index';
 
 type PostDetailProps = {
-  post: Post;
+  initialPost: PostQueryItem;
   classStyle?: string;
 };
 
@@ -310,33 +310,32 @@ const StyledIconContainer = styled.div`
   margin-right: 5px;
 `;
 
-export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }: PostDetailProps) => {
+export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classStyle }: PostDetailProps) => {
+  const [post, setPost] = useState(initialPost);
+
   const dispatch = useAppDispatch();
   const { control, getValues, setValue, setFocus, resetField } = useForm();
   const router = useRouter();
   const Wallet = React.useContext(WalletContext);
   const { XPI, chronik } = Wallet;
-  const { createBurnTransaction, sendXpi } = useXPI();
+  const { sendXpi } = useXPI();
   const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
-  const burnQueue = useAppSelector(getBurnQueue);
-  const failQueue = useAppSelector(getFailQueue);
   const walletPaths = useAppSelector(getAllWalletPaths);
   const selectedAccount = useAppSelector(getSelectedAccount);
   const [isEncryptedOptionalOpReturnMsg, setIsEncryptedOptionalOpReturnMsg] = useState(true);
-  const walletStatus = useAppSelector(getWalletStatus);
   const [open, setOpen] = useState(false);
-  const filterValue = useAppSelector(getFilterPostsHome);
   const [showTranslation, setShowTranslation] = useState(false);
   const [openPost, setOpenPost] = useState(true);
   const isMobile = useDetectMobileView();
   const [borderColorHeader, setBorderColorHeader] = useState(false);
   const accountInfoTemp = useAppSelector(getAccountInfoTemp);
   const [isSendingXPI, setIsSendingXPI] = useState<boolean>(false);
-  const level = useAppSelector(getLevelFilter);
 
   const [repostTrigger, { isLoading: isLoadingRepost, isSuccess: isSuccessRepost, isError: isErrorRepost }] =
     useRepostMutation();
+
+  const { isLoading, currentData, isError } = usePostQuery({ id: post.id });
 
   const dataSource = [
     {
@@ -374,6 +373,15 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
     createCommentTrigger,
     { isLoading: isLoadingCreateComment, isSuccess: isSuccessCreateComment, isError: isErrorCreateComment }
   ] = useCreateCommentMutation();
+
+  useEffect(
+    function updatePost() {
+      if (!isError && currentData) {
+        setPost(currentData.post);
+      }
+    },
+    [currentData]
+  );
 
   useEffect(() => {
     if (slpBalancesAndUtxos === slpBalancesAndUtxosRef.current) return;
@@ -620,33 +628,6 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
     });
   }, [post?.content]);
 
-  const handleRepost = async (post: any) => {
-    const repostInput: RepostInput = {
-      accountId: selectedAccount.id,
-      postId: post.id
-    };
-
-    try {
-      await repostTrigger({ input: repostInput });
-      isSuccessRepost &&
-        dispatch(
-          showToast('success', {
-            message: 'Success',
-            description: intl.get('post.repostSuccessful'),
-            duration: 5
-          })
-        );
-    } catch (error) {
-      dispatch(
-        showToast('error', {
-          message: 'Error',
-          description: intl.get('post.repostFailure'),
-          duration: 5
-        })
-      );
-    }
-  };
-
   const handleOnCancel = () => {
     setOpenPost(false);
     setTimeout(
@@ -686,14 +667,15 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
       <Modal
         transitionName={isMobile ? '' : 'none'}
         width={'50vw'}
-        className={`${classStyle} post-detail-custom-modal ${isMobile
-          ? openPost
-            ? 'animate__animated animate__faster animate__slideInRight'
-            : 'animate__animated animate__faster animate__slideOutRight'
-          : openPost
+        className={`${classStyle} post-detail-custom-modal ${
+          isMobile
+            ? openPost
+              ? 'animate__animated animate__faster animate__slideInRight'
+              : 'animate__animated animate__faster animate__slideOutRight'
+            : openPost
             ? 'animate__animated animate__faster animate__zoomIn'
             : 'animate__animated animate__faster animate__zoomOut'
-          }`}
+        }`}
         style={{ top: 30 }}
         open={true}
         onCancel={handleOnCancel}

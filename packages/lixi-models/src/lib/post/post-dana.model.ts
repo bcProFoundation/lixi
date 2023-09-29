@@ -1,10 +1,10 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
+
 import { Post } from './post.model';
 
 @ObjectType()
 export class PostDana {
-
   @Field(() => Float)
   danaBurnUp: number;
 
@@ -21,5 +21,4 @@ export class PostDana {
   @IsOptional()
   @Field(() => Post, { nullable: true })
   post?: Nullable<Post>;
-
 }

@@ -91,7 +91,7 @@ model Token {
   createdDate          DateTime     @default(now()) @map("created_date") @db.Timestamptz
   posts                Post[]
   followers            FollowPage[]
-  TokenDana            TokenDana?
+  tokenDana            TokenDana?
 
   @@map("token")
 }
@@ -157,7 +157,7 @@ model Page {
   accessMessageFee    Float?               @default(0.0) @map("access_message_fee")
   minDanaForMessage   Float?               @default(0.0) @map("min_dana_for_message")
   followerFreeMessage Boolean?             @default(false) @map("follower_free_message")
-  PageDana            PageDana?
+  pageDana            PageDana?
 
   @@map("page")
 }
@@ -196,7 +196,7 @@ model Post {
   lastRepostAt     DateTime          @default(now()) @map("updated_repost_at") @db.Timestamptz
   originalLanguage String?           @map("original_language")
   translations     PostTranslation[]
-  PostDana         PostDana?
+  postDana         PostDana?
 
   @@map("post")
 }
@@ -228,7 +228,7 @@ model Comment {
   giveTip            GiveTip?
   createFee          Float?       @map("create_fee")
   txid               String?
-  CommentDana        CommentDana?
+  commentDana        CommentDana?
 
   @@index([commentAccountId], map: "index_comment_on_account")
   @@index([commentByPublicKey], map: "index_comment_by_public_key")
@@ -856,7 +856,7 @@ model Hashtag {
   danaBurnScore     Float         @default(0.0) @map("dana_burn_score")
   createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime      @default(now()) @map("updated_at") @db.Timestamptz
-  HashtagDana       HashtagDana?
+  hashtagDana       HashtagDana?
 
   @@index(content)
   @@map("hashtag")
