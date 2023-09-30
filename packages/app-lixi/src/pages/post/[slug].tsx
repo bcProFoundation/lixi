@@ -1,26 +1,29 @@
+import { AnalyticEvent } from '@bcpros/lixi-models';
+import { PrismaClient } from '@bcpros/lixi-prisma';
+import MainLayout from '@components/Layout/MainLayout';
 import PostDetail from '@components/Posts/PostDetail';
+import { PostQueryItem } from '@generated/index';
+import { analyticEvent } from '@store/analytic-event';
+import { useAppDispatch } from '@store/hooks';
+import { usePostQuery } from '@store/post/posts.generated';
 import { SagaStore, wrapper } from '@store/store';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
-import React, { useEffect } from 'react';
-import { END } from 'redux-saga';
+import React, { useEffect, useState } from 'react';
 import { getSelectorsByUserAgent } from 'react-device-detect';
-import { usePostQuery } from '@store/post/posts.generated';
-import MainLayout from '@components/Layout/MainLayout';
-import { PrismaClient } from '@bcpros/lixi-prisma';
-import { stripHtml } from 'string-strip-html';
 import intl from 'react-intl-universal';
-import { AnalyticEvent } from '@bcpros/lixi-models';
-import { analyticEvent } from '@store/analytic-event';
-import { useAppDispatch } from '@store/hooks';
+import { END } from 'redux-saga';
+import { stripHtml } from 'string-strip-html';
 
 const PostDetailPage = props => {
   const dispatch = useAppDispatch();
   const { postId, isMobile, postAsString } = props;
-  const post = JSON.parse(postAsString);
+  const initialPost = JSON.parse(postAsString);
   const canonicalUrl = process.env.NEXT_PUBLIC_LIXI_URL + `post/${postId}`;
 
+  const [post, setPost] = useState(initialPost);
   const postQuery = usePostQuery({ id: postId });
+  const { isLoading, isError, data } = postQuery;
 
   const document = new DOMParser().parseFromString(post.content, 'text/html');
   const paragraphElement = document.querySelector('.EditorLexical_paragraph');
@@ -38,10 +41,16 @@ const PostDetailPage = props => {
     dispatch(analyticEvent(payload));
   }, [postId]);
 
+  useEffect(() => {
+    if (!isError && data && data.post) {
+      setPost(data.post);
+    }
+  }, [data]);
+
   return (
     <React.Fragment>
       <NextSeo
-        title={`${post.postAccount.name} ${intl.get('post.on')} Lixi: "${paragraphText}"`}
+        title={`${post?.postAccount?.name} ${intl.get('post.on')} Lixi: "${paragraphText}"`}
         description="A place where you have complete control on what you want to see and what you want others to see collectively. No platform influence. No platform ads."
         canonical={canonicalUrl}
         openGraph={{
@@ -70,7 +79,9 @@ const PostDetailPage = props => {
           appId: '264679442628200'
         }}
       />
-      {postQuery && postQuery.isSuccess && <PostDetail post={postQuery.data.post} isMobile={isMobile} />}
+      {postQuery && postQuery.isSuccess && (
+        <PostDetail post={postQuery.data.post as PostQueryItem} isMobile={isMobile} />
+      )}
     </React.Fragment>
   );
 };
@@ -87,20 +98,24 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   const slug: string = _.isArray(context.params.slug) ? context.params.slug[0] : context.params.slug;
   const postId: string = slug;
 
-  const result = await prisma.post.findUnique({
+  const dbPost = await prisma.post.findUnique({
     where: {
       id: postId
     },
     include: {
-      postAccount: {
-        select: {
-          name: true
-        }
+      uploads: true,
+      postAccount: true,
+      comments: true,
+      page: true,
+      translations: true,
+      reposts: { select: { account: true, accountId: true } },
+      _count: {
+        select: { reposts: true, comments: true }
       }
     }
   });
 
-  const postAsString = JSON.stringify(result);
+  const postAsString = JSON.stringify(dbPost);
 
   return {
     props: {

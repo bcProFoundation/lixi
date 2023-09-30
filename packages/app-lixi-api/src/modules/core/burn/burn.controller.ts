@@ -247,9 +247,6 @@ export class BurnController {
               account: {
                 address: burnByAddress
               }
-            },
-            orderBy: {
-              createdAt: 'desc'
             }
           });
 

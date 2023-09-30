@@ -1,3 +1,10 @@
+
+query Account($id: Int!) {
+  account(id: $id) {
+    ...AccountFields
+  }
+}
+
 query getAccountByAddress($address: String!) {
   getAccountByAddress(address: $address) {
     ...AccountFields
@@ -27,6 +34,9 @@ fragment AccountFields on Account {
   accountDana {
     danaGiven
     danaReceived
+    danaBurnUp
+    danaBurnDown
+    danaBurnScore
   }
 }
 

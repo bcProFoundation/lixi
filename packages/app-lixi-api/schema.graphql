@@ -46,6 +46,9 @@ type AccountConnection {
 
 type AccountDana {
   accountDanaHistory: [AccountDanaHistory!]
+  danaBurnDown: Float!
+  danaBurnScore: Float!
+  danaBurnUp: Float!
   danaGiven: Float
   danaReceived: Float
   id: ID!
@@ -99,6 +102,7 @@ type Comment {
   commentAccount: Account!
   commentAccountId: Int
   commentByPublicKey: String
+  commentDana: CommentDana
   commentText: String!
   commentTo: Post!
   commentToId: String!
@@ -119,6 +123,14 @@ type CommentConnection {
   edges: [CommentEdge!]
   pageInfo: PageInfo!
   totalCount: Int
+}
+
+type CommentDana {
+  comment: Comment
+  commentId: String
+  danaBurnDown: Float!
+  danaBurnScore: Float!
+  danaBurnUp: Float!
 }
 
 type CommentEdge {
@@ -363,6 +375,7 @@ type Hashtag {
   danaBurnDown: Float!
   danaBurnScore: Float!
   danaBurnUp: Float!
+  hashtagDana: HashtagDana
   id: ID!
   normalizedContent: String!
   postHashtags: [PostHashtag!]
@@ -375,6 +388,14 @@ type HashtagConnection {
   edges: [HashtagEdge!]
   pageInfo: PageInfo!
   totalCount: Int
+}
+
+type HashtagDana {
+  danaBurnDown: Float!
+  danaBurnScore: Float!
+  danaBurnUp: Float!
+  hashtag: Hashtag
+  hashtagId: String
 }
 
 type HashtagEdge {
@@ -586,6 +607,7 @@ type Page {
   name: String!
   pageAccount: Account!
   pageAccountId: Int!
+  pageDana: PageDana
   pageMessageSessions: [PageMessageSession!]
   parent: Page
   parentId: String
@@ -609,6 +631,14 @@ type PageConnection {
   edges: [PageEdge!]
   pageInfo: PageInfo!
   totalCount: Int
+}
+
+type PageDana {
+  danaBurnDown: Float!
+  danaBurnScore: Float!
+  danaBurnUp: Float!
+  page: Page
+  pageId: String
 }
 
 type PageEdge {
@@ -711,6 +741,7 @@ type Post {
   pageId: String
   postAccount: Account!
   postAccountId: Int!
+  postDana: PostDana
   postHashtags: [PostHashtag!]
   repostCount: Int
   reposts: [Repost!]
@@ -728,6 +759,14 @@ type PostConnection {
   edges: [PostEdge!]
   pageInfo: PageInfo!
   totalCount: Int
+}
+
+type PostDana {
+  danaBurnDown: Float!
+  danaBurnScore: Float!
+  danaBurnUp: Float!
+  post: Post
+  postId: String
 }
 
 type PostEdge {
@@ -748,18 +787,6 @@ type PostHashtag {
   updatedAt: DateTime
 }
 
-type PostMeiliEdge {
-  cursor: String
-  node: Post
-}
-
-type PostMeiliPageInfo {
-  endCursor: String
-  hasNextPage: Boolean!
-  hasPreviousPage: Boolean!
-  startCursor: String
-}
-
 input PostOrder {
   direction: OrderDirection!
   field: PostOrderField!
@@ -775,11 +802,6 @@ enum PostOrderField {
   updatedAt
 }
 
-type PostResponse {
-  edges: [PostMeiliEdge!]
-  pageInfo: PostMeiliPageInfo
-}
-
 type PostTranslation {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
@@ -792,6 +814,7 @@ type PostTranslation {
 }
 
 type Query {
+  account(id: Int!): Account!
   allClosedPageMessageSession(accountId: Int, after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, pageId: String, skip: Int): PageMessageSessionConnection!
   allCommentsToPostId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: CommentOrder, skip: Int): CommentConnection!
   allFollowersByFollowing(after: String, before: String, first: Int, followingAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
@@ -838,8 +861,8 @@ type Query {
     last: Int
     minBurnFilter: Int
     query: String
-  ): PostResponse!
-  allPostsBySearchWithHashtag(after: String, before: String, first: Int, hashtags: [String!], last: Int, minBurnFilter: Int, orderBy: PostOrder, query: String, skip: Int): PostResponse!
+  ): PostConnection!
+  allPostsBySearchWithHashtag(after: String, before: String, first: Int, hashtags: [String!], last: Int, minBurnFilter: Int, orderBy: PostOrder, query: String, skip: Int): PostConnection!
   allPostsBySearchWithHashtagAtPage(
     """Paginate after opaque cursor"""
     after: String
@@ -857,7 +880,7 @@ type Query {
     orderBy: PostOrder
     pageId: String
     query: String
-  ): PostResponse!
+  ): PostConnection!
   allPostsBySearchWithHashtagAtToken(
     """Paginate after opaque cursor"""
     after: String
@@ -875,7 +898,7 @@ type Query {
     orderBy: PostOrder
     query: String
     tokenId: String
-  ): PostResponse!
+  ): PostConnection!
   allPostsByTokenId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
   allPostsByUserId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
   allTemple(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: TempleOrder, skip: Int): TempleConnection!
@@ -1058,6 +1081,7 @@ type Token {
   name: String!
   rank: Int
   ticker: String!
+  tokenDana: TokenDana
   tokenDocumentUrl: String
   tokenId: String!
   tokenType: String!
@@ -1069,6 +1093,14 @@ type TokenConnection {
   edges: [TokenEdge!]
   pageInfo: PageInfo!
   totalCount: Int
+}
+
+type TokenDana {
+  danaBurnDown: Float!
+  danaBurnScore: Float!
+  danaBurnUp: Float!
+  token: Token
+  tokenId: String
 }
 
 type TokenEdge {

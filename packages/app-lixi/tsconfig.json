@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.path.json",
   "compilerOptions": {
+    "noErrorTruncation": true,
     "baseUrl": ".",
     "target": "es5",
     "lib": [

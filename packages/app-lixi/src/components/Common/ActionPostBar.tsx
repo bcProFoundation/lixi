@@ -1,8 +1,8 @@
 import { BarChartOutlined, RetweetOutlined } from '@ant-design/icons';
 import { currency } from '@bcpros/lixi-components/components/Common/Ticker';
-import { PostItem } from '@components/Posts/PostDetail';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import { WalletContext } from '@context/walletProvider';
-import { RepostInput } from '@generated/types.generated';
+import { PostQueryItem, RepostInput } from '@generated/index';
 import useXPI from '@hooks/useXPI';
 import { getSelectedAccount } from '@store/account';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
@@ -116,8 +116,7 @@ const ActionBar = styled.div`
 `;
 
 type ActionPostBarProps = {
-  post: PostItem;
-  handleBurnForPost?: (isUpVote: boolean, post: any, optionBurn?: string) => Promise<void>;
+  post: PostQueryItem;
   onClickIconComment?: (e) => void;
   isSetBorderBottom?: boolean;
 };
@@ -125,7 +124,7 @@ type ActionPostBarProps = {
 const AuthorizeIconNoneHover = WithAuthorizeAction(IconNoneHover);
 const AuthorizeReaction = WithAuthorizeAction(BaseReaction);
 
-const ActionPostBar = ({ post, handleBurnForPost, onClickIconComment, isSetBorderBottom }: ActionPostBarProps) => {
+const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPostBarProps) => {
   const dispatch = useAppDispatch();
   const selectedAccount = useAppSelector(getSelectedAccount);
   const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
@@ -146,7 +145,7 @@ const ActionPostBar = ({ post, handleBurnForPost, onClickIconComment, isSetBorde
   const [repostTrigger, { isLoading: isLoadingRepost, isSuccess: isSuccessRepost, isError: isErrorRepost }] =
     useRepostMutation();
 
-  const handleRepost = async (post: PostItem) => {
+  const handleRepost = async (post: PostQueryItem) => {
     try {
       let txHex;
 
@@ -209,7 +208,7 @@ const ActionPostBar = ({ post, handleBurnForPost, onClickIconComment, isSetBorde
   return (
     <ActionBar className={`action-post-bar ${borderBottom ? 'border-bottom' : ''}`}>
       <GroupIconText>
-        <AuthorizeReaction post={post} handleBurnForPost={handleBurnForPost} />
+        <AuthorizeReaction dataItem={post} burnForType={BurnForType.Post} />
         <AuthorizeIconNoneHover
           value={formatBalance(post?.totalComments ?? 0)}
           imgUrl="/images/ico-comments.svg"

@@ -1,10 +1,10 @@
 import { api } from './tokens.generated';
 
 const enhancedApi = api.enhanceEndpoints({
-  addTagTypes: ['Token'],
+  addTagTypes: ['Token', 'Tokens'],
   endpoints: {
     Tokens: {
-      providesTags: ['Token'],
+      providesTags: ['Tokens'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
           const { orderBy, ...otherArgs } = queryArgs;
@@ -17,7 +17,7 @@ const enhancedApi = api.enhanceEndpoints({
       providesTags: (result, error, arg) => ['Token']
     },
     createToken: {
-      invalidatesTags: ['Token']
+      invalidatesTags: ['Tokens']
     }
   }
 });

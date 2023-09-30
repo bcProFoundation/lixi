@@ -1,53 +1,48 @@
-import { Comment } from '@ant-design/compatible';
+import { Comment as AntdComment } from '@ant-design/compatible';
 import { DislikeFilled, DislikeOutlined, LikeFilled, LikeOutlined } from '@ant-design/icons';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import { AvatarUser } from '@components/Common/AvatarUser';
 import { Counter } from '@components/Common/Counter';
-import { WalletContext } from '@context/walletProvider';
-import useXPI from '@hooks/useXPI';
-import { getSelectedAccount } from '@store/account/selectors';
-import { CommentQuery } from '@store/comment/comments.generated';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { PostQuery } from '@store/post/posts.generated';
-import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
+import { CommentQueryItem, PostQueryItem } from '@generated/index';
+import { prepareBurnCommand } from '@store/burn';
+import { useAppDispatch } from '@store/hooks';
 import { formatBalance } from '@utils/cashMethods';
 import { Space, Tooltip } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import { useRouter } from 'next/router';
-import React, { useRef } from 'react';
+import React from 'react';
 import intl from 'react-intl-universal';
-import { BurnData } from './PostDetail';
-
-export type CommentItem = CommentQuery['comment'];
-type PostItem = PostQuery['post'];
 
 type CommentListItemProps = {
-  index: number;
-  item: CommentItem;
-  post: PostItem;
-  handleBurn: (isUpVote: boolean, burnData: BurnData) => Promise<void>;
+  item: CommentQueryItem;
+  post: PostQueryItem;
 };
 
-const CommentListItem = ({ index, item, post, handleBurn }: CommentListItemProps) => {
+const CommentListItem = ({ item, post }: CommentListItemProps) => {
   const dispatch = useAppDispatch();
-
   const history = useRouter();
-  const ref = useRef<HTMLDivElement | null>(null);
 
-  const Wallet = React.useContext(WalletContext);
-  const { XPI, chronik } = Wallet;
-  const { createBurnTransaction } = useXPI();
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
-  const selectedAccount = useAppSelector(getSelectedAccount);
-
-  const upVoteComment = (dataItem: CommentItem) => {
-    handleBurn(true, { data: dataItem, burnForType: BurnForType.Comment });
+  const upVoteComment = (dataItem: CommentQueryItem) => {
+    dispatch(
+      prepareBurnCommand({
+        isUpVote: true,
+        burnForItem: dataItem,
+        burnForType: BurnForType.Comment,
+        burnValue: '1'
+      })
+    );
   };
 
-  const downVoteComment = (dataItem: CommentItem) => {
-    handleBurn(false, { data: dataItem, burnForType: BurnForType.Comment });
+  const downVoteComment = (dataItem: CommentQueryItem) => {
+    dispatch(
+      prepareBurnCommand({
+        isUpVote: false,
+        burnForItem: dataItem,
+        burnForType: BurnForType.Comment,
+        burnValue: '1'
+      })
+    );
   };
 
   const showUsername = () => {
@@ -78,7 +73,7 @@ const CommentListItem = ({ index, item, post, handleBurn }: CommentListItemProps
   ];
 
   return (
-    <Comment
+    <AntdComment
       className="comment-item"
       actions={actions}
       author={<a href={`/profile/${item.commentAccount.address}`}>{showUsername()}</a>}

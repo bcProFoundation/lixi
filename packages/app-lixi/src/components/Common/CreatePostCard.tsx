@@ -1,18 +1,16 @@
 import { DollarOutlined, GlobalOutlined, PlusCircleOutlined, ShopOutlined } from '@ant-design/icons';
-import { PostsQueryTag } from '@bcpros/lixi-models/constants';
-import { PageItem } from '@components/Pages/PageDetail';
 import { AuthorizationContext } from '@context/index';
 import { WalletContext } from '@context/walletProvider';
-import { CreatePostInput, OrderDirection, PostOrderField } from '@generated/types.generated';
+import { CreatePostInput, OrderDirection, PageQueryItem, PostOrderField } from '@generated/index';
 import useXPI from '@hooks/useXPI';
 import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { deleteEditorTextFromCache, removeAllUpload } from '@store/account/actions';
 import { getAccountInfoTemp, getEditorCache, getPostCoverUploads, getSelectedAccount } from '@store/account/selectors';
+import { closeActionSheet } from '@store/action-sheet/actions';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { api as postApi, useCreatePostMutation } from '@store/post/posts.api';
+import { useCreatePostMutation } from '@store/post/posts.api';
+import { getShowCreatePost } from '@store/post/selectors';
 import { getLevelFilter } from '@store/settings';
-import { api as timelineApi } from '@store/timeline/timeline.generated';
-import { CreatePostMutation } from '@store/post/posts.generated';
 import {
   getCurrentThemes,
   getFilterPostsHome,
@@ -20,22 +18,20 @@ import {
   getFilterPostsToken,
   getIsTopPosts
 } from '@store/settings/selectors';
+import { api as timelineApi } from '@store/timeline/timeline.generated';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
 import { getUtxoWif } from '@utils/cashMethods';
 import { Button, Input, Modal, Space } from 'antd';
-import _ from 'lodash';
 import router from 'next/router';
 import React, { useContext, useEffect, useState } from 'react';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
+import useAuthorization from './Authorization/use-authorization.hooks';
 import AvatarUser from './AvatarUser';
 import { SocialsEnum } from './Embed';
 import EditorLexical from './Lexical/EditorLexical';
 import { currency } from './Ticker';
-import useAuthorization from './Authorization/use-authorization.hooks';
-import { getShowCreatePost } from '@store/post/selectors';
-import { closeActionSheet } from '@store/action-sheet/actions';
 
 type ErrorType = 'unsupported' | 'invalid';
 
@@ -184,7 +180,7 @@ const SpaceIconNoneHover = styled(Space)`
 `;
 
 type CreatePostCardProp = {
-  page?: PageItem;
+  page?: PageQueryItem;
   tokenPrimaryId?: string;
   userId?: number;
   refetch?: () => void;

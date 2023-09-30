@@ -1,17 +1,20 @@
-import styled from 'styled-components';
+import { OPTION_BURN_TYPE, OPTION_BURN_VALUE, PostsQueryTag } from '@bcpros/lixi-models/constants';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { Space, Popover } from 'antd';
-import { openModal } from '@store/modal/actions';
-import React, { useContext, useState } from 'react';
-import { OPTION_BURN_TYPE, OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants';
-import { formatBalance } from 'src/utils/cashMethods';
-import { Counter } from './Counter';
-import { PostItem } from '@components/Posts/PostDetail';
-import { getCurrentThemes } from '@store/settings';
-import useAuthorization from './Authorization/use-authorization.hooks';
 import { AuthorizationContext } from '@context/index';
+import { AccountQueryItem, CommentQueryItem, PageQueryItem, PostQueryItem, TokenQueryItem } from '@generated/index';
+import { BurnForItem } from '@generated/types';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
+import { prepareBurnCommand } from '@store/burn';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { openModal } from '@store/modal/actions';
+import { getCurrentThemes } from '@store/settings';
+import { Popover, Space } from 'antd';
+import React, { useContext, useState } from 'react';
+import { formatBalance } from 'src/utils/cashMethods';
+import styled from 'styled-components';
+import { match } from 'ts-pattern';
+import useAuthorization from './Authorization/use-authorization.hooks';
+import { Counter } from './Counter';
 
 const SpaceIconBurnHover = styled(Space)`
   min-height: 38px;
@@ -58,8 +61,6 @@ const StyledBurnIconHover = styled.img`
       transform: translateY(0);
     }
   }
-
-}
 `;
 
 const Hint = styled.span`
@@ -120,16 +121,24 @@ const SpaceContentBurn = styled(Space)`
 `;
 
 type ReactionProps = {
-  post: PostItem;
-  handleBurnForPost?: (isUpVote: boolean, post: any, optionBurn?: string) => Promise<void>;
+  burnForType: BurnForType;
+  dataItem: BurnForItem;
 };
 
-const Reaction = ({ post, handleBurnForPost }: ReactionProps) => {
+const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
   const dispatch = useAppDispatch();
   const isMobile = useDetectMobileView();
   const [clicked, setClicked] = useState(false);
   const [hovered, setHovered] = useState(false);
   const currentTheme = useAppSelector(getCurrentThemes);
+
+  const burnValue: number = match(burnForType)
+    .with(BurnForType.Post, () => (dataItem as PostQueryItem).danaBurnScore)
+    .with(BurnForType.Page, () => (dataItem as PageQueryItem).danaBurnScore)
+    .with(BurnForType.Account, () => (dataItem as AccountQueryItem).accountDana.danaGiven)
+    .with(BurnForType.Comment, () => (dataItem as CommentQueryItem).danaBurnScore)
+    .with(BurnForType.Token, () => (dataItem as TokenQueryItem).danaBurnScore)
+    .otherwise(() => 0);
 
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
@@ -142,11 +151,24 @@ const Reaction = ({ post, handleBurnForPost }: ReactionProps) => {
 
   const contentHoverCustom = <Hint>Custom</Hint>;
 
-  const handleBurnOption = (e: React.MouseEvent<HTMLElement>, dataItem: any, optionBurn: string, isUpVote: boolean) => {
+  const handleBurnOption = (
+    e: React.MouseEvent<HTMLElement>,
+    dataItem: BurnForItem,
+    optionBurn: string,
+    isUpVote: boolean
+  ) => {
     e.preventDefault();
     e.stopPropagation();
     if (authorization.authorized) {
-      handleBurnForPost(isUpVote, dataItem, optionBurn);
+      const burnValue = optionBurn ? OPTION_BURN_VALUE[optionBurn] : '1';
+      dispatch(
+        prepareBurnCommand({
+          isUpVote,
+          burnForItem: dataItem,
+          burnForType,
+          burnValue
+        })
+      );
     } else {
       askAuthorization();
     }
@@ -171,14 +193,13 @@ const Reaction = ({ post, handleBurnForPost }: ReactionProps) => {
     }, 100);
   };
 
-  const openBurnModal = (e: React.MouseEvent<HTMLElement>, dataItem: any) => {
+  const openBurnModal = (e: React.MouseEvent<HTMLElement>, dataItem: BurnForItem) => {
     if (authorization.authorized) {
       dispatch(
         openModal('BurnModal', {
           burnForType: BurnForType.Post,
-          id: dataItem.id,
-          isPage: dataItem.page ? true : false,
-          classStyle: 'ahihi'
+          id: dataItem.id.toString(),
+          classStyle: 'burn-modal'
         })
       );
     } else {
@@ -204,7 +225,7 @@ const Reaction = ({ post, handleBurnForPost }: ReactionProps) => {
               e.currentTarget.src = '/images/heart-w-burn.svg';
             }}
             onMouseOut={e => (e.currentTarget.src = '/images/heart.svg')}
-            onClick={e => handleBurnOption(e, post, OPTION_BURN_TYPE.LOVE, true)}
+            onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LOVE, true)}
           />
         </div>
       </Popover>
@@ -222,7 +243,7 @@ const Reaction = ({ post, handleBurnForPost }: ReactionProps) => {
               e.currentTarget.src = '/images/like-w-burn.svg';
             }}
             onMouseOut={e => (e.currentTarget.src = '/images/like.svg')}
-            onClick={e => handleBurnOption(e, post, OPTION_BURN_TYPE.LIKE, true)}
+            onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LIKE, true)}
           />
         </div>
       </Popover>
@@ -240,7 +261,7 @@ const Reaction = ({ post, handleBurnForPost }: ReactionProps) => {
               e.currentTarget.src = '/images/dislike-w-burn.svg';
             }}
             onMouseOut={e => (e.currentTarget.src = '/images/dislike.svg')}
-            onClick={e => handleBurnOption(e, post, OPTION_BURN_TYPE.DISLIKE, false)}
+            onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.DISLIKE, false)}
           />
         </div>
       </Popover>
@@ -258,7 +279,7 @@ const Reaction = ({ post, handleBurnForPost }: ReactionProps) => {
               e.currentTarget.src = '/images/more-horiz-w-burn.svg';
             }}
             onMouseOut={e => (e.currentTarget.src = '/images/more-horiz.svg')}
-            onClick={e => openBurnModal(e, post)}
+            onClick={e => openBurnModal(e, dataItem)}
           />
         </div>
       </Popover>
@@ -275,7 +296,7 @@ const Reaction = ({ post, handleBurnForPost }: ReactionProps) => {
               e.currentTarget.src = '/images/heart-w-burn.svg';
             }}
             onMouseOut={e => (e.currentTarget.src = '/images/heart.svg')}
-            onClick={e => handleBurnOption(e, post, OPTION_BURN_TYPE.LOVE, true)}
+            onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LOVE, true)}
           />
         </div>
         <HintMobile>+{OPTION_BURN_VALUE.LOVE} </HintMobile>
@@ -288,7 +309,7 @@ const Reaction = ({ post, handleBurnForPost }: ReactionProps) => {
               e.currentTarget.src = '/images/like-w-burn.svg';
             }}
             onMouseOut={e => (e.currentTarget.src = '/images/like.svg')}
-            onClick={e => handleBurnOption(e, post, OPTION_BURN_TYPE.LIKE, true)}
+            onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LIKE, true)}
           />
         </div>
         <HintMobile>+{OPTION_BURN_VALUE.LIKE}</HintMobile>
@@ -301,7 +322,7 @@ const Reaction = ({ post, handleBurnForPost }: ReactionProps) => {
               e.currentTarget.src = '/images/dislike-w-burn.svg';
             }}
             onMouseOut={e => (e.currentTarget.src = '/images/dislike.svg')}
-            onClick={e => handleBurnOption(e, post, OPTION_BURN_TYPE.DISLIKE, false)}
+            onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.DISLIKE, false)}
           />
         </div>
         <HintMobile>+{OPTION_BURN_VALUE.DISLIKE}</HintMobile>
@@ -314,7 +335,7 @@ const Reaction = ({ post, handleBurnForPost }: ReactionProps) => {
               e.currentTarget.src = '/images/more-horiz-w-burn.svg';
             }}
             onMouseOut={e => (e.currentTarget.src = '/images/more-horiz.svg')}
-            onClick={e => openBurnModal(e, post)}
+            onClick={e => openBurnModal(e, dataItem)}
           />
         </div>
         {isMobile && <HintMobile>Custom</HintMobile>}
@@ -352,7 +373,7 @@ const Reaction = ({ post, handleBurnForPost }: ReactionProps) => {
 
   return (
     <>
-      <IconBurnHover burnValue={formatBalance(post?.danaBurnScore ?? 0)} />
+      <IconBurnHover burnValue={formatBalance(burnValue ?? 0)} />
     </>
   );
 };

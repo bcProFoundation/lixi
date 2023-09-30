@@ -1,16 +1,15 @@
-import PageDetailLayout from '@components/Layout/PageDetailLayout';
+import MainLayout from '@components/Layout/MainLayout';
 import PageDetail from '@components/Pages/PageDetail';
+import { getSelectedAccount } from '@store/account';
 import { useCheckIfFollowPageQuery } from '@store/follow/follows.api';
+import { useAppSelector } from '@store/hooks';
 import { usePageQuery } from '@store/page/pages.generated';
 import { SagaStore, wrapper } from '@store/store';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
-import { getSelectorsByUserAgent } from 'react-device-detect';
-import MainLayout from '@components/Layout/MainLayout';
-import { END } from 'redux-saga';
-import { useAppSelector } from '@store/hooks';
-import { getSelectedAccount } from '@store/account';
 import React from 'react';
+import { getSelectorsByUserAgent } from 'react-device-detect';
+import { END } from 'redux-saga';
 
 const PageDetailPage = props => {
   const { pageId, isMobile } = props;

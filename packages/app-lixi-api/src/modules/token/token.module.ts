@@ -3,11 +3,12 @@ import { NotificationModule } from 'src/common/modules/notifications/notificatio
 import { AuthModule } from '../auth/auth.module';
 import { TokenResolver } from './token.resolver';
 import { FollowCacheService } from '../account/follow-cache.service';
+import { TokenDanaCacheService } from './token-dana-cache.service';
 
 @Module({
   imports: [AuthModule, NotificationModule],
   controllers: [],
-  providers: [TokenResolver, Logger, FollowCacheService],
+  providers: [TokenResolver, Logger, FollowCacheService, TokenDanaCacheService],
   exports: []
 })
 export class TokenModule {}
