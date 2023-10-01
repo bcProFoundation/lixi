@@ -1439,6 +1439,7 @@ export const RepostDocument = `
     `;
 
 const injectedRtkApi = api.injectEndpoints({
+  overrideExisting: true,
   endpoints: build => ({
     Post: build.query<PostQuery, PostQueryVariables>({
       query: variables => ({ document: PostDocument, variables })

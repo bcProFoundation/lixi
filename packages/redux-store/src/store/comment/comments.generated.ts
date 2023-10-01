@@ -264,6 +264,7 @@ export const CreateCommentDocument = `
     ${CommentFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
+  overrideExisting: true,
   endpoints: build => ({
     Comment: build.query<CommentQuery, CommentQueryVariables>({
       query: variables => ({ document: CommentDocument, variables })

@@ -197,6 +197,7 @@ export const CreateTokenDocument = `
     ${TokenFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
+  overrideExisting: true,
   endpoints: build => ({
     Token: build.query<TokenQuery, TokenQueryVariables>({
       query: variables => ({ document: TokenDocument, variables })

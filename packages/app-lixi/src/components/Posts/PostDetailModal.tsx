@@ -374,14 +374,11 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
     { isLoading: isLoadingCreateComment, isSuccess: isSuccessCreateComment, isError: isErrorCreateComment }
   ] = useCreateCommentMutation();
 
-  useEffect(
-    function updatePost() {
-      if (!isError && currentData) {
-        setPost(currentData.post);
-      }
-    },
-    [currentData]
-  );
+  useEffect(() => {
+    if (!isError && currentData) {
+      setPost(currentData.post);
+    }
+  }, [currentData]);
 
   useEffect(() => {
     if (slpBalancesAndUtxos === slpBalancesAndUtxosRef.current) return;
@@ -707,14 +704,15 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
       <Modal
         transitionName={isMobile ? '' : 'none'}
         width={'50vw'}
-        className={`${classStyle} post-detail-custom-modal ${isMobile
-          ? openPost
-            ? 'animate__animated animate__faster animate__slideInRight'
-            : 'animate__animated animate__faster animate__slideOutRight'
-          : openPost
+        className={`${classStyle} post-detail-custom-modal ${
+          isMobile
+            ? openPost
+              ? 'animate__animated animate__faster animate__slideInRight'
+              : 'animate__animated animate__faster animate__slideOutRight'
+            : openPost
             ? 'animate__animated animate__faster animate__zoomIn'
             : 'animate__animated animate__faster animate__zoomOut'
-          }`}
+        }`}
         style={{ top: 30 }}
         open={true}
         onCancel={handleOnCancel}

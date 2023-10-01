@@ -221,6 +221,7 @@ export const HomeTimelineDocument = `
 ${PageInfoFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
+  overrideExisting: true,
   endpoints: build => ({
     Timeline: build.query<TimelineQuery, TimelineQueryVariables>({
       query: variables => ({ document: TimelineDocument, variables })

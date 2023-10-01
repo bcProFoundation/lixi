@@ -1,7 +1,5 @@
 /* eslint-disable no-case-declarations */
 import { PostsQueryTag, WORSHIP_TYPES } from '@bcpros/lixi-models/constants';
-import { match } from 'ts-pattern';
-import BigNumber from 'bignumber.js';
 import {
   Burn,
   BurnCommand,
@@ -13,19 +11,14 @@ import {
 import { currency } from '@components/Common/Ticker';
 import { callConfig } from '@context/shareContext';
 import {
+  Account,
   Comment,
-  CommentOrder,
   CreateWorshipInput,
   OrderDirection,
+  Page,
   Post,
   PostOrderField,
-  TokenOrderField,
-  WorshipOrderField,
-  Account,
-  Page,
-  Token,
-  CommentOrderField,
-  Worship
+  WorshipOrderField
 } from '@generated/types.generated';
 import { all, call, fork, take, takeLatest } from '@redux-saga/core/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
@@ -34,22 +27,25 @@ import { setTransactionNotReady, setTransactionReady } from '@store/account/acti
 import { getSelectedAccount, getTransactionStatus } from '@store/account/selectors';
 import { getFailQueue } from '@store/burn';
 import { api as commentsApi } from '@store/comment/comments.api';
+import { api as pagesApi } from '@store/page/pages.api';
 import { api as postsApi } from '@store/post/posts.api';
 import { api as templeApi } from '@store/temple/temple.api';
 import { api as timelineApi } from '@store/timeline/timeline.api';
-import { api as pagesApi } from '@store/page/pages.api';
 import { showToast } from '@store/toast/actions';
 import { burnForTokenFailure, burnForTokenSucceses } from '@store/token';
 import { api as tokenApi } from '@store/token/tokens.api';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletBalances } from '@store/wallet';
 import { api as worshipApi } from '@store/worship/worshipedPerson.api';
 import { fromSatoshisToXpi, fromSmallestDenomination, fromXpiToSatoshis } from '@utils/cashMethods';
+import BigNumber from 'bignumber.js';
 import * as _ from 'lodash';
 import intl from 'react-intl-universal';
 import { buffers } from 'redux-saga';
 import { actionChannel, flush, getContext, put, select } from 'redux-saga/effects';
+import { match } from 'ts-pattern';
 import { BurnForItem } from '../../generated';
 import { hideLoading } from '../loading/actions';
+import { getFilterPostsHome, getLevelFilter } from '../settings';
 import {
   addBurnQueue,
   addBurnTransaction,
@@ -65,9 +61,7 @@ import {
   returnTxHex
 } from './actions';
 import burnApi from './api';
-import { getFilterPostsHome, getLevelFilter } from '../settings';
 
-import { current } from 'immer';
 import { RootState } from '../store';
 
 function* prepareBurnCommandSaga(
@@ -236,6 +230,7 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
     };
 
     const data: Burn = yield call(burnApi.post, dataApi);
+
     switch (command.burnForType) {
       case BurnForType.Token:
         yield updateTokenBurnValue(action);
@@ -297,17 +292,16 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
     yield put(removeBurnQueue());
     yield put(
       burnForUpDownVoteSuccess(data) &&
-        showToast('success', {
-          message: intl.get(`toast.success`),
-          description: intl.get('burn.totalBurn', {
-            burnValue: burnValue,
-            totalAmount: burnValue + burnValue * currency.burnFee + Number(minerFee),
-            coin: 'XPI'
-          })
+      showToast('success', {
+        message: intl.get(`toast.success`),
+        description: intl.get('burn.totalBurn', {
+          burnValue: burnValue,
+          totalAmount: burnValue + burnValue * currency.burnFee + Number(minerFee),
+          coin: 'XPI'
         })
+      })
     );
   } catch (err) {
-    console.log(err);
     let message;
     yield put(removeBurnQueue());
     yield put(setTransactionReady());
@@ -372,7 +366,7 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
   const rootState: RootState = yield select();
 
   // Update timeline
-  const timelineInvalidatedBy = yield call(timelineApi.util.selectInvalidatedBy, rootState, ['TimelineItem']);
+  const timelineInvalidatedBy = yield call(timelineApi.util.selectInvalidatedBy, rootState, ['HomeTimeline']);
   for (const invalidatedBy of timelineInvalidatedBy) {
     const { endpointName, originalArgs } = invalidatedBy;
     yield put(
@@ -438,7 +432,6 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
 
   // Update single post
   const postInvalidatedBy = yield call(postsApi.util.selectInvalidatedBy, rootState, ['Post']);
-  console.log('postInvalidatedBy', postInvalidatedBy);
   for (const invalidatedBy of postInvalidatedBy) {
     const { endpointName, originalArgs } = invalidatedBy;
     yield put(
@@ -494,7 +487,6 @@ function* updateWorshipBurnValue(data) {
     );
     return yield put(
       worshipApi.util.updateQueryData('allWorshipedByTempleId', { ...params, id: temple.id }, draft => {
-        console.log(draft);
         draft.allWorshipedByTempleId.edges.unshift({
           cursor: id,
           node: {

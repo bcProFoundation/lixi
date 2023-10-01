@@ -464,7 +464,6 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const [query, setQuery] = useState('');
   const [hashtags, setHashtags] = useState([]);
 
-
   const [
     createFollowAccountTrigger,
     {
@@ -790,9 +789,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                 {/* <div className="search-bar">
                   <FilterBurnt filterForType={FilterType.PostsProfile} />
                 </div> */}
-                {selectedAccountId == user.id && (
-                  <CreatePostCard userId={user.id} hashtags={hashtags} query={query} />
-                )}
+                {selectedAccountId == user.id && <CreatePostCard userId={user.id} hashtags={hashtags} query={query} />}
                 <Timeline>
                   {data.length == 0 && !isLoading && (
                     <div className="blank-timeline">
