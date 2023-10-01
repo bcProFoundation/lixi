@@ -228,6 +228,7 @@ export const CreateMessageDocument = `
     ${MessageFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
+  overrideExisting: true,
   endpoints: build => ({
     Message: build.query<MessageQuery, MessageQueryVariables>({
       query: variables => ({ document: MessageDocument, variables })

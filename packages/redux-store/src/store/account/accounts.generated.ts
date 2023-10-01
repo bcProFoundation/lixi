@@ -282,6 +282,7 @@ export const UpdateAccountDocument = `
     ${AccountFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
+  overrideExisting: true,
   endpoints: build => ({
     Account: build.query<AccountQuery, AccountQueryVariables>({
       query: variables => ({ document: AccountDocument, variables })

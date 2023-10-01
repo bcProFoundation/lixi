@@ -316,22 +316,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
         }
       };
 
-      const result = await createPostTrigger({ input: createPostInput }).unwrap();
-
-      timelinePatches = dispatch(
-        timelineApi.util.updateQueryData('HomeTimeline', { ...params, level: level }, draft => {
-          draft.homeTimeline.edges.unshift({
-            cursor: result.createPost.id,
-            node: {
-              id: result.createPost.id,
-              data: {
-                ...result.createPost
-              }
-            }
-          });
-          draft.homeTimeline.totalCount = draft.homeTimeline.totalCount + 1;
-        })
-      );
+      await createPostTrigger({ input: createPostInput });
 
       dispatch(
         showToast('success', {

@@ -860,6 +860,7 @@ export const OpenPageMessageSessionDocument = `
     ${PageMessageSessionFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
+  overrideExisting: true,
   endpoints: build => ({
     PageMessageSession: build.query<PageMessageSessionQuery, PageMessageSessionQueryVariables>({
       query: variables => ({ document: PageMessageSessionDocument, variables })

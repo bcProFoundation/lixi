@@ -504,6 +504,7 @@ export const DeleteFollowTokenDocument = `
     `;
 
 const injectedRtkApi = api.injectEndpoints({
+  overrideExisting: true,
   endpoints: build => ({
     checkIfFollowAccount: build.query<CheckIfFollowAccountQuery, CheckIfFollowAccountQueryVariables>({
       query: variables => ({ document: CheckIfFollowAccountDocument, variables })

@@ -415,6 +415,7 @@ export const UpdatePageDocument = `
     ${PageFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
+  overrideExisting: true,
   endpoints: build => ({
     Page: build.query<PageQuery, PageQueryVariables>({
       query: variables => ({ document: PageDocument, variables })

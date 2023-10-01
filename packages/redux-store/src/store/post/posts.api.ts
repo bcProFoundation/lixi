@@ -2,6 +2,7 @@ import { PageInfo, Post } from '@generated/types.generated';
 import { EntityState } from '@reduxjs/toolkit';
 
 import { api } from './posts.generated';
+import { api as timelineApi } from '@store/timeline/timeline.api';
 
 export interface PostApiState extends EntityState<Post> {
   pageInfo: PageInfo;
@@ -9,7 +10,7 @@ export interface PostApiState extends EntityState<Post> {
 }
 
 const enhancedApi = api.enhanceEndpoints({
-  addTagTypes: ['Post', 'Posts'],
+  addTagTypes: ['Post', 'Posts', 'HomeTimeline'],
   endpoints: {
     PostsBySearch: {
       providesTags: (result, error, arg) => ['Posts'],
@@ -142,106 +143,50 @@ const enhancedApi = api.enhanceEndpoints({
     },
 
     createPost: {
-      async onQueryStarted({ input }, { dispatch, queryFulfilled }) {
+      async onQueryStarted({ input }, { dispatch, getState, queryFulfilled }) {
         const { extraArguments, pageId, tokenPrimaryId } = input;
         const { hashtagId, hashtags, isTop, minBurnFilter, orderBy, query } = extraArguments;
 
         try {
           const { data: result } = await queryFulfilled;
-          /* Dont know why onQueryStarted will be called 4 times when create new post
-            So we need to prevent multiple update to cache
-            https://github.com/reduxjs/redux-toolkit/issues/2394#issuecomment-1198430740 &&
-            https://github.com/reduxjs/redux-toolkit/issues/2394#issuecomment-1198589018
-          */
 
-          if (hashtagId) {
+          const timelineInvalidatedBy = timelineApi.util.selectInvalidatedBy(getState(), ['HomeTimeline']);
+          for (const invalidatedBy of timelineInvalidatedBy) {
+            const { originalArgs } = invalidatedBy;
             dispatch(
-              api.util.updateQueryData('PostsByHashtagId', { id: hashtagId }, draft => {
-                draft.allPostsByHashtagId.edges.unshift({
+              timelineApi.util.updateQueryData('HomeTimeline', originalArgs, draft => {
+                draft.homeTimeline.edges.unshift({
                   cursor: result.createPost.id,
                   node: {
-                    ...result.createPost
+                    id: result.createPost.id,
+                    data: {
+                      ...result.createPost
+                    }
                   }
                 });
-                draft.allPostsByHashtagId.totalCount = draft.allPostsByHashtagId.totalCount + 1;
+                draft.homeTimeline.totalCount = draft.homeTimeline.totalCount + 1;
               })
             );
           }
 
-          if (hashtags || query) {
+          const postsInvalidatedBy = enhancedApi.util.selectInvalidatedBy(getState(), ['Posts']);
+          for (const invalidatedBy of postsInvalidatedBy) {
+            const { endpointName, originalArgs } = invalidatedBy;
             dispatch(
-              api.util.updateQueryData(
-                'PostsBySearchWithHashtag',
-                { hashtags: hashtags, query: query, minBurnFilter: minBurnFilter },
-                draft => {
-                  draft.allPostsBySearchWithHashtag.edges.unshift({
-                    cursor: result.createPost.id,
-                    node: {
-                      ...result.createPost
-                    }
-                  });
-                }
-              )
-            );
-          }
+              enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
+                const fields = Object.keys(draft);
+                for (const field of fields) {
+                  if (!draft[field]) continue;
 
-          if (pageId) {
-            dispatch(
-              api.util.updateQueryData(
-                'PostsBySearchWithHashtagAtPage',
-                { minBurnFilter: minBurnFilter, pageId: pageId, hashtags: hashtags, query: query },
-                draft => {
-                  draft.allPostsBySearchWithHashtagAtPage.edges.unshift({
+                  draft[field].edges.unshift({
                     cursor: result.createPost.id,
                     node: {
                       ...result.createPost
                     }
                   });
+                  draft[field].totalCount = draft[field].totalCount + 1;
                 }
-              )
-            );
-            dispatch(
-              api.util.updateQueryData('PostsByPageId', { id: pageId, minBurnFilter: minBurnFilter }, draft => {
-                draft.allPostsByPageId.edges.unshift({
-                  cursor: result.createPost.id,
-                  node: {
-                    ...result.createPost
-                  }
-                });
-                draft.allPostsByPageId.totalCount = draft.allPostsByPageId.totalCount + 1;
               })
-            );
-          }
-
-          if (tokenPrimaryId) {
-            dispatch(
-              api.util.updateQueryData(
-                'PostsBySearchWithHashtagAtToken',
-                { minBurnFilter: minBurnFilter, tokenId: tokenPrimaryId, hashtags: hashtags, query: query },
-                draft => {
-                  draft.allPostsBySearchWithHashtagAtToken.edges.unshift({
-                    cursor: result.createPost.id,
-                    node: {
-                      ...result.createPost
-                    }
-                  });
-                }
-              )
-            );
-            dispatch(
-              api.util.updateQueryData(
-                'PostsByTokenId',
-                { id: tokenPrimaryId, minBurnFilter: minBurnFilter },
-                draft => {
-                  draft.allPostsByTokenId.edges.unshift({
-                    cursor: result.createPost.id,
-                    node: {
-                      ...result.createPost
-                    }
-                  });
-                  draft.allPostsByTokenId.totalCount = draft.allPostsByTokenId.totalCount + 1;
-                }
-              )
             );
           }
         } catch {}
