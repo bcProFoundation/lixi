@@ -136,7 +136,7 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
   const { XPI, chronik } = Wallet;
   const { sendXpi } = useXPI();
 
-  const roundDanaViewScore = Math.round(post.danaViewScore || 0);
+
 
   useEffect(() => {
     selectedKey.includes('post') || isSetBorderBottom ? setBorderBottom(true) : setBorderBottom(false);
@@ -204,6 +204,13 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
       );
     }
   };
+
+  const compactNumberFormatter = new Intl.NumberFormat('en-GB', {
+    notation: "compact",
+    compactDisplay: "short"
+  });
+
+  const roundDanaViewScore = compactNumberFormatter.format(Math.round(post.danaViewScore || 0));
 
   return (
     <ActionBar className={`action-post-bar ${borderBottom ? 'border-bottom' : ''}`}>
