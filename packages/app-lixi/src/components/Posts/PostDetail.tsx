@@ -1,7 +1,7 @@
 import { SendOutlined } from '@ant-design/icons';
 import ActionPostBar from '@components/Common/ActionPostBar';
 import AvatarUser from '@components/Common/AvatarUser';
-import { Counter } from '@components/Common/Counter';
+import Counter from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { currency } from '@components/Common/Ticker';
 import { LoadingIcon, NavBarHeader } from '@components/Layout/MainLayout';

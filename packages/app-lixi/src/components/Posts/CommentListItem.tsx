@@ -3,7 +3,7 @@ import { DislikeFilled, DislikeOutlined, LikeFilled, LikeOutlined } from '@ant-d
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import AvatarUser from '@components/Common/AvatarUser';
-import { Counter } from '@components/Common/Counter';
+import Counter from '@components/Common/Counter';
 import { AuthorizationContext } from '@context/index';
 import { Comment, Post } from '@generated/types.generated';
 import { prepareBurnCommand } from '@store/burn';

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import intl from 'react-intl-universal';
+import styled from 'styled-components';
 
 export const GridDiv = styled.div`
   .count {
@@ -35,11 +35,23 @@ export const GridDiv = styled.div`
 type CounterProps = {
   num: number;
   isShowXPI?: boolean;
+  numberAbbreviation?: boolean;
 };
 
-export const Counter = (props: CounterProps) => {
+const Counter = (props: CounterProps) => {
   const [count, setCount] = useState(props.num);
   const [animationCounter, setAnimationCounter] = useState('initial');
+
+  const compactNumberFormatter = new Intl.NumberFormat('en-GB', {
+    notation: "compact",
+    compactDisplay: "short"
+  });
+
+  let displayValue = count.toString();
+
+  if (props.numberAbbreviation) {
+    displayValue = compactNumberFormatter.format(count);
+  }
 
   useEffect(() => {
     if (props.num != count) {
@@ -54,9 +66,11 @@ export const Counter = (props: CounterProps) => {
     <GridDiv className="grid count-component">
       <div className="count">
         <span style={{ fontSize: '13px' }} className={animationCounter}>
-          {count} {props.isShowXPI ? intl.get('general.dana') : ''}
+          {displayValue} {props.isShowXPI ? intl.get('general.dana') : ''}
         </span>
       </div>
     </GridDiv>
   );
 };
+
+export default React.memo(Counter);

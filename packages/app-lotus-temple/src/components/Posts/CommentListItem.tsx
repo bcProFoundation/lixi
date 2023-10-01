@@ -2,7 +2,7 @@ import { Comment as AntdComment } from '@ant-design/compatible';
 import { DislikeFilled, DislikeOutlined, LikeFilled, LikeOutlined } from '@ant-design/icons';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import { AvatarUser } from '@components/Common/AvatarUser';
-import { Counter } from '@components/Common/Counter';
+import Counter from '@components/Common/Counter';
 import { CommentQueryItem, PostQueryItem } from '@generated/index';
 import { prepareBurnCommand } from '@store/burn';
 import { useAppDispatch } from '@store/hooks';

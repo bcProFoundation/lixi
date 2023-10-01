@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 export const GridDiv = styled.div`
@@ -35,7 +35,7 @@ type CounterProps = {
   num: number;
 };
 
-export const Counter = (props: CounterProps) => {
+const Counter = (props: CounterProps) => {
   const [count, setCount] = useState(props.num);
   const [animationCounter, setAnimationCounter] = useState('initial');
 
@@ -64,3 +64,5 @@ export const Counter = (props: CounterProps) => {
     </GridDiv>
   );
 };
+
+export default React.memo(Counter);

@@ -1,7 +1,7 @@
 import { DashOutlined, LeftOutlined } from '@ant-design/icons';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import { AvatarUser } from '@components/Common/AvatarUser';
-import { Counter } from '@components/Common/Counter';
+import Counter from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { ShareSocialButton } from '@components/Common/ShareSocialButton';
 import { currency } from '@components/Common/Ticker';

@@ -2,7 +2,7 @@ import Icon, { CopyOutlined, FilterOutlined, RightOutlined, SearchOutlined, Sync
 import FollowSvg from '@assets/icons/follow.svg';
 import { CreateFollowTokenInput, DeleteFollowTokenInput } from '@bcpros/lixi-models';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
-import { Counter } from '@components/Common/Counter';
+import Counter from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import ReactionToken from '@components/Common/ReactionToken';
 import { currency } from '@components/Common/Ticker';

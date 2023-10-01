@@ -4,7 +4,7 @@ import { Space } from 'antd';
 import React from 'react';
 import styled from 'styled-components';
 import { WithAuthorizeAction } from './Authorization/WithAuthorizeAction';
-import { Counter } from './Counter';
+import Counter from './Counter';
 import BaseReaction from './Reaction';
 
 export const GroupIconText = styled.div`

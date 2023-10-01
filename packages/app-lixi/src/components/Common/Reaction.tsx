@@ -1,4 +1,4 @@
-import { OPTION_BURN_TYPE, OPTION_BURN_VALUE, PostsQueryTag } from '@bcpros/lixi-models/constants';
+import { OPTION_BURN_TYPE, OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import { AuthorizationContext } from '@context/index';
 import { AccountQueryItem, CommentQueryItem, PageQueryItem, PostQueryItem, TokenQueryItem } from '@generated/index';
@@ -14,7 +14,7 @@ import { formatBalance } from 'src/utils/cashMethods';
 import styled from 'styled-components';
 import { match } from 'ts-pattern';
 import useAuthorization from './Authorization/use-authorization.hooks';
-import { Counter } from './Counter';
+import Counter from './Counter';
 
 const SpaceIconBurnHover = styled(Space)`
   min-height: 38px;
