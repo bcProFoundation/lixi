@@ -22,6 +22,7 @@ import PostLoader from './post.loader';
 import { PostResolver } from './post.resolver';
 import { PostDanaCacheService } from './post-dana-cache.service';
 import { CommentDanaCacheService } from './comment-dana-cache.service';
+import { PageCacheService } from './page-cache.service';
 
 @Module({
   imports: [
@@ -60,10 +61,11 @@ import { CommentDanaCacheService } from './comment-dana-cache.service';
     PostLoader,
     PostFanoutProcessor,
     DanaViewScoreService,
+    PageCacheService,
     PageDanaCacheService,
     PostDanaCacheService,
     CommentDanaCacheService
   ],
   exports: [MeiliService, NotificationService, FollowCacheService, PostLoader, DanaViewScoreService]
 })
-export class PageModule {}
+export class PageModule { }

@@ -97,11 +97,15 @@ model Token {
 }
 
 model TokenDana {
-  danaBurnUp    Float  @default(0.0) @map("dana_burn_up")
-  danaBurnDown  Float  @default(0.0) @map("dana_burn_down")
-  danaBurnScore Float  @default(0.0) @map("dana_burn_score")
-  token         Token  @relation(fields: [tokenId], references: [id])
-  tokenId       String @unique @map("token_id")
+  danaReceivedUp    Float  @default(0.0) @map("dana_received_up")
+  danaReceivedDown  Float  @default(0.0) @map("dana_received_down")
+  danaReceivedScore Float  @default(0.0) @map("dana_received_score")
+  danaBurnUp        Float  @default(0.0) @map("dana_burn_up")
+  danaBurnDown      Float  @default(0.0) @map("dana_burn_down")
+  danaBurnScore     Float  @default(0.0) @map("dana_burn_score")
+  token             Token  @relation(fields: [tokenId], references: [id])
+  tokenId           String @unique @map("token_id")
+  version           Int    @default(0)
 
   @@index([tokenId])
   @@map("token_dana")
@@ -163,11 +167,15 @@ model Page {
 }
 
 model PageDana {
-  danaBurnUp    Float  @default(0.0) @map("dana_burn_up")
-  danaBurnDown  Float  @default(0.0) @map("dana_burn_down")
-  danaBurnScore Float  @default(0.0) @map("dana_burn_score")
-  page          Page   @relation(fields: [pageId], references: [id])
-  pageId        String @unique @map("page_id")
+  danaReceivedUp    Float  @default(0.0) @map("dana_received_up")
+  danaReceivedDown  Float  @default(0.0) @map("dana_received_down")
+  danaReceivedScore Float  @default(0.0) @map("dana_received_score")
+  danaBurnUp        Float  @default(0.0) @map("dana_burn_up")
+  danaBurnDown      Float  @default(0.0) @map("dana_burn_down")
+  danaBurnScore     Float  @default(0.0) @map("dana_burn_score")
+  page              Page   @relation(fields: [pageId], references: [id])
+  pageId            String @unique @map("page_id")
+  version           Int    @default(0)
 
   @@index([pageId])
   @@map("page_dana")
@@ -202,11 +210,15 @@ model Post {
 }
 
 model PostDana {
-  danaBurnUp    Float  @default(0.0) @map("dana_burn_up")
-  danaBurnDown  Float  @default(0.0) @map("dana_burn_down")
-  danaBurnScore Float  @default(0.0) @map("dana_burn_score")
-  post          Post   @relation(fields: [postId], references: [id])
-  postId        String @unique @map("post_id")
+  danaReceivedUp    Float  @default(0.0) @map("dana_received_up")
+  danaReceivedDown  Float  @default(0.0) @map("dana_received_down")
+  danaReceivedScore Float  @default(0.0) @map("dana_received_score")
+  danaBurnUp        Float  @default(0.0) @map("dana_burn_up")
+  danaBurnDown      Float  @default(0.0) @map("dana_burn_down")
+  danaBurnScore     Float  @default(0.0) @map("dana_burn_score")
+  post              Post   @relation(fields: [postId], references: [id])
+  postId            String @unique @map("post_id")
+  version           Int    @default(0)
 
   @@index([postId])
   @@map("post_dana")
@@ -242,6 +254,7 @@ model CommentDana {
   danaBurnScore Float   @default(0.0) @map("dana_burn_score")
   comment       Comment @relation(fields: [commentId], references: [id])
   commentId     String  @unique @map("comment_id")
+  version       Int     @default(0)
 
   @@index([commentId])
   @@map("comment_dana")
@@ -299,6 +312,7 @@ model AccountDana {
   danaBurnDown       Float                @default(0.0) @map("dana_burn_down")
   danaBurnScore      Float                @default(0.0) @map("dana_burn_score")
   accountDanaHistory AccountDanaHistory[]
+  version            Int                  @default(0)
 
   @@index([accountId])
   @@map("account_dana")
@@ -863,11 +877,15 @@ model Hashtag {
 }
 
 model HashtagDana {
-  danaBurnUp    Float   @default(0.0) @map("dana_burn_up")
-  danaBurnDown  Float   @default(0.0) @map("dana_burn_down")
-  danaBurnScore Float   @default(0.0) @map("dana_burn_score")
-  hashtag       Hashtag @relation(fields: [hashtagId], references: [id])
-  hashtagId     String  @unique @map("hashtag_id")
+  danaReceivedUp    Float   @default(0.0) @map("dana_received_up")
+  danaReceivedDown  Float   @default(0.0) @map("dana_received_down")
+  danaReceivedScore Float   @default(0.0) @map("dana_received_score")
+  danaBurnUp        Float   @default(0.0) @map("dana_burn_up")
+  danaBurnDown      Float   @default(0.0) @map("dana_burn_down")
+  danaBurnScore     Float   @default(0.0) @map("dana_burn_score")
+  hashtag           Hashtag @relation(fields: [hashtagId], references: [id])
+  hashtagId         String  @unique @map("hashtag_id")
+  version           Int     @default(0)
 
   @@index([hashtagId])
   @@map("hashtag_dana")

@@ -9,12 +9,20 @@ export class CommentDanaCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:commentdana';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
 
   async getCommentDana(id: string) {
-    const keyFields = [`danaBurnUp:${id}`, `danaBurnDown:${id}`, `danaBurnScore:${id}`];
+    const keyFields = [
+      `danaBurnUp:${id}`,
+      `danaBurnDown:${id}`,
+      `danaBurnScore:${id}`
+    ];
     const commentDana = await this.redis.hmget(this.keyPrefix, ...keyFields);
-    if (_.isNil(commentDana[0]) || _.isNil(commentDana[1]) || _.isNil(commentDana[2])) {
+    if (
+      _.isNil(commentDana[0]) ||
+      _.isNil(commentDana[1]) ||
+      _.isNil(commentDana[2])
+    ) {
       // No value set yet
       const dbValue = await this.prisma.commentDana.findUnique({
         where: {

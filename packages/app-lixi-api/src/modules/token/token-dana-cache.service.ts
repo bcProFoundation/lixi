@@ -9,12 +9,26 @@ export class TokenDanaCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:tokendana';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
 
-  async getPageDana(id: string) {
-    const keyFields = [`danaBurnUp:${id}`, `danaBurnDown:${id}`, `danaBurnScore:${id}`];
+  async getTokenDana(id: string) {
+    const keyFields = [
+      `danaReceivedUp:${id}`,
+      `danaReceivedDown:${id}`,
+      `danaReceivedScore:${id}`,
+      `danaBurnUp:${id}`,
+      `danaBurnDown:${id}`,
+      `danaBurnScore:${id}`
+    ];
     const tokenDana = await this.redis.hmget(this.keyPrefix, ...keyFields);
-    if (_.isNil(tokenDana[0]) || _.isNil(tokenDana[1]) || _.isNil(tokenDana[2])) {
+    if (
+      _.isNil(tokenDana[0]) ||
+      _.isNil(tokenDana[1]) ||
+      _.isNil(tokenDana[2]) ||
+      _.isNil(tokenDana[3]) ||
+      _.isNil(tokenDana[4]) ||
+      _.isNil(tokenDana[5])
+    ) {
       // No value set yet
       const dbValue = await this.prisma.tokenDana.findUnique({
         where: {
@@ -22,6 +36,9 @@ export class TokenDanaCacheService {
         }
       });
       const fieldValues = new Map([
+        [`danaReceivedUp:${id}`, dbValue?.danaReceivedUp ?? 0],
+        [`danaReceivedDown:${id}`, dbValue?.danaReceivedDown ?? 0],
+        [`danaReceivedScore:${id}`, dbValue?.danaReceivedScore ?? 0],
         [`danaBurnUp:${id}`, dbValue?.danaBurnUp ?? 0],
         [`danaBurnDown:${id}`, dbValue?.danaBurnDown ?? 0],
         [`danaBurnScore:${id}`, dbValue?.danaBurnScore ?? 0]
@@ -29,15 +46,21 @@ export class TokenDanaCacheService {
       await this.redis.hmset(this.keyPrefix, fieldValues);
 
       return {
+        danaReceivedUp: dbValue?.danaReceivedUp ?? 0,
+        danaReceivedDown: dbValue?.danaReceivedDown ?? 0,
+        danaReceivedScore: dbValue?.danaReceivedScore ?? 0,
         danaBurnUp: dbValue?.danaBurnUp ?? 0,
         danaBurnDown: dbValue?.danaBurnDown ?? 0,
         danaBurnScore: dbValue?.danaBurnScore ?? 0
       };
     }
     return {
-      danaBurnUp: tokenDana[0] ?? 0,
-      danaBurnDown: tokenDana[1] ?? 0,
-      danaBurnScore: tokenDana[2] ?? 0
+      danaReceivedUp: tokenDana[0] ?? 0,
+      danaReceivedDown: tokenDana[1] ?? 0,
+      danaReceivedScore: tokenDana[2] ?? 0,
+      danaBurnUp: tokenDana[3] ?? 0,
+      danaBurnDown: tokenDana[4] ?? 0,
+      danaBurnScore: tokenDana[5] ?? 0
     };
   }
 
@@ -57,5 +80,38 @@ export class TokenDanaCacheService {
       this.redis.hincrbyfloat(this.keyPrefix, danaBurnDownField, value),
       this.redis.hincrbyfloat(this.keyPrefix, danaBurnScoreField, value * -1)
     ]);
+  }
+
+  async incrDanaReceived(id: string, value: number) {
+    const danaReceivedUpField = `danaReceivedUp:${id}`;
+    const danaReceivedScoreField = `danaReceivedScore:${id}`;
+    await Promise.all([
+      this.redis.hincrbyfloat(this.keyPrefix, danaReceivedUpField, value),
+      this.redis.hincrbyfloat(this.keyPrefix, danaReceivedScoreField, value)
+    ]);
+  }
+
+  async decrDanaReceived(id: string, value: number) {
+    const danaReceivedDownField = `danaReceivedDown:${id}`;
+    const danaReceivedScoreField = `danaReceivedScore:${id}`;
+    await Promise.all([
+      this.redis.hincrbyfloat(this.keyPrefix, danaReceivedDownField, value),
+      this.redis.hincrbyfloat(this.keyPrefix, danaReceivedScoreField, -1 * value)
+    ]);
+  }
+
+  async setDanaReceivedUp(id: string, value: number) {
+    const keyField = `danaReceivedUp:${id}`;
+    await this.redis.hset(this.keyPrefix, keyField, value);
+  }
+
+  async setDanaReceivedDown(id: string, value: number) {
+    const keyField = `danaReceivedDown:${id}`;
+    await this.redis.hset(this.keyPrefix, keyField, value);
+  }
+
+  async setDanaReceivedScore(id: string, value: number) {
+    const keyField = `danaReceivedScore:${id}`;
+    await this.redis.hset(this.keyPrefix, keyField, value);
   }
 }

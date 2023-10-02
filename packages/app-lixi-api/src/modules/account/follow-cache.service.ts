@@ -8,7 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class FollowCacheService {
   private logger: Logger = new Logger(this.constructor.name);
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
 
   private async _cacheAccountFollowers(key: string, accountId: number) {
     const followers = await this.prisma.followAccount.findMany({
@@ -85,6 +85,12 @@ export class FollowCacheService {
     return followers.map(follower => _.toSafeInteger(follower));
   }
 
+  async getPageFollowersCount(pageId: string) {
+    const key = `page:${pageId}:followers`;
+    const count = await this.redis.zcard(key);
+    return count || 0;
+  }
+
   private async _cachePageFollowingOfAccount(key: string, accountId: number) {
     const followings = await this.prisma.followPage.findMany({
       where: {
@@ -111,6 +117,12 @@ export class FollowCacheService {
     return await this.redis.zrevrange(key, 0, -1);
   }
 
+  async getPageFollowingsCount(accountId: number) {
+    const key = `user:${accountId}:followingPages`;
+    const count = await this.redis.zcard(key);
+    return count || 0;
+  }
+
   private async _cacheTokenFollowingOfAccount(key: string, accountId: number) {
     const followings = await this.prisma.followPage.findMany({
       where: {
@@ -135,6 +147,12 @@ export class FollowCacheService {
       await this._cacheTokenFollowingOfAccount(key, accountId);
     }
     return await this.redis.zrevrange(key, 0, -1);
+  }
+
+  async getTokenFollowingsCount(accountId: number) {
+    const key = `user:${accountId}:followingTokens`;
+    const count = await this.redis.zcard(key);
+    return count || 0;
   }
 
   async checkIfAccountFollowPage(accountId: number, pageId: string) {

@@ -23,6 +23,8 @@ import VError from 'verror';
 import { aesGcmEncrypt, generateRandomBase58Str } from '../../utils/encryptionMethods';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
+import { PageCacheService } from './page-cache.service';
+import { FollowCacheService } from '../account/follow-cache.service';
 
 const pubSub = new PubSub();
 
@@ -32,7 +34,13 @@ const pubSub = new PubSub();
 export class PageResolver {
   private logger: Logger = new Logger(this.constructor.name);
 
-  constructor(private prisma: PrismaService, @I18n() private i18n: I18nService, @Inject('xpijs') private XPI: BCHJS) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly pageCacheService: PageCacheService,
+    private readonly followCacheService: FollowCacheService,
+    @I18n() private i18n: I18nService,
+    @Inject('xpijs') private XPI: BCHJS
+  ) { }
 
   @Subscription(() => Page)
   pageCreated() {
@@ -41,20 +49,12 @@ export class PageResolver {
 
   @Query(() => Page)
   async page(@PageAccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
-    const page = await this.prisma.page.findFirst({
-      where: { id: id },
-      include: {
-        pageAccount: true,
-        category: true,
-        country: true,
-        state: true
-      }
-    });
 
-    // TODO: Shorten query
-    const followersCount = await this.prisma.followPage.count({
-      where: { pageId: id }
-    });
+    const page: Page = await this.pageCacheService.getPageById(id) as Page;
+
+    if (!page) return page;
+
+    const followersCount = await this.followCacheService.getPageFollowersCount(page.id);
 
     const result = {
       ...page,
@@ -189,18 +189,18 @@ export class PageResolver {
 
     const uploadAvatarDetail = data.avatar
       ? await this.prisma.uploadDetail.findFirst({
-          where: {
-            uploadId: data.avatar
-          }
-        })
+        where: {
+          uploadId: data.avatar
+        }
+      })
       : undefined;
 
     const uploadCoverDetail = data.cover
       ? await this.prisma.uploadDetail.findFirst({
-          where: {
-            uploadId: data.cover
-          }
-        })
+        where: {
+          uploadId: data.cover
+        }
+      })
       : undefined;
 
     const updatedPage = await this.prisma.page.update({
@@ -215,23 +215,23 @@ export class PageResolver {
         category: {
           connect: data.categoryId
             ? {
-                id: Number(data.categoryId)
-              }
+              id: Number(data.categoryId)
+            }
             : undefined
         },
         country: {
           connect: data.countryId
             ? {
-                id: Number(data.countryId)
-              }
+              id: Number(data.countryId)
+            }
             : undefined
         },
         state: {
           disconnect: !data.stateId,
           connect: data.stateId
             ? {
-                id: Number(data.stateId)
-              }
+              id: Number(data.stateId)
+            }
             : undefined
         }
       }

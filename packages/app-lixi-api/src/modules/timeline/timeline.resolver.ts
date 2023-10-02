@@ -11,13 +11,13 @@ import {
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { decode, encode } from '@msgpack/msgpack';
 import { Injectable, Logger, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, Query, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PubSub } from 'graphql-subscriptions';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { AccountEntity, PostAccountEntity } from '../../decorators';
+import { AccountEntity } from '../../decorators';
 import { GqlHttpExceptionFilter } from '../../middlewares/gql.exception.filter';
 import { GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
 import PostLoader from '../page/post.loader';
@@ -39,7 +39,7 @@ export class TimelineResolver {
     private readonly timelineService: TimelineService,
     @InjectRedis() private readonly redis: Redis,
     @I18n() private readonly i18n: I18nService
-  ) {}
+  ) { }
 
   @SkipThrottle()
   @Query(returns => TimelineItem)
@@ -115,8 +115,8 @@ export class TimelineResolver {
 
     const ids = timelineIds
       ? timelineIds.edges.map(item => {
-          return item.cursor;
-        })
+        return item.cursor;
+      })
       : [];
 
     if (_.isEmpty(ids)) {
