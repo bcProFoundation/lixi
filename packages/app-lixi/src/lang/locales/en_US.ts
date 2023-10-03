@@ -211,6 +211,7 @@ export default {
   'account.insufficientBurningFunds': 'Insufficient funds to continue burning',
   'account.burning': 'Burning',
   'account.burningList': 'Burning {burnForType} for {burnValue} XPI',
+  'account.unableRemoveUpload': 'Unable to remove the upload.',
 
   /* 03.Lixi */
   'lixi.createLixi': 'Create new lixi',

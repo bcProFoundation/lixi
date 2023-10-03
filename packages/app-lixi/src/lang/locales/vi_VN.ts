@@ -209,6 +209,7 @@ export default {
   'account.insufficientBurningFunds': 'Ví không còn đủ số dư để đốt tiếp',
   'account.burning': 'Đang đốt',
   'account.burningList': 'Đang đốt {burnForType} với {burnValue} XPI',
+  'account.unableRemoveUpload': 'Không thể xóa ảnh',
 
   /* 03.Lixi */
   'lixi.createLixi': 'Tạo lixi mới',

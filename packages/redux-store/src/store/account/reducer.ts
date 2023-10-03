@@ -148,9 +148,9 @@ export const accountReducer = createReducer(initialState, builder => {
       }
     })
     .addCase(removeUpload, (state, action) => {
-      const { type, id } = action.payload;
+      const { uploadType, id } = action.payload;
 
-      switch (type) {
+      switch (uploadType) {
         case UPLOAD_TYPES.ENVELOPE:
           state.envelopeUpload = null;
           break;

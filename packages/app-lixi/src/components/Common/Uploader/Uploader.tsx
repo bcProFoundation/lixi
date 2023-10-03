@@ -169,7 +169,7 @@ export const Uploader = ({
   const handleRemove = data => {
     if (data?.response?.payload) {
       const { upload } = data?.response?.payload;
-      dispatch(removeUpload({ type: type, id: upload.id }));
+      dispatch(removeUpload({ uploadType: type, id: upload.id }));
     }
   };
 

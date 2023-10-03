@@ -15,6 +15,8 @@
     "accountNotSufficientFund": "Số dư tài khoản không đủ để tạo Lì xì.",
     "importAccountNotFound": "Không thể khôi phục tài khoản.",
     "requiredMnemonicHash": "Truy cập bị từ chối. Cần cung cấp mnemonic-hash trong Headers",
-    "unableGetBurnListAccount": "Không thể hiện thị bảng xếp hạng"
+    "unableGetBurnListAccount": "Không thể hiện thị bảng xếp hạng",
+    "unableToUpload": "Không thể tải lên",
+    "unableToRemoveUpload": "Không thể xóa tệp đã tải lên"
   }
 }

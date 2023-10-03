@@ -206,7 +206,7 @@ const EditorLexical = (props: EditorLexicalProps) => {
 
   const handleRemove = imgId => {
     if (imgId) {
-      dispatch(removeUpload({ type: 'post', id: imgId }));
+      dispatch(removeUpload({ uploadType: UPLOAD_TYPES.POST, id: imgId }));
     }
   };
 
