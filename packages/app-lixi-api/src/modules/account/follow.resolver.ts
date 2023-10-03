@@ -29,7 +29,7 @@ import { AccountEntity } from 'src/decorators/account.decorator';
 import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import VError from 'verror';
-import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
+import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { AccountCacheService } from './account-cache.service';
 import { FollowCacheService } from './follow-cache.service';
@@ -57,7 +57,7 @@ export class FollowResolver {
   }
 
   @Query(() => Boolean)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlJwtAuthGuardByPass)
   async checkIfFollowAccount(
     @AccountEntity() account: Account,
     @Args('followingAccountId', { type: () => Int }) followingAccountId: number

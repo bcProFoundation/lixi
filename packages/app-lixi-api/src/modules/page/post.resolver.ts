@@ -630,7 +630,7 @@ export class PostResolver {
 
   @SkipThrottle()
   @Query(() => PostConnection)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsByUserId(
     @PostAccountEntity() account: Account,
     @Args() { after, before, first, last, minBurnFilter }: PaginationArgs,
@@ -644,7 +644,7 @@ export class PostResolver {
     orderBy: PostOrder
   ) {
     let result;
-    if (account.id === _.toSafeInteger(id)) {
+    if (account?.id === _.toSafeInteger(id)) {
       result = await findManyCursorConnection(
         args =>
           this.prisma.post.findMany({
