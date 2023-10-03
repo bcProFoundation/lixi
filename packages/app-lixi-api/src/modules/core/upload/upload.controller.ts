@@ -129,31 +129,39 @@ export class UploadFilesController {
         throw new Error(couldNotFindAccount);
       }
 
-      const resultImage = await this.prisma.$transaction(async prisma => {
-        const upload = await prisma.upload.findUnique({
-          where: {
-            id: id
-          }
-        });
-
-        await prisma.uploadDetail.delete({
-          where: {
-            uploadId: upload!.id
-          }
-        });
-
-        await prisma.upload.delete({
-          where: {
-            id: upload!.id
-          }
-        });
-
-        return upload;
+      const upload = await this.prisma.upload.findUnique({
+        where: {
+          id: id
+        },
+        include: {
+          uploadDetail: true
+        }
       });
 
-      await this.cloudflareService.deleteImage(resultImage!.cfImageId!);
+      if (account.id === upload?.uploadDetail?.accountId && upload) {
+        await this.prisma.$transaction(async prisma => {
+          await prisma.uploadDetail.delete({
+            where: {
+              uploadId: upload!.id
+            }
+          });
 
-      return;
+          await prisma.upload.delete({
+            where: {
+              id: upload!.id
+            }
+          });
+
+          return upload;
+        });
+
+        await this.cloudflareService.deleteImage(upload.cfImageId!);
+
+        return;
+      } else {
+        const noPermission = i18n.t('account.messages.noPermission');
+        throw new Error(noPermission);
+      }
     } catch (err) {
       this.logger.error(err);
       if (err instanceof VError) {
