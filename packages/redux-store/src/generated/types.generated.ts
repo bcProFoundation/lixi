@@ -94,6 +94,49 @@ export enum AccountOrderField {
   UpdatedAt = 'updatedAt'
 }
 
+export type Bookmark = {
+  __typename?: 'Bookmark';
+  account: Account;
+  bookmarkId: Scalars['String'];
+  /** Identifies the date and time when the object was created. */
+  createdAt?: Maybe<Scalars['DateTime']>;
+  id: Scalars['ID'];
+  type?: Maybe<BookmarkType>;
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt?: Maybe<Scalars['DateTime']>;
+};
+
+export type BookmarkConnection = {
+  __typename?: 'BookmarkConnection';
+  edges?: Maybe<Array<BookmarkEdge>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']>;
+};
+
+export type BookmarkEdge = {
+  __typename?: 'BookmarkEdge';
+  cursor: Scalars['String'];
+  node: Bookmark;
+};
+
+export type BookmarkOrder = {
+  direction: OrderDirection;
+  field: BookmarkOrderField;
+};
+
+/** Properties by which message connections can be ordered. */
+export enum BookmarkOrderField {
+  CreatedAt = 'createdAt',
+  Id = 'id',
+  UpdatedAt = 'updatedAt'
+}
+
+/** The type of bookmark. */
+export enum BookmarkType {
+  Comment = 'COMMENT',
+  Post = 'POST'
+}
+
 export type Category = {
   __typename?: 'Category';
   /** Identifies the date and time when the object was created. */
@@ -185,6 +228,11 @@ export type CreateAccountInput = {
   language: Scalars['String'];
   mnemonic: Scalars['String'];
   mnemonicHash: Scalars['String'];
+};
+
+export type CreateBookmarkInput = {
+  bookmarkId: Scalars['String'];
+  bookmarkType: BookmarkType;
 };
 
 export type CreateCommentInput = {
@@ -564,6 +612,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   closePageMessageSession: PageMessageSession;
   createAccount: Account;
+  createBookmark: Bookmark;
   createComment: Comment;
   createFollowAccount: FollowAccount;
   createFollowPage: FollowPage;
@@ -582,6 +631,7 @@ export type Mutation = {
   deleteFollowToken: Scalars['Boolean'];
   importAccount: Account;
   openPageMessageSession: PageMessageSession;
+  removeBookmark: Bookmark;
   repost: Scalars['Boolean'];
   updateAccount: Account;
   updatePage: Page;
@@ -594,6 +644,10 @@ export type MutationClosePageMessageSessionArgs = {
 
 export type MutationCreateAccountArgs = {
   data: CreateAccountInput;
+};
+
+export type MutationCreateBookmarkArgs = {
+  data: CreateBookmarkInput;
 };
 
 export type MutationCreateCommentArgs = {
@@ -666,6 +720,10 @@ export type MutationImportAccountArgs = {
 
 export type MutationOpenPageMessageSessionArgs = {
   data: OpenPageMessageSessionInput;
+};
+
+export type MutationRemoveBookmarkArgs = {
+  data: RemoveBookmarkInput;
 };
 
 export type MutationRepostArgs = {
@@ -931,6 +989,7 @@ export type PostTranslation = {
 
 export type Query = {
   __typename?: 'Query';
+  allBookmarkByAccountId: BookmarkConnection;
   account: Account;
   allClosedPageMessageSession: PageMessageSessionConnection;
   allCommentsToPostId: CommentConnection;
@@ -967,9 +1026,11 @@ export type Query = {
   allWorshipedPersonBySearch: WorshipedPersonConnection;
   allWorshipedPersonByUserId: WorshipedPersonConnection;
   allWorshipedPersonSpecialDate: WorshipedPersonConnection;
+  bookmark: Bookmark;
   checkIfFollowAccount: Scalars['Boolean'];
   checkIfFollowPage: Scalars['Boolean'];
   checkIfFollowToken: Scalars['Boolean'];
+  checkIfHasBookmarked: Scalars['Boolean'];
   comment: Comment;
   getAccountByAddress: Account;
   hashtag: Hashtag;
@@ -984,6 +1045,18 @@ export type Query = {
   userHadMessageToPage?: Maybe<PageMessageSession>;
   worship: Worship;
   worshipedPerson: WorshipedPerson;
+};
+
+export type QueryAllBookmarkByAccountIdArgs = {
+  accountId: Scalars['Int'];
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  bookmarkType: BookmarkType;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<BookmarkOrder>;
+  skip?: InputMaybe<Scalars['Int']>;
 };
 
 export type QueryAccountArgs = {
@@ -1355,6 +1428,10 @@ export type QueryAllWorshipedPersonSpecialDateArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+export type QueryBookmarkArgs = {
+  id: Scalars['String'];
+};
+
 export type QueryCheckIfFollowAccountArgs = {
   followingAccountId: Scalars['Int'];
 };
@@ -1365,6 +1442,11 @@ export type QueryCheckIfFollowPageArgs = {
 
 export type QueryCheckIfFollowTokenArgs = {
   tokenId?: InputMaybe<Scalars['String']>;
+};
+
+export type QueryCheckIfHasBookmarkedArgs = {
+  bookmarkId: Scalars['String'];
+  bookmarkType: BookmarkType;
 };
 
 export type QueryCommentArgs = {
@@ -1430,6 +1512,10 @@ export type QueryWorshipedPersonArgs = {
   id: Scalars['String'];
 };
 
+export type RemoveBookmarkInput = {
+  bookmarkId: Scalars['String'];
+};
+
 export type Repost = {
   __typename?: 'Repost';
   account?: Maybe<Account>;
@@ -1460,6 +1546,7 @@ export type State = {
 export type Subscription = {
   __typename?: 'Subscription';
   accountCreated: Account;
+  bookmarkCreated: Bookmark;
   commentCreated: Comment;
   followAccountCreated: FollowAccount;
   hashtagCreated: Hashtag;

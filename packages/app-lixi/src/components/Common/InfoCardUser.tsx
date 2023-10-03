@@ -193,8 +193,6 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
   };
 
   const postActionSheet = (postContent, page?, token?) => {
-    // let isEditPost = selectedAccount && selectedAccount.address === postAccountAddress;
-    // if (isEditPost) {
     authorization.authorized
       ? dispatch(
           openActionSheet('PostActionSheet', {
@@ -208,7 +206,6 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
           })
         )
       : askAuthorization();
-    // }
   };
 
   const normalInfor = (

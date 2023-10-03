@@ -297,6 +297,7 @@ model Account {
   yearOfBirth         Int?                 @map("year_of_birth")
   website             String               @default("") @map("website")
   createCommentFee    String               @default("0.00055") @map("create_comment_fee")
+  bookmark            Bookmark[]
 
   @@index([mnemonicHash], type: Hash)
   @@map("account")
@@ -990,4 +991,21 @@ model FeatureFlag {
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
   @@map("feature_flag")
+}
+
+model Bookmark {
+  id         String        @id @default(cuid())
+  account    Account       @relation(fields: [accountId], references: [id])
+  accountId  Int           @map("account_id")
+  bookmarkId String        @map("bookmark_id")
+  type       BookmarkType?
+  createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime      @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("bookmark")
+}
+
+enum BookmarkType {
+  POST
+  COMMENT
 }

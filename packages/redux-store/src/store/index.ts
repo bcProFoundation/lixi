@@ -29,3 +29,4 @@ export * as worship from './worship';
 export * as temple from './temple';
 export * as hashtag from './hashtag';
 export * as message from './message';
+export * as bookmark from './bookmark';
