@@ -2,8 +2,12 @@ import { Account, UPLOAD_TYPES } from '@bcpros/lixi-models';
 import {
   Body,
   Controller,
+  Delete,
+  HttpCode,
   HttpException,
   HttpStatus,
+  Logger,
+  Param,
   Post,
   UploadedFile,
   UseGuards,
@@ -29,6 +33,8 @@ import { AccountCacheService } from '../../account/account-cache.service';
 @SkipThrottle()
 @Controller('uploads')
 export class UploadFilesController {
+  private logger: Logger = new Logger(UploadFilesController.name);
+
   constructor(
     private prisma: PrismaService,
     private readonly cloudflareService: CloudflareImagesService,
@@ -104,6 +110,65 @@ export class UploadFilesController {
       } else {
         const unableToUpload = await i18n.t('lixi.messages.unableToUpload');
         const error = new VError.WError(err as Error, unableToUpload);
+        throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
+  @Delete('/remove-image-cf/:id')
+  @HttpCode(204)
+  @UseGuards(JwtAuthGuard)
+  async removeImageCloudflare(
+    @Param('id') id: string,
+    @PostAccountEntity() account: Account,
+    @I18n() i18n: I18nContext
+  ) {
+    try {
+      if (!account) {
+        const couldNotFindAccount = await i18n.t('lixi.messages.couldNotFindAccount');
+        throw new Error(couldNotFindAccount);
+      }
+
+      const upload = await this.prisma.upload.findUnique({
+        where: {
+          id: id
+        },
+        include: {
+          uploadDetail: true
+        }
+      });
+
+      if (account.id === upload?.uploadDetail?.accountId && upload) {
+        await this.prisma.$transaction(async prisma => {
+          await prisma.uploadDetail.delete({
+            where: {
+              uploadId: upload!.id
+            }
+          });
+
+          await prisma.upload.delete({
+            where: {
+              id: upload!.id
+            }
+          });
+
+          return upload;
+        });
+
+        await this.cloudflareService.deleteImage(upload.cfImageId!);
+
+        return;
+      } else {
+        const noPermission = i18n.t('account.messages.noPermission');
+        throw new Error(noPermission);
+      }
+    } catch (err) {
+      this.logger.error(err);
+      if (err instanceof VError) {
+        throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      } else {
+        const unableToRemoveUpload = i18n.t('account.messages.unableToRemoveUpload');
+        const error = new VError.WError(err as Error, unableToRemoveUpload);
         throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }

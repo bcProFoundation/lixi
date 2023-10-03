@@ -957,7 +957,7 @@ const PageMessage = () => {
 
   const handleRemove = imgId => {
     if (imgId) {
-      dispatch(removeUpload({ type: 'message', id: imgId }));
+      dispatch(removeUpload({ uploadType: UPLOAD_TYPES.MESSAGE, id: imgId }));
     }
   };
 

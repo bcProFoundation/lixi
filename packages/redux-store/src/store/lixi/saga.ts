@@ -318,7 +318,7 @@ function* postLixiSuccessSaga(action: PayloadAction<Lixi>) {
         duration: 5
       })
     );
-    yield put(removeUpload({ type: UPLOAD_TYPES.ENVELOPE }));
+    yield put(removeUpload({ uploadType: UPLOAD_TYPES.ENVELOPE }));
     yield put(selectLixi(lixi.id));
   } catch (error) {
     const message = intl.get('lixi.errorWhenCreateLixi');

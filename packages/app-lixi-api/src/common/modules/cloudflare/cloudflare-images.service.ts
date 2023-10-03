@@ -208,7 +208,7 @@ export class CloudflareImagesService {
   public async updateImage(imageId: string, options: Requests.UpdateImage): Promise<Responses.UpdateImage> {
     return await this.request({
       operation: 'image.update',
-      urlArgs: [imageId],
+      urlArgs: [this.accountId, imageId],
       body: options
     });
   }
@@ -216,7 +216,7 @@ export class CloudflareImagesService {
   public async deleteImage(imageId: string): Promise<Responses.DeleteImage> {
     return await this.request({
       operation: 'image.delete',
-      urlArgs: [imageId]
+      urlArgs: [this.accountId, imageId]
     });
   }
 }
