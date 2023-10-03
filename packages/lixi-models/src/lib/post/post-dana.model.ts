@@ -1,5 +1,4 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
-import { IsOptional } from 'class-validator';
 
 import { Post } from './post.model';
 
@@ -14,11 +13,21 @@ export class PostDana {
   @Field(() => Float)
   danaBurnScore: number;
 
-  @IsOptional()
-  @Field(() => String, { nullable: true })
-  postId?: Nullable<string>;
+  @Field(() => Float)
+  danaReceivedUp: number;
 
-  @IsOptional()
-  @Field(() => Post, { nullable: true })
-  post?: Nullable<Post>;
+  @Field(() => Float)
+  danaReceivedDown: number;
+
+  @Field(() => Float)
+  danaReceivedScore: number;
+
+  @Field(() => Number)
+  version: number;
+
+  @Field(() => String)
+  postId: string;
+
+  @Field(() => Post)
+  post: Post;
 }

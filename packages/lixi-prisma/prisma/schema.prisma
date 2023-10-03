@@ -161,6 +161,8 @@ model Page {
   accessMessageFee    Float?               @default(0.0) @map("access_message_fee")
   minDanaForMessage   Float?               @default(0.0) @map("min_dana_for_message")
   followerFreeMessage Boolean?             @default(false) @map("follower_free_message")
+  events              Event[]
+  polls               Poll[]
   pageDana            PageDana?
 
   @@map("page")
@@ -196,7 +198,6 @@ model Post {
   danaBurnUp       Float             @default(0.0) @map("dana_burn_up")
   danaBurnDown     Float             @default(0.0) @map("dana_burn_down")
   danaBurnScore    Float             @default(0.0) @map("dana_burn_score")
-  comments         Comment[]
   postHashtags     PostHashtag[]
   createFee        Float?            @map("create_fee")
   txid             String?
@@ -225,20 +226,20 @@ model PostDana {
 }
 
 model Comment {
-  id                 String       @id @default(cuid())
-  commentAccount     Account?     @relation(fields: [commentAccountId], references: [id])
-  commentAccountId   Int?         @map("comment_account_id")
-  commentTo          Post         @relation(fields: [commentToId], references: [id])
-  commentByPublicKey String?      @map("comment_by_public_key")
-  commentToId        String       @map("comment_to_id")
-  commentText        String       @default("") @map("comment_text")
-  createdAt          DateTime     @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt          DateTime     @default(now()) @map("updated_at") @db.Timestamptz
-  danaBurnUp         Float        @default(0.0) @map("dana_burn_up")
-  danaBurnDown       Float        @default(0.0) @map("dana_burn_down")
-  danaBurnScore      Float        @default(0.0) @map("dana_burn_score")
+  id                 String        @id @default(cuid())
+  commentAccount     Account?      @relation(fields: [commentAccountId], references: [id])
+  commentAccountId   Int?          @map("comment_account_id")
+  commentToType      CommentToType @default(POST)
+  commentByPublicKey String?       @map("comment_by_public_key")
+  commentToId        String        @map("comment_to_id")
+  commentText        String        @default("") @map("comment_text")
+  createdAt          DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime      @default(now()) @map("updated_at") @db.Timestamptz
+  danaBurnUp         Float         @default(0.0) @map("dana_burn_up")
+  danaBurnDown       Float         @default(0.0) @map("dana_burn_down")
+  danaBurnScore      Float         @default(0.0) @map("dana_burn_score")
   giveTip            GiveTip?
-  createFee          Float?       @map("create_fee")
+  createFee          Float?        @map("create_fee")
   txid               String?
   commentDana        CommentDana?
 
@@ -246,6 +247,12 @@ model Comment {
   @@index([commentByPublicKey], map: "index_comment_by_public_key")
   @@index([commentToId], map: "index_comment_on_post")
   @@map("comment")
+}
+
+enum CommentToType {
+  POST
+  EVENT
+  POLL
 }
 
 model CommentDana {
@@ -261,43 +268,45 @@ model CommentDana {
 }
 
 model Account {
-  id                  Int                  @id @default(autoincrement())
+  id                  Int                   @id @default(autoincrement())
   name                String
-  encryptedMnemonic   String               @map("encrypted_mnemonic")
-  encryptedSecret     String               @default("") @map("encrypted_secret")
-  createdAt           DateTime             @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt           DateTime             @default(now()) @map("updated_at") @db.Timestamptz
+  encryptedMnemonic   String                @map("encrypted_mnemonic")
+  encryptedSecret     String                @default("") @map("encrypted_secret")
+  createdAt           DateTime              @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime              @default(now()) @map("updated_at") @db.Timestamptz
   lixies              Lixi[]
-  mnemonicHash        String               @map("mnemonic_hash")
-  address             String               @default("") @map("address")
+  mnemonicHash        String                @map("mnemonic_hash")
+  address             String                @default("") @map("address")
   notifications       Notification[]
-  language            String               @default("en")
-  secondaryLanguage   String?              @map("secondary_language")
-  publicKey           String               @default("") @map("public_key")
-  email               String?              @unique
+  language            String                @default("en")
+  secondaryLanguage   String?               @map("secondary_language")
+  publicKey           String                @default("") @map("public_key")
+  email               String?               @unique
   uploadDetail        UploadDetail[]
   pages               Page[]
   posts               Post[]
   comments            Comment[]
   Worship             Worship[]
   temples             Temple[]
-  followers           FollowAccount[]      @relation("followerAccount")
-  followings          FollowAccount[]      @relation("followingAccount")
+  followers           FollowAccount[]       @relation("followerAccount")
+  followings          FollowAccount[]       @relation("followingAccount")
   followingPages      FollowPage[]
   webpushSubscribers  WebpushSubscriber[]
   reposts             Repost[]
   messages            Message[]
   pageMessageSessions PageMessageSession[]
   accountDana         AccountDana?
-  avatar              UploadDetail?        @relation("avatar")
-  cover               UploadDetail?        @relation("cover")
-  description         String               @default("") @map("description") @db.VarChar(1000)
-  dayOfBirth          Int?                 @map("day_of_birth")
-  monthOfBirth        Int?                 @map("month_of_birth")
-  yearOfBirth         Int?                 @map("year_of_birth")
-  website             String               @default("") @map("website")
-  createCommentFee    String               @default("0.00055") @map("create_comment_fee")
+  avatar              UploadDetail?         @relation("avatar")
+  cover               UploadDetail?         @relation("cover")
+  description         String                @default("") @map("description") @db.VarChar(1000)
+  dayOfBirth          Int?                  @map("day_of_birth")
+  monthOfBirth        Int?                  @map("month_of_birth")
+  yearOfBirth         Int?                  @map("year_of_birth")
+  website             String                @default("") @map("website")
+  createCommentFee    String                @default("0.00055") @map("create_comment_fee")
   bookmark            Bookmark[]
+  Event               Event[]
+  PollAnswerOnAccount PollAnswerOnAccount[]
 
   @@index([mnemonicHash], type: Hash)
   @@map("account")
@@ -893,17 +902,30 @@ model HashtagDana {
 }
 
 model Repost {
-  id        String   @id @default(cuid())
-  account   Account  @relation(fields: [accountId], references: [id])
-  accountId Int      @map("account_id")
-  post      Post     @relation(fields: [postId], references: [id])
-  postId    String   @map("post_id")
-  txid      String?
-  repostFee Float?   @default(0) @map("repost_fee")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz
+  id         String      @id @default(cuid())
+  account    Account     @relation(fields: [accountId], references: [id])
+  accountId  Int         @map("account_id")
+  post       Post        @relation(fields: [postId], references: [id])
+  postId     String      @map("post_id")
+  txid       String?
+  repostFee  Float?      @default(0) @map("repost_fee")
+  createdAt  DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime    @default(now()) @map("updated_at") @db.Timestamptz
+  RepostDana RepostDana?
 
   @@map("repost")
+}
+
+model RepostDana {
+  danaBurnUp    Float  @default(0.0) @map("dana_burn_up")
+  danaBurnDown  Float  @default(0.0) @map("dana_burn_down")
+  danaBurnScore Float  @default(0.0) @map("dana_burn_score")
+  repost        Repost @relation(fields: [repostId], references: [id])
+  repostId      String @unique @map("repost_id")
+  version       Int    @default(0)
+
+  @@index([repostId])
+  @@map("repost_dana")
 }
 
 model PostTranslation {
@@ -1008,4 +1030,87 @@ model Bookmark {
 enum BookmarkType {
   POST
   COMMENT
+}
+
+model Event {
+  id          String     @id @default(cuid())
+  account     Account    @relation(fields: [accountId], references: [id])
+  accountId   Int        @map("post_account_id")
+  name        String
+  description String?
+  page        Page?      @relation(fields: [pageId], references: [id])
+  pageId      String?    @map("page_id")
+  startDate   DateTime   @map("start_date") @db.Timestamptz
+  endDate     DateTime   @map("end_date") @db.Timestamptz
+  location    String?
+  eventType   EventType // Add this field to specify event type (virtual or physical)
+  eventDana   EventDana?
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime   @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("event")
+}
+
+enum EventType {
+  VIRTUAL
+  PHYSICAL
+}
+
+model EventDana {
+  danaBurnUp    Float  @default(0.0) @map("dana_burn_up")
+  danaBurnDown  Float  @default(0.0) @map("dana_burn_down")
+  danaBurnScore Float  @default(0.0) @map("dana_burn_score")
+  event         Event  @relation(fields: [eventId], references: [id])
+  eventId       String @unique @map("event_id")
+  version       Int    @default(0)
+
+  @@index([eventId])
+  @@map("event_dana")
+}
+
+model PollOption {
+  id                  String                @id @default(cuid())
+  poll                Poll                  @relation(fields: [pollId], references: [id])
+  pollId              String                @map("poll_id")
+  option              String
+  PollAnswerOnAccount PollAnswerOnAccount[]
+
+  @@map("poll_option")
+}
+
+model PollAnswerOnAccount {
+  account       Account    @relation(fields: [accountId], references: [id])
+  accountId     Int        @map("account_id")
+  pollOptionId  String     @map("poll_option_id")
+  pollOption    PollOption @relation(fields: [pollOptionId], references: [id])
+  createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  pollDanaScore Float      @default(0.0) @map("poll_dana_score")
+
+  @@id([pollOptionId, accountId])
+  @@map("pollawnswer_on_account")
+}
+
+model Poll {
+  id        String       @id @default(cuid())
+  question  String
+  page      Page?        @relation(fields: [pageId], references: [id])
+  pageId    String?      @map("page_id")
+  options   PollOption[] // Reference to the PollOption model
+  pollDana  PollDana?
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime     @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("poll")
+}
+
+model PollDana {
+  danaBurnUp    Float  @default(0.0) @map("dana_burn_up")
+  danaBurnDown  Float  @default(0.0) @map("dana_burn_down")
+  danaBurnScore Float  @default(0.0) @map("dana_burn_score")
+  poll          Poll   @relation(fields: [pollId], references: [id])
+  pollId        String @unique @map("poll_id")
+  version       Int    @default(0)
+
+  @@index([pollId])
+  @@map("poll_dana")
 }

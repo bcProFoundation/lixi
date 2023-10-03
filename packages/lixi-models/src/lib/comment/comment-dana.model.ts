@@ -14,11 +14,12 @@ export class CommentDana {
   @Field(() => Float)
   danaBurnScore: number;
 
-  @IsOptional()
-  @Field(() => String, { nullable: true })
-  commentId?: Nullable<string>;
+  @Field(() => Number)
+  version: number;
 
-  @IsOptional()
-  @Field(() => Comment, { nullable: true })
-  comment?: Nullable<Comment>;
+  @Field(() => String)
+  commentId: string;
+
+  @Field(() => Comment)
+  comment: Comment;
 }

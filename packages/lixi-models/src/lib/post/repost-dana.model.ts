@@ -1,9 +1,9 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 
-import { Token } from './token.model';
+import { Repost } from './repost.model';
 
 @ObjectType()
-export class TokenDana {
+export class PostDana {
   @Field(() => Float)
   danaBurnUp: number;
 
@@ -13,21 +13,12 @@ export class TokenDana {
   @Field(() => Float)
   danaBurnScore: number;
 
-  @Field(() => Float)
-  danaReceivedUp: number;
-
-  @Field(() => Float)
-  danaReceivedDown: number;
-
-  @Field(() => Float)
-  danaReceivedScore: number;
-
   @Field(() => Number)
   version: number;
 
   @Field(() => String)
-  tokenId: string;
+  repostId: string;
 
-  @Field(() => Token)
-  token: Token;
+  @Field(() => Repost)
+  repost: Repost;
 }

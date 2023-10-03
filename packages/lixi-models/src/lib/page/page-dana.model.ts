@@ -14,11 +14,21 @@ export class PageDana {
   @Field(() => Float)
   danaBurnScore: number;
 
-  @IsOptional()
-  @Field(() => String, { nullable: true })
-  pageId?: Nullable<string>;
+  @Field(() => Float)
+  danaReceivedUp: number;
 
-  @IsOptional()
-  @Field(() => Page, { nullable: true })
-  page?: Nullable<Page>;
+  @Field(() => Float)
+  danaReceivedDown: number;
+
+  @Field(() => Float)
+  danaReceivedScore: number;
+
+  @Field(() => Number)
+  version: number;
+
+  @Field(() => String)
+  pageId: string;
+
+  @Field(() => Page)
+  page: Page;
 }
