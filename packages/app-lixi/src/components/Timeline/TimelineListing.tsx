@@ -1,17 +1,14 @@
-import { OPTION_BURN_VALUE, PostsQueryTag } from '@bcpros/lixi-models/constants';
-import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
 import CreatePostCard from '@components/Common/CreatePostCard';
-import { currency } from '@components/Common/Ticker';
 import { OrderDirection, PostOrderField } from '@generated/types.generated';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
-import { addRecentHashtagAtHome, getLeaderboard, setGraphqlRequestDone } from '@store/account/actions';
+import { addRecentHashtagAtHome, setGraphqlRequestDone } from '@store/account/actions';
 import {
   getGraphqlRequestStatus,
   getRecentHashtagAtHome,
   getSelectedAccount,
   getSelectedAccountId
 } from '@store/account/selectors';
-import { addBurnQueue, addBurnTransaction, clearFailQueue, getFailQueue } from '@store/burn';
+import { getFailQueue } from '@store/burn';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { setNewPostAvailable, setSelectedPost } from '@store/post/actions';
 import { api as postApi } from '@store/post/posts.api';
@@ -19,12 +16,8 @@ import { getNewPostAvailable, getSelectedPostId } from '@store/post/selectors';
 import { useInfinitePostsBySearchQueryWithHashtag } from '@store/post/useInfinitePostsBySearchQueryWithHashtag';
 import { getFilterPostsHome, getIsTopPosts, getLevelFilter } from '@store/settings/selectors';
 import { useInfiniteHomeTimelineQuery } from '@store/timeline/useInfiniteHomeTimelineQuery';
-import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
-import { fromSmallestDenomination, fromXpiToSatoshis } from '@utils/cashMethods';
 import { Skeleton } from 'antd';
-import BigNumber from 'bignumber.js';
-import _ from 'lodash';
 import { useRouter } from 'next/router';
 import React, { useEffect, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -335,10 +328,8 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
                   }}
                 >
                   <PostListItem
-                    index={index}
                     item={item.data}
                     key={item.id}
-                    handleBurnForPost={handleBurnForPost}
                     addToRecentHashtags={hashtag => dispatch(addRecentHashtagAtHome(hashtag.substring(1)))}
                   />
                 </div>
@@ -357,10 +348,8 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
             {queryData.map((item, index) => {
               return (
                 <PostListItem
-                  index={index}
                   item={item}
                   key={item.id}
-                  handleBurnForPost={handleBurnForPost}
                   addToRecentHashtags={hashtag => dispatch(addRecentHashtagAtHome(hashtag.substring(1)))}
                 />
               );
@@ -372,78 +361,6 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
   };
 
   useDidMountEffectNotification();
-  const handleBurnForPost = async (isUpVote: boolean, post: any, optionBurn?: string) => {
-    try {
-      const burnValue = OPTION_BURN_VALUE[optionBurn];
-      if (failQueue.length > 0) dispatch(clearFailQueue());
-      const fundingFirstUtxo = slpBalancesAndUtxos.nonSlpUtxos[0];
-      const currentWalletPath = walletPaths.filter(acc => acc.xAddress === fundingFirstUtxo.address).pop();
-      const { hash160, xAddress } = currentWalletPath;
-      const burnType = isUpVote ? BurnType.Up : BurnType.Down;
-      const burnedBy = hash160;
-      const burnForId = post.id;
-      let tipToAddresses: { address: string; amount: string }[] = [];
-      let tag: string;
-
-      if (_.isNil(post.page) && _.isNil(post.token)) {
-        tag = PostsQueryTag.Posts;
-        tipToAddresses.push({
-          address: post.postAccount.address,
-          amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
-        });
-      } else if (post.page) {
-        tag = PostsQueryTag.PostsByPageId;
-        tipToAddresses.push({
-          address: post.page.pageAccount.address,
-          amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
-        });
-      } else if (post.token) {
-        tag = PostsQueryTag.PostsByTokenId;
-      }
-
-      tipToAddresses = tipToAddresses.filter(item => item.address != selectedAccount.address);
-      const totalTip = fromSmallestDenomination(
-        tipToAddresses.reduce((total, item) => total + parseFloat(item.amount), 0)
-      );
-      if (
-        slpBalancesAndUtxos.nonSlpUtxos.length == 0 ||
-        fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis) < parseInt(burnValue) + totalTip
-      ) {
-        throw new Error(intl.get('account.insufficientFunds'));
-      }
-
-      const burnCommand: BurnQueueCommand = {
-        defaultFee: currency.defaultFee,
-        burnType,
-        burnForType: BurnForType.Post,
-        burnedBy,
-        burnForId,
-        burnValue,
-        tipToAddresses: tipToAddresses,
-        extraArguments: {
-          isTop: isTop,
-          postQueryTag: tag,
-          pageId: post.page?.id,
-          tokenId: post.token?.id,
-          minBurnFilter: filterValue,
-          query: query,
-          hashtags: hashtags,
-          level: level
-        }
-      };
-
-      dispatch(addBurnQueue(_.omit(burnCommand)));
-      dispatch(addBurnTransaction(burnCommand));
-    } catch (e) {
-      const errorMessage = intl.get('post.unableToBurn');
-      dispatch(
-        showToast('error', {
-          message: errorMessage,
-          duration: 3
-        })
-      );
-    }
-  };
 
   return (
     <StyledTimelineListing>

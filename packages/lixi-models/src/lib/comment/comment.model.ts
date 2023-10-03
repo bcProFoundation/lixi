@@ -5,6 +5,8 @@ import { GraphQLDateTime } from 'graphql-scalars';
 import { Account } from '../account';
 import { Post } from '../post';
 
+import { CommentDana } from './comment-dana.model';
+
 @ObjectType()
 export class Comment {
   @Field(() => ID)
@@ -42,6 +44,10 @@ export class Comment {
 
   @Field(() => Float)
   danaBurnScore: number;
+
+  @IsOptional()
+  @Field(() => CommentDana, { nullable: true })
+  commentDana?: Nullable<CommentDana>;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.'

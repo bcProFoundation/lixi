@@ -186,46 +186,46 @@ export const notificationTypeTranslations = [
   {
     id: 27,
     notificationTypeId: 15,
-    language: 'vi',
-    isDefault: false,
-    template: '{{senderName}} đã gửi {{lixiAmount}} với mong muốn trò chuyện với trang {{pageName}} của bạn'
+    language: 'en',
+    isDefault: true,
+    template: '{{senderName}} sent you {{lixiAmount}} to request for a chat with your page {{pageName}}.'
   },
   {
     id: 28,
     notificationTypeId: 15,
-    language: 'en',
-    isDefault: true,
-    template: '{{senderName}} sent you {{lixiAmount}} to request for a chat with your page {{pageName}}.'
+    language: 'vi',
+    isDefault: false,
+    template: '{{senderName}} đã gửi {{lixiAmount}} với mong muốn trò chuyện với trang {{pageName}} của bạn'
   },
   //accept page-message
   {
     id: 29,
     notificationTypeId: 16,
-    language: 'vi',
-    isDefault: false,
-    template: '{{pageName}} đồng ý yêu cầu trò chuyện của bạn. Nhấp vào để bắt đầu.'
+    language: 'en',
+    isDefault: true,
+    template: 'Your request to chat with page {{pageName}} has been accepted. Click to start chatting.'
   },
   {
     id: 30,
     notificationTypeId: 16,
-    language: 'en',
-    isDefault: true,
-    template: 'Your request to chat with page {{pageName}} has been accepted. Click to start chatting.'
+    language: 'vi',
+    isDefault: false,
+    template: '{{pageName}} đồng ý yêu cầu trò chuyện của bạn. Nhấp vào để bắt đầu.'
   },
   //denied page-message
   {
     id: 31,
     notificationTypeId: 17,
-    language: 'vi',
-    isDefault: false,
-    template: 'Yêu cầu trò chuyện với trang {{pageName}} đã không được đồng ý. Bạn đã được hoàn lại {{lixiAmount}} XPI.'
-  },
-  {
-    id: 32,
-    notificationTypeId: 17,
     language: 'en',
     isDefault: true,
     template:
       'Your request to chat with page {{pageName}} has been declined. Your Lixi of {{lixiAmount}} XPI has been returned.'
+  },
+  {
+    id: 32,
+    notificationTypeId: 17,
+    language: 'vi',
+    isDefault: false,
+    template: 'Yêu cầu trò chuyện với trang {{pageName}} đã không được đồng ý. Bạn đã được hoàn lại {{lixiAmount}} XPI.'
   }
 ];

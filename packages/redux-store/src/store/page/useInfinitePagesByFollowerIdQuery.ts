@@ -1,14 +1,15 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
+import { PageQueryItem, PageOrder, TokenQueryItem } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { useAppDispatch } from '@store/hooks';
-import { PageQuery } from '@store/page/pages.generated';
 import { useAllPagesByFollowerQuery, useLazyAllPagesByFollowerQuery } from '@store/follow/follows.generated';
-import _ from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { PageOrder } from '@generated/types.generated';
-import { TokenQuery } from '@store/token/tokens.generated';
 
-type PageOrToken = { id: string | number; page?: PageQuery['page']; token?: TokenQuery['token'] };
+type PageOrToken = {
+  id: string | number;
+  page?: PageQueryItem;
+  token?: TokenQueryItem;
+};
+
 const followPagesAdapter = createEntityAdapter<PageOrToken>({
   selectId: entity => entity.id,
   sortComparer: (a, b) => {
@@ -22,11 +23,11 @@ const followPagesAdapter = createEntityAdapter<PageOrToken>({
   }
 });
 
-function isPageEntity(entity: PageOrToken): entity is PageQuery['page'] {
+function isPageEntity(entity: PageOrToken): entity is PageQueryItem {
   return !!entity.page && entity.page.__typename === 'Page';
 }
 
-function isTokenEntity(entity: PageOrToken): entity is TokenQuery['token'] {
+function isTokenEntity(entity: PageOrToken): entity is TokenQueryItem {
   return !!entity.token && entity.token.__typename === 'Token';
 }
 

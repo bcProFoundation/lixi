@@ -1,60 +1,46 @@
-import { DashOutlined, SendOutlined, DownloadOutlined, LeftOutlined, CloseOutlined } from '@ant-design/icons';
-import { PostsQueryTag } from '@bcpros/lixi-models/constants';
-import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
+import { CloseOutlined, LeftOutlined, SendOutlined } from '@ant-design/icons';
+import ActionPostBar from '@components/Common/ActionPostBar';
 import AvatarUser from '@components/Common/AvatarUser';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { currency } from '@components/Common/Ticker';
 import { LoadingIcon, NavBarHeader } from '@components/Layout/MainLayout';
 import { WalletContext } from '@context/walletProvider';
+import { PostQueryItem } from '@generated/index';
+import { CommentOrderField, CreateCommentInput, OrderDirection } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
+import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { getAccountInfoTemp, getSelectedAccount } from '@store/account/selectors';
-import { addBurnQueue, addBurnTransaction, clearFailQueue } from '@store/burn/actions';
 import { api as commentsApi, useCreateCommentMutation } from '@store/comment/comments.api';
 import { useInfiniteCommentsToPostIdQuery } from '@store/comment/useInfiniteCommentsToPostIdQuery';
-import { PostQuery, useRepostMutation } from '@store/post/posts.generated';
-import { sendXPIFailure } from '@store/send/actions';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { closeModal, openModal } from '@store/modal/actions';
+import { usePostQuery, useRepostMutation } from '@store/post/posts.generated';
+import { sendXPIFailure, sendXPISuccess } from '@store/send/actions';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
-import { fromSmallestDenomination, fromXpiToSatoshis, getUtxoWif } from '@utils/cashMethods';
-import { Image, Input, Skeleton, AutoComplete, Modal, Space, Button, Spin } from 'antd';
-import BigNumber from 'bignumber.js';
+import { fromSmallestDenomination, getUtxoWif } from '@utils/cashMethods';
+import { AutoComplete, Button, Image, Input, Modal, Skeleton, Spin } from 'antd';
+import parse from 'html-react-parser';
 import _ from 'lodash';
 import moment from 'moment';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import ReactDomServer from 'react-dom/server';
+import { Controller, useForm } from 'react-hook-form';
 import ReactHtmlParser from 'react-html-parser';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
-import { CommentOrderField, CreateCommentInput, OrderDirection, RepostInput } from '@generated/types.generated';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import styled from 'styled-components';
-import CommentListItem, { CommentItem } from './CommentListItem';
-import { useForm, Controller } from 'react-hook-form';
-import { closeModal, openModal } from '@store/modal/actions';
-import { EditPostModalProps } from './EditPostModalPopup';
 import Gallery from 'react-photo-gallery';
-import { getBurnQueue, getFailQueue } from '@store/burn';
-import { TokenItem } from '@components/Token/TokensFeed';
-import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
-import { getFilterPostsHome, getLevelFilter } from '@store/settings/selectors';
-import { OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants';
-import parse from 'html-react-parser';
-import ReactDomServer from 'react-dom/server';
-import ActionPostBar from '@components/Common/ActionPostBar';
-import PostTranslate from './PostTranslate';
-import { useSwipeable } from 'react-swipeable';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
-import useDetectMobileView from '@local-hooks/useDetectMobileView';
-
-export type PostItem = PostQuery['post'];
-export type BurnData = {
-  data: PostItem | CommentItem | TokenItem;
-  burnForType: BurnForType;
-};
+import { useSwipeable } from 'react-swipeable';
+import styled from 'styled-components';
+import CommentListItem from './CommentListItem';
+import { EditPostModalProps } from './EditPostModalPopup';
+import PostTranslate from './PostTranslate';
 
 type PostDetailProps = {
-  post: PostItem;
+  initialPost: PostQueryItem;
   classStyle?: string;
 };
 
@@ -322,33 +308,34 @@ const StyledIconContainer = styled.div`
   margin-right: 5px;
 `;
 
-export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }: PostDetailProps) => {
+export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classStyle }: PostDetailProps) => {
+  const [post, setPost] = useState(initialPost);
+
   const dispatch = useAppDispatch();
   const { control, getValues, setValue, setFocus, resetField } = useForm();
   const router = useRouter();
   const Wallet = React.useContext(WalletContext);
   const { XPI, chronik } = Wallet;
-  const { createBurnTransaction, sendXpi } = useXPI();
+  const { sendXpi } = useXPI();
+  const walletStatus = useAppSelector(getWalletStatus);
   const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
-  const burnQueue = useAppSelector(getBurnQueue);
-  const failQueue = useAppSelector(getFailQueue);
   const walletPaths = useAppSelector(getAllWalletPaths);
   const selectedAccount = useAppSelector(getSelectedAccount);
   const [isEncryptedOptionalOpReturnMsg, setIsEncryptedOptionalOpReturnMsg] = useState(true);
-  const walletStatus = useAppSelector(getWalletStatus);
   const [open, setOpen] = useState(false);
-  const filterValue = useAppSelector(getFilterPostsHome);
   const [showTranslation, setShowTranslation] = useState(false);
   const [openPost, setOpenPost] = useState(true);
   const isMobile = useDetectMobileView();
   const [borderColorHeader, setBorderColorHeader] = useState(false);
   const accountInfoTemp = useAppSelector(getAccountInfoTemp);
   const [isSendingXPI, setIsSendingXPI] = useState<boolean>(false);
-  const level = useAppSelector(getLevelFilter);
+  const txFee = Math.ceil(Wallet.XPI.BitcoinCash.getByteCount({ P2PKH: 1 }, { P2PKH: 1 }) * 2.01); //satoshi
 
   const [repostTrigger, { isLoading: isLoadingRepost, isSuccess: isSuccessRepost, isError: isErrorRepost }] =
     useRepostMutation();
+
+  const { isLoading, currentData, isError } = usePostQuery({ id: post.id });
 
   const dataSource = [
     {
@@ -387,94 +374,11 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
     { isLoading: isLoadingCreateComment, isSuccess: isSuccessCreateComment, isError: isErrorCreateComment }
   ] = useCreateCommentMutation();
 
-  const handleBurnForPost = async (isUpVote: boolean, post: any, optionBurn?: string) => {
-    isUpVote
-      ? handleBurn(true, { data: post, burnForType: BurnForType.Post }, optionBurn)
-      : handleBurn(false, { data: post, burnForType: BurnForType.Post }, optionBurn);
-  };
-
-  const handleBurn = async (isUpVote: boolean, burnData: BurnData, optionBurn?: string) => {
-    try {
-      const burnValue = optionBurn ? OPTION_BURN_VALUE[optionBurn] : '1';
-      const { data, burnForType } = burnData;
-      if (failQueue.length > 0) dispatch(clearFailQueue());
-      const fundingFirstUtxo = slpBalancesAndUtxos.nonSlpUtxos[0];
-      const currentWalletPath = walletPaths.filter(acc => acc.xAddress === fundingFirstUtxo.address).pop();
-      const { hash160, xAddress } = currentWalletPath;
-      const burnType = isUpVote ? BurnType.Up : BurnType.Down;
-      const burnedBy = hash160;
-      const burnForId = data.id;
-      let queryParams;
-      let postId: string;
-
-      let tipToAddresses: { address: string; amount: string }[] = [];
-
-      switch (burnForType) {
-        case BurnForType.Post:
-          const post = data as PostItem;
-          tipToAddresses.push({
-            address: post.page ? post.page.pageAccount.address : post.postAccount.address,
-            amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
-          });
-          break;
-        case BurnForType.Comment:
-          const comment = data as CommentItem;
-          const pageAddress = comment.commentTo.page ? comment.commentTo.page.pageAccount.address : undefined;
-          const postAddress = comment.commentTo.postAccount.address;
-          tipToAddresses.push({
-            address: pageAddress ?? postAddress,
-            amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
-          });
-
-          postId = comment.commentToId;
-          queryParams = {
-            direction: OrderDirection.Asc,
-            field: CommentOrderField.UpdatedAt
-          };
-          break;
-      }
-
-      tipToAddresses = tipToAddresses.filter(item => item.address != selectedAccount.address);
-      const totalTip = fromSmallestDenomination(
-        tipToAddresses.reduce((total, item) => total + parseFloat(item.amount), 0)
-      );
-      if (
-        slpBalancesAndUtxos.nonSlpUtxos.length == 0 ||
-        fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis) < parseInt(burnValue) + totalTip
-      ) {
-        throw new Error(intl.get('account.insufficientFunds'));
-      }
-
-      const burnCommand: BurnQueueCommand = {
-        defaultFee: currency.defaultFee,
-        burnType,
-        burnForType: burnForType,
-        burnedBy,
-        burnForId,
-        burnValue,
-        tipToAddresses: tipToAddresses,
-        extraArguments: {
-          postQueryTag: PostsQueryTag.Post,
-          postId: postId,
-          orderBy: queryParams,
-          minBurnFilter: filterValue,
-          level: level
-        }
-      };
-
-      dispatch(addBurnQueue(burnCommand));
-      dispatch(addBurnTransaction(burnCommand));
-    } catch (e) {
-      const errorMessage = intl.get('post.unableToBurn');
-      dispatch(
-        showToast('error', {
-          message: intl.get('toast.error'),
-          description: errorMessage,
-          duration: 3
-        })
-      );
+  useEffect(() => {
+    if (!isError && currentData) {
+      setPost(currentData.post);
     }
-  };
+  }, [currentData]);
 
   useEffect(() => {
     if (slpBalancesAndUtxos === slpBalancesAndUtxosRef.current) return;
@@ -493,131 +397,175 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
     }
   };
 
-  const isNumeric = (num: string) => {
-    num = num.replace(',', '.');
-    return !isNaN(num as unknown as number) && Number(num) > 0;
+  const processComment = async (comment: string) => {
+    //Check if the message is not empty
+    if (comment && comment !== '') {
+      const trimComment = comment.trim();
+
+      if (_.isNil(trimComment) || trimComment === '') {
+        return;
+      }
+
+      //Check if comment is tip
+      if (trimComment.toLowerCase().split(' ')[0] === '/give') {
+        const amount: string = trimComment.toLowerCase().split(' ')[1];
+
+        //check if amount is valid
+        if (validateXPIAmount(amount)) {
+          let tipHex = undefined;
+          tipHex = await giveXPIAsTip(trimComment, amount).then(result => {
+            return result;
+          });
+
+          if (tipHex) {
+            dispatch(sendXPISuccess(parseFloat(amount).toFixed(2)));
+
+            const createCommentInput: CreateCommentInput = {
+              commentText: trimComment,
+              commentToId: post.id,
+              tipHex: tipHex
+            };
+
+            await createComment(createCommentInput);
+          } else {
+            dispatch(sendXPIFailure(intl.get('send.syntaxError')));
+          }
+        } else {
+          dispatch(sendXPIFailure(intl.get('send.syntaxError')));
+        }
+      } else if (
+        //Check if post owner self comment
+        (post.page &&
+          post?.page?.createCommentFee !== '0' &&
+          selectedAccount.address !== post?.page?.pageAccount.address) ||
+        (post?.postAccount?.createCommentFee !== '0' && selectedAccount.address !== post?.postAccount?.address)
+      ) {
+        try {
+          let createFeeHex = undefined;
+          createFeeHex = await giveXPIAsFee(post);
+
+          if (createFeeHex) {
+            const createCommentInput: CreateCommentInput = {
+              commentText: trimComment,
+              commentToId: post.id,
+              createFeeHex: createFeeHex
+            };
+
+            await createComment(createCommentInput);
+          } else {
+            throw new Error(intl.get('account.insufficientFunds'));
+          }
+        } catch (e: any) {
+          dispatch(sendXPIFailure(e.message));
+        }
+      } else {
+        const createCommentInput: CreateCommentInput = {
+          commentText: trimComment,
+          commentToId: post.id
+        };
+
+        await createComment(createCommentInput);
+      }
+    }
   };
 
-  const handleCreateNewComment = async (text: string) => {
-    if (_.isNil(text) || _.isEmpty(text) || text === '/') {
-      return;
-    }
+  const validateXPIAmount = (value: string): boolean => {
+    if (!value) return false;
 
-    if (open) return;
+    //check if value is number;
+    if (isNaN(parseFloat(value))) return false;
 
-    let tipHex;
-    let createFeeHex;
-    //Give XPI only to post account when there is no page and no fee
+    //check if value is positive number
+    if (parseFloat(value) <= 0) return false;
+
+    //check if balance is smaller than value + txFee
     if (
-      text.trim().toLowerCase().split(' ')[0] === '/give' &&
-      _.isNil(post.page) &&
-      post.postAccount.createCommentFee === '0'
-    ) {
-      setIsSendingXPI(true);
-      try {
-        if (!isNumeric(text.trim().split(' ')[1])) {
-          const error = new Error(intl.get('send.syntaxError') as string);
-          throw error;
-        }
+      fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis) <=
+      parseFloat(value) + fromSmallestDenomination(txFee)
+    )
+      return false;
 
-        const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-        tipHex = await sendXpi(
+    return true;
+  };
+
+  const giveXPIAsTip = async (text: string, amount: string): Promise<string> => {
+    setIsSendingXPI(true);
+    try {
+      let tipHex;
+      const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
+      tipHex = await sendXpi(
+        XPI,
+        chronik,
+        walletPaths,
+        slpBalancesAndUtxos.nonSlpUtxos,
+        currency.defaultFee,
+        '',
+        false, // indicate send mode is one to one
+        null,
+        post.postAccount.address,
+        amount,
+        isEncryptedOptionalOpReturnMsg,
+        fundingWif,
+        true
+      ).catch(error => {
+        throw error;
+      });
+
+      return tipHex;
+    } catch (e) {
+      const message = e.message || e.error || JSON.stringify(e);
+      setIsSendingXPI(false);
+
+      dispatch(sendXPIFailure(message));
+    }
+  };
+
+  const giveXPIAsFee = async (post: PostQueryItem): Promise<string> => {
+    setIsSendingXPI(true);
+    try {
+      let createFeeHex = undefined;
+      const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
+      if (post.page && post.page.createCommentFee !== '0') {
+        createFeeHex = await sendXpi(
           XPI,
           chronik,
           walletPaths,
           slpBalancesAndUtxos.nonSlpUtxos,
           currency.defaultFee,
-          text,
+          '',
           false, // indicate send mode is one to one
           null,
-          post.postAccount.address,
-          text.trim().split(' ')[1],
+          post.page.pageAccount.address,
+          post.page.createCommentFee,
           isEncryptedOptionalOpReturnMsg,
           fundingWif,
           true
         );
-      } catch (e) {
-        const message = e.message || e.error || JSON.stringify(e);
-        dispatch(sendXPIFailure(message));
+      } else if (post.postAccount.createCommentFee !== '0') {
+        createFeeHex = await sendXpi(
+          XPI,
+          chronik,
+          walletPaths,
+          slpBalancesAndUtxos.nonSlpUtxos,
+          currency.defaultFee,
+          '',
+          false, // indicate send mode is one to one
+          null,
+          post.postAccount.address,
+          post.postAccount.createCommentFee,
+          isEncryptedOptionalOpReturnMsg,
+          fundingWif,
+          true
+        );
       }
+
+      return createFeeHex;
+    } catch (e) {
+      setIsSendingXPI(false);
     }
+  };
 
-    //Give XPI only to post account when there is no page and has fee
-    if (_.isNil(post.page)) {
-      if (selectedAccount.id != post.postAccount.id && post.postAccount.createCommentFee !== '0') {
-        setIsSendingXPI(true);
-
-        try {
-          const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-          createFeeHex = await sendXpi(
-            XPI,
-            chronik,
-            walletPaths,
-            slpBalancesAndUtxos.nonSlpUtxos,
-            currency.defaultFee,
-            '',
-            true, // indicate send mode is one to one
-            [
-              `${post.postAccount.address}, ${text.trim().split(' ')[1]}`,
-              `${post.postAccount.address}, ${post.postAccount.createCommentFee}`
-            ],
-            undefined,
-            undefined,
-            isEncryptedOptionalOpReturnMsg,
-            fundingWif,
-            true
-          );
-        } catch (e) {
-          const message = e.message || e.error || JSON.stringify(e);
-          dispatch(sendXPIFailure(message));
-        }
-      }
-    } else {
-      //Give XPI only to post account when there is page and has fee
-      if (selectedAccount.id != post.page.pageAccount.id && post.page.createCommentFee !== '0') {
-        setIsSendingXPI(true);
-
-        try {
-          const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-          createFeeHex = await sendXpi(
-            XPI,
-            chronik,
-            walletPaths,
-            slpBalancesAndUtxos.nonSlpUtxos,
-            currency.defaultFee,
-            '',
-            true, // indicate send mode is one to one
-            [
-              `${post.postAccount.address}, ${text.trim().split(' ')[1]}`,
-              `${post.page.pageAccount.address}, ${post.page.createCommentFee}`
-            ],
-            undefined,
-            undefined,
-            isEncryptedOptionalOpReturnMsg,
-            fundingWif,
-            true
-          );
-        } catch (e) {
-          const message = intl.get('account.insufficientFunds');
-          dispatch(
-            showToast('error', {
-              message: intl.get('toast.error'),
-              description: message,
-              duration: 5
-            })
-          );
-          return null;
-        }
-      }
-    }
-
-    const createCommentInput: CreateCommentInput = {
-      commentText: text,
-      commentToId: post.id,
-      tipHex: tipHex,
-      createFeeHex: createFeeHex
-    };
-
+  const createComment = async (input: CreateCommentInput) => {
     const params = {
       orderBy: {
         direction: OrderDirection.Asc,
@@ -627,21 +575,17 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
 
     let patches: PatchCollection;
     try {
-      const result = await createCommentTrigger({ input: createCommentInput }).unwrap();
+      const result = await createCommentTrigger({ input: input }).unwrap();
       patches = dispatch(
-        commentsApi.util.updateQueryData(
-          'CommentsToPostId',
-          { id: createCommentInput.commentToId, ...params },
-          draft => {
-            draft.allCommentsToPostId.edges.unshift({
-              cursor: result.createComment.id,
-              node: {
-                ...result.createComment
-              }
-            });
-            draft.allCommentsToPostId.totalCount = draft.allCommentsToPostId.totalCount + 1;
-          }
-        )
+        commentsApi.util.updateQueryData('CommentsToPostId', { id: input.commentToId, ...params }, draft => {
+          draft.allCommentsToPostId.edges.unshift({
+            cursor: result.createComment.id,
+            node: {
+              ...result.createComment
+            }
+          });
+          draft.allCommentsToPostId.totalCount = draft.allCommentsToPostId.totalCount + 1;
+        })
       );
     } catch (error) {
       const message = intl.get('comment.unableCreateComment');
@@ -721,33 +665,6 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
     });
   }, [post?.content]);
 
-  const handleRepost = async (post: any) => {
-    const repostInput: RepostInput = {
-      accountId: selectedAccount.id,
-      postId: post.id
-    };
-
-    try {
-      await repostTrigger({ input: repostInput });
-      isSuccessRepost &&
-        dispatch(
-          showToast('success', {
-            message: 'Success',
-            description: intl.get('post.repostSuccessful'),
-            duration: 5
-          })
-        );
-    } catch (error) {
-      dispatch(
-        showToast('error', {
-          message: 'Error',
-          description: intl.get('post.repostFailure'),
-          duration: 5
-        })
-      );
-    }
-  };
-
   const handleOnCancel = () => {
     setOpenPost(false);
     setTimeout(
@@ -765,7 +682,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault(); // Prevent the default behavior of adding a new line
-      await handleCreateNewComment(e.currentTarget.value); // Call your function to post the comment
+      await processComment(e.currentTarget.value); // Call your function to post the comment
     }
   };
 
@@ -877,7 +794,6 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
             )}
             <ActionPostBar
               post={post}
-              handleBurnForPost={handleBurnForPost}
               onClickIconComment={e => setFocus('comment', { shouldSelect: true })}
               isSetBorderBottom={true}
             />
@@ -892,7 +808,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
               scrollableTarget="scrollableDiv"
             >
               {data.map((item, index) => {
-                return <CommentListItem index={index} item={item} post={post} key={item.id} handleBurn={handleBurn} />;
+                return <CommentListItem item={item} post={post} key={item.id} />;
               })}
             </InfiniteScroll>
           </CommentContainer>
@@ -948,7 +864,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ post, classStyle }:
                   disabled={isLoadingCreateComment || isSendingXPI}
                   style={{ borderColor: 'transparent !important' }}
                   onClick={async () => {
-                    await handleCreateNewComment(getValues('comment'));
+                    await processComment(getValues('comment'));
                   }}
                   icon={<SendOutlined style={{ fontSize: '20px' }} />}
                 />

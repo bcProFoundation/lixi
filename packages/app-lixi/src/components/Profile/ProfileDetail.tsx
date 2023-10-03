@@ -1,10 +1,8 @@
 import { CameraOutlined, CompassOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { Account } from '@bcpros/lixi-models';
-import { PostListType, PostsQueryTag } from '@bcpros/lixi-models/constants';
-import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
+import { PostListType } from '@bcpros/lixi-models/constants';
 import { Follow } from '@bcpros/lixi-models/lib/follow/follow.model';
 import { transformShortName } from '@components/Common/AvatarUser';
-import { currency } from '@components/Common/Ticker';
 import PostListItem from '@components/Posts/PostListItem';
 import CreatePostCard from '@components/Common/CreatePostCard';
 import {
@@ -16,17 +14,14 @@ import {
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { setTransactionReady } from '@store/account/actions';
 import { getAccountInfoTemp, getSelectedAccountId } from '@store/account/selectors';
-import { addBurnQueue, addBurnTransaction, clearFailQueue, getFailQueue } from '@store/burn';
+import { getFailQueue } from '@store/burn';
 import { useCreateFollowAccountMutation, useDeleteFollowAccountMutation } from '@store/follow/follows.api';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
 import { useInfinitePostsByUserIdQuery } from '@store/post/useInfinitePostsByUserIdQuery';
 import { getFilterPostsProfile, getLevelFilter } from '@store/settings/selectors';
-import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
-import { fromSmallestDenomination, fromXpiToSatoshis } from '@utils/cashMethods';
 import { Avatar, Button, Skeleton, Space, Tabs } from 'antd';
-import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -34,12 +29,9 @@ import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
 import { WithAuthorizeAction } from '../Common/Authorization/WithAuthorizeAction';
-import { PostQuery } from '@store/post/posts.generated';
 
 export const URL_AVATAR_DEFAULT = '/images/default-avatar.jpg';
 export const URL_COVER_DEFAULT = '/images/default-avatar.jpg';
-
-type PostItem = PostQuery['post'];
 
 const AuthorizedButton = WithAuthorizeAction(Button);
 
@@ -469,9 +461,8 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const selectedAccountId = useAppSelector(getSelectedAccountId);
   const accountInfoTemp = useAppSelector(getAccountInfoTemp);
   const level = useAppSelector(getLevelFilter);
-  const [query, setQuery] = useState<any>('');
-  const [hashtags, setHashtags] = useState<any>([]);
-
+  const [query, setQuery] = useState('');
+  const [hashtags, setHashtags] = useState([]);
 
   const [
     createFollowAccountTrigger,
@@ -517,64 +508,6 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
       fetchNext();
     } else if (hasNext) {
       fetchNext();
-    }
-  };
-
-  const handleBurnForPost = async (isUpVote: boolean, post: PostItem) => {
-    try {
-      const burnValue = '1';
-      if (failQueue.length > 0) dispatch(clearFailQueue());
-      const fundingFirstUtxo = slpBalancesAndUtxos.nonSlpUtxos[0];
-      const currentWalletPath = walletPaths.filter(acc => acc.xAddress === fundingFirstUtxo.address).pop();
-      const { hash160, xAddress } = currentWalletPath;
-      const burnType = isUpVote ? BurnType.Up : BurnType.Down;
-      const burnedBy = hash160;
-      const burnForId = post.id;
-      let tipToAddresses: { address: string; amount: string }[] = [
-        {
-          address: user.address,
-          amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
-        }
-      ];
-
-      tipToAddresses = tipToAddresses.filter(item => item.address != user.address);
-      const totalTip = fromSmallestDenomination(
-        tipToAddresses.reduce((total, item) => total + parseFloat(item.amount), 0)
-      );
-      if (
-        slpBalancesAndUtxos.nonSlpUtxos.length == 0 ||
-        fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis) < parseInt(burnValue) + totalTip
-      ) {
-        throw new Error(intl.get('account.insufficientFunds'));
-      }
-
-      const burnCommand: BurnQueueCommand = {
-        defaultFee: currency.defaultFee,
-        burnType,
-        burnForType: BurnForType.Post,
-        burnedBy,
-        burnForId,
-        burnValue,
-        tipToAddresses: tipToAddresses,
-        extraArguments: {
-          postQueryTag: PostsQueryTag.PostsByUserId,
-          userId: post.postAccount?.id,
-          minBurnFilter: filterValue,
-          level: level
-        }
-      };
-
-      dispatch(addBurnQueue(burnCommand));
-      dispatch(addBurnTransaction(burnCommand));
-    } catch (e) {
-      const errorMessage = intl.get('post.unableToBurn');
-      dispatch(
-        showToast('error', {
-          message: intl.get('toast.error'),
-          description: errorMessage,
-          duration: 3
-        })
-      );
     }
   };
 
@@ -856,9 +789,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                 {/* <div className="search-bar">
                   <FilterBurnt filterForType={FilterType.PostsProfile} />
                 </div> */}
-                {selectedAccountId == user.id && (
-                  <CreatePostCard userId={user.id} hashtags={hashtags} query={query} />
-                )}
+                {selectedAccountId == user.id && <CreatePostCard userId={user.id} hashtags={hashtags} query={query} />}
                 <Timeline>
                   {data.length == 0 && !isLoading && (
                     <div className="blank-timeline">
@@ -881,15 +812,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                       scrollableTarget="scrollableDiv"
                     >
                       {data.map((item, index) => {
-                        return (
-                          <PostListItem
-                            index={index}
-                            item={item}
-                            key={item.id}
-                            handleBurnForPost={handleBurnForPost}
-                            postListType={PostListType.Profile}
-                          />
-                        );
+                        return <PostListItem item={item} key={item.id} postListType={PostListType.Profile} />;
                       })}
                     </InfiniteScroll>
                   </React.Fragment>

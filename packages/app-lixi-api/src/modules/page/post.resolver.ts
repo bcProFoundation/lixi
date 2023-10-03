@@ -104,7 +104,7 @@ export class PostResolver {
       page: page ? (page as Page) : null,
       repostCount: dbPost._count.reposts,
       reposts: reposts ? (reposts as Repost[]) : [],
-      danaBurnScore: (danaViewScore as number) || 0
+      danaViewScore: (danaViewScore as number) || 0
     });
   }
 
@@ -270,14 +270,14 @@ export class PostResolver {
   }
 
   @SkipThrottle()
-  @Query(() => PostResponse, { name: 'allPostsBySearch' })
+  @Query(() => PostConnection, { name: 'allPostsBySearch' })
   @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearch(
     @Args() args: ConnectionArgs,
     @Args({ name: 'query', type: () => String, nullable: true })
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
     query: string
-  ): Promise<PostResponse> {
+  ) {
     const { limit, offset } = getPagingParameters(args);
 
     const count = await this.meiliService.searchByQueryEstimatedTotalHits(
@@ -298,7 +298,17 @@ export class PostResolver {
       where: {
         id: { in: postsId }
       },
-      include: { postAccount: true }
+      include: {
+        uploads: true,
+        postAccount: true,
+        comments: true,
+        page: true,
+        translations: true,
+        reposts: { select: { account: true, accountId: true } },
+        _count: {
+          select: { reposts: true, comments: true }
+        }
+      }
     });
 
     return connectionFromArraySlice(searchPosts, args, {
@@ -308,7 +318,7 @@ export class PostResolver {
   }
 
   @SkipThrottle()
-  @Query(() => PostResponse, { name: 'allPostsBySearchWithHashtag' })
+  @Query(() => PostConnection, { name: 'allPostsBySearchWithHashtag' })
   @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearchWithHashtag(
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
@@ -316,7 +326,6 @@ export class PostResolver {
     @Args()
     args: ConnectionArgs,
     @Args() { after, before, first, last }: PaginationArgs,
-
     @Args({ name: 'query', type: () => String, nullable: true })
     query: string,
     @Args({ name: 'hashtags', type: () => [String], nullable: true })
@@ -327,7 +336,7 @@ export class PostResolver {
       nullable: true
     })
     orderBy: PostOrder
-  ): Promise<PostResponse | undefined> {
+  ) {
     try {
       const { limit, offset } = getPagingParameters(args);
 
@@ -350,7 +359,17 @@ export class PostResolver {
       const result = await findManyCursorConnection(
         args =>
           this.prisma.post.findMany({
-            include: { translations: true, postAccount: true, page: true, token: true },
+            include: {
+              uploads: true,
+              postAccount: true,
+              comments: true,
+              page: true,
+              translations: true,
+              reposts: { select: { account: true, accountId: true } },
+              _count: {
+                select: { reposts: true, comments: true }
+              }
+            },
             where: {
               AND: [
                 {
@@ -394,7 +413,7 @@ export class PostResolver {
   }
 
   @SkipThrottle()
-  @Query(() => PostResponse, { name: 'allPostsBySearchWithHashtagAtPage' })
+  @Query(() => PostConnection, { name: 'allPostsBySearchWithHashtagAtPage' })
   @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearchWithHashtagAtPage(
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
@@ -435,7 +454,17 @@ export class PostResolver {
     const postsId = _.map(posts, 'id');
 
     const searchPosts = await this.prisma.post.findMany({
-      include: { translations: true, postAccount: true, page: true },
+      include: {
+        uploads: true,
+        postAccount: true,
+        comments: true,
+        page: true,
+        translations: true,
+        reposts: { select: { account: true, accountId: true } },
+        _count: {
+          select: { reposts: true, comments: true }
+        }
+      },
       where: {
         AND: [
           {
@@ -458,7 +487,7 @@ export class PostResolver {
   }
 
   @SkipThrottle()
-  @Query(() => PostResponse, { name: 'allPostsBySearchWithHashtagAtToken' })
+  @Query(() => PostConnection, { name: 'allPostsBySearchWithHashtagAtToken' })
   @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearchWithHashtagAtToken(
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
@@ -499,7 +528,17 @@ export class PostResolver {
     const postsId = _.map(posts, 'id');
 
     const searchPosts = await this.prisma.post.findMany({
-      include: { translations: true, postAccount: true, token: true },
+      include: {
+        uploads: true,
+        postAccount: true,
+        comments: true,
+        page: true,
+        translations: true,
+        reposts: { select: { account: true, accountId: true } },
+        _count: {
+          select: { reposts: true, comments: true }
+        }
+      },
       where: {
         AND: [
           {

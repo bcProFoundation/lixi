@@ -458,6 +458,11 @@ function* changeAccountLocaleSaga(action: PayloadAction<ChangeAccountLocaleComma
 
 function* changeAccountLocaleSuccessSaga(action: PayloadAction<Account>) {
   const account = action.payload;
+  const paramFetchNotification = {
+    accountId: account.id,
+    mnemonichHash: account.mnemonicHash
+  };
+  yield put(fetchNotifications(paramFetchNotification));
   yield put(hideLoading(changeAccountLocale.type));
   yield put(
     showToast('success', {

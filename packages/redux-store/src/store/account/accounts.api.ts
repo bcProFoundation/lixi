@@ -1,7 +1,7 @@
 import { api } from './accounts.generated';
 
 const enhancedApi = api.enhanceEndpoints({
-  addTagTypes: ['Account'],
+  addTagTypes: ['Account', 'Accounts'],
   endpoints: {
     getAccountByAddress: {
       providesTags: (result, error, arg) => ['Account']

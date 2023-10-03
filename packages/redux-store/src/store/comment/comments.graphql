@@ -70,6 +70,11 @@ fragment CommentFields on Comment {
   danaBurnUp
   danaBurnDown
   danaBurnScore
+  commentDana {
+    danaBurnUp
+    danaBurnDown
+    danaBurnScore
+  }
   createdAt
   updatedAt
 }

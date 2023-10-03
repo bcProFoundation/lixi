@@ -1,3 +1,4 @@
+export * from './post-dana.model';
 export * from './post.model';
 export * from './repost.model';
 export * from './create-post.command';

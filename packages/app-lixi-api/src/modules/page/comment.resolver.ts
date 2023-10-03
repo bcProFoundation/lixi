@@ -192,12 +192,21 @@ export class CommentResolver {
       }
 
       const savedComment = await this.prisma.$transaction(async prisma => {
-        let txid: string | undefined;
+        let txid: string = '';
         if (createFeeHex) {
           const broadcastResponse = await this.chronik.broadcastTx(createFeeHex);
           if (!broadcastResponse) {
             throw new Error('Empty chronik broadcast response');
           }
+          txid = broadcastResponse.txid;
+        }
+
+        if (tipHex) {
+          const broadcastResponse = await this.chronik.broadcastTx(tipHex);
+          if (!broadcastResponse) {
+            throw new Error('Empty chronik broadcast response');
+          }
+
           txid = broadcastResponse.txid;
         }
 
@@ -212,13 +221,8 @@ export class CommentResolver {
           }
         });
 
+        //Check if tipHex then create tip transaction
         if (tipHex) {
-          const broadcastResponse = await this.chronik.broadcastTx(tipHex);
-          if (!broadcastResponse) {
-            throw new Error('Empty chronik broadcast response');
-          }
-
-          const { txid } = broadcastResponse;
           const transactionTip = {
             txid,
             fromAddress: account.address,
