@@ -23,7 +23,7 @@ const ProfileDetailPage = props => {
 
   return (
     <>
-      {isSuccessCheckFollowed && (
+      {account && (
         <>
           <NextSeo
             title={account.name}

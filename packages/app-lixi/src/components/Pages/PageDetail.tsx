@@ -117,10 +117,11 @@ const ProfileCardHeader = styled.div`
   .info-profile {
     display: flex;
     position: relative;
-    justify-content: space-between;
     align-items: end;
     padding: 1rem 2rem 1rem 0;
     background: #fff;
+    align-items: flex-start;
+    padding-left: 2rem;
     .wrapper-avatar {
       left: 2rem;
       top: -90px;
@@ -171,6 +172,10 @@ const ProfileCardHeader = styled.div`
     }
     .action-profile {
       display: flex;
+      @media (max-width: 1001px) {
+      flex: 1;
+      justify-content: flex-end;
+      @media (max-width: 1001px) {
       align-self: center;
       gap: 8px;
       .btn-edit-cover {
@@ -398,6 +403,195 @@ const StyledMenu = styled(Tabs)`
   }
 `;
 
+const PagesContainer = styled.div`
+  margin-top: 1rem;
+  h2 {
+    font-size: 22px;
+  }
+`;
+
+const ListCard = styled.div`
+  .infinite-scroll-component__outerdiv {
+    padding-bottom: 2rem;
+    .infinite-scroll-component {
+      display: grid !important;
+      grid-template-columns: auto auto auto !important;
+      grid-gap: 10px !important;
+      @media (max-width: 768px) {
+        grid-template-columns: auto auto !important;
+      }
+    }
+  }
+`;
+const StyledCardProduct = styled.div`
+  .slick-slider{
+    border: 1px solid var(--boder-item-light);
+    background: white;
+    border-bottom: none;
+  }
+  .slider-container{
+    border: 1px solid var(--boder-item-light);
+    background: white;
+  }
+  .slick-dots{
+    display: none !important;
+  }
+  .slick-next{
+    right: 0;
+    opacity: 0;
+  }
+  .slick-prev{
+    left: 0;
+    opacity: 0;
+    z-index: 1;
+  }
+  :hover{
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 6px 12px;   
+    @keyframes opacityHint {
+      0% {
+        opacity: 0;
+      }
+  
+      50% {
+        opacity: 0.5;
+      }
+  
+      100% {
+        opacity: 1;
+      }
+    } 
+    .slick-prev {
+      animation: opacityHint 0.1s;
+      animation-fill-mode: forwards;
+    }
+    .slick-next {
+      animation: opacityHint 0.1s;
+      animation-fill-mode: forwards;
+    }
+  }
+
+  border-radius: 6px;
+  max-width: 250px;
+  .product-img {
+    width: 100% !important;
+    height: 170px !important;
+    object-fit: cover;
+    border-top-right-radius: 6px;
+    border-top-left-radius: 6px;
+    @media (max-width: 768px) {
+      width: 185px;
+      height: 75px;
+      object-fit: cover;
+    }
+  }
+  .info-profile {
+    display: flex;
+    position: relative;
+    justify-content: space-between;
+    background: #fff;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+    padding-top: 0px;
+    border-width: 0px 1px 1px;
+    border-style: solid;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-color: rgb(230, 230, 230);
+    transition: border-color 0.2s ease 0s;
+}
+    .wrapper-avatar {
+      left: auto;
+      top: -35px;
+      position: absolute;
+      padding: 1px;
+      background: #fff;
+      border-radius: 50%;
+      .avatar-img {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+    }
+    .title-profile {
+      margin-left: 0;
+      text-align: left;
+      cursor: pointer;
+      .page-name {
+        ont-size: 17px;
+        font-weight: 500;
+        margin-bottom: 2px;
+      }
+      .page-category {
+        color: rgb(44, 44, 44);
+        font-size: 13px;
+        font-weight: 400;
+        margin-top: 1px;
+        white-space: nowrap;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sub-text {
+        font-size: 12px;
+        line-height: 16px;
+        letter-spacing: 0.4px;
+        color: rgba(30, 26, 29, 0.6);
+        margin: 0;
+      }
+    }
+  }
+`;
+const ActionBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  background: #fff;
+  border-left: 0;
+  border-right: 0;
+  transition: border-color 0.2s ease 0s;
+  border-width: 0px 1px 0px 1px;
+  border-color: rgb(230, 230, 230);
+  border-style: solid;
+  .ant-space {
+    gap: 4px !important;
+  }
+  .reaction-func {
+    color: rgba(30, 26, 29, 0.6);
+    cursor: pointer;
+    display: flex;
+    gap: 1rem;
+    img {
+      width: 28px;
+      height: 28px;
+      margin-right: 4px;
+    }
+  }
+`;
+
+export const GroupIconText = styled.div`
+  align-items: center;
+  display: flex;
+  .ant-space {
+    cursor: pointer;
+    margin-right: 1rem;
+    align-items: end;
+    border-radius: 12px;
+    cursor: pointer;
+    @media (max-width: 960px) {
+      margin-right: 1rem;
+    }
+  }
+  img {
+    width: 28px;
+    height: 28px;
+  }
+  .count {
+    color: rgba(30, 26, 29, 0.6);
+    font-size: 12px;
+  }
+`;
+
 const TagContainer = styled.div`
   margin-bottom: 1rem;
   text-align: left;
@@ -436,7 +630,7 @@ const SubAbout = ({
   </StyledSpace>
 );
 
-const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
+const PageDetail = ({ product, page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const selectedAccount = useAppSelector(getSelectedAccount);
@@ -446,6 +640,12 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const walletStatus = useAppSelector(getWalletStatus);
   const filterValue = useAppSelector(getFilterPostsPage);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
+  const [searchValue, setSearchValue] = useState<string | null>(null);
+  const [hashtags, setHashtags] = useState([]);
+  const [searchValue, setSearchValue] = useState<string | null>(null);
+  const [hashtags, setHashtags] = useState([]);
+  const categories = useAppSelector(getAllCategories);
+  const [productDetail, setProductDetail] = useState<any>(product);
   const recentTagAtPages = useAppSelector(getRecentHashtagAtPages);
   const [suggestedHashtag, setSuggestedTags] = useState([]);
   const [query, setQuery] = useState<any>('');
@@ -563,6 +763,28 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     false
   );
 
+  const {
+    data: productData,
+    totalCount: producTotalCount,
+    fetchNext: fetchNextProduct,
+    hasNext: hasNextProduct,
+    isFetching: isFetchingProduct,
+    isFetchingNext: isFetchingNextProduct
+  } = useInfiniteProductsByPageIdQuery(
+    {
+      first: 5,
+      minBurnFilter: filterValue ?? 1,
+      accountId: selectedAccountId ?? undefined,
+      orderBy: {
+        direction: OrderDirection.Desc,
+        field: ProductOrderField.UpdatedAt
+      },
+      id: page.id
+    },
+    false
+  );
+
+  useEffect(() => {}, [data]);
   useEffect(() => {
     const pageId = page.id;
     const topHashtags = _.map(hashtagData, 'content');
@@ -579,6 +801,16 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
       fetchNext();
     } else if (hasNext) {
       fetchNext();
+    }
+  };
+
+  const loadMoreProducts = () => {
+    console.log('load more products');
+    console.log('hasNextProduct', hasNextProduct);
+    if (hasNextProduct && !isFetchingProduct) {
+      fetchNextProduct();
+    } else if (hasNextProduct) {
+      fetchNextProduct();
     }
   };
 
@@ -777,6 +1009,107 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     );
   };
 
+  const routerProductDetail = id => {
+    dispatch(push(`/product/${id}`));
+  };
+  type CardPageItem = {
+    id?: any;
+    name?: string;
+    productImages?: string[];
+    price?: string;
+  };
+  const getCategoryName = (item: number) => {
+    const categoryLang = (categories.length > 0 && categories.find(category => category.id == item).name) ?? 'art';
+    return intl.get('category.' + categoryLang);
+  };
+  const mapPageItem = pageItem => {
+    let mapListImageSrc = null;
+    if (pageItem && pageItem.productImages && pageItem.productImages.length > 1) {
+      mapListImageSrc = pageItem.productImages.map(img => {
+        const imgUrl = `${process.env.NEXT_PUBLIC_AWS_ENDPOINT}/${img.upload.bucket}/${img.upload.sha}`;
+        return imgUrl;
+      });
+    } else {
+    }
+    let newItemObj: CardPageItem = {
+      id: pageItem?.id,
+      name: pageItem?.name,
+      productImages:
+        mapListImageSrc && mapListImageSrc.length > 0
+          ? mapListImageSrc
+          : [
+              '/images/default-avatar.jpg',
+              '/images/default-avatar.jpg',
+              '/images/default-avatar.jpg',
+              '/images/default-avatar.jpg'
+            ],
+      price: pageItem?.price
+    };
+    return newItemObj;
+  };
+
+  const mapImageProduct = productItem => {
+    let mapImages = null;
+    if (productItem && productItem.productImages && productItem.productImages.length > 1) {
+      mapImages = productItem.productImages.map(img => {
+        const imgUrl = `${process.env.NEXT_PUBLIC_AWS_ENDPOINT}/${img.upload.bucket}/${img.upload.sha}`;
+        const width = parseInt(img?.upload?.width) || 4;
+        const height = parseInt(img?.upload?.height) || 3;
+        let objImg = {
+          src: imgUrl,
+          width: width,
+          height: height
+        };
+        return objImg;
+      });
+    }
+    return mapImages;
+  };
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1
+  };
+  const CardPageItem = ({ item, onClickItem }: { item?: CardPageItem; onClickItem?: (id) => void }) => (
+    <StyledCardProduct key={item.id}>
+      <Slider {...settings}>
+        {!!item &&
+          !!item.productImages &&
+          item.productImages.length > 0 &&
+          item.productImages.map((item, index) => {
+            return (
+              <div className="slider-container">
+                <picture>
+                  <img className="product-img" style={coverImg} loading="eager" src={item} alt="cover-img" />
+                </picture>
+              </div>
+            );
+          })}
+      </Slider>
+      <ActionBar>
+        <GroupIconText>
+          <Reaction post={null} handleBurnForPost={handleBurnForPost} />
+        </GroupIconText>
+        <ShareSocialButton slug={null} content={null} postAccountName={'abc'} />
+      </ActionBar>
+      <div className="info-profile">
+        <div className="title-profile">
+          <h3 onClick={() => routerProductDetail(item.id)} className="page-name">
+            {item.name}
+          </h3>
+          <p className="page-category">{item.price} VND</p>
+        </div>
+      </div>
+    </StyledCardProduct>
+  );
+  const createPageBtn = () => {
+    dispatch(openModal('CreateProductModal', { accountId: selectedAccountId, pageId: pageDetailData.id }));
+  };
+  const onChange = (currentSlide: number) => {
+    console.log(currentSlide);
+  };
   const openPageMessageLixiModal = () => {
     dispatch(openModal('PageMessageLixiModal', { account: selectedAccount, page: page, wallet: walletStatus }));
   };
@@ -907,7 +1240,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
           </div>
         </ProfileCardHeader>
         <ProfileContentContainer>
-          <StyledMenu defaultActiveKey="post">
+          <StyledMenu defaultActiveKey={!!productDetail ? 'product' : 'post'}>
             <Tabs.TabPane tab="Post" key="post">
               {/* TODO: implement in the future */}
               {/* <LegacyProfile>
@@ -1087,6 +1420,76 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                   </div>
                 </AboutBox>
               </LegacyProfile>
+            </Tabs.TabPane>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="Product" key="product">
+              <PagesContainer>
+                {!!productDetail && (
+                  <>
+                    <NavBarHeader onClick={() => dispatch(push(`/page/${productDetail.page.id}`))}>
+                      <LeftOutlined />
+                      <PathDirection>
+                        <h2>Back to Product list</h2>
+                      </PathDirection>
+                    </NavBarHeader>
+                    <div style={{ display: 'flex', flexFlow: 'column' }}>
+                      {/* <Carousel draggable effect="fade" afterChange={onChange}>
+                        {!!productDetail &&
+                          productDetail.productImages.length > 0 &&
+                          mapImageProduct(productDetail).map((item, index) => {
+                            console.log(item);
+                            return (
+                              <div>
+                                <picture>
+                                  <img style={coverImg} loading="eager" src={item.src} alt="cover-img" />
+                                </picture>
+                              </div>
+                            );
+                          })}
+                      </Carousel> */}
+                      <h2 style={{ alignSelf: 'flex-start' }}>{productDetail.name}</h2>
+                      <h2 style={{ alignSelf: 'flex-start' }}>{productDetail.price}</h2>
+                      <h2 style={{ alignSelf: 'flex-start' }}>{productDetail.description}</h2>
+                      <h2 style={{ alignSelf: 'flex-start' }}>{productDetail.createdAt}</h2>
+                    </div>
+                  </>
+                )}
+                <ListCard>
+                  {!productDetail && (
+                    <>
+                      <React.Fragment>
+                        {selectedAccountId == pageDetailData?.pageAccountId && (
+                          <Button type="primary" className="outline-btn" onClick={createPageBtn}>
+                            {intl.get('page.createYourPage')}
+                          </Button>
+                        )}
+                        <h2>Product</h2>
+                        <InfiniteScroll
+                          dataLength={productData.length}
+                          next={loadMoreProducts}
+                          hasMore={hasNextProduct}
+                          loader={<Skeleton avatar active />}
+                          endMessage={
+                            <p style={{ textAlign: 'center' }}>
+                              <b>{"It's so empty here..."}</b>
+                            </p>
+                          }
+                          scrollableTarget="scrollableDiv"
+                        >
+                          {productData.map((item, index) => {
+                            return (
+                              <React.Fragment key={index}>
+                                <CardPageItem item={mapPageItem(item)} onClickItem={id => routerProductDetail(id)} />
+                              </React.Fragment>
+                            );
+                          })}
+                        </InfiniteScroll>
+                      </React.Fragment>
+                    </>
+                  )}
+                </ListCard>
+              </PagesContainer>
+            </Tabs.TabPane>
             </Tabs.TabPane> */}
             {/* TODO: implement in the future */}
             {/* <Tabs.TabPane tab="Friend" key="friend"></Tabs.TabPane>
@@ -1099,3 +1502,6 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
 };
 
 export default PageDetail;
+function setFocus(arg0: string, arg1: { shouldSelect: boolean }): void {
+  throw new Error('Function not implemented.');
+}

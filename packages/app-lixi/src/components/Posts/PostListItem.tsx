@@ -24,6 +24,7 @@ import { Waypoint } from 'react-waypoint';
 import styled from 'styled-components';
 import { EditPostModalProps } from './EditPostModalPopup';
 import PostContent from './PostContent';
+import { setSelectedPost } from '@store/post/actions';
 
 export const CommentList = ({ comments }: { comments: CommentItem[] }) => (
   <List

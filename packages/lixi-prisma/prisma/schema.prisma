@@ -112,11 +112,12 @@ model TokenDana {
 }
 
 model Category {
-  id        Int      @id @default(autoincrement())
-  name      String   @default("") @map("name")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz
+  id        Int       @id @default(autoincrement())
+  name      String    @default("") @map("name")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @default(now()) @map("updated_at") @db.Timestamptz
   pages     Page[]
+  Product   Product[]
 
   @@map("category")
 }
@@ -166,6 +167,33 @@ model Page {
   pageDana            PageDana?
 
   @@map("page")
+}
+
+model Product {
+  id             String         @id @default(cuid())
+  page           Page           @relation(fields: [pageId], references: [id])
+  pageId         String         @map("page_id")
+  name           String         @default("") @map("name") @db.VarChar(255)
+  title          String         @default("") @map("title") @db.VarChar(255)
+  price          Float          @default(0.0) @map("price")
+  priceUnit      String         @default("VND") @map("price_unit")
+  phoneNumber    String         @default("") @map("phone_number")
+  category       Category?      @relation(fields: [categoryId], references: [id])
+  categoryId     Int?           @map("category_id")
+  description    String         @default("") @map("description") @db.VarChar(1000)
+  productImages  UploadDetail[] @relation("ProductImage")
+  country        Country?       @relation(fields: [countryId], references: [id])
+  countryId      Int?           @map("country_id")
+  state          State?         @relation(fields: [stateId], references: [id])
+  stateId        Int?           @map("state_id")
+  address        String?        @default("") @map("address")
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime       @default(now()) @map("updated_at") @db.Timestamptz
+  lotusBurnUp    Float          @default(0.0) @map("lotus_burn_up")
+  lotusBurnDown  Float          @default(0.0) @map("lotus_burn_down")
+  lotusBurnScore Float          @default(0.0) @map("lotus_burn_score")
+
+  @@map("product")
 }
 
 model PageDana {
@@ -623,6 +651,7 @@ model Country {
   pages           Page[]
   worshipedPerson WorshipedPerson[]
   temples         Temple[]
+  Product         Product[]
 
   @@map("country")
 }
@@ -646,6 +675,7 @@ model State {
   pages           Page[]
   worshipedPerson WorshipedPerson[]
   temples         Temple[]
+  Product         Product[]
 
   @@index([countryId], map: "idx_158799_country_region")
   @@map("state")
@@ -694,6 +724,8 @@ model UploadDetail {
   templeAvatarId          String?          @unique @map("temple_avatar_id")
   templeCover             Temple?          @relation("temple_cover", fields: [templeCoverId], references: [id])
   templeCoverId           String?          @unique @map("temple_cover_id")
+  productId               String?          @map("product_id")
+  product                 Product?         @relation("ProductImage", fields: [productId], references: [id])
   avatarAccount           Account?         @relation("avatar", fields: [avatarAccountId], references: [id])
   avatarAccountId         Int?             @unique
   coverAccount            Account?         @relation("cover", fields: [coverAccountId], references: [id])

@@ -80,7 +80,8 @@ import {
   verifyEmailSuccess,
   setSecondaryLanguageAccount,
   setSecondaryLanguageAccountSuccess,
-  setSecondaryLanguageAccountFailure
+  setSecondaryLanguageAccountFailure,
+  removeUpload
 } from './actions';
 import { getAccountById, getSelectedAccount, getSelectedAccountId } from './selectors';
 import { saveClaimAddress } from '@store/claim';
@@ -652,6 +653,22 @@ function* verifyEmailFailureSaga(action: PayloadAction<any>) {
   yield put(hideLoading(loginViaEmail.type));
 }
 
+function* removeUploadSaga(action) {
+  const { id } = action.payload;
+  try {
+    yield call(accountApi.removeUpload, id);
+  } catch (err) {
+    const message = (err as Error).message ?? intl.get('account.unableRemoveUpload');
+    yield put(
+      showToast('error', {
+        message: 'Error',
+        description: message,
+        duration: 5
+      })
+    );
+  }
+}
+
 function* setSecondaryLanguageAccountSaga(action: PayloadAction<SecondaryLanguageAccountCommand>) {
   try {
     yield put(showLoading(setSecondaryLanguageAccount.type));
@@ -889,6 +906,10 @@ function* watchSilentLogin() {
   yield takeLatest(silentLogin.type, silentLoginSaga);
 }
 
+function* watchRemoveUpload() {
+  yield takeLatest(removeUpload.type, removeUploadSaga);
+}
+
 function* watchSilentLoginSuccess() {
   yield takeLatest(silentLoginSuccess.type, silentLoginSuccessSaga);
 }
@@ -908,6 +929,7 @@ function* watchSetSecondaryLanguageAccountSagaFailure() {
 export default function* accountSaga() {
   yield all([
     fork(watchGenerateAccount),
+    fork(watchRemoveUpload),
     fork(watchGetAccount),
     fork(watchGetAccountSuccess),
     fork(watchGetAccountFailure),

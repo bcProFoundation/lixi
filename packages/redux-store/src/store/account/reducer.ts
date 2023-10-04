@@ -1,6 +1,11 @@
 import { Account } from '@bcpros/lixi-models';
 import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
-import { createEntityAdapter, createReducer, isAnyOf, Update } from '@reduxjs/toolkit';
+import {
+  createEntityAdapter,
+  createReducer,
+  isAnyOf,
+  Update,
+} from '@reduxjs/toolkit';
 import _ from 'lodash';
 
 import {
@@ -51,6 +56,7 @@ const initialState: AccountsState = accountsAdapter.getInitialState({
   pageAvatarUpload: null,
   pageCoverUpload: null,
   postCoverUploads: [],
+  productImageUploads: [],
   editorCache: null,
   leaderBoard: [],
   transactionReady: true,
@@ -95,7 +101,7 @@ export const accountReducer = createReducer(initialState, builder => {
       const { account, lixies } = action.payload;
       const id = _.toSafeInteger(account.id);
       state.selectedId = id;
-      const lixiIds = lixies.map(lixi => lixi.id);
+      const lixiIds = lixies.map((lixi) => lixi.id);
       state.lixiIdsById[id] = lixiIds;
       accountsAdapter.upsertOne(state, account);
     })
@@ -103,7 +109,7 @@ export const accountReducer = createReducer(initialState, builder => {
       const { account, lixies } = action.payload;
       const id = _.toSafeInteger(account.id);
       state.selectedId = id;
-      const lixiIds = lixies.map(lixi => lixi.id);
+      const lixiIds = lixies.map((lixi) => lixi.id);
       state.lixiIdsById[id] = lixiIds;
       accountsAdapter.upsertOne(state, account);
     })
@@ -112,8 +118,8 @@ export const accountReducer = createReducer(initialState, builder => {
       const updateAccount: Update<Account> = {
         id: account.id,
         changes: {
-          ...account
-        }
+          ...account,
+        },
       };
       accountsAdapter.updateOne(state, updateAccount);
     })
@@ -142,15 +148,17 @@ export const accountReducer = createReducer(initialState, builder => {
         case UPLOAD_TYPES.POST:
           state.postCoverUploads.push(upload);
           break;
+        case UPLOAD_TYPES.PRODUCT:
+          state.productImageUploads.push(upload);
         case UPLOAD_TYPES.MESSAGE:
           state.messageUploads.push(upload);
           break;
       }
     })
     .addCase(removeUpload, (state, action) => {
-      const { type, id } = action.payload;
+      const { uploadType, id } = action.payload;
 
-      switch (type) {
+      switch (uploadType) {
         case UPLOAD_TYPES.ENVELOPE:
           state.envelopeUpload = null;
           break;
@@ -164,10 +172,16 @@ export const accountReducer = createReducer(initialState, builder => {
           state.pageCoverUpload = null;
           break;
         case UPLOAD_TYPES.POST:
-          state.postCoverUploads = state.postCoverUploads.filter(image => {
+          state.postCoverUploads = state.postCoverUploads.filter((image) => {
             return image.id !== id;
           });
           break;
+        case UPLOAD_TYPES.PRODUCT:
+          state.productImageUploads = state.productImageUploads.filter(
+            (image) => {
+              return image.id !== id;
+            }
+          );
         case UPLOAD_TYPES.MESSAGE:
           state.messageUploads = state.messageUploads.filter(image => {
             return image.id !== id;
@@ -177,6 +191,7 @@ export const accountReducer = createReducer(initialState, builder => {
     })
     .addCase(removeAllUpload, (state, action) => {
       state.postCoverUploads.length = 0;
+      state.productImageUploads.length = 0;
     })
     .addCase(removeAllMessageUpload, (state, action) => {
       state.messageUploads.length = 0;

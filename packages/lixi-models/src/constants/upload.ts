@@ -3,6 +3,7 @@ export const UPLOAD_TYPES = {
   PAGE_COVER: 'page_cover',
   PAGE_AVATAR: 'page_avatar',
   POST: 'post',
+  PRODUCT: 'product',
   ACCOUNT_COVER: 'account_cover',
   ACCOUNT_AVATAR: 'account_avatar',
   MESSAGE: 'message'
@@ -14,7 +15,7 @@ export const UPLOAD_BUTTON_TYPE = {
   TEXT: 'text',
   DEFAULT: 'default',
   GHOST: 'ghost',
-  DASHED: 'dashed'
+  DASHED: 'dashed',
 };
 
 export const UPLOAD_API_S3 = '/api/uploads/s3';

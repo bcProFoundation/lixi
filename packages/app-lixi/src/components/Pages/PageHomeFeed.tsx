@@ -91,7 +91,7 @@ const YourPageContainer = styled.div`
     letter-spacing: 0.5px;
     color: rgba(30, 26, 29, 0.6);
   }
-  @media (max-width: 9608px) {
+  @media (max-width: 960px) {
     .container-img {
       img {
         width: 100% !important;

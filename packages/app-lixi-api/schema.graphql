@@ -10,9 +10,7 @@ type Account {
   cover: String
   createCommentFee: String
 
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   dayOfBirth: Int
   description: String
@@ -34,9 +32,7 @@ type Account {
   secondaryLanguage: String
   secret: String
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
   website: String
   yearOfBirth: Int
@@ -72,9 +68,7 @@ input AccountOrder {
   field: AccountOrderField!
 }
 
-"""
-Properties by which account connections can be ordered.
-"""
+"""Properties by which account connections can be ordered."""
 enum AccountOrderField {
   address
   createdAt
@@ -87,16 +81,12 @@ type Bookmark {
   account: Account!
   bookmarkId: String!
 
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime
   id: ID!
   type: BookmarkType
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
 }
 
@@ -116,34 +106,26 @@ input BookmarkOrder {
   field: BookmarkOrderField!
 }
 
-"""
-Properties by which message connections can be ordered.
-"""
+"""Properties by which message connections can be ordered."""
 enum BookmarkOrderField {
   createdAt
   id
   updatedAt
 }
 
-"""
-The type of bookmark.
-"""
+"""The type of bookmark."""
 enum BookmarkType {
   COMMENT
   POST
 }
 
 type Category {
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   id: ID!
   name: String!
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
 }
 
@@ -168,18 +150,14 @@ type Comment {
   commentToId: String!
   content: String!
 
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   danaBurnDown: Float!
   danaBurnScore: Float!
   danaBurnUp: Float!
   id: ID!
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
 }
 
@@ -207,9 +185,7 @@ input CommentOrder {
   field: CommentOrderField!
 }
 
-"""
-Properties by which comment connections can be ordered.
-"""
+"""Properties by which comment connections can be ordered."""
 enum CommentOrderField {
   createdAt
   danaBurnScore
@@ -293,6 +269,18 @@ input CreatePostInput {
   uploads: [String!]
 }
 
+input CreateProductInput {
+  categoryId: Int
+  description: String
+  name: String
+  pageId: String
+  phoneNumber: String
+  price: Int!
+  priceUnit: String!
+  title: String
+  uploadImages: [String!]
+}
+
 input CreateTempleInput {
   achievement: String
   address: String
@@ -341,9 +329,7 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 """
 scalar DateTime
 
-"""
-An arbitrary-precision Decimal type
-"""
+"""An arbitrary-precision Decimal type"""
 scalar Decimal
 
 input DeleteFollowAccountInput {
@@ -369,9 +355,7 @@ type DistributionModel {
 }
 
 type EnvelopeModel {
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime
   description: String!
   id: ID!
@@ -380,9 +364,7 @@ type EnvelopeModel {
   slug: String!
   thumbnail: String!
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
 }
 
@@ -398,9 +380,7 @@ input ExtraArguments {
 type FollowAccount {
   avatar: String!
 
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   followerAccount: Account
   followerAccountId: Int
@@ -409,9 +389,7 @@ type FollowAccount {
   id: ID
   isFollowed: Boolean
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
 }
 
@@ -424,9 +402,7 @@ type FollowPage {
   account: Account
   accountId: Int
 
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   id: ID
   isFollowed: Boolean
@@ -435,9 +411,7 @@ type FollowPage {
   token: Token
   tokenId: String
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
 }
 
@@ -455,9 +429,7 @@ type FollowPageEdge {
 type Hashtag {
   content: String!
 
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime
   danaBurnDown: Float!
   danaBurnScore: Float!
@@ -467,9 +439,7 @@ type Hashtag {
   normalizedContent: String!
   postHashtags: [PostHashtag!]
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
 }
 
@@ -497,9 +467,7 @@ input HashtagOrder {
   field: HashtagOrderField!
 }
 
-"""
-Properties by which hashtag connections can be ordered.
-"""
+"""Properties by which hashtag connections can be ordered."""
 enum HashtagOrderField {
   createdAt
   danaBurnScore
@@ -527,9 +495,7 @@ type LatestMessageAuthor {
 type LixiModel {
   accountId: Int!
 
-  """
-  Identifies the date and time when the object was activated.
-  """
+  """Identifies the date and time when the object was activated."""
   activationAt: DateTime
   address: String!
   amount: String!
@@ -539,9 +505,7 @@ type LixiModel {
   claimedNum: Int!
   country: String
 
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime
   distributions: [DistributionModel!]
   dividedValue: Int!
@@ -550,9 +514,7 @@ type LixiModel {
   envelopeId: Int
   envelopeMessage: String
 
-  """
-  Identifies the date and time when the object was expired.
-  """
+  """Identifies the date and time when the object was expired."""
   expiryAt: DateTime
   fixedValue: Int!
   id: ID!
@@ -578,9 +540,7 @@ type LixiModel {
   subLixiTotalClaim: Int
   totalClaim: Int!
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
 }
 
@@ -588,17 +548,13 @@ type Message {
   author: Account!
   body: String
 
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime
   id: ID!
   isPageOwner: Boolean
   pageMessageSession: PageMessageSession
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
   uploads: [UploadDetail!]
 }
@@ -619,9 +575,7 @@ input MessageOrder {
   field: MessageOrderField!
 }
 
-"""
-Properties by which message connections can be ordered.
-"""
+"""Properties by which message connections can be ordered."""
 enum MessageOrderField {
   createdAt
   id
@@ -629,9 +583,7 @@ enum MessageOrderField {
 }
 
 type MessageSession {
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime
   id: ID!
   lixi: LixiModel
@@ -640,9 +592,7 @@ type MessageSession {
   pageMessageSession: PageMessageSession
   sessionOpen: Boolean
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
 }
 
@@ -704,9 +654,7 @@ type Page {
   createCommentFee: String!
   createPostFee: String!
 
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   danaBurnDown: Float!
   danaBurnScore: Float!
@@ -729,17 +677,13 @@ type Page {
   stateName: String
   title: String
 
-  """
-  The sum of burn amount for every post on page
-  """
+  """The sum of burn amount for every post on page"""
   totalBurnForPage: Float
   totalPostsBurnDown: Float!
   totalPostsBurnScore: Float!
   totalPostsBurnUp: Float!
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
   website: String
 }
@@ -773,9 +717,7 @@ type PageInfo {
 type PageMessageSession {
   account: Account!
 
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime
   id: ID!
   latestMessage: LatestMessage
@@ -784,20 +726,14 @@ type PageMessageSession {
   messages: [Message!]
   page: Page!
 
-  """
-  Identifies the date and time when the session was closed.
-  """
+  """Identifies the date and time when the session was closed."""
   sessionClosedAt: DateTime
 
-  """
-  Identifies the date and time when the session was opened.
-  """
+  """Identifies the date and time when the session was opened."""
   sessionOpenedAt: DateTime
   status: PageMessageSessionStatus!
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
 }
 
@@ -817,9 +753,7 @@ input PageMessageSessionOrder {
   field: PageMessageSessionOrderField!
 }
 
-"""
-Properties by which page message session connections can be ordered.
-"""
+"""Properties by which page message session connections can be ordered."""
 enum PageMessageSessionOrderField {
   createdAt
   id
@@ -827,9 +761,7 @@ enum PageMessageSessionOrderField {
   updatedAt
 }
 
-"""
-Properties by status of the current PageMessageSession.
-"""
+"""Properties by status of the current PageMessageSession."""
 enum PageMessageSessionStatus {
   CLOSE
   OPEN
@@ -841,9 +773,7 @@ input PageOrder {
   field: PageOrderField!
 }
 
-"""
-Properties by which page connections can be ordered.
-"""
+"""Properties by which page connections can be ordered."""
 enum PageOrderField {
   createdAt
   danaBurnScore
@@ -857,9 +787,7 @@ enum PageOrderField {
 type Post {
   content: String!
 
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   danaBurnDown: Float!
   danaBurnScore: Float!
@@ -883,9 +811,7 @@ type Post {
   totalComments: Int!
   translations: [PostTranslation!]
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
   uploads: [UploadDetail!]
 }
@@ -910,9 +836,7 @@ type PostEdge {
 }
 
 type PostHashtag {
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime
   hashtag: Hashtag!
   hashtagId: String!
@@ -920,9 +844,7 @@ type PostHashtag {
   post: Post
   postId: String
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
 }
 
@@ -931,9 +853,7 @@ input PostOrder {
   field: PostOrderField!
 }
 
-"""
-Properties by which post connections can be ordered.
-"""
+"""Properties by which post connections can be ordered."""
 enum PostOrderField {
   content
   createdAt
@@ -944,289 +864,130 @@ enum PostOrderField {
 }
 
 type PostTranslation {
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   id: ID!
   translateContent: String
   translateLanguage: String
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
 }
 
+type Product {
+  address: String
+  categoryId: String
+  country: Country
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  description: String!
+  id: ID!
+  lotusBurnDown: Float!
+  lotusBurnScore: Float!
+  lotusBurnUp: Float!
+  name: String!
+  page: Page!
+  phoneNumber: String!
+  price: Int!
+  priceUnit: String!
+  productImages: [UploadDetail!]
+  state: State
+  title: String!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+}
+
+type ProductConnection {
+  edges: [ProductEdge!]
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type ProductEdge {
+  cursor: String!
+  node: Product!
+}
+
+input ProductOrder {
+  direction: OrderDirection!
+  field: ProductOrderField!
+}
+
+"""Properties by which page connections can be ordered."""
+enum ProductOrderField {
+  createdAt
+  id
+  lotusBurnScore
+  name
+  title
+  updatedAt
+}
+
 type Query {
-  allBookmarkByAccountId(
-    accountId: Int!
-    after: String
-    before: String
-    bookmarkType: BookmarkType!
-    first: Int
-    last: Int
-    minBurnFilter: Int
-    orderBy: BookmarkOrder
-    skip: Int
-  ): BookmarkConnection!
   account(id: Int!): Account!
-  allClosedPageMessageSession(
-    accountId: Int
-    after: String
-    before: String
-    first: Int
-    last: Int
-    minBurnFilter: Int
-    orderBy: PageMessageSessionOrder
-    pageId: String
-    skip: Int
-  ): PageMessageSessionConnection!
-  allCommentsToPostId(
-    after: String
-    before: String
-    first: Int
-    id: String
-    last: Int
-    minBurnFilter: Int
-    orderBy: CommentOrder
-    skip: Int
-  ): CommentConnection!
-  allFollowersByFollowing(
-    after: String
-    before: String
-    first: Int
-    followingAccountId: Int
-    last: Int
-    minBurnFilter: Int
-    orderBy: AccountOrder
-    skip: Int
-  ): AccountConnection!
-  allFollowingsByFollower(
-    after: String
-    before: String
-    first: Int
-    followerAccountId: Int
-    last: Int
-    minBurnFilter: Int
-    orderBy: AccountOrder
-    skip: Int
-  ): AccountConnection!
-  allHashtag(
-    after: String
-    before: String
-    first: Int
-    last: Int
-    minBurnFilter: Int
-    orderBy: HashtagOrder
-    skip: Int
-  ): HashtagConnection!
-  allHashtagByPage(
-    after: String
-    before: String
-    first: Int
-    id: String
-    last: Int
-    minBurnFilter: Int
-    orderBy: HashtagOrder
-    skip: Int
-  ): HashtagConnection!
+  allBookmarkByAccountId(accountId: Int!, after: String, before: String, bookmarkType: BookmarkType!, first: Int, last: Int, minBurnFilter: Int, orderBy: BookmarkOrder, skip: Int): BookmarkConnection!
+  allClosedPageMessageSession(accountId: Int, after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, pageId: String, skip: Int): PageMessageSessionConnection!
+  allCommentsToPostId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: CommentOrder, skip: Int): CommentConnection!
+  allFollowersByFollowing(after: String, before: String, first: Int, followingAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
+  allFollowingsByFollower(after: String, before: String, first: Int, followerAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
+  allHashtag(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: HashtagOrder, skip: Int): HashtagConnection!
+  allHashtagByPage(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: HashtagOrder, skip: Int): HashtagConnection!
   allHashtagBySearch(
-    """
-    Paginate after opaque cursor
-    """
+    """Paginate after opaque cursor"""
     after: String
 
-    """
-    Paginate before opaque cursor
-    """
+    """Paginate before opaque cursor"""
     before: String
 
-    """
-    Paginate first
-    """
+    """Paginate first"""
     first: Int
 
-    """
-    Paginate last
-    """
+    """Paginate last"""
     last: Int
     query: String
   ): HashtagConnection!
-  allHashtagByToken(
-    after: String
-    before: String
-    first: Int
-    id: String
-    last: Int
-    minBurnFilter: Int
-    orderBy: HashtagOrder
-    skip: Int
-  ): HashtagConnection!
-  allMessageByPageMessageSessionId(
-    after: String
-    before: String
-    first: Int
-    id: String
-    last: Int
-    minBurnFilter: Int
-    orderBy: MessageOrder
-    skip: Int
-  ): MessageConnection!
-  allOpenPageMessageSessionByAccountId(
-    after: String
-    before: String
-    first: Int
-    id: Int
-    last: Int
-    minBurnFilter: Int
-    orderBy: PageMessageSessionOrder
-    skip: Int
-  ): PageMessageSessionConnection!
-  allOpenPageMessageSessionByPageId(
-    after: String
-    before: String
-    first: Int
-    id: String
-    last: Int
-    minBurnFilter: Int
-    orderBy: PageMessageSessionOrder
-    skip: Int
-  ): PageMessageSessionConnection!
-  allPageMessageSessionByAccountId(
-    after: String
-    before: String
-    first: Int
-    id: Int
-    last: Int
-    minBurnFilter: Int
-    orderBy: PageMessageSessionOrder
-    skip: Int
-  ): PageMessageSessionConnection!
-  allPages(
-    after: String
-    before: String
-    first: Int
-    last: Int
-    minBurnFilter: Int
-    orderBy: [PageOrder!]
-    query: String
-    skip: Int
-  ): PageConnection!
-  allPagesByFollower(
-    after: String
-    before: String
-    first: Int
-    last: Int
-    minBurnFilter: Int
-    pagesOnly: Boolean
-    skip: Int
-  ): FollowPageConnection!
-  allPagesByUserId(
-    after: String
-    before: String
-    first: Int
-    id: Int
-    last: Int
-    minBurnFilter: Int
-    orderBy: PageOrder
-    skip: Int
-  ): PageConnection!
-  allPendingPageMessageSessionByAccountId(
-    after: String
-    before: String
-    first: Int
-    id: Int
-    last: Int
-    minBurnFilter: Int
-    orderBy: PageMessageSessionOrder
-    skip: Int
-  ): PageMessageSessionConnection!
-  allPendingPageMessageSessionByPageId(
-    after: String
-    before: String
-    first: Int
-    id: String
-    last: Int
-    minBurnFilter: Int
-    orderBy: PageMessageSessionOrder
-    skip: Int
-  ): PageMessageSessionConnection!
-  allPostsByHashtagId(
-    after: String
-    before: String
-    first: Int
-    id: String
-    last: Int
-    minBurnFilter: Int
-    orderBy: PostOrder
-    skip: Int
-  ): PostConnection!
-  allPostsByPageId(
-    accountId: Int
-    after: String
-    before: String
-    first: Int
-    id: String
-    last: Int
-    minBurnFilter: Int
-    orderBy: [PostOrder!]
-    skip: Int
-  ): PostConnection!
+  allHashtagByToken(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: HashtagOrder, skip: Int): HashtagConnection!
+  allMessageByPageMessageSessionId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: MessageOrder, skip: Int): MessageConnection!
+  allOpenPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
+  allOpenPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
+  allPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
+  allPages(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: [PageOrder!], query: String, skip: Int): PageConnection!
+  allPagesByFollower(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, pagesOnly: Boolean, skip: Int): FollowPageConnection!
+  allPagesByUserId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageOrder, skip: Int): PageConnection!
+  allPendingPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
+  allPendingPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
+  allPostsByHashtagId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
+  allPostsByPageId(accountId: Int, after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: [PostOrder!], skip: Int): PostConnection!
   allPostsBySearch(
-    """
-    Paginate after opaque cursor
-    """
+    """Paginate after opaque cursor"""
     after: String
 
-    """
-    Paginate before opaque cursor
-    """
+    """Paginate before opaque cursor"""
     before: String
 
-    """
-    Paginate first
-    """
+    """Paginate first"""
     first: Int
 
-    """
-    Paginate last
-    """
+    """Paginate last"""
     last: Int
     minBurnFilter: Int
     query: String
   ): PostConnection!
-  allPostsBySearchWithHashtag(
-    after: String
-    before: String
-    first: Int
-    hashtags: [String!]
-    last: Int
-    minBurnFilter: Int
-    orderBy: PostOrder
-    query: String
-    skip: Int
-  ): PostConnection!
+  allPostsBySearchWithHashtag(after: String, before: String, first: Int, hashtags: [String!], last: Int, minBurnFilter: Int, orderBy: PostOrder, query: String, skip: Int): PostConnection!
   allPostsBySearchWithHashtagAtPage(
-    """
-    Paginate after opaque cursor
-    """
+    """Paginate after opaque cursor"""
     after: String
 
-    """
-    Paginate before opaque cursor
-    """
+    """Paginate before opaque cursor"""
     before: String
 
-    """
-    Paginate first
-    """
+    """Paginate first"""
     first: Int
     hashtags: [String!]
 
-    """
-    Paginate last
-    """
+    """Paginate last"""
     last: Int
     minBurnFilter: Int
     orderBy: PostOrder
@@ -1234,161 +995,61 @@ type Query {
     query: String
   ): PostConnection!
   allPostsBySearchWithHashtagAtToken(
-    """
-    Paginate after opaque cursor
-    """
+    """Paginate after opaque cursor"""
     after: String
 
-    """
-    Paginate before opaque cursor
-    """
+    """Paginate before opaque cursor"""
     before: String
 
-    """
-    Paginate first
-    """
+    """Paginate first"""
     first: Int
     hashtags: [String!]
 
-    """
-    Paginate last
-    """
+    """Paginate last"""
     last: Int
     minBurnFilter: Int
     orderBy: PostOrder
     query: String
     tokenId: String
   ): PostConnection!
-  allPostsByTokenId(
-    after: String
-    before: String
-    first: Int
-    id: String
-    last: Int
-    minBurnFilter: Int
-    orderBy: PostOrder
-    skip: Int
-  ): PostConnection!
-  allPostsByUserId(
-    after: String
-    before: String
-    first: Int
-    id: Int
-    last: Int
-    minBurnFilter: Int
-    orderBy: PostOrder
-    skip: Int
-  ): PostConnection!
-  allTemple(
-    after: String
-    before: String
-    first: Int
-    last: Int
-    minBurnFilter: Int
-    orderBy: TempleOrder
-    skip: Int
-  ): TempleConnection!
+  allPostsByTokenId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
+  allPostsByUserId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
+  allTemple(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: TempleOrder, skip: Int): TempleConnection!
   allTempleBySearch(
-    """
-    Paginate after opaque cursor
-    """
+    """Paginate after opaque cursor"""
     after: String
 
-    """
-    Paginate before opaque cursor
-    """
+    """Paginate before opaque cursor"""
     before: String
 
-    """
-    Paginate first
-    """
+    """Paginate first"""
     first: Int
 
-    """
-    Paginate last
-    """
+    """Paginate last"""
     last: Int
     query: String
   ): TempleConnection!
   allTokens(orderBy: TokenOrder): TokenConnection!
-  allWorship(
-    after: String
-    before: String
-    first: Int
-    last: Int
-    minBurnFilter: Int
-    orderBy: WorshipOrder
-    skip: Int
-  ): WorshipConnection!
-  allWorshipedByPersonId(
-    after: String
-    before: String
-    first: Int
-    id: String
-    last: Int
-    minBurnFilter: Int
-    orderBy: WorshipOrder
-    skip: Int
-  ): WorshipConnection!
-  allWorshipedByTempleId(
-    after: String
-    before: String
-    first: Int
-    id: String
-    last: Int
-    minBurnFilter: Int
-    orderBy: WorshipOrder
-    skip: Int
-  ): WorshipConnection!
-  allWorshipedPerson(
-    after: String
-    before: String
-    first: Int
-    last: Int
-    minBurnFilter: Int
-    orderBy: WorshipedPersonOrder
-    skip: Int
-  ): WorshipedPersonConnection!
+  allWorship(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: WorshipOrder, skip: Int): WorshipConnection!
+  allWorshipedByPersonId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: WorshipOrder, skip: Int): WorshipConnection!
+  allWorshipedByTempleId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: WorshipOrder, skip: Int): WorshipConnection!
+  allWorshipedPerson(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: WorshipedPersonOrder, skip: Int): WorshipedPersonConnection!
   allWorshipedPersonBySearch(
-    """
-    Paginate after opaque cursor
-    """
+    """Paginate after opaque cursor"""
     after: String
 
-    """
-    Paginate before opaque cursor
-    """
+    """Paginate before opaque cursor"""
     before: String
 
-    """
-    Paginate first
-    """
+    """Paginate first"""
     first: Int
 
-    """
-    Paginate last
-    """
+    """Paginate last"""
     last: Int
     query: String
   ): WorshipedPersonConnection!
-  allWorshipedPersonByUserId(
-    after: String
-    before: String
-    first: Int
-    last: Int
-    minBurnFilter: Int
-    orderBy: WorshipedPersonOrder
-    skip: Int
-  ): WorshipedPersonConnection!
-  allWorshipedPersonSpecialDate(
-    after: String
-    before: String
-    first: Int
-    last: Int
-    minBurnFilter: Int
-    orderBy: WorshipedPersonOrder
-    skip: Int
-  ): WorshipedPersonConnection!
+  allWorshipedPersonByUserId(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: WorshipedPersonOrder, skip: Int): WorshipedPersonConnection!
+  allWorshipedPersonSpecialDate(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: WorshipedPersonOrder, skip: Int): WorshipedPersonConnection!
   bookmark(id: String!): Bookmark!
   checkIfFollowAccount(followingAccountId: Int!): Boolean!
   checkIfFollowPage(pageId: String): Boolean!
@@ -1397,19 +1058,12 @@ type Query {
   comment(id: String!): Comment!
   getAccountByAddress(address: String!): Account!
   hashtag(content: String!): Hashtag!
-  homeTimeline(
-    after: String
-    before: String
-    first: Int
-    last: Int
-    level: Int
-    minBurnFilter: Int
-    skip: Int
-  ): TimelineItemConnection!
+  homeTimeline(after: String, before: String, first: Int, last: Int, level: Int, minBurnFilter: Int, skip: Int): TimelineItemConnection!
   message(id: String!): Message!
   page(id: String!): Page!
   pageMessageSession(id: String!): PageMessageSession!
   post(id: String!): Post!
+  product(id: String!): Product!
   temple(id: String!): Temple!
   timeline(id: String!): TimelineItem!
   token(tokenId: String!): Token!
@@ -1426,17 +1080,13 @@ type Repost {
   account: Account
   accountId: Int
 
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   id: ID
   post: Post
   postId: String
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
 }
 
@@ -1477,9 +1127,7 @@ type Temple {
   country: Country
   cover: UploadDetail
 
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime
   dateOfCompleted: DateTime
   description: String
@@ -1490,9 +1138,7 @@ type Temple {
   state: State
   totalWorshipAmount: Int
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
   verified: Boolean!
   website: String
@@ -1514,9 +1160,7 @@ input TempleOrder {
   field: TempleOrderField!
 }
 
-"""
-Properties by which temple connections can be ordered.
-"""
+"""Properties by which temple connections can be ordered."""
 enum TempleOrderField {
   createdAt
   id
@@ -1543,14 +1187,10 @@ type TimelineItemEdge {
 }
 
 type Token {
-  """
-  Identifies the date and time when the object was last comments.
-  """
+  """Identifies the date and time when the object was last comments."""
   comments: DateTime
 
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdDate: DateTime!
   danaBurnDown: Float!
   danaBurnScore: Float!
@@ -1594,9 +1234,7 @@ input TokenOrder {
   field: TokenOrderField!
 }
 
-"""
-Properties by which token connections can be ordered.
-"""
+"""Properties by which token connections can be ordered."""
 enum TokenOrderField {
   createdDate
   danaBurnDown
@@ -1644,6 +1282,19 @@ input UpdatePostInput {
   pureContent: String!
 }
 
+input UpdateProductInput {
+  categoryId: Int
+  description: String
+  id: ID!
+  name: String
+  pageId: String
+  phoneNumber: String
+  price: Int!
+  priceUnit: String!
+  title: String
+  uploadImages: [String!]
+}
+
 type Upload {
   bucket: String
   cfImageFilename: String
@@ -1669,9 +1320,7 @@ type UploadDetail {
 type Worship {
   account: Account!
 
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   id: ID!
   latitude: Decimal
@@ -1679,9 +1328,7 @@ type Worship {
   longitude: Decimal
   temple: Temple
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
   worshipedAmount: Float!
   worshipedPerson: WorshipedPerson
@@ -1703,9 +1350,7 @@ input WorshipOrder {
   field: WorshipOrderField!
 }
 
-"""
-Properties by which worship connections can be ordered.
-"""
+"""Properties by which worship connections can be ordered."""
 enum WorshipOrderField {
   createdAt
   id
@@ -1722,9 +1367,7 @@ type WorshipedPerson {
   country: Country
   countryOfCitizenship: String
 
-  """
-  Identifies the date and time when the object was created.
-  """
+  """Identifies the date and time when the object was created."""
   createdAt: DateTime
   dateOfBirth: DateTime
   dateOfDeath: DateTime
@@ -1738,9 +1381,7 @@ type WorshipedPerson {
   state: State
   totalWorshipAmount: Int
 
-  """
-  Identifies the date and time when the object was last updated.
-  """
+  """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
   wikiAvatar: String
   wikiDataId: String
@@ -1762,9 +1403,7 @@ input WorshipedPersonOrder {
   field: WorshipedPersonOrderField!
 }
 
-"""
-Properties by which worshiped person connections can be ordered.
-"""
+"""Properties by which worshiped person connections can be ordered."""
 enum WorshipedPersonOrderField {
   createdAt
   id

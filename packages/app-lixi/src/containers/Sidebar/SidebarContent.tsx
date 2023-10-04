@@ -1,6 +1,6 @@
 import { LeftOutlined } from '@ant-design/icons';
 import { HashtagOrderField, OrderDirection, PostOrderField, PostQueryItem } from '@generated/index';
-import { addRecentHashtagAtPages } from '@store/account';
+import { addRecentHashtagAtPages, setGraphqlRequestLoading } from '@store/account';
 import { getSelectedAccountId } from '@store/account/selectors';
 import { useInfiniteHashtagByPageQuery } from '@store/hashtag/useInfiniteHashtagByPageQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
@@ -25,6 +25,7 @@ import {
   ShortCutTopicItem,
   typeFilterPageQuery
 } from './SideBarShortcut';
+import { api as timelineApi } from '@store/timeline/timeline.api';
 
 type SidebarContentProps = {
   className?: string;
@@ -107,8 +108,9 @@ const SidebarContent = ({ className }: SidebarContentProps) => {
   const pageId = router.pathname.includes('page') && (router.query?.slug as string);
   const [cachePostIdGeneral, setCachePostIdGeneral] = useState(0);
   const level = useAppSelector(getLevelFilter);
+  const currentPathName = router.pathname ?? '';
 
-  let { data: timelineData } = useInfiniteHomeTimelineQuery(
+  let { data: timelineData, refetch } = useInfiniteHomeTimelineQuery(
     {
       first: 40,
       level: level ?? 3
@@ -248,7 +250,14 @@ const SidebarContent = ({ className }: SidebarContentProps) => {
   }, [timelineData]);
 
   const handleIconClick = (newPath?: string) => {
-    dispatch(push(newPath));
+    if (currentPathName === '/' && newPath === '/') {
+      dispatch(toggleCollapsedSideNav(!navCollapsed));
+      dispatch(timelineApi.util.resetApiState());
+      refetch();
+      dispatch(setGraphqlRequestLoading());
+    } else {
+      dispatch(push(newPath));
+    }
   };
 
   const showParrentTopic = posts => {

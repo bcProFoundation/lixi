@@ -132,7 +132,6 @@ const accountApi = {
         throw response?.data ?? err ?? 'Network Error';
       });
   },
-
   getLeaderboard() {
     const url = 'api/accounts/leaderboard';
     return axiosClient
@@ -141,6 +140,18 @@ const accountApi = {
           limit: 5
         }
       })
+      .then(response => {
+        return response.data;
+      })
+      .catch(err => {
+        const { response } = err;
+        throw response?.data ?? err ?? 'Network Error';
+      });
+  },
+  removeUpload(id: string) {
+    const url = `/api/uploads/remove-image-cf/${id}`;
+    return axiosClient
+      .delete(url)
       .then(response => {
         return response.data;
       })

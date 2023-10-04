@@ -43,8 +43,8 @@ const Counter = (props: CounterProps) => {
   const [animationCounter, setAnimationCounter] = useState('initial');
 
   const compactNumberFormatter = new Intl.NumberFormat('en-GB', {
-    notation: "compact",
-    compactDisplay: "short"
+    notation: 'compact',
+    compactDisplay: 'short'
   });
 
   let displayValue = count.toString();
