@@ -38,6 +38,9 @@ const PostContent = ({ post, showTranslation, currentLocale }) => {
               {domNode.children.map(child => child.data)}
             </span>
           );
+        } // replace strong tag or italic tag to span tag
+        else if (domNode?.name === 'strong' || domNode?.name === 'em') {
+          return <span>{domNode.children.map(child => child.data)}</span>;
         }
       }
     });
