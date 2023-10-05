@@ -11,7 +11,7 @@ import { setSelectedPost } from '@store/post/actions';
 import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
 import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
 import { toggleCollapsedSideNav } from '@store/settings/actions';
-import { getFilterPostsHome, getLevelFilter, getNavCollapsed } from '@store/settings/selectors';
+import { getFilterPostsHome, getFilterPostsPage, getLevelFilter, getNavCollapsed } from '@store/settings/selectors';
 import { api as timelineApi } from '@store/timeline/timeline.api';
 import { useInfiniteHomeTimelineQuery } from '@store/timeline/useInfiniteHomeTimelineQuery';
 import axiosClient from '@utils/axiosClient';
@@ -724,7 +724,7 @@ const SidebarShortcut = () => {
   const navCollapsed = useAppSelector(getNavCollapsed);
   const router = useRouter();
   const currentPathName = router.pathname ?? '';
-  const filterValue = useAppSelector(getFilterPostsHome);
+  const filterValue = useAppSelector(getFilterPostsPage);
   const selectedAccountId = useAppSelector(getSelectedAccountId);
   const [filterPage, setFilterPage] = useState({});
   const [filterPageQuery, setFilterPageQuery] = useState<typeFilterPageQuery>({});
@@ -739,7 +739,8 @@ const SidebarShortcut = () => {
   let { data: timelineData, refetch } = useInfiniteHomeTimelineQuery(
     {
       first: 40,
-      level: level ?? 3
+      level: level ?? 3,
+      isHome: currentPathName == '/'
     },
     false
   );
