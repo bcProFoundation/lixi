@@ -137,6 +137,19 @@ const Footer = ({ classList }: { classList?: any }) => {
           }}
         />
         <ItemAccess
+          icon={'/images/ico-notifications.svg'}
+          text={intl.get('general.bookmark')}
+          active={currentPathName === '/bookmark'}
+          direction="horizontal"
+          key="bookmark"
+          onClickItem={() => {
+            if (authorization.authorized) handleIconClick('/bookmark');
+            else {
+              currentModal.length === 0 && askAuthorization();
+            }
+          }}
+        />
+        <ItemAccess
           icon={'/images/ico-support.png'}
           text={intl.get('general.support')}
           active={currentAbsolutePathName.includes('page/clbm6r1v91486308n7w6za1qcu')}

@@ -22,6 +22,7 @@ export default {
   'label.name': 'Name',
   'label.burnXPI': 'Burn XPI',
   'label.comment': 'Comments',
+  'label.post': 'Posts',
   'label.created': 'Created',
   'label.action': 'Action',
   'text.createPage':
@@ -72,6 +73,7 @@ export default {
   'general.chooseCamera': 'Please choose camera',
   'general.chooseCameraTip': 'Try switching camera when its not working properly',
   'general.notifications': 'Notifications',
+  'general.bookmark': 'Bookmark',
   'general.viewmore': 'View more',
   'general.ended': 'Ended',
   'general.running': 'Running',

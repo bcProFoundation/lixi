@@ -22,6 +22,7 @@ export default {
   'label.name': 'Tên',
   'label.burnXPI': 'Đốt XPI',
   'label.comment': 'Bình luận',
+  'label.post': 'Bài viết',
   'label.created': 'Khởi tạo',
   'label.action': 'Hành động',
   'text.createPage':
@@ -71,6 +72,7 @@ export default {
   'general.chooseCamera': 'Chọn camera',
   'general.chooseCameraTip': 'Thử đổi camera nếu quét không thành công',
   'general.notifications': 'Thông báo',
+  'general.bookmark': 'Đã lưu',
   'general.viewmore': 'Xem thêm',
   'general.ended': 'Đã kết thúc',
   'general.running': 'Đang hoạt động',
