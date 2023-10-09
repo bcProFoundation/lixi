@@ -212,7 +212,7 @@ const EditorLexical = (props: EditorLexicalProps) => {
 
   const handlePasteImage = evt => {
     const clipboardItems = evt.clipboardData.items;
-    const items = [].slice.call(clipboardItems).filter(function (item) {
+    const items: DataTransferItem[] | unknown[] = Array.from(clipboardItems).filter(function (item: DataTransferItem) {
       // Filter the image items only
       return /^image\//.test(item.type);
     });
@@ -220,10 +220,13 @@ const EditorLexical = (props: EditorLexicalProps) => {
       return;
     }
 
-    const item = items[0];
+    const item = items[0] as DataTransferItem;
     const blob = item.getAsFile();
+    const blobName = blob.name ?? 'image.png';
+    const blobType = blob.type ?? 'image/png';
+    const blobLastModified = blob.lastModified ?? Date.now();
 
-    let file = new File([blob], 'file name', { type: 'image/jpeg', lastModified: new Date().getTime() });
+    let file = new File([blob], blobName, { type: blobType, lastModified: blobLastModified });
 
     multiUploader.current?.uploadImageFromClipboard({ file: file });
   };

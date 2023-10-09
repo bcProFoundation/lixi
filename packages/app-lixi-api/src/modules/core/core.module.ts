@@ -32,6 +32,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { ACCOUNT_DANA_QUEUE } from './burn/burn.constants';
 import IORedis from 'ioredis';
 import _ from 'lodash';
+import { UploadService } from './upload/upload.serivce';
 const baseCorsConfig = cors({
   origin: process.env.BASE_URL ?? ''
 });
@@ -94,7 +95,8 @@ const baseCorsConfig = cors({
     ExportSubLixiesEventsListener,
     WithdrawSubLixiesEventsListener,
     BurnFanoutProcessor,
-    AccountDanaProcessor
+    AccountDanaProcessor,
+    UploadService
   ],
   exports: [
     LixiService,

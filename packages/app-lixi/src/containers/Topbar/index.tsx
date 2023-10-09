@@ -465,7 +465,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
   const walletHasUpdated = useAppSelector(getWalletHasUpdated);
 
   const slug: string = _.isArray(router?.query?.slug) ? router?.query?.slug[0] : router?.query?.slug;
-  const { currentData: currentDataPageQuery } = usePageQuery({ id: slug }, { skip: !slug });
+  const { currentData: currentDataPageQuery } = usePageQuery({ id: slug }, { skip: !slug || !slug.startsWith('c') });
   const { currentData: currentDataGetAccount } = useGetAccountByAddressQuery(
     {
       address: slug

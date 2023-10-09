@@ -98,6 +98,15 @@ export class NotificationService implements OnModuleInit {
       }
     });
 
+    const fullNotification = {
+      ...notif,
+      contentNotification: this.contentNotification(
+        notifType.notificationTypeTranslations,
+        notification.additionalData,
+        recipientAccount.language
+      )
+    };
+
     // The rooms are the list of devices
     // Each room is a device
     const rooms = deviceIds.map(deviceId => {
@@ -125,7 +134,7 @@ export class NotificationService implements OnModuleInit {
       const webpushJobData: WebpushNotificationJobData = {
         pushSubObj: pushSubscription,
         address: subscriber.address,
-        notification: { ...notif }
+        notification: { ...fullNotification }
       };
 
       await this.webpushQueue.add('send-webpush-notification', webpushJobData);
@@ -136,7 +145,7 @@ export class NotificationService implements OnModuleInit {
     _.map(rooms, async room => {
       const sendNotifJobData: SendNotificationJobData = {
         room,
-        notification: { ...notif } as NotificationDto
+        notification: { ...fullNotification } as NotificationDto
       };
       await this.notificationOutboundQueue.add('send-notification', sendNotifJobData);
     });

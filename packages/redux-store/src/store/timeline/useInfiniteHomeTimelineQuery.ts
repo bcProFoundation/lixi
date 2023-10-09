@@ -14,13 +14,16 @@ const { selectAll } = homeTimelineAdapter.getSelectors();
 
 export interface TimelineListParams extends PaginationArgs {
   level: number;
+  isHome?: boolean;
 }
 
 export function useInfiniteHomeTimelineQuery(
   params: TimelineListParams,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const baseResult = useHomeTimelineQuery(params);
+  const baseResult = useHomeTimelineQuery(params, {
+    skip: !params?.isHome //just call in home timeline
+  });
 
   const [trigger, nextResult] = useLazyHomeTimelineQuery();
   const [combinedData, setCombinedData] = useState(homeTimelineAdapter.getInitialState({}));
