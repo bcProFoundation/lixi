@@ -8,7 +8,7 @@ import { setSelectedPost } from '@store/post/actions';
 import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
 import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
 import { toggleCollapsedSideNav } from '@store/settings/actions';
-import { getFilterPostsHome, getLevelFilter, getNavCollapsed } from '@store/settings/selectors';
+import { getFilterPostsHome, getFilterPostsPage, getLevelFilter, getNavCollapsed } from '@store/settings/selectors';
 import { useInfiniteHomeTimelineQuery } from '@store/timeline/useInfiniteHomeTimelineQuery';
 import { Button } from 'antd';
 import { push } from 'connected-next-router';
@@ -99,7 +99,7 @@ const SidebarContent = ({ className }: SidebarContentProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const navCollapsed = useAppSelector(getNavCollapsed);
-  const filterValue = useAppSelector(getFilterPostsHome);
+  const filterValue = useAppSelector(getFilterPostsPage);
   const selectedAccountId = useAppSelector(getSelectedAccountId);
   const [filterPage, setFilterPage] = useState({});
   const [filterPageQuery, setFilterPageQuery] = useState<typeFilterPageQuery>({});
@@ -113,7 +113,8 @@ const SidebarContent = ({ className }: SidebarContentProps) => {
   let { data: timelineData, refetch } = useInfiniteHomeTimelineQuery(
     {
       first: 40,
-      level: level ?? 3
+      level: level ?? 3,
+      isHome: currentPathName == '/'
     },
     false
   );
