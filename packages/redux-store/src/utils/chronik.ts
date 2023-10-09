@@ -30,9 +30,13 @@ export interface ParsedChronikTx {
 }
 
 const getWalletPathsFromWalletState = (wallet: WalletState) => {
-  return Object.entries(wallet.entities).map(([key, value]) => {
-    return value;
+  let pathAccount;
+  Object.entries(wallet.entities).map(([key, value]) => {
+    if (wallet.selectedWalletPath === key) {
+      pathAccount = value;
+    }
   });
+  return pathAccount;
 };
 
 /* 
@@ -444,31 +448,22 @@ export const getTxHistoryChronik = async (
   XPI: BCHJS,
   wallet: WalletState
 ): Promise<{ chronikTxHistory: Array<Tx & { parsed: ParsedChronikTx }> }> => {
-  // Create array of promises to get chronik history for each address
-  // Combine them all and sort by blockheight and firstSeen
-  // Add all the info cashtab needs to make them useful
-  const walletPaths = getWalletPathsFromWalletState(wallet);
+  // Create array txHistory with selectedPath
+  const walletPathSelected = getWalletPathsFromWalletState(wallet);
 
-  const hash160AndAddressObjArray: Hash160AndAddress[] = walletPaths.map(item => {
-    return {
-      address: item.xAddress,
-      hash160: item.hash160
-    };
-  });
+  const hash160AndADresssObj: Hash160AndAddress = {
+    address: walletPathSelected.xAddress,
+    hash160: walletPathSelected.hash160
+  };
 
-  const txHistoryPromises: Array<Promise<TxHistoryPage>> = [];
-  for (let i = 0; i < hash160AndAddressObjArray.length; i += 1) {
-    const txHistoryPromise = returnGetTxHistoryChronikPromise(chronik, hash160AndAddressObjArray[i]);
-    txHistoryPromises.push(txHistoryPromise);
-  }
-  let txHistoryOfAllAddresses;
+  const txHistoryPromise: Promise<TxHistoryPage> = returnGetTxHistoryChronikPromise(chronik, hash160AndADresssObj);
+  let txHistoryOfAllAddresses: TxHistoryPage;
   try {
-    txHistoryOfAllAddresses = await Promise.all(txHistoryPromises);
+    txHistoryOfAllAddresses = await Promise.resolve(txHistoryPromise);
   } catch (err) {
     console.log(`Error in Promise.all(txHistoryPromises)`, err);
   }
-  const flatTxHistoryArray = flattenChronikTxHistory(txHistoryOfAllAddresses);
-  const sortedTxHistoryArray = sortAndTrimChronikTxHistory(flatTxHistoryArray, currency.txHistoryCount);
+  const sortedTxHistoryArray = sortAndTrimChronikTxHistory(txHistoryOfAllAddresses.txs, currency.txHistoryCount);
 
   // Parse txs
   const chronikTxHistory: Array<Tx & { parsed: ParsedChronikTx }> = [];
