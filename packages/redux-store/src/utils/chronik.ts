@@ -30,13 +30,20 @@ export interface ParsedChronikTx {
 }
 
 const getWalletPathsFromWalletState = (wallet: WalletState) => {
-  let pathAccount;
+  return Object.entries(wallet.entities).map(([key, value]) => {
+    return value;
+  });
+};
+
+const getSelectedWalletPathFromWalletState = (wallet: WalletState) => {
+  let selectedPath;
   Object.entries(wallet.entities).map(([key, value]) => {
     if (wallet.selectedWalletPath === key) {
-      pathAccount = value;
+      selectedPath = value;
     }
   });
-  return pathAccount;
+
+  return selectedPath;
 };
 
 /* 
@@ -449,7 +456,7 @@ export const getTxHistoryChronik = async (
   wallet: WalletState
 ): Promise<{ chronikTxHistory: Array<Tx & { parsed: ParsedChronikTx }> }> => {
   // Create array txHistory with selectedPath
-  const walletPathSelected = getWalletPathsFromWalletState(wallet);
+  const walletPathSelected = getSelectedWalletPathFromWalletState(wallet);
 
   const hash160AndADresssObj: Hash160AndAddress = {
     address: walletPathSelected.xAddress,
