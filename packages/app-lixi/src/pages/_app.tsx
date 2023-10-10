@@ -26,6 +26,7 @@ import lightTheme from 'src/styles/themes/lightTheme';
 import { stripHtml } from 'string-strip-html';
 import { useEffect, useState } from 'react';
 import axiosClient from 'src/utils/axiosClient';
+import NextNProgress from 'nextjs-progressbar';
 
 const PersistGateServer = (props: any) => {
   return props.children;
@@ -116,6 +117,7 @@ const LixiApp = ({ Component, ...rest }) => {
                     <OutsideCallConsumer config={callConfig}>
                       <Layout className="lixi-app-layout">
                         <ConnectedRouter>
+                          <NextNProgress options={{ showSpinner: false }} height={5} />
                           <Component {...props.pageProps} />
                         </ConnectedRouter>
                       </Layout>
