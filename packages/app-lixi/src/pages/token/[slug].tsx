@@ -9,51 +9,39 @@ import { END } from 'redux-saga';
 import { useCheckIfFollowTokenQuery } from '@store/follow/follows.api';
 import { getSelectedAccount } from '@store/account';
 import { useAppSelector } from '@store/hooks';
+import { PrismaClient } from '@bcpros/lixi-prisma';
 
 const TokenDetailPage = props => {
-  const { tokenId, isMobile } = props;
+  const { tokenAsString, isMobile } = props;
+  const token = JSON.parse(tokenAsString);
+  const { tokenId } = token;
   const canonicalUrl = process.env.NEXT_PUBLIC_LIXI_URL + `token/${tokenId}`;
   const selectedAccount = useAppSelector(getSelectedAccount);
 
-  const { currentData: tokenData, isSuccess: isSuccessTokenQuery } = useTokenQuery({ tokenId: tokenId });
-
   const { currentData: currentDataCheckIsFollowed } = useCheckIfFollowTokenQuery(
     { tokenId },
-    { skip: !selectedAccount || !isSuccessTokenQuery }
+    { skip: !selectedAccount || !token }
   );
-
-  let currentToken;
-  if (isSuccessTokenQuery && tokenData) {
-    currentToken = tokenData.token;
-  }
 
   return (
     <>
-      {isSuccessTokenQuery && (
-        <>
-          <NextSeo
-            title="Tokens Feed"
-            description="Share your opinion about this token."
-            canonical={canonicalUrl}
-            openGraph={{
-              url: canonicalUrl,
-              title: 'Lixi',
-              images: [{ url: '' }],
-              site_name: 'Lixi'
-            }}
-            twitter={{
-              handle: '@handle',
-              site: '@site',
-              cardType: 'summary_large_image'
-            }}
-          />
-          <TokensFeed
-            token={currentToken}
-            checkIsFollowed={currentDataCheckIsFollowed?.checkIfFollowToken}
-            isMobile={isMobile}
-          />
-        </>
-      )}
+      <NextSeo
+        title="Tokens Feed"
+        description="Share your opinion about this token."
+        canonical={canonicalUrl}
+        openGraph={{
+          url: canonicalUrl,
+          title: 'Lixi',
+          images: [{ url: '' }],
+          site_name: 'Lixi'
+        }}
+        twitter={{
+          handle: '@handle',
+          site: '@site',
+          cardType: 'summary_large_image'
+        }}
+      />
+      <TokensFeed token={token} checkIsFollowed={currentDataCheckIsFollowed?.checkIfFollowToken} isMobile={isMobile} />
     </>
   );
 };
@@ -62,6 +50,7 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   const { req } = context;
   const userAgent = req ? req.headers['user-agent'] : navigator.userAgent;
   const { isMobile } = getSelectorsByUserAgent(userAgent);
+  const prisma = new PrismaClient();
 
   store.dispatch(END);
   await (store as SagaStore).__sagaTask.toPromise();
@@ -69,9 +58,23 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   const slug: string = _.isArray(context.params.slug) ? context.params.slug[0] : context.params.slug;
   const tokenId: string = slug;
 
+  const token = await prisma.token.findUnique({
+    where: {
+      tokenId: tokenId
+    }
+  });
+
+  if (!token) {
+    return {
+      notFound: true
+    };
+  }
+
+  const tokenAsString = JSON.stringify(token);
+
   return {
     props: {
-      tokenId,
+      tokenAsString,
       isMobile
     }
   };
