@@ -8,7 +8,7 @@ import WalletInfoComponent from './WalletInfo';
 import intl from 'react-intl-universal';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { getSelectedAccount } from '@store/account/selectors';
-import { getWalletParsedTxHistory } from '@store/wallet';
+import { getWalletHasUpdated, getWalletParsedTxHistory } from '@store/wallet';
 import { ParsedChronikTx } from '@utils/chronik';
 import { Tx } from 'chronik-client';
 import { formatDate } from '@utils/formatting';
@@ -20,6 +20,7 @@ import Reply from '@assets/icons/reply.svg';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import { selectTokens } from '@store/token';
 import { useCommentQuery } from '@store/comment/comments.generated';
+import { Skeleton } from 'antd';
 
 interface UserItem {
   email: string;
@@ -153,6 +154,15 @@ const FullWalletWrapper = styled.div`
   }
 `;
 
+const SkeletonStyled = styled(Skeleton)`
+  .ant-skeleton-title {
+    width: 10% !important;
+  }
+  .ant-skeleton-paragraph li {
+    width: 95% !important;
+  }
+`;
+
 type WalletProps = {
   claimCode?: string;
 };
@@ -174,6 +184,8 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
     const month = dateTime.toLocaleString('en', { month: 'long' });
     return month + ' ' + dateTime.getFullYear();
   });
+
+  const walletHasUpdated = useAppSelector(getWalletHasUpdated);
 
   const getBurnForType = (burnForType: BurnForType) => {
     const typeValuesArr = Object.values(BurnForType);
@@ -233,109 +245,115 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
             <SearchOutlined />
           </div>
           <div className="content-transaction">
-            {Object.keys(walletParsedHistoryGroupByDate).map(index => {
-              return (
-                <React.Fragment key={index}>
-                  <h3 className="tx-history-header">{index}</h3>
-                  <List>
-                    <VirtualList data={walletParsedHistoryGroupByDate[index]} itemHeight={47} itemKey="email">
-                      {(item: Tx & { parsed: ParsedChronikTx }) => {
-                        let memo = '';
+            {walletHasUpdated ? (
+              Object.keys(walletParsedHistoryGroupByDate).map(index => {
+                return (
+                  <React.Fragment key={index}>
+                    <h3 className="tx-history-header">{index}</h3>
+                    <List>
+                      <VirtualList data={walletParsedHistoryGroupByDate[index]} itemHeight={47} itemKey="email">
+                        {(item: Tx & { parsed: ParsedChronikTx }) => {
+                          let memo = '';
 
-                        if (item.parsed.isLotusMessage) {
-                          if (item.parsed.isEncryptedMessage && item.parsed.decryptionSuccess) {
-                            memo = item.parsed.opReturnMessage ?? '';
-                          } else {
-                            memo = item.parsed.opReturnMessage ?? '';
+                          if (item.parsed.isLotusMessage) {
+                            if (item.parsed.isEncryptedMessage && item.parsed.decryptionSuccess) {
+                              memo = item.parsed.opReturnMessage ?? '';
+                            } else {
+                              memo = item.parsed.opReturnMessage ?? '';
+                            }
                           }
-                        }
-                        return (
-                          <List.Item key={item.txid}>
-                            <List.Item.Meta
-                              title={
-                                <a className={item.parsed.incoming ? 'amount increase' : 'amount decrease'}>
-                                  {showAmount(item)}
-                                </a>
-                              }
-                              description={
-                                <div className="tx-transaction">
-                                  <div className="tx-action">
-                                    {item.parsed.isBurn ? (
-                                      <p>
-                                        {intl.get('general.burnForType')}:{' '}
-                                        {item.parsed.burnInfo && (
-                                          <Link
-                                            href={{
-                                              pathname: getUrl(
-                                                item.parsed.burnInfo.burnForType,
-                                                item.parsed.burnInfo.burnForId
-                                              ),
-                                              query: item.parsed.burnInfo.burnForType == BurnForType.Comment && {
-                                                comment: item.parsed.burnInfo.burnForId
-                                              }
-                                            }}
-                                          >
-                                            <Button size="small" type="text">
-                                              <p style={{ fontWeight: 'bold' }}>
-                                                {getBurnForType(item.parsed.burnInfo.burnForType)}
-                                              </p>
-                                            </Button>
-                                          </Link>
-                                        )}
-                                      </p>
-                                    ) : item.parsed.incoming ? (
-                                      <p>
-                                        {intl.get('account.from')}:{' '}
-                                        {item.parsed.replyAddress && (
-                                          <FormattedTxAddress address={item.parsed.replyAddress.slice(-trimLength)} />
-                                        )}
-                                      </p>
-                                    ) : (
-                                      <p>
-                                        {intl.get('account.to')}:{' '}
-                                        {item.parsed.destinationAddress && (
-                                          <FormattedTxAddress
-                                            address={item.parsed.destinationAddress.slice(-trimLength)}
-                                          />
-                                        )}
+                          return (
+                            <List.Item key={item.txid}>
+                              <List.Item.Meta
+                                title={
+                                  <a className={item.parsed.incoming ? 'amount increase' : 'amount decrease'}>
+                                    {showAmount(item)}
+                                  </a>
+                                }
+                                description={
+                                  <div className="tx-transaction">
+                                    <div className="tx-action">
+                                      {item.parsed.isBurn ? (
+                                        <p>
+                                          {intl.get('general.burnForType')}:{' '}
+                                          {item.parsed.burnInfo && (
+                                            <Link
+                                              href={{
+                                                pathname: getUrl(
+                                                  item.parsed.burnInfo.burnForType,
+                                                  item.parsed.burnInfo.burnForId
+                                                ),
+                                                query: item.parsed.burnInfo.burnForType == BurnForType.Comment && {
+                                                  comment: item.parsed.burnInfo.burnForId
+                                                }
+                                              }}
+                                            >
+                                              <Button size="small" type="text">
+                                                <p style={{ fontWeight: 'bold' }}>
+                                                  {getBurnForType(item.parsed.burnInfo.burnForType)}
+                                                </p>
+                                              </Button>
+                                            </Link>
+                                          )}
+                                        </p>
+                                      ) : item.parsed.incoming ? (
+                                        <p>
+                                          {intl.get('account.from')}:{' '}
+                                          {item.parsed.replyAddress && (
+                                            <FormattedTxAddress address={item.parsed.replyAddress.slice(-trimLength)} />
+                                          )}
+                                        </p>
+                                      ) : (
+                                        <p>
+                                          {intl.get('account.to')}:{' '}
+                                          {item.parsed.destinationAddress && (
+                                            <FormattedTxAddress
+                                              address={item.parsed.destinationAddress.slice(-trimLength)}
+                                            />
+                                          )}
+                                        </p>
+                                      )}
+                                    </div>
+                                    {!_.isEmpty(memo) && (
+                                      <p className="tx-memo">
+                                        <LockOutlined /> {memo}
                                       </p>
                                     )}
                                   </div>
-                                  {!_.isEmpty(memo) && (
-                                    <p className="tx-memo">
-                                      <LockOutlined /> {memo}
-                                    </p>
-                                  )}
-                                </div>
-                              }
-                            />
-                            <div className="tx-info">
-                              <div className="tx-status"></div>
-                              <p className="tx-date">{formatDate(item.timeFirstSeen)}</p>
+                                }
+                              />
+                              <div className="tx-info">
+                                <div className="tx-status"></div>
+                                <p className="tx-date">{formatDate(item.timeFirstSeen)}</p>
 
-                              {item.parsed.incoming && (
-                                <Link
-                                  href={{
-                                    pathname: '/send',
-                                    query: { replyAddress: item.parsed.replyAddress, isReply: true }
-                                  }}
-                                >
-                                  <Button size="small" type="text">
-                                    <p className="icon-reply">
-                                      <Reply /> {intl.get('account.reply')}
-                                    </p>
-                                  </Button>
-                                </Link>
-                              )}
-                            </div>
-                          </List.Item>
-                        );
-                      }}
-                    </VirtualList>
-                  </List>
-                </React.Fragment>
-              );
-            })}
+                                {item.parsed.incoming && (
+                                  <Link
+                                    href={{
+                                      pathname: '/send',
+                                      query: { replyAddress: item.parsed.replyAddress, isReply: true }
+                                    }}
+                                  >
+                                    <Button size="small" type="text">
+                                      <p className="icon-reply">
+                                        <Reply /> {intl.get('account.reply')}
+                                      </p>
+                                    </Button>
+                                  </Link>
+                                )}
+                              </div>
+                            </List.Item>
+                          );
+                        }}
+                      </VirtualList>
+                    </List>
+                  </React.Fragment>
+                );
+              })
+            ) : (
+              <>
+                <SkeletonStyled active paragraph={{ rows: 2 }} />
+              </>
+            )}
           </div>
         </TransactionHistory>
       </FullWalletWrapper>
