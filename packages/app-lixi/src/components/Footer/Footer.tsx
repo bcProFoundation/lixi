@@ -177,19 +177,6 @@ const Footer = ({ classList }: { classList?: any }) => {
           }}
         />
         <ItemAccess
-          icon={'/images/ico-lixi.svg'}
-          text={intl.get('general.lixi')}
-          active={currentPathName.includes('/lixi')}
-          direction="horizontal"
-          key="lixi"
-          onClickItem={() => {
-            if (authorization.authorized) handleIconClick('/lixi');
-            else {
-              currentModal.length === 0 && askAuthorization();
-            }
-          }}
-        />
-        <ItemAccess
           icon={'/images/ico-setting.svg'}
           text={intl.get('general.settings')}
           active={currentPathName === '/settings'}
