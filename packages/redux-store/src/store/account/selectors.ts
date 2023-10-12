@@ -63,6 +63,11 @@ export const getMessageUploads = createSelector(
   (accounts: AccountsState) => accounts.messageUploads
 );
 
+export const getCommentUpload = createSelector(
+  (state: RootState) => state.accounts,
+  (accounts: AccountsState) => accounts.commentUpload
+);
+
 export const getEditorCache = createSelector(
   (state: RootState) => state.accounts,
   (accounts: AccountsState) => accounts.editorCache

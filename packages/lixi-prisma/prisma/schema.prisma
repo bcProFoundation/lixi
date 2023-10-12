@@ -213,22 +213,23 @@ model PostDana {
 }
 
 model Comment {
-  id                 String       @id @default(cuid())
-  commentAccount     Account?     @relation(fields: [commentAccountId], references: [id])
-  commentAccountId   Int?         @map("comment_account_id")
-  commentTo          Post         @relation(fields: [commentToId], references: [id])
-  commentByPublicKey String?      @map("comment_by_public_key")
-  commentToId        String       @map("comment_to_id")
-  commentText        String       @default("") @map("comment_text")
-  createdAt          DateTime     @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt          DateTime     @default(now()) @map("updated_at") @db.Timestamptz
-  danaBurnUp         Float        @default(0.0) @map("dana_burn_up")
-  danaBurnDown       Float        @default(0.0) @map("dana_burn_down")
-  danaBurnScore      Float        @default(0.0) @map("dana_burn_score")
+  id                 String        @id @default(cuid())
+  commentAccount     Account?      @relation(fields: [commentAccountId], references: [id])
+  commentAccountId   Int?          @map("comment_account_id")
+  commentTo          Post          @relation(fields: [commentToId], references: [id])
+  commentByPublicKey String?       @map("comment_by_public_key")
+  commentToId        String        @map("comment_to_id")
+  commentText        String        @default("") @map("comment_text")
+  createdAt          DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime      @default(now()) @map("updated_at") @db.Timestamptz
+  danaBurnUp         Float         @default(0.0) @map("dana_burn_up")
+  danaBurnDown       Float         @default(0.0) @map("dana_burn_down")
+  danaBurnScore      Float         @default(0.0) @map("dana_burn_score")
   giveTip            GiveTip?
-  createFee          Float?       @map("create_fee")
+  createFee          Float?        @map("create_fee")
   txid               String?
   commentDana        CommentDana?
+  uploadDetail       UploadDetail?
 
   @@index([commentAccountId], map: "index_comment_on_account")
   @@index([commentByPublicKey], map: "index_comment_by_public_key")
@@ -677,6 +678,8 @@ model UploadDetail {
   coverAccountId          Int?             @unique
   message                 Message?         @relation(fields: [messageId], references: [id])
   messageId               String?
+  comment                 Comment?         @relation(fields: [commentId], references: [id])
+  commentId               String?          @unique
 
   @@map("upload_detail")
 }

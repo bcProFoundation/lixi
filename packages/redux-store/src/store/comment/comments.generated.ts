@@ -52,6 +52,18 @@ export type CommentQuery = {
       danaBurnDown: number;
       danaBurnScore: number;
     } | null;
+    uploadDetail?: {
+      __typename?: 'UploadDetail';
+      id: string;
+      upload: {
+        __typename?: 'Upload';
+        id: string;
+        width?: number | null;
+        height?: number | null;
+        cfImageId?: string | null;
+        cfImageFilename?: string | null;
+      };
+    } | null;
   };
 };
 
@@ -103,6 +115,18 @@ export type CommentsToPostIdQuery = {
           danaBurnDown: number;
           danaBurnScore: number;
         } | null;
+        uploadDetail?: {
+          __typename?: 'UploadDetail';
+          id: string;
+          upload: {
+            __typename?: 'Upload';
+            id: string;
+            width?: number | null;
+            height?: number | null;
+            cfImageId?: string | null;
+            cfImageFilename?: string | null;
+          };
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -140,6 +164,18 @@ export type CommentFieldsFragment = {
     } | null;
   };
   commentDana?: { __typename?: 'CommentDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+  uploadDetail?: {
+    __typename?: 'UploadDetail';
+    id: string;
+    upload: {
+      __typename?: 'Upload';
+      id: string;
+      width?: number | null;
+      height?: number | null;
+      cfImageId?: string | null;
+      cfImageFilename?: string | null;
+    };
+  } | null;
 };
 
 export type CreateCommentMutationVariables = Types.Exact<{
@@ -177,6 +213,18 @@ export type CreateCommentMutation = {
       danaBurnUp: number;
       danaBurnDown: number;
       danaBurnScore: number;
+    } | null;
+    uploadDetail?: {
+      __typename?: 'UploadDetail';
+      id: string;
+      upload: {
+        __typename?: 'Upload';
+        id: string;
+        width?: number | null;
+        height?: number | null;
+        cfImageId?: string | null;
+        cfImageFilename?: string | null;
+      };
     } | null;
   };
 };
@@ -218,6 +266,16 @@ export const CommentFieldsFragmentDoc = `
     danaBurnUp
     danaBurnDown
     danaBurnScore
+  }
+  uploadDetail {
+    id
+    upload {
+      id
+      width
+      height
+      cfImageId
+      cfImageFilename
+    }
   }
   createdAt
   updatedAt

@@ -159,6 +159,7 @@ type Comment {
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
+  uploadDetail: UploadDetail
 }
 
 type CommentConnection {
@@ -219,6 +220,7 @@ input CreateCommentInput {
   commentToId: String!
   createFeeHex: String
   tipHex: String
+  uploadId: String
 }
 
 input CreateFollowAccountInput {

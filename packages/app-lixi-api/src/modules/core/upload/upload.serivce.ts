@@ -53,6 +53,9 @@ export class UploadService implements OnModuleInit {
             },
             {
               message: null
+            },
+            {
+              comment: null
             }
           ]
         }

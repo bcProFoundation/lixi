@@ -60,7 +60,8 @@ const initialState: AccountsState = accountsAdapter.getInitialState({
   recentHashtagAtPages: [],
   recentHashtagAtToken: [],
   accountInfoTemp: null,
-  messageUploads: []
+  messageUploads: [],
+  commentUpload: null
 });
 
 const numberOfRecentHashtags = 3;
@@ -145,6 +146,9 @@ export const accountReducer = createReducer(initialState, builder => {
         case UPLOAD_TYPES.MESSAGE:
           state.messageUploads.push(upload);
           break;
+        case UPLOAD_TYPES.COMMENT:
+          state.commentUpload = upload;
+          break;
       }
     })
     .addCase(removeUpload, (state, action) => {
@@ -172,6 +176,9 @@ export const accountReducer = createReducer(initialState, builder => {
           state.messageUploads = state.messageUploads.filter(image => {
             return image.id !== id;
           });
+          break;
+        case UPLOAD_TYPES.COMMENT:
+          state.commentUpload = null;
           break;
       }
     })

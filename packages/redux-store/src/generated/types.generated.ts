@@ -177,6 +177,7 @@ export type Comment = {
   id: Scalars['ID'];
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
+  uploadDetail?: Maybe<UploadDetail>;
 };
 
 export type CommentConnection = {
@@ -241,6 +242,7 @@ export type CreateCommentInput = {
   commentToId: Scalars['String'];
   createFeeHex?: InputMaybe<Scalars['String']>;
   tipHex?: InputMaybe<Scalars['String']>;
+  uploadId?: InputMaybe<Scalars['String']>;
 };
 
 export type CreateFollowAccountInput = {
@@ -989,8 +991,8 @@ export type PostTranslation = {
 
 export type Query = {
   __typename?: 'Query';
-  allBookmarkByAccountId: BookmarkConnection;
   account: Account;
+  allBookmarkByAccountId: BookmarkConnection;
   allClosedPageMessageSession: PageMessageSessionConnection;
   allCommentsToPostId: CommentConnection;
   allFollowersByFollowing: AccountConnection;
@@ -1047,6 +1049,10 @@ export type Query = {
   worshipedPerson: WorshipedPerson;
 };
 
+export type QueryAccountArgs = {
+  id: Scalars['Int'];
+};
+
 export type QueryAllBookmarkByAccountIdArgs = {
   accountId: Scalars['Int'];
   after?: InputMaybe<Scalars['String']>;
@@ -1057,10 +1063,6 @@ export type QueryAllBookmarkByAccountIdArgs = {
   minBurnFilter?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<BookmarkOrder>;
   skip?: InputMaybe<Scalars['Int']>;
-};
-
-export type QueryAccountArgs = {
-  id: Scalars['Int'];
 };
 
 export type QueryAllClosedPageMessageSessionArgs = {

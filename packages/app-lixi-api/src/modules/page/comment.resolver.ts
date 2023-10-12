@@ -4,7 +4,8 @@ import {
   CommentConnection,
   CommentOrder,
   CreateCommentInput,
-  PaginationArgs
+  PaginationArgs,
+  UploadDetail
 } from '@bcpros/lixi-models';
 import { NotificationLevel } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
@@ -154,14 +155,24 @@ export class CommentResolver {
         throw new Error(couldNotFindAccount);
       }
 
-      const { commentText, commentToId, tipHex, createFeeHex } = data;
+      let uploadDetail = null;
+      const { commentText, commentToId, tipHex, createFeeHex, uploadId } = data;
+
+      if (uploadId) {
+        uploadDetail = await this.prisma.uploadDetail.findUnique({
+          where: {
+            uploadId: uploadId
+          }
+        });
+      }
 
       const commentToSave = {
         commentText: commentText,
         commentAccount: { connect: { id: account.id } },
         commentTo: {
           connect: { id: commentToId }
-        }
+        },
+        uploadDetail: uploadDetail ? { connect: { id: uploadDetail.id } } : undefined
       };
 
       const post = await this.prisma.post.findFirst({
@@ -302,5 +313,15 @@ export class CommentResolver {
   async postAccount(@Parent() comment: Comment) {
     const account = await this.accountCacheService.getById(_.toSafeInteger(comment.commentAccountId));
     return account;
+  }
+
+  @ResolveField('uploadDetail', () => UploadDetail)
+  async uploadDetail(@Parent() comment: Comment) {
+    const uploadDetail = await this.prisma.comment.findUnique({ where: { id: comment.id } }).uploadDetail({
+      include: {
+        upload: true
+      }
+    });
+    return uploadDetail;
   }
 }
