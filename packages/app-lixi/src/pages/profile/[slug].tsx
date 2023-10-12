@@ -77,6 +77,12 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
     }
   });
 
+  if (!account) {
+    return {
+      notFound: true
+    };
+  }
+
   let followersCount = 0;
   let followingsCount = 0;
   let followingPagesCount = 0;
