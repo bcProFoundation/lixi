@@ -25,7 +25,18 @@ import {
   useDeleteFollowPageMutation,
   useDeleteFollowTokenMutation
 } from '@store/follow/follows.api';
-import { CreateFollowAccountInput, DeleteFollowAccountInput } from '@generated/types.generated';
+import {
+  useCheckIfHasBookmarkedQuery,
+  useCreateBookmarkMutation,
+  useRemoveBookmarkMutation
+} from '@store/bookmark/bookmark.api';
+import {
+  BookmarkType,
+  CreateBookmarkInput,
+  CreateFollowAccountInput,
+  DeleteFollowAccountInput,
+  RemoveBookmarkInput
+} from '@generated/types.generated';
 import { getWalletStatus } from '@store/wallet';
 import { useSwipeable } from 'react-swipeable';
 import { useUserHadMessageToPageQuery } from '@store/message/pageMessageSession.generated';
@@ -170,7 +181,8 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
     postAccountId: post.postAccount.id,
     tokenPrimaryId: post?.token?.id,
     hashtags: hashtags,
-    query: query
+    query: query,
+    accountId: selectedAccountId || null
   };
 
   const payloadFollowPage: ParamPostFollowCommand = {
@@ -251,6 +263,14 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
     }
   ] = useDeleteFollowTokenMutation();
 
+  const [createBookmarkTrigger] = useCreateBookmarkMutation();
+  const [removeBookmarkTrigger] = useRemoveBookmarkMutation();
+
+  const { data: bookmarkData } = useCheckIfHasBookmarkedQuery(
+    { bookmarkId: post?.id, bookmarkType: BookmarkType.Post },
+    { skip: !post?.id }
+  );
+
   const { data: pageMessageSessionData, refetch: pageMessageSessionRefetch } = useUserHadMessageToPageQuery(
     {
       accountId: selectedAccount?.id,
@@ -276,6 +296,23 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
     };
     dispatch(openModal('EditPostModalPopup', editPostProps));
     dispatch(closeActionSheet());
+  };
+
+  const bookmarkPost = async () => {
+    const createBookmarkPostInput: CreateBookmarkInput = {
+      bookmarkId: post.id,
+      bookmarkType: BookmarkType.Post
+    };
+
+    await createBookmarkTrigger({ input: createBookmarkPostInput });
+  };
+
+  const removeBookmarkPost = async () => {
+    const removeBookmarkPostInput: RemoveBookmarkInput = {
+      bookmarkId: post?.id
+    };
+
+    await removeBookmarkTrigger({ input: removeBookmarkPostInput });
   };
 
   const handleFollowPage = async () => {
@@ -372,11 +409,33 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
           </div>
           <div className="bar-close" onClick={onClose}></div>
           {isEditPost && <ItemActionSheetBottom text="Edit post" icon="/images/ico-edit.svg" onClickItem={editPost} />}
+          {!bookmarkData?.checkIfHasBookmarked ? (
+            <ItemActionSheetBottom
+              text={`Bookmark post`}
+              icon="/images/ico-create-post.svg"
+              onClickItem={bookmarkPost}
+            />
+          ) : (
+            <ItemActionSheetBottom
+              text={`Remove bookmark post`}
+              icon="/images/ico-create-post.svg"
+              onClickItem={removeBookmarkPost}
+            />
+          )}
           {/* <ItemActionSheetBottom type="danger" text="Remove" /> */}
           {post.page && isSuccessPageQuery && (
             <>
               <ItemActionSheetBottom
-                text={`${intl.get('page.createPostFeeOn')} ${currentDataPageQuery?.page?.name}`}
+                text={`${
+                  post.page.createPostFee == 0
+                    ? intl.get('page.createFreePostOn', {
+                        pageName: currentDataPageQuery?.page?.name
+                      })
+                    : intl.get('page.createPostOnPage', {
+                        pageName: currentDataPageQuery?.page?.name,
+                        fee: parseInt(post.page.createPostFee)
+                      })
+                }`}
                 icon="/images/ico-create-post.svg"
                 onClickItem={openCreatePostPage}
               />

@@ -5,12 +5,12 @@ import ActionPostBar from '@components/Common/ActionPostBar';
 import CommentComponent, { CommentItem } from '@components/Common/Comment';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { LoadingIcon } from '@components/Layout/MainLayout';
+import { PostQueryItem } from '@generated/index';
 import useWindowDimensions from '@hooks/useWindowDimensions';
 import { getSelectedAccount } from '@store/account';
 import { analyticEvent } from '@store/analytic-event';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
-import { PostQuery } from '@store/post/posts.generated';
 import { getCurrentLocale } from '@store/settings/selectors';
 import { formatRelativeTime } from '@utils/formatting';
 import { Button, List, Spin } from 'antd';
@@ -238,28 +238,16 @@ const PostListItemContainer = styled(List.Item)`
   }
 `;
 
-type PostItem = PostQuery['post'];
-
 type PostListItemProps = {
-  index: number;
-  item: PostItem;
-  searchValue?: string;
+  item: PostQueryItem;
   postListType?: PostListType;
-  handleBurnForPost?: (isUpVote: boolean, post: any, optionBurn?: string) => Promise<void>;
   addToRecentHashtags?: (hashtag: string) => any;
 };
 
-const PostListItem = ({
-  index,
-  item,
-  searchValue,
-  postListType,
-  handleBurnForPost,
-  addToRecentHashtags
-}: PostListItemProps) => {
+const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemProps) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const post: PostItem = item;
+  const post = item;
   const [showMoreImage, setShowMoreImage] = useState(true);
   const [imagesList, setImagesList] = useState([]);
   const [showTranslation, setShowTranslation] = useState(false);
@@ -271,8 +259,6 @@ const PostListItem = ({
 
   useEffect(() => {
     const mapImages = item.uploads.map(img => {
-      let imgSha = img.upload.sha;
-
       const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.upload.cfImageId}/public`;
       let imgWidth = img?.upload?.width || 4;
       let height = img?.upload?.height || 3;
@@ -293,11 +279,21 @@ const PostListItem = ({
 
   if (!post) return null;
 
-  const openPostDetailModal = (postData: any) => {
-    dispatch(openModal('PostDetailModal', { post: postData }));
+  const openPostDetailModal = (postData: PostQueryItem) => {
+    dispatch(openModal('PostDetailModal', { initialPost: postData }));
   };
 
   const handlePostClick = e => {
+    // analytic event
+    const payload: AnalyticEvent = {
+      eventType: 'view',
+      eventData: {
+        id: post.id,
+        type: 'post'
+      }
+    };
+    dispatch(analyticEvent(payload));
+
     if (e.target.className === 'hashtag-link') {
       e.stopPropagation();
       const hashtag = e.target.id;
@@ -325,25 +321,12 @@ const PostListItem = ({
       }
 
       addToRecentHashtags(hashtag);
-
-      // analytic event
-      const payload: AnalyticEvent = {
-        eventType: 'view',
-        eventData: {
-          id: post.id,
-          type: 'post'
-        }
-      };
-      dispatch(analyticEvent(payload));
-
       return;
     }
     if (e.target.className === 'read-more-more-module_btn__33IaH' || e.target.className.includes('post-translation')) {
       openPostDetailModal(post);
       e.stopPropagation();
     } else {
-      // dispatch(setSelectedPost(post.id));
-      // router.push(`/post/${post.id}`);
       openPostDetailModal(post);
     }
   };
@@ -509,7 +492,7 @@ const PostListItem = ({
           )}
         </Content>
       </CardContainer>
-      <ActionPostBar post={post} handleBurnForPost={handleBurnForPost} onClickIconComment={e => handlePostClick(e)} />
+      <ActionPostBar post={post} onClickIconComment={e => handlePostClick(e)} />
     </PostListItemContainer>
   );
 };

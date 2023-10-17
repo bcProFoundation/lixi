@@ -1,13 +1,21 @@
-import { HashtagOrderField, OrderDirection, PostOrderField } from '@generated/types.generated';
+import { LeftOutlined } from '@ant-design/icons';
+import { HashtagOrderField, OrderDirection, PostOrderField, PostQueryItem } from '@generated/index';
+import { addRecentHashtagAtPages, setGraphqlRequestLoading } from '@store/account';
 import { getSelectedAccountId } from '@store/account/selectors';
+import { useInfiniteHashtagByPageQuery } from '@store/hashtag/useInfiniteHashtagByPageQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { useInfiniteHomeTimelineQuery } from '@store/timeline/useInfiniteHomeTimelineQuery';
+import { setSelectedPost } from '@store/post/actions';
+import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
+import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
 import { toggleCollapsedSideNav } from '@store/settings/actions';
-import { getFilterPostsHome, getIsTopPosts, getLevelFilter, getNavCollapsed } from '@store/settings/selectors';
+import { getFilterPostsHome, getFilterPostsPage, getLevelFilter, getNavCollapsed } from '@store/settings/selectors';
+import { useInfiniteHomeTimelineQuery } from '@store/timeline/useInfiniteHomeTimelineQuery';
+import { Button } from 'antd';
 import { push } from 'connected-next-router';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useSwipeable } from 'react-swipeable';
 import styled from 'styled-components';
 import {
   ItemQuickAccess,
@@ -17,15 +25,7 @@ import {
   ShortCutTopicItem,
   typeFilterPageQuery
 } from './SideBarShortcut';
-import { Button } from 'antd';
-import { LeftOutlined } from '@ant-design/icons';
-import { setSelectedPost } from '@store/post/actions';
-import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
-import { useInfiniteHashtagByPageQuery } from '@store/hashtag/useInfiniteHashtagByPageQuery';
-import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
-import { addRecentHashtagAtPages } from '@store/account';
-import { useSwipeable } from 'react-swipeable';
-import { Post } from '@bcpros/lixi-models';
+import { api as timelineApi } from '@store/timeline/timeline.api';
 
 type SidebarContentProps = {
   className?: string;
@@ -99,7 +99,7 @@ const SidebarContent = ({ className }: SidebarContentProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const navCollapsed = useAppSelector(getNavCollapsed);
-  const filterValue = useAppSelector(getFilterPostsHome);
+  const filterValue = useAppSelector(getFilterPostsPage);
   const selectedAccountId = useAppSelector(getSelectedAccountId);
   const [filterPage, setFilterPage] = useState({});
   const [filterPageQuery, setFilterPageQuery] = useState<typeFilterPageQuery>({});
@@ -108,11 +108,13 @@ const SidebarContent = ({ className }: SidebarContentProps) => {
   const pageId = router.pathname.includes('page') && (router.query?.slug as string);
   const [cachePostIdGeneral, setCachePostIdGeneral] = useState(0);
   const level = useAppSelector(getLevelFilter);
+  const currentPathName = router.pathname ?? '';
 
-  let { data: timelineData } = useInfiniteHomeTimelineQuery(
+  let { data: timelineData, refetch } = useInfiniteHomeTimelineQuery(
     {
       first: 40,
-      level: level ?? 3
+      level: level ?? 3,
+      isHome: currentPathName == '/'
     },
     false
   );
@@ -243,13 +245,20 @@ const SidebarContent = ({ className }: SidebarContentProps) => {
 
   const timelineItems = useMemo(() => {
     return _.uniqBy(timelineData, item => {
-      const post: Post = item.data as Post;
+      const post: PostQueryItem = item.data as PostQueryItem;
       return post?.page?.id || post?.token?.tokenId || post?.postAccount?.address;
     });
   }, [timelineData]);
 
   const handleIconClick = (newPath?: string) => {
-    dispatch(push(newPath));
+    if (currentPathName === '/' && newPath === '/') {
+      dispatch(toggleCollapsedSideNav(!navCollapsed));
+      dispatch(timelineApi.util.resetApiState());
+      refetch();
+      dispatch(setGraphqlRequestLoading());
+    } else {
+      dispatch(push(newPath));
+    }
   };
 
   const showParrentTopic = posts => {

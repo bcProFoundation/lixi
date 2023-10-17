@@ -179,6 +179,7 @@ const EditorLexical = (props: EditorLexicalProps) => {
   }, [postCoverUploads]);
   const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
   const [currentContent, setCurrentContent] = useState<String>('');
+  const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
 
   useEffect(() => {
     inputText.current?.addEventListener('paste', handlePasteImage);
@@ -205,13 +206,13 @@ const EditorLexical = (props: EditorLexicalProps) => {
 
   const handleRemove = imgId => {
     if (imgId) {
-      dispatch(removeUpload({ type: 'post', id: imgId }));
+      dispatch(removeUpload({ uploadType: UPLOAD_TYPES.POST, id: imgId }));
     }
   };
 
   const handlePasteImage = evt => {
     const clipboardItems = evt.clipboardData.items;
-    const items = [].slice.call(clipboardItems).filter(function (item) {
+    const items: DataTransferItem[] | unknown[] = Array.from(clipboardItems).filter(function (item: DataTransferItem) {
       // Filter the image items only
       return /^image\//.test(item.type);
     });
@@ -219,10 +220,13 @@ const EditorLexical = (props: EditorLexicalProps) => {
       return;
     }
 
-    const item = items[0];
+    const item = items[0] as DataTransferItem;
     const blob = item.getAsFile();
+    const blobName = blob.name ?? 'image.png';
+    const blobType = blob.type ?? 'image/png';
+    const blobLastModified = blob.lastModified ?? Date.now();
 
-    let file = new File([blob], 'file name', { type: 'image/jpeg', lastModified: new Date().getTime() });
+    let file = new File([blob], blobName, { type: blobType, lastModified: blobLastModified });
 
     multiUploader.current?.uploadImageFromClipboard({ file: file });
   };
@@ -250,15 +254,23 @@ const EditorLexical = (props: EditorLexicalProps) => {
     setCurrentContent(content);
   };
 
+  const onRef = (_floatingAnchorElem: HTMLDivElement) => {
+    if (_floatingAnchorElem !== null) {
+      setFloatingAnchorElem(_floatingAnchorElem);
+    }
+  };
+
   return (
     <React.Fragment>
       <StyledEditorLexical>
         <LexicalComposer initialConfig={editorConfig}>
           <div className="EditorLexical_container">
-            <PlainTextPlugin
+            <RichTextPlugin
               contentEditable={
-                <div className="editor" ref={inputText}>
-                  <ContentEditable className="EditorLexical_root" />
+                <div className="editor-container" ref={inputText}>
+                  <div className="editor" ref={onRef}>
+                    <ContentEditable className="EditorLexical_root" />
+                  </div>
                 </div>
               }
               placeholder={Placeholder}
@@ -282,18 +294,20 @@ const EditorLexical = (props: EditorLexicalProps) => {
               hashtags={hashtags}
             />
             {floatingAnchorElem && (
-              <>
-                <FloatingLinkEditorPlugin anchorElem={floatingAnchorElem} />
-              </>
+              <FloatingLinkEditorPlugin
+                anchorElem={floatingAnchorElem}
+                isLinkEditMode={isLinkEditMode}
+                setIsLinkEditMode={setIsLinkEditMode}
+              />
             )}
             <div className="EditorLexical_pictures">
               {isMobile ? (
-                <>
+                <React.Fragment>
                   {imagesList.length > 1 && (
                     <div className="images-post images-post-mobile">
                       {imagesList.map((img, index) => {
                         return (
-                          <div className="item-image-upload">
+                          <div className="item-image-upload" key={img.id}>
                             <Image key={index} src={img.src || 'error'} fallback="/images/default-image-fallback.png" />
                             <Button
                               type="text"
@@ -311,7 +325,7 @@ const EditorLexical = (props: EditorLexicalProps) => {
                       <div className="images-post images-post-mobile only-one-image">
                         {imagesList.map((img, index) => {
                           return (
-                            <div className="item-image-upload">
+                            <div className="item-image-upload" key={img.id}>
                               <Image
                                 key={index}
                                 src={img.src || 'error'}
@@ -329,7 +343,7 @@ const EditorLexical = (props: EditorLexicalProps) => {
                       </div>
                     </>
                   )}
-                </>
+                </React.Fragment>
               ) : (
                 <Gallery renderImage={imageRenderer} photos={imagesList} />
               )}

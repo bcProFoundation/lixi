@@ -39,9 +39,6 @@ export class AccountDanaProcessor extends WorkerHost {
             account: {
               address: givenDanaAddress
             }
-          },
-          orderBy: {
-            createdAt: 'desc'
           }
         });
 
@@ -96,9 +93,6 @@ export class AccountDanaProcessor extends WorkerHost {
             account: {
               address: givenDanaAddress
             }
-          },
-          orderBy: {
-            createdAt: 'desc'
           }
         });
 
@@ -108,9 +102,6 @@ export class AccountDanaProcessor extends WorkerHost {
             account: {
               address: receivedDanaAddress
             }
-          },
-          orderBy: {
-            createdAt: 'desc'
           }
         });
 

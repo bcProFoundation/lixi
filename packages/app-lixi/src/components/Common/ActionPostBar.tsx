@@ -1,8 +1,8 @@
 import { BarChartOutlined, RetweetOutlined } from '@ant-design/icons';
 import { currency } from '@bcpros/lixi-components/components/Common/Ticker';
-import { PostItem } from '@components/Posts/PostDetail';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import { WalletContext } from '@context/walletProvider';
-import { RepostInput } from '@generated/types.generated';
+import { PostQueryItem, RepostInput } from '@generated/index';
 import useXPI from '@hooks/useXPI';
 import { getSelectedAccount } from '@store/account';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
@@ -17,7 +17,7 @@ import intl from 'react-intl-universal';
 import { formatBalance } from 'src/utils/cashMethods';
 import styled from 'styled-components';
 import { WithAuthorizeAction } from './Authorization/WithAuthorizeAction';
-import { Counter } from './Counter';
+import Counter from './Counter';
 import BaseReaction from './Reaction';
 import ShareSocialButton from './ShareSocialButton';
 
@@ -116,8 +116,7 @@ const ActionBar = styled.div`
 `;
 
 type ActionPostBarProps = {
-  post: PostItem;
-  handleBurnForPost?: (isUpVote: boolean, post: any, optionBurn?: string) => Promise<void>;
+  post: PostQueryItem;
   onClickIconComment?: (e) => void;
   isSetBorderBottom?: boolean;
 };
@@ -125,7 +124,7 @@ type ActionPostBarProps = {
 const AuthorizeIconNoneHover = WithAuthorizeAction(IconNoneHover);
 const AuthorizeReaction = WithAuthorizeAction(BaseReaction);
 
-const ActionPostBar = ({ post, handleBurnForPost, onClickIconComment, isSetBorderBottom }: ActionPostBarProps) => {
+const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPostBarProps) => {
   const dispatch = useAppDispatch();
   const selectedAccount = useAppSelector(getSelectedAccount);
   const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
@@ -137,6 +136,8 @@ const ActionPostBar = ({ post, handleBurnForPost, onClickIconComment, isSetBorde
   const { XPI, chronik } = Wallet;
   const { sendXpi } = useXPI();
 
+  const roundDanaViewScore = Math.round(post.danaViewScore || 0);
+
   useEffect(() => {
     selectedKey.includes('post') || isSetBorderBottom ? setBorderBottom(true) : setBorderBottom(false);
   }, [selectedKey]);
@@ -144,7 +145,7 @@ const ActionPostBar = ({ post, handleBurnForPost, onClickIconComment, isSetBorde
   const [repostTrigger, { isLoading: isLoadingRepost, isSuccess: isSuccessRepost, isError: isErrorRepost }] =
     useRepostMutation();
 
-  const handleRepost = async (post: PostItem) => {
+  const handleRepost = async (post: PostQueryItem) => {
     try {
       let txHex;
 
@@ -207,7 +208,7 @@ const ActionPostBar = ({ post, handleBurnForPost, onClickIconComment, isSetBorde
   return (
     <ActionBar className={`action-post-bar ${borderBottom ? 'border-bottom' : ''}`}>
       <GroupIconText>
-        <AuthorizeReaction post={post} handleBurnForPost={handleBurnForPost} />
+        <AuthorizeReaction dataItem={post} burnForType={BurnForType.Post} />
         <AuthorizeIconNoneHover
           value={formatBalance(post?.totalComments ?? 0)}
           imgUrl="/images/ico-comments.svg"
@@ -225,10 +226,10 @@ const ActionPostBar = ({ post, handleBurnForPost, onClickIconComment, isSetBorde
             </Space>
           </Tooltip>
         )}
-        <Tooltip title={`${intl.get('post.danaViewScore')}: ${post.danaViewScore ?? 0}`}>
+        <Tooltip title={`${intl.get('post.danaViewScore')}: ${roundDanaViewScore}`}>
           <Space style={{ padding: '8px' }} className="dana-view-score" size={5}>
             <BarChartOutlined />
-            <Counter isShowXPI={false} num={post.danaViewScore ?? 0} />
+            <Counter isShowXPI={false} num={roundDanaViewScore} />
           </Space>
         </Tooltip>
       </GroupIconText>

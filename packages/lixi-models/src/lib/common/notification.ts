@@ -27,6 +27,7 @@ export interface NotificationTypeTranslationDto {
 export interface NotificationDto {
   id?: string;
   message?: string;
+  contentNotification?: string;
   readAt?: Nullable<Date>;
   deletedAt?: Nullable<Date>;
   additionalData?: Nullable<any>;

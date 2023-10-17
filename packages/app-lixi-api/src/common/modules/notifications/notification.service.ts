@@ -1,10 +1,12 @@
 // import { NotificationDto as Notification, NotificationTypeDto as NotificationType } from '@bcpros/lixi-models';
 import {
   BurnCommand,
+  Language,
   NotificationDto as Notification,
   NotificationDto,
   SendNotificationJobData,
-  WebpushNotification
+  WebpushNotification,
+  BurnForTypeString
 } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -96,6 +98,15 @@ export class NotificationService implements OnModuleInit {
       }
     });
 
+    const fullNotification = {
+      ...notif,
+      contentNotification: this.contentNotification(
+        notifType.notificationTypeTranslations,
+        notification.additionalData,
+        recipientAccount.language
+      )
+    };
+
     // The rooms are the list of devices
     // Each room is a device
     const rooms = deviceIds.map(deviceId => {
@@ -123,7 +134,7 @@ export class NotificationService implements OnModuleInit {
       const webpushJobData: WebpushNotificationJobData = {
         pushSubObj: pushSubscription,
         address: subscriber.address,
-        notification: { ...notif }
+        notification: { ...fullNotification }
       };
 
       await this.webpushQueue.add('send-webpush-notification', webpushJobData);
@@ -134,7 +145,7 @@ export class NotificationService implements OnModuleInit {
     _.map(rooms, async room => {
       const sendNotifJobData: SendNotificationJobData = {
         room,
-        notification: { ...notif } as NotificationDto
+        notification: { ...fullNotification } as NotificationDto
       };
       await this.notificationOutboundQueue.add('send-notification', sendNotifJobData);
     });
@@ -219,5 +230,34 @@ export class NotificationService implements OnModuleInit {
   async calcFee(post: any, burn: BurnCommand) {
     const burnValue = Number(burn.burnValue);
     return post.page ? burnValue * 0.04 : burnValue * 0.08;
+  }
+
+  contentNotification(
+    templateObject: { template: string; language: string }[],
+    data: any,
+    accountLanguage: string | undefined
+  ) {
+    switch (data?.burnForType) {
+      case BurnForTypeString.post:
+        data.burnForType = this.i18n.t('burn.messages.post', { lang: accountLanguage });
+        break;
+      case BurnForTypeString.comment:
+        data.burnForType = this.i18n.t('burn.messages.comment', { lang: accountLanguage });
+        break;
+      default:
+        break;
+    }
+
+    let templateString: string = '';
+    templateObject.every(item => {
+      if (item.language === accountLanguage) {
+        templateString = item.template;
+        return false;
+      }
+      return true;
+    });
+
+    const content = template(templateString, data);
+    return content;
   }
 }

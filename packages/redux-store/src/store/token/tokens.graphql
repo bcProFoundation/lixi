@@ -34,6 +34,11 @@ fragment TokenFields on Token {
   danaBurnUp
   danaBurnDown
   danaBurnScore
+  tokenDana {
+    danaBurnUp
+    danaBurnDown
+    danaBurnScore
+  }
   initialTokenQuantity
   comments
   createdDate

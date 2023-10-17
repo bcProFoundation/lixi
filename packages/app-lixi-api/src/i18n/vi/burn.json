@@ -2,6 +2,8 @@
   "messages": {
     "unableToBurn": "Không thể đốt.",
     "updatingWalletFund": "Đợi tí! Đang cập nhật số dư ví trên blockchain!",
-    "burningCanceled": "Huỷ bỏ đốt!"
+    "burningCanceled": "Huỷ bỏ đốt!",
+    "post": "bài viết",
+    "comment": "nhận xét"
   }
 }

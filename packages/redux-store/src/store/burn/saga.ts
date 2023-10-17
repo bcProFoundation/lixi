@@ -1,52 +1,181 @@
 /* eslint-disable no-case-declarations */
-import { Account } from '@bcpros/lixi-models';
 import { PostsQueryTag, WORSHIP_TYPES } from '@bcpros/lixi-models/constants';
-import { Burn, BurnCommand, BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
+import {
+  Burn,
+  BurnCommand,
+  BurnExtraArguments,
+  BurnForType,
+  BurnQueueCommand,
+  BurnType
+} from '@bcpros/lixi-models/lib/burn';
+import { currency } from '@components/Common/Ticker';
 import { callConfig } from '@context/shareContext';
-import { all, call, fork, put as putChannel, take, takeLatest } from '@redux-saga/core/effects';
+import {
+  Account,
+  Comment,
+  CreateWorshipInput,
+  OrderDirection,
+  Page,
+  Post,
+  PostOrderField,
+  WorshipOrderField
+} from '@generated/types.generated';
+import { all, call, fork, take, takeLatest } from '@redux-saga/core/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { setTransactionNotReady, setTransactionReady } from '@store/account/actions';
-import { getTransactionStatus } from '@store/account/selectors';
-import { api as commentApi } from '@store/comment/comments.api';
-import { api as postApi } from '@store/post/posts.api';
+import { getSelectedAccount, getTransactionStatus } from '@store/account/selectors';
+import { getFailQueue } from '@store/burn';
+import { api as commentsApi } from '@store/comment/comments.api';
+import { api as pagesApi } from '@store/page/pages.api';
+import { api as postsApi } from '@store/post/posts.api';
+import { api as templeApi } from '@store/temple/temple.api';
 import { api as timelineApi } from '@store/timeline/timeline.api';
 import { showToast } from '@store/toast/actions';
-import { burnForToken, burnForTokenFailure, burnForTokenSucceses, getTokenById } from '@store/token';
+import { burnForTokenFailure, burnForTokenSucceses } from '@store/token';
 import { api as tokenApi } from '@store/token/tokens.api';
-import { getSlpBalancesAndUtxos } from '@store/wallet';
-import { getAllWalletPaths } from '@store/wallet';
+import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletBalances } from '@store/wallet';
+import { api as worshipApi } from '@store/worship/worshipedPerson.api';
+import { fromSatoshisToXpi, fromSmallestDenomination, fromXpiToSatoshis } from '@utils/cashMethods';
+import BigNumber from 'bignumber.js';
 import * as _ from 'lodash';
 import intl from 'react-intl-universal';
-import { buffers, Channel } from 'redux-saga';
+import { buffers } from 'redux-saga';
 import { actionChannel, flush, getContext, put, select } from 'redux-saga/effects';
-import {
-  CommentOrder,
-  CreateWorshipInput,
-  OrderDirection,
-  PostOrderField,
-  TokenOrderField,
-  WorshipOrderField
-} from '@generated/types.generated';
+import { match } from 'ts-pattern';
+import { BurnForItem } from '../../generated';
 import { hideLoading } from '../loading/actions';
+import { getFilterPostsHome, getLevelFilter } from '../settings';
 import {
+  addBurnQueue,
   addBurnTransaction,
-  addFailQueue,
   burnForUpDownVote,
   burnForUpDownVoteFailure,
   burnForUpDownVoteSuccess,
   clearBurnQueue,
+  clearFailQueue,
   createTxHex,
   moveAllBurnToFailQueue,
+  prepareBurnCommand,
   removeBurnQueue,
   returnTxHex
 } from './actions';
 import burnApi from './api';
-import { getBurnQueue, getFailQueue } from './selectors';
-import { api as worshipApi } from '@store/worship/worshipedPerson.api';
-import { api as templeApi } from '@store/temple/temple.api';
-import { currency } from '@components/Common/Ticker';
-import { fromSatoshisToXpi } from '@utils/cashMethods';
+
+import { RootState } from '../store';
+
+function* prepareBurnCommandSaga(
+  action: PayloadAction<{
+    isUpVote: boolean;
+    burnForItem: BurnForItem;
+    burnForType: BurnForType;
+    burnValue: string;
+  }>
+) {
+  try {
+    const { isUpVote, burnForItem, burnForType, burnValue } = action.payload;
+
+    const failQueue = yield select(getFailQueue);
+    if (failQueue.length > 0) yield put(clearFailQueue());
+    const walletPaths = yield select(getAllWalletPaths);
+    const selectedAccount = yield select(getSelectedAccount);
+    const slpBalancesAndUtxos = yield select(getSlpBalancesAndUtxos);
+    const balances = yield select(getWalletBalances);
+    const filterValue = yield select(getFilterPostsHome);
+    const level = yield select(getLevelFilter);
+    const fundingFirstUtxo = slpBalancesAndUtxos.nonSlpUtxos[0];
+    const currentWalletPath = walletPaths.filter(acc => acc.xAddress === fundingFirstUtxo.address).pop();
+    const { hash160 } = currentWalletPath;
+
+    const burnType = isUpVote ? BurnType.Up : BurnType.Down;
+    const burnedBy = hash160;
+    const burnForId = burnForItem.id.toString();
+
+    let tipToAddresses: { address: string; amount: string }[] = [];
+
+    switch (burnForType) {
+      case BurnForType.Post:
+        const post = burnForItem as Post;
+        tipToAddresses.push({
+          address: post.page ? post.page.pageAccount.address : post.postAccount.address,
+          amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
+        });
+        break;
+      case BurnForType.Page:
+        const page = burnForItem as Page;
+        tipToAddresses.push({
+          address: page.pageAccount.address,
+          amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
+        });
+        break;
+      case BurnForType.Account:
+        const account = burnForItem as Account;
+        tipToAddresses.push({
+          address: account.address,
+          amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
+        });
+        break;
+      case BurnForType.Comment:
+        const comment = burnForItem as Comment;
+        const pageAddress = comment.commentTo.page ? comment.commentTo.page.pageAccount.address : undefined;
+        const postAddress = comment.commentTo.postAccount.address;
+        tipToAddresses.push({
+          address: pageAddress ?? postAddress,
+          amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
+        });
+        break;
+    }
+
+    tipToAddresses = tipToAddresses.filter(item => item.address != selectedAccount.address);
+    const totalTip = fromSmallestDenomination(
+      tipToAddresses.reduce((total, item) => total + parseFloat(item.amount), 0)
+    );
+    if (
+      slpBalancesAndUtxos.nonSlpUtxos.length == 0 ||
+      fromSmallestDenomination(balances.totalBalanceInSatoshis) < parseInt(burnValue) + totalTip
+    ) {
+      throw new Error(intl.get('account.insufficientFunds'));
+    }
+
+    const extraArguments: BurnExtraArguments = match(burnForType)
+      .with(BurnForType.Post, () => {
+        return {
+          postQueryTags: [PostsQueryTag.Post],
+          postId: burnForItem.id.toString(),
+          minBurnFilter: filterValue,
+          level: level
+        };
+      })
+      .with(BurnForType.Page, () => {
+        return {
+          pageId: burnForItem.id.toString()
+        };
+      })
+      .otherwise(() => null);
+
+    const burnCommand: BurnQueueCommand = {
+      defaultFee: currency.defaultFee,
+      burnType,
+      burnForType: burnForType,
+      burnedBy,
+      burnForId: _.toString(burnForId),
+      burnValue,
+      tipToAddresses: tipToAddresses,
+      extraArguments
+    };
+
+    yield put(addBurnQueue(burnCommand));
+    yield put(addBurnTransaction(burnCommand));
+  } catch (err) {
+    const errorMessage = err.message ?? intl.get('post.unableToBurn');
+    yield put(
+      showToast('error', {
+        message: intl.get('toast.error'),
+        description: errorMessage
+      })
+    );
+  }
+}
 
 function* createTxHexSaga(action: PayloadAction<BurnQueueCommand>) {
   const data = action.payload;
@@ -71,13 +200,14 @@ function* createTxHexSaga(action: PayloadAction<BurnQueueCommand>) {
       data.burnValue,
       tipToAddresses
     );
+
     const payload = {
       rawTxHex: rawTxHex,
       minerFee: _.toString(fromSatoshisToXpi(minerFee))
     };
 
     yield put({ type: returnTxHex.type, payload });
-  } catch {
+  } catch (e) {
     yield put(moveAllBurnToFailQueue());
     yield put(clearBurnQueue());
   }
@@ -100,15 +230,19 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
     };
 
     const data: Burn = yield call(burnApi.post, dataApi);
+
     switch (command.burnForType) {
       case BurnForType.Token:
-        patches = yield updateTokenBurnValue(action);
+        yield updateTokenBurnValue(action);
         break;
       case BurnForType.Post:
-        patches = yield updatePostBurnValue(action);
+        yield updatePostBurnValue(action);
         break;
       case BurnForType.Comment:
-        patches = yield updateCommentBurnValue(action);
+        yield updateCommentBurnValue(action);
+        break;
+      case BurnForType.Page:
+        yield updatePageBurnValue(action);
         break;
       case BurnForType.Worship:
         let promise;
@@ -189,7 +323,7 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
         }
       };
       if (patch) {
-        yield put(postApi.util.patchQueryData('Post', { id: postId }, patch.inversePatches));
+        yield put(postsApi.util.patchQueryData('Post', { id: postId }, patch.inversePatches));
       }
     } else if (command.burnForType === BurnForType.Comment) {
       message = (err as Error)?.message ?? intl.get('comment.unableToBurn');
@@ -222,161 +356,58 @@ function* burnForUpDownVoteFailureSaga(action: PayloadAction<string>) {
 
 function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
   const { extraArguments, burnValue: burnValueAsString, burnType, burnForId } = action.payload;
-  const { isTop, hashtagId, hashtags, minBurnFilter, pageId, query, tokenId, userId, postQueryTag, level } =
+  const { isTop, hashtagId, hashtags, minBurnFilter, pageId, query, tokenId, userId, postQueryTags, level } =
     extraArguments;
-  // @todo: better control the params for search/others
-  const params = {
-    orderBy: {
-      direction: OrderDirection.Desc,
-      field: PostOrderField.UpdatedAt
-    }
-  };
 
   let burnValue = _.toNumber(burnValueAsString);
 
-  //BUG: All token and page post show up on home page will not optimistic update becuz of PostQueryTag
-  // The algo will check for PostQueryTag then updateQueryData according to it. It only update normal post not page's post and token's post at homepage.
-  // That's why we need to update the all Posts here first then updateQueryData later. Not the best way to handle. Maybe come back later.
+  const account = yield select(getSelectedAccount);
 
-  yield put(
-    //THis is hardcoded, it wont work if isTop other than false, need to find better way to handle this
-    timelineApi.util.updateQueryData('HomeTimeline', { level: level }, draft => {
-      const timelineItemToUpdateIndex = draft.homeTimeline.edges.findIndex(item => item.node.id === burnForId);
-      const timelineItemToUpdate = draft.homeTimeline.edges[timelineItemToUpdateIndex];
-      if (timelineItemToUpdateIndex >= 0) {
-        let danaBurnUp = timelineItemToUpdate?.node?.data?.danaBurnUp ?? 0;
-        let danaBurnDown = timelineItemToUpdate?.node?.data?.danaBurnDown ?? 0;
-        if (burnType == BurnType.Up) {
-          danaBurnUp = danaBurnUp + burnValue;
-        } else {
-          danaBurnDown = danaBurnDown + burnValue;
-        }
-        const danaBurnScore = danaBurnUp - danaBurnDown;
-        draft.homeTimeline.edges[timelineItemToUpdateIndex].node.data.danaBurnUp = danaBurnUp;
-        draft.homeTimeline.edges[timelineItemToUpdateIndex].node.data.danaBurnDown = danaBurnDown;
-        draft.homeTimeline.edges[timelineItemToUpdateIndex].node.data.danaBurnScore = danaBurnScore;
-        if (danaBurnScore < 0) {
-          draft.homeTimeline.edges.splice(timelineItemToUpdateIndex, 1);
-          draft.homeTimeline.totalCount = draft.homeTimeline.totalCount - 1;
-        }
-      }
-    })
-  );
+  const rootState: RootState = yield select();
 
-  yield put(
-    postApi.util.updateQueryData(
-      'PostsBySearchWithHashtag',
-      {
-        minBurnFilter: minBurnFilter,
-        query: query,
-        hashtags: hashtags
-      },
-      draft => {
-        const postToUpdateIndex = draft.allPostsBySearchWithHashtag.edges.findIndex(item => item.node.id === burnForId);
-        const postToUpdate = draft.allPostsBySearchWithHashtag.edges[postToUpdateIndex];
-        if (postToUpdateIndex >= 0) {
-          let danaBurnUp = postToUpdate?.node?.danaBurnUp ?? 0;
-          let danaBurnDown = postToUpdate?.node?.danaBurnDown ?? 0;
-          if (burnType == BurnType.Up) {
-            danaBurnUp = danaBurnUp + burnValue;
-          } else {
-            danaBurnDown = danaBurnDown + burnValue;
-          }
-          const danaBurnScore = danaBurnUp - danaBurnDown;
-          draft.allPostsBySearchWithHashtag.edges[postToUpdateIndex].node.danaBurnUp = danaBurnUp;
-          draft.allPostsBySearchWithHashtag.edges[postToUpdateIndex].node.danaBurnDown = danaBurnDown;
-          draft.allPostsBySearchWithHashtag.edges[postToUpdateIndex].node.danaBurnScore = danaBurnScore;
-          if (danaBurnScore < 0) {
-            draft.allPostsBySearchWithHashtag.edges.splice(postToUpdateIndex, 1);
-          }
-        }
-      }
-    )
-  );
-
-  yield put(
-    postApi.util.updateQueryData('Post', { id: burnForId }, draft => {
-      let danaBurnUp = draft?.post?.danaBurnUp ?? 0;
-      let danaBurnDown = draft?.post?.danaBurnDown ?? 0;
-      if (burnType == BurnType.Up) {
-        danaBurnUp = danaBurnUp + burnValue;
-      } else {
-        danaBurnDown = danaBurnDown + burnValue;
-      }
-      const danaBurnScore = danaBurnUp - danaBurnDown;
-      draft.post.danaBurnUp = danaBurnUp;
-      draft.post.danaBurnDown = danaBurnDown;
-      draft.post.danaBurnScore = danaBurnScore;
-    })
-  );
-
-  if (hashtagId) {
+  // Update timeline
+  const timelineInvalidatedBy = yield call(timelineApi.util.selectInvalidatedBy, rootState, ['HomeTimeline']);
+  for (const invalidatedBy of timelineInvalidatedBy) {
+    const { endpointName, originalArgs } = invalidatedBy;
     yield put(
-      postApi.util.updateQueryData('PostsByHashtagId', { id: hashtagId }, draft => {
-        const postToUpdateIndex = draft.allPostsByHashtagId.edges.findIndex(item => item.node.id === burnForId);
-        const postToUpdate = draft.allPostsByHashtagId.edges[postToUpdateIndex];
-        if (postToUpdateIndex >= 0) {
-          let danaBurnUp = postToUpdate?.node?.danaBurnUp ?? 0;
-          let danaBurnDown = postToUpdate?.node?.danaBurnDown ?? 0;
+      timelineApi.util.updateQueryData('HomeTimeline', originalArgs, draft => {
+        const timelineItemToUpdateIndex = draft.homeTimeline.edges.findIndex(item => item.node.id === burnForId);
+        const timelineItemToUpdate = draft.homeTimeline.edges[timelineItemToUpdateIndex];
+        if (timelineItemToUpdateIndex >= 0) {
+          let danaBurnUp = timelineItemToUpdate?.node?.data?.danaBurnUp ?? 0;
+          let danaBurnDown = timelineItemToUpdate?.node?.data?.danaBurnDown ?? 0;
           if (burnType == BurnType.Up) {
             danaBurnUp = danaBurnUp + burnValue;
           } else {
             danaBurnDown = danaBurnDown + burnValue;
           }
           const danaBurnScore = danaBurnUp - danaBurnDown;
-          draft.allPostsByHashtagId.edges[postToUpdateIndex].node.danaBurnUp = danaBurnUp;
-          draft.allPostsByHashtagId.edges[postToUpdateIndex].node.danaBurnDown = danaBurnDown;
-          draft.allPostsByHashtagId.edges[postToUpdateIndex].node.danaBurnScore = danaBurnScore;
-          if (danaBurnScore < 0) {
-            draft.allPostsByHashtagId.edges.splice(postToUpdateIndex, 1);
-            draft.allPostsByHashtagId.totalCount = draft.allPostsByHashtagId.totalCount - 1;
+          draft.homeTimeline.edges[timelineItemToUpdateIndex].node.data.danaBurnUp = danaBurnUp;
+          draft.homeTimeline.edges[timelineItemToUpdateIndex].node.data.danaBurnDown = danaBurnDown;
+          draft.homeTimeline.edges[timelineItemToUpdateIndex].node.data.danaBurnScore = danaBurnScore;
+          if (
+            danaBurnScore < 0 &&
+            account?.id !== draft.homeTimeline.edges[timelineItemToUpdateIndex]?.node?.data?.postAccount?.id
+          ) {
+            draft.homeTimeline.edges.splice(timelineItemToUpdateIndex, 1);
+            draft.homeTimeline.totalCount = draft.homeTimeline.totalCount - 1;
           }
         }
       })
     );
   }
 
-  //TODO: There are no optimistic burn update for query post by hashtag, We need to pass query and hashtags
-  // in order to update. Need better way to handle rather than passing arg
-  switch (postQueryTag) {
-    case PostsQueryTag.PostsByPageId:
-      yield put(
-        postApi.util.updateQueryData(
-          'PostsBySearchWithHashtagAtPage',
-          {
-            pageId: pageId,
-            minBurnFilter: minBurnFilter,
-            query: query,
-            hashtags: hashtags
-          },
-          draft => {
-            const postToUpdateIndex = draft.allPostsBySearchWithHashtagAtPage.edges.findIndex(
-              item => item.node.id === burnForId
-            );
-            const postToUpdate = draft.allPostsBySearchWithHashtagAtPage.edges[postToUpdateIndex];
-            if (postToUpdateIndex >= 0) {
-              let danaBurnUp = postToUpdate?.node?.danaBurnUp ?? 0;
-              let danaBurnDown = postToUpdate?.node?.danaBurnDown ?? 0;
-              if (burnType == BurnType.Up) {
-                danaBurnUp = danaBurnUp + burnValue;
-              } else {
-                danaBurnDown = danaBurnDown + burnValue;
-              }
-              const danaBurnScore = danaBurnUp - danaBurnDown;
-              draft.allPostsBySearchWithHashtagAtPage.edges[postToUpdateIndex].node.danaBurnUp = danaBurnUp;
-              draft.allPostsBySearchWithHashtagAtPage.edges[postToUpdateIndex].node.danaBurnDown = danaBurnDown;
-              draft.allPostsBySearchWithHashtagAtPage.edges[postToUpdateIndex].node.danaBurnScore = danaBurnScore;
-              if (danaBurnScore < 0) {
-                draft.allPostsBySearchWithHashtagAtPage.edges.splice(postToUpdateIndex, 1);
-              }
-            }
-          }
-        )
-      );
-      yield put(
-        postApi.util.updateQueryData('PostsByPageId', { id: pageId, minBurnFilter: minBurnFilter }, draft => {
-          const postToUpdateIndex = draft.allPostsByPageId.edges.findIndex(item => item.node.id === burnForId);
-          const postToUpdate = draft.allPostsByPageId.edges[postToUpdateIndex];
+  // Update posts
+  const postsInvalidatedBy = yield call(postsApi.util.selectInvalidatedBy, rootState, ['Posts']);
+  for (const invalidatedBy of postsInvalidatedBy) {
+    const { endpointName, originalArgs } = invalidatedBy;
+    yield put(
+      postsApi.util.updateQueryData(endpointName, originalArgs, draft => {
+        const fields = Object.keys(draft);
+        for (const field of fields) {
+          if (!draft[field]) continue;
+          const postToUpdateIndex = draft[field].edges.findIndex(item => item.node.id === burnForId);
+          const postToUpdate = draft[field].edges[postToUpdateIndex];
           if (postToUpdateIndex >= 0) {
             let danaBurnUp = postToUpdate?.node?.danaBurnUp ?? 0;
             let danaBurnDown = postToUpdate?.node?.danaBurnDown ?? 0;
@@ -386,111 +417,38 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
               danaBurnDown = danaBurnDown + burnValue;
             }
             const danaBurnScore = danaBurnUp - danaBurnDown;
-            draft.allPostsByPageId.edges[postToUpdateIndex].node.danaBurnUp = danaBurnUp;
-            draft.allPostsByPageId.edges[postToUpdateIndex].node.danaBurnDown = danaBurnDown;
-            draft.allPostsByPageId.edges[postToUpdateIndex].node.danaBurnScore = danaBurnScore;
-            if (danaBurnScore < 0) {
-              draft.allPostsByPageId.edges.splice(postToUpdateIndex, 1);
-              draft.allPostsByPageId.totalCount = draft.allPostsByPageId.totalCount - 1;
+            draft[field].edges[postToUpdateIndex].node.danaBurnUp = danaBurnUp;
+            draft[field].edges[postToUpdateIndex].node.danaBurnDown = danaBurnDown;
+            draft[field].edges[postToUpdateIndex].node.danaBurnScore = danaBurnScore;
+            if (danaBurnScore < 0 && account?.id !== draft[field]?.edges[postToUpdateIndex]?.node?.postAccount?.id) {
+              draft[field].edges.splice(postToUpdateIndex, 1);
+              draft[field].totalCount = draft[field].totalCount - 1;
             }
           }
-        })
-      );
-      break;
-    case PostsQueryTag.PostsByTokenId:
-      yield put(
-        postApi.util.updateQueryData(
-          'PostsBySearchWithHashtagAtToken',
-          {
-            tokenId: tokenId,
-            minBurnFilter: minBurnFilter,
-            query: query,
-            hashtags: hashtags
-          },
-          draft => {
-            const postToUpdateIndex = draft.allPostsBySearchWithHashtagAtToken.edges.findIndex(
-              item => item.node.id === burnForId
-            );
-            const postToUpdate = draft.allPostsBySearchWithHashtagAtToken.edges[postToUpdateIndex];
-            if (postToUpdateIndex >= 0) {
-              let danaBurnUp = postToUpdate?.node?.danaBurnUp ?? 0;
-              let danaBurnDown = postToUpdate?.node?.danaBurnDown ?? 0;
-              if (burnType == BurnType.Up) {
-                danaBurnUp = danaBurnUp + burnValue;
-              } else {
-                danaBurnDown = danaBurnDown + burnValue;
-              }
-              const danaBurnScore = danaBurnUp - danaBurnDown;
-              draft.allPostsBySearchWithHashtagAtToken.edges[postToUpdateIndex].node.danaBurnUp = danaBurnUp;
-              draft.allPostsBySearchWithHashtagAtToken.edges[postToUpdateIndex].node.danaBurnDown = danaBurnDown;
-              draft.allPostsBySearchWithHashtagAtToken.edges[postToUpdateIndex].node.danaBurnScore = danaBurnScore;
-              if (danaBurnScore < 0) {
-                draft.allPostsBySearchWithHashtagAtToken.edges.splice(postToUpdateIndex, 1);
-              }
-            }
-          }
-        )
-      );
-      yield put(
-        postApi.util.updateQueryData('PostsByTokenId', { id: tokenId, minBurnFilter: minBurnFilter }, draft => {
-          const postToUpdateIndex = draft.allPostsByTokenId.edges.findIndex(item => item.node.id === burnForId);
-          const postToUpdate = draft.allPostsByTokenId.edges[postToUpdateIndex];
-          if (postToUpdateIndex >= 0) {
-            let danaBurnUp = postToUpdate?.node?.danaBurnUp ?? 0;
-            let danaBurnDown = postToUpdate?.node?.danaBurnDown ?? 0;
-            if (burnType == BurnType.Up) {
-              danaBurnUp = danaBurnUp + burnValue;
-            } else {
-              danaBurnDown = danaBurnDown + burnValue;
-            }
-            const danaBurnScore = danaBurnUp - danaBurnDown;
-            draft.allPostsByTokenId.edges[postToUpdateIndex].node.danaBurnUp = danaBurnUp;
-            draft.allPostsByTokenId.edges[postToUpdateIndex].node.danaBurnDown = danaBurnDown;
-            draft.allPostsByTokenId.edges[postToUpdateIndex].node.danaBurnScore = danaBurnScore;
-            if (danaBurnScore < 0) {
-              draft.allPostsByTokenId.edges.splice(postToUpdateIndex, 1);
-              draft.allPostsByTokenId.totalCount = draft.allPostsByTokenId.totalCount - 1;
-            }
-          }
-        })
-      );
-      break;
-    case PostsQueryTag.PostsByUserId:
-      yield put(
-        postApi.util.updateQueryData(
-          'PostsByUserId',
-          {
-            id: userId,
-            minBurnFilter: minBurnFilter
-          },
-          draft => {
-            const postToUpdateIndex = draft.allPostsByUserId.edges.findIndex(item => item.node.id === burnForId);
-            const postToUpdate = draft.allPostsByUserId.edges[postToUpdateIndex];
-            console.log(postToUpdateIndex);
-            console.log(postToUpdate);
-            if (postToUpdateIndex >= 0) {
-              let danaBurnUp = postToUpdate?.node?.danaBurnUp ?? 0;
-              let danaBurnDown = postToUpdate?.node?.danaBurnDown ?? 0;
-              if (burnType == BurnType.Up) {
-                danaBurnUp = danaBurnUp + burnValue;
-              } else {
-                danaBurnDown = danaBurnDown + burnValue;
-              }
-              const danaBurnScore = danaBurnUp - danaBurnDown;
-              draft.allPostsByUserId.edges[postToUpdateIndex].node.danaBurnUp = danaBurnUp;
-              draft.allPostsByUserId.edges[postToUpdateIndex].node.danaBurnDown = danaBurnDown;
-              draft.allPostsByUserId.edges[postToUpdateIndex].node.danaBurnScore = danaBurnScore;
-              if (danaBurnScore < 0) {
-                draft.allPostsByUserId.edges.splice(postToUpdateIndex, 1);
-                draft.allPostsByUserId.totalCount = draft.allPostsByUserId.totalCount - 1;
-              }
-            }
-          }
-        )
-      );
-      break;
-    default:
-      break;
+        }
+      })
+    );
+  }
+
+  // Update single post
+  const postInvalidatedBy = yield call(postsApi.util.selectInvalidatedBy, rootState, ['Post']);
+  for (const invalidatedBy of postInvalidatedBy) {
+    const { endpointName, originalArgs } = invalidatedBy;
+    yield put(
+      postsApi.util.updateQueryData('Post', originalArgs, draft => {
+        let danaBurnUp = draft?.post?.danaBurnUp ?? 0;
+        let danaBurnDown = draft?.post?.danaBurnDown ?? 0;
+        if (burnType == BurnType.Up) {
+          danaBurnUp = danaBurnUp + burnValue;
+        } else {
+          danaBurnDown = danaBurnDown + burnValue;
+        }
+        const danaBurnScore = danaBurnUp - danaBurnDown;
+        draft.post.danaBurnUp = danaBurnUp;
+        draft.post.danaBurnDown = danaBurnDown;
+        draft.post.danaBurnScore = danaBurnScore;
+      })
+    );
   }
 }
 
@@ -529,7 +487,6 @@ function* updateWorshipBurnValue(data) {
     );
     return yield put(
       worshipApi.util.updateQueryData('allWorshipedByTempleId', { ...params, id: temple.id }, draft => {
-        console.log(draft);
         draft.allWorshipedByTempleId.edges.unshift({
           cursor: id,
           node: {
@@ -542,82 +499,151 @@ function* updateWorshipBurnValue(data) {
   }
 }
 
-function* updateCommentBurnValue(action: PayloadAction<BurnQueueCommand>) {
-  const { extraArguments, burnValue: burnValueAsString, burnType, burnForId } = action.payload;
-  const orderBy = extraArguments.orderBy as CommentOrder;
-  const { postId } = extraArguments;
-
+function* updatePageBurnValue(action: PayloadAction<BurnQueueCommand>) {
+  const { burnValue: burnValueAsString, burnType, burnForId } = action.payload;
   const burnValue = _.toNumber(burnValueAsString);
 
-  return yield put(
-    commentApi.util.updateQueryData('CommentsToPostId', { id: postId, orderBy: orderBy }, draft => {
-      const commentToUpdateIndex = draft.allCommentsToPostId.edges.findIndex(item => item.node.id === burnForId);
-      const commentToUpdate = draft.allCommentsToPostId.edges[commentToUpdateIndex];
-      if (commentToUpdateIndex >= 0) {
-        let danaBurnUp = commentToUpdate?.node?.danaBurnUp ?? 0;
-        let danaBurnDown = commentToUpdate?.node?.danaBurnDown ?? 0;
-        if (burnType == BurnType.Up) {
-          danaBurnUp = danaBurnUp + burnValue;
-        } else {
-          danaBurnDown = danaBurnDown + burnValue;
+  const account = yield select(getSelectedAccount);
+
+  const rootState: RootState = yield select();
+  const pagesInvalidatedBy = yield call(pagesApi.util.selectInvalidatedBy, rootState, ['Pages']);
+
+  for (const invalidatedBy of pagesInvalidatedBy) {
+    const { endpointName, originalArgs } = invalidatedBy;
+    yield put(
+      pagesApi.util.updateQueryData(endpointName, originalArgs, draft => {
+        const fields = Object.keys(draft);
+        for (const field of fields) {
+          if (!draft[field]) continue;
+          const pageToUpdateIndex = draft[field].edges.findIndex(item => item.node.id === burnForId);
+          const commentToUpdate = draft[field].edges[pageToUpdateIndex];
+          if (pageToUpdateIndex >= 0) {
+            let danaBurnUp = commentToUpdate?.node?.danaBurnUp ?? 0;
+            let danaBurnDown = commentToUpdate?.node?.danaBurnDown ?? 0;
+            if (burnType == BurnType.Up) {
+              danaBurnUp = danaBurnUp + burnValue;
+            } else {
+              danaBurnDown = danaBurnDown + burnValue;
+            }
+            const danaBurnScore = danaBurnUp - danaBurnDown;
+            draft[field].edges[pageToUpdateIndex].node.danaBurnUp = danaBurnUp;
+            draft[field].edges[pageToUpdateIndex].node.danaBurnDown = danaBurnDown;
+            draft[field].edges[pageToUpdateIndex].node.danaBurnScore = danaBurnScore;
+            if (danaBurnScore < 0 && account?.id !== draft[field].edges[pageToUpdateIndex]?.node?.commentAccount.id) {
+              // Hide the comment with dana < 0
+              draft[field].edges.splice(pageToUpdateIndex, 1);
+              draft[field].totalCount = draft[field].totalCount - 1;
+            }
+          }
         }
-        const danaBurnScore = danaBurnUp - danaBurnDown;
-        draft.allCommentsToPostId.edges[commentToUpdateIndex].node.danaBurnUp = danaBurnUp;
-        draft.allCommentsToPostId.edges[commentToUpdateIndex].node.danaBurnDown = danaBurnDown;
-        draft.allCommentsToPostId.edges[commentToUpdateIndex].node.danaBurnScore = danaBurnScore;
-        if (danaBurnScore < 0) {
-          draft.allCommentsToPostId.edges.splice(commentToUpdateIndex, 1);
-          draft.allCommentsToPostId.totalCount = draft.allCommentsToPostId.totalCount - 1;
+      })
+    );
+  }
+}
+
+function* updateCommentBurnValue(action: PayloadAction<BurnQueueCommand>) {
+  const { burnValue: burnValueAsString, burnType, burnForId } = action.payload;
+  const burnValue = _.toNumber(burnValueAsString);
+
+  const account = yield select(getSelectedAccount);
+
+  const rootState: RootState = yield select();
+  const commentsInvalidatedBy = yield call(commentsApi.util.selectInvalidatedBy, rootState, ['Comments']);
+
+  for (const invalidatedBy of commentsInvalidatedBy) {
+    const { endpointName, originalArgs } = invalidatedBy;
+    yield put(
+      commentsApi.util.updateQueryData(endpointName, originalArgs, draft => {
+        const fields = Object.keys(draft);
+        for (const field of fields) {
+          if (!draft[field]) continue;
+          const commentToUpdateIndex = draft[field].edges.findIndex(item => item.node.id === burnForId);
+          const commentToUpdate = draft[field].edges[commentToUpdateIndex];
+          if (commentToUpdateIndex >= 0) {
+            let danaBurnUp = commentToUpdate?.node?.danaBurnUp ?? 0;
+            let danaBurnDown = commentToUpdate?.node?.danaBurnDown ?? 0;
+            if (burnType == BurnType.Up) {
+              danaBurnUp = danaBurnUp + burnValue;
+            } else {
+              danaBurnDown = danaBurnDown + burnValue;
+            }
+            const danaBurnScore = danaBurnUp - danaBurnDown;
+            draft[field].edges[commentToUpdateIndex].node.danaBurnUp = danaBurnUp;
+            draft[field].edges[commentToUpdateIndex].node.danaBurnDown = danaBurnDown;
+            draft[field].edges[commentToUpdateIndex].node.danaBurnScore = danaBurnScore;
+            if (
+              danaBurnScore < 0 &&
+              account?.id !== draft[field].edges[commentToUpdateIndex]?.node?.commentAccount.id
+            ) {
+              // Hide the comment with dana < 0
+              draft[field].edges.splice(commentToUpdateIndex, 1);
+              draft[field].totalCount = draft[field].totalCount - 1;
+            }
+          }
         }
-      }
-    })
-  );
+      })
+    );
+  }
 }
 
 function* updateTokenBurnValue(action: PayloadAction<BurnQueueCommand>) {
-  const { extraArguments, burnValue: burnValueAsString, burnType, burnForId } = action.payload;
-  const { tokenId } = extraArguments;
+  const { burnValue: burnValueAsString, burnType, burnForId } = action.payload;
+  const tokenId = burnForId;
   let burnValue = _.toNumber(burnValueAsString);
-  const params = {
-    orderBy: {
-      direction: OrderDirection.Desc,
-      field: TokenOrderField.CreatedDate
-    }
-  };
 
-  yield put(
-    tokenApi.util.updateQueryData('Token', { tokenId: tokenId }, draft => {
-      let danaBurnUp = draft?.token.danaBurnUp ?? 0;
-      let danaBurnDown = draft?.token?.danaBurnDown ?? 0;
-      if (burnType == BurnType.Up) {
-        danaBurnUp = danaBurnUp + burnValue;
-      } else {
-        danaBurnDown = danaBurnDown + burnValue;
-      }
-      const danaBurnScore = danaBurnUp - danaBurnDown;
-      draft.token.danaBurnUp = danaBurnUp;
-      draft.token.danaBurnDown = danaBurnDown;
-      draft.token.danaBurnScore = danaBurnScore;
-    })
-  );
+  const rootState: RootState = yield select();
+  const tokensInvalidatedBy = yield call(tokenApi.util.selectInvalidatedBy, rootState, ['Tokens']);
+  for (const invalidatedBy of tokensInvalidatedBy) {
+    const { originalArgs } = invalidatedBy;
+    yield put(
+      tokenApi.util.updateQueryData('Tokens', originalArgs, draft => {
+        const fields = Object.keys(draft);
+        for (const field of fields) {
+          if (!draft[field]) continue;
+          const tokenBurnValueIndex = draft[field]?.edges?.findIndex(item => item?.node?.tokenId === tokenId);
+          const tokenBurnValue = draft[field]?.edges[tokenBurnValueIndex];
+          let danaBurnUp = tokenBurnValue?.node?.danaBurnUp ?? 0;
+          let danaBurnDown = tokenBurnValue?.node?.danaBurnDown ?? 0;
+          if (burnType == BurnType.Up) {
+            danaBurnUp = danaBurnUp + burnValue;
+          } else {
+            danaBurnDown = danaBurnDown + burnValue;
+          }
+          const danaBurnScore = danaBurnUp - danaBurnDown;
+          draft[field].edges[tokenBurnValueIndex].node.danaBurnUp = danaBurnUp;
+          draft[field].edges[tokenBurnValueIndex].node.danaBurnDown = danaBurnDown;
+          draft[field].edges[tokenBurnValueIndex].node.danaBurnScore = danaBurnScore;
+        }
+      })
+    );
+  }
+  const tokenInvalidatedBy = yield call(tokenApi.util.selectInvalidatedBy, rootState, ['Token']);
+  for (const invalidatedBy of tokenInvalidatedBy) {
+    const { originalArgs } = invalidatedBy;
+    yield put(
+      tokenApi.util.updateQueryData('Token', originalArgs, draft => {
+        const fields = Object.keys(draft);
+        for (const field of fields) {
+          if (!draft[field]) continue;
+          let danaBurnUp = draft[field].danaBurnUp ?? 0;
+          let danaBurnDown = draft[field].danaBurnDown ?? 0;
+          if (burnType == BurnType.Up) {
+            danaBurnUp = danaBurnUp + burnValue;
+          } else {
+            danaBurnDown = danaBurnDown + burnValue;
+          }
+          const danaBurnScore = danaBurnUp - danaBurnDown;
+          draft[field].danaBurnUp = danaBurnUp;
+          draft[field].danaBurnDown = danaBurnDown;
+          draft[field].danaBurnScore = danaBurnScore;
+        }
+      })
+    );
+  }
+}
 
-  return yield put(
-    tokenApi.util.updateQueryData('Tokens', params, draft => {
-      const tokenBurnValueIndex = draft.allTokens.edges.findIndex(item => item.node.tokenId === tokenId);
-      const tokenBurnValue = draft.allTokens.edges[tokenBurnValueIndex];
-      let danaBurnUp = tokenBurnValue?.node?.danaBurnUp ?? 0;
-      let danaBurnDown = tokenBurnValue?.node?.danaBurnDown ?? 0;
-      if (burnType == BurnType.Up) {
-        danaBurnUp = danaBurnUp + burnValue;
-      } else {
-        danaBurnDown = danaBurnDown + burnValue;
-      }
-      const danaBurnScore = danaBurnUp - danaBurnDown;
-      draft.allTokens.edges[tokenBurnValueIndex].node.danaBurnUp = danaBurnUp;
-      draft.allTokens.edges[tokenBurnValueIndex].node.danaBurnDown = danaBurnDown;
-      draft.allTokens.edges[tokenBurnValueIndex].node.danaBurnScore = danaBurnScore;
-    })
-  );
+function* watchPrepareBurnCommand() {
+  yield takeLatest(prepareBurnCommand.type, prepareBurnCommandSaga);
 }
 
 function* watchBurnForUpDownVote() {
@@ -684,7 +710,8 @@ export default function* burnSaga() {
       fork(watchCreateTxHex),
       fork(watchBurnForUpDownVote),
       fork(watchBurnForUpDownVoteSuccess),
-      fork(watchBurnForUpDownVoteFailure)
+      fork(watchBurnForUpDownVoteFailure),
+      fork(watchPrepareBurnCommand)
     ]);
   }
 }

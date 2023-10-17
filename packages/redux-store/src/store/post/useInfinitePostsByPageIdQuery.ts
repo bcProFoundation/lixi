@@ -1,14 +1,10 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
+import { PostQueryItem, PostOrder } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { useAppDispatch } from '@store/hooks';
 import { useLazyPostsByPageIdQuery, usePostsByPageIdQuery } from '@store/post/posts.generated';
-import _ from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Post, PostOrder } from '@generated/types.generated';
 
-import { PostQuery } from './posts.generated';
-
-const postsAdapter = createEntityAdapter<PostQuery['post']>({
+const postsAdapter = createEntityAdapter<PostQueryItem>({
   selectId: post => post.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });
@@ -47,7 +43,6 @@ export function useInfinitePostsByPageIdQuery(
     if (baseResult?.data?.allPostsByPageId) {
       isBaseReady.current = true;
 
-      const baseResultParse = baseResult.data.allPostsByPageId.edges.map(item => item.node);
       const adapterSetAll = postsAdapter.setAll(
         combinedData,
         baseResult.data.allPostsByPageId.edges.map(item => item.node)

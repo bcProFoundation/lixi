@@ -38,6 +38,9 @@ const PostContent = ({ post, showTranslation, currentLocale }) => {
               {domNode.children.map(child => child.data)}
             </span>
           );
+        } // replace strong tag or italic tag to span tag
+        else if (domNode?.name === 'strong' || domNode?.name === 'em') {
+          return <span>{domNode.children.map(child => child.data)}</span>;
         }
       }
     });
@@ -61,11 +64,11 @@ const PostContent = ({ post, showTranslation, currentLocale }) => {
   }, [content]);
 
   const lineContentShow = useMemo(() => {
-    let lineNum = 3.5;
+    let lineNum = 3;
     const postScore = post?.danaBurnScore;
     if (postScore < 10) {
       if (postScore >= 1 && postScore < 2) {
-        lineNum = 4.5;
+        lineNum = 4;
       } else if (postScore >= 2 && postScore < 5) {
         lineNum = 5;
       } else if (postScore >= 5 && postScore < 10) {

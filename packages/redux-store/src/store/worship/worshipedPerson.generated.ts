@@ -907,6 +907,7 @@ export const CreateWorshipTempleDocument = `
     ${WorshipFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
+  overrideExisting: true,
   endpoints: build => ({
     WorshipedPerson: build.query<WorshipedPersonQuery, WorshipedPersonQueryVariables>({
       query: variables => ({ document: WorshipedPersonDocument, variables })

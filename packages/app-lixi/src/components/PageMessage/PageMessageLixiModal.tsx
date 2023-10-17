@@ -1,21 +1,21 @@
-import { Descriptions, Input, Modal } from 'antd';
-import React from 'react';
-import styled from 'styled-components';
-import { useAppDispatch } from '@store/hooks';
-import { closeModal } from '@store/modal/actions';
-import { useForm, Controller } from 'react-hook-form';
-import { GenerateLixiCommand } from '@bcpros/lixi-models/lib/lixi';
 import { Account } from '@bcpros/lixi-models/lib/account';
-import moment from 'moment';
-import { PageItem } from '@components/Pages/PageDetail';
-import { generateLixi } from '@store/lixi/actions';
-import { fromSmallestDenomination } from '@utils/cashMethods';
+import { GenerateLixiCommand } from '@bcpros/lixi-models/lib/lixi';
 import { WalletContext } from '@context/walletProvider';
+import { PageQueryItem } from '@generated/index';
+import { useAppDispatch } from '@store/hooks';
+import { generateLixi } from '@store/lixi/actions';
+import { closeModal } from '@store/modal/actions';
 import { WalletStatus } from '@store/wallet';
+import { fromSmallestDenomination } from '@utils/cashMethods';
+import { Descriptions, Input, Modal } from 'antd';
+import moment from 'moment';
+import React from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import styled from 'styled-components';
 
 type PageMessageLixiModalProps = {
   account?: Account;
-  page?: PageItem;
+  page?: PageQueryItem;
   wallet: WalletStatus;
   classStyle?: String;
 };

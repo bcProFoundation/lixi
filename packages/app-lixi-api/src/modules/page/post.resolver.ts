@@ -104,7 +104,7 @@ export class PostResolver {
       page: page ? (page as Page) : null,
       repostCount: dbPost._count.reposts,
       reposts: reposts ? (reposts as Repost[]) : [],
-      danaBurnScore: (danaViewScore as number) || 0
+      danaViewScore: (danaViewScore as number) || 0
     });
   }
 
@@ -182,7 +182,8 @@ export class PostResolver {
               postAccount: true,
               comments: true,
               reposts: { select: { account: true, accountId: true } },
-              translations: true
+              translations: true,
+              page: true
             },
             where: {
               OR: [
@@ -232,7 +233,8 @@ export class PostResolver {
               postAccount: true,
               comments: true,
               reposts: { select: { account: true, accountId: true } },
-              translations: true
+              translations: true,
+              page: true
             },
             where: {
               OR: [
@@ -268,14 +270,14 @@ export class PostResolver {
   }
 
   @SkipThrottle()
-  @Query(() => PostResponse, { name: 'allPostsBySearch' })
+  @Query(() => PostConnection, { name: 'allPostsBySearch' })
   @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearch(
     @Args() args: ConnectionArgs,
     @Args({ name: 'query', type: () => String, nullable: true })
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
     query: string
-  ): Promise<PostResponse> {
+  ) {
     const { limit, offset } = getPagingParameters(args);
 
     const count = await this.meiliService.searchByQueryEstimatedTotalHits(
@@ -296,7 +298,17 @@ export class PostResolver {
       where: {
         id: { in: postsId }
       },
-      include: { postAccount: true }
+      include: {
+        uploads: true,
+        postAccount: true,
+        comments: true,
+        page: true,
+        translations: true,
+        reposts: { select: { account: true, accountId: true } },
+        _count: {
+          select: { reposts: true, comments: true }
+        }
+      }
     });
 
     return connectionFromArraySlice(searchPosts, args, {
@@ -306,7 +318,7 @@ export class PostResolver {
   }
 
   @SkipThrottle()
-  @Query(() => PostResponse, { name: 'allPostsBySearchWithHashtag' })
+  @Query(() => PostConnection, { name: 'allPostsBySearchWithHashtag' })
   @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearchWithHashtag(
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
@@ -314,7 +326,6 @@ export class PostResolver {
     @Args()
     args: ConnectionArgs,
     @Args() { after, before, first, last }: PaginationArgs,
-
     @Args({ name: 'query', type: () => String, nullable: true })
     query: string,
     @Args({ name: 'hashtags', type: () => [String], nullable: true })
@@ -325,7 +336,7 @@ export class PostResolver {
       nullable: true
     })
     orderBy: PostOrder
-  ): Promise<PostResponse | undefined> {
+  ) {
     try {
       const { limit, offset } = getPagingParameters(args);
 
@@ -348,7 +359,17 @@ export class PostResolver {
       const result = await findManyCursorConnection(
         args =>
           this.prisma.post.findMany({
-            include: { translations: true, postAccount: true },
+            include: {
+              uploads: true,
+              postAccount: true,
+              comments: true,
+              page: true,
+              translations: true,
+              reposts: { select: { account: true, accountId: true } },
+              _count: {
+                select: { reposts: true, comments: true }
+              }
+            },
             where: {
               AND: [
                 {
@@ -392,7 +413,7 @@ export class PostResolver {
   }
 
   @SkipThrottle()
-  @Query(() => PostResponse, { name: 'allPostsBySearchWithHashtagAtPage' })
+  @Query(() => PostConnection, { name: 'allPostsBySearchWithHashtagAtPage' })
   @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearchWithHashtagAtPage(
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
@@ -433,7 +454,17 @@ export class PostResolver {
     const postsId = _.map(posts, 'id');
 
     const searchPosts = await this.prisma.post.findMany({
-      include: { translations: true, postAccount: true },
+      include: {
+        uploads: true,
+        postAccount: true,
+        comments: true,
+        page: true,
+        translations: true,
+        reposts: { select: { account: true, accountId: true } },
+        _count: {
+          select: { reposts: true, comments: true }
+        }
+      },
       where: {
         AND: [
           {
@@ -456,7 +487,7 @@ export class PostResolver {
   }
 
   @SkipThrottle()
-  @Query(() => PostResponse, { name: 'allPostsBySearchWithHashtagAtToken' })
+  @Query(() => PostConnection, { name: 'allPostsBySearchWithHashtagAtToken' })
   @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsBySearchWithHashtagAtToken(
     @Args({ name: 'minBurnFilter', type: () => Int, nullable: true })
@@ -497,7 +528,17 @@ export class PostResolver {
     const postsId = _.map(posts, 'id');
 
     const searchPosts = await this.prisma.post.findMany({
-      include: { translations: true, postAccount: true },
+      include: {
+        uploads: true,
+        postAccount: true,
+        comments: true,
+        page: true,
+        translations: true,
+        reposts: { select: { account: true, accountId: true } },
+        _count: {
+          select: { reposts: true, comments: true }
+        }
+      },
       where: {
         AND: [
           {
@@ -589,7 +630,7 @@ export class PostResolver {
 
   @SkipThrottle()
   @Query(() => PostConnection)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsByUserId(
     @PostAccountEntity() account: Account,
     @Args() { after, before, first, last, minBurnFilter }: PaginationArgs,
@@ -603,7 +644,7 @@ export class PostResolver {
     orderBy: PostOrder
   ) {
     let result;
-    if (account.id === _.toSafeInteger(id)) {
+    if (account?.id === _.toSafeInteger(id)) {
       result = await findManyCursorConnection(
         args =>
           this.prisma.post.findMany({
@@ -1186,8 +1227,8 @@ export class PostResolver {
   @ResolveField('followPostOwner', () => Boolean)
   async followPostOwner(@Parent() post: Post, @PostAccountEntity() account: Account) {
     const payload = {
-      followingAccountId: post.postAccount.id,
-      accountId: account.id
+      followingAccountId: post?.postAccount?.id,
+      accountId: account?.id
     };
     return this.postLoader.batchCheckAccountFollowAllAccount.load(payload);
   }
@@ -1196,7 +1237,7 @@ export class PostResolver {
   async followedPage(@Parent() post: Post, @PostAccountEntity() account: Account) {
     const payload = {
       pageId: post?.page?.id || '',
-      accountId: account.id
+      accountId: account?.id
     };
     return this.postLoader.batchCheckAccountFollowAllPage.load(payload);
   }
@@ -1205,9 +1246,8 @@ export class PostResolver {
   async followedToken(@Parent() post: Post, @PostAccountEntity() account: Account) {
     const payload = {
       tokenId: post?.token?.tokenId || '',
-      accountId: account.id
+      accountId: account?.id
     };
-
     return this.postLoader.batchCheckAccountFollowAllToken.load(payload);
   }
 }

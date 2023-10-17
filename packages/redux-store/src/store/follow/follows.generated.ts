@@ -59,7 +59,14 @@ export type AllFollowersByFollowingQuery = {
         avatar?: string | null;
         cover?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
-        accountDana?: { __typename?: 'AccountDana'; danaGiven?: number | null; danaReceived?: number | null } | null;
+        accountDana?: {
+          __typename?: 'AccountDana';
+          danaGiven?: number | null;
+          danaReceived?: number | null;
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -108,7 +115,14 @@ export type AllFollowingsByFollowerQuery = {
         avatar?: string | null;
         cover?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
-        accountDana?: { __typename?: 'AccountDana'; danaGiven?: number | null; danaReceived?: number | null } | null;
+        accountDana?: {
+          __typename?: 'AccountDana';
+          danaGiven?: number | null;
+          danaReceived?: number | null;
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -490,6 +504,7 @@ export const DeleteFollowTokenDocument = `
     `;
 
 const injectedRtkApi = api.injectEndpoints({
+  overrideExisting: true,
   endpoints: build => ({
     checkIfFollowAccount: build.query<CheckIfFollowAccountQuery, CheckIfFollowAccountQueryVariables>({
       query: variables => ({ document: CheckIfFollowAccountDocument, variables })

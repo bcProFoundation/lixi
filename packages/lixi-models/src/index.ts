@@ -28,3 +28,4 @@ export * from './lib/message';
 export * from './lib/timeline';
 export * from './lib/analytic-event';
 export * from './lib/wallet';
+export * from './lib/bookmark';

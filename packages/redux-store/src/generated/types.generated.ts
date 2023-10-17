@@ -61,6 +61,9 @@ export type AccountConnection = {
 export type AccountDana = {
   __typename?: 'AccountDana';
   accountDanaHistory?: Maybe<Array<AccountDanaHistory>>;
+  danaBurnDown: Scalars['Float'];
+  danaBurnScore: Scalars['Float'];
+  danaBurnUp: Scalars['Float'];
   danaGiven?: Maybe<Scalars['Float']>;
   danaReceived?: Maybe<Scalars['Float']>;
   id: Scalars['ID'];
@@ -91,6 +94,49 @@ export enum AccountOrderField {
   UpdatedAt = 'updatedAt'
 }
 
+export type Bookmark = {
+  __typename?: 'Bookmark';
+  account: Account;
+  bookmarkId: Scalars['String'];
+  /** Identifies the date and time when the object was created. */
+  createdAt?: Maybe<Scalars['DateTime']>;
+  id: Scalars['ID'];
+  type?: Maybe<BookmarkType>;
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt?: Maybe<Scalars['DateTime']>;
+};
+
+export type BookmarkConnection = {
+  __typename?: 'BookmarkConnection';
+  edges?: Maybe<Array<BookmarkEdge>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']>;
+};
+
+export type BookmarkEdge = {
+  __typename?: 'BookmarkEdge';
+  cursor: Scalars['String'];
+  node: Bookmark;
+};
+
+export type BookmarkOrder = {
+  direction: OrderDirection;
+  field: BookmarkOrderField;
+};
+
+/** Properties by which message connections can be ordered. */
+export enum BookmarkOrderField {
+  CreatedAt = 'createdAt',
+  Id = 'id',
+  UpdatedAt = 'updatedAt'
+}
+
+/** The type of bookmark. */
+export enum BookmarkType {
+  Comment = 'COMMENT',
+  Post = 'POST'
+}
+
 export type Category = {
   __typename?: 'Category';
   /** Identifies the date and time when the object was created. */
@@ -118,6 +164,7 @@ export type Comment = {
   commentAccount: Account;
   commentAccountId?: Maybe<Scalars['Int']>;
   commentByPublicKey?: Maybe<Scalars['String']>;
+  commentDana?: Maybe<CommentDana>;
   commentText: Scalars['String'];
   commentTo: Post;
   commentToId: Scalars['String'];
@@ -137,6 +184,15 @@ export type CommentConnection = {
   edges?: Maybe<Array<CommentEdge>>;
   pageInfo: PageInfo;
   totalCount?: Maybe<Scalars['Int']>;
+};
+
+export type CommentDana = {
+  __typename?: 'CommentDana';
+  comment?: Maybe<Comment>;
+  commentId?: Maybe<Scalars['String']>;
+  danaBurnDown: Scalars['Float'];
+  danaBurnScore: Scalars['Float'];
+  danaBurnUp: Scalars['Float'];
 };
 
 export type CommentEdge = {
@@ -172,6 +228,11 @@ export type CreateAccountInput = {
   language: Scalars['String'];
   mnemonic: Scalars['String'];
   mnemonicHash: Scalars['String'];
+};
+
+export type CreateBookmarkInput = {
+  bookmarkId: Scalars['String'];
+  bookmarkType: BookmarkType;
 };
 
 export type CreateCommentInput = {
@@ -377,6 +438,7 @@ export type Hashtag = {
   danaBurnDown: Scalars['Float'];
   danaBurnScore: Scalars['Float'];
   danaBurnUp: Scalars['Float'];
+  hashtagDana?: Maybe<HashtagDana>;
   id: Scalars['ID'];
   normalizedContent: Scalars['String'];
   postHashtags?: Maybe<Array<PostHashtag>>;
@@ -389,6 +451,15 @@ export type HashtagConnection = {
   edges?: Maybe<Array<HashtagEdge>>;
   pageInfo: PageInfo;
   totalCount?: Maybe<Scalars['Int']>;
+};
+
+export type HashtagDana = {
+  __typename?: 'HashtagDana';
+  danaBurnDown: Scalars['Float'];
+  danaBurnScore: Scalars['Float'];
+  danaBurnUp: Scalars['Float'];
+  hashtag?: Maybe<Hashtag>;
+  hashtagId?: Maybe<Scalars['String']>;
 };
 
 export type HashtagEdge = {
@@ -414,6 +485,19 @@ export type ImportAccountInput = {
   language?: InputMaybe<Scalars['String']>;
   mnemonic: Scalars['String'];
   mnemonicHash?: InputMaybe<Scalars['String']>;
+};
+
+export type LatestMessage = {
+  __typename?: 'LatestMessage';
+  author?: Maybe<LatestMessageAuthor>;
+  body?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['ID']>;
+};
+
+export type LatestMessageAuthor = {
+  __typename?: 'LatestMessageAuthor';
+  address?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['Int']>;
 };
 
 export type LixiModel = {
@@ -528,6 +612,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   closePageMessageSession: PageMessageSession;
   createAccount: Account;
+  createBookmark: Bookmark;
   createComment: Comment;
   createFollowAccount: FollowAccount;
   createFollowPage: FollowPage;
@@ -546,6 +631,7 @@ export type Mutation = {
   deleteFollowToken: Scalars['Boolean'];
   importAccount: Account;
   openPageMessageSession: PageMessageSession;
+  removeBookmark: Bookmark;
   repost: Scalars['Boolean'];
   updateAccount: Account;
   updatePage: Page;
@@ -558,6 +644,10 @@ export type MutationClosePageMessageSessionArgs = {
 
 export type MutationCreateAccountArgs = {
   data: CreateAccountInput;
+};
+
+export type MutationCreateBookmarkArgs = {
+  data: CreateBookmarkInput;
 };
 
 export type MutationCreateCommentArgs = {
@@ -632,6 +722,10 @@ export type MutationOpenPageMessageSessionArgs = {
   data: OpenPageMessageSessionInput;
 };
 
+export type MutationRemoveBookmarkArgs = {
+  data: RemoveBookmarkInput;
+};
+
 export type MutationRepostArgs = {
   data: RepostInput;
 };
@@ -684,6 +778,7 @@ export type Page = {
   name: Scalars['String'];
   pageAccount: Account;
   pageAccountId: Scalars['Int'];
+  pageDana?: Maybe<PageDana>;
   pageMessageSessions?: Maybe<Array<PageMessageSession>>;
   parent?: Maybe<Page>;
   parentId?: Maybe<Scalars['String']>;
@@ -708,6 +803,15 @@ export type PageConnection = {
   totalCount?: Maybe<Scalars['Int']>;
 };
 
+export type PageDana = {
+  __typename?: 'PageDana';
+  danaBurnDown: Scalars['Float'];
+  danaBurnScore: Scalars['Float'];
+  danaBurnUp: Scalars['Float'];
+  page?: Maybe<Page>;
+  pageId?: Maybe<Scalars['String']>;
+};
+
 export type PageEdge = {
   __typename?: 'PageEdge';
   cursor: Scalars['String'];
@@ -728,7 +832,7 @@ export type PageMessageSession = {
   /** Identifies the date and time when the object was created. */
   createdAt?: Maybe<Scalars['DateTime']>;
   id: Scalars['ID'];
-  latestMessage?: Maybe<Message>;
+  latestMessage?: Maybe<LatestMessage>;
   lixi?: Maybe<LixiModel>;
   lixiClaimCode?: Maybe<Scalars['String']>;
   messages?: Maybe<Array<Message>>;
@@ -799,7 +903,7 @@ export type Post = {
   danaBurnDown: Scalars['Float'];
   danaBurnScore: Scalars['Float'];
   danaBurnUp: Scalars['Float'];
-  danaViewScore?: Maybe<Scalars['Int']>;
+  danaViewScore?: Maybe<Scalars['Float']>;
   followPostOwner?: Maybe<Scalars['Boolean']>;
   followedPage?: Maybe<Scalars['Boolean']>;
   followedToken?: Maybe<Scalars['Boolean']>;
@@ -809,6 +913,7 @@ export type Post = {
   pageId?: Maybe<Scalars['String']>;
   postAccount: Account;
   postAccountId: Scalars['Int'];
+  postDana?: Maybe<PostDana>;
   postHashtags?: Maybe<Array<PostHashtag>>;
   repostCount?: Maybe<Scalars['Int']>;
   reposts?: Maybe<Array<Repost>>;
@@ -826,6 +931,15 @@ export type PostConnection = {
   edges?: Maybe<Array<PostEdge>>;
   pageInfo: PageInfo;
   totalCount?: Maybe<Scalars['Int']>;
+};
+
+export type PostDana = {
+  __typename?: 'PostDana';
+  danaBurnDown: Scalars['Float'];
+  danaBurnScore: Scalars['Float'];
+  danaBurnUp: Scalars['Float'];
+  post?: Maybe<Post>;
+  postId?: Maybe<Scalars['String']>;
 };
 
 export type PostEdge = {
@@ -847,20 +961,6 @@ export type PostHashtag = {
   updatedAt?: Maybe<Scalars['DateTime']>;
 };
 
-export type PostMeiliEdge = {
-  __typename?: 'PostMeiliEdge';
-  cursor?: Maybe<Scalars['String']>;
-  node?: Maybe<Post>;
-};
-
-export type PostMeiliPageInfo = {
-  __typename?: 'PostMeiliPageInfo';
-  endCursor?: Maybe<Scalars['String']>;
-  hasNextPage: Scalars['Boolean'];
-  hasPreviousPage: Scalars['Boolean'];
-  startCursor?: Maybe<Scalars['String']>;
-};
-
 export type PostOrder = {
   direction: OrderDirection;
   field: PostOrderField;
@@ -876,12 +976,6 @@ export enum PostOrderField {
   UpdatedAt = 'updatedAt'
 }
 
-export type PostResponse = {
-  __typename?: 'PostResponse';
-  edges?: Maybe<Array<PostMeiliEdge>>;
-  pageInfo?: Maybe<PostMeiliPageInfo>;
-};
-
 export type PostTranslation = {
   __typename?: 'PostTranslation';
   /** Identifies the date and time when the object was created. */
@@ -895,6 +989,8 @@ export type PostTranslation = {
 
 export type Query = {
   __typename?: 'Query';
+  allBookmarkByAccountId: BookmarkConnection;
+  account: Account;
   allClosedPageMessageSession: PageMessageSessionConnection;
   allCommentsToPostId: CommentConnection;
   allFollowersByFollowing: AccountConnection;
@@ -914,10 +1010,10 @@ export type Query = {
   allPendingPageMessageSessionByPageId: PageMessageSessionConnection;
   allPostsByHashtagId: PostConnection;
   allPostsByPageId: PostConnection;
-  allPostsBySearch: PostResponse;
-  allPostsBySearchWithHashtag: PostResponse;
-  allPostsBySearchWithHashtagAtPage: PostResponse;
-  allPostsBySearchWithHashtagAtToken: PostResponse;
+  allPostsBySearch: PostConnection;
+  allPostsBySearchWithHashtag: PostConnection;
+  allPostsBySearchWithHashtagAtPage: PostConnection;
+  allPostsBySearchWithHashtagAtToken: PostConnection;
   allPostsByTokenId: PostConnection;
   allPostsByUserId: PostConnection;
   allTemple: TempleConnection;
@@ -930,9 +1026,11 @@ export type Query = {
   allWorshipedPersonBySearch: WorshipedPersonConnection;
   allWorshipedPersonByUserId: WorshipedPersonConnection;
   allWorshipedPersonSpecialDate: WorshipedPersonConnection;
+  bookmark: Bookmark;
   checkIfFollowAccount: Scalars['Boolean'];
   checkIfFollowPage: Scalars['Boolean'];
   checkIfFollowToken: Scalars['Boolean'];
+  checkIfHasBookmarked: Scalars['Boolean'];
   comment: Comment;
   getAccountByAddress: Account;
   hashtag: Hashtag;
@@ -947,6 +1045,22 @@ export type Query = {
   userHadMessageToPage?: Maybe<PageMessageSession>;
   worship: Worship;
   worshipedPerson: WorshipedPerson;
+};
+
+export type QueryAllBookmarkByAccountIdArgs = {
+  accountId: Scalars['Int'];
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  bookmarkType: BookmarkType;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<BookmarkOrder>;
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
+export type QueryAccountArgs = {
+  id: Scalars['Int'];
 };
 
 export type QueryAllClosedPageMessageSessionArgs = {
@@ -1314,6 +1428,10 @@ export type QueryAllWorshipedPersonSpecialDateArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+export type QueryBookmarkArgs = {
+  id: Scalars['String'];
+};
+
 export type QueryCheckIfFollowAccountArgs = {
   followingAccountId: Scalars['Int'];
 };
@@ -1324,6 +1442,11 @@ export type QueryCheckIfFollowPageArgs = {
 
 export type QueryCheckIfFollowTokenArgs = {
   tokenId?: InputMaybe<Scalars['String']>;
+};
+
+export type QueryCheckIfHasBookmarkedArgs = {
+  bookmarkId: Scalars['String'];
+  bookmarkType: BookmarkType;
 };
 
 export type QueryCommentArgs = {
@@ -1389,6 +1512,10 @@ export type QueryWorshipedPersonArgs = {
   id: Scalars['String'];
 };
 
+export type RemoveBookmarkInput = {
+  bookmarkId: Scalars['String'];
+};
+
 export type Repost = {
   __typename?: 'Repost';
   account?: Maybe<Account>;
@@ -1419,6 +1546,7 @@ export type State = {
 export type Subscription = {
   __typename?: 'Subscription';
   accountCreated: Account;
+  bookmarkCreated: Bookmark;
   commentCreated: Comment;
   followAccountCreated: FollowAccount;
   hashtagCreated: Hashtag;
@@ -1519,6 +1647,7 @@ export type Token = {
   name: Scalars['String'];
   rank?: Maybe<Scalars['Int']>;
   ticker: Scalars['String'];
+  tokenDana?: Maybe<TokenDana>;
   tokenDocumentUrl?: Maybe<Scalars['String']>;
   tokenId: Scalars['String'];
   tokenType: Scalars['String'];
@@ -1531,6 +1660,15 @@ export type TokenConnection = {
   edges?: Maybe<Array<TokenEdge>>;
   pageInfo: PageInfo;
   totalCount?: Maybe<Scalars['Int']>;
+};
+
+export type TokenDana = {
+  __typename?: 'TokenDana';
+  danaBurnDown: Scalars['Float'];
+  danaBurnScore: Scalars['Float'];
+  danaBurnUp: Scalars['Float'];
+  token?: Maybe<Token>;
+  tokenId?: Maybe<Scalars['String']>;
 };
 
 export type TokenEdge = {

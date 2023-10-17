@@ -1,54 +1,26 @@
-import { PostsQueryTag } from '@bcpros/lixi-models/constants';
-import { BurnCommand, BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn';
+import { PlusCircleOutlined } from '@ant-design/icons';
 import CommentComponent, { CommentItem } from '@components/Common/Comment';
-import { Counter } from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { ShareSocialButton } from '@components/Common/ShareSocialButton';
-import { currency } from '@components/Common/Ticker';
 import { WalletContext } from '@context/walletProvider';
+import { PostQueryItem } from '@generated/index';
+import useWindowDimensions from '@hooks/useWindowDimensions';
 import useXPI from '@hooks/useXPI';
 import { getSelectedAccount } from '@store/account/selectors';
-import { addBurnQueue, addBurnTransaction, burnForUpDownVote } from '@store/burn/actions';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
-import { PostQuery } from '@store/post/posts.generated';
-import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
-import { formatBalance, fromXpiToSatoshis } from '@utils/cashMethods';
-import { List, Space, Button, Image, notification } from 'antd';
-import { FireTwoTone, PlusCircleOutlined } from '@ant-design/icons';
-import BigNumber from 'bignumber.js';
+import { formatBalance } from '@utils/cashMethods';
+import { Button, List } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import { useRouter } from 'next/router';
 import React, { useEffect, useRef, useState } from 'react';
 import ReactHtmlParser from 'react-html-parser';
-import intl from 'react-intl-universal';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import Gallery from 'react-photo-gallery';
 import styled from 'styled-components';
 import { EditPostModalProps } from './EditPostModalPopup';
-import Gallery from 'react-photo-gallery';
-import useWindowDimensions from '@hooks/useWindowDimensions';
 import { IconBurn } from './PostDetail';
-
-// export const IconBurn = ({
-//   icon,
-//   burnValue,
-//   dataItem,
-//   imgUrl,
-//   onClickIcon
-// }: {
-//   icon?: React.FC;
-//   burnValue?: number;
-//   dataItem: any;
-//   imgUrl?: string;
-//   onClickIcon: (e) => void;
-// }) => (
-//   <Space onClick={onClickIcon}>
-//     {icon && React.createElement(icon)}
-//     {imgUrl && React.createElement('img', { src: imgUrl, width: '28' }, null)}
-//     <Counter num={burnValue ?? 0} />
-//   </Space>
-// );
 
 export const CommentList = ({ comments }: { comments: CommentItem[] }) => (
   <List
@@ -217,33 +189,22 @@ const PostListItemContainer = styled(List.Item)`
   }
 `;
 
-type PostItem = PostQuery['post'];
-
 type PostListItemProps = {
   index: number;
-  item: PostItem;
+  item: PostQueryItem;
   searchValue?: string;
-  handleBurnForPost?: (isUpVote: boolean, post: PostItem) => Promise<void>;
 };
 
-const PostListItem = ({ index, item, searchValue, handleBurnForPost }: PostListItemProps) => {
+const PostListItem = ({ index, item, searchValue }: PostListItemProps) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const post: PostItem = item;
+  const post: PostQueryItem = item;
   const [isCollapseComment, setIsCollapseComment] = useState(false);
   const [comments, setComments] = useState<CommentItem[]>([]);
-  const [submitting, setSubmitting] = useState(false);
-  const [value, setValue] = useState('');
   const [showMore, setShowMore] = useState(false);
   const [showMoreImage, setShowMoreImage] = useState(true);
   const [imagesList, setImagesList] = useState([]);
   const ref = useRef<HTMLDivElement | null>(null);
-  const Wallet = React.useContext(WalletContext);
-  const { XPI, chronik } = Wallet;
-  const { createBurnTransaction } = useXPI();
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
-  const selectedAccount = useAppSelector(getSelectedAccount);
   useEffect(() => {
     const mapImages = item.uploads.map(img => {
       const imgUrl = `${process.env.NEXT_PUBLIC_AWS_ENDPOINT}/${img.upload.bucket}/${img.upload.sha}`;
@@ -294,16 +255,14 @@ const PostListItem = ({ index, item, searchValue, handleBurnForPost }: PostListI
     }
   };
 
-  const upVotePost = (e: React.MouseEvent<HTMLElement>, dataItem: PostItem) => {
+  const upVotePost = (e: React.MouseEvent<HTMLElement>, dataItem: PostQueryItem) => {
     e.preventDefault();
     e.stopPropagation();
-    handleBurnForPost(true, dataItem);
   };
 
-  const downVotePost = (e: React.MouseEvent<HTMLElement>, dataItem: PostItem) => {
+  const downVotePost = (e: React.MouseEvent<HTMLElement>, dataItem: PostQueryItem) => {
     e.preventDefault();
     e.stopPropagation();
-    handleBurnForPost(false, dataItem);
   };
 
   const showUsername = () => {

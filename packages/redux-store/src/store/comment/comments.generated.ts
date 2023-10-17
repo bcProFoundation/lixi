@@ -46,6 +46,12 @@ export type CommentQuery = {
         pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
       } | null;
     };
+    commentDana?: {
+      __typename?: 'CommentDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+    } | null;
   };
 };
 
@@ -91,6 +97,12 @@ export type CommentsToPostIdQuery = {
             pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
           } | null;
         };
+        commentDana?: {
+          __typename?: 'CommentDana';
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -127,6 +139,7 @@ export type CommentFieldsFragment = {
       pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
     } | null;
   };
+  commentDana?: { __typename?: 'CommentDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
 };
 
 export type CreateCommentMutationVariables = Types.Exact<{
@@ -159,6 +172,12 @@ export type CreateCommentMutation = {
         pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
       } | null;
     };
+    commentDana?: {
+      __typename?: 'CommentDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+    } | null;
   };
 };
 
@@ -195,6 +214,11 @@ export const CommentFieldsFragmentDoc = `
   danaBurnUp
   danaBurnDown
   danaBurnScore
+  commentDana {
+    danaBurnUp
+    danaBurnDown
+    danaBurnScore
+  }
   createdAt
   updatedAt
 }
@@ -240,6 +264,7 @@ export const CreateCommentDocument = `
     ${CommentFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
+  overrideExisting: true,
   endpoints: build => ({
     Comment: build.query<CommentQuery, CommentQueryVariables>({
       query: variables => ({ document: CommentDocument, variables })

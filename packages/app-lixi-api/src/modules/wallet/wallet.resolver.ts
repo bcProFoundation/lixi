@@ -1,16 +1,13 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { Args, Query, Resolver } from "@nestjs/graphql";
-import { Balances } from "@bcpros/lixi-models/build/main/lib/wallet/wallet.model";
-import { WALLET_SERVICES } from "./wallet.constants";
-import { WalletService } from "./wallet.service";
+import { Inject, Injectable } from '@nestjs/common';
+import { Args, Query, Resolver } from '@nestjs/graphql';
+import { Balances } from '@bcpros/lixi-models';
+import { WALLET_SERVICES } from './wallet.constants';
+import { WalletService } from './wallet.service';
 
 @Injectable()
 @Resolver()
 export class WalletResolver {
-
-  constructor(
-    @Inject(WALLET_SERVICES) private walletServices,
-  ) { }
+  constructor(@Inject(WALLET_SERVICES) private walletServices) {}
 
   @Query(() => Balances)
   async geBalances(@Args('address', { type: () => String }) address: string) {

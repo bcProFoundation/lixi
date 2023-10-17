@@ -23,7 +23,7 @@ const ProfileDetailPage = props => {
 
   return (
     <>
-      {isSuccessCheckFollowed && (
+      {account && (
         <>
           <NextSeo
             title={account.name}
@@ -76,6 +76,12 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
       }
     }
   });
+
+  if (!account) {
+    return {
+      notFound: true
+    };
+  }
 
   let followersCount = 0;
   let followingsCount = 0;

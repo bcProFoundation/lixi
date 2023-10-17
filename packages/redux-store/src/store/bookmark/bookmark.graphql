@@ -1,0 +1,67 @@
+fragment BookmarkFields on Bookmark {
+  id
+  account {
+    address
+    id
+    name
+  }
+  bookmarkId
+  type
+  createdAt
+  updatedAt
+}
+
+query Bookmark($id: String!) {
+  bookmark(id: $id) {
+    ...BookmarkFields
+  }
+}
+
+query BookmarkByAccountId(
+  $after: String
+  $before: String
+  $first: Int = 20
+  $last: Int
+  $accountId: Int!
+  $bookmarkType: BookmarkType!
+  $orderBy: BookmarkOrder
+  $skip: Int
+) {
+  allBookmarkByAccountId(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    orderBy: $orderBy
+    skip: $skip
+    accountId: $accountId
+    bookmarkType: $bookmarkType
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...BookmarkFields
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
+    }
+  }
+}
+
+query CheckIfHasBookmarked($bookmarkId: String!, $bookmarkType: BookmarkType!) {
+  checkIfHasBookmarked(bookmarkId: $bookmarkId, bookmarkType: $bookmarkType)
+}
+
+mutation CreateBookmark($input: CreateBookmarkInput!) {
+  createBookmark(data: $input) {
+    ...BookmarkFields
+  }
+}
+
+mutation RemoveBookmark($input: RemoveBookmarkInput!) {
+  removeBookmark(data: $input) {
+    ...BookmarkFields
+  }
+}

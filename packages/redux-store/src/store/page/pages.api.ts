@@ -1,10 +1,10 @@
 import { api } from './pages.generated';
 
 const enhancedApi = api.enhanceEndpoints({
-  addTagTypes: ['Page'],
+  addTagTypes: ['Page', 'Pages'],
   endpoints: {
     Pages: {
-      providesTags: ['Page'],
+      providesTags: ['Pages'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
           const { orderBy, ...otherArgs } = queryArgs;
@@ -19,7 +19,7 @@ const enhancedApi = api.enhanceEndpoints({
       }
     },
     PagesByUserId: {
-      providesTags: ['Page'],
+      providesTags: ['Pages'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
           const { orderBy, id, ...otherArgs } = queryArgs;
@@ -37,10 +37,10 @@ const enhancedApi = api.enhanceEndpoints({
       providesTags: ['Page']
     },
     createPage: {
-      invalidatesTags: ['Page']
+      invalidatesTags: ['Pages', 'Page']
     },
     updatePage: {
-      invalidatesTags: ['Page']
+      invalidatesTags: ['Pages', 'Page']
     }
   }
 });

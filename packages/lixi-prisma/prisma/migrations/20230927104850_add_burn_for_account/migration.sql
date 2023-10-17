@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "account_dana" ADD COLUMN     "dana_burn_down" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "dana_burn_score" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "dana_burn_up" DOUBLE PRECISION NOT NULL DEFAULT 0.0;

@@ -1,15 +1,10 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
+import { PostQueryItem } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { useAppDispatch } from '@store/hooks';
 import { useLazyPostsBySearchQuery, usePostsBySearchQuery } from '@store/post/posts.generated';
-import _ from 'lodash';
-import { useMemo } from 'react';
-import { useEffect, useRef, useState } from 'react';
-import { Post, PostOrder } from '@generated/types.generated';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { PostQuery } from './posts.generated';
-
-const postsAdapter = createEntityAdapter<PostQuery['post']>({
+const postsAdapter = createEntityAdapter<PostQueryItem>({
   selectId: post => post.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });
@@ -24,7 +19,6 @@ export function useInfinitePostsBySearchQuery(
   params: PostListParams,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const dispatch = useAppDispatch();
   const baseResult = usePostsBySearchQuery(params, { skip: params.query === null });
 
   const [trigger, nextResult, lastPromiseInfo] = useLazyPostsBySearchQuery();
@@ -47,7 +41,8 @@ export function useInfinitePostsBySearchQuery(
     if (baseResult?.data?.allPostsBySearch) {
       isBaseReady.current = true;
 
-      const baseResultParse = baseResult.data.allPostsBySearch.edges.map(item => item.node);
+      const a: PostQueryItem[] = baseResult.data.allPostsBySearch.edges.map(item => item.node);
+
       const adapterSetAll = postsAdapter.setAll(
         combinedData,
         baseResult.data.allPostsBySearch.edges.map(item => item.node)

@@ -4,15 +4,12 @@ import UpDownSvg from '@assets/icons/upDownIcon.svg';
 import UpVoteSvg from '@assets/icons/upVote.svg';
 import { Burn } from '@bcpros/lixi-models';
 import { PostsQueryTag } from '@bcpros/lixi-models/constants';
-import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
-import { currency } from '@components/Common/Ticker';
-import { CommentItem } from '@components/Posts/CommentListItem';
-import { PostItem } from '@components/Posts/PostDetail';
+import { BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn';
 import { WalletContext } from '@context/walletProvider';
 import { CommentOrderField, OrderDirection } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
 import { getSelectedAccount } from '@store/account/selectors';
-import { addBurnQueue, addBurnTransaction, clearFailQueue, getBurnQueue, getFailQueue } from '@store/burn';
+import { clearFailQueue, getBurnQueue, getFailQueue } from '@store/burn';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { closeModal } from '@store/modal/actions';
 import { showToast } from '@store/toast/actions';
@@ -25,6 +22,7 @@ import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
+import { BurnForItem, CommentQueryItem, PostQueryItem } from '@generated/index';
 
 const UpDownButton = styled(Button)`
   background: rgb(158, 42, 156);
@@ -93,8 +91,6 @@ const RadioStyle = styled(Radio.Group)`
 `;
 
 const DefaultXpiBurnValues = [1, 8, 50, 100, 200, 500, 1000];
-
-type BurnForItem = PostItem | CommentItem;
 interface BurnModalProps {
   data: BurnForItem;
   burnForType: BurnForType;
@@ -142,7 +138,7 @@ export const BurnModal = ({ data, burnForType }: BurnModalProps) => {
 
       switch (burnForType) {
         case BurnForType.Post:
-          const post = data as PostItem;
+          const post = data as PostQueryItem;
 
           tipToAddresses = [
             {
@@ -169,7 +165,7 @@ export const BurnModal = ({ data, burnForType }: BurnModalProps) => {
           tokenId = post.token?.id;
           break;
         case BurnForType.Comment:
-          const comment = data as CommentItem;
+          const comment = data as CommentQueryItem;
           if (burnType === BurnType.Up && selectedAccount.address != comment?.commentAccount?.address) {
             tipToAddresses.push({
               address: comment?.commentAccount?.address,
@@ -185,23 +181,6 @@ export const BurnModal = ({ data, burnForType }: BurnModalProps) => {
           };
           break;
       }
-
-      // const burnCommand: BurnQueueCommand = {
-      //   defaultFee: currency.defaultFee,
-      //   burnType,
-      //   burnForType: burnForType,
-      //   burnedBy,
-      //   burnForId: data.id,
-      //   tokenId: tokenId,
-      //   burnValue,
-      //   queryParams: queryParams,
-      //   postQueryTag: tag,
-      //   pageId: pageId
-      // };
-
-      // dispatch(addBurnQueue(burnCommand));
-      // dispatch(addBurnTransaction(burnCommand));
-      // dispatch(closeModal());
     } catch (e) {
       const errorMessage = e.message || intl.get('post.unableToBurn');
       dispatch(
@@ -231,14 +210,14 @@ export const BurnModal = ({ data, burnForType }: BurnModalProps) => {
             <div className="banner-item">
               <LikeOutlined />
               <div className="count-bar">
-                <p className="title">{data.danaBurnUp + ' XPI'}</p>
+                <p className="title">{(data as PostQueryItem).danaBurnUp + ' XPI'}</p>
                 <p className="sub-title">burnt to up</p>
               </div>
             </div>
             <div className="banner-item">
               <DislikeOutlined />
               <div className="count-bar">
-                <p className="title">{data.danaBurnDown + ' XPI'}</p>
+                <p className="title">{(data as PostQueryItem).danaBurnDown + ' XPI'}</p>
                 <p className="sub-title">burnt to down</p>
               </div>
             </div>

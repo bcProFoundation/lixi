@@ -5,7 +5,7 @@ fragment PageInfoFields on PageInfo {
   startCursor
 }
 
-fragment PostMeiliPageInfoFields on PostMeiliPageInfo {
+fragment PostMeiliPageInfoFields on PageInfo {
   endCursor
   hasNextPage
   hasPreviousPage

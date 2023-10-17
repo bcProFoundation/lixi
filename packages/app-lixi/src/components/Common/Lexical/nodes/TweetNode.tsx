@@ -179,7 +179,7 @@ export class TweetNode extends DecoratorBlockNode {
   }
 
   getTextContent(_includeInert?: boolean | undefined, _includeDirectionless?: false | undefined): string {
-    return `https://twitter.com/i/web/status/${this.__id}`;
+    return `https://x.com/i/web/status/${this.__id}`;
   }
 
   decorate(editor: LexicalEditor, config: EditorConfig): JSX.Element {

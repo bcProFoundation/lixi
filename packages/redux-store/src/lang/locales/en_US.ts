@@ -522,6 +522,7 @@ export default {
   'page.inputAddress': 'Please input address',
   'page.createPostFee': 'Create post fee',
   'page.createPostFeeOn': 'Create post fee on',
+  'page.createFreePostOn': 'Create a free post on {pageName}',
   'page.createCommentFee': 'Create comment fee',
   'page.repostFee': 'Repost fee',
   'page.couldNotpostPage': 'Could not create page',
@@ -535,6 +536,7 @@ export default {
   'page.xpiHasBurned': 'XPI has been burned',
   'page.noXpiHasBurned': 'No one has burned for this page!',
   'page.selectAccountFirst': 'Please Select an account first before creating page',
+  'page.createPostOnPage': 'Create a post on {pageName} (Fee: {fee} XPI)',
 
   /* 14.Country */
   'country.unablegetCountries': 'Unable to get countries',
@@ -719,6 +721,7 @@ export default {
   'messenger.pendingMessage': 'Pending message',
   'messenger.openMessage': 'Open message',
   'messenger.chatPage': 'Chat with me',
+  'messenger.offerChat': 'Offer you {xpi} XPI for a chat.',
 
   /* 24. Code country to language*/
   'code.ab': 'Abkhazian',

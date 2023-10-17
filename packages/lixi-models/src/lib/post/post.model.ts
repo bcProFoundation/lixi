@@ -8,6 +8,7 @@ import { Page } from '../page';
 import { Token } from '../token';
 import { UploadDetail } from '../upload';
 
+import { PostDana } from './post-dana.model';
 import { Repost } from './repost.model';
 
 @ObjectType()
@@ -86,8 +87,12 @@ export class Post {
   @Field(() => [PostTranslation], { nullable: true })
   translations?: Nullable<PostTranslation[]>;
 
-  @Field(() => Number, { nullable: true })
+  @Field(() => Float, { nullable: true })
   danaViewScore?: Nullable<number>;
+
+  @IsOptional()
+  @Field(() => PostDana, { nullable: true })
+  postDana?: Nullable<PostDana>;
 
   constructor(partial: Partial<Post>) {
     Object.assign(this, partial);

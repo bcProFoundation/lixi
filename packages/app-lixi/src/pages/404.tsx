@@ -38,10 +38,10 @@ const FourOhFourComponent = () => {
     <FourOhFour>
       <div className="container">
         <img src="/images/404.png" alt="404" />
-        <h1>{intl.get('general.notFoundTitle')}</h1>
-        <h3>{intl.get('general.notFoundDescription')}</h3>
+        <h1>Opps! Page not found</h1>
+        <h3>Sorry, we can’t find the page you’re looking for.</h3>
         <Button className="button" type="primary" onClick={() => window.open('/', '_self')}>
-          {intl.get('general.goBackToHome')}
+          Go back
         </Button>
       </div>
     </FourOhFour>

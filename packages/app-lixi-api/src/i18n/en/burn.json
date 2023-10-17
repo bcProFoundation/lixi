@@ -2,6 +2,8 @@
   "messages": {
     "unableToBurn": "Unable to burn.",
     "updatingWalletFund": "Please wait! Updating wallet funds on blockchain!",
-    "burningCanceled": "Burning canceled!"
+    "burningCanceled": "Burning canceled!",
+    "post": "post",
+    "comment": "comment"
   }
 }

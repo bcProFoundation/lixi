@@ -1,13 +1,12 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { api as timelineApi, useLazyHomeTimelineQuery } from '@store/timeline/timeline.api';
-import _ from 'lodash';
+import { useLazyHomeTimelineQuery } from '@store/timeline/timeline.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { TimelineQuery, useTimelineQuery } from './timeline.generated';
+import { TimelineQueryItem } from '@generated/index';
 import { useHomeTimelineQuery } from './timeline.api';
 
-const homeTimelineAdapter = createEntityAdapter<TimelineQuery['timeline']>({
+const homeTimelineAdapter = createEntityAdapter<TimelineQueryItem>({
   selectId: item => item.id
 });
 
@@ -15,13 +14,16 @@ const { selectAll } = homeTimelineAdapter.getSelectors();
 
 export interface TimelineListParams extends PaginationArgs {
   level: number;
+  isHome?: boolean;
 }
 
 export function useInfiniteHomeTimelineQuery(
   params: TimelineListParams,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const baseResult = useHomeTimelineQuery(params);
+  const baseResult = useHomeTimelineQuery(params, {
+    skip: !params?.isHome //just call in home timeline
+  });
 
   const [trigger, nextResult] = useLazyHomeTimelineQuery();
   const [combinedData, setCombinedData] = useState(homeTimelineAdapter.getInitialState({}));

@@ -113,13 +113,12 @@ export const TwitterEmbedConfig: PlaygroundEmbedConfig = {
 
   // Determine if a given URL is a match and return url data.
   parseUrl: (text: string) => {
-    const trimUrl = text.includes('status') ? getStatusLink(text) : text;
-    const match = /^https:\/\/twitter\.com\/(#!\/)?(\w+)\/status(es)*\/(\d+)$/.exec(trimUrl);
+    const match = /^https:\/\/(twitter|x)\.com\/(#!\/)?(\w+)\/status(es)*\/(\d+)/.exec(text);
 
     if (match != null) {
       return {
-        id: match[4],
-        url: match[0]
+        id: match[5],
+        url: match[1]
       };
     }
 

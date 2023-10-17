@@ -23,7 +23,7 @@ export class BurnCommand {
   @IsNotEmpty()
   burnValue: string;
 
-  postQueryTag?: string;
+  postQueryTags?: string;
 
   pageId?: string;
 
@@ -71,7 +71,7 @@ export class BurnExtraArguments {
 
   hashtags?: string[];
 
-  postQueryTag?: string;
+  postQueryTags?: string[];
 
   minBurnFilter?: number;
 

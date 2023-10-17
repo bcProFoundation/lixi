@@ -15,10 +15,13 @@ import { CommentResolver } from './comment.resolver';
 import { POST_FANOUT_QUEUE } from './constants/post.constants';
 import { DanaViewScoreService } from './dana-view-score.service';
 import { MeiliService } from './meili.service';
+import { PageDanaCacheService } from './page-dana-cache.service';
 import { PageResolver } from './page.resolver';
 import { PostFanoutProcessor } from './post-fanout.processor';
 import PostLoader from './post.loader';
 import { PostResolver } from './post.resolver';
+import { PostDanaCacheService } from './post-dana-cache.service';
+import { CommentDanaCacheService } from './comment-dana-cache.service';
 
 @Module({
   imports: [
@@ -56,7 +59,10 @@ import { PostResolver } from './post.resolver';
     AccountDanaCacheService,
     PostLoader,
     PostFanoutProcessor,
-    DanaViewScoreService
+    DanaViewScoreService,
+    PageDanaCacheService,
+    PostDanaCacheService,
+    CommentDanaCacheService
   ],
   exports: [MeiliService, NotificationService, FollowCacheService, PostLoader, DanaViewScoreService]
 })
