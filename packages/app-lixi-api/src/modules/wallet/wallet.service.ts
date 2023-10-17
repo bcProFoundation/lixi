@@ -12,7 +12,20 @@ import { I18nContext } from 'nestjs-i18n';
 import { XPIJS } from './wallet.constants';
 import { Hash160AndAddress } from '@bcpros/lixi-models';
 import { getUtxosChronik, getWalletBalanceFromUtxos, organizeUtxosByType } from '../../utils/chronik';
-import { calcFee, getChangeAddressFromInputUtxos } from '../../utils/cashMethods';
+import {
+  calcFee,
+  getChangeAddressFromInputUtxos,
+  parseXpiSendValue,
+  fromXpiToSatoshis,
+  encryptOpReturnMsg,
+  generateOpReturnScript,
+  generateTxInput,
+  generateTxOutput,
+  signAndBuildTx
+} from '../../utils/cashMethods';
+import { getRecipientPublicKey } from '../../utils/chronik';
+import MinimalBCHWallet from '@bcpros/minimal-xpi-slp-wallet';
+import XPI from '@bcpros/xpi-js';
 
 @Injectable()
 export class WalletService {
@@ -193,7 +206,7 @@ export class WalletService {
         // Start of building the OP_RETURN output.
         // Only build the OP_RETURN output if the user supplied it
         if (optionalOpReturnMsg && typeof optionalOpReturnMsg !== 'undefined' && optionalOpReturnMsg.trim() !== '') {
-          const opReturnData = generateOpReturnScript(XPI, optionalOpReturnMsg, encryptionFlag, encryptedEj);
+          const opReturnData = generateOpReturnScript(XPI, optionalOpReturnMsg, encryptionFlag, encryptedEj!);
           txBuilder.addOutput(opReturnData, 0);
         }
       }
@@ -311,8 +324,10 @@ export class WalletService {
 
     const changeAddress = getChangeAddressFromInputUtxos(this.XPI, utxos);
 
-    const utxosStore = (utxoStore as any).bchUtxos.concat((utxoStore as any).nullUtxos);
-    const { necessaryUtxos, change } = this.xpiWallet.sendBch.getNecessaryUtxosAndChange(outputs, utxosStore, 2.01);
+    const utxosStore = (utxos as any).bchUtxos.concat((utxos as any).nullUtxos);
+    //TODO: fix this
+    const xpiWallet = new MinimalBCHWallet(sourceAddress, null);
+    const { necessaryUtxos, change } = xpiWallet.sendBch.getNecessaryUtxosAndChange(outputs, utxosStore, 2.01);
 
     // Create an instance of the Transaction Builder.
     const transactionBuilder: any = new this.XPI.TransactionBuilder();

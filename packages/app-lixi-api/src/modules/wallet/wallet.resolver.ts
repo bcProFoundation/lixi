@@ -7,11 +7,11 @@ import { WalletService } from './wallet.service';
 @Injectable()
 @Resolver()
 export class WalletResolver {
-  constructor(@Inject(WALLET_SERVICES) private walletServices) {}
+  constructor(@Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService }) {}
 
   @Query(() => Balances)
-  async geBalances(@Args('address', { type: () => String }) address: string) {
-    const walletService: WalletService = this.walletServices['xpi'];
+  async getBalances(@Args('address', { type: () => String }) address: string) {
+    const walletService = this.walletServices['XPI'];
     const balances: Balances = await walletService.getBalances(address);
     return balances;
   }

@@ -23,6 +23,7 @@ import VError from 'verror';
 import { aesGcmEncrypt, generateRandomBase58Str } from '../../utils/encryptionMethods';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
+import { XPIJS } from '../wallet/wallet.constants';
 
 const pubSub = new PubSub();
 
@@ -32,7 +33,7 @@ const pubSub = new PubSub();
 export class PageResolver {
   private logger: Logger = new Logger(this.constructor.name);
 
-  constructor(private prisma: PrismaService, @I18n() private i18n: I18nService, @Inject('xpijs') private XPI: BCHJS) {}
+  constructor(private prisma: PrismaService, @I18n() private i18n: I18nService, @Inject(XPIJS) private XPI: BCHJS) {}
 
   @Subscription(() => Page)
   pageCreated() {

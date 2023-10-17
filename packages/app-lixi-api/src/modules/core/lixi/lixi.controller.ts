@@ -62,6 +62,7 @@ import { aesGcmDecrypt, base58ToNumber, numberToBase58 } from 'src/utils/encrypt
 import { VError } from 'verror';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
+import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 
 @SkipThrottle()
 @Controller('lixies')
@@ -72,12 +73,11 @@ export class LixiController {
 
   constructor(
     private prisma: PrismaService,
-    private readonly walletService: WalletService,
     private readonly lixiService: LixiService,
     private readonly notificationService: NotificationService,
     private notificationGateway: NotificationGateway,
-    @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
-    @Inject('xpijs') private XPI: BCHJS,
+    @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
+    @Inject(XPIJS) private XPI: BCHJS,
     @InjectQueue(EXPORT_SUB_LIXIES_QUEUE) private exportSubLixiesQueue: Queue,
     @InjectQueue(WITHDRAW_SUB_LIXIES_QUEUE) private withdrawSubLixiesQueue: Queue
   ) {}
@@ -116,7 +116,8 @@ export class LixiController {
         throw new VError(lixiNotExist);
       }
 
-      const balance: number = await this.xpiWallet.getBalance(lixi.address);
+      const walletService = this.walletServices['XPI'];
+      const { totalBalance, totalBalanceInSatoshis } = await walletService.getBalances(lixi.address);
 
       const subLixies = await this.prisma.lixi.aggregate({
         _sum: {
@@ -137,7 +138,7 @@ export class LixiController {
           ...lixi,
           activationAt: lixi.activationAt ? lixi.activationAt.toISOString() : null,
           isClaimed: lixi.isClaimed,
-          balance: balance,
+          balance: parseFloat(totalBalance),
           totalClaim: Number(lixi.totalClaim),
           envelope: lixi.envelope,
           distributions: lixi.distributions,
@@ -721,24 +722,25 @@ export class LixiController {
 
       if (lixi.claimType === ClaimType.Single) {
         const lixiIndex = lixi.derivationIndex;
-        const { address, keyPair } = await this.walletService.deriveAddress(mnemonicFromApi, lixiIndex);
+        const walletService = this.walletServices['XPI'];
+        const { address, keyPair } = await walletService.deriveAddress(mnemonicFromApi, lixiIndex);
 
         if (address !== lixi.address) {
           const invalidAccount = await i18n.t('lixi.messages.invalidAccount');
           throw new Error(invalidAccount);
         }
 
-        const lixiCurrentBalance: number = await this.xpiWallet.getBalance(lixi.address);
+        const { totalBalance, totalBalanceInSatoshis } = await walletService.getBalances(lixi.address);
 
-        if (lixiCurrentBalance === 0) {
+        if (parseFloat(totalBalance) === 0) {
           const unableWithdraw = await i18n.t('lixi.messages.unableWithdraw');
           throw new VError(unableWithdraw);
         }
 
-        const totalAmount: number = await this.walletService.onMax(lixi.address);
+        const totalAmount: number = await walletService.onMax(lixi.address);
         const receivingAccount = [{ address: account.address, amountXpi: totalAmount }];
 
-        const amount: any = await this.walletService.sendAmount(lixi.address, receivingAccount, keyPair, i18n);
+        const amount: any = await walletService.sendAmount(lixi.address, receivingAccount, keyPair, i18n);
 
         //If lixi is withdrew before session open then close session
         const pageMessageSession = await this.prisma.pageMessageSession.findUnique({

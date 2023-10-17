@@ -1,5 +1,5 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { TokenSigner, TokenVerifier, decodeToken } from 'jsontokens';
 import { I18n, I18nService } from 'nestjs-i18n';
@@ -11,6 +11,7 @@ import { ModuleRef } from '@nestjs/core';
 import { hashMnemonic } from '../../utils/encryptionMethods';
 import { AccountCacheService } from '../account/account-cache.service';
 import { WalletService } from '../wallet/wallet.service';
+import { WALLET_SERVICES } from '../wallet/wallet.constants';
 const wif = require('wif');
 
 @Injectable()
@@ -22,7 +23,7 @@ export class AuthService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis,
-    private walletService: WalletService,
+    @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
     @I18n() private i18n: I18nService,
     private moduleRef: ModuleRef
   ) {}
@@ -51,7 +52,8 @@ export class AuthService implements OnModuleInit {
       throw new VError(accountNotExistMessage);
     }
 
-    const { publicKey, wifKey } = await this.walletService.deriveAddress(mnemonic, 0);
+    const walletService = this.walletServices['XPI'];
+    const { publicKey, wifKey } = await walletService.deriveAddress(mnemonic, 0);
     if (!account.publicKey) {
       // There're  no public key, old account
       await this.prisma.account.update({

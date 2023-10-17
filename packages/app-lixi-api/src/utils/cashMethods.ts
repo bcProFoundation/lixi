@@ -2,6 +2,7 @@ import BCHJS from '@bcpros/xpi-js';
 import BigNumber from 'bignumber.js';
 import { Utxo } from 'chronik-client';
 import { createSharedKey, decrypt, encrypt } from './encryption';
+import { currency } from '@bcpros/lixi-models';
 
 export type TxInputObj = {
   txBuilder: any;
@@ -9,6 +10,16 @@ export type TxInputObj = {
   inputUtxos: Array<Utxo & { address: string }>;
   txFee: number;
 };
+export interface WalletPathAddressInfo {
+  path: string;
+  cashAddress: string;
+  fundingAddress: string;
+  fundingWif: string;
+  hash160: string;
+  legacyAddress: string;
+  publicKey: string;
+  xAddress: string;
+}
 
 export const toSmallestDenomination = (sendAmount: BigNumber, cashDecimals = currency.cashDecimals) => {
   // Replace the BCH.toSatoshi method with an equivalent function that works for arbitrary decimal places
@@ -18,7 +29,7 @@ export const toSmallestDenomination = (sendAmount: BigNumber, cashDecimals = cur
 
   // Validate
   // Input should be a BigNumber with no more decimal places than cashDecimals
-  const isValidSendAmount = BigNumber.isBigNumber(sendAmount) && sendAmount.dp() <= cashDecimals;
+  const isValidSendAmount = BigNumber.isBigNumber(sendAmount) && sendAmount.dp()! <= cashDecimals;
   if (!isValidSendAmount) {
     return false;
   }
@@ -28,13 +39,20 @@ export const toSmallestDenomination = (sendAmount: BigNumber, cashDecimals = cur
 };
 
 export const fromXpiToSatoshis = (sendAmount: BigNumber, cashDecimals = currency.cashDecimals): BigNumber | false => {
-  const isValidSendAmount = BigNumber.isBigNumber(sendAmount) && sendAmount.dp() <= cashDecimals;
+  const isValidSendAmount = BigNumber.isBigNumber(sendAmount) && sendAmount.dp()! <= cashDecimals;
   if (!isValidSendAmount) {
     return false;
   }
   const conversionFactor = new BigNumber(10 ** cashDecimals);
   const sendAmountSmallestDenomination = sendAmount.times(conversionFactor);
   return sendAmountSmallestDenomination;
+};
+
+export const fromSmallestDenomination = (amount: number, cashDecimals = currency.cashDecimals) => {
+  const amountBig = new BigNumber(amount);
+  const multiplier = new BigNumber(10 ** (-1 * cashDecimals));
+  const amountInBaseUnits = amountBig.times(multiplier);
+  return amountInBaseUnits.toNumber();
 };
 
 export const parseXpiSendValue = (
@@ -124,8 +142,8 @@ export const generateTxInput = (
   utxos: Array<Utxo & { address: string }>,
   txBuilder: any,
   destinationAddressAndValueArray: Array<any>,
-  satoshisToSend,
-  feeInSatsPerByte
+  satoshisToSend: any,
+  feeInSatsPerByte: any
 ): TxInputObj => {
   const inputUtxos = [];
   let txFee = 0;
@@ -240,7 +258,11 @@ export const signUtxosByAddress = (
 ) => {
   for (let i = 0; i < inputUtxos.length; i++) {
     const utxo = inputUtxos[i];
-    const utxoEcPair = XPI.ECPair.fromWIF(walletPaths.filter(path => path.xAddress === utxo.address).pop().fundingWif);
+    const walletPath = walletPaths.find(path => path.xAddress === utxo.address);
+    if (!walletPath) {
+      throw new Error(`No wallet path found for address ${utxo.address}`);
+    }
+    const utxoEcPair = XPI.ECPair.fromWIF(walletPath.fundingWif);
 
     txBuilder.sign(i, utxoEcPair, undefined, txBuilder.hashTypes.SIGHASH_ALL, parseInt(utxo.value));
   }
@@ -354,15 +376,18 @@ export const getUtxoWif = (utxo: Utxo & { address: string }, walltPaths: Array<W
   if (!walltPaths) {
     throw new Error('Invalid wallet parameter');
   }
-  const wif = walltPaths.filter(acc => acc.xAddress === utxo.address).pop().fundingWif;
+  const wif = walltPaths.find(acc => acc.xAddress === utxo.address)?.fundingWif;
+  if (!wif) {
+    throw new Error('Invalid WIF parameter');
+  }
   return wif;
 };
 
-export const getHashArrayFromWallet = (wallet: WalletState): string[] => {
+export const getHashArrayFromWallet = (wallet: any): string[] => {
   if (!wallet || !wallet?.entities) {
     return [];
   }
-  const hash160Array = Object.entries(wallet.entities).map(([key, value]) => {
+  const hash160Array = Object.entries(wallet.entities).map(([key, value]: [string, any]) => {
     return value.hash160;
   });
   return hash160Array;

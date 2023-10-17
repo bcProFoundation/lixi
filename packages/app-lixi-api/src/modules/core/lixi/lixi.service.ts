@@ -14,6 +14,7 @@ import {
   LIXI_JOB_NAMES
 } from 'src/modules/core/lixi/constants/lixi.constants';
 import { CreateSubLixiesChunkJobData, CreateSubLixiesJobData } from 'src/modules/core/lixi/models/lixi.models';
+import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 import { aesGcmDecrypt, aesGcmEncrypt, hexSha256, numberToBase58 } from 'src/utils/encryptionMethods';
 import { template } from 'src/utils/stringTemplate';
 import { VError } from 'verror';
@@ -26,9 +27,8 @@ export class LixiService {
 
   constructor(
     private prisma: PrismaService,
-    private readonly walletService: WalletService,
-    @Inject('xpijs') private XPI: BCHJS,
-    @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
+    @Inject(XPIJS) private XPI: BCHJS,
+    @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
     @InjectQueue(CREATE_SUB_LIXIES_QUEUE) private lixiQueue: Queue,
     @I18n() private i18n: I18nService
   ) {}
@@ -46,9 +46,10 @@ export class LixiService {
   ): Promise<Lixi> {
     // If users input the amount means that the lixi need to be prefund
     const isPrefund = !!command.amount;
+    const walletService = this.walletServices['XPI'];
 
     // Calculate the lixi encrypted claim code from the input password
-    const { address, xpriv } = await this.walletService.deriveAddress(command.mnemonic, derivationIndex);
+    const { address, xpriv } = await walletService.deriveAddress(command.mnemonic, derivationIndex);
     const encryptedXPriv = await aesGcmEncrypt(xpriv, command.password);
     const secret = await aesGcmDecrypt(account.encryptedSecret, command.mnemonic);
     const encryptedClaimCode = await aesGcmEncrypt(command.password, secret);
@@ -83,15 +84,15 @@ export class LixiService {
 
     const utxos = await this.XPI.Utxo.get(account.address);
     const utxoStore = utxos[0];
-    let { keyPair } = await this.walletService.deriveAddress(command.mnemonic, 0); // keyPair of account
+    let { keyPair } = await walletService.deriveAddress(command.mnemonic, 0); // keyPair of account
     const utxosStore = (utxoStore as any).bchUtxos.concat((utxoStore as any).nullUtxos);
-    let fee = await this.walletService.calcFee(this.XPI, utxosStore);
+    let fee = await walletService.calcFee(this.XPI, utxosStore);
 
     // Validate the amount params
     if (isPrefund) {
       // Check the account balance in xpi
-      const accountBalance: number = await this.xpiWallet.getBalance(account.address);
-      if (command.amount >= fromSmallestDenomination(accountBalance - fee)) {
+      const { totalBalance, totalBalanceInSatoshis } = await walletService.getBalances(account.address);
+      if (command.amount >= fromSmallestDenomination(parseFloat(totalBalance) - fee)) {
         const accountNotSufficientFund = await i18n.t('account.messages.accountNotSufficientFund');
         // Validate to make sure the account has sufficient balance
         throw new VError(accountNotSufficientFund);
@@ -105,7 +106,7 @@ export class LixiService {
     const savedLixi = await this.prisma.$transaction(async prisma => {
       const createdLixi = prisma.lixi.create({ data: lixiToInsert });
       if (isPrefund) {
-        await this.walletService.sendAmount(account.address, receivingLixi, keyPair, i18n);
+        await walletService.sendAmount(account.address, receivingLixi, keyPair, i18n);
       }
       return createdLixi;
     });
@@ -138,9 +139,10 @@ export class LixiService {
   ): Promise<Lixi> {
     // If users input the amount means that the lixi need to be prefund
     const isPrefund = !!command.amount;
+    const walletService = this.walletServices['XPI'];
 
     // Calculate the lixi encrypted claim code from the input password
-    const { address, xpriv } = await this.walletService.deriveAddress(command.mnemonic, derivationIndex);
+    const { address, xpriv } = await walletService.deriveAddress(command.mnemonic, derivationIndex);
     const encryptedXPriv = await aesGcmEncrypt(xpriv, command.password);
     const secret = await aesGcmDecrypt(account.encryptedSecret, command.mnemonic);
     const encryptedClaimCode = await aesGcmEncrypt(command.password, secret);
@@ -180,21 +182,22 @@ export class LixiService {
     // Validate the amount params
     if (isPrefund) {
       // Check the account balance
-      const accountBalance: number = await this.xpiWallet.getBalance(account.address);
+      const walletService = this.walletServices['XPI'];
+      const { totalBalance, totalBalanceInSatoshis } = await walletService.getBalances(account.address);
       const utxosStore = (utxoStore as any).bchUtxos.concat((utxoStore as any).nullUtxos);
 
       const numberOfDistributions = this.calcNumberOfDistributions(command);
       // Calc fee to send out from account to sub lixies
-      let mainFee = this.walletService.calcFee(
+      let mainFee = walletService.calcFee(
         this.XPI,
         utxoStore as any,
         (command.numberOfSubLixi as number) * numberOfDistributions + 1
       );
       // Calc fee to send from sub lixies to claim address
       let subLixiesFee =
-        (command.numberOfSubLixi as number) * this.walletService.calcFee(this.XPI, (utxoStore as any).bchUtxos, 2);
+        (command.numberOfSubLixi as number) * walletService.calcFee(this.XPI, (utxoStore as any).bchUtxos, 2);
       const requireAmount = this.calcRequireAmount(command);
-      if (requireAmount >= fromSmallestDenomination(accountBalance - mainFee - subLixiesFee)) {
+      if (requireAmount >= fromSmallestDenomination(parseFloat(totalBalance) - mainFee - subLixiesFee)) {
         const accountNotSufficientFund = await this.i18n.t('account.messages.accountNotSufficientFund');
         // Validate to make sure the account has sufficient balance
         throw new VError(accountNotSufficientFund);

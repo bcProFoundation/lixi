@@ -9,6 +9,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './guards/jwtauth.guard';
 import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from './guards/gql-jwtauth.guard';
 import { WsAuthGuardByPass } from './guards/wsauth.guard';
+import { WalletModule } from '../wallet/wallet.module';
 
 @Module({
   imports: [
@@ -16,6 +17,13 @@ import { WsAuthGuardByPass } from './guards/wsauth.guard';
     ThrottlerModule.forRoot({
       limit: 30,
       ttl: 60
+    }),
+    WalletModule.forRootAsync({
+      useFactory: () => {
+        return {
+          currencies: ['XPI']
+        };
+      }
     })
   ],
   controllers: [AuthController],

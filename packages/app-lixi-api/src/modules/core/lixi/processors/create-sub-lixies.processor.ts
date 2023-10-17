@@ -17,6 +17,7 @@ import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { WalletService } from 'src/modules/wallet/wallet.service';
 import { CreateLixiCommand, fromSmallestDenomination, Lixi, LixiType, Package } from '@bcpros/lixi-models';
 import { aesGcmEncrypt, generateRandomBase58Str, numberToBase58 } from 'src/utils/encryptionMethods';
+import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 
 @Injectable()
 @Processor(CREATE_SUB_LIXIES_QUEUE, { concurrency: 1 })
@@ -25,9 +26,8 @@ export class CreateSubLixiesProcessor extends WorkerHost {
 
   constructor(
     private prisma: PrismaService,
-    private walletService: WalletService,
-    @Inject('xpijs') private XPI: BCHJS,
-    @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet
+    @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
+    @Inject(XPIJS) private XPI: BCHJS
   ) {
     super();
   }
@@ -50,6 +50,7 @@ export class CreateSubLixiesProcessor extends WorkerHost {
   }
 
   private async processCreateSubLixiesChunk(job: Job): Promise<boolean> {
+    const walletService = this.walletServices['XPI'];
     const jobData = job.data as CreateSubLixiesChunkJobData;
     const {
       numberOfSubLixiInChunk,
@@ -63,7 +64,7 @@ export class CreateSubLixiesProcessor extends WorkerHost {
       packageId
     } = jobData;
 
-    const { keyPair } = await this.walletService.deriveAddress(command.mnemonic, 0); // keyPair of the account
+    const { keyPair } = await walletService.deriveAddress(command.mnemonic, 0); // keyPair of the account
 
     // The mapping from xpriv of lixi to the password used to encryted that paticular xpriv
     let mapEncryptedClaimCode: MapEncryptedClaimCode = {};
@@ -106,7 +107,7 @@ export class CreateSubLixiesProcessor extends WorkerHost {
           data: subLixiesToInsert
         });
         if (receivingSubLixies.length > 0) {
-          await this.walletService.sendAmount(fundingAddress, receivingSubLixies, keyPair);
+          await walletService.sendAmount(fundingAddress, receivingSubLixies, keyPair);
         }
         return countLixiesCreated;
       });
@@ -206,8 +207,8 @@ export class CreateSubLixiesProcessor extends WorkerHost {
   ): Promise<LixiDb> {
     // Generate the random password to encrypt the key
     const password = generateRandomBase58Str(8);
-
-    const { address, xpriv } = await this.walletService.deriveAddress(command.mnemonic, derivationIndex);
+    const walletService = this.walletServices['XPI'];
+    const { address, xpriv } = await walletService.deriveAddress(command.mnemonic, derivationIndex);
     const encryptedXPriv = await aesGcmEncrypt(xpriv, password);
     const encryptedClaimCode = await aesGcmEncrypt(password, accountSecret);
     const name = address.slice(12, 17);

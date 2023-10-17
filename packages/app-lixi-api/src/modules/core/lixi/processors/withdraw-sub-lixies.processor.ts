@@ -7,6 +7,7 @@ import * as _ from 'lodash';
 import { WITHDRAW_SUB_LIXIES_QUEUE } from 'src/modules/core/lixi/constants/lixi.constants';
 import { WithdrawSubLixiesJobData, WithdrawSubLixiesJobResult } from 'src/modules/core/lixi/models/lixi.models';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
+import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 import { WalletService } from 'src/modules/wallet/wallet.service';
 import { AccountCacheService } from '../../../account/account-cache.service';
 
@@ -16,9 +17,8 @@ export class WithdrawSubLixiesProcessor extends WorkerHost {
   private logger: Logger = new Logger(WithdrawSubLixiesProcessor.name);
   constructor(
     private prisma: PrismaService,
-    private walletService: WalletService,
-    @Inject('xpijs') private XPI: BCHJS,
-    @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
+    @Inject(XPIJS) private XPI: BCHJS,
+    @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
     private readonly accountCacheService: AccountCacheService
   ) {
     super();
@@ -30,6 +30,7 @@ export class WithdrawSubLixiesProcessor extends WorkerHost {
 
   public async processWithdrawSubLixies(job: Job): Promise<WithdrawSubLixiesJobResult> {
     const jobData = job.data as WithdrawSubLixiesJobData;
+    const walletService = this.walletServices['XPI'];
 
     const lixi = await this.prisma.lixi.findFirst({
       where: {
@@ -51,15 +52,15 @@ export class WithdrawSubLixiesProcessor extends WorkerHost {
       const subLixiDerivationIndex = subLixies[item].derivationIndex;
 
       const subLixiIndex = subLixiDerivationIndex;
-      const { keyPair } = await this.walletService.deriveAddress(mnemonic, subLixiIndex);
+      const { keyPair } = await walletService.deriveAddress(mnemonic, subLixiIndex);
 
-      const subLixiBalance: number = await this.xpiWallet.getBalance(subLixiAddress);
+      const { totalBalance, totalBalanceInSatoshis } = await walletService.getBalances(subLixiAddress);
 
-      if (subLixiBalance !== 0) {
+      if (parseFloat(totalBalance) !== 0) {
         try {
-          const totalAmount: number = await this.walletService.onMax(subLixiAddress);
+          const totalAmount: number = await walletService.onMax(subLixiAddress);
           const receivingAccount = [{ address: jobData.accountAddress, amountXpi: totalAmount }];
-          const amount: any = await this.walletService.sendAmount(subLixiAddress, receivingAccount, keyPair);
+          const amount: any = await walletService.sendAmount(subLixiAddress, receivingAccount, keyPair);
 
           const updatedSubLixies = await this.prisma.lixi.update({
             where: {

@@ -6,9 +6,20 @@ import { FollowCacheService } from './follow-cache.service';
 import { FollowResolver } from './follow.resolver';
 import { AccountCacheService } from './account-cache.service';
 import { AccountDanaCacheService } from './account-dana-cache.service';
+import { WalletModule } from '../wallet/wallet.module';
 
 @Module({
-  imports: [AuthModule, NotificationModule],
+  imports: [
+    AuthModule,
+    NotificationModule,
+    WalletModule.forRootAsync({
+      useFactory: () => {
+        return {
+          currencies: ['XPI']
+        };
+      }
+    })
+  ],
   controllers: [],
   providers: [
     AccountResolver,
