@@ -198,7 +198,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
       dispatch(
         openModal('BurnModal', {
           burnForType: BurnForType.Post,
-          id: dataItem.id.toString(),
+          burnForItem: dataItem,
           classStyle: 'burn-modal'
         })
       );
