@@ -47,7 +47,7 @@ query PostsByUserId(
   $before: String
   $first: Int = 20
   $last: Int
-  $orderBy: PostOrder
+  $orderBy: [PostOrder!]
   $id: Int
   $skip: Int
   $minBurnFilter: Int
@@ -141,7 +141,14 @@ query PostsByTokenId(
   }
 }
 
-query PostsBySearch($after: String, $before: String, $first: Int, $last: Int, $query: String, $minBurnFilter: Int) {
+query PostsBySearch(
+  $after: String
+  $before: String
+  $first: Int
+  $last: Int
+  $query: String
+  $minBurnFilter: Int
+) {
   allPostsBySearch(
     after: $after
     before: $before

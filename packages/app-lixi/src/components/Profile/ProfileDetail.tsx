@@ -489,10 +489,16 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
       {
         first: 20,
         minBurnFilter: filterValue ?? 1,
-        orderBy: {
-          direction: OrderDirection.Desc,
-          field: PostOrderField.UpdatedAt
-        },
+        orderBy: [
+          {
+            direction: OrderDirection.Desc,
+            field: PostOrderField.LastRepostAt
+          },
+          {
+            direction: OrderDirection.Desc,
+            field: PostOrderField.UpdatedAt
+          }
+        ],
         id: _.toSafeInteger(user.id)
       },
       false
