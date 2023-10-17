@@ -384,7 +384,7 @@ export const parseChronikTx = async (
           const legacyDestinationAddress = XPI.Address.fromOutputScript(Buffer.from(thisOutput.outputScript, 'hex'));
           destinationAddress = XPI.Address.toXAddress(legacyDestinationAddress);
         }
-      } catch (err) { }
+      } catch (err) {}
     }
   }
 
@@ -402,7 +402,7 @@ export const parseChronikTx = async (
   let otherPublicKey;
   try {
     otherPublicKey = await getRecipientPublicKey(XPI, chronik, theOtherAddress);
-  } catch (err) { }
+  } catch (err) {}
 
   if (
     isLotusMessage &&

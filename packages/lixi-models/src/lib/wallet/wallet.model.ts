@@ -13,4 +13,3 @@ export interface WalletPathAddressInfo {
   publicKey: string;
   xAddress: string;
 }
-

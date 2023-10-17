@@ -138,8 +138,6 @@ export const flattenChronikTxHistory = (txHistoryOfAllAddresses: TxHistoryPage[]
   return flatTxHistoryArray;
 };
 
-
-
 export const returnGetTxHistoryChronikPromise = (
   chronik: ChronikClient,
   hash160AndAddressObj: Hash160AndAddress
@@ -162,5 +160,3 @@ export const returnGetTxHistoryChronikPromise = (
       );
   });
 };
-
-

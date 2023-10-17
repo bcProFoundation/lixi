@@ -4,7 +4,8 @@ import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { WALLET_MODULE_OPTIONS } from './wallet.constants';
 import {
-  WalletModuleAsyncOptions, WalletModuleOptions,
+  WalletModuleAsyncOptions,
+  WalletModuleOptions,
   WalletModuleOptionsFactory,
   WalletServices
 } from './wallet.interface';
@@ -28,20 +29,13 @@ export function createFactory(
     const coin = currencyToCoin[currency];
     const chronikClient = chronikClients[coin];
 
-    const service = new WalletService(
-      XPI,
-      currency,
-      redis,
-      chronikClient
-    );
+    const service = new WalletService(XPI, currency, redis, chronikClient);
     services[currency] = service;
   }
   return services;
 }
 
-export function createAsyncProviders(
-  options: WalletModuleAsyncOptions,
-): Provider[] {
+export function createAsyncProviders(options: WalletModuleAsyncOptions): Provider[] {
   if (options.useExisting || options.useFactory) {
     return [createAsyncOptionsProvider(options)];
   }
@@ -50,28 +44,22 @@ export function createAsyncProviders(
     createAsyncOptionsProvider(options),
     {
       provide: useClass,
-      useClass,
-    },
+      useClass
+    }
   ];
 }
 
-export function createAsyncOptionsProvider(
-  options: WalletModuleAsyncOptions,
-): Provider {
+export function createAsyncOptionsProvider(options: WalletModuleAsyncOptions): Provider {
   if (options.useFactory) {
     return {
       provide: WALLET_MODULE_OPTIONS,
       useFactory: options.useFactory,
-      inject: options.inject || [],
+      inject: options.inject || []
     };
   }
   return {
     provide: WALLET_MODULE_OPTIONS,
-    useFactory: async (optionsFactory: WalletModuleOptionsFactory) =>
-      await optionsFactory.createChronikOptions(),
-    inject: [
-      (options.useClass ||
-        options.useExisting) as Type<WalletModuleOptionsFactory>,
-    ],
+    useFactory: async (optionsFactory: WalletModuleOptionsFactory) => await optionsFactory.createChronikOptions(),
+    inject: [(options.useClass || options.useExisting) as Type<WalletModuleOptionsFactory>]
   };
 }

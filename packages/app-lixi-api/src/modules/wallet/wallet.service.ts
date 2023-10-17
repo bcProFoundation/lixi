@@ -16,7 +16,6 @@ import { calcFee, getChangeAddressFromInputUtxos } from '../../utils/cashMethods
 
 @Injectable()
 export class WalletService {
-
   private logger: Logger = new Logger(WalletService.name);
   private defaultPath = "m/44'/10605'/0'/0/0";
 
@@ -24,15 +23,17 @@ export class WalletService {
     @Inject(XPIJS) private readonly XPI: BCHJS,
     private coin: string,
     private redis: Redis,
-    private chronik: ChronikClient,
-  ) { }
+    private chronik: ChronikClient
+  ) {}
 
   async getBalances(xAddress: string) {
     const hash = this.XPI.Address.toHash160(xAddress);
-    const walletStatus = await this.getWalletStatus([{
-      address: xAddress,
-      hash160: hash
-    }]);
+    const walletStatus = await this.getWalletStatus([
+      {
+        address: xAddress,
+        hash160: hash
+      }
+    ]);
     const { balances } = walletStatus;
     return balances;
   }
@@ -48,7 +49,7 @@ export class WalletService {
         nonSlpUtxos
       },
       utxos: chronikUtxos
-    }
+    };
 
     return walletStatus;
   }
@@ -66,12 +67,9 @@ export class WalletService {
     }
 
     return walletPaths;
-  };
+  }
 
-  async deriveAccount({
-    masterHDNode,
-    path
-  }: { masterHDNode: any, path: any }) {
+  async deriveAccount({ masterHDNode, path }: { masterHDNode: any; path: any }) {
     const node = this.XPI.HDNode.derivePath(masterHDNode, path);
     const cashAddress = this.XPI.HDNode.toCashAddress(node);
     const hash160 = this.XPI.Address.toHash160(cashAddress);
@@ -89,7 +87,7 @@ export class WalletService {
       legacyAddress: this.XPI.SLP.Address.toLegacyAddress(cashAddress),
       publicKey
     };
-  };
+  }
 
   async deriveAddress(mnemonic: string, vaultIndex: number) {
     const rootSeedBuffer: Buffer = await this.XPI.Mnemonic.toSeed(mnemonic);
@@ -121,12 +119,13 @@ export class WalletService {
   }
 
   async onMax(address: string) {
-
     const hash = this.XPI.Address.toHash160(address);
-    const walletStatus = await this.getWalletStatus([{
-      address: address,
-      hash160: hash
-    }]);
+    const walletStatus = await this.getWalletStatus([
+      {
+        address: address,
+        hash160: hash
+      }
+    ]);
     const { slpBalancesAndUtxos, balances } = walletStatus;
     const txFeeSats = calcFee(slpBalancesAndUtxos.nonSlpUtxos);
     const txFeeXpi = txFeeSats / 10 ** currency.cashDecimals;
@@ -266,12 +265,13 @@ export class WalletService {
     inputKeyPair: any,
     i18n?: I18nContext
   ) {
-
     const hash = this.XPI.Address.toHash160(sourceAddress);
-    const walletStatus = await this.getWalletStatus([{
-      address: sourceAddress,
-      hash160: hash
-    }]);
+    const walletStatus = await this.getWalletStatus([
+      {
+        address: sourceAddress,
+        hash160: hash
+      }
+    ]);
     const { slpBalancesAndUtxos, balances } = walletStatus;
 
     const sourceBalance = _.toNumber(balances.totalBalance);
@@ -303,7 +303,7 @@ export class WalletService {
       });
     }
 
-    const utxos = walletStatus.slpBalancesAndUtxos.nonSlpUtxos
+    const utxos = walletStatus.slpBalancesAndUtxos.nonSlpUtxos;
 
     if (!utxos || utxos.length === 0) {
       throw new VError('UTXO list is empty');

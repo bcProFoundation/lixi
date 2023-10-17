@@ -9,7 +9,7 @@ export class AccountDanaCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:accountdana';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
 
   async getAccountDana(id: number) {
     const keyFields = [

@@ -19,12 +19,7 @@ import {
   writeWalletStatus
 } from '@store/wallet';
 import { getHashArrayFromWallet, getWalletBalanceFromUtxos } from '@utils/cashMethods';
-import {
-  getTxHistoryChronik,
-  getUtxosChronik,
-  organizeUtxosByType,
-  parseChronikTx
-} from '@utils/chronik';
+import { getTxHistoryChronik, getUtxosChronik, organizeUtxosByType, parseChronikTx } from '@utils/chronik';
 import isEqualIgnoreUndefined from '@utils/comparision';
 import { ChronikClient, SubscribeMsg, Tx, Utxo } from 'chronik-client';
 import _ from 'lodash';

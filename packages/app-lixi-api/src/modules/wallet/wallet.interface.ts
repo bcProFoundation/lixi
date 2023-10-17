@@ -13,13 +13,10 @@ export interface WalletModuleOptionsFactory {
   createChronikOptions(): Promise<WalletModuleOptions> | WalletModuleOptions;
 }
 
-export interface WalletModuleAsyncOptions
-  extends Pick<ModuleMetadata, 'imports'> {
+export interface WalletModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
   useExisting?: Type<WalletModuleOptionsFactory>;
   useClass?: Type<WalletModuleOptionsFactory>;
-  useFactory?: (
-    ...args: any[]
-  ) => Promise<WalletModuleOptions> | WalletModuleOptions;
+  useFactory?: (...args: any[]) => Promise<WalletModuleOptions> | WalletModuleOptions;
   inject?: any[];
   extraProviders?: Provider[];
 }

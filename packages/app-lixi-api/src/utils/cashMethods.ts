@@ -10,8 +10,6 @@ export type TxInputObj = {
   txFee: number;
 };
 
-
-
 export const toSmallestDenomination = (sendAmount: BigNumber, cashDecimals = currency.cashDecimals) => {
   // Replace the BCH.toSatoshi method with an equivalent function that works for arbitrary decimal places
   // Example, for an 8 decimal place currency like Bitcoin
@@ -38,7 +36,6 @@ export const fromXpiToSatoshis = (sendAmount: BigNumber, cashDecimals = currency
   const sendAmountSmallestDenomination = sendAmount.times(conversionFactor);
   return sendAmountSmallestDenomination;
 };
-
 
 export const parseXpiSendValue = (
   isOneToMany: boolean,
@@ -110,12 +107,7 @@ export const getByteCount = (p2pkhInputCount: number, p2pkhOutputCount: number):
   return Number(byteCount);
 };
 
-export const calcFee = (
-  utxos: Array<Utxo>,
-  p2pkhOutputNumber = 2,
-  satoshisPerByte = 2.01,
-  opReturnLength = 0
-) => {
+export const calcFee = (utxos: Array<Utxo>, p2pkhOutputNumber = 2, satoshisPerByte = 2.01, opReturnLength = 0) => {
   const byteCount = getByteCount(utxos.length, p2pkhOutputNumber);
 
   let opReturnOutputByteLength = opReturnLength;
@@ -358,7 +350,6 @@ export const getDustXPI = () => {
   return (currency.dustSats / 10 ** currency.cashDecimals).toString();
 };
 
-
 export const getUtxoWif = (utxo: Utxo & { address: string }, walltPaths: Array<WalletPathAddressInfo>) => {
   if (!walltPaths) {
     throw new Error('Invalid wallet parameter');
@@ -376,7 +367,6 @@ export const getHashArrayFromWallet = (wallet: WalletState): string[] => {
   });
   return hash160Array;
 };
-
 
 /**
  * Parse the OP_RETURN data of the output

@@ -8,7 +8,6 @@ import { decryptOpReturnMsg, getHashArrayFromWallet, getUtxoWif, parseOpReturn }
 import { parseBurnOutput, ParseBurnResult } from './opReturnBurn';
 import { Hash160AndAddress } from '@bcpros/lixi-models';
 
-
 export interface ParsedChronikTx {
   incoming: boolean;
   xpiAmount: string;
@@ -371,7 +370,7 @@ export const parseChronikTx = async (
           const legacyDestinationAddress = XPI.Address.fromOutputScript(Buffer.from(thisOutput.outputScript, 'hex'));
           destinationAddress = XPI.Address.toXAddress(legacyDestinationAddress);
         }
-      } catch (err) { }
+      } catch (err) {}
     }
   }
 
@@ -389,7 +388,7 @@ export const parseChronikTx = async (
   let otherPublicKey;
   try {
     otherPublicKey = await getRecipientPublicKey(XPI, chronik, theOtherAddress);
-  } catch (err) { }
+  } catch (err) {}
 
   if (
     isLotusMessage &&

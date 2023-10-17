@@ -13,37 +13,23 @@ import { ChronikClients } from '../../common/modules/chronik/chronik.interfaces'
 @Global()
 @Module({})
 export class WalletModule {
-  public static forRoot(
-    options: WalletModuleOptions,
-    isGlobal = true,
-  ): DynamicModule {
+  public static forRoot(options: WalletModuleOptions, isGlobal = true): DynamicModule {
     const gitbotOptions: Provider = {
       provide: WALLET_MODULE_OPTIONS,
-      useValue: options,
+      useValue: options
     };
 
     const servicesProvider: Provider = {
       provide: WALLET_SERVICES,
-      inject: [
-        ConfigService,
-        RedisService,
-        CHRONIK_CLIENTS,
-        XPIJS
-      ],
+      inject: [ConfigService, RedisService, CHRONIK_CLIENTS, XPIJS],
       useFactory: async (
         config: ConfigService,
         redisService: RedisService,
         chronikClients: ChronikClients,
         xpijs: BCHJS
       ) => {
-        return await createFactory(
-          options,
-          config,
-          redisService.getClient(),
-          chronikClients,
-          xpijs
-        );
-      },
+        return await createFactory(options, config, redisService.getClient(), chronikClients, xpijs);
+      }
     };
 
     const childrenProviders: Provider[] = [
@@ -59,35 +45,22 @@ export class WalletModule {
       childrenProviders.push({
         provide: `${WALLET_SERVICES}_${currency}`,
         inject: [WALLET_SERVICES],
-        useFactory: (services: WalletServices) => services[currency],
+        useFactory: (services: WalletServices) => services[currency]
       });
     }
 
     return {
       module: WalletModule,
       controllers: [],
-      providers: [
-        gitbotOptions,
-        servicesProvider,
-        ...childrenProviders,
-      ],
-      exports: [servicesProvider, ...childrenProviders],
+      providers: [gitbotOptions, servicesProvider, ...childrenProviders],
+      exports: [servicesProvider, ...childrenProviders]
     };
   }
 
-  public static forRootAsync(
-    options: WalletModuleAsyncOptions,
-    isGlobal = true,
-  ): DynamicModule {
+  public static forRootAsync(options: WalletModuleAsyncOptions, isGlobal = true): DynamicModule {
     const servicesProvider: Provider = {
       provide: WALLET_SERVICES,
-      inject: [
-        WALLET_MODULE_OPTIONS,
-        ConfigService,
-        RedisService,
-        CHRONIK_CLIENTS,
-        XPIJS
-      ],
+      inject: [WALLET_MODULE_OPTIONS, ConfigService, RedisService, CHRONIK_CLIENTS, XPIJS],
       useFactory: async (
         walletOptions: WalletModuleOptions,
         config: ConfigService,
@@ -95,14 +68,8 @@ export class WalletModule {
         chronikClients: ChronikClients,
         xpijs: BCHJS
       ) => {
-        return await createFactory(
-          walletOptions,
-          config,
-          redisService.getClient(),
-          chronikClients,
-          xpijs
-        );
-      },
+        return await createFactory(walletOptions, config, redisService.getClient(), chronikClients, xpijs);
+      }
     };
 
     const asyncProviders = createAsyncProviders(options);
@@ -120,14 +87,11 @@ export class WalletModule {
       childrenProviders.push({
         provide: `${WALLET_SERVICES}_${currency}`,
         inject: [WALLET_SERVICES, WALLET_MODULE_OPTIONS],
-        useFactory: (
-          services: WalletServices,
-          walletOptions: WalletModuleOptions,
-        ) => {
+        useFactory: (services: WalletServices, walletOptions: WalletModuleOptions) => {
           if (walletOptions.currencies.includes(currency)) {
             return services[currency];
           }
-        },
+        }
       });
     }
 
@@ -136,12 +100,8 @@ export class WalletModule {
       module: WalletModule,
       imports: options.imports || [],
       controllers: [],
-      providers: [
-        ...asyncProviders,
-        servicesProvider,
-        ..._.compact(childrenProviders),
-      ],
-      exports: [servicesProvider, ..._.compact(childrenProviders)],
+      providers: [...asyncProviders, servicesProvider, ..._.compact(childrenProviders)],
+      exports: [servicesProvider, ..._.compact(childrenProviders)]
     };
   }
 }
