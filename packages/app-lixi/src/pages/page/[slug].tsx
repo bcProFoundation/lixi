@@ -71,7 +71,9 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
       pageAccount: true,
       category: true,
       country: true,
-      state: true
+      state: true,
+      avatar: { include: { upload: true } },
+      cover: { include: { upload: true } }
     }
   });
 
