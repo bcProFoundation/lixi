@@ -156,7 +156,6 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
           selectedAccount.id != Number(post.page.pageAccount.id) &&
           parseFloat(post.page.createPostFee) != 0
         ) {
-          console.log('run');
           const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
           txHex = await sendXpi(
             XPI,
