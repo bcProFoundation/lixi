@@ -451,6 +451,7 @@ export default {
   'notification.unableToRead': 'Không thể đọc thông báo.',
   'notification.earlier': 'Trước đó',
   'notification.readAll': 'Xem tất cả',
+  'notification.noNotification': 'Không có thông báo',
 
   /* 10.NFT */
   'lixinft.unableToMint': 'Không thể tạo NFT',

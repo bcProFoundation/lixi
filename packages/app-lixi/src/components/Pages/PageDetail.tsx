@@ -781,6 +781,20 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     dispatch(openModal('PageMessageLixiModal', { account: selectedAccount, page: page, wallet: walletStatus }));
   };
 
+  const getAvatarPage = () => {
+    let urlAvatarPage = '';
+    const cfUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${pageDetailData?.avatar?.upload?.cfImageId}/public`;
+    urlAvatarPage = cfUrl.includes('undefined') ? undefined : cfUrl;
+    return urlAvatarPage;
+  };
+
+  const getCoverPage = () => {
+    let urlCoverPage = '';
+    const cfUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${pageDetailData?.cover?.upload?.cfImageId}/public`;
+    urlCoverPage = cfUrl.includes('undefined') ? undefined : cfUrl;
+    return urlCoverPage;
+  };
+
   return (
     <React.Fragment>
       <StyledContainerProfileDetail className="page-detail">
@@ -788,7 +802,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
           <div className="container-img">
             <img
               className="cover-img"
-              src={urlPageCoverUpload || pageDetailData?.cover || '/images/default-cover.jpg'}
+              src={urlPageCoverUpload || getCoverPage() || '/images/default-cover.jpg'}
               alt=""
             />
             {selectedAccountId == pageDetailData?.pageAccountId && (
@@ -803,7 +817,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
               <picture>
                 <img
                   className="avatar-img"
-                  src={urlPageAvatarUpload || pageDetailData?.avatar || '/images/default-avatar.jpg'}
+                  src={urlPageAvatarUpload || getAvatarPage() || '/images/default-avatar.jpg'}
                   alt=""
                 />
               </picture>
@@ -902,7 +916,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
 
             <p>
               {' '}
-              <FireOutlined /> {pageDetailData?.totalBurnForPage + intl.get('general.dana')}
+              <FireOutlined /> {pageDetailData?.totalPostsBurnScore + intl.get('general.dana')}
             </p>
           </div>
         </ProfileCardHeader>
