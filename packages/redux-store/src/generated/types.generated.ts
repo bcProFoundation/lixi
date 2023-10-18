@@ -989,8 +989,8 @@ export type PostTranslation = {
 
 export type Query = {
   __typename?: 'Query';
-  allBookmarkByAccountId: BookmarkConnection;
   account: Account;
+  allBookmarkByAccountId: BookmarkConnection;
   allClosedPageMessageSession: PageMessageSessionConnection;
   allCommentsToPostId: CommentConnection;
   allFollowersByFollowing: AccountConnection;
@@ -1047,6 +1047,10 @@ export type Query = {
   worshipedPerson: WorshipedPerson;
 };
 
+export type QueryAccountArgs = {
+  id: Scalars['Int'];
+};
+
 export type QueryAllBookmarkByAccountIdArgs = {
   accountId: Scalars['Int'];
   after?: InputMaybe<Scalars['String']>;
@@ -1057,10 +1061,6 @@ export type QueryAllBookmarkByAccountIdArgs = {
   minBurnFilter?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<BookmarkOrder>;
   skip?: InputMaybe<Scalars['Int']>;
-};
-
-export type QueryAccountArgs = {
-  id: Scalars['Int'];
 };
 
 export type QueryAllClosedPageMessageSessionArgs = {
@@ -1332,7 +1332,7 @@ export type QueryAllPostsByUserIdArgs = {
   id?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
   minBurnFilter?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<PostOrder>;
+  orderBy?: InputMaybe<Array<PostOrder>>;
   skip?: InputMaybe<Scalars['Int']>;
 };
 

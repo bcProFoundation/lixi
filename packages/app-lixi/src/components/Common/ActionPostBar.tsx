@@ -20,6 +20,7 @@ import { WithAuthorizeAction } from './Authorization/WithAuthorizeAction';
 import Counter from './Counter';
 import BaseReaction from './Reaction';
 import ShareSocialButton from './ShareSocialButton';
+import _ from 'lodash';
 
 export const GroupIconText = styled.div`
   align-items: center;
@@ -150,7 +151,11 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
       let txHex;
 
       try {
-        if (selectedAccount.id != Number(post.page.pageAccount.id) && parseFloat(post.page.createPostFee) != 0) {
+        if (
+          !_.isNil(post?.page) &&
+          selectedAccount.id != Number(post.page.pageAccount.id) &&
+          parseFloat(post.page.createPostFee) != 0
+        ) {
           const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
           txHex = await sendXpi(
             XPI,
@@ -178,14 +183,16 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
         txHex: txHex
       };
 
-      await repostTrigger({ input: repostInput });
-      isSuccessRepost &&
-        dispatch(
-          showToast('success', {
-            message: 'Success',
-            description: intl.get('post.repostSuccessful'),
-            duration: 5
-          })
+      await repostTrigger({ input: repostInput })
+        .unwrap()
+        .then(
+          dispatch(
+            showToast('success', {
+              message: 'Success',
+              description: intl.get('post.repostSuccessful'),
+              duration: 5
+            })
+          )
         );
     } catch (e) {
       let message = e.message || e.error || JSON.stringify(e);
@@ -217,9 +224,9 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
           onClick={e => onClickIconComment(e)}
         />
 
-        {/* Currently only apply repost to posts in the page */}
-        {post.page && (
-          <Tooltip title={`${intl.get('page.repostFee')}: ${post.page.createPostFee} ${currency.ticker}`}>
+        {/* Currently only apply repost to posts in the page and profile */}
+        {(post.page || post.postAccount.id === selectedAccount.id) && (
+          <Tooltip title={`${intl.get('page.repostFee')}: ${post?.page?.createPostFee ?? 0} ${currency.ticker}`}>
             <Space style={{ padding: '8px' }} className="repost" size={5} onClick={() => handleRepost(post)}>
               <RetweetOutlined />
               <Counter isShowXPI={false} num={post.reposts?.length ?? 0} />

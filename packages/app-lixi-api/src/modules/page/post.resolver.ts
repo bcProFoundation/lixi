@@ -638,10 +638,10 @@ export class PostResolver {
     id: number,
     @Args({
       name: 'orderBy',
-      type: () => PostOrder,
+      type: () => [PostOrder!],
       nullable: true
     })
-    orderBy: PostOrder
+    orderBy: PostOrder[]
   ) {
     let result;
     if (account?.id === _.toSafeInteger(id)) {
@@ -663,7 +663,7 @@ export class PostResolver {
                 { tokenId: null }
               ]
             },
-            orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
+            orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
             ...args
           }),
         () =>
@@ -704,7 +704,7 @@ export class PostResolver {
                 { tokenId: null }
               ]
             },
-            orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
+            orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
             ...args
           }),
         () =>
@@ -1105,7 +1105,7 @@ export class PostResolver {
           id: post.id
         }
       })
-      .reposts();
+      .reposts({ include: { account: true } });
     return reposts;
   }
 
