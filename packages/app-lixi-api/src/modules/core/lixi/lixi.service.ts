@@ -46,7 +46,7 @@ export class LixiService {
   ): Promise<Lixi> {
     // If users input the amount means that the lixi need to be prefund
     const isPrefund = !!command.amount;
-    const walletService = this.walletServices['XPI'];
+    const walletService = this.walletServices['xpi'];
 
     // Calculate the lixi encrypted claim code from the input password
     const { address, xpriv } = await walletService.deriveAddress(command.mnemonic, derivationIndex);
@@ -99,14 +99,18 @@ export class LixiService {
       }
     }
 
-    // Prepare receiving address and amount
-    const receivingLixi = [{ address: lixiToInsert.address, amountXpi: command.amount }];
-
     // Save the lixi into the database
     const savedLixi = await this.prisma.$transaction(async prisma => {
       const createdLixi = prisma.lixi.create({ data: lixiToInsert });
       if (isPrefund) {
-        await walletService.sendAmount(account.address, receivingLixi, keyPair, i18n);
+        await walletService.sendXPIToSingleAddress(
+          account.address,
+          lixiToInsert.address,
+          command.amount.toString(),
+          undefined,
+          undefined,
+          command.mnemonic
+        );
       }
       return createdLixi;
     });
@@ -139,7 +143,7 @@ export class LixiService {
   ): Promise<Lixi> {
     // If users input the amount means that the lixi need to be prefund
     const isPrefund = !!command.amount;
-    const walletService = this.walletServices['XPI'];
+    const walletService = this.walletServices['xpi'];
 
     // Calculate the lixi encrypted claim code from the input password
     const { address, xpriv } = await walletService.deriveAddress(command.mnemonic, derivationIndex);
@@ -182,7 +186,7 @@ export class LixiService {
     // Validate the amount params
     if (isPrefund) {
       // Check the account balance
-      const walletService = this.walletServices['XPI'];
+      const walletService = this.walletServices['xpi'];
       const { totalBalance, totalBalanceInSatoshis } = await walletService.getBalances(account.address);
       const utxosStore = (utxoStore as any).bchUtxos.concat((utxoStore as any).nullUtxos);
 

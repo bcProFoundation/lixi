@@ -9,17 +9,7 @@ import { AccountDanaCacheService } from './account-dana-cache.service';
 import { WalletModule } from '../wallet/wallet.module';
 
 @Module({
-  imports: [
-    AuthModule,
-    NotificationModule,
-    WalletModule.forRootAsync({
-      useFactory: () => {
-        return {
-          currencies: ['XPI']
-        };
-      }
-    })
-  ],
+  imports: [AuthModule, NotificationModule],
   controllers: [],
   providers: [
     AccountResolver,

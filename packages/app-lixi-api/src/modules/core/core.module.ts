@@ -74,10 +74,11 @@ const baseCorsConfig = cors({
     AccountModule,
     MessageModule,
     WalletModule.forRootAsync({
-      extraProviders: [WalletService],
+      inject: [ConfigService],
+      imports: [ChronikModule],
       useFactory: () => {
         return {
-          currencies: ['XPI']
+          currencies: ['xpi', 'xec']
         };
       }
     })

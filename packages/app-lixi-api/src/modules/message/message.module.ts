@@ -8,17 +8,7 @@ import { PageMessageSessionCacheService } from './page-message-session-cache.ser
 import { WalletModule } from '../wallet/wallet.module';
 
 @Module({
-  imports: [
-    AuthModule,
-    NotificationModule,
-    WalletModule.forRootAsync({
-      useFactory: () => {
-        return {
-          currencies: ['XPI']
-        };
-      }
-    })
-  ],
+  imports: [AuthModule, NotificationModule],
   controllers: [],
   providers: [MessageResolver, PageMessageSessionResolver, Logger, MeiliService, PageMessageSessionCacheService],
   exports: [MessageResolver, Logger, PageMessageSessionCacheService]

@@ -30,7 +30,7 @@ export class WithdrawSubLixiesProcessor extends WorkerHost {
 
   public async processWithdrawSubLixies(job: Job): Promise<WithdrawSubLixiesJobResult> {
     const jobData = job.data as WithdrawSubLixiesJobData;
-    const walletService = this.walletServices['XPI'];
+    const walletService = this.walletServices['xpi'];
 
     const lixi = await this.prisma.lixi.findFirst({
       where: {
@@ -59,8 +59,15 @@ export class WithdrawSubLixiesProcessor extends WorkerHost {
       if (parseFloat(totalBalance) !== 0) {
         try {
           const totalAmount: number = await walletService.onMax(subLixiAddress);
-          const receivingAccount = [{ address: jobData.accountAddress, amountXpi: totalAmount }];
-          const amount: any = await walletService.sendAmount(subLixiAddress, receivingAccount, keyPair);
+          // const receivingAccount = [{ address: jobData.accountAddress, amountXpi: totalAmount }];
+          await walletService.sendXPIToSingleAddress(
+            subLixiAddress,
+            jobData.accountAddress,
+            totalAmount.toString(),
+            undefined,
+            undefined,
+            mnemonic
+          );
 
           const updatedSubLixies = await this.prisma.lixi.update({
             where: {

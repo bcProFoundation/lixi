@@ -52,7 +52,7 @@ export class AuthService implements OnModuleInit {
       throw new VError(accountNotExistMessage);
     }
 
-    const walletService = this.walletServices['XPI'];
+    const walletService = this.walletServices['xpi'];
     const { publicKey, wifKey } = await walletService.deriveAddress(mnemonic, 0);
     if (!account.publicKey) {
       // There're  no public key, old account

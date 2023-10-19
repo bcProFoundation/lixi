@@ -11,7 +11,7 @@ export class WalletResolver {
 
   @Query(() => Balances)
   async getBalances(@Args('address', { type: () => String }) address: string) {
-    const walletService = this.walletServices['XPI'];
+    const walletService = this.walletServices['xpi'];
     const balances: Balances = await walletService.getBalances(address);
     return balances;
   }

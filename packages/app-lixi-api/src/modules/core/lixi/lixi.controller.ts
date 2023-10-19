@@ -116,7 +116,7 @@ export class LixiController {
         throw new VError(lixiNotExist);
       }
 
-      const walletService = this.walletServices['XPI'];
+      const walletService = this.walletServices['xpi'];
       const { totalBalance, totalBalanceInSatoshis } = await walletService.getBalances(lixi.address);
 
       const subLixies = await this.prisma.lixi.aggregate({
@@ -722,7 +722,7 @@ export class LixiController {
 
       if (lixi.claimType === ClaimType.Single) {
         const lixiIndex = lixi.derivationIndex;
-        const walletService = this.walletServices['XPI'];
+        const walletService = this.walletServices['xpi'];
         const { address, keyPair } = await walletService.deriveAddress(mnemonicFromApi, lixiIndex);
 
         if (address !== lixi.address) {
@@ -740,7 +740,14 @@ export class LixiController {
         const totalAmount: number = await walletService.onMax(lixi.address);
         const receivingAccount = [{ address: account.address, amountXpi: totalAmount }];
 
-        const amount: any = await walletService.sendAmount(lixi.address, receivingAccount, keyPair, i18n);
+        const amount: any = await walletService.sendXPIToSingleAddress(
+          lixi.address,
+          account.address,
+          totalAmount.toString(),
+          undefined,
+          undefined,
+          command.mnemonic
+        );
 
         //If lixi is withdrew before session open then close session
         const pageMessageSession = await this.prisma.pageMessageSession.findUnique({

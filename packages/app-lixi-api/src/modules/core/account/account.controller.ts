@@ -76,7 +76,7 @@ export class AccountController {
         throw new VError(accountNotExistMessage);
       }
 
-      const walletService = this.walletServices['XPI'];
+      const walletService = this.walletServices['xpi'];
       const { totalBalance } = await walletService.getBalances(account.address);
 
       const result = {
@@ -187,7 +187,7 @@ export class AccountController {
       });
 
       if (!account) {
-        const walletService = this.walletServices['XPI'];
+        const walletService = this.walletServices['xpi'];
 
         // Validate mnemonic
         let isValidMnemonic = await walletService.validateMnemonic(mnemonic);
@@ -243,7 +243,7 @@ export class AccountController {
           throw Error(importAccountNotFoundMessage);
         }
 
-        const walletService = this.walletServices['XPI'];
+        const walletService = this.walletServices['xpi'];
         const { totalBalance } = await walletService.getBalances(account.address);
         const accountSecret = await aesGcmDecrypt(account.encryptedSecret, mnemonic);
 
@@ -275,7 +275,7 @@ export class AccountController {
   async createAccount(@Body() command: CreateAccountCommand, @I18n() i18n: I18nContext): Promise<AccountDto> {
     if (command) {
       try {
-        const walletService = this.walletServices['XPI'];
+        const walletService = this.walletServices['xpi'];
 
         const { address, publicKey } = await walletService.deriveAddress(command.mnemonic, 0);
         const name = address.slice(12, 17);

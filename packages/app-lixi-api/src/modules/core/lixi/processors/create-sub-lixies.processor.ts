@@ -50,7 +50,7 @@ export class CreateSubLixiesProcessor extends WorkerHost {
   }
 
   private async processCreateSubLixiesChunk(job: Job): Promise<boolean> {
-    const walletService = this.walletServices['XPI'];
+    const walletService = this.walletServices['xpi'];
     const jobData = job.data as CreateSubLixiesChunkJobData;
     const {
       numberOfSubLixiInChunk,
@@ -93,11 +93,8 @@ export class CreateSubLixiesProcessor extends WorkerHost {
     });
 
     // Add the fee for each sub lixi transaction
-    receivingSubLixies = _.map(receivingSubLixies, item => {
-      return {
-        address: item.address,
-        amountXpi: item.amountXpi + fromSmallestDenomination(Number(txFee))
-      };
+    const destinationAddressAndValueArray = receivingSubLixies.map(item => {
+      return `${item.address}, ${fromSmallestDenomination(item.amountXpi - txFee)}`;
     });
 
     // Save the lixi into the database
@@ -107,7 +104,13 @@ export class CreateSubLixiesProcessor extends WorkerHost {
           data: subLixiesToInsert
         });
         if (receivingSubLixies.length > 0) {
-          await walletService.sendAmount(fundingAddress, receivingSubLixies, keyPair);
+          await walletService.sendXPIToMultipleAddress(
+            fundingAddress,
+            destinationAddressAndValueArray,
+            undefined,
+            undefined,
+            command.mnemonic
+          );
         }
         return countLixiesCreated;
       });
@@ -207,7 +210,7 @@ export class CreateSubLixiesProcessor extends WorkerHost {
   ): Promise<LixiDb> {
     // Generate the random password to encrypt the key
     const password = generateRandomBase58Str(8);
-    const walletService = this.walletServices['XPI'];
+    const walletService = this.walletServices['xpi'];
     const { address, xpriv } = await walletService.deriveAddress(command.mnemonic, derivationIndex);
     const encryptedXPriv = await aesGcmEncrypt(xpriv, password);
     const encryptedClaimCode = await aesGcmEncrypt(password, accountSecret);

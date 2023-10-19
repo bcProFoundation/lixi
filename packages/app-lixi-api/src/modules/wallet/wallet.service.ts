@@ -11,7 +11,12 @@ import { Redis } from 'ioredis';
 import { I18nContext } from 'nestjs-i18n';
 import { XPIJS } from './wallet.constants';
 import { Hash160AndAddress } from '@bcpros/lixi-models';
-import { getUtxosChronik, getWalletBalanceFromUtxos, organizeUtxosByType } from '../../utils/chronik';
+import {
+  getUtxosChronik,
+  getWalletBalanceFromUtxos,
+  organizeUtxosByType,
+  getRecipientPublicKey
+} from '../../utils/chronik';
 import {
   calcFee,
   getChangeAddressFromInputUtxos,
@@ -21,11 +26,10 @@ import {
   generateOpReturnScript,
   generateTxInput,
   generateTxOutput,
-  signAndBuildTx
+  signAndBuildTx,
+  getUtxoWif
 } from '../../utils/cashMethods';
-import { getRecipientPublicKey } from '../../utils/chronik';
-import MinimalBCHWallet from '@bcpros/minimal-xpi-slp-wallet';
-import XPI from '@bcpros/xpi-js';
+import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
 
 @Injectable()
 export class WalletService {
@@ -34,9 +38,9 @@ export class WalletService {
 
   constructor(
     @Inject(XPIJS) private readonly XPI: BCHJS,
+    private chronik: ChronikClient,
     private coin: string,
-    private redis: Redis,
-    private chronik: ChronikClient
+    private redis: Redis
   ) {}
 
   async getBalances(xAddress: string) {
@@ -272,11 +276,13 @@ export class WalletService {
     }
   }
 
-  async sendAmount(
+  async sendXPIToSingleAddress(
     sourceAddress: string,
-    destination: { address: string; amountXpi: number }[],
-    inputKeyPair: any,
-    i18n?: I18nContext
+    destinationAddress: string,
+    sendAmount: string,
+    walletPath?: any,
+    sourceFundingWif?: any,
+    mnemonic?: string
   ) {
     const hash = this.XPI.Address.toHash160(sourceAddress);
     const walletStatus = await this.getWalletStatus([
@@ -285,87 +291,96 @@ export class WalletService {
         hash160: hash
       }
     ]);
-    const { slpBalancesAndUtxos, balances } = walletStatus;
+    const { slpBalancesAndUtxos } = walletStatus;
 
-    const sourceBalance = _.toNumber(balances.totalBalance);
-    if (sourceBalance === 0) {
-      if (i18n === undefined) throw new VError('Insufficient Fund');
+    const walletPaths = walletPath ? [walletPath] : await this.getWalletPathDetails(mnemonic!, [this.defaultPath]);
+    const fundingWif = sourceFundingWif
+      ? sourceFundingWif
+      : getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
 
-      const insufficientFund = await i18n.t('claim.messages.insufficientFund');
-      throw new VError(insufficientFund);
+    const sendHex = await this.sendXpi(
+      this.XPI,
+      this.chronik,
+      walletPaths,
+      slpBalancesAndUtxos.nonSlpUtxos,
+      currency.defaultFee,
+      '',
+      false, // indicate send mode is one to one
+      [],
+      destinationAddress,
+      sendAmount,
+      true,
+      fundingWif,
+      true
+    );
+
+    const txData = await this.XPI.RawTransactions.decodeRawTransaction(sendHex);
+    const tipValue = txData['vout'][0].value;
+    if (Number(tipValue) < 0) {
+      throw new Error('Syntax error. Number cannot be less than or equal to 0');
     }
 
-    let outputs: { address: string; amountSat: number }[] = [];
+    const broadcastResponse = await this.chronik.broadcastTx(sendHex);
+    if (!broadcastResponse) {
+      throw new Error('Empty chronik broadcast response');
+    }
 
-    for (let i = 0; i < _.size(destination); i++) {
-      const item = destination[i];
-      let satoshisToSend = toSmallestDenomination(new BigNumber(item.amountXpi));
+    const { txid } = broadcastResponse;
 
-      if (satoshisToSend.lt(currency.dustSats)) {
-        if (i18n === undefined) throw new VError('The send amount is smaller than dust');
+    return txid;
+  }
 
-        const sendAmountSmallerThanDust = await i18n.t('account.messages.sendAmountSmallerThanDust');
-        throw new VError(sendAmountSmallerThanDust);
+  async sendXPIToMultipleAddress(
+    sourceAddress: string,
+    destinationAddressAndValueArray: string[],
+    walletPath?: any,
+    sourceFundingWif?: any,
+    mnemonic?: string
+  ) {
+    const hash = this.XPI.Address.toHash160(sourceAddress);
+    const walletStatus = await this.getWalletStatus([
+      {
+        address: sourceAddress,
+        hash160: hash
       }
+    ]);
+    const { slpBalancesAndUtxos } = walletStatus;
 
-      const amountSats = Math.floor(satoshisToSend.toNumber());
+    const walletPaths = walletPath ? [walletPath] : await this.getWalletPathDetails(mnemonic!, [this.defaultPath]);
+    const fundingWif = sourceFundingWif
+      ? sourceFundingWif
+      : getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
 
-      outputs.push({
-        address: item.address,
-        amountSat: amountSats
-      });
+    const sendHex = await this.sendXpi(
+      this.XPI,
+      this.chronik,
+      walletPaths,
+      slpBalancesAndUtxos.nonSlpUtxos,
+      currency.defaultFee,
+      '',
+      true, // indicate send mode is one to one
+      destinationAddressAndValueArray,
+      '',
+      '',
+      true,
+      fundingWif,
+      true
+    );
+
+    const txData = await this.XPI.RawTransactions.decodeRawTransaction(sendHex);
+    const tipValue = txData['vout'][0].value;
+    if (Number(tipValue) < 0) {
+      throw new Error('Syntax error. Number cannot be less than or equal to 0');
     }
 
-    const utxos = walletStatus.slpBalancesAndUtxos.nonSlpUtxos;
-
-    if (!utxos || utxos.length === 0) {
-      throw new VError('UTXO list is empty');
+    const broadcastResponse = await this.chronik.broadcastTx(sendHex);
+    if (!broadcastResponse) {
+      throw new Error('Empty chronik broadcast response');
     }
 
-    const changeAddress = getChangeAddressFromInputUtxos(this.XPI, utxos);
+    const { txid } = broadcastResponse;
 
-    const utxosStore = (utxos as any).bchUtxos.concat((utxos as any).nullUtxos);
-    //TODO: fix this
-    const xpiWallet = new MinimalBCHWallet(sourceAddress, null);
-    const { necessaryUtxos, change } = xpiWallet.sendBch.getNecessaryUtxosAndChange(outputs, utxosStore, 2.01);
-
-    // Create an instance of the Transaction Builder.
-    const transactionBuilder: any = new this.XPI.TransactionBuilder();
-
-    // Add inputs
-    necessaryUtxos.forEach((utxo: any) => {
-      transactionBuilder.addInput(utxo.tx_hash, utxo.tx_pos);
-    });
-
-    // Add outputs
-    outputs.forEach(receiver => {
-      transactionBuilder.addOutput(receiver.address, receiver.amountSat);
-    });
-
-    if (change && change > 546) {
-      transactionBuilder.addOutput(sourceAddress, change);
-    }
-
-    // Sign each UTXO that is about to be spent.
-    necessaryUtxos.forEach((utxo, i) => {
-      let redeemScript;
-
-      transactionBuilder.sign(i, inputKeyPair, redeemScript, transactionBuilder.hashTypes.SIGHASH_ALL, utxo.value);
-    });
-
-    const tx = transactionBuilder.build();
-    const hex = tx.toHex();
-
-    try {
-      // Broadcast the transaction to the network.
-      await this.XPI.RawTransactions.sendRawTransaction([hex]);
-      // const txid = await xpiWallet.send(outputs);
-    } catch (err) {
-      if (i18n === undefined) throw new VError('Unable to send transaction', err);
-
-      const unableSendTransaction = await i18n.t('claim.messages.unableSendTransaction');
-      throw new VError(unableSendTransaction, err);
-    }
+    return txid;
   }
 
   async validateMnemonic(mnemonic: string, wordlist = this.XPI.Mnemonic.wordLists().english) {

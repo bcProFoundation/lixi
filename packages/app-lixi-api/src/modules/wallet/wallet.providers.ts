@@ -29,7 +29,7 @@ export function createFactory(
     const coin = currencyToCoin[currency];
     const chronikClient = chronikClients[coin];
 
-    const service = new WalletService(XPI, currency, redis, chronikClient);
+    const service = new WalletService(XPI, chronikClient, currency, redis);
     services[currency] = service;
   }
   return services;

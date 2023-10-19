@@ -17,13 +17,6 @@ import { WalletModule } from '../wallet/wallet.module';
     ThrottlerModule.forRoot({
       limit: 30,
       ttl: 60
-    }),
-    WalletModule.forRootAsync({
-      useFactory: () => {
-        return {
-          currencies: ['XPI']
-        };
-      }
     })
   ],
   controllers: [AuthController],
