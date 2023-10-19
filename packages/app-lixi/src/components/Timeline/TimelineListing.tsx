@@ -272,17 +272,6 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   };
 
-  const Header = () => {
-    return (
-      <StyledHeader>
-        <CreatePostCard hashtags={hashtags} query={query} />
-        <h1 style={{ textAlign: 'left', fontSize: '20px', margin: '1rem' }}>
-          {query && intl.get('general.searchResults', { text: query })}
-        </h1>
-      </StyledHeader>
-    );
-  };
-
   const Footer = () => {
     return (
       <b
@@ -366,7 +355,12 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
   return (
     <StyledTimelineListing>
       <SearchBox />
-      <Header />
+      <StyledHeader>
+        <CreatePostCard hashtags={hashtags} query={query} />
+        <h1 style={{ textAlign: 'left', fontSize: '20px', margin: '1rem' }}>
+          {query && intl.get('general.searchResults', { text: query })}
+        </h1>
+      </StyledHeader>
       {graphqlRequestLoading ? <Skeleton avatar active /> : showPosts()}
     </StyledTimelineListing>
   );
