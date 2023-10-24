@@ -25,15 +25,8 @@ import {
   useDeleteFollowPageMutation,
   useDeleteFollowTokenMutation
 } from '@store/follow/follows.api';
-import {
-  useCreateBookmarkMutation,
-  useRemoveBookmarkMutation
-} from '@store/bookmark/bookmark.api';
-import {
-  CreateFollowAccountInput,
-  DeleteFollowAccountInput,
-  RemoveBookmarkInput
-} from '@generated/types.generated';
+import { useCreateBookmarkMutation, useRemoveBookmarkMutation } from '@store/bookmark/bookmark.api';
+import { CreateFollowAccountInput, DeleteFollowAccountInput, RemoveBookmarkInput } from '@generated/types.generated';
 import { getWalletStatus } from '@store/wallet';
 import { useSwipeable } from 'react-swipeable';
 import { useUserHadMessageToPageQuery } from '@store/message/pageMessageSession.generated';
@@ -263,7 +256,6 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
   const [createBookmarkTrigger] = useCreateBookmarkMutation();
   const [removeBookmarkTrigger] = useRemoveBookmarkMutation();
 
-
   const { data: pageMessageSessionData, refetch: pageMessageSessionRefetch } = useUserHadMessageToPageQuery(
     {
       accountId: selectedAccount?.id,
@@ -389,15 +381,16 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
           {post.page && isSuccessPageQuery && (
             <>
               <ItemActionSheetBottom
-                text={`${post.page.createPostFee == 0
-                  ? intl.get('page.createFreePostOn', {
-                    pageName: currentDataPageQuery?.page?.name
-                  })
-                  : intl.get('page.createPostOnPage', {
-                    pageName: currentDataPageQuery?.page?.name,
-                    fee: parseInt(post.page.createPostFee)
-                  })
-                  }`}
+                text={`${
+                  post.page.createPostFee == 0
+                    ? intl.get('page.createFreePostOn', {
+                        pageName: currentDataPageQuery?.page?.name
+                      })
+                    : intl.get('page.createPostOnPage', {
+                        pageName: currentDataPageQuery?.page?.name,
+                        fee: parseInt(post.page.createPostFee)
+                      })
+                }`}
                 icon="/images/ico-create-post.svg"
                 onClickItem={openCreatePostPage}
               />

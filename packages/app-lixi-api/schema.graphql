@@ -1105,7 +1105,7 @@ type Query {
     tokenId: String
   ): PostConnection!
   allPostsByTokenId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
-  allPostsByUserId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
+  allPostsByUserId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: [PostOrder!], skip: Int): PostConnection!
   allProducts(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: ProductOrder, query: String, skip: Int): ProductConnection!
   allProductsByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: ProductOrder, skip: Int): ProductConnection!
   allTemple(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: TempleOrder, skip: Int): TempleConnection!

@@ -12,15 +12,11 @@ const enhancedApi = api.enhanceEndpoints({
   endpoints: {
     Bookmark: {
       providesTags: (result, error, arg) => ['Bookmark']
-    },
+    }
   }
 });
 
 export { enhancedApi as api };
 
-export const {
-  useBookmarkQuery,
-  useCreateBookmarkMutation,
-  useRemoveBookmarkMutation,
-  useLazyBookmarkQuery,
-} = enhancedApi;
+export const { useBookmarkQuery, useCreateBookmarkMutation, useRemoveBookmarkMutation, useLazyBookmarkQuery } =
+  enhancedApi;

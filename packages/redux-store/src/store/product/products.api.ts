@@ -34,7 +34,7 @@ const enhancedApi = api.enhanceEndpoints({
         currentCacheData.allProductsByPageId.totalCount = responseData.allProductsByPageId.totalCount;
       }
     },
-    createProduct: {},
+    createProduct: {}
   }
 });
 

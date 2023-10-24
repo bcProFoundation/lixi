@@ -12,7 +12,7 @@ const postsAdapter = createEntityAdapter<PostQueryItem>({
 const { selectAll, selectEntities, selectIds, selectTotal } = postsAdapter.getSelectors();
 
 interface PostListByUserIdParams extends PaginationArgs {
-  orderBy?: PostOrder;
+  orderBy?: PostOrder[];
   id?: number;
 }
 
@@ -20,7 +20,7 @@ export function useInfinitePostsByUserIdQuery(
   params: PostListByUserIdParams,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const baseResult = usePostsByUserIdQuery(params);
+  const baseResult = usePostsByUserIdQuery(params, { skip: !params.id });
 
   const [trigger, nextResult] = useLazyPostsByUserIdQuery();
   const [combinedData, setCombinedData] = useState(postsAdapter.getInitialState({}));

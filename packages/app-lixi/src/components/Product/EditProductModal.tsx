@@ -50,10 +50,8 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ product, dis
 
   const onSubmit: SubmitHandler<any> = async data => {
     try {
-
       dispatch(closeModal());
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleOnCancel = () => {
@@ -144,7 +142,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ product, dis
                     style={{ width: '99%', textAlign: 'start' }}
                     defaultValue={intl.get(
                       'category.' +
-                      categories.find(category => category.id === Number(product.categoryId.toString())).name
+                        categories.find(category => category.id === Number(product.categoryId.toString())).name
                     )}
                     disabled={isSubmitting}
                   >

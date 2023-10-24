@@ -451,6 +451,7 @@ export default {
   'notification.unableToRead': 'Unable to read the notification.',
   'notification.earlier': 'Earlier',
   'notification.readAll': 'Read all',
+  'notification.noNotification': 'No notification',
 
   /* 10.NFT */
   'lixinft.unableToMint': 'Unable to mint the lixi NFT',
