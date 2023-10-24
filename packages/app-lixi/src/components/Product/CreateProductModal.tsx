@@ -1,6 +1,6 @@
 import { Button, Form, Input, Modal, Select } from 'antd';
 import isEmpty from 'lodash.isempty';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import intl from 'react-intl-universal';
 import { getPostCoverUploads, getProductImageUploads, getSelectedAccount } from '@store/account/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
@@ -112,7 +112,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   const selectedAccount = useAppSelector(getSelectedAccount);
   const postCoverUploads = useAppSelector(getProductImageUploads);
 
-  const router = useRouter();
+  const multiUploader = useRef(null);
   const imagesList = postCoverUploads.map(img => {
     const imgUrl = `${process.env.NEXT_PUBLIC_AWS_ENDPOINT}/${img.bucket}/${img.sha}`;
     let width = img?.width || 4;
@@ -129,6 +129,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
     { isLoading: isLoadingCreatePage, isSuccess: isSuccessCreatePage, isError: isErrorCreatePage, error: errorOnCreate }
   ] = useCreateProductMutation();
 
+  const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
   const categories = useAppSelector(getAllCategories);
   const unitPrices = ['VND', 'USD'];
   // New product name
@@ -163,19 +164,6 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   const onFormLayoutChange = ({ disabled }: { disabled: boolean }) => {
     setComponentDisabled(disabled);
   };
-
-  // const postCoverUploads = useAppSelector(getPostCoverUploads);
-  // const imagesList = postCoverUploads.map(img => {
-  //   const imgUrl = `${process.env.NEXT_PUBLIC_AWS_ENDPOINT}/${img.bucket}/${img.sha}`;
-  //   let width = img?.width || 4;
-  //   let height = img?.height || 3;
-  //   let objImg = {
-  //     src: imgUrl,
-  //     width: width,
-  //     height: height
-  //   };
-  //   return objImg;
-  // });
 
   const handleNewProductNameInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -273,6 +261,10 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
 
   const handleOnCancel = () => {
     dispatch(closeModal());
+  };
+
+  const setUploadingImage = state => {
+    setIsUploadingImage(state);
   };
 
   return (
@@ -378,12 +370,14 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
               <StyledEditorLexical>
                 <Gallery photos={imagesList} />
                 <MultiUploader
+                  ref={multiUploader}
                   type={UPLOAD_TYPES.PRODUCT}
                   isIcon={false}
                   buttonName="Upload image"
                   buttonType="primary"
                   icon={'/images/ico-picture.svg'}
                   showUploadList={false}
+                  setUploadingImage={setUploadingImage}
                 />
               </StyledEditorLexical>
             </Form.Item>

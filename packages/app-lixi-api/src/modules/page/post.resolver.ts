@@ -19,7 +19,7 @@ import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { HttpException, HttpStatus, Inject, Injectable, Logger, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Int, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Int, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { Queue } from 'bullmq';
 import { ChronikClient } from 'chronik-client';
@@ -30,12 +30,12 @@ import { I18n, I18nService } from 'nestjs-i18n';
 import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
 import { NOTIFICATION_TYPES } from 'src/common/modules/notifications/notification.constants';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
-import PostResponse from 'src/common/post.response';
 import { PostAccountEntity } from 'src/decorators/postAccount.decorator';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import VError from 'verror';
 import { connectionFromArraySlice } from '../../common/custom-graphql-relay/arrayConnection';
 import ConnectionArgs, { getPagingParameters } from '../../common/custom-graphql-relay/connection.args';
+import { AccountCacheService } from '../account/account-cache.service';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
 import { HashtagService } from '../hashtag/hashtag.service';
@@ -43,7 +43,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { HASHTAG, POSTS } from './constants/meili.constants';
 import { POST_FANOUT_QUEUE } from './constants/post.constants';
 import { MeiliService } from './meili.service';
-import { AccountCacheService } from '../account/account-cache.service';
 import PostLoader from './post.loader';
 
 const pubSub = new PubSub();
@@ -78,12 +77,11 @@ export class PostResolver {
       include: {
         uploads: true,
         postAccount: true,
-        comments: true,
         page: true,
         translations: true,
         reposts: { select: { account: true, accountId: true } },
         _count: {
-          select: { reposts: true, comments: true }
+          select: { reposts: true }
         }
       }
     });
@@ -138,7 +136,6 @@ export class PostResolver {
           this.prisma.post.findMany({
             include: {
               postAccount: true,
-              comments: true,
               reposts: { select: { account: true, accountId: true } },
               translations: true
             },
@@ -180,7 +177,6 @@ export class PostResolver {
           const posts = await this.prisma.post.findMany({
             include: {
               postAccount: true,
-              comments: true,
               reposts: { select: { account: true, accountId: true } },
               translations: true,
               page: true
@@ -231,7 +227,6 @@ export class PostResolver {
           this.prisma.post.findMany({
             include: {
               postAccount: true,
-              comments: true,
               reposts: { select: { account: true, accountId: true } },
               translations: true,
               page: true
@@ -301,12 +296,11 @@ export class PostResolver {
       include: {
         uploads: true,
         postAccount: true,
-        comments: true,
         page: true,
         translations: true,
         reposts: { select: { account: true, accountId: true } },
         _count: {
-          select: { reposts: true, comments: true }
+          select: { reposts: true }
         }
       }
     });
@@ -362,12 +356,11 @@ export class PostResolver {
             include: {
               uploads: true,
               postAccount: true,
-              comments: true,
               page: true,
               translations: true,
               reposts: { select: { account: true, accountId: true } },
               _count: {
-                select: { reposts: true, comments: true }
+                select: { reposts: true }
               }
             },
             where: {
@@ -457,12 +450,11 @@ export class PostResolver {
       include: {
         uploads: true,
         postAccount: true,
-        comments: true,
         page: true,
         translations: true,
         reposts: { select: { account: true, accountId: true } },
         _count: {
-          select: { reposts: true, comments: true }
+          select: { reposts: true }
         }
       },
       where: {
@@ -531,12 +523,11 @@ export class PostResolver {
       include: {
         uploads: true,
         postAccount: true,
-        comments: true,
         page: true,
         translations: true,
         reposts: { select: { account: true, accountId: true } },
         _count: {
-          select: { reposts: true, comments: true }
+          select: { reposts: true }
         }
       },
       where: {
@@ -578,7 +569,7 @@ export class PostResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.post.findMany({
-          include: { postAccount: true, comments: true, translations: true, token: true },
+          include: { postAccount: true, translations: true, token: true },
           where: {
             OR: [
               {
@@ -648,7 +639,7 @@ export class PostResolver {
       result = await findManyCursorConnection(
         args =>
           this.prisma.post.findMany({
-            include: { postAccount: true, comments: true, translations: true },
+            include: { postAccount: true, translations: true },
             where: {
               AND: [
                 {
@@ -748,7 +739,7 @@ export class PostResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.post.findMany({
-          include: { postAccount: true, comments: true, postHashtags: true, translations: true },
+          include: { postAccount: true, postHashtags: true, translations: true },
           where: {
             postHashtags: {
               some: {
@@ -1135,45 +1126,12 @@ export class PostResolver {
 
   @ResolveField('totalComments', () => Number)
   async postComments(@Parent() post: Post) {
-    const totalComments = await this.prisma.comment.count({
-      where: {
-        commentToId: post.id
-      }
-    });
-
-    return totalComments;
+    return this.postLoader.batchTotalComments.load(post.id);
   }
 
   @ResolveField('page', () => Page)
   async page(@Parent() post: Post) {
-    if (post.pageId) {
-      const page = await this.prisma.post
-        .findUnique({
-          where: {
-            id: post.id
-          }
-        })
-        .page();
-
-      return page;
-    }
-    return null;
-  }
-
-  @ResolveField('token', () => Token)
-  async token(@Parent() post: Post) {
-    if (post.tokenId) {
-      const token = await this.prisma.post
-        .findUnique({
-          where: {
-            id: post.id
-          }
-        })
-        .token();
-
-      return token;
-    }
-    return null;
+    return this.postLoader.batchPages.load(post.id);
   }
 
   @ResolveField('translations', () => [PostTranslation])
@@ -1194,29 +1152,7 @@ export class PostResolver {
 
   @ResolveField('uploads', () => [UploadDetail])
   async uploads(@Parent() post: Post) {
-    const uploads = await this.prisma.post
-      .findUnique({
-        where: {
-          id: post.id
-        }
-      })
-      .uploads({
-        include: {
-          upload: {
-            select: {
-              id: true,
-              sha: true,
-              bucket: true,
-              width: true,
-              height: true,
-              cfImageId: true,
-              cfImageFilename: true
-            }
-          }
-        }
-      });
-
-    return uploads;
+    return this.postLoader.batchUploads.load(post.id);
   }
 
   @ResolveField('danaViewScore', () => Number)

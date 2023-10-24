@@ -23004,6 +23004,11 @@ prisma-cache-middleware@^0.1.4:
   dependencies:
     ioredis "^4.28.3"
 
+prisma-graphql-type-decimal@3.0.0:
+  version "3.0.0"
+  resolved "https://registry.npmjs.org/prisma-graphql-type-decimal/-/prisma-graphql-type-decimal-3.0.0.tgz#f3fa524b9e7aeab4fa0f969829bdddf199eff9fe"
+  integrity sha512-jrALv8ShVZoBBNyIOBCxwRoLM/DAOSD/OBKTWeJa9UigQXUTZniNXvLd4fLXwm+3v00A7cOZ1fFh3b74Ndgxhw==
+
 prisma-graphql-type-decimal@^2.0.6:
   version "2.0.6"
   resolved "https://registry.npmjs.org/prisma-graphql-type-decimal/-/prisma-graphql-type-decimal-2.0.6.tgz#8b9088e6639e3ddfc24d1dc41583f1a9f6cf615e"

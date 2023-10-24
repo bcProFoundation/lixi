@@ -55,6 +55,21 @@ export class CommentResolver {
 
   @Query(() => CommentConnection)
   @UseGuards(GqlJwtAuthGuardByPass)
+  async allCommentsToCommentableId(
+    @PostAccountEntity() account: Account,
+    @Args() { after, before, first, last }: PaginationArgs,
+    @Args({ name: 'id', type: () => String, nullable: true })
+    id: string,
+    @Args({
+      name: 'orderBy',
+      type: () => CommentOrder,
+      nullable: true
+    })
+    orderBy: CommentOrder
+  ) {}
+
+  @Query(() => CommentConnection)
+  @UseGuards(GqlJwtAuthGuardByPass)
   async allCommentsToPostId(
     @PostAccountEntity() account: Account,
     @Args() { after, before, first, last }: PaginationArgs,
@@ -131,7 +146,7 @@ export class CommentResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.comment.findMany({
-          include: { commentAccount: true, commentTo: true },
+          include: { commentAccount: true },
           where: queryComments,
           orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
           ...args
@@ -159,9 +174,7 @@ export class CommentResolver {
       const commentToSave = {
         commentText: commentText,
         commentAccount: { connect: { id: account.id } },
-        commentTo: {
-          connect: { id: commentToId }
-        }
+        commentToId: commentToId
       };
 
       const post = await this.prisma.post.findFirst({
@@ -215,9 +228,6 @@ export class CommentResolver {
             ...commentToSave,
             txid: txid,
             createFee: createFee
-          },
-          include: {
-            commentTo: true
           }
         });
 

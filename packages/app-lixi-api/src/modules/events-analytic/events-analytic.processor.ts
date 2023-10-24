@@ -1,4 +1,4 @@
-import { AnalyticEvent } from '@bcpros/lixi-models';
+import { AccountDana, AnalyticEvent } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
@@ -61,7 +61,7 @@ export class EventsAnalyticProcessor extends WorkerHost {
       await this.reBloom.reserve(accountPostImpressionBfKey, 0.001, 1000);
     }
     const accountDana = await this.accountDanaCacheService.getAccountDana(accountId);
-    const danaGiven = _.toNumber(accountDana.danaGiven);
+    const danaGiven = _.toNumber(accountDana?.danaGiven || 0);
     if (!danaGiven) return;
     const promises = [];
     const postIds = events.map(event => event.eventData.id);
@@ -89,7 +89,7 @@ export class EventsAnalyticProcessor extends WorkerHost {
       await this.reBloom.reserve(accountPostViewBfKey, 0.001, 1000);
     }
     const accountDana = await this.accountDanaCacheService.getAccountDana(accountId);
-    const danaGiven = _.toNumber(accountDana.danaGiven);
+    const danaGiven = _.toNumber(accountDana?.danaGiven || 0);
     if (!danaGiven) return;
     const promises = [];
     const postIds = events.map(event => event.eventData.id);

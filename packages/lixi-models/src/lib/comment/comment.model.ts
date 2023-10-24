@@ -33,6 +33,9 @@ export class Comment {
   @Field(() => Post)
   commentTo: Post;
 
+  @Field(() => String, { nullable: true })
+  commentableId?: Nullable<string>;
+
   @Field(() => String)
   commentText: string;
 
@@ -58,4 +61,8 @@ export class Comment {
     description: 'Identifies the date and time when the object was last updated.'
   })
   updatedAt: Date;
+
+  constructor(partial: Partial<Comment>) {
+    Object.assign(this, partial);
+  }
 }

@@ -62,7 +62,7 @@ export class AuthService implements OnModuleInit {
           publicKey: publicKey
         }
       });
-      await this.accountCacheService.deleteById(account.id);
+      await this.accountCacheService.removeByKey(account.id.toString());
     }
 
     const dataToSign = {
@@ -95,7 +95,8 @@ export class AuthService implements OnModuleInit {
 
       if (!account) throw new Error('Invalid account');
 
-      const verified = await new TokenVerifier('ES256K', account.publicKey).verifyAsync(token);
+      const { publicKey } = account;
+      const verified = await new TokenVerifier('ES256K', publicKey || '').verifyAsync(token);
 
       if (verified) {
         return {

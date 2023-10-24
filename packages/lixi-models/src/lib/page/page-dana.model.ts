@@ -1,5 +1,4 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
-import { IsOptional } from 'class-validator';
 
 import { Page } from './page.model';
 
@@ -31,4 +30,8 @@ export class PageDana {
 
   @Field(() => Page)
   page: Page;
+
+  constructor(partial: Partial<PageDana>) {
+    Object.assign(this, partial);
+  }
 }

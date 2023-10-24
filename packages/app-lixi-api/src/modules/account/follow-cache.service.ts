@@ -8,7 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class FollowCacheService {
   private logger: Logger = new Logger(this.constructor.name);
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
 
   private async _cacheAccountFollowers(key: string, accountId: number) {
     const followers = await this.prisma.followAccount.findMany({
@@ -31,6 +31,23 @@ export class FollowCacheService {
     }
     const followers = await this.redis.zrevrange(key, 0, -1);
     return followers.map(follower => _.toSafeInteger(follower));
+  }
+
+  async getAccountFollowersCount(accountId: number) {
+    const key = `user:${accountId}:followers`;
+    const count = await this.redis.zcard(key);
+    return count || 0;
+  }
+
+  async getAccountFollowersCounts(accountIds: number[]) {
+    // get the followers count for multiple accounts
+    const promises = [];
+    for (const accountId of accountIds) {
+      const key = `user:${accountId}:followers`;
+      promises.push(this.redis.zcard(key));
+    }
+
+    return Promise.all(promises);
   }
 
   private async _cacheAccountFollowings(key: string, accountId: number) {
@@ -58,6 +75,23 @@ export class FollowCacheService {
     }
     const followings = await this.redis.zrevrange(key, 0, -1);
     return followings.map(following => _.toSafeInteger(following));
+  }
+
+  async getAccountFollowingsCount(accountId: number) {
+    const key = `user:${accountId}:followings`;
+    const count = await this.redis.zcard(key);
+    return count || 0;
+  }
+
+  async getAccountFollowingsCounts(accountIds: number[]) {
+    // get the followings count for multiple accounts
+    const promises = [];
+    for (const accountId of accountIds) {
+      const key = `user:${accountId}:followings`;
+      promises.push(this.redis.zcard(key));
+    }
+
+    return Promise.all(promises);
   }
 
   private async _cachePageFollowers(key: string, pageId: string) {
@@ -91,6 +125,16 @@ export class FollowCacheService {
     return count || 0;
   }
 
+  async getPageFollowersCounts(pageIds: string[]) {
+    const promises = [];
+    for (const pageId of pageIds) {
+      const key = `page:${pageId}:followers`;
+      promises.push(this.redis.zcard(key));
+    }
+
+    return Promise.all(promises);
+  }
+
   private async _cachePageFollowingOfAccount(key: string, accountId: number) {
     const followings = await this.prisma.followPage.findMany({
       where: {
@@ -121,6 +165,16 @@ export class FollowCacheService {
     const key = `user:${accountId}:followingPages`;
     const count = await this.redis.zcard(key);
     return count || 0;
+  }
+
+  async getPageFollowingsCounts(accountIds: number[]) {
+    const promises = [];
+    for (const accountId of accountIds) {
+      const key = `user:${accountId}:followingPages`;
+      promises.push(this.redis.zcard(key));
+    }
+
+    return Promise.all(promises);
   }
 
   private async _cacheTokenFollowingOfAccount(key: string, accountId: number) {

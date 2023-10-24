@@ -33,4 +33,8 @@ export class HashtagDana {
   @IsOptional()
   @Field(() => Hashtag, { nullable: true })
   hashtag?: Nullable<Hashtag>;
+
+  constructor(partial: Partial<HashtagDana>) {
+    Object.assign(this, partial);
+  }
 }

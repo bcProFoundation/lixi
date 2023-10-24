@@ -1,25 +1,25 @@
 import {
-  Product,
-  PaginationArgs,
-  PageOrder,
-  ProductConnection,
   Account,
   CreateProductInput,
-  UpdateProductInput,
   DeleteProductInput,
-  ProductOrder
+  Page,
+  PaginationArgs,
+  Product,
+  ProductConnection,
+  ProductOrder,
+  UpdateProductInput
 } from '@bcpros/lixi-models';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { HttpException, HttpStatus, Injectable, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
-import { PrismaService } from '../prisma/prisma.service';
-import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { PageAccountEntity } from 'src/decorators';
+import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import VError from 'verror';
-import _ from 'lodash';
+import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
+import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@bcpros/lixi-prisma';
 
 const pubSub = new PubSub();
 
@@ -29,16 +29,11 @@ const pubSub = new PubSub();
 export class ProductResolver {
   constructor(private logger: Logger, private prisma: PrismaService, @I18n() private i18n: I18nService) {}
 
-  @Subscription(() => Product)
-  productCreated() {
-    return pubSub.asyncIterator('productCreated');
-  }
-
   @Query(() => Product)
   async product(@Args('id', { type: () => String }) id: string) {
     const result = await this.prisma.product.findUnique({
       where: { id: id },
-      include: { page: true, productImages: true }
+      include: { page: true }
     });
     return result;
   }
@@ -73,30 +68,6 @@ export class ProductResolver {
     return result;
   }
 
-  @ResolveField()
-  async productImages(@Parent() product: Product) {
-    const productImages = this.prisma.uploadDetail.findMany({
-      where: {
-        productId: product.id
-      },
-      include: {
-        upload: {
-          select: {
-            id: true,
-            sha: true,
-            bucket: true,
-            width: true,
-            height: true,
-            sha800: true,
-            sha320: true,
-            sha40: true
-          }
-        }
-      }
-    });
-    return productImages;
-  }
-
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Product)
   async createProduct(@PageAccountEntity() account: Account, @Args('data') data: CreateProductInput) {
@@ -105,94 +76,43 @@ export class ProductResolver {
       const error = new VError.WError(couldNotFindAccount);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    let uploadDetailIds: any[] = [];
-    const promises = data.uploadImages.map(async (id: string) => {
-      const uploadDetails = await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: id
-        }
-      });
 
-      return uploadDetails && uploadDetails.id;
-    });
-    uploadDetailIds = await Promise.all(promises);
-    const productToSave = {
-      data: {
-        name: data.name,
-        title: data.title,
-        price: data.price,
-        priceUnit: data.priceUnit,
-        phoneNumber: data.phoneNumber,
-        description: data.description,
-        page: { connect: { id: data.pageId } },
-        category: {
-          connect: {
-            id: Number(data.categoryId)
-          }
-        },
-        productImages: {
-          connect:
-            uploadDetailIds.length > 0
-              ? uploadDetailIds.map((uploadDetail: any) => {
-                  return {
-                    id: uploadDetail
-                  };
-                })
-              : undefined
+    const productToSave: Prisma.ProductCreateInput = {
+      title: data.title,
+      price: data.price,
+      priceUnit: data.priceUnit,
+      phoneNumber: data.phoneNumber,
+      description: data.description,
+      page: { connect: { id: data.pageId } },
+      category: {
+        connect: {
+          id: Number(data.categoryId)
         }
+      },
+      imageUploadable: {
+        create: {}
       }
     };
-    const createdProduct = await this.prisma.product.create({
-      ...productToSave,
-      include: { page: true }
+    const createdProduct = await this.prisma.$transaction(async prisma => {
+      const product = await prisma.product.create({
+        data: {
+          ...productToSave
+        }
+      });
+      await prisma.upload.updateMany({
+        where: {
+          id: {
+            in: data.uploadImages
+          }
+        },
+        data: {
+          imageUploadableId: product.imageUploadableId
+        }
+      });
+      return product;
     });
 
     return createdProduct;
-  }
-
-  @UseGuards(GqlJwtAuthGuard)
-  @Mutation(() => Product)
-  async updateProduct(@PageAccountEntity() account: Account, @Args('data') data: UpdateProductInput) {
-    if (!account) {
-      const couldNotFindAccount = await this.i18n.t('page.messages.couldNotFindAccount');
-      throw new VError.WError(couldNotFindAccount);
-    }
-    const uploadDetailIds = data.uploadImages || [];
-    const productToUpdate = {
-      data: {
-        name: data.name,
-        title: data.title,
-        price: data.price,
-        priceUnit: data.priceUnit,
-        phoneNumber: data.phoneNumber,
-        description: data.description,
-        page: { connect: { id: data.pageId } },
-        category: {
-          connect: {
-            id: data.categoryId
-          }
-        },
-        productImages: {
-          connect:
-            uploadDetailIds.length > 0
-              ? uploadDetailIds.map((uploadDetail: any) => {
-                  return {
-                    id: uploadDetail
-                  };
-                })
-              : undefined
-        }
-      }
-    };
-    const updatedProduct = await this.prisma.product.update({
-      where: {
-        id: data.id
-      },
-      ...productToUpdate,
-      include: { page: true }
-    });
-
-    return updatedProduct;
   }
 
   @UseGuards(GqlJwtAuthGuard)
@@ -255,11 +175,6 @@ export class ProductResolver {
     orderBy: ProductOrder
   ) {
     let result;
-    // const page = await this.prisma.page.findUnique({
-    //   where: {
-    //     id: id
-    //   }
-    // });
     result = await findManyCursorConnection(
       args =>
         this.prisma.product.findMany({
@@ -268,9 +183,6 @@ export class ProductResolver {
             OR: [
               {
                 AND: [{ pageId: id }]
-              },
-              {
-                AND: [{ pageId: id }, { lotusBurnScore: { gte: minBurnFilter ?? 0 } }]
               }
             ]
           },
@@ -283,9 +195,6 @@ export class ProductResolver {
             OR: [
               {
                 AND: [{ pageId: id }]
-              },
-              {
-                AND: [{ pageId: id }, { lotusBurnScore: { gte: minBurnFilter ?? 0 } }]
               }
             ]
           }
@@ -296,7 +205,7 @@ export class ProductResolver {
     return result;
   }
 
-  @ResolveField()
+  @ResolveField('page', () => Page)
   async page(@Parent() product: Product) {
     const page = this.prisma.page.findFirst({
       where: {
@@ -305,64 +214,4 @@ export class ProductResolver {
     });
     return page;
   }
-
-  // @UseGuards(GqlJwtAuthGuard)
-  // @Mutation(() => Page)
-  // async updatePage(@PageAccountEntity() account: Account, @Args('data') data: UpdatePageInput) {
-  //   if (!account) {
-  //     const couldNotFindAccount = await this.i18n.t('page.messages.couldNotFindAccount');
-  //     throw new VError.WError(couldNotFindAccount);
-  //   }
-
-  //   const uploadAvatarDetail = data.avatar
-  //     ? await this.prisma.uploadDetail.findFirst({
-  //         where: {
-  //           uploadId: data.avatar
-  //         }
-  //       })
-  //     : undefined;
-
-  //   const uploadCoverDetail = data.cover
-  //     ? await this.prisma.uploadDetail.findFirst({
-  //         where: {
-  //           uploadId: data.cover
-  //         }
-  //       })
-  //     : undefined;
-
-  //   const updatedPage = await this.prisma.page.update({
-  //     where: {
-  //       id: data.id
-  //     },
-  //     data: {
-  //       ..._.omit(data, ['categoryId', 'countryId', 'stateId', 'parentId', 'avatar', 'cover']),
-  //       avatar: { connect: uploadAvatarDetail ? { id: uploadAvatarDetail.id } : undefined },
-  //       cover: { connect: uploadCoverDetail ? { id: uploadCoverDetail.id } : undefined },
-  //       category: {
-  //         connect: data.categoryId
-  //           ? {
-  //               id: Number(data.categoryId)
-  //             }
-  //           : undefined
-  //       },
-  //       country: {
-  //         connect: data.countryId
-  //           ? {
-  //               id: Number(data.countryId)
-  //             }
-  //           : undefined
-  //       },
-  //       state: {
-  //         connect: data.stateId
-  //           ? {
-  //               id: Number(data.stateId)
-  //             }
-  //           : undefined
-  //       }
-  //     }
-  //   });
-
-  //   pubSub.publish('pageUpdated', { pageUpdated: updatedPage });
-  //   return updatedPage;
-  // }
 }

@@ -15,7 +15,7 @@ export const UPLOAD_BUTTON_TYPE = {
   TEXT: 'text',
   DEFAULT: 'default',
   GHOST: 'ghost',
-  DASHED: 'dashed',
+  DASHED: 'dashed'
 };
 
 export const UPLOAD_API_S3 = '/api/uploads/s3';

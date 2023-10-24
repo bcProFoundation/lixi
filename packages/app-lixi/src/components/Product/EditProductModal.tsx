@@ -1,26 +1,14 @@
-import { Button, Col, Form, Input, Modal, Row, Select } from 'antd';
-import isEmpty from 'lodash.isempty';
-import React, { useEffect, useState } from 'react';
-import intl from 'react-intl-universal';
-import { getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { getAllCountries, getAllStates } from '@store/country/selectors';
-import { setPage } from '@store/page/action';
-import { showToast } from '@store/toast/actions';
-import { getCountries, getStates } from '@store/country/actions';
-import _ from 'lodash';
-import Image from 'next/image';
-import { UpdatePageInput, Page, UpdateProductInput } from '@generated/types.generated';
-import { api as pageApi, useUpdatePageMutation } from '@store/page/pages.generated';
-import styled from 'styled-components';
-import { closeModal } from '@store/modal/actions';
-import { CreateForm } from '@components/Lixi/CreateLixiFormModal';
-import { getAllCategories } from '@store/category/selectors';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { fromSmallestDenomination } from '@utils/cashMethods';
-import { currency } from '@components/Common/Ticker';
 import { Product } from '@bcpros/lixi-models';
-import { useUpdateProductMutation } from '../../../../redux-store/src/store/product/products.generated';
+import { CreateForm } from '@components/Lixi/CreateLixiFormModal';
+import { getSelectedAccount } from '@store/account/selectors';
+import { getAllCategories } from '@store/category/selectors';
+import { getCountries } from '@store/country/actions';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { closeModal } from '@store/modal/actions';
+import { Button, Form, Input, Modal, Select } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import intl from 'react-intl-universal';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -32,16 +20,6 @@ type EditProductModalProps = {
 export const EditProductModal: React.FC<EditProductModalProps> = ({ product, disabled }: EditProductModalProps) => {
   const dispatch = useAppDispatch();
   const selectedAccount = useAppSelector(getSelectedAccount);
-
-  const [
-    updateProductTrigger,
-    {
-      isLoading: isLoadingUpdateProduct,
-      isSuccess: isSuccessUpdateProduct,
-      isError: isErrorUpdateProduct,
-      error: errorOnUpdate
-    }
-  ] = useUpdateProductMutation();
 
   useEffect(() => {
     dispatch(getCountries());
@@ -72,35 +50,9 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ product, dis
 
   const onSubmit: SubmitHandler<any> = async data => {
     try {
-      const updateProductInput = {
-        ...data,
-        categoryId: Number(data.categoryId),
-        uploadImages: product.productImages.map(img => img.id),
-        pageId: product.page.id,
-        id: product.id
-      };
-      console.log(product);
-      console.log('product updated', updateProductInput);
-      const productUpdated = await updateProductTrigger({ input: updateProductInput }).unwrap();
-      dispatch(
-        showToast('success', {
-          message: 'Success',
-          description: intl.get('page.updatePageSuccessful'),
-          duration: 5
-        })
-      );
-      //   dispatch(setPage({ ...pageUpdated.updatePage }));
+
       dispatch(closeModal());
     } catch (error) {
-      const message = errorOnUpdate?.message ?? intl.get('page.unableUpdatePage');
-
-      dispatch(
-        showToast('error', {
-          message: 'Error',
-          description: message,
-          duration: 5
-        })
-      );
     }
   };
 
@@ -192,7 +144,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ product, dis
                     style={{ width: '99%', textAlign: 'start' }}
                     defaultValue={intl.get(
                       'category.' +
-                        categories.find(category => category.id === Number(product.categoryId.toString())).name
+                      categories.find(category => category.id === Number(product.categoryId.toString())).name
                     )}
                     disabled={isSubmitting}
                   >

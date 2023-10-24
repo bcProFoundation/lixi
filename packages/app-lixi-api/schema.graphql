@@ -45,13 +45,19 @@ type AccountConnection {
 }
 
 type AccountDana {
+  account: Account!
   accountDanaHistory: [AccountDanaHistory!]
+  accountId: Int!
   danaBurnDown: Float!
   danaBurnScore: Float!
   danaBurnUp: Float!
   danaGiven: Float
   danaReceived: Float
+  danaReceivedDown: Float!
+  danaReceivedScore: Float!
+  danaReceivedUp: Float!
   id: ID!
+  version: Int!
 }
 
 type AccountDanaHistory {
@@ -79,44 +85,19 @@ enum AccountOrderField {
 
 type Bookmark {
   account: Account!
-  bookmarkId: String!
+  bookmarkableId: String!
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime
   id: ID!
-  type: BookmarkType
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
 }
 
-type BookmarkConnection {
-  edges: [BookmarkEdge!]
-  pageInfo: PageInfo!
-  totalCount: Int
-}
-
 type BookmarkEdge {
   cursor: String!
   node: Bookmark!
-}
-
-input BookmarkOrder {
-  direction: OrderDirection!
-  field: BookmarkOrderField!
-}
-
-"""Properties by which message connections can be ordered."""
-enum BookmarkOrderField {
-  createdAt
-  id
-  updatedAt
-}
-
-"""The type of bookmark."""
-enum BookmarkType {
-  COMMENT
-  POST
 }
 
 type Category {
@@ -148,6 +129,7 @@ type Comment {
   commentText: String!
   commentTo: Post!
   commentToId: String!
+  commentableId: String
   content: String!
 
   """Identifies the date and time when the object was created."""
@@ -168,11 +150,12 @@ type CommentConnection {
 }
 
 type CommentDana {
-  comment: Comment
-  commentId: String
+  comment: Comment!
+  commentId: String!
   danaBurnDown: Float!
   danaBurnScore: Float!
   danaBurnUp: Float!
+  version: Int!
 }
 
 type CommentEdge {
@@ -209,8 +192,8 @@ input CreateAccountInput {
 }
 
 input CreateBookmarkInput {
-  bookmarkId: String!
-  bookmarkType: BookmarkType!
+  accountId: Int!
+  bookmarkableId: String!
 }
 
 input CreateCommentInput {
@@ -347,6 +330,11 @@ input DeleteFollowTokenInput {
   tokenId: String!
 }
 
+input DeleteProductInput {
+  id: ID!
+  uploadImages: [String!]
+}
+
 type DistributionModel {
   address: String!
   distributionType: String!
@@ -366,6 +354,49 @@ type EnvelopeModel {
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
+}
+
+type Event {
+  account: Account!
+  accountId: Int!
+  comments: [Comment!]
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  danaViewScore: Float
+  description: String!
+  endDate: DateTime!
+  eventDana: EventDana!
+  eventType: EventType!
+  id: ID!
+  images: [Upload!]
+  location: String
+  name: String!
+  page: Page
+  pageId: String
+  startDate: DateTime!
+  totalComments: Int
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+}
+
+type EventDana {
+  danaBurnDown: Float!
+  danaBurnScore: Float!
+  danaBurnUp: Float!
+  danaReceivedDown: Float!
+  danaReceivedScore: Float!
+  danaReceivedUp: Float!
+  event: Event!
+  eventId: String!
+  version: Int!
+}
+
+"""The type of event."""
+enum EventType {
+  PHYSICAL
+  VIRTUAL
 }
 
 input ExtraArguments {
@@ -453,8 +484,12 @@ type HashtagDana {
   danaBurnDown: Float!
   danaBurnScore: Float!
   danaBurnUp: Float!
+  danaReceivedDown: Float!
+  danaReceivedScore: Float!
+  danaReceivedUp: Float!
   hashtag: Hashtag
   hashtagId: String
+  version: Int!
 }
 
 type HashtagEdge {
@@ -613,6 +648,7 @@ type Mutation {
   createPage(data: CreatePageInput!): Page!
   createPageMessageSession(data: CreatePageMessageInput!): PageMessageSession!
   createPost(data: CreatePostInput!): Post!
+  createProduct(data: CreateProductInput!): Product!
   createTemple(data: CreateTempleInput!): Temple!
   createToken(data: CreateTokenInput!): Token!
   createWorship(data: CreateWorshipInput!): Worship!
@@ -621,6 +657,7 @@ type Mutation {
   deleteFollowAccount(data: DeleteFollowAccountInput!): Boolean!
   deleteFollowPage(data: DeleteFollowPageInput!): Boolean!
   deleteFollowToken(data: DeleteFollowTokenInput!): Boolean!
+  deleteProduct(data: DeleteProductInput!): Product!
   importAccount(data: ImportAccountInput!): Account!
   openPageMessageSession(data: OpenPageMessageSessionInput!): PageMessageSession!
   removeBookmark(data: RemoveBookmarkInput!): Bookmark!
@@ -646,11 +683,13 @@ type Page {
   accessMessageFee: Float
   address: String
   avatar: String
+  avatarImageUplodableId: String
   category: Category
   categoryId: Int
   countryId: Int
   countryName: String
   cover: String
+  coverImageUplodableId: String
   createCommentFee: String!
   createPostFee: String!
 
@@ -698,8 +737,12 @@ type PageDana {
   danaBurnDown: Float!
   danaBurnScore: Float!
   danaBurnUp: Float!
-  page: Page
-  pageId: String
+  danaReceivedDown: Float!
+  danaReceivedScore: Float!
+  danaReceivedUp: Float!
+  page: Page!
+  pageId: String!
+  version: Int!
 }
 
 type PageEdge {
@@ -784,8 +827,54 @@ enum PageOrderField {
   updatedAt
 }
 
+type Poll {
+  account: Account!
+  accountId: Int!
+  comments: [Comment!]
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  danaViewScore: Float
+  endDate: DateTime!
+  id: ID!
+  images: [Upload!]
+  options: [PollOption!]!
+  page: Page
+  pageId: String
+  pollDana: PollDana!
+  question: String!
+  startDate: DateTime!
+  totalComments: Int
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+}
+
+type PollDana {
+  danaBurnDown: Float!
+  danaBurnScore: Float!
+  danaBurnUp: Float!
+  danaReceivedDown: Float!
+  danaReceivedScore: Float!
+  danaReceivedUp: Float!
+  poll: Poll!
+  pollId: String!
+  version: Int!
+}
+
+type PollOption {
+  danaPoint: Float!
+  id: ID!
+  option: String!
+  pollId: Int!
+}
+
 type Post {
+  avatarImageUplodableId: String
+  bookmarkableId: String
+  commentableId: String
   content: String!
+  coverImageUplodableId: String
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
@@ -797,6 +886,7 @@ type Post {
   followedPage: Boolean
   followedToken: Boolean
   id: ID!
+  imageUploadableId: String
   originalLanguage: String
   page: Page
   pageId: String
@@ -806,6 +896,7 @@ type Post {
   postHashtags: [PostHashtag!]
   repostCount: Int
   reposts: [Repost!]
+  taggableId: String
   token: Token
   tokenId: String
   totalComments: Int!
@@ -826,8 +917,12 @@ type PostDana {
   danaBurnDown: Float!
   danaBurnScore: Float!
   danaBurnUp: Float!
-  post: Post
-  postId: String
+  danaReceivedDown: Float!
+  danaReceivedScore: Float!
+  danaReceivedUp: Float!
+  post: Post!
+  postId: String!
+  version: Int!
 }
 
 type PostEdge {
@@ -883,15 +978,12 @@ type Product {
   createdAt: DateTime!
   description: String!
   id: ID!
-  lotusBurnDown: Float!
-  lotusBurnScore: Float!
-  lotusBurnUp: Float!
+  imageUploadableId: String!
   name: String!
   page: Page!
   phoneNumber: String!
   price: Int!
   priceUnit: String!
-  productImages: [UploadDetail!]
   state: State
   title: String!
 
@@ -927,8 +1019,8 @@ enum ProductOrderField {
 
 type Query {
   account(id: Int!): Account!
-  allBookmarkByAccountId(accountId: Int!, after: String, before: String, bookmarkType: BookmarkType!, first: Int, last: Int, minBurnFilter: Int, orderBy: BookmarkOrder, skip: Int): BookmarkConnection!
   allClosedPageMessageSession(accountId: Int, after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, pageId: String, skip: Int): PageMessageSessionConnection!
+  allCommentsToCommentableId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: CommentOrder, skip: Int): CommentConnection!
   allCommentsToPostId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: CommentOrder, skip: Int): CommentConnection!
   allFollowersByFollowing(after: String, before: String, first: Int, followingAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
   allFollowingsByFollower(after: String, before: String, first: Int, followerAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
@@ -1014,6 +1106,8 @@ type Query {
   ): PostConnection!
   allPostsByTokenId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
   allPostsByUserId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
+  allProducts(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: ProductOrder, query: String, skip: Int): ProductConnection!
+  allProductsByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: ProductOrder, skip: Int): ProductConnection!
   allTemple(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: TempleOrder, skip: Int): TempleConnection!
   allTempleBySearch(
     """Paginate after opaque cursor"""
@@ -1054,7 +1148,6 @@ type Query {
   checkIfFollowAccount(followingAccountId: Int!): Boolean!
   checkIfFollowPage(pageId: String): Boolean!
   checkIfFollowToken(tokenId: String): Boolean!
-  checkIfHasBookmarked(bookmarkId: String!, bookmarkType: BookmarkType!): Boolean!
   comment(id: String!): Comment!
   getAccountByAddress(address: String!): Account!
   hashtag(content: String!): Hashtag!
@@ -1073,6 +1166,7 @@ type Query {
 }
 
 input RemoveBookmarkInput {
+  accountId: Int!
   bookmarkId: String!
 }
 
@@ -1104,7 +1198,6 @@ type State {
 }
 
 type Subscription {
-  accountCreated: Account!
   bookmarkCreated: Bookmark!
   commentCreated: Comment!
   followAccountCreated: FollowAccount!
@@ -1220,8 +1313,12 @@ type TokenDana {
   danaBurnDown: Float!
   danaBurnScore: Float!
   danaBurnUp: Float!
-  token: Token
-  tokenId: String
+  danaReceivedDown: Float!
+  danaReceivedScore: Float!
+  danaReceivedUp: Float!
+  token: Token!
+  tokenId: String!
+  version: Int!
 }
 
 type TokenEdge {
@@ -1280,19 +1377,6 @@ input UpdatePostInput {
   htmlContent: String!
   id: ID!
   pureContent: String!
-}
-
-input UpdateProductInput {
-  categoryId: Int
-  description: String
-  id: ID!
-  name: String
-  pageId: String
-  phoneNumber: String
-  price: Int!
-  priceUnit: String!
-  title: String
-  uploadImages: [String!]
 }
 
 type Upload {

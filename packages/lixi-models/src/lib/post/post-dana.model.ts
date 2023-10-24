@@ -30,4 +30,8 @@ export class PostDana {
 
   @Field(() => Post)
   post: Post;
+
+  constructor(partial: Partial<PostDana>) {
+    Object.assign(this, partial);
+  }
 }

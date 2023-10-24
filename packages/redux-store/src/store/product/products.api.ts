@@ -35,7 +35,6 @@ const enhancedApi = api.enhanceEndpoints({
       }
     },
     createProduct: {},
-    updateProduct: {}
   }
 });
 

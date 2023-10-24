@@ -217,7 +217,7 @@ export class AccountController {
         const createdAccount: AccountDb = await this.prisma.account.create({
           data: accountToInsert
         });
-        await this.accountCacheService.deleteById(createdAccount.id);
+        await this.accountCacheService.removeByKey(createdAccount.id.toString());
         const balance: number = await this.xpiWallet.getBalance(createdAccount.address);
 
         const resultApi = _.omit(
@@ -296,7 +296,7 @@ export class AccountController {
             }
           }
         });
-        await this.accountCacheService.deleteById(createdAccount.id);
+        await this.accountCacheService.removeByKey(createdAccount.id.toString());
 
         const resultApi: AccountDto = _.omit(
           {
@@ -337,7 +337,8 @@ export class AccountController {
         }
 
         // Validate the mnemonic
-        const mnemonicToValidate = await aesGcmDecrypt(account.encryptedMnemonic, command.mnemonic);
+        const { encryptedMnemonic } = account;
+        const mnemonicToValidate = await aesGcmDecrypt(encryptedMnemonic || '', command.mnemonic);
         if (command.mnemonic !== mnemonicToValidate) {
           const invalidAccountMessage = await i18n.t('account.messages.invalidAccount');
           throw new VError(invalidAccountMessage);
@@ -354,7 +355,7 @@ export class AccountController {
             secondaryLanguage: command.secondaryLanguage
           }
         });
-        await this.accountCacheService.deleteById(updatedAccount.id);
+        await this.accountCacheService.removeByKey(updatedAccount.id.toString());
 
         const resultApi: AccountDto = _.omit(
           {
@@ -424,10 +425,10 @@ export class AccountController {
           this.prisma.lixi.deleteMany({ where: { accountId: accountId } }),
           this.prisma.account.deleteMany({ where: { id: accountId } })
         ]);
-        this.accountCacheService.deleteById(accountId);
+        this.accountCacheService.removeByKey(accountId.toString());
       } else {
         this.prisma.account.deleteMany({ where: { id: accountId } });
-        this.accountCacheService.deleteById(accountId);
+        this.accountCacheService.removeByKey(accountId.toString());
       }
 
       return null as any;

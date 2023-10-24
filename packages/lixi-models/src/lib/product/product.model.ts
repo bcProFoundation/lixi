@@ -1,10 +1,8 @@
-import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
-
-import { Page } from '../page';
-// import { UploadDetail } from '../upload';
-import { Country, State } from '../geo-location';
-import { UploadDetail } from '../upload';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { GraphQLDateTime } from 'graphql-scalars';
+
+import { Country, State } from '../geo-location';
+import { Page } from '../page';
 
 @ObjectType()
 export class Product {
@@ -44,26 +42,20 @@ export class Product {
   @Field(() => State, { nullable: true })
   state?: State;
 
-  @Field(() => Float)
-  lotusBurnUp: number;
-
-  @Field(() => Float)
-  lotusBurnDown: number;
-
-  @Field(() => Float)
-  lotusBurnScore: number;
-
   @Field(() => GraphQLDateTime, {
-    description: 'Identifies the date and time when the object was created.',
+    description: 'Identifies the date and time when the object was created.'
   })
   createdAt: Date;
 
   @Field(() => GraphQLDateTime, {
-    description:
-      'Identifies the date and time when the object was last updated.',
+    description: 'Identifies the date and time when the object was last updated.'
   })
   updatedAt: Date;
 
-  @Field(() => [UploadDetail], { nullable: true })
-  productImages: [UploadDetail];
+  @Field(() => String)
+  imageUploadableId: string;
+
+  constructor(partial: Partial<Product>) {
+    Object.assign(this, partial);
+  }
 }

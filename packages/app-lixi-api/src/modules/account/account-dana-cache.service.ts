@@ -3,6 +3,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
 import { PrismaService } from '../prisma/prisma.service';
+import { decode, encode } from '@msgpack/msgpack';
+import { AccountDana } from '@bcpros/lixi-models';
 
 @Injectable()
 export class AccountDanaCacheService {
@@ -12,82 +14,80 @@ export class AccountDanaCacheService {
   constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
 
   async getAccountDana(id: number) {
-    const keyFields = [
-      `danaGiven:${id}`,
-      `danaReceived:${id}`,
-      `danaBurnUp:${id}`,
-      `danaBurnDown:${id}`,
-      `danaBurnScore:${id}`
-    ];
-    const accountDana = await this.redis.hmget(this.keyPrefix, ...keyFields);
-    if (
-      _.isNil(accountDana[0]) ||
-      _.isNil(accountDana[1]) ||
-      _.isNil(accountDana[2]) ||
-      _.isNil(accountDana[3]) ||
-      _.isNil(accountDana[4])
-    ) {
+    const buffer = await this.redis.hgetBuffer(this.keyPrefix, id.toString());
+
+    if (!buffer) {
       // No value set yet
       const dbValue = await this.prisma.accountDana.findUnique({
         where: {
           accountId: id
         }
       });
-      const fieldValues = new Map([
-        [`danaGiven:${id}`, dbValue?.danaGiven ?? 0],
-        [`danaReceived:${id}`, dbValue?.danaReceived ?? 0],
-        [`danaBurnUp:${id}`, dbValue?.danaBurnUp ?? 0],
-        [`danaBurnDown:${id}`, dbValue?.danaBurnDown ?? 0],
-        [`danaBurnScore:${id}`, dbValue?.danaBurnScore ?? 0]
-      ]);
-      await this.redis.hmset(this.keyPrefix, fieldValues);
+      if (!dbValue) return null;
 
-      return {
-        danaGiven: dbValue?.danaGiven ?? 0,
-        danaReceived: dbValue?.danaReceived ?? 0
-      };
+      const accountDana: AccountDana = new AccountDana({
+        ...dbValue
+      });
+
+      const buffer = Buffer.from(encode(accountDana));
+      await this.redis.hset(this.keyPrefix, id.toString(), buffer);
+
+      return accountDana;
     }
-    return {
-      danaGiven: accountDana[0] ?? 0,
-      danaReceived: accountDana[1] ?? 0
-    };
+    return decode(buffer) as AccountDana;
   }
 
-  async incrDana(id: number, value: number) {
-    const danaBurnUpField = `danaBurnUp:${id}`;
-    const danaBurnScoreField = `danaBurnScore:${id}`;
-    await Promise.all([
-      this.redis.hincrbyfloat(this.keyPrefix, danaBurnUpField, value),
-      this.redis.hincrbyfloat(this.keyPrefix, danaBurnScoreField, value)
-    ]);
+  async setAccountDana(id: number, accountDana: AccountDana) {
+    const buffer = Buffer.from(encode(accountDana));
+    await this.redis.hset(this.keyPrefix, id.toString(), buffer);
   }
 
-  async decrDana(id: number, value: number) {
-    const danaBurnDownField = `danaBurnDown:${id}`;
-    const danaBurnScoreField = `danaBurnScore:${id}`;
-    await Promise.all([
-      this.redis.hincrbyfloat(this.keyPrefix, danaBurnDownField, value),
-      this.redis.hincrbyfloat(this.keyPrefix, danaBurnScoreField, value * -1)
-    ]);
-  }
+  async getAccountDanas(ids: number[]) {
+    const uncachedAccountIds = [];
+    const keys = ids.map(id => id.toString());
+    const values = await this.redis.hmgetBuffer(this.keyPrefix, ...keys);
+    for (let i = 0; i < ids.length; i++) {
+      if (!values[i]) {
+        uncachedAccountIds.push(ids[i]);
+      }
+    }
 
-  async incrDanaGivenBy(id: number, value: number) {
-    const keyField = `danaGiven:${id}`;
-    await this.redis.hincrbyfloat(this.keyPrefix, keyField, value);
-  }
+    const accountDanasMap = new Map(
+      _.compact(values).map(value => {
+        const accountDana = decode(value) as AccountDana;
+        return [accountDana.accountId.toString(), accountDana];
+      })
+    );
 
-  async incrDanaReceivedBy(id: number, value: number) {
-    const keyField = `danaReceived:${id}`;
-    await this.redis.hincrbyfloat(this.keyPrefix, keyField, value);
-  }
+    const dbValues =
+      uncachedAccountIds.length > 0
+        ? await this.prisma.accountDana.findMany({
+            where: {
+              accountId: {
+                in: uncachedAccountIds
+              }
+            }
+          })
+        : [];
 
-  async setDanaGiven(id: number, value: number) {
-    const keyField = `danaGiven:${id}`;
-    await this.redis.hset(this.keyPrefix, keyField, value);
-  }
+    const dbValuesMap = new Map(
+      dbValues.map(dbValue => {
+        const accountDana = new AccountDana({
+          ...dbValue
+        });
+        accountDanasMap.set(dbValue.accountId.toString(), accountDana);
+        const buffer = Buffer.from(encode(accountDana));
+        return [dbValue.accountId.toString(), buffer];
+      })
+    );
 
-  async setDanaReceived(id: number, value: number) {
-    const keyField = `danaReceived:${id}`;
-    await this.redis.hset(this.keyPrefix, keyField, value);
+    // Set values to cache
+    await this.redis.hmset(this.keyPrefix, dbValuesMap);
+
+    // Build and return the result
+    return ids.map(id => {
+      const accountDana = accountDanasMap.get(id.toString());
+      return accountDana ? accountDana : null;
+    });
   }
 }

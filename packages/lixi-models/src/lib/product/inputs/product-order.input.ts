@@ -8,12 +8,12 @@ export enum ProductOrderField {
   updatedAt = 'updatedAt',
   name = 'name',
   title = 'title',
-  lotusBurnScore = 'lotusBurnScore',
+  lotusBurnScore = 'lotusBurnScore'
 }
 
 registerEnumType(ProductOrderField, {
   name: 'ProductOrderField',
-  description: 'Properties by which page connections can be ordered.',
+  description: 'Properties by which page connections can be ordered.'
 });
 
 @InputType()

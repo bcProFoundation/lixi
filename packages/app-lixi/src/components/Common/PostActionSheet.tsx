@@ -26,13 +26,10 @@ import {
   useDeleteFollowTokenMutation
 } from '@store/follow/follows.api';
 import {
-  useCheckIfHasBookmarkedQuery,
   useCreateBookmarkMutation,
   useRemoveBookmarkMutation
 } from '@store/bookmark/bookmark.api';
 import {
-  BookmarkType,
-  CreateBookmarkInput,
   CreateFollowAccountInput,
   DeleteFollowAccountInput,
   RemoveBookmarkInput
@@ -266,10 +263,6 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
   const [createBookmarkTrigger] = useCreateBookmarkMutation();
   const [removeBookmarkTrigger] = useRemoveBookmarkMutation();
 
-  const { data: bookmarkData } = useCheckIfHasBookmarkedQuery(
-    { bookmarkId: post?.id, bookmarkType: BookmarkType.Post },
-    { skip: !post?.id }
-  );
 
   const { data: pageMessageSessionData, refetch: pageMessageSessionRefetch } = useUserHadMessageToPageQuery(
     {
@@ -296,23 +289,6 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
     };
     dispatch(openModal('EditPostModalPopup', editPostProps));
     dispatch(closeActionSheet());
-  };
-
-  const bookmarkPost = async () => {
-    const createBookmarkPostInput: CreateBookmarkInput = {
-      bookmarkId: post.id,
-      bookmarkType: BookmarkType.Post
-    };
-
-    await createBookmarkTrigger({ input: createBookmarkPostInput });
-  };
-
-  const removeBookmarkPost = async () => {
-    const removeBookmarkPostInput: RemoveBookmarkInput = {
-      bookmarkId: post?.id
-    };
-
-    await removeBookmarkTrigger({ input: removeBookmarkPostInput });
   };
 
   const handleFollowPage = async () => {
@@ -409,33 +385,19 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
           </div>
           <div className="bar-close" onClick={onClose}></div>
           {isEditPost && <ItemActionSheetBottom text="Edit post" icon="/images/ico-edit.svg" onClickItem={editPost} />}
-          {!bookmarkData?.checkIfHasBookmarked ? (
-            <ItemActionSheetBottom
-              text={`Bookmark post`}
-              icon="/images/ico-create-post.svg"
-              onClickItem={bookmarkPost}
-            />
-          ) : (
-            <ItemActionSheetBottom
-              text={`Remove bookmark post`}
-              icon="/images/ico-create-post.svg"
-              onClickItem={removeBookmarkPost}
-            />
-          )}
           {/* <ItemActionSheetBottom type="danger" text="Remove" /> */}
           {post.page && isSuccessPageQuery && (
             <>
               <ItemActionSheetBottom
-                text={`${
-                  post.page.createPostFee == 0
-                    ? intl.get('page.createFreePostOn', {
-                        pageName: currentDataPageQuery?.page?.name
-                      })
-                    : intl.get('page.createPostOnPage', {
-                        pageName: currentDataPageQuery?.page?.name,
-                        fee: parseInt(post.page.createPostFee)
-                      })
-                }`}
+                text={`${post.page.createPostFee == 0
+                  ? intl.get('page.createFreePostOn', {
+                    pageName: currentDataPageQuery?.page?.name
+                  })
+                  : intl.get('page.createPostOnPage', {
+                    pageName: currentDataPageQuery?.page?.name,
+                    fee: parseInt(post.page.createPostFee)
+                  })
+                  }`}
                 icon="/images/ico-create-post.svg"
                 onClickItem={openCreatePostPage}
               />

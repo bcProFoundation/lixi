@@ -2,116 +2,91 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
+import { decode, encode } from '@msgpack/msgpack';
 import { PrismaService } from '../prisma/prisma.service';
+import { TokenDana } from '@bcpros/lixi-models';
 
 @Injectable()
 export class TokenDanaCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:tokendana';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
 
   async getTokenDana(id: string) {
-    const keyFields = [
-      `danaReceivedUp:${id}`,
-      `danaReceivedDown:${id}`,
-      `danaReceivedScore:${id}`,
-      `danaBurnUp:${id}`,
-      `danaBurnDown:${id}`,
-      `danaBurnScore:${id}`
-    ];
-    const tokenDana = await this.redis.hmget(this.keyPrefix, ...keyFields);
-    if (
-      _.isNil(tokenDana[0]) ||
-      _.isNil(tokenDana[1]) ||
-      _.isNil(tokenDana[2]) ||
-      _.isNil(tokenDana[3]) ||
-      _.isNil(tokenDana[4]) ||
-      _.isNil(tokenDana[5])
-    ) {
+    const buffer = await this.redis.hgetBuffer(this.keyPrefix, id.toString());
+
+    if (!buffer) {
       // No value set yet
       const dbValue = await this.prisma.tokenDana.findUnique({
         where: {
           tokenId: id
         }
       });
-      const fieldValues = new Map([
-        [`danaReceivedUp:${id}`, dbValue?.danaReceivedUp ?? 0],
-        [`danaReceivedDown:${id}`, dbValue?.danaReceivedDown ?? 0],
-        [`danaReceivedScore:${id}`, dbValue?.danaReceivedScore ?? 0],
-        [`danaBurnUp:${id}`, dbValue?.danaBurnUp ?? 0],
-        [`danaBurnDown:${id}`, dbValue?.danaBurnDown ?? 0],
-        [`danaBurnScore:${id}`, dbValue?.danaBurnScore ?? 0]
-      ]);
-      await this.redis.hmset(this.keyPrefix, fieldValues);
+      if (!dbValue) return null;
 
-      return {
-        danaReceivedUp: dbValue?.danaReceivedUp ?? 0,
-        danaReceivedDown: dbValue?.danaReceivedDown ?? 0,
-        danaReceivedScore: dbValue?.danaReceivedScore ?? 0,
-        danaBurnUp: dbValue?.danaBurnUp ?? 0,
-        danaBurnDown: dbValue?.danaBurnDown ?? 0,
-        danaBurnScore: dbValue?.danaBurnScore ?? 0
-      };
+      const tokenDana: TokenDana = new TokenDana({
+        ...dbValue
+      });
+
+      const buffer = Buffer.from(encode(tokenDana));
+      await this.redis.hset(this.keyPrefix, id.toString(), buffer);
+
+      return tokenDana;
     }
-    return {
-      danaReceivedUp: tokenDana[0] ?? 0,
-      danaReceivedDown: tokenDana[1] ?? 0,
-      danaReceivedScore: tokenDana[2] ?? 0,
-      danaBurnUp: tokenDana[3] ?? 0,
-      danaBurnDown: tokenDana[4] ?? 0,
-      danaBurnScore: tokenDana[5] ?? 0
-    };
+    return decode(buffer) as TokenDana;
   }
 
-  async incrDana(id: string, value: number) {
-    const danaBurnUpField = `danaBurnUp:${id}`;
-    const danaBurnScoreField = `danaBurnScore:${id}`;
-    await Promise.all([
-      this.redis.hincrbyfloat(this.keyPrefix, danaBurnUpField, value),
-      this.redis.hincrbyfloat(this.keyPrefix, danaBurnScoreField, value)
-    ]);
+  async setTokenDana(id: string, tokenDana: TokenDana) {
+    const buffer = Buffer.from(encode(tokenDana));
+    await this.redis.hset(this.keyPrefix, id.toString(), buffer);
   }
 
-  async decrDana(id: string, value: number) {
-    const danaBurnDownField = `danaBurnDown:${id}`;
-    const danaBurnScoreField = `danaBurnScore:${id}`;
-    await Promise.all([
-      this.redis.hincrbyfloat(this.keyPrefix, danaBurnDownField, value),
-      this.redis.hincrbyfloat(this.keyPrefix, danaBurnScoreField, value * -1)
-    ]);
-  }
+  async getTokenDanas(ids: string[]) {
+    const uncachedTokenIds = [];
+    const keys = ids;
+    const values = await this.redis.hmgetBuffer(this.keyPrefix, ...keys);
+    for (let i = 0; i < ids.length; i++) {
+      if (!values[i]) {
+        uncachedTokenIds.push(ids[i]);
+      }
+    }
 
-  async incrDanaReceived(id: string, value: number) {
-    const danaReceivedUpField = `danaReceivedUp:${id}`;
-    const danaReceivedScoreField = `danaReceivedScore:${id}`;
-    await Promise.all([
-      this.redis.hincrbyfloat(this.keyPrefix, danaReceivedUpField, value),
-      this.redis.hincrbyfloat(this.keyPrefix, danaReceivedScoreField, value)
-    ]);
-  }
+    const tokenDanasMap = new Map(
+      _.compact(values).map(value => {
+        const tokenDana = decode(value) as TokenDana;
+        return [tokenDana.tokenId, tokenDana];
+      })
+    );
 
-  async decrDanaReceived(id: string, value: number) {
-    const danaReceivedDownField = `danaReceivedDown:${id}`;
-    const danaReceivedScoreField = `danaReceivedScore:${id}`;
-    await Promise.all([
-      this.redis.hincrbyfloat(this.keyPrefix, danaReceivedDownField, value),
-      this.redis.hincrbyfloat(this.keyPrefix, danaReceivedScoreField, -1 * value)
-    ]);
-  }
+    const dbValues =
+      uncachedTokenIds.length > 0
+        ? await this.prisma.tokenDana.findMany({
+            where: {
+              tokenId: {
+                in: uncachedTokenIds
+              }
+            }
+          })
+        : [];
 
-  async setDanaReceivedUp(id: string, value: number) {
-    const keyField = `danaReceivedUp:${id}`;
-    await this.redis.hset(this.keyPrefix, keyField, value);
-  }
+    const dbValuesMap = new Map(
+      dbValues.map(dbValue => {
+        const tokenDana = new TokenDana({
+          ...dbValue
+        });
+        tokenDanasMap.set(dbValue.tokenId, tokenDana);
+        return [dbValue.tokenId, Buffer.from(encode(tokenDana))];
+      })
+    );
 
-  async setDanaReceivedDown(id: string, value: number) {
-    const keyField = `danaReceivedDown:${id}`;
-    await this.redis.hset(this.keyPrefix, keyField, value);
-  }
+    // Set values to cache
+    await this.redis.hmset(this.keyPrefix, dbValuesMap);
 
-  async setDanaReceivedScore(id: string, value: number) {
-    const keyField = `danaReceivedScore:${id}`;
-    await this.redis.hset(this.keyPrefix, keyField, value);
+    // Build and return the result
+    return ids.map(id => {
+      const tokenDana = tokenDanasMap.get(id);
+      return tokenDana ? tokenDana : null;
+    });
   }
 }

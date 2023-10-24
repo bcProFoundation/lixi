@@ -12,47 +12,5 @@ export default class PageLoader {
     private readonly prisma: PrismaService,
     private readonly danaViewScoreService: DanaViewScoreService,
     private readonly followCacheService: FollowCacheService
-  ) { }
-
-  public async getPagesUploadsByBatch(pageIds: readonly string[]): Promise<(UploadDetail | any)[]> {
-    const ids = pageIds as unknown as string[];
-    const uploadsDb = await this.prisma.uploadDetail.findMany({
-      where: {
-        postId: { in: ids }
-      },
-      include: {
-        upload: {
-          select: {
-            id: true,
-            sha: true,
-            bucket: true,
-            width: true,
-            height: true,
-            cfImageId: true,
-            cfImageFilename: true,
-            originalFilename: true,
-            extension: true,
-            type: true,
-            thumbnailHeight: true,
-            thumbnailWidth: true
-          }
-        }
-      }
-    });
-    const uploads = uploadsDb.map(item => {
-      const upload: UploadDetail = {
-        id: item.id,
-        postId: item.postId,
-        upload: {
-          ...item.upload,
-          sha: item.upload.sha || ''
-        }
-      };
-      return upload;
-    });
-
-    return postIds.map(postId => {
-      return uploads.filter(item => item.postId == postId) || null;
-    });
-  }
+  ) {}
 }

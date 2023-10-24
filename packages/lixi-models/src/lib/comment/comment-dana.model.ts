@@ -1,5 +1,4 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
-import { IsOptional } from 'class-validator';
 
 import { Comment } from './comment.model';
 
@@ -22,4 +21,8 @@ export class CommentDana {
 
   @Field(() => Comment)
   comment: Comment;
+
+  constructor(partial: Partial<CommentDana>) {
+    Object.assign(this, partial);
+  }
 }

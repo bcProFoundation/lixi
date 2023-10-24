@@ -123,6 +123,12 @@ export class Page {
   @Field(() => Boolean, { nullable: true })
   followerFreeMessage?: Nullable<boolean>;
 
+  @Field(() => String, { nullable: true })
+  avatarImageUplodableId?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  coverImageUplodableId?: Nullable<string>;
+
   @IsOptional()
   @Field(() => PageDana, { nullable: true })
   pageDana?: Nullable<PageDana>;

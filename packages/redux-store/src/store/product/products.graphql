@@ -85,24 +85,9 @@ fragment ProductFields on Product {
   title
   categoryId
   description
-  lotusBurnUp
-  lotusBurnDown
-  lotusBurnScore
+  imageUploadableId
   createdAt
   updatedAt
-  productImages {
-    id
-    upload {
-      id
-      sha
-      bucket
-      width
-      height
-      sha800
-      sha320
-      sha40
-    }
-  }
 }
 
 mutation createProduct($input: CreateProductInput!) {
@@ -111,11 +96,6 @@ mutation createProduct($input: CreateProductInput!) {
   }
 }
 
-mutation updateProduct($input: UpdateProductInput!) {
-  updateProduct(data: $input) {
-    ...ProductFields
-  }
-}
 
 mutation deleteProduct($input: DeleteProductInput!) {
   deleteProduct(data: $input) {

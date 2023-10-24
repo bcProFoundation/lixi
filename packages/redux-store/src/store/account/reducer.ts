@@ -1,11 +1,6 @@
 import { Account } from '@bcpros/lixi-models';
 import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
-import {
-  createEntityAdapter,
-  createReducer,
-  isAnyOf,
-  Update,
-} from '@reduxjs/toolkit';
+import { createEntityAdapter, createReducer, isAnyOf, Update } from '@reduxjs/toolkit';
 import _ from 'lodash';
 
 import {
@@ -101,7 +96,7 @@ export const accountReducer = createReducer(initialState, builder => {
       const { account, lixies } = action.payload;
       const id = _.toSafeInteger(account.id);
       state.selectedId = id;
-      const lixiIds = lixies.map((lixi) => lixi.id);
+      const lixiIds = lixies.map(lixi => lixi.id);
       state.lixiIdsById[id] = lixiIds;
       accountsAdapter.upsertOne(state, account);
     })
@@ -109,7 +104,7 @@ export const accountReducer = createReducer(initialState, builder => {
       const { account, lixies } = action.payload;
       const id = _.toSafeInteger(account.id);
       state.selectedId = id;
-      const lixiIds = lixies.map((lixi) => lixi.id);
+      const lixiIds = lixies.map(lixi => lixi.id);
       state.lixiIdsById[id] = lixiIds;
       accountsAdapter.upsertOne(state, account);
     })
@@ -118,8 +113,8 @@ export const accountReducer = createReducer(initialState, builder => {
       const updateAccount: Update<Account> = {
         id: account.id,
         changes: {
-          ...account,
-        },
+          ...account
+        }
       };
       accountsAdapter.updateOne(state, updateAccount);
     })
@@ -148,8 +143,6 @@ export const accountReducer = createReducer(initialState, builder => {
         case UPLOAD_TYPES.POST:
           state.postCoverUploads.push(upload);
           break;
-        case UPLOAD_TYPES.PRODUCT:
-          state.productImageUploads.push(upload);
         case UPLOAD_TYPES.MESSAGE:
           state.messageUploads.push(upload);
           break;
@@ -172,16 +165,10 @@ export const accountReducer = createReducer(initialState, builder => {
           state.pageCoverUpload = null;
           break;
         case UPLOAD_TYPES.POST:
-          state.postCoverUploads = state.postCoverUploads.filter((image) => {
+          state.postCoverUploads = state.postCoverUploads.filter(image => {
             return image.id !== id;
           });
           break;
-        case UPLOAD_TYPES.PRODUCT:
-          state.productImageUploads = state.productImageUploads.filter(
-            (image) => {
-              return image.id !== id;
-            }
-          );
         case UPLOAD_TYPES.MESSAGE:
           state.messageUploads = state.messageUploads.filter(image => {
             return image.id !== id;

@@ -1,4 +1,5 @@
 import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
+
 import { Account } from './account.model';
 
 @ObjectType()
@@ -11,6 +12,15 @@ export class AccountDana {
 
   @Field(() => Float, { nullable: true })
   danaReceived?: number;
+
+  @Field(() => Float)
+  danaReceivedUp: number;
+
+  @Field(() => Float)
+  danaReceivedDown: number;
+
+  @Field(() => Float)
+  danaReceivedScore: number;
 
   @Field(() => Float)
   danaBurnUp: number;
@@ -27,11 +37,15 @@ export class AccountDana {
   @Field(() => Account)
   account: Account;
 
-  @Field(() => String)
-  accountId: string;
+  @Field(() => Number)
+  accountId: number;
 
   @Field(() => [AccountDanaHistory], { nullable: true })
   accountDanaHistory?: [AccountDanaHistory];
+
+  constructor(partial: Partial<AccountDana>) {
+    Object.assign(this, partial);
+  }
 }
 
 @ObjectType()

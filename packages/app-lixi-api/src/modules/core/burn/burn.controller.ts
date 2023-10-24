@@ -292,31 +292,11 @@ export class BurnController {
               }
             });
 
-            const updatedAccountDana = await prisma.accountDana.update({
-              where: {
-                id: accountDana?.id
-              },
-              data: {
-                danaGiven: danaGiven
-              }
-            });
-            await this.accountDanaCacheService.setDanaGiven(updatedAccountDana.accountId, danaGiven);
-
-            await prisma.accountDanaHistory.create({
-              data: {
-                txid: savedBurn.txid,
-                burnType: command.burnType ? BurnTypePrisma.UPVOTE : BurnTypePrisma.DOWNVOTE,
-                accountDana: {
-                  connect: {
-                    id: updatedAccountDana?.id
-                  }
-                },
-                burnForId: command.burnForId,
-                burnForType: command.burnForType,
-                type: AccountDanaHistoryType.GIVEN,
-                givenUpValue: givenUpValue,
-                givenDownValue: givenDownValue
-              }
+            this.accountDanaQueue.add(ACCOUNT_DANA_QUEUE, {
+              command: command,
+              txid: savedBurn.txid,
+              amount: xpiValue,
+              givenDanaAddress: burnByAddress
             });
 
             return token;

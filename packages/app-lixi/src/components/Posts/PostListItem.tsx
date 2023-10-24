@@ -197,20 +197,6 @@ const Content = styled.div`
   }
 `;
 
-const ActionBar = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  align-self: center;
-  padding: 8px 0;
-  width: 96%;
-  border-top: 1px solid #efeeef;
-  button {
-    margin-right: 1rem;
-    border-radius: var(--border-radius-primary);
-  }
-`;
-
 const StyledTranslate = styled.div`
   cursor: pointer;
   color: var(--color-primary);

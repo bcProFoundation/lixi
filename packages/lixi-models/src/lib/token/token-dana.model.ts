@@ -30,4 +30,8 @@ export class TokenDana {
 
   @Field(() => Token)
   token: Token;
+
+  constructor(partial: Partial<TokenDana>) {
+    Object.assign(this, partial);
+  }
 }

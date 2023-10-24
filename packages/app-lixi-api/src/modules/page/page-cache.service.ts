@@ -25,7 +25,7 @@ export class PageCacheService {
     this.cfAccountHash = cloudflareConfig?.cfAccountHash ?? '';
   }
 
-  async getPageById(id: string) {
+  async getById(id: string) {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id);
     if (!buffer) {
       // cache miss
@@ -56,7 +56,9 @@ export class PageCacheService {
       const page: Page = new Page({
         ...dbPage,
         avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbPage.avatar?.upload),
-        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbPage.cover?.upload)
+        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbPage.cover?.upload),
+        stateName: dbPage.state?.name || '',
+        countryName: dbPage.country?.name || ''
       });
 
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(page)));
@@ -65,7 +67,7 @@ export class PageCacheService {
     return decode(buffer);
   }
 
-  async getPagesByIds(ids: string[]) {
+  async getByIds(ids: string[]) {
     const buffers = await this.redis.hmgetBuffer(this.keyPrefix, ...ids);
     const uncachedPageIds = [];
     for (let i = 0; i < ids.length; i++) {
@@ -127,5 +129,91 @@ export class PageCacheService {
     }
 
     return pages;
+  }
+
+  private async syncPageListByUserId(id: number) {
+    const cacheKey = `pages:account:${id}:list`;
+    const redisData = [];
+    const dbPages = await this.prisma.page.findMany({
+      orderBy: {
+        id: 'desc'
+      },
+      where: {
+        pageAccountId: id
+      },
+      select: {
+        id: true,
+        createdAt: true
+      }
+    });
+    for (const dbPage of dbPages) {
+      redisData.push(dbPage.id, dbPage.createdAt.getTime());
+    }
+  }
+
+  async getByUserId(id: number, size: number, cursor?: string) {
+    const cacheKey = `pages:account:${id}:list`;
+    const keyExist = await this.redis.exists([cacheKey]);
+    if (!keyExist) {
+      // Caching the list
+      await this.syncPageListByUserId(id);
+    }
+
+    // Find the rank of the cursor ID
+    let startRank = 0;
+    let cursorRank = null;
+    if (cursor !== null) {
+      cursorRank = await this.redis.zrank(cacheKey, cursor!);
+      startRank = cursorRank ? cursorRank + 1 : 0;
+    }
+
+    // and the rank of latest item in the sorted set
+    const totalCount = await this.redis.zcard(cacheKey);
+    const lastKnownRank = totalCount - 1;
+
+    // Check if the cursor is beyond the last known item in the sorted set
+    if (cursorRank !== null && startRank < lastKnownRank) {
+      // Cursor found in the cache and within the known range, retrieve pages
+      const endRank = Math.min(startRank + size - 1, lastKnownRank);
+
+      // Retrieve posts using zrevrange
+      const cachedData = await this.redis.zrevrange(cacheKey, startRank, endRank);
+
+      // Parse and return the posts
+      const pageIds = [];
+      for (let i = 0; i < cachedData.length; i += 1) {
+        const pageId = cachedData[i];
+        pageIds.push(pageId);
+      }
+      const pages = await this.getByIds(pageIds);
+      const edges = pageIds.map((value, index) => {
+        return {
+          cursor: value,
+          node: pages[index]
+        };
+      });
+
+      const firstEdge = edges[0];
+      return {
+        totalCount,
+        edges,
+        pageInfo: {
+          startCursor: firstEdge ? firstEdge.cursor : undefined,
+          hasPreviousPage: cursor ? true : false,
+          hasNextPage: endRank < lastKnownRank
+        }
+      };
+    }
+
+    return {
+      totalCount,
+      edges: [],
+      pageInfo: {
+        startCursor: cursor,
+        endCursor: undefined,
+        hasPreviousPage: false,
+        hasNextPage: false
+      }
+    };
   }
 }

@@ -1,20 +1,12 @@
-import PageDetailLayout from '@components/Layout/PageDetailLayout';
-import PageDetail from '@components/Pages/PageDetail';
-import { useCheckIfFollowPageQuery } from '@store/follow/follows.api';
-import { usePageQuery } from '@store/page/pages.generated';
+import { PageInput } from '@bcpros/lixi-models';
+import { PrismaClient } from '@bcpros/lixi-prisma';
+import MainLayout from '@components/Layout/MainLayout';
 import { SagaStore, wrapper } from '@store/store';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
 import { getSelectorsByUserAgent } from 'react-device-detect';
-import MainLayout from '@components/Layout/MainLayout';
 import { END } from 'redux-saga';
 import { useProductQuery } from '../../../../redux-store/src/store/product/products.generated';
-import { useEffect } from 'react';
-import pageApi from '../../../../redux-store/src/store/page/api';
-import { api } from '../../../../redux-store/src/store/page/pages.api';
-import { CreatePageInput, PageInput } from '@bcpros/lixi-models';
-import { PrismaClient } from '@bcpros/lixi-prisma';
-import ProductDetail from '@components/Product/ProductDetail';
 
 const ProductDetailPage = props => {
   const { productAsString, productId, isMobile } = props;
@@ -60,7 +52,6 @@ const ProductDetailPage = props => {
               cardType: 'summary_large_image'
             }}
           />
-          <ProductDetail product={currentProduct} isMobile={isMobile} />
         </>
       )}
     </>

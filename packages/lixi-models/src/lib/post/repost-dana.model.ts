@@ -3,7 +3,7 @@ import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { Repost } from './repost.model';
 
 @ObjectType()
-export class PostDana {
+export class RepostDana {
   @Field(() => Float)
   danaBurnUp: number;
 
@@ -21,4 +21,8 @@ export class PostDana {
 
   @Field(() => Repost)
   repost: Repost;
+
+  constructor(partial: Partial<RepostDana>) {
+    Object.assign(this, partial);
+  }
 }

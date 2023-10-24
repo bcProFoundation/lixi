@@ -39,7 +39,7 @@ export class TimelineResolver {
     private readonly timelineService: TimelineService,
     @InjectRedis() private readonly redis: Redis,
     @I18n() private readonly i18n: I18nService
-  ) { }
+  ) {}
 
   @SkipThrottle()
   @Query(returns => TimelineItem)
@@ -58,7 +58,7 @@ export class TimelineResolver {
           uploads: true,
           token: true,
           _count: {
-            select: { reposts: true, comments: true }
+            select: { reposts: true }
           },
           postAccount: true,
           translations: true
@@ -67,11 +67,12 @@ export class TimelineResolver {
 
       if (!dbPost) return null;
 
-      const [page, reposts, uploads, danaViewScore] = await Promise.all([
+      const [page, reposts, uploads, danaViewScore, totalComments] = await Promise.all([
         dbPost.pageId ? this.postLoader.batchPages.load(dbPost.pageId) : Promise.resolve(null),
         this.postLoader.batchReposts.load(dbPost.id),
         this.postLoader.batchUploads.load(dbPost.id),
-        this.postLoader.batchDanaViewScores.load(dbPost.id)
+        this.postLoader.batchDanaViewScores.load(dbPost.id),
+        this.postLoader.batchTotalComments.load(dbPost.id)
       ]);
 
       const post: Post = new Post({
@@ -81,7 +82,8 @@ export class TimelineResolver {
         page: page ? (page as Page) : null,
         repostCount: dbPost._count.reposts,
         reposts: reposts ? (reposts as Repost[]) : [],
-        danaBurnScore: (danaViewScore as number) || 0
+        danaBurnScore: (danaViewScore as number) || 0,
+        totalComments: totalComments
       });
 
       const timelineItem: TimelineItem = {
@@ -115,8 +117,8 @@ export class TimelineResolver {
 
     const ids = timelineIds
       ? timelineIds.edges.map(item => {
-        return item.cursor;
-      })
+          return item.cursor;
+        })
       : [];
 
     if (_.isEmpty(ids)) {
@@ -150,7 +152,7 @@ export class TimelineResolver {
         uploads: true,
         token: true,
         _count: {
-          select: { reposts: true, comments: true }
+          select: { reposts: true }
         }
       },
       where: {
@@ -160,11 +162,12 @@ export class TimelineResolver {
     const pageIds: string[] = _.compact(uncachedPosts.map(post => post.pageId)) ?? [];
 
     const timelineItems: TimelineItem[] = [];
-    const [arrPages, arrReposts, arrUploads, arrDanaViewScore] = await Promise.all([
+    const [arrPages, arrReposts, arrUploads, arrDanaViewScore, totalComments] = await Promise.all([
       this.postLoader.batchPages.loadMany(pageIds),
       this.postLoader.batchReposts.loadMany(uncachedPostIds),
       this.postLoader.batchUploads.loadMany(uncachedPostIds),
-      this.postLoader.batchDanaViewScores.loadMany(ids)
+      this.postLoader.batchDanaViewScores.loadMany(ids),
+      this.postLoader.batchTotalComments.loadMany(ids)
     ]);
 
     const pipeline = this.redis.pipeline();
@@ -186,7 +189,8 @@ export class TimelineResolver {
             danaViewScore: (arrDanaViewScore[i] ?? 0) as number,
             page: page ? (page as Page) : null,
             repostCount: dbPost._count.reposts,
-            reposts: arrReposts[i] ? (arrReposts[i] as Repost[]) : []
+            reposts: arrReposts[i] ? (arrReposts[i] as Repost[]) : [],
+            totalComments: totalComments[i] instanceof Error ? 0 : (totalComments[i] as number)
           });
 
           const buffer = encode(post);
