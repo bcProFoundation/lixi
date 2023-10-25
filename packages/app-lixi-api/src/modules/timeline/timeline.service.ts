@@ -65,7 +65,7 @@ export class TimelineService {
         const id = `${post.id}`;
 
         const diffHour = moment.duration(moment(post.createdAt).diff(moment(epoch))).asHours();
-        const score = 10 * Math.pow(2, diffHour / 12);
+        const score = 1 * Math.pow(2, diffHour / 12);
         pipeline.zincrby(key, score, id);
       }
       pipeline.expire(key, 2592000);
