@@ -1,5 +1,5 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit, forwardRef } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { TokenSigner, TokenVerifier, decodeToken } from 'jsontokens';
 import { I18n, I18nService } from 'nestjs-i18n';
@@ -17,18 +17,19 @@ const wif = require('wif');
 export class AuthService implements OnModuleInit {
   private logger: Logger = new Logger(AuthService.name);
 
-  private accountCacheService!: AccountCacheService;
+  // private accountCacheService!: AccountCacheService;
 
   constructor(
+    @Inject(forwardRef(() => AccountCacheService)) private accountCacheService: AccountCacheService,
     private prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis,
     private walletService: WalletService,
     @I18n() private i18n: I18nService,
-    private moduleRef: ModuleRef
-  ) {}
+    // private moduleRef: ModuleRef
+  ) { }
 
   onModuleInit() {
-    this.accountCacheService = this.moduleRef.get(AccountCacheService);
+    // this.accountCacheService = this.moduleRef.get(AccountCacheService);
   }
 
   /**
@@ -81,10 +82,10 @@ export class AuthService implements OnModuleInit {
       const tokenDecoded = decodeToken(token);
       const { id } = JSON.parse(tokenDecoded.payload as string);
 
-      const accountCacheService = await this.moduleRef.resolve(AccountCacheService);
+      // const accountCacheService = await this.moduleRef.resolve(AccountCacheService);
 
       // Find the account with cache
-      const account = await accountCacheService.getById(id);
+      const account = await this.accountCacheService.getById(id);
       let url;
       if (account && (account as any)?.avatar) {
         const avatar = (account as any)?.avatar;

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AccountCacheService } from '../account/account-cache.service';
@@ -9,6 +9,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './guards/jwtauth.guard';
 import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from './guards/gql-jwtauth.guard';
 import { WsAuthGuardByPass } from './guards/wsauth.guard';
+import { AccountModule } from '../account/account.module';
 
 @Module({
   imports: [
@@ -16,19 +17,26 @@ import { WsAuthGuardByPass } from './guards/wsauth.guard';
     ThrottlerModule.forRoot({
       limit: 30,
       ttl: 60
-    })
+    }),
+    forwardRef(() => AccountModule)
   ],
   controllers: [AuthController],
   providers: [
     AuthService,
     JwtStrategy,
     GqlThrottlerGuard,
-    AccountCacheService,
     JwtAuthGuard,
     WsAuthGuardByPass,
     GqlJwtAuthGuard,
     GqlJwtAuthGuardByPass
   ],
-  exports: [AuthService, GqlThrottlerGuard, JwtAuthGuard, WsAuthGuardByPass, GqlJwtAuthGuard, GqlJwtAuthGuardByPass]
+  exports: [
+    AuthService,
+    GqlThrottlerGuard,
+    JwtAuthGuard,
+    WsAuthGuardByPass,
+    GqlJwtAuthGuard,
+    GqlJwtAuthGuardByPass
+  ]
 })
-export class AuthModule {}
+export class AuthModule { }

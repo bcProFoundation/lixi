@@ -56,8 +56,6 @@ import { PageCacheService } from './page-cache.service';
     NotificationService,
     HashtagModule,
     FollowCacheService,
-    AccountCacheService,
-    AccountDanaCacheService,
     PostLoader,
     PostFanoutProcessor,
     DanaViewScoreService,
@@ -68,4 +66,4 @@ import { PageCacheService } from './page-cache.service';
   ],
   exports: [MeiliService, NotificationService, FollowCacheService, PostLoader, DanaViewScoreService]
 })
-export class PageModule {}
+export class PageModule { }

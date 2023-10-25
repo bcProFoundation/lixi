@@ -82,7 +82,10 @@ export class HashtagDanaCacheService {
     );
 
     // Set values to cache
-    await this.redis.hmset(this.keyPrefix, dbValuesMap);
+    if (dbValuesMap.size > 0) {
+      await this.redis.hmset(this.keyPrefix, dbValuesMap);
+    }
+
 
     // Build and return the result
     return ids.map(id => {

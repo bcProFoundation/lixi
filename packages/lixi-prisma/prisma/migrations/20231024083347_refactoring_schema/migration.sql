@@ -1,6 +1,8 @@
 /*
   Warnings:
 
+  - You are about to drop the column `bookmark_id` on the `bookmark` table. All the data in the column will be lost.
+  - You are about to drop the column `type` on the `bookmark` table. All the data in the column will be lost.
   - A unique constraint covering the columns `[avatar_image_uploadable_id]` on the table `Temple` will be added. If there are existing duplicate values, this will fail.
   - A unique constraint covering the columns `[cover_image_uploadable_id]` on the table `Temple` will be added. If there are existing duplicate values, this will fail.
   - A unique constraint covering the columns `[avatar_image_uploadable_id]` on the table `account` will be added. If there are existing duplicate values, this will fail.
@@ -10,6 +12,7 @@
   - A unique constraint covering the columns `[cover_image_uploadable_id]` on the table `page` will be added. If there are existing duplicate values, this will fail.
   - A unique constraint covering the columns `[avatar_image_uploadable_id]` on the table `post` will be added. If there are existing duplicate values, this will fail.
   - A unique constraint covering the columns `[cover_image_uploadable_id]` on the table `post` will be added. If there are existing duplicate values, this will fail.
+  - Added the required column `bookmarkable_id` to the `bookmark` table without a default value. This is not possible if the table is not empty.
 
 */
 -- CreateEnum
@@ -27,8 +30,28 @@ ALTER TABLE "account" ADD COLUMN     "avatar_image_uploadable_id" TEXT,
 ADD COLUMN     "cover_image_uploadable_id" TEXT;
 
 -- AlterTable
+ALTER TABLE "account_dana" ADD COLUMN     "dana_received_down" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "dana_received_score" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "dana_received_up" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "version" INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "bookmark" DROP COLUMN "bookmark_id",
+DROP COLUMN "type",
+ADD COLUMN     "bookmarkable_id" TEXT NOT NULL;
+
+-- AlterTable
 ALTER TABLE "comment" ADD COLUMN     "commentable_id" TEXT,
 ADD COLUMN     "image_uploadable_id" TEXT;
+
+-- AlterTable
+ALTER TABLE "comment_dana" ADD COLUMN     "version" INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "hashtag_dana" ADD COLUMN     "dana_received_down" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "dana_received_score" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "dana_received_up" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "version" INTEGER NOT NULL DEFAULT 0;
 
 -- AlterTable
 ALTER TABLE "lixi" ADD COLUMN     "image_uploadable_id" TEXT;
@@ -41,10 +64,30 @@ ALTER TABLE "page" ADD COLUMN     "avatar_image_uploadable_id" TEXT,
 ADD COLUMN     "cover_image_uploadable_id" TEXT;
 
 -- AlterTable
+ALTER TABLE "page_dana" ADD COLUMN     "dana_received_down" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "dana_received_score" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "dana_received_up" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "version" INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
 ALTER TABLE "post" ADD COLUMN     "avatar_image_uploadable_id" TEXT,
+ADD COLUMN     "bookmarkable_id" TEXT,
 ADD COLUMN     "commentable_id" TEXT,
 ADD COLUMN     "cover_image_uploadable_id" TEXT,
-ADD COLUMN     "image_uploadable_id" TEXT;
+ADD COLUMN     "image_uploadable_id" TEXT,
+ADD COLUMN     "taggableId" TEXT;
+
+-- AlterTable
+ALTER TABLE "post_dana" ADD COLUMN     "dana_received_down" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "dana_received_score" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "dana_received_up" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "version" INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "token_dana" ADD COLUMN     "dana_received_down" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "dana_received_score" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "dana_received_up" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "version" INTEGER NOT NULL DEFAULT 0;
 
 -- AlterTable
 ALTER TABLE "upload" ADD COLUMN     "image_uploadable_id" TEXT;
@@ -89,6 +132,14 @@ CREATE TABLE "repost_dana" (
 );
 
 -- CreateTable
+CREATE TABLE "bookmarkable" (
+    "id" TEXT NOT NULL,
+    "type" "BookmarkType" NOT NULL,
+
+    CONSTRAINT "bookmarkable_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "event" (
     "id" TEXT NOT NULL,
     "post_account_id" INTEGER NOT NULL,
@@ -99,6 +150,8 @@ CREATE TABLE "event" (
     "end_date" TIMESTAMPTZ NOT NULL,
     "location" TEXT,
     "commentable_id" TEXT,
+    "bookmarkable_id" TEXT,
+    "taggableId" TEXT NOT NULL,
     "eventType" "EventType" NOT NULL,
     "image_uploadable_id" TEXT,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -109,6 +162,9 @@ CREATE TABLE "event" (
 
 -- CreateTable
 CREATE TABLE "event_dana" (
+    "dana_received_up" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+    "dana_received_down" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+    "dana_received_score" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
     "dana_burn_up" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
     "dana_burn_down" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
     "dana_burn_score" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
@@ -140,7 +196,11 @@ CREATE TABLE "poll" (
     "id" TEXT NOT NULL,
     "question" TEXT NOT NULL,
     "page_id" TEXT,
+    "start_date" TIMESTAMPTZ NOT NULL,
+    "end_date" TIMESTAMPTZ NOT NULL,
     "commentable_id" TEXT,
+    "bookmarkable_id" TEXT,
+    "taggableId" TEXT,
     "image_uploadable_id" TEXT,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -150,6 +210,9 @@ CREATE TABLE "poll" (
 
 -- CreateTable
 CREATE TABLE "poll_dana" (
+    "dana_received_up" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+    "dana_received_down" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+    "dana_received_score" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
     "dana_burn_up" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
     "dana_burn_down" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
     "dana_burn_score" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
@@ -170,6 +233,9 @@ CREATE TABLE "product" (
     "country_id" INTEGER,
     "state_id" INTEGER,
     "address" TEXT DEFAULT '',
+    "commentable_id" TEXT,
+    "bookmarkable_id" TEXT,
+    "taggableId" TEXT,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "image_uploadable_id" TEXT NOT NULL,
@@ -256,6 +322,12 @@ ALTER TABLE "page" ADD CONSTRAINT "page_cover_image_uploadable_id_fkey" FOREIGN 
 ALTER TABLE "post" ADD CONSTRAINT "post_commentable_id_fkey" FOREIGN KEY ("commentable_id") REFERENCES "commentable"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "post" ADD CONSTRAINT "post_bookmarkable_id_fkey" FOREIGN KEY ("bookmarkable_id") REFERENCES "bookmarkable"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "post" ADD CONSTRAINT "post_taggableId_fkey" FOREIGN KEY ("taggableId") REFERENCES "taggable"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "post" ADD CONSTRAINT "post_avatar_image_uploadable_id_fkey" FOREIGN KEY ("avatar_image_uploadable_id") REFERENCES "image_uploadable"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -301,6 +373,9 @@ ALTER TABLE "repost_dana" ADD CONSTRAINT "repost_dana_repost_id_fkey" FOREIGN KE
 ALTER TABLE "message" ADD CONSTRAINT "message_image_uploadable_id_fkey" FOREIGN KEY ("image_uploadable_id") REFERENCES "image_uploadable"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "bookmark" ADD CONSTRAINT "bookmark_bookmarkable_id_fkey" FOREIGN KEY ("bookmarkable_id") REFERENCES "bookmarkable"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "event" ADD CONSTRAINT "event_post_account_id_fkey" FOREIGN KEY ("post_account_id") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -308,6 +383,12 @@ ALTER TABLE "event" ADD CONSTRAINT "event_page_id_fkey" FOREIGN KEY ("page_id") 
 
 -- AddForeignKey
 ALTER TABLE "event" ADD CONSTRAINT "event_commentable_id_fkey" FOREIGN KEY ("commentable_id") REFERENCES "commentable"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "event" ADD CONSTRAINT "event_bookmarkable_id_fkey" FOREIGN KEY ("bookmarkable_id") REFERENCES "bookmarkable"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "event" ADD CONSTRAINT "event_taggableId_fkey" FOREIGN KEY ("taggableId") REFERENCES "taggable"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "event" ADD CONSTRAINT "event_image_uploadable_id_fkey" FOREIGN KEY ("image_uploadable_id") REFERENCES "image_uploadable"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -331,6 +412,12 @@ ALTER TABLE "poll" ADD CONSTRAINT "poll_page_id_fkey" FOREIGN KEY ("page_id") RE
 ALTER TABLE "poll" ADD CONSTRAINT "poll_commentable_id_fkey" FOREIGN KEY ("commentable_id") REFERENCES "commentable"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "poll" ADD CONSTRAINT "poll_bookmarkable_id_fkey" FOREIGN KEY ("bookmarkable_id") REFERENCES "bookmarkable"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "poll" ADD CONSTRAINT "poll_taggableId_fkey" FOREIGN KEY ("taggableId") REFERENCES "taggable"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "poll" ADD CONSTRAINT "poll_image_uploadable_id_fkey" FOREIGN KEY ("image_uploadable_id") REFERENCES "image_uploadable"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -347,6 +434,15 @@ ALTER TABLE "product" ADD CONSTRAINT "product_country_id_fkey" FOREIGN KEY ("cou
 
 -- AddForeignKey
 ALTER TABLE "product" ADD CONSTRAINT "product_state_id_fkey" FOREIGN KEY ("state_id") REFERENCES "state"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "product" ADD CONSTRAINT "product_commentable_id_fkey" FOREIGN KEY ("commentable_id") REFERENCES "commentable"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "product" ADD CONSTRAINT "product_bookmarkable_id_fkey" FOREIGN KEY ("bookmarkable_id") REFERENCES "bookmarkable"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "product" ADD CONSTRAINT "product_taggableId_fkey" FOREIGN KEY ("taggableId") REFERENCES "taggable"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "product" ADD CONSTRAINT "product_image_uploadable_id_fkey" FOREIGN KEY ("image_uploadable_id") REFERENCES "image_uploadable"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

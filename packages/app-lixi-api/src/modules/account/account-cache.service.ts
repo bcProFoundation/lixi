@@ -1,13 +1,14 @@
+import { Account, AccountDana } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { decode } from '@msgpack/msgpack';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
-import { decode, encode } from '@msgpack/msgpack';
 import { CloudflareConfig } from '../../config/config.interface';
 import { toImageUrl } from '../page/page.utils';
 import { PrismaService } from '../prisma/prisma.service';
-import { Account } from '@bcpros/lixi-models';
+import { AccountDanaCacheService } from './account-dana-cache.service';
 
 @Injectable()
 export class AccountCacheService {
@@ -19,6 +20,7 @@ export class AccountCacheService {
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
+    private readonly accountDanaCacheService: AccountDanaCacheService,
     @InjectRedis() private readonly redis: Redis
   ) {
     const cloudflareConfig = this.config.get<CloudflareConfig>('cloudflare');
@@ -26,7 +28,7 @@ export class AccountCacheService {
     this.cfAccountHash = cloudflareConfig?.cfAccountHash ?? '';
   }
 
-  async getById(id: number): Promise<Nullable<Account>> {
+  async getById(id: number) {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id.toString());
     if (!buffer) {
       // cache miss
@@ -52,16 +54,19 @@ export class AccountCacheService {
       const account: Account = new Account({
         ...dbAccount,
         avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.avatar?.upload),
-        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.cover?.upload)
+        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.cover?.upload),
       });
       return account;
     }
 
-    return decode(buffer) as Account;
+    const account = decode(buffer) as Account;
+    return account;
   }
 
   async getByAddress(address: string): Promise<Nullable<Account>> {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, address);
+
+
     if (!buffer) {
       // cache miss
       const dbAccount = await this.prisma.account.findFirst({
@@ -86,12 +91,14 @@ export class AccountCacheService {
       const account: Account = new Account({
         ...dbAccount,
         avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.avatar?.upload),
-        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.cover?.upload)
+        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.cover?.upload),
       });
+
       return account;
     }
 
-    return decode(buffer) as Account;
+    const account = decode(buffer) as Account;
+    return account;
   }
 
   async getByMnemonicHash(mnemonicHash: string): Promise<Nullable<Account>> {
@@ -120,12 +127,14 @@ export class AccountCacheService {
       const account: Account = new Account({
         ...dbAccount,
         avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.avatar?.upload),
-        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.cover?.upload)
+        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.cover?.upload),
       });
+
       return account;
     }
 
-    return decode(buffer) as Account;
+    const account = decode(buffer) as Account;
+    return account;
   }
 
   async removeByKey(key: string) {

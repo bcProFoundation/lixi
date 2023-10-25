@@ -44,6 +44,7 @@ export class TimelineResolver {
   @SkipThrottle()
   @Query(returns => TimelineItem)
   @UseGuards(GqlJwtAuthGuardByPass)
+  @UseFilters(GqlHttpExceptionFilter)
   async timeline(@Args('id', { type: () => String }) id: string) {
     const postId = id;
     if (!postId) throw new Error('Invalid argument');
@@ -106,6 +107,7 @@ export class TimelineResolver {
 
   @SkipThrottle()
   @Query(returns => TimelineItemConnection)
+  @UseFilters(GqlHttpExceptionFilter)
   @UseGuards(GqlJwtAuthGuardByPass)
   async homeTimeline(
     @AccountEntity() account: Account,
@@ -229,46 +231,53 @@ export class TimelineResolver {
       const postAccountIds = edges.map(edge => edge.node.data?.postAccountId || 0);
       const tokenIds = edges.map(edge => edge.node.data?.tokenId || '');
 
-      const [arrFollowPostOwner, arrFollowedPage, arrFollowedToken] = await Promise.all([
-        this.postLoader.batchCheckAccountFollowAllAccount.loadMany(
-          postAccountIds.map((postAccountId: number) => {
-            return {
-              followingAccountId: postAccountId,
-              accountId
-            };
-          })
-        ),
-        this.postLoader.batchCheckAccountFollowAllPage.loadMany(
-          pageIds.map((pageId: string) => {
-            return {
-              pageId,
-              accountId
-            };
-          })
-        ),
-        this.postLoader.batchCheckAccountFollowAllToken.loadMany(
-          tokenIds.map((tokenId: string) => {
-            return {
-              tokenId,
-              accountId
-            };
-          })
-        )
-      ]);
-      // Map back to edges
-      let i = 0;
-      for (const edge of edges) {
-        const followPostOwner = arrFollowPostOwner[i] instanceof Error ? false : arrFollowPostOwner[i];
-        const followPage = arrFollowedPage[i] instanceof Error ? false : arrFollowedPage[i];
-        const followToken = arrFollowedToken[i] instanceof Error ? false : arrFollowedToken[i];
-
-        if (!_.isNil(edge.node?.data)) {
-          edge.node.data!.followPostOwner = followPostOwner as boolean;
-          edge.node.data!.followedPage = followPage as boolean;
-          edge.node.data!.followedToken = followToken as boolean;
+      try {
+        const [arrFollowPostOwner, arrFollowedPage, arrFollowedToken] = await Promise.all([
+          this.postLoader.batchCheckAccountFollowAllAccount.loadMany(
+            postAccountIds.map((postAccountId: number) => {
+              return {
+                followingAccountId: postAccountId,
+                accountId
+              };
+            })
+          ),
+          this.postLoader.batchCheckAccountFollowAllPage.loadMany(
+            pageIds.map((pageId: string) => {
+              return {
+                pageId,
+                accountId
+              };
+            })
+          ),
+          this.postLoader.batchCheckAccountFollowAllToken.loadMany(
+            tokenIds.map((tokenId: string) => {
+              return {
+                tokenId,
+                accountId
+              };
+            })
+          )
+        ]);
+        // Map back to edges
+        let i = 0;
+        for (const edge of edges) {
+          const followPostOwner = arrFollowPostOwner[i] instanceof Error ? false : arrFollowPostOwner[i];
+          const followPage = arrFollowedPage[i] instanceof Error ? false : arrFollowedPage[i];
+          const followToken = arrFollowedToken[i] instanceof Error ? false : arrFollowedToken[i];
+  
+          if (!_.isNil(edge.node?.data)) {
+            edge.node.data!.followPostOwner = followPostOwner as boolean;
+            edge.node.data!.followedPage = followPage as boolean;
+            edge.node.data!.followedToken = followToken as boolean;
+          }
+          i++;
         }
-        i++;
+      } catch (err) {
+        this.logger.error(err);
+        throw err;
       }
+
+      
     } else {
       edges.map(edge => {
         if (!_.isNil(edge.node?.data)) {

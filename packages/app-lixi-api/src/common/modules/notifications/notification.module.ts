@@ -22,6 +22,7 @@ import { WebpushNotificationProcessor } from './webpush-notification.process';
 import { WebpushController } from './webpush.controller';
 import { EventsAnalyticModule } from '../../../modules/events-analytic/events-analytic.module';
 import { EventsAnalyticProcessor } from '../../../modules/events-analytic/events-analytic.processor';
+import { AccountModule } from '../../../modules/account/account.module';
 
 @Module({
   imports: [
@@ -140,7 +141,8 @@ import { EventsAnalyticProcessor } from '../../../modules/events-analytic/events
       }
     ),
     AuthModule,
-    RedisModule
+    RedisModule,
+    AccountModule
   ],
   controllers: [NotificationController, WebpushController],
   providers: [
@@ -148,7 +150,6 @@ import { EventsAnalyticProcessor } from '../../../modules/events-analytic/events
     NotificationService,
     NotificationOutboundProcessor,
     WebpushNotificationProcessor,
-    AccountCacheService
   ],
   exports: [
     NotificationGateway,
@@ -158,4 +159,4 @@ import { EventsAnalyticProcessor } from '../../../modules/events-analytic/events
     BullModule
   ]
 })
-export class NotificationModule {}
+export class NotificationModule { }
