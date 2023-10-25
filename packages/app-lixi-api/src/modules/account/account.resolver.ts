@@ -292,14 +292,14 @@ export class AccountResolver {
         });
         await this.accountCacheService.deleteById(createdAccount.id);
 
-        const { totalBalance } = await this.walletServices['xpi'].getBalances(createdAccount.address);
+        const { totalBalanceInSatoshis } = await this.walletServices['xpi'].getBalances(createdAccount.address);
 
         const resultApi = _.omit(
           {
             ..._.omit(createdAccount, 'publicKey'),
             name: createdAccount.name,
             address: createdAccount.address,
-            balance: totalBalance,
+            balance: totalBalanceInSatoshis,
             secret: accountSecret
           },
           ['mnemonic', 'encryptedMnemonic']
@@ -314,7 +314,7 @@ export class AccountResolver {
           throw Error(importAccountNotFoundMessage);
         }
 
-        const { totalBalance } = await this.walletServices['xpi'].getBalances(account.address);
+        const { totalBalanceInSatoshis } = await this.walletServices['xpi'].getBalances(account.address);
         const accountSecret = await aesGcmDecrypt(account.encryptedSecret, mnemonic);
 
         const resultApi = _.omit(
@@ -322,7 +322,7 @@ export class AccountResolver {
             ..._.omit(account, 'publicKey'),
             name: account.name,
             address: account.address,
-            balance: parseFloat(totalBalance),
+            balance: Number(totalBalanceInSatoshis),
             secret: accountSecret
           } as AccountDto,
           ['mnemonic', 'encryptedMnemonic']

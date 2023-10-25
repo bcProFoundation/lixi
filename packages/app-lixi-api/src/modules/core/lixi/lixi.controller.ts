@@ -138,7 +138,7 @@ export class LixiController {
           ...lixi,
           activationAt: lixi.activationAt ? lixi.activationAt.toISOString() : null,
           isClaimed: lixi.isClaimed,
-          balance: parseFloat(totalBalance),
+          balance: Number(totalBalanceInSatoshis),
           totalClaim: Number(lixi.totalClaim),
           envelope: lixi.envelope,
           distributions: lixi.distributions,
@@ -732,12 +732,12 @@ export class LixiController {
 
         const { totalBalance, totalBalanceInSatoshis } = await walletService.getBalances(lixi.address);
 
-        if (parseFloat(totalBalance) === 0) {
+        if (Number(totalBalance) === 0) {
           const unableWithdraw = await i18n.t('lixi.messages.unableWithdraw');
           throw new VError(unableWithdraw);
         }
 
-        const totalAmount: number = await walletService.onMax(lixi.address);
+        const totalAmount = await walletService.onMax(lixi.address);
         const receivingAccount = [{ address: account.address, amountXpi: totalAmount }];
 
         const amount: any = await walletService.sendXPIToSingleAddress(

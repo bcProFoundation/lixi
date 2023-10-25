@@ -77,11 +77,11 @@ export class AccountController {
       }
 
       const walletService = this.walletServices['xpi'];
-      const { totalBalance } = await walletService.getBalances(account.address);
+      const { totalBalanceInSatoshis } = await walletService.getBalances(account.address);
 
       const result = {
         ...account,
-        balance: parseFloat(totalBalance),
+        balance: Number(totalBalanceInSatoshis),
         page: account.pages
       };
 
@@ -221,14 +221,14 @@ export class AccountController {
           data: accountToInsert
         });
         await this.accountCacheService.deleteById(createdAccount.id);
-        const { totalBalance } = await walletService.getBalances(createdAccount.address);
+        const { totalBalanceInSatoshis } = await walletService.getBalances(createdAccount.address);
 
         const resultApi = _.omit(
           {
             ..._.omit(createdAccount, 'publicKey'),
             name: createdAccount.name,
             address: createdAccount.address,
-            balance: parseFloat(totalBalance),
+            balance: Number(totalBalanceInSatoshis),
             secret: accountSecret
           } as AccountDto,
           ['mnemonic', 'encryptedMnemonic']
@@ -244,7 +244,7 @@ export class AccountController {
         }
 
         const walletService = this.walletServices['xpi'];
-        const { totalBalance } = await walletService.getBalances(account.address);
+        const { totalBalanceInSatoshis } = await walletService.getBalances(account.address);
         const accountSecret = await aesGcmDecrypt(account.encryptedSecret, mnemonic);
 
         const resultApi = _.omit(
@@ -252,7 +252,7 @@ export class AccountController {
             ..._.omit(account, 'publicKey'),
             name: account.name,
             address: account.address,
-            balance: parseFloat(totalBalance),
+            balance: Number(totalBalanceInSatoshis),
             secret: accountSecret
           } as AccountDto,
           ['mnemonic', 'encryptedMnemonic']

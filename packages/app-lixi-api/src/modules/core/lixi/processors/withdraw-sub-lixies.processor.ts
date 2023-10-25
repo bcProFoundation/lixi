@@ -58,7 +58,7 @@ export class WithdrawSubLixiesProcessor extends WorkerHost {
 
       if (parseFloat(totalBalance) !== 0) {
         try {
-          const totalAmount: number = await walletService.onMax(subLixiAddress);
+          const totalAmount = await walletService.onMax(subLixiAddress);
           // const receivingAccount = [{ address: jobData.accountAddress, amountXpi: totalAmount }];
           await walletService.sendXPIToSingleAddress(
             subLixiAddress,

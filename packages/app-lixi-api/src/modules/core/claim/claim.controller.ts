@@ -32,6 +32,9 @@ import { VError } from 'verror';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
+import { getUtxosSingleHashChronik } from 'src/utils/chronik';
+import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
+import { ChronikClient } from 'chronik-client';
 
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
 const PROJECT_ID = 'lixilotus';
@@ -45,6 +48,7 @@ export class ClaimController {
     private readonly lixiService: LixiService,
     @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
     @Inject(XPIJS) private XPI: BCHJS,
+    @InjectChronikClient('xpi') private chronik: ChronikClient,
     private readonly config: ConfigService,
     private notificationGateway: NotificationGateway
   ) {}
@@ -301,7 +305,7 @@ export class ClaimController {
 
         const { totalBalance, totalBalanceInSatoshis } = await walletService.getBalances(address);
 
-        if (new BigNumber(totalBalance) < toSmallestDenomination(new BigNumber(lixi.minStaking))) {
+        if (new BigNumber(totalBalanceInSatoshis) < toSmallestDenomination(new BigNumber(lixi.minStaking))) {
           const minStakingToClaim = await i18n.t('claim.messages.minStakingToClaim', {
             args: { minStaking: lixi.minStaking }
           });
@@ -330,7 +334,8 @@ export class ClaimController {
           legacyAddress: this.XPI.SLP.Address.toLegacyAddress(cashAddress),
           publicKey
         };
-        const { totalBalance: lixiBalance } = await walletService.getBalances(lixiAddress);
+        const { totalBalance: lixiBalance, totalBalanceInSatoshis: lixiTotalBalanceInSatoshis } =
+          await walletService.getBalances(lixiAddress);
 
         if (parseFloat(lixiBalance) === 0) {
           const insufficientFund = await i18n.t('claim.messages.insufficientFund');
@@ -342,10 +347,11 @@ export class ClaimController {
           throw new VError(programEnded);
         }
 
-        const utxos = await this.XPI.Utxo.get(lixiAddress);
+        const accountHash160 = this.XPI.Address.toHash160(lixiAddress);
+        const utxos = await getUtxosSingleHashChronik(this.chronik, accountHash160);
         const utxoStore = utxos[0];
-
-        const xpiBalance = fromSmallestDenomination(parseFloat(lixiBalance));
+        const xpiBalance = Number(lixiBalance);
+        const calcFee = walletService.calcFee(this.XPI, utxos);
 
         let numberOfDistributions = 1;
         let addRegistered = 1;
@@ -376,7 +382,7 @@ export class ClaimController {
           satoshisToSend = new BigNumber(payout);
         }
 
-        const satoshisBalance = new BigNumber(lixiBalance);
+        const satoshisBalance = lixiTotalBalanceInSatoshis;
 
         if (satoshisToSend.lt(546) && satoshisToSend.gte(satoshisBalance)) {
           const insufficientFund = await i18n.t('claim.messages.insufficientFund');
@@ -422,7 +428,7 @@ export class ClaimController {
           });
         }
 
-        if (!utxoStore || (!(utxoStore as any).bchUtxos && !(utxoStore as any).nullUtxos)) {
+        if (!utxoStore || utxos.length === 0) {
           const utxoEmpty = await i18n.t('claim.messages.utxoEmpty');
           throw new VError(utxoEmpty);
         }
@@ -461,11 +467,13 @@ export class ClaimController {
         // const tx = transactionBuilder.build();
         // const hex = tx.toHex();
 
+        const amountToClaim = xpiBalance - fromSmallestDenomination(calcFee);
+
         try {
           const txid = await walletService.sendXPIToSingleAddress(
             lixiAddress,
             claimApi.claimAddress,
-            xpiValue.toString(),
+            amountToClaim.toString(),
             walletPath,
             walletPath.fundingWif,
             undefined

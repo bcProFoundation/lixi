@@ -154,7 +154,7 @@ export class WalletService {
 
     value = value.toString();
 
-    return fromSmallestDenomination(Number(value));
+    return value;
   }
 
   async sendXpi(
@@ -314,12 +314,6 @@ export class WalletService {
       true
     );
 
-    const txData = await this.XPI.RawTransactions.decodeRawTransaction(sendHex);
-    const tipValue = txData['vout'][0].value;
-    if (Number(tipValue) < 0) {
-      throw new Error('Syntax error. Number cannot be less than or equal to 0');
-    }
-
     const broadcastResponse = await this.chronik.broadcastTx(sendHex);
     if (!broadcastResponse) {
       throw new Error('Empty chronik broadcast response');
@@ -366,12 +360,6 @@ export class WalletService {
       fundingWif,
       true
     );
-
-    const txData = await this.XPI.RawTransactions.decodeRawTransaction(sendHex);
-    const tipValue = txData['vout'][0].value;
-    if (Number(tipValue) < 0) {
-      throw new Error('Syntax error. Number cannot be less than or equal to 0');
-    }
 
     const broadcastResponse = await this.chronik.broadcastTx(sendHex);
     if (!broadcastResponse) {
