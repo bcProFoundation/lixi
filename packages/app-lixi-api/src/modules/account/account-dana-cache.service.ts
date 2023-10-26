@@ -11,7 +11,7 @@ export class AccountDanaCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:accountdana';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
 
   async getAccountDana(id: number) {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id.toString());
@@ -62,12 +62,12 @@ export class AccountDanaCacheService {
     const dbValues =
       uncachedAccountIds.length > 0
         ? await this.prisma.accountDana.findMany({
-          where: {
-            accountId: {
-              in: uncachedAccountIds
+            where: {
+              accountId: {
+                in: uncachedAccountIds
+              }
             }
-          }
-        })
+          })
         : [];
 
     const dbValuesMap = new Map(

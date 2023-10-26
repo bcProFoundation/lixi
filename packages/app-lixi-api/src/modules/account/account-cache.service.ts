@@ -54,7 +54,7 @@ export class AccountCacheService {
       const account: Account = new Account({
         ...dbAccount,
         avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.avatar?.upload),
-        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.cover?.upload),
+        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.cover?.upload)
       });
       return account;
     }
@@ -65,7 +65,6 @@ export class AccountCacheService {
 
   async getByAddress(address: string): Promise<Nullable<Account>> {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, address);
-
 
     if (!buffer) {
       // cache miss
@@ -91,7 +90,7 @@ export class AccountCacheService {
       const account: Account = new Account({
         ...dbAccount,
         avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.avatar?.upload),
-        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.cover?.upload),
+        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.cover?.upload)
       });
 
       return account;
@@ -127,7 +126,7 @@ export class AccountCacheService {
       const account: Account = new Account({
         ...dbAccount,
         avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.avatar?.upload),
-        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.cover?.upload),
+        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.cover?.upload)
       });
 
       return account;

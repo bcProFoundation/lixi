@@ -264,7 +264,7 @@ export class TimelineResolver {
           const followPostOwner = arrFollowPostOwner[i] instanceof Error ? false : arrFollowPostOwner[i];
           const followPage = arrFollowedPage[i] instanceof Error ? false : arrFollowedPage[i];
           const followToken = arrFollowedToken[i] instanceof Error ? false : arrFollowedToken[i];
-  
+
           if (!_.isNil(edge.node?.data)) {
             edge.node.data!.followPostOwner = followPostOwner as boolean;
             edge.node.data!.followedPage = followPage as boolean;
@@ -276,8 +276,6 @@ export class TimelineResolver {
         this.logger.error(err);
         throw err;
       }
-
-      
     } else {
       edges.map(edge => {
         if (!_.isNil(edge.node?.data)) {

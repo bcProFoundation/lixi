@@ -66,4 +66,4 @@ import { PageCacheService } from './page-cache.service';
   ],
   exports: [MeiliService, NotificationService, FollowCacheService, PostLoader, DanaViewScoreService]
 })
-export class PageModule { }
+export class PageModule {}

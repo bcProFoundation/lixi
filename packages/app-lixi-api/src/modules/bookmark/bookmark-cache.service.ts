@@ -71,7 +71,6 @@ export class BookmarkCacheService {
     if (dbValuesMap.size > 0) {
       await this.redis.hmset(this.keyPrefix, dbValuesMap);
     }
-    
 
     return ids.map(id => {
       const item = itemsMap.get(id);

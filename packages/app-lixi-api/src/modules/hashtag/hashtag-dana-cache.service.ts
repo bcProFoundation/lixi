@@ -86,7 +86,6 @@ export class HashtagDanaCacheService {
       await this.redis.hmset(this.keyPrefix, dbValuesMap);
     }
 
-
     // Build and return the result
     return ids.map(id => {
       const hashtagDana = hashtagDanasMap.get(id);

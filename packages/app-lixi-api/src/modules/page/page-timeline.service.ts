@@ -10,17 +10,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { toImageUrl } from './page.utils';
 
 export class PageTimelineCacheService {
-  constructor(
-    private readonly prisma: PrismaService,
-    @InjectRedis() private readonly redis: Redis
-  ) {
-  }
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
 
   async cachePageTimelineByTime(accountId: number) {
     const key = `timeline:pages:account:${accountId}`;
   }
 
-  getTimelineIdsByUser(accountId: number) {
-
-  }
+  getTimelineIdsByUser(accountId: number) {}
 }
