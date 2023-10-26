@@ -1,4 +1,5 @@
 import { Account, AccountDana, CreateAccountInput, ImportAccountInput, UpdateAccountInput } from '@bcpros/lixi-models';
+import { ImageUploadableType } from '@bcpros/lixi-prisma';
 import MinimalBCHWallet from '@bcpros/minimal-xpi-slp-wallet';
 import { HttpException, HttpStatus, Inject, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
@@ -280,6 +281,160 @@ export class AccountResolver {
     if (!account) {
       const couldNotFindAccount = await this.i18n.t('page.messages.couldNotFindAccount');
       throw new VError.WError(couldNotFindAccount);
+    }
+
+    const { avatar: avatarId, cover: coverId } = data;
+
+    /*Account Avatar*/
+    if (avatarId) {
+      await this.prisma.$transaction(async prisma => {
+        //find account avatar image uploadable
+        const result = await prisma.imageUploadable.findFirst({
+          where: {
+            AND: [
+              {
+                account: {
+                  id: account.id
+                }
+              },
+              {
+                accountAvatar: {
+                  id: account.id
+                }
+              }
+            ]
+          }
+        });
+
+        if (!result) {
+          //if not found, create new one and connect to account and uploads
+          const imageUploadable = await prisma.imageUploadable.create({
+            data: {
+              account: {
+                connect: {
+                  id: account.id
+                }
+              },
+              uploads: {
+                connect: {
+                  id: avatarId
+                }
+              },
+              accountAvatar: {
+                connect: {
+                  id: account.id
+                }
+              },
+              type: ImageUploadableType.ACCOUNT_AVATAR
+            }
+          });
+
+          return imageUploadable;
+        } else {
+          //if found, disconnect all uploads and connect new one
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                set: []
+              }
+            }
+          });
+
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                connect: {
+                  id: avatarId
+                }
+              }
+            }
+          });
+
+          return result;
+        }
+      });
+    }
+
+    /*Account Cover*/
+    if (coverId) {
+      await this.prisma.$transaction(async prisma => {
+        //find page avatar image uploadable
+        const result = await prisma.imageUploadable.findFirst({
+          where: {
+            AND: [
+              {
+                account: {
+                  id: account.id
+                }
+              },
+              {
+                accountCover: {
+                  id: account.id
+                }
+              }
+            ]
+          }
+        });
+
+        if (!result) {
+          //if not found, create new one and connect to account and uploads
+          const imageUploadable = await prisma.imageUploadable.create({
+            data: {
+              account: {
+                connect: {
+                  id: account.id
+                }
+              },
+              uploads: {
+                connect: {
+                  id: coverId
+                }
+              },
+              accountCover: {
+                connect: {
+                  id: account.id
+                }
+              },
+              type: ImageUploadableType.ACCOUNT_COVER
+            }
+          });
+
+          return imageUploadable;
+        } else {
+          //if found, disconnect all uploads and connect new one
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                set: []
+              }
+            }
+          });
+
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                connect: {
+                  id: coverId
+                }
+              }
+            }
+          });
+
+          return result;
+        }
+      });
     }
 
     const uploadAvatarDetail = data.avatar

@@ -86,6 +86,20 @@ export type TimelineQuery = {
         translateContent?: string | null;
         translateLanguage?: string | null;
       }> | null;
+      postImageUploadable?: {
+        __typename?: 'ImageUploadable';
+        id: string;
+        uploads: {
+          __typename?: 'Upload';
+          id: string;
+          sha: string;
+          bucket?: string | null;
+          width?: number | null;
+          height?: number | null;
+          cfImageId?: string | null;
+          cfImageFilename?: string | null;
+        };
+      } | null;
     } | null;
   };
 };
@@ -172,6 +186,20 @@ export type HomeTimelineQuery = {
             translateContent?: string | null;
             translateLanguage?: string | null;
           }> | null;
+          postImageUploadable?: {
+            __typename?: 'ImageUploadable';
+            id: string;
+            uploads: {
+              __typename?: 'Upload';
+              id: string;
+              sha: string;
+              bucket?: string | null;
+              width?: number | null;
+              height?: number | null;
+              cfImageId?: string | null;
+              cfImageFilename?: string | null;
+            };
+          } | null;
         } | null;
       };
     }> | null;

@@ -82,6 +82,20 @@ export type PostQuery = {
       translateContent?: string | null;
       translateLanguage?: string | null;
     }> | null;
+    postImageUploadable?: {
+      __typename?: 'ImageUploadable';
+      id: string;
+      uploads: {
+        __typename?: 'Upload';
+        id: string;
+        sha: string;
+        bucket?: string | null;
+        width?: number | null;
+        height?: number | null;
+        cfImageId?: string | null;
+        cfImageFilename?: string | null;
+      };
+    } | null;
   };
 };
 
@@ -165,6 +179,20 @@ export type PostsByPageIdQuery = {
           translateContent?: string | null;
           translateLanguage?: string | null;
         }> | null;
+        postImageUploadable?: {
+          __typename?: 'ImageUploadable';
+          id: string;
+          uploads: {
+            __typename?: 'Upload';
+            id: string;
+            sha: string;
+            bucket?: string | null;
+            width?: number | null;
+            height?: number | null;
+            cfImageId?: string | null;
+            cfImageFilename?: string | null;
+          };
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -256,6 +284,20 @@ export type PostsByUserIdQuery = {
           translateContent?: string | null;
           translateLanguage?: string | null;
         }> | null;
+        postImageUploadable?: {
+          __typename?: 'ImageUploadable';
+          id: string;
+          uploads: {
+            __typename?: 'Upload';
+            id: string;
+            sha: string;
+            bucket?: string | null;
+            width?: number | null;
+            height?: number | null;
+            cfImageId?: string | null;
+            cfImageFilename?: string | null;
+          };
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -347,6 +389,20 @@ export type PostsByHashtagIdQuery = {
           translateContent?: string | null;
           translateLanguage?: string | null;
         }> | null;
+        postImageUploadable?: {
+          __typename?: 'ImageUploadable';
+          id: string;
+          uploads: {
+            __typename?: 'Upload';
+            id: string;
+            sha: string;
+            bucket?: string | null;
+            width?: number | null;
+            height?: number | null;
+            cfImageId?: string | null;
+            cfImageFilename?: string | null;
+          };
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -438,6 +494,20 @@ export type PostsByTokenIdQuery = {
           translateContent?: string | null;
           translateLanguage?: string | null;
         }> | null;
+        postImageUploadable?: {
+          __typename?: 'ImageUploadable';
+          id: string;
+          uploads: {
+            __typename?: 'Upload';
+            id: string;
+            sha: string;
+            bucket?: string | null;
+            width?: number | null;
+            height?: number | null;
+            cfImageId?: string | null;
+            cfImageFilename?: string | null;
+          };
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -862,6 +932,20 @@ export type PostFieldsFragment = {
     translateContent?: string | null;
     translateLanguage?: string | null;
   }> | null;
+  postImageUploadable?: {
+    __typename?: 'ImageUploadable';
+    id: string;
+    uploads: {
+      __typename?: 'Upload';
+      id: string;
+      sha: string;
+      bucket?: string | null;
+      width?: number | null;
+      height?: number | null;
+      cfImageId?: string | null;
+      cfImageFilename?: string | null;
+    };
+  } | null;
 };
 
 export type PostMeiliFieldsFragment = {
@@ -990,6 +1074,20 @@ export type CreatePostMutation = {
       translateContent?: string | null;
       translateLanguage?: string | null;
     }> | null;
+    postImageUploadable?: {
+      __typename?: 'ImageUploadable';
+      id: string;
+      uploads: {
+        __typename?: 'Upload';
+        id: string;
+        sha: string;
+        bucket?: string | null;
+        width?: number | null;
+        height?: number | null;
+        cfImageId?: string | null;
+        cfImageFilename?: string | null;
+      };
+    } | null;
   };
 };
 
@@ -1059,6 +1157,20 @@ export type UpdatePostMutation = {
       translateContent?: string | null;
       translateLanguage?: string | null;
     }> | null;
+    postImageUploadable?: {
+      __typename?: 'ImageUploadable';
+      id: string;
+      uploads: {
+        __typename?: 'Upload';
+        id: string;
+        sha: string;
+        bucket?: string | null;
+        width?: number | null;
+        height?: number | null;
+        cfImageId?: string | null;
+        cfImageFilename?: string | null;
+      };
+    } | null;
   };
 };
 
@@ -1136,6 +1248,18 @@ export const PostFieldsFragmentDoc = `
     id
     translateContent
     translateLanguage
+  }
+  postImageUploadable {
+    id
+    uploads {
+      id
+      sha
+      bucket
+      width
+      height
+      cfImageId
+      cfImageFilename
+    }
   }
   danaViewScore
 }

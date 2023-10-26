@@ -510,6 +510,43 @@ enum HashtagOrderField {
   updatedAt
 }
 
+type ImageUploadable {
+  account: Account!
+  accountAvatar: Account
+  accountCover: Account
+  comment: Comment
+  event: Event
+  id: ID!
+  lixi: LixiModel
+  message: Message
+  pageAvatar: Page
+  pageCover: Page
+  poll: Poll
+  post: Post
+  product: Product
+  templeAvatar: Temple
+  templeCover: Temple
+  type: ImageUploadableType
+  uploads: [Upload!]!
+}
+
+"""Properties by type of the image uploadable."""
+enum ImageUploadableType {
+  ACCOUNT_AVATAR
+  ACCOUNT_COVER
+  COMMENT
+  EVENT
+  LIXI
+  MESSAGE
+  PAGE_AVATAR
+  PAGE_COVER
+  POLL
+  POST
+  PRODUCT
+  TEMPLE_AVATAR
+  TEMPLE_COVER
+}
+
 input ImportAccountInput {
   language: String
   mnemonic: String!
@@ -870,11 +907,9 @@ type PollOption {
 }
 
 type Post {
-  avatarImageUplodableId: String
   bookmarkableId: String
   commentableId: String
   content: String!
-  coverImageUplodableId: String
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
@@ -886,7 +921,6 @@ type Post {
   followedPage: Boolean
   followedToken: Boolean
   id: ID!
-  imageUploadableId: String
   originalLanguage: String
   page: Page
   pageId: String
@@ -894,6 +928,7 @@ type Post {
   postAccountId: Int!
   postDana: PostDana
   postHashtags: [PostHashtag!]
+  postImageUploadable: ImageUploadable
   repostCount: Int
   reposts: [Repost!]
   taggableId: String

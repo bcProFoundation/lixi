@@ -141,14 +141,7 @@ query PostsByTokenId(
   }
 }
 
-query PostsBySearch(
-  $after: String
-  $before: String
-  $first: Int
-  $last: Int
-  $query: String
-  $minBurnFilter: Int
-) {
+query PostsBySearch($after: String, $before: String, $first: Int, $last: Int, $query: String, $minBurnFilter: Int) {
   allPostsBySearch(
     after: $after
     before: $before
@@ -336,6 +329,18 @@ fragment PostFields on Post {
     id
     translateContent
     translateLanguage
+  }
+  postImageUploadable {
+    id
+    uploads {
+      id
+      sha
+      bucket
+      width
+      height
+      cfImageId
+      cfImageFilename
+    }
   }
   danaViewScore
 }

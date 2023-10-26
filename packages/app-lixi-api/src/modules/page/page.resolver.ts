@@ -25,6 +25,7 @@ import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { PageCacheService } from './page-cache.service';
 import { FollowCacheService } from '../account/follow-cache.service';
+import { ImageUploadableType } from '@bcpros/lixi-prisma';
 
 const pubSub = new PubSub();
 
@@ -40,7 +41,7 @@ export class PageResolver {
     private readonly followCacheService: FollowCacheService,
     @I18n() private i18n: I18nService,
     @Inject('xpijs') private XPI: BCHJS
-  ) { }
+  ) {}
 
   @Subscription(() => Page)
   pageCreated() {
@@ -183,6 +184,9 @@ export class PageResolver {
         },
         salt: salt,
         encryptedMnemonic: encryptedMnemonic
+      },
+      include: {
+        pageAccount: true
       }
     });
 
@@ -198,21 +202,159 @@ export class PageResolver {
       throw new VError.WError(couldNotFindAccount);
     }
 
-    const uploadAvatarDetail = data.avatar
-      ? await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: data.avatar
-        }
-      })
-      : undefined;
+    const { avatar: avatarId, cover: coverId, id: pageId } = data;
 
-    const uploadCoverDetail = data.cover
-      ? await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: data.cover
+    /*Page Avatar*/
+    if (avatarId) {
+      await this.prisma.$transaction(async prisma => {
+        //find page avatar image uploadable
+        const result = await prisma.imageUploadable.findFirst({
+          where: {
+            AND: [
+              {
+                account: {
+                  id: account.id
+                }
+              },
+              {
+                pageAvatar: {
+                  id: pageId
+                }
+              }
+            ]
+          }
+        });
+
+        if (!result) {
+          //if not found, create new one and connect to account, page and uploads
+          const imageUploadable = await prisma.imageUploadable.create({
+            data: {
+              account: {
+                connect: {
+                  id: account.id
+                }
+              },
+              uploads: {
+                connect: {
+                  id: avatarId
+                }
+              },
+              pageAvatar: {
+                connect: {
+                  id: pageId
+                }
+              },
+              type: ImageUploadableType.PAGE_AVATAR
+            }
+          });
+
+          return imageUploadable;
+        } else {
+          //if found, disconnect all uploads and connect new one
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                set: []
+              }
+            }
+          });
+
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                connect: {
+                  id: avatarId
+                }
+              }
+            }
+          });
+
+          return result;
         }
-      })
-      : undefined;
+      });
+    }
+
+    /*Page Cover*/
+    if (coverId) {
+      await this.prisma.$transaction(async prisma => {
+        //find page avatar image uploadable
+        const result = await prisma.imageUploadable.findFirst({
+          where: {
+            AND: [
+              {
+                account: {
+                  id: account.id
+                }
+              },
+              {
+                pageCover: {
+                  id: coverId
+                }
+              }
+            ]
+          }
+        });
+
+        if (!result) {
+          //if not found, create new one and connect to account, page and uploads
+          const imageUploadable = await prisma.imageUploadable.create({
+            data: {
+              account: {
+                connect: {
+                  id: account.id
+                }
+              },
+              uploads: {
+                connect: {
+                  id: coverId
+                }
+              },
+              pageCover: {
+                connect: {
+                  id: pageId
+                }
+              },
+              type: ImageUploadableType.PAGE_COVER
+            }
+          });
+
+          return imageUploadable;
+        } else {
+          //if found, disconnect all uploads and connect new one
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                set: []
+              }
+            }
+          });
+
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                connect: {
+                  id: coverId
+                }
+              }
+            }
+          });
+
+          return result;
+        }
+      });
+    }
 
     const updatedPage = await this.prisma.page.update({
       where: {
@@ -221,36 +363,35 @@ export class PageResolver {
       data: {
         ..._.omit(data, ['categoryId', 'countryId', 'stateId', 'parentId', 'avatar', 'cover']),
         description: data.description?.trim() ?? '',
-        avatar: { connect: uploadAvatarDetail ? { id: uploadAvatarDetail.id } : undefined },
-        cover: { connect: uploadCoverDetail ? { id: uploadCoverDetail.id } : undefined },
         category: {
           connect: data.categoryId
             ? {
-              id: Number(data.categoryId)
-            }
+                id: Number(data.categoryId)
+              }
             : undefined
         },
         country: {
           connect: data.countryId
             ? {
-              id: Number(data.countryId)
-            }
+                id: Number(data.countryId)
+              }
             : undefined
         },
         state: {
           disconnect: !data.stateId,
           connect: data.stateId
             ? {
-              id: Number(data.stateId)
-            }
+                id: Number(data.stateId)
+              }
             : undefined
         }
+      },
+      include: {
+        pageAccount: true
       }
     });
 
     pubSub.publish('pageUpdated', { pageUpdated: updatedPage });
     return updatedPage;
   }
-
-
 }

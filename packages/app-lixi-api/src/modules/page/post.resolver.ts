@@ -1,6 +1,7 @@
 import {
   Account,
   CreatePostInput,
+  ImageUploadable as ImageUploadableModel,
   Page,
   PaginationArgs,
   Post,
@@ -13,7 +14,7 @@ import {
   UpdatePostInput,
   UploadDetail
 } from '@bcpros/lixi-models';
-import { NotificationLevel } from '@bcpros/lixi-prisma';
+import { ImageUploadable, ImageUploadableType, NotificationLevel } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
@@ -774,34 +775,30 @@ export class PostResolver {
     }
 
     const { uploads, pageId, htmlContent, tokenPrimaryId, pureContent } = data;
+    let imageUploadable: ImageUploadable;
 
-    let uploadDetailIds: any[] = [];
+    //create new imageUploadable
+    if (uploads && uploads.length > 0) {
+      imageUploadable = await this.prisma.$transaction(async prisma => {
+        const result = await prisma.imageUploadable.create({
+          data: {
+            account: { connect: { id: account.id } },
+            uploads: {
+              connect: uploads.map((upload: string) => {
+                return { id: upload };
+              })
+            },
+            type: ImageUploadableType.POST
+          }
+        });
 
-    const promises = uploads.map(async (id: string) => {
-      const uploadDetails = await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: id
-        }
+        return result;
       });
-
-      return uploadDetails && uploadDetails.id;
-    });
-
-    uploadDetailIds = await Promise.all(promises);
+    }
 
     const postToSave = {
       content: htmlContent,
       postAccount: { connect: { id: account.id } },
-      uploads: {
-        connect:
-          uploadDetailIds.length > 0
-            ? uploadDetailIds.map((uploadDetail: any) => {
-                return {
-                  id: uploadDetail
-                };
-              })
-            : undefined
-      },
       page: {
         connect: pageId ? { id: pageId } : undefined
       },
@@ -833,7 +830,10 @@ export class PostResolver {
         data: {
           ...postToSave,
           txid: txid,
-          createFee: createFee
+          createFee: createFee,
+          postImageUploadable: {
+            connect: imageUploadable ? { id: imageUploadable.id } : undefined
+          }
         },
         include: {
           page: {
@@ -1131,7 +1131,7 @@ export class PostResolver {
 
   @ResolveField('page', () => Page)
   async page(@Parent() post: Post) {
-    return post?.pageId ? this.postLoader.batchPages.load(post?.pageId): null;
+    return post?.pageId ? this.postLoader.batchPages.load(post?.pageId) : null;
   }
 
   @ResolveField('translations', () => [PostTranslation])
@@ -1185,5 +1185,22 @@ export class PostResolver {
       accountId: account?.id
     };
     return this.postLoader.batchCheckAccountFollowAllToken.load(payload);
+  }
+
+  @ResolveField('postImageUploadable', () => ImageUploadableModel)
+  async postImageUploadable(@Parent() post: Post, @PostAccountEntity() account: Account) {
+    const postImageUploadable = await this.prisma.post
+      .findUnique({
+        where: {
+          id: post.id
+        }
+      })
+      .postImageUploadable({
+        include: {
+          uploads: true
+        }
+      });
+
+    return postImageUploadable;
   }
 }

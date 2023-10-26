@@ -87,14 +87,14 @@ export class PageCacheService {
           category: true,
           country: true,
           state: true,
-          avatar: {
+          pageAvatarImageUploadable: {
             include: {
-              upload: true
+              uploads: true
             }
           },
-          cover: {
+          pageCoverImageUploadable: {
             include: {
-              upload: true
+              uploads: true
             }
           }
         }
@@ -114,8 +114,8 @@ export class PageCacheService {
         if (dbPage) {
           const page: Page = new Page({
             ...dbPage,
-            avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbPage.avatar?.upload),
-            cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbPage.cover?.upload)
+            avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbPage.pageAvatarImageUploadable?.uploads[0]),
+            cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbPage.pageCoverImageUploadable?.uploads[0])
           });
           const buffer = Buffer.from(encode(page));
           buffers[i] = buffer;
