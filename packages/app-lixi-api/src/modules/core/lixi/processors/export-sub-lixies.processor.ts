@@ -21,6 +21,7 @@ import { aesGcmDecrypt, numberToBase58 } from 'src/utils/encryptionMethods';
 import * as fs from 'fs';
 import moment from 'moment';
 import { AccountCacheService } from '../../../account/account-cache.service';
+import { XPIJS } from 'src/modules/wallet/wallet.constants';
 
 @Injectable()
 @Processor(EXPORT_SUB_LIXIES_QUEUE)
@@ -28,9 +29,7 @@ export class ExportSubLixiesProcessor extends WorkerHost {
   private logger: Logger = new Logger(ExportSubLixiesProcessor.name);
   constructor(
     private prisma: PrismaService,
-    private walletService: WalletService,
-    @Inject('xpijs') private XPI: BCHJS,
-    @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
+    @Inject(XPIJS) private XPI: BCHJS,
     private readonly accountCacheService: AccountCacheService
   ) {
     super();

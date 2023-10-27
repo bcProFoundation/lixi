@@ -33,6 +33,8 @@ import { ACCOUNT_DANA_QUEUE } from './burn/burn.constants';
 import IORedis from 'ioredis';
 import _ from 'lodash';
 import { UploadService } from './upload/upload.serivce';
+import { WalletModule } from '../wallet/wallet.module';
+import { WalletService } from '../wallet/wallet.service';
 const baseCorsConfig = cors({
   origin: process.env.BASE_URL ?? ''
 });
@@ -70,7 +72,16 @@ const baseCorsConfig = cors({
     NotificationModule,
     CloudflareModule,
     AccountModule,
-    MessageModule
+    MessageModule,
+    WalletModule.forRootAsync({
+      inject: [ConfigService],
+      imports: [ChronikModule],
+      useFactory: () => {
+        return {
+          currencies: ['xpi', 'xec']
+        };
+      }
+    })
   ],
   controllers: [
     AccountController,

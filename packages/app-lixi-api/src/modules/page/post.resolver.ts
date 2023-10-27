@@ -45,6 +45,7 @@ import { POST_FANOUT_QUEUE } from './constants/post.constants';
 import { MeiliService } from './meili.service';
 import { AccountCacheService } from '../account/account-cache.service';
 import PostLoader from './post.loader';
+import { XPIJS } from '../wallet/wallet.constants';
 
 const pubSub = new PubSub();
 
@@ -62,7 +63,7 @@ export class PostResolver {
     private readonly notificationService: NotificationService,
     private hashtagService: HashtagService,
     @InjectQueue(POST_FANOUT_QUEUE) private postFanoutQueue: Queue,
-    @Inject('xpijs') private XPI: BCHJS,
+    @Inject(XPIJS) private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @I18n() private i18n: I18nService,
     private readonly accountCacheService: AccountCacheService,

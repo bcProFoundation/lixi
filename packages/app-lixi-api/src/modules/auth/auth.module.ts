@@ -9,6 +9,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './guards/jwtauth.guard';
 import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from './guards/gql-jwtauth.guard';
 import { WsAuthGuardByPass } from './guards/wsauth.guard';
+import { WalletModule } from '../wallet/wallet.module';
 
 @Module({
   imports: [

@@ -77,6 +77,11 @@ enum AccountOrderField {
   updatedAt
 }
 
+type Balances {
+  totalBalance: String!
+  totalBalanceInSatoshis: String!
+}
+
 type Bookmark {
   account: Account!
   bookmarkId: String!
@@ -994,6 +999,7 @@ type Query {
   checkIfHasBookmarked(bookmarkId: String!, bookmarkType: BookmarkType!): Boolean!
   comment(id: String!): Comment!
   getAccountByAddress(address: String!): Account!
+  getBalances(address: String!): Balances!
   hashtag(content: String!): Hashtag!
   homeTimeline(after: String, before: String, first: Int, last: Int, level: Int, minBurnFilter: Int, skip: Int): TimelineItemConnection!
   message(id: String!): Message!

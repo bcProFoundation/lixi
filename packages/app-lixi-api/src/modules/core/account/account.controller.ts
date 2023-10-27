@@ -42,15 +42,15 @@ import { AccountCacheService } from '../../account/account-cache.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { WalletService } from '../../wallet/wallet.service';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
+import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 
 @SkipThrottle()
 @Controller('accounts')
 export class AccountController {
   constructor(
     private prisma: PrismaService,
-    private readonly walletService: WalletService,
-    @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
-    @Inject('xpijs') private XPI: BCHJS,
+    @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
+    @Inject(XPIJS) private XPI: BCHJS,
     private readonly accountCacheService: AccountCacheService,
     private readonly notificationService: NotificationService
   ) {}
@@ -76,11 +76,12 @@ export class AccountController {
         throw new VError(accountNotExistMessage);
       }
 
-      const balance: number = await this.xpiWallet.getBalance(account.address);
+      const walletService = this.walletServices['xpi'];
+      const { totalBalanceInSatoshis } = await walletService.getBalances(account.address);
 
       const result = {
         ...account,
-        balance: balance,
+        balance: Number(totalBalanceInSatoshis),
         page: account.pages
       };
 
@@ -186,8 +187,10 @@ export class AccountController {
       });
 
       if (!account) {
+        const walletService = this.walletServices['xpi'];
+
         // Validate mnemonic
-        let isValidMnemonic = await this.walletService.validateMnemonic(mnemonic);
+        let isValidMnemonic = await walletService.validateMnemonic(mnemonic);
         if (!isValidMnemonic) {
           const mnemonicNotValidMessage = await i18n.t('account.messages.mnemonicNotValid');
           throw Error(mnemonicNotValidMessage);
@@ -200,7 +203,7 @@ export class AccountController {
         const encryptedSecret = await aesGcmEncrypt(accountSecret, mnemonic);
 
         // create account in database
-        const { address, publicKey } = await this.walletService.deriveAddress(mnemonic, 0);
+        const { address, publicKey } = await walletService.deriveAddress(mnemonic, 0);
         const name = address.slice(12, 17);
         const accountToInsert = {
           name: name,
@@ -218,14 +221,14 @@ export class AccountController {
           data: accountToInsert
         });
         await this.accountCacheService.deleteById(createdAccount.id);
-        const balance: number = await this.xpiWallet.getBalance(createdAccount.address);
+        const { totalBalanceInSatoshis } = await walletService.getBalances(createdAccount.address);
 
         const resultApi = _.omit(
           {
             ..._.omit(createdAccount, 'publicKey'),
             name: createdAccount.name,
             address: createdAccount.address,
-            balance: balance,
+            balance: Number(totalBalanceInSatoshis),
             secret: accountSecret
           } as AccountDto,
           ['mnemonic', 'encryptedMnemonic']
@@ -240,7 +243,8 @@ export class AccountController {
           throw Error(importAccountNotFoundMessage);
         }
 
-        const balance: number = await this.xpiWallet.getBalance(account.address);
+        const walletService = this.walletServices['xpi'];
+        const { totalBalanceInSatoshis } = await walletService.getBalances(account.address);
         const accountSecret = await aesGcmDecrypt(account.encryptedSecret, mnemonic);
 
         const resultApi = _.omit(
@@ -248,7 +252,7 @@ export class AccountController {
             ..._.omit(account, 'publicKey'),
             name: account.name,
             address: account.address,
-            balance: balance,
+            balance: Number(totalBalanceInSatoshis),
             secret: accountSecret
           } as AccountDto,
           ['mnemonic', 'encryptedMnemonic']
@@ -271,7 +275,9 @@ export class AccountController {
   async createAccount(@Body() command: CreateAccountCommand, @I18n() i18n: I18nContext): Promise<AccountDto> {
     if (command) {
       try {
-        const { address, publicKey } = await this.walletService.deriveAddress(command.mnemonic, 0);
+        const walletService = this.walletServices['xpi'];
+
+        const { address, publicKey } = await walletService.deriveAddress(command.mnemonic, 0);
         const name = address.slice(12, 17);
 
         // Create random account secret then encrypt it using mnemonic

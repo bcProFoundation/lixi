@@ -2,8 +2,8 @@ import BigNumber from 'bignumber.js';
 
 import { currency } from '../constants/ticker';
 
-export const fromSmallestDenomination = (amount: number, cashDecimals = currency.cashDecimals): number => {
-  const amountBig = new BigNumber(amount);
+export const fromSmallestDenomination = (amount: number | BigNumber, cashDecimals = currency.cashDecimals): number => {
+  const amountBig = BigNumber.isBigNumber(amount) ? amount : new BigNumber(amount);
   const multiplier = new BigNumber(10 ** (-1 * cashDecimals));
   const amountInBaseUnits = amountBig.times(multiplier);
   return amountInBaseUnits.toNumber();

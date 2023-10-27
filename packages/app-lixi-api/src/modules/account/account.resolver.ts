@@ -22,6 +22,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { WalletService } from '../wallet/wallet.service';
 import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
 import { AccountCacheService } from './account-cache.service';
+import { WALLET_SERVICES } from '../wallet/wallet.constants';
 
 const pubSub = new PubSub();
 
@@ -31,9 +32,8 @@ const pubSub = new PubSub();
 export class AccountResolver {
   constructor(
     private prisma: PrismaService,
-    private readonly walletService: WalletService,
+    @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
     @I18n() private i18n: I18nService,
-    @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
     private readonly accountCacheService: AccountCacheService
   ) {}
 
@@ -181,7 +181,8 @@ export class AccountResolver {
   async createAccount(@Args('data') data: CreateAccountInput) {
     if (data) {
       try {
-        const { address, publicKey } = await this.walletService.deriveAddress(data.mnemonic, 0);
+        const walletService = this.walletServices['xpi'];
+        const { address, publicKey } = await walletService.deriveAddress(data.mnemonic, 0);
         const name = address.slice(12, 17);
 
         const existedWallet = await this.prisma.account.findFirst({
@@ -258,7 +259,8 @@ export class AccountResolver {
 
       if (!account) {
         // Validate mnemonic
-        let isValidMnemonic = await this.walletService.validateMnemonic(mnemonic);
+        const walletService = this.walletServices['xpi'];
+        let isValidMnemonic = await walletService.validateMnemonic(mnemonic);
         if (!isValidMnemonic) {
           const mnemonicNotValidMessage = await this.i18n.t('account.messages.mnemonicNotValid');
           throw Error(mnemonicNotValidMessage);
@@ -271,7 +273,7 @@ export class AccountResolver {
         const encryptedSecret = await aesGcmEncrypt(accountSecret, mnemonic);
 
         // create account in database
-        const { address, publicKey } = await this.walletService.deriveAddress(mnemonic, 0);
+        const { address, publicKey } = await walletService.deriveAddress(mnemonic, 0);
         const name = address.slice(12, 17);
         const accountToInsert = {
           name: name,
@@ -289,14 +291,15 @@ export class AccountResolver {
           data: accountToInsert
         });
         await this.accountCacheService.deleteById(createdAccount.id);
-        const balance: number = await this.xpiWallet.getBalance(createdAccount.address);
+
+        const { totalBalanceInSatoshis } = await this.walletServices['xpi'].getBalances(createdAccount.address);
 
         const resultApi = _.omit(
           {
             ..._.omit(createdAccount, 'publicKey'),
             name: createdAccount.name,
             address: createdAccount.address,
-            balance: balance,
+            balance: totalBalanceInSatoshis,
             secret: accountSecret
           },
           ['mnemonic', 'encryptedMnemonic']
@@ -311,7 +314,7 @@ export class AccountResolver {
           throw Error(importAccountNotFoundMessage);
         }
 
-        const balance: number = await this.xpiWallet.getBalance(account.address);
+        const { totalBalanceInSatoshis } = await this.walletServices['xpi'].getBalances(account.address);
         const accountSecret = await aesGcmDecrypt(account.encryptedSecret, mnemonic);
 
         const resultApi = _.omit(
@@ -319,7 +322,7 @@ export class AccountResolver {
             ..._.omit(account, 'publicKey'),
             name: account.name,
             address: account.address,
-            balance: balance,
+            balance: Number(totalBalanceInSatoshis),
             secret: accountSecret
           } as AccountDto,
           ['mnemonic', 'encryptedMnemonic']
