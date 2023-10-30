@@ -31,6 +31,7 @@
     "update:dana": "ts-node scripts/dana/index.ts"
   },
   "dependencies": {
+    "@abcpros/bitcore-lib-xpi": "^8.25.37",
     "@aws-sdk/client-s3": "^3.6.0",
     "@bcpros/lixi-models": "^1.1.4",
     "@bcpros/lixi-prisma": "^1.1.4",
