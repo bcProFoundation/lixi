@@ -35,7 +35,7 @@ export class PostFanoutProcessor extends WorkerHost {
       // Invalidate the cache
       const epoch = '2023-01-01 00:00:00';
       const diffHour = moment.duration(moment(post.createdAt).diff(moment(epoch))).asHours();
-      const score = 10 * Math.pow(2, diffHour / 12);
+      const score = 1 * Math.pow(2, diffHour / 12);
 
       const postAccountId = post.postAccountId;
       const pageAccountId = post?.pageId;
