@@ -90,7 +90,7 @@ export function useInfinitePostsByTokenIdQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allPostsByTokenId?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allPostsByTokenId?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

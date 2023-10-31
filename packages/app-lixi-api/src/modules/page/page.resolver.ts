@@ -1,13 +1,15 @@
 import {
   Account,
-  Category,
   CreatePageInput,
+  DEFAULT_CATEGORY,
+  IBasicPaginated,
   Page,
+  PageBasicConnection,
   PageConnection,
+  PageDana,
   PageOrder,
   PaginationArgs,
-  UpdatePageInput,
-  DEFAULT_CATEGORY
+  UpdatePageInput
 } from '@bcpros/lixi-models';
 import BCHJS from '@bcpros/xpi-js';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
@@ -20,100 +22,71 @@ import { I18n, I18nService } from 'nestjs-i18n';
 import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import VError from 'verror';
+import { createEdge } from '../../common/custom-graphql-relay/paginate';
 import { aesGcmEncrypt, generateRandomBase58Str } from '../../utils/encryptionMethods';
+import { FollowCacheService } from '../account/follow-cache.service';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { PageCacheService } from './page-cache.service';
-import { FollowCacheService } from '../account/follow-cache.service';
-
-const pubSub = new PubSub();
+import { PageTimelineCacheService } from './page-timeline-cache.service';
+import PageLoader from './page.loader';
 
 @SkipThrottle()
 @Resolver(() => Page)
 @UseFilters(GqlHttpExceptionFilter)
 export class PageResolver {
+  static pubSub = new PubSub();
   private logger: Logger = new Logger(this.constructor.name);
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly pageLoader: PageLoader,
     private readonly pageCacheService: PageCacheService,
     private readonly followCacheService: FollowCacheService,
+    private readonly pageTimelineCacheService: PageTimelineCacheService,
     @I18n() private i18n: I18nService,
     @Inject('xpijs') private XPI: BCHJS
-  ) { }
+  ) {}
 
   @Subscription(() => Page)
-  pageCreated() {
-    return pubSub.asyncIterator('pageCreated');
+  static pageCreated() {
+    return PageResolver.pubSub.asyncIterator('pageCreated');
   }
 
   @Query(() => Page)
   async page(@PageAccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
-    const page = await this.prisma.page.findFirst({
-      where: { id: id },
-      include: {
-        pageAccount: true,
-        category: true,
-        country: true,
-        state: true
-      }
-    });
-
-    // TODO: Shorten query
-    const followersCount = await this.prisma.followPage.count({
-      where: { pageId: id }
-    });
-
-    const result = {
-      ...page,
-      followersCount: followersCount,
-      totalBurnForPage: page ? page.danaBurnScore + page.totalPostsBurnScore : 0,
-      categoryId: page?.categoryId ?? DEFAULT_CATEGORY,
-      countryName: page?.country?.name ?? undefined,
-      stateName: page?.state?.name ?? undefined
-    };
-
-    return result;
+    return await this.pageCacheService.getById(id);
   }
 
-  @Query(() => PageConnection)
-  async allPages(
-    @Args() { after, before, first, last }: PaginationArgs,
-    @Args({ name: 'query', type: () => String, nullable: true })
-    query: string,
-    @Args({
-      name: 'orderBy',
-      type: () => [PageOrder!],
-      nullable: true
-    })
-    orderBy: PageOrder[]
+  @Query(() => PageBasicConnection)
+  @UseGuards(GqlJwtAuthGuard)
+  async pagesByFollower(
+    @PageAccountEntity() account: Account,
+    @Args() { after, before, first = 20, last }: PaginationArgs
   ) {
-    const result = await findManyCursorConnection(
-      async args => {
-        const pages = await this.prisma.page
-          .findMany({
-            include: {
-              pageAccount: true
-            },
-            orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
-            ...args
-          })
-          .then(pages =>
-            pages
-              .map(page => ({
-                ...page,
-                totalBurnForPage: page.danaBurnScore + page.totalPostsBurnScore ?? 0,
-                categoryId: page?.categoryId ?? DEFAULT_CATEGORY
-              }))
-              .sort((a, b) => b.totalBurnForPage - a.totalBurnForPage)
-          );
+    if (!account) {
+      const accountNotExist = await this.i18n.t('account.messages.accountNotExist');
+      throw Error(accountNotExist);
+    }
 
-        return pages;
-      },
-      () => this.prisma.page.count(),
-      { first, last, before, after }
-    );
-    return result;
+    const paginated = await this.followCacheService.getPaginatedPageFollowings(account.id, first, after);
+    const pageIds = paginated.edges.map(item => item.cursor);
+    const pages = await this.pageCacheService.getByIds(pageIds);
+    return {
+      ...paginated,
+      edges: pages.map(page => (page ? createEdge<Page>(page, 'id') : null))
+    } as IBasicPaginated<Page>;
+  }
+
+  @Query(() => PageBasicConnection)
+  async allPages(@Args() { after, before, first = 20, last }: PaginationArgs) {
+    const paginated = await this.pageTimelineCacheService.getPaginatedPageTimeline(first, after);
+    const pageIds = paginated.edges.map(item => item.cursor);
+    const pages = await this.pageCacheService.getByIds(pageIds);
+    return {
+      ...paginated,
+      edges: pages.map(page => (page ? createEdge<Page>(page, 'id') : null))
+    } as IBasicPaginated<Page>;
   }
 
   @Query(() => PageConnection)
@@ -186,7 +159,7 @@ export class PageResolver {
       }
     });
 
-    pubSub.publish('pageCreated', { pageCreated: createdPage });
+    PageResolver.pubSub.publish('pageCreated', { pageCreated: createdPage });
     return createdPage;
   }
 
@@ -200,18 +173,18 @@ export class PageResolver {
 
     const uploadAvatarDetail = data.avatar
       ? await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: data.avatar
-        }
-      })
+          where: {
+            uploadId: data.avatar
+          }
+        })
       : undefined;
 
     const uploadCoverDetail = data.cover
       ? await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: data.cover
-        }
-      })
+          where: {
+            uploadId: data.cover
+          }
+        })
       : undefined;
 
     const updatedPage = await this.prisma.page.update({
@@ -226,31 +199,39 @@ export class PageResolver {
         category: {
           connect: data.categoryId
             ? {
-              id: Number(data.categoryId)
-            }
+                id: Number(data.categoryId)
+              }
             : undefined
         },
         country: {
           connect: data.countryId
             ? {
-              id: Number(data.countryId)
-            }
+                id: Number(data.countryId)
+              }
             : undefined
         },
         state: {
           disconnect: !data.stateId,
           connect: data.stateId
             ? {
-              id: Number(data.stateId)
-            }
+                id: Number(data.stateId)
+              }
             : undefined
         }
       }
     });
 
-    pubSub.publish('pageUpdated', { pageUpdated: updatedPage });
+    PageResolver.pubSub.publish('pageUpdated', { pageUpdated: updatedPage });
     return updatedPage;
   }
 
+  @ResolveField('followersCount', () => Number)
+  async followersCount(@Parent() page: Page) {
+    return this.pageLoader.batchFollowersCount.load(page.id);
+  }
 
+  @ResolveField('pageDana', () => PageDana)
+  async accountDana(@Parent() page: Page) {
+    return this.pageLoader.batchPageDanas.load(page.id);
+  }
 }

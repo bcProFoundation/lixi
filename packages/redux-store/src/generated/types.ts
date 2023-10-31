@@ -1,3 +1,4 @@
+import { Poll } from './types.generated';
 import { AccountQuery } from '../store/account/accounts.generated';
 import { CommentQuery } from '../store/comment/comments.generated';
 import { HashtagQuery } from '../store/hashtag';
@@ -12,6 +13,7 @@ export type CommentQueryItem = CommentQuery['comment'];
 export type HashtagQueryItem = HashtagQuery['hashtag'];
 export type PageQueryItem = PageQuery['page'];
 export type PostQueryItem = PostQuery['post'];
+export type PollQueryItem = Poll;
 export type TimelineQueryItem = TimelineQuery['timeline'];
 export type TokenQueryItem = TokenQuery['token'];
 export type WorshipQueryItem = WorshipQuery['worship'];
@@ -19,6 +21,7 @@ export type WorshipedPersonQueryItem = WorshipedPersonQuery['worshipedPerson'];
 
 export type BurnForItem =
   | PostQueryItem
+  | PollQueryItem
   | PageQueryItem
   | CommentQueryItem
   | TokenQueryItem

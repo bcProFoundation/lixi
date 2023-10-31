@@ -34,6 +34,8 @@ export class CommentCacheService {
   }
 
   async getByIds(ids: string[]) {
+    if (ids.length === 0) return [];
+
     const values = await this.redis.hmgetBuffer(this.keyPrefix, ...ids);
     const uncachedIds = [];
     for (let i = 0; i < ids.length; i++) {

@@ -1,21 +1,18 @@
-import styled from 'styled-components';
-import intl from 'react-intl-universal';
-import { useState } from 'react';
 import { CopyOutlined } from '@ant-design/icons';
-import { useInfinitePagesQuery } from '@store/page/useInfinitePagesQuery';
-import _ from 'lodash';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { getNavCollapsed } from '@store/settings/selectors';
-import { toggleCollapsedSideNav } from '@store/settings/actions';
-import { useRouter } from 'next/router';
-import { getRecentVisitedPeople, getSelectedAccount } from '@store/account/selectors';
 import { AvatarUser } from '@components/Common/AvatarUser';
-import { message, Space } from 'antd';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { getRecentVisitedPeople, getSelectedAccount } from '@store/account/selectors';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { toggleCollapsedSideNav } from '@store/settings/actions';
+import { getNavCollapsed } from '@store/settings/selectors';
 import { getWalletStatus } from '@store/wallet';
-import SidebarListItem from './SidebarListItem';
-import { fromSmallestDenomination } from '@utils/cashMethods';
 import { useWorshipedPeopleByUserIdQuery } from '@store/worship/worshipedPerson.generated';
+import { fromSmallestDenomination } from '@utils/cashMethods';
+import { Space, message } from 'antd';
+import { useRouter } from 'next/router';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import intl from 'react-intl-universal';
+import styled from 'styled-components';
+import SidebarListItem from './SidebarListItem';
 
 type SidebarContentProps = {
   className?: string;

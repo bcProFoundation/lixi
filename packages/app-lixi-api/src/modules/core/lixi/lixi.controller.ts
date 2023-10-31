@@ -6,7 +6,7 @@ import {
   ExportLixiCommand,
   fromSmallestDenomination,
   LixiDto,
-  PaginationResult,
+  IPaginationResult,
   PostLixiResponseDto,
   RegisterLixiPackCommand,
   RenameLixiCommand,
@@ -177,7 +177,7 @@ export class LixiController {
     @Query('limit') limit: number,
     @Headers('account-secret') accountSecret: string,
     @I18n() i18n: I18nContext
-  ): Promise<PaginationResult<LixiDto>> {
+  ): Promise<IPaginationResult<LixiDto>> {
     const lixiId = _.toSafeInteger(id);
     const take = limit ? _.toSafeInteger(limit) : 10;
     const cursor = startId ? _.toSafeInteger(startId) : null;
@@ -259,7 +259,7 @@ export class LixiController {
           endCursor
         },
         totalCount: count
-      } as PaginationResult<LixiDto>;
+      } as IPaginationResult<LixiDto>;
     } catch (err: unknown) {
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -888,7 +888,7 @@ export class LixiController {
     @Param('id') id: string,
     @Query() { startId, limit }: PaginationParams,
     @I18n() i18n: I18nContext
-  ): Promise<PaginationResult<Claim>> {
+  ): Promise<IPaginationResult<Claim>> {
     const lixiId = _.toSafeInteger(id);
     const take = limit ? _.toSafeInteger(limit) : 4;
 
@@ -981,7 +981,7 @@ export class LixiController {
           endCursor
         },
         totalCount: count
-      } as PaginationResult<Claim>;
+      } as IPaginationResult<Claim>;
     } catch (err) {
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);

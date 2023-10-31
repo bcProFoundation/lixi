@@ -2,7 +2,7 @@ import {
   DownloadExportedLixiCommand,
   ExportLixiCommand,
   LixiDto,
-  PaginationResult,
+  IPaginationResult,
   RegisterLixiPackCommand
 } from '@bcpros/lixi-models';
 import {
@@ -39,7 +39,7 @@ const lixiApi = {
         throw response?.data ?? err ?? 'Network Error';
       });
   },
-  getSubLixies(parentId: number, accountSecret?: string, startId?: number): Promise<PaginationResult<LixiDto>> {
+  getSubLixies(parentId: number, accountSecret?: string, startId?: number): Promise<IPaginationResult<LixiDto>> {
     const config = accountSecret
       ? {
           headers: {
@@ -54,7 +54,7 @@ const lixiApi = {
     return axiosClient
       .get(url, config)
       .then(response => {
-        return response.data as PaginationResult<LixiDto>;
+        return response.data as IPaginationResult<LixiDto>;
       })
       .catch(err => {
         const { response } = err;

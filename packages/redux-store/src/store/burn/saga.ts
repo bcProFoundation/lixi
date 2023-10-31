@@ -43,7 +43,7 @@ import intl from 'react-intl-universal';
 import { buffers } from 'redux-saga';
 import { actionChannel, flush, getContext, put, select } from 'redux-saga/effects';
 import { match } from 'ts-pattern';
-import { BurnForItem } from '../../generated';
+import { BurnForItem, PostQueryItem } from '@generated/index';
 import { hideLoading } from '../loading/actions';
 import { getFilterPostsHome, getLevelFilter } from '../settings';
 import {
@@ -139,11 +139,13 @@ function* prepareBurnCommandSaga(
 
     const extraArguments: BurnExtraArguments = match(burnForType)
       .with(BurnForType.Post, () => {
+        const post = burnForItem as Post;
         return {
           postQueryTags: [PostsQueryTag.Post],
           postId: burnForItem.id.toString(),
           minBurnFilter: filterValue,
-          level: level
+          level: level,
+          pageId: post?.page?.id
         };
       })
       .with(BurnForType.Page, () => {
@@ -447,6 +449,33 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
         draft.post.danaBurnUp = danaBurnUp;
         draft.post.danaBurnDown = danaBurnDown;
         draft.post.danaBurnScore = danaBurnScore;
+      })
+    );
+  }
+
+  // Update single page
+  const pageInvalidatedBy = yield call(pagesApi.util.selectInvalidatedBy, rootState, ['Page']);
+  for (const invalidatedBy of pageInvalidatedBy) {
+    const { endpointName, originalArgs } = invalidatedBy;
+    yield put(
+      pagesApi.util.updateQueryData('Page', originalArgs, draft => {
+        const { id } = originalArgs;
+        console.log(id);
+        console.log(pageId);
+        if (id !== pageId) return;
+
+        const { pageDana } = draft?.page;
+        let danaReceivedUp = pageDana?.danaReceivedUp ?? 0;
+        let danaReceivedDown = pageDana?.danaReceivedDown ?? 0;
+        if (burnType == BurnType.Up) {
+          danaReceivedUp = danaReceivedUp + burnValue;
+        } else {
+          danaReceivedDown = danaReceivedDown + burnValue;
+        }
+        const danaReceivedScore = danaReceivedUp - danaReceivedDown;
+        draft.page.pageDana.danaReceivedUp = danaReceivedUp;
+        draft.page.pageDana.danaReceivedDown = danaReceivedDown;
+        draft.page.pageDana.danaReceivedScore = danaReceivedScore;
       })
     );
   }

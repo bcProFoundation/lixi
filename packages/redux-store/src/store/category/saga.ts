@@ -10,7 +10,6 @@ import categoryApi from './api';
 const call: any = Effects.call;
 
 function* getCategoriesSaga(action: PayloadAction) {
-  console.log('action: ', action.payload);
   try {
     const data = yield call(categoryApi.getCategories);
     yield put(getCategoriesSuccess(data));

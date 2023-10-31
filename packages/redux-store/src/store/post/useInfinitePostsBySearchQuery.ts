@@ -86,7 +86,7 @@ export function useInfinitePostsBySearchQuery(
     errorQueryNext: nextResult?.error,
     isErrorQueryNext: nextResult?.isError,
     isFetchingQueryNext: nextResult?.isFetching,
-    hasNextQuery: baseResult.data?.allPostsBySearch?.pageInfo?.endCursor !== null,
+    hasNextQuery: !!baseResult.data?.allPostsBySearch?.pageInfo?.endCursor,
     fetchNextQuery,
     refetchQuery
   };

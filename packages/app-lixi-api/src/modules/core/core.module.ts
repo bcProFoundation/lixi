@@ -29,10 +29,12 @@ import { AccountModule } from '../account/account.module';
 import { FeatureFlagController } from './feature-flag/feature-flag.controller';
 import { AccountDanaProcessor } from './burn/account-dana.processor';
 import { BullModule } from '@nestjs/bullmq';
-import { ACCOUNT_DANA_QUEUE } from './burn/burn.constants';
+import { ACCOUNT_DANA_QUEUE, PAGE_DANA_QUEUE } from './burn/burn.constants';
 import IORedis from 'ioredis';
 import _ from 'lodash';
 import { UploadService } from './upload/upload.serivce';
+import { PageDanaProcessor } from './burn/page-dana.processor';
+import { PageModule } from '../page/page.module';
 const baseCorsConfig = cors({
   origin: process.env.BASE_URL ?? ''
 });
@@ -65,7 +67,31 @@ const baseCorsConfig = cors({
         };
       }
     }),
+    BullModule.registerQueueAsync({
+      name: PAGE_DANA_QUEUE,
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        return {
+          defaultJobOptions: {
+            attempts: 3,
+            backoff: {
+              delay: 1000,
+              type: 'fixed'
+            }
+          },
+          prefix: 'lixilotus:lixi',
+          name: PAGE_DANA_QUEUE,
+          connection: new IORedis({
+            maxRetriesPerRequest: null,
+            enableReadyCheck: false,
+            host: config.get<string>('REDIS_HOST') ? config.get<string>('REDIS_HOST') : 'redis-lixi',
+            port: config.get<string>('REDIS_PORT') ? _.toSafeInteger(config.get<string>('REDIS_PORT')) : 6379
+          })
+        };
+      }
+    }),
     AuthModule,
+    PageModule,
     AccountModule,
     NotificationModule,
     CloudflareModule,
@@ -96,6 +122,7 @@ const baseCorsConfig = cors({
     WithdrawSubLixiesEventsListener,
     BurnFanoutProcessor,
     AccountDanaProcessor,
+    PageDanaProcessor,
     UploadService
   ],
   exports: [

@@ -145,12 +145,7 @@ import { AccountModule } from '../../../modules/account/account.module';
     AccountModule
   ],
   controllers: [NotificationController, WebpushController],
-  providers: [
-    NotificationGateway,
-    NotificationService,
-    NotificationOutboundProcessor,
-    WebpushNotificationProcessor,
-  ],
+  providers: [NotificationGateway, NotificationService, NotificationOutboundProcessor, WebpushNotificationProcessor],
   exports: [
     NotificationGateway,
     NotificationService,
@@ -159,4 +154,4 @@ import { AccountModule } from '../../../modules/account/account.module';
     BullModule
   ]
 })
-export class NotificationModule { }
+export class NotificationModule {}

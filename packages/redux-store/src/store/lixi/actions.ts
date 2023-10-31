@@ -1,4 +1,4 @@
-import { Account, ExportLixiCommand, LixiDto, PaginationResult, RegisterLixiPackCommand } from '@bcpros/lixi-models';
+import { Account, ExportLixiCommand, LixiDto, IPaginationResult, RegisterLixiPackCommand } from '@bcpros/lixi-models';
 import { Claim } from '@bcpros/lixi-models/lib/claim';
 import {
   ArchiveLixiCommand,
@@ -48,10 +48,10 @@ export const withdrawLixiFailure = createAction<string>('lixi/withdrawLixiFailur
 export const setLixiBalance = createAction<number>('lixi/setLixiBalance');
 export const setAllLixi = createAction<Lixi>('lixi/setLixi');
 export const fetchInitialSubLixies = createAction<number>('lixi/fetchInitialSubLixies');
-export const fetchInitialSubLixiesSuccess = createAction<PaginationResult<Lixi>>('lixi/fetchInitialSubLixiesSuccess');
+export const fetchInitialSubLixiesSuccess = createAction<IPaginationResult<Lixi>>('lixi/fetchInitialSubLixiesSuccess');
 export const fetchInitialSubLixiesFailure = createAction<string>('lixi/fetchInitialSubLixiesFailure');
 export const fetchMoreSubLixies = createAction<{ parentId: number; startId: number }>('lixi/fetchMoreSubLixies');
-export const fetchMoreSubLixiesSuccess = createAction<PaginationResult<Lixi>>('lixi/fetchMoreSubLixiesSuccess');
+export const fetchMoreSubLixiesSuccess = createAction<IPaginationResult<Lixi>>('lixi/fetchMoreSubLixiesSuccess');
 export const fetchMoreSubLixiesFailure = createAction<string>('lixi/fetchMoreSubLixiesFailure');
 export const exportSubLixies = createAction<ExportLixiCommand>('lixi/exportSubLixies');
 export const exportSubLixiesSuccess = createAction<{ fileName: string; lixiId: number; mnemonicHash: string }>(

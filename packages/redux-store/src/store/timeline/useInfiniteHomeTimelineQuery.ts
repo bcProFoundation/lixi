@@ -90,7 +90,7 @@ export function useInfiniteHomeTimelineQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.homeTimeline?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.homeTimeline?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

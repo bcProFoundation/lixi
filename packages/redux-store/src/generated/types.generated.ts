@@ -100,6 +100,12 @@ export enum AccountOrderField {
   UpdatedAt = 'updatedAt'
 }
 
+export type BasicPageInfo = {
+  __typename?: 'BasicPageInfo';
+  endCursor: Scalars['String'];
+  hasNextPage: Scalars['Boolean'];
+};
+
 export type Bookmark = {
   __typename?: 'Bookmark';
   account: Account;
@@ -457,13 +463,6 @@ export type FollowPage = {
   tokenId?: Maybe<Scalars['String']>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
-};
-
-export type FollowPageConnection = {
-  __typename?: 'FollowPageConnection';
-  edges?: Maybe<Array<FollowPageEdge>>;
-  pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
 };
 
 export type FollowPageEdge = {
@@ -836,7 +835,7 @@ export type Page = {
   name: Scalars['String'];
   pageAccount: Account;
   pageAccountId: Scalars['Int'];
-  pageDana?: Maybe<PageDana>;
+  pageDana: PageDana;
   pageMessageSessions?: Maybe<Array<PageMessageSession>>;
   parent?: Maybe<Page>;
   parentId?: Maybe<Scalars['String']>;
@@ -852,6 +851,19 @@ export type Page = {
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
   website?: Maybe<Scalars['String']>;
+};
+
+export type PageBasicConnection = {
+  __typename?: 'PageBasicConnection';
+  edges: Array<PageBasicEdge>;
+  pageInfo: BasicPageInfo;
+  totalCount: Scalars['Int'];
+};
+
+export type PageBasicEdge = {
+  __typename?: 'PageBasicEdge';
+  cursor: Scalars['String'];
+  node: Page;
 };
 
 export type PageConnection = {
@@ -1167,8 +1179,7 @@ export type Query = {
   allOpenPageMessageSessionByAccountId: PageMessageSessionConnection;
   allOpenPageMessageSessionByPageId: PageMessageSessionConnection;
   allPageMessageSessionByAccountId: PageMessageSessionConnection;
-  allPages: PageConnection;
-  allPagesByFollower: FollowPageConnection;
+  allPages: PageBasicConnection;
   allPagesByUserId: PageConnection;
   allPendingPageMessageSessionByAccountId: PageMessageSessionConnection;
   allPendingPageMessageSessionByPageId: PageMessageSessionConnection;
@@ -1203,6 +1214,7 @@ export type Query = {
   message: Message;
   page: Page;
   pageMessageSession: PageMessageSession;
+  pagesByFollower: PageBasicConnection;
   post: Post;
   product: Product;
   temple: Temple;
@@ -1363,18 +1375,6 @@ export type QueryAllPagesArgs = {
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
   minBurnFilter?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Array<PageOrder>>;
-  query?: InputMaybe<Scalars['String']>;
-  skip?: InputMaybe<Scalars['Int']>;
-};
-
-export type QueryAllPagesByFollowerArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  pagesOnly?: InputMaybe<Scalars['Boolean']>;
   skip?: InputMaybe<Scalars['Int']>;
 };
 
@@ -1665,6 +1665,15 @@ export type QueryPageMessageSessionArgs = {
   id: Scalars['String'];
 };
 
+export type QueryPagesByFollowerArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
 export type QueryPostArgs = {
   id: Scalars['String'];
 };
@@ -1737,7 +1746,6 @@ export type Subscription = {
   followAccountCreated: FollowAccount;
   hashtagCreated: Hashtag;
   messageCreated: Message;
-  pageCreated: Page;
   pageMessageSessionCreated: PageMessageSession;
   templeCreated: Temple;
   tokenCreated: Token;

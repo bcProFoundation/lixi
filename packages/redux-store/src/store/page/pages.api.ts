@@ -6,16 +6,23 @@ const enhancedApi = api.enhanceEndpoints({
     Pages: {
       providesTags: ['Pages'],
       serializeQueryArgs({ queryArgs }) {
-        if (queryArgs) {
-          const { orderBy, ...otherArgs } = queryArgs;
-          return { orderBy };
-        }
-        return { queryArgs };
+        return {};
       },
       merge(currentCacheData, responseData) {
         currentCacheData.allPages.edges.push(...responseData.allPages.edges);
         currentCacheData.allPages.pageInfo = responseData.allPages.pageInfo;
         currentCacheData.allPages.totalCount = responseData.allPages.totalCount;
+      }
+    },
+    PagesByFollower: {
+      providesTags: ['Pages'],
+      serializeQueryArgs({ queryArgs }) {
+        return {};
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.pagesByFollower.edges.push(...responseData.pagesByFollower.edges);
+        currentCacheData.pagesByFollower.pageInfo = responseData.pagesByFollower.pageInfo;
+        currentCacheData.pagesByFollower.totalCount = responseData.pagesByFollower.totalCount;
       }
     },
     PagesByUserId: {
@@ -34,7 +41,9 @@ const enhancedApi = api.enhanceEndpoints({
       }
     },
     Page: {
-      providesTags: ['Page']
+      providesTags: (result, error, arg) => {
+        return ['Page'];
+      }
     },
     createPage: {
       invalidatesTags: ['Pages', 'Page']
@@ -51,6 +60,8 @@ export const {
   usePageQuery,
   useLazyPageQuery,
   usePagesQuery,
+  usePagesByFollowerQuery,
+  useLazyPagesByFollowerQuery,
   useLazyPagesQuery,
   useCreatePageMutation,
   useLazyPagesByUserIdQuery,

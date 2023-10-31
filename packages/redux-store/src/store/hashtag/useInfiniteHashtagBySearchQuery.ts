@@ -88,7 +88,7 @@ export function useInfiniteHashtagBySearchQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allHashtagBySearch?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allHashtagBySearch?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

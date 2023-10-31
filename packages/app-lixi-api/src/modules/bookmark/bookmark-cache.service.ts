@@ -35,6 +35,8 @@ export class BookmarkCacheService {
   }
 
   async getByIds(ids: string[]) {
+    if (ids.length === 0) return [];
+
     const values = await this.redis.hmgetBuffer(this.keyPrefix, ...ids);
     const uncachedIds = [];
     for (let i = 0; i < ids.length; i++) {
@@ -71,7 +73,6 @@ export class BookmarkCacheService {
     if (dbValuesMap.size > 0) {
       await this.redis.hmset(this.keyPrefix, dbValuesMap);
     }
-    
 
     return ids.map(id => {
       const item = itemsMap.get(id);

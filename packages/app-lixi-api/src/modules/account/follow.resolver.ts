@@ -280,59 +280,6 @@ export class FollowResolver {
     return await this.followCacheService.checkIfAccountFollowToken(account.id, tokenId!);
   }
 
-  @Query(() => FollowPageConnection)
-  @UseGuards(GqlJwtAuthGuard)
-  async allPagesByFollower(
-    @AccountEntity() account: Account,
-    @Args() { after, before, first, last }: PaginationArgs,
-    @Args({ name: 'pagesOnly', type: () => Boolean, nullable: true }) pagesOnly: boolean
-  ) {
-    if (!account) {
-      const accountNotExist = await this.i18n.t('account.messages.accountNotExist');
-      throw Error(accountNotExist);
-    }
-
-    const queryFollowPagesInclude = pagesOnly == true ? { page: true } : ({ page: true, token: true } as const);
-    const queryFollowPagesWhere =
-      pagesOnly == true
-        ? {
-            AND: [{ accountId: account.id }, { token: null }]
-          }
-        : {
-            accountId: account.id
-          };
-
-    const result = await findManyCursorConnection(
-      async paginationArgs => {
-        const pageFollowings = await this.prisma.followPage.findMany({
-          where: queryFollowPagesWhere,
-          include: queryFollowPagesInclude,
-          orderBy: { createdAt: 'asc' },
-          ...paginationArgs
-        });
-
-        const result = pageFollowings.map(row => ({
-          ...row,
-          page: row.page
-            ? {
-                ...row.page,
-                totalBurnForPage: row.page.danaBurnScore + row.page.totalPostsBurnScore
-              }
-            : null
-        }));
-
-        return result;
-      },
-      () =>
-        this.prisma.followPage.count({
-          where: queryFollowPagesWhere
-        }),
-      { first, last, before, after }
-    );
-
-    return result;
-  }
-
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => FollowPage)
   async createFollowPage(@AccountEntity() account: Account, @Args('data') data: CreateFollowPageInput) {

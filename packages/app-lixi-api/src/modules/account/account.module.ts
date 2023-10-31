@@ -9,10 +9,7 @@ import { FollowCacheService } from './follow-cache.service';
 import { FollowResolver } from './follow.resolver';
 
 @Module({
-  imports: [
-    forwardRef(() => AuthModule),
-    forwardRef(() => NotificationModule)
-  ],
+  imports: [forwardRef(() => AuthModule), forwardRef(() => NotificationModule)],
   controllers: [],
   providers: [
     AccountResolver,
@@ -23,10 +20,6 @@ import { FollowResolver } from './follow.resolver';
     AccountDanaCacheService,
     AccountLoader
   ],
-  exports: [
-    FollowCacheService,
-    AccountCacheService,
-    AccountDanaCacheService
-  ]
+  exports: [FollowCacheService, AccountCacheService, AccountDanaCacheService]
 })
-export class AccountModule { }
+export class AccountModule {}

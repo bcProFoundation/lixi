@@ -24,9 +24,8 @@ export class AuthService implements OnModuleInit {
     private prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis,
     private walletService: WalletService,
-    @I18n() private i18n: I18nService,
-    // private moduleRef: ModuleRef
-  ) { }
+    @I18n() private i18n: I18nService // private moduleRef: ModuleRef
+  ) {}
 
   onModuleInit() {
     // this.accountCacheService = this.moduleRef.get(AccountCacheService);

@@ -1,12 +1,12 @@
-export interface PageInfo {
+export interface IPageInfo {
   hasNextPage?: boolean;
   hasPreviousPage?: boolean;
   startCursor: number | string;
   endCursor: number | string;
 }
 
-export interface PaginationResult<T> {
+export interface IPaginationResult<T> {
   data: T[];
-  pageInfo: PageInfo;
+  pageInfo: IPageInfo;
   totalCount: number;
 }

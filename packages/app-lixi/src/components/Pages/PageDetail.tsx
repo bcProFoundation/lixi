@@ -23,7 +23,6 @@ import {
   getSelectedAccount,
   getSelectedAccountId
 } from '@store/account/selectors';
-import { getFailQueue } from '@store/burn';
 import { useCreateFollowPageMutation, useDeleteFollowPageMutation } from '@store/follow/follows.api';
 import { useInfiniteHashtagByPageQuery } from '@store/hashtag/useInfiniteHashtagByPageQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
@@ -36,8 +35,8 @@ import { setSelectedPost } from '@store/post/actions';
 import { getSelectedPostId } from '@store/post/selectors';
 import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
 import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
-import { getFilterPostsPage, getLevelFilter } from '@store/settings/selectors';
-import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
+import { getFilterPostsPage } from '@store/settings/selectors';
+import { getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { Button, Skeleton, Space, Tabs, Tag } from 'antd';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
@@ -439,9 +438,9 @@ const SubAbout = ({
 const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const pageDetailData = page;
   const selectedAccount = useAppSelector(getSelectedAccount);
   const selectedAccountId = useAppSelector(getSelectedAccountId);
-  const [pageDetailData, setPageDetailData] = useState<any>(page);
   const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
   const walletStatus = useAppSelector(getWalletStatus);
   const filterValue = useAppSelector(getFilterPostsPage);
@@ -454,23 +453,8 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const refs = useRef([]);
   const pageAvatarUpload = useAppSelector(getPageAvatarUpload);
   const pageCoverUpload = useAppSelector(getPageCoverUpload);
-  const [urlPageAvatarUpload, setUrlPageAvatarUpload] = useState('');
-  const [urlPageCoverUpload, setUrlPageCoverUpload] = useState('');
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
-
-  useEffect(() => {
-    if (!_.isNil(pageAvatarUpload?.cfImageId)) {
-      setUrlPageAvatarUpload(
-        `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${pageAvatarUpload?.cfImageId}/public`
-      );
-    }
-    if (!_.isNil(pageCoverUpload?.cfImageId)) {
-      setUrlPageCoverUpload(
-        `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${pageCoverUpload?.cfImageId}/public`
-      );
-    }
-  }, [pageAvatarUpload, pageCoverUpload]);
 
   useEffect(() => {
     if (router.query.q) {
@@ -781,30 +765,12 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     dispatch(openModal('PageMessageLixiModal', { account: selectedAccount, page: page, wallet: walletStatus }));
   };
 
-  const getAvatarPage = () => {
-    let urlAvatarPage = '';
-    const cfUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${pageDetailData?.avatar?.upload?.cfImageId}/public`;
-    urlAvatarPage = cfUrl.includes('undefined') ? undefined : cfUrl;
-    return urlAvatarPage;
-  };
-
-  const getCoverPage = () => {
-    let urlCoverPage = '';
-    const cfUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${pageDetailData?.cover?.upload?.cfImageId}/public`;
-    urlCoverPage = cfUrl.includes('undefined') ? undefined : cfUrl;
-    return urlCoverPage;
-  };
-
   return (
     <React.Fragment>
       <StyledContainerProfileDetail className="page-detail">
         <ProfileCardHeader>
           <div className="container-img">
-            <img
-              className="cover-img"
-              src={urlPageCoverUpload || getCoverPage() || '/images/default-cover.jpg'}
-              alt=""
-            />
+            <img className="cover-img" src={pageDetailData?.cover || '/images/default-cover.jpg'} alt="" />
             {selectedAccountId == pageDetailData?.pageAccountId && (
               <Button type="primary" className="no-border-btn" onClick={() => uploadModal(false)}>
                 <CameraOutlined />
@@ -815,11 +781,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
           <div className="info-profile">
             <div className="wrapper-avatar">
               <picture>
-                <img
-                  className="avatar-img"
-                  src={urlPageAvatarUpload || getAvatarPage() || '/images/default-avatar.jpg'}
-                  alt=""
-                />
+                <img className="avatar-img" src={pageDetailData?.avatar || '/images/default-avatar.jpg'} alt="" />
               </picture>
               {/* TODO: implement in the future */}
               {selectedAccountId == pageDetailData?.pageAccountId && (
@@ -916,7 +878,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
 
             <p>
               {' '}
-              <FireOutlined /> {pageDetailData?.totalPostsBurnScore + intl.get('general.dana')}
+              <FireOutlined /> {pageDetailData?.pageDana?.danaReceivedScore || 0 + intl.get('general.dana')}
             </p>
           </div>
         </ProfileCardHeader>

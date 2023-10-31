@@ -291,6 +291,7 @@ fragment PostFields on Post {
     avatar
     createCommentFee
   }
+  postAccountId
   page {
     avatar
     name
@@ -303,11 +304,13 @@ fragment PostFields on Post {
       address
     }
   }
+  pageId
   token {
     id
     name
     tokenId
   }
+  tokenId
   repostCount
   reposts {
     accountId

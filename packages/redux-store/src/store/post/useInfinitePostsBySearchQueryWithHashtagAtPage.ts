@@ -97,7 +97,7 @@ export function useInfinitePostsBySearchQueryWithHashtagAtPage(
     isFetchingQueryNext: nextResult?.isFetching,
     hasNextQuery: baseResult.data?.allPostsBySearchWithHashtagAtPage?.pageInfo?.endCursor !== null,
     noMoreQuery:
-      baseResult.data?.allPostsBySearchWithHashtagAtPage?.pageInfo?.endCursor === null ||
+      !!baseResult.data?.allPostsBySearchWithHashtagAtPage?.pageInfo?.endCursor ||
       baseResult.data?.allPostsBySearchWithHashtagAtPage?.pageInfo?.hasNextPage === false,
     fetchNextQuery,
     refetchQuery

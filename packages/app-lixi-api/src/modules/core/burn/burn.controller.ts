@@ -1,5 +1,5 @@
 import { Burn, BurnCommand, BurnForType, BurnType, TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models';
-import { NotificationLevel, Token, BurnType as BurnTypePrisma, AccountDanaHistoryType } from '@bcpros/lixi-prisma';
+import { NotificationLevel, Token } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -17,11 +17,10 @@ import SortedItemRepository from 'src/common/redis/sorted-repository';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { parseBurnOutput } from 'src/utils/opReturnBurn';
 import { VError } from 'verror';
+import { AccountCacheService } from '../../account/account-cache.service';
 import { TranslateProvider } from '../translate/translate.constant';
 import { TranslateService } from '../translate/translate.service';
-import { ACCOUNT_DANA_QUEUE, BURN_FANOUT_QUEUE } from './burn.constants';
-import { AccountCacheService } from '../../account/account-cache.service';
-import { AccountDanaCacheService } from '../../account/account-dana-cache.service';
+import { ACCOUNT_DANA_QUEUE, BURN_FANOUT_QUEUE, PAGE_DANA_QUEUE } from './burn.constants';
 
 @SkipThrottle()
 @Controller('burn')
@@ -36,9 +35,9 @@ export class BurnController {
     @Inject('xpijs') private XPI: BCHJS,
     @InjectQueue(BURN_FANOUT_QUEUE) private burnFanoutQueue: Queue,
     @InjectQueue(ACCOUNT_DANA_QUEUE) private accountDanaQueue: Queue,
+    @InjectQueue(PAGE_DANA_QUEUE) private pageDanaQueue: Queue,
     private translateService: TranslateService,
-    private readonly accountCacheService: AccountCacheService,
-    private readonly accountDanaCacheService: AccountDanaCacheService
+    private readonly accountCacheService: AccountCacheService
   ) {}
 
   private convertBurnedByToAddress(burnedBy: string): string {
@@ -202,6 +201,12 @@ export class BurnController {
                   totalPostsBurnDown,
                   totalPostsBurnScore
                 }
+              });
+
+              this.pageDanaQueue.add(PAGE_DANA_QUEUE, {
+                command: command,
+                amount: xpiValue,
+                pageId: post.pageId
               });
             });
           }

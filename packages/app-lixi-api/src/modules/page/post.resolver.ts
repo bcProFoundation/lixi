@@ -1131,7 +1131,7 @@ export class PostResolver {
 
   @ResolveField('page', () => Page)
   async page(@Parent() post: Post) {
-    return post?.pageId ? this.postLoader.batchPages.load(post?.pageId): null;
+    return post?.pageId ? this.postLoader.batchPages.load(post?.pageId) : null;
   }
 
   @ResolveField('translations', () => [PostTranslation])

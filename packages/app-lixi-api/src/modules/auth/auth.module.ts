@@ -30,13 +30,6 @@ import { AccountModule } from '../account/account.module';
     GqlJwtAuthGuard,
     GqlJwtAuthGuardByPass
   ],
-  exports: [
-    AuthService,
-    GqlThrottlerGuard,
-    JwtAuthGuard,
-    WsAuthGuardByPass,
-    GqlJwtAuthGuard,
-    GqlJwtAuthGuardByPass
-  ]
+  exports: [AuthService, GqlThrottlerGuard, JwtAuthGuard, WsAuthGuardByPass, GqlJwtAuthGuard, GqlJwtAuthGuardByPass]
 })
-export class AuthModule { }
+export class AuthModule {}

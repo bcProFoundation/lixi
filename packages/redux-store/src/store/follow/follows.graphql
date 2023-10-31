@@ -101,35 +101,6 @@ query checkIfFollowToken($tokenId: String) {
   checkIfFollowToken(tokenId: $tokenId)
 }
 
-query allPagesByFollower(
-  $after: String
-  $before: String
-  $first: Int = 20
-  $last: Int
-  $skip: Int
-  $pagesOnly: Boolean
-) {
-  allPagesByFollower(
-    after: $after
-    before: $before
-    first: $first
-    last: $last
-    skip: $skip
-    pagesOnly: $pagesOnly
-  ) {
-    totalCount
-    edges {
-      cursor
-      node {
-        ...FollowPageFields
-      }
-    }
-    pageInfo {
-      ...PageInfoFields
-    }
-  }
-}
-
 fragment FollowPageFields on FollowPage {
   id
   accountId

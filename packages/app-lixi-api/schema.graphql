@@ -83,6 +83,11 @@ enum AccountOrderField {
   updatedAt
 }
 
+type BasicPageInfo {
+  endCursor: String!
+  hasNextPage: Boolean!
+}
+
 type Bookmark {
   account: Account!
   bookmarkableId: String!
@@ -446,12 +451,6 @@ type FollowPage {
   updatedAt: DateTime!
 }
 
-type FollowPageConnection {
-  edges: [FollowPageEdge!]
-  pageInfo: PageInfo!
-  totalCount: Int
-}
-
 type FollowPageEdge {
   cursor: String!
   node: FollowPage!
@@ -707,7 +706,7 @@ type Page {
   name: String!
   pageAccount: Account!
   pageAccountId: Int!
-  pageDana: PageDana
+  pageDana: PageDana!
   pageMessageSessions: [PageMessageSession!]
   parent: Page
   parentId: String
@@ -725,6 +724,17 @@ type Page {
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
   website: String
+}
+
+type PageBasicConnection {
+  edges: [PageBasicEdge!]!
+  pageInfo: BasicPageInfo!
+  totalCount: Int!
+}
+
+type PageBasicEdge {
+  cursor: String!
+  node: Page!
 }
 
 type PageConnection {
@@ -1045,8 +1055,7 @@ type Query {
   allOpenPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allOpenPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
-  allPages(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: [PageOrder!], query: String, skip: Int): PageConnection!
-  allPagesByFollower(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, pagesOnly: Boolean, skip: Int): FollowPageConnection!
+  allPages(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): PageBasicConnection!
   allPagesByUserId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageOrder, skip: Int): PageConnection!
   allPendingPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPendingPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
@@ -1155,6 +1164,7 @@ type Query {
   message(id: String!): Message!
   page(id: String!): Page!
   pageMessageSession(id: String!): PageMessageSession!
+  pagesByFollower(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): PageBasicConnection!
   post(id: String!): Post!
   product(id: String!): Product!
   temple(id: String!): Temple!
@@ -1203,7 +1213,6 @@ type Subscription {
   followAccountCreated: FollowAccount!
   hashtagCreated: Hashtag!
   messageCreated: Message!
-  pageCreated: Page!
   pageMessageSessionCreated: PageMessageSession!
   templeCreated: Temple!
   tokenCreated: Token!

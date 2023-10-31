@@ -5,24 +5,24 @@ import IORedis from 'ioredis';
 import _ from 'lodash';
 import { NotificationModule } from 'src/common/modules/notifications/notification.module';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
-import { AccountCacheService } from '../account/account-cache.service';
-import { AccountDanaCacheService } from '../account/account-dana-cache.service';
 import { AccountModule } from '../account/account.module';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { AuthModule } from '../auth/auth.module';
 import { HashtagModule } from '../hashtag/hashtag.module';
+import { CommentDanaCacheService } from './comment-dana-cache.service';
 import { CommentResolver } from './comment.resolver';
 import { POST_FANOUT_QUEUE } from './constants/post.constants';
 import { DanaViewScoreService } from './dana-view-score.service';
 import { MeiliService } from './meili.service';
+import { PageCacheService } from './page-cache.service';
 import { PageDanaCacheService } from './page-dana-cache.service';
+import { PageTimelineCacheService } from './page-timeline-cache.service';
+import PageLoader from './page.loader';
 import { PageResolver } from './page.resolver';
+import { PostDanaCacheService } from './post-dana-cache.service';
 import { PostFanoutProcessor } from './post-fanout.processor';
 import PostLoader from './post.loader';
 import { PostResolver } from './post.resolver';
-import { PostDanaCacheService } from './post-dana-cache.service';
-import { CommentDanaCacheService } from './comment-dana-cache.service';
-import { PageCacheService } from './page-cache.service';
 
 @Module({
   imports: [
@@ -59,11 +59,20 @@ import { PageCacheService } from './page-cache.service';
     PostLoader,
     PostFanoutProcessor,
     DanaViewScoreService,
+    PageLoader,
     PageCacheService,
+    PageTimelineCacheService,
     PageDanaCacheService,
     PostDanaCacheService,
     CommentDanaCacheService
   ],
-  exports: [MeiliService, NotificationService, FollowCacheService, PostLoader, DanaViewScoreService]
+  exports: [
+    MeiliService,
+    NotificationService,
+    FollowCacheService,
+    PostLoader,
+    DanaViewScoreService,
+    PageDanaCacheService
+  ]
 })
-export class PageModule { }
+export class PageModule {}
