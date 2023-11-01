@@ -30,6 +30,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PageCacheService } from './page-cache.service';
 import { PageTimelineCacheService } from './page-timeline-cache.service';
 import PageLoader from './page.loader';
+import { toImageUrl } from './page.utils';
 
 @SkipThrottle()
 @Resolver(() => Page)
@@ -46,7 +47,7 @@ export class PageResolver {
     private readonly pageTimelineCacheService: PageTimelineCacheService,
     @I18n() private i18n: I18nService,
     @Inject('xpijs') private XPI: BCHJS
-  ) {}
+  ) { }
 
   @Subscription(() => Page)
   static pageCreated() {
@@ -93,31 +94,25 @@ export class PageResolver {
   async allPagesByUserId(
     @Args() { after, before, first, last }: PaginationArgs,
     @Args({ name: 'id', type: () => Number, nullable: true })
-    id: number,
-    @Args({
-      name: 'orderBy',
-      type: () => PageOrder,
-      nullable: true
-    })
-    orderBy: PageOrder
+    id: number
   ) {
+
     const result = await findManyCursorConnection(
       async args => {
-        const pages = await this.prisma.page.findMany({
+        const dbValues = await this.prisma.page.findMany({
           where: {
             pageAccountId: id
           },
-          orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
+          select: {
+            id: true
+          },
+          orderBy: { id: 'desc' },
           ...args
         });
 
-        const output = pages.map(page => ({
-          ...page,
-          categoryId: page?.categoryId ?? DEFAULT_CATEGORY,
-          totalBurnForPage: page.danaBurnScore + page.totalPostsBurnScore ?? 0
-        }));
+        const pages = this.pageCacheService.getByIds(dbValues.map(dbValue => dbValue.id));
 
-        return output;
+        return pages;
       },
       () =>
         this.prisma.page.count({
@@ -156,11 +151,12 @@ export class PageResolver {
         },
         salt: salt,
         encryptedMnemonic: encryptedMnemonic
-      }
+      },
     });
 
-    PageResolver.pubSub.publish('pageCreated', { pageCreated: createdPage });
-    return createdPage;
+    const page = await this.pageCacheService.getById(createdPage.id);
+    PageResolver.pubSub.publish('pageCreated', { pageCreated: page });
+    return page;
   }
 
   @UseGuards(GqlJwtAuthGuard)
@@ -173,18 +169,18 @@ export class PageResolver {
 
     const uploadAvatarDetail = data.avatar
       ? await this.prisma.uploadDetail.findFirst({
-          where: {
-            uploadId: data.avatar
-          }
-        })
+        where: {
+          uploadId: data.avatar
+        }
+      })
       : undefined;
 
     const uploadCoverDetail = data.cover
       ? await this.prisma.uploadDetail.findFirst({
-          where: {
-            uploadId: data.cover
-          }
-        })
+        where: {
+          uploadId: data.cover
+        }
+      })
       : undefined;
 
     const updatedPage = await this.prisma.page.update({
@@ -199,30 +195,32 @@ export class PageResolver {
         category: {
           connect: data.categoryId
             ? {
-                id: Number(data.categoryId)
-              }
+              id: Number(data.categoryId)
+            }
             : undefined
         },
         country: {
           connect: data.countryId
             ? {
-                id: Number(data.countryId)
-              }
+              id: Number(data.countryId)
+            }
             : undefined
         },
         state: {
           disconnect: !data.stateId,
           connect: data.stateId
             ? {
-                id: Number(data.stateId)
-              }
+              id: Number(data.stateId)
+            }
             : undefined
         }
       }
     });
 
-    PageResolver.pubSub.publish('pageUpdated', { pageUpdated: updatedPage });
-    return updatedPage;
+    const page = await this.pageCacheService.getById(updatedPage.id);
+
+    PageResolver.pubSub.publish('pageUpdated', { pageUpdated: page });
+    return page;
   }
 
   @ResolveField('followersCount', () => Number)

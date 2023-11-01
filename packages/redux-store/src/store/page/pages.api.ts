@@ -42,7 +42,7 @@ const enhancedApi = api.enhanceEndpoints({
     },
     Page: {
       providesTags: (result, error, arg) => {
-        return ['Page'];
+        return [{ type: 'Page', id: arg.id }];
       }
     },
     createPage: {

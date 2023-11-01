@@ -821,22 +821,6 @@ enum PageMessageSessionStatus {
   PENDING
 }
 
-input PageOrder {
-  direction: OrderDirection!
-  field: PageOrderField!
-}
-
-"""Properties by which page connections can be ordered."""
-enum PageOrderField {
-  createdAt
-  danaBurnScore
-  id
-  name
-  title
-  totalPostsBurnScore
-  updatedAt
-}
-
 type Poll {
   account: Account!
   accountId: Int!
@@ -1056,7 +1040,7 @@ type Query {
   allOpenPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPages(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): PageBasicConnection!
-  allPagesByUserId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageOrder, skip: Int): PageConnection!
+  allPagesByUserId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, skip: Int): PageConnection!
   allPendingPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPendingPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPostsByHashtagId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!

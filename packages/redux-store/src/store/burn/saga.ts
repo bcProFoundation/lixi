@@ -294,14 +294,14 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
     yield put(removeBurnQueue());
     yield put(
       burnForUpDownVoteSuccess(data) &&
-        showToast('success', {
-          message: intl.get(`toast.success`),
-          description: intl.get('burn.totalBurn', {
-            burnValue: burnValue,
-            totalAmount: burnValue + burnValue * currency.burnFee + Number(minerFee),
-            coin: 'XPI'
-          })
+      showToast('success', {
+        message: intl.get(`toast.success`),
+        description: intl.get('burn.totalBurn', {
+          burnValue: burnValue,
+          totalAmount: burnValue + burnValue * currency.burnFee + Number(minerFee),
+          coin: 'XPI'
         })
+      })
     );
   } catch (err) {
     let message;
@@ -454,14 +454,12 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
   }
 
   // Update single page
-  const pageInvalidatedBy = yield call(pagesApi.util.selectInvalidatedBy, rootState, ['Page']);
+  const pageInvalidatedBy = yield call(pagesApi.util.selectInvalidatedBy, rootState, [{ type: 'Page', id: pageId }]);
   for (const invalidatedBy of pageInvalidatedBy) {
     const { endpointName, originalArgs } = invalidatedBy;
     yield put(
       pagesApi.util.updateQueryData('Page', originalArgs, draft => {
         const { id } = originalArgs;
-        console.log(id);
-        console.log(pageId);
         if (id !== pageId) return;
 
         const { pageDana } = draft?.page;
@@ -478,6 +476,37 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
         draft.page.pageDana.danaReceivedScore = danaReceivedScore;
       })
     );
+  }
+
+  // Update page timeline
+  const pageTimelineInvalidatedBy = yield call(
+    pagesApi.util.selectInvalidatedBy, rootState, ['Pages']
+  );
+  for (const invalidatedBy of pageTimelineInvalidatedBy) {
+    const { endpointName, originalArgs } = invalidatedBy;
+    yield put(
+      pagesApi.util.updateQueryData(endpointName, originalArgs, draft => {
+        const fields = Object.keys(draft);
+        for (const field of fields) {
+          if (!draft[field]) continue;
+          const pageToUpdateIndex = draft[field]?.edges.findIndex((item => item.node.id === pageId));
+          const pageToUpdate = draft[field]?.edges[pageToUpdateIndex];
+          if (pageToUpdateIndex >= 0) {
+            let danaReceivedUp = pageToUpdate?.node?.pageDana.danaReceivedUp ?? 0;
+            let danaReceivedDown = pageToUpdate?.node?.pageDana.danaReceivedDown ?? 0;
+            if (burnType == BurnType.Up) {
+              danaReceivedUp = danaReceivedUp + burnValue;
+            } else {
+              danaReceivedDown = danaReceivedDown + burnValue;
+            }
+            const danaReceivedScore = danaReceivedUp - danaReceivedDown;
+            draft[field].edges[pageToUpdateIndex].node.pageDana.danaReceivedUp = danaReceivedUp;
+            draft[field].edges[pageToUpdateIndex].node.pageDana.danaReceivedDown = danaReceivedDown;
+            draft[field].edges[pageToUpdateIndex].node.pageDana.danaReceivedScore = danaReceivedScore;
+          }
+        }
+      })
+    )
   }
 }
 
