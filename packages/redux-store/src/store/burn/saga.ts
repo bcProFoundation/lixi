@@ -294,14 +294,14 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
     yield put(removeBurnQueue());
     yield put(
       burnForUpDownVoteSuccess(data) &&
-      showToast('success', {
-        message: intl.get(`toast.success`),
-        description: intl.get('burn.totalBurn', {
-          burnValue: burnValue,
-          totalAmount: burnValue + burnValue * currency.burnFee + Number(minerFee),
-          coin: 'XPI'
+        showToast('success', {
+          message: intl.get(`toast.success`),
+          description: intl.get('burn.totalBurn', {
+            burnValue: burnValue,
+            totalAmount: burnValue + burnValue * currency.burnFee + Number(minerFee),
+            coin: 'XPI'
+          })
         })
-      })
     );
   } catch (err) {
     let message;
@@ -462,7 +462,7 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
         const { id } = originalArgs;
         if (id !== pageId) return;
 
-        const { pageDana } = draft?.page;
+        const pageDana = draft?.page?.pageDana;
         let danaReceivedUp = pageDana?.danaReceivedUp ?? 0;
         let danaReceivedDown = pageDana?.danaReceivedDown ?? 0;
         if (burnType == BurnType.Up) {
@@ -479,9 +479,7 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
   }
 
   // Update page timeline
-  const pageTimelineInvalidatedBy = yield call(
-    pagesApi.util.selectInvalidatedBy, rootState, ['Pages']
-  );
+  const pageTimelineInvalidatedBy = yield call(pagesApi.util.selectInvalidatedBy, rootState, ['Pages']);
   for (const invalidatedBy of pageTimelineInvalidatedBy) {
     const { endpointName, originalArgs } = invalidatedBy;
     yield put(
@@ -489,7 +487,7 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
         const fields = Object.keys(draft);
         for (const field of fields) {
           if (!draft[field]) continue;
-          const pageToUpdateIndex = draft[field]?.edges.findIndex((item => item.node.id === pageId));
+          const pageToUpdateIndex = draft[field]?.edges.findIndex(item => item.node.id === pageId);
           const pageToUpdate = draft[field]?.edges[pageToUpdateIndex];
           if (pageToUpdateIndex >= 0) {
             let danaReceivedUp = pageToUpdate?.node?.pageDana.danaReceivedUp ?? 0;
@@ -506,7 +504,7 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
           }
         }
       })
-    )
+    );
   }
 }
 

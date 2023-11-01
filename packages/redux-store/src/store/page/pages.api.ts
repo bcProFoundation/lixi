@@ -29,8 +29,8 @@ const enhancedApi = api.enhanceEndpoints({
       providesTags: ['Pages'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
-          const { orderBy, id, ...otherArgs } = queryArgs;
-          return { orderBy, id };
+          const { id, ...otherArgs } = queryArgs;
+          return { id };
         }
         return { queryArgs };
       },

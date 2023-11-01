@@ -19,6 +19,13 @@ export class PostCacheService {
       const dbItem = await this.prisma.post.findUnique({
         where: {
           id: id
+        },
+        include: {
+          postAccount: true,
+          translations: true,
+          _count: {
+            select: { reposts: true }
+          }
         }
       });
       if (!dbItem) return null;

@@ -1,4 +1,5 @@
 export * from './pagination';
+export * from './basic.pagination.args';
 export * from './pagination.args';
 export * from './paginated.interface';
 export * from './edge.type';

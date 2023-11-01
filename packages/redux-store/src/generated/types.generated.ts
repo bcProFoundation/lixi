@@ -835,7 +835,7 @@ export type Page = {
   name: Scalars['String'];
   pageAccount: Account;
   pageAccountId: Scalars['Int'];
-  pageDana: PageDana;
+  pageDana?: Maybe<PageDana>;
   pageMessageSessions?: Maybe<Array<PageMessageSession>>;
   parent?: Maybe<Page>;
   parentId?: Maybe<Scalars['String']>;
@@ -864,13 +864,6 @@ export type PageBasicEdge = {
   __typename?: 'PageBasicEdge';
   cursor: Scalars['String'];
   node: Page;
-};
-
-export type PageConnection = {
-  __typename?: 'PageConnection';
-  edges?: Maybe<Array<PageEdge>>;
-  pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
 };
 
 export type PageDana = {
@@ -953,22 +946,6 @@ export enum PageMessageSessionStatus {
   Pending = 'PENDING'
 }
 
-export type PageOrder = {
-  direction: OrderDirection;
-  field: PageOrderField;
-};
-
-/** Properties by which page connections can be ordered. */
-export enum PageOrderField {
-  CreatedAt = 'createdAt',
-  DanaBurnScore = 'danaBurnScore',
-  Id = 'id',
-  Name = 'name',
-  Title = 'title',
-  TotalPostsBurnScore = 'totalPostsBurnScore',
-  UpdatedAt = 'updatedAt'
-}
-
 export type Poll = {
   __typename?: 'Poll';
   account: Account;
@@ -1035,7 +1012,7 @@ export type Post = {
   pageId?: Maybe<Scalars['String']>;
   postAccount: Account;
   postAccountId: Scalars['Int'];
-  postDana?: Maybe<PostDana>;
+  postDana: PostDana;
   postHashtags?: Maybe<Array<PostHashtag>>;
   repostCount?: Maybe<Scalars['Int']>;
   reposts?: Maybe<Array<Repost>>;
@@ -1180,7 +1157,7 @@ export type Query = {
   allOpenPageMessageSessionByPageId: PageMessageSessionConnection;
   allPageMessageSessionByAccountId: PageMessageSessionConnection;
   allPages: PageBasicConnection;
-  allPagesByUserId: PageConnection;
+  allPagesByUserId: PageBasicConnection;
   allPendingPageMessageSessionByAccountId: PageMessageSessionConnection;
   allPendingPageMessageSessionByPageId: PageMessageSessionConnection;
   allPostsByHashtagId: PostConnection;
@@ -1380,12 +1357,8 @@ export type QueryAllPagesArgs = {
 
 export type QueryAllPagesByUserIdArgs = {
   after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   id?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<PageOrder>;
   skip?: InputMaybe<Scalars['Int']>;
 };
 

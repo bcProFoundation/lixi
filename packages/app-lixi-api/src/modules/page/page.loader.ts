@@ -17,19 +17,7 @@ export default class PageLoader {
     const pageIds = ids as unknown as string[];
     const pageDanas = await this.pageDanaCacheService.getPageDanas(pageIds);
     const data = pageIds.map((pageId, index) => {
-      return (
-        pageDanas[index] ??
-        new PageDana({
-          danaBurnUp: 0,
-          danaBurnDown: 0,
-          danaBurnScore: 0,
-          danaReceivedUp: 0,
-          danaReceivedDown: 0,
-          danaReceivedScore: 0,
-          version: 0,
-          pageId: pageId
-        })
-      );
+      return pageDanas[index] ?? new PageDana({});
     });
     return Promise.resolve(data);
   });

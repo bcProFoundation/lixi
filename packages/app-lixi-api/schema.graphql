@@ -706,7 +706,7 @@ type Page {
   name: String!
   pageAccount: Account!
   pageAccountId: Int!
-  pageDana: PageDana!
+  pageDana: PageDana
   pageMessageSessions: [PageMessageSession!]
   parent: Page
   parentId: String
@@ -735,12 +735,6 @@ type PageBasicConnection {
 type PageBasicEdge {
   cursor: String!
   node: Page!
-}
-
-type PageConnection {
-  edges: [PageEdge!]
-  pageInfo: PageInfo!
-  totalCount: Int
 }
 
 type PageDana {
@@ -1040,7 +1034,7 @@ type Query {
   allOpenPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPages(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): PageBasicConnection!
-  allPagesByUserId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, skip: Int): PageConnection!
+  allPagesByUserId(after: String, first: Int, id: Int, skip: Int): PageBasicConnection!
   allPendingPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPendingPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPostsByHashtagId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!

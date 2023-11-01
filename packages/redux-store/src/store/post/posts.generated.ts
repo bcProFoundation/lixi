@@ -78,7 +78,16 @@ export type PostQuery = {
       accountId?: number | null;
       account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
     }> | null;
-    postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+    postDana: {
+      __typename?: 'PostDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+      version: number;
+    };
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -164,7 +173,16 @@ export type PostsByPageIdQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
-        postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+        postDana: {
+          __typename?: 'PostDana';
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+          version: number;
+        };
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -258,7 +276,16 @@ export type PostsByUserIdQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
-        postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+        postDana: {
+          __typename?: 'PostDana';
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+          version: number;
+        };
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -352,7 +379,16 @@ export type PostsByHashtagIdQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
-        postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+        postDana: {
+          __typename?: 'PostDana';
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+          version: number;
+        };
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -446,7 +482,16 @@ export type PostsByTokenIdQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
-        postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+        postDana: {
+          __typename?: 'PostDana';
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+          version: number;
+        };
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -873,7 +918,16 @@ export type PostFieldsFragment = {
     accountId?: number | null;
     account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
   }> | null;
-  postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+  postDana: {
+    __typename?: 'PostDana';
+    danaBurnUp: number;
+    danaBurnDown: number;
+    danaBurnScore: number;
+    danaReceivedUp: number;
+    danaReceivedDown: number;
+    danaReceivedScore: number;
+    version: number;
+  };
   translations?: Array<{
     __typename?: 'PostTranslation';
     id: string;
@@ -1004,7 +1058,16 @@ export type CreatePostMutation = {
       accountId?: number | null;
       account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
     }> | null;
-    postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+    postDana: {
+      __typename?: 'PostDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+      version: number;
+    };
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -1076,7 +1139,16 @@ export type UpdatePostMutation = {
       accountId?: number | null;
       account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
     }> | null;
-    postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+    postDana: {
+      __typename?: 'PostDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+      version: number;
+    };
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -1151,6 +1223,10 @@ export const PostFieldsFragmentDoc = `
     danaBurnUp
     danaBurnDown
     danaBurnScore
+    danaReceivedUp
+    danaReceivedDown
+    danaReceivedScore
+    version
   }
   totalComments
   createdAt

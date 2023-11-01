@@ -52,19 +52,13 @@ query PagesByFollower(
 
 query PagesByUserId(
   $after: String
-  $before: String
   $first: Int = 20
-  $last: Int
-  $orderBy: PageOrder
   $id: Int
   $skip: Int
 ) {
   allPagesByUserId(
     after: $after
-    before: $before
     first: $first
-    last: $last
-    orderBy: $orderBy
     id: $id
     skip: $skip
   ) {
@@ -76,7 +70,7 @@ query PagesByUserId(
       }
     }
     pageInfo {
-      ...PageInfoFields
+      ...BasicPageInfoFields
     }
   }
 }

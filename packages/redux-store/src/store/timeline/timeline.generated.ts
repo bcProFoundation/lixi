@@ -82,7 +82,16 @@ export type TimelineQuery = {
         accountId?: number | null;
         account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
       }> | null;
-      postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+      postDana: {
+        __typename?: 'PostDana';
+        danaBurnUp: number;
+        danaBurnDown: number;
+        danaBurnScore: number;
+        danaReceivedUp: number;
+        danaReceivedDown: number;
+        danaReceivedScore: number;
+        version: number;
+      };
       translations?: Array<{
         __typename?: 'PostTranslation';
         id: string;
@@ -166,12 +175,16 @@ export type HomeTimelineQuery = {
             accountId?: number | null;
             account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
           }> | null;
-          postDana?: {
+          postDana: {
             __typename?: 'PostDana';
             danaBurnUp: number;
             danaBurnDown: number;
             danaBurnScore: number;
-          } | null;
+            danaReceivedUp: number;
+            danaReceivedDown: number;
+            danaReceivedScore: number;
+            version: number;
+          };
           translations?: Array<{
             __typename?: 'PostTranslation';
             id: string;

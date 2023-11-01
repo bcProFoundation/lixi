@@ -64,7 +64,7 @@ export class PostFanoutProcessor extends WorkerHost {
       const pipeline = this.redis.pipeline();
 
       // Clear the post from cache
-      const hashPrefix = `posts:item-data`;
+      const hashPrefix = `items:posts:item-data`;
       pipeline.hdel(hashPrefix, id);
 
       // Update score for innetwork

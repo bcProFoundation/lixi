@@ -5,6 +5,7 @@ import {
   PaginationArgs,
   Post,
   PostConnection,
+  PostDana,
   PostOrder,
   PostTranslation,
   Repost,
@@ -1026,7 +1027,7 @@ export class PostResolver {
     };
 
     // Clear the post from cache
-    const hashPrefix = `posts:item-data`;
+    const hashPrefix = `items:posts:item-data`;
     await this.redis.hdel(hashPrefix, id);
 
     await this.meiliService.update(`${process.env.MEILISEARCH_BUCKET}_${POSTS}`, indexedPost, updatedPost.id);
@@ -1113,15 +1114,7 @@ export class PostResolver {
 
   @ResolveField('postAccount', () => Account)
   async postAccount(@Parent() post: Post) {
-    const account = await this.prisma.post
-      .findUnique({
-        where: {
-          id: post.id
-        }
-      })
-      .postAccount();
-
-    return account;
+    return this.postLoader.batchAccounts.load(post.postAccountId);
   }
 
   @ResolveField('totalComments', () => Number)
@@ -1185,5 +1178,10 @@ export class PostResolver {
       accountId: account?.id
     };
     return this.postLoader.batchCheckAccountFollowAllToken.load(payload);
+  }
+
+  @ResolveField('postDana', () => PostDana)
+  async postDana(@Parent() post: Post) {
+    return this.postLoader.batchPostDanas.load(post.id);
   }
 }

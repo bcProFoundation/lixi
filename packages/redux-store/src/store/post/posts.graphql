@@ -327,6 +327,10 @@ fragment PostFields on Post {
     danaBurnUp
     danaBurnDown
     danaBurnScore
+    danaReceivedUp
+    danaReceivedDown
+    danaReceivedScore
+    version
   }
   totalComments
   createdAt

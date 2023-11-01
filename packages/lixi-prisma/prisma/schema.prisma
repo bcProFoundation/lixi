@@ -121,6 +121,7 @@ model Page {
   polls     Poll[]
   products  Product[]
 
+  @@index([pageAccountId])
   @@map("page")
 }
 
@@ -175,6 +176,8 @@ model Post {
   imageUploadable        ImageUploadable?  @relation("images", fields: [imageUploadableId], references: [id])
   postDana               PostDana?
 
+  @@index([postAccountId])
+  @@index([pageId])
   @@map("post")
 }
 

@@ -1,6 +1,6 @@
 import { Account, AccountDana } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { decode } from '@msgpack/msgpack';
+import { decode, encode } from '@msgpack/msgpack';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Redis } from 'ioredis';
@@ -32,7 +32,7 @@ export class AccountCacheService {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id.toString());
     if (!buffer) {
       // cache miss
-      const dbAccount = await this.prisma.account.findUnique({
+      const dbValue = await this.prisma.account.findUnique({
         where: {
           id: _.toSafeInteger(id)
         },
@@ -49,13 +49,14 @@ export class AccountCacheService {
           }
         }
       });
-      if (!dbAccount) return null;
+      if (!dbValue) return null;
 
       const account: Account = new Account({
-        ...dbAccount,
-        avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.avatar?.upload),
-        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.cover?.upload)
+        ...dbValue,
+        avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.avatar?.upload),
+        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.cover?.upload)
       });
+      await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(account)));
       return account;
     }
 
@@ -63,12 +64,77 @@ export class AccountCacheService {
     return account;
   }
 
+  async getByIds(ids: number[]): Promise<Nullable<Account>[]> {
+    if (ids.length === 0) return [];
+
+    const accountsMap = new Map();
+
+    try {
+      const values = await this.redis.hmgetBuffer(this.keyPrefix, ...ids.map(id => id.toString()));
+      const uncachedIds: number[] = [];
+      for (let i = 0; i < ids.length; i++) {
+        if (!values[i]) {
+          uncachedIds.push(_.toSafeInteger(ids[i]));
+        }
+      }
+      _.compact(values).map(value => {
+        const account = decode(value) as Account;
+        accountsMap.set(account.id.toString(), account);
+      });
+
+      const dbValues =
+        uncachedIds.length > 0
+          ? await this.prisma.account.findMany({
+              where: {
+                id: { in: uncachedIds }
+              },
+              include: {
+                avatar: {
+                  include: {
+                    upload: true
+                  }
+                },
+                cover: {
+                  include: {
+                    upload: true
+                  }
+                }
+              }
+            })
+          : [];
+
+      const dbValuesMap = new Map(
+        dbValues.map(dbValue => {
+          const account = new Account({
+            ...dbValue,
+            avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.avatar?.upload),
+            cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.cover?.upload)
+          });
+          accountsMap.set(dbValue.id.toString(), account);
+          const buffer = encode(account);
+          return [dbValue.id.toString(), Buffer.from(buffer)];
+        })
+      );
+
+      if (dbValuesMap.size > 0) {
+        this.redis.hmset(this.keyPrefix, dbValuesMap);
+      }
+    } catch (err) {
+      this.logger.error(err);
+    }
+
+    return ids.map(id => {
+      const account = accountsMap.get(id.toString());
+      return account ? account : null;
+    });
+  }
+
   async getByAddress(address: string): Promise<Nullable<Account>> {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, address);
 
     if (!buffer) {
       // cache miss
-      const dbAccount = await this.prisma.account.findFirst({
+      const dbValue = await this.prisma.account.findFirst({
         where: {
           address: address
         },
@@ -85,14 +151,15 @@ export class AccountCacheService {
           }
         }
       });
-      if (!dbAccount) return null;
+      if (!dbValue) return null;
 
       const account: Account = new Account({
-        ...dbAccount,
-        avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.avatar?.upload),
-        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.cover?.upload)
+        ...dbValue,
+        avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.avatar?.upload),
+        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.cover?.upload)
       });
 
+      await this.redis.hset(this.keyPrefix, address, Buffer.from(encode(account)));
       return account;
     }
 
@@ -104,7 +171,7 @@ export class AccountCacheService {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, mnemonicHash);
     if (!buffer) {
       // cache miss
-      const dbAccount = await this.prisma.account.findFirst({
+      const dbValue = await this.prisma.account.findFirst({
         where: {
           mnemonicHash: mnemonicHash
         },
@@ -121,13 +188,15 @@ export class AccountCacheService {
           }
         }
       });
-      if (!dbAccount) return null;
+      if (!dbValue) return null;
 
       const account: Account = new Account({
-        ...dbAccount,
-        avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.avatar?.upload),
-        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbAccount.cover?.upload)
+        ...dbValue,
+        avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.avatar?.upload),
+        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.cover?.upload)
       });
+
+      await this.redis.hset(this.keyPrefix, mnemonicHash, Buffer.from(encode(account)));
 
       return account;
     }

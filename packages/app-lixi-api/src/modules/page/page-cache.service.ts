@@ -11,7 +11,7 @@ import { toImageUrl } from './page.utils';
 
 export class PageCacheService {
   private logger: Logger = new Logger(this.constructor.name);
-  private keyPrefix = 'pages:item-data';
+  private keyPrefix = 'items:pages:item-data';
   private deliveryUrl = '';
   private cfAccountHash = '';
 

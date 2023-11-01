@@ -1,5 +1,6 @@
 import {
   Account,
+  BasicPaginationArgs,
   CreatePageInput,
   DEFAULT_CATEGORY,
   IBasicPaginated,
@@ -47,7 +48,7 @@ export class PageResolver {
     private readonly pageTimelineCacheService: PageTimelineCacheService,
     @I18n() private i18n: I18nService,
     @Inject('xpijs') private XPI: BCHJS
-  ) { }
+  ) {}
 
   @Subscription(() => Page)
   static pageCreated() {
@@ -90,13 +91,12 @@ export class PageResolver {
     } as IBasicPaginated<Page>;
   }
 
-  @Query(() => PageConnection)
+  @Query(() => PageBasicConnection)
   async allPagesByUserId(
-    @Args() { after, before, first, last }: PaginationArgs,
+    @Args() { after, first }: BasicPaginationArgs,
     @Args({ name: 'id', type: () => Number, nullable: true })
     id: number
   ) {
-
     const result = await findManyCursorConnection(
       async args => {
         const dbValues = await this.prisma.page.findMany({
@@ -120,7 +120,7 @@ export class PageResolver {
             pageAccountId: _.toSafeInteger(id)
           }
         }),
-      { first, last, before, after }
+      { first, after }
     );
     return result;
   }
@@ -151,7 +151,7 @@ export class PageResolver {
         },
         salt: salt,
         encryptedMnemonic: encryptedMnemonic
-      },
+      }
     });
 
     const page = await this.pageCacheService.getById(createdPage.id);
@@ -169,18 +169,18 @@ export class PageResolver {
 
     const uploadAvatarDetail = data.avatar
       ? await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: data.avatar
-        }
-      })
+          where: {
+            uploadId: data.avatar
+          }
+        })
       : undefined;
 
     const uploadCoverDetail = data.cover
       ? await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: data.cover
-        }
-      })
+          where: {
+            uploadId: data.cover
+          }
+        })
       : undefined;
 
     const updatedPage = await this.prisma.page.update({
@@ -195,23 +195,23 @@ export class PageResolver {
         category: {
           connect: data.categoryId
             ? {
-              id: Number(data.categoryId)
-            }
+                id: Number(data.categoryId)
+              }
             : undefined
         },
         country: {
           connect: data.countryId
             ? {
-              id: Number(data.countryId)
-            }
+                id: Number(data.countryId)
+              }
             : undefined
         },
         state: {
           disconnect: !data.stateId,
           connect: data.stateId
             ? {
-              id: Number(data.stateId)
-            }
+                id: Number(data.stateId)
+              }
             : undefined
         }
       }
@@ -229,7 +229,7 @@ export class PageResolver {
   }
 
   @ResolveField('pageDana', () => PageDana)
-  async accountDana(@Parent() page: Page) {
+  async pageDana(@Parent() page: Page) {
     return this.pageLoader.batchPageDanas.load(page.id);
   }
 }

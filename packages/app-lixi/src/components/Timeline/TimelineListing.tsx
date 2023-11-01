@@ -164,14 +164,15 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
       dispatch(setNewPostAvailable(false));
     }
   }, []);
-  const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } = useInfiniteHomeTimelineQuery(
-    {
-      first: 40,
-      level: level ?? 3,
-      isHome: true
-    },
-    false
-  );
+  const { data, totalCount, fetchNext, hasNext, isLoading, isFetching, isFetchingNext, refetch } =
+    useInfiniteHomeTimelineQuery(
+      {
+        first: 5,
+        level: level ?? 3,
+        isHome: true
+      },
+      false
+    );
 
   useEffect(() => {
     if (refs.current[postIdSelected]) {
@@ -228,7 +229,7 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
           textAlign: 'center'
         }}
       >
-        {isFetchingQueryNext ? <Skeleton avatar active /> : "It's so empty here..."}
+        {isFetchingQueryNext || isQueryLoading ? <Skeleton avatar active /> : "It's so empty here..."}
       </b>
     );
   };
@@ -280,7 +281,7 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
           textAlign: 'center'
         }}
       >
-        {isFetchingNext ? <Skeleton avatar active /> : "It's so empty here..."}
+        {isFetchingNext || isLoading ? <Skeleton avatar active /> : "It's so empty here..."}
       </b>
     );
   };
@@ -301,11 +302,7 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
             next={loadMoreItems}
             hasMore={hasNext}
             loader={<Skeleton avatar active />}
-            endMessage={
-              <p style={{ textAlign: 'center' }}>
-                <b>{data.length > 0 ? 'end reached' : ''}</b>
-              </p>
-            }
+            endMessage={<Footer />}
             scrollableTarget="scrollableDiv"
             scrollThreshold={'100px'}
           >
