@@ -86,7 +86,7 @@ export function useInfinitePostsByHashtagIdQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allPostsByHashtagId?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allPostsByHashtagId?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

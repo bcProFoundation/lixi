@@ -14,6 +14,8 @@ export class DanaViewScoreService {
   }
 
   async getByIds(ids: string[]) {
+    if (ids.length === 0) return [];
+
     return await this.redis.hmget(this.keyPrefix, ...ids);
   }
 

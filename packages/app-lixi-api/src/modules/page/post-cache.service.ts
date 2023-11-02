@@ -19,6 +19,13 @@ export class PostCacheService {
       const dbItem = await this.prisma.post.findUnique({
         where: {
           id: id
+        },
+        include: {
+          postAccount: true,
+          translations: true,
+          _count: {
+            select: { reposts: true }
+          }
         }
       });
       if (!dbItem) return null;
@@ -36,6 +43,8 @@ export class PostCacheService {
   }
 
   async getByIds(ids: string[]) {
+    if (ids.length === 0) return [];
+
     const values = await this.redis.hmgetBuffer(this.keyPrefix, ...ids);
     const uncachedIds = [];
     for (let i = 0; i < ids.length; i++) {

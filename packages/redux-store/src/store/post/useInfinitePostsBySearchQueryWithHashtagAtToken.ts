@@ -54,7 +54,7 @@ export function useInfinitePostsBySearchQueryWithHashtagAtToken(
       const baseResultParse = baseResult.data.allPostsBySearchWithHashtagAtToken.edges.map(item => item.node);
       const adapterSetAll = postsAdapter.setAll(
         combinedData,
-        baseResult.data.allPostsBySearchWithHashtagAtToken.edges.map(item => item.node)
+        baseResult.data.allPostsBySearchWithHashtagAtToken.edges.map(item => item.node as PostQueryItem)
       );
 
       setCombinedData(adapterSetAll);
@@ -97,7 +97,7 @@ export function useInfinitePostsBySearchQueryWithHashtagAtToken(
     isFetchingQueryNext: nextResult?.isFetching,
     hasNextQuery: baseResult.data?.allPostsBySearchWithHashtagAtToken?.pageInfo?.endCursor !== null,
     noMoreQuery:
-      baseResult.data?.allPostsBySearchWithHashtagAtToken?.pageInfo?.endCursor === null ||
+      !!baseResult.data?.allPostsBySearchWithHashtagAtToken?.pageInfo?.endCursor ||
       baseResult.data?.allPostsBySearchWithHashtagAtToken?.pageInfo?.hasNextPage === false,
     fetchNextQuery,
     refetchQuery

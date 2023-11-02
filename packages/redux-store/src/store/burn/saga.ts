@@ -43,7 +43,7 @@ import intl from 'react-intl-universal';
 import { buffers } from 'redux-saga';
 import { actionChannel, flush, getContext, put, select } from 'redux-saga/effects';
 import { match } from 'ts-pattern';
-import { BurnForItem } from '../../generated';
+import { BurnForItem, PostQueryItem } from '@generated/index';
 import { hideLoading } from '../loading/actions';
 import { getFilterPostsHome, getLevelFilter } from '../settings';
 import {
@@ -139,11 +139,13 @@ function* prepareBurnCommandSaga(
 
     const extraArguments: BurnExtraArguments = match(burnForType)
       .with(BurnForType.Post, () => {
+        const post = burnForItem as Post;
         return {
           postQueryTags: [PostsQueryTag.Post],
           postId: burnForItem.id.toString(),
           minBurnFilter: filterValue,
-          level: level
+          level: level,
+          pageId: post?.page?.id
         };
       })
       .with(BurnForType.Page, () => {
@@ -447,6 +449,60 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
         draft.post.danaBurnUp = danaBurnUp;
         draft.post.danaBurnDown = danaBurnDown;
         draft.post.danaBurnScore = danaBurnScore;
+      })
+    );
+  }
+
+  // Update single page
+  const pageInvalidatedBy = yield call(pagesApi.util.selectInvalidatedBy, rootState, [{ type: 'Page', id: pageId }]);
+  for (const invalidatedBy of pageInvalidatedBy) {
+    const { endpointName, originalArgs } = invalidatedBy;
+    yield put(
+      pagesApi.util.updateQueryData('Page', originalArgs, draft => {
+        const { id } = originalArgs;
+        if (id !== pageId) return;
+
+        const pageDana = draft?.page?.pageDana;
+        let danaReceivedUp = pageDana?.danaReceivedUp ?? 0;
+        let danaReceivedDown = pageDana?.danaReceivedDown ?? 0;
+        if (burnType == BurnType.Up) {
+          danaReceivedUp = danaReceivedUp + burnValue;
+        } else {
+          danaReceivedDown = danaReceivedDown + burnValue;
+        }
+        const danaReceivedScore = danaReceivedUp - danaReceivedDown;
+        draft.page.pageDana.danaReceivedUp = danaReceivedUp;
+        draft.page.pageDana.danaReceivedDown = danaReceivedDown;
+        draft.page.pageDana.danaReceivedScore = danaReceivedScore;
+      })
+    );
+  }
+
+  // Update page timeline
+  const pageTimelineInvalidatedBy = yield call(pagesApi.util.selectInvalidatedBy, rootState, ['Pages']);
+  for (const invalidatedBy of pageTimelineInvalidatedBy) {
+    const { endpointName, originalArgs } = invalidatedBy;
+    yield put(
+      pagesApi.util.updateQueryData(endpointName, originalArgs, draft => {
+        const fields = Object.keys(draft);
+        for (const field of fields) {
+          if (!draft[field]) continue;
+          const pageToUpdateIndex = draft[field]?.edges.findIndex(item => item.node.id === pageId);
+          const pageToUpdate = draft[field]?.edges[pageToUpdateIndex];
+          if (pageToUpdateIndex >= 0) {
+            let danaReceivedUp = pageToUpdate?.node?.pageDana.danaReceivedUp ?? 0;
+            let danaReceivedDown = pageToUpdate?.node?.pageDana.danaReceivedDown ?? 0;
+            if (burnType == BurnType.Up) {
+              danaReceivedUp = danaReceivedUp + burnValue;
+            } else {
+              danaReceivedDown = danaReceivedDown + burnValue;
+            }
+            const danaReceivedScore = danaReceivedUp - danaReceivedDown;
+            draft[field].edges[pageToUpdateIndex].node.pageDana.danaReceivedUp = danaReceivedUp;
+            draft[field].edges[pageToUpdateIndex].node.pageDana.danaReceivedDown = danaReceivedDown;
+            draft[field].edges[pageToUpdateIndex].node.pageDana.danaReceivedScore = danaReceivedScore;
+          }
+        }
       })
     );
   }

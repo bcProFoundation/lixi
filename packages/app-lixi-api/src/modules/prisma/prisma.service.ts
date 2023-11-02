@@ -8,6 +8,15 @@ import prismaCacheMiddleware from 'prisma-cache-middleware';
 export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor(private logger: Logger, private readonly config: ConfigService) {
     super();
+    // super({
+    //   log: [
+    //     { emit: 'event', level: 'query' },
+    //     { emit: 'stdout', level: 'info' },
+    //     { emit: 'stdout', level: 'warn' },
+    //     { emit: 'stdout', level: 'error' },
+    //   ],
+    //   errorFormat: 'colorless',
+    // });
     const cacheMiddleWare = prismaCacheMiddleware({
       redisOptions: {
         host: config.get<string>('REDIS_HOST') ? config.get<string>('REDIS_HOST') : 'redis-lixi',
@@ -22,14 +31,11 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       ]
     });
     this.$use(cacheMiddleWare);
-    // super({
-    //   log: [
-    //     { emit: 'event', level: 'query' },
-    //     { emit: 'stdout', level: 'info' },
-    //     { emit: 'stdout', level: 'warn' },
-    //     { emit: 'stdout', level: 'error' },
-    //   ],
-    //   errorFormat: 'colorless',
+
+    // @ts-ignore
+    // this.$on('query', async (e) => {
+    // @ts-ignore
+    // console.log(e.query, e.params);
     // });
   }
 

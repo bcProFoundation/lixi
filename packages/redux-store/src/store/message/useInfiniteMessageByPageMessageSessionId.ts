@@ -91,7 +91,7 @@ export function useInfiniteMessageByPageMessageSessionId(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allMessageByPageMessageSessionId?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allMessageByPageMessageSessionId?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

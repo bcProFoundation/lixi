@@ -1,5 +1,5 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
-import { PageQueryItem, PageOrder } from '@generated/index';
+import { PageQueryItem } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useLazyPagesByUserIdQuery, usePagesByUserIdQuery } from '@store/page/pages.generated';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -12,7 +12,6 @@ const pagesAdapter = createEntityAdapter<PageQueryItem>({
 const { selectAll, selectEntities, selectIds, selectTotal } = pagesAdapter.getSelectors();
 
 interface PageListByIdParams extends PaginationArgs {
-  orderBy?: PageOrder;
   id?: number;
 }
 
@@ -87,7 +86,7 @@ export function useInfinitePagesByUserIdQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allPagesByUserId?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allPagesByUserId?.pageInfo?.hasNextPage,
     fetchNext,
     refetch
   };

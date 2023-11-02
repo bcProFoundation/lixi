@@ -120,6 +120,7 @@ model Page {
   polls                       Poll[]
   products                    Product[]
 
+  @@index([pageAccountId])
   @@map("page")
 }
 
@@ -170,6 +171,8 @@ model Post {
   postImageUploadableId String?           @unique @map("post_image_uploadable_id")
   postDana              PostDana?
 
+  @@index([postAccountId])
+  @@index([pageId])
   @@map("post")
 }
 

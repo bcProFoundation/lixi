@@ -14,7 +14,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import { useInfinitePagesQuery } from '@store/page/useInfinitePagesQuery';
-import { OrderDirection, PageOrderField } from '@generated/types.generated';
+import { OrderDirection } from '@generated/types.generated';
 import AvatarUser from '@components/Common/AvatarUser';
 import { getCurrentThemes } from '@store/settings';
 const { Sider } = Layout;
@@ -256,17 +256,7 @@ const SidebarRanking = () => {
 
   const { data: topPagesData, isLoading: isLoadingPage } = useInfinitePagesQuery(
     {
-      first: 5,
-      orderBy: [
-        {
-          direction: OrderDirection.Desc,
-          field: PageOrderField.DanaBurnScore
-        },
-        {
-          direction: OrderDirection.Desc,
-          field: PageOrderField.TotalPostsBurnScore
-        }
-      ]
+      first: 5
     },
     false
   );
@@ -337,7 +327,7 @@ const SidebarRanking = () => {
                         {index === 0 && (
                           <h4 className="distance" key={`${item.id}`}>
                             <ShortcutItemAccess
-                              burnValue={item.totalBurnForPage}
+                              burnValue={item?.pageDana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
                               href={`/page/${item.id}`}
@@ -349,7 +339,7 @@ const SidebarRanking = () => {
                         {index === 1 && (
                           <h4 className="distance" key={`${item.id}`}>
                             <ShortcutItemAccess
-                              burnValue={item.totalBurnForPage}
+                              burnValue={item?.pageDana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
                               href={`/page/${item.id}`}
@@ -361,7 +351,7 @@ const SidebarRanking = () => {
                         {index === 2 && (
                           <h4 className="distance" key={`${item.id}`}>
                             <ShortcutItemAccess
-                              burnValue={item.totalBurnForPage}
+                              burnValue={item?.pageDana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
                               href={`/page/${item.id}`}
@@ -373,7 +363,7 @@ const SidebarRanking = () => {
                         {index > 2 && (
                           <h4 className="distance" key={`${item.id}`}>
                             <ShortcutItemAccess
-                              burnValue={item.totalBurnForPage}
+                              burnValue={item?.pageDana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
                               isPage={true}

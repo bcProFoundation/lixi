@@ -30,6 +30,9 @@ export type TimelineQuery = {
       __typename?: 'Post';
       id: string;
       content: string;
+      postAccountId: number;
+      pageId?: string | null;
+      tokenId?: string | null;
       repostCount?: number | null;
       danaBurnUp: number;
       danaBurnDown: number;
@@ -79,7 +82,16 @@ export type TimelineQuery = {
         accountId?: number | null;
         account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
       }> | null;
-      postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+      postDana?: {
+        __typename?: 'PostDana';
+        danaBurnUp: number;
+        danaBurnDown: number;
+        danaBurnScore: number;
+        danaReceivedUp: number;
+        danaReceivedDown: number;
+        danaReceivedScore: number;
+        version: number;
+      } | null;
       translations?: Array<{
         __typename?: 'PostTranslation';
         id: string;
@@ -89,7 +101,7 @@ export type TimelineQuery = {
       postImageUploadable?: {
         __typename?: 'ImageUploadable';
         id: string;
-        uploads: {
+        uploads: Array<{
           __typename?: 'Upload';
           id: string;
           sha: string;
@@ -98,7 +110,7 @@ export type TimelineQuery = {
           height?: number | null;
           cfImageId?: string | null;
           cfImageFilename?: string | null;
-        };
+        }>;
       } | null;
     } | null;
   };
@@ -125,6 +137,9 @@ export type HomeTimelineQuery = {
           __typename?: 'Post';
           id: string;
           content: string;
+          postAccountId: number;
+          pageId?: string | null;
+          tokenId?: string | null;
           repostCount?: number | null;
           danaBurnUp: number;
           danaBurnDown: number;
@@ -179,6 +194,10 @@ export type HomeTimelineQuery = {
             danaBurnUp: number;
             danaBurnDown: number;
             danaBurnScore: number;
+            danaReceivedUp: number;
+            danaReceivedDown: number;
+            danaReceivedScore: number;
+            version: number;
           } | null;
           translations?: Array<{
             __typename?: 'PostTranslation';
@@ -189,7 +208,7 @@ export type HomeTimelineQuery = {
           postImageUploadable?: {
             __typename?: 'ImageUploadable';
             id: string;
-            uploads: {
+            uploads: Array<{
               __typename?: 'Upload';
               id: string;
               sha: string;
@@ -198,7 +217,7 @@ export type HomeTimelineQuery = {
               height?: number | null;
               cfImageId?: string | null;
               cfImageFilename?: string | null;
-            };
+            }>;
           } | null;
         } | null;
       };

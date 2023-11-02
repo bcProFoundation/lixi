@@ -49,7 +49,7 @@ export function useInfinitePostsBySearchQueryWithHashtag(
 
       const adapterSetAll = postsAdapter.setAll(
         combinedData,
-        baseResult.data.allPostsBySearchWithHashtag.edges.map(item => item.node)
+        baseResult.data.allPostsBySearchWithHashtag.edges.map(edge => edge.node as PostQueryItem)
       );
 
       setCombinedData(adapterSetAll);
@@ -92,7 +92,7 @@ export function useInfinitePostsBySearchQueryWithHashtag(
     isFetchingQueryNext: nextResult?.isFetching,
     hasNextQuery: baseResult.data?.allPostsBySearchWithHashtag?.pageInfo?.hasNextPage === true,
     noMoreQuery:
-      baseResult.data?.allPostsBySearchWithHashtag?.pageInfo?.endCursor === null ||
+      !!baseResult.data?.allPostsBySearchWithHashtag?.pageInfo?.endCursor ||
       baseResult.data?.allPostsBySearchWithHashtag?.pageInfo?.hasNextPage === false,
     fetchNextQuery,
     refetchQuery

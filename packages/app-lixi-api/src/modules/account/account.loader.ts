@@ -15,7 +15,7 @@ export default class AccountLoader {
     const accountIds = ids as unknown as number[];
     const accountDanas = await this.accountDanaCacheService.getAccountDanas(accountIds);
     const data = accountIds.map((accountId, index) => {
-      return accountDanas[index] ?? new Error(`Unable to load account ${accountId.toString()}`);
+      return accountDanas[index] ?? new AccountDana({});
     });
     return Promise.resolve(data);
   });

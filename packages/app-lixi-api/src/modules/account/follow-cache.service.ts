@@ -3,6 +3,7 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { PrismaService } from '../prisma/prisma.service';
+import { basicSortedSetPagination } from '../../common/custom-graphql-relay/paginate';
 
 @Injectable()
 export class FollowCacheService {
@@ -348,5 +349,14 @@ export class FollowCacheService {
 
     listCheckAccountFollowTokens = await this.redis.zmscore(key, ...tokenIds);
     return listCheckAccountFollowTokens;
+  }
+
+  async getPaginatedPageFollowings(accountId: number, first: number, after?: string) {
+    const key = `user:${accountId}:followingPages`;
+    const exist = await this.redis.exists([key]);
+    if (!exist) {
+      await this._cachePageFollowingOfAccount(key, accountId);
+    }
+    return await basicSortedSetPagination(this.redis, key, first, after);
   }
 }

@@ -100,6 +100,18 @@ export enum AccountOrderField {
   UpdatedAt = 'updatedAt'
 }
 
+export type Balances = {
+  __typename?: 'Balances';
+  totalBalance: Scalars['String'];
+  totalBalanceInSatoshis: Scalars['String'];
+};
+
+export type BasicPageInfo = {
+  __typename?: 'BasicPageInfo';
+  endCursor: Scalars['String'];
+  hasNextPage: Scalars['Boolean'];
+};
+
 export type Bookmark = {
   __typename?: 'Bookmark';
   account: Account;
@@ -459,13 +471,6 @@ export type FollowPage = {
   updatedAt: Scalars['DateTime'];
 };
 
-export type FollowPageConnection = {
-  __typename?: 'FollowPageConnection';
-  edges?: Maybe<Array<FollowPageEdge>>;
-  pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
-};
-
 export type FollowPageEdge = {
   __typename?: 'FollowPageEdge';
   cursor: Scalars['String'];
@@ -545,7 +550,7 @@ export type ImageUploadable = {
   templeAvatar?: Maybe<Temple>;
   templeCover?: Maybe<Temple>;
   type?: Maybe<ImageUploadableType>;
-  uploads: Upload;
+  uploads: Array<Upload>;
 };
 
 /** Properties by type of the image uploadable. */
@@ -892,11 +897,17 @@ export type Page = {
   website?: Maybe<Scalars['String']>;
 };
 
-export type PageConnection = {
-  __typename?: 'PageConnection';
-  edges?: Maybe<Array<PageEdge>>;
-  pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
+export type PageBasicConnection = {
+  __typename?: 'PageBasicConnection';
+  edges: Array<PageBasicEdge>;
+  pageInfo: BasicPageInfo;
+  totalCount: Scalars['Int'];
+};
+
+export type PageBasicEdge = {
+  __typename?: 'PageBasicEdge';
+  cursor: Scalars['String'];
+  node: Page;
 };
 
 export type PageDana = {
@@ -977,22 +988,6 @@ export enum PageMessageSessionStatus {
   Close = 'CLOSE',
   Open = 'OPEN',
   Pending = 'PENDING'
-}
-
-export type PageOrder = {
-  direction: OrderDirection;
-  field: PageOrderField;
-};
-
-/** Properties by which page connections can be ordered. */
-export enum PageOrderField {
-  CreatedAt = 'createdAt',
-  DanaBurnScore = 'danaBurnScore',
-  Id = 'id',
-  Name = 'name',
-  Title = 'title',
-  TotalPostsBurnScore = 'totalPostsBurnScore',
-  UpdatedAt = 'updatedAt'
 }
 
 export type Poll = {
@@ -1203,9 +1198,8 @@ export type Query = {
   allOpenPageMessageSessionByAccountId: PageMessageSessionConnection;
   allOpenPageMessageSessionByPageId: PageMessageSessionConnection;
   allPageMessageSessionByAccountId: PageMessageSessionConnection;
-  allPages: PageConnection;
-  allPagesByFollower: FollowPageConnection;
-  allPagesByUserId: PageConnection;
+  allPages: PageBasicConnection;
+  allPagesByUserId: PageBasicConnection;
   allPendingPageMessageSessionByAccountId: PageMessageSessionConnection;
   allPendingPageMessageSessionByPageId: PageMessageSessionConnection;
   allPostsByHashtagId: PostConnection;
@@ -1234,11 +1228,13 @@ export type Query = {
   checkIfFollowToken: Scalars['Boolean'];
   comment: Comment;
   getAccountByAddress: Account;
+  getBalances: Balances;
   hashtag: Hashtag;
   homeTimeline: TimelineItemConnection;
   message: Message;
   page: Page;
   pageMessageSession: PageMessageSession;
+  pagesByFollower: PageBasicConnection;
   post: Post;
   product: Product;
   temple: Temple;
@@ -1399,29 +1395,13 @@ export type QueryAllPagesArgs = {
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
   minBurnFilter?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Array<PageOrder>>;
-  query?: InputMaybe<Scalars['String']>;
-  skip?: InputMaybe<Scalars['Int']>;
-};
-
-export type QueryAllPagesByFollowerArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  pagesOnly?: InputMaybe<Scalars['Boolean']>;
   skip?: InputMaybe<Scalars['Int']>;
 };
 
 export type QueryAllPagesByUserIdArgs = {
   after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   id?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<PageOrder>;
   skip?: InputMaybe<Scalars['Int']>;
 };
 
@@ -1675,6 +1655,10 @@ export type QueryGetAccountByAddressArgs = {
   address: Scalars['String'];
 };
 
+export type QueryGetBalancesArgs = {
+  address: Scalars['String'];
+};
+
 export type QueryHashtagArgs = {
   content: Scalars['String'];
 };
@@ -1699,6 +1683,12 @@ export type QueryPageArgs = {
 
 export type QueryPageMessageSessionArgs = {
   id: Scalars['String'];
+};
+
+export type QueryPagesByFollowerArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']>;
 };
 
 export type QueryPostArgs = {
@@ -1773,7 +1763,6 @@ export type Subscription = {
   followAccountCreated: FollowAccount;
   hashtagCreated: Hashtag;
   messageCreated: Message;
-  pageCreated: Page;
   pageMessageSessionCreated: PageMessageSession;
   templeCreated: Temple;
   tokenCreated: Token;

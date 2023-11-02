@@ -26,6 +26,9 @@ export type PostQuery = {
     __typename?: 'Post';
     id: string;
     content: string;
+    postAccountId: number;
+    pageId?: string | null;
+    tokenId?: string | null;
     repostCount?: number | null;
     danaBurnUp: number;
     danaBurnDown: number;
@@ -75,7 +78,16 @@ export type PostQuery = {
       accountId?: number | null;
       account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
     }> | null;
-    postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+    postDana?: {
+      __typename?: 'PostDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+      version: number;
+    } | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -85,7 +97,7 @@ export type PostQuery = {
     postImageUploadable?: {
       __typename?: 'ImageUploadable';
       id: string;
-      uploads: {
+      uploads: Array<{
         __typename?: 'Upload';
         id: string;
         sha: string;
@@ -94,7 +106,7 @@ export type PostQuery = {
         height?: number | null;
         cfImageId?: string | null;
         cfImageFilename?: string | null;
-      };
+      }>;
     } | null;
   };
 };
@@ -123,6 +135,9 @@ export type PostsByPageIdQuery = {
         __typename?: 'Post';
         id: string;
         content: string;
+        postAccountId: number;
+        pageId?: string | null;
+        tokenId?: string | null;
         repostCount?: number | null;
         danaBurnUp: number;
         danaBurnDown: number;
@@ -172,7 +187,16 @@ export type PostsByPageIdQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
-        postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+        postDana?: {
+          __typename?: 'PostDana';
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+          version: number;
+        } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -182,7 +206,7 @@ export type PostsByPageIdQuery = {
         postImageUploadable?: {
           __typename?: 'ImageUploadable';
           id: string;
-          uploads: {
+          uploads: Array<{
             __typename?: 'Upload';
             id: string;
             sha: string;
@@ -191,7 +215,7 @@ export type PostsByPageIdQuery = {
             height?: number | null;
             cfImageId?: string | null;
             cfImageFilename?: string | null;
-          };
+          }>;
         } | null;
       };
     }> | null;
@@ -228,6 +252,9 @@ export type PostsByUserIdQuery = {
         __typename?: 'Post';
         id: string;
         content: string;
+        postAccountId: number;
+        pageId?: string | null;
+        tokenId?: string | null;
         repostCount?: number | null;
         danaBurnUp: number;
         danaBurnDown: number;
@@ -277,7 +304,16 @@ export type PostsByUserIdQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
-        postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+        postDana?: {
+          __typename?: 'PostDana';
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+          version: number;
+        } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -287,7 +323,7 @@ export type PostsByUserIdQuery = {
         postImageUploadable?: {
           __typename?: 'ImageUploadable';
           id: string;
-          uploads: {
+          uploads: Array<{
             __typename?: 'Upload';
             id: string;
             sha: string;
@@ -296,7 +332,7 @@ export type PostsByUserIdQuery = {
             height?: number | null;
             cfImageId?: string | null;
             cfImageFilename?: string | null;
-          };
+          }>;
         } | null;
       };
     }> | null;
@@ -333,6 +369,9 @@ export type PostsByHashtagIdQuery = {
         __typename?: 'Post';
         id: string;
         content: string;
+        postAccountId: number;
+        pageId?: string | null;
+        tokenId?: string | null;
         repostCount?: number | null;
         danaBurnUp: number;
         danaBurnDown: number;
@@ -382,7 +421,16 @@ export type PostsByHashtagIdQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
-        postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+        postDana?: {
+          __typename?: 'PostDana';
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+          version: number;
+        } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -392,7 +440,7 @@ export type PostsByHashtagIdQuery = {
         postImageUploadable?: {
           __typename?: 'ImageUploadable';
           id: string;
-          uploads: {
+          uploads: Array<{
             __typename?: 'Upload';
             id: string;
             sha: string;
@@ -401,7 +449,7 @@ export type PostsByHashtagIdQuery = {
             height?: number | null;
             cfImageId?: string | null;
             cfImageFilename?: string | null;
-          };
+          }>;
         } | null;
       };
     }> | null;
@@ -438,6 +486,9 @@ export type PostsByTokenIdQuery = {
         __typename?: 'Post';
         id: string;
         content: string;
+        postAccountId: number;
+        pageId?: string | null;
+        tokenId?: string | null;
         repostCount?: number | null;
         danaBurnUp: number;
         danaBurnDown: number;
@@ -487,7 +538,16 @@ export type PostsByTokenIdQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
-        postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+        postDana?: {
+          __typename?: 'PostDana';
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+          version: number;
+        } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -497,7 +557,7 @@ export type PostsByTokenIdQuery = {
         postImageUploadable?: {
           __typename?: 'ImageUploadable';
           id: string;
-          uploads: {
+          uploads: Array<{
             __typename?: 'Upload';
             id: string;
             sha: string;
@@ -506,7 +566,7 @@ export type PostsByTokenIdQuery = {
             height?: number | null;
             cfImageId?: string | null;
             cfImageFilename?: string | null;
-          };
+          }>;
         } | null;
       };
     }> | null;
@@ -876,6 +936,9 @@ export type PostFieldsFragment = {
   __typename?: 'Post';
   id: string;
   content: string;
+  postAccountId: number;
+  pageId?: string | null;
+  tokenId?: string | null;
   repostCount?: number | null;
   danaBurnUp: number;
   danaBurnDown: number;
@@ -925,7 +988,16 @@ export type PostFieldsFragment = {
     accountId?: number | null;
     account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
   }> | null;
-  postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+  postDana?: {
+    __typename?: 'PostDana';
+    danaBurnUp: number;
+    danaBurnDown: number;
+    danaBurnScore: number;
+    danaReceivedUp: number;
+    danaReceivedDown: number;
+    danaReceivedScore: number;
+    version: number;
+  } | null;
   translations?: Array<{
     __typename?: 'PostTranslation';
     id: string;
@@ -935,7 +1007,7 @@ export type PostFieldsFragment = {
   postImageUploadable?: {
     __typename?: 'ImageUploadable';
     id: string;
-    uploads: {
+    uploads: Array<{
       __typename?: 'Upload';
       id: string;
       sha: string;
@@ -944,7 +1016,7 @@ export type PostFieldsFragment = {
       height?: number | null;
       cfImageId?: string | null;
       cfImageFilename?: string | null;
-    };
+    }>;
   } | null;
 };
 
@@ -1018,6 +1090,9 @@ export type CreatePostMutation = {
     __typename?: 'Post';
     id: string;
     content: string;
+    postAccountId: number;
+    pageId?: string | null;
+    tokenId?: string | null;
     repostCount?: number | null;
     danaBurnUp: number;
     danaBurnDown: number;
@@ -1067,7 +1142,16 @@ export type CreatePostMutation = {
       accountId?: number | null;
       account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
     }> | null;
-    postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+    postDana?: {
+      __typename?: 'PostDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+      version: number;
+    } | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -1077,7 +1161,7 @@ export type CreatePostMutation = {
     postImageUploadable?: {
       __typename?: 'ImageUploadable';
       id: string;
-      uploads: {
+      uploads: Array<{
         __typename?: 'Upload';
         id: string;
         sha: string;
@@ -1086,7 +1170,7 @@ export type CreatePostMutation = {
         height?: number | null;
         cfImageId?: string | null;
         cfImageFilename?: string | null;
-      };
+      }>;
     } | null;
   };
 };
@@ -1101,6 +1185,9 @@ export type UpdatePostMutation = {
     __typename?: 'Post';
     id: string;
     content: string;
+    postAccountId: number;
+    pageId?: string | null;
+    tokenId?: string | null;
     repostCount?: number | null;
     danaBurnUp: number;
     danaBurnDown: number;
@@ -1150,7 +1237,16 @@ export type UpdatePostMutation = {
       accountId?: number | null;
       account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
     }> | null;
-    postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+    postDana?: {
+      __typename?: 'PostDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+      version: number;
+    } | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -1160,7 +1256,7 @@ export type UpdatePostMutation = {
     postImageUploadable?: {
       __typename?: 'ImageUploadable';
       id: string;
-      uploads: {
+      uploads: Array<{
         __typename?: 'Upload';
         id: string;
         sha: string;
@@ -1169,7 +1265,7 @@ export type UpdatePostMutation = {
         height?: number | null;
         cfImageId?: string | null;
         cfImageFilename?: string | null;
-      };
+      }>;
     } | null;
   };
 };
@@ -1203,6 +1299,7 @@ export const PostFieldsFragmentDoc = `
     avatar
     createCommentFee
   }
+  postAccountId
   page {
     avatar
     name
@@ -1215,11 +1312,13 @@ export const PostFieldsFragmentDoc = `
       address
     }
   }
+  pageId
   token {
     id
     name
     tokenId
   }
+  tokenId
   repostCount
   reposts {
     accountId
@@ -1236,6 +1335,10 @@ export const PostFieldsFragmentDoc = `
     danaBurnUp
     danaBurnDown
     danaBurnScore
+    danaReceivedUp
+    danaReceivedDown
+    danaReceivedScore
+    version
   }
   totalComments
   createdAt

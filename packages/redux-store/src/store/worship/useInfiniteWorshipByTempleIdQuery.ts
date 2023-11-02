@@ -90,7 +90,7 @@ export function useInfiniteWorshipByTempleIdQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allWorshipedByTempleId?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allWorshipedByTempleId?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

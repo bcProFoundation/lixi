@@ -87,7 +87,7 @@ export function useInfiniteFollowingsByFollowerQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allFollowingsByFollower?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allFollowingsByFollower?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

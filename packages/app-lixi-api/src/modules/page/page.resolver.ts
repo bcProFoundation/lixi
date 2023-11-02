@@ -1,13 +1,16 @@
 import {
   Account,
-  Category,
+  BasicPaginationArgs,
   CreatePageInput,
+  DEFAULT_CATEGORY,
+  IBasicPaginated,
   Page,
+  PageBasicConnection,
   PageConnection,
+  PageDana,
   PageOrder,
   PaginationArgs,
-  UpdatePageInput,
-  DEFAULT_CATEGORY
+  UpdatePageInput
 } from '@bcpros/lixi-models';
 import BCHJS from '@bcpros/xpi-js';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
@@ -20,143 +23,86 @@ import { I18n, I18nService } from 'nestjs-i18n';
 import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import VError from 'verror';
+import { createEdge } from '../../common/custom-graphql-relay/paginate';
 import { aesGcmEncrypt, generateRandomBase58Str } from '../../utils/encryptionMethods';
+import { FollowCacheService } from '../account/follow-cache.service';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { PageCacheService } from './page-cache.service';
-import { FollowCacheService } from '../account/follow-cache.service';
 import { ImageUploadableType } from '@bcpros/lixi-prisma';
 import { XPIJS } from '../wallet/wallet.constants';
-
-const pubSub = new PubSub();
+import { PageTimelineCacheService } from './page-timeline-cache.service';
+import PageLoader from './page.loader';
+import { toImageUrl } from './page.utils';
 
 @SkipThrottle()
 @Resolver(() => Page)
 @UseFilters(GqlHttpExceptionFilter)
 export class PageResolver {
+  static pubSub = new PubSub();
   private logger: Logger = new Logger(this.constructor.name);
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly pageLoader: PageLoader,
     private readonly pageCacheService: PageCacheService,
     private readonly followCacheService: FollowCacheService,
+    private readonly pageTimelineCacheService: PageTimelineCacheService,
     @I18n() private i18n: I18nService,
     @Inject(XPIJS) private XPI: BCHJS
   ) {}
 
   @Subscription(() => Page)
-  pageCreated() {
-    return pubSub.asyncIterator('pageCreated');
+  static pageCreated() {
+    return PageResolver.pubSub.asyncIterator('pageCreated');
   }
 
   @Query(() => Page)
   async page(@PageAccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
-    const page = await this.prisma.page.findFirst({
-      where: { id: id },
-      include: {
-        pageAccount: true,
-        category: true,
-        country: true,
-        state: true
-      }
-    });
-
-    // TODO: Shorten query
-    const followersCount = await this.prisma.followPage.count({
-      where: { pageId: id }
-    });
-
-    const result = {
-      ...page,
-      followersCount: followersCount,
-      totalBurnForPage: page ? page.danaBurnScore + page.totalPostsBurnScore : 0,
-      categoryId: page?.categoryId ?? DEFAULT_CATEGORY,
-      countryName: page?.country?.name ?? undefined,
-      stateName: page?.state?.name ?? undefined
-    };
-
-    return result;
+    return await this.pageCacheService.getById(id);
   }
 
-  @Query(() => PageConnection)
-  async allPages(
-    @Args() { after, before, first, last }: PaginationArgs,
-    @Args({ name: 'query', type: () => String, nullable: true })
-    query: string,
-    @Args({
-      name: 'orderBy',
-      type: () => [PageOrder!],
-      nullable: true
-    })
-    orderBy: PageOrder[]
-  ) {
-    const result = await findManyCursorConnection(
-      async args => {
-        const pages = await this.prisma.page
-          .findMany({
-            include: {
-              pageAccount: true
-            },
-            orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
-            ...args
-          })
-          .then(pages =>
-            pages
-              .map(page => ({
-                ...page,
-                totalBurnForPage: page.danaBurnScore + page.totalPostsBurnScore ?? 0,
-                categoryId: page?.categoryId ?? DEFAULT_CATEGORY
-              }))
-              .sort((a, b) => b.totalBurnForPage - a.totalBurnForPage)
-          );
+  @Query(() => PageBasicConnection)
+  @UseGuards(GqlJwtAuthGuard)
+  async pagesByFollower(@PageAccountEntity() account: Account, @Args() { after, first = 20 }: BasicPaginationArgs) {
+    if (!account) {
+      const accountNotExist = await this.i18n.t('account.messages.accountNotExist');
+      throw Error(accountNotExist);
+    }
 
-        return pages;
-      },
-      () => this.prisma.page.count(),
-      { first, last, before, after }
-    );
-    return result;
+    const paginated = await this.followCacheService.getPaginatedPageFollowings(account.id, first, after);
+    const pageIds = paginated.edges.map(item => item.cursor);
+    const pages = await this.pageCacheService.getByIds(pageIds);
+    return {
+      ...paginated,
+      edges: pages.map(page => (page ? createEdge<Page>(page, 'id') : null))
+    } as IBasicPaginated<Page>;
   }
 
-  @Query(() => PageConnection)
+  @Query(() => PageBasicConnection)
+  async allPages(@Args() { after, before, first = 20, last }: PaginationArgs) {
+    const paginated = await this.pageTimelineCacheService.getPaginatedPageTimeline(first, after);
+    const pageIds = paginated.edges.map(item => item.cursor);
+    const pages = await this.pageCacheService.getByIds(pageIds);
+    return {
+      ...paginated,
+      edges: pages.map(page => (page ? createEdge<Page>(page, 'id') : null))
+    } as IBasicPaginated<Page>;
+  }
+
+  @Query(() => PageBasicConnection)
   async allPagesByUserId(
-    @Args() { after, before, first, last }: PaginationArgs,
+    @Args() { after, first = 20 }: BasicPaginationArgs,
     @Args({ name: 'id', type: () => Number, nullable: true })
-    id: number,
-    @Args({
-      name: 'orderBy',
-      type: () => PageOrder,
-      nullable: true
-    })
-    orderBy: PageOrder
+    id: number
   ) {
-    const result = await findManyCursorConnection(
-      async args => {
-        const pages = await this.prisma.page.findMany({
-          where: {
-            pageAccountId: id
-          },
-          orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
-          ...args
-        });
-
-        const output = pages.map(page => ({
-          ...page,
-          categoryId: page?.categoryId ?? DEFAULT_CATEGORY,
-          totalBurnForPage: page.danaBurnScore + page.totalPostsBurnScore ?? 0
-        }));
-
-        return output;
-      },
-      () =>
-        this.prisma.page.count({
-          where: {
-            pageAccountId: _.toSafeInteger(id)
-          }
-        }),
-      { first, last, before, after }
-    );
-    return result;
+    const paginated = await this.pageTimelineCacheService.getPaginatedPageTimelineByUser(id, first, after);
+    const pageIds = paginated.edges.map(item => item.cursor);
+    const pages = await this.pageCacheService.getByIds(pageIds);
+    return {
+      ...paginated,
+      edges: pages.map(page => (page ? createEdge<Page>(page, 'id') : null))
+    } as IBasicPaginated<Page>;
   }
 
   @UseGuards(GqlJwtAuthGuard)
@@ -191,8 +137,12 @@ export class PageResolver {
       }
     });
 
-    pubSub.publish('pageCreated', { pageCreated: createdPage });
-    return createdPage;
+    const page = await this.pageCacheService.getById(createdPage.id);
+    if (page) {
+      await this.pageTimelineCacheService.cachePage(page);
+    }
+    PageResolver.pubSub.publish('pageCreated', { pageCreated: page });
+    return page;
   }
 
   @UseGuards(GqlJwtAuthGuard)
@@ -392,7 +342,19 @@ export class PageResolver {
       }
     });
 
-    pubSub.publish('pageUpdated', { pageUpdated: updatedPage });
-    return updatedPage;
+    const page = await this.pageCacheService.getById(updatedPage.id);
+
+    PageResolver.pubSub.publish('pageUpdated', { pageUpdated: page });
+    return page;
+  }
+
+  @ResolveField('followersCount', () => Number)
+  async followersCount(@Parent() page: Page) {
+    return this.pageLoader.batchFollowersCount.load(page.id);
+  }
+
+  @ResolveField('pageDana', () => PageDana)
+  async pageDana(@Parent() page: Page) {
+    return this.pageLoader.batchPageDanas.load(page.id);
   }
 }

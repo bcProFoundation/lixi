@@ -49,7 +49,7 @@ export class TimelineResolver {
     const postId = id;
     if (!postId) throw new Error('Invalid argument');
 
-    const hashPrefix = `posts:item-data`;
+    const hashPrefix = `items:posts:item-data`;
     const buffers = await this.redis.hmgetBuffer(hashPrefix, postId);
     if (!buffers[0]) {
       // cache miss
@@ -131,7 +131,7 @@ export class TimelineResolver {
       };
     }
 
-    const hashPrefix = `posts:item-data`;
+    const hashPrefix = `items:posts:item-data`;
     let buffers;
     try {
       buffers = await this.redis.hmgetBuffer(hashPrefix, ...ids);

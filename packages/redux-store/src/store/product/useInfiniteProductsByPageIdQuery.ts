@@ -95,7 +95,7 @@ export function useInfiniteProductsByPageIdQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allProductsByPageId?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allProductsByPageId?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };
