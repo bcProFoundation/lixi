@@ -25,7 +25,7 @@ export class AuthService implements OnModuleInit {
     private prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis,
     private walletService: WalletService,
-    @I18n() private i18n: I18nService 
+    @I18n() private i18n: I18nService,
     @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
     private moduleRef: ModuleRef // private moduleRef: ModuleRef
   ) {}
