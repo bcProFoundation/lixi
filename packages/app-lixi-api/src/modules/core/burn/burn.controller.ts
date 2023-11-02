@@ -22,6 +22,7 @@ import { TranslateService } from '../translate/translate.service';
 import { ACCOUNT_DANA_QUEUE, BURN_FANOUT_QUEUE } from './burn.constants';
 import { AccountCacheService } from '../../account/account-cache.service';
 import { AccountDanaCacheService } from '../../account/account-dana-cache.service';
+import { XPIJS } from 'src/modules/wallet/wallet.constants';
 
 @SkipThrottle()
 @Controller('burn')
@@ -33,7 +34,7 @@ export class BurnController {
     @InjectRedis() private readonly redis: Redis,
     @I18n() private i18n: I18nService,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
-    @Inject('xpijs') private XPI: BCHJS,
+    @Inject(XPIJS) private XPI: BCHJS,
     @InjectQueue(BURN_FANOUT_QUEUE) private burnFanoutQueue: Queue,
     @InjectQueue(ACCOUNT_DANA_QUEUE) private accountDanaQueue: Queue,
     private translateService: TranslateService,

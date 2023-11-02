@@ -26,6 +26,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PageCacheService } from './page-cache.service';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { ImageUploadableType } from '@bcpros/lixi-prisma';
+import { XPIJS } from '../wallet/wallet.constants';
 
 const pubSub = new PubSub();
 
@@ -40,7 +41,7 @@ export class PageResolver {
     private readonly pageCacheService: PageCacheService,
     private readonly followCacheService: FollowCacheService,
     @I18n() private i18n: I18nService,
-    @Inject('xpijs') private XPI: BCHJS
+    @Inject(XPIJS) private XPI: BCHJS
   ) {}
 
   @Subscription(() => Page)

@@ -37,6 +37,7 @@ import { ChronikClient } from 'chronik-client';
 import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { PageMessageSessionCacheService } from './page-message-session-cache.service';
+import { XPIJS } from '../wallet/wallet.constants';
 
 const pubSub = new PubSub();
 
@@ -50,7 +51,7 @@ export class MessageResolver {
     private meiliService: MeiliService,
     @I18n() private i18n: I18nService,
     private notificationGateway: NotificationGateway,
-    @Inject('xpijs') private XPI: BCHJS,
+    @Inject(XPIJS) private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     private readonly notificationService: NotificationService,
     private readonly pageMessageSessionCacheService: PageMessageSessionCacheService

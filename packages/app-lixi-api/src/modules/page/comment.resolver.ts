@@ -24,6 +24,7 @@ import { NOTIFICATION_TYPES } from '../../common/modules/notifications/notificat
 import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { AccountCacheService } from '../account/account-cache.service';
+import { XPIJS } from '../wallet/wallet.constants';
 
 const pubSub = new PubSub();
 
@@ -36,7 +37,7 @@ export class CommentResolver {
     private prisma: PrismaService,
     @I18n() private i18n: I18nService,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
-    @Inject('xpijs') private XPI: BCHJS,
+    @Inject(XPIJS) private XPI: BCHJS,
     private readonly notificationService: NotificationService,
     private readonly accountCacheService: AccountCacheService
   ) {}
