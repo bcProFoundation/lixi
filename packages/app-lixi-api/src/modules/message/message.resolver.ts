@@ -200,13 +200,8 @@ export class MessageResolver {
         });
 
         //Give Tip
-        if (tipHex) {
-          const txData = await this.XPI.RawTransactions.decodeRawTransaction(tipHex);
-          const tipValue = txData['vout'][0].value;
-          if (Number(tipValue) < 0) {
-            throw new Error('Syntax error. Number cannot be less than or equal to 0');
-          }
-
+        if (tipHex && body) {
+          const tipValue = parseFloat(body.toLowerCase().split(' ')[1]);
           const broadcastResponse = await this.chronik.broadcastTx(tipHex);
           if (!broadcastResponse) {
             throw new Error('Empty chronik broadcast response');
