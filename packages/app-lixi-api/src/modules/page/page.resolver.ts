@@ -48,7 +48,7 @@ export class PageResolver {
     private readonly pageTimelineCacheService: PageTimelineCacheService,
     @I18n() private i18n: I18nService,
     @Inject('xpijs') private XPI: BCHJS
-  ) {}
+  ) { }
 
   @Subscription(() => Page)
   static pageCreated() {
@@ -64,7 +64,7 @@ export class PageResolver {
   @UseGuards(GqlJwtAuthGuard)
   async pagesByFollower(
     @PageAccountEntity() account: Account,
-    @Args() { after, before, first = 20, last }: PaginationArgs
+    @Args() { after, first = 20 }: BasicPaginationArgs
   ) {
     if (!account) {
       const accountNotExist = await this.i18n.t('account.messages.accountNotExist');
@@ -93,36 +93,17 @@ export class PageResolver {
 
   @Query(() => PageBasicConnection)
   async allPagesByUserId(
-    @Args() { after, first }: BasicPaginationArgs,
+    @Args() { after, first = 20 }: BasicPaginationArgs,
     @Args({ name: 'id', type: () => Number, nullable: true })
     id: number
   ) {
-    const result = await findManyCursorConnection(
-      async args => {
-        const dbValues = await this.prisma.page.findMany({
-          where: {
-            pageAccountId: id
-          },
-          select: {
-            id: true
-          },
-          orderBy: { id: 'desc' },
-          ...args
-        });
-
-        const pages = this.pageCacheService.getByIds(dbValues.map(dbValue => dbValue.id));
-
-        return pages;
-      },
-      () =>
-        this.prisma.page.count({
-          where: {
-            pageAccountId: _.toSafeInteger(id)
-          }
-        }),
-      { first, after }
-    );
-    return result;
+    const paginated = await this.pageTimelineCacheService.getPaginatedPageTimelineByUser(id, first, after);
+    const pageIds = paginated.edges.map(item => item.cursor);
+    const pages = await this.pageCacheService.getByIds(pageIds);
+    return {
+      ...paginated,
+      edges: pages.map(page => (page ? createEdge<Page>(page, 'id') : null))
+    } as IBasicPaginated<Page>;
   }
 
   @UseGuards(GqlJwtAuthGuard)
@@ -155,6 +136,9 @@ export class PageResolver {
     });
 
     const page = await this.pageCacheService.getById(createdPage.id);
+    if (page) {
+      await this.pageTimelineCacheService.cachePage(page);
+    }
     PageResolver.pubSub.publish('pageCreated', { pageCreated: page });
     return page;
   }
@@ -169,18 +153,18 @@ export class PageResolver {
 
     const uploadAvatarDetail = data.avatar
       ? await this.prisma.uploadDetail.findFirst({
-          where: {
-            uploadId: data.avatar
-          }
-        })
+        where: {
+          uploadId: data.avatar
+        }
+      })
       : undefined;
 
     const uploadCoverDetail = data.cover
       ? await this.prisma.uploadDetail.findFirst({
-          where: {
-            uploadId: data.cover
-          }
-        })
+        where: {
+          uploadId: data.cover
+        }
+      })
       : undefined;
 
     const updatedPage = await this.prisma.page.update({
@@ -195,23 +179,23 @@ export class PageResolver {
         category: {
           connect: data.categoryId
             ? {
-                id: Number(data.categoryId)
-              }
+              id: Number(data.categoryId)
+            }
             : undefined
         },
         country: {
           connect: data.countryId
             ? {
-                id: Number(data.countryId)
-              }
+              id: Number(data.countryId)
+            }
             : undefined
         },
         state: {
           disconnect: !data.stateId,
           connect: data.stateId
             ? {
-                id: Number(data.stateId)
-              }
+              id: Number(data.stateId)
+            }
             : undefined
         }
       }

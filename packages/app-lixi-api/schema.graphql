@@ -1142,7 +1142,7 @@ type Query {
   message(id: String!): Message!
   page(id: String!): Page!
   pageMessageSession(id: String!): PageMessageSession!
-  pagesByFollower(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): PageBasicConnection!
+  pagesByFollower(after: String, first: Int, skip: Int): PageBasicConnection!
   post(id: String!): Post!
   product(id: String!): Product!
   temple(id: String!): Temple!
