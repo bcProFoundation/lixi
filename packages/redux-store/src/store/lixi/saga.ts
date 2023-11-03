@@ -345,7 +345,7 @@ function* refreshLixiSaga(action: PayloadAction<number>) {
     const account: AccountDto = yield select(getAccountById(selectedLixi.accountId));
     yield put(showLoading(refreshLixi.type));
     const lixi: Lixi = yield call(lixiApi.getById, lixiId, account?.secret);
-    const claimResult: PaginationResult<Claim> = yield call(claimApi.getByLixiId, lixiId);
+    const claimResult: IPaginationResult<Claim> = yield call(claimApi.getByLixiId, lixiId);
     const claims = (claimResult.data ?? []) as Claim[];
     yield put(refreshLixiSuccess({ lixi: lixi, claims: claims }));
     yield put(fetchInitialSubLixies(lixi.id));

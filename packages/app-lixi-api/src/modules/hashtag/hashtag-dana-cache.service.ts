@@ -92,4 +92,8 @@ export class HashtagDanaCacheService {
       return hashtagDana ? hashtagDana : null;
     });
   }
+
+  async removeByKeys(ids: string[]) {
+    await this.redis.hdel(this.keyPrefix, ...ids);
+  }
 }

@@ -1,4 +1,4 @@
-import { Burn, BurnCommand, BurnForType, BurnType, TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models';
+import { Burn, BurnCommand, BurnForType, BurnType, PostDana, TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models';
 import { NotificationLevel, Token } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
@@ -18,6 +18,7 @@ import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { parseBurnOutput } from 'src/utils/opReturnBurn';
 import { VError } from 'verror';
 import { AccountCacheService } from '../../account/account-cache.service';
+import { PostDanaCacheService } from '../../page/post-dana-cache.service';
 import { TranslateProvider } from '../translate/translate.constant';
 import { TranslateService } from '../translate/translate.service';
 import { ACCOUNT_DANA_QUEUE, BURN_FANOUT_QUEUE, PAGE_DANA_QUEUE } from './burn.constants';
@@ -37,7 +38,8 @@ export class BurnController {
     @InjectQueue(ACCOUNT_DANA_QUEUE) private accountDanaQueue: Queue,
     @InjectQueue(PAGE_DANA_QUEUE) private pageDanaQueue: Queue,
     private translateService: TranslateService,
-    private readonly accountCacheService: AccountCacheService
+    private readonly accountCacheService: AccountCacheService,
+    private readonly postDanaCacheService: PostDanaCacheService
   ) {}
 
   private convertBurnedByToAddress(burnedBy: string): string {
@@ -127,7 +129,8 @@ export class BurnController {
             },
             include: {
               page: true,
-              postAccount: true
+              postAccount: true,
+              postDana: true
             }
           });
 
@@ -140,28 +143,55 @@ export class BurnController {
             }
           });
 
-          let danaBurnUp = post?.danaBurnUp ?? 0;
-          let danaBurnDown = post?.danaBurnDown ?? 0;
+          let danaBurnUp = post?.postDana?.danaBurnUp ?? 0;
+          let danaBurnDown = post?.postDana?.danaBurnDown ?? 0;
+          let danaReceivedUp = post?.postDana?.danaReceivedUp ?? 0;
+          let danaReceivedDown = post?.postDana?.danaReceivedDown ?? 0;
           const xpiValue = value;
 
           if (command.burnType == BurnType.Up) {
             danaBurnUp = danaBurnUp + xpiValue;
+            danaReceivedUp = danaReceivedUp + xpiValue;
           } else {
             danaBurnDown = danaBurnDown + xpiValue;
+            danaReceivedDown = danaReceivedDown + xpiValue;
           }
           const danaBurnScore = danaBurnUp - danaBurnDown;
+          const danaReceivedScore = danaReceivedUp - danaReceivedDown;
 
+          // @todo: This is incorrect handle
+          // not prepare for the conflict update
+          // later we should move to each processor to read then update and retry if need
           await this.prisma.$transaction(async prisma => {
-            await prisma.post.update({
+            const newPostDana = await prisma.postDana.upsert({
               where: {
-                id: command.burnForId
+                postId: command.burnForId,
+                version: post?.postDana?.version
               },
-              data: {
+              update: {
+                version: {
+                  increment: 1
+                },
+                danaBurnUp,
+                danaBurnDown,
+                danaBurnScore,
+                danaReceivedUp,
+                danaReceivedDown,
+                danaReceivedScore
+              },
+              create: {
                 danaBurnDown,
                 danaBurnUp,
-                danaBurnScore
+                danaBurnScore,
+                danaReceivedUp,
+                danaReceivedDown,
+                danaReceivedScore,
+                postId: command.burnForId,
+                version: 0
               }
             });
+
+            await this.postDanaCacheService.setPostDana(command.burnForId, new PostDana({ ...newPostDana }));
 
             const burnByAddress = this.convertBurnedByToAddress(command.burnedBy);
 

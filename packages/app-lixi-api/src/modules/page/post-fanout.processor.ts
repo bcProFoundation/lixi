@@ -17,7 +17,7 @@ import ReBloom from '../../common/redis/redis-bloom';
 export class PostFanoutProcessor extends WorkerHost {
   private logger: Logger = new Logger(this.constructor.name);
 
-  static inNetworkSourceKey = 'timeline:innetworksource';
+  static inNetworkSourceKey = 'timeline:innetwork:source';
 
   constructor(
     private readonly followCacheService: FollowCacheService,

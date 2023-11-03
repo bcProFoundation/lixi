@@ -4,34 +4,57 @@ import { Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
 import { PrismaService } from '../prisma/prisma.service';
-import { Post } from '@bcpros/lixi-models';
+import { Page, Post, PostDana, Repost, UploadDetail } from '@bcpros/lixi-models';
+import PostLoader from './post.loader';
 
 export class PostCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:post:item-data';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly postLoader: PostLoader,
+    @InjectRedis() private readonly redis: Redis
+  ) {}
 
   async getById(id: string): Promise<Nullable<Post>> {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id);
     if (!buffer) {
       // cache miss
-      const dbItem = await this.prisma.post.findUnique({
+      const dbValue = await this.prisma.post.findUnique({
         where: {
           id: id
         },
         include: {
           postAccount: true,
           translations: true,
+          uploads: true,
+          token: true,
           _count: {
             select: { reposts: true }
           }
         }
       });
-      if (!dbItem) return null;
+      if (!dbValue) return null;
+
+      const [page, reposts, uploads, danaViewScore, totalComments, postDanas] = await Promise.all([
+        dbValue.pageId ? this.postLoader.batchPages.load(dbValue.pageId) : Promise.resolve(null),
+        this.postLoader.batchReposts.load(dbValue.id),
+        this.postLoader.batchUploads.load(dbValue.id),
+        this.postLoader.batchDanaViewScores.load(dbValue.id),
+        this.postLoader.batchTotalComments.load(dbValue.id),
+        this.postLoader.batchPostDanas.load(dbValue.id)
+      ]);
 
       const post: Post = new Post({
-        ...dbItem
+        ...dbValue,
+        uploads: uploads ? (uploads as UploadDetail[]) : [],
+        page: page ? (page as Page) : null,
+        repostCount: dbValue._count.reposts,
+        reposts: reposts ? (reposts as Repost[]) : [],
+        danaBurnScore: (danaViewScore as number) || 0,
+        totalComments: totalComments,
+        postDana: postDanas
       });
 
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(post)));
@@ -58,19 +81,53 @@ export class PostCacheService {
         return [item.id, item];
       })
     );
+
     const dbValues =
       uncachedIds.length > 0
         ? await this.prisma.post.findMany({
             where: {
               id: { in: uncachedIds }
+            },
+            include: {
+              postAccount: true,
+              translations: true,
+              uploads: true,
+              token: true,
+              _count: {
+                select: { reposts: true }
+              }
             }
           })
         : [];
 
+    const postToPageMap = new Map(
+      dbValues.map(post => {
+        return [post.id, post.pageId];
+      })
+    );
+
+    const batchPageParams = uncachedIds.map(id => (postToPageMap.get(id) ? `${id}` : `${id}:${postToPageMap.get(id)}`));
+    const [arrPages, arrReposts, arrUploads, arrDanaViewScore, totalComments, arrPostDanas] = await Promise.all([
+      this.postLoader.batchPages.loadMany(batchPageParams),
+      this.postLoader.batchReposts.loadMany(uncachedIds),
+      this.postLoader.batchUploads.loadMany(uncachedIds),
+      this.postLoader.batchDanaViewScores.loadMany(ids),
+      this.postLoader.batchTotalComments.loadMany(ids),
+      this.postLoader.batchPostDanas.loadMany(ids)
+    ]);
+
     const dbValuesMap = new Map(
-      dbValues.map(dbValue => {
+      dbValues.map((dbValue, i) => {
         const item = new Post({
-          ...dbValue
+          ...dbValue,
+          id: dbValue.id,
+          uploads: arrUploads[i] ? (arrUploads[i] as UploadDetail[]) : [],
+          danaViewScore: (arrDanaViewScore[i] ?? 0) as number,
+          page: arrPages[i] ? (arrPages[i] as Page) : null,
+          repostCount: dbValue._count.reposts,
+          reposts: arrReposts[i] ? (arrReposts[i] as Repost[]) : [],
+          totalComments: totalComments[i] instanceof Error ? 0 : (totalComments[i] as number),
+          postDana: arrPostDanas[i] instanceof Error ? new PostDana({}) : (arrPostDanas[i] as PostDana)
         });
         itemsMap.set(dbValue.id, item);
         return [dbValue.id, Buffer.from(encode(item))];
@@ -86,5 +143,9 @@ export class PostCacheService {
       const item = itemsMap.get(id);
       return item ?? null;
     });
+  }
+
+  async removeByKeys(keys: string[]) {
+    await this.redis.hdel(this.keyPrefix, ...keys);
   }
 }

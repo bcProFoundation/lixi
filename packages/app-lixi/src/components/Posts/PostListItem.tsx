@@ -408,7 +408,7 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
             onEditPostClick={editPost}
             postEdited={post.createdAt !== post.updatedAt}
             isDropdown={true}
-            danaBurnScore={post.danaBurnScore}
+            danaBurnScore={post.postDana.danaReceivedScore}
             followPostOwner={post.followPostOwner}
             followedPage={post.followedPage}
             followedToken={post.followedToken}

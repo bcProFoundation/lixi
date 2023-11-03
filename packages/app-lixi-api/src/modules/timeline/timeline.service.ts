@@ -9,13 +9,14 @@ import { I18n, I18nService } from 'nestjs-i18n';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import SortedSet from 'redis-sorted-set';
+import { basicInMemorySortedSetPagination } from '../../common/custom-graphql-relay/paginate';
 
 @Injectable()
 export class TimelineService {
   private logger: Logger = new Logger(this.constructor.name);
 
-  static inNetworkSourceKey = 'timeline:innetworksource';
-  static outNetworkSourceKey = 'timeline:outnetworksource';
+  static inNetworkSourceKey = 'timeline:innetwork:source';
+  static outNetworkSourceKey = 'timeline:outnetwork:source';
   static ratioSteps = [0.1, 0.3, 0.5, 0.7, 0.9];
 
   constructor(
@@ -62,7 +63,7 @@ export class TimelineService {
       const epoch = '2023-01-01 00:00:00';
       const pipeline = this.redis.pipeline();
       for (const post of posts) {
-        const id = `${post.id}`;
+        const id = `post:${post.id}`;
 
         const diffHour = moment.duration(moment(post.createdAt).diff(moment(epoch))).asHours();
         const score = 1 * Math.pow(2, diffHour / 12);
@@ -119,7 +120,7 @@ export class TimelineService {
 
       const pipeline = this.redis.pipeline();
       for (const post of posts) {
-        const id = `${post.id}`;
+        const id = `post:${post.id}`;
         pipeline.zincrby(key, post.score, id);
       }
       pipeline.expire(key, 2592000);
@@ -171,7 +172,7 @@ export class TimelineService {
 
       const pipeline = this.redis.pipeline();
       for (const post of posts) {
-        const id = `${post.id}`;
+        const id = `post:${post.id}`;
         pipeline.zadd(key, post.score, id);
       }
       pipeline.expire(key, 2592000);
@@ -276,6 +277,38 @@ export class TimelineService {
     return result;
   }
 
+  async getPaginatedTimeline(level: number, first: number = 20, accountId?: number, after?: string) {
+    const timelineSortedSet = new SortedSet();
+
+    if (level < 1 || level > 5) {
+      return basicInMemorySortedSetPagination(timelineSortedSet, first, after);
+    }
+
+    const ratio = TimelineService.ratioSteps[level - 1];
+
+    const inNetworkWithScores = accountId ? (await this.getInNetwork(accountId)) || [] : [];
+    const outNetworkWithScores = await this.getOutNetwork();
+
+    const maxScoreInNetwork = inNetworkWithScores.length > 1 ? inNetworkWithScores[1] : 0;
+    const maxScoreOutNetwork = outNetworkWithScores.length > 1 ? outNetworkWithScores[1] : 0;
+
+    const inNetwork = inNetworkWithScores.filter((item, index) => index % 2 === 0);
+    const outNetwork = outNetworkWithScores.filter((item, index) => index % 2 === 0);
+
+    const timeline =
+      _.toNumber(maxScoreInNetwork) > _.toNumber(maxScoreOutNetwork)
+        ? this.mergeByRatio(_.compact(inNetwork), _.compact(outNetwork), _.round(ratio, 1))
+        : this.mergeByRatio(_.compact(outNetwork), _.compact(inNetwork), _.round(1 - ratio, 1));
+
+    let index = 0;
+    for (const id of timeline) {
+      timelineSortedSet.add(id, index);
+      index += 1;
+    }
+
+    return basicInMemorySortedSetPagination(timelineSortedSet, first, after);
+  }
+
   async getTimelineIdsByLevel(
     level: number,
     accountId?: number,
@@ -287,8 +320,8 @@ export class TimelineService {
     }
 
     const ratio = TimelineService.ratioSteps[level - 1];
-
     const timelineSortedSet = new SortedSet();
+
     const inNetworkWithScores = accountId ? (await this.getInNetwork(accountId)) || [] : [];
     const outNetworkWithScores = await this.getOutNetwork();
 

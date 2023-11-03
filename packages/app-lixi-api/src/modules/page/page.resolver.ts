@@ -6,14 +6,11 @@ import {
   IBasicPaginated,
   Page,
   PageBasicConnection,
-  PageConnection,
   PageDana,
-  PageOrder,
   PaginationArgs,
   UpdatePageInput
 } from '@bcpros/lixi-models';
 import BCHJS from '@bcpros/xpi-js';
-import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { HttpException, HttpStatus, Inject, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
@@ -31,7 +28,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PageCacheService } from './page-cache.service';
 import { PageTimelineCacheService } from './page-timeline-cache.service';
 import PageLoader from './page.loader';
-import { toImageUrl } from './page.utils';
 
 @SkipThrottle()
 @Resolver(() => Page)
@@ -48,7 +44,7 @@ export class PageResolver {
     private readonly pageTimelineCacheService: PageTimelineCacheService,
     @I18n() private i18n: I18nService,
     @Inject('xpijs') private XPI: BCHJS
-  ) { }
+  ) {}
 
   @Subscription(() => Page)
   static pageCreated() {
@@ -62,10 +58,7 @@ export class PageResolver {
 
   @Query(() => PageBasicConnection)
   @UseGuards(GqlJwtAuthGuard)
-  async pagesByFollower(
-    @PageAccountEntity() account: Account,
-    @Args() { after, first = 20 }: BasicPaginationArgs
-  ) {
+  async pagesByFollower(@PageAccountEntity() account: Account, @Args() { after, first = 20 }: BasicPaginationArgs) {
     if (!account) {
       const accountNotExist = await this.i18n.t('account.messages.accountNotExist');
       throw Error(accountNotExist);
@@ -153,18 +146,18 @@ export class PageResolver {
 
     const uploadAvatarDetail = data.avatar
       ? await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: data.avatar
-        }
-      })
+          where: {
+            uploadId: data.avatar
+          }
+        })
       : undefined;
 
     const uploadCoverDetail = data.cover
       ? await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: data.cover
-        }
-      })
+          where: {
+            uploadId: data.cover
+          }
+        })
       : undefined;
 
     const updatedPage = await this.prisma.page.update({
@@ -179,23 +172,23 @@ export class PageResolver {
         category: {
           connect: data.categoryId
             ? {
-              id: Number(data.categoryId)
-            }
+                id: Number(data.categoryId)
+              }
             : undefined
         },
         country: {
           connect: data.countryId
             ? {
-              id: Number(data.countryId)
-            }
+                id: Number(data.countryId)
+              }
             : undefined
         },
         state: {
           disconnect: !data.stateId,
           connect: data.stateId
             ? {
-              id: Number(data.stateId)
-            }
+                id: Number(data.stateId)
+              }
             : undefined
         }
       }

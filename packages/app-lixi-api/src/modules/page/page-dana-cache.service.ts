@@ -90,4 +90,8 @@ export class PageDanaCacheService {
       return pageDana ? pageDana : null;
     });
   }
+
+  async removeByKeys(ids: string[]) {
+    await this.redis.hdel(this.keyPrefix, ...ids);
+  }
 }

@@ -75,11 +75,15 @@ export default class PostLoader {
     return await this.getPostsUploadsByBatch(postIds);
   });
 
-  public readonly batchPages = new DataLoader(async (pageIds: readonly string[]) => {
-    const ids = (pageIds as unknown as string[]) ?? [];
-    const pages = await this.pageCacheService.getByIds(ids);
-    const data = pageIds.map((pageId, index) => {
-      return pages[index] ?? new Page({ id: pageId });
+  public readonly batchPages = new DataLoader(async (combineIds: readonly string[]) => {
+    const pageIds = _.compact(combineIds.map(combineId => combineId.split(':')[1]));
+    const pages = await this.pageCacheService.getByIds(pageIds);
+    const pagesMap = new Map(_.compact(pages).map(page => [page.id, page]));
+    const data = combineIds.map((combineId, index) => {
+      const parts = combineId.split(':');
+      const pageId = parts[1];
+      if (!pageId) return null;
+      return pagesMap.get(pageId) ?? null;
     });
     return Promise.resolve(data);
   });

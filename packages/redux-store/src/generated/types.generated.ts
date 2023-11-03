@@ -1012,7 +1012,7 @@ export type Post = {
   pageId?: Maybe<Scalars['String']>;
   postAccount: Account;
   postAccountId: Scalars['Int'];
-  postDana: PostDana;
+  postDana?: Maybe<PostDana>;
   postHashtags?: Maybe<Array<PostHashtag>>;
   repostCount?: Maybe<Scalars['Int']>;
   reposts?: Maybe<Array<Repost>>;
@@ -1618,11 +1618,8 @@ export type QueryHashtagArgs = {
 
 export type QueryHomeTimelineArgs = {
   after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
   level?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
   skip?: InputMaybe<Scalars['Int']>;
 };
 
@@ -1640,10 +1637,7 @@ export type QueryPageMessageSessionArgs = {
 
 export type QueryPagesByFollowerArgs = {
   after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
   skip?: InputMaybe<Scalars['Int']>;
 };
 
@@ -1779,24 +1773,24 @@ export enum TempleOrderField {
 
 export type TimelineItem = {
   __typename?: 'TimelineItem';
-  data?: Maybe<TimelineItemData>;
+  data: TimelineItemData;
   id: Scalars['ID'];
+};
+
+export type TimelineItemBasicEdge = {
+  __typename?: 'TimelineItemBasicEdge';
+  cursor: Scalars['String'];
+  node: TimelineItem;
 };
 
 export type TimelineItemConnection = {
   __typename?: 'TimelineItemConnection';
-  edges?: Maybe<Array<TimelineItemEdge>>;
-  pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
+  edges: Array<TimelineItemBasicEdge>;
+  pageInfo: BasicPageInfo;
+  totalCount: Scalars['Int'];
 };
 
 export type TimelineItemData = Post;
-
-export type TimelineItemEdge = {
-  __typename?: 'TimelineItemEdge';
-  cursor: Scalars['String'];
-  node: TimelineItem;
-};
 
 export type Token = {
   __typename?: 'Token';

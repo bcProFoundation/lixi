@@ -1,10 +1,12 @@
 # import PageInfoFields from '../../graphql/fragments/page-info-fields.fragment.graphql'
 # import PostFields from '../post/posts.graphql
+# import BasicPageInfoFields from '../../graphql/fragments/basic-page-info-fields.fragment.graphql'
 
 query Timeline($id: String!) {
   timeline(id: $id) {
     id
     data {
+      __typename
       ... on Post {
         ...PostFields
       }
@@ -28,6 +30,7 @@ query HomeTimeline(
       node {
         id
         data {
+          __typename
           ... on Post {
             ...PostFields
           }
@@ -36,7 +39,7 @@ query HomeTimeline(
       }
     }
     pageInfo {
-      ...PageInfoFields
+      ...BasicPageInfoFields
     }
   }
 }

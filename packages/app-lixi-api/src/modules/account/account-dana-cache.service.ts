@@ -92,4 +92,8 @@ export class AccountDanaCacheService {
       return accountDana ? accountDana : null;
     });
   }
+
+  async removeByKeys(ids: number[]) {
+    await this.redis.hdel(this.keyPrefix, ...ids.map(item => _.toString(item)));
+  }
 }
