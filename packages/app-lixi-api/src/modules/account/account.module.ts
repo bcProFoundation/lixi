@@ -7,6 +7,7 @@ import AccountLoader from './account.loader';
 import { AccountResolver } from './account.resolver';
 import { FollowCacheService } from './follow-cache.service';
 import { FollowResolver } from './follow.resolver';
+import { WalletModule } from '../wallet/wallet.module';
 
 @Module({
   imports: [forwardRef(() => AuthModule), forwardRef(() => NotificationModule)],

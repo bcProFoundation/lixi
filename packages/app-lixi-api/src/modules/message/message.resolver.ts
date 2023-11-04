@@ -31,6 +31,7 @@ import { ChronikClient } from 'chronik-client';
 import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { PageMessageSessionCacheService } from './page-message-session-cache.service';
+import { XPIJS } from '../wallet/wallet.constants';
 
 const pubSub = new PubSub();
 
@@ -44,7 +45,7 @@ export class MessageResolver {
     private meiliService: MeiliService,
     @I18n() private i18n: I18nService,
     private notificationGateway: NotificationGateway,
-    @Inject('xpijs') private XPI: BCHJS,
+    @Inject(XPIJS) private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     private readonly notificationService: NotificationService,
     private readonly pageMessageSessionCacheService: PageMessageSessionCacheService
@@ -199,13 +200,8 @@ export class MessageResolver {
         });
 
         //Give Tip
-        if (tipHex) {
-          const txData = await this.XPI.RawTransactions.decodeRawTransaction(tipHex);
-          const tipValue = txData['vout'][0].value;
-          if (Number(tipValue) < 0) {
-            throw new Error('Syntax error. Number cannot be less than or equal to 0');
-          }
-
+        if (tipHex && body) {
+          const tipValue = parseFloat(body.toLowerCase().split(' ')[1]);
           const broadcastResponse = await this.chronik.broadcastTx(tipHex);
           if (!broadcastResponse) {
             throw new Error('Empty chronik broadcast response');

@@ -28,6 +28,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PageCacheService } from './page-cache.service';
 import { PageTimelineCacheService } from './page-timeline-cache.service';
 import PageLoader from './page.loader';
+import { XPIJS } from '../wallet/wallet.constants';
+
+const pubSub = new PubSub();
 
 @SkipThrottle()
 @Resolver(() => Page)
@@ -43,7 +46,7 @@ export class PageResolver {
     private readonly followCacheService: FollowCacheService,
     private readonly pageTimelineCacheService: PageTimelineCacheService,
     @I18n() private i18n: I18nService,
-    @Inject('xpijs') private XPI: BCHJS
+    @Inject(XPIJS) private XPI: BCHJS
   ) {}
 
   @Subscription(() => Page)

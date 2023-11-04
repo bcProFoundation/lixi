@@ -35,6 +35,8 @@ import _ from 'lodash';
 import { UploadService } from './upload/upload.serivce';
 import { PageDanaProcessor } from './burn/page-dana.processor';
 import { PageModule } from '../page/page.module';
+import { WalletModule } from '../wallet/wallet.module';
+import { WalletService } from '../wallet/wallet.service';
 const baseCorsConfig = cors({
   origin: process.env.BASE_URL ?? ''
 });
@@ -96,7 +98,16 @@ const baseCorsConfig = cors({
     NotificationModule,
     CloudflareModule,
     AccountModule,
-    MessageModule
+    MessageModule,
+    WalletModule.forRootAsync({
+      inject: [ConfigService],
+      imports: [ChronikModule],
+      useFactory: () => {
+        return {
+          currencies: ['xpi', 'xec']
+        };
+      }
+    })
   ],
   controllers: [
     AccountController,

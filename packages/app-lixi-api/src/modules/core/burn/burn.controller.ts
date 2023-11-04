@@ -22,6 +22,9 @@ import { PostDanaCacheService } from '../../page/post-dana-cache.service';
 import { TranslateProvider } from '../translate/translate.constant';
 import { TranslateService } from '../translate/translate.service';
 import { ACCOUNT_DANA_QUEUE, BURN_FANOUT_QUEUE, PAGE_DANA_QUEUE } from './burn.constants';
+import { AccountCacheService } from '../../account/account-cache.service';
+import { AccountDanaCacheService } from '../../account/account-dana-cache.service';
+import { XPIJS } from 'src/modules/wallet/wallet.constants';
 
 @SkipThrottle()
 @Controller('burn')
@@ -33,7 +36,7 @@ export class BurnController {
     @InjectRedis() private readonly redis: Redis,
     @I18n() private i18n: I18nService,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
-    @Inject('xpijs') private XPI: BCHJS,
+    @Inject(XPIJS) private XPI: BCHJS,
     @InjectQueue(BURN_FANOUT_QUEUE) private burnFanoutQueue: Queue,
     @InjectQueue(ACCOUNT_DANA_QUEUE) private accountDanaQueue: Queue,
     @InjectQueue(PAGE_DANA_QUEUE) private pageDanaQueue: Queue,
@@ -53,44 +56,7 @@ export class BurnController {
   @Post()
   async burn(@Body() command: BurnCommand): Promise<Burn> {
     try {
-      const txData: any = await this.XPI.RawTransactions.decodeRawTransaction(command.txHex);
-      if (!txData) {
-        throw new Error('Tx Data fail');
-      }
-      const { scriptPubKey, value } = txData['vout'][0];
-      const parseResult = parseBurnOutput(scriptPubKey.hex);
-
-      // In case of burn for token, burnForId is BurnForTokenId
-      if (command.burnForType === BurnForType.Token) {
-        const tokenCheck = await this.prisma.token.findUnique({
-          where: {
-            tokenId: parseResult.burnForId
-          }
-        });
-
-        // Compare parse result with the command
-        if (
-          command.burnForId !== tokenCheck?.tokenId ||
-          command.burnForType !== parseResult.burnForType ||
-          command.burnType !== parseResult.burnType ||
-          command.burnedBy !== parseResult.burnedBy ||
-          _.toNumber(command.burnValue) != value
-        ) {
-          throw new Error('Unable to burn');
-        }
-      } else {
-        // Compare parse result with the command
-        if (
-          command.burnForId !== parseResult.burnForId ||
-          command.burnForType !== parseResult.burnForType ||
-          command.burnType !== parseResult.burnType ||
-          command.burnedBy !== parseResult.burnedBy ||
-          _.toNumber(command.burnValue) != value
-        ) {
-          throw new Error('Unable to burn');
-        }
-      }
-
+      const value = parseFloat(command.burnValue);
       const savedBurn = await this.prisma.$transaction(async prisma => {
         const broadcastResponse = await this.chronik.broadcastTx(command.txHex).catch(async err => {
           const updatingWalletFund = await this.i18n.t('burn.messages.updatingWalletFund');
@@ -109,10 +75,10 @@ export class BurnController {
         }
         const burnRecordToInsert = {
           txid,
-          burnType: parseResult.burnType ? true : false,
-          burnForType: parseResult.burnForType,
-          burnedBy: Buffer.from(parseResult.burnedBy, 'hex'),
-          burnForId: parseResult.burnForId,
+          burnType: command.burnType ? true : false,
+          burnForType: command.burnForType,
+          burnedBy: Buffer.from(command.burnedBy, 'hex'),
+          burnForId: command.burnForId,
           burnedValue: value
         };
         const createdBurn = prisma.burn.create({
@@ -500,6 +466,7 @@ export class BurnController {
 
       return result;
     } catch (err: any) {
+      console.log('🚀 ~ file: burn.controller.ts:495 ~ BurnController ~ burn ~ err:', err);
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
       } else {

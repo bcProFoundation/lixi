@@ -88,6 +88,11 @@ type BasicPageInfo {
   hasNextPage: Boolean!
 }
 
+type Balances {
+  totalBalance: String!
+  totalBalanceInSatoshis: String!
+}
+
 type Bookmark {
   account: Account!
   bookmarkableId: String!
@@ -1137,6 +1142,7 @@ type Query {
   checkIfFollowToken(tokenId: String): Boolean!
   comment(id: String!): Comment!
   getAccountByAddress(address: String!): Account!
+  getBalances(address: String!): Balances!
   hashtag(content: String!): Hashtag!
   homeTimeline(after: String, first: Int, level: Int, skip: Int): TimelineItemConnection!
   message(id: String!): Message!

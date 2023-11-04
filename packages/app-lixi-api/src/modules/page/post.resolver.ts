@@ -45,6 +45,7 @@ import { HASHTAG, POSTS } from './constants/meili.constants';
 import { POST_FANOUT_QUEUE } from './constants/post.constants';
 import { MeiliService } from './meili.service';
 import PostLoader from './post.loader';
+import { XPIJS } from '../wallet/wallet.constants';
 
 const pubSub = new PubSub();
 
@@ -62,7 +63,7 @@ export class PostResolver {
     private readonly notificationService: NotificationService,
     private hashtagService: HashtagService,
     @InjectQueue(POST_FANOUT_QUEUE) private postFanoutQueue: Queue,
-    @Inject('xpijs') private XPI: BCHJS,
+    @Inject(XPIJS) private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @I18n() private i18n: I18nService,
     private readonly accountCacheService: AccountCacheService,
@@ -812,13 +813,6 @@ export class PostResolver {
     };
 
     let createFee: any;
-    if (data.createFeeHex) {
-      const txData = await this.XPI.RawTransactions.decodeRawTransaction(data.createFeeHex);
-      createFee = txData['vout'][0].value;
-      if (Number(createFee) < 0) {
-        throw new Error('Syntax error. Number cannot be less than or equal to 0');
-      }
-    }
 
     const savedPost = await this.prisma.$transaction(async prisma => {
       let txid: string | undefined;
@@ -1051,13 +1045,6 @@ export class PostResolver {
     }
 
     let repostFee: any;
-    if (data.txHex) {
-      const txData = await this.XPI.RawTransactions.decodeRawTransaction(data.txHex);
-      repostFee = txData['vout'][0].value;
-      if (Number(repostFee) <= 0) {
-        throw new Error('Syntax error. Number cannot be less than or equal to 0');
-      }
-    }
 
     const reposted = await this.prisma.$transaction(async prisma => {
       let txid = null;
