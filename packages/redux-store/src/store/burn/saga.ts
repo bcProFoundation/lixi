@@ -294,14 +294,14 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
     yield put(removeBurnQueue());
     yield put(
       burnForUpDownVoteSuccess(data) &&
-        showToast('success', {
-          message: intl.get(`toast.success`),
-          description: intl.get('burn.totalBurn', {
-            burnValue: burnValue,
-            totalAmount: burnValue + burnValue * currency.burnFee + Number(minerFee),
-            coin: 'XPI'
-          })
+      showToast('success', {
+        message: intl.get(`toast.success`),
+        description: intl.get('burn.totalBurn', {
+          burnValue: burnValue,
+          totalAmount: burnValue + burnValue * currency.burnFee + Number(minerFee),
+          coin: 'XPI'
         })
+      })
     );
   } catch (err) {
     let message;
@@ -437,9 +437,9 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
             draft[field].edges[postToUpdateIndex].node.postDana.danaBurnUp = danaBurnUp;
             draft[field].edges[postToUpdateIndex].node.postDana.danaBurnDown = danaBurnDown;
             draft[field].edges[postToUpdateIndex].node.postDana.danaBurnScore = danaBurnScore;
-            draft[field].edges[postToUpdateIndex].node.postDana.danaBurnUp = danaReceivedUp;
-            draft[field].edges[postToUpdateIndex].node.postDana.danaBurnDown = danaReceivedDown;
-            draft[field].edges[postToUpdateIndex].node.postDana.danaBurnScore = danaReceivedScore;
+            draft[field].edges[postToUpdateIndex].node.postDana.danaReceivedUp = danaReceivedUp;
+            draft[field].edges[postToUpdateIndex].node.postDana.danaReceivedDown = danaReceivedDown;
+            draft[field].edges[postToUpdateIndex].node.postDana.danaReceivedScore = danaReceivedScore;
             if (
               danaReceivedScore < 0 &&
               account?.id !== draft[field]?.edges[postToUpdateIndex]?.node?.postAccount?.id
