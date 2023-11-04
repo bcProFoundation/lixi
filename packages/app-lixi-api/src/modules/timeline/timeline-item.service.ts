@@ -44,13 +44,13 @@ export class TimelineItemService {
     for (const group of _.keys(groups)) {
       switch (group) {
         case 'post':
-        default:
           const posts = await this.postCacheService.getByIds(_.map(groups[group], 'id'));
           for (const post of posts) {
             if (post) {
               itemsMap.set(`post:${post.id}`, post);
             }
           }
+        default:
           break;
       }
     }

@@ -9,7 +9,7 @@ import { PageDana, PostDana } from '@bcpros/lixi-models';
 @Injectable()
 export class PostDanaCacheService {
   private logger: Logger = new Logger(this.constructor.name);
-  private keyPrefix = 'items:postdana';
+  private keyPrefix = 'items:posts:dana';
 
   constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
 

@@ -100,7 +100,7 @@ export class PostResolver {
       ...dbPost,
       id: dbPost.id,
       uploads: uploads ? (uploads as UploadDetail[]) : [],
-      page: page ? (page as Page) : null,
+      page: page ? (page as Page) : new Page({}),
       repostCount: dbPost._count.reposts,
       reposts: reposts ? (reposts as Repost[]) : [],
       danaViewScore: (danaViewScore as number) || 0

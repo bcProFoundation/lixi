@@ -5,7 +5,7 @@ import { Redis } from 'ioredis';
 @Injectable()
 export class DanaViewScoreService {
   private logger: Logger = new Logger(this.constructor.name);
-  private keyPrefix = 'posts:item-data:danaview';
+  private keyPrefix = 'items:posts:item-data:danaview';
 
   constructor(@InjectRedis() private readonly redis: Redis) {}
 

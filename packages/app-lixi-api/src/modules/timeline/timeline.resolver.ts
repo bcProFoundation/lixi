@@ -56,7 +56,7 @@ export class TimelineResolver {
   }
 
   @SkipThrottle()
-  @Query(type => TimelineItemConnection)
+  @Query(returns => TimelineItemConnection)
   @UseFilters(GqlHttpExceptionFilter)
   @UseGuards(GqlJwtAuthGuardByPass)
   async homeTimeline(
@@ -73,6 +73,7 @@ export class TimelineResolver {
       ...paginated,
       edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
     } as IBasicPaginated<TimelineItem>;
+
     return result;
   }
 }

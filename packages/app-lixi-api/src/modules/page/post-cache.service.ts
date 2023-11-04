@@ -9,7 +9,7 @@ import PostLoader from './post.loader';
 
 export class PostCacheService {
   private logger: Logger = new Logger(this.constructor.name);
-  private keyPrefix = 'items:post:item-data';
+  private keyPrefix = 'items:posts:item-data';
 
   constructor(
     private readonly prisma: PrismaService,
@@ -37,8 +37,7 @@ export class PostCacheService {
       });
       if (!dbValue) return null;
 
-      const [page, reposts, uploads, danaViewScore, totalComments, postDanas] = await Promise.all([
-        dbValue.pageId ? this.postLoader.batchPages.load(dbValue.pageId) : Promise.resolve(null),
+      const [reposts, uploads, danaViewScore, totalComments, postDanas] = await Promise.all([
         this.postLoader.batchReposts.load(dbValue.id),
         this.postLoader.batchUploads.load(dbValue.id),
         this.postLoader.batchDanaViewScores.load(dbValue.id),
@@ -49,7 +48,6 @@ export class PostCacheService {
       const post: Post = new Post({
         ...dbValue,
         uploads: uploads ? (uploads as UploadDetail[]) : [],
-        page: page ? (page as Page) : null,
         repostCount: dbValue._count.reposts,
         reposts: reposts ? (reposts as Repost[]) : [],
         danaBurnScore: (danaViewScore as number) || 0,
@@ -71,7 +69,7 @@ export class PostCacheService {
     const values = await this.redis.hmgetBuffer(this.keyPrefix, ...ids);
     const uncachedIds = [];
     for (let i = 0; i < ids.length; i++) {
-      if (!values[i]) {
+      if (!values[i] && ids[i]) {
         uncachedIds.push(ids[i]);
       }
     }
@@ -100,22 +98,13 @@ export class PostCacheService {
           })
         : [];
 
-    const postToPageMap = new Map(
-      dbValues.map(post => {
-        return [post.id, post.pageId];
-      })
-    );
-
-    const batchPageParams = uncachedIds.map(id => (postToPageMap.get(id) ? `${id}` : `${id}:${postToPageMap.get(id)}`));
-    const [arrPages, arrReposts, arrUploads, arrDanaViewScore, totalComments, arrPostDanas] = await Promise.all([
-      this.postLoader.batchPages.loadMany(batchPageParams),
+    const [arrReposts, arrUploads, arrDanaViewScore, totalComments, arrPostDanas] = await Promise.all([
       this.postLoader.batchReposts.loadMany(uncachedIds),
       this.postLoader.batchUploads.loadMany(uncachedIds),
       this.postLoader.batchDanaViewScores.loadMany(ids),
       this.postLoader.batchTotalComments.loadMany(ids),
       this.postLoader.batchPostDanas.loadMany(ids)
     ]);
-
     const dbValuesMap = new Map(
       dbValues.map((dbValue, i) => {
         const item = new Post({
@@ -123,7 +112,6 @@ export class PostCacheService {
           id: dbValue.id,
           uploads: arrUploads[i] ? (arrUploads[i] as UploadDetail[]) : [],
           danaViewScore: (arrDanaViewScore[i] ?? 0) as number,
-          page: arrPages[i] ? (arrPages[i] as Page) : null,
           repostCount: dbValue._count.reposts,
           reposts: arrReposts[i] ? (arrReposts[i] as Repost[]) : [],
           totalComments: totalComments[i] instanceof Error ? 0 : (totalComments[i] as number),
