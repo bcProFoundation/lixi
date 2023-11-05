@@ -1282,6 +1282,7 @@ type Token {
   danaBurnScore: Float!
   danaBurnUp: Float!
   decimals: Int!
+  followersCount: Int
   id: ID!
   initialTokenQuantity: String
   isFollowed: Boolean

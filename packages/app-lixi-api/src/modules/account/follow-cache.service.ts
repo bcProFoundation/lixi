@@ -178,6 +178,47 @@ export class FollowCacheService {
     return Promise.all(promises);
   }
 
+  private async _cacheTokenFollowers(key: string, tokenId: string) {
+    const followers = await this.prisma.followPage.findMany({
+      where: {
+        tokenId: tokenId
+      }
+    });
+
+    const promises = [];
+    for (const follower of followers) {
+      promises.push(this.redis.zadd(key, follower.createdAt.getTime(), follower.accountId));
+    }
+
+    await Promise.all(promises);
+  }
+
+  async getTokenFollowers(tokenId: string) {
+    const key = `token:${tokenId}:followers`;
+    const exist = await this.redis.exists([key]);
+    if (!exist) {
+      await this._cacheTokenFollowers(key, tokenId);
+    }
+    const followers = await this.redis.zrevrange(key, 0, -1);
+    return followers.map(follower => _.toSafeInteger(follower));
+  }
+
+  async getTokenFollowersCount(tokenId: string) {
+    const key = `token:${tokenId}:followers`;
+    const count = await this.redis.zcard(key);
+    return count || 0;
+  }
+
+  async getTokenFollowersCounts(tokenIds: string[]) {
+    const promises = [];
+    for (const tokenId of tokenIds) {
+      const key = `token:${tokenId}:followers`;
+      promises.push(this.redis.zcard(key));
+    }
+
+    return Promise.all(promises);
+  }
+
   private async _cacheTokenFollowingOfAccount(key: string, accountId: number) {
     const followings = await this.prisma.followPage.findMany({
       where: {
@@ -356,6 +397,15 @@ export class FollowCacheService {
     const exist = await this.redis.exists([key]);
     if (!exist) {
       await this._cachePageFollowingOfAccount(key, accountId);
+    }
+    return await basicSortedSetPagination(this.redis, key, first, after);
+  }
+
+  async getPaginatedTokenFollowings(accountId: number, first: number, after?: string) {
+    const key = `user:${accountId}:followingTokens`;
+    const exist = await this.redis.exists([key]);
+    if (!exist) {
+      await this._cacheTokenFollowingOfAccount(key, accountId);
     }
     return await basicSortedSetPagination(this.redis, key, first, after);
   }

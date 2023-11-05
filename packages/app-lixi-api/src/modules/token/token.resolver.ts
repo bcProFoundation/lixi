@@ -1,7 +1,7 @@
-import { Account, CreateTokenInput, Token, TokenConnection, TokenOrder } from '@bcpros/lixi-models';
+import { Account, CreateTokenInput, Token, TokenConnection, TokenDana, TokenOrder } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { ChronikClient } from 'chronik-client';
 import { PubSub } from 'graphql-subscriptions';
@@ -17,6 +17,7 @@ import VError from 'verror';
 import { PrismaService } from '../prisma/prisma.service';
 import { AccountEntity } from 'src/decorators';
 import { FollowCacheService } from '../account/follow-cache.service';
+import TokenLoader from './token.loader';
 
 const pubSub = new PubSub();
 
@@ -28,6 +29,7 @@ export class TokenResolver {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly tokenLoader: TokenLoader,
     private readonly followCacheService: FollowCacheService,
     @InjectRedis() private readonly redis: Redis,
     @I18n() private readonly i18n: I18nService,
@@ -153,5 +155,15 @@ export class TokenResolver {
       }
     }
     return null as any;
+  }
+
+  @ResolveField('followersCount', () => Number)
+  async followersCount(@Parent() page: Token) {
+    return this.tokenLoader.batchFollowersCount.load(page.id);
+  }
+
+  @ResolveField('tokenDana', () => TokenDana)
+  async tokenDana(@Parent() token: Token) {
+    return this.tokenLoader.batchTokenDanas.load(token.id);
   }
 }
