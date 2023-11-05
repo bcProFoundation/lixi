@@ -227,19 +227,20 @@ export class AccountResolver {
         const createdAccount = await this.prisma.account.create({
           data: accountToInsert
         });
-        await Promise.all([
-          this.accountCacheService.removeByKey(createdAccount.id.toString()),
-          this.accountCacheService.removeByKey(createdAccount.address)
+
+        // Invalidate the cache for the account
+        await this.accountCacheService.removeByKeys([
+          createdAccount.id.toString(),
+          createdAccount.address,
+          createdAccount.mnemonicHash
         ]);
 
-        const account = await this.accountCacheService.getById(createdAccount.id);
+        const newAccount = await this.accountCacheService.getById(createdAccount.id);
         const { totalBalanceInSatoshis } = await this.walletServices['xpi'].getBalances(createdAccount.address);
 
         const resultApi = _.omit(
           {
-            ..._.omit(account, 'publicKey'),
-            name: account.name,
-            address: account.address,
+            ..._.omit(newAccount, 'publicKey'),
             balance: totalBalanceInSatoshis,
             secret: accountSecret
           },
@@ -257,7 +258,7 @@ export class AccountResolver {
         }
 
         const { totalBalanceInSatoshis } = await this.walletServices['xpi'].getBalances(account.address);
-        const accountSecret = await aesGcmDecrypt(account.encryptedSecret, mnemonic);
+        const accountSecret = await aesGcmDecrypt(encryptedSecret || '', mnemonic);
 
         const resultApi = _.omit(
           {

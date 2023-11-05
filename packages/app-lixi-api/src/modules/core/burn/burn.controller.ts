@@ -15,16 +15,13 @@ import { NOTIFICATION_TYPES } from 'src/common/modules/notifications/notificatio
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import SortedItemRepository from 'src/common/redis/sorted-repository';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
-import { parseBurnOutput } from 'src/utils/opReturnBurn';
+import { XPIJS } from 'src/modules/wallet/wallet.constants';
 import { VError } from 'verror';
 import { AccountCacheService } from '../../account/account-cache.service';
 import { PostDanaCacheService } from '../../page/post-dana-cache.service';
 import { TranslateProvider } from '../translate/translate.constant';
 import { TranslateService } from '../translate/translate.service';
 import { ACCOUNT_DANA_QUEUE, BURN_FANOUT_QUEUE, PAGE_DANA_QUEUE } from './burn.constants';
-import { AccountCacheService } from '../../account/account-cache.service';
-import { AccountDanaCacheService } from '../../account/account-dana-cache.service';
-import { XPIJS } from 'src/modules/wallet/wallet.constants';
 
 @SkipThrottle()
 @Controller('burn')

@@ -83,14 +83,14 @@ enum AccountOrderField {
   updatedAt
 }
 
-type BasicPageInfo {
-  endCursor: String!
-  hasNextPage: Boolean!
-}
-
 type Balances {
   totalBalance: String!
   totalBalanceInSatoshis: String!
+}
+
+type BasicPageInfo {
+  endCursor: String!
+  hasNextPage: Boolean!
 }
 
 type Bookmark {

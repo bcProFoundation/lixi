@@ -100,6 +100,12 @@ export enum AccountOrderField {
   UpdatedAt = 'updatedAt'
 }
 
+export type Balances = {
+  __typename?: 'Balances';
+  totalBalance: Scalars['String'];
+  totalBalanceInSatoshis: Scalars['String'];
+};
+
 export type BasicPageInfo = {
   __typename?: 'BasicPageInfo';
   endCursor: Scalars['String'];
@@ -1186,6 +1192,7 @@ export type Query = {
   checkIfFollowToken: Scalars['Boolean'];
   comment: Comment;
   getAccountByAddress: Account;
+  getBalances: Balances;
   hashtag: Hashtag;
   homeTimeline: TimelineItemConnection;
   message: Message;
@@ -1609,6 +1616,10 @@ export type QueryCommentArgs = {
 };
 
 export type QueryGetAccountByAddressArgs = {
+  address: Scalars['String'];
+};
+
+export type QueryGetBalancesArgs = {
   address: Scalars['String'];
 };
 

@@ -5,7 +5,7 @@ import { useAppDispatch } from '@store/hooks';
 import { useLazyPostsBySearchWithHashtagQuery, usePostsBySearchWithHashtagQuery } from '@store/post/posts.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-const postsAdapter = createEntityAdapter<PostQueryItem>({
+const postsAdapter = createEntityAdapter<any>({
   selectId: post => post.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });
