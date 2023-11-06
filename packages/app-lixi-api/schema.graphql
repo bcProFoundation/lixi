@@ -137,7 +137,6 @@ type Comment {
   commentByPublicKey: String
   commentDana: CommentDana
   commentText: String!
-  commentTo: Post!
   commentToId: String!
   commentableId: String
   content: String!

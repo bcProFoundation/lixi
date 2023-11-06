@@ -25,6 +25,7 @@ import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtau
 import { PrismaService } from '../prisma/prisma.service';
 import { AccountCacheService } from '../account/account-cache.service';
 import { XPIJS } from '../wallet/wallet.constants';
+import { CommentCacheService } from './comment-cache.service';
 
 const pubSub = new PubSub();
 
@@ -39,7 +40,8 @@ export class CommentResolver {
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @Inject(XPIJS) private XPI: BCHJS,
     private readonly notificationService: NotificationService,
-    private readonly accountCacheService: AccountCacheService
+    private readonly accountCacheService: AccountCacheService,
+    private readonly commentCacheService: CommentCacheService
   ) {}
 
   @Subscription(() => Comment)
@@ -49,9 +51,7 @@ export class CommentResolver {
 
   @Query(() => Comment)
   async comment(@Args('id', { type: () => String }) id: string) {
-    return this.prisma.comment.findUnique({
-      where: { id: id }
-    });
+    return await this.commentCacheService.getById(id);
   }
 
   @Query(() => CommentConnection)
@@ -105,36 +105,6 @@ export class CommentResolver {
                   {
                     commentAccount: {
                       id: account.id
-                    }
-                  }
-                ]
-              }
-            ]
-          : []),
-        ...(account && account.id
-          ? [
-              {
-                AND: [
-                  { commentToId: id },
-                  {
-                    commentTo: {
-                      postAccountId: account.id
-                    }
-                  }
-                ]
-              }
-            ]
-          : []),
-        ...(account && account.id
-          ? [
-              {
-                AND: [
-                  { commentToId: id },
-                  {
-                    commentTo: {
-                      page: {
-                        pageAccountId: account.id
-                      }
                     }
                   }
                 ]

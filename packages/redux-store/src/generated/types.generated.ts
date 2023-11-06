@@ -158,7 +158,6 @@ export type Comment = {
   commentByPublicKey?: Maybe<Scalars['String']>;
   commentDana?: Maybe<CommentDana>;
   commentText: Scalars['String'];
-  commentTo: Post;
   commentToId: Scalars['String'];
   commentableId?: Maybe<Scalars['String']>;
   content: Scalars['String'];
@@ -1813,6 +1812,7 @@ export type Token = {
   danaBurnScore: Scalars['Float'];
   danaBurnUp: Scalars['Float'];
   decimals: Scalars['Int'];
+  followersCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   initialTokenQuantity?: Maybe<Scalars['String']>;
   isFollowed?: Maybe<Scalars['Boolean']>;

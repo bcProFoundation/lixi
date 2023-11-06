@@ -24,6 +24,7 @@ import { PostFanoutProcessor } from './post-fanout.processor';
 import PostLoader from './post.loader';
 import { PostResolver } from './post.resolver';
 import { PostCacheService } from './post-cache.service';
+import { CommentCacheService } from './comment-cache.service';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { PostCacheService } from './post-cache.service';
     PageDanaCacheService,
     PostCacheService,
     PostDanaCacheService,
+    CommentCacheService,
     CommentDanaCacheService
   ],
   exports: [

@@ -162,7 +162,7 @@ model Post {
   lastRepostAt           DateTime          @default(now()) @map("updated_repost_at") @db.Timestamptz
   originalLanguage       String?           @map("original_language")
   translations           PostTranslation[]
-  commentableId          String?           @map("commentable_id")
+  commentableId          String?           @unique @map("commentable_id")
   commentable            Commentable?      @relation(fields: [commentableId], references: [id])
   bookmarkableId         String?           @map("bookmarkable_id")
   bookmarkable           Bookmarkable?     @relation(fields: [bookmarkableId], references: [id])
@@ -199,10 +199,10 @@ model PostDana {
 model Commentable {
   id       String    @id @default(cuid())
   comments Comment[]
-  posts    Post[]
-  events   Event[]
-  polls    Poll[]
-  products Product[]
+  post     Post?
+  event    Event?
+  poll     Poll?
+  product  Product?
 
   @@map("commentable")
 }
@@ -1099,7 +1099,7 @@ model Event {
   startDate         DateTime         @map("start_date") @db.Timestamptz
   endDate           DateTime         @map("end_date") @db.Timestamptz
   location          String?
-  commentableId     String?          @map("commentable_id")
+  commentableId     String?          @unique @map("commentable_id")
   commentable       Commentable?     @relation(fields: [commentableId], references: [id])
   bookmarkableId    String?          @map("bookmarkable_id")
   bookmarkable      Bookmarkable?    @relation(fields: [bookmarkableId], references: [id])
@@ -1166,7 +1166,7 @@ model Poll {
   startDate         DateTime         @map("start_date") @db.Timestamptz
   endDate           DateTime         @map("end_date") @db.Timestamptz
   pollDana          PollDana?
-  commentableId     String?          @map("commentable_id")
+  commentableId     String?          @unique @map("commentable_id")
   commentable       Commentable?     @relation(fields: [commentableId], references: [id])
   bookmarkableId    String?          @map("bookmarkable_id")
   bookmarkable      Bookmarkable?    @relation(fields: [bookmarkableId], references: [id])
@@ -1211,7 +1211,7 @@ model Product {
   state             State?          @relation(fields: [stateId], references: [id])
   stateId           Int?            @map("state_id")
   address           String?         @default("") @map("address")
-  commentableId     String?         @map("commentable_id")
+  commentableId     String?         @unique @map("commentable_id")
   commentable       Commentable?    @relation(fields: [commentableId], references: [id])
   bookmarkableId    String?         @map("bookmarkable_id")
   bookmarkable      Bookmarkable?   @relation(fields: [bookmarkableId], references: [id])

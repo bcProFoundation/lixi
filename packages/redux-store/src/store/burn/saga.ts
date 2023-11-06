@@ -117,12 +117,13 @@ function* prepareBurnCommandSaga(
         break;
       case BurnForType.Comment:
         const comment = burnForItem as Comment;
-        const pageAddress = comment.commentTo.page ? comment.commentTo.page.pageAccount.address : undefined;
-        const postAddress = comment.commentTo.postAccount.address;
-        tipToAddresses.push({
-          address: pageAddress ?? postAddress,
-          amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
-        });
+        // @todo: Fix after migration
+        // const pageAddress = comment.commentTo.page ? comment.commentTo.page.pageAccount.address : undefined;
+        // const postAddress = comment.commentTo.postAccount.address;
+        // tipToAddresses.push({
+        //   address: pageAddress ?? postAddress,
+        //   amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
+        // });
         break;
     }
 
