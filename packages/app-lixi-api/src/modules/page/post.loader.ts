@@ -1,4 +1,4 @@
-import { Account, Page, PostDana, Repost, UploadDetail } from '@bcpros/lixi-models';
+import { Account, ICommentableTo, Page, Post, PostDana, Repost, UploadDetail } from '@bcpros/lixi-models';
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import _ from 'lodash';
@@ -18,7 +18,7 @@ export default class PostLoader {
     private readonly danaViewScoreService: DanaViewScoreService,
     private readonly followCacheService: FollowCacheService,
     private readonly postDanaCacheService: PostDanaCacheService
-  ) {}
+  ) { }
 
   public readonly batchPostDanas = new DataLoader<string, PostDana>(async (ids: readonly string[]) => {
     const postIds = ids as unknown as string[];
@@ -111,29 +111,6 @@ export default class PostLoader {
     });
     return postIds.map(postId => {
       return reposts.filter(item => item.postId == postId) || null;
-    });
-  });
-
-  public readonly batchTotalComments = new DataLoader(async (postIds: readonly string[]) => {
-    const ids = (postIds as unknown as string[]) ?? [];
-    const totalComments = await this.prisma.comment.groupBy({
-      by: ['commentToId'],
-      _count: {
-        _all: true
-      },
-      where: {
-        commentToId: {
-          in: ids
-        }
-      }
-    });
-    const totalCommentsMap = new Map(
-      totalComments.map(value => {
-        return [value.commentToId, value._count._all];
-      })
-    );
-    return ids.map(id => {
-      return totalCommentsMap.get(id) ?? 0;
     });
   });
 

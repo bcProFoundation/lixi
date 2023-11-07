@@ -1016,7 +1016,7 @@ type Post {
   taggableId: String
   token: Token
   tokenId: String
-  totalComments: Int!
+  totalComments: Int
   translations: [PostTranslation!]
 
   """
@@ -1642,7 +1642,6 @@ type Subscription {
   messageCreated: Message!
   pageMessageSessionCreated: PageMessageSession!
   templeCreated: Temple!
-  tokenCreated: Token!
   worshipedPersonCreated: WorshipedPerson!
 }
 

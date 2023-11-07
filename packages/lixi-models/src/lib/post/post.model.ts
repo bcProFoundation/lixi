@@ -11,9 +11,10 @@ import { UploadDetail } from '../upload';
 
 import { PostDana } from './post-dana.model';
 import { Repost } from './repost.model';
+import { ICommentableTo } from '../comment';
 
 @ObjectType()
-export class Post {
+export class Post implements ICommentableTo {
   @Field(() => ID)
   id: string;
 

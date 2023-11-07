@@ -24,7 +24,7 @@ export class TimelineService {
     private readonly followCacheService: FollowCacheService,
     @InjectRedis() private readonly redis: Redis,
     @I18n() private i18n: I18nService
-  ) {}
+  ) { }
 
   async cacheInNetworkByTime(accountId: number) {
     const key = `${TimelineService.inNetworkSourceKey}:${accountId}`;
@@ -82,9 +82,11 @@ export class TimelineService {
     const epoch = '2023-01-01 00:00:00';
     const halfLife = '12 hours';
     try {
-      const accountFollowings = (await this.followCacheService.getAccountFollowings(accountId)).map(item =>
+      let accountFollowings = (await this.followCacheService.getAccountFollowings(accountId)).map(item =>
         _.toSafeInteger(item)
       );
+      accountFollowings = accountId ? [accountId].concat(accountFollowings) : accountFollowings;
+      console.log('accountFollowings', accountFollowings);
       const pageFollowings = await this.followCacheService.getPageFollowings(accountId);
 
       if (
@@ -107,8 +109,8 @@ export class TimelineService {
               burn.burn_for_type = ${postBurnType} 
               AND burn.burned_value > 0 
               AND (
-                (post.post_account_id IN ${Prisma.join([accountId].concat(accountFollowings))} ) OR
-                (post.page_id) IN ${Prisma.join(pageFollowings)}
+                (post.post_account_id IN (${Prisma.join(accountFollowings)}) ) OR
+                (post.page_id IN (${Prisma.join(pageFollowings)} ))
               )
             GROUP BY
               post.id 

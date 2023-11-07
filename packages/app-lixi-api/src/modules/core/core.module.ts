@@ -46,7 +46,7 @@ const baseCorsConfig = cors({
     ChronikModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        const chronikUrl = config.get<string>('CHRONIK_URL') || 'https://chronik.be.cash';
+        const chronikUrl = config.get<string>('CHRONIK_URL') || 'https://chronik01.abcpay.cash';
         return {
           host: chronikUrl,
           networks: ['xec', 'xpi']
