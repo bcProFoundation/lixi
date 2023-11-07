@@ -3,6 +3,7 @@ import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Account } from '../account';
+import { ICommentableTo } from '../comment';
 import { PostHashtag } from '../hashtag/postHashtag.model';
 import { ImageUploadable } from '../imageUploadable';
 import { Page } from '../page';
@@ -11,7 +12,6 @@ import { UploadDetail } from '../upload';
 
 import { PostDana } from './post-dana.model';
 import { Repost } from './repost.model';
-import { ICommentableTo } from '../comment';
 
 @ObjectType()
 export class Post implements ICommentableTo {

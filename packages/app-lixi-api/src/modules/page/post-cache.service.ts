@@ -17,7 +17,7 @@ export class PostCacheService {
     private readonly postLoader: PostLoader,
     private readonly commentableLoader: CommentableLoader,
     @InjectRedis() private readonly redis: Redis
-  ) { }
+  ) {}
 
   async getById(id: string): Promise<Nullable<Post>> {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id);
@@ -83,19 +83,19 @@ export class PostCacheService {
     const dbValues =
       uncachedIds.length > 0
         ? await this.prisma.post.findMany({
-          where: {
-            id: { in: uncachedIds }
-          },
-          include: {
-            postAccount: true,
-            translations: true,
-            uploads: true,
-            token: true,
-            _count: {
-              select: { reposts: true }
+            where: {
+              id: { in: uncachedIds }
+            },
+            include: {
+              postAccount: true,
+              translations: true,
+              uploads: true,
+              token: true,
+              _count: {
+                select: { reposts: true }
+              }
             }
-          }
-        })
+          })
         : [];
 
     const [arrReposts, arrUploads, arrDanaViewScore, arrPostDanas] = await Promise.all([

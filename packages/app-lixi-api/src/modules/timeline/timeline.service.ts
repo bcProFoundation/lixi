@@ -24,7 +24,7 @@ export class TimelineService {
     private readonly followCacheService: FollowCacheService,
     @InjectRedis() private readonly redis: Redis,
     @I18n() private i18n: I18nService
-  ) { }
+  ) {}
 
   async cacheInNetworkByTime(accountId: number) {
     const key = `${TimelineService.inNetworkSourceKey}:${accountId}`;
