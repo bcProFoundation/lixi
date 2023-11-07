@@ -1,6 +1,7 @@
 import {
   Account,
   CreatePostInput,
+  ICommentableTo,
   Page,
   PaginationArgs,
   Post,
@@ -46,6 +47,7 @@ import { POST_FANOUT_QUEUE } from './constants/post.constants';
 import { MeiliService } from './meili.service';
 import PostLoader from './post.loader';
 import { XPIJS } from '../wallet/wallet.constants';
+import CommentableLoader from './commentable.loader';
 
 const pubSub = new PubSub();
 
@@ -67,13 +69,15 @@ export class PostResolver {
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @I18n() private i18n: I18nService,
     private readonly accountCacheService: AccountCacheService,
-    private readonly postLoader: PostLoader
-  ) {}
+    private readonly postLoader: PostLoader,
+    private readonly commentableLoader: CommentableLoader
+  ) { }
 
   @SkipThrottle()
   @Query(() => Post)
   @UseGuards(GqlJwtAuthGuardByPass)
   async post(@PostAccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
+    console.log('postresolver');
     const dbPost = await this.prisma.post.findUnique({
       where: { id: id },
       include: {
@@ -798,10 +802,10 @@ export class PostResolver {
         connect:
           uploadDetailIds.length > 0
             ? uploadDetailIds.map((uploadDetail: any) => {
-                return {
-                  id: uploadDetail
-                };
-              })
+              return {
+                id: uploadDetail
+              };
+            })
             : undefined
       },
       page: {
@@ -827,8 +831,13 @@ export class PostResolver {
       const createdPost = await prisma.post.create({
         data: {
           ...postToSave,
+          commentable: {
+            create: {
+              type: 'Post'
+            }
+          },
           txid: txid,
-          createFee: createFee
+          createFee: createFee,
         },
         include: {
           page: {
@@ -1105,8 +1114,11 @@ export class PostResolver {
   }
 
   @ResolveField('totalComments', () => Number)
-  async postComments(@Parent() post: Post) {
-    return this.postLoader.batchTotalComments.load(post.id);
+  async totalComments(@Parent() commentableTo: ICommentableTo) {
+    if (commentableTo && commentableTo?.commentableId) {
+      return this.commentableLoader.batchTotalComments.load(commentableTo);
+    }
+    return 0;
   }
 
   @ResolveField('page', () => Page)

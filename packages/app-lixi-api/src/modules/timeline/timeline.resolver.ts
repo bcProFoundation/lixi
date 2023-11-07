@@ -2,32 +2,24 @@ import {
   Account,
   BasicPaginationArgs,
   IBasicPaginated,
-  Page,
-  PaginationArgs,
-  Post,
-  Repost,
   TimelineItem,
-  TimelineItemConnection,
-  TimelineItemData,
-  UploadDetail
+  TimelineItemConnection
 } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { decode, encode } from '@msgpack/msgpack';
 import { Injectable, Logger, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, Query, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PubSub } from 'graphql-subscriptions';
 import { Redis } from 'ioredis';
-import _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
+import { createEdge } from '../../common/custom-graphql-relay/paginate';
 import { AccountEntity } from '../../decorators';
 import { GqlHttpExceptionFilter } from '../../middlewares/gql.exception.filter';
 import { GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
 import PostLoader from '../page/post.loader';
 import { PrismaService } from '../prisma/prisma.service';
-import { TimelineService } from './timeline.service';
 import { TimelineItemService } from './timeline-item.service';
-import { createEdge } from '../../common/custom-graphql-relay/paginate';
+import { TimelineService } from './timeline.service';
 
 const pubSub = new PubSub();
 
@@ -45,7 +37,7 @@ export class TimelineResolver {
     private readonly timelineItemService: TimelineItemService,
     @InjectRedis() private readonly redis: Redis,
     @I18n() private readonly i18n: I18nService
-  ) {}
+  ) { }
 
   @SkipThrottle()
   @Query(returns => TimelineItem)

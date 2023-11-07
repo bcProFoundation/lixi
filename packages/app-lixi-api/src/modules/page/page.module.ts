@@ -25,6 +25,7 @@ import PostLoader from './post.loader';
 import { PostResolver } from './post.resolver';
 import { PostCacheService } from './post-cache.service';
 import { CommentCacheService } from './comment-cache.service';
+import CommentableLoader from './commentable.loader';
 
 @Module({
   imports: [
@@ -68,7 +69,8 @@ import { CommentCacheService } from './comment-cache.service';
     PostCacheService,
     PostDanaCacheService,
     CommentCacheService,
-    CommentDanaCacheService
+    CommentDanaCacheService,
+    CommentableLoader
   ],
   exports: [
     MeiliService,
@@ -81,4 +83,4 @@ import { CommentCacheService } from './comment-cache.service';
     PostDanaCacheService
   ]
 })
-export class PageModule {}
+export class PageModule { }

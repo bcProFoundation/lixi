@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { PrismaService } from '../prisma/prisma.service';
 import { Page, Post, PostDana, Repost, UploadDetail } from '@bcpros/lixi-models';
 import PostLoader from './post.loader';
+import CommentableLoader from './commentable.loader';
 
 export class PostCacheService {
   private logger: Logger = new Logger(this.constructor.name);
@@ -14,8 +15,9 @@ export class PostCacheService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly postLoader: PostLoader,
+    private readonly commentableLoader: CommentableLoader,
     @InjectRedis() private readonly redis: Redis
-  ) {}
+  ) { }
 
   async getById(id: string): Promise<Nullable<Post>> {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id);
@@ -37,11 +39,10 @@ export class PostCacheService {
       });
       if (!dbValue) return null;
 
-      const [reposts, uploads, danaViewScore, totalComments, postDanas] = await Promise.all([
+      const [reposts, uploads, danaViewScore, postDanas] = await Promise.all([
         this.postLoader.batchReposts.load(dbValue.id),
         this.postLoader.batchUploads.load(dbValue.id),
         this.postLoader.batchDanaViewScores.load(dbValue.id),
-        this.postLoader.batchTotalComments.load(dbValue.id),
         this.postLoader.batchPostDanas.load(dbValue.id)
       ]);
 
@@ -51,7 +52,6 @@ export class PostCacheService {
         repostCount: dbValue._count.reposts,
         reposts: reposts ? (reposts as Repost[]) : [],
         danaBurnScore: (danaViewScore as number) || 0,
-        totalComments: totalComments,
         postDana: postDanas
       });
 
@@ -83,26 +83,25 @@ export class PostCacheService {
     const dbValues =
       uncachedIds.length > 0
         ? await this.prisma.post.findMany({
-            where: {
-              id: { in: uncachedIds }
-            },
-            include: {
-              postAccount: true,
-              translations: true,
-              uploads: true,
-              token: true,
-              _count: {
-                select: { reposts: true }
-              }
+          where: {
+            id: { in: uncachedIds }
+          },
+          include: {
+            postAccount: true,
+            translations: true,
+            uploads: true,
+            token: true,
+            _count: {
+              select: { reposts: true }
             }
-          })
+          }
+        })
         : [];
 
-    const [arrReposts, arrUploads, arrDanaViewScore, totalComments, arrPostDanas] = await Promise.all([
+    const [arrReposts, arrUploads, arrDanaViewScore, arrPostDanas] = await Promise.all([
       this.postLoader.batchReposts.loadMany(uncachedIds),
       this.postLoader.batchUploads.loadMany(uncachedIds),
       this.postLoader.batchDanaViewScores.loadMany(ids),
-      this.postLoader.batchTotalComments.loadMany(ids),
       this.postLoader.batchPostDanas.loadMany(ids)
     ]);
     const dbValuesMap = new Map(
@@ -114,7 +113,6 @@ export class PostCacheService {
           danaViewScore: (arrDanaViewScore[i] ?? 0) as number,
           repostCount: dbValue._count.reposts,
           reposts: arrReposts[i] ? (arrReposts[i] as Repost[]) : [],
-          totalComments: totalComments[i] instanceof Error ? 0 : (totalComments[i] as number),
           postDana: arrPostDanas[i] instanceof Error ? new PostDana({}) : (arrPostDanas[i] as PostDana)
         });
         itemsMap.set(dbValue.id, item);

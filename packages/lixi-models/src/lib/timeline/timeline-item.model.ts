@@ -5,8 +5,12 @@ import { Post } from '../post';
 export const TimelineItemData = createUnionType({
   name: 'TimelineItemData',
   types: () => [Post] as const,
-  resolveType() {
-    return Post;
+  resolveType(value) {
+    switch (value.constructor.name) {
+      case 'Post':
+      default:
+        return Post;
+    }
   }
 });
 

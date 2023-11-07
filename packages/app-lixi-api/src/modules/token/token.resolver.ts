@@ -1,25 +1,22 @@
 import { Account, CreateTokenInput, Token, TokenConnection, TokenDana, TokenOrder } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { ChronikClient } from 'chronik-client';
-import { PubSub } from 'graphql-subscriptions';
 import { Redis } from 'ioredis';
 import moment from 'moment';
 import { I18n, I18nContext, I18nService } from 'nestjs-i18n';
 import { connectionFromArraySlice } from 'src/common/custom-graphql-relay/arrayConnection';
 import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
 import SortedItemRepository from 'src/common/redis/sorted-repository';
+import { AccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { GqlJwtAuthGuard } from 'src/modules/auth/guards/gql-jwtauth.guard';
 import VError from 'verror';
-import { PrismaService } from '../prisma/prisma.service';
-import { AccountEntity } from 'src/decorators';
 import { FollowCacheService } from '../account/follow-cache.service';
+import { PrismaService } from '../prisma/prisma.service';
 import TokenLoader from './token.loader';
-
-const pubSub = new PubSub();
 
 @SkipThrottle()
 @Resolver(() => Token)
@@ -34,12 +31,7 @@ export class TokenResolver {
     @InjectRedis() private readonly redis: Redis,
     @I18n() private readonly i18n: I18nService,
     @InjectChronikClient('xec') private chronik: ChronikClient
-  ) {}
-
-  @Subscription(() => Token)
-  tokenCreated() {
-    return pubSub.asyncIterator('tokenCreated');
-  }
+  ) { }
 
   @Query(() => Token)
   @UseGuards(GqlJwtAuthGuard)

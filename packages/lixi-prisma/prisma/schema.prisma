@@ -198,6 +198,7 @@ model PostDana {
 
 model Commentable {
   id       String    @id @default(cuid())
+  type     String
   comments Comment[]
   post     Post?
   event    Event?
