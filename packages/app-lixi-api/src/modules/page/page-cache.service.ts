@@ -138,4 +138,8 @@ export class PageCacheService {
       return page ? page : null;
     });
   }
+
+  async removeByKeys(keys: string[]) {
+    await this.redis.hdel(this.keyPrefix, ...keys);
+  }
 }

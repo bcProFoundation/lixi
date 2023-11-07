@@ -158,7 +158,6 @@ export type Comment = {
   commentByPublicKey?: Maybe<Scalars['String']>;
   commentDana?: Maybe<CommentDana>;
   commentText: Scalars['String'];
-  commentTo: Post;
   commentToId: Scalars['String'];
   commentableId?: Maybe<Scalars['String']>;
   content: Scalars['String'];
@@ -1665,11 +1664,8 @@ export type QueryHashtagArgs = {
 
 export type QueryHomeTimelineArgs = {
   after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
   level?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
   skip?: InputMaybe<Scalars['Int']>;
 };
 
@@ -1823,24 +1819,24 @@ export enum TempleOrderField {
 
 export type TimelineItem = {
   __typename?: 'TimelineItem';
-  data?: Maybe<TimelineItemData>;
+  data: TimelineItemData;
   id: Scalars['ID'];
+};
+
+export type TimelineItemBasicEdge = {
+  __typename?: 'TimelineItemBasicEdge';
+  cursor: Scalars['String'];
+  node: TimelineItem;
 };
 
 export type TimelineItemConnection = {
   __typename?: 'TimelineItemConnection';
-  edges?: Maybe<Array<TimelineItemEdge>>;
-  pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
+  edges: Array<TimelineItemBasicEdge>;
+  pageInfo: BasicPageInfo;
+  totalCount: Scalars['Int'];
 };
 
 export type TimelineItemData = Post;
-
-export type TimelineItemEdge = {
-  __typename?: 'TimelineItemEdge';
-  cursor: Scalars['String'];
-  node: TimelineItem;
-};
 
 export type Token = {
   __typename?: 'Token';
@@ -1852,6 +1848,7 @@ export type Token = {
   danaBurnScore: Scalars['Float'];
   danaBurnUp: Scalars['Float'];
   decimals: Scalars['Int'];
+  followersCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   initialTokenQuantity?: Maybe<Scalars['String']>;
   isFollowed?: Maybe<Scalars['Boolean']>;

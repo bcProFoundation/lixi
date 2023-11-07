@@ -151,7 +151,6 @@ type Comment {
   commentByPublicKey: String
   commentDana: CommentDana
   commentText: String!
-  commentTo: Post!
   commentToId: String!
   commentableId: String
   content: String!
@@ -1584,15 +1583,7 @@ type Query {
   getAccountByAddress(address: String!): Account!
   getBalances(address: String!): Balances!
   hashtag(content: String!): Hashtag!
-  homeTimeline(
-    after: String
-    before: String
-    first: Int
-    last: Int
-    level: Int
-    minBurnFilter: Int
-    skip: Int
-  ): TimelineItemConnection!
+  homeTimeline(after: String, first: Int, level: Int, skip: Int): TimelineItemConnection!
   message(id: String!): Message!
   page(id: String!): Page!
   pageMessageSession(id: String!): PageMessageSession!
@@ -1713,22 +1704,22 @@ enum TempleOrderField {
 }
 
 type TimelineItem {
-  data: TimelineItemData
+  data: TimelineItemData!
   id: ID!
 }
 
-type TimelineItemConnection {
-  edges: [TimelineItemEdge!]
-  pageInfo: PageInfo!
-  totalCount: Int
-}
-
-union TimelineItemData = Post
-
-type TimelineItemEdge {
+type TimelineItemBasicEdge {
   cursor: String!
   node: TimelineItem!
 }
+
+type TimelineItemConnection {
+  edges: [TimelineItemBasicEdge!]!
+  pageInfo: BasicPageInfo!
+  totalCount: Int!
+}
+
+union TimelineItemData = Post
 
 type Token {
   """
@@ -1744,6 +1735,7 @@ type Token {
   danaBurnScore: Float!
   danaBurnUp: Float!
   decimals: Int!
+  followersCount: Int
   id: ID!
   initialTokenQuantity: String
   isFollowed: Boolean

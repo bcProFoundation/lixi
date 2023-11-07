@@ -25,6 +25,7 @@ import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtau
 import { PrismaService } from '../prisma/prisma.service';
 import { AccountCacheService } from '../account/account-cache.service';
 import { XPIJS } from '../wallet/wallet.constants';
+import { CommentCacheService } from './comment-cache.service';
 
 const pubSub = new PubSub();
 
@@ -39,7 +40,8 @@ export class CommentResolver {
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @Inject(XPIJS) private XPI: BCHJS,
     private readonly notificationService: NotificationService,
-    private readonly accountCacheService: AccountCacheService
+    private readonly accountCacheService: AccountCacheService,
+    private readonly commentCacheService: CommentCacheService
   ) {}
 
   @Subscription(() => Comment)
@@ -49,9 +51,7 @@ export class CommentResolver {
 
   @Query(() => Comment)
   async comment(@Args('id', { type: () => String }) id: string) {
-    return this.prisma.comment.findUnique({
-      where: { id: id }
-    });
+    return await this.commentCacheService.getById(id);
   }
 
   @Query(() => CommentConnection)
@@ -110,36 +110,6 @@ export class CommentResolver {
                 ]
               }
             ]
-          : []),
-        ...(account && account.id
-          ? [
-              {
-                AND: [
-                  { commentToId: id },
-                  {
-                    commentTo: {
-                      postAccountId: account.id
-                    }
-                  }
-                ]
-              }
-            ]
-          : []),
-        ...(account && account.id
-          ? [
-              {
-                AND: [
-                  { commentToId: id },
-                  {
-                    commentTo: {
-                      page: {
-                        pageAccountId: account.id
-                      }
-                    }
-                  }
-                ]
-              }
-            ]
           : [])
       ]
     };
@@ -188,22 +158,7 @@ export class CommentResolver {
       });
 
       let createFee: any;
-      if (createFeeHex) {
-        const txData = await this.XPI.RawTransactions.decodeRawTransaction(data.createFeeHex);
-        createFee = txData['vout'][0].value;
-        if (Number(createFee) < 0) {
-          throw new Error('Syntax error. Number cannot be less than or equal to 0');
-        }
-      }
-
       let tipValue: any;
-      if (tipHex) {
-        const txData = await this.XPI.RawTransactions.decodeRawTransaction(tipHex);
-        tipValue = txData['vout'][0].value;
-        if (Number(tipValue) < 0) {
-          throw new Error('Syntax error. Number cannot be less than or equal to 0');
-        }
-      }
 
       const savedComment = await this.prisma.$transaction(async prisma => {
         let txid: string = '';
@@ -271,18 +226,6 @@ export class CommentResolver {
             senderAddress: account.address,
             senderAvatar: account.avatar,
             xpiGive: tipValue
-          };
-        }
-
-        if (tipHex) {
-          const txData = await this.XPI.RawTransactions.decodeRawTransaction(tipHex);
-          const { value } = txData['vout'][0];
-
-          commentToGiveData = {
-            senderName: account.name,
-            senderAddress: account.address,
-            senderAvatar: account.avatar,
-            xpiGive: value
           };
         }
 

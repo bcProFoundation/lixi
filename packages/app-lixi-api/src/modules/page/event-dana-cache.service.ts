@@ -90,4 +90,8 @@ export class EventDanaCacheService {
       return eventDana ? eventDana : null;
     });
   }
+
+  async removeByKeys(ids: string[]) {
+    await this.redis.hdel(this.keyPrefix, ...ids);
+  }
 }

@@ -12,10 +12,7 @@
 import * as Types from '../../generated/types.generated';
 
 import { PostFieldsFragmentDoc } from '../post/posts.generated';
-import {
-  PageInfoFieldsFragmentDoc,
-  PostMeiliPageInfoFieldsFragmentDoc
-} from '../../graphql/fragments/page-info-fields.fragment.generated';
+import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
 import { api } from 'src/api/baseApi';
 export type TimelineQueryVariables = Types.Exact<{
   id: Types.Scalars['String'];
@@ -26,8 +23,8 @@ export type TimelineQuery = {
   timeline: {
     __typename?: 'TimelineItem';
     id: string;
-    data?: {
-      __typename?: 'Post';
+    data: {
+      __typename: 'Post';
       id: string;
       content: string;
       postAccountId: number;
@@ -126,15 +123,15 @@ export type HomeTimelineQuery = {
   __typename?: 'Query';
   homeTimeline: {
     __typename?: 'TimelineItemConnection';
-    totalCount?: number | null;
-    edges?: Array<{
-      __typename?: 'TimelineItemEdge';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'TimelineItemBasicEdge';
       cursor: string;
       node: {
         __typename?: 'TimelineItem';
         id: string;
-        data?: {
-          __typename?: 'Post';
+        data: {
+          __typename: 'Post';
           id: string;
           content: string;
           postAccountId: number;
@@ -221,14 +218,8 @@ export type HomeTimelineQuery = {
           } | null;
         } | null;
       };
-    }> | null;
-    pageInfo: {
-      __typename?: 'PageInfo';
-      endCursor?: string | null;
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor?: string | null;
-    };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
   };
 };
 
@@ -237,6 +228,7 @@ export const TimelineDocument = `
   timeline(id: $id) {
     id
     data {
+      __typename
       ... on Post {
         ...PostFields
       }
@@ -253,6 +245,7 @@ export const HomeTimelineDocument = `
       node {
         id
         data {
+          __typename
           ... on Post {
             ...PostFields
           }
@@ -260,12 +253,12 @@ export const HomeTimelineDocument = `
       }
     }
     pageInfo {
-      ...PageInfoFields
+      ...BasicPageInfoFields
     }
   }
 }
     ${PostFieldsFragmentDoc}
-${PageInfoFieldsFragmentDoc}`;
+${BasicPageInfoFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
   overrideExisting: true,

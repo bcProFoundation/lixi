@@ -6,14 +6,11 @@ import {
   IBasicPaginated,
   Page,
   PageBasicConnection,
-  PageConnection,
   PageDana,
-  PageOrder,
   PaginationArgs,
   UpdatePageInput
 } from '@bcpros/lixi-models';
 import BCHJS from '@bcpros/xpi-js';
-import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { HttpException, HttpStatus, Inject, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
@@ -34,6 +31,8 @@ import { XPIJS } from '../wallet/wallet.constants';
 import { PageTimelineCacheService } from './page-timeline-cache.service';
 import PageLoader from './page.loader';
 import { toImageUrl } from './page.utils';
+
+const pubSub = new PubSub();
 
 @SkipThrottle()
 @Resolver(() => Page)

@@ -1,4 +1,4 @@
-import { Burn, BurnCommand, BurnForType, BurnType, TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models';
+import { Burn, BurnCommand, BurnForType, BurnType, PostDana, TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models';
 import { NotificationLevel, Token } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
@@ -15,12 +15,12 @@ import { NOTIFICATION_TYPES } from 'src/common/modules/notifications/notificatio
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import SortedItemRepository from 'src/common/redis/sorted-repository';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
-import { parseBurnOutput } from 'src/utils/opReturnBurn';
+import { XPIJS } from 'src/modules/wallet/wallet.constants';
 import { VError } from 'verror';
 import { AccountCacheService } from '../../account/account-cache.service';
+import { PostDanaCacheService } from '../../page/post-dana-cache.service';
 import { TranslateProvider } from '../translate/translate.constant';
 import { TranslateService } from '../translate/translate.service';
-import { XPIJS } from 'src/modules/wallet/wallet.constants';
 import { ACCOUNT_DANA_QUEUE, BURN_FANOUT_QUEUE, PAGE_DANA_QUEUE } from './burn.constants';
 
 @SkipThrottle()
@@ -38,7 +38,8 @@ export class BurnController {
     @InjectQueue(ACCOUNT_DANA_QUEUE) private accountDanaQueue: Queue,
     @InjectQueue(PAGE_DANA_QUEUE) private pageDanaQueue: Queue,
     private translateService: TranslateService,
-    private readonly accountCacheService: AccountCacheService
+    private readonly accountCacheService: AccountCacheService,
+    private readonly postDanaCacheService: PostDanaCacheService
   ) {}
 
   private convertBurnedByToAddress(burnedBy: string): string {
@@ -52,44 +53,7 @@ export class BurnController {
   @Post()
   async burn(@Body() command: BurnCommand): Promise<Burn> {
     try {
-      const txData: any = await this.XPI.RawTransactions.decodeRawTransaction(command.txHex);
-      if (!txData) {
-        throw new Error('Tx Data fail');
-      }
-      const { scriptPubKey, value } = txData['vout'][0];
-      const parseResult = parseBurnOutput(scriptPubKey.hex);
-
-      // In case of burn for token, burnForId is BurnForTokenId
-      if (command.burnForType === BurnForType.Token) {
-        const tokenCheck = await this.prisma.token.findUnique({
-          where: {
-            tokenId: parseResult.burnForId
-          }
-        });
-
-        // Compare parse result with the command
-        if (
-          command.burnForId !== tokenCheck?.tokenId ||
-          command.burnForType !== parseResult.burnForType ||
-          command.burnType !== parseResult.burnType ||
-          command.burnedBy !== parseResult.burnedBy ||
-          _.toNumber(command.burnValue) != value
-        ) {
-          throw new Error('Unable to burn');
-        }
-      } else {
-        // Compare parse result with the command
-        if (
-          command.burnForId !== parseResult.burnForId ||
-          command.burnForType !== parseResult.burnForType ||
-          command.burnType !== parseResult.burnType ||
-          command.burnedBy !== parseResult.burnedBy ||
-          _.toNumber(command.burnValue) != value
-        ) {
-          throw new Error('Unable to burn');
-        }
-      }
-
+      const value = parseFloat(command.burnValue);
       const savedBurn = await this.prisma.$transaction(async prisma => {
         const broadcastResponse = await this.chronik.broadcastTx(command.txHex).catch(async err => {
           const updatingWalletFund = await this.i18n.t('burn.messages.updatingWalletFund');
@@ -108,10 +72,10 @@ export class BurnController {
         }
         const burnRecordToInsert = {
           txid,
-          burnType: parseResult.burnType ? true : false,
-          burnForType: parseResult.burnForType,
-          burnedBy: Buffer.from(parseResult.burnedBy, 'hex'),
-          burnForId: parseResult.burnForId,
+          burnType: command.burnType ? true : false,
+          burnForType: command.burnForType,
+          burnedBy: Buffer.from(command.burnedBy, 'hex'),
+          burnForId: command.burnForId,
           burnedValue: value
         };
         const createdBurn = prisma.burn.create({
@@ -128,7 +92,8 @@ export class BurnController {
             },
             include: {
               page: true,
-              postAccount: true
+              postAccount: true,
+              postDana: true
             }
           });
 
@@ -141,28 +106,55 @@ export class BurnController {
             }
           });
 
-          let danaBurnUp = post?.danaBurnUp ?? 0;
-          let danaBurnDown = post?.danaBurnDown ?? 0;
+          let danaBurnUp = post?.postDana?.danaBurnUp ?? 0;
+          let danaBurnDown = post?.postDana?.danaBurnDown ?? 0;
+          let danaReceivedUp = post?.postDana?.danaReceivedUp ?? 0;
+          let danaReceivedDown = post?.postDana?.danaReceivedDown ?? 0;
           const xpiValue = value;
 
           if (command.burnType == BurnType.Up) {
             danaBurnUp = danaBurnUp + xpiValue;
+            danaReceivedUp = danaReceivedUp + xpiValue;
           } else {
             danaBurnDown = danaBurnDown + xpiValue;
+            danaReceivedDown = danaReceivedDown + xpiValue;
           }
           const danaBurnScore = danaBurnUp - danaBurnDown;
+          const danaReceivedScore = danaReceivedUp - danaReceivedDown;
 
+          // @todo: This is incorrect handle
+          // not prepare for the conflict update
+          // later we should move to each processor to read then update and retry if need
           await this.prisma.$transaction(async prisma => {
-            await prisma.post.update({
+            const newPostDana = await prisma.postDana.upsert({
               where: {
-                id: command.burnForId
+                postId: command.burnForId,
+                version: post?.postDana?.version
               },
-              data: {
+              update: {
+                version: {
+                  increment: 1
+                },
+                danaBurnUp,
+                danaBurnDown,
+                danaBurnScore,
+                danaReceivedUp,
+                danaReceivedDown,
+                danaReceivedScore
+              },
+              create: {
                 danaBurnDown,
                 danaBurnUp,
-                danaBurnScore
+                danaBurnScore,
+                danaReceivedUp,
+                danaReceivedDown,
+                danaReceivedScore,
+                postId: command.burnForId,
+                version: 0
               }
             });
+
+            await this.postDanaCacheService.setPostDana(command.burnForId, new PostDana({ ...newPostDana }));
 
             const burnByAddress = this.convertBurnedByToAddress(command.burnedBy);
 
@@ -471,6 +463,7 @@ export class BurnController {
 
       return result;
     } catch (err: any) {
+      console.log('🚀 ~ file: burn.controller.ts:495 ~ BurnController ~ burn ~ err:', err);
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
       } else {

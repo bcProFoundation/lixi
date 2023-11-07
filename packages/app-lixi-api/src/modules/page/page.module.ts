@@ -23,6 +23,8 @@ import { PostDanaCacheService } from './post-dana-cache.service';
 import { PostFanoutProcessor } from './post-fanout.processor';
 import PostLoader from './post.loader';
 import { PostResolver } from './post.resolver';
+import { PostCacheService } from './post-cache.service';
+import { CommentCacheService } from './comment-cache.service';
 
 @Module({
   imports: [
@@ -63,7 +65,9 @@ import { PostResolver } from './post.resolver';
     PageCacheService,
     PageTimelineCacheService,
     PageDanaCacheService,
+    PostCacheService,
     PostDanaCacheService,
+    CommentCacheService,
     CommentDanaCacheService
   ],
   exports: [
@@ -71,8 +75,10 @@ import { PostResolver } from './post.resolver';
     NotificationService,
     FollowCacheService,
     PostLoader,
+    PostCacheService,
     DanaViewScoreService,
-    PageDanaCacheService
+    PageDanaCacheService,
+    PostDanaCacheService
   ]
 })
 export class PageModule {}

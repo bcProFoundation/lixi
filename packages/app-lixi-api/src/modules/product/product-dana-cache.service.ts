@@ -91,4 +91,8 @@ export class ProductDanaCacheService {
       return productDana ? productDana : null;
     });
   }
+
+  async removeByKeys(ids: string[]) {
+    await this.redis.hdel(this.keyPrefix, ...ids);
+  }
 }

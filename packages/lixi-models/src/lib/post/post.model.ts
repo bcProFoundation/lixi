@@ -35,7 +35,6 @@ export class Post {
   @Field(() => [UploadDetail], { nullable: true })
   uploads: Nullable<UploadDetail[]>;
 
-  @IsOptional()
   @Field(() => Page, { nullable: true })
   page?: Nullable<Page>;
 

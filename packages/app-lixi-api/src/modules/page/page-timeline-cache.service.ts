@@ -9,7 +9,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class PageTimelineCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   static pageTimelineKey = 'timeline:pages';
-  static pageByUserTimelineKeyPrefix = 'timeline:pages:user:';
+  static pageByUserTimelineKeyPrefix = 'timeline:pages:user';
 
   constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
 

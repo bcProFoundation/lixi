@@ -29,7 +29,6 @@ export class AccountResolver {
     private prisma: PrismaService,
     @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
     @I18n() private i18n: I18nService,
-    @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
     private readonly accountCacheService: AccountCacheService,
     private readonly accountLoader: AccountLoader
   ) {}
@@ -229,16 +228,21 @@ export class AccountResolver {
         const createdAccount = await this.prisma.account.create({
           data: accountToInsert
         });
-        await Promise.all([
-          this.accountCacheService.removeByKey(createdAccount.id.toString()),
-          this.accountCacheService.removeByKey(createdAccount.address)
+
+        // Invalidate the cache for the account
+        await this.accountCacheService.removeByKeys([
+          createdAccount.id.toString(),
+          createdAccount.address,
+          createdAccount.mnemonicHash
         ]);
 
-        const account = await this.accountCacheService.getById(createdAccount.id);
+        const newAccount = await this.accountCacheService.getById(createdAccount.id);
+        const { totalBalanceInSatoshis } = await this.walletServices['xpi'].getBalances(createdAccount.address);
 
         const resultApi = _.omit(
           {
-            ..._.omit(account, 'publicKey'),
+            ..._.omit(newAccount, 'publicKey'),
+            balance: totalBalanceInSatoshis,
             secret: accountSecret
           },
           ['mnemonic', 'encryptedMnemonic']
@@ -254,8 +258,8 @@ export class AccountResolver {
           throw Error(importAccountNotFoundMessage);
         }
 
-        const accountSecret = await aesGcmDecrypt(encryptedSecret || '', mnemonic);
         const { totalBalanceInSatoshis } = await this.walletServices['xpi'].getBalances(account.address);
+        const accountSecret = await aesGcmDecrypt(encryptedSecret || '', mnemonic);
 
         const resultApi = _.omit(
           {

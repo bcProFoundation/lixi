@@ -2,6 +2,7 @@ import { IBasicPaginated, IEdge } from '@bcpros/lixi-models';
 import { InternalServerErrorException } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
+import SortedSet from 'redis-sorted-set';
 
 export function createEdge<T>(instance: T, cursorKey?: keyof T): IEdge<T> {
   try {
@@ -62,5 +63,21 @@ export async function basicSortedSetPagination(
   const lastKnownRank = totalCount - 1;
   const endRank = Math.min(startRank + first - 1, lastKnownRank);
   const ids = await redis.zrevrange(key, startRank, endRank);
+  return basicPaginate<string>(ids, totalCount, startRank);
+}
+
+export async function basicInMemorySortedSetPagination(sortedSet: any, first: number, after?: string) {
+  let startRank = 0;
+  let cursorRank = null;
+  if (after) {
+    cursorRank = sortedSet.rank(after!);
+    startRank = cursorRank ? cursorRank + 1 : 0;
+  }
+
+  // and the rank of latest item in the sorted set
+  const totalCount = sortedSet.length;
+  const lastKnownRank = totalCount - 1;
+  const endRank = Math.min(startRank + first - 1, lastKnownRank);
+  const ids = await sortedSet.range(startRank, endRank);
   return basicPaginate<string>(ids, totalCount, startRank);
 }

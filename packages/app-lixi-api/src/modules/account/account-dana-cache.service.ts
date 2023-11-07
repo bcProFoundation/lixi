@@ -9,7 +9,7 @@ import { AccountDana } from '@bcpros/lixi-models';
 @Injectable()
 export class AccountDanaCacheService {
   private logger: Logger = new Logger(this.constructor.name);
-  private keyPrefix = 'items:accountdana';
+  private keyPrefix = 'items:accounts:dana';
 
   constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
 
@@ -91,5 +91,9 @@ export class AccountDanaCacheService {
       const accountDana = accountDanasMap.get(id.toString());
       return accountDana ? accountDana : null;
     });
+  }
+
+  async removeByKeys(ids: number[]) {
+    await this.redis.hdel(this.keyPrefix, ...ids.map(item => _.toString(item)));
   }
 }

@@ -2,13 +2,11 @@ import { PageDana } from '@bcpros/lixi-models';
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { FollowCacheService } from '../account/follow-cache.service';
-import { PrismaService } from '../prisma/prisma.service';
 import { PageDanaCacheService } from './page-dana-cache.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class PageLoader {
   constructor(
-    private readonly prisma: PrismaService,
     private readonly pageDanaCacheService: PageDanaCacheService,
     private readonly followCacheService: FollowCacheService
   ) {}

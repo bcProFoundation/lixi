@@ -24,10 +24,8 @@ export class AuthService implements OnModuleInit {
     @Inject(forwardRef(() => AccountCacheService)) private accountCacheService: AccountCacheService,
     private prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis,
-    private walletService: WalletService,
-    @I18n() private i18n: I18nService,
     @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
-    private moduleRef: ModuleRef // private moduleRef: ModuleRef
+    @I18n() private i18n: I18nService // private moduleRef: ModuleRef
   ) {}
 
   onModuleInit() {

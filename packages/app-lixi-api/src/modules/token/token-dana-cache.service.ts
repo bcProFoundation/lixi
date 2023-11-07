@@ -91,4 +91,8 @@ export class TokenDanaCacheService {
       return tokenDana ? tokenDana : null;
     });
   }
+
+  async removeByKeys(ids: string[]) {
+    await this.redis.hdel(this.keyPrefix, ...ids);
+  }
 }

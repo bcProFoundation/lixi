@@ -299,6 +299,7 @@ const PageHome = () => {
     isFetching: pageFollowingsIsFetching
   } = useInfinitePagesByFollowerIdQuery(
     {
+      id: selectedAccountId,
       first: 20
     },
     false
