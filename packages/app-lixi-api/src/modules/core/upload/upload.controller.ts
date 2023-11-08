@@ -41,80 +41,6 @@ export class UploadFilesController {
     private readonly accountCacheService: AccountCacheService
   ) {}
 
-  @Post('/s3')
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('file'))
-  @ApiConsumes('multipart/form-data')
-  async uploadS3(
-    @UploadedFile('file') file: MulterFile,
-    @PostAccountEntity() account: Account,
-    @I18n() i18n: I18nContext,
-    @Body() body: any
-  ) {
-    try {
-      const { type } = body;
-      if (!account) {
-        const couldNotFindAccount = await i18n.t('lixi.messages.couldNotFindAccount');
-        throw new Error(couldNotFindAccount);
-      }
-
-      const bucket = process.env.AWS_PUBLIC_BUCKET_NAME;
-      const buffer = file.buffer;
-      const sha = await hexSha256(buffer);
-      const originalName = file.originalname.replace(/\.[^/.]+$/, '');
-      const fileExtension = extname(file.originalname);
-      const metadata = await sharp(file.buffer).metadata();
-
-      const createImageRequest: Requests.CreateImage = {
-        fileName: file.originalname,
-        metadata: {
-          width: metadata.width,
-          height: metadata.height
-        },
-        requireSignedURLs: false
-      };
-      const createImageResponse = await this.cloudflareService.createImageFromBuffer(createImageRequest, buffer);
-
-      const uploadToInsert = {
-        sha: sha,
-        originalFilename: originalName,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        extension: fileExtension,
-        type: type,
-        bucket: bucket,
-        width: metadata.width,
-        height: metadata.height,
-        cfImageId: createImageResponse.result.id,
-        cfImageFilename: createImageResponse.result.filename
-      };
-
-      const resultImage: UploadDb = await this.prisma.upload.create({
-        data: uploadToInsert
-      });
-
-      await this.prisma.uploadDetail.create({
-        data: {
-          account: { connect: { id: account.id } },
-          upload: { connect: { id: resultImage.id } }
-          // avatarAccount: {connect: type == UPLOAD_TYPES.ACCOUNT_AVATAR ? {id: account.id} : undefined },
-          // coverAccount: {connect: type == UPLOAD_TYPES.ACCOUNT_COVER ? {id: account.id} : undefined },
-        }
-      });
-      this.accountCacheService.deleteById(account.id);
-
-      return resultImage;
-    } catch (err) {
-      if (err instanceof VError) {
-        throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
-      } else {
-        const unableToUpload = await i18n.t('lixi.messages.unableToUpload');
-        const error = new VError.WError(err as Error, unableToUpload);
-        throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-    }
-  }
-
   @Delete('/remove-image-cf/:id')
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
@@ -243,7 +169,86 @@ export class UploadFilesController {
           })
         )
       );
-      this.accountCacheService.deleteById(account.id);
+      this.accountCacheService.removeByKey(account.id.toString());
+
+      return resultImages;
+    } catch (err) {
+      if (err instanceof VError) {
+        throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      } else {
+        const unableToUpload = await i18n.t('lixi.messages.unableToUpload');
+        const error = new VError.WError(err as Error, unableToUpload);
+        throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
+  @Post('/cf-multiple')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FilesInterceptor('files'))
+  @ApiConsumes('multipart/form-data')
+  async uploadCloudflareMultiple(
+    @UploadedFile('files') files: Array<Express.Multer.File>,
+    @PostAccountEntity() account: Account,
+    @I18n() i18n: I18nContext,
+    @Body() body: any
+  ) {
+    try {
+      const { type, imageUploadableId } = body;
+      if (!account) {
+        const couldNotFindAccount = await i18n.t('lixi.messages.couldNotFindAccount');
+        throw new Error(couldNotFindAccount);
+      }
+
+      const bucket = process.env.AWS_PUBLIC_BUCKET_NAME;
+      let uploads = [];
+
+      const promises = files.map(async (file: MulterFile) => {
+        const buffer = file.buffer;
+        const sha = await hexSha256(buffer);
+        const originalName = file.originalname.replace(/\.[^/.]+$/, '');
+        const fileExtension = extname(file.originalname);
+        const metadata = await sharp(file.buffer).metadata();
+        const createImageRequest: Requests.CreateImage = {
+          fileName: file.originalname,
+          metadata: {
+            width: metadata.width,
+            height: metadata.height
+          },
+          requireSignedURLs: false
+        };
+        const createImageResponse = await this.cloudflareService.createImageFromBuffer(createImageRequest, buffer);
+
+        return {
+          sha: sha,
+          originalFilename: originalName,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          extension: fileExtension,
+          type: type,
+          bucket: bucket,
+          width: metadata.width,
+          height: metadata.height,
+          cfImageId: createImageResponse.result.id,
+          cfImageFilename: createImageResponse.result.filename
+        };
+      });
+
+      uploads = await Promise.all(promises);
+
+      //Bypass because prisma doesn't return records after create many
+      //https://github.com/prisma/prisma/issues/8131
+      const resultImages = await this.prisma.$transaction(
+        uploads.map(upload =>
+          this.prisma.upload.create({
+            data: {
+              ...upload
+            }
+          })
+        )
+      );
+
+      this.accountCacheService.removeByKey(account.id.toString());
 
       return resultImages;
     } catch (err) {

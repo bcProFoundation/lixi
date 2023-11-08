@@ -51,6 +51,7 @@ const initialState: AccountsState = accountsAdapter.getInitialState({
   pageAvatarUpload: null,
   pageCoverUpload: null,
   postCoverUploads: [],
+  productImageUploads: [],
   editorCache: null,
   leaderBoard: [],
   transactionReady: true,
@@ -177,6 +178,7 @@ export const accountReducer = createReducer(initialState, builder => {
     })
     .addCase(removeAllUpload, (state, action) => {
       state.postCoverUploads.length = 0;
+      state.productImageUploads.length = 0;
     })
     .addCase(removeAllMessageUpload, (state, action) => {
       state.messageUploads.length = 0;

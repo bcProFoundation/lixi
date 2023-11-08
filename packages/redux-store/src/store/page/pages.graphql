@@ -1,5 +1,6 @@
 # import PageOrder from '/packages/app-lixi-api/schema.graphql'
 # import PageInfoFields from '../../graphql/fragments/page-info-fields.fragment.graphql'
+# import BasicPageInfoFields from '../../graphql/fragments/basic-page-info-fields.fragment.graphql'
 
 query Page($id: String!) {
   page(id: $id) {
@@ -12,11 +13,9 @@ query Pages(
   $before: String
   $first: Int = 20
   $last: Int
-  $orderBy: [PageOrder!]
-  $query: String
   $skip: Int
 ) {
-  allPages(after: $after, before: $before, first: $first, last: $last, orderBy: $orderBy, query: $query, skip: $skip) {
+  allPages(after: $after, before: $before, first: $first, last: $last, skip: $skip) {
     totalCount
     edges {
       cursor
@@ -25,26 +24,41 @@ query Pages(
       }
     }
     pageInfo {
-      ...PageInfoFields
+      ...BasicPageInfoFields
+    }
+  }
+}
+
+query PagesByFollower(
+  $after: String
+  $first: Int = 20
+) {
+  pagesByFollower(
+    after: $after
+    first: $first
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...PageFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
     }
   }
 }
 
 query PagesByUserId(
   $after: String
-  $before: String
   $first: Int = 20
-  $last: Int
-  $orderBy: PageOrder
   $id: Int
   $skip: Int
 ) {
   allPagesByUserId(
     after: $after
-    before: $before
     first: $first
-    last: $last
-    orderBy: $orderBy
     id: $id
     skip: $skip
   ) {
@@ -56,7 +70,7 @@ query PagesByUserId(
       }
     }
     pageInfo {
-      ...PageInfoFields
+      ...BasicPageInfoFields
     }
   }
 }
@@ -93,6 +107,10 @@ fragment PageFields on Page {
     danaBurnUp
     danaBurnDown
     danaBurnScore
+    danaReceivedUp
+    danaReceivedDown
+    danaReceivedScore
+    version
   }
   totalBurnForPage
   followersCount

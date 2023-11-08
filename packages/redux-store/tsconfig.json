@@ -22,12 +22,23 @@
     /* Experimental Options */
     "experimentalDecorators": true /* Enables experimental support for ES7 decorators. */,
     // "emitDecoratorMetadata": true /* Enables experimental support for emitting type metadata for decorators. */,
-    "lib": ["ES2021", "dom", "dom.iterable", "esnext"],
-    "types": ["node"],
-    "typeRoots": ["node_modules/@types", "src/types"],
+    "lib": [
+      "ES2021",
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "types": [
+      "node"
+    ],
+    "typeRoots": [
+      "node_modules/@types",
+      "src/types"
+    ],
     "jsx": "preserve",
     "moduleResolution": "node",
-    "isolatedModules": true
+    "isolatedModules": true,
+    "noErrorTruncation": true
   },
   "references": [
     {
@@ -43,7 +54,14 @@
       "path": "../app-lotus-temple/tsconfig.json"
     }
   ],
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"],
-  "typeRoots": ["./src/@types", "./node_modules/@types"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "typeRoots": [
+    "./src/@types",
+    "./node_modules/@types"
+  ]
 }

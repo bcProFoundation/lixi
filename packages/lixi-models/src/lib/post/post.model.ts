@@ -10,9 +10,10 @@ import { UploadDetail } from '../upload';
 
 import { PostDana } from './post-dana.model';
 import { Repost } from './repost.model';
+import { ICommentableTo } from '../comment';
 
 @ObjectType()
-export class Post {
+export class Post implements ICommentableTo {
   @Field(() => ID)
   id: string;
 
@@ -87,8 +88,26 @@ export class Post {
   @Field(() => [PostTranslation], { nullable: true })
   translations?: Nullable<PostTranslation[]>;
 
+  @Field(() => String, { nullable: true })
+  commentableId?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  bookmarkableId?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  taggableId?: Nullable<string>;
+
   @Field(() => Float, { nullable: true })
   danaViewScore?: Nullable<number>;
+
+  @Field(() => String, { nullable: true })
+  avatarImageUplodableId?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  coverImageUplodableId?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  imageUploadableId?: Nullable<string>;
 
   @IsOptional()
   @Field(() => PostDana, { nullable: true })

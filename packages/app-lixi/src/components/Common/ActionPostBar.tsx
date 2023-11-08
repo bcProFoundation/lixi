@@ -236,7 +236,7 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
         <Tooltip title={`${intl.get('post.danaViewScore')}: ${roundDanaViewScore}`}>
           <Space style={{ padding: '8px' }} className="dana-view-score" size={5}>
             <BarChartOutlined />
-            <Counter isShowXPI={false} num={roundDanaViewScore} />
+            <Counter numberAbbreviation={true} isShowXPI={false} num={roundDanaViewScore} />
           </Space>
         </Tooltip>
       </GroupIconText>

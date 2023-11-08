@@ -91,7 +91,7 @@ export function useInfinitePendingPageMessageSessionByPageId(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allPendingPageMessageSessionByPageId?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allPendingPageMessageSessionByPageId?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

@@ -1,3 +1,4 @@
+export * from './page-dana.model';
 export * from './page.model';
 export * from './page-dana.model';
 export * from './page.dto';

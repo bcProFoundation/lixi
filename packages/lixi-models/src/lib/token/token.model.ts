@@ -65,6 +65,9 @@ export class Token {
   @Field(() => Boolean, { nullable: true })
   isFollowed?: Nullable<boolean>;
 
+  @Field(() => Number, { nullable: true })
+  followersCount?: Nullable<number>;
+
   @IsOptional()
   @Field(() => TokenDana, { nullable: true })
   tokenDana?: Nullable<TokenDana>;

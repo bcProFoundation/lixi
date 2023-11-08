@@ -25,8 +25,9 @@
     "noImplicitAny": false,
     "composite": true,
     "incremental": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
   },
+  "noErrorTruncation": true,
   "references": [
     {
       "path": "../redux-store/tsconfig.json"

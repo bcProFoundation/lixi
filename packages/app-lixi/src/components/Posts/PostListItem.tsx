@@ -24,6 +24,7 @@ import { Waypoint } from 'react-waypoint';
 import styled from 'styled-components';
 import { EditPostModalProps } from './EditPostModalPopup';
 import PostContent from './PostContent';
+import { setSelectedPost } from '@store/post/actions';
 
 export const CommentList = ({ comments }: { comments: CommentItem[] }) => (
   <List
@@ -193,20 +194,6 @@ const Content = styled.div`
         object-fit: cover;
       }
     }
-  }
-`;
-
-const ActionBar = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  align-self: center;
-  padding: 8px 0;
-  width: 96%;
-  border-top: 1px solid #efeeef;
-  button {
-    margin-right: 1rem;
-    border-radius: var(--border-radius-primary);
   }
 `;
 
@@ -421,7 +408,7 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
             onEditPostClick={editPost}
             postEdited={post.createdAt !== post.updatedAt}
             isDropdown={true}
-            danaBurnScore={post.danaBurnScore}
+            danaBurnScore={post.postDana.danaReceivedScore}
             followPostOwner={post.followPostOwner}
             followedPage={post.followedPage}
             followedToken={post.followedToken}

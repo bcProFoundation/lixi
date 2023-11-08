@@ -1,5 +1,5 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit, forwardRef } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { TokenSigner, TokenVerifier, decodeToken } from 'jsontokens';
 import { I18n, I18nService } from 'nestjs-i18n';
@@ -18,18 +18,18 @@ const wif = require('wif');
 export class AuthService implements OnModuleInit {
   private logger: Logger = new Logger(AuthService.name);
 
-  private accountCacheService!: AccountCacheService;
+  // private accountCacheService!: AccountCacheService;
 
   constructor(
+    @Inject(forwardRef(() => AccountCacheService)) private accountCacheService: AccountCacheService,
     private prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis,
     @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
-    @I18n() private i18n: I18nService,
-    private moduleRef: ModuleRef
+    @I18n() private i18n: I18nService // private moduleRef: ModuleRef
   ) {}
 
   onModuleInit() {
-    this.accountCacheService = this.moduleRef.get(AccountCacheService);
+    // this.accountCacheService = this.moduleRef.get(AccountCacheService);
   }
 
   /**
@@ -64,7 +64,7 @@ export class AuthService implements OnModuleInit {
           publicKey: publicKey
         }
       });
-      await this.accountCacheService.deleteById(account.id);
+      await this.accountCacheService.removeByKey(account.id.toString());
     }
 
     const dataToSign = {
@@ -83,10 +83,10 @@ export class AuthService implements OnModuleInit {
       const tokenDecoded = decodeToken(token);
       const { id } = JSON.parse(tokenDecoded.payload as string);
 
-      const accountCacheService = await this.moduleRef.resolve(AccountCacheService);
+      // const accountCacheService = await this.moduleRef.resolve(AccountCacheService);
 
       // Find the account with cache
-      const account = await accountCacheService.getById(id);
+      const account = await this.accountCacheService.getById(id);
       let url;
       if (account && (account as any)?.avatar) {
         const avatar = (account as any)?.avatar;
@@ -97,7 +97,8 @@ export class AuthService implements OnModuleInit {
 
       if (!account) throw new Error('Invalid account');
 
-      const verified = await new TokenVerifier('ES256K', account.publicKey).verifyAsync(token);
+      const { publicKey } = account;
+      const verified = await new TokenVerifier('ES256K', publicKey || '').verifyAsync(token);
 
       if (verified) {
         return {

@@ -1,0 +1,104 @@
+# import Product from '/packages/app-lixi-api/schema.graphql'
+# import PageInfoFields from '../../graphql/fragments/page-info-fields.fragment.graphql'
+
+query Product($id: String!) {
+  product(id: $id) {
+    ...ProductFields
+  }
+}
+
+query Products(
+  $after: String
+  $before: String
+  $first: Int = 20
+  $last: Int
+  $orderBy: ProductOrder
+  $query: String
+  $skip: Int
+) {
+  allProducts(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    orderBy: $orderBy
+    query: $query
+    skip: $skip
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...ProductFields
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
+    }
+  }
+}
+
+query ProductsByPageId(
+  $after: String
+  $before: String
+  $first: Int = 20
+  $last: Int
+  $orderBy: ProductOrder
+  $id: String
+  $skip: Int
+  $minBurnFilter: Int
+) {
+  allProductsByPageId(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    orderBy: $orderBy
+    id: $id
+    skip: $skip
+    minBurnFilter: $minBurnFilter
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...ProductFields
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
+    }
+  }
+}
+
+fragment ProductFields on Product {
+  id
+  page {
+    id
+    name
+    pageAccountId
+  }
+  name
+  price
+  priceUnit
+  phoneNumber
+  title
+  categoryId
+  description
+  imageUploadableId
+  createdAt
+  updatedAt
+}
+
+mutation createProduct($input: CreateProductInput!) {
+  createProduct(data: $input) {
+    ...ProductFields
+  }
+}
+
+
+mutation deleteProduct($input: DeleteProductInput!) {
+  deleteProduct(data: $input) {
+    ...ProductFields
+  }
+}

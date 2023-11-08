@@ -1,24 +1,22 @@
-import { Account, CreateTokenInput, Token, TokenConnection, TokenOrder } from '@bcpros/lixi-models';
+import { Account, CreateTokenInput, Token, TokenConnection, TokenDana, TokenOrder } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { ChronikClient } from 'chronik-client';
-import { PubSub } from 'graphql-subscriptions';
 import { Redis } from 'ioredis';
 import moment from 'moment';
 import { I18n, I18nContext, I18nService } from 'nestjs-i18n';
 import { connectionFromArraySlice } from 'src/common/custom-graphql-relay/arrayConnection';
 import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
 import SortedItemRepository from 'src/common/redis/sorted-repository';
+import { AccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { GqlJwtAuthGuard } from 'src/modules/auth/guards/gql-jwtauth.guard';
 import VError from 'verror';
-import { PrismaService } from '../prisma/prisma.service';
-import { AccountEntity } from 'src/decorators';
 import { FollowCacheService } from '../account/follow-cache.service';
-
-const pubSub = new PubSub();
+import { PrismaService } from '../prisma/prisma.service';
+import TokenLoader from './token.loader';
 
 @SkipThrottle()
 @Resolver(() => Token)
@@ -28,16 +26,12 @@ export class TokenResolver {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly tokenLoader: TokenLoader,
     private readonly followCacheService: FollowCacheService,
     @InjectRedis() private readonly redis: Redis,
     @I18n() private readonly i18n: I18nService,
     @InjectChronikClient('xec') private chronik: ChronikClient
-  ) {}
-
-  @Subscription(() => Token)
-  tokenCreated() {
-    return pubSub.asyncIterator('tokenCreated');
-  }
+  ) { }
 
   @Query(() => Token)
   @UseGuards(GqlJwtAuthGuard)
@@ -153,5 +147,15 @@ export class TokenResolver {
       }
     }
     return null as any;
+  }
+
+  @ResolveField('followersCount', () => Number)
+  async followersCount(@Parent() page: Token) {
+    return this.tokenLoader.batchFollowersCount.load(page.id);
+  }
+
+  @ResolveField('tokenDana', () => TokenDana)
+  async tokenDana(@Parent() token: Token) {
+    return this.tokenLoader.batchTokenDanas.load(token.id);
   }
 }

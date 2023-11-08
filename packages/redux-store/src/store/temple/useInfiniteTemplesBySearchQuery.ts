@@ -88,7 +88,7 @@ export function useInfiniteTemplesBySearchQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allTempleBySearch?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allTempleBySearch?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

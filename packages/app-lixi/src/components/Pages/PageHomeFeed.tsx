@@ -1,11 +1,11 @@
 import { DEFAULT_CATEGORY } from '@bcpros/lixi-models/constants/category';
 import { AuthorizationContext } from '@context/index';
-import { OrderDirection, PageOrderField } from '@generated/types.generated';
 import { getSelectedAccountId } from '@store/account/selectors';
 import { getCategories } from '@store/category/actions';
 import { getAllCategories } from '@store/category/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
+import { usePagesByUserIdQuery } from '@store/page/pages.generated';
 import { useInfinitePagesByFollowerIdQuery } from '@store/page/useInfinitePagesByFollowerIdQuery';
 import { useInfinitePagesByUserIdQuery } from '@store/page/useInfinitePagesByUserIdQuery';
 import { useInfinitePagesQuery } from '@store/page/useInfinitePagesQuery';
@@ -15,8 +15,8 @@ import React, { useContext, useEffect, useRef } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
-import { usePagesByUserIdQuery } from '@store/page/pages.generated';
 import useAuthorization from '../Common/Authorization/use-authorization.hooks';
+import { PageQueryItem } from '@generated/index';
 
 const StyledPageFeed = styled.div`
   margin: 1rem auto;
@@ -91,7 +91,7 @@ const YourPageContainer = styled.div`
     letter-spacing: 0.5px;
     color: rgba(30, 26, 29, 0.6);
   }
-  @media (max-width: 9608px) {
+  @media (max-width: 960px) {
     .container-img {
       img {
         width: 100% !important;
@@ -274,17 +274,7 @@ const PageHome = () => {
 
   const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } = useInfinitePagesQuery(
     {
-      first: 20,
-      orderBy: [
-        {
-          direction: OrderDirection.Desc,
-          field: PageOrderField.DanaBurnScore
-        },
-        {
-          direction: OrderDirection.Desc,
-          field: PageOrderField.TotalPostsBurnScore
-        }
-      ]
+      first: 20
     },
     false
   );
@@ -309,9 +299,8 @@ const PageHome = () => {
     isFetching: pageFollowingsIsFetching
   } = useInfinitePagesByFollowerIdQuery(
     {
-      first: 20,
       id: selectedAccountId,
-      pagesOnly: true
+      first: 20
     },
     false
   );
@@ -321,15 +310,15 @@ const PageHome = () => {
     return intl.get('category.' + categoryLang);
   };
 
-  const mapPageItem = (pageItem, index?: number) => {
+  const mapPageItem = (pageItem: PageQueryItem, index?: number) => {
     let newItemObj: CardPageItem = {
       index: index + 1,
       id: pageItem?.id,
       name: pageItem?.name,
       avatar: pageItem?.avatar,
       cover: pageItem?.cover,
-      totalBurnForPage: pageItem?.totalBurnForPage,
-      category: pageItem.categoryId ? getCategoryName(pageItem.categoryId) : getCategoryName(DEFAULT_CATEGORY)
+      totalBurnForPage: pageItem?.pageDana?.danaReceivedScore,
+      category: pageItem?.categoryId ? getCategoryName(pageItem.categoryId) : getCategoryName(DEFAULT_CATEGORY)
     };
     return newItemObj;
   };
@@ -347,9 +336,13 @@ const PageHome = () => {
   };
 
   const loadMorePageFollowings = () => {
+    console.log('loadMorePageFollowings');
+
     if (pageFollowingsHasNext && !pageFollowingsIsFetching) {
+      console.log(`pageFollowingsHasNext:1:${pageFollowingsHasNext}`);
       pageFollowingsFetchNext();
     } else if (pageFollowingsHasNext) {
+      console.log(`pageFollowingsHasNext:2:${pageFollowingsHasNext}`);
       pageFollowingsFetchNext();
     }
   };
@@ -446,10 +439,9 @@ const PageHome = () => {
                     scrollableTarget="scrollableDiv"
                   >
                     {pageFollowings.map((item, index) => {
-                      const { page } = item;
                       return (
                         <React.Fragment key={index}>
-                          <CardPageItem item={mapPageItem(page)} onClickItem={id => routerPageDetail(id)} />
+                          <CardPageItem item={mapPageItem(item, index)} onClickItem={id => routerPageDetail(id)} />
                         </React.Fragment>
                       );
                     })}

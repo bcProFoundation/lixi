@@ -11,15 +11,17 @@ import { POST_FANOUT_QUEUE } from './constants/post.constants';
 import { Burn, Post } from '@bcpros/lixi-prisma';
 import { FollowCacheService } from '../account/follow-cache.service';
 import ReBloom from '../../common/redis/redis-bloom';
+import { PostCacheService } from './post-cache.service';
 
 @Injectable()
 @Processor(POST_FANOUT_QUEUE, { concurrency: 50 })
 export class PostFanoutProcessor extends WorkerHost {
   private logger: Logger = new Logger(this.constructor.name);
 
-  static inNetworkSourceKey = 'timeline:innetworksource';
+  static inNetworkSourceKey = 'timeline:innetwork:source';
 
   constructor(
+    private readonly postCacheService: PostCacheService,
     private readonly followCacheService: FollowCacheService,
     @InjectRedis() private readonly redis: Redis,
     @I18n() private readonly i18n: I18nService
@@ -61,16 +63,15 @@ export class PostFanoutProcessor extends WorkerHost {
       // Update dana view score and view for the post user
       await reBloom.add(postviewBfKey, id);
 
-      const pipeline = this.redis.pipeline();
-
       // Clear the post from cache
-      const hashPrefix = `posts:item-data`;
-      pipeline.hdel(hashPrefix, id);
+      await this.postCacheService.removeByKeys([id]);
 
+      const pipeline = this.redis.pipeline();
       // Update score for innetwork
+      const timelineId = `post:${id}`;
       for (const follower of followers) {
         const keyInNetwork = `${PostFanoutProcessor.inNetworkSourceKey}:${follower}`;
-        pipeline.zincrby(keyInNetwork, score, id);
+        pipeline.zincrby(keyInNetwork, score, timelineId);
       }
 
       await pipeline.exec();

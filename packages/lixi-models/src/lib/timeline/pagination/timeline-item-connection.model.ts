@@ -1,7 +1,7 @@
 import { ObjectType } from '@nestjs/graphql';
 
-import { Paginated } from '../../../core';
+import { BasicPaginated } from '../../../core';
 import { TimelineItem } from '../timeline-item.model';
 
 @ObjectType()
-export class TimelineItemConnection extends Paginated(TimelineItem) {}
+export class TimelineItemConnection extends BasicPaginated(TimelineItem) {}

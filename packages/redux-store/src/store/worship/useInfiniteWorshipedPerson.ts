@@ -88,7 +88,7 @@ export function useInfiniteWorshipedPerson(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allWorshipedPerson?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allWorshipedPerson?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

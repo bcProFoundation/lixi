@@ -6,7 +6,7 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { ACCOUNT_DANA_QUEUE } from './burn.constants';
 import { AccountDanaHistoryType, BurnType as BurnTypePrisma } from '@bcpros/lixi-prisma';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
-import { BurnCommand, BurnType } from '@bcpros/lixi-models';
+import { AccountDana, BurnCommand, BurnType } from '@bcpros/lixi-models';
 import { AccountDanaCacheService } from '../../account/account-dana-cache.service';
 
 @Injectable()
@@ -34,7 +34,7 @@ export class AccountDanaProcessor extends WorkerHost {
 
       //Check if self burn
       if (givenDanaAddress === receivedDanaAddress) {
-        const accountDana = await this.prisma.accountDana.findFirst({
+        const accountDanaDb = await this.prisma.accountDana.findFirst({
           where: {
             account: {
               address: givenDanaAddress
@@ -55,17 +55,27 @@ export class AccountDanaProcessor extends WorkerHost {
               break;
           }
 
-          const danaGiven = accountDana?.danaGiven! + amount;
+          const danaGiven = accountDanaDb?.danaGiven! + amount;
 
           const updatedAccountDana = await prisma.accountDana.update({
             where: {
-              id: accountDana?.id
+              id: accountDanaDb?.id,
+              version: accountDanaDb?.version
             },
             data: {
-              danaGiven: danaGiven
+              danaGiven: danaGiven,
+              version: {
+                increment: 1
+              }
             }
           });
 
+          if (!updatedAccountDana) throw new Error('Unable to update account dana');
+
+          const accountDana = new AccountDana({
+            ...updatedAccountDana
+          });
+          await this.accountDanaCacheService.setAccountDana(accountDana.accountId, accountDana);
           await prisma.accountDanaHistory.create({
             data: {
               txid: txid,
@@ -83,10 +93,6 @@ export class AccountDanaProcessor extends WorkerHost {
             }
           });
         });
-
-        if (accountDana && accountDana?.accountId) {
-          await this.accountDanaCacheService.incrDanaGivenBy(accountDana?.accountId, amount);
-        }
       } else {
         const givenAccountDana = await this.prisma.accountDana.findFirst({
           where: {
@@ -126,12 +132,18 @@ export class AccountDanaProcessor extends WorkerHost {
 
           const updatedGivenAccountDana = await prisma.accountDana.update({
             where: {
-              id: givenAccountDana?.id
+              id: givenAccountDana?.id,
+              version: givenAccountDana?.version
             },
             data: {
-              danaGiven: danaGiven
+              danaGiven: danaGiven,
+              version: {
+                increment: 1
+              }
             }
           });
+
+          if (givenAccountDana && !updatedGivenAccountDana) throw new Error('Unable to update account dana');
 
           await prisma.accountDanaHistory.create({
             data: {
@@ -157,12 +169,18 @@ export class AccountDanaProcessor extends WorkerHost {
 
           const updatedRecivedAccountDana = await prisma.accountDana.update({
             where: {
-              id: receivedAccountDana?.id
+              id: receivedAccountDana?.id,
+              version: receivedAccountDana?.version
             },
             data: {
-              danaReceived: danaReceived
+              danaReceived: danaReceived,
+              version: {
+                increment: 1
+              }
             }
           });
+
+          if (receivedAccountDana && !updatedRecivedAccountDana) throw new Error('Unable to update account dana');
 
           await prisma.accountDanaHistory.create({
             data: {
@@ -180,15 +198,18 @@ export class AccountDanaProcessor extends WorkerHost {
               receivedDownValue: receivedDownValue
             }
           });
-        });
 
-        if (givenAccountDana && givenAccountDana?.accountId) {
-          await this.accountDanaCacheService.incrDanaGivenBy(givenAccountDana?.accountId, amount);
-        }
-        if (receivedAccountDana && receivedAccountDana?.accountId) {
-          const value = command.burnType == BurnType.Up ? amount : -1 * amount;
-          await this.accountDanaCacheService.incrDanaReceivedBy(receivedAccountDana?.accountId, value);
-        }
+          const givenAccDana = new AccountDana({
+            ...updatedGivenAccountDana
+          });
+          const receivedAccDana = new AccountDana({
+            ...updatedRecivedAccountDana
+          });
+          await Promise.all([
+            this.accountDanaCacheService.setAccountDana(givenAccDana.accountId, givenAccDana),
+            this.accountDanaCacheService.setAccountDana(receivedAccDana.accountId, receivedAccDana)
+          ]);
+        });
       }
     } catch (error) {
       this.logger.error(error);

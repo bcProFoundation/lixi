@@ -3,7 +3,6 @@ import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Account } from '../account';
-import { Post } from '../post';
 
 import { CommentDana } from './comment-dana.model';
 
@@ -30,8 +29,8 @@ export class Comment {
   @Field(() => String)
   commentToId: string;
 
-  @Field(() => Post)
-  commentTo: Post;
+  @Field(() => String, { nullable: true })
+  commentableId?: Nullable<string>;
 
   @Field(() => String)
   commentText: string;
@@ -58,4 +57,8 @@ export class Comment {
     description: 'Identifies the date and time when the object was last updated.'
   })
   updatedAt: Date;
+
+  constructor(partial: Partial<Comment>) {
+    Object.assign(this, partial);
+  }
 }

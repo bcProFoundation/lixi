@@ -89,7 +89,7 @@ export function useInfiniteHashtagByPageQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allHashtagByPage?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allHashtagByPage?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

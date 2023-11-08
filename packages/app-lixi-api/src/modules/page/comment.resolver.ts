@@ -25,6 +25,7 @@ import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtau
 import { PrismaService } from '../prisma/prisma.service';
 import { AccountCacheService } from '../account/account-cache.service';
 import { XPIJS } from '../wallet/wallet.constants';
+import { CommentCacheService } from './comment-cache.service';
 
 const pubSub = new PubSub();
 
@@ -39,7 +40,8 @@ export class CommentResolver {
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @Inject(XPIJS) private XPI: BCHJS,
     private readonly notificationService: NotificationService,
-    private readonly accountCacheService: AccountCacheService
+    private readonly accountCacheService: AccountCacheService,
+    private readonly commentCacheService: CommentCacheService
   ) {}
 
   @Subscription(() => Comment)
@@ -49,10 +51,23 @@ export class CommentResolver {
 
   @Query(() => Comment)
   async comment(@Args('id', { type: () => String }) id: string) {
-    return this.prisma.comment.findUnique({
-      where: { id: id }
-    });
+    return await this.commentCacheService.getById(id);
   }
+
+  @Query(() => CommentConnection)
+  @UseGuards(GqlJwtAuthGuardByPass)
+  async allCommentsToCommentableId(
+    @PostAccountEntity() account: Account,
+    @Args() { after, before, first, last }: PaginationArgs,
+    @Args({ name: 'id', type: () => String, nullable: true })
+    id: string,
+    @Args({
+      name: 'orderBy',
+      type: () => CommentOrder,
+      nullable: true
+    })
+    orderBy: CommentOrder
+  ) {}
 
   @Query(() => CommentConnection)
   @UseGuards(GqlJwtAuthGuardByPass)
@@ -95,36 +110,6 @@ export class CommentResolver {
                 ]
               }
             ]
-          : []),
-        ...(account && account.id
-          ? [
-              {
-                AND: [
-                  { commentToId: id },
-                  {
-                    commentTo: {
-                      postAccountId: account.id
-                    }
-                  }
-                ]
-              }
-            ]
-          : []),
-        ...(account && account.id
-          ? [
-              {
-                AND: [
-                  { commentToId: id },
-                  {
-                    commentTo: {
-                      page: {
-                        pageAccountId: account.id
-                      }
-                    }
-                  }
-                ]
-              }
-            ]
           : [])
       ]
     };
@@ -132,7 +117,7 @@ export class CommentResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.comment.findMany({
-          include: { commentAccount: true, commentTo: true },
+          include: { commentAccount: true },
           where: queryComments,
           orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
           ...args
@@ -160,9 +145,7 @@ export class CommentResolver {
       const commentToSave = {
         commentText: commentText,
         commentAccount: { connect: { id: account.id } },
-        commentTo: {
-          connect: { id: commentToId }
-        }
+        commentToId: commentToId
       };
 
       const post = await this.prisma.post.findFirst({
@@ -201,9 +184,6 @@ export class CommentResolver {
             ...commentToSave,
             txid: txid,
             createFee: createFee
-          },
-          include: {
-            commentTo: true
           }
         });
 

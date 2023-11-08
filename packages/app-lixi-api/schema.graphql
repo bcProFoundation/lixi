@@ -45,13 +45,19 @@ type AccountConnection {
 }
 
 type AccountDana {
+  account: Account!
   accountDanaHistory: [AccountDanaHistory!]
+  accountId: Int!
   danaBurnDown: Float!
   danaBurnScore: Float!
   danaBurnUp: Float!
   danaGiven: Float
   danaReceived: Float
+  danaReceivedDown: Float!
+  danaReceivedScore: Float!
+  danaReceivedUp: Float!
   id: ID!
+  version: Int!
 }
 
 type AccountDanaHistory {
@@ -82,46 +88,26 @@ type Balances {
   totalBalanceInSatoshis: String!
 }
 
+type BasicPageInfo {
+  endCursor: String!
+  hasNextPage: Boolean!
+}
+
 type Bookmark {
   account: Account!
-  bookmarkId: String!
+  bookmarkableId: String!
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime
   id: ID!
-  type: BookmarkType
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
 }
 
-type BookmarkConnection {
-  edges: [BookmarkEdge!]
-  pageInfo: PageInfo!
-  totalCount: Int
-}
-
 type BookmarkEdge {
   cursor: String!
   node: Bookmark!
-}
-
-input BookmarkOrder {
-  direction: OrderDirection!
-  field: BookmarkOrderField!
-}
-
-"""Properties by which message connections can be ordered."""
-enum BookmarkOrderField {
-  createdAt
-  id
-  updatedAt
-}
-
-"""The type of bookmark."""
-enum BookmarkType {
-  COMMENT
-  POST
 }
 
 type Category {
@@ -151,8 +137,8 @@ type Comment {
   commentByPublicKey: String
   commentDana: CommentDana
   commentText: String!
-  commentTo: Post!
   commentToId: String!
+  commentableId: String
   content: String!
 
   """Identifies the date and time when the object was created."""
@@ -173,11 +159,12 @@ type CommentConnection {
 }
 
 type CommentDana {
-  comment: Comment
-  commentId: String
+  comment: Comment!
+  commentId: String!
   danaBurnDown: Float!
   danaBurnScore: Float!
   danaBurnUp: Float!
+  version: Int!
 }
 
 type CommentEdge {
@@ -214,8 +201,8 @@ input CreateAccountInput {
 }
 
 input CreateBookmarkInput {
-  bookmarkId: String!
-  bookmarkType: BookmarkType!
+  accountId: Int!
+  bookmarkableId: String!
 }
 
 input CreateCommentInput {
@@ -272,6 +259,18 @@ input CreatePostInput {
   pureContent: String!
   tokenPrimaryId: String
   uploads: [String!]
+}
+
+input CreateProductInput {
+  categoryId: Int
+  description: String
+  name: String
+  pageId: String
+  phoneNumber: String
+  price: Int!
+  priceUnit: String!
+  title: String
+  uploadImages: [String!]
 }
 
 input CreateTempleInput {
@@ -340,6 +339,11 @@ input DeleteFollowTokenInput {
   tokenId: String!
 }
 
+input DeleteProductInput {
+  id: ID!
+  uploadImages: [String!]
+}
+
 type DistributionModel {
   address: String!
   distributionType: String!
@@ -359,6 +363,49 @@ type EnvelopeModel {
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
+}
+
+type Event {
+  account: Account!
+  accountId: Int!
+  comments: [Comment!]
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  danaViewScore: Float
+  description: String!
+  endDate: DateTime!
+  eventDana: EventDana!
+  eventType: EventType!
+  id: ID!
+  images: [Upload!]
+  location: String
+  name: String!
+  page: Page
+  pageId: String
+  startDate: DateTime!
+  totalComments: Int
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+}
+
+type EventDana {
+  danaBurnDown: Float!
+  danaBurnScore: Float!
+  danaBurnUp: Float!
+  danaReceivedDown: Float!
+  danaReceivedScore: Float!
+  danaReceivedUp: Float!
+  event: Event!
+  eventId: String!
+  version: Int!
+}
+
+"""The type of event."""
+enum EventType {
+  PHYSICAL
+  VIRTUAL
 }
 
 input ExtraArguments {
@@ -408,12 +455,6 @@ type FollowPage {
   updatedAt: DateTime!
 }
 
-type FollowPageConnection {
-  edges: [FollowPageEdge!]
-  pageInfo: PageInfo!
-  totalCount: Int
-}
-
 type FollowPageEdge {
   cursor: String!
   node: FollowPage!
@@ -446,8 +487,12 @@ type HashtagDana {
   danaBurnDown: Float!
   danaBurnScore: Float!
   danaBurnUp: Float!
+  danaReceivedDown: Float!
+  danaReceivedScore: Float!
+  danaReceivedUp: Float!
   hashtag: Hashtag
   hashtagId: String
+  version: Int!
 }
 
 type HashtagEdge {
@@ -606,6 +651,7 @@ type Mutation {
   createPage(data: CreatePageInput!): Page!
   createPageMessageSession(data: CreatePageMessageInput!): PageMessageSession!
   createPost(data: CreatePostInput!): Post!
+  createProduct(data: CreateProductInput!): Product!
   createTemple(data: CreateTempleInput!): Temple!
   createToken(data: CreateTokenInput!): Token!
   createWorship(data: CreateWorshipInput!): Worship!
@@ -614,6 +660,7 @@ type Mutation {
   deleteFollowAccount(data: DeleteFollowAccountInput!): Boolean!
   deleteFollowPage(data: DeleteFollowPageInput!): Boolean!
   deleteFollowToken(data: DeleteFollowTokenInput!): Boolean!
+  deleteProduct(data: DeleteProductInput!): Product!
   importAccount(data: ImportAccountInput!): Account!
   openPageMessageSession(data: OpenPageMessageSessionInput!): PageMessageSession!
   removeBookmark(data: RemoveBookmarkInput!): Bookmark!
@@ -639,11 +686,13 @@ type Page {
   accessMessageFee: Float
   address: String
   avatar: String
+  avatarImageUplodableId: String
   category: Category
   categoryId: Int
   countryId: Int
   countryName: String
   cover: String
+  coverImageUplodableId: String
   createCommentFee: String!
   createPostFee: String!
 
@@ -681,18 +730,27 @@ type Page {
   website: String
 }
 
-type PageConnection {
-  edges: [PageEdge!]
-  pageInfo: PageInfo!
-  totalCount: Int
+type PageBasicConnection {
+  edges: [PageBasicEdge!]!
+  pageInfo: BasicPageInfo!
+  totalCount: Int!
+}
+
+type PageBasicEdge {
+  cursor: String!
+  node: Page!
 }
 
 type PageDana {
   danaBurnDown: Float!
   danaBurnScore: Float!
   danaBurnUp: Float!
-  page: Page
-  pageId: String
+  danaReceivedDown: Float!
+  danaReceivedScore: Float!
+  danaReceivedUp: Float!
+  page: Page!
+  pageId: String!
+  version: Int!
 }
 
 type PageEdge {
@@ -761,24 +819,54 @@ enum PageMessageSessionStatus {
   PENDING
 }
 
-input PageOrder {
-  direction: OrderDirection!
-  field: PageOrderField!
+type Poll {
+  account: Account!
+  accountId: Int!
+  comments: [Comment!]
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  danaViewScore: Float
+  endDate: DateTime!
+  id: ID!
+  images: [Upload!]
+  options: [PollOption!]!
+  page: Page
+  pageId: String
+  pollDana: PollDana!
+  question: String!
+  startDate: DateTime!
+  totalComments: Int
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
 }
 
-"""Properties by which page connections can be ordered."""
-enum PageOrderField {
-  createdAt
-  danaBurnScore
-  id
-  name
-  title
-  totalPostsBurnScore
-  updatedAt
+type PollDana {
+  danaBurnDown: Float!
+  danaBurnScore: Float!
+  danaBurnUp: Float!
+  danaReceivedDown: Float!
+  danaReceivedScore: Float!
+  danaReceivedUp: Float!
+  poll: Poll!
+  pollId: String!
+  version: Int!
+}
+
+type PollOption {
+  danaPoint: Float!
+  id: ID!
+  option: String!
+  pollId: Int!
 }
 
 type Post {
+  avatarImageUplodableId: String
+  bookmarkableId: String
+  commentableId: String
   content: String!
+  coverImageUplodableId: String
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
@@ -790,6 +878,7 @@ type Post {
   followedPage: Boolean
   followedToken: Boolean
   id: ID!
+  imageUploadableId: String
   originalLanguage: String
   page: Page
   pageId: String
@@ -799,9 +888,10 @@ type Post {
   postHashtags: [PostHashtag!]
   repostCount: Int
   reposts: [Repost!]
+  taggableId: String
   token: Token
   tokenId: String
-  totalComments: Int!
+  totalComments: Int
   translations: [PostTranslation!]
 
   """Identifies the date and time when the object was last updated."""
@@ -819,8 +909,12 @@ type PostDana {
   danaBurnDown: Float!
   danaBurnScore: Float!
   danaBurnUp: Float!
-  post: Post
-  postId: String
+  danaReceivedDown: Float!
+  danaReceivedScore: Float!
+  danaReceivedUp: Float!
+  post: Post!
+  postId: String!
+  version: Int!
 }
 
 type PostEdge {
@@ -867,10 +961,58 @@ type PostTranslation {
   updatedAt: DateTime!
 }
 
+type Product {
+  address: String
+  categoryId: String
+  country: Country
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  description: String!
+  id: ID!
+  imageUploadableId: String!
+  name: String!
+  page: Page!
+  phoneNumber: String!
+  price: Int!
+  priceUnit: String!
+  state: State
+  title: String!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+}
+
+type ProductConnection {
+  edges: [ProductEdge!]
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type ProductEdge {
+  cursor: String!
+  node: Product!
+}
+
+input ProductOrder {
+  direction: OrderDirection!
+  field: ProductOrderField!
+}
+
+"""Properties by which page connections can be ordered."""
+enum ProductOrderField {
+  createdAt
+  id
+  lotusBurnScore
+  name
+  title
+  updatedAt
+}
+
 type Query {
   account(id: Int!): Account!
-  allBookmarkByAccountId(accountId: Int!, after: String, before: String, bookmarkType: BookmarkType!, first: Int, last: Int, minBurnFilter: Int, orderBy: BookmarkOrder, skip: Int): BookmarkConnection!
   allClosedPageMessageSession(accountId: Int, after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, pageId: String, skip: Int): PageMessageSessionConnection!
+  allCommentsToCommentableId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: CommentOrder, skip: Int): CommentConnection!
   allCommentsToPostId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: CommentOrder, skip: Int): CommentConnection!
   allFollowersByFollowing(after: String, before: String, first: Int, followingAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
   allFollowingsByFollower(after: String, before: String, first: Int, followerAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
@@ -895,9 +1037,8 @@ type Query {
   allOpenPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allOpenPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
-  allPages(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: [PageOrder!], query: String, skip: Int): PageConnection!
-  allPagesByFollower(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, pagesOnly: Boolean, skip: Int): FollowPageConnection!
-  allPagesByUserId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageOrder, skip: Int): PageConnection!
+  allPages(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): PageBasicConnection!
+  allPagesByUserId(after: String, first: Int, id: Int, skip: Int): PageBasicConnection!
   allPendingPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPendingPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPostsByHashtagId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
@@ -956,6 +1097,8 @@ type Query {
   ): PostConnection!
   allPostsByTokenId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
   allPostsByUserId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: [PostOrder!], skip: Int): PostConnection!
+  allProducts(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: ProductOrder, query: String, skip: Int): ProductConnection!
+  allProductsByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: ProductOrder, skip: Int): ProductConnection!
   allTemple(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: TempleOrder, skip: Int): TempleConnection!
   allTempleBySearch(
     """Paginate after opaque cursor"""
@@ -996,16 +1139,17 @@ type Query {
   checkIfFollowAccount(followingAccountId: Int!): Boolean!
   checkIfFollowPage(pageId: String): Boolean!
   checkIfFollowToken(tokenId: String): Boolean!
-  checkIfHasBookmarked(bookmarkId: String!, bookmarkType: BookmarkType!): Boolean!
   comment(id: String!): Comment!
   getAccountByAddress(address: String!): Account!
   getBalances(address: String!): Balances!
   hashtag(content: String!): Hashtag!
-  homeTimeline(after: String, before: String, first: Int, last: Int, level: Int, minBurnFilter: Int, skip: Int): TimelineItemConnection!
+  homeTimeline(after: String, first: Int, level: Int, skip: Int): TimelineItemConnection!
   message(id: String!): Message!
   page(id: String!): Page!
   pageMessageSession(id: String!): PageMessageSession!
+  pagesByFollower(after: String, first: Int, skip: Int): PageBasicConnection!
   post(id: String!): Post!
+  product(id: String!): Product!
   temple(id: String!): Temple!
   timeline(id: String!): TimelineItem!
   token(tokenId: String!): Token!
@@ -1015,6 +1159,7 @@ type Query {
 }
 
 input RemoveBookmarkInput {
+  accountId: Int!
   bookmarkId: String!
 }
 
@@ -1046,16 +1191,13 @@ type State {
 }
 
 type Subscription {
-  accountCreated: Account!
   bookmarkCreated: Bookmark!
   commentCreated: Comment!
   followAccountCreated: FollowAccount!
   hashtagCreated: Hashtag!
   messageCreated: Message!
-  pageCreated: Page!
   pageMessageSessionCreated: PageMessageSession!
   templeCreated: Temple!
-  tokenCreated: Token!
   worshipedPersonCreated: WorshipedPerson!
 }
 
@@ -1111,22 +1253,22 @@ enum TempleOrderField {
 }
 
 type TimelineItem {
-  data: TimelineItemData
+  data: TimelineItemData!
   id: ID!
 }
 
-type TimelineItemConnection {
-  edges: [TimelineItemEdge!]
-  pageInfo: PageInfo!
-  totalCount: Int
-}
-
-union TimelineItemData = Post
-
-type TimelineItemEdge {
+type TimelineItemBasicEdge {
   cursor: String!
   node: TimelineItem!
 }
+
+type TimelineItemConnection {
+  edges: [TimelineItemBasicEdge!]!
+  pageInfo: BasicPageInfo!
+  totalCount: Int!
+}
+
+union TimelineItemData = Post
 
 type Token {
   """Identifies the date and time when the object was last comments."""
@@ -1138,6 +1280,7 @@ type Token {
   danaBurnScore: Float!
   danaBurnUp: Float!
   decimals: Int!
+  followersCount: Int
   id: ID!
   initialTokenQuantity: String
   isFollowed: Boolean
@@ -1162,8 +1305,12 @@ type TokenDana {
   danaBurnDown: Float!
   danaBurnScore: Float!
   danaBurnUp: Float!
-  token: Token
-  tokenId: String
+  danaReceivedDown: Float!
+  danaReceivedScore: Float!
+  danaReceivedUp: Float!
+  token: Token!
+  tokenId: String!
+  version: Int!
 }
 
 type TokenEdge {

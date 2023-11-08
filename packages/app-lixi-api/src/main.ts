@@ -52,7 +52,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   process.on('uncaughtException', function (err) {
-    console.log(err);
+    console.log(JSON.stringify(err));
   });
 
   const allowedOrigins = _.compact(whitelistOrigins).map(origin => stripTrailingSlash(origin));

@@ -1,18 +1,33 @@
-import _ from 'lodash';
+import { Account, ICommentableTo, Page, Post, PostDana, Repost, UploadDetail } from '@bcpros/lixi-models';
 import { Injectable, Scope } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import DataLoader from 'dataloader';
-import { Page, Post, Repost, UploadDetail } from '@bcpros/lixi-models';
-import { DanaViewScoreService } from './dana-view-score.service';
+import _ from 'lodash';
 import { FollowCacheService } from '../account/follow-cache.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { DanaViewScoreService } from './dana-view-score.service';
+import { PageCacheService } from './page-cache.service';
+import { AccountCacheService } from '../account/account-cache.service';
+import { PostDanaCacheService } from './post-dana-cache.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class PostLoader {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly pageCacheService: PageCacheService,
+    private readonly accountCacheService: AccountCacheService,
     private readonly danaViewScoreService: DanaViewScoreService,
-    private readonly followCacheService: FollowCacheService
-  ) {}
+    private readonly followCacheService: FollowCacheService,
+    private readonly postDanaCacheService: PostDanaCacheService
+  ) { }
+
+  public readonly batchPostDanas = new DataLoader<string, PostDana>(async (ids: readonly string[]) => {
+    const postIds = ids as unknown as string[];
+    const danas = await this.postDanaCacheService.getPostDanas(postIds);
+    const data = postIds.map((postId, index) => {
+      return danas[index] ?? new PostDana({});
+    });
+    return Promise.resolve(data);
+  });
 
   public async getPostsUploadsByBatch(postIds: readonly string[]): Promise<(UploadDetail | any)[]> {
     const ids = postIds as unknown as string[];
@@ -60,70 +75,21 @@ export default class PostLoader {
     return await this.getPostsUploadsByBatch(postIds);
   });
 
-  public readonly batchPages = new DataLoader(async (pageIds: readonly string[]) => {
-    const ids = (pageIds as unknown as string[]) ?? [];
-    const pagesDb = await this.prisma.page.findMany({
-      include: {
-        pageAccount: true,
-        category: true,
-        avatar: true,
-        cover: true
-      },
-      where: {
-        id: {
-          in: ids
-        }
-      }
+  public readonly batchPages = new DataLoader(async (ids: readonly string[]) => {
+    const pageIds = ids as unknown as string[];
+    const pages = await this.pageCacheService.getByIds(pageIds);
+    const pagesMap = new Map(_.compact(pages).map(page => [page.id, page]));
+    const data = ids.map((id, index) => {
+      return pagesMap.get(id) ?? null;
     });
-    const avatarIds = _.compact(pagesDb.map(item => item.avatar?.id));
-    const coverIds = _.compact(pagesDb.map(item => item.cover?.id));
-    const avatarsDb = await this.prisma.uploadDetail.findMany({
-      where: {
-        id: { in: avatarIds }
-      },
-      include: {
-        upload: true
-      }
-    });
-    const avatarsMap = new Map(
-      avatarsDb.map(item => {
-        const { upload } = item;
-        const avatarUrl = `${process.env.CF_IMAGES_DELIVERY_URL}/${process.env.CF_ACCOUNT_HASH}/${upload?.cfImageId}/public`;
-        return [item.id, avatarUrl];
-      })
-    );
+    return Promise.resolve(data);
+  });
 
-    const coversDb = await this.prisma.uploadDetail.findMany({
-      where: {
-        id: { in: coverIds }
-      },
-      include: {
-        upload: true
-      }
-    });
-
-    const coversMap = new Map(
-      coversDb.map(item => {
-        const { upload } = item;
-        const url = `${process.env.CF_IMAGES_DELIVERY_URL}/${process.env.CF_ACCOUNT_HASH}/${upload?.cfImageId}/public`;
-        return [item.id, url];
-      })
-    );
-
-    const pagesMap = new Map(
-      pagesDb.map(item => {
-        const { avatar, cover } = item;
-        const page = new Page({
-          ...item,
-          avatar: avatar?.id ? avatarsMap.get(avatar?.id) : '',
-          cover: cover?.id ? coversMap.get(cover?.id) : ''
-        });
-        return [item.id, page];
-      })
-    );
-
-    const data = pageIds.map(pageId => {
-      return pagesMap.get(pageId) ?? new Error(pageId);
+  public readonly batchAccounts = new DataLoader(async (accountIds: readonly number[]) => {
+    const ids = (accountIds as unknown as number[]) ?? [];
+    const accounts = await this.accountCacheService.getByIds(ids);
+    const data = accountIds.map((accountId, index) => {
+      return accounts[index] ?? new Account({ id: accountId });
     });
     return Promise.resolve(data);
   });

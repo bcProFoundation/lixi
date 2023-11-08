@@ -12,10 +12,7 @@ export class Bookmark {
   account: Account;
 
   @Field(() => String)
-  bookmarkId: string;
-
-  @Field(() => BookmarkType, { nullable: true })
-  type?: BookmarkType;
+  bookmarkableId: string;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.',
@@ -28,6 +25,10 @@ export class Bookmark {
     nullable: true
   })
   updatedAt?: Date;
+
+  constructor(partial: Partial<Bookmark>) {
+    Object.assign(this, partial);
+  }
 }
 
 export enum BookmarkType {
@@ -39,3 +40,12 @@ registerEnumType(BookmarkType, {
   name: 'BookmarkType',
   description: 'The type of bookmark.'
 });
+
+@ObjectType()
+export class Bookmarkable {
+  @Field(() => ID)
+  id: string;
+
+  @Field(() => BookmarkType)
+  type: BookmarkType;
+}

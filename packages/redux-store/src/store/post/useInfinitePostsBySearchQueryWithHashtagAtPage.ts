@@ -8,7 +8,7 @@ import {
 } from '@store/post/posts.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-const postsAdapter = createEntityAdapter<PostQueryItem>({
+const postsAdapter = createEntityAdapter<any>({
   selectId: post => post.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });
@@ -97,7 +97,7 @@ export function useInfinitePostsBySearchQueryWithHashtagAtPage(
     isFetchingQueryNext: nextResult?.isFetching,
     hasNextQuery: baseResult.data?.allPostsBySearchWithHashtagAtPage?.pageInfo?.endCursor !== null,
     noMoreQuery:
-      baseResult.data?.allPostsBySearchWithHashtagAtPage?.pageInfo?.endCursor === null ||
+      !!baseResult.data?.allPostsBySearchWithHashtagAtPage?.pageInfo?.endCursor ||
       baseResult.data?.allPostsBySearchWithHashtagAtPage?.pageInfo?.hasNextPage === false,
     fetchNextQuery,
     refetchQuery

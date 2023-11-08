@@ -1,25 +1,38 @@
-import _ from 'lodash';
+import { Account, AccountDana } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { decode, encode } from '@msgpack/msgpack';
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Redis } from 'ioredis';
+import _ from 'lodash';
+import { CloudflareConfig } from '../../config/config.interface';
+import { toImageUrl } from '../page/page.utils';
 import { PrismaService } from '../prisma/prisma.service';
-import { Account } from '@bcpros/lixi-prisma';
-import ItemRepository from '../../common/redis/repository';
+import { AccountDanaCacheService } from './account-dana-cache.service';
 
 @Injectable()
 export class AccountCacheService {
   private logger: Logger = new Logger(this.constructor.name);
+  private keyPrefix = 'items:accounts:item-data';
+  private deliveryUrl = '';
+  private cfAccountHash = '';
 
-  private accountRepository: ItemRepository<Account>;
-
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {
-    this.accountRepository = new ItemRepository<Account>('accounts', this.redis);
+  constructor(
+    private readonly config: ConfigService,
+    private readonly prisma: PrismaService,
+    private readonly accountDanaCacheService: AccountDanaCacheService,
+    @InjectRedis() private readonly redis: Redis
+  ) {
+    const cloudflareConfig = this.config.get<CloudflareConfig>('cloudflare');
+    this.deliveryUrl = cloudflareConfig?.cfImagesDeliveryUrl ?? '';
+    this.cfAccountHash = cloudflareConfig?.cfAccountHash ?? '';
   }
 
   async getById(id: number) {
-    const account = await this.accountRepository.getById(id);
-    if (_.isNil(account)) {
-      const dbAccount = await this.prisma.account.findUnique({
+    const buffer = await this.redis.hgetBuffer(this.keyPrefix, id.toString());
+    if (!buffer) {
+      // cache miss
+      const dbValue = await this.prisma.account.findUnique({
         where: {
           id: _.toSafeInteger(id)
         },
@@ -36,20 +49,167 @@ export class AccountCacheService {
           }
         }
       });
+      if (!dbValue) return null;
 
-      if (dbAccount) {
-        await this.accountRepository.set(dbAccount, 600);
-      }
-      return dbAccount;
+      const account: Account = new Account({
+        ...dbValue,
+        avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.avatar?.upload),
+        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.cover?.upload)
+      });
+      await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(account)));
+      return account;
     }
+
+    const account = decode(buffer) as Account;
     return account;
   }
 
-  async deleteById(id: number) {
-    await this.accountRepository.deleteById(id);
+  async getByIds(ids: number[]): Promise<Nullable<Account>[]> {
+    if (ids.length === 0) return [];
+
+    const accountsMap = new Map();
+
+    try {
+      const values = await this.redis.hmgetBuffer(this.keyPrefix, ...ids.map(id => id.toString()));
+      const uncachedIds: number[] = [];
+      for (let i = 0; i < ids.length; i++) {
+        if (!values[i]) {
+          uncachedIds.push(_.toSafeInteger(ids[i]));
+        }
+      }
+      _.compact(values).map(value => {
+        const account = decode(value) as Account;
+        accountsMap.set(account.id.toString(), account);
+      });
+
+      const dbValues =
+        uncachedIds.length > 0
+          ? await this.prisma.account.findMany({
+              where: {
+                id: { in: uncachedIds }
+              },
+              include: {
+                avatar: {
+                  include: {
+                    upload: true
+                  }
+                },
+                cover: {
+                  include: {
+                    upload: true
+                  }
+                }
+              }
+            })
+          : [];
+
+      const dbValuesMap = new Map(
+        dbValues.map(dbValue => {
+          const account = new Account({
+            ...dbValue,
+            avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.avatar?.upload),
+            cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.cover?.upload)
+          });
+          accountsMap.set(dbValue.id.toString(), account);
+          const buffer = encode(account);
+          return [dbValue.id.toString(), Buffer.from(buffer)];
+        })
+      );
+
+      if (dbValuesMap.size > 0) {
+        this.redis.hmset(this.keyPrefix, dbValuesMap);
+      }
+    } catch (err) {
+      this.logger.error(err);
+    }
+
+    return ids.map(id => {
+      const account = accountsMap.get(id.toString());
+      return account ? account : null;
+    });
   }
 
-  async set(account: Account, expirationInSeconds: number = 600) {
-    await this.accountRepository.set(account, expirationInSeconds);
+  async getByAddress(address: string): Promise<Nullable<Account>> {
+    const buffer = await this.redis.hgetBuffer(this.keyPrefix, address);
+
+    if (!buffer) {
+      // cache miss
+      const dbValue = await this.prisma.account.findFirst({
+        where: {
+          address: address
+        },
+        include: {
+          avatar: {
+            include: {
+              upload: true
+            }
+          },
+          cover: {
+            include: {
+              upload: true
+            }
+          }
+        }
+      });
+      if (!dbValue) return null;
+
+      const account: Account = new Account({
+        ...dbValue,
+        avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.avatar?.upload),
+        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.cover?.upload)
+      });
+
+      await this.redis.hset(this.keyPrefix, address, Buffer.from(encode(account)));
+      return account;
+    }
+
+    const account = decode(buffer) as Account;
+    return account;
+  }
+
+  async getByMnemonicHash(mnemonicHash: string): Promise<Nullable<Account>> {
+    const buffer = await this.redis.hgetBuffer(this.keyPrefix, mnemonicHash);
+    if (!buffer) {
+      // cache miss
+      const dbValue = await this.prisma.account.findFirst({
+        where: {
+          mnemonicHash: mnemonicHash
+        },
+        include: {
+          avatar: {
+            include: {
+              upload: true
+            }
+          },
+          cover: {
+            include: {
+              upload: true
+            }
+          }
+        }
+      });
+      if (!dbValue) return null;
+
+      const account: Account = new Account({
+        ...dbValue,
+        avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.avatar?.upload),
+        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.cover?.upload)
+      });
+
+      await this.redis.hset(this.keyPrefix, mnemonicHash, Buffer.from(encode(account)));
+
+      return account;
+    }
+
+    const account = decode(buffer) as Account;
+    return account;
+  }
+
+  async removeByKey(key: string) {
+    await this.redis.hdel(this.keyPrefix, key);
+  }
+
+  async removeByKeys(keys: string[]) {
+    await this.redis.hdel(this.keyPrefix, ...keys);
   }
 }

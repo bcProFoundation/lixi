@@ -1,25 +1,20 @@
-import React, { useContext, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import styled from 'styled-components';
-import Icon, { GlobalOutlined, DollarOutlined, ShopOutlined } from '@ant-design/icons';
-import { Avatar, Dropdown, Menu } from 'antd';
-import AvatarUser from './AvatarUser';
-import intl from 'react-intl-universal';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { getSelectedAccount } from '@store/account/selectors';
-import type { MenuProps } from 'antd';
-import { CaretRightOutlined } from '@ant-design/icons';
+import { PostQueryItem } from '@generated/index';
+import Icon, { DollarOutlined, GlobalOutlined, ShopOutlined } from '@ant-design/icons';
 import FollowSvg from '@assets/icons/follow.svg';
-import { currency } from '@components/Common/Ticker';
-import { openActionSheet } from '@store/action-sheet/actions';
 import { PostListType } from '@bcpros/lixi-models/constants';
-import useAuthorization from './Authorization/use-authorization.hooks';
+import { currency } from '@components/Common/Ticker';
 import { AuthorizationContext } from '@context/index';
-import {
-  useCheckIfFollowAccountQuery,
-  useCheckIfFollowPageQuery,
-  useCheckIfFollowTokenQuery
-} from '@store/follow/follows.api';
+import { getSelectedAccount } from '@store/account/selectors';
+import { openActionSheet } from '@store/action-sheet/actions';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import type { MenuProps } from 'antd';
+import { Avatar } from 'antd';
+import { useRouter } from 'next/router';
+import React, { useContext } from 'react';
+import intl from 'react-intl-universal';
+import styled from 'styled-components';
+import useAuthorization from './Authorization/use-authorization.hooks';
+import AvatarUser from './AvatarUser';
 
 type InfoCardProps = {
   imgUrl: any;
@@ -37,7 +32,7 @@ type InfoCardProps = {
   followPostOwner?: boolean;
   followedPage?: boolean;
   followedToken?: boolean;
-  post?: any;
+  post?: PostQueryItem;
   postListType?: PostListType;
 };
 
@@ -196,7 +191,7 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
     authorization.authorized
       ? dispatch(
           openActionSheet('PostActionSheet', {
-            isEditPost: selectedAccount.address === postAccountAddress && post.danaBurnScore === 0,
+            isEditPost: selectedAccount.address === postAccountAddress && post.postDana.danaReceivedScore === 0,
             post: postContent,
             page: page,
             token: token,

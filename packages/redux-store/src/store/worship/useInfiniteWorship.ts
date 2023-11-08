@@ -87,7 +87,7 @@ export function useInfiniteWorship(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allWorship?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allWorship?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

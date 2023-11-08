@@ -1,5 +1,5 @@
-import { Burn, BurnCommand, BurnForType, BurnType, TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models';
-import { NotificationLevel, Token, BurnType as BurnTypePrisma, AccountDanaHistoryType } from '@bcpros/lixi-prisma';
+import { Burn, BurnCommand, BurnForType, BurnType, PostDana, TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models';
+import { NotificationLevel, Token } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -15,14 +15,13 @@ import { NOTIFICATION_TYPES } from 'src/common/modules/notifications/notificatio
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import SortedItemRepository from 'src/common/redis/sorted-repository';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
-import { parseBurnOutput } from 'src/utils/opReturnBurn';
+import { XPIJS } from 'src/modules/wallet/wallet.constants';
 import { VError } from 'verror';
+import { AccountCacheService } from '../../account/account-cache.service';
+import { PostDanaCacheService } from '../../page/post-dana-cache.service';
 import { TranslateProvider } from '../translate/translate.constant';
 import { TranslateService } from '../translate/translate.service';
-import { ACCOUNT_DANA_QUEUE, BURN_FANOUT_QUEUE } from './burn.constants';
-import { AccountCacheService } from '../../account/account-cache.service';
-import { AccountDanaCacheService } from '../../account/account-dana-cache.service';
-import { XPIJS } from 'src/modules/wallet/wallet.constants';
+import { ACCOUNT_DANA_QUEUE, BURN_FANOUT_QUEUE, PAGE_DANA_QUEUE } from './burn.constants';
 
 @SkipThrottle()
 @Controller('burn')
@@ -37,9 +36,10 @@ export class BurnController {
     @Inject(XPIJS) private XPI: BCHJS,
     @InjectQueue(BURN_FANOUT_QUEUE) private burnFanoutQueue: Queue,
     @InjectQueue(ACCOUNT_DANA_QUEUE) private accountDanaQueue: Queue,
+    @InjectQueue(PAGE_DANA_QUEUE) private pageDanaQueue: Queue,
     private translateService: TranslateService,
     private readonly accountCacheService: AccountCacheService,
-    private readonly accountDanaCacheService: AccountDanaCacheService
+    private readonly postDanaCacheService: PostDanaCacheService
   ) {}
 
   private convertBurnedByToAddress(burnedBy: string): string {
@@ -92,7 +92,8 @@ export class BurnController {
             },
             include: {
               page: true,
-              postAccount: true
+              postAccount: true,
+              postDana: true
             }
           });
 
@@ -105,28 +106,55 @@ export class BurnController {
             }
           });
 
-          let danaBurnUp = post?.danaBurnUp ?? 0;
-          let danaBurnDown = post?.danaBurnDown ?? 0;
+          let danaBurnUp = post?.postDana?.danaBurnUp ?? 0;
+          let danaBurnDown = post?.postDana?.danaBurnDown ?? 0;
+          let danaReceivedUp = post?.postDana?.danaReceivedUp ?? 0;
+          let danaReceivedDown = post?.postDana?.danaReceivedDown ?? 0;
           const xpiValue = value;
 
           if (command.burnType == BurnType.Up) {
             danaBurnUp = danaBurnUp + xpiValue;
+            danaReceivedUp = danaReceivedUp + xpiValue;
           } else {
             danaBurnDown = danaBurnDown + xpiValue;
+            danaReceivedDown = danaReceivedDown + xpiValue;
           }
           const danaBurnScore = danaBurnUp - danaBurnDown;
+          const danaReceivedScore = danaReceivedUp - danaReceivedDown;
 
+          // @todo: This is incorrect handle
+          // not prepare for the conflict update
+          // later we should move to each processor to read then update and retry if need
           await this.prisma.$transaction(async prisma => {
-            await prisma.post.update({
+            const newPostDana = await prisma.postDana.upsert({
               where: {
-                id: command.burnForId
+                postId: command.burnForId,
+                version: post?.postDana?.version
               },
-              data: {
+              update: {
+                version: {
+                  increment: 1
+                },
+                danaBurnUp,
+                danaBurnDown,
+                danaBurnScore,
+                danaReceivedUp,
+                danaReceivedDown,
+                danaReceivedScore
+              },
+              create: {
                 danaBurnDown,
                 danaBurnUp,
-                danaBurnScore
+                danaBurnScore,
+                danaReceivedUp,
+                danaReceivedDown,
+                danaReceivedScore,
+                postId: command.burnForId,
+                version: 0
               }
             });
+
+            await this.postDanaCacheService.setPostDana(command.burnForId, new PostDana({ ...newPostDana }));
 
             const burnByAddress = this.convertBurnedByToAddress(command.burnedBy);
 
@@ -166,6 +194,12 @@ export class BurnController {
                   totalPostsBurnDown,
                   totalPostsBurnScore
                 }
+              });
+
+              this.pageDanaQueue.add(PAGE_DANA_QUEUE, {
+                command: command,
+                amount: xpiValue,
+                pageId: post.pageId
               });
             });
           }
@@ -256,31 +290,11 @@ export class BurnController {
               }
             });
 
-            const updatedAccountDana = await prisma.accountDana.update({
-              where: {
-                id: accountDana?.id
-              },
-              data: {
-                danaGiven: danaGiven
-              }
-            });
-            await this.accountDanaCacheService.setDanaGiven(updatedAccountDana.accountId, danaGiven);
-
-            await prisma.accountDanaHistory.create({
-              data: {
-                txid: savedBurn.txid,
-                burnType: command.burnType ? BurnTypePrisma.UPVOTE : BurnTypePrisma.DOWNVOTE,
-                accountDana: {
-                  connect: {
-                    id: updatedAccountDana?.id
-                  }
-                },
-                burnForId: command.burnForId,
-                burnForType: command.burnForType,
-                type: AccountDanaHistoryType.GIVEN,
-                givenUpValue: givenUpValue,
-                givenDownValue: givenDownValue
-              }
+            this.accountDanaQueue.add(ACCOUNT_DANA_QUEUE, {
+              command: command,
+              txid: savedBurn.txid,
+              amount: xpiValue,
+              givenDanaAddress: burnByAddress
             });
 
             return token;
