@@ -284,17 +284,6 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
     }
   ] = useDeleteFollowTokenMutation();
 
-  // useEffect(() => {
-  //   const tokenId = token.id;
-  //   const topHashtags = _.map(hashtagData, 'content');
-  //   const tokenRecentHashtag = recentTagAtToken.find((page: any) => page.id === tokenId);
-  //   const recentHashtags: string[] = tokenRecentHashtag?.hashtags || [];
-
-  //   const combinedHashtags = [...topHashtags, ...recentHashtags.filter(tag => !topHashtags.includes(tag))];
-
-  //   setSuggestedTags(combinedHashtags);
-  // }, [recentTagAtToken, hashtagData]);
-
   const loadMoreItems = () => {
     if (hasNext && !isFetching) {
       fetchNext();

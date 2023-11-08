@@ -4,6 +4,11 @@ import DataLoader from 'dataloader';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { TokenDanaCacheService } from './token-dana-cache.service';
 
+interface ICheckTokenIsFollowedInput {
+  accountId: number;
+  tokenId: string;
+}
+
 @Injectable({ scope: Scope.REQUEST })
 export default class TokenLoader {
   constructor(
@@ -14,18 +19,32 @@ export default class TokenLoader {
   public readonly batchTokenDanas = new DataLoader<string, TokenDana>(async (ids: readonly string[]) => {
     const tokenIds = ids as unknown as string[];
     const danas = await this.tokenDanaCacheService.getTokenDanas(tokenIds);
-    const data = tokenIds.map((tokenId, index) => {
+    return tokenIds.map((tokenId, index) => {
       return danas[index] ?? new TokenDana({});
     });
-    return Promise.resolve(data);
   });
 
   public readonly batchFollowersCount = new DataLoader<string, number>(async (ids: readonly string[]) => {
     const tokenIds = ids as unknown as string[];
     const tokenFollowersCounts = await this.followCacheService.getTokenFollowersCounts(tokenIds);
-    const data = tokenIds.map((tokenId, index) => {
+    return tokenIds.map((tokenId, index) => {
       return tokenFollowersCounts[index] ?? 0;
     });
-    return Promise.resolve(data);
   });
+
+  public readonly batchIsFollowed = new DataLoader(
+    async (checkFollowArr: readonly ICheckTokenIsFollowedInput[]) => {
+      const tokenIds = checkFollowArr.map(input => input.tokenId);
+      const accountId = checkFollowArr && checkFollowArr.length > 0 ? checkFollowArr[0].accountId : 0;
+      const checkTokenIsFollowed = await this.followCacheService.checkAccountFollowAllToken(accountId, tokenIds);
+      return checkFollowArr.map((checkFollow, index) => {
+        return checkTokenIsFollowed[index] ?? false;
+      });
+    },
+    {
+      cacheKeyFn: (input: ICheckTokenIsFollowedInput) => {
+        return `${input.accountId}:${input.tokenId}`;
+      }
+    }
+  );
 }

@@ -13,28 +13,27 @@ import {
   ViewClaimDto
 } from '@bcpros/lixi-models';
 import { PageMessageSessionStatus } from '@bcpros/lixi-prisma';
-import MinimalBCHWallet from '@bcpros/minimal-xpi-slp-wallet';
 import BCHJS from '@bcpros/xpi-js';
 import { Body, Controller, Get, Headers, HttpException, HttpStatus, Inject, Logger, Param, Post } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SkipThrottle } from '@nestjs/throttler';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
+import { ChronikClient } from 'chronik-client';
 import geoip from 'geoip-country';
 import * as _ from 'lodash';
 import moment from 'moment';
 import { I18n, I18nContext } from 'nestjs-i18n';
+import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
+import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { ReqSocket } from 'src/decorators/req.socket.decorator';
 import { LixiService } from 'src/modules/core/lixi/lixi.service';
+import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 import { WalletService } from 'src/modules/wallet/wallet.service';
+import { getUtxosSingleHashChronik } from 'src/utils/chronik';
 import { aesGcmDecrypt, base58ToNumber } from 'src/utils/encryptionMethods';
 import { VError } from 'verror';
 import { PrismaService } from '../../prisma/prisma.service';
-import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
-import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
-import { getUtxosSingleHashChronik } from 'src/utils/chronik';
-import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
-import { ChronikClient } from 'chronik-client';
 
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
 const PROJECT_ID = 'lixilotus';

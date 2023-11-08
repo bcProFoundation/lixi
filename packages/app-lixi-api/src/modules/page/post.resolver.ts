@@ -71,7 +71,7 @@ export class PostResolver {
     private readonly accountCacheService: AccountCacheService,
     private readonly postLoader: PostLoader,
     private readonly commentableLoader: CommentableLoader
-  ) { }
+  ) {}
 
   @SkipThrottle()
   @Query(() => Post)
@@ -802,10 +802,10 @@ export class PostResolver {
         connect:
           uploadDetailIds.length > 0
             ? uploadDetailIds.map((uploadDetail: any) => {
-              return {
-                id: uploadDetail
-              };
-            })
+                return {
+                  id: uploadDetail
+                };
+              })
             : undefined
       },
       page: {
@@ -838,6 +838,9 @@ export class PostResolver {
           },
           txid: txid,
           createFee: createFee,
+          postDana: {
+            create: {}
+          }
         },
         include: {
           page: {

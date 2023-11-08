@@ -60,7 +60,7 @@ export class AccountCacheService {
       return account;
     }
 
-    const account = decode(buffer) as Account;
+    const account = new Account({ ...(decode(buffer) as Account) });
     return account;
   }
 
@@ -125,7 +125,7 @@ export class AccountCacheService {
 
     return ids.map(id => {
       const account = accountsMap.get(id.toString());
-      return account ? account : null;
+      return account ? new Account({ ...account }) : null;
     });
   }
 
@@ -163,7 +163,7 @@ export class AccountCacheService {
       return account;
     }
 
-    const account = decode(buffer) as Account;
+    const account = new Account({ ...(decode(buffer) as Account) });
     return account;
   }
 
@@ -201,7 +201,7 @@ export class AccountCacheService {
       return account;
     }
 
-    const account = decode(buffer) as Account;
+    const account = new Account({ ...(decode(buffer) as Account) });
     return account;
   }
 

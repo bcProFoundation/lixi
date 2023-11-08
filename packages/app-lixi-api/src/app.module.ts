@@ -118,7 +118,8 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
           },
           context: ({ req }: { req: FastifyRequest }) => ({
             req
-          })
+          }),
+          fieldResolverEnhancers: ['guards']
         };
       },
 

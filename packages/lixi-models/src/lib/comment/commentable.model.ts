@@ -1,8 +1,10 @@
-import { Field, ID, ObjectType, createUnionType } from '@nestjs/graphql';
+import { createUnionType, Field, ID, ObjectType } from '@nestjs/graphql';
+
 import { Event } from '../event';
-import { Post } from '../post';
 import { Poll } from '../poll';
+import { Post } from '../post';
 import { Product } from '../product';
+
 import { Comment } from './comment.model';
 
 export const CommentTo = createUnionType({

@@ -1,27 +1,18 @@
-import { LixiDto, Lixi } from '@bcpros/lixi-models';
-import MinimalBCHWallet from '@bcpros/minimal-xpi-slp-wallet';
+import { LixiDto } from '@bcpros/lixi-models';
 import BCHJS from '@bcpros/xpi-js';
-import {
-  OnQueueEvent,
-  OnWorkerEvent,
-  Processor,
-  QueueEventsHost,
-  QueueEventsListener,
-  WorkerHost
-} from '@nestjs/bullmq';
+import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
+import * as fs from 'fs';
 import { Parser } from 'json2csv';
 import * as _ from 'lodash';
+import moment from 'moment';
 import { EXPORT_SUB_LIXIES_QUEUE } from 'src/modules/core/lixi/constants/lixi.constants';
 import { ExportSubLixiesJobData, ExportSubLixiesJobResult } from 'src/modules/core/lixi/models/lixi.models';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
-import { WalletService } from 'src/modules/wallet/wallet.service';
-import { aesGcmDecrypt, numberToBase58 } from 'src/utils/encryptionMethods';
-import * as fs from 'fs';
-import moment from 'moment';
-import { AccountCacheService } from '../../../account/account-cache.service';
 import { XPIJS } from 'src/modules/wallet/wallet.constants';
+import { aesGcmDecrypt, numberToBase58 } from 'src/utils/encryptionMethods';
+import { AccountCacheService } from '../../../account/account-cache.service';
 
 @Injectable()
 @Processor(EXPORT_SUB_LIXIES_QUEUE)

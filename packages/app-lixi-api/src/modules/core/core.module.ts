@@ -1,15 +1,29 @@
+import { BullModule } from '@nestjs/bullmq';
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import cors from 'cors';
+import IORedis from 'ioredis';
+import _ from 'lodash';
 import { NotificationModule } from 'src/common/modules/notifications/notification.module';
 import { ChronikModule } from '../../common/modules/chronik/chronik.module';
+import { CloudflareModule } from '../../common/modules/cloudflare/cloudflare.module';
+import { AccountModule } from '../account/account.module';
 import { AuthModule } from '../auth/auth.module';
+import { MessageModule } from '../message/message.module';
+import { MeiliService } from '../page/meili.service';
+import { PageModule } from '../page/page.module';
+import { WalletModule } from '../wallet/wallet.module';
 import { AccountController } from './account/account.controller';
+import { AccountDanaProcessor } from './burn/account-dana.processor';
+import { BurnFanoutProcessor } from './burn/burn-fanout.processor';
+import { ACCOUNT_DANA_QUEUE, PAGE_DANA_QUEUE } from './burn/burn.constants';
 import { BurnController } from './burn/burn.controller';
+import { PageDanaProcessor } from './burn/page-dana.processor';
 import { CategoryController } from './category/category.controller';
 import { ClaimController } from './claim/claim.controller';
 import { CountryController } from './country/country.controller';
 import { EnvelopeController } from './envelope/envelope.controller';
+import { FeatureFlagController } from './feature-flag/feature-flag.controller';
 import { HeathController } from './healthcheck/heathcheck.controller';
 import { LixiController } from './lixi/lixi.controller';
 import { LixiService } from './lixi/lixi.service';
@@ -19,24 +33,9 @@ import { ExportSubLixiesEventsListener } from './lixi/processors/export-sub-lixi
 import { ExportSubLixiesProcessor } from './lixi/processors/export-sub-lixies.processor';
 import { WithdrawSubLixiesEventsListener } from './lixi/processors/withdraw-sub-lixies.eventslistener';
 import { WithdrawSubLixiesProcessor } from './lixi/processors/withdraw-sub-lixies.processor';
-import { UploadFilesController } from './upload/upload.controller';
-import { MeiliService } from '../page/meili.service';
 import { TranslateService } from './translate/translate.service';
-import { CloudflareModule } from '../../common/modules/cloudflare/cloudflare.module';
-import { MessageModule } from '../message/message.module';
-import { BurnFanoutProcessor } from './burn/burn-fanout.processor';
-import { AccountModule } from '../account/account.module';
-import { FeatureFlagController } from './feature-flag/feature-flag.controller';
-import { AccountDanaProcessor } from './burn/account-dana.processor';
-import { BullModule } from '@nestjs/bullmq';
-import { ACCOUNT_DANA_QUEUE, PAGE_DANA_QUEUE } from './burn/burn.constants';
-import IORedis from 'ioredis';
-import _ from 'lodash';
+import { UploadFilesController } from './upload/upload.controller';
 import { UploadService } from './upload/upload.serivce';
-import { PageDanaProcessor } from './burn/page-dana.processor';
-import { PageModule } from '../page/page.module';
-import { WalletModule } from '../wallet/wallet.module';
-import { WalletService } from '../wallet/wallet.service';
 const baseCorsConfig = cors({
   origin: process.env.BASE_URL ?? ''
 });
@@ -46,7 +45,7 @@ const baseCorsConfig = cors({
     ChronikModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        const chronikUrl = config.get<string>('CHRONIK_URL') || 'https://chronik01.abcpay.cash';
+        const chronikUrl = config.get<string>('CHRONIK_URL') || 'https://chronik.be.cash';
         return {
           host: chronikUrl,
           networks: ['xec', 'xpi']

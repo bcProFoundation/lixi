@@ -12,7 +12,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class TimelineItemService {
   private logger: Logger = new Logger(this.constructor.name);
 
-  constructor(private readonly postCacheService: PostCacheService) { }
+  constructor(private readonly postCacheService: PostCacheService) {}
 
   async getById(id: string): Promise<Nullable<TimelineItem>> {
     const parts = id.split(':');
@@ -59,13 +59,13 @@ export class TimelineItemService {
       const item: typeof TimelineItemData = itemsMap.get(id);
       return item
         ? new TimelineItem({
-          id,
-          data: new Post({ ...item }) as Post
-        })
+            id,
+            data: new Post({ ...item }) as Post
+          })
         : new TimelineItem({
-          id,
-          data: new Post({})
-        });
+            id,
+            data: new Post({})
+          });
     });
   }
 }

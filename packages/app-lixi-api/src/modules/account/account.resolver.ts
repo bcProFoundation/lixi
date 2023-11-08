@@ -1,7 +1,6 @@
 import { Account, AccountDana, CreateAccountInput, ImportAccountInput, UpdateAccountInput } from '@bcpros/lixi-models';
-import MinimalBCHWallet from '@bcpros/minimal-xpi-slp-wallet';
 import { HttpException, HttpStatus, Inject, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PubSub } from 'graphql-subscriptions';
 import _ from 'lodash';
@@ -11,12 +10,12 @@ import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { aesGcmDecrypt, aesGcmEncrypt, generateRandomBase58Str, hashMnemonic } from 'src/utils/encryptionMethods';
 import VError from 'verror';
-import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
+import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
+import { WALLET_SERVICES } from '../wallet/wallet.constants';
 import { WalletService } from '../wallet/wallet.service';
 import { AccountCacheService } from './account-cache.service';
 import AccountLoader from './account.loader';
-import { WALLET_SERVICES } from '../wallet/wallet.constants';
 
 const pubSub = new PubSub();
 
@@ -76,7 +75,7 @@ export class AccountResolver {
   }
 
   @Query(() => Account)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlJwtAuthGuardByPass)
   async getAccountByAddress(
     @AccountEntity() myAccount: Account,
     @Args('address', { type: () => String }) address: string,

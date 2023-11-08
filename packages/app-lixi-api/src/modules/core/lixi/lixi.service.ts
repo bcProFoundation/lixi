@@ -1,5 +1,4 @@
 import { CreateLixiCommand, fromSmallestDenomination, Lixi, LixiDto, NotificationDto } from '@bcpros/lixi-models';
-import MinimalBCHWallet from '@bcpros/minimal-xpi-slp-wallet';
 import BCHJS from '@bcpros/xpi-js';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Inject, Injectable, Logger } from '@nestjs/common';
@@ -17,12 +16,12 @@ import {
 } from 'src/modules/core/lixi/constants/lixi.constants';
 import { CreateSubLixiesChunkJobData, CreateSubLixiesJobData } from 'src/modules/core/lixi/models/lixi.models';
 import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
-import { aesGcmDecrypt, aesGcmEncrypt, hexSha256, numberToBase58 } from 'src/utils/encryptionMethods';
+import { aesGcmDecrypt, aesGcmEncrypt, numberToBase58 } from 'src/utils/encryptionMethods';
 import { template } from 'src/utils/stringTemplate';
 import { VError } from 'verror';
+import { getUtxosSingleHashChronik } from '../../../utils/chronik';
 import { PrismaService } from '../../prisma/prisma.service';
 import { WalletService } from '../../wallet/wallet.service';
-import { getUtxosSingleHashChronik } from '../../../utils/chronik';
 
 @Injectable()
 export class LixiService {

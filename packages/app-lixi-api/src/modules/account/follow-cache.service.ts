@@ -376,20 +376,13 @@ export class FollowCacheService {
     const key = `user:${followerAccountId}:followingTokens`;
     const exist = await this.redis.exists([key]);
     let accountHaveFollowingToken;
-    let listCheckAccountFollowTokens: boolean[] | (string | null)[] = [];
 
     if (!exist) {
       accountHaveFollowingToken = await this._cacheTokenFollowingOfAccount(key, followerAccountId);
     }
-    if (accountHaveFollowingToken === null) {
-      tokenIds.forEach((item, index) => {
-        listCheckAccountFollowTokens[index] = false;
-      });
-      return listCheckAccountFollowTokens;
-    }
 
-    listCheckAccountFollowTokens = await this.redis.zmscore(key, ...tokenIds);
-    return listCheckAccountFollowTokens;
+    const listCheckAccountFollowTokens = await this.redis.zmscore(key, ...tokenIds);
+    return listCheckAccountFollowTokens.map(item => !!item);
   }
 
   async getPaginatedPageFollowings(accountId: number, first: number, after?: string) {

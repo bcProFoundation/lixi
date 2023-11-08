@@ -4,16 +4,15 @@ import {
   ClaimType,
   CreateLixiCommand,
   ExportLixiCommand,
-  fromSmallestDenomination,
-  LixiDto,
   IPaginationResult,
+  LixiDto,
   PostLixiResponseDto,
   RegisterLixiPackCommand,
   RenameLixiCommand,
   SessionAction,
-  SessionActionEnum
+  SessionActionEnum,
+  fromSmallestDenomination
 } from '@bcpros/lixi-models';
-import MinimalBCHWallet from '@bcpros/minimal-xpi-slp-wallet';
 import BCHJS from '@bcpros/xpi-js';
 import { InjectQueue } from '@nestjs/bullmq';
 import {
@@ -48,6 +47,7 @@ import moment from 'moment';
 import { I18n, I18nContext } from 'nestjs-i18n';
 import { join } from 'path';
 import { PaginationParams } from 'src/common/models/paginationParams';
+import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwtauth.guard';
@@ -57,12 +57,11 @@ import {
   WITHDRAW_SUB_LIXIES_QUEUE
 } from 'src/modules/core/lixi/constants/lixi.constants';
 import { LixiService } from 'src/modules/core/lixi/lixi.service';
+import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 import { WalletService } from 'src/modules/wallet/wallet.service';
 import { aesGcmDecrypt, base58ToNumber, numberToBase58 } from 'src/utils/encryptionMethods';
 import { VError } from 'verror';
 import { PrismaService } from '../../prisma/prisma.service';
-import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
-import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 
 @SkipThrottle()
 @Controller('lixies')
