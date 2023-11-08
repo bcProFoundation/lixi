@@ -37,7 +37,7 @@ export class TimelineResolver {
     private readonly timelineItemService: TimelineItemService,
     @InjectRedis() private readonly redis: Redis,
     @I18n() private readonly i18n: I18nService
-  ) { }
+  ) {}
 
   @SkipThrottle()
   @Query(returns => TimelineItem)

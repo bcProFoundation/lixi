@@ -25,20 +25,20 @@ export class ProductDanaCacheService {
       });
       if (!dbValue) return null;
 
-      const pageDana: ProductDana = new ProductDana({
+      const dana: ProductDana = new ProductDana({
         ...dbValue
       });
 
-      const buffer = Buffer.from(encode(pageDana));
+      const buffer = Buffer.from(encode(dana));
       await this.redis.hset(this.keyPrefix, id.toString(), buffer);
 
-      return pageDana;
+      return dana;
     }
     return decode(buffer) as ProductDana;
   }
 
-  async setProductDana(id: string, pageDana: ProductDana) {
-    const buffer = Buffer.from(encode(pageDana));
+  async setProductDana(id: string, dana: ProductDana) {
+    const buffer = Buffer.from(encode(dana));
     await this.redis.hset(this.keyPrefix, id.toString(), buffer);
   }
 

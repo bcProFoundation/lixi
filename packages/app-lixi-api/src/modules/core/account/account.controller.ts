@@ -9,7 +9,6 @@ import {
   PatchAccountCommand,
   fromSmallestDenomination
 } from '@bcpros/lixi-models';
-import MinimalBCHWallet from '@bcpros/minimal-xpi-slp-wallet';
 import {
   Body,
   Controller,
@@ -34,15 +33,15 @@ import { SkipThrottle } from '@nestjs/throttler';
 import * as _ from 'lodash';
 import { toSafeInteger } from 'lodash';
 import { I18n, I18nContext } from 'nestjs-i18n';
+import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwtauth.guard';
+import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 import { VError } from 'verror';
 import { aesGcmDecrypt, aesGcmEncrypt, generateRandomBase58Str, hashMnemonic } from '../../../utils/encryptionMethods';
 import { AccountCacheService } from '../../account/account-cache.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { WalletService } from '../../wallet/wallet.service';
-import { NotificationService } from 'src/common/modules/notifications/notification.service';
-import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 
 @SkipThrottle()
 @Controller('accounts')

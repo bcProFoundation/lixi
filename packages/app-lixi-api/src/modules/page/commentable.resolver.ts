@@ -1,8 +1,4 @@
-import {
-  Comment,
-  CommentTo,
-  Commentable
-} from '@bcpros/lixi-models';
+import { Comment, CommentTo, Commentable } from '@bcpros/lixi-models';
 import BCHJS from '@bcpros/xpi-js';
 import { Inject, Logger } from '@nestjs/common';
 import { Args, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
@@ -33,7 +29,7 @@ export class CommentableResolver {
     private readonly notificationService: NotificationService,
     private readonly accountCacheService: AccountCacheService,
     private readonly commentCacheService: CommentCacheService
-  ) { }
+  ) {}
 
   // @Subscription(() => Comment)
   // commentCreated() {

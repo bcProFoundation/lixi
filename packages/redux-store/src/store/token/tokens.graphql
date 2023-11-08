@@ -1,5 +1,6 @@
 # import TokenOrder from '/packages/app-lixi-api/schema.graphql'
 # import TokenInfoFields from '../../graphql/fragments/token-info-fields.fragment.graphql'
+# import BasicPageInfoFields from '../../graphql/fragments/basic-page-info-fields.fragment.graphql'
 
 query Token($tokenId: String!) {
   token(tokenId: $tokenId) {
@@ -7,8 +8,16 @@ query Token($tokenId: String!) {
   }
 }
 
-query Tokens($orderBy: TokenOrder) {
-  allTokens(orderBy: $orderBy) {
+query Tokens(
+  $after: String
+  $first: Int = 20
+  $skip: Int
+) {
+  allTokens(
+    after: $after,
+    first: $first,
+    skip: $skip
+  ) {
     totalCount
     edges {
       node {
@@ -16,7 +25,7 @@ query Tokens($orderBy: TokenOrder) {
       }
     }
     pageInfo {
-      ...PageInfoFields
+      ...BasicPageInfoFields
     }
   }
 }

@@ -96,7 +96,10 @@ export class ProductResolver {
     const createdProduct = await this.prisma.$transaction(async prisma => {
       const product = await prisma.product.create({
         data: {
-          ...productToSave
+          ...productToSave,
+          productDana: {
+            create: {}
+          }
         }
       });
       await prisma.upload.updateMany({

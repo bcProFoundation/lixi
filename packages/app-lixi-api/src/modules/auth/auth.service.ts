@@ -87,13 +87,6 @@ export class AuthService implements OnModuleInit {
 
       // Find the account with cache
       const account = await this.accountCacheService.getById(id);
-      let url;
-      if (account && (account as any)?.avatar) {
-        const avatar = (account as any)?.avatar;
-        const { upload } = avatar;
-        const cfUrl = `${process.env.CF_IMAGES_DELIVERY_URL}/${process.env.CF_ACCOUNT_HASH}/${upload.cfImageId}/public`;
-        url = upload.cfImageId ? cfUrl : upload.url;
-      }
 
       if (!account) throw new Error('Invalid account');
 
@@ -101,13 +94,7 @@ export class AuthService implements OnModuleInit {
       const verified = await new TokenVerifier('ES256K', publicKey || '').verifyAsync(token);
 
       if (verified) {
-        return {
-          ...account,
-          dayOfBirth: account.dayOfBirth ?? undefined,
-          monthOfBirth: account.monthOfBirth ?? undefined,
-          yearOfBirth: account.yearOfBirth ?? undefined,
-          avatar: url ?? undefined
-        };
+        return account;
       }
     } catch (err) {
       throw new Error('Invalid account');

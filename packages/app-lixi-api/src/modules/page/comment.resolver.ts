@@ -183,7 +183,10 @@ export class CommentResolver {
           data: {
             ...commentToSave,
             txid: txid,
-            createFee: createFee
+            createFee: createFee,
+            commentDana: {
+              create: {}
+            }
           }
         });
 

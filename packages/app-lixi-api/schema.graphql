@@ -1114,7 +1114,7 @@ type Query {
     last: Int
     query: String
   ): TempleConnection!
-  allTokens(orderBy: TokenOrder): TokenConnection!
+  allTokens(after: String, first: Int, skip: Int): TokenConnection!
   allWorship(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: WorshipOrder, skip: Int): WorshipConnection!
   allWorshipedByPersonId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: WorshipOrder, skip: Int): WorshipConnection!
   allWorshipedByTempleId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: WorshipOrder, skip: Int): WorshipConnection!
@@ -1295,10 +1295,15 @@ type Token {
   totalMinted: String
 }
 
+type TokenBasicEdge {
+  cursor: String!
+  node: Token!
+}
+
 type TokenConnection {
-  edges: [TokenEdge!]
-  pageInfo: PageInfo!
-  totalCount: Int
+  edges: [TokenBasicEdge!]!
+  pageInfo: BasicPageInfo!
+  totalCount: Int!
 }
 
 type TokenDana {
@@ -1311,28 +1316,6 @@ type TokenDana {
   token: Token!
   tokenId: String!
   version: Int!
-}
-
-type TokenEdge {
-  cursor: String!
-  node: Token!
-}
-
-input TokenOrder {
-  direction: OrderDirection!
-  field: TokenOrderField!
-}
-
-"""Properties by which token connections can be ordered."""
-enum TokenOrderField {
-  createdDate
-  danaBurnDown
-  danaBurnScore
-  danaBurnUp
-  id
-  name
-  ticker
-  tokenId
 }
 
 input UpdateAccountInput {

@@ -1,23 +1,23 @@
-import { PaginationArgs } from '@bcpros/lixi-models';
-import { PageQueryItem } from '@generated/index';
+import { BasicPaginationArgs } from '@bcpros/lixi-models';
+import { TokenQueryItem } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { useLazyPagesQuery, usePagesQuery } from '@store/page/pages.api';
+import { useLazyTokensQuery, useTokensQuery } from '@store/token/tokens.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-const pagesAdapter = createEntityAdapter<PageQueryItem>({
-  selectId: page => page.id
+const tokensAdapter = createEntityAdapter<TokenQueryItem>({
+  selectId: token => token.id
 });
 
-const { selectAll } = pagesAdapter.getSelectors();
+const { selectAll } = tokensAdapter.getSelectors();
 
-export function useInfinitePagesQuery(
-  params: PaginationArgs,
+export function useInfiniteTokensQuery(
+  params: BasicPaginationArgs,
   fetchAll: boolean = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const baseResult = usePagesQuery(params);
+  const baseResult = useTokensQuery(params);
 
-  const [trigger, nextResult] = useLazyPagesQuery();
-  const [combinedData, setCombinedData] = useState(pagesAdapter.getInitialState({}));
+  const [trigger, nextResult] = useLazyTokensQuery();
+  const [combinedData, setCombinedData] = useState(tokensAdapter.getInitialState({}));
 
   const isBaseReady = useRef(false);
   const isNextDone = useRef(true);
@@ -32,13 +32,13 @@ export function useInfinitePagesQuery(
 
   // Base result
   useEffect(() => {
-    next.current = baseResult.data?.allPages?.pageInfo?.endCursor;
-    if (baseResult?.data?.allPages) {
+    next.current = baseResult.data?.allTokens?.pageInfo?.endCursor;
+    if (baseResult?.data?.allTokens) {
       isBaseReady.current = true;
 
-      const adapterSetAll = pagesAdapter.setAll(
+      const adapterSetAll = tokensAdapter.setAll(
         combinedData,
-        baseResult.data.allPages.edges.map(item => item.node)
+        baseResult.data.allTokens.edges.map(item => item.node)
       );
 
       setCombinedData(adapterSetAll);
@@ -60,7 +60,10 @@ export function useInfinitePagesQuery(
     } catch (e) {
     } finally {
       isNextDone.current = true;
-      fetchAll && fetchNext();
+      if (fetchAll && nextResult.data?.allTokens?.pageInfo?.hasNextPage) {
+        console.log('hasNextPage: ', baseResult.data?.allTokens?.pageInfo?.hasNextPage);
+        fetchAll && fetchNext();
+      }
     }
   };
 
@@ -72,7 +75,7 @@ export function useInfinitePagesQuery(
 
   return {
     data: data ?? [],
-    totalCount: baseResult?.data?.allPages?.totalCount ?? 0,
+    totalCount: baseResult?.data?.allTokens?.totalCount ?? 0,
     error: baseResult?.error,
     isError: baseResult?.isError,
     isLoading: baseResult?.isLoading,
@@ -80,7 +83,7 @@ export function useInfinitePagesQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: !!baseResult.data?.allPages?.pageInfo?.hasNextPage,
+    hasNext: !!baseResult.data?.allTokens?.pageInfo?.hasNextPage,
     fetchNext,
     refetch
   };

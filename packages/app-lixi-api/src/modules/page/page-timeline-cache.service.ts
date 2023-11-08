@@ -27,12 +27,13 @@ export class PageTimelineCacheService {
               total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
             FROM
               page 
-              JOIN
+              LEFT OUTER JOIN
                   burn 
                   ON page.id = burn.burned_for_id 
-            WHERE
-              burn.burn_for_type = ${pageBurnType} 
-              AND burn.burned_value > 0 
+              AND
+                burn.burn_for_type = ${pageBurnType} 
+              AND 
+                burn.burned_value > 0 
             GROUP BY
               page.id 
             ORDER by
@@ -67,11 +68,11 @@ export class PageTimelineCacheService {
       const pipeline = this.redis.pipeline();
       for (const page of pages) {
         const id = `${page.id}`;
-        pipeline.zincrby(key, page.score, id);
+        pipeline.zincrby(key, page.score ?? 0, id);
       }
       for (const page of pagesByPosts) {
         const id = page.id;
-        pipeline.zincrby(key, page.score, id);
+        pipeline.zincrby(key, page.score ?? 0, id);
       }
       // Refresh the timeline after 30 days
       pipeline.expire(key, 2592000);
@@ -123,7 +124,8 @@ export class PageTimelineCacheService {
     if (!exist) {
       await this.cachePageTimeline();
     }
-    return await basicSortedSetPagination(this.redis, key, first, after);
+    const paginated = await basicSortedSetPagination(this.redis, key, first, after);
+    return paginated;
   }
 
   async getPaginatedPageTimelineByUser(accountId: number, first: number, after?: string) {
@@ -134,10 +136,14 @@ export class PageTimelineCacheService {
     }
     const paginated = await basicSortedSetPagination(this.redis, key, first, after);
     const newAfter = paginated.pageInfo.endCursor;
-    // Check if we need to load more and paginate again
-    const shouldPaginate = await this.cachePageTimelineByUser(accountId, newAfter);
-    if (shouldPaginate) {
-      return await basicSortedSetPagination(this.redis, key, first, after);
+    const hasNextPage = paginated.pageInfo.hasNextPage;
+
+    if (!hasNextPage) {
+      // Check if we need to load more and paginate again
+      const shouldPaginate = await this.cachePageTimelineByUser(accountId, newAfter);
+      if (shouldPaginate) {
+        return await basicSortedSetPagination(this.redis, key, first, after);
+      }
     }
     // nothing change
     return paginated;

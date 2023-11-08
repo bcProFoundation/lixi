@@ -1,11 +1,10 @@
+import { CreateLixiCommand, LixiType, fromSmallestDenomination } from '@bcpros/lixi-models';
+import BCHJS from '@bcpros/xpi-js';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Lixi as LixiDb } from '@prisma/client';
 import { Job } from 'bullmq';
-import MinimalBCHWallet from '@bcpros/minimal-xpi-slp-wallet';
-import BCHJS from '@bcpros/xpi-js';
-import { Lixi as LixiDb, PrismaClient } from '@prisma/client';
 import * as _ from 'lodash';
-import { VError } from 'verror';
 import { CREATE_SUB_LIXIES_QUEUE, LIXI_JOB_NAMES } from 'src/modules/core/lixi/constants/lixi.constants';
 import {
   CreateSubLixiesChunkJobData,
@@ -14,10 +13,10 @@ import {
   MapEncryptedClaimCode
 } from 'src/modules/core/lixi/models/lixi.models';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
-import { WalletService } from 'src/modules/wallet/wallet.service';
-import { CreateLixiCommand, fromSmallestDenomination, Lixi, LixiType, Package } from '@bcpros/lixi-models';
-import { aesGcmEncrypt, generateRandomBase58Str, numberToBase58 } from 'src/utils/encryptionMethods';
 import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
+import { WalletService } from 'src/modules/wallet/wallet.service';
+import { aesGcmEncrypt, generateRandomBase58Str } from 'src/utils/encryptionMethods';
+import { VError } from 'verror';
 
 @Injectable()
 @Processor(CREATE_SUB_LIXIES_QUEUE, { concurrency: 1 })

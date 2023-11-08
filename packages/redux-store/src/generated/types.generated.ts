@@ -1024,7 +1024,7 @@ export type Post = {
   taggableId?: Maybe<Scalars['String']>;
   token?: Maybe<Token>;
   tokenId?: Maybe<Scalars['String']>;
-  totalComments: Scalars['Int'];
+  totalComments?: Maybe<Scalars['Int']>;
   translations?: Maybe<Array<PostTranslation>>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
@@ -1521,7 +1521,9 @@ export type QueryAllTempleBySearchArgs = {
 };
 
 export type QueryAllTokensArgs = {
-  orderBy?: InputMaybe<TokenOrder>;
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']>;
 };
 
 export type QueryAllWorshipArgs = {
@@ -1725,7 +1727,6 @@ export type Subscription = {
   messageCreated: Message;
   pageMessageSessionCreated: PageMessageSession;
   templeCreated: Temple;
-  tokenCreated: Token;
   worshipedPersonCreated: WorshipedPerson;
 };
 
@@ -1827,11 +1828,17 @@ export type Token = {
   totalMinted?: Maybe<Scalars['String']>;
 };
 
+export type TokenBasicEdge = {
+  __typename?: 'TokenBasicEdge';
+  cursor: Scalars['String'];
+  node: Token;
+};
+
 export type TokenConnection = {
   __typename?: 'TokenConnection';
-  edges?: Maybe<Array<TokenEdge>>;
-  pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
+  edges: Array<TokenBasicEdge>;
+  pageInfo: BasicPageInfo;
+  totalCount: Scalars['Int'];
 };
 
 export type TokenDana = {
@@ -1846,29 +1853,6 @@ export type TokenDana = {
   tokenId: Scalars['String'];
   version: Scalars['Int'];
 };
-
-export type TokenEdge = {
-  __typename?: 'TokenEdge';
-  cursor: Scalars['String'];
-  node: Token;
-};
-
-export type TokenOrder = {
-  direction: OrderDirection;
-  field: TokenOrderField;
-};
-
-/** Properties by which token connections can be ordered. */
-export enum TokenOrderField {
-  CreatedDate = 'createdDate',
-  DanaBurnDown = 'danaBurnDown',
-  DanaBurnScore = 'danaBurnScore',
-  DanaBurnUp = 'danaBurnUp',
-  Id = 'id',
-  Name = 'name',
-  Ticker = 'ticker',
-  TokenId = 'tokenId'
-}
 
 export type UpdateAccountInput = {
   avatar?: InputMaybe<Scalars['String']>;

@@ -6,11 +6,12 @@ const enhancedApi = api.enhanceEndpoints({
     Tokens: {
       providesTags: ['Tokens'],
       serializeQueryArgs({ queryArgs }) {
-        if (queryArgs) {
-          const { orderBy, ...otherArgs } = queryArgs;
-          return orderBy;
-        }
-        return { queryArgs };
+        return {};
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.allTokens.edges.push(...responseData.allTokens.edges);
+        currentCacheData.allTokens.pageInfo = responseData.allTokens.pageInfo;
+        currentCacheData.allTokens.totalCount = responseData.allTokens.totalCount;
       }
     },
     Token: {

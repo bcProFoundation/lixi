@@ -9,7 +9,7 @@ import { TokenDana } from '@bcpros/lixi-models';
 @Injectable()
 export class TokenDanaCacheService {
   private logger: Logger = new Logger(this.constructor.name);
-  private keyPrefix = 'items:tokendana';
+  private keyPrefix = 'items:tokens:dana';
 
   constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
 

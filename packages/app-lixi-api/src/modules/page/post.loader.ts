@@ -18,7 +18,7 @@ export default class PostLoader {
     private readonly danaViewScoreService: DanaViewScoreService,
     private readonly followCacheService: FollowCacheService,
     private readonly postDanaCacheService: PostDanaCacheService
-  ) { }
+  ) {}
 
   public readonly batchPostDanas = new DataLoader<string, PostDana>(async (ids: readonly string[]) => {
     const postIds = ids as unknown as string[];

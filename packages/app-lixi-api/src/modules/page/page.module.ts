@@ -83,4 +83,4 @@ import CommentableLoader from './commentable.loader';
     PostDanaCacheService
   ]
 })
-export class PageModule { }
+export class PageModule {}
