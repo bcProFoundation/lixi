@@ -7,7 +7,7 @@ query Comment($id: String!) {
   }
 }
 
-query CommentsToPostId(
+query CommentsToCommentableId(
   $after: String
   $before: String
   $first: Int = 20
@@ -16,7 +16,7 @@ query CommentsToPostId(
   $id: String
   $skip: Int
 ) {
-  allCommentsToPostId(
+  commentsToCommentableId(
     after: $after
     before: $before
     first: $first
@@ -48,7 +48,7 @@ fragment CommentFields on Comment {
     avatar
   }
   commentByPublicKey
-  commentToId
+  commentableId
   danaBurnUp
   danaBurnDown
   danaBurnScore

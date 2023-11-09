@@ -158,7 +158,6 @@ export type Comment = {
   commentByPublicKey?: Maybe<Scalars['String']>;
   commentDana?: Maybe<CommentDana>;
   commentText: Scalars['String'];
-  commentToId: Scalars['String'];
   commentableId?: Maybe<Scalars['String']>;
   content: Scalars['String'];
   /** Identifies the date and time when the object was created. */
@@ -231,7 +230,7 @@ export type CreateBookmarkInput = {
 export type CreateCommentInput = {
   commentByPublicKey?: InputMaybe<Scalars['String']>;
   commentText: Scalars['String'];
-  commentToId: Scalars['String'];
+  commentableId: Scalars['String'];
   createFeeHex?: InputMaybe<Scalars['String']>;
   tipHex?: InputMaybe<Scalars['String']>;
 };
@@ -1188,8 +1187,6 @@ export type Query = {
   __typename?: 'Query';
   account: Account;
   allClosedPageMessageSession: PageMessageSessionConnection;
-  allCommentsToCommentableId: CommentConnection;
-  allCommentsToPostId: CommentConnection;
   allFollowersByFollowing: AccountConnection;
   allFollowingsByFollower: AccountConnection;
   allHashtag: HashtagConnection;
@@ -1229,6 +1226,7 @@ export type Query = {
   checkIfFollowPage: Scalars['Boolean'];
   checkIfFollowToken: Scalars['Boolean'];
   comment: Comment;
+  commentsToCommentableId: CommentConnection;
   getAccountByAddress: Account;
   getBalances: Balances;
   hashtag: Hashtag;
@@ -1260,28 +1258,6 @@ export type QueryAllClosedPageMessageSessionArgs = {
   minBurnFilter?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<PageMessageSessionOrder>;
   pageId?: InputMaybe<Scalars['String']>;
-  skip?: InputMaybe<Scalars['Int']>;
-};
-
-export type QueryAllCommentsToCommentableIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<CommentOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
-};
-
-export type QueryAllCommentsToPostIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<CommentOrder>;
   skip?: InputMaybe<Scalars['Int']>;
 };
 
@@ -1655,6 +1631,17 @@ export type QueryCommentArgs = {
   id: Scalars['String'];
 };
 
+export type QueryCommentsToCommentableIdArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  id?: InputMaybe<Scalars['String']>;
+  last?: InputMaybe<Scalars['Int']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<CommentOrder>;
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
 export type QueryGetAccountByAddressArgs = {
   address: Scalars['String'];
 };
@@ -1760,7 +1747,6 @@ export type State = {
 export type Subscription = {
   __typename?: 'Subscription';
   bookmarkCreated: Bookmark;
-  commentCreated: Comment;
   followAccountCreated: FollowAccount;
   hashtagCreated: Hashtag;
   messageCreated: Message;

@@ -173,7 +173,7 @@ export const BurnModal = ({ data, burnForType }: BurnModalProps) => {
             });
           }
           queryParams = {
-            id: comment.commentToId,
+            id: comment.commentableId,
             orderBy: {
               direction: OrderDirection.Asc,
               field: CommentOrderField.UpdatedAt

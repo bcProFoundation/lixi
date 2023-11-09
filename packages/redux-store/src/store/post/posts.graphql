@@ -326,6 +326,7 @@ fragment PostFields on Post {
     version
   }
   totalComments
+  commentableId
   createdAt
   updatedAt
   followPostOwner

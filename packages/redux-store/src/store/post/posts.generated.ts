@@ -34,6 +34,7 @@ export type PostQuery = {
     danaBurnDown: number;
     danaBurnScore: number;
     totalComments?: number | null;
+    commentableId?: string | null;
     createdAt: any;
     updatedAt: any;
     followPostOwner?: boolean | null;
@@ -143,6 +144,7 @@ export type PostsByPageIdQuery = {
         danaBurnDown: number;
         danaBurnScore: number;
         totalComments?: number | null;
+        commentableId?: string | null;
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
@@ -260,6 +262,7 @@ export type PostsByUserIdQuery = {
         danaBurnDown: number;
         danaBurnScore: number;
         totalComments?: number | null;
+        commentableId?: string | null;
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
@@ -377,6 +380,7 @@ export type PostsByHashtagIdQuery = {
         danaBurnDown: number;
         danaBurnScore: number;
         totalComments?: number | null;
+        commentableId?: string | null;
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
@@ -494,6 +498,7 @@ export type PostsByTokenIdQuery = {
         danaBurnDown: number;
         danaBurnScore: number;
         totalComments?: number | null;
+        commentableId?: string | null;
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
@@ -944,6 +949,7 @@ export type PostFieldsFragment = {
   danaBurnDown: number;
   danaBurnScore: number;
   totalComments?: number | null;
+  commentableId?: string | null;
   createdAt: any;
   updatedAt: any;
   followPostOwner?: boolean | null;
@@ -1098,6 +1104,7 @@ export type CreatePostMutation = {
     danaBurnDown: number;
     danaBurnScore: number;
     totalComments?: number | null;
+    commentableId?: string | null;
     createdAt: any;
     updatedAt: any;
     followPostOwner?: boolean | null;
@@ -1193,6 +1200,7 @@ export type UpdatePostMutation = {
     danaBurnDown: number;
     danaBurnScore: number;
     totalComments?: number | null;
+    commentableId?: string | null;
     createdAt: any;
     updatedAt: any;
     followPostOwner?: boolean | null;
@@ -1341,6 +1349,7 @@ export const PostFieldsFragmentDoc = `
     version
   }
   totalComments
+  commentableId
   createdAt
   updatedAt
   followPostOwner

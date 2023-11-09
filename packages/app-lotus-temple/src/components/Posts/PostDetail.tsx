@@ -14,7 +14,7 @@ import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { getSelectedAccount } from '@store/account/selectors';
 import { prepareBurnCommand } from '@store/burn/actions';
 import { api as commentsApi, useCreateCommentMutation } from '@store/comment/comments.api';
-import { useInfiniteCommentsToPostIdQuery } from '@store/comment/useInfiniteCommentsToPostIdQuery';
+import { useInfiniteCommentsToCommentableIdQuery } from '@store/comment/useInfiniteCommentsToCommentableIdQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
 import { sendXPIFailure } from '@store/send/actions';
@@ -251,14 +251,14 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
 
   const dataSource = ['/give'];
 
-  const { data, totalCount, fetchNext, hasNext, isFetching } = useInfiniteCommentsToPostIdQuery(
+  const { data, totalCount, fetchNext, hasNext, isFetching } = useInfiniteCommentsToCommentableIdQuery(
     {
       first: 20,
       orderBy: {
         direction: OrderDirection.Asc,
         field: CommentOrderField.UpdatedAt
       },
-      id: post.id
+      id: post.commentableId
     },
     false
   );
@@ -362,7 +362,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
 
       const createCommentInput: CreateCommentInput = {
         commentText: text,
-        commentToId: post.id,
+        commentableId: post.commentableId,
         tipHex: tipHex
       };
 
@@ -378,23 +378,23 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
         const result = await createCommentTrigger({ input: createCommentInput }).unwrap();
         patches = dispatch(
           commentsApi.util.updateQueryData(
-            'CommentsToPostId',
-            { id: createCommentInput.commentToId, ...params },
+            'CommentsToCommentableId',
+            { id: createCommentInput.commentableId, ...params },
             draft => {
-              draft.allCommentsToPostId.edges.unshift({
+              draft.commentsToCommentableId.edges.unshift({
                 cursor: result.createComment.id,
                 node: {
                   ...result.createComment
                 }
               });
-              draft.allCommentsToPostId.totalCount = draft.allCommentsToPostId.totalCount + 1;
+              draft.commentsToCommentableId.totalCount = draft.commentsToCommentableId.totalCount + 1;
             }
           )
         );
       } catch (error) {
         const message = intl.get('comment.unableCreateComment');
         if (patches) {
-          dispatch(commentsApi.util.patchQueryData('CommentsToPostId', params, patches.inversePatches));
+          dispatch(commentsApi.util.patchQueryData('CommentsToCommentableId', params, patches.inversePatches));
         }
         dispatch(
           showToast('error', {
