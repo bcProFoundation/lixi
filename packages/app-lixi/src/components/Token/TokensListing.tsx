@@ -8,18 +8,18 @@ import ReactionToken from '@components/Common/ReactionToken';
 import { currency } from '@components/Common/Ticker';
 import { InfoSubCard } from '@components/Lixi';
 import { AuthorizationContext } from '@context/index';
-import { CreateTokenInput, OrderDirection, TokenEdge, TokenOrderField, TokenQueryItem } from '@generated/index';
+import { CreateTokenInput, Token, TokenBasicEdge, TokenQueryItem } from '@generated/index';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { getSelectedAccountId } from '@store/account';
 import { setTransactionReady } from '@store/account/actions';
-import { getFailQueue } from '@store/burn';
 import { useCreateFollowTokenMutation, useDeleteFollowTokenMutation } from '@store/follow/follows.api';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
 import { getCurrentThemes } from '@store/settings';
 import { showToast } from '@store/toast/actions';
-import { useCreateTokenMutation, useTokensQuery } from '@store/token/tokens.api';
-import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
+import { useCreateTokenMutation } from '@store/token/tokens.api';
+import { useInfiniteTokensQuery } from '@store/token/useInfiniteTokensQuery';
+import { getSlpBalancesAndUtxos } from '@store/wallet';
 import { formatBalance } from '@utils/cashMethods';
 import { Button, Form, Image, Input, InputRef, Modal, Space, Table, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -147,9 +147,6 @@ const TokensListing = () => {
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef<InputRef>(null);
   const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
-  const failQueue = useAppSelector(getFailQueue);
-  const walletStatus = useAppSelector(getWalletStatus);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
   const currentTheme = useAppSelector(getCurrentThemes);
   const [hasFollowed, setHasFollowed] = useState([]);
@@ -157,12 +154,14 @@ const TokensListing = () => {
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
 
-  const { currentData: tokens, isLoading } = useTokensQuery({
-    orderBy: {
-      direction: OrderDirection.Desc,
-      field: TokenOrderField.CreatedDate
-    }
-  });
+  const pageSize = 20;
+  const { data, totalCount, fetchNext, hasNext, isLoading, isFetching, isFetchingNext, refetch } =
+    useInfiniteTokensQuery(
+      {
+        first: pageSize
+      },
+      true
+    );
 
   const [
     createTokenTrigger,
@@ -247,10 +246,10 @@ const TokensListing = () => {
       </div>
     ),
     filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
-    onFilter: (value: string, record: TokenEdge) => {
-      return record.node.name.toString().toLowerCase().includes(value.toLowerCase());
+    onFilter: (value: string, token: Token) => {
+      return token.name.toString().toLowerCase().includes(value.toLowerCase());
     },
-    render: (text, record) =>
+    render: (text, token) =>
       searchedColumn === dataIndex ? (
         <Highlighter
           highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
@@ -259,8 +258,8 @@ const TokensListing = () => {
           textToHighlight={text ? text.toString() : ''}
         />
       ) : (
-        <Link href={'/token/' + record.tokenId} passHref>
-          <a onClick={() => handleNavigateToken(record)}>{text}</a>
+        <Link href={'/token/' + token.tokenId} passHref>
+          <a onClick={() => handleNavigateToken(token)}>{text}</a>
         </Link>
       )
   });
@@ -274,17 +273,17 @@ const TokensListing = () => {
     );
   };
 
-  const columns: ColumnsType<TokenEdge> = [
+  const columns: ColumnsType<Token> = [
     {
       title: '#',
       dataIndex: 'serial',
       key: 'serial',
-      render: (_, { node: record }, index) => index + 1
+      render: (_, token, index) => index + 1
     },
     {
       key: 'image',
       className: 'token-img',
-      render: (_, { node: token }) => (
+      render: (_, token) => (
         // eslint-disable-next-line react/jsx-no-undef, @next/next/no-img-element
         <Image
           alt="tokenIcon"
@@ -303,7 +302,7 @@ const TokensListing = () => {
       title: intl.get('label.shortId'),
       key: 'id',
       // fixed: 'left',
-      render: (_, { node: token }) => (
+      render: (_, token) => (
         <CopyToClipboard text={token.tokenId} onCopy={() => handleOnCopy(token.tokenId)}>
           <p style={{ marginTop: '0px', marginBottom: '0px' }}>
             {token.tokenId.substring(token.tokenId.length - 8).slice(0, 4)}
@@ -319,7 +318,7 @@ const TokensListing = () => {
       key: 'ticker',
       // fixed: 'left',
       ...getColumnSearchProps('ticker'),
-      render: (_, { node: token }) => (
+      render: (_, token) => (
         <a style={{ marginTop: '0px', marginBottom: '0px' }} onClick={() => handleNavigateToken(token)}>
           {token.ticker}
         </a>
@@ -331,7 +330,7 @@ const TokensListing = () => {
       key: 'name',
       // fixed: 'left',
       ...getColumnSearchProps('name'),
-      render: (_, { node: token }) => (
+      render: (_, token) => (
         <a style={{ marginTop: '0px', marginBottom: '0px' }} onClick={() => handleNavigateToken(token)}>
           {token.name}
         </a>
@@ -340,37 +339,37 @@ const TokensListing = () => {
     {
       title: intl.get('general.dana'),
       key: 'danaBurn',
-      sorter: ({ node: a }, { node: b }) => a.danaBurnScore - b.danaBurnScore,
+      sorter: (tokenA, tokenB) => tokenA.danaBurnScore - tokenB.danaBurnScore,
       defaultSortOrder: 'descend',
-      render: (_, { node: record }) => <Counter num={formatBalance(record.danaBurnScore)} />
+      render: (_, token) => <Counter num={formatBalance(token.danaBurnScore)} />
     },
     {
       title: intl.get('label.comment'),
       key: 'comments',
-      render: (_, { node: record }) => moment(record.comments).format('DD-MM-YYYY HH:mm')
+      render: (_, token) => moment(token.comments).format('DD-MM-YYYY HH:mm')
     },
     {
       title: intl.get('label.created'),
       key: 'createdDate',
-      render: (_, { node: record }) => moment(record.createdDate).format('DD-MM-YYYY HH:mm')
+      render: (_, token) => moment(token.createdDate).format('DD-MM-YYYY HH:mm')
     },
     {
       title: intl.get('label.action'),
       key: 'action',
       // fixed: 'right',
-      render: (_, { node: record }) => (
+      render: (_, token) => (
         <Space size="middle">
-          <ReactionToken token={record} />
+          <ReactionToken token={token} />
 
           <Tooltip title={intl.get('general.follow')}>
             <Button type="text" className="follow-btn">
               <Icon
                 component={() => <FollowSvg />}
-                className={hasFollowed.includes(record.tokenId) ? 'isFollowed' : ''}
+                className={hasFollowed.includes(token.tokenId) ? 'isFollowed' : ''}
                 onClick={
-                  hasFollowed.includes(record.tokenId)
-                    ? () => handleUnfollowToken(record.tokenId)
-                    : () => handleFollowToken(record.tokenId)
+                  hasFollowed.includes(token.tokenId)
+                    ? () => handleUnfollowToken(token.tokenId)
+                    : () => handleFollowToken(token.tokenId)
                 }
               />
             </Button>
@@ -468,15 +467,6 @@ const TokensListing = () => {
     dispatch(setTransactionReady());
   }, [slpBalancesAndUtxos.nonSlpUtxos]);
 
-  useEffect(() => {
-    tokens &&
-      tokens.allTokens.edges.map(token => {
-        if (token.node.isFollowed === true) {
-          setHasFollowed(prevState => [...prevState, token.node.tokenId]);
-        }
-      });
-  }, [tokens, isSuccessCreateFollowToken, isSuccessDeleteFollowToken]);
-
   useDidMountEffectNotification();
 
   return (
@@ -496,16 +486,19 @@ const TokensListing = () => {
             className="table-tokens"
             columns={columns}
             scroll={{ x: true }}
-            dataSource={tokens && tokens.allTokens.edges}
-            pagination={tokens && tokens.allTokens.totalCount >= 30 ? {} : false}
-            rowKey={record => {
-              return record.node.id;
+            dataSource={data}
+            pagination={{
+              total: totalCount,
+              pageSize: pageSize
+            }}
+            rowKey={token => {
+              return token.id;
             }}
           />
           <StyledTokensListingMobile>
-            {tokens &&
-              tokens.allTokens.edges.length > 0 &&
-              tokens.allTokens.edges.map(({ node: token }) => {
+            {data &&
+              data.length > 0 &&
+              data.map(token => {
                 return (
                   <React.Fragment key={token.id}>
                     <CardItemToken className="card-item-token">

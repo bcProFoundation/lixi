@@ -23014,12 +23014,12 @@ prisma-graphql-type-decimal@^2.0.6:
   resolved "https://registry.npmjs.org/prisma-graphql-type-decimal/-/prisma-graphql-type-decimal-2.0.6.tgz#8b9088e6639e3ddfc24d1dc41583f1a9f6cf615e"
   integrity sha512-xeJbn6AxCSE4lC39Xbo+VmgrhLNQzBCQoTupN8QtvP+2bpxYZ6ktyyFyub5mkVEtUg2tJs8etBiaKZOn+hMnIA==
 
-prisma@^5.3.1:
-  version "5.3.1"
-  resolved "https://registry.npmjs.org/prisma/-/prisma-5.3.1.tgz#a0932c1c1a5ed4ff449d064b193d9c7e94e8bf77"
-  integrity sha512-Wp2msQIlMPHe+5k5Od6xnsI/WNG7UJGgFUJgqv/ygc7kOECZapcSz/iU4NIEzISs3H1W9sFLjAPbg/gOqqtB7A==
+prisma@^5.5.2:
+  version "5.5.2"
+  resolved "https://registry.npmjs.org/prisma/-/prisma-5.5.2.tgz#54ad2f04f0dd4174f27128e4447013e8d75c4d69"
+  integrity sha512-WQtG6fevOL053yoPl6dbHV+IWgKo25IRN4/pwAGqcWmg7CrtoCzvbDbN9fXUc7QS2KK0LimHIqLsaCOX/vHl8w==
   dependencies:
-    "@prisma/engines" "5.3.1"
+    "@prisma/engines" "5.5.2"
 
 prismjs@^1.25.0, prismjs@^1.27.0:
   version "1.29.0"

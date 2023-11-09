@@ -12,12 +12,12 @@ import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { aesGcmDecrypt, aesGcmEncrypt, generateRandomBase58Str, hashMnemonic } from 'src/utils/encryptionMethods';
 import VError from 'verror';
-import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
+import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
+import { WALLET_SERVICES } from '../wallet/wallet.constants';
 import { WalletService } from '../wallet/wallet.service';
 import { AccountCacheService } from './account-cache.service';
 import AccountLoader from './account.loader';
-import { WALLET_SERVICES } from '../wallet/wallet.constants';
 
 const pubSub = new PubSub();
 

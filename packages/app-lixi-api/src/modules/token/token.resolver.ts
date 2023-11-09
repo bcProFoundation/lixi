@@ -1,4 +1,15 @@
-import { Account, CreateTokenInput, Token, TokenConnection, TokenDana, TokenOrder } from '@bcpros/lixi-models';
+import {
+  Account,
+  BasicPaginationArgs,
+  CreateTokenInput,
+  IBasicPaginated,
+  OrderDirection,
+  Token,
+  TokenConnection,
+  TokenDana,
+  TokenOrder,
+  TokenOrderField
+} from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
@@ -12,11 +23,14 @@ import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorato
 import SortedItemRepository from 'src/common/redis/sorted-repository';
 import { AccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
-import { GqlJwtAuthGuard } from 'src/modules/auth/guards/gql-jwtauth.guard';
+import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from 'src/modules/auth/guards/gql-jwtauth.guard';
 import VError from 'verror';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import TokenLoader from './token.loader';
+import { TokenCacheService } from './token-cache.service';
+import { TokenTimelineCacheService } from './token-timeline-cache.service';
+import { createEdge } from '../../common/custom-graphql-relay/paginate';
 
 @SkipThrottle()
 @Resolver(() => Token)
@@ -26,6 +40,8 @@ export class TokenResolver {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly tokenCacheService: TokenCacheService,
+    private readonly tokenTimelineCacheService: TokenTimelineCacheService,
     private readonly tokenLoader: TokenLoader,
     private readonly followCacheService: FollowCacheService,
     @InjectRedis() private readonly redis: Redis,
@@ -34,66 +50,20 @@ export class TokenResolver {
   ) {}
 
   @Query(() => Token)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlJwtAuthGuardByPass)
   async token(@AccountEntity() account: Account, @Args('tokenId', { type: () => String }) tokenId: string) {
-    const tokenInfo = await this.prisma.token.findUnique({
-      where: {
-        tokenId: tokenId
-      }
-    });
-
-    const isFollowed = await this.followCacheService.checkIfAccountFollowToken(account.id, tokenId);
-
-    return { ...tokenInfo, isFollowed: isFollowed };
+    return this.tokenCacheService.getById(tokenId);
   }
 
   @Query(() => TokenConnection)
-  @UseGuards(GqlJwtAuthGuard)
-  async allTokens(
-    @AccountEntity() account: Account,
-    @Args({
-      name: 'orderBy',
-      type: () => TokenOrder,
-      nullable: true
-    })
-    orderBy: TokenOrder
-  ) {
-    const keyPrefix = `tokens:list`;
-    const hashPrefix = `tokens:items-data`;
-    const tokenRepository = new SortedItemRepository<Token>(keyPrefix, hashPrefix, this.redis);
-
-    const keyExist = await this.redis.exists([keyPrefix]);
-
-    if (!keyExist) {
-      // caching the token1s
-      const tokens = await this.prisma.token.findMany({
-        orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined
-      });
-
-      const scores = tokens.map(token => token.danaBurnScore);
-      await tokenRepository.setItems(tokens, scores);
-      await this.redis.expire(keyPrefix, 3600);
-    }
-
-    const checkFollowTokens: any[] = await tokenRepository.getAll();
-    const result: any[] = [];
-    for (const token of checkFollowTokens) {
-      const isFollowed = await this.followCacheService.checkIfAccountFollowToken(account.id, token.tokenId);
-
-      result.push({
-        ...token,
-        isFollowed: isFollowed
-      });
-    }
-
-    return connectionFromArraySlice(
-      result,
-      {},
-      {
-        arrayLength: result.length,
-        sliceStart: 0
-      }
-    );
+  async allTokens(@Args() { after, first = 20 }: BasicPaginationArgs) {
+    const paginated = await this.tokenTimelineCacheService.getPaginatedTokenTimeline(first, after);
+    const tokenIds = paginated.edges.map(item => item.cursor);
+    const tokens = await this.tokenCacheService.getByIds(tokenIds);
+    return {
+      ...paginated,
+      edges: tokens.map(token => (token ? createEdge<Token>(token, 'id') : null))
+    } as IBasicPaginated<Token>;
   }
 
   @UseGuards(GqlJwtAuthGuard)
@@ -102,10 +72,7 @@ export class TokenResolver {
     const { tokenId } = data;
     if (tokenId) {
       try {
-        const keyPrefix = `tokens:list`;
-        const hashPrefix = `tokens:items-data`;
-        const tokenRepository = new SortedItemRepository<Token>(keyPrefix, hashPrefix, this.redis);
-        let token = await tokenRepository.getById(tokenId);
+        let token = await this.tokenCacheService.getByTokenId(tokenId);
 
         if (token) {
           throw new VError('Token already exist');
@@ -128,14 +95,20 @@ export class TokenResolver {
         };
 
         const createdToken = await this.prisma.token.create({
-          data: tokenToInsert
+          data: {
+            ...tokenToInsert,
+            tokenDana: {
+              create: {}
+            }
+          }
         });
 
-        tokenRepository.set(createdToken, createdToken.danaBurnScore);
+        token = await this.tokenCacheService.getById(createdToken.id);
+        if (token) {
+          await this.tokenTimelineCacheService.cacheToken(token);
+        }
 
-        const resultApi = { ...createdToken };
-
-        return resultApi;
+        return token;
       } catch (err) {
         if (err instanceof VError) {
           throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -146,16 +119,22 @@ export class TokenResolver {
         }
       }
     }
-    return null as any;
   }
 
   @ResolveField('followersCount', () => Number)
-  async followersCount(@Parent() page: Token) {
-    return this.tokenLoader.batchFollowersCount.load(page.id);
+  async followersCount(@Parent() token: Token) {
+    return this.tokenLoader.batchFollowersCount.load(token.id);
   }
 
   @ResolveField('tokenDana', () => TokenDana)
   async tokenDana(@Parent() token: Token) {
     return this.tokenLoader.batchTokenDanas.load(token.id);
+  }
+
+  @UseGuards(GqlJwtAuthGuardByPass)
+  @ResolveField('isFollowed', () => Boolean)
+  async isFollowed(@AccountEntity() account: Account, @Parent() token: Token) {
+    if (!account) return false;
+    return this.tokenLoader.batchIsFollowed.load({ accountId: account.id, tokenId: token.id });
   }
 }

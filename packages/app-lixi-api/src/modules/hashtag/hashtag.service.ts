@@ -46,7 +46,10 @@ export class HashtagService {
           const result = await prisma.hashtag.create({
             data: {
               content: hashtagUppercase,
-              normalizedContent: hashtag.substring(1).toLowerCase()
+              normalizedContent: hashtag.substring(1).toLowerCase(),
+              hashtagDana: {
+                create: {}
+              }
             }
           });
 

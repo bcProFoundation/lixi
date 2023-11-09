@@ -31,7 +31,29 @@ export class TokenCacheService {
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(item)));
       return item;
     }
-    return decode(buffer) as Token;
+    return new Token({ ...(decode(buffer) as Token) });
+  }
+
+  async getByTokenId(tokenId: string): Promise<Token | null> {
+    const buffer = await this.redis.hgetBuffer(this.keyPrefix, tokenId);
+    if (!buffer) {
+      // cache miss
+      const dbValue = await this.prisma.token.findUnique({
+        where: {
+          tokenId: tokenId
+        }
+      });
+
+      if (!dbValue) return null;
+
+      const item: Token = new Token({
+        ...dbValue
+      });
+
+      await this.redis.hset(this.keyPrefix, tokenId, Buffer.from(encode(item)));
+      return item;
+    }
+    return new Token({ ...(decode(buffer) as Token) });
   }
 
   async getByIds(ids: string[]): Promise<Nullable<Token>[]> {
@@ -82,7 +104,7 @@ export class TokenCacheService {
 
     return ids.map(id => {
       const item = itemsMap.get(id);
-      return item ? item : null;
+      return item ? new Token({ ...item }) : null;
     });
   }
 

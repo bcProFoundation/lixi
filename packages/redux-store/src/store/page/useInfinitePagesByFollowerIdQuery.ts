@@ -10,10 +10,6 @@ const followPagesAdapter = createEntityAdapter<PageQueryItem>({
 
 const { selectAll, selectEntities, selectIds, selectTotal } = followPagesAdapter.getSelectors();
 
-interface PagesByFollowerIdParams extends PaginationArgs {
-  id?: number;
-}
-
 export function useInfinitePagesByFollowerIdQuery(
   params: PaginationArgs & { id: number },
   fetchAll = false // if `true`: auto do next fetches to get all notes at once

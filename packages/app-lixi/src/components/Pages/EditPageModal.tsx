@@ -44,7 +44,7 @@ export const EditPageModal: React.FC<EditPageModalProps> = ({ page, disabled, cl
   const countries = useAppSelector(getAllCountries);
   const states = useAppSelector(getAllStates);
   const createPostFee = [0, 1, 10, 100, 1000];
-  const createCommentFee = [0, fromSmallestDenomination(currency.dustSats), 1, 10, 100];
+  const createCommentFee = [0, fromSmallestDenomination(currency.dustSats)];
 
   const {
     handleSubmit,

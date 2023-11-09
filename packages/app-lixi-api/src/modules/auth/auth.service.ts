@@ -94,12 +94,7 @@ export class AuthService implements OnModuleInit {
       const verified = await new TokenVerifier('ES256K', publicKey || '').verifyAsync(token);
 
       if (verified) {
-        return {
-          ...account,
-          dayOfBirth: account.dayOfBirth ?? undefined,
-          monthOfBirth: account.monthOfBirth ?? undefined,
-          yearOfBirth: account.yearOfBirth ?? undefined
-        };
+        return account;
       }
     } catch (err) {
       throw new Error('Invalid account');

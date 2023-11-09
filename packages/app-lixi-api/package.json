@@ -35,8 +35,8 @@
   "dependencies": {
     "@abcpros/bitcore-lib-xpi": "^8.25.37",
     "@aws-sdk/client-s3": "^3.6.0",
-    "@bcpros/lixi-models": "^1.1.4",
-    "@bcpros/lixi-prisma": "^1.1.4",
+    "@bcpros/lixi-models": "^1.1.5",
+    "@bcpros/lixi-prisma": "^1.1.5",
     "@bcpros/minimal-xpi-slp-wallet": "3.0.10",
     "@bcpros/xpi-js": "4.0.6",
     "@devoxa/prisma-relay-cursor-connection": "^2.2.2",

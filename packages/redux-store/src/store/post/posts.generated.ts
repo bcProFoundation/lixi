@@ -33,7 +33,7 @@ export type PostQuery = {
     danaBurnUp: number;
     danaBurnDown: number;
     danaBurnScore: number;
-    totalComments: number;
+    totalComments?: number | null;
     createdAt: any;
     updatedAt: any;
     followPostOwner?: boolean | null;
@@ -142,7 +142,7 @@ export type PostsByPageIdQuery = {
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
-        totalComments: number;
+        totalComments?: number | null;
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
@@ -259,7 +259,7 @@ export type PostsByUserIdQuery = {
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
-        totalComments: number;
+        totalComments?: number | null;
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
@@ -376,7 +376,7 @@ export type PostsByHashtagIdQuery = {
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
-        totalComments: number;
+        totalComments?: number | null;
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
@@ -493,7 +493,7 @@ export type PostsByTokenIdQuery = {
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
-        totalComments: number;
+        totalComments?: number | null;
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
@@ -603,7 +603,7 @@ export type PostsBySearchQuery = {
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
-        totalComments: number;
+        totalComments?: number | null;
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
@@ -691,7 +691,7 @@ export type PostsBySearchWithHashtagQuery = {
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
-        totalComments: number;
+        totalComments?: number | null;
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
@@ -780,7 +780,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
-        totalComments: number;
+        totalComments?: number | null;
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
@@ -869,7 +869,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
-        totalComments: number;
+        totalComments?: number | null;
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
@@ -943,7 +943,7 @@ export type PostFieldsFragment = {
   danaBurnUp: number;
   danaBurnDown: number;
   danaBurnScore: number;
-  totalComments: number;
+  totalComments?: number | null;
   createdAt: any;
   updatedAt: any;
   followPostOwner?: boolean | null;
@@ -1027,7 +1027,7 @@ export type PostMeiliFieldsFragment = {
   danaBurnUp: number;
   danaBurnDown: number;
   danaBurnScore: number;
-  totalComments: number;
+  totalComments?: number | null;
   createdAt: any;
   updatedAt: any;
   followPostOwner?: boolean | null;
@@ -1097,7 +1097,7 @@ export type CreatePostMutation = {
     danaBurnUp: number;
     danaBurnDown: number;
     danaBurnScore: number;
-    totalComments: number;
+    totalComments?: number | null;
     createdAt: any;
     updatedAt: any;
     followPostOwner?: boolean | null;
@@ -1192,7 +1192,7 @@ export type UpdatePostMutation = {
     danaBurnUp: number;
     danaBurnDown: number;
     danaBurnScore: number;
-    totalComments: number;
+    totalComments?: number | null;
     createdAt: any;
     updatedAt: any;
     followPostOwner?: boolean | null;

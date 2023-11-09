@@ -36,7 +36,7 @@ export class TranslateService {
           },
           data: [
             {
-              text: content
+              text: content.length > 24999 ? content.slice(0, 24999) : content
             }
           ],
           responseType: 'json'

@@ -60,7 +60,8 @@ export class PostCacheService {
       return post;
     }
 
-    return decode(buffer) as Post;
+    const post = decode(buffer) as Post;
+    return new Post({ ...post });
   }
 
   async getByIds(ids: string[]) {
@@ -127,7 +128,7 @@ export class PostCacheService {
 
     return ids.map(id => {
       const item = itemsMap.get(id);
-      return item ?? null;
+      return item ? new Post({ ...item }) : null;
     });
   }
 

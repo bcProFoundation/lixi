@@ -839,8 +839,8 @@ export class PostResolver {
           },
           txid: txid,
           createFee: createFee,
-          postImageUploadable: {
-            connect: imageUploadable ? { id: imageUploadable.id } : undefined
+          postDana: {
+            create: {}
           }
         },
         include: {

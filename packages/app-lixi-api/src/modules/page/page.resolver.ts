@@ -12,7 +12,7 @@ import {
 } from '@bcpros/lixi-models';
 import BCHJS from '@bcpros/xpi-js';
 import { HttpException, HttpStatus, Inject, Logger, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PubSub } from 'graphql-subscriptions';
 import * as _ from 'lodash';
@@ -50,11 +50,6 @@ export class PageResolver {
     @I18n() private i18n: I18nService,
     @Inject(XPIJS) private XPI: BCHJS
   ) {}
-
-  @Subscription(() => Page)
-  static pageCreated() {
-    return PageResolver.pubSub.asyncIterator('pageCreated');
-  }
 
   @Query(() => Page)
   async page(@PageAccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
@@ -129,10 +124,10 @@ export class PageResolver {
           }
         },
         salt: salt,
-        encryptedMnemonic: encryptedMnemonic
-      },
-      include: {
-        pageAccount: true
+        encryptedMnemonic: encryptedMnemonic,
+        pageDana: {
+          create: {}
+        }
       }
     });
 
@@ -140,7 +135,6 @@ export class PageResolver {
     if (page) {
       await this.pageTimelineCacheService.cachePage(page);
     }
-    PageResolver.pubSub.publish('pageCreated', { pageCreated: page });
     return page;
   }
 
@@ -346,6 +340,7 @@ export class PageResolver {
     const page = await this.pageCacheService.getById(updatedPage.id);
 
     PageResolver.pubSub.publish('pageUpdated', { pageUpdated: page });
+
     return page;
   }
 

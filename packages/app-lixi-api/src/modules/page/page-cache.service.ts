@@ -64,33 +64,33 @@ export class PageCacheService {
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(page)));
       return page;
     }
-    return decode(buffer) as Page;
+    return new Page({ ...(decode(buffer) as Page) });
   }
 
   async getByIds(ids: string[]): Promise<Nullable<Page>[]> {
     if (ids.length === 0) return [];
 
-    const pagesMap = new Map();
+    const itemsMap = new Map();
 
     try {
       const values = await this.redis.hmgetBuffer(this.keyPrefix, ...ids);
-      const uncachedPageIds = [];
+      const uncachedIds = [];
       for (let i = 0; i < ids.length; i++) {
         if (!values[i]) {
-          uncachedPageIds.push(ids[i]);
+          uncachedIds.push(ids[i]);
         }
       }
 
       _.compact(values).map(value => {
         const page = decode(value) as Page;
-        pagesMap.set(page.id, page);
+        itemsMap.set(page.id, page);
       });
 
       const dbValues =
-        uncachedPageIds.length > 0
+        uncachedIds.length > 0
           ? await this.prisma.page.findMany({
               where: {
-                id: { in: uncachedPageIds }
+                id: { in: uncachedIds }
               },
               include: {
                 pageAccount: true,
@@ -120,7 +120,7 @@ export class PageCacheService {
             stateName: dbValue.state?.name || '',
             countryName: dbValue.country?.name || ''
           });
-          pagesMap.set(dbValue.id, page);
+          itemsMap.set(dbValue.id, page);
           const buffer = encode(page);
           return [dbValue.id, Buffer.from(buffer)];
         })
@@ -134,8 +134,8 @@ export class PageCacheService {
     }
 
     return ids.map(id => {
-      const page = pagesMap.get(id);
-      return page ? page : null;
+      const page = itemsMap.get(id);
+      return page ? new Page({ ...page }) : null;
     });
   }
 

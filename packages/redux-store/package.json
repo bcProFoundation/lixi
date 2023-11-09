@@ -34,7 +34,7 @@
     "node": ">=10"
   },
   "peerDependencies": {
-    "@prisma/client": ">=4.13.0",
+    "@prisma/client": ">=5.5.2",
     "graphql": ">=16"
   },
   "devDependencies": {
@@ -85,7 +85,7 @@
     ]
   },
   "dependencies": {
-    "@bcpros/lixi-models": "^1.1.4",
+    "@bcpros/lixi-models": "^1.1.5",
     "@nestjs/mapped-types": "^1.2.0",
     "@shoooe/derive": "^0.2.7",
     "bitcoinjs-message": "^2.2.0",
