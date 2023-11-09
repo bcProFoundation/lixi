@@ -29,14 +29,13 @@ export default function useXPI() {
     return apiArray[apiIndex];
   };
 
-  const getXPI = (): BCHJS => {
-    // let ConstructedSlpWallet;
+  const getXPI = (apiIndex = 0): BCHJS => {
+    let ConstructedSlpWallet;
 
-    // ConstructedSlpWallet = new SlpWallet('', {
-    //   restURL: getRestUrl(apiIndex)
-    // });
-    // return ConstructedSlpWallet.bchjs as BCHJS;
-    return new BCHJS({});
+    ConstructedSlpWallet = new SlpWallet('', {
+      restURL: getRestUrl(apiIndex)
+    });
+    return ConstructedSlpWallet.bchjs as BCHJS;
   };
 
   const calcFee = (XPI: BCHJS, utxos: any, p2pkhOutputNumber = 2, satoshisPerByte = 2.01, opReturnLength = 0) => {
