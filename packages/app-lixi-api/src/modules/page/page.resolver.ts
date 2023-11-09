@@ -341,6 +341,8 @@ export class PageResolver {
       }
     });
 
+    await this.pageCacheService.removeByKeys([updatedPage.id]);
+
     const page = await this.pageCacheService.getById(updatedPage.id);
 
     PageResolver.pubSub.publish('pageUpdated', { pageUpdated: page });

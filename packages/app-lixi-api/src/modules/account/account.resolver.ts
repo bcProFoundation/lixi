@@ -78,11 +78,7 @@ export class AccountResolver {
 
   @Query(() => Account)
   @UseGuards(GqlJwtAuthGuard)
-  async getAccountByAddress(
-    @AccountEntity() myAccount: Account,
-    @Args('address', { type: () => String }) address: string,
-    @I18n() i18n: I18nContext
-  ) {
+  async getAccountByAddress(@Args('address', { type: () => String }) address: string) {
     try {
       const account = await this.accountCacheService.getByAddress(address);
 
@@ -448,37 +444,20 @@ export class AccountResolver {
       });
     }
 
-    const uploadAvatarDetail = data.avatar
-      ? await this.prisma.uploadDetail.findFirst({
-          where: {
-            uploadId: data.avatar
-          }
-        })
-      : undefined;
-
-    const uploadCoverDetail = data.cover
-      ? await this.prisma.uploadDetail.findFirst({
-          where: {
-            uploadId: data.cover
-          }
-        })
-      : undefined;
-
     const updatedAccount = await this.prisma.account.update({
       where: {
         id: _.toSafeInteger(account.id)
       },
       data: {
         ..._.omit(data, ['id', 'avatar', 'cover']),
-        updatedAt: new Date(),
-        avatar: { connect: uploadAvatarDetail ? { id: uploadAvatarDetail.id } : undefined },
-        cover: { connect: uploadCoverDetail ? { id: uploadCoverDetail.id } : undefined }
+        updatedAt: new Date()
       }
     });
     await this.accountCacheService.removeByKeys([
       updatedAccount.id.toString(),
       updatedAccount.address,
-      updatedAccount.mnemonicHash
+      updatedAccount.mnemonicHash,
+      updatedAccount.address
     ]);
 
     const cachedAccount = await this.accountCacheService.getById(updatedAccount.id);

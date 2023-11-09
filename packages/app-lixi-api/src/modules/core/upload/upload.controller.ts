@@ -138,6 +138,12 @@ export class UploadFilesController {
             }
           });
 
+          await prisma.imageUploadable.delete({
+            where: {
+              id: upload.imageUploadableId!
+            }
+          });
+
           return upload;
         });
 

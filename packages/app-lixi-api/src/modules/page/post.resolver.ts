@@ -14,9 +14,11 @@ import {
   RepostInput,
   Token,
   UpdatePostInput,
-  UploadDetail
+  UploadDetail,
+  ImageUploadableTo,
+  IImageUploadableTo
 } from '@bcpros/lixi-models';
-import { ImageUploadable, ImageUploadableType, NotificationLevel } from '@bcpros/lixi-prisma';
+import { ImageUploadable, ImageUploadableType, NotificationLevel, Post as PostPrisma } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
@@ -49,6 +51,7 @@ import { MeiliService } from './meili.service';
 import PostLoader from './post.loader';
 import { XPIJS } from '../wallet/wallet.constants';
 import CommentableLoader from './commentable.loader';
+import ImageUploadableLoader from './imageUploadable.loader';
 
 const pubSub = new PubSub();
 
@@ -71,7 +74,8 @@ export class PostResolver {
     @I18n() private i18n: I18nService,
     private readonly accountCacheService: AccountCacheService,
     private readonly postLoader: PostLoader,
-    private readonly commentableLoader: CommentableLoader
+    private readonly commentableLoader: CommentableLoader,
+    private readonly imageUploadableLoader: ImageUploadableLoader
   ) {}
 
   @SkipThrottle()
@@ -1119,6 +1123,20 @@ export class PostResolver {
       return this.commentableLoader.batchTotalComments.load(commentableTo);
     }
     return 0;
+  }
+
+  @ResolveField('postImageUploadable', () => ImageUploadableModel)
+  async postImageUploadable(@Parent() post: PostPrisma) {
+    if (post && post.postImageUploadableId) {
+      const result = await this.imageUploadableLoader.batchImageUploadable.load({
+        id: post.id,
+        imageUploadableId: post.postImageUploadableId
+      } as IImageUploadableTo);
+      return {
+        id: result?.id,
+        uploads: result?.uploads
+      };
+    }
   }
 
   @ResolveField('page', () => Page)

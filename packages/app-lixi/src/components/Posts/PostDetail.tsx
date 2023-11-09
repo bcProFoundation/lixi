@@ -388,13 +388,13 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   );
 
   useEffect(() => {
-    const mapImages = post.uploads.map(img => {
-      const imgUrl = img.upload
-        ? `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.upload.cfImageId}/public`
+    const mapImages = post.postImageUploadable?.uploads.map(img => {
+      const imgUrl = img
+        ? `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img?.cfImageId}/public`
         : '';
 
-      let width = img?.upload?.width || 4;
-      let height = img?.upload?.height || 3;
+      let width = img?.width || 4;
+      let height = img?.height || 3;
       let objImg = {
         src: imgUrl,
         width: width,
@@ -681,9 +681,9 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
               <PostTranslate postTranslate={post.translations[0].translateContent} />
             </div>
           )}
-          {post.uploads.length != 0 && isMobileView && (
+          {post.postImageUploadable?.uploads.length != 0 && isMobileView && (
             <>
-              {post.uploads.length > 1 && (
+              {post.postImageUploadable?.uploads.length > 1 && (
                 <div className="images-post images-post-mobile">
                   <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
                     {imagesList.map((img, index) => (
@@ -694,7 +694,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
                   </PhotoProvider>
                 </div>
               )}
-              {post.uploads.length === 1 && (
+              {post.postImageUploadable?.uploads.length === 1 && (
                 <>
                   <div className="images-post images-post-mobile only-one-image">
                     <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
@@ -709,7 +709,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
               )}
             </>
           )}
-          {post.uploads.length != 0 && !isMobileView && (
+          {post.postImageUploadable?.uploads.length != 0 && !isMobileView && (
             <div className={`images-post ${imagesList.length > 1 ? 'images-post-desktop' : ''}`}>
               <Image.PreviewGroup>
                 <Gallery margin={4} photos={imagesList} renderImage={imageRenderer} />

@@ -26,6 +26,7 @@ import { PostResolver } from './post.resolver';
 import { PostCacheService } from './post-cache.service';
 import { CommentCacheService } from './comment-cache.service';
 import CommentableLoader from './commentable.loader';
+import ImageUploadableLoader from './imageUploadable.loader';
 
 @Module({
   imports: [
@@ -70,7 +71,8 @@ import CommentableLoader from './commentable.loader';
     PostDanaCacheService,
     CommentCacheService,
     CommentDanaCacheService,
-    CommentableLoader
+    CommentableLoader,
+    ImageUploadableLoader
   ],
   exports: [
     MeiliService,

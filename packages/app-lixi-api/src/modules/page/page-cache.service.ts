@@ -38,14 +38,14 @@ export class PageCacheService {
           category: true,
           country: true,
           state: true,
-          avatar: {
+          pageAvatarImageUploadable: {
             include: {
-              upload: true
+              uploads: true
             }
           },
-          cover: {
+          pageCoverImageUploadable: {
             include: {
-              upload: true
+              uploads: true
             }
           }
         }
@@ -55,8 +55,8 @@ export class PageCacheService {
 
       const page: Page = new Page({
         ..._.omit(dbValue, 'country', 'state'),
-        avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.avatar?.upload),
-        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.cover?.upload),
+        avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.pageAvatarImageUploadable?.uploads[0]),
+        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.pageCoverImageUploadable?.uploads[0]),
         stateName: dbValue.state?.name || '',
         countryName: dbValue.country?.name || ''
       });

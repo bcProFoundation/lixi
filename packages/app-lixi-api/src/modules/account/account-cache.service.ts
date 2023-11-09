@@ -37,14 +37,14 @@ export class AccountCacheService {
           id: _.toSafeInteger(id)
         },
         include: {
-          avatar: {
+          accountAvatarImageUploadable: {
             include: {
-              upload: true
+              uploads: true
             }
           },
-          cover: {
+          accountCoverImageUploadable: {
             include: {
-              upload: true
+              uploads: true
             }
           }
         }
@@ -53,8 +53,8 @@ export class AccountCacheService {
 
       const account: Account = new Account({
         ...dbValue,
-        avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.avatar?.upload),
-        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.cover?.upload)
+        avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.accountAvatarImageUploadable?.uploads[0]),
+        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.accountCoverImageUploadable?.uploads[0])
       });
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(account)));
       return account;
@@ -139,14 +139,14 @@ export class AccountCacheService {
           address: address
         },
         include: {
-          avatar: {
+          accountAvatarImageUploadable: {
             include: {
-              upload: true
+              uploads: true
             }
           },
-          cover: {
+          accountCoverImageUploadable: {
             include: {
-              upload: true
+              uploads: true
             }
           }
         }
@@ -155,8 +155,8 @@ export class AccountCacheService {
 
       const account: Account = new Account({
         ...dbValue,
-        avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.avatar?.upload),
-        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.cover?.upload)
+        avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.accountAvatarImageUploadable?.uploads[0]),
+        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.accountCoverImageUploadable?.uploads[0])
       });
 
       await this.redis.hset(this.keyPrefix, address, Buffer.from(encode(account)));
@@ -176,14 +176,14 @@ export class AccountCacheService {
           mnemonicHash: mnemonicHash
         },
         include: {
-          avatar: {
+          accountAvatarImageUploadable: {
             include: {
-              upload: true
+              uploads: true
             }
           },
-          cover: {
+          accountCoverImageUploadable: {
             include: {
-              upload: true
+              uploads: true
             }
           }
         }
@@ -192,8 +192,8 @@ export class AccountCacheService {
 
       const account: Account = new Account({
         ...dbValue,
-        avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.avatar?.upload),
-        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.cover?.upload)
+        avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.accountAvatarImageUploadable?.uploads[0]),
+        cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.accountCoverImageUploadable?.uploads[0])
       });
 
       await this.redis.hset(this.keyPrefix, mnemonicHash, Buffer.from(encode(account)));

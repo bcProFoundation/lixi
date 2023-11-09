@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { createUnionType, Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 
 import { Account } from './account';
 import { Comment } from './comment';
@@ -12,6 +12,33 @@ import { Product } from './product';
 import { Temple } from './temple';
 import { Upload } from './upload';
 
+export const ImageUploadableTo = createUnionType({
+  name: 'ImageUploadableTo',
+  types: () => [Post, Poll, Event, Product, Comment, Message],
+  resolveType(value) {
+    switch (value.constructor.name) {
+      case 'Post':
+        return Post;
+      case 'Event':
+        return Event;
+      case 'Poll':
+        return Poll;
+      case 'Product':
+        return Product;
+      case 'Comment':
+        return Comment;
+      case 'Message':
+        return Message;
+      default:
+        return Post;
+    }
+  }
+});
+
+export interface IImageUploadableTo {
+  id: string; //postid, commentid, pollid, eventid, productid, messageid, ...
+  imageUploadableId?: Nullable<string>; //imageUploadableId
+}
 @ObjectType()
 export class ImageUploadable {
   @Field(() => ID)
@@ -64,6 +91,9 @@ export class ImageUploadable {
 
   @Field(() => ImageUploadableType, { nullable: true })
   type?: Nullable<ImageUploadableType>;
+
+  @Field(() => ImageUploadableTo, { nullable: true })
+  imageUploadableTo?: typeof ImageUploadableTo;
 
   constructor(partial: Partial<ImageUploadable>) {
     Object.assign(this, partial);
