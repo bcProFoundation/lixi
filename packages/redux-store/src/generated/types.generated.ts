@@ -539,6 +539,7 @@ export type ImageUploadable = {
   comment?: Maybe<Comment>;
   event?: Maybe<Event>;
   id: Scalars['ID'];
+  imageUploadableTo?: Maybe<ImageUploadableTo>;
   lixi?: Maybe<LixiModel>;
   message?: Maybe<Message>;
   pageAvatar?: Maybe<Page>;
@@ -551,6 +552,8 @@ export type ImageUploadable = {
   type?: Maybe<ImageUploadableType>;
   uploads: Array<Upload>;
 };
+
+export type ImageUploadableTo = Comment | Event | Message | Poll | Post | Product;
 
 /** Properties by type of the image uploadable. */
 export enum ImageUploadableType {
@@ -1037,7 +1040,6 @@ export type Post = {
   bookmarkableId?: Maybe<Scalars['String']>;
   commentableId?: Maybe<Scalars['String']>;
   content: Scalars['String'];
-  coverImageUplodableId?: Maybe<Scalars['String']>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
   danaBurnDown: Scalars['Float'];
@@ -1048,7 +1050,6 @@ export type Post = {
   followedPage?: Maybe<Scalars['Boolean']>;
   followedToken?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
-  imageUploadableId?: Maybe<Scalars['String']>;
   originalLanguage?: Maybe<Scalars['String']>;
   page?: Maybe<Page>;
   pageId?: Maybe<Scalars['String']>;
