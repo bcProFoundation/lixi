@@ -61,7 +61,6 @@ export function useInfiniteTokensQuery(
     } finally {
       isNextDone.current = true;
       if (fetchAll && nextResult.data?.allTokens?.pageInfo?.hasNextPage) {
-        console.log('hasNextPage: ', baseResult.data?.allTokens?.pageInfo?.hasNextPage);
         fetchAll && fetchNext();
       }
     }

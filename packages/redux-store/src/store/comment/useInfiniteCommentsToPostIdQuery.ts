@@ -72,7 +72,9 @@ export function useInfiniteCommentsToPostIdQuery(
     } catch (e) {
     } finally {
       isNextDone.current = true;
-      fetchAll && fetchNext();
+      if (fetchAll && nextResult.data?.allCommentsToPostId?.pageInfo?.hasNextPage) {
+        fetchNext();
+      }
     }
   };
 
