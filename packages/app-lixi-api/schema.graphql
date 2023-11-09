@@ -137,7 +137,6 @@ type Comment {
   commentByPublicKey: String
   commentDana: CommentDana
   commentText: String!
-  commentToId: String!
   commentableId: String
   content: String!
 
@@ -208,7 +207,7 @@ input CreateBookmarkInput {
 input CreateCommentInput {
   commentByPublicKey: String
   commentText: String!
-  commentToId: String!
+  commentableId: String!
   createFeeHex: String
   tipHex: String
 }
@@ -1012,8 +1011,6 @@ enum ProductOrderField {
 type Query {
   account(id: Int!): Account!
   allClosedPageMessageSession(accountId: Int, after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, pageId: String, skip: Int): PageMessageSessionConnection!
-  allCommentsToCommentableId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: CommentOrder, skip: Int): CommentConnection!
-  allCommentsToPostId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: CommentOrder, skip: Int): CommentConnection!
   allFollowersByFollowing(after: String, before: String, first: Int, followingAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
   allFollowingsByFollower(after: String, before: String, first: Int, followerAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
   allHashtag(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: HashtagOrder, skip: Int): HashtagConnection!
@@ -1140,6 +1137,7 @@ type Query {
   checkIfFollowPage(pageId: String): Boolean!
   checkIfFollowToken(tokenId: String): Boolean!
   comment(id: String!): Comment!
+  commentsToCommentableId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: CommentOrder, skip: Int): CommentConnection!
   getAccountByAddress(address: String!): Account!
   getBalances(address: String!): Balances!
   hashtag(content: String!): Hashtag!
@@ -1192,7 +1190,6 @@ type State {
 
 type Subscription {
   bookmarkCreated: Bookmark!
-  commentCreated: Comment!
   followAccountCreated: FollowAccount!
   hashtagCreated: Hashtag!
   messageCreated: Message!

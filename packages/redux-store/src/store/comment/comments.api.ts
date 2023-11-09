@@ -11,7 +11,7 @@ export interface CommentApiState extends EntityState<Comment> {
 const enhancedApi = api.enhanceEndpoints({
   addTagTypes: ['Comment', 'Comments'],
   endpoints: {
-    CommentsToPostId: {
+    CommentsToCommentableId: {
       providesTags: ['Comments'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
@@ -21,9 +21,9 @@ const enhancedApi = api.enhanceEndpoints({
         return { queryArgs };
       },
       merge(currentCacheData, responseData) {
-        currentCacheData.allCommentsToPostId.edges.push(...responseData.allCommentsToPostId.edges);
-        currentCacheData.allCommentsToPostId.pageInfo = responseData.allCommentsToPostId.pageInfo;
-        currentCacheData.allCommentsToPostId.totalCount = responseData.allCommentsToPostId.totalCount;
+        currentCacheData.commentsToCommentableId.edges.push(...responseData.commentsToCommentableId.edges);
+        currentCacheData.commentsToCommentableId.pageInfo = responseData.commentsToCommentableId.pageInfo;
+        currentCacheData.commentsToCommentableId.totalCount = responseData.commentsToCommentableId.totalCount;
       }
     },
     createComment: {}
@@ -32,5 +32,9 @@ const enhancedApi = api.enhanceEndpoints({
 
 export { enhancedApi as api };
 
-export const { useCommentQuery, useCommentsToPostIdQuery, useLazyCommentsToPostIdQuery, useCreateCommentMutation } =
-  enhancedApi;
+export const {
+  useCommentQuery,
+  useCommentsToCommentableIdQuery,
+  useLazyCommentsToCommentableIdQuery,
+  useCreateCommentMutation
+} = enhancedApi;

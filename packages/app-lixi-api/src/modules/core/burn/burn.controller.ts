@@ -378,11 +378,21 @@ export class BurnController {
         let commentAccount;
         if (command.burnForType == BurnForType.Comment) {
           const comment = await this.prisma.comment.findFirst({
-            where: { id: command.burnForId }
+            where: { id: command.burnForId },
+            include: {
+              commentable: true
+            }
           });
 
+          if (comment?.commentable?.type === 'Post') {
+            const post = await this.prisma.comment.findFirst({
+              where: { commentableId: comment.commentableId }
+            });
+            commentPostId = post ? post.id : undefined;
+          }
+
           commentAccountId = comment?.commentAccountId;
-          commentPostId = comment?.commentToId;
+
           commentAccount = await this.accountCacheService.getById(_.toSafeInteger(commentAccountId));
         }
 

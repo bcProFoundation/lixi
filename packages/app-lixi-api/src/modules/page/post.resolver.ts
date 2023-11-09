@@ -77,7 +77,6 @@ export class PostResolver {
   @Query(() => Post)
   @UseGuards(GqlJwtAuthGuardByPass)
   async post(@PostAccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
-    console.log('postresolver');
     const dbPost = await this.prisma.post.findUnique({
       where: { id: id },
       include: {

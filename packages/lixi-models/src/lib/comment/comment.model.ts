@@ -26,9 +26,6 @@ export class Comment {
   @Field(() => String, { nullable: true })
   commentByPublicKey?: Nullable<string>;
 
-  @Field(() => String)
-  commentToId: string;
-
   @Field(() => String, { nullable: true })
   commentableId?: Nullable<string>;
 

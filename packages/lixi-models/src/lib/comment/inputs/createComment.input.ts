@@ -11,7 +11,7 @@ export class CreateCommentInput {
   commentByPublicKey?: Nullable<string>;
 
   @Field(() => String)
-  commentToId: string;
+  commentableId: string;
 
   @IsOptional()
   @Field(() => String, { nullable: true })
