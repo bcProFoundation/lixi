@@ -13,12 +13,12 @@ import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotific
 import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { getSelectedAccount } from '@store/account/selectors';
 import { prepareBurnCommand } from '@store/burn/actions';
-import { api as commentsApi, useCreateCommentMutation } from '@store/comment/comments.api';
+import { createCommentFailure, createCommentSuccess } from '@store/comment';
+import { useCreateCommentMutation } from '@store/comment/comments.api';
 import { useInfiniteCommentsToCommentableIdQuery } from '@store/comment/useInfiniteCommentsToCommentableIdQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
 import { sendXPIFailure } from '@store/send/actions';
-import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
 import { formatBalance, getUtxoWif } from '@utils/cashMethods';
 import { AutoComplete, Image, Input, Skeleton, Space } from 'antd';
@@ -376,33 +376,10 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
       let patches: PatchCollection;
       try {
         const result = await createCommentTrigger({ input: createCommentInput }).unwrap();
-        patches = dispatch(
-          commentsApi.util.updateQueryData(
-            'CommentsToCommentableId',
-            { id: createCommentInput.commentableId, ...params },
-            draft => {
-              draft.commentsToCommentableId.edges.unshift({
-                cursor: result.createComment.id,
-                node: {
-                  ...result.createComment
-                }
-              });
-              draft.commentsToCommentableId.totalCount = draft.commentsToCommentableId.totalCount + 1;
-            }
-          )
-        );
+        dispatch(createCommentSuccess(result));
       } catch (error) {
         const message = intl.get('comment.unableCreateComment');
-        if (patches) {
-          dispatch(commentsApi.util.patchQueryData('CommentsToCommentableId', params, patches.inversePatches));
-        }
-        dispatch(
-          showToast('error', {
-            message: 'Error',
-            description: message,
-            duration: 3
-          })
-        );
+        dispatch(createCommentFailure(message));
       }
 
       setFocus('comment', { shouldSelect: true });

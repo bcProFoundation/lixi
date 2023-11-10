@@ -1,4 +1,12 @@
-import { Burn, BurnCommand, BurnForType, BurnType, PostDana, TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models';
+import {
+  Burn,
+  BurnCommand,
+  BurnForType,
+  BurnType,
+  CommentType,
+  PostDana,
+  TRANSLATION_REQUIRE_AMOUNT
+} from '@bcpros/lixi-models';
 import { NotificationLevel, Token } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
@@ -315,6 +323,8 @@ export class BurnController {
             }
           });
 
+          console.log('comment', comment);
+
           let danaBurnUp = comment?.danaBurnUp ?? 0;
           let danaBurnDown = comment?.danaBurnDown ?? 0;
           const xpiValue = value;
@@ -384,7 +394,7 @@ export class BurnController {
             }
           });
 
-          if (comment?.commentable?.type === 'Post') {
+          if (comment?.commentable?.type === CommentType.POST) {
             const post = await this.prisma.comment.findFirst({
               where: { commentableId: comment.commentableId }
             });

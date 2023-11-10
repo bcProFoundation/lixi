@@ -1,12 +1,12 @@
-import { Poll } from './types.generated';
 import { AccountQuery } from '../store/account/accounts.generated';
 import { CommentQuery } from '../store/comment/comments.generated';
 import { HashtagQuery } from '../store/hashtag';
 import { PageQuery } from '../store/page/pages.generated';
-import { PostQuery, PostsBySearchWithHashtagQuery } from '../store/post/posts.generated';
+import { PostQuery } from '../store/post/posts.generated';
 import { TimelineQuery } from '../store/timeline/timeline.generated';
 import { TokenQuery } from '../store/token/tokens.generated';
 import { WorshipQuery, WorshipedPersonQuery } from '../store/worship';
+import { Poll } from './types.generated';
 
 export type AccountQueryItem = AccountQuery['account'];
 export type CommentQueryItem = CommentQuery['comment'];

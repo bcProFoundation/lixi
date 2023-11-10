@@ -176,6 +176,7 @@ model Post {
   imageUploadable        ImageUploadable?  @relation("images", fields: [imageUploadableId], references: [id])
   postDana               PostDana?
 
+  @@index([commentableId])
   @@index([postAccountId])
   @@index([pageId])
   @@map("post")
@@ -196,9 +197,18 @@ model PostDana {
   @@map("post_dana")
 }
 
+enum CommentType {
+  POST
+  EVENT
+  POLL
+  PRODUCT
+
+  @@map("comment_type")
+}
+
 model Commentable {
-  id       String    @id @default(cuid())
-  type     String
+  id       String      @id @default(cuid())
+  type     CommentType @default(value: POST) @map("type")
   comments Comment[]
   post     Post?
   event    Event?
