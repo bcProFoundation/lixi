@@ -11,18 +11,16 @@ import { CommentOrderField, CreateCommentInput, OrderDirection, RepostInput } fr
 import useXPI from '@hooks/useXPI';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
-import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { getAccountInfoTemp, getSelectedAccount } from '@store/account/selectors';
-import { getBurnQueue, getFailQueue } from '@store/burn';
-import { api as commentsApi, useCreateCommentMutation } from '@store/comment/comments.api';
+import { createCommentFailure, createCommentSuccess } from '@store/comment';
+import { useCreateCommentMutation } from '@store/comment/comments.api';
 import { useInfiniteCommentsToCommentableIdQuery } from '@store/comment/useInfiniteCommentsToCommentableIdQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
 import { useRepostMutation } from '@store/post/posts.generated';
 import { sendXPIFailure } from '@store/send/actions';
-import { getFilterPostsHome, getLevelFilter } from '@store/settings/selectors';
 import { showToast } from '@store/toast/actions';
-import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
+import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
 import { getUtxoWif } from '@utils/cashMethods';
 import { AutoComplete, Image, Input, Skeleton, Space, Spin } from 'antd';
 import parse from 'html-react-parser';
@@ -351,19 +349,14 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   const { XPI, chronik } = Wallet;
   const { createBurnTransaction, sendXpi } = useXPI();
   const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const burnQueue = useAppSelector(getBurnQueue);
-  const failQueue = useAppSelector(getFailQueue);
   const walletPaths = useAppSelector(getAllWalletPaths);
   const selectedAccount = useAppSelector(getSelectedAccount);
   const [imagesList, setImagesList] = useState([]);
   const [isEncryptedOptionalOpReturnMsg, setIsEncryptedOptionalOpReturnMsg] = useState(true);
-  const walletStatus = useAppSelector(getWalletStatus);
   const [open, setOpen] = useState(false);
-  const filterValue = useAppSelector(getFilterPostsHome);
   const [showTranslation, setShowTranslation] = useState(false);
   const accountInfoTemp = useAppSelector(getAccountInfoTemp);
   const isMobileView = useDetectMobileView();
-  const level = useAppSelector(getLevelFilter);
 
   const [repostTrigger, { isLoading: isLoadingRepost, isSuccess: isSuccessRepost, isError: isErrorRepost }] =
     useRepostMutation();
@@ -503,43 +496,12 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
         createFeeHex: createFeeHex
       };
 
-      const params = {
-        orderBy: {
-          direction: OrderDirection.Asc,
-          field: CommentOrderField.UpdatedAt
-        }
-      };
-
-      let patches: PatchCollection;
       try {
         const result = await createCommentTrigger({ input: createCommentInput }).unwrap();
-        patches = dispatch(
-          commentsApi.util.updateQueryData(
-            'CommentsToCommentableId',
-            { id: createCommentInput.commentableId, ...params },
-            draft => {
-              draft.commentsToCommentableId.edges.unshift({
-                cursor: result.createComment.id,
-                node: {
-                  ...result.createComment
-                }
-              });
-              draft.commentsToCommentableId.totalCount = draft.commentsToCommentableId.totalCount + 1;
-            }
-          )
-        );
+        dispatch(createCommentSuccess(result));
       } catch (error) {
         const message = intl.get('comment.unableCreateComment');
-        if (patches) {
-          dispatch(commentsApi.util.patchQueryData('CommentsToCommentableId', params, patches.inversePatches));
-        }
-        dispatch(
-          showToast('error', {
-            message: 'Error',
-            description: message,
-            duration: 3
-          })
-        );
+        dispatch(createCommentFailure(message));
       }
 
       setFocus('comment', { shouldSelect: true });

@@ -60,6 +60,11 @@ fragment CommentFields on Comment {
   }
   createdAt
   updatedAt
+  commentable {
+    id
+    type
+    commentToId
+  }
 }
 
 mutation createComment($input: CreateCommentInput!) {
