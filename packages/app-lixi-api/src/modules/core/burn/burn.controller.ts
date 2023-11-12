@@ -48,7 +48,7 @@ export class BurnController {
     private translateService: TranslateService,
     private readonly accountCacheService: AccountCacheService,
     private readonly postDanaCacheService: PostDanaCacheService
-  ) {}
+  ) { }
 
   private convertBurnedByToAddress(burnedBy: string): string {
     const legacyAddress = this.XPI.Address.hash160ToLegacy(burnedBy);
@@ -323,8 +323,6 @@ export class BurnController {
             }
           });
 
-          console.log('comment', comment);
-
           let danaBurnUp = comment?.danaBurnUp ?? 0;
           let danaBurnDown = comment?.danaBurnDown ?? 0;
           const xpiValue = value;
@@ -395,7 +393,7 @@ export class BurnController {
           });
 
           if (comment?.commentable?.type === CommentType.POST) {
-            const post = await this.prisma.comment.findFirst({
+            const post = await this.prisma.post.findFirst({
               where: { commentableId: comment.commentableId }
             });
             commentPostId = post ? post.id : undefined;
@@ -452,8 +450,8 @@ export class BurnController {
           notificationTypeId: post.page
             ? NOTIFICATION_TYPES.RECEIVE_BURN_PAGE
             : command.burnForType == BurnForType.Comment
-            ? NOTIFICATION_TYPES.RECEIVE_BURN_COMMENT_ACCOUNT
-            : NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT,
+              ? NOTIFICATION_TYPES.RECEIVE_BURN_COMMENT_ACCOUNT
+              : NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT,
           level: NotificationLevel.INFO,
           url:
             command.burnForType == BurnForType.Comment
@@ -483,7 +481,6 @@ export class BurnController {
 
       return result;
     } catch (err: any) {
-      console.log('🚀 ~ file: burn.controller.ts:495 ~ BurnController ~ burn ~ err:', err);
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
       } else {
