@@ -1,5 +1,4 @@
-import { PrismaClient, BurnType as BurnTypePrisma, AccountDanaHistoryType } from '@prisma/client';
-import BCHJS from '@bcpros/xpi-js';
+import { PrismaClient, CommentType } from '@prisma/client';
 
 require('dotenv').config();
 
@@ -23,7 +22,7 @@ async function main() {
     data: [
       ...posts.map(post => {
         return {
-          type: 'Post',
+          type: CommentType.POST,
         }
       })
     ]
