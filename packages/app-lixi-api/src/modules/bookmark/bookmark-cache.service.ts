@@ -52,7 +52,7 @@ export class BookmarkCacheService {
     );
     const dbValues =
       uncachedIds.length > 0
-        ? await this.prisma.comment.findMany({
+        ? await this.prisma.bookmark.findMany({
             where: {
               id: { in: uncachedIds }
             }

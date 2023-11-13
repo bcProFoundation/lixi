@@ -30,6 +30,8 @@ export type PostQuery = {
     pageId?: string | null;
     tokenId?: string | null;
     repostCount?: number | null;
+    pinableId?: string | null;
+    pinned?: boolean | null;
     danaBurnUp: number;
     danaBurnDown: number;
     danaBurnScore: number;
@@ -125,6 +127,8 @@ export type PostsByPageIdQuery = {
         pageId?: string | null;
         tokenId?: string | null;
         repostCount?: number | null;
+        pinableId?: string | null;
+        pinned?: boolean | null;
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
@@ -228,6 +232,8 @@ export type PostsByUserIdQuery = {
         pageId?: string | null;
         tokenId?: string | null;
         repostCount?: number | null;
+        pinableId?: string | null;
+        pinned?: boolean | null;
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
@@ -331,6 +337,8 @@ export type PostsByHashtagIdQuery = {
         pageId?: string | null;
         tokenId?: string | null;
         repostCount?: number | null;
+        pinableId?: string | null;
+        pinned?: boolean | null;
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
@@ -434,6 +442,8 @@ export type PostsByTokenIdQuery = {
         pageId?: string | null;
         tokenId?: string | null;
         repostCount?: number | null;
+        pinableId?: string | null;
+        pinned?: boolean | null;
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
@@ -530,6 +540,8 @@ export type PostsBySearchQuery = {
         __typename?: 'Post';
         id: string;
         content: string;
+        pinableId?: string | null;
+        pinned?: boolean | null;
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
@@ -618,6 +630,8 @@ export type PostsBySearchWithHashtagQuery = {
         __typename?: 'Post';
         id: string;
         content: string;
+        pinableId?: string | null;
+        pinned?: boolean | null;
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
@@ -707,6 +721,8 @@ export type PostsBySearchWithHashtagAtPageQuery = {
         __typename?: 'Post';
         id: string;
         content: string;
+        pinableId?: string | null;
+        pinned?: boolean | null;
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
@@ -796,6 +812,8 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
         __typename?: 'Post';
         id: string;
         content: string;
+        pinableId?: string | null;
+        pinned?: boolean | null;
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
@@ -870,6 +888,8 @@ export type PostFieldsFragment = {
   pageId?: string | null;
   tokenId?: string | null;
   repostCount?: number | null;
+  pinableId?: string | null;
+  pinned?: boolean | null;
   danaBurnUp: number;
   danaBurnDown: number;
   danaBurnScore: number;
@@ -940,6 +960,8 @@ export type PostMeiliFieldsFragment = {
   __typename?: 'Post';
   id: string;
   content: string;
+  pinableId?: string | null;
+  pinned?: boolean | null;
   danaBurnUp: number;
   danaBurnDown: number;
   danaBurnScore: number;
@@ -1010,6 +1032,8 @@ export type CreatePostMutation = {
     pageId?: string | null;
     tokenId?: string | null;
     repostCount?: number | null;
+    pinableId?: string | null;
+    pinned?: boolean | null;
     danaBurnUp: number;
     danaBurnDown: number;
     danaBurnScore: number;
@@ -1091,6 +1115,8 @@ export type UpdatePostMutation = {
     pageId?: string | null;
     tokenId?: string | null;
     repostCount?: number | null;
+    pinableId?: string | null;
+    pinned?: boolean | null;
     danaBurnUp: number;
     danaBurnDown: number;
     danaBurnScore: number;
@@ -1216,6 +1242,8 @@ export const PostFieldsFragmentDoc = `
       address
     }
   }
+  pinableId
+  pinned
   danaBurnUp
   danaBurnDown
   danaBurnScore
@@ -1291,6 +1319,8 @@ export const PostMeiliFieldsFragmentDoc = `
       address
     }
   }
+  pinableId
+  pinned
   danaBurnUp
   danaBurnDown
   danaBurnScore

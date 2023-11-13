@@ -10,11 +10,16 @@ import { openModal } from '@store/modal/actions';
 import {
   CreateFollowPageInput,
   CreateFollowTokenInput,
+  CreatePostPinInput,
   DeleteFollowPageInput,
   DeleteFollowTokenInput,
   ExtraArgumentsPostFollow,
-  ParamPostFollowCommand
+  ExtraArgumentsPostPin,
+  ParamPostFollowCommand,
+  ParamPostPinCommand,
+  RemovePostPinInput
 } from '@bcpros/lixi-models';
+import { PostListType } from '@bcpros/lixi-models/constants';
 import { getSelectedAccount, getSelectedAccountId } from '@store/account';
 import { usePageQuery } from '@store/page/pages.generated';
 import {
@@ -38,7 +43,8 @@ import {
   getFilterPostsToken,
   getLevelFilter
 } from '@store/settings';
-import { changeFollowActionSheetPost } from '@store/post/actions';
+import { useCreatePostPinMutation, useRemovePostPinMutation } from '@store/pin/pin.api';
+import { changeFollowActionSheetPost, changePinPost } from '@store/post/actions';
 import { FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
 import { useRouter } from 'next/router';
 
@@ -52,6 +58,7 @@ interface PostActionSheetProps {
   followPostOwner?: boolean;
   followedPage?: boolean;
   followedToken?: boolean;
+  postListType?: PostListType;
 }
 
 export const ItemActionSheetBottom = ({
@@ -113,6 +120,9 @@ export const ItemActionSheet = styled.div`
     &.isFollowed {
       filter: var(--filter-color-primary) !important;
     }
+    &.pinned {
+      filter: var(--filter-color-primary) !important;
+    }
   }
 `;
 
@@ -124,7 +134,8 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
   token,
   followedPage,
   followPostOwner,
-  followedToken
+  followedToken,
+  postListType
 }: PostActionSheetProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -143,6 +154,7 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
   const filterValueHome = useAppSelector(getFilterPostsHome);
   const [query, setQuery] = useState<string | null>(null);
   const [hashtags, setHashtags] = useState<string[]>([]);
+  const [pinPost, setPinPost] = useState<boolean>(post?.pinned);
 
   useEffect(() => {
     if (router.query.hashtags) {
@@ -191,6 +203,19 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
     changeFollow: isFollowedAccount,
     followForType: FollowForType.Account,
     extraArgumentsPostFollow
+  };
+
+  const extraArgumentsPostPin: ExtraArgumentsPostPin = {
+    minBurnFilterPage: filterValuePage,
+    minBurnFilterProfile: filterValueProfile,
+    postListType
+  };
+
+  const payloadPostPin: ParamPostPinCommand = {
+    postId: post?.id,
+    pageId: post?.page?.id,
+    accountId: selectedAccountId,
+    extraArgumentsPostPin
   };
 
   const [
@@ -255,6 +280,9 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
 
   const [createBookmarkTrigger] = useCreateBookmarkMutation();
   const [removeBookmarkTrigger] = useRemoveBookmarkMutation();
+
+  const [createPostPinTrigger] = useCreatePostPinMutation();
+  const [removePostPinTrigger] = useRemovePostPinMutation();
 
   const { data: pageMessageSessionData, refetch: pageMessageSessionRefetch } = useUserHadMessageToPageQuery(
     {
@@ -361,6 +389,52 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
     setOpenCreatePost(true);
   };
 
+  const handlePinPostAtPage = async () => {
+    const createPostPinInput: CreatePostPinInput = {
+      postId: post?.id,
+      pageId: page?.id
+    };
+    setPinPost(pre => !pre);
+    await createPostPinTrigger({ input: createPostPinInput });
+
+    dispatch(changePinPost(payloadPostPin));
+  };
+
+  const handleUnpinPostAtPage = async () => {
+    const removePostPinInput: RemovePostPinInput = {
+      postId: post?.id,
+      pageId: page?.id
+    };
+    setPinPost(pre => !pre);
+    await removePostPinTrigger({ input: removePostPinInput });
+
+    dispatch(changePinPost(payloadPostPin));
+  };
+
+  const handlePinPostAtProfile = async () => {
+    const createPostPinInput: CreatePostPinInput = {
+      postId: post?.id,
+      accountId: selectedAccountId
+    };
+
+    setPinPost(pre => !pre);
+    await createPostPinTrigger({ input: createPostPinInput });
+
+    dispatch(changePinPost(payloadPostPin));
+  };
+
+  const handleUnpinPostAtProfile = async () => {
+    const removePostPinInput: RemovePostPinInput = {
+      postId: post?.id,
+      accountId: selectedAccountId
+    };
+
+    setPinPost(pre => !pre);
+    await removePostPinTrigger({ input: removePostPinInput });
+
+    dispatch(changePinPost(payloadPostPin));
+  };
+
   return (
     <>
       <Drawer
@@ -378,6 +452,25 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
           <div className="bar-close" onClick={onClose}></div>
           {isEditPost && <ItemActionSheetBottom text="Edit post" icon="/images/ico-edit.svg" onClickItem={editPost} />}
           {/* <ItemActionSheetBottom type="danger" text="Remove" /> */}
+
+          {postListType === PostListType.Page && selectedAccountId === post?.page?.pageAccount?.id && (
+            <ItemActionSheetBottom
+              text={pinPost ? intl.get('post.unpin') : intl.get('post.pin')}
+              icon="/images/ico-pin.png"
+              className={pinPost ? 'pinned' : ''}
+              onClickItem={pinPost ? handleUnpinPostAtPage : handlePinPostAtPage}
+            />
+          )}
+
+          {postListType === PostListType.Profile && selectedAccountId === post?.postAccountId && (
+            <ItemActionSheetBottom
+              text={pinPost ? intl.get('post.unpin') : intl.get('post.pin')}
+              icon="/images/ico-pin.png"
+              className={pinPost ? 'pinned' : ''}
+              onClickItem={pinPost ? handleUnpinPostAtProfile : handlePinPostAtProfile}
+            />
+          )}
+
           {post.page && isSuccessPageQuery && (
             <>
               <ItemActionSheetBottom

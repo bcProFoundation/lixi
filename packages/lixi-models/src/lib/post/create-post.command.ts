@@ -1,5 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 
+import { PostListType } from '../../constants';
 import { FollowForType } from '../follow';
 
 export class CreatePostCommand {
@@ -41,4 +42,17 @@ export class ExtraArgumentsPostFollow {
   query?: string;
   hashtags?: string[];
   accountId?: number;
+}
+
+export class ParamPostPinCommand {
+  postId: string;
+  pageId?: string;
+  accountId?: number;
+  extraArgumentsPostPin?: ExtraArgumentsPostPin;
+}
+
+export class ExtraArgumentsPostPin {
+  minBurnFilterPage?: number;
+  minBurnFilterProfile?: number;
+  postListType?: PostListType;
 }

@@ -261,6 +261,12 @@ input CreatePostInput {
   uploads: [String!]
 }
 
+input CreatePostPinInput {
+  accountId: Int
+  pageId: String
+  postId: String!
+}
+
 input CreateProductInput {
   categoryId: Int
   description: String
@@ -651,6 +657,7 @@ type Mutation {
   createPage(data: CreatePageInput!): Page!
   createPageMessageSession(data: CreatePageMessageInput!): PageMessageSession!
   createPost(data: CreatePostInput!): Post!
+  createPostPin(data: CreatePostPinInput!): Pin!
   createProduct(data: CreateProductInput!): Product!
   createTemple(data: CreateTempleInput!): Temple!
   createToken(data: CreateTokenInput!): Token!
@@ -664,6 +671,7 @@ type Mutation {
   importAccount(data: ImportAccountInput!): Account!
   openPageMessageSession(data: OpenPageMessageSessionInput!): PageMessageSession!
   removeBookmark(data: RemoveBookmarkInput!): Bookmark!
+  removePostPin(data: RemovePostPinInput!): Pin!
   repost(data: RepostInput!): Boolean!
   updateAccount(data: UpdateAccountInput!): Account!
   updatePage(data: UpdatePageInput!): Page!
@@ -819,6 +827,19 @@ enum PageMessageSessionStatus {
   PENDING
 }
 
+type Pin {
+  account: Account
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime
+  id: ID!
+  page: Page
+  pinableId: String
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime
+}
+
 type Poll {
   account: Account!
   accountId: Int!
@@ -882,6 +903,8 @@ type Post {
   originalLanguage: String
   page: Page
   pageId: String
+  pinableId: String
+  pinned: Boolean
   postAccount: Account!
   postAccountId: Int!
   postDana: PostDana
@@ -947,6 +970,7 @@ enum PostOrderField {
   danaBurnScore
   id
   lastRepostAt
+  pinableId
   updatedAt
 }
 
@@ -1148,6 +1172,7 @@ type Query {
   page(id: String!): Page!
   pageMessageSession(id: String!): PageMessageSession!
   pagesByFollower(after: String, first: Int, skip: Int): PageBasicConnection!
+  pin(id: String!): Pin!
   post(id: String!): Post!
   product(id: String!): Product!
   temple(id: String!): Temple!
@@ -1161,6 +1186,12 @@ type Query {
 input RemoveBookmarkInput {
   accountId: Int!
   bookmarkId: String!
+}
+
+input RemovePostPinInput {
+  accountId: Int
+  pageId: String
+  postId: String!
 }
 
 type Repost {
@@ -1197,6 +1228,7 @@ type Subscription {
   hashtagCreated: Hashtag!
   messageCreated: Message!
   pageMessageSessionCreated: PageMessageSession!
+  pinCreated: Pin!
   templeCreated: Temple!
   worshipedPersonCreated: WorshipedPerson!
 }

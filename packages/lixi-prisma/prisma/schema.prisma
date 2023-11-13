@@ -113,6 +113,7 @@ model Page {
   avatarImageUplodable   ImageUploadable?     @relation("avatar", fields: [avatarImageUplodableId], references: [id])
   coverImageUplodableId  String?              @unique @map("cover_image_uploadable_id")
   coverImageUplodable    ImageUploadable?     @relation("cover", fields: [coverImageUplodableId], references: [id])
+  pin                    Pin?
 
   pageDana  PageDana?
   posts     Post[]
@@ -168,6 +169,8 @@ model Post {
   bookmarkable           Bookmarkable?     @relation(fields: [bookmarkableId], references: [id])
   taggableId             String?
   taggable               Taggable?         @relation(fields: [taggableId], references: [id])
+  pinableId              String?           @map("pinable_id")
+  pinable                Pinable?          @relation(fields: [pinableId], references: [id])
   avatarImageUplodableId String?           @unique @map("avatar_image_uploadable_id")
   avatarImageUplodable   ImageUploadable?  @relation("avatar", fields: [avatarImageUplodableId], references: [id])
   coverImageUplodableId  String?           @unique @map("cover_image_uploadable_id")
@@ -290,6 +293,7 @@ model Account {
   coverImageUplodableId  String?               @unique @map("cover_image_uploadable_id")
   coverImageUplodable    ImageUploadable?      @relation("cover", fields: [coverImageUplodableId], references: [id])
   bookmarks              Bookmark[]
+  pin                    Pin?
   events                 Event[]
   pollAnswers            PollAnswerOnAccount[]
 
@@ -1106,6 +1110,8 @@ model Event {
   bookmarkable      Bookmarkable?    @relation(fields: [bookmarkableId], references: [id])
   taggableId        String
   taggable          Taggable         @relation(fields: [taggableId], references: [id])
+  pinableId         String?          @map("pinable_id")
+  pinable           Pinable?         @relation(fields: [pinableId], references: [id])
   eventType         EventType // Add this field to specify event type (virtual or physical)
   eventDana         EventDana?
   imageUploadableId String?          @map("image_uploadable_id")
@@ -1173,6 +1179,8 @@ model Poll {
   bookmarkable      Bookmarkable?    @relation(fields: [bookmarkableId], references: [id])
   taggableId        String?
   taggable          Taggable?        @relation(fields: [taggableId], references: [id])
+  pinableId         String?          @map("pinable_id")
+  pinable           Pinable?         @relation(fields: [pinableId], references: [id])
   imageUploadableId String?          @map("image_uploadable_id")
   ImageUploadable   ImageUploadable? @relation(fields: [imageUploadableId], references: [id])
   createdAt         DateTime         @default(now()) @map("created_at") @db.Timestamptz
@@ -1218,6 +1226,8 @@ model Product {
   bookmarkable      Bookmarkable?   @relation(fields: [bookmarkableId], references: [id])
   taggableId        String?
   taggable          Taggable?       @relation(fields: [taggableId], references: [id])
+  pinableId         String?         @map("pinable_id")
+  pinable           Pinable?        @relation(fields: [pinableId], references: [id])
   createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime        @default(now()) @map("updated_at") @db.Timestamptz
   imageUploadableId String          @map("image_uploadable_id")
@@ -1240,4 +1250,35 @@ model ProductDana {
 
   @@index([productId])
   @@map("product_dana")
+}
+
+model Pinable {
+  id       String    @id @default(cuid())
+  type     PinType
+  pins     Pin[]
+  posts    Post[]
+  products Product[]
+  polls    Poll[]
+  events   Event[]
+
+  @@map("pinable")
+}
+
+model Pin {
+  id        String   @id @default(cuid())
+  pinableId String?  @map("pinable_id")
+  pinable   Pinable? @relation(fields: [pinableId], references: [id])
+  pageId    String?  @unique
+  page      Page?    @relation(fields: [pageId], references: [id])
+  accountId Int?     @unique
+  account   Account? @relation(fields: [accountId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("pin")
+}
+
+enum PinType {
+  POST
+  COMMENT
 }

@@ -1,0 +1,39 @@
+fragment PinFields on Pin {
+  id
+  pinableId
+  page {
+    id
+    avatar
+    name
+    createPostFee
+    createCommentFee
+    pageAccount {
+      id
+      name
+      address
+    }
+  }
+  account {
+    id
+    name
+    address
+  }
+}
+
+query Pin($id: String!) {
+  pin(id: $id) {
+    ...PinFields
+  }
+}
+
+mutation CreatePostPin($input: CreatePostPinInput!) {
+  createPostPin(data: $input) {
+    ...PinFields
+  }
+}
+
+mutation RemovePostPin($input: RemovePostPinInput!) {
+  removePostPin(data: $input) {
+    ...PinFields
+  }
+}

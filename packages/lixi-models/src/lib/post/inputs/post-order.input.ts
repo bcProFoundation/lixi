@@ -8,7 +8,8 @@ export enum PostOrderField {
   createdAt = 'createdAt',
   updatedAt = 'updatedAt',
   lastRepostAt = 'lastRepostAt',
-  content = 'content'
+  content = 'content',
+  pinableId = 'pinableId'
 }
 
 registerEnumType(PostOrderField, {

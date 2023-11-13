@@ -8,6 +8,7 @@ import {
   PostConnection,
   PostDana,
   PostOrder,
+  PostOrderField,
   PostTranslation,
   Repost,
   RepostInput,
@@ -135,6 +136,13 @@ export class PostResolver {
         id: id
       }
     });
+    const orderSample: any = orderBy
+      ? orderBy.map(item =>
+          item.field === PostOrderField.pinableId
+            ? { [item.field]: { sort: item.direction, nulls: 'last' } }
+            : { [item.field]: item.direction }
+        )
+      : undefined;
 
     if (!account) {
       result = await findManyCursorConnection(
@@ -155,7 +163,7 @@ export class PostResolver {
                 }
               ]
             },
-            orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
+            orderBy: orderSample,
             ...args
           }),
         () =>
@@ -197,7 +205,7 @@ export class PostResolver {
                 }
               ]
             },
-            orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
+            orderBy: orderSample,
             ...args
           });
 
@@ -247,7 +255,7 @@ export class PostResolver {
                 }
               ]
             },
-            orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
+            orderBy: orderSample,
             ...args
           }),
         () =>
@@ -641,6 +649,14 @@ export class PostResolver {
     orderBy: PostOrder[]
   ) {
     let result;
+    const orderSample: any = orderBy
+      ? orderBy.map(item =>
+          item.field === PostOrderField.pinableId
+            ? { [item.field]: { sort: item.direction, nulls: 'last' } }
+            : { [item.field]: item.direction }
+        )
+      : undefined;
+
     if (account?.id === _.toSafeInteger(id)) {
       result = await findManyCursorConnection(
         args =>
@@ -660,7 +676,7 @@ export class PostResolver {
                 { tokenId: null }
               ]
             },
-            orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
+            orderBy: orderSample,
             ...args
           }),
         () =>
@@ -701,7 +717,7 @@ export class PostResolver {
                 { tokenId: null }
               ]
             },
-            orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
+            orderBy: orderSample,
             ...args
           }),
         () =>
@@ -1185,5 +1201,10 @@ export class PostResolver {
   @ResolveField('postDana', () => PostDana)
   async postDana(@Parent() post: Post) {
     return this.postLoader.batchPostDanas.load(post.id);
+  }
+
+  @ResolveField('pinned', () => Boolean)
+  async pinned(@Parent() post: Post) {
+    return this.postLoader.batchCheckPostPinned.load(post?.pinableId ?? '');
   }
 }

@@ -197,7 +197,8 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
             token: token,
             followPostOwner,
             followedPage,
-            followedToken
+            followedToken,
+            postListType
           })
         )
       : askAuthorization();

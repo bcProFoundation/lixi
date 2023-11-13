@@ -595,6 +595,9 @@ export default {
   'post.hideTranslate': 'Hide translation',
   'post.originTranslate': 'Translated from {language}. Show original.',
   'post.danaViewScore': 'Dana View Score',
+  'post.pin': 'Pin post',
+  'post.unpin': 'Unpin post',
+  'post.pinned': 'Pinned post',
 
   /* 16.Token */
   'token.importToken': 'Import token',

@@ -594,6 +594,9 @@ export default {
   'post.hideTranslate': 'Ẩn bài dịch',
   'post.originTranslate': 'Được dịch từ {language}. Hiện ngôn ngữ gốc.',
   'post.danaViewScore': 'Lượt xem dana',
+  'post.pin': 'Ghim bài viết',
+  'post.unpin': 'Bỏ ghim bài viết',
+  'post.pinned': 'Bài được ghim',
 
   /* 16.Token */
   'token.importToken': 'Thêm token',

@@ -32,3 +32,4 @@ export * from './lib/bookmark';
 export * from './lib/event';
 export * from './lib/poll';
 export * from './lib/product';
+export * from './lib/pin';

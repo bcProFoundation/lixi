@@ -492,6 +492,10 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
         orderBy: [
           {
             direction: OrderDirection.Desc,
+            field: PostOrderField.PinableId
+          },
+          {
+            direction: OrderDirection.Desc,
             field: PostOrderField.LastRepostAt
           },
           {

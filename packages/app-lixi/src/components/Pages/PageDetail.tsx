@@ -523,6 +523,10 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
       orderBy: [
         {
           direction: OrderDirection.Desc,
+          field: PostOrderField.PinableId
+        },
+        {
+          direction: OrderDirection.Desc,
           field: PostOrderField.LastRepostAt
         },
         {

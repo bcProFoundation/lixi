@@ -1,4 +1,4 @@
-import { RetweetOutlined } from '@ant-design/icons';
+import { PushpinOutlined, RetweetOutlined } from '@ant-design/icons';
 import { AnalyticEvent } from '@bcpros/lixi-models';
 import { PostListType } from '@bcpros/lixi-models/constants';
 import ActionPostBar from '@components/Common/ActionPostBar';
@@ -41,10 +41,15 @@ const CardContainer = styled.div`
   padding: 1rem 1rem 0 1rem;
   width: 100%;
 
-  .retweet {
+  .repost-pin {
     display: flex;
-    margin: 0px 0px 5px 5px;
-    color: gray;
+    justify-content: space-between;
+
+    .retweet,
+    .pinned {
+      margin: 0px 0px 5px 5px;
+      color: gray;
+    }
   }
 
   @media (max-width: 520px) {
@@ -347,6 +352,16 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
     return '';
   };
 
+  const pinned = () => {
+    if (post?.pinned && (postListType === PostListType.Page || postListType === PostListType.Profile)) {
+      return (
+        <p className="pinned">
+          <PushpinOutlined /> {intl.get('post.pinned')}
+        </p>
+      );
+    }
+  };
+
   const translatePost = () => {
     setShowTranslation(!showTranslation);
   };
@@ -395,7 +410,10 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
     <PostListItemContainer className="post-list-item" key={post.id} ref={ref}>
       <Waypoint onEnter={onEnterPostItem} />
       <CardContainer className="card-container-post">
-        {reposted()}
+        <div className="repost-pin">
+          {reposted()}
+          {pinned()}
+        </div>
         <CardHeader>
           <InfoCardUser
             imgUrl={post.postAccount.avatar ? post.postAccount.avatar : ''}

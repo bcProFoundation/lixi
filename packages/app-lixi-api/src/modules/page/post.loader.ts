@@ -163,4 +163,11 @@ export default class PostLoader {
       });
     }
   );
+
+  public readonly batchCheckPostPinned = new DataLoader(async (pinableIds: readonly string[]) => {
+    const listCheckPostPinned = pinableIds ?? [];
+    return listCheckPostPinned.map(item => {
+      return !!item;
+    });
+  });
 }

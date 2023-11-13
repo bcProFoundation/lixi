@@ -1,4 +1,4 @@
-import { CreatePostCommand, EditPostCommand, ParamPostFollowCommand } from '@bcpros/lixi-models';
+import { CreatePostCommand, EditPostCommand, ParamPostFollowCommand, ParamPostPinCommand } from '@bcpros/lixi-models';
 import { createAction } from '@reduxjs/toolkit';
 import { Post } from '@generated/types.generated';
 
@@ -22,3 +22,4 @@ export const setNewPostAvailable = createAction<boolean>('posts/setNewPostAvaila
 export const setShowCreatePost = createAction<boolean>('posts/setShowCreatePost');
 
 export const changeFollowActionSheetPost = createAction<ParamPostFollowCommand>('posts/changeFollowActionSheetPost');
+export const changePinPost = createAction<ParamPostPinCommand>('posts/changePinPost');

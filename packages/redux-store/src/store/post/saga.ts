@@ -1,4 +1,5 @@
-import { CreatePostCommand, EditPostCommand, Follow, ParamPostFollowCommand } from '@bcpros/lixi-models';
+import { CreatePostCommand, EditPostCommand, ParamPostFollowCommand, ParamPostPinCommand } from '@bcpros/lixi-models';
+import { PostListType } from '@bcpros/lixi-models/constants';
 import { all, fork, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import * as _ from 'lodash';
@@ -24,14 +25,13 @@ import {
   postPostSuccess,
   setPost,
   setPostsByAccountId,
-  setSelectedPost,
-  changeFollowActionSheetPost
+  changeFollowActionSheetPost,
+  changePinPost
 } from './actions';
 import postApi from './api';
 import { api as timelineApi } from '@store/timeline/timeline.api';
 import { api as postsApi } from '@store/post/posts.api';
 import { FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
-import { OrderDirection, PostOrderField } from '@generated/types.generated';
 const call: any = Effects.call;
 /**
  * Generate a post
@@ -381,7 +381,12 @@ function* changeFollowActionSheetPostSaga(action: PayloadAction<ParamPostFollowC
   yield put(
     postsApi.util.updateQueryData(
       'PostsBySearchWithHashtagAtToken',
-      { tokenId: tokenPrimaryId, hashtags, query, minBurnFilter: minBurnFilterToken },
+      {
+        tokenId: tokenPrimaryId,
+        hashtags,
+        query,
+        minBurnFilter: minBurnFilterToken
+      },
       draft => {
         const listPostUpdateFollow = draft.allPostsBySearchWithHashtagAtToken.edges.map((item, index) => {
           switch (followForType) {
@@ -402,6 +407,81 @@ function* changeFollowActionSheetPostSaga(action: PayloadAction<ParamPostFollowC
       }
     )
   );
+}
+
+function* changePinPostSaga(action: PayloadAction<ParamPostPinCommand>) {
+  const { postId, accountId, pageId, extraArgumentsPostPin } = action.payload;
+  const { minBurnFilterPage, minBurnFilterProfile, postListType } = extraArgumentsPostPin;
+
+  switch (postListType) {
+    case PostListType.Page:
+      yield put(
+        postsApi.util.updateQueryData(
+          'PostsByPageId',
+          {
+            id: pageId,
+            minBurnFilter: minBurnFilterPage,
+            accountId
+          },
+          draft => {
+            let indexPostUpdate;
+            let postUpdate;
+            let removePinFirst = false;
+            draft.allPostsByPageId.edges.map((item, index) => {
+              if (item.node?.pinableId) {
+                draft.allPostsByPageId.edges[index].node.pinned = false;
+                draft.allPostsByPageId.edges[index].node.pinableId = null;
+                if (index === 0) removePinFirst = true;
+              }
+              if (item.cursor === postId) {
+                indexPostUpdate = index;
+                postUpdate = item;
+              }
+            });
+
+            if (!removePinFirst || indexPostUpdate != 0) {
+              postUpdate.node.pinned = !postUpdate.node.pinned;
+              postUpdate.node.pinableId = 'temporary pinableId'; //user click pin and not refresh => front-end dont have data
+              draft.allPostsByPageId.edges.splice(indexPostUpdate, 1);
+              draft.allPostsByPageId.edges.unshift(postUpdate);
+            }
+          }
+        )
+      );
+      break;
+
+    case PostListType.Profile:
+      yield put(
+        postsApi.util.updateQueryData(
+          'PostsByUserId',
+          { id: accountId, minBurnFilter: minBurnFilterProfile },
+          draft => {
+            let indexPostUpdate;
+            let postUpdate;
+            let removePinFirst = false;
+            draft.allPostsByUserId.edges.map((item, index) => {
+              if (item.node?.pinableId) {
+                draft.allPostsByUserId.edges[index].node.pinned = false;
+                draft.allPostsByUserId.edges[index].node.pinableId = null;
+                if (index === 0) removePinFirst = true;
+              }
+              if (item.cursor === postId) {
+                indexPostUpdate = index;
+                postUpdate = item;
+              }
+            });
+
+            if (!removePinFirst || indexPostUpdate != 0) {
+              postUpdate.node.pinned = !postUpdate.node.pinned;
+              postUpdate.node.pinableId = 'temporary pinableId'; //user click pin and not refresh => front-end dont have data
+              draft.allPostsByUserId.edges.splice(indexPostUpdate, 1);
+              draft.allPostsByUserId.edges.unshift(postUpdate);
+            }
+          }
+        )
+      );
+      break;
+  }
 }
 
 function* fetchAllPostsSuccessSaga(action: any) {}
@@ -464,6 +544,10 @@ function* watchChangeFollowActionSheetPost() {
   yield takeLatest(changeFollowActionSheetPost.type, changeFollowActionSheetPostSaga);
 }
 
+function* watchChangePinPost() {
+  yield takeLatest(changePinPost.type, changePinPostSaga);
+}
+
 export default function* postSaga() {
   yield all([
     fork(watchPostPost),
@@ -479,6 +563,7 @@ export default function* postSaga() {
     fork(watchEditPostSuccess),
     fork(watchGetPost),
     fork(watchGetPostFailure),
-    fork(watchChangeFollowActionSheetPost)
+    fork(watchChangeFollowActionSheetPost),
+    fork(watchChangePinPost)
   ]);
 }

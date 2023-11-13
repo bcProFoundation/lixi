@@ -97,6 +97,12 @@ export class Post implements ICommentableTo {
   @Field(() => String, { nullable: true })
   taggableId?: Nullable<string>;
 
+  @Field(() => String, { nullable: true })
+  pinableId?: Nullable<string>;
+
+  @Field(() => Boolean, { nullable: true })
+  pinned?: Nullable<boolean>;
+
   @Field(() => Float, { nullable: true })
   danaViewScore?: Nullable<number>;
 

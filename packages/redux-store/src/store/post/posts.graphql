@@ -320,6 +320,8 @@ fragment PostFields on Post {
       address
     }
   }
+  pinableId
+  pinned
   danaBurnUp
   danaBurnDown
   danaBurnScore
@@ -394,6 +396,8 @@ fragment PostMeiliFields on Post {
       address
     }
   }
+  pinableId
+  pinned
   danaBurnUp
   danaBurnDown
   danaBurnScore

@@ -31,6 +31,8 @@ export type TimelineQuery = {
       pageId?: string | null;
       tokenId?: string | null;
       repostCount?: number | null;
+      pinableId?: string | null;
+      pinned?: boolean | null;
       danaBurnUp: number;
       danaBurnDown: number;
       danaBurnScore: number;
@@ -124,6 +126,8 @@ export type HomeTimelineQuery = {
           pageId?: string | null;
           tokenId?: string | null;
           repostCount?: number | null;
+          pinableId?: string | null;
+          pinned?: boolean | null;
           danaBurnUp: number;
           danaBurnDown: number;
           danaBurnScore: number;

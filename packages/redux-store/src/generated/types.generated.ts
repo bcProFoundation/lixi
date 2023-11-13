@@ -284,6 +284,12 @@ export type CreatePostInput = {
   uploads?: InputMaybe<Array<Scalars['String']>>;
 };
 
+export type CreatePostPinInput = {
+  accountId?: InputMaybe<Scalars['Int']>;
+  pageId?: InputMaybe<Scalars['String']>;
+  postId: Scalars['String'];
+};
+
 export type CreateProductInput = {
   categoryId?: InputMaybe<Scalars['Int']>;
   description?: InputMaybe<Scalars['String']>;
@@ -671,6 +677,7 @@ export type Mutation = {
   createPage: Page;
   createPageMessageSession: PageMessageSession;
   createPost: Post;
+  createPostPin: Pin;
   createProduct: Product;
   createTemple: Temple;
   createToken: Token;
@@ -684,6 +691,7 @@ export type Mutation = {
   importAccount: Account;
   openPageMessageSession: PageMessageSession;
   removeBookmark: Bookmark;
+  removePostPin: Pin;
   repost: Scalars['Boolean'];
   updateAccount: Account;
   updatePage: Page;
@@ -732,6 +740,10 @@ export type MutationCreatePageMessageSessionArgs = {
 
 export type MutationCreatePostArgs = {
   data: CreatePostInput;
+};
+
+export type MutationCreatePostPinArgs = {
+  data: CreatePostPinInput;
 };
 
 export type MutationCreateProductArgs = {
@@ -784,6 +796,10 @@ export type MutationOpenPageMessageSessionArgs = {
 
 export type MutationRemoveBookmarkArgs = {
   data: RemoveBookmarkInput;
+};
+
+export type MutationRemovePostPinArgs = {
+  data: RemovePostPinInput;
 };
 
 export type MutationRepostArgs = {
@@ -951,6 +967,18 @@ export enum PageMessageSessionStatus {
   Pending = 'PENDING'
 }
 
+export type Pin = {
+  __typename?: 'Pin';
+  account?: Maybe<Account>;
+  /** Identifies the date and time when the object was created. */
+  createdAt?: Maybe<Scalars['DateTime']>;
+  id: Scalars['ID'];
+  page?: Maybe<Page>;
+  pinableId?: Maybe<Scalars['String']>;
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt?: Maybe<Scalars['DateTime']>;
+};
+
 export type Poll = {
   __typename?: 'Poll';
   account: Account;
@@ -1015,6 +1043,8 @@ export type Post = {
   originalLanguage?: Maybe<Scalars['String']>;
   page?: Maybe<Page>;
   pageId?: Maybe<Scalars['String']>;
+  pinableId?: Maybe<Scalars['String']>;
+  pinned?: Maybe<Scalars['Boolean']>;
   postAccount: Account;
   postAccountId: Scalars['Int'];
   postDana?: Maybe<PostDana>;
@@ -1082,6 +1112,7 @@ export enum PostOrderField {
   DanaBurnScore = 'danaBurnScore',
   Id = 'id',
   LastRepostAt = 'lastRepostAt',
+  PinableId = 'pinableId',
   UpdatedAt = 'updatedAt'
 }
 
@@ -1198,6 +1229,7 @@ export type Query = {
   page: Page;
   pageMessageSession: PageMessageSession;
   pagesByFollower: PageBasicConnection;
+  pin: Pin;
   post: Post;
   product: Product;
   temple: Temple;
@@ -1653,6 +1685,10 @@ export type QueryPagesByFollowerArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+export type QueryPinArgs = {
+  id: Scalars['String'];
+};
+
 export type QueryPostArgs = {
   id: Scalars['String'];
 };
@@ -1691,6 +1727,12 @@ export type RemoveBookmarkInput = {
   bookmarkId: Scalars['String'];
 };
 
+export type RemovePostPinInput = {
+  accountId?: InputMaybe<Scalars['Int']>;
+  pageId?: InputMaybe<Scalars['String']>;
+  postId: Scalars['String'];
+};
+
 export type Repost = {
   __typename?: 'Repost';
   account?: Maybe<Account>;
@@ -1726,6 +1768,7 @@ export type Subscription = {
   hashtagCreated: Hashtag;
   messageCreated: Message;
   pageMessageSessionCreated: PageMessageSession;
+  pinCreated: Pin;
   templeCreated: Temple;
   worshipedPersonCreated: WorshipedPerson;
 };
