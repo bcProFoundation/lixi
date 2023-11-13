@@ -1,12 +1,12 @@
-import { Account, ICommentableTo, Page, Post, PostDana, Repost, UploadDetail } from '@bcpros/lixi-models';
+import { Account, PostDana, Repost, UploadDetail } from '@bcpros/lixi-models';
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import _ from 'lodash';
+import { AccountCacheService } from '../account/account-cache.service';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { DanaViewScoreService } from './dana-view-score.service';
 import { PageCacheService } from './page-cache.service';
-import { AccountCacheService } from '../account/account-cache.service';
 import { PostDanaCacheService } from './post-dana-cache.service';
 
 @Injectable({ scope: Scope.REQUEST })
