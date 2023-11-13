@@ -37,6 +37,7 @@ export type TimelineQuery = {
       danaBurnDown: number;
       danaBurnScore: number;
       totalComments?: number | null;
+      commentableId?: string | null;
       createdAt: any;
       updatedAt: any;
       followPostOwner?: boolean | null;
@@ -132,6 +133,7 @@ export type HomeTimelineQuery = {
           danaBurnDown: number;
           danaBurnScore: number;
           totalComments?: number | null;
+          commentableId?: string | null;
           createdAt: any;
           updatedAt: any;
           followPostOwner?: boolean | null;

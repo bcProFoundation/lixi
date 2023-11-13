@@ -173,11 +173,11 @@ const FullWalletComponent: React.FC = () => {
       burnForId = allTokens.find(token => token.id === burnForId).tokenId;
     }
     if (burnForType == BurnForType.Comment) {
-      burnForTypeString = getBurnForType(BurnForType.Post);
+      burnForTypeString = getBurnForType(BurnForType.Comment);
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const { currentData, isSuccess } = useCommentQuery({ id: burnForId });
       if (isSuccess) {
-        burnForId = currentData.comment.commentToId;
+        burnForId = currentData.comment.id;
       }
     }
     if (burnForType == BurnForType.Worship) {

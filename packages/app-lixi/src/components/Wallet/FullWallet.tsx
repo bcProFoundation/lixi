@@ -206,11 +206,11 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
       }
     }
     if (burnForType == BurnForType.Comment) {
-      burnForTypeString = getBurnForType(BurnForType.Post);
+      burnForTypeString = getBurnForType(BurnForType.Comment);
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const { currentData, isSuccess } = useCommentQuery({ id: burnForId });
       if (isSuccess) {
-        burnForId = currentData.comment.commentToId;
+        burnForId = currentData.comment.id;
       }
     }
 

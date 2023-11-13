@@ -1,10 +1,10 @@
 import { api } from './timeline.generated';
 
 const enhancedApi = api.enhanceEndpoints({
-  addTagTypes: ['HomeTimeline'],
+  addTagTypes: ['HomeTimeline', 'CommentCreated'],
   endpoints: {
     HomeTimeline: {
-      providesTags: ['HomeTimeline'],
+      providesTags: ['HomeTimeline', 'CommentCreated'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
           const { level, ...otherArgs } = queryArgs;

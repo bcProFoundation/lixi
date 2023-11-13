@@ -16,7 +16,7 @@ import {
   UpdatePostInput,
   UploadDetail
 } from '@bcpros/lixi-models';
-import { NotificationLevel } from '@bcpros/lixi-prisma';
+import { CommentType, NotificationLevel } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
@@ -78,7 +78,6 @@ export class PostResolver {
   @Query(() => Post)
   @UseGuards(GqlJwtAuthGuardByPass)
   async post(@PostAccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
-    console.log('postresolver');
     const dbPost = await this.prisma.post.findUnique({
       where: { id: id },
       include: {
@@ -849,7 +848,7 @@ export class PostResolver {
           ...postToSave,
           commentable: {
             create: {
-              type: 'Post'
+              type: CommentType.POST
             }
           },
           txid: txid,

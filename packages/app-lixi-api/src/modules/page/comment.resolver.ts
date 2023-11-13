@@ -3,17 +3,17 @@ import {
   Comment,
   CommentConnection,
   CommentOrder,
+  Commentable,
   CreateCommentInput,
   PaginationArgs
 } from '@bcpros/lixi-models';
-import { NotificationLevel } from '@bcpros/lixi-prisma';
+import { CommentType, NotificationLevel } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { HttpException, HttpStatus, Inject, Logger, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { ChronikClient } from 'chronik-client';
-import { PubSub } from 'graphql-subscriptions';
 import _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
@@ -21,13 +21,12 @@ import { NotificationService } from 'src/common/modules/notifications/notificati
 import { PostAccountEntity } from 'src/decorators/postAccount.decorator';
 import VError from 'verror';
 import { NOTIFICATION_TYPES } from '../../common/modules/notifications/notification.constants';
+import { AccountCacheService } from '../account/account-cache.service';
 import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
-import { AccountCacheService } from '../account/account-cache.service';
 import { XPIJS } from '../wallet/wallet.constants';
 import { CommentCacheService } from './comment-cache.service';
-
-const pubSub = new PubSub();
+import CommentLoader from './comment.loader';
 
 @SkipThrottle()
 @Resolver(() => Comment)
@@ -39,15 +38,11 @@ export class CommentResolver {
     @I18n() private i18n: I18nService,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @Inject(XPIJS) private XPI: BCHJS,
+    private readonly commentLoader: CommentLoader,
     private readonly notificationService: NotificationService,
     private readonly accountCacheService: AccountCacheService,
     private readonly commentCacheService: CommentCacheService
   ) {}
-
-  @Subscription(() => Comment)
-  commentCreated() {
-    return pubSub.asyncIterator('commentCreated');
-  }
 
   @Query(() => Comment)
   async comment(@Args('id', { type: () => String }) id: string) {
@@ -56,22 +51,7 @@ export class CommentResolver {
 
   @Query(() => CommentConnection)
   @UseGuards(GqlJwtAuthGuardByPass)
-  async allCommentsToCommentableId(
-    @PostAccountEntity() account: Account,
-    @Args() { after, before, first, last }: PaginationArgs,
-    @Args({ name: 'id', type: () => String, nullable: true })
-    id: string,
-    @Args({
-      name: 'orderBy',
-      type: () => CommentOrder,
-      nullable: true
-    })
-    orderBy: CommentOrder
-  ) {}
-
-  @Query(() => CommentConnection)
-  @UseGuards(GqlJwtAuthGuardByPass)
-  async allCommentsToPostId(
+  async commentsToCommentableId(
     @PostAccountEntity() account: Account,
     @Args() { after, before, first, last }: PaginationArgs,
     @Args({ name: 'id', type: () => String, nullable: true })
@@ -88,7 +68,7 @@ export class CommentResolver {
         {
           AND: [
             {
-              commentToId: id
+              commentableId: id
             },
             {
               danaBurnScore: {
@@ -101,7 +81,7 @@ export class CommentResolver {
           ? [
               {
                 AND: [
-                  { commentToId: id },
+                  { commentableId: id },
                   {
                     commentAccount: {
                       id: account.id
@@ -140,22 +120,27 @@ export class CommentResolver {
         throw new Error(couldNotFindAccount);
       }
 
-      const { commentText, commentToId, tipHex, createFeeHex } = data;
+      const { commentText, commentableId, tipHex, createFeeHex } = data;
 
-      const commentToSave = {
-        commentText: commentText,
-        commentAccount: { connect: { id: account.id } },
-        commentToId: commentToId
-      };
-
-      const post = await this.prisma.post.findFirst({
+      const commentable = await this.prisma.commentable.findUnique({
         where: {
-          id: commentToId
-        },
-        include: {
-          postAccount: true
+          id: commentableId
         }
       });
+
+      if (!commentable) throw new Error('Could not create new comment.');
+
+      const post =
+        commentable.type === CommentType.POST
+          ? await this.prisma.post.findFirst({
+              where: {
+                commentableId: commentableId
+              },
+              include: {
+                postAccount: true
+              }
+            })
+          : null;
 
       let createFee: any;
       let tipValue: any;
@@ -181,17 +166,20 @@ export class CommentResolver {
 
         const createdComment = await prisma.comment.create({
           data: {
-            ...commentToSave,
+            commentText: commentText,
+            commentAccount: { connect: { id: account.id } },
+            commentable: { connect: { id: commentableId || undefined } },
             txid: txid,
             createFee: createFee,
             commentDana: {
               create: {}
-            }
+            },
+            commentToId: ''
           }
         });
 
         //Check if tipHex then create tip transaction
-        if (tipHex) {
+        if (tipHex && post) {
           const transactionTip = {
             txid,
             fromAddress: account.address,
@@ -207,9 +195,7 @@ export class CommentResolver {
         return createdComment;
       });
 
-      pubSub.publish('commentCreated', { commentCreated: savedComment });
-
-      if (savedComment) {
+      if (savedComment && post) {
         const recipient = await this.accountCacheService.getById(_.toSafeInteger(post?.postAccountId));
         if (!recipient) {
           const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
@@ -247,7 +233,7 @@ export class CommentResolver {
           (await this.notificationService.saveAndDispatchNotification(jobData.notification));
       }
 
-      return savedComment;
+      return new Comment({ ...savedComment });
     } catch (err) {
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -259,5 +245,12 @@ export class CommentResolver {
   async postAccount(@Parent() comment: Comment) {
     const account = await this.accountCacheService.getById(_.toSafeInteger(comment.commentAccountId));
     return account;
+  }
+
+  @ResolveField('commentable', () => Commentable)
+  async commentable(@Parent() comment: Comment) {
+    if (!comment?.commentableId) return null;
+
+    return this.commentLoader.batchCommentable.load(comment.commentableId);
   }
 }

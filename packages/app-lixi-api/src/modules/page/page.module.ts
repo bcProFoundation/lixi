@@ -26,6 +26,7 @@ import { PostResolver } from './post.resolver';
 import { PostCacheService } from './post-cache.service';
 import { CommentCacheService } from './comment-cache.service';
 import CommentableLoader from './commentable.loader';
+import CommentLoader from './comment.loader';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import CommentableLoader from './commentable.loader';
     PostDanaCacheService,
     CommentCacheService,
     CommentDanaCacheService,
+    CommentLoader,
     CommentableLoader
   ],
   exports: [

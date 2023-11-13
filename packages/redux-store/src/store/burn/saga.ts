@@ -13,6 +13,7 @@ import { callConfig } from '@context/shareContext';
 import {
   Account,
   Comment,
+  CommentType,
   CreateWorshipInput,
   OrderDirection,
   Page,
@@ -117,13 +118,19 @@ function* prepareBurnCommandSaga(
         break;
       case BurnForType.Comment:
         const comment = burnForItem as Comment;
-        // @todo: Fix after migration
-        // const pageAddress = comment.commentTo.page ? comment.commentTo.page.pageAccount.address : undefined;
-        // const postAddress = comment.commentTo.postAccount.address;
-        // tipToAddresses.push({
-        //   address: pageAddress ?? postAddress,
-        //   amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
-        // });
+        const commentToId = comment.commentable.commentToId;
+        if (comment.commentable.type === CommentType.Post) {
+          const promise = yield put(postsApi.endpoints.Post.initiate({ id: commentToId }));
+          yield promise;
+          const { post }: { post: Post } = yield promise.unwrap();
+          const page = post?.page;
+          const pageAddress = page ? page?.pageAccount?.address : undefined;
+          const postAddress = post.postAccount.address;
+          tipToAddresses.push({
+            address: pageAddress ?? postAddress,
+            amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
+          });
+        }
         break;
     }
 

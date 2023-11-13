@@ -1,4 +1,12 @@
-import { Burn, BurnCommand, BurnForType, BurnType, PostDana, TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models';
+import {
+  Burn,
+  BurnCommand,
+  BurnForType,
+  BurnType,
+  CommentType,
+  PostDana,
+  TRANSLATION_REQUIRE_AMOUNT
+} from '@bcpros/lixi-models';
 import { NotificationLevel, Token } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
@@ -40,7 +48,7 @@ export class BurnController {
     private translateService: TranslateService,
     private readonly accountCacheService: AccountCacheService,
     private readonly postDanaCacheService: PostDanaCacheService
-  ) {}
+  ) { }
 
   private convertBurnedByToAddress(burnedBy: string): string {
     const legacyAddress = this.XPI.Address.hash160ToLegacy(burnedBy);
@@ -378,11 +386,21 @@ export class BurnController {
         let commentAccount;
         if (command.burnForType == BurnForType.Comment) {
           const comment = await this.prisma.comment.findFirst({
-            where: { id: command.burnForId }
+            where: { id: command.burnForId },
+            include: {
+              commentable: true
+            }
           });
 
+          if (comment?.commentable?.type === CommentType.POST) {
+            const post = await this.prisma.post.findFirst({
+              where: { commentableId: comment.commentableId }
+            });
+            commentPostId = post ? post.id : undefined;
+          }
+
           commentAccountId = comment?.commentAccountId;
-          commentPostId = comment?.commentToId;
+
           commentAccount = await this.accountCacheService.getById(_.toSafeInteger(commentAccountId));
         }
 
@@ -432,8 +450,8 @@ export class BurnController {
           notificationTypeId: post.page
             ? NOTIFICATION_TYPES.RECEIVE_BURN_PAGE
             : command.burnForType == BurnForType.Comment
-            ? NOTIFICATION_TYPES.RECEIVE_BURN_COMMENT_ACCOUNT
-            : NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT,
+              ? NOTIFICATION_TYPES.RECEIVE_BURN_COMMENT_ACCOUNT
+              : NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT,
           level: NotificationLevel.INFO,
           url:
             command.burnForType == BurnForType.Comment
@@ -463,7 +481,6 @@ export class BurnController {
 
       return result;
     } catch (err: any) {
-      console.log('🚀 ~ file: burn.controller.ts:495 ~ BurnController ~ burn ~ err:', err);
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
       } else {

@@ -5,6 +5,7 @@ import { GraphQLDateTime } from 'graphql-scalars';
 import { Account } from '../account';
 
 import { CommentDana } from './comment-dana.model';
+import { Commentable } from './commentable.model';
 
 @ObjectType()
 export class Comment {
@@ -26,11 +27,11 @@ export class Comment {
   @Field(() => String, { nullable: true })
   commentByPublicKey?: Nullable<string>;
 
-  @Field(() => String)
-  commentToId: string;
-
   @Field(() => String, { nullable: true })
   commentableId?: Nullable<string>;
+
+  @Field(() => Commentable, { nullable: true })
+  commentable?: Nullable<Commentable>;
 
   @Field(() => String)
   commentText: string;

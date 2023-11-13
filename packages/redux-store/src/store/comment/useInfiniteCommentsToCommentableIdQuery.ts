@@ -1,17 +1,17 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
-import { CommentQueryItem, CommentOrder } from '@generated/index';
+import { Comment, CommentOrder, CommentQueryItem } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { useCommentsToPostIdQuery, useLazyCommentsToPostIdQuery } from '@store/comment/comments.api';
+import { useCommentsToCommentableIdQuery, useLazyCommentsToCommentableIdQuery } from '@store/comment/comments.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-export interface CommentsByPostIdParams extends PaginationArgs {
+export interface CommentsByCommentableIdParams extends PaginationArgs {
   orderBy: CommentOrder;
   id: string;
 }
 
 const commentsAdapter = createEntityAdapter<CommentQueryItem>({
-  selectId: post => post.id,
-  sortComparer: (a, b) => {
+  selectId: comment => comment.id,
+  sortComparer: (a: Comment, b: Comment) => {
     const dateA = new Date(a.createdAt);
     const dateB = new Date(b.createdAt);
     return dateA.getTime() - dateB.getTime();
@@ -19,13 +19,13 @@ const commentsAdapter = createEntityAdapter<CommentQueryItem>({
 });
 const { selectAll } = commentsAdapter.getSelectors();
 
-export function useInfiniteCommentsToPostIdQuery(
-  params: CommentsByPostIdParams,
+export function useInfiniteCommentsToCommentableIdQuery(
+  params: CommentsByCommentableIdParams,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const baseResult = useCommentsToPostIdQuery(params);
+  const baseResult = useCommentsToCommentableIdQuery(params);
 
-  const [trigger, nextResult] = useLazyCommentsToPostIdQuery();
+  const [trigger, nextResult] = useLazyCommentsToCommentableIdQuery();
   const [combinedData, setCombinedData] = useState(commentsAdapter.getInitialState({}));
 
   const isBaseReady = useRef(false);
@@ -45,13 +45,13 @@ export function useInfiniteCommentsToPostIdQuery(
 
   // Base result
   useEffect(() => {
-    next.current = baseResult.data?.allCommentsToPostId?.pageInfo?.endCursor;
-    if (baseResult?.data?.allCommentsToPostId) {
+    next.current = baseResult.data?.commentsToCommentableId?.pageInfo?.endCursor;
+    if (baseResult?.data?.commentsToCommentableId) {
       isBaseReady.current = true;
 
       const adapterSetAll = commentsAdapter.setAll(
         combinedData,
-        baseResult.data.allCommentsToPostId.edges.map(item => item.node)
+        baseResult.data.commentsToCommentableId.edges.map(item => item.node)
       );
       setCombinedData(adapterSetAll);
       fetchAll && fetchNext();
@@ -72,7 +72,9 @@ export function useInfiniteCommentsToPostIdQuery(
     } catch (e) {
     } finally {
       isNextDone.current = true;
-      fetchAll && fetchNext();
+      if (fetchAll && nextResult.data?.commentsToCommentableId?.pageInfo?.hasNextPage) {
+        fetchNext();
+      }
     }
   };
 
@@ -84,7 +86,7 @@ export function useInfiniteCommentsToPostIdQuery(
 
   return {
     data: data ?? [],
-    totalCount: baseResult?.data?.allCommentsToPostId?.totalCount ?? 0,
+    totalCount: baseResult?.data?.commentsToCommentableId?.totalCount ?? 0,
     error: baseResult?.error,
     isError: baseResult?.isError,
     isLoading: baseResult?.isLoading,
@@ -92,7 +94,7 @@ export function useInfiniteCommentsToPostIdQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: !!baseResult.data?.allCommentsToPostId?.pageInfo?.endCursor,
+    hasNext: !!baseResult.data?.commentsToCommentableId?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

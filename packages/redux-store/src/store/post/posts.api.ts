@@ -10,7 +10,7 @@ export interface PostApiState extends EntityState<Post> {
 }
 
 const enhancedApi = api.enhanceEndpoints({
-  addTagTypes: ['Post', 'Posts', 'HomeTimeline'],
+  addTagTypes: ['Post', 'Posts', 'HomeTimeline', 'CommentCreated'],
   endpoints: {
     PostsBySearch: {
       providesTags: (result, error, arg) => ['Posts'],
@@ -75,7 +75,7 @@ const enhancedApi = api.enhanceEndpoints({
       }
     },
     PostsByPageId: {
-      providesTags: (result, error, arg) => ['Posts'],
+      providesTags: (result, error, arg) => ['Posts', 'CommentCreated'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
           const { id, minBurnFilter, accountId, ...otherArgs } = queryArgs;
@@ -91,7 +91,7 @@ const enhancedApi = api.enhanceEndpoints({
       }
     },
     PostsByTokenId: {
-      providesTags: (result, error, arg) => ['Posts'],
+      providesTags: (result, error, arg) => ['Posts', 'CommentCreated'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
           const { id, minBurnFilter, ...otherArgs } = queryArgs;
@@ -107,7 +107,7 @@ const enhancedApi = api.enhanceEndpoints({
       }
     },
     PostsByUserId: {
-      providesTags: (result, error, arg) => ['Posts'],
+      providesTags: (result, error, arg) => ['Posts', 'CommentCreated'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
           const { id, minBurnFilter, ...otherArgs } = queryArgs;
@@ -123,7 +123,7 @@ const enhancedApi = api.enhanceEndpoints({
       }
     },
     Post: {
-      providesTags: (result, error, arg) => ['Post']
+      providesTags: (result, error, arg) => ['Post', { type: 'Post', id: arg.id }, 'CommentCreated']
     },
     PostsByHashtagId: {
       providesTags: (result, error, arg) => ['Posts'],

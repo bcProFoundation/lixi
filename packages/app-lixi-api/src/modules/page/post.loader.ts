@@ -133,6 +133,11 @@ export default class PostLoader {
       return listCheckAccountFollowAccount.map((item, index) => {
         return !!listCheckAccountFollowAccount[index];
       });
+    },
+    {
+      cacheKeyFn: (item: { followingAccountId?: number; accountId: number }) => {
+        return `${item.accountId}:${item.followingAccountId}`;
+      }
     }
   );
 
@@ -147,6 +152,11 @@ export default class PostLoader {
       return listCheckAccountFollowPage.map((item, index) => {
         return !!listCheckAccountFollowPage[index];
       });
+    },
+    {
+      cacheKeyFn: (item: { pageId?: string; accountId: number }) => {
+        return `${item.accountId}:${item.pageId}`;
+      }
     }
   );
 
@@ -161,6 +171,11 @@ export default class PostLoader {
       return listCheckAccountFollowToken.map((item, index) => {
         return !!listCheckAccountFollowToken[index];
       });
+    },
+    {
+      cacheKeyFn: (item: { tokenId?: string; accountId: number }) => {
+        return `${item.accountId}:${item.tokenId}`;
+      }
     }
   );
 
