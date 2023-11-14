@@ -1124,12 +1124,12 @@ export class PostResolver {
     return 0;
   }
 
-  @ResolveField('postImageUploadable', () => ImageUploadableModel)
-  async postImageUploadable(@Parent() post: PostPrisma) {
-    if (post && post.postImageUploadableId) {
+  @ResolveField('imageUploadable', () => ImageUploadableModel)
+  async imageUploadable(@Parent() post: PostPrisma) {
+    if (post && post.imageUploadableId) {
       const result = await this.imageUploadableLoader.batchImageUploadable.load({
         id: post.id,
-        imageUploadableId: post.postImageUploadableId
+        imageUploadableId: post.imageUploadableId
       } as IImageUploadableTo);
       return {
         id: result?.id,

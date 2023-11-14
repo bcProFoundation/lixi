@@ -628,12 +628,12 @@ type Message {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime
   id: ID!
+  imageUploadable: ImageUploadable
   isPageOwner: Boolean
   pageMessageSession: PageMessageSession
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
-  uploads: [UploadDetail!]
 }
 
 type MessageConnection {
@@ -915,6 +915,7 @@ type Post {
   followedPage: Boolean
   followedToken: Boolean
   id: ID!
+  imageUploadable: ImageUploadable
   originalLanguage: String
   page: Page
   pageId: String
@@ -922,7 +923,6 @@ type Post {
   postAccountId: Int!
   postDana: PostDana
   postHashtags: [PostHashtag!]
-  postImageUploadable: ImageUploadable
   repostCount: Int
   reposts: [Repost!]
   taggableId: String

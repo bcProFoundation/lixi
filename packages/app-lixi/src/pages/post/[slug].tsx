@@ -111,7 +111,7 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
       _count: {
         select: { reposts: true }
       },
-      postImageUploadable: {
+      imageUploadable: {
         include: {
           uploads: true
         }

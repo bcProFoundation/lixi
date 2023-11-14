@@ -646,11 +646,11 @@ export type Message = {
   /** Identifies the date and time when the object was created. */
   createdAt?: Maybe<Scalars['DateTime']>;
   id: Scalars['ID'];
+  imageUploadable?: Maybe<ImageUploadable>;
   isPageOwner?: Maybe<Scalars['Boolean']>;
   pageMessageSession?: Maybe<PageMessageSession>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt?: Maybe<Scalars['DateTime']>;
-  uploads?: Maybe<Array<UploadDetail>>;
 };
 
 export type MessageConnection = {
@@ -1049,6 +1049,7 @@ export type Post = {
   followedPage?: Maybe<Scalars['Boolean']>;
   followedToken?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
+  imageUploadable?: Maybe<ImageUploadable>;
   originalLanguage?: Maybe<Scalars['String']>;
   page?: Maybe<Page>;
   pageId?: Maybe<Scalars['String']>;
@@ -1056,7 +1057,6 @@ export type Post = {
   postAccountId: Scalars['Int'];
   postDana?: Maybe<PostDana>;
   postHashtags?: Maybe<Array<PostHashtag>>;
-  postImageUploadable?: Maybe<ImageUploadable>;
   repostCount?: Maybe<Scalars['Int']>;
   reposts?: Maybe<Array<Repost>>;
   taggableId?: Maybe<Scalars['String']>;

@@ -102,7 +102,7 @@ export class Post implements ICommentableTo {
   danaViewScore?: Nullable<number>;
 
   @Field(() => ImageUploadable, { nullable: true })
-  postImageUploadable?: Nullable<ImageUploadable>;
+  imageUploadable?: Nullable<ImageUploadable>;
 
   @IsOptional()
   @Field(() => PostDana, { nullable: true })

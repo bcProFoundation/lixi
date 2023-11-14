@@ -6,7 +6,8 @@ import {
   MessageOrder,
   PaginationArgs,
   NotificationDto,
-  WebpushNotification
+  WebpushNotification,
+  ImageUploadable as ImageUploadableModel
 } from '@bcpros/lixi-models';
 import {
   ImageUploadable,
@@ -176,7 +177,7 @@ export class MessageResolver {
             isPageOwner: isPageOwner ?? false,
             author: { connect: { id: authorId } },
             pageMessageSession: { connect: { id: pageMessageSessionId } },
-            messageImageUploadable: { connect: imageUploadable ? { id: imageUploadable.id } : undefined },
+            imageUploadable: { connect: imageUploadable ? { id: imageUploadable.id } : undefined },
             messageType: imageUploadable ? MessageType.IMAGE : MessageType.TEXT
           },
           include: {
@@ -192,10 +193,19 @@ export class MessageResolver {
                 pageId: true
               }
             },
-            uploads: {
-              select: {
-                id: true,
-                upload: true
+            imageUploadable: {
+              include: {
+                uploads: {
+                  select: {
+                    id: true,
+                    sha: true,
+                    bucket: true,
+                    width: true,
+                    height: true,
+                    cfImageId: true,
+                    cfImageFilename: true
+                  }
+                }
               }
             }
           }
@@ -287,26 +297,29 @@ export class MessageResolver {
     return pageMessageSession;
   }
 
-  @ResolveField()
-  async uploads(@Parent() message: Message) {
-    const uploads = await this.prisma.uploadDetail.findMany({
-      where: {
-        messageId: message.id
-      },
-      include: {
-        upload: {
-          select: {
-            id: true,
-            sha: true,
-            bucket: true,
-            width: true,
-            height: true,
-            cfImageId: true,
-            cfImageFilename: true
+  @ResolveField('imageUploadable', () => ImageUploadableModel)
+  async imageUploadable(@Parent() message: Message) {
+    const imageUploadable = await this.prisma.message
+      .findUnique({
+        where: {
+          id: message.id
+        }
+      })
+      .imageUploadable({
+        include: {
+          uploads: {
+            select: {
+              id: true,
+              sha: true,
+              bucket: true,
+              width: true,
+              height: true,
+              cfImageId: true,
+              cfImageFilename: true
+            }
           }
         }
-      }
-    });
-    return uploads;
+      });
+    return imageUploadable;
   }
 }
