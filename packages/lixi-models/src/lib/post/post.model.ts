@@ -62,8 +62,8 @@ export class Post implements ICommentableTo {
   })
   updatedAt: Date;
 
-  @Field(() => Number, { nullable: true })
-  totalComments?: Nullable<number>;
+  @Field(() => Number)
+  totalComments: number;
 
   @Field(() => [PostHashtag], { nullable: true })
   postHashtags?: Nullable<PostHashtag[]>;
@@ -77,8 +77,8 @@ export class Post implements ICommentableTo {
   @Field(() => Boolean, { nullable: true })
   followedToken?: Nullable<boolean>;
 
-  @Field(() => Number, { nullable: true })
-  repostCount?: Nullable<number>;
+  @Field(() => Number)
+  repostCount: number;
 
   @Field(() => [Repost], { nullable: true })
   reposts?: Nullable<Repost[]>;

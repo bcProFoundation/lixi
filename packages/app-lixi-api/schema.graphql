@@ -938,12 +938,12 @@ type Post {
   postAccountId: Int!
   postDana: PostDana
   postHashtags: [PostHashtag!]
-  repostCount: Int
+  repostCount: Int!
   reposts: [Repost!]
   taggableId: String
   token: Token
   tokenId: String
-  totalComments: Int
+  totalComments: Int!
   translations: [PostTranslation!]
 
   """Identifies the date and time when the object was last updated."""

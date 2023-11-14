@@ -1116,10 +1116,7 @@ export class PostResolver {
 
   @ResolveField('totalComments', () => Number)
   async totalComments(@Parent() commentableTo: ICommentableTo) {
-    if (commentableTo && commentableTo?.commentableId) {
-      return this.commentableLoader.batchTotalComments.load(commentableTo);
-    }
-    return 0;
+    return this.commentableLoader.batchTotalComments.load(commentableTo);
   }
 
   @ResolveField('imageUploadable', () => ImageUploadableModel)

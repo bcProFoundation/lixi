@@ -45,7 +45,13 @@ export default class CommentableLoader {
     {
       expire: 600,
       buffer: false,
-      cacheKeyFn: (commentableTo: ICommentableTo) => `${commentableTo.commentableId}:${commentableTo.id}`
+      serialize: (value) => {
+        return value ? value.toString() : '0';
+      },
+      deserialize: (value) => {
+        return _.toSafeInteger(value);
+      },
+      cacheKeyFn: (commentableTo: ICommentableTo) => `${commentableTo.id}:${commentableTo.commentableId}`
     }
   );
 }

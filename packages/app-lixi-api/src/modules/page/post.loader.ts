@@ -148,17 +148,23 @@ export default class PostLoader {
       });
       const repostCountMap = new Map(
         repostCount.map(value => {
-          return [value.postId, value._count];
+          return [value.postId, value._count._all];
         })
       );
       return postIds.map(postId => {
-        return repostCountMap.get(postId) || 0;
+        return repostCountMap.get(postId) ?? 0;
       });
     }, {
       cache: false
     }), {
     expire: 600,
-    buffer: false
+    buffer: false,
+    serialize: (value) => {
+      return value.toString();
+    },
+    deserialize: (value) => {
+      return _.toSafeInteger(value);
+    }
   });
 
   public readonly batchDanaViewScores = new DataLoader(async (postIds: readonly string[]) => {
