@@ -9,15 +9,14 @@ import { PostQueryItem } from '@generated/index';
 import { CommentOrderField, CreateCommentInput, OrderDirection } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
-import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { getAccountInfoTemp, getSelectedAccount } from '@store/account/selectors';
-import { api as commentsApi, useCreateCommentMutation } from '@store/comment/comments.api';
+import { createCommentFailure, createCommentSuccess } from '@store/comment';
+import { useCreateCommentMutation } from '@store/comment/comments.api';
 import { useInfiniteCommentsToCommentableIdQuery } from '@store/comment/useInfiniteCommentsToCommentableIdQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { closeModal, openModal } from '@store/modal/actions';
 import { usePostQuery, useRepostMutation } from '@store/post/posts.generated';
 import { sendXPIFailure, sendXPISuccess } from '@store/send/actions';
-import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { fromSmallestDenomination, getUtxoWif } from '@utils/cashMethods';
 import { AutoComplete, Button, Image, Input, Modal, Skeleton, Spin } from 'antd';
@@ -573,32 +572,12 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
       }
     };
 
-    let patches: PatchCollection;
     try {
       const result = await createCommentTrigger({ input: input }).unwrap();
-      patches = dispatch(
-        commentsApi.util.updateQueryData('CommentsToCommentableId', { id: input.commentableId, ...params }, draft => {
-          draft.commentsToCommentableId.edges.unshift({
-            cursor: result.createComment.id,
-            node: {
-              ...result.createComment
-            }
-          });
-          draft.commentsToCommentableId.totalCount = draft.commentsToCommentableId.totalCount + 1;
-        })
-      );
+      dispatch(createCommentSuccess(result));
     } catch (error) {
       const message = intl.get('comment.unableCreateComment');
-      if (patches) {
-        dispatch(commentsApi.util.patchQueryData('CommentsToCommentableId', params, patches.inversePatches));
-      }
-      dispatch(
-        showToast('error', {
-          message: 'Error',
-          description: message,
-          duration: 3
-        })
-      );
+      dispatch(createCommentFailure(message));
       setIsSendingXPI(false);
     }
 

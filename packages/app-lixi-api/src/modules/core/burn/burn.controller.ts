@@ -1,4 +1,12 @@
-import { Burn, BurnCommand, BurnForType, BurnType, PostDana, TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models';
+import {
+  Burn,
+  BurnCommand,
+  BurnForType,
+  BurnType,
+  CommentType,
+  PostDana,
+  TRANSLATION_REQUIRE_AMOUNT
+} from '@bcpros/lixi-models';
 import { NotificationLevel, Token } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
@@ -384,8 +392,8 @@ export class BurnController {
             }
           });
 
-          if (comment?.commentable?.type === 'Post') {
-            const post = await this.prisma.comment.findFirst({
+          if (comment?.commentable?.type === CommentType.POST) {
+            const post = await this.prisma.post.findFirst({
               where: { commentableId: comment.commentableId }
             });
             commentPostId = post ? post.id : undefined;
@@ -473,7 +481,6 @@ export class BurnController {
 
       return result;
     } catch (err: any) {
-      console.log('🚀 ~ file: burn.controller.ts:495 ~ BurnController ~ burn ~ err:', err);
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
       } else {

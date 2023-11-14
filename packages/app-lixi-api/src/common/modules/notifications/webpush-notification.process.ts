@@ -47,14 +47,12 @@ export class WebpushNotificationProcessor extends WorkerHost {
           if (error.statusCode === 404 || error.statusCode === 410) {
             // delete the subscription
             this.removeSubscription(pushSubObj);
-          } else {
-            throw error;
           }
           this.logger.error(error);
-          return false;
         });
     } catch (err) {
       this.logger.error(err);
+      throw err;
     }
 
     return true;

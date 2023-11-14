@@ -1,12 +1,12 @@
-import { Account, ICommentableTo, Page, Post, PostDana, Repost, UploadDetail } from '@bcpros/lixi-models';
+import { Account, PostDana, Repost, UploadDetail } from '@bcpros/lixi-models';
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import _ from 'lodash';
+import { AccountCacheService } from '../account/account-cache.service';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { DanaViewScoreService } from './dana-view-score.service';
 import { PageCacheService } from './page-cache.service';
-import { AccountCacheService } from '../account/account-cache.service';
 import { PostDanaCacheService } from './post-dana-cache.service';
 
 @Injectable({ scope: Scope.REQUEST })
@@ -133,6 +133,11 @@ export default class PostLoader {
       return listCheckAccountFollowAccount.map((item, index) => {
         return !!listCheckAccountFollowAccount[index];
       });
+    },
+    {
+      cacheKeyFn: (item: { followingAccountId?: number; accountId: number }) => {
+        return `${item.accountId}:${item.followingAccountId}`;
+      }
     }
   );
 
@@ -147,6 +152,11 @@ export default class PostLoader {
       return listCheckAccountFollowPage.map((item, index) => {
         return !!listCheckAccountFollowPage[index];
       });
+    },
+    {
+      cacheKeyFn: (item: { pageId?: string; accountId: number }) => {
+        return `${item.accountId}:${item.pageId}`;
+      }
     }
   );
 
@@ -161,6 +171,11 @@ export default class PostLoader {
       return listCheckAccountFollowToken.map((item, index) => {
         return !!listCheckAccountFollowToken[index];
       });
+    },
+    {
+      cacheKeyFn: (item: { tokenId?: string; accountId: number }) => {
+        return `${item.accountId}:${item.tokenId}`;
+      }
     }
   );
 }

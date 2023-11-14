@@ -137,6 +137,7 @@ type Comment {
   commentByPublicKey: String
   commentDana: CommentDana
   commentText: String!
+  commentable: Commentable
   commentableId: String
   content: String!
 
@@ -182,6 +183,20 @@ enum CommentOrderField {
   danaBurnScore
   id
   updatedAt
+}
+
+"""The type comment attach to"""
+enum CommentType {
+  EVENT
+  POLL
+  POST
+  PRODUCT
+}
+
+type Commentable {
+  commentToId: String!
+  id: ID!
+  type: CommentType!
 }
 
 type Country {

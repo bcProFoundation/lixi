@@ -1,11 +1,9 @@
-import { createUnionType, Field, ID, ObjectType } from '@nestjs/graphql';
+import { createUnionType, Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 
 import { Event } from '../event';
 import { Poll } from '../poll';
 import { Post } from '../post';
 import { Product } from '../product';
-
-import { Comment } from './comment.model';
 
 export const CommentTo = createUnionType({
   name: 'CommentTo',
@@ -31,19 +29,28 @@ export interface ICommentableTo {
   commentableId?: Nullable<string>;
 }
 
+export enum CommentType {
+  POST = 'POST',
+  EVENT = 'EVENT',
+  POLL = 'POLL',
+  PRODUCT = 'PRODUCT'
+}
+
+registerEnumType(CommentType, {
+  name: 'CommentType',
+  description: 'The type comment attach to'
+});
+
 @ObjectType()
 export class Commentable {
   @Field(() => ID)
   id: string;
 
+  @Field(() => CommentType)
+  type: CommentType;
+
   @Field(() => String)
-  type: string;
-
-  @Field(() => [Comment])
-  comments: Comment[];
-
-  @Field(() => CommentTo)
-  commentTo: typeof CommentTo;
+  commentToId: string;
 
   constructor(partial: Partial<Commentable>) {
     Object.assign(this, partial);

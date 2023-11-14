@@ -158,6 +158,7 @@ export type Comment = {
   commentByPublicKey?: Maybe<Scalars['String']>;
   commentDana?: Maybe<CommentDana>;
   commentText: Scalars['String'];
+  commentable?: Maybe<Commentable>;
   commentableId?: Maybe<Scalars['String']>;
   content: Scalars['String'];
   /** Identifies the date and time when the object was created. */
@@ -205,6 +206,21 @@ export enum CommentOrderField {
   Id = 'id',
   UpdatedAt = 'updatedAt'
 }
+
+/** The type comment attach to */
+export enum CommentType {
+  Event = 'EVENT',
+  Poll = 'POLL',
+  Post = 'POST',
+  Product = 'PRODUCT'
+}
+
+export type Commentable = {
+  __typename?: 'Commentable';
+  commentToId: Scalars['String'];
+  id: Scalars['ID'];
+  type: CommentType;
+};
 
 export type Country = {
   __typename?: 'Country';

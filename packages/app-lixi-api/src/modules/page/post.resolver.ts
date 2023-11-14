@@ -18,7 +18,13 @@ import {
   ImageUploadableTo,
   IImageUploadableTo
 } from '@bcpros/lixi-models';
-import { ImageUploadable, ImageUploadableType, NotificationLevel, Post as PostPrisma } from '@bcpros/lixi-prisma';
+import {
+  ImageUploadable,
+  ImageUploadableType,
+  CommentType,
+  NotificationLevel,
+  Post as PostPrisma
+} from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
@@ -833,7 +839,7 @@ export class PostResolver {
           ...postToSave,
           commentable: {
             create: {
-              type: 'Post'
+              type: CommentType.POST
             }
           },
           txid: txid,

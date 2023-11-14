@@ -3,10 +3,11 @@ import {
   Comment,
   CommentConnection,
   CommentOrder,
+  Commentable,
   CreateCommentInput,
   PaginationArgs
 } from '@bcpros/lixi-models';
-import { NotificationLevel } from '@bcpros/lixi-prisma';
+import { CommentType, NotificationLevel } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { HttpException, HttpStatus, Inject, Logger, UseGuards } from '@nestjs/common';
@@ -25,6 +26,7 @@ import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtau
 import { PrismaService } from '../prisma/prisma.service';
 import { XPIJS } from '../wallet/wallet.constants';
 import { CommentCacheService } from './comment-cache.service';
+import CommentLoader from './comment.loader';
 
 @SkipThrottle()
 @Resolver(() => Comment)
@@ -36,6 +38,7 @@ export class CommentResolver {
     @I18n() private i18n: I18nService,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @Inject(XPIJS) private XPI: BCHJS,
+    private readonly commentLoader: CommentLoader,
     private readonly notificationService: NotificationService,
     private readonly accountCacheService: AccountCacheService,
     private readonly commentCacheService: CommentCacheService
@@ -128,7 +131,7 @@ export class CommentResolver {
       if (!commentable) throw new Error('Could not create new comment.');
 
       const post =
-        commentable.type === 'Post'
+        commentable.type === CommentType.POST
           ? await this.prisma.post.findFirst({
               where: {
                 commentableId: commentableId
@@ -242,5 +245,12 @@ export class CommentResolver {
   async postAccount(@Parent() comment: Comment) {
     const account = await this.accountCacheService.getById(_.toSafeInteger(comment.commentAccountId));
     return account;
+  }
+
+  @ResolveField('commentable', () => Commentable)
+  async commentable(@Parent() comment: Comment) {
+    if (!comment?.commentableId) return null;
+
+    return this.commentLoader.batchCommentable.load(comment.commentableId);
   }
 }
