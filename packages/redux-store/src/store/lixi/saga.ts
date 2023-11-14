@@ -21,7 +21,7 @@ import {
 } from '@bcpros/lixi-models/lib/lixi';
 import { all, fork, put, takeLatest } from '@redux-saga/core/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { removeUpload } from '@store/account/actions';
+import { removeUpload, removeUploadFromCache } from '@store/account/actions';
 import { getAccountById } from '@store/account/selectors';
 import { generateRandomBase58Str } from '@utils/encryptionMethods';
 import { Modal } from 'antd';
@@ -318,7 +318,7 @@ function* postLixiSuccessSaga(action: PayloadAction<Lixi>) {
         duration: 5
       })
     );
-    yield put(removeUpload({ uploadType: UPLOAD_TYPES.ENVELOPE }));
+    yield put(removeUploadFromCache({ uploadType: UPLOAD_TYPES.ENVELOPE }));
     yield put(selectLixi(lixi.id));
   } catch (error) {
     const message = intl.get('lixi.errorWhenCreateLixi');

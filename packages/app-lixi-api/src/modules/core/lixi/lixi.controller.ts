@@ -722,7 +722,27 @@ export class LixiController {
       if (lixi.claimType === ClaimType.Single) {
         const lixiIndex = lixi.derivationIndex;
         const walletService = this.walletServices['xpi'];
-        const { address, keyPair } = await walletService.deriveAddress(mnemonicFromApi, lixiIndex);
+        const { address, xpriv } = await walletService.deriveAddress(mnemonicFromApi, lixiIndex);
+
+        const childNode = this.XPI.HDNode.fromXPriv(xpriv);
+        const lixiAddress: string = this.XPI.HDNode.toXAddress(childNode);
+        const keyPair = this.XPI.HDNode.toKeyPair(childNode);
+        const cashAddress = this.XPI.HDNode.toCashAddress(childNode);
+        const hash160 = this.XPI.Address.toHash160(cashAddress);
+        const slpAddress = this.XPI.SLP.Address.toSLPAddress(cashAddress);
+        const xAddress = this.XPI.HDNode.toXAddress(childNode);
+        const publicKey = this.XPI.HDNode.toPublicKey(childNode).toString('hex');
+        const walletPath = {
+          path: `m/44'/245'/${lixi.derivationIndex}'/0/0`,
+          xAddress,
+          cashAddress,
+          slpAddress,
+          hash160,
+          fundingWif: this.XPI.HDNode.toWIF(childNode),
+          fundingAddress: this.XPI.SLP.Address.toSLPAddress(cashAddress),
+          legacyAddress: this.XPI.SLP.Address.toLegacyAddress(cashAddress),
+          publicKey
+        };
 
         if (address !== lixi.address) {
           const invalidAccount = await i18n.t('lixi.messages.invalidAccount');
@@ -743,9 +763,9 @@ export class LixiController {
           lixi.address,
           account.address,
           totalAmount.toString(),
-          undefined,
-          undefined,
-          command.mnemonic
+          walletPath,
+          walletPath.fundingWif,
+          undefined
         );
 
         //If lixi is withdrew before session open then close session

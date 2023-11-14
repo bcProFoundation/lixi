@@ -78,7 +78,11 @@ export class ClaimController {
         },
         include: {
           package: true,
-          uploadDetail: true
+          imageUploadable: {
+            include: {
+              uploads: true
+            }
+          }
         }
       });
 
@@ -90,13 +94,17 @@ export class ClaimController {
             id: lixi.parentId
           },
           include: {
-            uploadDetail: true
+            imageUploadable: {
+              include: {
+                uploads: true
+              }
+            }
           }
         });
-        if (parentLixi!.uploadDetail) {
+        if (parentLixi!.imageUploadableId) {
           const upload = await this.prisma.upload.findFirst({
             where: {
-              id: parentLixi!.uploadDetail.uploadId
+              id: parentLixi!.imageUploadable?.uploads[0].id
             }
           });
 
@@ -108,10 +116,10 @@ export class ClaimController {
           }
         }
       } else {
-        if (lixi?.uploadDetail) {
+        if (lixi?.imageUploadableId) {
           const upload = await this.prisma.upload.findFirst({
             where: {
-              id: lixi.uploadDetail.uploadId
+              id: lixi.imageUploadable?.uploads[0].id
             }
           });
           if (upload) {
@@ -223,7 +231,11 @@ export class ClaimController {
           },
           include: {
             package: true,
-            uploadDetail: true
+            imageUploadable: {
+              include: {
+                uploads: true
+              }
+            }
           }
         });
 
@@ -350,6 +362,7 @@ export class ClaimController {
         const utxos = await getUtxosSingleHashChronik(this.chronik, accountHash160);
         const utxoStore = utxos[0];
         const xpiBalance = Number(lixiBalance);
+        let amountToClaim = 0;
         const calcFee = walletService.calcFee(this.XPI, utxos);
 
         let numberOfDistributions = 1;
@@ -366,15 +379,21 @@ export class ClaimController {
 
           xpiValue = amountFundingRegistered;
           satoshisToSend = toSmallestDenomination(new BigNumber(xpiValue));
+          amountToClaim = xpiBalance;
         } else if (lixi.lixiType == LixiType.Random) {
           const maxXpiValue = xpiBalance < lixi.maxValue ? xpiBalance : lixi.maxValue;
           const maxSatoshis = toSmallestDenomination(new BigNumber(maxXpiValue));
           const minSatoshis = toSmallestDenomination(new BigNumber(lixi.minValue));
           satoshisToSend = maxSatoshis.minus(minSatoshis).times(new BigNumber(Math.random())).plus(minSatoshis);
+          //We calulate the random amount to claim based on min and max value, then convert to string then parse to float to get 2 decimal places
+          amountToClaim = Number(
+            parseFloat((lixi.minValue + (lixi.maxValue - lixi.minValue) * Math.random()).toString()).toFixed(2)
+          );
         } else if (lixi.lixiType == LixiType.Fixed) {
           const walletService = this.walletServices['xpi'];
           const xpiValue = xpiBalance <= lixi.fixedValue ? await walletService.onMax(lixiAddress) : lixi.fixedValue;
           satoshisToSend = toSmallestDenomination(new BigNumber(xpiValue));
+          amountToClaim = lixi.fixedValue;
         } else {
           // The payout unit is satoshi
           const payout = parseFloat(lixiBalance) / lixi.dividedValue;
@@ -432,42 +451,6 @@ export class ClaimController {
           throw new VError(utxoEmpty);
         }
 
-        // Determine the UTXOs needed to be spent for this TX, and the change
-        // that will be returned to the wallet.
-        // const utxosStore = (utxoStore as any).bchUtxos.concat((utxoStore as any).nullUtxos);
-        // const xpiWallet = new MinimalBCHWallet('sourceAddress', null);
-        // const { necessaryUtxos, change } = xpiWallet.sendBch.getNecessaryUtxosAndChange(outputs, utxosStore, 1.0);
-
-        // // Create an instance of the Transaction Builder.
-        // const transactionBuilder: any = new this.XPI.TransactionBuilder();
-
-        // // Add inputs
-        // necessaryUtxos.forEach((utxo: any) => {
-        //   transactionBuilder.addInput(utxo.tx_hash, utxo.tx_pos);
-        // });
-
-        // // Add outputs
-        // outputs.forEach(receiver => {
-        //   transactionBuilder.addOutput(receiver.address, receiver.amountSat);
-        // });
-
-        // // No need the change, all the change (if there's any) comes to miner
-        // if (change && change > 546) {
-        //   transactionBuilder.addOutput(lixiAddress, change);
-        // }
-
-        // // Sign each UTXO that is about to be spent.
-        // necessaryUtxos.forEach((utxo, i) => {
-        //   let redeemScript;
-
-        //   transactionBuilder.sign(i, keyPair, redeemScript, transactionBuilder.hashTypes.SIGHASH_ALL, utxo.value);
-        // });
-
-        // const tx = transactionBuilder.build();
-        // const hex = tx.toHex();
-
-        const amountToClaim = xpiBalance - fromSmallestDenomination(calcFee);
-
         try {
           const txid = await walletService.sendXPIToSingleAddress(
             lixiAddress,
@@ -477,9 +460,6 @@ export class ClaimController {
             walletPath.fundingWif,
             undefined
           );
-          // Broadcast the transaction to the network.
-          // const txid = await this.XPI.RawTransactions.sendRawTransaction(hex);
-          // const txid = await xpiWallet.send(outputs);
 
           const createClaimOperation = this.prisma.claim.create({
             data: {
@@ -530,13 +510,17 @@ export class ClaimController {
                 id: lixi.parentId
               },
               include: {
-                uploadDetail: true
+                imageUploadable: {
+                  include: {
+                    uploads: true
+                  }
+                }
               }
             });
-            if (parentLixi!.uploadDetail) {
+            if (parentLixi!.imageUploadableId) {
               const upload = await this.prisma.upload.findFirst({
                 where: {
-                  id: parentLixi!.uploadDetail.uploadId
+                  id: parentLixi!.imageUploadable?.uploads[0].id
                 }
               });
               if (upload) {
@@ -547,10 +531,10 @@ export class ClaimController {
               }
             }
           } else {
-            if (lixi.uploadDetail) {
+            if (lixi.imageUploadableId) {
               const upload = await this.prisma.upload.findFirst({
                 where: {
-                  id: lixi.uploadDetail.uploadId
+                  id: lixi.imageUploadable?.uploads[0].id
                 }
               });
               if (upload) {
@@ -620,7 +604,7 @@ export class ClaimController {
             lixiId: claim.lixiId,
             image: image ? image : claim.lixi.envelope?.image || '',
             thumbnail: thumbnail ? thumbnail : claim.lixi.envelope?.thumbnail || '',
-            amount: Number(claim.amount),
+            amount: amountToClaim,
             message: claim.lixi.envelopeMessage,
             nftTokenId: claim.nftTokenId,
             nftTokenUrl: claim.nftTokenUrl,
