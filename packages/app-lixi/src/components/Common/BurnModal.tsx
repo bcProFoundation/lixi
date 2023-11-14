@@ -23,13 +23,14 @@ import { showToast } from '@store/toast/actions';
 import { Button, Form, Modal, Radio } from 'antd';
 import _ from 'lodash';
 import router from 'next/router';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Controller, useForm } from 'react-hook-form';
 import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
 import { QRCodeModal } from './QRCodeModal';
+import { AuthenticationContext } from '@context/index';
 
 const UpDownButton = styled(Button)`
   background: rgb(158, 42, 156);
@@ -123,9 +124,13 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
     balance: selectedAccount?.balance,
     address: selectedAccount?.address
   };
+  const authentication = useContext(AuthenticationContext);
 
   const handleBurn = async (isUpVote: boolean) => {
     try {
+      if (authentication && authentication.isAuthenticationRequired && !authentication.isSignedIn) {
+        await authentication.signIn();
+      }
       const burnValue = _.isNil(control._formValues.burnedValue)
         ? DefaultXpiBurnValues[0]
         : control._formValues.burnedValue;
