@@ -82,7 +82,7 @@ export class PostResolver {
     private readonly postLoader: PostLoader,
     private readonly commentableLoader: CommentableLoader,
     private readonly imageUploadableLoader: ImageUploadableLoader
-  ) {}
+  ) { }
 
   @SkipThrottle()
   @Query(() => Post)
@@ -1091,30 +1091,22 @@ export class PostResolver {
       return updatePost;
     });
 
+    await Promise.all([
+      this.postLoader.batchReposts.clear(data.postId),
+      this.postLoader.batchRepostCount.clear(data.postId)
+    ]);
+
     return reposted ? true : false;
   }
 
   @ResolveField('reposts', () => Repost)
   async reposts(@Parent() post: Post) {
-    const reposts = await this.prisma.post
-      .findUnique({
-        where: {
-          id: post.id
-        }
-      })
-      .reposts({ include: { account: true } });
-    return reposts;
+    return this.postLoader.batchReposts.load(post.id);
   }
 
   @ResolveField('repostCount', () => Number)
   async repostCount(@Parent() post: Post) {
-    const repostCount = await this.prisma.repost.count({
-      where: {
-        postId: post.id
-      }
-    });
-
-    return repostCount;
+    return this.postLoader.batchRepostCount.load(post.id);
   }
 
   @ResolveField('postAccount', () => Account)

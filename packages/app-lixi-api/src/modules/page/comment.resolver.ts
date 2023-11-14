@@ -27,6 +27,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { XPIJS } from '../wallet/wallet.constants';
 import { CommentCacheService } from './comment-cache.service';
 import CommentLoader from './comment.loader';
+import CommentableLoader from './commentable.loader';
 
 @SkipThrottle()
 @Resolver(() => Comment)
@@ -39,10 +40,11 @@ export class CommentResolver {
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @Inject(XPIJS) private XPI: BCHJS,
     private readonly commentLoader: CommentLoader,
+    private readonly commentableLoader: CommentableLoader,
     private readonly notificationService: NotificationService,
     private readonly accountCacheService: AccountCacheService,
     private readonly commentCacheService: CommentCacheService
-  ) {}
+  ) { }
 
   @Query(() => Comment)
   async comment(@Args('id', { type: () => String }) id: string) {
@@ -79,17 +81,17 @@ export class CommentResolver {
         },
         ...(account && account.id
           ? [
-              {
-                AND: [
-                  { commentableId: id },
-                  {
-                    commentAccount: {
-                      id: account.id
-                    }
+            {
+              AND: [
+                { commentableId: id },
+                {
+                  commentAccount: {
+                    id: account.id
                   }
-                ]
-              }
-            ]
+                }
+              ]
+            }
+          ]
           : [])
       ]
     };
@@ -133,13 +135,13 @@ export class CommentResolver {
       const post =
         commentable.type === CommentType.POST
           ? await this.prisma.post.findFirst({
-              where: {
-                commentableId: commentableId
-              },
-              include: {
-                postAccount: true
-              }
-            })
+            where: {
+              commentableId: commentableId
+            },
+            include: {
+              postAccount: true
+            }
+          })
           : null;
 
       let createFee: any;
@@ -191,6 +193,12 @@ export class CommentResolver {
           };
           await prisma.giveTip.create({ data: transactionTip });
         }
+
+        // Clear the cache from relevant loaders
+        await this.commentableLoader.batchTotalComments.clear({
+          id: createdComment.id,
+          commentableId
+        });
 
         return createdComment;
       });
