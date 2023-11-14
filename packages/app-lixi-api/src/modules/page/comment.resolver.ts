@@ -44,7 +44,7 @@ export class CommentResolver {
     private readonly notificationService: NotificationService,
     private readonly accountCacheService: AccountCacheService,
     private readonly commentCacheService: CommentCacheService
-  ) { }
+  ) {}
 
   @Query(() => Comment)
   async comment(@Args('id', { type: () => String }) id: string) {
@@ -81,17 +81,17 @@ export class CommentResolver {
         },
         ...(account && account.id
           ? [
-            {
-              AND: [
-                { commentableId: id },
-                {
-                  commentAccount: {
-                    id: account.id
+              {
+                AND: [
+                  { commentableId: id },
+                  {
+                    commentAccount: {
+                      id: account.id
+                    }
                   }
-                }
-              ]
-            }
-          ]
+                ]
+              }
+            ]
           : [])
       ]
     };
@@ -135,13 +135,13 @@ export class CommentResolver {
       const post =
         commentable.type === CommentType.POST
           ? await this.prisma.post.findFirst({
-            where: {
-              commentableId: commentableId
-            },
-            include: {
-              postAccount: true
-            }
-          })
+              where: {
+                commentableId: commentableId
+              },
+              include: {
+                postAccount: true
+              }
+            })
           : null;
 
       let createFee: any;

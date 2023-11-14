@@ -22,7 +22,7 @@ export default class PostLoader {
     private readonly danaViewScoreService: DanaViewScoreService,
     private readonly followCacheService: FollowCacheService,
     private readonly postDanaCacheService: PostDanaCacheService
-  ) { }
+  ) {}
 
   public readonly batchPostDanas = new DataLoader<string, PostDana>(async (ids: readonly string[]) => {
     const postIds = ids as unknown as string[];
@@ -101,71 +101,80 @@ export default class PostLoader {
   public readonly batchReposts = new RedisDataLoader(
     this.redis,
     'dataloader:PostLoader:batchReposts',
-    new DataLoader(async (postIds: readonly string[]) => {
-      const ids = (postIds as unknown as string[]) ?? [];
+    new DataLoader(
+      async (postIds: readonly string[]) => {
+        const ids = (postIds as unknown as string[]) ?? [];
 
-      const repostsDb = await this.prisma.repost.findMany({
-        where: {
-          postId: {
-            in: ids
+        const repostsDb = await this.prisma.repost.findMany({
+          where: {
+            postId: {
+              in: ids
+            }
+          },
+          include: {
+            account: true
           }
-        },
-        include: {
-          account: true
-        }
-      });
-      const reposts = repostsDb.map(item => {
-        return new Repost({
-          ...item
         });
-      });
-      return postIds.map(postId => {
-        return reposts.filter(item => item.postId == postId) || null;
-      });
-    }, {
-      cache: false
+        const reposts = repostsDb.map(item => {
+          return new Repost({
+            ...item
+          });
+        });
+        return postIds.map(postId => {
+          return reposts.filter(item => item.postId == postId) || null;
+        });
+      },
+      {
+        cache: false
+      }
+    ),
+    {
+      expire: 600,
+      buffer: false
     }
-    ), {
-    expire: 600,
-    buffer: false
-  });
+  );
 
   public readonly batchRepostCount = new RedisDataLoader(
     this.redis,
     'dataloader:PostLoader:batchRepostCount',
-    new DataLoader(async (postIds: readonly string[]) => {
-      const ids = (postIds as unknown as string[]) ?? [];
-      const repostCount = await this.prisma.repost.groupBy({
-        by: ['postId'],
-        _count: {
-          _all: true
-        },
-        where: {
-          postId: {
-            in: ids
+    new DataLoader(
+      async (postIds: readonly string[]) => {
+        const ids = (postIds as unknown as string[]) ?? [];
+        const repostCount = await this.prisma.repost.groupBy({
+          by: ['postId'],
+          _count: {
+            _all: true
+          },
+          where: {
+            postId: {
+              in: ids
+            }
           }
-        }
-      });
-      const repostCountMap = new Map(
-        repostCount.map(value => {
-          return [value.postId, value._count._all];
-        })
-      );
-      return postIds.map(postId => {
-        return repostCountMap.get(postId) ?? 0;
-      });
-    }, {
-      cache: false
-    }), {
-    expire: 600,
-    buffer: false,
-    serialize: (value) => {
-      return value.toString();
-    },
-    deserialize: (value) => {
-      return _.toSafeInteger(value);
+        });
+        const repostCountMap = new Map(
+          repostCount.map(value => {
+            return [value.postId, value._count._all];
+          })
+        );
+        return postIds.map(postId => {
+          return repostCountMap.get(postId) ?? 0;
+        });
+      },
+      {
+        cache: false
+      }
+    ),
+    {
+      expire: 600,
+      buffer: false,
+      serialize: value => {
+        return value.toString();
+      },
+      deserialize: value => {
+        return _.toSafeInteger(value);
+      }
     }
-  });
+  );
 
   public readonly batchDanaViewScores = new DataLoader(async (postIds: readonly string[]) => {
     const ids = (postIds as unknown as string[]) ?? [];

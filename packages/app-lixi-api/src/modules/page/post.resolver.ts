@@ -82,7 +82,7 @@ export class PostResolver {
     private readonly postLoader: PostLoader,
     private readonly commentableLoader: CommentableLoader,
     private readonly imageUploadableLoader: ImageUploadableLoader
-  ) { }
+  ) {}
 
   @SkipThrottle()
   @Query(() => Post)
