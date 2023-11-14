@@ -29,7 +29,8 @@
     "indexing:hashtag": "ts-node scripts/hashtag/index.ts",
     "update:page": "ts-node scripts/page/index.ts",
     "update:dana": "ts-node scripts/dana/index.ts",
-    "update:comment": "ts-node scripts/comment/index.ts"
+    "update:comment": "ts-node scripts/comment/index.ts",
+    "update:uploadable": "ts-node scripts/upload/index.ts"
   },
   "dependencies": {
     "@abcpros/bitcore-lib-xpi": "^8.25.37",

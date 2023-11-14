@@ -41,6 +41,72 @@ export class UploadFilesController {
     private readonly accountCacheService: AccountCacheService
   ) {}
 
+  @Post('/s3')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  async uploadS3(
+    @UploadedFile('file') file: MulterFile,
+    @PostAccountEntity() account: Account,
+    @I18n() i18n: I18nContext,
+    @Body() body: any
+  ) {
+    try {
+      const { type } = body;
+      if (!account) {
+        const couldNotFindAccount = await i18n.t('lixi.messages.couldNotFindAccount');
+        throw new Error(couldNotFindAccount);
+      }
+
+      const bucket = process.env.AWS_PUBLIC_BUCKET_NAME;
+      const buffer = file.buffer;
+      const sha = await hexSha256(buffer);
+      const originalName = file.originalname.replace(/\.[^/.]+$/, '');
+      const fileExtension = extname(file.originalname);
+      const metadata = await sharp(file.buffer).metadata();
+
+      const createImageRequest: Requests.CreateImage = {
+        fileName: file.originalname,
+        metadata: {
+          width: metadata.width,
+          height: metadata.height
+        },
+        requireSignedURLs: false
+      };
+      const createImageResponse = await this.cloudflareService.createImageFromBuffer(createImageRequest, buffer);
+
+      const uploadToInsert = {
+        sha: sha,
+        originalFilename: originalName,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        extension: fileExtension,
+        type: type,
+        bucket: bucket,
+        width: metadata.width,
+        height: metadata.height,
+        cfImageId: createImageResponse.result.id,
+        cfImageFilename: createImageResponse.result.filename
+      };
+
+      const resultImage: UploadDb = await this.prisma.upload.create({
+        data: uploadToInsert
+      });
+
+      this.accountCacheService.removeByKey(account.id.toString());
+
+      return resultImage;
+    } catch (err) {
+      if (err instanceof VError) {
+        throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      } else {
+        const unableToUpload = await i18n.t('lixi.messages.unableToUpload');
+        const error = new VError.WError(err as Error, unableToUpload);
+        throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
   @Delete('/remove-image-cf/:id')
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
@@ -60,21 +126,21 @@ export class UploadFilesController {
           id: id
         },
         include: {
-          uploadDetail: true
+          imageUploadable: true
         }
       });
 
-      if (account.id === upload?.uploadDetail?.accountId && upload) {
+      if (account.id === upload?.imageUploadable?.accountId && upload) {
         await this.prisma.$transaction(async prisma => {
-          await prisma.uploadDetail.delete({
-            where: {
-              uploadId: upload!.id
-            }
-          });
-
           await prisma.upload.delete({
             where: {
               id: upload!.id
+            }
+          });
+
+          await prisma.imageUploadable.delete({
+            where: {
+              id: upload.imageUploadableId!
             }
           });
 
@@ -159,16 +225,6 @@ export class UploadFilesController {
         uploads.map(upload => this.prisma.upload.create({ data: upload }))
       );
 
-      await this.prisma.$transaction(
-        resultImages.map(image =>
-          this.prisma.uploadDetail.create({
-            data: {
-              account: { connect: { id: account.id } },
-              upload: { connect: { id: image.id } }
-            }
-          })
-        )
-      );
       this.accountCacheService.removeByKey(account.id.toString());
 
       return resultImages;

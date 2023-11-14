@@ -356,17 +356,17 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
   );
 
   const imagesList = useMemo(() => {
-    let result = post?.uploads.map(img => {
-      const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.upload.cfImageId}/public`;
+    let result = post?.imageUploadable?.uploads.map(img => {
+      const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img?.cfImageId}/public`;
       let newImageObj = {
         src: imgUrl,
-        width: img?.upload?.width || 4,
-        height: img?.upload?.height || 3
+        width: img?.width || 4,
+        height: img?.height || 3
       };
       return newImageObj;
     });
     return result || [];
-  }, [post?.uploads]);
+  }, [post?.imageUploadable?.uploads]);
 
   const [
     createCommentTrigger,
@@ -736,9 +736,9 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
                 <PostTranslate postTranslate={post.translations[0].translateContent} />
               </div>
             )}
-            {post.uploads.length != 0 && isMobile && (
+            {post.imageUploadable?.uploads.length != 0 && isMobile && (
               <>
-                {post.uploads.length > 1 && (
+                {post.imageUploadable?.uploads.length > 1 && (
                   <div className="images-post images-post-mobile">
                     <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
                       {imagesList.map((img, index) => (
@@ -749,7 +749,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
                     </PhotoProvider>
                   </div>
                 )}
-                {post.uploads.length === 1 && (
+                {post.imageUploadable?.uploads.length === 1 && (
                   <>
                     <div className="images-post images-post-mobile only-one-image">
                       <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
@@ -764,7 +764,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
                 )}
               </>
             )}
-            {post.uploads.length != 0 && !isMobile && (
+            {post.imageUploadable?.uploads.length != 0 && !isMobile && (
               <div className={`images-post ${imagesList.length > 1 ? 'images-post-desktop' : ''}`}>
                 <Image.PreviewGroup>
                   <Gallery margin={4} photos={imagesList} renderImage={imageRenderer} />

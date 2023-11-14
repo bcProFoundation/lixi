@@ -103,45 +103,45 @@ export class BookmarkResolver {
 
     const { bookmarkId, accountId } = data;
 
-    const bookmark = await this.prisma.bookmark.findUnique({
-      where: {
-        id: bookmarkId,
-        account: {
-          id: accountId
-        }
-      },
-      include: {
-        bookmarkable: true
-      }
-    });
+    //   const bookmark = await this.prisma.bookmark.findUnique({
+    //     where: {
+    //       id: bookmarkId,
+    //       account: {
+    //         id: accountId
+    //       }
+    //     },
+    //     include: {
+    //       bookmarkable: true
+    //     }
+    //   });
 
-    if (!bookmark) {
-      const bookmarkNotFound = 'Bookmark not found';
-      throw new Error(bookmarkNotFound);
-    }
+    //   if (!bookmark) {
+    //     const bookmarkNotFound = 'Bookmark not found';
+    //     throw new Error(bookmarkNotFound);
+    //   }
 
-    const result = await this.prisma.bookmark.delete({
-      where: {
-        id: bookmark.id,
-        account: {
-          id: accountId
-        }
-      },
-      include: {
-        account: true
-      }
-    });
+    //   const result = await this.prisma.bookmark.delete({
+    //     where: {
+    //       id: bookmark.id,
+    //       account: {
+    //         id: accountId
+    //       }
+    //     },
+    //     include: {
+    //       account: true
+    //     }
+    //   });
 
-    const { bookmarkable } = bookmark;
-    const type = bookmarkable.type;
+    //   const { bookmarkable } = bookmark;
+    //   const type = bookmarkable.type;
 
-    await this.bookmarkCacheService.removeBookmark(
-      accountId,
-      bookmarkId,
-      bookmark.bookmarkableId,
-      bookmark.bookmarkable.type!
-    );
+    //   await this.bookmarkCacheService.removeBookmark(
+    //     accountId,
+    //     bookmarkId,
+    //     bookmark.bookmarkableId,
+    //     bookmark.bookmarkable.type!
+    //   );
 
-    return result;
+    //   return result;
   }
 }

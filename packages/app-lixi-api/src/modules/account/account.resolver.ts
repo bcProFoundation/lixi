@@ -1,6 +1,8 @@
 import { Account, AccountDana, CreateAccountInput, ImportAccountInput, UpdateAccountInput } from '@bcpros/lixi-models';
+import { ImageUploadableType } from '@bcpros/lixi-prisma';
+import MinimalBCHWallet from '@bcpros/minimal-xpi-slp-wallet';
 import { HttpException, HttpStatus, Inject, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PubSub } from 'graphql-subscriptions';
 import _ from 'lodash';
@@ -75,12 +77,8 @@ export class AccountResolver {
   }
 
   @Query(() => Account)
-  @UseGuards(GqlJwtAuthGuardByPass)
-  async getAccountByAddress(
-    @AccountEntity() myAccount: Account,
-    @Args('address', { type: () => String }) address: string,
-    @I18n() i18n: I18nContext
-  ) {
+  @UseGuards(GqlJwtAuthGuard)
+  async getAccountByAddress(@Args('address', { type: () => String }) address: string) {
     try {
       const account = await this.accountCacheService.getByAddress(address);
 
@@ -292,21 +290,159 @@ export class AccountResolver {
       throw new VError.WError(couldNotFindAccount);
     }
 
-    const uploadAvatarDetail = data.avatar
-      ? await this.prisma.uploadDetail.findFirst({
-          where: {
-            uploadId: data.avatar
-          }
-        })
-      : undefined;
+    const { avatar: avatarId, cover: coverId } = data;
 
-    const uploadCoverDetail = data.cover
-      ? await this.prisma.uploadDetail.findFirst({
+    /*Account Avatar*/
+    if (avatarId) {
+      await this.prisma.$transaction(async prisma => {
+        //find account avatar image uploadable
+        const result = await prisma.imageUploadable.findFirst({
           where: {
-            uploadId: data.cover
+            AND: [
+              {
+                account: {
+                  id: account.id
+                }
+              },
+              {
+                accountAvatar: {
+                  id: account.id
+                }
+              }
+            ]
           }
-        })
-      : undefined;
+        });
+
+        if (!result) {
+          //if not found, create new one and connect to account and uploads
+          const imageUploadable = await prisma.imageUploadable.create({
+            data: {
+              account: {
+                connect: {
+                  id: account.id
+                }
+              },
+              uploads: {
+                connect: {
+                  id: avatarId
+                }
+              },
+              accountAvatar: {
+                connect: {
+                  id: account.id
+                }
+              },
+              type: ImageUploadableType.ACCOUNT_AVATAR
+            }
+          });
+
+          return imageUploadable;
+        } else {
+          //if found, disconnect all uploads and connect new one
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                set: []
+              }
+            }
+          });
+
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                connect: {
+                  id: avatarId
+                }
+              }
+            }
+          });
+
+          return result;
+        }
+      });
+    }
+
+    /*Account Cover*/
+    if (coverId) {
+      await this.prisma.$transaction(async prisma => {
+        //find page avatar image uploadable
+        const result = await prisma.imageUploadable.findFirst({
+          where: {
+            AND: [
+              {
+                account: {
+                  id: account.id
+                }
+              },
+              {
+                accountCover: {
+                  id: account.id
+                }
+              }
+            ]
+          }
+        });
+
+        if (!result) {
+          //if not found, create new one and connect to account and uploads
+          const imageUploadable = await prisma.imageUploadable.create({
+            data: {
+              account: {
+                connect: {
+                  id: account.id
+                }
+              },
+              uploads: {
+                connect: {
+                  id: coverId
+                }
+              },
+              accountCover: {
+                connect: {
+                  id: account.id
+                }
+              },
+              type: ImageUploadableType.ACCOUNT_COVER
+            }
+          });
+
+          return imageUploadable;
+        } else {
+          //if found, disconnect all uploads and connect new one
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                set: []
+              }
+            }
+          });
+
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                connect: {
+                  id: coverId
+                }
+              }
+            }
+          });
+
+          return result;
+        }
+      });
+    }
 
     const updatedAccount = await this.prisma.account.update({
       where: {
@@ -314,15 +450,14 @@ export class AccountResolver {
       },
       data: {
         ..._.omit(data, ['id', 'avatar', 'cover']),
-        updatedAt: new Date(),
-        avatar: { connect: uploadAvatarDetail ? { id: uploadAvatarDetail.id } : undefined },
-        cover: { connect: uploadCoverDetail ? { id: uploadCoverDetail.id } : undefined }
+        updatedAt: new Date()
       }
     });
     await this.accountCacheService.removeByKeys([
       updatedAccount.id.toString(),
       updatedAccount.address,
-      updatedAccount.mnemonicHash
+      updatedAccount.mnemonicHash,
+      updatedAccount.address
     ]);
 
     const cachedAccount = await this.accountCacheService.getById(updatedAccount.id);

@@ -1,4 +1,4 @@
-import { Upload } from '@bcpros/lixi-models';
+import { Upload } from '@generated/types.generated';
 
 export const toImageUrl = (deliveryUrl: string, cfAccountHash: string, upload?: Upload) => {
   if (!upload) return '';

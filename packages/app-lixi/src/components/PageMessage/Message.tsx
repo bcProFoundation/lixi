@@ -141,18 +141,20 @@ const Message = ({ previousMessage, message, authorAddress, senderAvatar, receiv
             </p>
           )}
           {isShowDate && <p className="date-message">{transformCreatedAt(message.createdAt)}</p>}
-          {message.uploads.length > 0 && (
+          {message.imageUploadable?.uploads?.length > 0 && (
             <div className="message-attachments">
               <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
-                {message.uploads.map((img, index) => (
+                {message.imageUploadable.uploads.map((img, index) => (
                   <PhotoView
                     key={index}
-                    src={`${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.upload.cfImageId}/public`}
+                    src={`${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.cfImageId}/public`}
                   >
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.upload.cfImageId}/public`}
-                      alt=""
-                    />
+                    <picture>
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.cfImageId}/public`}
+                        alt={`${img.id}`}
+                      />
+                    </picture>
                   </PhotoView>
                 ))}
               </PhotoProvider>

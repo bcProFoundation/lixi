@@ -54,7 +54,7 @@ export function useInfinitePostsBySearchQueryWithHashtagAtToken(
       const baseResultParse = baseResult.data.allPostsBySearchWithHashtagAtToken.edges.map(item => item.node);
       const adapterSetAll = postsAdapter.setAll(
         combinedData,
-        baseResult.data.allPostsBySearchWithHashtagAtToken.edges.map(item => item.node)
+        baseResult.data.allPostsBySearchWithHashtagAtToken.edges.map(item => item.node as PostQueryItem)
       );
 
       setCombinedData(adapterSetAll);

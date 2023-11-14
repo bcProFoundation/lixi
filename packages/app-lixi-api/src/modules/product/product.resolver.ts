@@ -77,45 +77,42 @@ export class ProductResolver {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    const productToSave: Prisma.ProductCreateInput = {
-      title: data.title,
-      price: data.price,
-      priceUnit: data.priceUnit,
-      phoneNumber: data.phoneNumber,
-      description: data.description,
-      page: { connect: { id: data.pageId } },
-      category: {
-        connect: {
-          id: Number(data.categoryId)
-        }
-      },
-      imageUploadable: {
-        create: {}
-      }
-    };
-    const createdProduct = await this.prisma.$transaction(async prisma => {
-      const product = await prisma.product.create({
-        data: {
-          ...productToSave,
-          productDana: {
-            create: {}
-          }
-        }
-      });
-      await prisma.upload.updateMany({
-        where: {
-          id: {
-            in: data.uploadImages
-          }
-        },
-        data: {
-          imageUploadableId: product.imageUploadableId
-        }
-      });
-      return product;
-    });
+    // const productToSave: Prisma.ProductCreateInput = {
+    //   title: data.title,
+    //   price: data.price,
+    //   priceUnit: data.priceUnit,
+    //   phoneNumber: data.phoneNumber,
+    //   description: data.description,
+    //   page: { connect: { id: data.pageId } },
+    //   category: {
+    //     connect: {
+    //       id: Number(data.categoryId)
+    //     }
+    //   },
+    //   imageUploadable: {
+    //     create: {}
+    //   }
+    // };
+    // const createdProduct = await this.prisma.$transaction(async prisma => {
+    //   const product = await prisma.product.create({
+    //     data: {
+    //       ...productToSave
+    //     }
+    //   });
+    //   await prisma.upload.updateMany({
+    //     where: {
+    //       id: {
+    //         in: data.uploadImages
+    //       }
+    //     },
+    //     data: {
+    //       imageUploadableId: product.imageUploadableId
+    //     }
+    //   });
+    //   return product;
+    // });
 
-    return createdProduct;
+    // return createdProduct;
   }
 
   @UseGuards(GqlJwtAuthGuard)
