@@ -27,6 +27,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { XPIJS } from '../wallet/wallet.constants';
 import { CommentCacheService } from './comment-cache.service';
 import CommentLoader from './comment.loader';
+import CommentableLoader from './commentable.loader';
 
 @SkipThrottle()
 @Resolver(() => Comment)
@@ -39,6 +40,7 @@ export class CommentResolver {
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @Inject(XPIJS) private XPI: BCHJS,
     private readonly commentLoader: CommentLoader,
+    private readonly commentableLoader: CommentableLoader,
     private readonly notificationService: NotificationService,
     private readonly accountCacheService: AccountCacheService,
     private readonly commentCacheService: CommentCacheService
@@ -191,6 +193,12 @@ export class CommentResolver {
           };
           await prisma.giveTip.create({ data: transactionTip });
         }
+
+        // Clear the cache from relevant loaders
+        await this.commentableLoader.batchTotalComments.clear({
+          id: createdComment.id,
+          commentableId
+        });
 
         return createdComment;
       });
