@@ -2,7 +2,7 @@ import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Account } from '../account';
-import { UploadDetail } from '../upload';
+import { ImageUploadable } from '../imageUploadable';
 
 import { PageMessageSession } from './pageMessageSession.model';
 
@@ -23,8 +23,8 @@ export class Message {
   @Field(() => Boolean, { nullable: true })
   isPageOwner?: boolean;
 
-  @Field(() => [UploadDetail], { nullable: true })
-  uploads?: [UploadDetail];
+  @Field(() => ImageUploadable, { nullable: true })
+  imageUploadable?: Nullable<ImageUploadable>;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.',

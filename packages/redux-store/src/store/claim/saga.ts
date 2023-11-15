@@ -27,7 +27,7 @@ import { getCurrentAddress, getCurrentClaimCode } from './selectors';
 
 function* postClaimSuccessSaga(action: PayloadAction<Claim>) {
   const claim = action.payload;
-  const xpiAmount = claim && claim.amount ? fromSmallestDenomination(claim.amount) : 0;
+  const xpiAmount = claim && claim.amount ? claim.amount : 0;
   const message = intl.get('claim.claimSuccessAmount', { xpiAmount: xpiAmount });
 
   yield put(

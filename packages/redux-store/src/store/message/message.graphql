@@ -9,9 +9,9 @@ fragment MessageFields on Message {
   pageMessageSession {
     id
   }
-  uploads {
+  imageUploadable {
     id
-    upload {
+    uploads {
       id
       sha
       bucket

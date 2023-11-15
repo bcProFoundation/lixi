@@ -74,53 +74,52 @@ model Category {
 }
 
 model Page {
-  id                     String               @id @default(cuid())
-  pageAccount            Account              @relation(fields: [pageAccountId], references: [id])
-  pageAccountId          Int                  @map("page_account_id")
-  name                   String               @default("") @map("name") @db.VarChar(255)
-  title                  String               @default("") @map("title") @db.VarChar(255)
-  category               Category?            @relation(fields: [categoryId], references: [id])
-  categoryId             Int?                 @map("category_id")
-  description            String               @default("") @map("description") @db.VarChar(1000)
-  children               Page[]               @relation("subPages")
-  parent                 Page?                @relation("subPages", fields: [parentId], references: [id])
-  parentId               String?              @map("parent_id")
-  website                String               @default("") @map("website")
-  avatar                 UploadDetail?        @relation("PageAvatar")
-  cover                  UploadDetail?        @relation("PageCover")
-  country                Country?             @relation(fields: [countryId], references: [id])
-  countryId              Int?                 @map("country_id")
-  state                  State?               @relation(fields: [stateId], references: [id])
-  stateId                Int?                 @map("state_id")
-  address                String               @default("") @map("address")
-  createdAt              DateTime             @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt              DateTime             @default(now()) @map("updated_at") @db.Timestamptz
-  danaBurnUp             Float                @default(0.0) @map("dana_burn_up")
-  danaBurnDown           Float                @default(0.0) @map("dana_burn_down")
-  danaBurnScore          Float                @default(0.0) @map("dana_burn_score")
-  createPostFee          String               @default("1.0") @map("create_post_fee")
-  createCommentFee       String               @default("0.00055") @map("create_comment_fee")
-  encryptedMnemonic      String?              @map("encrypted_mnemonic")
-  salt                   String?              @map("salt") @db.VarChar(10)
-  totalPostsBurnUp       Float                @default(0.0) @map("total_posts_burn_up")
-  totalPostsBurnDown     Float                @default(0.0) @map("total_posts_burn_down")
-  totalPostsBurnScore    Float                @default(0.0) @map("total_posts_burn_score")
-  pageMessageSessions    PageMessageSession[]
-  accessMessageFee       Float?               @default(0.0) @map("access_message_fee")
-  minDanaForMessage      Float?               @default(0.0) @map("min_dana_for_message")
-  followerFreeMessage    Boolean?             @default(false) @map("follower_free_message")
-  avatarImageUplodableId String?              @unique @map("avatar_image_uploadable_id")
-  avatarImageUplodable   ImageUploadable?     @relation("avatar", fields: [avatarImageUplodableId], references: [id])
-  coverImageUplodableId  String?              @unique @map("cover_image_uploadable_id")
-  coverImageUplodable    ImageUploadable?     @relation("cover", fields: [coverImageUplodableId], references: [id])
-  pin                    Pin?
-
-  pageDana  PageDana?
-  posts     Post[]
-  followers FollowPage[]
-  events    Event[]
-  polls     Poll[]
-  products  Product[]
+  id                          String               @id @default(cuid())
+  pageAccount                 Account              @relation(fields: [pageAccountId], references: [id])
+  pageAccountId               Int                  @map("page_account_id")
+  name                        String               @default("") @map("name") @db.VarChar(255)
+  title                       String               @default("") @map("title") @db.VarChar(255)
+  category                    Category?            @relation(fields: [categoryId], references: [id])
+  categoryId                  Int?                 @map("category_id")
+  description                 String               @default("") @map("description") @db.VarChar(1000)
+  children                    Page[]               @relation("subPages")
+  parent                      Page?                @relation("subPages", fields: [parentId], references: [id])
+  parentId                    String?              @map("parent_id")
+  website                     String               @default("") @map("website")
+  avatar                      UploadDetail?        @relation("PageAvatar")
+  cover                       UploadDetail?        @relation("PageCover")
+  country                     Country?             @relation(fields: [countryId], references: [id])
+  countryId                   Int?                 @map("country_id")
+  state                       State?               @relation(fields: [stateId], references: [id])
+  stateId                     Int?                 @map("state_id")
+  address                     String               @default("") @map("address")
+  createdAt                   DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt                   DateTime             @default(now()) @map("updated_at") @db.Timestamptz
+  danaBurnUp                  Float                @default(0.0) @map("dana_burn_up")
+  danaBurnDown                Float                @default(0.0) @map("dana_burn_down")
+  danaBurnScore               Float                @default(0.0) @map("dana_burn_score")
+  createPostFee               String               @default("1.0") @map("create_post_fee")
+  createCommentFee            String               @default("0.00055") @map("create_comment_fee")
+  encryptedMnemonic           String?              @map("encrypted_mnemonic")
+  salt                        String?              @map("salt") @db.VarChar(10)
+  totalPostsBurnUp            Float                @default(0.0) @map("total_posts_burn_up")
+  totalPostsBurnDown          Float                @default(0.0) @map("total_posts_burn_down")
+  totalPostsBurnScore         Float                @default(0.0) @map("total_posts_burn_score")
+  pageMessageSessions         PageMessageSession[]
+  accessMessageFee            Float?               @default(0.0) @map("access_message_fee")
+  minDanaForMessage           Float?               @default(0.0) @map("min_dana_for_message")
+  followerFreeMessage         Boolean?             @default(false) @map("follower_free_message")
+  pageAvatarImageUploadable   ImageUploadable?     @relation("page_avatar_image_uploadable", fields: [pageAvatarImageUploadableId], references: [id])
+  pageAvatarImageUploadableId String?              @unique @map("page_avatar_image_uploadable_id")
+  pageCoverImageUploadable    ImageUploadable?     @relation("page_cover_image_uploadable", fields: [pageCoverImageUploadableId], references: [id])
+  pageCoverImageUploadableId  String?              @unique @map("page_cover_image_uploadable_id")
+  pin                         Pin?
+  pageDana                    PageDana?
+  posts                       Post[]
+  followers                   FollowPage[]
+  events                      Event[]
+  polls                       Poll[]
+  products                    Product[]
 
   @@index([pageAccountId])
   @@map("page")
@@ -142,42 +141,38 @@ model PageDana {
 }
 
 model Post {
-  id                     String            @id @default(cuid())
-  postAccount            Account           @relation(fields: [postAccountId], references: [id])
-  postAccountId          Int               @map("post_account_id")
-  page                   Page?             @relation(fields: [pageId], references: [id])
-  pageId                 String?           @map("page_id")
-  token                  Token?            @relation(fields: [tokenId], references: [id])
-  tokenId                String?           @map("token_id")
-  content                String            @default("")
-  createdAt              DateTime          @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt              DateTime          @default(now()) @map("updated_at") @db.Timestamptz
-  uploads                UploadDetail[]    @relation("PostImages")
-  danaBurnUp             Float             @default(0.0) @map("dana_burn_up")
-  danaBurnDown           Float             @default(0.0) @map("dana_burn_down")
-  danaBurnScore          Float             @default(0.0) @map("dana_burn_score")
-  postHashtags           PostHashtag[]
-  createFee              Float?            @map("create_fee")
-  txid                   String?
-  reposts                Repost[]
-  lastRepostAt           DateTime          @default(now()) @map("updated_repost_at") @db.Timestamptz
-  originalLanguage       String?           @map("original_language")
-  translations           PostTranslation[]
-  commentableId          String?           @unique @map("commentable_id")
-  commentable            Commentable?      @relation(fields: [commentableId], references: [id])
-  bookmarkableId         String?           @map("bookmarkable_id")
-  bookmarkable           Bookmarkable?     @relation(fields: [bookmarkableId], references: [id])
-  taggableId             String?
-  taggable               Taggable?         @relation(fields: [taggableId], references: [id])
-  pinableId              String?           @map("pinable_id")
-  pinable                Pinable?          @relation(fields: [pinableId], references: [id])
-  avatarImageUplodableId String?           @unique @map("avatar_image_uploadable_id")
-  avatarImageUplodable   ImageUploadable?  @relation("avatar", fields: [avatarImageUplodableId], references: [id])
-  coverImageUplodableId  String?           @unique @map("cover_image_uploadable_id")
-  coverImageUplodable    ImageUploadable?  @relation("cover", fields: [coverImageUplodableId], references: [id])
-  imageUploadableId      String?           @map("image_uploadable_id")
-  imageUploadable        ImageUploadable?  @relation("images", fields: [imageUploadableId], references: [id])
-  postDana               PostDana?
+  id                String            @id @default(cuid())
+  postAccount       Account           @relation(fields: [postAccountId], references: [id])
+  postAccountId     Int               @map("post_account_id")
+  page              Page?             @relation(fields: [pageId], references: [id])
+  pageId            String?           @map("page_id")
+  token             Token?            @relation(fields: [tokenId], references: [id])
+  tokenId           String?           @map("token_id")
+  content           String            @default("")
+  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime          @default(now()) @map("updated_at") @db.Timestamptz
+  uploads           UploadDetail[]    @relation("PostImages")
+  danaBurnUp        Float             @default(0.0) @map("dana_burn_up")
+  danaBurnDown      Float             @default(0.0) @map("dana_burn_down")
+  danaBurnScore     Float             @default(0.0) @map("dana_burn_score")
+  postHashtags      PostHashtag[]
+  createFee         Float?            @map("create_fee")
+  txid              String?
+  reposts           Repost[]
+  lastRepostAt      DateTime          @default(now()) @map("updated_repost_at") @db.Timestamptz
+  originalLanguage  String?           @map("original_language")
+  translations      PostTranslation[]
+  commentableId     String?           @unique @map("commentable_id")
+  commentable       Commentable?      @relation(fields: [commentableId], references: [id])
+  bookmarkableId    String?           @map("bookmarkable_id")
+  bookmarkable      Bookmarkable?     @relation(fields: [bookmarkableId], references: [id])
+  taggableId        String?
+  taggable          Taggable?         @relation(fields: [taggableId], references: [id])
+  pinableId         String?           @map("pinable_id")
+  pinable           Pinable?          @relation(fields: [pinableId], references: [id])
+  imageUploadable   ImageUploadable?  @relation("post_image_uploadable", fields: [imageUploadableId], references: [id])
+  imageUploadableId String?           @unique @map("post_image_uploadable_id")
+  postDana          PostDana?
 
   @@index([commentableId])
   @@index([postAccountId])
@@ -238,8 +233,8 @@ model Comment {
   giveTip            GiveTip?
   createFee          Float?           @map("create_fee")
   txid               String?
-  imageUploadableId  String?          @map("image_uploadable_id")
-  ImageUploadable    ImageUploadable? @relation(fields: [imageUploadableId], references: [id])
+  imageUploadable    ImageUploadable? @relation("comment_image_uploadable", fields: [imageUploadableId], references: [id])
+  imageUploadableId  String?          @unique @map("comment_image_uploadable_id")
   commentDana        CommentDana?
 
   @@index([commentableId], map: "index_commentable")
@@ -262,50 +257,51 @@ model CommentDana {
 }
 
 model Account {
-  id                     Int                   @id @default(autoincrement())
-  name                   String
-  encryptedMnemonic      String                @map("encrypted_mnemonic")
-  encryptedSecret        String                @default("") @map("encrypted_secret")
-  createdAt              DateTime              @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt              DateTime              @default(now()) @map("updated_at") @db.Timestamptz
-  lixies                 Lixi[]
-  mnemonicHash           String                @map("mnemonic_hash")
-  address                String                @default("") @map("address")
-  notifications          Notification[]
-  language               String                @default("en")
-  secondaryLanguage      String?               @map("secondary_language")
-  publicKey              String                @default("") @map("public_key")
-  email                  String?               @unique
-  uploadDetail           UploadDetail[]
-  pages                  Page[]
-  posts                  Post[]
-  comments               Comment[]
-  Worship                Worship[]
-  temples                Temple[]
-  followers              FollowAccount[]       @relation("followerAccount")
-  followings             FollowAccount[]       @relation("followingAccount")
-  followingPages         FollowPage[]
-  webpushSubscribers     WebpushSubscriber[]
-  reposts                Repost[]
-  messages               Message[]
-  pageMessageSessions    PageMessageSession[]
-  accountDana            AccountDana?
-  avatar                 UploadDetail?         @relation("avatar")
-  cover                  UploadDetail?         @relation("cover")
-  description            String                @default("") @map("description") @db.VarChar(1000)
-  dayOfBirth             Int?                  @map("day_of_birth")
-  monthOfBirth           Int?                  @map("month_of_birth")
-  yearOfBirth            Int?                  @map("year_of_birth")
-  website                String                @default("") @map("website")
-  createCommentFee       String                @default("0.00055") @map("create_comment_fee")
-  avatarImageUplodableId String?               @unique @map("avatar_image_uploadable_id")
-  avatarImageUplodable   ImageUploadable?      @relation("avatar", fields: [avatarImageUplodableId], references: [id])
-  coverImageUplodableId  String?               @unique @map("cover_image_uploadable_id")
-  coverImageUplodable    ImageUploadable?      @relation("cover", fields: [coverImageUplodableId], references: [id])
-  bookmarks              Bookmark[]
-  pin                    Pin?
-  events                 Event[]
-  pollAnswers            PollAnswerOnAccount[]
+  id                             Int                   @id @default(autoincrement())
+  name                           String
+  encryptedMnemonic              String                @map("encrypted_mnemonic")
+  encryptedSecret                String                @default("") @map("encrypted_secret")
+  createdAt                      DateTime              @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt                      DateTime              @default(now()) @map("updated_at") @db.Timestamptz
+  lixies                         Lixi[]
+  mnemonicHash                   String                @map("mnemonic_hash")
+  address                        String                @default("") @map("address")
+  notifications                  Notification[]
+  language                       String                @default("en")
+  secondaryLanguage              String?               @map("secondary_language")
+  publicKey                      String                @default("") @map("public_key")
+  email                          String?               @unique
+  uploadDetail                   UploadDetail[]
+  pages                          Page[]
+  posts                          Post[]
+  comments                       Comment[]
+  Worship                        Worship[]
+  temples                        Temple[]
+  followers                      FollowAccount[]       @relation("followerAccount")
+  followings                     FollowAccount[]       @relation("followingAccount")
+  followingPages                 FollowPage[]
+  webpushSubscribers             WebpushSubscriber[]
+  reposts                        Repost[]
+  messages                       Message[]
+  pageMessageSessions            PageMessageSession[]
+  accountDana                    AccountDana?
+  avatar                         UploadDetail?         @relation("avatar")
+  cover                          UploadDetail?         @relation("cover")
+  description                    String                @default("") @map("description") @db.VarChar(1000)
+  dayOfBirth                     Int?                  @map("day_of_birth")
+  monthOfBirth                   Int?                  @map("month_of_birth")
+  yearOfBirth                    Int?                  @map("year_of_birth")
+  website                        String                @default("") @map("website")
+  createCommentFee               String                @default("0.00055") @map("create_comment_fee")
+  accountAvatarImageUploadable   ImageUploadable?      @relation("account_avatar_image_uploadable", fields: [accountAvatarImageUploadableId], references: [id])
+  accountAvatarImageUploadableId String?               @unique @map("account_avatar_image_uploadable_id")
+  accountCoverImageUploadable    ImageUploadable?      @relation("account_cover_image_uploadable", fields: [accountCoverImageUploadableId], references: [id])
+  accountCoverImageUploadableId  String?               @unique @map("account_cover_image_uploadable_id")
+  bookmarks                      Bookmark[]
+  pin                            Pin?
+  events                         Event[]
+  pollAnswers                    PollAnswerOnAccount[]
+  imageUploadable                ImageUploadable[]
 
   @@index([mnemonicHash], type: Hash)
   @@map("account")
@@ -407,8 +403,8 @@ model Lixi {
   uploadDetailId       String?             @map("upload_detail_id")
   networkType          String              @default("single-ip") @map("network_type")
   pageMessageSession   PageMessageSession?
-  imageUploadableId    String?             @unique @map("image_uploadable_id")
-  ImageUploadable      ImageUploadable?    @relation(fields: [imageUploadableId], references: [id])
+  imageUploadable      ImageUploadable?    @relation("lixi_image_uploadable", fields: [imageUploadableId], references: [id])
+  imageUploadableId    String?             @unique @map("lixi_image_uploadable_id")
 
   @@map("lixi")
 }
@@ -549,8 +545,8 @@ model Upload {
   bucket            String?
   cfImageId         String?          @map("cf_image_id")
   cfImageFilename   String?          @map("cf_image_filename")
-  imageUploadableId String?          @map("image_uploadable_id")
   imageUploadable   ImageUploadable? @relation(fields: [imageUploadableId], references: [id])
+  imageUploadableId String?          @map("image_uploadable_id")
 
   @@index([imageUploadableId], map: "index_image_uploadable")
   @@map("upload")
@@ -684,25 +680,45 @@ model City {
 }
 
 model ImageUploadable {
-  id            String    @id @default(cuid())
+  id            String               @id @default(cuid())
+  account       Account              @relation(fields: [accountId], references: [id])
+  accountId     Int                  @map("account_id")
   uploads       Upload[]
-  products      Product[]
-  pageAvatar    Page?     @relation("avatar")
-  pageCover     Page?     @relation("cover")
-  postAvatar    Post?     @relation("avatar")
-  postCover     Post?     @relation("cover")
-  posts         Post[]    @relation("images")
-  comments      Comment[]
-  accountAvatar Account?  @relation("avatar")
-  accountCover  Account?  @relation("cover")
-  lixi          Lixi?
-  templeAvatar  Temple?   @relation("avatar")
-  templeCover   Temple?   @relation("cover")
-  messages      Message[]
-  events        Event[]
-  polls         Poll[]
+  post          Post?                @relation("post_image_uploadable")
+  product       Product?             @relation("product_image_uploadable")
+  lixi          Lixi?                @relation("lixi_image_uploadable")
+  comment       Comment?             @relation("comment_image_uploadable")
+  message       Message?             @relation("message_image_uploadable")
+  event         Event?               @relation("event_image_uploadable")
+  poll          Poll?                @relation("poll_image_uploadable")
+  pageAvatar    Page?                @relation("page_avatar_image_uploadable")
+  pageCover     Page?                @relation("page_cover_image_uploadable")
+  accountAvatar Account?             @relation("account_avatar_image_uploadable")
+  accountCover  Account?             @relation("account_cover_image_uploadable")
+  templeAvatar  Temple?              @relation("temple_avatar_image_uploadable")
+  templeCover   Temple?              @relation("temple_cover_image_uploadable")
+  type          ImageUploadableType? @map("image_uploadable_type")
 
+  @@index([accountId, type])
   @@map("image_uploadable")
+}
+
+enum ImageUploadableType {
+  ACCOUNT_AVATAR
+  ACCOUNT_COVER
+  PAGE_AVATAR
+  PAGE_COVER
+  POST
+  COMMENT
+  LIXI
+  TEMPLE_AVATAR
+  TEMPLE_COVER
+  MESSAGE
+  EVENT
+  POLL
+  PRODUCT
+
+  @@map("image_uploadable_type")
 }
 
 model UploadDetail {
@@ -817,39 +833,39 @@ model Worship {
 }
 
 model Temple {
-  id                     String           @id @default(cuid())
-  name                   String
-  account                Account          @relation(fields: [accountId], references: [id])
-  accountId              Int
-  avatar                 UploadDetail?    @relation("temple_avatar")
-  cover                  UploadDetail?    @relation("temple_cover")
-  achievement            String?
-  description            String?
-  alias                  String?
-  religion               String?
-  address                String?
-  president              String?
-  website                String?
-  verified               Boolean          @default(false)
-  dateOfCompleted        DateTime?        @map("date_of_completed") @db.Timestamptz(6)
-  dayOfCompleted         Int?             @map("day_of_completed")
-  monthOfCompleted       Int?             @map("month_of_completed")
-  yearOfCompleted        Int?             @map("year_of_completed")
-  totalWorshipAmount     Float            @default(0.0) @map("total_worship_amount")
-  city                   City?            @relation(fields: [cityId], references: [id])
-  cityId                 Int?
-  country                Country?         @relation(fields: [countryId], references: [id])
-  countryId              Int?
-  state                  State?           @relation(fields: [stateId], references: [id])
-  stateId                Int?
-  createdAt              DateTime?        @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt              DateTime?        @default(now()) @map("updated_at") @db.Timestamptz(6)
-  worship                Worship[]
-  personOnTemple         PersonOnTemple[]
-  avatarImageUplodableId String?          @unique @map("avatar_image_uploadable_id")
-  avatarImageUplodable   ImageUploadable? @relation("avatar", fields: [avatarImageUplodableId], references: [id])
-  coverImageUplodableId  String?          @unique @map("cover_image_uploadable_id")
-  coverImageUplodable    ImageUploadable? @relation("cover", fields: [coverImageUplodableId], references: [id])
+  id                            String           @id @default(cuid())
+  name                          String
+  account                       Account          @relation(fields: [accountId], references: [id])
+  accountId                     Int
+  avatar                        UploadDetail?    @relation("temple_avatar")
+  cover                         UploadDetail?    @relation("temple_cover")
+  achievement                   String?
+  description                   String?
+  alias                         String?
+  religion                      String?
+  address                       String?
+  president                     String?
+  website                       String?
+  verified                      Boolean          @default(false)
+  dateOfCompleted               DateTime?        @map("date_of_completed") @db.Timestamptz(6)
+  dayOfCompleted                Int?             @map("day_of_completed")
+  monthOfCompleted              Int?             @map("month_of_completed")
+  yearOfCompleted               Int?             @map("year_of_completed")
+  totalWorshipAmount            Float            @default(0.0) @map("total_worship_amount")
+  city                          City?            @relation(fields: [cityId], references: [id])
+  cityId                        Int?
+  country                       Country?         @relation(fields: [countryId], references: [id])
+  countryId                     Int?
+  state                         State?           @relation(fields: [stateId], references: [id])
+  stateId                       Int?
+  createdAt                     DateTime?        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                     DateTime?        @default(now()) @map("updated_at") @db.Timestamptz(6)
+  worship                       Worship[]
+  personOnTemple                PersonOnTemple[]
+  templeAvatarImageUploadable   ImageUploadable? @relation("temple_avatar_image_uploadable", fields: [templeAvatarImageUploadableId], references: [id])
+  templeAvatarImageUploadableId String?          @unique @map("temple_avatar_image_uploadable_id")
+  templeCoverImageUploadable    ImageUploadable? @relation("temple_cover_image_uploadable", fields: [templeCoverImageUploadableId], references: [id])
+  templeCoverImageUploadableId  String?          @unique @map("temple_cover_image_uploadable_id")
 }
 
 model PersonOnTemple {
@@ -1010,8 +1026,8 @@ model Message {
   giveTipMessage       GiveTipMessage?
   uploads              UploadDetail[]
   messageType          MessageType?        @default(TEXT)
-  imageUploadableId    String?             @map("image_uploadable_id")
-  ImageUploadable      ImageUploadable?    @relation(fields: [imageUploadableId], references: [id])
+  imageUploadable      ImageUploadable?    @relation("message_image_uploadable", fields: [imageUploadableId], references: [id])
+  imageUploadableId    String?             @unique @map("image_uploadable_id")
 
   @@map("message")
 }
@@ -1124,8 +1140,8 @@ model Event {
   pinable           Pinable?         @relation(fields: [pinableId], references: [id])
   eventType         EventType // Add this field to specify event type (virtual or physical)
   eventDana         EventDana?
-  imageUploadableId String?          @map("image_uploadable_id")
-  ImageUploadable   ImageUploadable? @relation(fields: [imageUploadableId], references: [id])
+  imageUploadable   ImageUploadable? @relation("event_image_uploadable", fields: [imageUploadableId], references: [id])
+  imageUploadableId String?          @unique @map("event_image_uploadable_id")
   createdAt         DateTime         @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime         @default(now()) @map("updated_at") @db.Timestamptz
 
@@ -1191,8 +1207,8 @@ model Poll {
   taggable          Taggable?        @relation(fields: [taggableId], references: [id])
   pinableId         String?          @map("pinable_id")
   pinable           Pinable?         @relation(fields: [pinableId], references: [id])
-  imageUploadableId String?          @map("image_uploadable_id")
-  ImageUploadable   ImageUploadable? @relation(fields: [imageUploadableId], references: [id])
+  imageUploadable   ImageUploadable? @relation("poll_image_uploadable", fields: [imageUploadableId], references: [id])
+  imageUploadableId String?          @unique @map("poll_image_uploadable_id")
   createdAt         DateTime         @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime         @default(now()) @map("updated_at") @db.Timestamptz
 
@@ -1240,8 +1256,8 @@ model Product {
   pinable           Pinable?        @relation(fields: [pinableId], references: [id])
   createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime        @default(now()) @map("updated_at") @db.Timestamptz
-  imageUploadableId String          @map("image_uploadable_id")
-  imageUploadable   ImageUploadable @relation(fields: [imageUploadableId], references: [id])
+  imageUploadable   ImageUploadable @relation("product_image_uploadable", fields: [imageUploadableId], references: [id])
+  imageUploadableId String          @unique @map("product_image_uploadable_id")
   productDana       ProductDana?
 
   @@map("product")

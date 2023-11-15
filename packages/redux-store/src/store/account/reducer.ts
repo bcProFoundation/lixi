@@ -36,7 +36,8 @@ import {
   setAccountAvatar,
   setAccountCover,
   setSecondaryLanguageAccountSuccess,
-  changeAccountLocale
+  changeAccountLocale,
+  removeUploadFromCache
 } from './actions';
 import { AccountsState } from './state';
 
@@ -149,6 +150,34 @@ export const accountReducer = createReducer(initialState, builder => {
       }
     })
     .addCase(removeUpload, (state, action) => {
+      const { uploadType, id } = action.payload;
+
+      switch (uploadType) {
+        case UPLOAD_TYPES.ENVELOPE:
+          state.envelopeUpload = null;
+          break;
+        case UPLOAD_TYPES.ACCOUNT_AVATAR:
+          state.accountAvatarUpload = null;
+          break;
+        case UPLOAD_TYPES.PAGE_AVATAR:
+          state.pageAvatarUpload = null;
+          break;
+        case UPLOAD_TYPES.PAGE_COVER:
+          state.pageCoverUpload = null;
+          break;
+        case UPLOAD_TYPES.POST:
+          state.postCoverUploads = state.postCoverUploads.filter(image => {
+            return image.id !== id;
+          });
+          break;
+        case UPLOAD_TYPES.MESSAGE:
+          state.messageUploads = state.messageUploads.filter(image => {
+            return image.id !== id;
+          });
+          break;
+      }
+    })
+    .addCase(removeUploadFromCache, (state, action) => {
       const { uploadType, id } = action.payload;
 
       switch (uploadType) {

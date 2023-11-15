@@ -250,10 +250,10 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
   const selectedAccount = useAppSelector(getSelectedAccount);
 
   useEffect(() => {
-    const mapImages = item.uploads.map(img => {
-      const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.upload.cfImageId}/public`;
-      let imgWidth = img?.upload?.width || 4;
-      let height = img?.upload?.height || 3;
+    const mapImages = item.imageUploadable?.uploads.map(img => {
+      const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img?.cfImageId}/public`;
+      let imgWidth = img?.width || 4;
+      let height = img?.height || 3;
       let objImg = {
         src: imgUrl,
         width: imgWidth,
@@ -454,22 +454,22 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
               </StyledTranslate>
             ))}
 
-          {item.uploads.length != 0 && !showMoreImage && (
+          {item.imageUploadable?.uploads.length != 0 && !showMoreImage && imagesList && (
             <div
               onClick={e => handlePostClick(e)}
               className={`images-post ${imagesList.length > 1 ? 'images-post-desktop' : ''}`}
             >
               <Gallery targetRowHeight={200} photos={imagesList.length > 3 ? imagesList.slice(0, 4) : imagesList} />
-              {item.uploads.length > 3 && (
+              {item.imageUploadable?.uploads.length > 3 && (
                 <Button type="link" className="show-more-desktop show-more-image no-border-btn">
-                  {item.uploads.length - 1 + ' +'}
+                  {item.imageUploadable?.uploads.length - 1 + ' +'}
                 </Button>
               )}
             </div>
           )}
-          {item.uploads.length != 0 && showMoreImage && (
-            <>
-              {item.uploads.length > 1 && (
+          {item.imageUploadable?.uploads.length != 0 && showMoreImage && imagesList && (
+            <React.Fragment>
+              {item.imageUploadable?.uploads.length > 1 && (
                 <div className="images-post images-post-mobile">
                   <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
                     {imagesList.map((img, index) => (
@@ -480,7 +480,7 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
                   </PhotoProvider>
                 </div>
               )}
-              {item.uploads.length === 1 && (
+              {item.imageUploadable?.uploads.length === 1 && (
                 <>
                   <div className="images-post images-post-mobile only-one-image">
                     <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
@@ -493,7 +493,7 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
                   </div>
                 </>
               )}
-            </>
+            </React.Fragment>
           )}
         </Content>
       </CardContainer>

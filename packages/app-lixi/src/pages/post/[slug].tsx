@@ -110,6 +110,11 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
       reposts: { select: { account: true, accountId: true } },
       _count: {
         select: { reposts: true }
+      },
+      imageUploadable: {
+        include: {
+          uploads: true
+        }
       }
     }
   });

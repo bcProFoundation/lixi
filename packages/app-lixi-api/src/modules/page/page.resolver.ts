@@ -25,10 +25,12 @@ import { aesGcmEncrypt, generateRandomBase58Str } from '../../utils/encryptionMe
 import { FollowCacheService } from '../account/follow-cache.service';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
-import { XPIJS } from '../wallet/wallet.constants';
 import { PageCacheService } from './page-cache.service';
+import { ImageUploadableType } from '@bcpros/lixi-prisma';
+import { XPIJS } from '../wallet/wallet.constants';
 import { PageTimelineCacheService } from './page-timeline-cache.service';
 import PageLoader from './page.loader';
+import { toImageUrl } from './page.utils';
 
 const pubSub = new PubSub();
 
@@ -36,6 +38,7 @@ const pubSub = new PubSub();
 @Resolver(() => Page)
 @UseFilters(GqlHttpExceptionFilter)
 export class PageResolver {
+  static pubSub = new PubSub();
   private logger: Logger = new Logger(this.constructor.name);
 
   constructor(
@@ -143,21 +146,159 @@ export class PageResolver {
       throw new VError.WError(couldNotFindAccount);
     }
 
-    const uploadAvatarDetail = data.avatar
-      ? await this.prisma.uploadDetail.findFirst({
-          where: {
-            uploadId: data.avatar
-          }
-        })
-      : undefined;
+    const { avatar: avatarId, cover: coverId, id: pageId } = data;
 
-    const uploadCoverDetail = data.cover
-      ? await this.prisma.uploadDetail.findFirst({
+    /*Page Avatar*/
+    if (avatarId) {
+      await this.prisma.$transaction(async prisma => {
+        //find page avatar image uploadable
+        const result = await prisma.imageUploadable.findFirst({
           where: {
-            uploadId: data.cover
+            AND: [
+              {
+                account: {
+                  id: account.id
+                }
+              },
+              {
+                pageAvatar: {
+                  id: pageId
+                }
+              }
+            ]
           }
-        })
-      : undefined;
+        });
+
+        if (!result) {
+          //if not found, create new one and connect to account, page and uploads
+          const imageUploadable = await prisma.imageUploadable.create({
+            data: {
+              account: {
+                connect: {
+                  id: account.id
+                }
+              },
+              uploads: {
+                connect: {
+                  id: avatarId
+                }
+              },
+              pageAvatar: {
+                connect: {
+                  id: pageId
+                }
+              },
+              type: ImageUploadableType.PAGE_AVATAR
+            }
+          });
+
+          return imageUploadable;
+        } else {
+          //if found, disconnect all uploads and connect new one
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                set: []
+              }
+            }
+          });
+
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                connect: {
+                  id: avatarId
+                }
+              }
+            }
+          });
+
+          return result;
+        }
+      });
+    }
+
+    /*Page Cover*/
+    if (coverId) {
+      await this.prisma.$transaction(async prisma => {
+        //find page avatar image uploadable
+        const result = await prisma.imageUploadable.findFirst({
+          where: {
+            AND: [
+              {
+                account: {
+                  id: account.id
+                }
+              },
+              {
+                pageCover: {
+                  id: coverId
+                }
+              }
+            ]
+          }
+        });
+
+        if (!result) {
+          //if not found, create new one and connect to account, page and uploads
+          const imageUploadable = await prisma.imageUploadable.create({
+            data: {
+              account: {
+                connect: {
+                  id: account.id
+                }
+              },
+              uploads: {
+                connect: {
+                  id: coverId
+                }
+              },
+              pageCover: {
+                connect: {
+                  id: pageId
+                }
+              },
+              type: ImageUploadableType.PAGE_COVER
+            }
+          });
+
+          return imageUploadable;
+        } else {
+          //if found, disconnect all uploads and connect new one
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                set: []
+              }
+            }
+          });
+
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                connect: {
+                  id: coverId
+                }
+              }
+            }
+          });
+
+          return result;
+        }
+      });
+    }
 
     const updatedPage = await this.prisma.page.update({
       where: {
@@ -166,8 +307,6 @@ export class PageResolver {
       data: {
         ..._.omit(data, ['categoryId', 'countryId', 'stateId', 'parentId', 'avatar', 'cover']),
         description: data.description?.trim() ?? '',
-        avatar: { connect: uploadAvatarDetail ? { id: uploadAvatarDetail.id } : undefined },
-        cover: { connect: uploadCoverDetail ? { id: uploadCoverDetail.id } : undefined },
         category: {
           connect: data.categoryId
             ? {
@@ -190,10 +329,17 @@ export class PageResolver {
               }
             : undefined
         }
+      },
+      include: {
+        pageAccount: true
       }
     });
 
+    await this.pageCacheService.removeByKeys([updatedPage.id]);
+
     const page = await this.pageCacheService.getById(updatedPage.id);
+
+    PageResolver.pubSub.publish('pageUpdated', { pageUpdated: page });
 
     return page;
   }

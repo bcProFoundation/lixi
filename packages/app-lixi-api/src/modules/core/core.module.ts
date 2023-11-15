@@ -34,6 +34,7 @@ import { ExportSubLixiesProcessor } from './lixi/processors/export-sub-lixies.pr
 import { WithdrawSubLixiesEventsListener } from './lixi/processors/withdraw-sub-lixies.eventslistener';
 import { WithdrawSubLixiesProcessor } from './lixi/processors/withdraw-sub-lixies.processor';
 import { TranslateService } from './translate/translate.service';
+import { WalletService } from '../wallet/wallet.service';
 import { UploadFilesController } from './upload/upload.controller';
 import { UploadService } from './upload/upload.serivce';
 const baseCorsConfig = cors({
@@ -45,7 +46,7 @@ const baseCorsConfig = cors({
     ChronikModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        const chronikUrl = config.get<string>('CHRONIK_URL') || 'https://chronik.be.cash';
+        const chronikUrl = config.get<string>('CHRONIK_URL') || 'https://chronik01.abcpay.cash';
         return {
           host: chronikUrl,
           networks: ['xec', 'xpi']

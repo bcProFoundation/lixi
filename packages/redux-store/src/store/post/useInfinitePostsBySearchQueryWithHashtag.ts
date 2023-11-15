@@ -49,7 +49,7 @@ export function useInfinitePostsBySearchQueryWithHashtag(
 
       const adapterSetAll = postsAdapter.setAll(
         combinedData,
-        baseResult.data.allPostsBySearchWithHashtag.edges.map(item => item.node)
+        baseResult.data.allPostsBySearchWithHashtag.edges.map(edge => edge.node as PostQueryItem)
       );
 
       setCombinedData(adapterSetAll);

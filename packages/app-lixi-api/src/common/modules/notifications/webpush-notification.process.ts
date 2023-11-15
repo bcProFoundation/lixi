@@ -42,7 +42,7 @@ export class WebpushNotificationProcessor extends WorkerHost {
     try {
       webPush
         .sendNotification(pushSubObj, JSON.stringify(notification), { TTL })
-        .then(result => { })
+        .then(result => {})
         .catch(error => {
           if (error.statusCode === 404 || error.statusCode === 410) {
             // delete the subscription

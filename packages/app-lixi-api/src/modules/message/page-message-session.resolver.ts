@@ -73,7 +73,11 @@ export class PageMessageSessionResolver {
         this.prisma.pageMessageSession.findMany({
           include: {
             account: true,
-            page: true,
+            page: {
+              include: {
+                pageAccount: true
+              }
+            },
             lixi: {
               select: {
                 id: true,
@@ -132,7 +136,11 @@ export class PageMessageSessionResolver {
         this.prisma.pageMessageSession.findMany({
           include: {
             account: true,
-            page: true,
+            page: {
+              include: {
+                pageAccount: true
+              }
+            },
             lixi: {
               select: {
                 id: true,
@@ -191,7 +199,11 @@ export class PageMessageSessionResolver {
         this.prisma.pageMessageSession.findMany({
           include: {
             account: true,
-            page: true,
+            page: {
+              include: {
+                pageAccount: true
+              }
+            },
             lixi: {
               select: {
                 id: true,
@@ -250,7 +262,11 @@ export class PageMessageSessionResolver {
         this.prisma.pageMessageSession.findMany({
           include: {
             account: true,
-            page: true,
+            page: {
+              include: {
+                pageAccount: true
+              }
+            },
             lixi: {
               select: {
                 id: true,
@@ -309,7 +325,11 @@ export class PageMessageSessionResolver {
         let sessions = [];
         const pageMessageSessions = await this.prisma.pageMessageSession.findMany({
           include: {
-            page: true,
+            page: {
+              include: {
+                pageAccount: true
+              }
+            },
             account: true,
             lixi: {
               select: {
@@ -816,7 +836,11 @@ export class PageMessageSessionResolver {
           id: pageMessageSession.id
         }
       })
-      .page();
+      .page({
+        include: {
+          pageAccount: true
+        }
+      });
     return page;
   }
 }

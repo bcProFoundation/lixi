@@ -656,7 +656,9 @@ function* verifyEmailFailureSaga(action: PayloadAction<any>) {
 function* removeUploadSaga(action) {
   const { id } = action.payload;
   try {
-    yield call(accountApi.removeUpload, id);
+    if (id) {
+      yield call(accountApi.removeUpload, id);
+    }
   } catch (err) {
     const message = (err as Error).message ?? intl.get('account.unableRemoveUpload');
     yield put(

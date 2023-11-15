@@ -533,6 +533,46 @@ enum HashtagOrderField {
   updatedAt
 }
 
+type ImageUploadable {
+  account: Account!
+  accountAvatar: Account
+  accountCover: Account
+  comment: Comment
+  event: Event
+  id: ID!
+  imageUploadableTo: ImageUploadableTo
+  lixi: LixiModel
+  message: Message
+  pageAvatar: Page
+  pageCover: Page
+  poll: Poll
+  post: Post
+  product: Product
+  templeAvatar: Temple
+  templeCover: Temple
+  type: ImageUploadableType
+  uploads: [Upload!]!
+}
+
+union ImageUploadableTo = Comment | Event | Message | Poll | Post | Product
+
+"""Properties by type of the image uploadable."""
+enum ImageUploadableType {
+  ACCOUNT_AVATAR
+  ACCOUNT_COVER
+  COMMENT
+  EVENT
+  LIXI
+  MESSAGE
+  PAGE_AVATAR
+  PAGE_COVER
+  POLL
+  POST
+  PRODUCT
+  TEMPLE_AVATAR
+  TEMPLE_COVER
+}
+
 input ImportAccountInput {
   language: String
   mnemonic: String!
@@ -609,12 +649,12 @@ type Message {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime
   id: ID!
+  imageUploadable: ImageUploadable
   isPageOwner: Boolean
   pageMessageSession: PageMessageSession
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
-  uploads: [UploadDetail!]
 }
 
 type MessageConnection {
@@ -897,11 +937,9 @@ type PollOption {
 }
 
 type Post {
-  avatarImageUplodableId: String
   bookmarkableId: String
   commentableId: String
   content: String!
-  coverImageUplodableId: String
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
@@ -913,7 +951,7 @@ type Post {
   followedPage: Boolean
   followedToken: Boolean
   id: ID!
-  imageUploadableId: String
+  imageUploadable: ImageUploadable
   originalLanguage: String
   page: Page
   pageId: String
@@ -923,12 +961,12 @@ type Post {
   postAccountId: Int!
   postDana: PostDana
   postHashtags: [PostHashtag!]
-  repostCount: Int
+  repostCount: Int!
   reposts: [Repost!]
   taggableId: String
   token: Token
   tokenId: String
-  totalComments: Int
+  totalComments: Int!
   translations: [PostTranslation!]
 
   """Identifies the date and time when the object was last updated."""

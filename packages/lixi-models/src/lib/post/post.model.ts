@@ -5,6 +5,7 @@ import { GraphQLDateTime } from 'graphql-scalars';
 import { Account } from '../account';
 import { ICommentableTo } from '../comment';
 import { PostHashtag } from '../hashtag/postHashtag.model';
+import { ImageUploadable } from '../imageUploadable';
 import { Page } from '../page';
 import { Token } from '../token';
 import { UploadDetail } from '../upload';
@@ -61,8 +62,8 @@ export class Post implements ICommentableTo {
   })
   updatedAt: Date;
 
-  @Field(() => Number, { nullable: true })
-  totalComments?: Nullable<number>;
+  @Field(() => Number)
+  totalComments: number;
 
   @Field(() => [PostHashtag], { nullable: true })
   postHashtags?: Nullable<PostHashtag[]>;
@@ -76,8 +77,8 @@ export class Post implements ICommentableTo {
   @Field(() => Boolean, { nullable: true })
   followedToken?: Nullable<boolean>;
 
-  @Field(() => Number, { nullable: true })
-  repostCount?: Nullable<number>;
+  @Field(() => Number)
+  repostCount: number;
 
   @Field(() => [Repost], { nullable: true })
   reposts?: Nullable<Repost[]>;
@@ -106,14 +107,8 @@ export class Post implements ICommentableTo {
   @Field(() => Float, { nullable: true })
   danaViewScore?: Nullable<number>;
 
-  @Field(() => String, { nullable: true })
-  avatarImageUplodableId?: Nullable<string>;
-
-  @Field(() => String, { nullable: true })
-  coverImageUplodableId?: Nullable<string>;
-
-  @Field(() => String, { nullable: true })
-  imageUploadableId?: Nullable<string>;
+  @Field(() => ImageUploadable, { nullable: true })
+  imageUploadable?: Nullable<ImageUploadable>;
 
   @IsOptional()
   @Field(() => PostDana, { nullable: true })

@@ -43,7 +43,7 @@ export function useInfinitePostsBySearchQuery(
 
       const adapterSetAll = postsAdapter.setAll(
         combinedData,
-        baseResult.data.allPostsBySearch.edges.map(item => item.node)
+        baseResult.data.allPostsBySearch.edges.map(item => item.node as PostQueryItem)
       );
 
       setCombinedData(adapterSetAll);

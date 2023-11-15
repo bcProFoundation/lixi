@@ -552,6 +552,47 @@ export enum HashtagOrderField {
   UpdatedAt = 'updatedAt'
 }
 
+export type ImageUploadable = {
+  __typename?: 'ImageUploadable';
+  account: Account;
+  accountAvatar?: Maybe<Account>;
+  accountCover?: Maybe<Account>;
+  comment?: Maybe<Comment>;
+  event?: Maybe<Event>;
+  id: Scalars['ID'];
+  imageUploadableTo?: Maybe<ImageUploadableTo>;
+  lixi?: Maybe<LixiModel>;
+  message?: Maybe<Message>;
+  pageAvatar?: Maybe<Page>;
+  pageCover?: Maybe<Page>;
+  poll?: Maybe<Poll>;
+  post?: Maybe<Post>;
+  product?: Maybe<Product>;
+  templeAvatar?: Maybe<Temple>;
+  templeCover?: Maybe<Temple>;
+  type?: Maybe<ImageUploadableType>;
+  uploads: Array<Upload>;
+};
+
+export type ImageUploadableTo = Comment | Event | Message | Poll | Post | Product;
+
+/** Properties by type of the image uploadable. */
+export enum ImageUploadableType {
+  AccountAvatar = 'ACCOUNT_AVATAR',
+  AccountCover = 'ACCOUNT_COVER',
+  Comment = 'COMMENT',
+  Event = 'EVENT',
+  Lixi = 'LIXI',
+  Message = 'MESSAGE',
+  PageAvatar = 'PAGE_AVATAR',
+  PageCover = 'PAGE_COVER',
+  Poll = 'POLL',
+  Post = 'POST',
+  Product = 'PRODUCT',
+  TempleAvatar = 'TEMPLE_AVATAR',
+  TempleCover = 'TEMPLE_COVER'
+}
+
 export type ImportAccountInput = {
   language?: InputMaybe<Scalars['String']>;
   mnemonic: Scalars['String'];
@@ -627,11 +668,11 @@ export type Message = {
   /** Identifies the date and time when the object was created. */
   createdAt?: Maybe<Scalars['DateTime']>;
   id: Scalars['ID'];
+  imageUploadable?: Maybe<ImageUploadable>;
   isPageOwner?: Maybe<Scalars['Boolean']>;
   pageMessageSession?: Maybe<PageMessageSession>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt?: Maybe<Scalars['DateTime']>;
-  uploads?: Maybe<Array<UploadDetail>>;
 };
 
 export type MessageConnection = {
@@ -1039,11 +1080,9 @@ export type PollOption = {
 
 export type Post = {
   __typename?: 'Post';
-  avatarImageUplodableId?: Maybe<Scalars['String']>;
   bookmarkableId?: Maybe<Scalars['String']>;
   commentableId?: Maybe<Scalars['String']>;
   content: Scalars['String'];
-  coverImageUplodableId?: Maybe<Scalars['String']>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
   danaBurnDown: Scalars['Float'];
@@ -1054,7 +1093,7 @@ export type Post = {
   followedPage?: Maybe<Scalars['Boolean']>;
   followedToken?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
-  imageUploadableId?: Maybe<Scalars['String']>;
+  imageUploadable?: Maybe<ImageUploadable>;
   originalLanguage?: Maybe<Scalars['String']>;
   page?: Maybe<Page>;
   pageId?: Maybe<Scalars['String']>;

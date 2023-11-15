@@ -1,6 +1,7 @@
 import {
   Account,
   CreatePostInput,
+  ImageUploadable as ImageUploadableModel,
   ICommentableTo,
   Page,
   PaginationArgs,
@@ -14,9 +15,17 @@ import {
   RepostInput,
   Token,
   UpdatePostInput,
-  UploadDetail
+  UploadDetail,
+  ImageUploadableTo,
+  IImageUploadableTo
 } from '@bcpros/lixi-models';
-import { CommentType, NotificationLevel } from '@bcpros/lixi-prisma';
+import {
+  ImageUploadable,
+  ImageUploadableType,
+  CommentType,
+  NotificationLevel,
+  Post as PostPrisma
+} from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
@@ -49,6 +58,7 @@ import { MeiliService } from './meili.service';
 import PostLoader from './post.loader';
 import { XPIJS } from '../wallet/wallet.constants';
 import CommentableLoader from './commentable.loader';
+import ImageUploadableLoader from './imageUploadable.loader';
 
 const pubSub = new PubSub();
 
@@ -71,7 +81,8 @@ export class PostResolver {
     @I18n() private i18n: I18nService,
     private readonly accountCacheService: AccountCacheService,
     private readonly postLoader: PostLoader,
-    private readonly commentableLoader: CommentableLoader
+    private readonly commentableLoader: CommentableLoader,
+    private readonly imageUploadableLoader: ImageUploadableLoader
   ) {}
 
   @SkipThrottle()
@@ -795,34 +806,30 @@ export class PostResolver {
     }
 
     const { uploads, pageId, htmlContent, tokenPrimaryId, pureContent } = data;
+    let imageUploadable: ImageUploadable;
 
-    let uploadDetailIds: any[] = [];
+    //create new imageUploadable
+    if (uploads && uploads.length > 0) {
+      imageUploadable = await this.prisma.$transaction(async prisma => {
+        const result = await prisma.imageUploadable.create({
+          data: {
+            account: { connect: { id: account.id } },
+            uploads: {
+              connect: uploads.map((upload: string) => {
+                return { id: upload };
+              })
+            },
+            type: ImageUploadableType.POST
+          }
+        });
 
-    const promises = uploads.map(async (id: string) => {
-      const uploadDetails = await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: id
-        }
+        return result;
       });
-
-      return uploadDetails && uploadDetails.id;
-    });
-
-    uploadDetailIds = await Promise.all(promises);
+    }
 
     const postToSave = {
       content: htmlContent,
       postAccount: { connect: { id: account.id } },
-      uploads: {
-        connect:
-          uploadDetailIds.length > 0
-            ? uploadDetailIds.map((uploadDetail: any) => {
-                return {
-                  id: uploadDetail
-                };
-              })
-            : undefined
-      },
       page: {
         connect: pageId ? { id: pageId } : undefined
       },
@@ -1100,30 +1107,22 @@ export class PostResolver {
       return updatePost;
     });
 
+    await Promise.all([
+      this.postLoader.batchReposts.clear(data.postId),
+      this.postLoader.batchRepostCount.clear(data.postId)
+    ]);
+
     return reposted ? true : false;
   }
 
   @ResolveField('reposts', () => Repost)
   async reposts(@Parent() post: Post) {
-    const reposts = await this.prisma.post
-      .findUnique({
-        where: {
-          id: post.id
-        }
-      })
-      .reposts({ include: { account: true } });
-    return reposts;
+    return this.postLoader.batchReposts.load(post.id);
   }
 
   @ResolveField('repostCount', () => Number)
   async repostCount(@Parent() post: Post) {
-    const repostCount = await this.prisma.repost.count({
-      where: {
-        postId: post.id
-      }
-    });
-
-    return repostCount;
+    return this.postLoader.batchRepostCount.load(post.id);
   }
 
   @ResolveField('postAccount', () => Account)
@@ -1133,10 +1132,21 @@ export class PostResolver {
 
   @ResolveField('totalComments', () => Number)
   async totalComments(@Parent() commentableTo: ICommentableTo) {
-    if (commentableTo && commentableTo?.commentableId) {
-      return this.commentableLoader.batchTotalComments.load(commentableTo);
+    return this.commentableLoader.batchTotalComments.load(commentableTo);
+  }
+
+  @ResolveField('imageUploadable', () => ImageUploadableModel)
+  async imageUploadable(@Parent() post: PostPrisma) {
+    if (post && post.imageUploadableId) {
+      const result = await this.imageUploadableLoader.batchImageUploadable.load({
+        id: post.id,
+        imageUploadableId: post.imageUploadableId
+      } as IImageUploadableTo);
+      return {
+        id: result?.id,
+        uploads: result?.uploads
+      };
     }
-    return 0;
   }
 
   @ResolveField('page', () => Page)

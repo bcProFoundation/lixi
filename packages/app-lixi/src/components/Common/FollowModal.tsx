@@ -227,13 +227,13 @@ export const FollowModal: React.FC<FollowModalProps> = (props: FollowModalProps)
                 {followingPages.length == 0 ? (
                   <p>{intl.get('follow.noFollowingPages')}</p>
                 ) : (
-                  followingPages.map((item, index) => {
+                  followingPages.map((page, index) => {
                     return (
                       <React.Fragment key={index}>
                         <ShortcutItemAccess
-                          icon={item?.avatar ?? '/images/default-avatar.jpg'}
-                          name={item.name}
-                          href={item ? `/page/${item?.id}` : '#'}
+                          icon={page?.avatar ? page.avatar : '/images/default-avatar.jpg'}
+                          name={page ? page.name : 'default'}
+                          href={page ? `/page/${page.id}` : `/`}
                           onClickItem={handleCloseModal}
                         />
                       </React.Fragment>

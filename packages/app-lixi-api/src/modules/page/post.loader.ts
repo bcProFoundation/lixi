@@ -1,18 +1,22 @@
-import { Account, ICommentableTo, Page, Post, PostDana, Repost, UploadDetail } from '@bcpros/lixi-models';
+import { Account, PostDana, Repost, UploadDetail } from '@bcpros/lixi-models';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
+import { Redis } from 'ioredis';
 import _ from 'lodash';
+import { AccountCacheService } from '../account/account-cache.service';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { DanaViewScoreService } from './dana-view-score.service';
 import { PageCacheService } from './page-cache.service';
-import { AccountCacheService } from '../account/account-cache.service';
 import { PostDanaCacheService } from './post-dana-cache.service';
+import { RedisDataLoader } from '../../common/redis/redis-dataloader';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class PostLoader {
   constructor(
     private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis,
     private readonly pageCacheService: PageCacheService,
     private readonly accountCacheService: AccountCacheService,
     private readonly danaViewScoreService: DanaViewScoreService,
@@ -94,25 +98,83 @@ export default class PostLoader {
     return Promise.resolve(data);
   });
 
-  public readonly batchReposts = new DataLoader(async (postIds: readonly string[]) => {
-    const ids = (postIds as unknown as string[]) ?? [];
+  public readonly batchReposts = new RedisDataLoader(
+    this.redis,
+    'dataloader:PostLoader:batchReposts',
+    new DataLoader(
+      async (postIds: readonly string[]) => {
+        const ids = (postIds as unknown as string[]) ?? [];
 
-    const repostsDb = await this.prisma.repost.findMany({
-      where: {
-        postId: {
-          in: ids
-        }
+        const repostsDb = await this.prisma.repost.findMany({
+          where: {
+            postId: {
+              in: ids
+            }
+          },
+          include: {
+            account: true
+          }
+        });
+        const reposts = repostsDb.map(item => {
+          return new Repost({
+            ...item
+          });
+        });
+        return postIds.map(postId => {
+          return reposts.filter(item => item.postId == postId) || null;
+        });
+      },
+      {
+        cache: false
       }
-    });
-    const reposts = repostsDb.map(item => {
-      return new Repost({
-        ...item
-      });
-    });
-    return postIds.map(postId => {
-      return reposts.filter(item => item.postId == postId) || null;
-    });
-  });
+    ),
+    {
+      expire: 600,
+      buffer: false
+    }
+  );
+
+  public readonly batchRepostCount = new RedisDataLoader(
+    this.redis,
+    'dataloader:PostLoader:batchRepostCount',
+    new DataLoader(
+      async (postIds: readonly string[]) => {
+        const ids = (postIds as unknown as string[]) ?? [];
+        const repostCount = await this.prisma.repost.groupBy({
+          by: ['postId'],
+          _count: {
+            _all: true
+          },
+          where: {
+            postId: {
+              in: ids
+            }
+          }
+        });
+        const repostCountMap = new Map(
+          repostCount.map(value => {
+            return [value.postId, value._count._all];
+          })
+        );
+        return postIds.map(postId => {
+          return repostCountMap.get(postId) ?? 0;
+        });
+      },
+      {
+        cache: false
+      }
+    ),
+    {
+      expire: 600,
+      buffer: false,
+      serialize: value => {
+        return value.toString();
+      },
+      deserialize: value => {
+        return _.toSafeInteger(value);
+      }
+    }
+  );
 
   public readonly batchDanaViewScores = new DataLoader(async (postIds: readonly string[]) => {
     const ids = (postIds as unknown as string[]) ?? [];
