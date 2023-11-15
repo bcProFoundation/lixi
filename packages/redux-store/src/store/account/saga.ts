@@ -14,11 +14,10 @@ import {
 import { callConfig } from '@context/index';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { setLocalUserAccount, silentLocalLogin } from '@store/localAccount';
-import { fetchNotifications } from '@store/notification/actions';
+import { fetchNotifications, removeAllNotification } from '@store/notification/actions';
 import { getCurrentLocale } from '@store/settings/selectors';
-import { activateWallet } from '@store/wallet';
+import { removeAllWallet } from '@store/wallet';
 import { aesGcmDecrypt, aesGcmEncrypt, numberToBase58 } from '@utils/encryptionMethods';
-import { Modal } from 'antd';
 import { push } from 'connected-next-router';
 import intl from 'react-intl-universal';
 import { all, call, fork, put, putResolve, select, takeLatest } from 'redux-saga/effects';
@@ -83,7 +82,7 @@ import {
   setSecondaryLanguageAccountFailure,
   removeUpload
 } from './actions';
-import { getAccountById, getSelectedAccount, getSelectedAccountId } from './selectors';
+import { getAccountById, getAllAccountsIds, getSelectedAccount, getSelectedAccountId } from './selectors';
 import { saveClaimAddress } from '@store/claim';
 import { changeCurrentLocale, setInitIntlStatus } from '@store/settings/actions';
 import { removeAllPageMessageSession } from '@store/message';
@@ -330,7 +329,13 @@ function* selectAccountSaga(action: PayloadAction<number>) {
     const lixiesData = yield call(lixiApi.getByAccountId, accountId);
     const lixies = (lixiesData ?? []) as Lixi[];
 
-    yield put(selectAccountSuccess({ account: account, lixies: lixies, previousAccount }));
+    yield put(
+      selectAccountSuccess({
+        account: account,
+        lixies: lixies,
+        previousAccount
+      })
+    );
   } catch (err) {
     const message = (err as Error).message ?? intl.get('account.unableToSelect');
     yield put(selectAccountFailure(message));
@@ -338,7 +343,11 @@ function* selectAccountSaga(action: PayloadAction<number>) {
 }
 
 function* selectAccountSuccessSaga(
-  action: PayloadAction<{ account: Account; lixies: Lixi[]; previousAccount: Account }>
+  action: PayloadAction<{
+    account: Account;
+    lixies: Lixi[];
+    previousAccount: Account;
+  }>
 ) {
   const { account: currentAccount, previousAccount } = action.payload;
   const account = yield select(getAccountById(action.payload.account.id));
@@ -488,7 +497,12 @@ function* deleteAccountSaga(action: PayloadAction<DeleteAccountCommand>) {
     yield put(showLoading(deleteAccount.type));
     const { id } = action.payload;
     const account: Account = yield select(getAccountById(id));
-    yield call(accountApi.delete, id, action.payload);
+    const ids = yield select(getAllAccountsIds);
+    //current has 1 account then remove all wallet
+    if (ids.length === 1) {
+      yield put(removeAllWallet());
+      yield put(removeAllNotification());
+    }
     yield put(deleteAccountSuccess(id));
   } catch (err) {
     const message = (err as Error).message ?? intl.get('account.deleteFailed');
@@ -892,7 +906,11 @@ function* silentLoginSuccessSaga(action: PayloadAction) {
   };
   // yield put(activateWallet(account.mnemonic));
   yield put(silentLocalLogin(localUser));
-  const promise = yield put(accountGraphApi.endpoints.getAccountByAddress.initiate({ address: account.address }));
+  const promise = yield put(
+    accountGraphApi.endpoints.getAccountByAddress.initiate({
+      address: account.address
+    })
+  );
   yield promise;
   const data = yield promise.unwrap();
   yield put(setAccountInfoTemp(data.getAccountByAddress));

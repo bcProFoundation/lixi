@@ -1,10 +1,16 @@
 import { NotificationDto, SocketUser } from '@bcpros/lixi-models';
 import { createAction } from '@reduxjs/toolkit';
 
-export const fetchNotifications = createAction<{ accountId: number; mnemonichHash }>('notification/fetchNotifications');
+export const fetchNotifications = createAction<{
+  accountId: number;
+  mnemonichHash;
+}>('notification/fetchNotifications');
 export const fetchNotificationsSuccess = createAction<NotificationDto[]>('notification/fetchNotificationsSuccess');
 export const fetchNotificationsFailure = createAction<string>('notification/fetchNotificationsFailure');
-export const deleteNotification = createAction<{ mnemonichHash; notificationId }>('notification/deleteNotification');
+export const deleteNotification = createAction<{
+  mnemonichHash;
+  notificationId;
+}>('notification/deleteNotification');
 export const deleteNotificationSuccess = createAction<string>('notification/deleteNotificationSuccess');
 export const deleteNotificationFailure = createAction<string>('notification/deleteNotificationFailure');
 export const readNotification = createAction<{ mnemonichHash; notificationId }>('notification/readNotification');
@@ -21,9 +27,10 @@ export const receiveNotification = createAction<NotificationDto>('notification/r
 export const sendXpiNotification = createAction<string>('notification/sendXpiNotification');
 export const xpiReceivedNotificationWebSocket = createAction<string>('notification/xpiReceivedNotificationWebSocket');
 
-export const readAllNotifications = createAction<{ accountId: number; mnemonichHash: string }>(
-  'notifications/readAllNotifications'
-);
+export const readAllNotifications = createAction<{
+  accountId: number;
+  mnemonichHash: string;
+}>('notifications/readAllNotifications');
 export const readAllNotificationsSuccess = createAction<{
   accountId: number;
   mnemonichHash: string;
@@ -33,3 +40,5 @@ export const readAllNotificationsFailure = createAction<string>('notifications/r
 
 export const userOnline = createAction<SocketUser>('notification/userOnline');
 export const userOffline = createAction<SocketUser>('notification/userOffline');
+
+export const removeAllNotification = createAction('notification/removeAllNotification');

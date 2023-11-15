@@ -8,6 +8,7 @@ import {
   fetchNotificationsSuccess,
   readNotificationSuccess,
   receiveNotification,
+  removeAllNotification,
   serverOff,
   serverOn
 } from './actions';
@@ -65,5 +66,8 @@ export const notificationReducer = createReducer(initialState, builder => {
     })
     .addCase(serverOn, (state, action) => {
       state.serverStatusOn = true;
+    })
+    .addCase(removeAllNotification, (state, action) => {
+      notificationsAdapter.removeAll(state);
     });
 });
