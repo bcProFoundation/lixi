@@ -30,11 +30,11 @@ export type TimelineQuery = {
       postAccountId: number;
       pageId?: string | null;
       tokenId?: string | null;
-      repostCount?: number | null;
+      repostCount: number;
       danaBurnUp: number;
       danaBurnDown: number;
       danaBurnScore: number;
-      totalComments?: number | null;
+      totalComments: number;
       commentableId?: string | null;
       createdAt: any;
       updatedAt: any;
@@ -96,7 +96,7 @@ export type TimelineQuery = {
         translateContent?: string | null;
         translateLanguage?: string | null;
       }> | null;
-      imageUploadable: {
+      imageUploadable?: {
         __typename?: 'ImageUploadable';
         id: string;
         uploads: Array<{
@@ -109,7 +109,7 @@ export type TimelineQuery = {
           cfImageId?: string | null;
           cfImageFilename?: string | null;
         }>;
-      };
+      } | null;
     };
   };
 };
@@ -138,11 +138,11 @@ export type HomeTimelineQuery = {
           postAccountId: number;
           pageId?: string | null;
           tokenId?: string | null;
-          repostCount?: number | null;
+          repostCount: number;
           danaBurnUp: number;
           danaBurnDown: number;
           danaBurnScore: number;
-          totalComments?: number | null;
+          totalComments: number;
           commentableId?: string | null;
           createdAt: any;
           updatedAt: any;
@@ -204,7 +204,7 @@ export type HomeTimelineQuery = {
             translateContent?: string | null;
             translateLanguage?: string | null;
           }> | null;
-          imageUploadable: {
+          imageUploadable?: {
             __typename?: 'ImageUploadable';
             id: string;
             uploads: Array<{
@@ -217,7 +217,7 @@ export type HomeTimelineQuery = {
               cfImageId?: string | null;
               cfImageFilename?: string | null;
             }>;
-          };
+          } | null;
         };
       };
     }>;

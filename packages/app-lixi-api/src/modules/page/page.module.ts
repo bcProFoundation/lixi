@@ -11,7 +11,7 @@ import { AuthModule } from '../auth/auth.module';
 import { HashtagModule } from '../hashtag/hashtag.module';
 import { CommentDanaCacheService } from './comment-dana-cache.service';
 import { CommentResolver } from './comment.resolver';
-import { POST_FANOUT_QUEUE } from './constants/post.constants';
+import { CONTENT_FANOUT_QUEUE } from './constants';
 import { DanaViewScoreService } from './dana-view-score.service';
 import { MeiliService } from './meili.service';
 import { PageCacheService } from './page-cache.service';
@@ -28,6 +28,14 @@ import { CommentCacheService } from './comment-cache.service';
 import CommentableLoader from './commentable.loader';
 import ImageUploadableLoader from './imageUploadable.loader';
 import CommentLoader from './comment.loader';
+import { EventCacheService } from './events/event-cache.service';
+import { PollCacheService } from './polls/poll-cache.service';
+import { EventDanaCacheService } from './event-dana-cache.service';
+import { PollDanaCacheService } from './poll-dana-cache.service';
+import { EventResolver } from './events/event.resolver';
+import { PollResolver } from './polls/poll.resolver';
+import PollLoader from './polls/poll.loader';
+import EventLoader from './events/event.loader';
 
 @Module({
   imports: [
@@ -36,12 +44,12 @@ import CommentLoader from './comment.loader';
     HashtagModule,
     AccountModule,
     BullModule.registerQueueAsync({
-      name: POST_FANOUT_QUEUE,
+      name: CONTENT_FANOUT_QUEUE,
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
         return {
           prefix: 'lixilotus:lixi',
-          name: POST_FANOUT_QUEUE,
+          name: CONTENT_FANOUT_QUEUE,
           connection: new IORedis({
             maxRetriesPerRequest: null,
             enableReadyCheck: false,
@@ -56,6 +64,8 @@ import CommentLoader from './comment.loader';
     PageResolver,
     Logger,
     PostResolver,
+    EventResolver,
+    PollResolver,
     MeiliService,
     CommentResolver,
     NotificationService,
@@ -69,7 +79,13 @@ import CommentLoader from './comment.loader';
     PageTimelineCacheService,
     PageDanaCacheService,
     PostCacheService,
+    EventCacheService,
+    PollCacheService,
     PostDanaCacheService,
+    EventDanaCacheService,
+    PollDanaCacheService,
+    PollLoader,
+    EventLoader,
     CommentCacheService,
     CommentDanaCacheService,
     CommentableLoader,

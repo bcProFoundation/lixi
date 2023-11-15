@@ -3,9 +3,8 @@ import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Account } from '../account';
-import { Comment } from '../comment';
+import { ImageUploadable } from '../imageUploadable';
 import { Page } from '../page';
-import { Upload } from '../upload';
 
 import { EventDana } from './event-dana.model';
 
@@ -52,14 +51,11 @@ export class Event {
   @Field(() => Float, { nullable: true })
   danaViewScore?: Nullable<number>;
 
+  @Field(() => ImageUploadable, { nullable: true })
+  imageUploadable?: Nullable<ImageUploadable>;
+
   @Field(() => EventDana)
-  eventDana?: Nullable<EventDana>;
-
-  @Field(() => [Comment], { nullable: true })
-  comments?: Nullable<Comment[]>;
-
-  @Field(() => [Upload], { nullable: true })
-  images?: Nullable<Upload[]>;
+  dana?: Nullable<EventDana>;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.'

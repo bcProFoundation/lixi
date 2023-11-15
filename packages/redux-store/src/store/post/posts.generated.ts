@@ -29,11 +29,11 @@ export type PostQuery = {
     postAccountId: number;
     pageId?: string | null;
     tokenId?: string | null;
-    repostCount?: number | null;
+    repostCount: number;
     danaBurnUp: number;
     danaBurnDown: number;
     danaBurnScore: number;
-    totalComments?: number | null;
+    totalComments: number;
     commentableId?: string | null;
     createdAt: any;
     updatedAt: any;
@@ -95,7 +95,7 @@ export type PostQuery = {
       translateContent?: string | null;
       translateLanguage?: string | null;
     }> | null;
-    imageUploadable: {
+    imageUploadable?: {
       __typename?: 'ImageUploadable';
       id: string;
       uploads: Array<{
@@ -108,7 +108,7 @@ export type PostQuery = {
         cfImageId?: string | null;
         cfImageFilename?: string | null;
       }>;
-    };
+    } | null;
   };
 };
 
@@ -139,11 +139,11 @@ export type PostsByPageIdQuery = {
         postAccountId: number;
         pageId?: string | null;
         tokenId?: string | null;
-        repostCount?: number | null;
+        repostCount: number;
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
-        totalComments?: number | null;
+        totalComments: number;
         commentableId?: string | null;
         createdAt: any;
         updatedAt: any;
@@ -205,7 +205,7 @@ export type PostsByPageIdQuery = {
           translateContent?: string | null;
           translateLanguage?: string | null;
         }> | null;
-        imageUploadable: {
+        imageUploadable?: {
           __typename?: 'ImageUploadable';
           id: string;
           uploads: Array<{
@@ -218,7 +218,7 @@ export type PostsByPageIdQuery = {
             cfImageId?: string | null;
             cfImageFilename?: string | null;
           }>;
-        };
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -257,11 +257,11 @@ export type PostsByUserIdQuery = {
         postAccountId: number;
         pageId?: string | null;
         tokenId?: string | null;
-        repostCount?: number | null;
+        repostCount: number;
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
-        totalComments?: number | null;
+        totalComments: number;
         commentableId?: string | null;
         createdAt: any;
         updatedAt: any;
@@ -323,7 +323,7 @@ export type PostsByUserIdQuery = {
           translateContent?: string | null;
           translateLanguage?: string | null;
         }> | null;
-        imageUploadable: {
+        imageUploadable?: {
           __typename?: 'ImageUploadable';
           id: string;
           uploads: Array<{
@@ -336,7 +336,7 @@ export type PostsByUserIdQuery = {
             cfImageId?: string | null;
             cfImageFilename?: string | null;
           }>;
-        };
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -375,11 +375,11 @@ export type PostsByHashtagIdQuery = {
         postAccountId: number;
         pageId?: string | null;
         tokenId?: string | null;
-        repostCount?: number | null;
+        repostCount: number;
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
-        totalComments?: number | null;
+        totalComments: number;
         commentableId?: string | null;
         createdAt: any;
         updatedAt: any;
@@ -441,7 +441,7 @@ export type PostsByHashtagIdQuery = {
           translateContent?: string | null;
           translateLanguage?: string | null;
         }> | null;
-        imageUploadable: {
+        imageUploadable?: {
           __typename?: 'ImageUploadable';
           id: string;
           uploads: Array<{
@@ -454,7 +454,7 @@ export type PostsByHashtagIdQuery = {
             cfImageId?: string | null;
             cfImageFilename?: string | null;
           }>;
-        };
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -493,11 +493,11 @@ export type PostsByTokenIdQuery = {
         postAccountId: number;
         pageId?: string | null;
         tokenId?: string | null;
-        repostCount?: number | null;
+        repostCount: number;
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
-        totalComments?: number | null;
+        totalComments: number;
         commentableId?: string | null;
         createdAt: any;
         updatedAt: any;
@@ -559,7 +559,7 @@ export type PostsByTokenIdQuery = {
           translateContent?: string | null;
           translateLanguage?: string | null;
         }> | null;
-        imageUploadable: {
+        imageUploadable?: {
           __typename?: 'ImageUploadable';
           id: string;
           uploads: Array<{
@@ -572,7 +572,7 @@ export type PostsByTokenIdQuery = {
             cfImageId?: string | null;
             cfImageFilename?: string | null;
           }>;
-        };
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -608,7 +608,7 @@ export type PostsBySearchQuery = {
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
-        totalComments?: number | null;
+        totalComments: number;
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
@@ -696,7 +696,7 @@ export type PostsBySearchWithHashtagQuery = {
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
-        totalComments?: number | null;
+        totalComments: number;
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
@@ -785,7 +785,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
-        totalComments?: number | null;
+        totalComments: number;
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
@@ -874,7 +874,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
-        totalComments?: number | null;
+        totalComments: number;
         createdAt: any;
         updatedAt: any;
         followPostOwner?: boolean | null;
@@ -944,11 +944,11 @@ export type PostFieldsFragment = {
   postAccountId: number;
   pageId?: string | null;
   tokenId?: string | null;
-  repostCount?: number | null;
+  repostCount: number;
   danaBurnUp: number;
   danaBurnDown: number;
   danaBurnScore: number;
-  totalComments?: number | null;
+  totalComments: number;
   commentableId?: string | null;
   createdAt: any;
   updatedAt: any;
@@ -1010,7 +1010,7 @@ export type PostFieldsFragment = {
     translateContent?: string | null;
     translateLanguage?: string | null;
   }> | null;
-  imageUploadable: {
+  imageUploadable?: {
     __typename?: 'ImageUploadable';
     id: string;
     uploads: Array<{
@@ -1023,7 +1023,7 @@ export type PostFieldsFragment = {
       cfImageId?: string | null;
       cfImageFilename?: string | null;
     }>;
-  };
+  } | null;
 };
 
 export type PostMeiliFieldsFragment = {
@@ -1033,7 +1033,7 @@ export type PostMeiliFieldsFragment = {
   danaBurnUp: number;
   danaBurnDown: number;
   danaBurnScore: number;
-  totalComments?: number | null;
+  totalComments: number;
   createdAt: any;
   updatedAt: any;
   followPostOwner?: boolean | null;
@@ -1099,11 +1099,11 @@ export type CreatePostMutation = {
     postAccountId: number;
     pageId?: string | null;
     tokenId?: string | null;
-    repostCount?: number | null;
+    repostCount: number;
     danaBurnUp: number;
     danaBurnDown: number;
     danaBurnScore: number;
-    totalComments?: number | null;
+    totalComments: number;
     commentableId?: string | null;
     createdAt: any;
     updatedAt: any;
@@ -1165,7 +1165,7 @@ export type CreatePostMutation = {
       translateContent?: string | null;
       translateLanguage?: string | null;
     }> | null;
-    imageUploadable: {
+    imageUploadable?: {
       __typename?: 'ImageUploadable';
       id: string;
       uploads: Array<{
@@ -1178,7 +1178,7 @@ export type CreatePostMutation = {
         cfImageId?: string | null;
         cfImageFilename?: string | null;
       }>;
-    };
+    } | null;
   };
 };
 
@@ -1195,11 +1195,11 @@ export type UpdatePostMutation = {
     postAccountId: number;
     pageId?: string | null;
     tokenId?: string | null;
-    repostCount?: number | null;
+    repostCount: number;
     danaBurnUp: number;
     danaBurnDown: number;
     danaBurnScore: number;
-    totalComments?: number | null;
+    totalComments: number;
     commentableId?: string | null;
     createdAt: any;
     updatedAt: any;
@@ -1261,7 +1261,7 @@ export type UpdatePostMutation = {
       translateContent?: string | null;
       translateLanguage?: string | null;
     }> | null;
-    imageUploadable: {
+    imageUploadable?: {
       __typename?: 'ImageUploadable';
       id: string;
       uploads: Array<{
@@ -1274,7 +1274,7 @@ export type UpdatePostMutation = {
         cfImageId?: string | null;
         cfImageFilename?: string | null;
       }>;
-    };
+    } | null;
   };
 };
 

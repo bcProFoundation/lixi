@@ -29,7 +29,7 @@ export * from './lib/timeline';
 export * from './lib/analytic-event';
 export * from './lib/wallet';
 export * from './lib/bookmark';
-export * from './lib/event';
 export * from './lib/poll';
+export * from './lib/event';
 export * from './lib/product';
 export * from './lib/imageUploadable';

@@ -288,6 +288,16 @@ export type CreatePageMessageInput = {
   pageId: Scalars['String'];
 };
 
+export type CreatePollInput = {
+  createFeeHex?: InputMaybe<Scalars['String']>;
+  endDate: Scalars['DateTime'];
+  htmlContent: Scalars['String'];
+  options: Array<PollOptionInput>;
+  pageId?: InputMaybe<Scalars['String']>;
+  pureContent: Scalars['String'];
+  startDate: Scalars['DateTime'];
+};
+
 export type CreatePostInput = {
   createFeeHex?: InputMaybe<Scalars['String']>;
   extraArguments?: InputMaybe<ExtraArguments>;
@@ -400,16 +410,18 @@ export type Event = {
   __typename?: 'Event';
   account: Account;
   accountId: Scalars['Int'];
-  comments?: Maybe<Array<Comment>>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
+  dana: EventDana;
   danaViewScore?: Maybe<Scalars['Float']>;
   description: Scalars['String'];
   endDate: Scalars['DateTime'];
-  eventDana: EventDana;
   eventType: EventType;
+  followOwner: Scalars['Boolean'];
+  followedPage: Scalars['Boolean'];
+  followedToken: Scalars['Boolean'];
   id: Scalars['ID'];
-  images?: Maybe<Array<Upload>>;
+  imageUploadable?: Maybe<ImageUploadable>;
   location?: Maybe<Scalars['String']>;
   name: Scalars['String'];
   page?: Maybe<Page>;
@@ -717,6 +729,7 @@ export type MessageSessionEdge = {
 export type Mutation = {
   __typename?: 'Mutation';
   closePageMessageSession: PageMessageSession;
+  create: Poll;
   createAccount: Account;
   createBookmark: Bookmark;
   createComment: Comment;
@@ -748,6 +761,10 @@ export type Mutation = {
 
 export type MutationClosePageMessageSessionArgs = {
   data: ClosePageMessageSessionInput;
+};
+
+export type MutationCreateArgs = {
+  data: CreatePollInput;
 };
 
 export type MutationCreateAccountArgs = {
@@ -1011,17 +1028,18 @@ export type Poll = {
   __typename?: 'Poll';
   account: Account;
   accountId: Scalars['Int'];
-  comments?: Maybe<Array<Comment>>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
+  dana: PollDana;
   danaViewScore?: Maybe<Scalars['Float']>;
   endDate: Scalars['DateTime'];
+  followOwner: Scalars['Boolean'];
+  followedPage: Scalars['Boolean'];
+  followedToken: Scalars['Boolean'];
   id: Scalars['ID'];
-  images?: Maybe<Array<Upload>>;
   options: Array<PollOption>;
   page?: Maybe<Page>;
   pageId?: Maybe<Scalars['String']>;
-  pollDana: PollDana;
   question: Scalars['String'];
   startDate: Scalars['DateTime'];
   totalComments?: Maybe<Scalars['Int']>;
@@ -1050,6 +1068,11 @@ export type PollOption = {
   pollId: Scalars['Int'];
 };
 
+export type PollOptionInput = {
+  option: Scalars['String'];
+  pollId: Scalars['Int'];
+};
+
 export type Post = {
   __typename?: 'Post';
   bookmarkableId?: Maybe<Scalars['String']>;
@@ -1073,12 +1096,12 @@ export type Post = {
   postAccountId: Scalars['Int'];
   postDana?: Maybe<PostDana>;
   postHashtags?: Maybe<Array<PostHashtag>>;
-  repostCount?: Maybe<Scalars['Int']>;
+  repostCount: Scalars['Int'];
   reposts?: Maybe<Array<Repost>>;
   taggableId?: Maybe<Scalars['String']>;
   token?: Maybe<Token>;
   tokenId?: Maybe<Scalars['String']>;
-  totalComments?: Maybe<Scalars['Int']>;
+  totalComments: Scalars['Int'];
   translations?: Maybe<Array<PostTranslation>>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
@@ -1251,6 +1274,7 @@ export type Query = {
   page: Page;
   pageMessageSession: PageMessageSession;
   pagesByFollower: PageBasicConnection;
+  poll: Poll;
   post: Post;
   product: Product;
   temple: Temple;
@@ -1693,6 +1717,10 @@ export type QueryPagesByFollowerArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   skip?: InputMaybe<Scalars['Int']>;
+};
+
+export type QueryPollArgs = {
+  id: Scalars['String'];
 };
 
 export type QueryPostArgs = {

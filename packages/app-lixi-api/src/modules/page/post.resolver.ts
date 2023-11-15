@@ -1,8 +1,9 @@
 import {
   Account,
   CreatePostInput,
-  ImageUploadable as ImageUploadableModel,
   ICommentableTo,
+  IImageUploadableTo,
+  ImageUploadable as ImageUploadableModel,
   Page,
   PaginationArgs,
   Post,
@@ -12,16 +13,13 @@ import {
   PostTranslation,
   Repost,
   RepostInput,
-  Token,
   UpdatePostInput,
-  UploadDetail,
-  ImageUploadableTo,
-  IImageUploadableTo
+  UploadDetail
 } from '@bcpros/lixi-models';
 import {
+  CommentType,
   ImageUploadable,
   ImageUploadableType,
-  CommentType,
   NotificationLevel,
   Post as PostPrisma
 } from '@bcpros/lixi-prisma';
@@ -51,13 +49,13 @@ import { FollowCacheService } from '../account/follow-cache.service';
 import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
 import { HashtagService } from '../hashtag/hashtag.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { HASHTAG, POSTS } from './constants/meili.constants';
-import { POST_FANOUT_QUEUE } from './constants/post.constants';
-import { MeiliService } from './meili.service';
-import PostLoader from './post.loader';
 import { XPIJS } from '../wallet/wallet.constants';
 import CommentableLoader from './commentable.loader';
+import { HASHTAG, POSTS } from './constants/meili.constants';
+import { CONTENT_FANOUT_QUEUE } from './constants';
 import ImageUploadableLoader from './imageUploadable.loader';
+import { MeiliService } from './meili.service';
+import PostLoader from './post.loader';
 
 const pubSub = new PubSub();
 
@@ -74,7 +72,7 @@ export class PostResolver {
     @InjectRedis() private readonly redis: Redis,
     private readonly notificationService: NotificationService,
     private hashtagService: HashtagService,
-    @InjectQueue(POST_FANOUT_QUEUE) private postFanoutQueue: Queue,
+    @InjectQueue(CONTENT_FANOUT_QUEUE) private postFanoutQueue: Queue,
     @Inject(XPIJS) private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @I18n() private i18n: I18nService,
@@ -846,6 +844,9 @@ export class PostResolver {
           createFee: createFee,
           postDana: {
             create: {}
+          },
+          taggable: {
+            create: {}
           }
         },
         include: {
@@ -975,7 +976,7 @@ export class PostResolver {
     }
 
     // Fanout the post created
-    await this.postFanoutQueue.add(POST_FANOUT_QUEUE, { post: savedPost });
+    await this.postFanoutQueue.add(CONTENT_FANOUT_QUEUE, { post: savedPost });
 
     return savedPost;
   }

@@ -244,6 +244,7 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
   const [showFeatureTrans, setShowFeatureTrans] = useState(true);
   const selectedAccount = useAppSelector(getSelectedAccount);
 
+  // @todo: should move out of useEffect
   useEffect(() => {
     const mapImages = item.imageUploadable?.uploads.map(img => {
       const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img?.cfImageId}/public`;

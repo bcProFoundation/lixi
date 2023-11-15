@@ -264,6 +264,16 @@ input CreatePageMessageInput {
   pageId: String!
 }
 
+input CreatePollInput {
+  createFeeHex: String
+  endDate: DateTime!
+  htmlContent: String!
+  options: [PollOptionInput!]!
+  pageId: String
+  pureContent: String!
+  startDate: DateTime!
+}
+
 input CreatePostInput {
   createFeeHex: String
   extraArguments: ExtraArguments
@@ -382,17 +392,19 @@ type EnvelopeModel {
 type Event {
   account: Account!
   accountId: Int!
-  comments: [Comment!]
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
+  dana: EventDana!
   danaViewScore: Float
   description: String!
   endDate: DateTime!
-  eventDana: EventDana!
   eventType: EventType!
+  followOwner: Boolean!
+  followedPage: Boolean!
+  followedToken: Boolean!
   id: ID!
-  images: [Upload!]
+  imageUploadable: ImageUploadable
   location: String
   name: String!
   page: Page
@@ -695,6 +707,7 @@ type MessageSessionEdge {
 
 type Mutation {
   closePageMessageSession(data: ClosePageMessageSessionInput!): PageMessageSession!
+  create(data: CreatePollInput!): Poll!
   createAccount(data: CreateAccountInput!): Account!
   createBookmark(data: CreateBookmarkInput!): Bookmark!
   createComment(data: CreateCommentInput!): Comment!
@@ -876,18 +889,19 @@ enum PageMessageSessionStatus {
 type Poll {
   account: Account!
   accountId: Int!
-  comments: [Comment!]
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
+  dana: PollDana!
   danaViewScore: Float
   endDate: DateTime!
+  followOwner: Boolean!
+  followedPage: Boolean!
+  followedToken: Boolean!
   id: ID!
-  images: [Upload!]
   options: [PollOption!]!
   page: Page
   pageId: String
-  pollDana: PollDana!
   question: String!
   startDate: DateTime!
   totalComments: Int
@@ -911,6 +925,11 @@ type PollDana {
 type PollOption {
   danaPoint: Float!
   id: ID!
+  option: String!
+  pollId: Int!
+}
+
+input PollOptionInput {
   option: String!
   pollId: Int!
 }
@@ -1199,6 +1218,7 @@ type Query {
   page(id: String!): Page!
   pageMessageSession(id: String!): PageMessageSession!
   pagesByFollower(after: String, first: Int, skip: Int): PageBasicConnection!
+  poll(id: String!): Poll!
   post(id: String!): Post!
   product(id: String!): Product!
   temple(id: String!): Temple!

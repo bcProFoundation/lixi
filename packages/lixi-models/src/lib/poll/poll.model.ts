@@ -3,9 +3,7 @@ import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Account } from '../account';
-import { Comment } from '../comment';
 import { Page } from '../page';
-import { Upload } from '../upload';
 
 import { PollDana } from './poll-dana.model';
 import { PollOption } from './poll-option.model';
@@ -45,13 +43,7 @@ export class Poll {
   danaViewScore?: Nullable<number>;
 
   @Field(() => PollDana)
-  pollDana?: Nullable<PollDana>;
-
-  @Field(() => [Comment], { nullable: true })
-  comments?: Nullable<Comment[]>;
-
-  @Field(() => [Upload], { nullable: true })
-  images?: Nullable<Upload[]>;
+  dana?: Nullable<PollDana>;
 
   @Field(() => [PollOption])
   options: PollOption[];
