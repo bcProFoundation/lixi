@@ -56,7 +56,7 @@ function* updateLocaleSaga(action: PayloadAction<string>) {
 
     const command: ChangeAccountLocaleCommand = {
       id: selectedAccount.id,
-      mnemonic: selectedAccount.mnemonic,
+      mnemonic: selectedAccount?.mnemonic,
       language: language
     };
     yield put(changeAccountLocale(command));

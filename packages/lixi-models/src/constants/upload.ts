@@ -6,7 +6,8 @@ export const UPLOAD_TYPES = {
   PRODUCT: 'product',
   ACCOUNT_COVER: 'account_cover',
   ACCOUNT_AVATAR: 'account_avatar',
-  MESSAGE: 'message'
+  MESSAGE: 'message',
+  COMMENT: 'comment'
 };
 
 export const UPLOAD_BUTTON_TYPE = {

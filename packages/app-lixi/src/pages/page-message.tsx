@@ -5,7 +5,11 @@ import DeviceProtectableComponentWrapper from '@components/Authentication/Device
 import PageMessage from '@components/PageMessage';
 
 const PageMessagePage = () => {
-  return <PageMessage />;
+  return (
+    <DeviceProtectableComponentWrapper>
+      <PageMessage />
+    </DeviceProtectableComponentWrapper>
+  );
 };
 
 export default PageMessagePage;

@@ -89,7 +89,6 @@ export class PostResolver {
     const dbPost = await this.prisma.post.findUnique({
       where: { id: id },
       include: {
-        uploads: true,
         postAccount: true,
         page: true,
         translations: true,
@@ -102,17 +101,15 @@ export class PostResolver {
 
     if (!dbPost) return null;
 
-    const [page, reposts, uploads, danaViewScore] = await Promise.all([
+    const [page, reposts, danaViewScore] = await Promise.all([
       dbPost.pageId ? this.postLoader.batchPages.load(dbPost.pageId) : Promise.resolve(null),
       this.postLoader.batchReposts.load(dbPost.id),
-      this.postLoader.batchUploads.load(dbPost.id),
       this.postLoader.batchDanaViewScores.load(dbPost.id)
     ]);
 
     return new Post({
       ...dbPost,
       id: dbPost.id,
-      uploads: uploads ? (uploads as UploadDetail[]) : [],
       page: page ? (page as Page) : new Page({}),
       repostCount: dbPost._count.reposts,
       reposts: reposts ? (reposts as Repost[]) : [],
@@ -788,7 +785,7 @@ export class PostResolver {
     }
 
     const { uploads, pageId, htmlContent, tokenPrimaryId, pureContent } = data;
-    let imageUploadable: ImageUploadable;
+    let imageUploadable: ImageUploadable | undefined = undefined;
 
     //create new imageUploadable
     if (uploads && uploads.length > 0) {
@@ -817,6 +814,9 @@ export class PostResolver {
       },
       token: {
         connect: tokenPrimaryId ? { id: tokenPrimaryId } : undefined
+      },
+      imageUploadable: {
+        connect: imageUploadable ? { id: imageUploadable.id } : undefined
       }
     };
 
@@ -1153,11 +1153,6 @@ export class PostResolver {
       return translations;
     }
     return null;
-  }
-
-  @ResolveField('uploads', () => [UploadDetail])
-  async uploads(@Parent() post: Post) {
-    return this.postLoader.batchUploads.load(post.id);
   }
 
   @ResolveField('danaViewScore', () => Number)

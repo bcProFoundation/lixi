@@ -8,7 +8,6 @@ import { PostHashtag } from '../hashtag/postHashtag.model';
 import { ImageUploadable } from '../imageUploadable';
 import { Page } from '../page';
 import { Token } from '../token';
-import { UploadDetail } from '../upload';
 
 import { PostDana } from './post-dana.model';
 import { Repost } from './repost.model';
@@ -32,9 +31,6 @@ export class Post implements ICommentableTo {
 
   @Field(() => Token, { nullable: true })
   token?: Nullable<Token>;
-
-  @Field(() => [UploadDetail], { nullable: true })
-  uploads: Nullable<UploadDetail[]>;
 
   @Field(() => Page, { nullable: true })
   page?: Nullable<Page>;

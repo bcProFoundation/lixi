@@ -1,6 +1,6 @@
 import { OPTION_BURN_TYPE, OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
-import { AuthorizationContext } from '@context/index';
+import { AuthenticationContext, AuthorizationContext } from '@context/index';
 import { AccountQueryItem, CommentQueryItem, PageQueryItem, PostQueryItem, TokenQueryItem } from '@generated/index';
 import { BurnForItem } from '@generated/types';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
@@ -131,6 +131,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
   const [clicked, setClicked] = useState(false);
   const [hovered, setHovered] = useState(false);
   const currentTheme = useAppSelector(getCurrentThemes);
+  const authentication = useContext(AuthenticationContext);
 
   const burnValue: number = match(burnForType)
     .with(BurnForType.Post, () => (dataItem as PostQueryItem).postDana.danaReceivedScore)
@@ -151,7 +152,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
 
   const contentHoverCustom = <Hint>Custom</Hint>;
 
-  const handleBurnOption = (
+  const handleBurnOption = async (
     e: React.MouseEvent<HTMLElement>,
     dataItem: BurnForItem,
     optionBurn: string,
@@ -160,6 +161,9 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
     e.preventDefault();
     e.stopPropagation();
     if (authorization.authorized) {
+      if (authentication && authentication.isAuthenticationRequired && !authentication.isSignedIn) {
+        await authentication.signIn();
+      }
       const burnValue = optionBurn ? OPTION_BURN_VALUE[optionBurn] : '1';
       dispatch(
         prepareBurnCommand({

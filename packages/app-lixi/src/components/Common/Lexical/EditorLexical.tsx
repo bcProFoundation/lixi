@@ -386,6 +386,7 @@ const EditorLexical = (props: EditorLexicalProps) => {
                 showUploadList={false}
                 loading={isUploadingImage}
                 setUploadingImage={setUploadingImage}
+                multiple={true}
               />
               <ButtonLinkPlugin />
             </div>
