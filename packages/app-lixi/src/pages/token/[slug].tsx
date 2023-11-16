@@ -1,6 +1,6 @@
 import MainLayout from '@components/Layout/MainLayout';
 import TokensFeed from '@components/Token/TokensFeed';
-import { SagaStore, wrapper } from '@store/store';
+import { AppThunkDispatch, SagaStore, wrapper } from '@store/store';
 import { useTokenQuery } from '@store/token/tokens.generated';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
@@ -10,18 +10,23 @@ import { useCheckIfFollowTokenQuery } from '@store/follow/follows.api';
 import { getSelectedAccount } from '@store/account';
 import { useAppSelector } from '@store/hooks';
 import { PrismaClient } from '@bcpros/lixi-prisma';
+import { api as tokenApi } from '@store/token/tokens.api';
 
 const TokenDetailPage = props => {
   const { tokenAsString, isMobile } = props;
   const token = JSON.parse(tokenAsString);
-  const { tokenId } = token;
+  const { id, tokenId } = token;
   const canonicalUrl = process.env.NEXT_PUBLIC_LIXI_URL + `token/${tokenId}`;
   const selectedAccount = useAppSelector(getSelectedAccount);
+
+  const { currentData: currentDataTokenQuery } = useTokenQuery({ id: id }, { skip: !selectedAccount || !token });
 
   const { currentData: currentDataCheckIsFollowed } = useCheckIfFollowTokenQuery(
     { tokenId },
     { skip: !selectedAccount || !token }
   );
+
+  const tokenToRender = currentDataTokenQuery?.token ?? token;
 
   return (
     <>
@@ -41,7 +46,7 @@ const TokenDetailPage = props => {
           cardType: 'summary_large_image'
         }}
       />
-      <TokensFeed token={token} checkIsFollowed={currentDataCheckIsFollowed?.checkIfFollowToken} isMobile={isMobile} />
+      <TokensFeed token={tokenToRender} checkIsFollowed={currentDataCheckIsFollowed?.checkIfFollowToken} isMobile={isMobile} />
     </>
   );
 };
@@ -52,25 +57,31 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   const { isMobile } = getSelectorsByUserAgent(userAgent);
   const prisma = new PrismaClient();
 
-  store.dispatch(END);
-  await (store as SagaStore).__sagaTask.toPromise();
+  const thunkDispatch = store.dispatch as AppThunkDispatch;
 
   const slug: string = _.isArray(context.params.slug) ? context.params.slug[0] : context.params.slug;
   const tokenId: string = slug;
 
-  const token = await prisma.token.findUnique({
+  // thunkDispatch(tokenApi.endpoints.TokenByTokenId.initiate({ tokenId: tokenId }));
+  // await Promise.all(thunkDispatch(tokenApi.util.getRunningQueriesThunk()))
+
+  store.dispatch(END);
+  await (store as SagaStore).__sagaTask.toPromise();
+
+  const dbToken = await prisma.token.findUnique({
     where: {
       tokenId: tokenId
     }
   });
 
-  if (!token) {
+
+  if (!dbToken) {
     return {
       notFound: true
     };
   }
 
-  const tokenAsString = JSON.stringify(token);
+  const tokenAsString = JSON.stringify(dbToken);
 
   return {
     props: {

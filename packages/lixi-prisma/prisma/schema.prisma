@@ -31,18 +31,14 @@ model Token {
   ticker               String       @default("") @map("ticker") @db.VarChar(255)
   decimals             Int          @map("decimals")
   tokenDocumentUrl     String       @default("") @map("token_document_url") @db.VarChar(1000)
-  totalBurned          String       @default("") @map("total_burned")
   totalMinted          String       @default("") @map("total_minted")
-  danaBurnUp           Float        @default(0.0) @map("dana_burn_up")
-  danaBurnDown         Float        @default(0.0) @map("dana_burn_down")
-  danaBurnScore        Float        @default(0.0) @map("dana_burn_score")
   initialTokenQuantity String       @default("") @map("initial_token_quantity")
   comments             DateTime?    @default(now()) @map("comments") @db.Timestamptz
   createdAt            DateTime     @default(now()) @map("created_at") @db.Timestamptz
   createdDate          DateTime     @default(now()) @map("created_date") @db.Timestamptz
   posts                Post[]
   followers            FollowPage[]
-  tokenDana            TokenDana?
+  dana                 TokenDana?
 
   @@map("token")
 }

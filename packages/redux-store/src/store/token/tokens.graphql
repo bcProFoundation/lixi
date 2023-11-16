@@ -2,8 +2,14 @@
 # import TokenInfoFields from '../../graphql/fragments/token-info-fields.fragment.graphql'
 # import BasicPageInfoFields from '../../graphql/fragments/basic-page-info-fields.fragment.graphql'
 
-query Token($tokenId: String!) {
-  token(tokenId: $tokenId) {
+query Token($id: String!) {
+  token(id: $id) {
+    ...TokenFields
+  }
+}
+
+query TokenByTokenId($tokenId: String!) {
+  tokenByTokenId(tokenId: $tokenId) {
     ...TokenFields
   }
 }
@@ -38,13 +44,9 @@ fragment TokenFields on Token {
   ticker
   decimals
   tokenDocumentUrl
-  totalBurned
   totalMinted
-  danaBurnUp
-  danaBurnDown
-  danaBurnScore
   followersCount
-  tokenDana {
+  dana {
     danaBurnUp
     danaBurnDown
     danaBurnScore

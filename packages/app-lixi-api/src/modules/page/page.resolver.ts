@@ -49,7 +49,7 @@ export class PageResolver {
     private readonly pageTimelineCacheService: PageTimelineCacheService,
     @I18n() private i18n: I18nService,
     @Inject(XPIJS) private XPI: BCHJS
-  ) {}
+  ) { }
 
   @Query(() => Page)
   async page(@PageAccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
@@ -310,23 +310,23 @@ export class PageResolver {
         category: {
           connect: data.categoryId
             ? {
-                id: Number(data.categoryId)
-              }
+              id: Number(data.categoryId)
+            }
             : undefined
         },
         country: {
           connect: data.countryId
             ? {
-                id: Number(data.countryId)
-              }
+              id: Number(data.countryId)
+            }
             : undefined
         },
         state: {
           disconnect: !data.stateId,
           connect: data.stateId
             ? {
-                id: Number(data.stateId)
-              }
+              id: Number(data.stateId)
+            }
             : undefined
         }
       },
@@ -353,4 +353,5 @@ export class PageResolver {
   async pageDana(@Parent() page: Page) {
     return this.pageLoader.batchPageDanas.load(page.id);
   }
+
 }

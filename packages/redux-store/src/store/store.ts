@@ -1,22 +1,17 @@
-import { WalletContext } from '@context/walletProvider';
 import useXPI from '@hooks/useXPI';
 import createSagaMiddleware, { Task } from '@redux-saga/core';
-import { Action, configureStore, Store, ThunkAction } from '@reduxjs/toolkit';
+import { Action, Store, configureStore } from '@reduxjs/toolkit';
+import { AnyAction } from 'redux';
 import { setupListeners } from '@reduxjs/toolkit/dist/query';
 import { createRouterMiddleware, initialRouterState } from 'connected-next-router';
-import { Router } from 'next/router';
 import { Context, createWrapper } from 'next-redux-wrapper';
-import { FLUSH, PAUSE, PERSIST, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
+import { Router } from 'next/router';
+import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE, persistStore } from 'redux-persist';
+import { ThunkAction, ThunkDispatch } from 'redux-thunk';
 
-import { api as commentsApi } from './comment/comments.api';
 import { api as pagesApi } from './page/pages.api';
-import { api as postApi } from './post/posts.api';
 import rootReducer, { serverReducer } from './rootReducer';
 import rootSaga from './rootSaga';
-import { api as worshipedPersonApi } from './worship/worshipedPerson.api';
-import { api as messageApi } from './message/message.api';
-import { api as pageMessageApi } from './message/pageMessageSession.api';
-import { api as timelineApi } from './timeline/timeline.api';
 
 export interface SagaStore extends Store {
   __sagaTask: Task;
@@ -73,13 +68,13 @@ const makeStore = (context: Context) => {
         process.env.NODE_ENV === 'production'
           ? false
           : {
-              actionsDenylist: [
-                'wallet/writeWalletStatus',
-                'posts/setShowCreatePost',
-                'analyticEvent/batchEvents',
-                'analyticEvent/analyticEvent'
-              ]
-            },
+            actionsDenylist: [
+              'wallet/writeWalletStatus',
+              'posts/setShowCreatePost',
+              'analyticEvent/batchEvents',
+              'analyticEvent/analyticEvent'
+            ]
+          },
       preloadedState: initialState
     });
     setupListeners(store.dispatch);
@@ -94,6 +89,7 @@ const makeStore = (context: Context) => {
 export type AppStore = ReturnType<typeof makeStore>;
 export type RootState = ReturnType<typeof rootReducer>;
 export type AppDispatch = AppStore['dispatch'];
+export type AppThunkDispatch = ThunkDispatch<RootState, void, AnyAction>;
 export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, Action<string>>;
 
 export const wrapper = createWrapper<AppStore>(makeStore, { debug: true });

@@ -194,7 +194,7 @@ function* createTxHexSaga(action: PayloadAction<BurnQueueCommand>) {
   const walletPaths = yield select(getAllWalletPaths);
   const slpBalancesAndUtxos = yield select(getSlpBalancesAndUtxos);
   const { createBurnTransaction } = xpiContext();
-  const burnForId = data.burnForType === BurnForType.Token ? data.extraArguments.tokenId : data.burnForId;
+  const burnForId = data.burnForId;
   const tipToAddresses = data.tipToAddresses ? data.tipToAddresses : null;
 
   try {
@@ -302,16 +302,17 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
     yield put(removeBurnQueue());
     yield put(
       burnForUpDownVoteSuccess(data) &&
-        showToast('success', {
-          message: intl.get(`toast.success`),
-          description: intl.get('burn.totalBurn', {
-            burnValue: burnValue,
-            totalAmount: burnValue + burnValue * currency.burnFee + Number(minerFee),
-            coin: 'XPI'
-          })
+      showToast('success', {
+        message: intl.get(`toast.success`),
+        description: intl.get('burn.totalBurn', {
+          burnValue: burnValue,
+          totalAmount: burnValue + burnValue * currency.burnFee + Number(minerFee),
+          coin: 'XPI'
         })
+      })
     );
   } catch (err) {
+    console.log(err);
     let message;
     yield put(removeBurnQueue());
     yield put(setTransactionReady());
@@ -681,7 +682,7 @@ function* updateCommentBurnValue(action: PayloadAction<BurnQueueCommand>) {
 
 function* updateTokenBurnValue(action: PayloadAction<BurnQueueCommand>) {
   const { burnValue: burnValueAsString, burnType, burnForId } = action.payload;
-  const tokenId = burnForId;
+  const id = burnForId;
   let burnValue = _.toNumber(burnValueAsString);
 
   const rootState: RootState = yield select();
@@ -693,28 +694,28 @@ function* updateTokenBurnValue(action: PayloadAction<BurnQueueCommand>) {
         const fields = Object.keys(draft);
         for (const field of fields) {
           if (!draft[field]) continue;
-          const tokenBurnValueIndex = draft[field]?.edges?.findIndex(item => item?.node?.tokenId === tokenId);
+          const tokenBurnValueIndex = draft[field]?.edges?.findIndex(item => item?.node?.id === id);
           const tokenBurnValue = draft[field]?.edges[tokenBurnValueIndex];
-          let danaBurnUp = tokenBurnValue?.node?.danaBurnUp ?? 0;
-          let danaBurnDown = tokenBurnValue?.node?.danaBurnDown ?? 0;
+          let danaBurnUp = tokenBurnValue?.node?.dana?.danaBurnUp ?? 0;
+          let danaBurnDown = tokenBurnValue?.node?.dana?.danaBurnDown ?? 0;
           if (burnType == BurnType.Up) {
             danaBurnUp = danaBurnUp + burnValue;
           } else {
             danaBurnDown = danaBurnDown + burnValue;
           }
           const danaBurnScore = danaBurnUp - danaBurnDown;
-          draft[field].edges[tokenBurnValueIndex].node.danaBurnUp = danaBurnUp;
-          draft[field].edges[tokenBurnValueIndex].node.danaBurnDown = danaBurnDown;
-          draft[field].edges[tokenBurnValueIndex].node.danaBurnScore = danaBurnScore;
+          draft[field].edges[tokenBurnValueIndex].node.dana.danaBurnUp = danaBurnUp;
+          draft[field].edges[tokenBurnValueIndex].node.dana.danaBurnDown = danaBurnDown;
+          draft[field].edges[tokenBurnValueIndex].node.dana.danaBurnScore = danaBurnScore;
         }
       })
     );
   }
-  const tokenInvalidatedBy = yield call(tokenApi.util.selectInvalidatedBy, rootState, ['Token']);
+  const tokenInvalidatedBy = yield call(tokenApi.util.selectInvalidatedBy, rootState, [{ type: 'Token', id: id }]);
   for (const invalidatedBy of tokenInvalidatedBy) {
-    const { originalArgs } = invalidatedBy;
+    const { endpointName, originalArgs } = invalidatedBy;
     yield put(
-      tokenApi.util.updateQueryData('Token', originalArgs, draft => {
+      tokenApi.util.updateQueryData(endpointName, originalArgs, draft => {
         const fields = Object.keys(draft);
         for (const field of fields) {
           if (!draft[field]) continue;

@@ -159,7 +159,7 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
     switch (burnForType) {
       case BurnForType.Token:
         const token = burnForItem as TokenQueryItem;
-        return token?.tokenDana?.danaBurnUp || 0;
+        return token?.dana?.danaBurnUp || 0;
       case BurnForType.Comment:
         const comment = burnForItem as CommentQueryItem;
         return comment?.commentDana?.danaBurnUp || 0;
@@ -181,7 +181,7 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
     switch (burnForType) {
       case BurnForType.Token:
         const token = burnForItem as TokenQueryItem;
-        return token?.tokenDana?.danaBurnDown || 0;
+        return token?.dana?.danaBurnDown || 0;
       case BurnForType.Comment:
         const comment = burnForItem as CommentQueryItem;
         return comment?.commentDana?.danaBurnDown || 0;

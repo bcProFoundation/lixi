@@ -759,117 +759,146 @@ export type Mutation = {
   updatePost: Post;
 };
 
+
 export type MutationClosePageMessageSessionArgs = {
   data: ClosePageMessageSessionInput;
 };
+
 
 export type MutationCreateArgs = {
   data: CreatePollInput;
 };
 
+
 export type MutationCreateAccountArgs = {
   data: CreateAccountInput;
 };
+
 
 export type MutationCreateBookmarkArgs = {
   data: CreateBookmarkInput;
 };
 
+
 export type MutationCreateCommentArgs = {
   data: CreateCommentInput;
 };
+
 
 export type MutationCreateFollowAccountArgs = {
   data: CreateFollowAccountInput;
 };
 
+
 export type MutationCreateFollowPageArgs = {
   data: CreateFollowPageInput;
 };
+
 
 export type MutationCreateFollowTokenArgs = {
   data: CreateFollowTokenInput;
 };
 
+
 export type MutationCreateMessageArgs = {
   data: CreateMessageInput;
 };
+
 
 export type MutationCreatePageArgs = {
   data: CreatePageInput;
 };
 
+
 export type MutationCreatePageMessageSessionArgs = {
   data: CreatePageMessageInput;
 };
+
 
 export type MutationCreatePostArgs = {
   data: CreatePostInput;
 };
 
+
 export type MutationCreateProductArgs = {
   data: CreateProductInput;
 };
+
 
 export type MutationCreateTempleArgs = {
   data: CreateTempleInput;
 };
 
+
 export type MutationCreateTokenArgs = {
   data: CreateTokenInput;
 };
+
 
 export type MutationCreateWorshipArgs = {
   data: CreateWorshipInput;
 };
 
+
 export type MutationCreateWorshipTempleArgs = {
   data: CreateWorshipInput;
 };
+
 
 export type MutationCreateWorshipedPersonArgs = {
   data: CreateWorshipedPersonInput;
 };
 
+
 export type MutationDeleteFollowAccountArgs = {
   data: DeleteFollowAccountInput;
 };
+
 
 export type MutationDeleteFollowPageArgs = {
   data: DeleteFollowPageInput;
 };
 
+
 export type MutationDeleteFollowTokenArgs = {
   data: DeleteFollowTokenInput;
 };
+
 
 export type MutationDeleteProductArgs = {
   data: DeleteProductInput;
 };
 
+
 export type MutationImportAccountArgs = {
   data: ImportAccountInput;
 };
+
 
 export type MutationOpenPageMessageSessionArgs = {
   data: OpenPageMessageSessionInput;
 };
 
+
 export type MutationRemoveBookmarkArgs = {
   data: RemoveBookmarkInput;
 };
+
 
 export type MutationRepostArgs = {
   data: RepostInput;
 };
 
+
 export type MutationUpdateAccountArgs = {
   data: UpdateAccountInput;
 };
 
+
 export type MutationUpdatePageArgs = {
   data: UpdatePageInput;
 };
+
 
 export type MutationUpdatePostArgs = {
   data: UpdatePostInput;
@@ -1280,14 +1309,17 @@ export type Query = {
   temple: Temple;
   timeline: TimelineItem;
   token: Token;
+  tokenByTokenId: Token;
   userHadMessageToPage?: Maybe<PageMessageSession>;
   worship: Worship;
   worshipedPerson: WorshipedPerson;
 };
 
+
 export type QueryAccountArgs = {
   id: Scalars['Int'];
 };
+
 
 export type QueryAllClosedPageMessageSessionArgs = {
   accountId?: InputMaybe<Scalars['Int']>;
@@ -1301,6 +1333,7 @@ export type QueryAllClosedPageMessageSessionArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllFollowersByFollowingArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1311,6 +1344,7 @@ export type QueryAllFollowersByFollowingArgs = {
   orderBy?: InputMaybe<AccountOrder>;
   skip?: InputMaybe<Scalars['Int']>;
 };
+
 
 export type QueryAllFollowingsByFollowerArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1323,6 +1357,7 @@ export type QueryAllFollowingsByFollowerArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllHashtagArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1332,6 +1367,7 @@ export type QueryAllHashtagArgs = {
   orderBy?: InputMaybe<HashtagOrder>;
   skip?: InputMaybe<Scalars['Int']>;
 };
+
 
 export type QueryAllHashtagByPageArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1344,6 +1380,7 @@ export type QueryAllHashtagByPageArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllHashtagBySearchArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1351,6 +1388,7 @@ export type QueryAllHashtagBySearchArgs = {
   last?: InputMaybe<Scalars['Int']>;
   query?: InputMaybe<Scalars['String']>;
 };
+
 
 export type QueryAllHashtagByTokenArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1363,6 +1401,7 @@ export type QueryAllHashtagByTokenArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllMessageByPageMessageSessionIdArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1373,6 +1412,7 @@ export type QueryAllMessageByPageMessageSessionIdArgs = {
   orderBy?: InputMaybe<MessageOrder>;
   skip?: InputMaybe<Scalars['Int']>;
 };
+
 
 export type QueryAllOpenPageMessageSessionByAccountIdArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1385,6 +1425,7 @@ export type QueryAllOpenPageMessageSessionByAccountIdArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllOpenPageMessageSessionByPageIdArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1395,6 +1436,7 @@ export type QueryAllOpenPageMessageSessionByPageIdArgs = {
   orderBy?: InputMaybe<PageMessageSessionOrder>;
   skip?: InputMaybe<Scalars['Int']>;
 };
+
 
 export type QueryAllPageMessageSessionByAccountIdArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1407,6 +1449,7 @@ export type QueryAllPageMessageSessionByAccountIdArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllPagesArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1416,12 +1459,14 @@ export type QueryAllPagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllPagesByUserIdArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   id?: InputMaybe<Scalars['Int']>;
   skip?: InputMaybe<Scalars['Int']>;
 };
+
 
 export type QueryAllPendingPageMessageSessionByAccountIdArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1434,6 +1479,7 @@ export type QueryAllPendingPageMessageSessionByAccountIdArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllPendingPageMessageSessionByPageIdArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1445,6 +1491,7 @@ export type QueryAllPendingPageMessageSessionByPageIdArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllPostsByHashtagIdArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1455,6 +1502,7 @@ export type QueryAllPostsByHashtagIdArgs = {
   orderBy?: InputMaybe<PostOrder>;
   skip?: InputMaybe<Scalars['Int']>;
 };
+
 
 export type QueryAllPostsByPageIdArgs = {
   accountId?: InputMaybe<Scalars['Int']>;
@@ -1468,6 +1516,7 @@ export type QueryAllPostsByPageIdArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllPostsBySearchArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1476,6 +1525,7 @@ export type QueryAllPostsBySearchArgs = {
   minBurnFilter?: InputMaybe<Scalars['Int']>;
   query?: InputMaybe<Scalars['String']>;
 };
+
 
 export type QueryAllPostsBySearchWithHashtagArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1489,6 +1539,7 @@ export type QueryAllPostsBySearchWithHashtagArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllPostsBySearchWithHashtagAtPageArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1500,6 +1551,7 @@ export type QueryAllPostsBySearchWithHashtagAtPageArgs = {
   pageId?: InputMaybe<Scalars['String']>;
   query?: InputMaybe<Scalars['String']>;
 };
+
 
 export type QueryAllPostsBySearchWithHashtagAtTokenArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1513,6 +1565,7 @@ export type QueryAllPostsBySearchWithHashtagAtTokenArgs = {
   tokenId?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryAllPostsByTokenIdArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1523,6 +1576,7 @@ export type QueryAllPostsByTokenIdArgs = {
   orderBy?: InputMaybe<PostOrder>;
   skip?: InputMaybe<Scalars['Int']>;
 };
+
 
 export type QueryAllPostsByUserIdArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1535,6 +1589,7 @@ export type QueryAllPostsByUserIdArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllProductsArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1545,6 +1600,7 @@ export type QueryAllProductsArgs = {
   query?: InputMaybe<Scalars['String']>;
   skip?: InputMaybe<Scalars['Int']>;
 };
+
 
 export type QueryAllProductsByPageIdArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1557,6 +1613,7 @@ export type QueryAllProductsByPageIdArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllTempleArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1567,6 +1624,7 @@ export type QueryAllTempleArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllTempleBySearchArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1575,11 +1633,13 @@ export type QueryAllTempleBySearchArgs = {
   query?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryAllTokensArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   skip?: InputMaybe<Scalars['Int']>;
 };
+
 
 export type QueryAllWorshipArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1590,6 +1650,7 @@ export type QueryAllWorshipArgs = {
   orderBy?: InputMaybe<WorshipOrder>;
   skip?: InputMaybe<Scalars['Int']>;
 };
+
 
 export type QueryAllWorshipedByPersonIdArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1602,6 +1663,7 @@ export type QueryAllWorshipedByPersonIdArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllWorshipedByTempleIdArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1613,6 +1675,7 @@ export type QueryAllWorshipedByTempleIdArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllWorshipedPersonArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1623,6 +1686,7 @@ export type QueryAllWorshipedPersonArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllWorshipedPersonBySearchArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1630,6 +1694,7 @@ export type QueryAllWorshipedPersonBySearchArgs = {
   last?: InputMaybe<Scalars['Int']>;
   query?: InputMaybe<Scalars['String']>;
 };
+
 
 export type QueryAllWorshipedPersonByUserIdArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1641,6 +1706,7 @@ export type QueryAllWorshipedPersonByUserIdArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryAllWorshipedPersonSpecialDateArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1651,25 +1717,31 @@ export type QueryAllWorshipedPersonSpecialDateArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryBookmarkArgs = {
   id: Scalars['String'];
 };
+
 
 export type QueryCheckIfFollowAccountArgs = {
   followingAccountId: Scalars['Int'];
 };
 
+
 export type QueryCheckIfFollowPageArgs = {
   pageId?: InputMaybe<Scalars['String']>;
 };
+
 
 export type QueryCheckIfFollowTokenArgs = {
   tokenId?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryCommentArgs = {
   id: Scalars['String'];
 };
+
 
 export type QueryCommentsToCommentableIdArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1682,17 +1754,21 @@ export type QueryCommentsToCommentableIdArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryGetAccountByAddressArgs = {
   address: Scalars['String'];
 };
+
 
 export type QueryGetBalancesArgs = {
   address: Scalars['String'];
 };
 
+
 export type QueryHashtagArgs = {
   content: Scalars['String'];
 };
+
 
 export type QueryHomeTimelineArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1701,17 +1777,21 @@ export type QueryHomeTimelineArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryMessageArgs = {
   id: Scalars['String'];
 };
+
 
 export type QueryPageArgs = {
   id: Scalars['String'];
 };
 
+
 export type QueryPageMessageSessionArgs = {
   id: Scalars['String'];
 };
+
 
 export type QueryPagesByFollowerArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -1719,38 +1799,52 @@ export type QueryPagesByFollowerArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+
 export type QueryPollArgs = {
   id: Scalars['String'];
 };
+
 
 export type QueryPostArgs = {
   id: Scalars['String'];
 };
 
+
 export type QueryProductArgs = {
   id: Scalars['String'];
 };
+
 
 export type QueryTempleArgs = {
   id: Scalars['String'];
 };
 
+
 export type QueryTimelineArgs = {
   id: Scalars['String'];
 };
 
+
 export type QueryTokenArgs = {
+  id: Scalars['String'];
+};
+
+
+export type QueryTokenByTokenIdArgs = {
   tokenId: Scalars['String'];
 };
+
 
 export type QueryUserHadMessageToPageArgs = {
   accountId?: InputMaybe<Scalars['Int']>;
   pageId?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryWorshipArgs = {
   id: Scalars['String'];
 };
+
 
 export type QueryWorshipedPersonArgs = {
   id: Scalars['String'];
@@ -1878,9 +1972,7 @@ export type Token = {
   comments?: Maybe<Scalars['DateTime']>;
   /** Identifies the date and time when the object was created. */
   createdDate: Scalars['DateTime'];
-  danaBurnDown: Scalars['Float'];
-  danaBurnScore: Scalars['Float'];
-  danaBurnUp: Scalars['Float'];
+  dana?: Maybe<TokenDana>;
   decimals: Scalars['Int'];
   followersCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
@@ -1889,11 +1981,9 @@ export type Token = {
   name: Scalars['String'];
   rank?: Maybe<Scalars['Int']>;
   ticker: Scalars['String'];
-  tokenDana?: Maybe<TokenDana>;
   tokenDocumentUrl?: Maybe<Scalars['String']>;
   tokenId: Scalars['String'];
   tokenType: Scalars['String'];
-  totalBurned?: Maybe<Scalars['String']>;
   totalMinted?: Maybe<Scalars['String']>;
 };
 

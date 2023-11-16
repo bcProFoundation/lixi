@@ -1223,7 +1223,8 @@ type Query {
   product(id: String!): Product!
   temple(id: String!): Temple!
   timeline(id: String!): TimelineItem!
-  token(tokenId: String!): Token!
+  token(id: String!): Token!
+  tokenByTokenId(tokenId: String!): Token!
   userHadMessageToPage(accountId: Int, pageId: String): PageMessageSession
   worship(id: String!): Worship!
   worshipedPerson(id: String!): WorshipedPerson!
@@ -1346,9 +1347,7 @@ type Token {
 
   """Identifies the date and time when the object was created."""
   createdDate: DateTime!
-  danaBurnDown: Float!
-  danaBurnScore: Float!
-  danaBurnUp: Float!
+  dana: TokenDana
   decimals: Int!
   followersCount: Int
   id: ID!
@@ -1357,11 +1356,9 @@ type Token {
   name: String!
   rank: Int
   ticker: String!
-  tokenDana: TokenDana
   tokenDocumentUrl: String
   tokenId: String!
   tokenType: String!
-  totalBurned: String
   totalMinted: String
 }
 

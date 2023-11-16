@@ -47,12 +47,18 @@ export class TokenResolver {
     @InjectRedis() private readonly redis: Redis,
     @I18n() private readonly i18n: I18nService,
     @InjectChronikClient('xec') private chronik: ChronikClient
-  ) {}
+  ) { }
 
   @Query(() => Token)
   @UseGuards(GqlJwtAuthGuardByPass)
-  async token(@AccountEntity() account: Account, @Args('tokenId', { type: () => String }) tokenId: string) {
-    return this.tokenCacheService.getById(tokenId);
+  async token(@AccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
+    return this.tokenCacheService.getById(id);
+  }
+
+  @Query(() => Token)
+  @UseGuards(GqlJwtAuthGuardByPass)
+  async tokenByTokenId(@AccountEntity() account: Account, @Args('tokenId', { type: () => String }) tokenId: string) {
+    return this.tokenCacheService.getByTokenId(tokenId);
   }
 
   @Query(() => TokenConnection)
@@ -88,7 +94,6 @@ export class TokenResolver {
           initialTokenQuantity: tokenInfo?.initialTokenQuantity,
           tokenType: tokenInfo?.slpTxData?.slpMeta?.tokenType,
           tokenDocumentUrl: tokenInfo?.slpTxData?.genesisInfo?.tokenDocumentUrl,
-          totalBurned: tokenInfo?.tokenStats?.totalBurned,
           totalMinted: tokenInfo?.tokenStats?.totalMinted,
           createdDate: moment(tokenInfo?.block?.timestamp, 'X').toDate(),
           comments: moment().toDate()
@@ -97,7 +102,7 @@ export class TokenResolver {
         const createdToken = await this.prisma.token.create({
           data: {
             ...tokenToInsert,
-            tokenDana: {
+            dana: {
               create: {}
             }
           }
@@ -126,8 +131,8 @@ export class TokenResolver {
     return this.tokenLoader.batchFollowersCount.load(token.id);
   }
 
-  @ResolveField('tokenDana', () => TokenDana)
-  async tokenDana(@Parent() token: Token) {
+  @ResolveField('dana', () => TokenDana)
+  async dana(@Parent() token: Token) {
     return this.tokenLoader.batchTokenDanas.load(token.id);
   }
 

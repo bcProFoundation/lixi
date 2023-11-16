@@ -5,7 +5,8 @@ import {
   BurnType,
   CommentType,
   PostDana,
-  TRANSLATION_REQUIRE_AMOUNT
+  TRANSLATION_REQUIRE_AMOUNT,
+  TokenDana
 } from '@bcpros/lixi-models';
 import { NotificationLevel, Token } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
@@ -30,6 +31,7 @@ import { PostDanaCacheService } from '../../page/post-dana-cache.service';
 import { TranslateProvider } from '../translate/translate.constant';
 import { TranslateService } from '../translate/translate.service';
 import { ACCOUNT_DANA_QUEUE, BURN_FANOUT_QUEUE, PAGE_DANA_QUEUE } from './burn.constants';
+import { TokenDanaCacheService } from '../../token/token-dana-cache.service';
 
 @SkipThrottle()
 @Controller('burn')
@@ -47,8 +49,9 @@ export class BurnController {
     @InjectQueue(PAGE_DANA_QUEUE) private pageDanaQueue: Queue,
     private translateService: TranslateService,
     private readonly accountCacheService: AccountCacheService,
-    private readonly postDanaCacheService: PostDanaCacheService
-  ) {}
+    private readonly postDanaCacheService: PostDanaCacheService,
+    private readonly tokenDanaCacheService: TokenDanaCacheService
+  ) { }
 
   private convertBurnedByToAddress(burnedBy: string): string {
     const legacyAddress = this.XPI.Address.hash160ToLegacy(burnedBy);
@@ -78,16 +81,16 @@ export class BurnController {
           const burningCanceled = this.i18n.t('burn.messages.burningCanceled');
           throw new VError(burningCanceled);
         }
-        const burnRecordToInsert = {
-          txid,
-          burnType: command.burnType ? true : false,
-          burnForType: command.burnForType,
-          burnedBy: Buffer.from(command.burnedBy, 'hex'),
-          burnForId: command.burnForId,
-          burnedValue: value
-        };
+
         const createdBurn = prisma.burn.create({
-          data: burnRecordToInsert
+          data: {
+            txid,
+            burnType: command.burnType ? true : false,
+            burnForType: command.burnForType,
+            burnedBy: Buffer.from(command.burnedBy, 'hex'),
+            burnForId: command.burnForId,
+            burnedValue: value
+          }
         });
         return createdBurn;
       });
@@ -256,16 +259,19 @@ export class BurnController {
             }
           });
 
-          const danaGiven = accountDana?.danaGiven! + xpiValue;
-
           const token = await this.prisma.token.findFirst({
             where: {
               tokenId: command.burnForId
+            },
+            include: {
+              dana: true
             }
           });
 
-          let danaBurnUp = token?.danaBurnUp ?? 0;
-          let danaBurnDown = token?.danaBurnDown ?? 0;
+          let danaBurnUp = token?.dana?.danaBurnUp ?? 0;
+          let danaBurnDown = token?.dana?.danaBurnDown ?? 0;
+          let danaReceivedUp = token?.dana?.danaReceivedUp ?? 0;
+          let danaReceivedDown = token?.dana?.danaReceivedDown ?? 0;
 
           if (command.burnType == BurnType.Up) {
             danaBurnUp = danaBurnUp + xpiValue;
@@ -273,8 +279,9 @@ export class BurnController {
             danaBurnDown = danaBurnDown + xpiValue;
           }
           const danaBurnScore = danaBurnUp - danaBurnDown;
+          const danaReceivedScore = danaReceivedUp - danaReceivedDown;
 
-          const updatedToken = await this.prisma.$transaction(async prisma => {
+          await this.prisma.$transaction(async prisma => {
             let givenUpValue = 0.0;
             let givenDownValue = 0.0;
 
@@ -287,16 +294,35 @@ export class BurnController {
                 break;
             }
 
-            const token = await prisma.token.update({
+            const tokenDana = await prisma.tokenDana.upsert({
               where: {
-                tokenId: command.burnForId
+                tokenId: command.burnForId,
+                version: token?.dana?.version
               },
-              data: {
+              update: {
+                version: {
+                  increment: 1
+                },
+                danaBurnUp,
+                danaBurnDown,
+                danaBurnScore,
+                danaReceivedUp,
+                danaReceivedDown,
+                danaReceivedScore
+              },
+              create: {
                 danaBurnDown,
                 danaBurnUp,
-                danaBurnScore
+                danaBurnScore,
+                danaReceivedUp,
+                danaReceivedDown,
+                danaReceivedScore,
+                tokenId: command.burnForId,
+                version: 0
               }
             });
+
+            await this.tokenDanaCacheService.setTokenDana(command.burnForId, new TokenDana({ ...tokenDana }))
 
             this.accountDanaQueue.add(ACCOUNT_DANA_QUEUE, {
               command: command,
@@ -304,15 +330,8 @@ export class BurnController {
               amount: xpiValue,
               givenDanaAddress: burnByAddress
             });
-
-            return token;
           });
 
-          // Update the cache for the token:
-          const keyPrefix = `tokens:list`;
-          const hashPrefix = `tokens:items-data`;
-          const tokenRepository = new SortedItemRepository<Token>(keyPrefix, hashPrefix, this.redis);
-          await tokenRepository.set(updatedToken, danaBurnScore);
         } else if (command.burnForType === BurnForType.Comment) {
           const comment = await this.prisma.comment.findFirst({
             where: {
@@ -450,8 +469,8 @@ export class BurnController {
           notificationTypeId: post.page
             ? NOTIFICATION_TYPES.RECEIVE_BURN_PAGE
             : command.burnForType == BurnForType.Comment
-            ? NOTIFICATION_TYPES.RECEIVE_BURN_COMMENT_ACCOUNT
-            : NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT,
+              ? NOTIFICATION_TYPES.RECEIVE_BURN_COMMENT_ACCOUNT
+              : NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT,
           level: NotificationLevel.INFO,
           url:
             command.burnForType == BurnForType.Comment

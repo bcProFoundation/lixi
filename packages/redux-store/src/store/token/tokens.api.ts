@@ -15,7 +15,12 @@ const enhancedApi = api.enhanceEndpoints({
       }
     },
     Token: {
-      providesTags: (result, error, arg) => ['Token']
+      providesTags: (result, error, arg) => {
+        return [{ type: 'Token', id: arg.id }];
+      }
+    },
+    TokenByTokenId: {
+      providesTags: (result, error, arg) => [{ type: 'Token', tokenId: arg.tokenId }]
     },
     createToken: {
       invalidatesTags: ['Tokens']
@@ -25,5 +30,12 @@ const enhancedApi = api.enhanceEndpoints({
 
 export { enhancedApi as api };
 
-export const { useTokenQuery, useLazyTokenQuery, useTokensQuery, useLazyTokensQuery, useCreateTokenMutation } =
+export const {
+  useTokenQuery,
+  useTokenByTokenIdQuery,
+  useLazyTokenQuery,
+  useTokensQuery,
+  useLazyTokensQuery,
+  useCreateTokenMutation
+} =
   enhancedApi;

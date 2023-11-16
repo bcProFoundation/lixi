@@ -29,7 +29,6 @@ const PageDetailPage = props => {
   );
 
   const pageToRender = currentDataPageQuery?.page ?? page;
-  console.log(pageToRender);
 
   return (
     <React.Fragment>
