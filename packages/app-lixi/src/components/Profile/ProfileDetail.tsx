@@ -19,6 +19,7 @@ import { useCreateFollowAccountMutation, useDeleteFollowAccountMutation } from '
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
 import { useInfinitePostsByUserIdQuery } from '@store/post/useInfinitePostsByUserIdQuery';
+import { useInfinitePinnedPostsByUserIdQuery } from '@store/post/useInfinitePinnedPostByUserId';
 import { getFilterPostsProfile, getLevelFilter } from '@store/settings/selectors';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { Avatar, Button, Skeleton, Space, Tabs } from 'antd';
@@ -492,10 +493,6 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
         orderBy: [
           {
             direction: OrderDirection.Desc,
-            field: PostOrderField.PinableId
-          },
-          {
-            direction: OrderDirection.Desc,
             field: PostOrderField.LastRepostAt
           },
           {
@@ -507,6 +504,14 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
       },
       false
     );
+
+  const { data: pinnedPostProfile } = useInfinitePinnedPostsByUserIdQuery(
+    {
+      first: 1,
+      userId: _.toSafeInteger(user.id)
+    },
+    false
+  );
 
   useEffect(() => {
     if (slpBalancesAndUtxos === slpBalancesAndUtxosRef.current) return;
@@ -801,7 +806,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                 </div> */}
                 {selectedAccountId == user.id && <CreatePostCard userId={user.id} hashtags={hashtags} query={query} />}
                 <Timeline>
-                  {data.length == 0 && !isLoading && (
+                  {data.length == 0 && pinnedPostProfile.length == 0 && !isLoading && (
                     <div className="blank-timeline">
                       <img className="time-line-blank" src="/images/time-line-blank.svg" alt="" />
                       <p>Sharing your thinking...</p>
@@ -809,6 +814,17 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                   )}
 
                   <React.Fragment>
+                    <InfiniteScroll
+                      dataLength={pinnedPostProfile.length}
+                      next={null}
+                      hasMore={false}
+                      loader={null}
+                      scrollableTarget="scrollableDiv"
+                    >
+                      {pinnedPostProfile.map((item, index) => {
+                        return <PostListItem item={item} key={item.id} postListType={PostListType.Profile} />;
+                      })}
+                    </InfiniteScroll>
                     <InfiniteScroll
                       dataLength={data.length}
                       next={loadMoreItems}

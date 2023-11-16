@@ -127,10 +127,6 @@ const SidebarContent = ({ className }: SidebarContentProps) => {
       orderBy: [
         {
           direction: OrderDirection.Desc,
-          field: PostOrderField.PinableId
-        },
-        {
-          direction: OrderDirection.Desc,
           field: PostOrderField.LastRepostAt
         },
         {

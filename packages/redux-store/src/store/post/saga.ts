@@ -1,4 +1,10 @@
-import { CreatePostCommand, EditPostCommand, ParamPostFollowCommand, ParamPostPinCommand } from '@bcpros/lixi-models';
+import {
+  CreatePostCommand,
+  EditPostCommand,
+  ParamPostFollowCommand,
+  ParamPostPinCommand,
+  Post
+} from '@bcpros/lixi-models';
 import { PostListType } from '@bcpros/lixi-models/constants';
 import { all, fork, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
@@ -26,11 +32,13 @@ import {
   setPost,
   setPostsByAccountId,
   changeFollowActionSheetPost,
-  changePinPost
+  pinPost,
+  unpinPost
 } from './actions';
 import postApi from './api';
 import { api as timelineApi } from '@store/timeline/timeline.api';
 import { api as postsApi } from '@store/post/posts.api';
+import { PinnedPostByPageIdQuery } from '@store/post/posts.generated';
 import { FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
 const call: any = Effects.call;
 /**
@@ -409,12 +417,33 @@ function* changeFollowActionSheetPostSaga(action: PayloadAction<ParamPostFollowC
   );
 }
 
-function* changePinPostSaga(action: PayloadAction<ParamPostPinCommand>) {
+function* pinPostSaga(action: PayloadAction<ParamPostPinCommand>) {
   const { postId, accountId, pageId, extraArgumentsPostPin } = action.payload;
   const { minBurnFilterPage, minBurnFilterProfile, postListType } = extraArgumentsPostPin;
 
+  const promise = yield put(postsApi.endpoints.Post.initiate({ id: postId }));
+  yield promise;
+  const dataPost = yield promise.unwrap();
+
   switch (postListType) {
     case PostListType.Page:
+      yield put(
+        postsApi.util.updateQueryData('PinnedPostByPageId', { pageId: pageId }, draft => {
+          if (draft.allPinnedPostByPageId.edges.length > 0) {
+            draft.allPinnedPostByPageId.edges.map((item, index) => {
+              if (item.node.pinableId) {
+                draft.allPinnedPostByPageId.edges[index].node.pinableId = null;
+                draft.allPinnedPostByPageId.edges[index].node.pinned = false;
+              }
+            });
+          }
+          draft.allPinnedPostByPageId.edges.unshift({
+            cursor: dataPost.post.id,
+            node: dataPost.post
+          });
+        })
+      );
+
       yield put(
         postsApi.util.updateQueryData(
           'PostsByPageId',
@@ -424,26 +453,9 @@ function* changePinPostSaga(action: PayloadAction<ParamPostPinCommand>) {
             accountId
           },
           draft => {
-            let indexPostUpdate;
-            let postUpdate;
-            let removePinFirst = false;
-            draft.allPostsByPageId.edges.map((item, index) => {
-              if (item.node?.pinableId) {
-                draft.allPostsByPageId.edges[index].node.pinned = false;
-                draft.allPostsByPageId.edges[index].node.pinableId = null;
-                if (index === 0) removePinFirst = true;
-              }
-              if (item.cursor === postId) {
-                indexPostUpdate = index;
-                postUpdate = item;
-              }
-            });
-
-            if (!removePinFirst || indexPostUpdate != 0) {
-              postUpdate.node.pinned = !postUpdate.node.pinned;
-              postUpdate.node.pinableId = 'temporary pinableId'; //user click pin and not refresh => front-end dont have data
+            const indexPostUpdate = draft.allPostsByPageId.edges.findIndex(item => item.cursor === postId);
+            if (indexPostUpdate >= 0) {
               draft.allPostsByPageId.edges.splice(indexPostUpdate, 1);
-              draft.allPostsByPageId.edges.unshift(postUpdate);
             }
           }
         )
@@ -452,36 +464,95 @@ function* changePinPostSaga(action: PayloadAction<ParamPostPinCommand>) {
 
     case PostListType.Profile:
       yield put(
-        postsApi.util.updateQueryData(
-          'PostsByUserId',
-          { id: accountId, minBurnFilter: minBurnFilterProfile },
-          draft => {
-            let indexPostUpdate;
-            let postUpdate;
-            let removePinFirst = false;
-            draft.allPostsByUserId.edges.map((item, index) => {
-              if (item.node?.pinableId) {
-                draft.allPostsByUserId.edges[index].node.pinned = false;
-                draft.allPostsByUserId.edges[index].node.pinableId = null;
-                if (index === 0) removePinFirst = true;
-              }
-              if (item.cursor === postId) {
-                indexPostUpdate = index;
-                postUpdate = item;
+        postsApi.util.updateQueryData('PinnedPostByUserId', { userId: accountId }, draft => {
+          if (draft.allPinnedPostByUserId.edges.length > 0) {
+            draft.allPinnedPostByUserId.edges.map((item, index) => {
+              if (item.node.pinableId) {
+                draft.allPinnedPostByUserId.edges[index].node.pinableId = null;
+                draft.allPinnedPostByUserId.edges[index].node.pinned = false;
               }
             });
+          }
+          draft.allPinnedPostByUserId.edges.unshift({
+            cursor: dataPost.post.id,
+            node: dataPost.post
+          });
+        })
+      );
 
-            if (!removePinFirst || indexPostUpdate != 0) {
-              postUpdate.node.pinned = !postUpdate.node.pinned;
-              postUpdate.node.pinableId = 'temporary pinableId'; //user click pin and not refresh => front-end dont have data
+      yield put(
+        postsApi.util.updateQueryData(
+          'PostsByUserId',
+          {
+            id: accountId,
+            minBurnFilter: minBurnFilterProfile
+          },
+          draft => {
+            const indexPostUpdate = draft.allPostsByUserId.edges.findIndex(item => item.cursor === postId);
+            if (indexPostUpdate >= 0) {
               draft.allPostsByUserId.edges.splice(indexPostUpdate, 1);
-              draft.allPostsByUserId.edges.unshift(postUpdate);
             }
           }
         )
       );
       break;
+    default:
+      console.log('Post pin have postListType not match');
   }
+
+  yield put(
+    showToast('success', {
+      message: 'Success',
+      description: intl.get('post.pinSuccess'),
+      duration: 5
+    })
+  );
+}
+
+function* unpinPostSaga(action: PayloadAction<ParamPostPinCommand>) {
+  const { postId, accountId, pageId, extraArgumentsPostPin } = action.payload;
+  const { minBurnFilterPage, minBurnFilterProfile, postListType } = extraArgumentsPostPin;
+
+  switch (postListType) {
+    case PostListType.Page:
+      yield put(
+        postsApi.util.updateQueryData('PinnedPostByPageId', { pageId: pageId }, draft => {
+          if (draft.allPinnedPostByPageId.edges.length > 0) {
+            draft.allPinnedPostByPageId.edges.map((item, index) => {
+              if (item.node.pinableId) {
+                draft.allPinnedPostByPageId.edges[index].node.pinableId = null;
+                draft.allPinnedPostByPageId.edges[index].node.pinned = false;
+              }
+            });
+          }
+        })
+      );
+      break;
+    case PostListType.Profile:
+      yield put(
+        postsApi.util.updateQueryData('PinnedPostByUserId', { userId: accountId }, draft => {
+          if (draft.allPinnedPostByUserId.edges.length > 0) {
+            draft.allPinnedPostByUserId.edges.map((item, index) => {
+              if (item.node.pinableId) {
+                draft.allPinnedPostByUserId.edges[index].node.pinableId = null;
+                draft.allPinnedPostByUserId.edges[index].node.pinned = false;
+              }
+            });
+          }
+        })
+      );
+      break;
+    default:
+      console.log('Post pin have postListType not match');
+  }
+
+  yield put(
+    showToast('success', {
+      message: 'Success',
+      description: intl.get('post.unpinSuccess'),
+      duration: 5
+    })
+  );
 }
 
 function* fetchAllPostsSuccessSaga(action: any) {}
@@ -544,8 +615,12 @@ function* watchChangeFollowActionSheetPost() {
   yield takeLatest(changeFollowActionSheetPost.type, changeFollowActionSheetPostSaga);
 }
 
-function* watchChangePinPost() {
-  yield takeLatest(changePinPost.type, changePinPostSaga);
+function* watchPinPost() {
+  yield takeLatest(pinPost.type, pinPostSaga);
+}
+
+function* watchUnpinPost() {
+  yield takeLatest(unpinPost.type, unpinPostSaga);
 }
 
 export default function* postSaga() {
@@ -564,6 +639,7 @@ export default function* postSaga() {
     fork(watchGetPost),
     fork(watchGetPostFailure),
     fork(watchChangeFollowActionSheetPost),
-    fork(watchChangePinPost)
+    fork(watchPinPost),
+    fork(watchUnpinPost)
   ]);
 }

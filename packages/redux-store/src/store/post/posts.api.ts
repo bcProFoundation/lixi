@@ -141,6 +141,34 @@ const enhancedApi = api.enhanceEndpoints({
         currentCacheData.allPostsByHashtagId.totalCount = responseData.allPostsByHashtagId.totalCount;
       }
     },
+    PinnedPostByPageId: {
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { pageId, minBurnFilter, ...otherArgs } = queryArgs;
+          return { pageId, minBurnFilter };
+        }
+        return { queryArgs };
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.allPinnedPostByPageId.edges.push(...responseData.allPinnedPostByPageId.edges);
+        currentCacheData.allPinnedPostByPageId.pageInfo = responseData.allPinnedPostByPageId.pageInfo;
+        currentCacheData.allPinnedPostByPageId.totalCount = responseData.allPinnedPostByPageId.totalCount;
+      }
+    },
+    PinnedPostByUserId: {
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { userId, minBurnFilter, ...otherArgs } = queryArgs;
+          return { userId, minBurnFilter };
+        }
+        return { queryArgs };
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.allPinnedPostByUserId.edges.push(...responseData.allPinnedPostByUserId.edges);
+        currentCacheData.allPinnedPostByUserId.pageInfo = responseData.allPinnedPostByUserId.pageInfo;
+        currentCacheData.allPinnedPostByUserId.totalCount = responseData.allPinnedPostByUserId.totalCount;
+      }
+    },
 
     createPost: {
       async onQueryStarted({ input }, { dispatch, getState, queryFulfilled }) {

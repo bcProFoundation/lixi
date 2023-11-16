@@ -597,6 +597,8 @@ export default {
   'post.pin': 'Ghim bài viết',
   'post.unpin': 'Bỏ ghim bài viết',
   'post.pinned': 'Bài được ghim',
+  'post.pinSuccess': 'Ghim bài thành công',
+  'post.unpinSuccess': 'Gỡ bài ghim thành công',
 
   /* 16.Token */
   'token.importToken': 'Thêm token',

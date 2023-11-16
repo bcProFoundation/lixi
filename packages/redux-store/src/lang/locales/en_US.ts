@@ -598,6 +598,8 @@ export default {
   'post.pin': 'Pin post',
   'post.unpin': 'Unpin post',
   'post.pinned': 'Pinned post',
+  'post.pinSuccess': 'Pin post success',
+  'post.unpinSuccess': 'Unpin post success',
 
   /* 16.Token */
   'token.importToken': 'Import token',

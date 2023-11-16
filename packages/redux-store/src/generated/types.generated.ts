@@ -1103,12 +1103,12 @@ export type Post = {
   postAccountId: Scalars['Int'];
   postDana?: Maybe<PostDana>;
   postHashtags?: Maybe<Array<PostHashtag>>;
-  repostCount?: Maybe<Scalars['Int']>;
+  repostCount: Scalars['Int'];
   reposts?: Maybe<Array<Repost>>;
   taggableId?: Maybe<Scalars['String']>;
   token?: Maybe<Token>;
   tokenId?: Maybe<Scalars['String']>;
-  totalComments?: Maybe<Scalars['Int']>;
+  totalComments: Scalars['Int'];
   translations?: Maybe<Array<PostTranslation>>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
@@ -1166,7 +1166,6 @@ export enum PostOrderField {
   DanaBurnScore = 'danaBurnScore',
   Id = 'id',
   LastRepostAt = 'lastRepostAt',
-  PinableId = 'pinableId',
   UpdatedAt = 'updatedAt'
 }
 
@@ -1248,6 +1247,8 @@ export type Query = {
   allPagesByUserId: PageBasicConnection;
   allPendingPageMessageSessionByAccountId: PageMessageSessionConnection;
   allPendingPageMessageSessionByPageId: PageMessageSessionConnection;
+  allPinnedPostByPageId: PostConnection;
+  allPinnedPostByUserId: PostConnection;
   allPostsByHashtagId: PostConnection;
   allPostsByPageId: PostConnection;
   allPostsBySearch: PostConnection;
@@ -1451,6 +1452,28 @@ export type QueryAllPendingPageMessageSessionByPageIdArgs = {
   minBurnFilter?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<PageMessageSessionOrder>;
   skip?: InputMaybe<Scalars['Int']>;
+};
+
+export type QueryAllPinnedPostByPageIdArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<PostOrder>;
+  pageId: Scalars['String'];
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
+export type QueryAllPinnedPostByUserIdArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<PostOrder>;
+  skip?: InputMaybe<Scalars['Int']>;
+  userId: Scalars['Int'];
 };
 
 export type QueryAllPostsByHashtagIdArgs = {

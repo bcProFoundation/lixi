@@ -146,13 +146,6 @@ export class PostResolver {
         id: id
       }
     });
-    const orderSample: any = orderBy
-      ? orderBy.map(item =>
-          item.field === PostOrderField.pinableId
-            ? { [item.field]: { sort: item.direction, nulls: 'last' } }
-            : { [item.field]: item.direction }
-        )
-      : undefined;
 
     if (!account) {
       result = await findManyCursorConnection(
@@ -164,29 +157,15 @@ export class PostResolver {
               translations: true
             },
             where: {
-              OR: [
-                {
-                  pageId: id
-                },
-                {
-                  AND: [{ pageId: id }, { danaBurnScore: { gte: minBurnFilter ?? 0 } }]
-                }
-              ]
+              AND: [{ pageId: id }, { postDana: { danaBurnScore: { gte: minBurnFilter ?? 0 } } }, { pinableId: null }]
             },
-            orderBy: orderSample,
+            orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
             ...args
           }),
         () =>
           this.prisma.post.count({
             where: {
-              OR: [
-                {
-                  pageId: id
-                },
-                {
-                  AND: [{ pageId: id }, { danaBurnScore: { gte: minBurnFilter ?? 0 } }]
-                }
-              ]
+              AND: [{ pageId: id }, { postDana: { danaBurnScore: { gte: minBurnFilter ?? 0 } } }, { pinableId: null }]
             }
           }),
         { first, last, before, after }
@@ -206,16 +185,9 @@ export class PostResolver {
               page: true
             },
             where: {
-              OR: [
-                {
-                  AND: [{ postAccountId: accountId }, { pageId: id }]
-                },
-                {
-                  AND: [{ pageId: id }]
-                }
-              ]
+              AND: [{ pageId: id }, { pinableId: null }]
             },
-            orderBy: orderSample,
+            orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
             ...args
           });
 
@@ -233,14 +205,7 @@ export class PostResolver {
         () =>
           this.prisma.post.count({
             where: {
-              OR: [
-                {
-                  AND: [{ postAccountId: accountId }, { pageId: id }]
-                },
-                {
-                  AND: [{ pageId: id }, { danaBurnScore: { gte: minBurnFilter ?? 0 } }]
-                }
-              ]
+              AND: [{ pageId: id }, { pinableId: null }]
             }
           }),
         { first, last, before, after }
@@ -261,11 +226,12 @@ export class PostResolver {
                   AND: [{ postAccountId: accountId }, { pageId: id }]
                 },
                 {
-                  AND: [{ pageId: id }, { danaBurnScore: { gte: minBurnFilter ?? 0 } }]
+                  AND: [{ pageId: id }, { postDana: { danaBurnScore: { gte: minBurnFilter ?? 0 } } }]
                 }
-              ]
+              ],
+              pinableId: null
             },
-            orderBy: orderSample,
+            orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
             ...args
           }),
         () =>
@@ -278,7 +244,8 @@ export class PostResolver {
                 {
                   AND: [{ pageId: id }, { danaBurnScore: { gte: minBurnFilter ?? 0 } }]
                 }
-              ]
+              ],
+              pinableId: null
             }
           }),
         { first, last, before, after }
@@ -659,14 +626,6 @@ export class PostResolver {
     orderBy: PostOrder[]
   ) {
     let result;
-    const orderSample: any = orderBy
-      ? orderBy.map(item =>
-          item.field === PostOrderField.pinableId
-            ? { [item.field]: { sort: item.direction, nulls: 'last' } }
-            : { [item.field]: item.direction }
-        )
-      : undefined;
-
     if (account?.id === _.toSafeInteger(id)) {
       result = await findManyCursorConnection(
         args =>
@@ -683,10 +642,11 @@ export class PostResolver {
                   }
                 },
                 { pageId: null },
-                { tokenId: null }
+                { tokenId: null },
+                { pinableId: null }
               ]
             },
-            orderBy: orderSample,
+            orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
             ...args
           }),
         () =>
@@ -702,7 +662,8 @@ export class PostResolver {
                   }
                 },
                 { pageId: null },
-                { tokenId: null }
+                { tokenId: null },
+                { pinableId: null }
               ]
             }
           }),
@@ -724,10 +685,11 @@ export class PostResolver {
                   }
                 },
                 { pageId: null },
-                { tokenId: null }
+                { tokenId: null },
+                { pinableId: null }
               ]
             },
-            orderBy: orderSample,
+            orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
             ...args
           }),
         () =>
@@ -743,7 +705,8 @@ export class PostResolver {
                   }
                 },
                 { pageId: null },
-                { tokenId: null }
+                { tokenId: null },
+                { pinableId: null }
               ]
             }
           }),
@@ -794,6 +757,78 @@ export class PostResolver {
         }),
       { first, last, before, after }
     );
+    return result;
+  }
+
+  @SkipThrottle()
+  @Query(() => PostConnection)
+  @UseGuards(GqlJwtAuthGuardByPass)
+  async allPinnedPostByPageId(
+    @PostAccountEntity() account: Account,
+    @Args() { after, before, first, last, minBurnFilter }: PaginationArgs,
+    @Args({ name: 'pageId', type: () => String }) pageId: string,
+    @Args({
+      name: 'orderBy',
+      type: () => PostOrder,
+      nullable: true
+    })
+    orderBy: PostOrder
+  ) {
+    const result = await findManyCursorConnection(
+      args =>
+        this.prisma.post.findMany({
+          include: { postAccount: true, translations: true, pinable: true },
+          where: {
+            AND: [{ pageId: pageId }, { NOT: { pinableId: null } }]
+          },
+          orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
+          ...args
+        }),
+      () =>
+        this.prisma.post.count({
+          where: {
+            AND: [{ pageId: pageId }, { NOT: { pinableId: null } }]
+          }
+        }),
+      { first, last, before, after }
+    );
+
+    return result;
+  }
+
+  @SkipThrottle()
+  @Query(() => PostConnection)
+  @UseGuards(GqlJwtAuthGuardByPass)
+  async allPinnedPostByUserId(
+    @PostAccountEntity() account: Account,
+    @Args() { after, before, first, last, minBurnFilter }: PaginationArgs,
+    @Args({ name: 'userId', type: () => Number }) userId: number,
+    @Args({
+      name: 'orderBy',
+      type: () => PostOrder,
+      nullable: true
+    })
+    orderBy: PostOrder
+  ) {
+    const result = await findManyCursorConnection(
+      args =>
+        this.prisma.post.findMany({
+          include: { postAccount: true, translations: true, pinable: true },
+          where: {
+            AND: [{ postAccountId: userId }, { NOT: { pinableId: null } }, { pageId: null }, { tokenId: null }]
+          },
+          orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
+          ...args
+        }),
+      () =>
+        this.prisma.post.count({
+          where: {
+            AND: [{ postAccountId: userId }, { NOT: { pinableId: null } }, { pageId: null }, { tokenId: null }]
+          }
+        }),
+      { first, last, before, after }
+    );
+
     return result;
   }
 

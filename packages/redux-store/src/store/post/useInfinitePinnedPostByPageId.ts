@@ -1,0 +1,95 @@
+import { PaginationArgs } from '@bcpros/lixi-models';
+import { PostQueryItem, PostOrder } from '@generated/index';
+import { createEntityAdapter } from '@reduxjs/toolkit';
+import { useLazyPinnedPostByPageIdQuery, usePinnedPostByPageIdQuery } from '@store/post/posts.generated';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
+const postsAdapter = createEntityAdapter<PostQueryItem>({
+  selectId: post => post?.id,
+  sortComparer: (a, b) => b.createdAt - a.createdAt
+});
+
+const { selectAll, selectEntities, selectIds, selectTotal } = postsAdapter.getSelectors();
+
+interface PostListByIdParams extends PaginationArgs {
+  orderBy?: PostOrder;
+  pageId: string;
+}
+
+export function useInfinitePinnedPostsByPageIdQuery(
+  params: PostListByIdParams,
+  fetchAll = false // if `true`: auto do next fetches to get all notes at once
+) {
+  const baseResult = usePinnedPostByPageIdQuery(params, {
+    skip: !params.pageId
+  });
+
+  const [trigger, nextResult, lastPromiseInfo] = useLazyPinnedPostByPageIdQuery();
+  const [combinedData, setCombinedData] = useState(postsAdapter.getInitialState({}));
+
+  const isBaseReady = useRef(false);
+  const isNextDone = useRef(true);
+
+  // next: starts with a null, fetching ended with an undefined cursor
+  const next = useRef<null | string | undefined>(null);
+
+  const data = useMemo(() => {
+    const result = selectAll(combinedData);
+    return result;
+  }, [combinedData]);
+
+  // Base result
+  useEffect(() => {
+    next.current = baseResult.data?.allPinnedPostByPageId?.pageInfo?.endCursor;
+    if (baseResult?.data?.allPinnedPostByPageId) {
+      isBaseReady.current = true;
+
+      const adapterSetAll = postsAdapter.setAll(
+        combinedData,
+        baseResult.data.allPinnedPostByPageId.edges.map(item => item.node)
+      );
+
+      setCombinedData(adapterSetAll);
+      fetchAll && fetchNext();
+    }
+  }, [baseResult]);
+
+  const fetchNext = async () => {
+    if (!isBaseReady.current || !isNextDone.current || next.current === undefined || next.current === null) {
+      return;
+    }
+
+    try {
+      isNextDone.current = false;
+      await trigger({
+        ...params,
+        after: next.current
+      });
+    } catch (e) {
+    } finally {
+      isNextDone.current = true;
+      fetchAll && fetchNext();
+    }
+  };
+
+  const refetch = async () => {
+    isBaseReady.current = false;
+    next.current = null; // restart
+    await baseResult.refetch(); // restart with a whole new refetching
+  };
+
+  return {
+    data: data ?? [],
+    totalCount: baseResult?.data?.allPinnedPostByPageId?.totalCount ?? 0,
+    error: baseResult?.error,
+    isError: baseResult?.isError,
+    isLoading: baseResult?.isLoading,
+    isFetching: baseResult?.isFetching || nextResult?.isFetching,
+    errorNext: nextResult?.error,
+    isErrorNext: nextResult?.isError,
+    isFetchingNext: nextResult?.isFetching,
+    hasNext: !!baseResult.data?.allPinnedPostByPageId?.pageInfo?.endCursor,
+    fetchNext,
+    refetch
+  };
+}

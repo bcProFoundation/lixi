@@ -34,6 +34,7 @@ import { openModal } from '@store/modal/actions';
 import { setSelectedPost } from '@store/post/actions';
 import { getSelectedPostId } from '@store/post/selectors';
 import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
+import { useInfinitePinnedPostsByPageIdQuery } from '@store/post/useInfinitePinnedPostByPageId';
 import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
 import { getFilterPostsPage } from '@store/settings/selectors';
 import { getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
@@ -523,10 +524,6 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
       orderBy: [
         {
           direction: OrderDirection.Desc,
-          field: PostOrderField.PinableId
-        },
-        {
-          direction: OrderDirection.Desc,
           field: PostOrderField.LastRepostAt
         },
         {
@@ -535,6 +532,14 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
         }
       ],
       id: page.id
+    },
+    false
+  );
+
+  const { data: pinnedPostPage, refetch: refetchPinnedPost } = useInfinitePinnedPostsByPageIdQuery(
+    {
+      first: 1,
+      pageId: page.id
     },
     false
   );
@@ -699,38 +704,67 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     return (
       <React.Fragment>
         {!query && hashtags.length === 0 ? (
-          <InfiniteScroll
-            dataLength={data.length}
-            next={loadMoreItems}
-            hasMore={hasNext}
-            loader={<Skeleton avatar active />}
-            endMessage={
-              <p style={{ textAlign: 'center' }}>
-                <b>{data.length > 0 ? 'end reached' : ''}</b>
-              </p>
-            }
-            scrollableTarget="scrollableDiv"
-          >
-            {data.map((item, index) => {
-              return (
-                <div
-                  key={item.id}
-                  ref={element => {
-                    refs.current[item.id] = element;
-                  }}
-                >
-                  <PostListItem
-                    item={item}
+          <>
+            <InfiniteScroll
+              dataLength={pinnedPostPage.length}
+              next={null}
+              hasMore={false}
+              loader={null}
+              scrollableTarget="scrollableDiv"
+            >
+              {pinnedPostPage.map((item, index) => {
+                return (
+                  <div
                     key={item.id}
-                    postListType={PostListType.Page}
-                    addToRecentHashtags={hashtag =>
-                      dispatch(addRecentHashtagAtPages({ id: page.id, hashtag: hashtag.substring(1) }))
-                    }
-                  />
-                </div>
-              );
-            })}
-          </InfiniteScroll>
+                    ref={element => {
+                      refs.current[item.id] = element;
+                    }}
+                  >
+                    <PostListItem
+                      item={item}
+                      key={item.id}
+                      postListType={PostListType.Page}
+                      addToRecentHashtags={hashtag =>
+                        dispatch(addRecentHashtagAtPages({ id: page.id, hashtag: hashtag.substring(1) }))
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </InfiniteScroll>
+            <InfiniteScroll
+              dataLength={data.length}
+              next={loadMoreItems}
+              hasMore={hasNext}
+              loader={<Skeleton avatar active />}
+              endMessage={
+                <p style={{ textAlign: 'center' }}>
+                  <b>{data.length > 0 ? 'end reached' : ''}</b>
+                </p>
+              }
+              scrollableTarget="scrollableDiv"
+            >
+              {data.map((item, index) => {
+                return (
+                  <div
+                    key={item.id}
+                    ref={element => {
+                      refs.current[item.id] = element;
+                    }}
+                  >
+                    <PostListItem
+                      item={item}
+                      key={item.id}
+                      postListType={PostListType.Page}
+                      addToRecentHashtags={hashtag =>
+                        dispatch(addRecentHashtagAtPages({ id: page.id, hashtag: hashtag.substring(1) }))
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </InfiniteScroll>
+          </>
         ) : (
           <InfiniteScroll
             dataLength={queryData.length}
@@ -1013,7 +1047,6 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                       </StyledTag>
                     ))}
                 </TagContainer>
-
                 <Timeline>
                   {/* <Button
                     title="Change"
@@ -1022,7 +1055,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                       setQuery('angular');
                     }}
                   /> */}
-                  {data.length == 0 && (
+                  {data.length == 0 && pinnedPostPage.length == 0 && (
                     <div className="blank-timeline">
                       <img className="time-line-blank" src="/images/time-line-blank.svg" alt="" />
                       <p>Become a first person post on the page...</p>

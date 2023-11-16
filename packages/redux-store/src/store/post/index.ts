@@ -8,3 +8,5 @@ export * from './useInfinitePostsByPageIdQuery';
 export * from './useInfinitePostsBySearchQuery';
 export * from './useInfinitePostsByTokenIdQuery';
 export * from './useInfinitePostsByUserIdQuery';
+export * from './useInfinitePinnedPostByPageId';
+export * from './useInfinitePinnedPostByUserId';

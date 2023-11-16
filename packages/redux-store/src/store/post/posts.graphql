@@ -141,7 +141,14 @@ query PostsByTokenId(
   }
 }
 
-query PostsBySearch($after: String, $before: String, $first: Int, $last: Int, $query: String, $minBurnFilter: Int) {
+query PostsBySearch(
+  $after: String
+  $before: String
+  $first: Int
+  $last: Int
+  $query: String
+  $minBurnFilter: Int
+) {
   allPostsBySearch(
     after: $after
     before: $before
@@ -258,6 +265,72 @@ query PostsBySearchWithHashtagAtToken(
     }
     pageInfo {
       ...PostMeiliPageInfoFields
+    }
+  }
+}
+
+query PinnedPostByPageId(
+  $after: String
+  $before: String
+  $first: Int
+  $last: Int
+  $orderBy: PostOrder
+  $pageId: String!
+  $skip: Int
+  $minBurnFilter: Int
+) {
+  allPinnedPostByPageId(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    orderBy: $orderBy
+    pageId: $pageId
+    skip: $skip
+    minBurnFilter: $minBurnFilter
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...PostFields
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
+    }
+  }
+}
+
+query PinnedPostByUserId(
+  $after: String
+  $before: String
+  $first: Int
+  $last: Int
+  $orderBy: PostOrder
+  $userId: Int!
+  $skip: Int
+  $minBurnFilter: Int
+) {
+  allPinnedPostByUserId(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    orderBy: $orderBy
+    userId: $userId
+    skip: $skip
+    minBurnFilter: $minBurnFilter
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...PostFields
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
     }
   }
 }

@@ -1022,7 +1022,6 @@ enum PostOrderField {
   danaBurnScore
   id
   lastRepostAt
-  pinableId
   updatedAt
 }
 
@@ -1115,6 +1114,8 @@ type Query {
   allPagesByUserId(after: String, first: Int, id: Int, skip: Int): PageBasicConnection!
   allPendingPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPendingPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
+  allPinnedPostByPageId(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PostOrder, pageId: String!, skip: Int): PostConnection!
+  allPinnedPostByUserId(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int, userId: Int!): PostConnection!
   allPostsByHashtagId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
   allPostsByPageId(accountId: Int, after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: [PostOrder!], skip: Int): PostConnection!
   allPostsBySearch(

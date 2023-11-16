@@ -22,4 +22,5 @@ export const setNewPostAvailable = createAction<boolean>('posts/setNewPostAvaila
 export const setShowCreatePost = createAction<boolean>('posts/setShowCreatePost');
 
 export const changeFollowActionSheetPost = createAction<ParamPostFollowCommand>('posts/changeFollowActionSheetPost');
-export const changePinPost = createAction<ParamPostPinCommand>('posts/changePinPost');
+export const pinPost = createAction<ParamPostPinCommand>('posts/pinPost');
+export const unpinPost = createAction<ParamPostPinCommand>('posts/unpinPost');
