@@ -44,6 +44,7 @@ fragment TokenFields on Token {
   ticker
   decimals
   tokenDocumentUrl
+  totalBurned
   totalMinted
   followersCount
   dana {

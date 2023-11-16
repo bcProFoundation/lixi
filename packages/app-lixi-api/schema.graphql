@@ -1360,6 +1360,7 @@ type Token {
   tokenDocumentUrl: String
   tokenId: String!
   tokenType: String!
+  totalBurned: String
   totalMinted: String
 }
 

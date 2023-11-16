@@ -25,6 +25,9 @@ export class Token {
   tokenDocumentUrl: Nullable<string>;
 
   @Field(() => String, { nullable: true })
+  totalBurned: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
   totalMinted: Nullable<string>;
 
   @Field(() => Number)
