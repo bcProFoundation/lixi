@@ -167,6 +167,7 @@ export type Comment = {
   danaBurnScore: Scalars['Float'];
   danaBurnUp: Scalars['Float'];
   id: Scalars['ID'];
+  imageUploadable?: Maybe<ImageUploadable>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
 };
@@ -249,6 +250,7 @@ export type CreateCommentInput = {
   commentableId: Scalars['String'];
   createFeeHex?: InputMaybe<Scalars['String']>;
   tipHex?: InputMaybe<Scalars['String']>;
+  uploadId?: InputMaybe<Scalars['String']>;
 };
 
 export type CreateFollowAccountInput = {
@@ -1105,7 +1107,6 @@ export type Post = {
   translations?: Maybe<Array<PostTranslation>>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
-  uploads?: Maybe<Array<UploadDetail>>;
 };
 
 export type PostConnection = {

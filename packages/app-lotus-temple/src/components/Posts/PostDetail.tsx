@@ -263,21 +263,6 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
     false
   );
 
-  useEffect(() => {
-    const mapImages = post.uploads.map(img => {
-      const imgUrl = `${process.env.NEXT_PUBLIC_AWS_ENDPOINT}/${img.upload.bucket}/${img.upload.sha}`;
-      let width = img?.upload?.width || 4;
-      let height = img?.upload?.height || 3;
-      let objImg = {
-        src: imgUrl,
-        width: width,
-        height: height
-      };
-      return objImg;
-    });
-    setImagesList(mapImages);
-  }, []);
-
   const [
     createCommentTrigger,
     { isLoading: isLoadingCreateComment, isSuccess: isSuccessCreateComment, isError: isErrorCreateComment }
@@ -425,11 +410,6 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
         ></InfoCardUser>
         <PostContentDetail>
           <p className="description-post">{ReactHtmlParser(post.content)}</p>
-          {post.uploads.length != 0 && (
-            <div className="images-post">
-              <Gallery photos={imagesList} renderImage={imageRenderer} />
-            </div>
-          )}
           <div className="reaction-container">
             <div className="reaction-ico">
               <IconBurn

@@ -147,6 +147,7 @@ type Comment {
   danaBurnScore: Float!
   danaBurnUp: Float!
   id: ID!
+  imageUploadable: ImageUploadable
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
@@ -225,6 +226,7 @@ input CreateCommentInput {
   commentableId: String!
   createFeeHex: String
   tipHex: String
+  uploadId: String
 }
 
 input CreateFollowAccountInput {
@@ -967,7 +969,6 @@ type Post {
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
-  uploads: [UploadDetail!]
 }
 
 type PostConnection {

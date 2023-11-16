@@ -21,63 +21,29 @@ export class UploadService implements OnModuleInit {
     const job = new CronJob(`0 */10 * * * *`, async () => {
       this.logger.log('Checking database for unused image');
 
-      const unusedUploadDetail = await this.prisma.uploadDetail.findMany({
+      /*
+        We dont need to check for unusedImageUploadable in imageUploadable  
+        because we only create image uploadable when we create post, comment, message, etc...
+        So if user delete image before creating post, comment, message, etc... then no imageUploadable will be created
+
+        TLDR: We can delete straight from upload 
+      */
+      const unusedUploads = await this.prisma.upload.findMany({
         where: {
-          AND: [
-            {
-              lixi: null
-            },
-            {
-              pageCover: null
-            },
-            {
-              pageAvatar: null
-            },
-            {
-              post: null
-            },
-            {
-              worshipedPersonAvatar: null
-            },
-            {
-              templeAvatar: null
-            },
-            {
-              templeCover: null
-            },
-            {
-              avatarAccount: null
-            },
-            {
-              coverAccount: null
-            },
-            {
-              message: null
-            }
-          ]
+          imageUploadableId: null
         }
       });
 
-      this.logger.log(`Found ${unusedUploadDetail.length} unused image`);
+      this.logger.log(`Found ${unusedUploads.length} unused image`);
 
-      if (unusedUploadDetail.length > 0) {
+      if (unusedUploads.length > 0) {
         this.logger.log('Removing unused image...');
 
-        unusedUploadDetail.forEach(async uploadDetail => {
-          const removedUpload = await this.prisma.$transaction(async prisma => {
-            await prisma.uploadDetail.delete({
-              where: {
-                id: uploadDetail.id
-              }
-            });
-
-            const result = await prisma.upload.delete({
-              where: {
-                id: uploadDetail.uploadId
-              }
-            });
-
-            return result;
+        unusedUploads.forEach(async upload => {
+          const removedUpload = await this.prisma.upload.delete({
+            where: {
+              id: upload.id
+            }
           });
 
           if (removedUpload.cfImageId) {

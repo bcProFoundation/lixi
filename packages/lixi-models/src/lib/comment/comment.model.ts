@@ -3,6 +3,7 @@ import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Account } from '../account';
+import { ImageUploadable } from '../imageUploadable';
 
 import { CommentDana } from './comment-dana.model';
 import { Commentable } from './commentable.model';
@@ -48,6 +49,9 @@ export class Comment {
   @IsOptional()
   @Field(() => CommentDana, { nullable: true })
   commentDana?: Nullable<CommentDana>;
+
+  @Field(() => ImageUploadable, { nullable: true })
+  imageUploadable?: Nullable<ImageUploadable>;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.'

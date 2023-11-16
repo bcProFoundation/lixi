@@ -83,7 +83,20 @@ const CommentListItem = ({ item, post }: CommentListItemProps) => {
           <AvatarUser icon={item?.commentAccount?.avatar} name={item?.commentAccount?.name} isMarginRight={false} />
         </div>
       }
-      content={item.commentText}
+      content={
+        <React.Fragment>
+          <p>{item.commentText}</p>
+          {item?.imageUploadable?.uploads[0] && (
+            <picture>
+              <img
+                alt={item.imageUploadable.uploads[0].id}
+                src={`${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${item?.imageUploadable.uploads[0].cfImageId}/public`}
+                height={`20vh`}
+              />
+            </picture>
+          )}
+        </React.Fragment>
+      }
       datetime={
         <Tooltip title={moment(item.createdAt).format('YYYY-MM-DD HH:mm:ss')}>
           <span>{moment(item.createdAt).fromNow()}</span>
