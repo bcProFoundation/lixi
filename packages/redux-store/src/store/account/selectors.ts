@@ -11,6 +11,8 @@ export const getAllAccounts = createSelector((state: RootState) => state.account
 
 export const getAllAccountsEntities = createSelector((state: RootState) => state.accounts, selectEntities);
 
+export const getAllAccountsIds = createSelector((state: RootState) => state.accounts, selectIds);
+
 export const getSelectedAccountId = createSelector(
   (state: RootState) => state.accounts,
   (accounts: AccountsState) => accounts.selectedId
