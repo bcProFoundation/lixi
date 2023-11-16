@@ -8,6 +8,15 @@ import prismaCacheMiddleware from 'prisma-cache-middleware';
 export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor(private logger: Logger, private readonly config: ConfigService) {
     super();
+    // super({
+    //   log: [
+    //     { emit: 'event', level: 'query' },
+    //     { emit: 'stdout', level: 'info' },
+    //     { emit: 'stdout', level: 'warn' },
+    //     { emit: 'stdout', level: 'error' },
+    //   ],
+    //   errorFormat: 'colorless',
+    // });
     const cacheMiddleWare = prismaCacheMiddleware({
       redisOptions: {
         host: config.get<string>('REDIS_HOST') ? config.get<string>('REDIS_HOST') : 'redis-lixi',
@@ -22,30 +31,26 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       ]
     });
     this.$use(cacheMiddleWare);
-    // super({
-    //   log: [
-    //     { emit: 'event', level: 'query' },
-    //     { emit: 'stdout', level: 'info' },
-    //     { emit: 'stdout', level: 'warn' },
-    //     { emit: 'stdout', level: 'error' },
-    //   ],
-    //   errorFormat: 'colorless',
+
+    // @ts-ignore
+    // this.$on('query', async (e) => {
+    // @ts-ignore
+    // console.log(e.query, e.params);
     // });
   }
 
   async onModuleInit() {
-    this.$on<any>('query', async (e: any) => {
-      // this.logger.log('Query: ' + e.query)
-      // this.logger.log('Params: ' + e.params)
-      // this.logger.log('Duration: ' + e.duration + 'ms')
-    });
+    // this.logger.log('Query: ' + e.query)
+    // this.logger.log('Params: ' + e.params)
+    // this.logger.log('Duration: ' + e.duration + 'ms')
+    // });
 
     await this.$connect();
   }
 
   async enableShutdownHooks(app: INestApplication) {
-    this.$on('beforeExit', async () => {
-      await app.close();
-    });
+    // this.$on('beforeExit', async () => {
+    //   await app.close();
+    // });
   }
 }

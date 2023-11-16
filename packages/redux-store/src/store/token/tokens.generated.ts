@@ -11,10 +11,7 @@
 
 import * as Types from '../../generated/types.generated';
 
-import {
-  PageInfoFieldsFragmentDoc,
-  PostMeiliPageInfoFieldsFragmentDoc
-} from '../../graphql/fragments/page-info-fields.fragment.generated';
+import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
 import { api } from 'src/api/baseApi';
 export type TokenQueryVariables = Types.Exact<{
   tokenId: Types.Scalars['String'];
@@ -36,25 +33,37 @@ export type TokenQuery = {
     danaBurnUp: number;
     danaBurnDown: number;
     danaBurnScore: number;
+    followersCount?: number | null;
     initialTokenQuantity?: string | null;
     comments?: any | null;
     createdDate: any;
     isFollowed?: boolean | null;
-    tokenDana?: { __typename?: 'TokenDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+    tokenDana?: {
+      __typename?: 'TokenDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+      version: number;
+    } | null;
   };
 };
 
 export type TokensQueryVariables = Types.Exact<{
-  orderBy?: Types.InputMaybe<Types.TokenOrder>;
+  after?: Types.InputMaybe<Types.Scalars['String']>;
+  first?: Types.InputMaybe<Types.Scalars['Int']>;
+  skip?: Types.InputMaybe<Types.Scalars['Int']>;
 }>;
 
 export type TokensQuery = {
   __typename?: 'Query';
   allTokens: {
     __typename?: 'TokenConnection';
-    totalCount?: number | null;
-    edges?: Array<{
-      __typename?: 'TokenEdge';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'TokenBasicEdge';
       node: {
         __typename?: 'Token';
         id: string;
@@ -69,6 +78,7 @@ export type TokensQuery = {
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
+        followersCount?: number | null;
         initialTokenQuantity?: string | null;
         comments?: any | null;
         createdDate: any;
@@ -78,16 +88,14 @@ export type TokensQuery = {
           danaBurnUp: number;
           danaBurnDown: number;
           danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+          version: number;
         } | null;
       };
-    }> | null;
-    pageInfo: {
-      __typename?: 'PageInfo';
-      endCursor?: string | null;
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor?: string | null;
-    };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
   };
 };
 
@@ -105,11 +113,21 @@ export type TokenFieldsFragment = {
   danaBurnUp: number;
   danaBurnDown: number;
   danaBurnScore: number;
+  followersCount?: number | null;
   initialTokenQuantity?: string | null;
   comments?: any | null;
   createdDate: any;
   isFollowed?: boolean | null;
-  tokenDana?: { __typename?: 'TokenDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+  tokenDana?: {
+    __typename?: 'TokenDana';
+    danaBurnUp: number;
+    danaBurnDown: number;
+    danaBurnScore: number;
+    danaReceivedUp: number;
+    danaReceivedDown: number;
+    danaReceivedScore: number;
+    version: number;
+  } | null;
 };
 
 export type CreateTokenMutationVariables = Types.Exact<{
@@ -132,11 +150,21 @@ export type CreateTokenMutation = {
     danaBurnUp: number;
     danaBurnDown: number;
     danaBurnScore: number;
+    followersCount?: number | null;
     initialTokenQuantity?: string | null;
     comments?: any | null;
     createdDate: any;
     isFollowed?: boolean | null;
-    tokenDana?: { __typename?: 'TokenDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+    tokenDana?: {
+      __typename?: 'TokenDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+      version: number;
+    } | null;
   };
 };
 
@@ -154,10 +182,15 @@ export const TokenFieldsFragmentDoc = `
   danaBurnUp
   danaBurnDown
   danaBurnScore
+  followersCount
   tokenDana {
     danaBurnUp
     danaBurnDown
     danaBurnScore
+    danaReceivedUp
+    danaReceivedDown
+    danaReceivedScore
+    version
   }
   initialTokenQuantity
   comments
@@ -173,8 +206,8 @@ export const TokenDocument = `
 }
     ${TokenFieldsFragmentDoc}`;
 export const TokensDocument = `
-    query Tokens($orderBy: TokenOrder) {
-  allTokens(orderBy: $orderBy) {
+    query Tokens($after: String, $first: Int = 20, $skip: Int) {
+  allTokens(after: $after, first: $first, skip: $skip) {
     totalCount
     edges {
       node {
@@ -182,12 +215,12 @@ export const TokensDocument = `
       }
     }
     pageInfo {
-      ...PageInfoFields
+      ...BasicPageInfoFields
     }
   }
 }
     ${TokenFieldsFragmentDoc}
-${PageInfoFieldsFragmentDoc}`;
+${BasicPageInfoFieldsFragmentDoc}`;
 export const CreateTokenDocument = `
     mutation createToken($input: CreateTokenInput!) {
   createToken(data: $input) {

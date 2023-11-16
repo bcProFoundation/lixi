@@ -89,7 +89,7 @@ export function useInfiniteHashtagQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allHashtag?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allHashtag?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

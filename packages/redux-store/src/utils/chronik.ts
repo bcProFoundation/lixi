@@ -1,17 +1,12 @@
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import BCHJS from '@bcpros/xpi-js';
 import { currency } from '@components/Common/Ticker';
 import { walletAdapter, WalletState } from '@store/wallet';
 import BigNumber from 'bignumber.js';
 import { ChronikClient, Tx, TxHistoryPage, Utxo } from 'chronik-client';
 
+import { Hash160AndAddress } from '@bcpros/lixi-models';
 import { decryptOpReturnMsg, getHashArrayFromWallet, getUtxoWif, parseOpReturn } from './cashMethods';
 import { parseBurnOutput, ParseBurnResult } from './opReturnBurn';
-
-export interface Hash160AndAddress {
-  address: string;
-  hash160: string;
-}
 
 export interface ParsedChronikTx {
   incoming: boolean;

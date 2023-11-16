@@ -4,7 +4,7 @@ import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useLazyPostsBySearchQuery, usePostsBySearchQuery } from '@store/post/posts.generated';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-const postsAdapter = createEntityAdapter<PostQueryItem>({
+const postsAdapter = createEntityAdapter<any>({
   selectId: post => post.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });
@@ -41,11 +41,9 @@ export function useInfinitePostsBySearchQuery(
     if (baseResult?.data?.allPostsBySearch) {
       isBaseReady.current = true;
 
-      const a: PostQueryItem[] = baseResult.data.allPostsBySearch.edges.map(item => item.node);
-
       const adapterSetAll = postsAdapter.setAll(
         combinedData,
-        baseResult.data.allPostsBySearch.edges.map(item => item.node)
+        baseResult.data.allPostsBySearch.edges.map(item => item.node as PostQueryItem)
       );
 
       setCombinedData(adapterSetAll);
@@ -86,7 +84,7 @@ export function useInfinitePostsBySearchQuery(
     errorQueryNext: nextResult?.error,
     isErrorQueryNext: nextResult?.isError,
     isFetchingQueryNext: nextResult?.isFetching,
-    hasNextQuery: baseResult.data?.allPostsBySearch?.pageInfo?.endCursor !== null,
+    hasNextQuery: !!baseResult.data?.allPostsBySearch?.pageInfo?.endCursor,
     fetchNextQuery,
     refetchQuery
   };

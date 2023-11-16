@@ -1,22 +1,17 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
-import { PageQueryItem, PageOrder } from '@generated/index';
+import { PageQueryItem } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useLazyPagesQuery, usePagesQuery } from '@store/page/pages.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 const pagesAdapter = createEntityAdapter<PageQueryItem>({
-  selectId: post => post.id,
-  sortComparer: (a, b) => b.totalBurnForPage - a.totalBurnForPage
+  selectId: page => page.id
 });
 
 const { selectAll } = pagesAdapter.getSelectors();
 
-export interface PageParams extends PaginationArgs {
-  orderBy?: PageOrder[];
-}
-
 export function useInfinitePagesQuery(
-  params: PageParams,
+  params: PaginationArgs,
   fetchAll: boolean = false // if `true`: auto do next fetches to get all notes at once
 ) {
   const baseResult = usePagesQuery(params);
@@ -85,7 +80,7 @@ export function useInfinitePagesQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allPages?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allPages?.pageInfo?.hasNextPage,
     fetchNext,
     refetch
   };

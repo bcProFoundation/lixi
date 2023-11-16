@@ -1,27 +1,23 @@
-import {
-  Account,
-  AccountDana,
-  AccountDto,
-  CreateAccountInput,
-  ImportAccountInput,
-  UpdateAccountInput
-} from '@bcpros/lixi-models';
+import { Account, AccountDana, CreateAccountInput, ImportAccountInput, UpdateAccountInput } from '@bcpros/lixi-models';
+import { ImageUploadableType } from '@bcpros/lixi-prisma';
 import MinimalBCHWallet from '@bcpros/minimal-xpi-slp-wallet';
-import { HttpException, HttpStatus, Inject, Logger, UseFilters, UseGuards } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PubSub } from 'graphql-subscriptions';
 import _ from 'lodash';
 import { I18n, I18nContext, I18nService } from 'nestjs-i18n';
 import { AccountEntity } from 'src/decorators/account.decorator';
+import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { aesGcmDecrypt, aesGcmEncrypt, generateRandomBase58Str, hashMnemonic } from 'src/utils/encryptionMethods';
 import VError from 'verror';
-import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
+import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
+import { WALLET_SERVICES } from '../wallet/wallet.constants';
 import { WalletService } from '../wallet/wallet.service';
-import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
 import { AccountCacheService } from './account-cache.service';
+import AccountLoader from './account.loader';
 
 const pubSub = new PubSub();
 
@@ -31,16 +27,11 @@ const pubSub = new PubSub();
 export class AccountResolver {
   constructor(
     private prisma: PrismaService,
-    private readonly walletService: WalletService,
+    @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
     @I18n() private i18n: I18nService,
-    @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
-    private readonly accountCacheService: AccountCacheService
+    private readonly accountCacheService: AccountCacheService,
+    private readonly accountLoader: AccountLoader
   ) {}
-
-  @Subscription(() => Account)
-  accountCreated() {
-    return pubSub.asyncIterator('accountCreated');
-  }
 
   @Query(() => Account)
   @UseGuards(GqlJwtAuthGuard)
@@ -63,33 +54,9 @@ export class AccountResolver {
         throw new VError(accountNotExistMessage);
       }
 
-      let followersCount = 0;
-      let followingsCount = 0;
-      let followingPagesCount = 0;
-      if (myAccount.id === account.id) {
-        const followingsCountPromise = this.prisma.followAccount.count({
-          where: { followerAccountId: myAccount.id }
-        });
-        const followersCountPromise = this.prisma.followAccount.count({
-          where: { followingAccountId: myAccount.id }
-        });
-        const followingPagesCountPromise = this.prisma.followPage.count({
-          where: { accountId: myAccount.id }
-        });
-
-        [followersCount, followingsCount, followingPagesCount] = await Promise.all([
-          followersCountPromise,
-          followingsCountPromise,
-          followingPagesCountPromise
-        ]);
-      }
-
       const result = _.omit(
         {
-          ...account,
-          followersCount: followersCount,
-          followingsCount: followingsCount,
-          followingPagesCount: followingPagesCount
+          ...account
         },
         'encryptedMnemonic',
         'encryptedSecret',
@@ -111,53 +78,18 @@ export class AccountResolver {
 
   @Query(() => Account)
   @UseGuards(GqlJwtAuthGuard)
-  async getAccountByAddress(
-    @AccountEntity() myAccount: Account,
-    @Args('address', { type: () => String }) address: string,
-    @I18n() i18n: I18nContext
-  ) {
+  async getAccountByAddress(@Args('address', { type: () => String }) address: string) {
     try {
-      const account = await this.prisma.account.findFirst({
-        where: {
-          address: address
-        },
-        include: {
-          pages: true,
-          uploadDetail: true
-        }
-      });
+      const account = await this.accountCacheService.getByAddress(address);
+
       if (!account) {
         const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
         throw new VError(accountNotExistMessage);
       }
 
-      let followersCount = 0;
-      let followingsCount = 0;
-      let followingPagesCount = 0;
-      if (myAccount.id === account.id) {
-        const followingsCountPromise = this.prisma.followAccount.count({
-          where: { followerAccountId: myAccount.id }
-        });
-        const followersCountPromise = this.prisma.followAccount.count({
-          where: { followingAccountId: myAccount.id }
-        });
-        const followingPagesCountPromise = this.prisma.followPage.count({
-          where: { accountId: myAccount.id }
-        });
-
-        [followersCount, followingsCount, followingPagesCount] = await Promise.all([
-          followersCountPromise,
-          followingsCountPromise,
-          followingPagesCountPromise
-        ]);
-      }
-
       const result = _.omit(
         {
-          ...account,
-          followersCount: followersCount,
-          followingsCount: followingsCount,
-          followingPagesCount: followingPagesCount
+          ...account
         },
         'encryptedMnemonic',
         'encryptedSecret',
@@ -181,7 +113,8 @@ export class AccountResolver {
   async createAccount(@Args('data') data: CreateAccountInput) {
     if (data) {
       try {
-        const { address, publicKey } = await this.walletService.deriveAddress(data.mnemonic, 0);
+        const walletService = this.walletServices['xpi'];
+        const { address, publicKey } = await walletService.deriveAddress(data.mnemonic, 0);
         const name = address.slice(12, 17);
 
         const existedWallet = await this.prisma.account.findFirst({
@@ -217,12 +150,17 @@ export class AccountResolver {
         const createdAccount = await this.prisma.account.create({
           data: accountToInsert
         });
-        await this.accountCacheService.deleteById(createdAccount.id);
+        await Promise.all([
+          this.accountCacheService.removeByKey(createdAccount.id.toString()),
+          this.accountCacheService.removeByKey(createdAccount.address)
+        ]);
+
+        const account = await this.accountCacheService.getById(createdAccount.id);
 
         const resultApi = _.omit(
           {
             ...data,
-            ..._.omit(createdAccount, 'publicKey'),
+            ..._.omit(account, 'publicKey'),
             secret: accountSecret,
             address
           },
@@ -250,15 +188,13 @@ export class AccountResolver {
 
     try {
       const mnemonicHash = data?.mnemonicHash ?? (await hashMnemonic(mnemonic));
-      const account = await this.prisma.account.findFirst({
-        where: {
-          mnemonicHash: mnemonicHash
-        }
-      });
+
+      const account = await this.accountCacheService.getByMnemonicHash(mnemonicHash);
 
       if (!account) {
         // Validate mnemonic
-        let isValidMnemonic = await this.walletService.validateMnemonic(mnemonic);
+        const walletService = this.walletServices['xpi'];
+        let isValidMnemonic = await walletService.validateMnemonic(mnemonic);
         if (!isValidMnemonic) {
           const mnemonicNotValidMessage = await this.i18n.t('account.messages.mnemonicNotValid');
           throw Error(mnemonicNotValidMessage);
@@ -271,7 +207,7 @@ export class AccountResolver {
         const encryptedSecret = await aesGcmEncrypt(accountSecret, mnemonic);
 
         // create account in database
-        const { address, publicKey } = await this.walletService.deriveAddress(mnemonic, 0);
+        const { address, publicKey } = await walletService.deriveAddress(mnemonic, 0);
         const name = address.slice(12, 17);
         const accountToInsert = {
           name: name,
@@ -288,15 +224,21 @@ export class AccountResolver {
         const createdAccount = await this.prisma.account.create({
           data: accountToInsert
         });
-        await this.accountCacheService.deleteById(createdAccount.id);
-        const balance: number = await this.xpiWallet.getBalance(createdAccount.address);
+
+        // Invalidate the cache for the account
+        await this.accountCacheService.removeByKeys([
+          createdAccount.id.toString(),
+          createdAccount.address,
+          createdAccount.mnemonicHash
+        ]);
+
+        const newAccount = await this.accountCacheService.getById(createdAccount.id);
+        const { totalBalanceInSatoshis } = await this.walletServices['xpi'].getBalances(createdAccount.address);
 
         const resultApi = _.omit(
           {
-            ..._.omit(createdAccount, 'publicKey'),
-            name: createdAccount.name,
-            address: createdAccount.address,
-            balance: balance,
+            ..._.omit(newAccount, 'publicKey'),
+            balance: totalBalanceInSatoshis,
             secret: accountSecret
           },
           ['mnemonic', 'encryptedMnemonic']
@@ -305,23 +247,24 @@ export class AccountResolver {
         return resultApi;
       } else {
         // Decrypt to validate the mnemonic
-        const mnemonicToValidate = await aesGcmDecrypt(account.encryptedMnemonic, mnemonic);
+        const { encryptedMnemonic, encryptedSecret } = account;
+        const mnemonicToValidate = await aesGcmDecrypt(encryptedMnemonic || '', mnemonic);
         if (mnemonic !== mnemonicToValidate) {
           const importAccountNotFoundMessage = await this.i18n.t('account.messages.importAccountNotFound');
           throw Error(importAccountNotFoundMessage);
         }
 
-        const balance: number = await this.xpiWallet.getBalance(account.address);
-        const accountSecret = await aesGcmDecrypt(account.encryptedSecret, mnemonic);
+        const { totalBalanceInSatoshis } = await this.walletServices['xpi'].getBalances(account.address);
+        const accountSecret = await aesGcmDecrypt(encryptedSecret || '', mnemonic);
 
         const resultApi = _.omit(
           {
             ..._.omit(account, 'publicKey'),
             name: account.name,
             address: account.address,
-            balance: balance,
+            balance: Number(totalBalanceInSatoshis),
             secret: accountSecret
-          } as AccountDto,
+          },
           ['mnemonic', 'encryptedMnemonic']
         );
 
@@ -347,21 +290,159 @@ export class AccountResolver {
       throw new VError.WError(couldNotFindAccount);
     }
 
-    const uploadAvatarDetail = data.avatar
-      ? await this.prisma.uploadDetail.findFirst({
-          where: {
-            uploadId: data.avatar
-          }
-        })
-      : undefined;
+    const { avatar: avatarId, cover: coverId } = data;
 
-    const uploadCoverDetail = data.cover
-      ? await this.prisma.uploadDetail.findFirst({
+    /*Account Avatar*/
+    if (avatarId) {
+      await this.prisma.$transaction(async prisma => {
+        //find account avatar image uploadable
+        const result = await prisma.imageUploadable.findFirst({
           where: {
-            uploadId: data.cover
+            AND: [
+              {
+                account: {
+                  id: account.id
+                }
+              },
+              {
+                accountAvatar: {
+                  id: account.id
+                }
+              }
+            ]
           }
-        })
-      : undefined;
+        });
+
+        if (!result) {
+          //if not found, create new one and connect to account and uploads
+          const imageUploadable = await prisma.imageUploadable.create({
+            data: {
+              account: {
+                connect: {
+                  id: account.id
+                }
+              },
+              uploads: {
+                connect: {
+                  id: avatarId
+                }
+              },
+              accountAvatar: {
+                connect: {
+                  id: account.id
+                }
+              },
+              type: ImageUploadableType.ACCOUNT_AVATAR
+            }
+          });
+
+          return imageUploadable;
+        } else {
+          //if found, disconnect all uploads and connect new one
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                set: []
+              }
+            }
+          });
+
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                connect: {
+                  id: avatarId
+                }
+              }
+            }
+          });
+
+          return result;
+        }
+      });
+    }
+
+    /*Account Cover*/
+    if (coverId) {
+      await this.prisma.$transaction(async prisma => {
+        //find page avatar image uploadable
+        const result = await prisma.imageUploadable.findFirst({
+          where: {
+            AND: [
+              {
+                account: {
+                  id: account.id
+                }
+              },
+              {
+                accountCover: {
+                  id: account.id
+                }
+              }
+            ]
+          }
+        });
+
+        if (!result) {
+          //if not found, create new one and connect to account and uploads
+          const imageUploadable = await prisma.imageUploadable.create({
+            data: {
+              account: {
+                connect: {
+                  id: account.id
+                }
+              },
+              uploads: {
+                connect: {
+                  id: coverId
+                }
+              },
+              accountCover: {
+                connect: {
+                  id: account.id
+                }
+              },
+              type: ImageUploadableType.ACCOUNT_COVER
+            }
+          });
+
+          return imageUploadable;
+        } else {
+          //if found, disconnect all uploads and connect new one
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                set: []
+              }
+            }
+          });
+
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                connect: {
+                  id: coverId
+                }
+              }
+            }
+          });
+
+          return result;
+        }
+      });
+    }
 
     const updatedAccount = await this.prisma.account.update({
       where: {
@@ -369,16 +450,21 @@ export class AccountResolver {
       },
       data: {
         ..._.omit(data, ['id', 'avatar', 'cover']),
-        updatedAt: new Date(),
-        avatar: { connect: uploadAvatarDetail ? { id: uploadAvatarDetail.id } : undefined },
-        cover: { connect: uploadCoverDetail ? { id: uploadCoverDetail.id } : undefined }
+        updatedAt: new Date()
       }
     });
-    await this.accountCacheService.deleteById(updatedAccount.id);
+    await this.accountCacheService.removeByKeys([
+      updatedAccount.id.toString(),
+      updatedAccount.address,
+      updatedAccount.mnemonicHash,
+      updatedAccount.address
+    ]);
+
+    const cachedAccount = await this.accountCacheService.getById(updatedAccount.id);
 
     const result = _.omit(
       {
-        ...updatedAccount
+        ...cachedAccount
       },
       'encryptedMnemonic',
       'encryptedSecret',
@@ -389,62 +475,23 @@ export class AccountResolver {
     return result;
   }
 
-  @ResolveField('avatar', () => String)
-  async avatar(@Parent() account: Account) {
-    const uploadDetail = await this.prisma.account
-      .findUnique({
-        where: {
-          id: account.id
-        }
-      })
-      .avatar({
-        include: {
-          upload: true
-        }
-      });
-
-    if (_.isNil(uploadDetail)) return null;
-
-    const { upload } = uploadDetail;
-    const cfUrl = `${process.env.CF_IMAGES_DELIVERY_URL}/${process.env.CF_ACCOUNT_HASH}/${upload.cfImageId}/public`;
-    const url = upload.cfImageId ? cfUrl : upload.url;
-
-    return url;
-  }
-
-  @ResolveField('cover', () => String)
-  async cover(@Parent() account: Account) {
-    const uploadDetail = await this.prisma.account
-      .findUnique({
-        where: {
-          id: account.id
-        }
-      })
-      .cover({
-        include: {
-          upload: true
-        }
-      });
-
-    if (_.isNil(uploadDetail)) return null;
-
-    const { upload } = uploadDetail;
-    const cfUrl = `${process.env.CF_IMAGES_DELIVERY_URL}/${process.env.CF_ACCOUNT_HASH}/${upload.cfImageId}/public`;
-    const url = upload.cfImageId ? cfUrl : upload.url;
-
-    return url;
-  }
-
   @ResolveField('accountDana', () => AccountDana)
   async accountDana(@Parent() account: Account) {
-    const accountDana = await this.prisma.account
-      .findUnique({
-        where: {
-          id: account.id
-        }
-      })
-      .accountDana();
+    return this.accountLoader.batchAccountDanas.load(account.id);
+  }
 
-    return accountDana;
+  @ResolveField('followersCount', () => Number)
+  async followersCount(@Parent() account: Account) {
+    return this.accountLoader.batchFollowersCount.load(account.id);
+  }
+
+  @ResolveField('followingsCount', () => Number)
+  async followingsCount(@Parent() account: Account) {
+    return this.accountLoader.batchFollowingsCount.load(account.id);
+  }
+
+  @ResolveField('followingPagesCount', () => Number)
+  async followingPagesCount(@Parent() account: Account) {
+    return this.accountLoader.batchFollowingPagesCount.load(account.id);
   }
 }

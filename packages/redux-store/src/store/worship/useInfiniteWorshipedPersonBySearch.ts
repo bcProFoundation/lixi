@@ -90,7 +90,7 @@ export function useInfiniteWorshipedPersonBySearch(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allWorshipedPersonBySearch?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allWorshipedPersonBySearch?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

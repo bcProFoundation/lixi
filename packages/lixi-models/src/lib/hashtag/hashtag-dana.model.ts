@@ -14,6 +14,18 @@ export class HashtagDana {
   @Field(() => Float)
   danaBurnScore: number;
 
+  @Field(() => Float)
+  danaReceivedUp: number;
+
+  @Field(() => Float)
+  danaReceivedDown: number;
+
+  @Field(() => Float)
+  danaReceivedScore: number;
+
+  @Field(() => Number)
+  version: number;
+
   @IsOptional()
   @Field(() => String, { nullable: true })
   hashtagId?: Nullable<string>;
@@ -21,4 +33,8 @@ export class HashtagDana {
   @IsOptional()
   @Field(() => Hashtag, { nullable: true })
   hashtag?: Nullable<Hashtag>;
+
+  constructor(partial: Partial<HashtagDana>) {
+    Object.assign(this, partial);
+  }
 }

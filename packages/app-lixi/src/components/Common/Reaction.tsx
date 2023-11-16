@@ -133,8 +133,8 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
   const currentTheme = useAppSelector(getCurrentThemes);
 
   const burnValue: number = match(burnForType)
-    .with(BurnForType.Post, () => (dataItem as PostQueryItem).danaBurnScore)
-    .with(BurnForType.Page, () => (dataItem as PageQueryItem).danaBurnScore)
+    .with(BurnForType.Post, () => (dataItem as PostQueryItem).postDana.danaReceivedScore)
+    .with(BurnForType.Page, () => (dataItem as PageQueryItem).pageDana.danaReceivedScore)
     .with(BurnForType.Account, () => (dataItem as AccountQueryItem).accountDana.danaGiven)
     .with(BurnForType.Comment, () => (dataItem as CommentQueryItem).danaBurnScore)
     .with(BurnForType.Token, () => (dataItem as TokenQueryItem).danaBurnScore)
@@ -198,7 +198,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
       dispatch(
         openModal('BurnModal', {
           burnForType: BurnForType.Post,
-          id: dataItem.id.toString(),
+          burnForItem: dataItem,
           classStyle: 'burn-modal'
         })
       );

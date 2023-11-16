@@ -27,47 +27,25 @@ export type CommentQuery = {
     id: string;
     commentText: string;
     commentByPublicKey?: string | null;
-    commentToId: string;
+    commentableId?: string | null;
     danaBurnUp: number;
     danaBurnDown: number;
     danaBurnScore: number;
     createdAt: any;
     updatedAt: any;
     commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
-    commentTo: {
-      __typename?: 'Post';
-      id: string;
-      postAccount: { __typename?: 'Account'; address: string; id: number; name: string };
-      page?: {
-        __typename?: 'Page';
-        avatar?: string | null;
-        name: string;
-        id: string;
-        pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
-      } | null;
-    };
     commentDana?: {
       __typename?: 'CommentDana';
       danaBurnUp: number;
       danaBurnDown: number;
       danaBurnScore: number;
+      version: number;
     } | null;
-    uploadDetail?: {
-      __typename?: 'UploadDetail';
-      id: string;
-      upload: {
-        __typename?: 'Upload';
-        id: string;
-        width?: number | null;
-        height?: number | null;
-        cfImageId?: string | null;
-        cfImageFilename?: string | null;
-      };
-    } | null;
+    commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
   };
 };
 
-export type CommentsToPostIdQueryVariables = Types.Exact<{
+export type CommentsToCommentableIdQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
   before?: Types.InputMaybe<Types.Scalars['String']>;
   first?: Types.InputMaybe<Types.Scalars['Int']>;
@@ -77,9 +55,9 @@ export type CommentsToPostIdQueryVariables = Types.Exact<{
   skip?: Types.InputMaybe<Types.Scalars['Int']>;
 }>;
 
-export type CommentsToPostIdQuery = {
+export type CommentsToCommentableIdQuery = {
   __typename?: 'Query';
-  allCommentsToPostId: {
+  commentsToCommentableId: {
     __typename?: 'CommentConnection';
     totalCount?: number | null;
     edges?: Array<{
@@ -90,43 +68,21 @@ export type CommentsToPostIdQuery = {
         id: string;
         commentText: string;
         commentByPublicKey?: string | null;
-        commentToId: string;
+        commentableId?: string | null;
         danaBurnUp: number;
         danaBurnDown: number;
         danaBurnScore: number;
         createdAt: any;
         updatedAt: any;
         commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
-        commentTo: {
-          __typename?: 'Post';
-          id: string;
-          postAccount: { __typename?: 'Account'; address: string; id: number; name: string };
-          page?: {
-            __typename?: 'Page';
-            avatar?: string | null;
-            name: string;
-            id: string;
-            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
-          } | null;
-        };
         commentDana?: {
           __typename?: 'CommentDana';
           danaBurnUp: number;
           danaBurnDown: number;
           danaBurnScore: number;
+          version: number;
         } | null;
-        uploadDetail?: {
-          __typename?: 'UploadDetail';
-          id: string;
-          upload: {
-            __typename?: 'Upload';
-            id: string;
-            width?: number | null;
-            height?: number | null;
-            cfImageId?: string | null;
-            cfImageFilename?: string | null;
-          };
-        } | null;
+        commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
       };
     }> | null;
     pageInfo: {
@@ -144,38 +100,21 @@ export type CommentFieldsFragment = {
   id: string;
   commentText: string;
   commentByPublicKey?: string | null;
-  commentToId: string;
+  commentableId?: string | null;
   danaBurnUp: number;
   danaBurnDown: number;
   danaBurnScore: number;
   createdAt: any;
   updatedAt: any;
   commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
-  commentTo: {
-    __typename?: 'Post';
-    id: string;
-    postAccount: { __typename?: 'Account'; address: string; id: number; name: string };
-    page?: {
-      __typename?: 'Page';
-      avatar?: string | null;
-      name: string;
-      id: string;
-      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
-    } | null;
-  };
-  commentDana?: { __typename?: 'CommentDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
-  uploadDetail?: {
-    __typename?: 'UploadDetail';
-    id: string;
-    upload: {
-      __typename?: 'Upload';
-      id: string;
-      width?: number | null;
-      height?: number | null;
-      cfImageId?: string | null;
-      cfImageFilename?: string | null;
-    };
+  commentDana?: {
+    __typename?: 'CommentDana';
+    danaBurnUp: number;
+    danaBurnDown: number;
+    danaBurnScore: number;
+    version: number;
   } | null;
+  commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
 };
 
 export type CreateCommentMutationVariables = Types.Exact<{
@@ -189,43 +128,21 @@ export type CreateCommentMutation = {
     id: string;
     commentText: string;
     commentByPublicKey?: string | null;
-    commentToId: string;
+    commentableId?: string | null;
     danaBurnUp: number;
     danaBurnDown: number;
     danaBurnScore: number;
     createdAt: any;
     updatedAt: any;
     commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
-    commentTo: {
-      __typename?: 'Post';
-      id: string;
-      postAccount: { __typename?: 'Account'; address: string; id: number; name: string };
-      page?: {
-        __typename?: 'Page';
-        avatar?: string | null;
-        name: string;
-        id: string;
-        pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
-      } | null;
-    };
     commentDana?: {
       __typename?: 'CommentDana';
       danaBurnUp: number;
       danaBurnDown: number;
       danaBurnScore: number;
+      version: number;
     } | null;
-    uploadDetail?: {
-      __typename?: 'UploadDetail';
-      id: string;
-      upload: {
-        __typename?: 'Upload';
-        id: string;
-        width?: number | null;
-        height?: number | null;
-        cfImageId?: string | null;
-        cfImageFilename?: string | null;
-      };
-    } | null;
+    commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
   };
 };
 
@@ -240,25 +157,7 @@ export const CommentFieldsFragmentDoc = `
     avatar
   }
   commentByPublicKey
-  commentToId
-  commentTo {
-    id
-    postAccount {
-      address
-      id
-      name
-    }
-    page {
-      avatar
-      name
-      id
-      pageAccount {
-        id
-        name
-        address
-      }
-    }
-  }
+  commentableId
   danaBurnUp
   danaBurnDown
   danaBurnScore
@@ -266,6 +165,7 @@ export const CommentFieldsFragmentDoc = `
     danaBurnUp
     danaBurnDown
     danaBurnScore
+    version
   }
   uploadDetail {
     id
@@ -279,6 +179,11 @@ export const CommentFieldsFragmentDoc = `
   }
   createdAt
   updatedAt
+  commentable {
+    id
+    type
+    commentToId
+  }
 }
     `;
 export const CommentDocument = `
@@ -288,9 +193,9 @@ export const CommentDocument = `
   }
 }
     ${CommentFieldsFragmentDoc}`;
-export const CommentsToPostIdDocument = `
-    query CommentsToPostId($after: String, $before: String, $first: Int = 20, $last: Int, $orderBy: CommentOrder, $id: String, $skip: Int) {
-  allCommentsToPostId(
+export const CommentsToCommentableIdDocument = `
+    query CommentsToCommentableId($after: String, $before: String, $first: Int = 20, $last: Int, $orderBy: CommentOrder, $id: String, $skip: Int) {
+  commentsToCommentableId(
     after: $after
     before: $before
     first: $first
@@ -327,8 +232,8 @@ const injectedRtkApi = api.injectEndpoints({
     Comment: build.query<CommentQuery, CommentQueryVariables>({
       query: variables => ({ document: CommentDocument, variables })
     }),
-    CommentsToPostId: build.query<CommentsToPostIdQuery, CommentsToPostIdQueryVariables | void>({
-      query: variables => ({ document: CommentsToPostIdDocument, variables })
+    CommentsToCommentableId: build.query<CommentsToCommentableIdQuery, CommentsToCommentableIdQueryVariables | void>({
+      query: variables => ({ document: CommentsToCommentableIdDocument, variables })
     }),
     createComment: build.mutation<CreateCommentMutation, CreateCommentMutationVariables>({
       query: variables => ({ document: CreateCommentDocument, variables })
@@ -340,7 +245,7 @@ export { injectedRtkApi as api };
 export const {
   useCommentQuery,
   useLazyCommentQuery,
-  useCommentsToPostIdQuery,
-  useLazyCommentsToPostIdQuery,
+  useCommentsToCommentableIdQuery,
+  useLazyCommentsToCommentableIdQuery,
   useCreateCommentMutation
 } = injectedRtkApi;

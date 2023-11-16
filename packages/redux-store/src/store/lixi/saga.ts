@@ -3,7 +3,7 @@ import {
   AccountDto,
   Claim,
   ExportLixiCommand,
-  PaginationResult,
+  IPaginationResult,
   PostLixiResponseDto,
   RegisterLixiPackCommand
 } from '@bcpros/lixi-models';
@@ -21,7 +21,7 @@ import {
 } from '@bcpros/lixi-models/lib/lixi';
 import { all, fork, put, takeLatest } from '@redux-saga/core/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { removeUpload } from '@store/account/actions';
+import { removeUpload, removeUploadFromCache } from '@store/account/actions';
 import { getAccountById } from '@store/account/selectors';
 import { generateRandomBase58Str } from '@utils/encryptionMethods';
 import { Modal } from 'antd';
@@ -164,7 +164,7 @@ function* fetchInitialSubLixiesSaga(action: PayloadAction<number>) {
     const id = action.payload;
     const parentLixi: LixiDto = yield select(getLixiById(id));
     const account: AccountDto = yield select(getAccountById(parentLixi.accountId));
-    const subLixiResult: PaginationResult<Lixi> = yield call(lixiApi.getSubLixies, id, account?.secret);
+    const subLixiResult: IPaginationResult<Lixi> = yield call(lixiApi.getSubLixies, id, account?.secret);
     yield put(fetchInitialSubLixiesSuccess(subLixiResult));
   } catch (err) {
     console.error(err);
@@ -191,7 +191,7 @@ function* fetchMoreSubLixiesSaga(action: PayloadAction<{ parentId: number; start
     const { parentId, startId } = action.payload;
     const parentLixi: LixiDto = yield select(getLixiById(parentId));
     const account: AccountDto = yield select(getAccountById(parentLixi.accountId));
-    const subLixiResult: PaginationResult<Lixi> = yield call(lixiApi.getSubLixies, parentId, account?.secret, startId);
+    const subLixiResult: IPaginationResult<Lixi> = yield call(lixiApi.getSubLixies, parentId, account?.secret, startId);
     yield put(fetchMoreSubLixiesSuccess(subLixiResult));
   } catch (err) {
     const message = (err as Error).message ?? intl.get('lixi.couldNotFetchLixi');
@@ -318,7 +318,7 @@ function* postLixiSuccessSaga(action: PayloadAction<Lixi>) {
         duration: 5
       })
     );
-    yield put(removeUpload({ uploadType: UPLOAD_TYPES.ENVELOPE }));
+    yield put(removeUploadFromCache({ uploadType: UPLOAD_TYPES.ENVELOPE }));
     yield put(selectLixi(lixi.id));
   } catch (error) {
     const message = intl.get('lixi.errorWhenCreateLixi');
@@ -345,7 +345,7 @@ function* refreshLixiSaga(action: PayloadAction<number>) {
     const account: AccountDto = yield select(getAccountById(selectedLixi.accountId));
     yield put(showLoading(refreshLixi.type));
     const lixi: Lixi = yield call(lixiApi.getById, lixiId, account?.secret);
-    const claimResult: PaginationResult<Claim> = yield call(claimApi.getByLixiId, lixiId);
+    const claimResult: IPaginationResult<Claim> = yield call(claimApi.getByLixiId, lixiId);
     const claims = (claimResult.data ?? []) as Claim[];
     yield put(refreshLixiSuccess({ lixi: lixi, claims: claims }));
     yield put(fetchInitialSubLixies(lixi.id));
@@ -384,7 +384,7 @@ function* refreshLixiSilentSaga(action: PayloadAction<number>) {
     const selectedLixi: LixiDto = yield select(getLixiById(lixiId));
     const account: AccountDto = yield select(getAccountById(selectedLixi.accountId));
     const lixi: Lixi = yield call(lixiApi.getById, lixiId, account?.secret);
-    const claimResult: PaginationResult<Claim> = yield call(claimApi.getByLixiId, lixiId);
+    const claimResult: IPaginationResult<Claim> = yield call(claimApi.getByLixiId, lixiId);
     const claims = (claimResult.data ?? []) as Claim[];
     yield put(refreshLixiSilentSuccess({ lixi: lixi, claims: claims }));
     yield put(fetchInitialSubLixies(lixi.id));
@@ -406,7 +406,7 @@ function* selectLixiSaga(action: PayloadAction<number>) {
     const account: AccountDto = yield select(getAccountById(selectedLixi.accountId));
     yield put(showLoading(selectLixi.type));
     const lixi: Lixi = yield call(lixiApi.getById, lixiId, account?.secret);
-    const claimResult: PaginationResult<Claim> = yield call(claimApi.getByLixiId, lixiId);
+    const claimResult: IPaginationResult<Claim> = yield call(claimApi.getByLixiId, lixiId);
     const claims = (claimResult.data ?? []) as Claim[];
     yield put(selectLixiSuccess({ lixi: lixi, claims: claims }));
     if (lixi.numberOfSubLixi > 0 && lixi.numberOfSubLixi) yield put(fetchInitialSubLixies(lixi.id));

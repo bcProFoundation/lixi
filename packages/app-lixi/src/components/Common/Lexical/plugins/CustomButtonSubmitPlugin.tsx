@@ -53,7 +53,7 @@ const CustomButtonSubmitPlugin = props => {
       props.onSubmit({ htmlContent: rootElementString, pureContent: getEditorStateTextString() });
     });
   };
-  const invalidPost = _.trim(props.currentContent) === '' && props.image.length === 0;
+  const invalidPost = (_.trim(props.currentContent) === '' && props.image.length === 0) || props.overLimitContent;
 
   return (
     <Button

@@ -1,14 +1,16 @@
 import { Logger, Module, forwardRef } from '@nestjs/common';
 import { NotificationModule } from 'src/common/modules/notifications/notification.module';
 import { AuthModule } from '../auth/auth.module';
+import { AccountCacheService } from './account-cache.service';
+import { AccountDanaCacheService } from './account-dana-cache.service';
+import AccountLoader from './account.loader';
 import { AccountResolver } from './account.resolver';
 import { FollowCacheService } from './follow-cache.service';
 import { FollowResolver } from './follow.resolver';
-import { AccountCacheService } from './account-cache.service';
-import { AccountDanaCacheService } from './account-dana-cache.service';
+import { WalletModule } from '../wallet/wallet.module';
 
 @Module({
-  imports: [AuthModule, NotificationModule],
+  imports: [forwardRef(() => AuthModule), forwardRef(() => NotificationModule)],
   controllers: [],
   providers: [
     AccountResolver,
@@ -16,7 +18,8 @@ import { AccountDanaCacheService } from './account-dana-cache.service';
     Logger,
     FollowCacheService,
     AccountCacheService,
-    AccountDanaCacheService
+    AccountDanaCacheService,
+    AccountLoader
   ],
   exports: [FollowCacheService, AccountCacheService, AccountDanaCacheService]
 })

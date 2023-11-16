@@ -10,7 +10,7 @@ import {
 } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit, forwardRef } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { Notification as NotificationDb, NotificationLevel as NotificationLevelDb, Prisma } from '@prisma/client';
 import { Queue } from 'bullmq';
@@ -29,20 +29,21 @@ import { WebpushNotificationJobData } from './webpush-notification.process';
 @Injectable()
 export class NotificationService implements OnModuleInit {
   private logger: Logger = new Logger('NotificationService');
-  private accountCacheService!: AccountCacheService;
+  // private accountCacheService!: AccountCacheService;
 
   constructor(
     private moduleRef: ModuleRef,
     private prisma: PrismaService,
     private notificationGateway: NotificationGateway,
     @InjectQueue(NOTIFICATION_OUTBOUND_QUEUE) private notificationOutboundQueue: Queue,
+    @Inject(forwardRef(() => AccountCacheService)) private accountCacheService: AccountCacheService,
     @InjectQueue(WEBPUSH_NOTIFICATION_QUEUE) private webpushQueue: Queue,
     @InjectRedis() private readonly redis: Redis,
     @I18n() private i18n: I18nService
   ) {}
 
   onModuleInit() {
-    this.accountCacheService = this.moduleRef.get(AccountCacheService);
+    // this.accountCacheService = this.moduleRef.get(AccountCacheService);
   }
 
   async saveAndDispatchNotification(notification: NotificationDto) {

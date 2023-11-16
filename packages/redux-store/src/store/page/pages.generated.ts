@@ -11,10 +11,7 @@
 
 import * as Types from '../../generated/types.generated';
 
-import {
-  PageInfoFieldsFragmentDoc,
-  PostMeiliPageInfoFieldsFragmentDoc
-} from '../../graphql/fragments/page-info-fields.fragment.generated';
+import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
 import { api } from 'src/api/baseApi';
 export type PageQueryVariables = Types.Exact<{
   id: Types.Scalars['String'];
@@ -53,7 +50,16 @@ export type PageQuery = {
     totalPostsBurnScore: number;
     pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
     category?: { __typename?: 'Category'; id: string; name: string } | null;
-    pageDana?: { __typename?: 'PageDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+    pageDana?: {
+      __typename?: 'PageDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+      version: number;
+    } | null;
   };
 };
 
@@ -62,18 +68,16 @@ export type PagesQueryVariables = Types.Exact<{
   before?: Types.InputMaybe<Types.Scalars['String']>;
   first?: Types.InputMaybe<Types.Scalars['Int']>;
   last?: Types.InputMaybe<Types.Scalars['Int']>;
-  orderBy?: Types.InputMaybe<Array<Types.PageOrder> | Types.PageOrder>;
-  query?: Types.InputMaybe<Types.Scalars['String']>;
   skip?: Types.InputMaybe<Types.Scalars['Int']>;
 }>;
 
 export type PagesQuery = {
   __typename?: 'Query';
   allPages: {
-    __typename?: 'PageConnection';
-    totalCount?: number | null;
-    edges?: Array<{
-      __typename?: 'PageEdge';
+    __typename?: 'PageBasicConnection';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'PageBasicEdge';
       cursor: string;
       node: {
         __typename?: 'Page';
@@ -106,25 +110,85 @@ export type PagesQuery = {
         totalPostsBurnScore: number;
         pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         category?: { __typename?: 'Category'; id: string; name: string } | null;
-        pageDana?: { __typename?: 'PageDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+        pageDana?: {
+          __typename?: 'PageDana';
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+          version: number;
+        } | null;
       };
-    }> | null;
-    pageInfo: {
-      __typename?: 'PageInfo';
-      endCursor?: string | null;
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor?: string | null;
-    };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
+  };
+};
+
+export type PagesByFollowerQueryVariables = Types.Exact<{
+  after?: Types.InputMaybe<Types.Scalars['String']>;
+  first?: Types.InputMaybe<Types.Scalars['Int']>;
+}>;
+
+export type PagesByFollowerQuery = {
+  __typename?: 'Query';
+  pagesByFollower: {
+    __typename?: 'PageBasicConnection';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'PageBasicEdge';
+      cursor: string;
+      node: {
+        __typename?: 'Page';
+        id: string;
+        pageAccountId: number;
+        name: string;
+        title?: string | null;
+        categoryId?: number | null;
+        description: string;
+        avatar?: string | null;
+        cover?: string | null;
+        parentId?: string | null;
+        countryId?: number | null;
+        countryName?: string | null;
+        stateId?: number | null;
+        stateName?: string | null;
+        address?: string | null;
+        website?: string | null;
+        danaBurnUp: number;
+        danaBurnDown: number;
+        danaBurnScore: number;
+        totalBurnForPage?: number | null;
+        followersCount?: number | null;
+        createPostFee: string;
+        createCommentFee: string;
+        createdAt: any;
+        updatedAt: any;
+        totalPostsBurnUp: number;
+        totalPostsBurnDown: number;
+        totalPostsBurnScore: number;
+        pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+        category?: { __typename?: 'Category'; id: string; name: string } | null;
+        pageDana?: {
+          __typename?: 'PageDana';
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+          version: number;
+        } | null;
+      };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
   };
 };
 
 export type PagesByUserIdQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
-  before?: Types.InputMaybe<Types.Scalars['String']>;
   first?: Types.InputMaybe<Types.Scalars['Int']>;
-  last?: Types.InputMaybe<Types.Scalars['Int']>;
-  orderBy?: Types.InputMaybe<Types.PageOrder>;
   id?: Types.InputMaybe<Types.Scalars['Int']>;
   skip?: Types.InputMaybe<Types.Scalars['Int']>;
 }>;
@@ -132,10 +196,10 @@ export type PagesByUserIdQueryVariables = Types.Exact<{
 export type PagesByUserIdQuery = {
   __typename?: 'Query';
   allPagesByUserId: {
-    __typename?: 'PageConnection';
-    totalCount?: number | null;
-    edges?: Array<{
-      __typename?: 'PageEdge';
+    __typename?: 'PageBasicConnection';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'PageBasicEdge';
       cursor: string;
       node: {
         __typename?: 'Page';
@@ -168,16 +232,19 @@ export type PagesByUserIdQuery = {
         totalPostsBurnScore: number;
         pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         category?: { __typename?: 'Category'; id: string; name: string } | null;
-        pageDana?: { __typename?: 'PageDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+        pageDana?: {
+          __typename?: 'PageDana';
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+          version: number;
+        } | null;
       };
-    }> | null;
-    pageInfo: {
-      __typename?: 'PageInfo';
-      endCursor?: string | null;
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor?: string | null;
-    };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
   };
 };
 
@@ -212,7 +279,16 @@ export type PageFieldsFragment = {
   totalPostsBurnScore: number;
   pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
   category?: { __typename?: 'Category'; id: string; name: string } | null;
-  pageDana?: { __typename?: 'PageDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+  pageDana?: {
+    __typename?: 'PageDana';
+    danaBurnUp: number;
+    danaBurnDown: number;
+    danaBurnScore: number;
+    danaReceivedUp: number;
+    danaReceivedDown: number;
+    danaReceivedScore: number;
+    version: number;
+  } | null;
 };
 
 export type CreatePageMutationVariables = Types.Exact<{
@@ -252,7 +328,16 @@ export type CreatePageMutation = {
     totalPostsBurnScore: number;
     pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
     category?: { __typename?: 'Category'; id: string; name: string } | null;
-    pageDana?: { __typename?: 'PageDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+    pageDana?: {
+      __typename?: 'PageDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+      version: number;
+    } | null;
   };
 };
 
@@ -293,7 +378,16 @@ export type UpdatePageMutation = {
     totalPostsBurnScore: number;
     pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
     category?: { __typename?: 'Category'; id: string; name: string } | null;
-    pageDana?: { __typename?: 'PageDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+    pageDana?: {
+      __typename?: 'PageDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+      version: number;
+    } | null;
   };
 };
 
@@ -330,6 +424,10 @@ export const PageFieldsFragmentDoc = `
     danaBurnUp
     danaBurnDown
     danaBurnScore
+    danaReceivedUp
+    danaReceivedDown
+    danaReceivedScore
+    version
   }
   totalBurnForPage
   followersCount
@@ -350,14 +448,12 @@ export const PageDocument = `
 }
     ${PageFieldsFragmentDoc}`;
 export const PagesDocument = `
-    query Pages($after: String, $before: String, $first: Int = 20, $last: Int, $orderBy: [PageOrder!], $query: String, $skip: Int) {
+    query Pages($after: String, $before: String, $first: Int = 20, $last: Int, $skip: Int) {
   allPages(
     after: $after
     before: $before
     first: $first
     last: $last
-    orderBy: $orderBy
-    query: $query
     skip: $skip
   ) {
     totalCount
@@ -368,23 +464,32 @@ export const PagesDocument = `
       }
     }
     pageInfo {
-      ...PageInfoFields
+      ...BasicPageInfoFields
     }
   }
 }
     ${PageFieldsFragmentDoc}
-${PageInfoFieldsFragmentDoc}`;
+${BasicPageInfoFieldsFragmentDoc}`;
+export const PagesByFollowerDocument = `
+    query PagesByFollower($after: String, $first: Int = 20) {
+  pagesByFollower(after: $after, first: $first) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...PageFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+    ${PageFieldsFragmentDoc}
+${BasicPageInfoFieldsFragmentDoc}`;
 export const PagesByUserIdDocument = `
-    query PagesByUserId($after: String, $before: String, $first: Int = 20, $last: Int, $orderBy: PageOrder, $id: Int, $skip: Int) {
-  allPagesByUserId(
-    after: $after
-    before: $before
-    first: $first
-    last: $last
-    orderBy: $orderBy
-    id: $id
-    skip: $skip
-  ) {
+    query PagesByUserId($after: String, $first: Int = 20, $id: Int, $skip: Int) {
+  allPagesByUserId(after: $after, first: $first, id: $id, skip: $skip) {
     totalCount
     edges {
       cursor
@@ -393,12 +498,12 @@ export const PagesByUserIdDocument = `
       }
     }
     pageInfo {
-      ...PageInfoFields
+      ...BasicPageInfoFields
     }
   }
 }
     ${PageFieldsFragmentDoc}
-${PageInfoFieldsFragmentDoc}`;
+${BasicPageInfoFieldsFragmentDoc}`;
 export const CreatePageDocument = `
     mutation createPage($input: CreatePageInput!) {
   createPage(data: $input) {
@@ -423,6 +528,9 @@ const injectedRtkApi = api.injectEndpoints({
     Pages: build.query<PagesQuery, PagesQueryVariables | void>({
       query: variables => ({ document: PagesDocument, variables })
     }),
+    PagesByFollower: build.query<PagesByFollowerQuery, PagesByFollowerQueryVariables | void>({
+      query: variables => ({ document: PagesByFollowerDocument, variables })
+    }),
     PagesByUserId: build.query<PagesByUserIdQuery, PagesByUserIdQueryVariables | void>({
       query: variables => ({ document: PagesByUserIdDocument, variables })
     }),
@@ -441,6 +549,8 @@ export const {
   useLazyPageQuery,
   usePagesQuery,
   useLazyPagesQuery,
+  usePagesByFollowerQuery,
+  useLazyPagesByFollowerQuery,
   usePagesByUserIdQuery,
   useLazyPagesByUserIdQuery,
   useCreatePageMutation,

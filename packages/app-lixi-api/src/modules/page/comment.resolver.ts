@@ -3,18 +3,18 @@ import {
   Comment,
   CommentConnection,
   CommentOrder,
+  Commentable,
   CreateCommentInput,
   PaginationArgs,
   UploadDetail
 } from '@bcpros/lixi-models';
-import { NotificationLevel } from '@bcpros/lixi-prisma';
+import { CommentType, NotificationLevel } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { HttpException, HttpStatus, Inject, Logger, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { ChronikClient } from 'chronik-client';
-import { PubSub } from 'graphql-subscriptions';
 import _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
@@ -22,11 +22,13 @@ import { NotificationService } from 'src/common/modules/notifications/notificati
 import { PostAccountEntity } from 'src/decorators/postAccount.decorator';
 import VError from 'verror';
 import { NOTIFICATION_TYPES } from '../../common/modules/notifications/notification.constants';
+import { AccountCacheService } from '../account/account-cache.service';
 import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
-import { AccountCacheService } from '../account/account-cache.service';
-
-const pubSub = new PubSub();
+import { XPIJS } from '../wallet/wallet.constants';
+import { CommentCacheService } from './comment-cache.service';
+import CommentLoader from './comment.loader';
+import CommentableLoader from './commentable.loader';
 
 @SkipThrottle()
 @Resolver(() => Comment)
@@ -37,26 +39,22 @@ export class CommentResolver {
     private prisma: PrismaService,
     @I18n() private i18n: I18nService,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
-    @Inject('xpijs') private XPI: BCHJS,
+    @Inject(XPIJS) private XPI: BCHJS,
+    private readonly commentLoader: CommentLoader,
+    private readonly commentableLoader: CommentableLoader,
     private readonly notificationService: NotificationService,
-    private readonly accountCacheService: AccountCacheService
+    private readonly accountCacheService: AccountCacheService,
+    private readonly commentCacheService: CommentCacheService
   ) {}
-
-  @Subscription(() => Comment)
-  commentCreated() {
-    return pubSub.asyncIterator('commentCreated');
-  }
 
   @Query(() => Comment)
   async comment(@Args('id', { type: () => String }) id: string) {
-    return this.prisma.comment.findUnique({
-      where: { id: id }
-    });
+    return await this.commentCacheService.getById(id);
   }
 
   @Query(() => CommentConnection)
   @UseGuards(GqlJwtAuthGuardByPass)
-  async allCommentsToPostId(
+  async commentsToCommentableId(
     @PostAccountEntity() account: Account,
     @Args() { after, before, first, last }: PaginationArgs,
     @Args({ name: 'id', type: () => String, nullable: true })
@@ -73,7 +71,7 @@ export class CommentResolver {
         {
           AND: [
             {
-              commentToId: id
+              commentableId: id
             },
             {
               danaBurnScore: {
@@ -86,40 +84,10 @@ export class CommentResolver {
           ? [
               {
                 AND: [
-                  { commentToId: id },
+                  { commentableId: id },
                   {
                     commentAccount: {
                       id: account.id
-                    }
-                  }
-                ]
-              }
-            ]
-          : []),
-        ...(account && account.id
-          ? [
-              {
-                AND: [
-                  { commentToId: id },
-                  {
-                    commentTo: {
-                      postAccountId: account.id
-                    }
-                  }
-                ]
-              }
-            ]
-          : []),
-        ...(account && account.id
-          ? [
-              {
-                AND: [
-                  { commentToId: id },
-                  {
-                    commentTo: {
-                      page: {
-                        pageAccountId: account.id
-                      }
                     }
                   }
                 ]
@@ -132,7 +100,7 @@ export class CommentResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.comment.findMany({
-          include: { commentAccount: true, commentTo: true },
+          include: { commentAccount: true },
           where: queryComments,
           orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
           ...args
@@ -155,52 +123,46 @@ export class CommentResolver {
         throw new Error(couldNotFindAccount);
       }
 
-      let uploadDetail = null;
-      const { commentText, commentToId, tipHex, createFeeHex, uploadId } = data;
+      //TODO: Fix this
+      let upload = null;
+      const { commentText, commentableId, tipHex, createFeeHex, uploadId } = data;
 
       if (uploadId) {
-        uploadDetail = await this.prisma.uploadDetail.findUnique({
+        upload = await this.prisma.upload.findUnique({
           where: {
-            uploadId: uploadId
+            id: uploadId
           }
         });
       }
 
-      const commentToSave = {
-        commentText: commentText,
-        commentAccount: { connect: { id: account.id } },
-        commentTo: {
-          connect: { id: commentToId }
-        },
-        uploadDetail: uploadDetail ? { connect: { id: uploadDetail.id } } : undefined
-      };
-
-      const post = await this.prisma.post.findFirst({
+      const commentable = await this.prisma.commentable.findUnique({
         where: {
-          id: commentToId
-        },
-        include: {
-          postAccount: true
+          id: commentableId
         }
       });
 
-      let createFee: any;
-      if (createFeeHex) {
-        const txData = await this.XPI.RawTransactions.decodeRawTransaction(data.createFeeHex);
-        createFee = txData['vout'][0].value;
-        if (Number(createFee) < 0) {
-          throw new Error('Syntax error. Number cannot be less than or equal to 0');
+      const post = await this.prisma.post.findFirst({
+        where: {
+          id: commentableId
         }
-      }
+      });
 
+      if (!commentable) throw new Error('Could not create new comment.');
+
+      const post =
+        commentable.type === CommentType.POST
+          ? await this.prisma.post.findFirst({
+              where: {
+                commentableId: commentableId
+              },
+              include: {
+                postAccount: true
+              }
+            })
+          : null;
+
+      let createFee: any;
       let tipValue: any;
-      if (tipHex) {
-        const txData = await this.XPI.RawTransactions.decodeRawTransaction(tipHex);
-        tipValue = txData['vout'][0].value;
-        if (Number(tipValue) < 0) {
-          throw new Error('Syntax error. Number cannot be less than or equal to 0');
-        }
-      }
 
       const savedComment = await this.prisma.$transaction(async prisma => {
         let txid: string = '';
@@ -223,17 +185,20 @@ export class CommentResolver {
 
         const createdComment = await prisma.comment.create({
           data: {
-            ...commentToSave,
+            commentText: commentText,
+            commentAccount: { connect: { id: account.id } },
+            commentable: { connect: { id: commentableId || undefined } },
             txid: txid,
-            createFee: createFee
-          },
-          include: {
-            commentTo: true
+            createFee: createFee,
+            commentDana: {
+              create: {}
+            },
+            commentToId: ''
           }
         });
 
         //Check if tipHex then create tip transaction
-        if (tipHex) {
+        if (tipHex && post) {
           const transactionTip = {
             txid,
             fromAddress: account.address,
@@ -246,12 +211,16 @@ export class CommentResolver {
           await prisma.giveTip.create({ data: transactionTip });
         }
 
+        // Clear the cache from relevant loaders
+        await this.commentableLoader.batchTotalComments.clear({
+          id: createdComment.id,
+          commentableId
+        });
+
         return createdComment;
       });
 
-      pubSub.publish('commentCreated', { commentCreated: savedComment });
-
-      if (savedComment) {
+      if (savedComment && post) {
         const recipient = await this.accountCacheService.getById(_.toSafeInteger(post?.postAccountId));
         if (!recipient) {
           const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
@@ -274,18 +243,6 @@ export class CommentResolver {
           };
         }
 
-        if (tipHex) {
-          const txData = await this.XPI.RawTransactions.decodeRawTransaction(tipHex);
-          const { value } = txData['vout'][0];
-
-          commentToGiveData = {
-            senderName: account.name,
-            senderAddress: account.address,
-            senderAvatar: account.avatar,
-            xpiGive: value
-          };
-        }
-
         const createNotif = {
           senderId: account.id,
           recipientId: post?.postAccount.id as number,
@@ -301,7 +258,7 @@ export class CommentResolver {
           (await this.notificationService.saveAndDispatchNotification(jobData.notification));
       }
 
-      return savedComment;
+      return new Comment({ ...savedComment });
     } catch (err) {
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -315,13 +272,10 @@ export class CommentResolver {
     return account;
   }
 
-  @ResolveField('uploadDetail', () => UploadDetail)
-  async uploadDetail(@Parent() comment: Comment) {
-    const uploadDetail = await this.prisma.comment.findUnique({ where: { id: comment.id } }).uploadDetail({
-      include: {
-        upload: true
-      }
-    });
-    return uploadDetail;
+  @ResolveField('commentable', () => Commentable)
+  async commentable(@Parent() comment: Comment) {
+    if (!comment?.commentableId) return null;
+
+    return this.commentLoader.batchCommentable.load(comment.commentableId);
   }
 }

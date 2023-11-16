@@ -91,7 +91,7 @@ export function useInfiniteOpenPageMessageSessionByPageId(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allOpenPageMessageSessionByPageId?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allOpenPageMessageSessionByPageId?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

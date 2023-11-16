@@ -1,7 +1,5 @@
-import React from 'react';
-import PageDetailLayout from '@components/Layout/PageDetailLayout';
-import PageHomeFeed from '@components/Pages/PageHomeFeed';
 import MainLayout from '@components/Layout/MainLayout';
+import PageHomeFeed from '@components/Pages/PageHomeFeed';
 
 const FeedPage = () => {
   return <PageHomeFeed />;

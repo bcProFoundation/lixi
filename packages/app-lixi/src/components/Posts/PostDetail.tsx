@@ -11,18 +11,16 @@ import { CommentOrderField, CreateCommentInput, OrderDirection, RepostInput } fr
 import useXPI from '@hooks/useXPI';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
-import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { getAccountInfoTemp, getSelectedAccount } from '@store/account/selectors';
-import { getBurnQueue, getFailQueue } from '@store/burn';
-import { api as commentsApi, useCreateCommentMutation } from '@store/comment/comments.api';
-import { useInfiniteCommentsToPostIdQuery } from '@store/comment/useInfiniteCommentsToPostIdQuery';
+import { createCommentFailure, createCommentSuccess } from '@store/comment';
+import { useCreateCommentMutation } from '@store/comment/comments.api';
+import { useInfiniteCommentsToCommentableIdQuery } from '@store/comment/useInfiniteCommentsToCommentableIdQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
 import { useRepostMutation } from '@store/post/posts.generated';
 import { sendXPIFailure } from '@store/send/actions';
-import { getFilterPostsHome, getLevelFilter } from '@store/settings/selectors';
 import { showToast } from '@store/toast/actions';
-import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
+import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
 import { getUtxoWif } from '@utils/cashMethods';
 import { AutoComplete, Image, Input, Skeleton, Space, Spin } from 'antd';
 import parse from 'html-react-parser';
@@ -351,19 +349,14 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   const { XPI, chronik } = Wallet;
   const { createBurnTransaction, sendXpi } = useXPI();
   const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const burnQueue = useAppSelector(getBurnQueue);
-  const failQueue = useAppSelector(getFailQueue);
   const walletPaths = useAppSelector(getAllWalletPaths);
   const selectedAccount = useAppSelector(getSelectedAccount);
   const [imagesList, setImagesList] = useState([]);
   const [isEncryptedOptionalOpReturnMsg, setIsEncryptedOptionalOpReturnMsg] = useState(true);
-  const walletStatus = useAppSelector(getWalletStatus);
   const [open, setOpen] = useState(false);
-  const filterValue = useAppSelector(getFilterPostsHome);
   const [showTranslation, setShowTranslation] = useState(false);
   const accountInfoTemp = useAppSelector(getAccountInfoTemp);
   const isMobileView = useDetectMobileView();
-  const level = useAppSelector(getLevelFilter);
 
   const [repostTrigger, { isLoading: isLoadingRepost, isSuccess: isSuccessRepost, isError: isErrorRepost }] =
     useRepostMutation();
@@ -375,26 +368,26 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
     }
   ];
 
-  const { data, totalCount, fetchNext, hasNext, isFetching } = useInfiniteCommentsToPostIdQuery(
+  const { data, totalCount, fetchNext, hasNext, isFetching } = useInfiniteCommentsToCommentableIdQuery(
     {
       first: 20,
       orderBy: {
         direction: OrderDirection.Asc,
         field: CommentOrderField.UpdatedAt
       },
-      id: post.id
+      id: post.commentableId
     },
     false
   );
 
   useEffect(() => {
-    const mapImages = post.uploads.map(img => {
-      const imgUrl = img.upload
-        ? `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.upload.cfImageId}/public`
+    const mapImages = post.imageUploadable?.uploads.map(img => {
+      const imgUrl = img
+        ? `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img?.cfImageId}/public`
         : '';
 
-      let width = img?.upload?.width || 4;
-      let height = img?.upload?.height || 3;
+      let width = img?.width || 4;
+      let height = img?.height || 3;
       let objImg = {
         src: imgUrl,
         width: width,
@@ -498,48 +491,17 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
 
       const createCommentInput: CreateCommentInput = {
         commentText: text,
-        commentToId: post.id,
+        commentableId: post.commentableId,
         tipHex: tipHex,
         createFeeHex: createFeeHex
       };
 
-      const params = {
-        orderBy: {
-          direction: OrderDirection.Asc,
-          field: CommentOrderField.UpdatedAt
-        }
-      };
-
-      let patches: PatchCollection;
       try {
         const result = await createCommentTrigger({ input: createCommentInput }).unwrap();
-        patches = dispatch(
-          commentsApi.util.updateQueryData(
-            'CommentsToPostId',
-            { id: createCommentInput.commentToId, ...params },
-            draft => {
-              draft.allCommentsToPostId.edges.unshift({
-                cursor: result.createComment.id,
-                node: {
-                  ...result.createComment
-                }
-              });
-              draft.allCommentsToPostId.totalCount = draft.allCommentsToPostId.totalCount + 1;
-            }
-          )
-        );
+        dispatch(createCommentSuccess(result));
       } catch (error) {
         const message = intl.get('comment.unableCreateComment');
-        if (patches) {
-          dispatch(commentsApi.util.patchQueryData('CommentsToPostId', params, patches.inversePatches));
-        }
-        dispatch(
-          showToast('error', {
-            message: 'Error',
-            description: message,
-            duration: 3
-          })
-        );
+        dispatch(createCommentFailure(message));
       }
 
       setFocus('comment', { shouldSelect: true });
@@ -681,9 +643,9 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
               <PostTranslate postTranslate={post.translations[0].translateContent} />
             </div>
           )}
-          {post.uploads.length != 0 && isMobileView && (
+          {post.imageUploadable?.uploads.length != 0 && isMobileView && (
             <>
-              {post.uploads.length > 1 && (
+              {post.imageUploadable?.uploads.length > 1 && (
                 <div className="images-post images-post-mobile">
                   <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
                     {imagesList.map((img, index) => (
@@ -694,7 +656,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
                   </PhotoProvider>
                 </div>
               )}
-              {post.uploads.length === 1 && (
+              {post.imageUploadable?.uploads.length === 1 && (
                 <>
                   <div className="images-post images-post-mobile only-one-image">
                     <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
@@ -709,7 +671,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
               )}
             </>
           )}
-          {post.uploads.length != 0 && !isMobileView && (
+          {post.imageUploadable?.uploads.length != 0 && !isMobileView && (
             <div className={`images-post ${imagesList.length > 1 ? 'images-post-desktop' : ''}`}>
               <Image.PreviewGroup>
                 <Gallery margin={4} photos={imagesList} renderImage={imageRenderer} />

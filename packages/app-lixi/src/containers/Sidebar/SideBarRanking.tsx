@@ -1,22 +1,21 @@
 import { LockOutlined } from '@ant-design/icons';
 import { Account } from '@bcpros/lixi-models';
+import AvatarUser from '@components/Common/AvatarUser';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
 import { SmartButton } from '@components/Common/PrimaryButton';
 import { WalletContext } from '@context/index';
 import { generateAccount, getLeaderboard, importAccount, selectAccount } from '@store/account/actions';
-import { getAllAccounts, getSelectedAccount, getLeaderBoard } from '@store/account/selectors';
+import { getAllAccounts, getLeaderBoard, getSelectedAccount } from '@store/account/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { Button, Space, Form, Input, Layout, Modal, Skeleton } from 'antd';
+import { useInfinitePagesQuery } from '@store/page/useInfinitePagesQuery';
+import { getCurrentThemes } from '@store/settings';
+import { Button, Form, Input, Layout, Modal, Skeleton, Space } from 'antd';
 import * as _ from 'lodash';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useState } from 'react';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
-import { useInfinitePagesQuery } from '@store/page/useInfinitePagesQuery';
-import { OrderDirection, PageOrderField } from '@generated/types.generated';
-import AvatarUser from '@components/Common/AvatarUser';
-import { getCurrentThemes } from '@store/settings';
 const { Sider } = Layout;
 
 export const ShortcutItemAccess = ({
@@ -256,17 +255,7 @@ const SidebarRanking = () => {
 
   const { data: topPagesData, isLoading: isLoadingPage } = useInfinitePagesQuery(
     {
-      first: 5,
-      orderBy: [
-        {
-          direction: OrderDirection.Desc,
-          field: PageOrderField.DanaBurnScore
-        },
-        {
-          direction: OrderDirection.Desc,
-          field: PageOrderField.TotalPostsBurnScore
-        }
-      ]
+      first: 5
     },
     false
   );
@@ -337,7 +326,7 @@ const SidebarRanking = () => {
                         {index === 0 && (
                           <h4 className="distance" key={`${item.id}`}>
                             <ShortcutItemAccess
-                              burnValue={item.totalBurnForPage}
+                              burnValue={item?.pageDana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
                               href={`/page/${item.id}`}
@@ -349,7 +338,7 @@ const SidebarRanking = () => {
                         {index === 1 && (
                           <h4 className="distance" key={`${item.id}`}>
                             <ShortcutItemAccess
-                              burnValue={item.totalBurnForPage}
+                              burnValue={item?.pageDana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
                               href={`/page/${item.id}`}
@@ -361,7 +350,7 @@ const SidebarRanking = () => {
                         {index === 2 && (
                           <h4 className="distance" key={`${item.id}`}>
                             <ShortcutItemAccess
-                              burnValue={item.totalBurnForPage}
+                              burnValue={item?.pageDana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
                               href={`/page/${item.id}`}
@@ -373,7 +362,7 @@ const SidebarRanking = () => {
                         {index > 2 && (
                           <h4 className="distance" key={`${item.id}`}>
                             <ShortcutItemAccess
-                              burnValue={item.totalBurnForPage}
+                              burnValue={item?.pageDana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
                               isPage={true}

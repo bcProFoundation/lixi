@@ -7,19 +7,21 @@ import { Job } from 'bullmq';
 import { Redis } from 'ioredis';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { POST_FANOUT_QUEUE } from './constants/post.constants';
+import { CONTENT_FANOUT_QUEUE } from './constants';
 import { Burn, Post } from '@bcpros/lixi-prisma';
 import { FollowCacheService } from '../account/follow-cache.service';
 import ReBloom from '../../common/redis/redis-bloom';
+import { PostCacheService } from './post-cache.service';
 
 @Injectable()
-@Processor(POST_FANOUT_QUEUE, { concurrency: 50 })
+@Processor(CONTENT_FANOUT_QUEUE, { concurrency: 50 })
 export class PostFanoutProcessor extends WorkerHost {
   private logger: Logger = new Logger(this.constructor.name);
 
-  static inNetworkSourceKey = 'timeline:innetworksource';
+  static inNetworkSourceKey = 'timeline:innetwork:source';
 
   constructor(
+    private readonly postCacheService: PostCacheService,
     private readonly followCacheService: FollowCacheService,
     @InjectRedis() private readonly redis: Redis,
     @I18n() private readonly i18n: I18nService
@@ -30,12 +32,13 @@ export class PostFanoutProcessor extends WorkerHost {
   public async process(job: Job<{ post: Post }, boolean, string>): Promise<boolean> {
     try {
       const { post } = job.data;
+      if (!post) return true;
       const id = `${post.id}`;
 
       // Invalidate the cache
       const epoch = '2023-01-01 00:00:00';
       const diffHour = moment.duration(moment(post.createdAt).diff(moment(epoch))).asHours();
-      const score = 10 * Math.pow(2, diffHour / 12);
+      const score = 1 * Math.pow(2, diffHour / 12);
 
       const postAccountId = post.postAccountId;
       const pageAccountId = post?.pageId;
@@ -61,16 +64,15 @@ export class PostFanoutProcessor extends WorkerHost {
       // Update dana view score and view for the post user
       await reBloom.add(postviewBfKey, id);
 
-      const pipeline = this.redis.pipeline();
-
       // Clear the post from cache
-      const hashPrefix = `posts:item-data`;
-      pipeline.hdel(hashPrefix, id);
+      await this.postCacheService.removeByKeys([id]);
 
+      const pipeline = this.redis.pipeline();
       // Update score for innetwork
+      const timelineId = `post:${id}`;
       for (const follower of followers) {
         const keyInNetwork = `${PostFanoutProcessor.inNetworkSourceKey}:${follower}`;
-        pipeline.zincrby(keyInNetwork, score, id);
+        pipeline.zincrby(keyInNetwork, score, timelineId);
       }
 
       await pipeline.exec();

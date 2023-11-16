@@ -1,7 +1,7 @@
 import { ObjectType } from '@nestjs/graphql';
 
-import { Paginated } from '../../../core';
+import { BasicPaginated } from '../../../core';
 import { Token } from '../token.model';
 
 @ObjectType()
-export class TokenConnection extends Paginated(Token) {}
+export class TokenConnection extends BasicPaginated(Token) {}

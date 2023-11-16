@@ -234,7 +234,9 @@ const NotificationPopup = (notifications: Notification[], account: Account, isPo
       <StyledTitlePage>{intl.get('general.notifications')}</StyledTitlePage>
       {notifications?.length === 0 ? (
         <>
-          <BlankNotification className="blank-notification">No notification</BlankNotification>
+          <BlankNotification className="blank-notification">
+            {intl.get('notification.noNotification')}
+          </BlankNotification>
         </>
       ) : (
         <>

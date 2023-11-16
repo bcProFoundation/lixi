@@ -1,26 +1,26 @@
 import LockOutlined, { EditOutlined, SendOutlined } from '@ant-design/icons';
-import intl from 'react-intl-universal';
 import BalanceHeader from '@bcpros/lixi-components/components/Common/BalanceHeader';
-import QRCode, { FormattedWalletAddress } from '@bcpros/lixi-components/components/Common/QRCode';
+import { FormattedWalletAddress } from '@bcpros/lixi-components/components/Common/QRCode';
 import { currency } from '@bcpros/lixi-components/components/Common/Ticker';
 import WalletLabel from '@bcpros/lixi-components/components/Common/WalletLabel';
+import { Account, RenameAccountCommand } from '@bcpros/lixi-models';
+import { QRCodeModalType } from '@bcpros/lixi-models/constants';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
 import { SmartButton } from '@components/Common/PrimaryButton';
+import { QRCodeModal } from '@components/Common/QRCodeModal';
+import { RenameAccountModalProps } from '@components/Settings/RenameAccountModal';
+import { WalletContext } from '@context/index';
 import { importAccount, renameAccount } from '@store/account/actions';
-import { fromSmallestDenomination } from '@utils/cashMethods';
-import { Form, Input } from 'antd';
-import React, { useEffect, useState } from 'react';
 import { getSelectedAccount } from '@store/account/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { WalletContext } from '@context/index';
-import styled from 'styled-components';
-import { Account, RenameAccountCommand } from '@bcpros/lixi-models';
-import { RenameAccountModalProps } from '@components/Settings/RenameAccountModal';
 import { openModal } from '@store/modal/actions';
-import { useRouter } from 'next/router';
 import { getSelectedWalletPath, getWalletStatus } from '@store/wallet';
-import { QRCodeModal } from '@components/Common/QRCodeModal';
-import { QRCodeModalType } from '@bcpros/lixi-models/constants';
+import { fromSmallestDenomination } from '@utils/cashMethods';
+import { Form, Input } from 'antd';
+import { useRouter } from 'next/router';
+import React, { useState } from 'react';
+import intl from 'react-intl-universal';
+import styled from 'styled-components';
 
 const CardContainer = styled.div`
   position: relative;

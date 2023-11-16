@@ -90,7 +90,7 @@ export function useInfiniteWorshipByPersonIdQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allWorshipedByPersonId?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allWorshipedByPersonId?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

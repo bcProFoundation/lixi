@@ -164,14 +164,15 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
       dispatch(setNewPostAvailable(false));
     }
   }, []);
-  const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } = useInfiniteHomeTimelineQuery(
-    {
-      first: 40,
-      level: level ?? 3,
-      isHome: true
-    },
-    false
-  );
+  const { data, totalCount, fetchNext, hasNext, isLoading, isFetching, isFetchingNext, refetch } =
+    useInfiniteHomeTimelineQuery(
+      {
+        first: 20,
+        level: level ?? 3,
+        isHome: true
+      },
+      false
+    );
 
   useEffect(() => {
     if (refs.current[postIdSelected]) {
@@ -228,7 +229,7 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
           textAlign: 'center'
         }}
       >
-        {isFetchingQueryNext ? <Skeleton avatar active /> : "It's so empty here..."}
+        {isFetchingQueryNext || isQueryLoading ? <Skeleton avatar active /> : "It's so empty here..."}
       </b>
     );
   };
@@ -272,17 +273,6 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   };
 
-  const Header = () => {
-    return (
-      <StyledHeader>
-        <CreatePostCard hashtags={hashtags} query={query} />
-        <h1 style={{ textAlign: 'left', fontSize: '20px', margin: '1rem' }}>
-          {query && intl.get('general.searchResults', { text: query })}
-        </h1>
-      </StyledHeader>
-    );
-  };
-
   const Footer = () => {
     return (
       <b
@@ -291,7 +281,7 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
           textAlign: 'center'
         }}
       >
-        {isFetchingNext ? <Skeleton avatar active /> : "It's so empty here..."}
+        {isFetchingNext || isLoading ? <Skeleton avatar active /> : "It's so empty here..."}
       </b>
     );
   };
@@ -312,11 +302,7 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
             next={loadMoreItems}
             hasMore={hasNext}
             loader={<Skeleton avatar active />}
-            endMessage={
-              <p style={{ textAlign: 'center' }}>
-                <b>{data.length > 0 ? 'end reached' : ''}</b>
-              </p>
-            }
+            endMessage={<Footer />}
             scrollableTarget="scrollableDiv"
             scrollThreshold={'100px'}
           >
@@ -366,7 +352,12 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
   return (
     <StyledTimelineListing>
       <SearchBox />
-      <Header />
+      <StyledHeader>
+        <CreatePostCard hashtags={hashtags} query={query} />
+        <h1 style={{ textAlign: 'left', fontSize: '20px', margin: '1rem' }}>
+          {query && intl.get('general.searchResults', { text: query })}
+        </h1>
+      </StyledHeader>
       {graphqlRequestLoading ? <Skeleton avatar active /> : showPosts()}
     </StyledTimelineListing>
   );

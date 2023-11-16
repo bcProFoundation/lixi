@@ -12,10 +12,7 @@
 import * as Types from '../../generated/types.generated';
 
 import { PostFieldsFragmentDoc } from '../post/posts.generated';
-import {
-  PageInfoFieldsFragmentDoc,
-  PostMeiliPageInfoFieldsFragmentDoc
-} from '../../graphql/fragments/page-info-fields.fragment.generated';
+import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
 import { api } from 'src/api/baseApi';
 export type TimelineQueryVariables = Types.Exact<{
   id: Types.Scalars['String'];
@@ -26,15 +23,19 @@ export type TimelineQuery = {
   timeline: {
     __typename?: 'TimelineItem';
     id: string;
-    data?: {
-      __typename?: 'Post';
+    data: {
+      __typename: 'Post';
       id: string;
       content: string;
-      repostCount?: number | null;
+      postAccountId: number;
+      pageId?: string | null;
+      tokenId?: string | null;
+      repostCount: number;
       danaBurnUp: number;
       danaBurnDown: number;
       danaBurnScore: number;
       totalComments: number;
+      commentableId?: string | null;
       createdAt: any;
       updatedAt: any;
       followPostOwner?: boolean | null;
@@ -79,14 +80,37 @@ export type TimelineQuery = {
         accountId?: number | null;
         account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
       }> | null;
-      postDana?: { __typename?: 'PostDana'; danaBurnUp: number; danaBurnDown: number; danaBurnScore: number } | null;
+      postDana?: {
+        __typename?: 'PostDana';
+        danaBurnUp: number;
+        danaBurnDown: number;
+        danaBurnScore: number;
+        danaReceivedUp: number;
+        danaReceivedDown: number;
+        danaReceivedScore: number;
+        version: number;
+      } | null;
       translations?: Array<{
         __typename?: 'PostTranslation';
         id: string;
         translateContent?: string | null;
         translateLanguage?: string | null;
       }> | null;
-    } | null;
+      imageUploadable?: {
+        __typename?: 'ImageUploadable';
+        id: string;
+        uploads: Array<{
+          __typename?: 'Upload';
+          id: string;
+          sha: string;
+          bucket?: string | null;
+          width?: number | null;
+          height?: number | null;
+          cfImageId?: string | null;
+          cfImageFilename?: string | null;
+        }>;
+      } | null;
+    };
   };
 };
 
@@ -100,22 +124,26 @@ export type HomeTimelineQuery = {
   __typename?: 'Query';
   homeTimeline: {
     __typename?: 'TimelineItemConnection';
-    totalCount?: number | null;
-    edges?: Array<{
-      __typename?: 'TimelineItemEdge';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'TimelineItemBasicEdge';
       cursor: string;
       node: {
         __typename?: 'TimelineItem';
         id: string;
-        data?: {
-          __typename?: 'Post';
+        data: {
+          __typename: 'Post';
           id: string;
           content: string;
-          repostCount?: number | null;
+          postAccountId: number;
+          pageId?: string | null;
+          tokenId?: string | null;
+          repostCount: number;
           danaBurnUp: number;
           danaBurnDown: number;
           danaBurnScore: number;
           totalComments: number;
+          commentableId?: string | null;
           createdAt: any;
           updatedAt: any;
           followPostOwner?: boolean | null;
@@ -165,6 +193,10 @@ export type HomeTimelineQuery = {
             danaBurnUp: number;
             danaBurnDown: number;
             danaBurnScore: number;
+            danaReceivedUp: number;
+            danaReceivedDown: number;
+            danaReceivedScore: number;
+            version: number;
           } | null;
           translations?: Array<{
             __typename?: 'PostTranslation';
@@ -172,16 +204,24 @@ export type HomeTimelineQuery = {
             translateContent?: string | null;
             translateLanguage?: string | null;
           }> | null;
-        } | null;
+          imageUploadable?: {
+            __typename?: 'ImageUploadable';
+            id: string;
+            uploads: Array<{
+              __typename?: 'Upload';
+              id: string;
+              sha: string;
+              bucket?: string | null;
+              width?: number | null;
+              height?: number | null;
+              cfImageId?: string | null;
+              cfImageFilename?: string | null;
+            }>;
+          } | null;
+        };
       };
-    }> | null;
-    pageInfo: {
-      __typename?: 'PageInfo';
-      endCursor?: string | null;
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor?: string | null;
-    };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
   };
 };
 
@@ -190,6 +230,7 @@ export const TimelineDocument = `
   timeline(id: $id) {
     id
     data {
+      __typename
       ... on Post {
         ...PostFields
       }
@@ -206,6 +247,7 @@ export const HomeTimelineDocument = `
       node {
         id
         data {
+          __typename
           ... on Post {
             ...PostFields
           }
@@ -213,12 +255,12 @@ export const HomeTimelineDocument = `
       }
     }
     pageInfo {
-      ...PageInfoFields
+      ...BasicPageInfoFields
     }
   }
 }
     ${PostFieldsFragmentDoc}
-${PageInfoFieldsFragmentDoc}`;
+${BasicPageInfoFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
   overrideExisting: true,

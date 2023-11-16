@@ -36,7 +36,8 @@ import {
   setAccountAvatar,
   setAccountCover,
   setSecondaryLanguageAccountSuccess,
-  changeAccountLocale
+  changeAccountLocale,
+  removeUploadFromCache
 } from './actions';
 import { AccountsState } from './state';
 
@@ -51,6 +52,7 @@ const initialState: AccountsState = accountsAdapter.getInitialState({
   pageAvatarUpload: null,
   pageCoverUpload: null,
   postCoverUploads: [],
+  productImageUploads: [],
   editorCache: null,
   leaderBoard: [],
   transactionReady: true,
@@ -182,8 +184,37 @@ export const accountReducer = createReducer(initialState, builder => {
           break;
       }
     })
+    .addCase(removeUploadFromCache, (state, action) => {
+      const { uploadType, id } = action.payload;
+
+      switch (uploadType) {
+        case UPLOAD_TYPES.ENVELOPE:
+          state.envelopeUpload = null;
+          break;
+        case UPLOAD_TYPES.ACCOUNT_AVATAR:
+          state.accountAvatarUpload = null;
+          break;
+        case UPLOAD_TYPES.PAGE_AVATAR:
+          state.pageAvatarUpload = null;
+          break;
+        case UPLOAD_TYPES.PAGE_COVER:
+          state.pageCoverUpload = null;
+          break;
+        case UPLOAD_TYPES.POST:
+          state.postCoverUploads = state.postCoverUploads.filter(image => {
+            return image.id !== id;
+          });
+          break;
+        case UPLOAD_TYPES.MESSAGE:
+          state.messageUploads = state.messageUploads.filter(image => {
+            return image.id !== id;
+          });
+          break;
+      }
+    })
     .addCase(removeAllUpload, (state, action) => {
       state.postCoverUploads.length = 0;
+      state.productImageUploads.length = 0;
     })
     .addCase(removeAllMessageUpload, (state, action) => {
       state.messageUploads.length = 0;

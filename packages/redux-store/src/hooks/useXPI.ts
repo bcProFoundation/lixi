@@ -5,7 +5,6 @@ import BCHJS from '@bcpros/xpi-js';
 import { WalletPathAddressInfo } from '@store/wallet';
 import {
   encryptOpReturnMsg,
-  fromSatoshisToXpi,
   fromXpiToSatoshis,
   generateOpReturnScript,
   generateTxInput,

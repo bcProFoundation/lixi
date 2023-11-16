@@ -6,6 +6,7 @@ import { useCheckIfFollowPageQuery } from '@store/follow/follows.api';
 import { useAppSelector } from '@store/hooks';
 import { usePageQuery } from '@store/page/pages.generated';
 import { SagaStore, wrapper } from '@store/store';
+import { toImageUrl } from '@utils/index';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
 import React from 'react';
@@ -18,12 +19,17 @@ const PageDetailPage = props => {
   const canonicalUrl = process.env.NEXT_PUBLIC_LIXI_URL + `page/${page.id}`;
   const selectedAccount = useAppSelector(getSelectedAccount);
 
+  const { currentData: currentDataPageQuery } = usePageQuery({ id: page.id }, { skip: !selectedAccount || !page });
+
   const { currentData: currentDataCheckIsFollowed, isSuccess: isSuccessCheckIsFollowed } = useCheckIfFollowPageQuery(
     {
       pageId: page.id
     },
     { skip: !selectedAccount || !page }
   );
+
+  const pageToRender = currentDataPageQuery?.page ?? page;
+  console.log(pageToRender);
 
   return (
     <React.Fragment>
@@ -45,7 +51,11 @@ const PageDetailPage = props => {
             cardType: 'summary_large_image'
           }}
         />
-        <PageDetail page={page} isMobile={isMobile} checkIsFollowed={currentDataCheckIsFollowed?.checkIfFollowPage} />
+        <PageDetail
+          page={pageToRender}
+          isMobile={isMobile}
+          checkIsFollowed={currentDataCheckIsFollowed?.checkIfFollowPage}
+        />
       </React.Fragment>
     </React.Fragment>
   );
@@ -63,7 +73,10 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   const slug: string = _.isArray(context.params.slug) ? context.params.slug[0] : context.params.slug;
   const pageId: string = slug;
 
-  const page = await prisma.page.findUnique({
+  const deliveryUrl = process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL;
+  const cfAccountHash = process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH;
+
+  const dbValue = await prisma.page.findUnique({
     where: {
       id: pageId
     },
@@ -71,9 +84,19 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
       pageAccount: true,
       category: true,
       country: true,
-      state: true
+      state: true,
+      avatar: { include: { upload: true } },
+      cover: { include: { upload: true } }
     }
   });
+
+  const page = {
+    ..._.omit(dbValue, 'country', 'state'),
+    avatar: toImageUrl(deliveryUrl, cfAccountHash, dbValue.avatar?.upload),
+    cover: toImageUrl(deliveryUrl, cfAccountHash, dbValue.cover?.upload),
+    stateName: dbValue.state?.name || '',
+    countryName: dbValue.country?.name || ''
+  };
 
   if (!page) {
     return {

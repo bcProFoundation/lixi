@@ -1,5 +1,5 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit, forwardRef } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { TokenSigner, TokenVerifier, decodeToken } from 'jsontokens';
 import { I18n, I18nService } from 'nestjs-i18n';
@@ -11,24 +11,25 @@ import { ModuleRef } from '@nestjs/core';
 import { hashMnemonic } from '../../utils/encryptionMethods';
 import { AccountCacheService } from '../account/account-cache.service';
 import { WalletService } from '../wallet/wallet.service';
+import { WALLET_SERVICES } from '../wallet/wallet.constants';
 const wif = require('wif');
 
 @Injectable()
 export class AuthService implements OnModuleInit {
   private logger: Logger = new Logger(AuthService.name);
 
-  private accountCacheService!: AccountCacheService;
+  // private accountCacheService!: AccountCacheService;
 
   constructor(
+    @Inject(forwardRef(() => AccountCacheService)) private accountCacheService: AccountCacheService,
     private prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis,
-    private walletService: WalletService,
-    @I18n() private i18n: I18nService,
-    private moduleRef: ModuleRef
+    @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
+    @I18n() private i18n: I18nService // private moduleRef: ModuleRef
   ) {}
 
   onModuleInit() {
-    this.accountCacheService = this.moduleRef.get(AccountCacheService);
+    // this.accountCacheService = this.moduleRef.get(AccountCacheService);
   }
 
   /**
@@ -51,7 +52,8 @@ export class AuthService implements OnModuleInit {
       throw new VError(accountNotExistMessage);
     }
 
-    const { publicKey, wifKey } = await this.walletService.deriveAddress(mnemonic, 0);
+    const walletService = this.walletServices['xpi'];
+    const { publicKey, wifKey } = await walletService.deriveAddress(mnemonic, 0);
     if (!account.publicKey) {
       // There're  no public key, old account
       await this.prisma.account.update({
@@ -62,7 +64,7 @@ export class AuthService implements OnModuleInit {
           publicKey: publicKey
         }
       });
-      await this.accountCacheService.deleteById(account.id);
+      await this.accountCacheService.removeByKey(account.id.toString());
     }
 
     const dataToSign = {
@@ -81,30 +83,18 @@ export class AuthService implements OnModuleInit {
       const tokenDecoded = decodeToken(token);
       const { id } = JSON.parse(tokenDecoded.payload as string);
 
-      const accountCacheService = await this.moduleRef.resolve(AccountCacheService);
+      // const accountCacheService = await this.moduleRef.resolve(AccountCacheService);
 
       // Find the account with cache
-      const account = await accountCacheService.getById(id);
-      let url;
-      if (account && (account as any)?.avatar) {
-        const avatar = (account as any)?.avatar;
-        const { upload } = avatar;
-        const cfUrl = `${process.env.CF_IMAGES_DELIVERY_URL}/${process.env.CF_ACCOUNT_HASH}/${upload.cfImageId}/public`;
-        url = upload.cfImageId ? cfUrl : upload.url;
-      }
+      const account = await this.accountCacheService.getById(id);
 
       if (!account) throw new Error('Invalid account');
 
-      const verified = await new TokenVerifier('ES256K', account.publicKey).verifyAsync(token);
+      const { publicKey } = account;
+      const verified = await new TokenVerifier('ES256K', publicKey || '').verifyAsync(token);
 
       if (verified) {
-        return {
-          ...account,
-          dayOfBirth: account.dayOfBirth ?? undefined,
-          monthOfBirth: account.monthOfBirth ?? undefined,
-          yearOfBirth: account.yearOfBirth ?? undefined,
-          avatar: url ?? undefined
-        };
+        return account;
       }
     } catch (err) {
       throw new Error('Invalid account');

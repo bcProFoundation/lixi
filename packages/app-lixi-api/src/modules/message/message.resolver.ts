@@ -6,9 +6,16 @@ import {
   MessageOrder,
   PaginationArgs,
   NotificationDto,
-  WebpushNotification
+  WebpushNotification,
+  ImageUploadable as ImageUploadableModel
 } from '@bcpros/lixi-models';
-import { MessageType, NotificationLevel, PageMessageSessionStatus } from '@bcpros/lixi-prisma';
+import {
+  ImageUploadable,
+  ImageUploadableType,
+  MessageType,
+  NotificationLevel,
+  PageMessageSessionStatus
+} from '@bcpros/lixi-prisma';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { Inject, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
@@ -31,6 +38,7 @@ import { ChronikClient } from 'chronik-client';
 import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { PageMessageSessionCacheService } from './page-message-session-cache.service';
+import { XPIJS } from '../wallet/wallet.constants';
 
 const pubSub = new PubSub();
 
@@ -44,7 +52,7 @@ export class MessageResolver {
     private meiliService: MeiliService,
     @I18n() private i18n: I18nService,
     private notificationGateway: NotificationGateway,
-    @Inject('xpijs') private XPI: BCHJS,
+    @Inject(XPIJS) private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     private readonly notificationService: NotificationService,
     private readonly pageMessageSessionCacheService: PageMessageSessionCacheService
@@ -140,21 +148,26 @@ export class MessageResolver {
 
     if (pageMessageSession && pageMessageSession.status === PageMessageSessionStatus.OPEN) {
       const updatedAt = new Date();
-      let uploadDetailIds: any[] = [];
+      let imageUploadable: ImageUploadable | null = null;
 
       //check if there is upload
       if (uploadIds && uploadIds.length > 0) {
-        const promises = uploadIds.map(async (id: string) => {
-          const uploadDetails = await this.prisma.uploadDetail.findFirst({
-            where: {
-              uploadId: id
+        imageUploadable = await this.prisma.$transaction(async prisma => {
+          //create new imageUploadable
+          const result = await prisma.imageUploadable.create({
+            data: {
+              account: { connect: { id: account.id } },
+              uploads: {
+                connect: uploadIds.map((upload: string) => {
+                  return { id: upload };
+                })
+              },
+              type: ImageUploadableType.MESSAGE
             }
           });
 
-          return uploadDetails && uploadDetails.id;
+          return result;
         });
-
-        uploadDetailIds = await Promise.all(promises);
       }
 
       const message = await this.prisma.$transaction(async prisma => {
@@ -164,17 +177,8 @@ export class MessageResolver {
             isPageOwner: isPageOwner ?? false,
             author: { connect: { id: authorId } },
             pageMessageSession: { connect: { id: pageMessageSessionId } },
-            uploads: {
-              connect:
-                uploadDetailIds.length > 0
-                  ? uploadDetailIds.map((uploadDetail: any) => {
-                      return {
-                        id: uploadDetail
-                      };
-                    })
-                  : undefined
-            },
-            messageType: uploadDetailIds.length > 0 ? MessageType.IMAGE : MessageType.TEXT
+            imageUploadable: { connect: imageUploadable ? { id: imageUploadable.id } : undefined },
+            messageType: imageUploadable ? MessageType.IMAGE : MessageType.TEXT
           },
           include: {
             author: {
@@ -189,23 +193,27 @@ export class MessageResolver {
                 pageId: true
               }
             },
-            uploads: {
-              select: {
-                id: true,
-                upload: true
+            imageUploadable: {
+              include: {
+                uploads: {
+                  select: {
+                    id: true,
+                    sha: true,
+                    bucket: true,
+                    width: true,
+                    height: true,
+                    cfImageId: true,
+                    cfImageFilename: true
+                  }
+                }
               }
             }
           }
         });
 
         //Give Tip
-        if (tipHex) {
-          const txData = await this.XPI.RawTransactions.decodeRawTransaction(tipHex);
-          const tipValue = txData['vout'][0].value;
-          if (Number(tipValue) < 0) {
-            throw new Error('Syntax error. Number cannot be less than or equal to 0');
-          }
-
+        if (tipHex && body) {
+          const tipValue = parseFloat(body.toLowerCase().split(' ')[1]);
           const broadcastResponse = await this.chronik.broadcastTx(tipHex);
           if (!broadcastResponse) {
             throw new Error('Empty chronik broadcast response');
@@ -289,26 +297,29 @@ export class MessageResolver {
     return pageMessageSession;
   }
 
-  @ResolveField()
-  async uploads(@Parent() message: Message) {
-    const uploads = await this.prisma.uploadDetail.findMany({
-      where: {
-        messageId: message.id
-      },
-      include: {
-        upload: {
-          select: {
-            id: true,
-            sha: true,
-            bucket: true,
-            width: true,
-            height: true,
-            cfImageId: true,
-            cfImageFilename: true
+  @ResolveField('imageUploadable', () => ImageUploadableModel)
+  async imageUploadable(@Parent() message: Message) {
+    const imageUploadable = await this.prisma.message
+      .findUnique({
+        where: {
+          id: message.id
+        }
+      })
+      .imageUploadable({
+        include: {
+          uploads: {
+            select: {
+              id: true,
+              sha: true,
+              bucket: true,
+              width: true,
+              height: true,
+              cfImageId: true,
+              cfImageFilename: true
+            }
           }
         }
-      }
-    });
-    return uploads;
+      });
+    return imageUploadable;
   }
 }

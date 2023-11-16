@@ -1,18 +1,37 @@
-import _ from 'lodash';
+import { Account, PostDana, Repost, UploadDetail } from '@bcpros/lixi-models';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Scope } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import DataLoader from 'dataloader';
-import { Page, Post, Repost, UploadDetail } from '@bcpros/lixi-models';
-import { DanaViewScoreService } from './dana-view-score.service';
+import { Redis } from 'ioredis';
+import _ from 'lodash';
+import { AccountCacheService } from '../account/account-cache.service';
 import { FollowCacheService } from '../account/follow-cache.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { DanaViewScoreService } from './dana-view-score.service';
+import { PageCacheService } from './page-cache.service';
+import { PostDanaCacheService } from './post-dana-cache.service';
+import { RedisDataLoader } from '../../common/redis/redis-dataloader';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class PostLoader {
   constructor(
     private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis,
+    private readonly pageCacheService: PageCacheService,
+    private readonly accountCacheService: AccountCacheService,
     private readonly danaViewScoreService: DanaViewScoreService,
-    private readonly followCacheService: FollowCacheService
+    private readonly followCacheService: FollowCacheService,
+    private readonly postDanaCacheService: PostDanaCacheService
   ) {}
+
+  public readonly batchPostDanas = new DataLoader<string, PostDana>(async (ids: readonly string[]) => {
+    const postIds = ids as unknown as string[];
+    const danas = await this.postDanaCacheService.getPostDanas(postIds);
+    const data = postIds.map((postId, index) => {
+      return danas[index] ?? new PostDana({});
+    });
+    return Promise.resolve(data);
+  });
 
   public async getPostsUploadsByBatch(postIds: readonly string[]): Promise<(UploadDetail | any)[]> {
     const ids = postIds as unknown as string[];
@@ -60,93 +79,102 @@ export default class PostLoader {
     return await this.getPostsUploadsByBatch(postIds);
   });
 
-  public readonly batchPages = new DataLoader(async (pageIds: readonly string[]) => {
-    const ids = (pageIds as unknown as string[]) ?? [];
-    const pagesDb = await this.prisma.page.findMany({
-      include: {
-        pageAccount: true,
-        category: true,
-        avatar: true,
-        cover: true
-      },
-      where: {
-        id: {
-          in: ids
-        }
-      }
-    });
-    const avatarIds = _.compact(pagesDb.map(item => item.avatar?.id));
-    const coverIds = _.compact(pagesDb.map(item => item.cover?.id));
-    const avatarsDb = await this.prisma.uploadDetail.findMany({
-      where: {
-        id: { in: avatarIds }
-      },
-      include: {
-        upload: true
-      }
-    });
-    const avatarsMap = new Map(
-      avatarsDb.map(item => {
-        const { upload } = item;
-        const avatarUrl = `${process.env.CF_IMAGES_DELIVERY_URL}/${process.env.CF_ACCOUNT_HASH}/${upload?.cfImageId}/public`;
-        return [item.id, avatarUrl];
-      })
-    );
-
-    const coversDb = await this.prisma.uploadDetail.findMany({
-      where: {
-        id: { in: coverIds }
-      },
-      include: {
-        upload: true
-      }
-    });
-
-    const coversMap = new Map(
-      coversDb.map(item => {
-        const { upload } = item;
-        const url = `${process.env.CF_IMAGES_DELIVERY_URL}/${process.env.CF_ACCOUNT_HASH}/${upload?.cfImageId}/public`;
-        return [item.id, url];
-      })
-    );
-
-    const pagesMap = new Map(
-      pagesDb.map(item => {
-        const { avatar, cover } = item;
-        const page = new Page({
-          ...item,
-          avatar: avatar?.id ? avatarsMap.get(avatar?.id) : '',
-          cover: cover?.id ? coversMap.get(cover?.id) : ''
-        });
-        return [item.id, page];
-      })
-    );
-
-    const data = pageIds.map(pageId => {
-      return pagesMap.get(pageId) ?? new Error(pageId);
+  public readonly batchPages = new DataLoader(async (ids: readonly string[]) => {
+    const pageIds = ids as unknown as string[];
+    const pages = await this.pageCacheService.getByIds(pageIds);
+    const pagesMap = new Map(_.compact(pages).map(page => [page.id, page]));
+    const data = ids.map((id, index) => {
+      return pagesMap.get(id) ?? null;
     });
     return Promise.resolve(data);
   });
 
-  public readonly batchReposts = new DataLoader(async (postIds: readonly string[]) => {
-    const ids = (postIds as unknown as string[]) ?? [];
-
-    const repostsDb = await this.prisma.repost.findMany({
-      where: {
-        postId: {
-          in: ids
-        }
-      }
+  public readonly batchAccounts = new DataLoader(async (accountIds: readonly number[]) => {
+    const ids = (accountIds as unknown as number[]) ?? [];
+    const accounts = await this.accountCacheService.getByIds(ids);
+    const data = accountIds.map((accountId, index) => {
+      return accounts[index] ?? new Account({ id: accountId });
     });
-    const reposts = repostsDb.map(item => {
-      return new Repost({
-        ...item
-      });
-    });
-    return postIds.map(postId => {
-      return reposts.filter(item => item.postId == postId) || null;
-    });
+    return Promise.resolve(data);
   });
+
+  public readonly batchReposts = new RedisDataLoader(
+    this.redis,
+    'dataloader:PostLoader:batchReposts',
+    new DataLoader(
+      async (postIds: readonly string[]) => {
+        const ids = (postIds as unknown as string[]) ?? [];
+
+        const repostsDb = await this.prisma.repost.findMany({
+          where: {
+            postId: {
+              in: ids
+            }
+          },
+          include: {
+            account: true
+          }
+        });
+        const reposts = repostsDb.map(item => {
+          return new Repost({
+            ...item
+          });
+        });
+        return postIds.map(postId => {
+          return reposts.filter(item => item.postId == postId) || null;
+        });
+      },
+      {
+        cache: false
+      }
+    ),
+    {
+      expire: 600,
+      buffer: false
+    }
+  );
+
+  public readonly batchRepostCount = new RedisDataLoader(
+    this.redis,
+    'dataloader:PostLoader:batchRepostCount',
+    new DataLoader(
+      async (postIds: readonly string[]) => {
+        const ids = (postIds as unknown as string[]) ?? [];
+        const repostCount = await this.prisma.repost.groupBy({
+          by: ['postId'],
+          _count: {
+            _all: true
+          },
+          where: {
+            postId: {
+              in: ids
+            }
+          }
+        });
+        const repostCountMap = new Map(
+          repostCount.map(value => {
+            return [value.postId, value._count._all];
+          })
+        );
+        return postIds.map(postId => {
+          return repostCountMap.get(postId) ?? 0;
+        });
+      },
+      {
+        cache: false
+      }
+    ),
+    {
+      expire: 600,
+      buffer: false,
+      serialize: value => {
+        return value.toString();
+      },
+      deserialize: value => {
+        return _.toSafeInteger(value);
+      }
+    }
+  );
 
   public readonly batchDanaViewScores = new DataLoader(async (postIds: readonly string[]) => {
     const ids = (postIds as unknown as string[]) ?? [];
@@ -167,6 +195,11 @@ export default class PostLoader {
       return listCheckAccountFollowAccount.map((item, index) => {
         return !!listCheckAccountFollowAccount[index];
       });
+    },
+    {
+      cacheKeyFn: (item: { followingAccountId?: number; accountId: number }) => {
+        return `${item.accountId}:${item.followingAccountId}`;
+      }
     }
   );
 
@@ -181,6 +214,11 @@ export default class PostLoader {
       return listCheckAccountFollowPage.map((item, index) => {
         return !!listCheckAccountFollowPage[index];
       });
+    },
+    {
+      cacheKeyFn: (item: { pageId?: string; accountId: number }) => {
+        return `${item.accountId}:${item.pageId}`;
+      }
     }
   );
 
@@ -195,6 +233,11 @@ export default class PostLoader {
       return listCheckAccountFollowToken.map((item, index) => {
         return !!listCheckAccountFollowToken[index];
       });
+    },
+    {
+      cacheKeyFn: (item: { tokenId?: string; accountId: number }) => {
+        return `${item.accountId}:${item.tokenId}`;
+      }
     }
   );
 }

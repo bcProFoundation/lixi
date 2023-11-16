@@ -1,5 +1,4 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
-import { IsOptional } from 'class-validator';
 
 import { Token } from './token.model';
 
@@ -14,11 +13,25 @@ export class TokenDana {
   @Field(() => Float)
   danaBurnScore: number;
 
-  @IsOptional()
-  @Field(() => String, { nullable: true })
-  tokenId?: Nullable<string>;
+  @Field(() => Float)
+  danaReceivedUp: number;
 
-  @IsOptional()
-  @Field(() => Token, { nullable: true })
-  token?: Nullable<Token>;
+  @Field(() => Float)
+  danaReceivedDown: number;
+
+  @Field(() => Float)
+  danaReceivedScore: number;
+
+  @Field(() => Number)
+  version: number;
+
+  @Field(() => String)
+  tokenId: string;
+
+  @Field(() => Token)
+  token: Token;
+
+  constructor(partial: Partial<TokenDana>) {
+    Object.assign(this, partial);
+  }
 }

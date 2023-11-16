@@ -33,7 +33,9 @@ export class PageMessageSessionCacheService {
         [`authorId:${id}`, latestMessage?.authorId ?? ''],
         [`authorAddress:${id}`, latestMessage?.author.address ?? '']
       ]);
-      await this.redis.hmset(this.keyPrefix, fieldValues);
+      if (fieldValues.size > 0) {
+        await this.redis.hmset(this.keyPrefix, fieldValues);
+      }
 
       return {
         latestMessage: latestMessage?.body ?? '',
@@ -84,7 +86,9 @@ export class PageMessageSessionCacheService {
           [`authorId:${ids[i / 4]}`, latestMessage?.authorId ?? ''],
           [`authorAddress:${ids[i / 4]}`, latestMessage?.author.address ?? '']
         ]);
-        await this.redis.hmset(this.keyPrefix, fieldValues);
+        if (fieldValues.size > 0) {
+          await this.redis.hmset(this.keyPrefix, fieldValues);
+        }
       }
     }
 
@@ -115,7 +119,9 @@ export class PageMessageSessionCacheService {
       [`authorId:${pageMessageSessionId}`, authorId],
       [`authorAddress:${pageMessageSessionId}`, authorAddress]
     ]);
-    await this.redis.hmset(this.keyPrefix, fieldValues);
+    if (fieldValues.size > 0) {
+      await this.redis.hmset(this.keyPrefix, fieldValues);
+    }
   }
 
   async removeLatestMessage(pageMessageSessionId: string) {

@@ -9,15 +9,14 @@ import { PostQueryItem } from '@generated/index';
 import { CommentOrderField, CreateCommentInput, OrderDirection } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
-import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { getAccountInfoTemp, getSelectedAccount } from '@store/account/selectors';
-import { api as commentsApi, useCreateCommentMutation } from '@store/comment/comments.api';
-import { useInfiniteCommentsToPostIdQuery } from '@store/comment/useInfiniteCommentsToPostIdQuery';
+import { createCommentFailure, createCommentSuccess } from '@store/comment';
+import { useCreateCommentMutation } from '@store/comment/comments.api';
+import { useInfiniteCommentsToCommentableIdQuery } from '@store/comment/useInfiniteCommentsToCommentableIdQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { closeModal, openModal } from '@store/modal/actions';
 import { usePostQuery, useRepostMutation } from '@store/post/posts.generated';
 import { sendXPIFailure, sendXPISuccess } from '@store/send/actions';
-import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { fromSmallestDenomination, getUtxoWif } from '@utils/cashMethods';
 import { AutoComplete, Button, Image, Input, Modal, Skeleton, Spin } from 'antd';
@@ -245,17 +244,17 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
   const { isLoading, currentData, isError } = usePostQuery({ id: post.id });
 
   const imagesList = useMemo(() => {
-    let result = post?.uploads.map(img => {
-      const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.upload.cfImageId}/public`;
+    let result = post?.imageUploadable?.uploads.map(img => {
+      const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img?.cfImageId}/public`;
       let newImageObj = {
         src: imgUrl,
-        width: img?.upload?.width || 4,
-        height: img?.upload?.height || 3
+        width: img?.width || 4,
+        height: img?.height || 3
       };
       return newImageObj;
     });
     return result || [];
-  }, [post?.uploads]);
+  }, [post?.imageUploadable?.uploads]);
 
   useEffect(() => {
     if (!isError && currentData) {
@@ -408,9 +407,9 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
                 <PostTranslate postTranslate={post.translations[0].translateContent} />
               </div>
             )}
-            {post.uploads.length != 0 && isMobile && (
+            {post.imageUploadable?.uploads.length != 0 && isMobile && (
               <>
-                {post.uploads.length > 1 && (
+                {post.imageUploadable?.uploads.length > 1 && (
                   <div className="images-post images-post-mobile">
                     <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
                       {imagesList.map((img, index) => (
@@ -421,7 +420,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
                     </PhotoProvider>
                   </div>
                 )}
-                {post.uploads.length === 1 && (
+                {post.imageUploadable?.uploads.length === 1 && (
                   <>
                     <div className="images-post images-post-mobile only-one-image">
                       <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
@@ -436,7 +435,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
                 )}
               </>
             )}
-            {post.uploads.length != 0 && !isMobile && (
+            {post.imageUploadable?.uploads.length != 0 && !isMobile && (
               <div className={`images-post ${imagesList.length > 1 ? 'images-post-desktop' : ''}`}>
                 <Image.PreviewGroup>
                   <Gallery margin={4} photos={imagesList} renderImage={imageRenderer} />

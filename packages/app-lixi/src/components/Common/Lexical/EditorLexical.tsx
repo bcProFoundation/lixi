@@ -1,29 +1,26 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
-import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
-import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import TreeViewPlugin from './plugins/TreeViewPlugin';
 import MyCustomAutoFocusPlugin from './plugins/MyCustomAutoFocusPlugin';
 import editorConfig from './editorConfig';
 import CustomButtonSubmitPlugin from './plugins/CustomButtonSubmitPlugin';
-import onChange from './onChange';
 import EmojisPlugin from './plugins/EmojisPlugin';
 import TwitterPlugin from './plugins/TwitterPlugin';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
 import { MultiUploader } from '../Uploader/MultiUploader';
 import { PictureOutlined, CloseOutlined } from '@ant-design/icons';
-import { UPLOAD_API_S3_MULTIPLE, UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import { LIMIT_CONTENT_POST, UPLOAD_API_S3_MULTIPLE, UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
 import styled from 'styled-components';
 import LinkPlugin from './plugins/LinkPlugin';
 import ButtonLinkPlugin from './plugins/ButtonLinkPlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
-import { Image, Button } from 'antd';
+import { Image, Button, Progress } from 'antd';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { getPostCoverUploads } from '@store/account/selectors';
 import Gallery from 'react-photo-gallery';
@@ -32,6 +29,8 @@ import { removeUpload } from '@store/account';
 import YouTubePlugin from './plugins/YouTubePlugin';
 import FigmaPlugin from './plugins/FigmaPlugin';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
+import MyOnChangePlugin from './plugins/MyOnChangePlugin';
+import MaxLengthPlugin from './plugins/MaxLengthPlugin';
 
 export type EditorLexicalProps = {
   initialContent?: string;
@@ -151,6 +150,18 @@ const StyledEditorLexical = styled.div`
       gap: 5px;
     }
   }
+
+  .progress-content-post {
+    position: absolute;
+    bottom: 5px;
+    right: 150px;
+    .ant-progress-inner {
+      transition: width 0.2s linear;
+    }
+    .ant-progress-text {
+      color: rgb(244, 33, 46);
+    }
+  }
 `;
 
 const EditorLexical = (props: EditorLexicalProps) => {
@@ -178,8 +189,9 @@ const EditorLexical = (props: EditorLexicalProps) => {
     return imagesListResult || [];
   }, [postCoverUploads]);
   const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
-  const [currentContent, setCurrentContent] = useState<String>('');
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
+  const [pureContent, setPureContent] = useState<string>('');
+  const [htmlContent, setHtmlContent] = useState<string>('');
 
   useEffect(() => {
     inputText.current?.addEventListener('paste', handlePasteImage);
@@ -250,14 +262,28 @@ const EditorLexical = (props: EditorLexicalProps) => {
   const setUploadingImage = state => {
     setIsUploadingImage(state);
   };
-  const setContent = content => {
-    setCurrentContent(content);
-  };
 
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {
     if (_floatingAnchorElem !== null) {
       setFloatingAnchorElem(_floatingAnchorElem);
     }
+  };
+
+  const setStatePureContent = content => {
+    setPureContent(content);
+  };
+  const setStateHtmlContent = content => {
+    setHtmlContent(content);
+  };
+
+  const overLimitContent = () => {
+    return htmlContent.length > LIMIT_CONTENT_POST;
+  };
+
+  const calculatePercentContent = () => {
+    // minus default html content
+    const num = ((htmlContent.length - 50) / LIMIT_CONTENT_POST) * 100;
+    return num;
   };
 
   return (
@@ -276,7 +302,8 @@ const EditorLexical = (props: EditorLexicalProps) => {
               placeholder={Placeholder}
               ErrorBoundary={LexicalErrorBoundary}
             />
-            <OnChangePlugin onChange={editorState => onChange(editorState, setContent)} />
+            <MaxLengthPlugin maxLength={overLimitContent() ? pureContent.length : 24000} />
+            <MyOnChangePlugin setStateHtmlContent={setStateHtmlContent} setStatePureContent={setStatePureContent} />
             {/* <TreeViewPlugin /> */}
             <TwitterPlugin />
             <YouTubePlugin />
@@ -364,12 +391,33 @@ const EditorLexical = (props: EditorLexicalProps) => {
               <ButtonLinkPlugin />
             </div>
           </div>
+          {overLimitContent() ? (
+            <Progress
+              type="circle"
+              size={35}
+              className="progress-content-post"
+              percent={100}
+              status="exception"
+              strokeColor="rgb(244, 33, 46)"
+            />
+          ) : (
+            <Progress
+              type="circle"
+              size={calculatePercentContent() > 99 ? 35 : 30}
+              strokeColor={calculatePercentContent() > 99 ? 'rgb(255, 212, 0)' : '#1677ff'}
+              className="progress-content-post"
+              percent={calculatePercentContent()}
+              showInfo={false}
+            />
+          )}
+
           <CustomButtonSubmitPlugin
             onSubmit={value => onSubmit(value)}
             loading={loading || isUploadingImage}
             isEditMode={isEditMode}
-            currentContent={currentContent}
+            currentContent={pureContent}
             image={postCoverUploads}
+            overLimitContent={overLimitContent()}
           />
         </LexicalComposer>
       </StyledEditorLexical>

@@ -451,6 +451,7 @@ export default {
   'notification.unableToRead': 'Không thể đọc thông báo.',
   'notification.earlier': 'Trước đó',
   'notification.readAll': 'Xem tất cả',
+  'notification.noNotification': 'Không có thông báo',
 
   /* 10.NFT */
   'lixinft.unableToMint': 'Không thể tạo NFT',
@@ -521,7 +522,7 @@ export default {
   'page.inputAddress': 'Vui lòng nhập địa chỉ',
   'page.createPostFee': 'Tạo bài viết phí',
   'page.createPostFeeOn': 'Tạo bài viết phí trên',
-  'page.createFreePostOn': 'Tạo bài viết miễn phí trên',
+  'page.createFreePostOn': 'Tạo bài viết miễn phí trên {pageName}',
   'page.createCommentFee': 'Phí bình luận',
   'page.repostFee': 'Phí đăng lại',
   'page.couldNotpostPage': 'Tạo trang không thành công',
@@ -536,6 +537,7 @@ export default {
   'page.xpiHasBurned': 'XPI đã được đốt',
   'page.noXpiHasBurned': 'Chưa ai đốt cho trang này!',
   'category.foodAndDrink': 'Đồ ăn và thức uống',
+  'page.createPostOnPage': 'Tạo bài viết trên {pageName} (Fee: {fee} XPI)',
 
   /* 14.Country */
   'country.unablegetCountries': 'Không thể tải quốc gia',

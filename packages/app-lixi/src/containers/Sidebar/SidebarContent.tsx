@@ -8,7 +8,8 @@ import { setSelectedPost } from '@store/post/actions';
 import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
 import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
 import { toggleCollapsedSideNav } from '@store/settings/actions';
-import { getFilterPostsHome, getFilterPostsPage, getLevelFilter, getNavCollapsed } from '@store/settings/selectors';
+import { getFilterPostsPage, getLevelFilter, getNavCollapsed } from '@store/settings/selectors';
+import { api as timelineApi } from '@store/timeline/timeline.api';
 import { useInfiniteHomeTimelineQuery } from '@store/timeline/useInfiniteHomeTimelineQuery';
 import { Button } from 'antd';
 import { push } from 'connected-next-router';
@@ -25,7 +26,6 @@ import {
   ShortCutTopicItem,
   typeFilterPageQuery
 } from './SideBarShortcut';
-import { api as timelineApi } from '@store/timeline/timeline.api';
 
 type SidebarContentProps = {
   className?: string;

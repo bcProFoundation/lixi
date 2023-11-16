@@ -10,25 +10,28 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { BURN_FANOUT_QUEUE } from './burn.constants';
 import { Burn, Post } from '@bcpros/lixi-prisma';
 import { FollowCacheService } from '../../account/follow-cache.service';
+import { PostCacheService } from '../../page/post-cache.service';
 
 @Injectable()
 @Processor(BURN_FANOUT_QUEUE, { concurrency: 50 })
 export class BurnFanoutProcessor extends WorkerHost {
   private logger: Logger = new Logger(this.constructor.name);
 
-  static inNetworkSourceKey = 'timeline:innetworksource';
-  static outNetworkSourceKey = 'timeline:outnetworksource';
+  static inNetworkSourceKey = 'timeline:innetwork:source';
+  static outNetworkSourceKey = 'timeline:outnetwork:source';
 
   constructor(
     private readonly followCacheService: FollowCacheService,
-    @InjectRedis() private readonly redis: Redis,
-    @I18n() private readonly i18n: I18nService
+    private readonly postCacheService: PostCacheService,
+    @InjectRedis() private readonly redis: Redis
   ) {
     super();
   }
 
   public async process(job: Job<{ burn: Burn; post: Post }, boolean, string>): Promise<boolean> {
     try {
+      // This is only for post
+      // @todo: Need to more organize for multiple types
       const { burn, post } = job.data;
       const id = `${post.id}`;
 
@@ -53,17 +56,17 @@ export class BurnFanoutProcessor extends WorkerHost {
       const pipeline = this.redis.pipeline();
 
       // Clear the post from cache
-      const hashPrefix = `posts:item-data`;
-      pipeline.hdel(hashPrefix, id);
+      await this.postCacheService.removeByKeys([id]);
 
       // Update score for outnetwork
       const keyOutnetwork = BurnFanoutProcessor.outNetworkSourceKey;
-      pipeline.zincrby(keyOutnetwork, score, id);
+      const timelineId = `post:${id}`;
+      pipeline.zincrby(keyOutnetwork, score, timelineId);
 
       // Update score for innetwork
       for (const follower of followers) {
         const keyInNetwork = `${BurnFanoutProcessor.inNetworkSourceKey}:${follower}`;
-        pipeline.zincrby(keyInNetwork, score, id);
+        pipeline.zincrby(keyInNetwork, score, timelineId);
       }
 
       await pipeline.exec();

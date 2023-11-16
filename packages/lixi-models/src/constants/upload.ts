@@ -3,6 +3,7 @@ export const UPLOAD_TYPES = {
   PAGE_COVER: 'page_cover',
   PAGE_AVATAR: 'page_avatar',
   POST: 'post',
+  PRODUCT: 'product',
   ACCOUNT_COVER: 'account_cover',
   ACCOUNT_AVATAR: 'account_avatar',
   MESSAGE: 'message',

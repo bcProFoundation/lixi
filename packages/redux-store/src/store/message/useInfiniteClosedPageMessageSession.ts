@@ -94,7 +94,7 @@ export function useInfiniteClosedPageMessageSession(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allClosedPageMessageSession?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allClosedPageMessageSession?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

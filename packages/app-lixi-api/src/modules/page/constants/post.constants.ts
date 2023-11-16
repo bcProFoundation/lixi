@@ -1,1 +1,0 @@
-export const POST_FANOUT_QUEUE = 'POST_FANOUT_QUEUE';

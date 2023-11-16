@@ -28,12 +28,13 @@ import { CoreModule } from './modules/core/core.module';
 import { HashtagModule } from './modules/hashtag/hashtag.module';
 import { MessageModule } from './modules/message/message.module';
 import { PageModule } from './modules/page/page.module';
-import { PrismaModule } from './modules/prisma/prisma.module';
+import { ProductModule } from './modules/product/product.module';
+import { WorshipModule } from './modules/worship/worship.module';
 import { TempleModule } from './modules/temple/temple.module';
+import { PrismaModule } from './modules/prisma/prisma.module';
 import { TimelineModule } from './modules/timeline/timeline.module';
 import { TokenModule } from './modules/token/token.module';
 import { WalletModule } from './modules/wallet/wallet.module';
-import { WorshipModule } from './modules/worship/worship.module';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
 import { EventsAnalyticModule } from './modules/events-analytic/events-analytic.module';
 import { BookmarkModule } from './modules/bookmark/bookmark.module';
@@ -117,7 +118,8 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
           },
           context: ({ req }: { req: FastifyRequest }) => ({
             req
-          })
+          }),
+          fieldResolverEnhancers: ['guards']
         };
       },
 
@@ -153,6 +155,7 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
     CoreModule,
     NotificationModule,
     AccountModule,
+    ProductModule,
     PageModule,
     TokenModule,
     WorshipModule,

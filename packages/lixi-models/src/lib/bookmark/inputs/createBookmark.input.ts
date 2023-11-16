@@ -1,12 +1,10 @@
 import { Field, InputType } from '@nestjs/graphql';
 
-import { BookmarkType } from '../bookmark.model';
-
 @InputType()
 export class CreateBookmarkInput {
-  @Field(() => String)
-  bookmarkId: string;
+  @Field(() => Number)
+  accountId: number;
 
-  @Field(() => BookmarkType)
-  bookmarkType: BookmarkType;
+  @Field(() => String)
+  bookmarkableId: string;
 }

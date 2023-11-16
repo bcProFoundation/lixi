@@ -70,14 +70,15 @@ const SocialSharePanel = ({ className, shareUrl }: SocialSharePanelProps): JSX.E
       <div className="socialshare-network">
         <Button
           type="primary"
+          style={{ minHeight: '30px', width: '30px' }}
           shape="circle"
-          icon={<LinkOutlined style={{ color: 'white', fontSize: '20px' }} />}
-          onClick={() => {
-            navigator.clipboard.writeText(window.location.href);
+          icon={<LinkOutlined style={{ color: 'white', fontSize: '19px' }} />}
+          onClick={async () => {
+            await navigator.clipboard.writeText(shareUrl);
             dispatch(
               showToast('success', {
                 message: intl.get('toast.success'),
-                description: intl.get('lixi.fileUploadError')
+                description: intl.get('post.copyToClipboard')
               })
             );
           }}

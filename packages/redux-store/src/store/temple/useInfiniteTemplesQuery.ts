@@ -89,7 +89,7 @@ export function useInfiniteTemplesQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: baseResult.data?.allTemple?.pageInfo?.endCursor !== null,
+    hasNext: !!baseResult.data?.allTemple?.pageInfo?.endCursor,
     fetchNext,
     refetch
   };

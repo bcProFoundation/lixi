@@ -1,7 +1,5 @@
-import { NotificationDto, PaginationResult } from '@bcpros/lixi-models';
+import { NotificationDto } from '@bcpros/lixi-models';
 import axiosClient from '@utils/axiosClient';
-
-import { readAllNotifications } from './actions';
 
 const notificationApi = {
   getByAccountId(id: number, mnemonicHash?: string): Promise<NotificationDto[]> {

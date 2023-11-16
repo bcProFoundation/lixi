@@ -47,7 +47,7 @@ query PostsByUserId(
   $before: String
   $first: Int = 20
   $last: Int
-  $orderBy: PostOrder
+  $orderBy: [PostOrder!]
   $id: Int
   $skip: Int
   $minBurnFilter: Int
@@ -284,6 +284,7 @@ fragment PostFields on Post {
     avatar
     createCommentFee
   }
+  postAccountId
   page {
     avatar
     name
@@ -296,11 +297,13 @@ fragment PostFields on Post {
       address
     }
   }
+  pageId
   token {
     id
     name
     tokenId
   }
+  tokenId
   repostCount
   reposts {
     accountId
@@ -317,8 +320,13 @@ fragment PostFields on Post {
     danaBurnUp
     danaBurnDown
     danaBurnScore
+    danaReceivedUp
+    danaReceivedDown
+    danaReceivedScore
+    version
   }
   totalComments
+  commentableId
   createdAt
   updatedAt
   followPostOwner
@@ -329,6 +337,18 @@ fragment PostFields on Post {
     id
     translateContent
     translateLanguage
+  }
+  imageUploadable {
+    id
+    uploads {
+      id
+      sha
+      bucket
+      width
+      height
+      cfImageId
+      cfImageFilename
+    }
   }
   danaViewScore
 }

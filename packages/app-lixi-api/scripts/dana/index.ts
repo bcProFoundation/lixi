@@ -60,7 +60,7 @@ const updateAccountsDanaHistory = async (
           }
         },
         orderBy: {
-          createdAt: 'desc'
+          id: 'desc'
         }
       });
 
@@ -120,7 +120,7 @@ const updateAccountsDanaHistory = async (
           }
         },
         orderBy: {
-          createdAt: 'desc'
+          id: 'desc'
         }
       });
 
@@ -161,22 +161,23 @@ const updateAccountsDanaHistory = async (
             address: receivedDanaAddress
           }
         },
-        orderBy: {
-          createdAt: 'desc'
-        }
       });
 
-      const danaReceived =
+      const danaReceivedUp = burnType === BurnType.Up ? receivedAccountDana?.danaReceivedUp! + amount : receivedAccountDana?.danaReceivedUp!
+      const danaReceivedDown = burnType === BurnType.Down ? receivedAccountDana?.danaReceivedDown! + amount : receivedAccountDana?.danaReceivedDown!
+      const danaReceivedScore =
         burnType === BurnType.Up
-          ? receivedAccountDana?.danaReceived! + amount
-          : receivedAccountDana?.danaReceived! - amount;
+          ? receivedAccountDana?.danaReceivedScore! + amount
+          : receivedAccountDana?.danaReceivedScore! - amount;
 
       const updatedRecivedAccountDana = await prisma.accountDana.update({
         where: {
           id: receivedAccountDana?.id
         },
         data: {
-          danaReceived: danaReceived
+          danaReceivedUp: danaReceivedUp,
+          danaReceivedDown: danaReceivedDown,
+          danaReceivedScore: danaReceivedScore
         }
       });
 
@@ -201,6 +202,8 @@ const updateAccountsDanaHistory = async (
 };
 
 async function main() {
+  await prismaClient.accountDanaHistory.deleteMany({});
+  await prismaClient.accountDana.deleteMany({});
   const accounts = await prismaClient.account.findMany({});
   console.log(`Creating account dana for all accounts`);
   await prismaClient.accountDana.createMany({
@@ -294,7 +297,7 @@ async function main() {
               }
             },
             orderBy: {
-              createdAt: 'desc'
+              id: 'desc'
             }
           });
 
@@ -333,8 +336,8 @@ async function main() {
     }
 
     //sleep for 1.5 seconds
-    console.log(`Update account ${burnAddress} completed. Sleeping for 1.5 seconds`);
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    console.log(`Update account ${burnAddress} completed. Sleeping for 0.3 seconds`);
+    await new Promise(resolve => setTimeout(resolve, 300));
   }
 }
 

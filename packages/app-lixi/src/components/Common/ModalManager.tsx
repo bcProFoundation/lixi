@@ -15,6 +15,8 @@ import { BurnModal } from './BurnModal';
 import { ConfigProvider } from 'antd';
 import lightTheme from 'src/styles/themes/lightTheme';
 import { FollowModal } from './FollowModal';
+import { CreateProductModal } from '@components/Product/CreateProductModal';
+import { EditProductModal } from '@components/Product/EditProductModal';
 import { PostDetailModal } from '../Posts/PostDetailModal';
 import { AuthorizationModal } from './Authorization/AuthorizationModal';
 import PageMessageLixiModal from '@components/PageMessage/PageMessageLixiModal';
@@ -22,7 +24,6 @@ import { getCurrentThemes } from '@store/settings';
 import darkTheme from 'src/styles/themes/darkTheme';
 import { EditProfileModal } from './EditProfileModal';
 import LixiEnvelopeViewModal from '@components/Lixi/LixiEnvelopeViewModal';
-import CreatePostModal from './CreatePostModal';
 
 const modalComponentLookupTable = {
   CreateLixiConfirmationModal,
@@ -32,7 +33,9 @@ const modalComponentLookupTable = {
   CreateLixiFormModal,
   QRCodeModalPopup,
   EditPostModalPopup,
+  CreateProductModal,
   CreatePageModal,
+  EditProductModal,
   EditPageModal,
   UploadAvatarCoverModal,
   BurnModal,
@@ -41,8 +44,7 @@ const modalComponentLookupTable = {
   AuthorizationModal,
   PageMessageLixiModal,
   EditProfileModal,
-  LixiEnvelopeViewModal,
-  CreatePostModal
+  LixiEnvelopeViewModal
 };
 
 const ModalManager = () => {

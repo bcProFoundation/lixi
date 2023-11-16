@@ -3,7 +3,9 @@ import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Account } from '../account';
+import { ICommentableTo } from '../comment';
 import { PostHashtag } from '../hashtag/postHashtag.model';
+import { ImageUploadable } from '../imageUploadable';
 import { Page } from '../page';
 import { Token } from '../token';
 import { UploadDetail } from '../upload';
@@ -12,7 +14,7 @@ import { PostDana } from './post-dana.model';
 import { Repost } from './repost.model';
 
 @ObjectType()
-export class Post {
+export class Post implements ICommentableTo {
   @Field(() => ID)
   id: string;
 
@@ -60,8 +62,8 @@ export class Post {
   })
   updatedAt: Date;
 
-  @Field(() => Number, { nullable: true })
-  totalComments?: Nullable<number>;
+  @Field(() => Number)
+  totalComments: number;
 
   @Field(() => [PostHashtag], { nullable: true })
   postHashtags?: Nullable<PostHashtag[]>;
@@ -75,8 +77,8 @@ export class Post {
   @Field(() => Boolean, { nullable: true })
   followedToken?: Nullable<boolean>;
 
-  @Field(() => Number, { nullable: true })
-  repostCount?: Nullable<number>;
+  @Field(() => Number)
+  repostCount: number;
 
   @Field(() => [Repost], { nullable: true })
   reposts?: Nullable<Repost[]>;
@@ -87,8 +89,20 @@ export class Post {
   @Field(() => [PostTranslation], { nullable: true })
   translations?: Nullable<PostTranslation[]>;
 
+  @Field(() => String, { nullable: true })
+  commentableId?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  bookmarkableId?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  taggableId?: Nullable<string>;
+
   @Field(() => Float, { nullable: true })
   danaViewScore?: Nullable<number>;
+
+  @Field(() => ImageUploadable, { nullable: true })
+  imageUploadable?: Nullable<ImageUploadable>;
 
   @IsOptional()
   @Field(() => PostDana, { nullable: true })

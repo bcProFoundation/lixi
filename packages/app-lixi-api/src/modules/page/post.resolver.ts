@@ -1,25 +1,34 @@
 import {
   Account,
   CreatePostInput,
+  ICommentableTo,
+  IImageUploadableTo,
+  ImageUploadable as ImageUploadableModel,
   Page,
   PaginationArgs,
   Post,
   PostConnection,
+  PostDana,
   PostOrder,
   PostTranslation,
   Repost,
   RepostInput,
-  Token,
   UpdatePostInput,
   UploadDetail
 } from '@bcpros/lixi-models';
-import { NotificationLevel } from '@bcpros/lixi-prisma';
+import {
+  CommentType,
+  ImageUploadable,
+  ImageUploadableType,
+  NotificationLevel,
+  Post as PostPrisma
+} from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { HttpException, HttpStatus, Inject, Injectable, Logger, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Int, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Int, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { Queue } from 'bullmq';
 import { ChronikClient } from 'chronik-client';
@@ -30,20 +39,22 @@ import { I18n, I18nService } from 'nestjs-i18n';
 import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
 import { NOTIFICATION_TYPES } from 'src/common/modules/notifications/notification.constants';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
-import PostResponse from 'src/common/post.response';
 import { PostAccountEntity } from 'src/decorators/postAccount.decorator';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import VError from 'verror';
 import { connectionFromArraySlice } from '../../common/custom-graphql-relay/arrayConnection';
 import ConnectionArgs, { getPagingParameters } from '../../common/custom-graphql-relay/connection.args';
+import { AccountCacheService } from '../account/account-cache.service';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
 import { HashtagService } from '../hashtag/hashtag.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { XPIJS } from '../wallet/wallet.constants';
+import CommentableLoader from './commentable.loader';
 import { HASHTAG, POSTS } from './constants/meili.constants';
-import { POST_FANOUT_QUEUE } from './constants/post.constants';
+import { CONTENT_FANOUT_QUEUE } from './constants';
+import ImageUploadableLoader from './imageUploadable.loader';
 import { MeiliService } from './meili.service';
-import { AccountCacheService } from '../account/account-cache.service';
 import PostLoader from './post.loader';
 
 const pubSub = new PubSub();
@@ -61,12 +72,14 @@ export class PostResolver {
     @InjectRedis() private readonly redis: Redis,
     private readonly notificationService: NotificationService,
     private hashtagService: HashtagService,
-    @InjectQueue(POST_FANOUT_QUEUE) private postFanoutQueue: Queue,
-    @Inject('xpijs') private XPI: BCHJS,
+    @InjectQueue(CONTENT_FANOUT_QUEUE) private postFanoutQueue: Queue,
+    @Inject(XPIJS) private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @I18n() private i18n: I18nService,
     private readonly accountCacheService: AccountCacheService,
-    private readonly postLoader: PostLoader
+    private readonly postLoader: PostLoader,
+    private readonly commentableLoader: CommentableLoader,
+    private readonly imageUploadableLoader: ImageUploadableLoader
   ) {}
 
   @SkipThrottle()
@@ -78,12 +91,11 @@ export class PostResolver {
       include: {
         uploads: true,
         postAccount: true,
-        comments: true,
         page: true,
         translations: true,
         reposts: { select: { account: true, accountId: true } },
         _count: {
-          select: { reposts: true, comments: true }
+          select: { reposts: true }
         }
       }
     });
@@ -101,7 +113,7 @@ export class PostResolver {
       ...dbPost,
       id: dbPost.id,
       uploads: uploads ? (uploads as UploadDetail[]) : [],
-      page: page ? (page as Page) : null,
+      page: page ? (page as Page) : new Page({}),
       repostCount: dbPost._count.reposts,
       reposts: reposts ? (reposts as Repost[]) : [],
       danaViewScore: (danaViewScore as number) || 0
@@ -138,7 +150,6 @@ export class PostResolver {
           this.prisma.post.findMany({
             include: {
               postAccount: true,
-              comments: true,
               reposts: { select: { account: true, accountId: true } },
               translations: true
             },
@@ -180,7 +191,6 @@ export class PostResolver {
           const posts = await this.prisma.post.findMany({
             include: {
               postAccount: true,
-              comments: true,
               reposts: { select: { account: true, accountId: true } },
               translations: true,
               page: true
@@ -231,7 +241,6 @@ export class PostResolver {
           this.prisma.post.findMany({
             include: {
               postAccount: true,
-              comments: true,
               reposts: { select: { account: true, accountId: true } },
               translations: true,
               page: true
@@ -301,12 +310,11 @@ export class PostResolver {
       include: {
         uploads: true,
         postAccount: true,
-        comments: true,
         page: true,
         translations: true,
         reposts: { select: { account: true, accountId: true } },
         _count: {
-          select: { reposts: true, comments: true }
+          select: { reposts: true }
         }
       }
     });
@@ -362,12 +370,11 @@ export class PostResolver {
             include: {
               uploads: true,
               postAccount: true,
-              comments: true,
               page: true,
               translations: true,
               reposts: { select: { account: true, accountId: true } },
               _count: {
-                select: { reposts: true, comments: true }
+                select: { reposts: true }
               }
             },
             where: {
@@ -457,12 +464,11 @@ export class PostResolver {
       include: {
         uploads: true,
         postAccount: true,
-        comments: true,
         page: true,
         translations: true,
         reposts: { select: { account: true, accountId: true } },
         _count: {
-          select: { reposts: true, comments: true }
+          select: { reposts: true }
         }
       },
       where: {
@@ -531,12 +537,11 @@ export class PostResolver {
       include: {
         uploads: true,
         postAccount: true,
-        comments: true,
         page: true,
         translations: true,
         reposts: { select: { account: true, accountId: true } },
         _count: {
-          select: { reposts: true, comments: true }
+          select: { reposts: true }
         }
       },
       where: {
@@ -578,7 +583,7 @@ export class PostResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.post.findMany({
-          include: { postAccount: true, comments: true, translations: true, token: true },
+          include: { postAccount: true, translations: true, token: true },
           where: {
             OR: [
               {
@@ -638,17 +643,17 @@ export class PostResolver {
     id: number,
     @Args({
       name: 'orderBy',
-      type: () => PostOrder,
+      type: () => [PostOrder!],
       nullable: true
     })
-    orderBy: PostOrder
+    orderBy: PostOrder[]
   ) {
     let result;
     if (account?.id === _.toSafeInteger(id)) {
       result = await findManyCursorConnection(
         args =>
           this.prisma.post.findMany({
-            include: { postAccount: true, comments: true, translations: true },
+            include: { postAccount: true, translations: true },
             where: {
               AND: [
                 {
@@ -663,7 +668,7 @@ export class PostResolver {
                 { tokenId: null }
               ]
             },
-            orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
+            orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
             ...args
           }),
         () =>
@@ -704,7 +709,7 @@ export class PostResolver {
                 { tokenId: null }
               ]
             },
-            orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
+            orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
             ...args
           }),
         () =>
@@ -748,7 +753,7 @@ export class PostResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.post.findMany({
-          include: { postAccount: true, comments: true, postHashtags: true, translations: true },
+          include: { postAccount: true, postHashtags: true, translations: true },
           where: {
             postHashtags: {
               some: {
@@ -783,34 +788,30 @@ export class PostResolver {
     }
 
     const { uploads, pageId, htmlContent, tokenPrimaryId, pureContent } = data;
+    let imageUploadable: ImageUploadable;
 
-    let uploadDetailIds: any[] = [];
+    //create new imageUploadable
+    if (uploads && uploads.length > 0) {
+      imageUploadable = await this.prisma.$transaction(async prisma => {
+        const result = await prisma.imageUploadable.create({
+          data: {
+            account: { connect: { id: account.id } },
+            uploads: {
+              connect: uploads.map((upload: string) => {
+                return { id: upload };
+              })
+            },
+            type: ImageUploadableType.POST
+          }
+        });
 
-    const promises = uploads.map(async (id: string) => {
-      const uploadDetails = await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: id
-        }
+        return result;
       });
-
-      return uploadDetails && uploadDetails.id;
-    });
-
-    uploadDetailIds = await Promise.all(promises);
+    }
 
     const postToSave = {
       content: htmlContent,
       postAccount: { connect: { id: account.id } },
-      uploads: {
-        connect:
-          uploadDetailIds.length > 0
-            ? uploadDetailIds.map((uploadDetail: any) => {
-                return {
-                  id: uploadDetail
-                };
-              })
-            : undefined
-      },
       page: {
         connect: pageId ? { id: pageId } : undefined
       },
@@ -820,13 +821,6 @@ export class PostResolver {
     };
 
     let createFee: any;
-    if (data.createFeeHex) {
-      const txData = await this.XPI.RawTransactions.decodeRawTransaction(data.createFeeHex);
-      createFee = txData['vout'][0].value;
-      if (Number(createFee) < 0) {
-        throw new Error('Syntax error. Number cannot be less than or equal to 0');
-      }
-    }
 
     const savedPost = await this.prisma.$transaction(async prisma => {
       let txid: string | undefined;
@@ -841,8 +835,19 @@ export class PostResolver {
       const createdPost = await prisma.post.create({
         data: {
           ...postToSave,
+          commentable: {
+            create: {
+              type: CommentType.POST
+            }
+          },
           txid: txid,
-          createFee: createFee
+          createFee: createFee,
+          postDana: {
+            create: {}
+          },
+          taggable: {
+            create: {}
+          }
         },
         include: {
           page: {
@@ -971,7 +976,7 @@ export class PostResolver {
     }
 
     // Fanout the post created
-    await this.postFanoutQueue.add(POST_FANOUT_QUEUE, { post: savedPost });
+    await this.postFanoutQueue.add(CONTENT_FANOUT_QUEUE, { post: savedPost });
 
     return savedPost;
   }
@@ -1035,7 +1040,7 @@ export class PostResolver {
     };
 
     // Clear the post from cache
-    const hashPrefix = `posts:item-data`;
+    const hashPrefix = `items:posts:item-data`;
     await this.redis.hdel(hashPrefix, id);
 
     await this.meiliService.update(`${process.env.MEILISEARCH_BUCKET}_${POSTS}`, indexedPost, updatedPost.id);
@@ -1059,13 +1064,6 @@ export class PostResolver {
     }
 
     let repostFee: any;
-    if (data.txHex) {
-      const txData = await this.XPI.RawTransactions.decodeRawTransaction(data.txHex);
-      repostFee = txData['vout'][0].value;
-      if (Number(repostFee) <= 0) {
-        throw new Error('Syntax error. Number cannot be less than or equal to 0');
-      }
-    }
 
     const reposted = await this.prisma.$transaction(async prisma => {
       let txid = null;
@@ -1094,86 +1092,51 @@ export class PostResolver {
       return updatePost;
     });
 
+    await Promise.all([
+      this.postLoader.batchReposts.clear(data.postId),
+      this.postLoader.batchRepostCount.clear(data.postId)
+    ]);
+
     return reposted ? true : false;
   }
 
   @ResolveField('reposts', () => Repost)
   async reposts(@Parent() post: Post) {
-    const reposts = await this.prisma.post
-      .findUnique({
-        where: {
-          id: post.id
-        }
-      })
-      .reposts();
-    return reposts;
+    return this.postLoader.batchReposts.load(post.id);
   }
 
   @ResolveField('repostCount', () => Number)
   async repostCount(@Parent() post: Post) {
-    const repostCount = await this.prisma.repost.count({
-      where: {
-        postId: post.id
-      }
-    });
-
-    return repostCount;
+    return this.postLoader.batchRepostCount.load(post.id);
   }
 
   @ResolveField('postAccount', () => Account)
   async postAccount(@Parent() post: Post) {
-    const account = await this.prisma.post
-      .findUnique({
-        where: {
-          id: post.id
-        }
-      })
-      .postAccount();
-
-    return account;
+    return this.postLoader.batchAccounts.load(post.postAccountId);
   }
 
   @ResolveField('totalComments', () => Number)
-  async postComments(@Parent() post: Post) {
-    const totalComments = await this.prisma.comment.count({
-      where: {
-        commentToId: post.id
-      }
-    });
+  async totalComments(@Parent() commentableTo: ICommentableTo) {
+    return this.commentableLoader.batchTotalComments.load(commentableTo);
+  }
 
-    return totalComments;
+  @ResolveField('imageUploadable', () => ImageUploadableModel)
+  async imageUploadable(@Parent() post: PostPrisma) {
+    if (post && post.imageUploadableId) {
+      const result = await this.imageUploadableLoader.batchImageUploadable.load({
+        id: post.id,
+        imageUploadableId: post.imageUploadableId
+      } as IImageUploadableTo);
+      return {
+        id: result?.id,
+        uploads: result?.uploads
+      };
+    }
   }
 
   @ResolveField('page', () => Page)
   async page(@Parent() post: Post) {
-    if (post.pageId) {
-      const page = await this.prisma.post
-        .findUnique({
-          where: {
-            id: post.id
-          }
-        })
-        .page();
-
-      return page;
-    }
-    return null;
-  }
-
-  @ResolveField('token', () => Token)
-  async token(@Parent() post: Post) {
-    if (post.tokenId) {
-      const token = await this.prisma.post
-        .findUnique({
-          where: {
-            id: post.id
-          }
-        })
-        .token();
-
-      return token;
-    }
-    return null;
+    return post?.pageId ? this.postLoader.batchPages.load(post?.pageId) : null;
   }
 
   @ResolveField('translations', () => [PostTranslation])
@@ -1194,29 +1157,7 @@ export class PostResolver {
 
   @ResolveField('uploads', () => [UploadDetail])
   async uploads(@Parent() post: Post) {
-    const uploads = await this.prisma.post
-      .findUnique({
-        where: {
-          id: post.id
-        }
-      })
-      .uploads({
-        include: {
-          upload: {
-            select: {
-              id: true,
-              sha: true,
-              bucket: true,
-              width: true,
-              height: true,
-              cfImageId: true,
-              cfImageFilename: true
-            }
-          }
-        }
-      });
-
-    return uploads;
+    return this.postLoader.batchUploads.load(post.id);
   }
 
   @ResolveField('danaViewScore', () => Number)
@@ -1249,5 +1190,10 @@ export class PostResolver {
       accountId: account?.id
     };
     return this.postLoader.batchCheckAccountFollowAllToken.load(payload);
+  }
+
+  @ResolveField('postDana', () => PostDana)
+  async postDana(@Parent() post: Post) {
+    return this.postLoader.batchPostDanas.load(post.id);
   }
 }

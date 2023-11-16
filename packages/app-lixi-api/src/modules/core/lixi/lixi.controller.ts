@@ -4,16 +4,15 @@ import {
   ClaimType,
   CreateLixiCommand,
   ExportLixiCommand,
-  fromSmallestDenomination,
+  IPaginationResult,
   LixiDto,
-  PaginationResult,
   PostLixiResponseDto,
   RegisterLixiPackCommand,
   RenameLixiCommand,
   SessionAction,
-  SessionActionEnum
+  SessionActionEnum,
+  fromSmallestDenomination
 } from '@bcpros/lixi-models';
-import MinimalBCHWallet from '@bcpros/minimal-xpi-slp-wallet';
 import BCHJS from '@bcpros/xpi-js';
 import { InjectQueue } from '@nestjs/bullmq';
 import {
@@ -48,6 +47,7 @@ import moment from 'moment';
 import { I18n, I18nContext } from 'nestjs-i18n';
 import { join } from 'path';
 import { PaginationParams } from 'src/common/models/paginationParams';
+import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwtauth.guard';
@@ -57,11 +57,11 @@ import {
   WITHDRAW_SUB_LIXIES_QUEUE
 } from 'src/modules/core/lixi/constants/lixi.constants';
 import { LixiService } from 'src/modules/core/lixi/lixi.service';
+import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 import { WalletService } from 'src/modules/wallet/wallet.service';
 import { aesGcmDecrypt, base58ToNumber, numberToBase58 } from 'src/utils/encryptionMethods';
 import { VError } from 'verror';
 import { PrismaService } from '../../prisma/prisma.service';
-import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 
 @SkipThrottle()
 @Controller('lixies')
@@ -72,12 +72,11 @@ export class LixiController {
 
   constructor(
     private prisma: PrismaService,
-    private readonly walletService: WalletService,
     private readonly lixiService: LixiService,
     private readonly notificationService: NotificationService,
     private notificationGateway: NotificationGateway,
-    @Inject('xpiWallet') private xpiWallet: MinimalBCHWallet,
-    @Inject('xpijs') private XPI: BCHJS,
+    @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
+    @Inject(XPIJS) private XPI: BCHJS,
     @InjectQueue(EXPORT_SUB_LIXIES_QUEUE) private exportSubLixiesQueue: Queue,
     @InjectQueue(WITHDRAW_SUB_LIXIES_QUEUE) private withdrawSubLixiesQueue: Queue
   ) {}
@@ -116,7 +115,8 @@ export class LixiController {
         throw new VError(lixiNotExist);
       }
 
-      const balance: number = await this.xpiWallet.getBalance(lixi.address);
+      const walletService = this.walletServices['xpi'];
+      const { totalBalance, totalBalanceInSatoshis } = await walletService.getBalances(lixi.address);
 
       const subLixies = await this.prisma.lixi.aggregate({
         _sum: {
@@ -137,7 +137,7 @@ export class LixiController {
           ...lixi,
           activationAt: lixi.activationAt ? lixi.activationAt.toISOString() : null,
           isClaimed: lixi.isClaimed,
-          balance: balance,
+          balance: Number(totalBalanceInSatoshis),
           totalClaim: Number(lixi.totalClaim),
           envelope: lixi.envelope,
           distributions: lixi.distributions,
@@ -177,7 +177,7 @@ export class LixiController {
     @Query('limit') limit: number,
     @Headers('account-secret') accountSecret: string,
     @I18n() i18n: I18nContext
-  ): Promise<PaginationResult<LixiDto>> {
+  ): Promise<IPaginationResult<LixiDto>> {
     const lixiId = _.toSafeInteger(id);
     const take = limit ? _.toSafeInteger(limit) : 10;
     const cursor = startId ? _.toSafeInteger(startId) : null;
@@ -259,7 +259,7 @@ export class LixiController {
           endCursor
         },
         totalCount: count
-      } as PaginationResult<LixiDto>;
+      } as IPaginationResult<LixiDto>;
     } catch (err: unknown) {
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -721,24 +721,52 @@ export class LixiController {
 
       if (lixi.claimType === ClaimType.Single) {
         const lixiIndex = lixi.derivationIndex;
-        const { address, keyPair } = await this.walletService.deriveAddress(mnemonicFromApi, lixiIndex);
+        const walletService = this.walletServices['xpi'];
+        const { address, xpriv } = await walletService.deriveAddress(mnemonicFromApi, lixiIndex);
+
+        const childNode = this.XPI.HDNode.fromXPriv(xpriv);
+        const lixiAddress: string = this.XPI.HDNode.toXAddress(childNode);
+        const keyPair = this.XPI.HDNode.toKeyPair(childNode);
+        const cashAddress = this.XPI.HDNode.toCashAddress(childNode);
+        const hash160 = this.XPI.Address.toHash160(cashAddress);
+        const slpAddress = this.XPI.SLP.Address.toSLPAddress(cashAddress);
+        const xAddress = this.XPI.HDNode.toXAddress(childNode);
+        const publicKey = this.XPI.HDNode.toPublicKey(childNode).toString('hex');
+        const walletPath = {
+          path: `m/44'/245'/${lixi.derivationIndex}'/0/0`,
+          xAddress,
+          cashAddress,
+          slpAddress,
+          hash160,
+          fundingWif: this.XPI.HDNode.toWIF(childNode),
+          fundingAddress: this.XPI.SLP.Address.toSLPAddress(cashAddress),
+          legacyAddress: this.XPI.SLP.Address.toLegacyAddress(cashAddress),
+          publicKey
+        };
 
         if (address !== lixi.address) {
           const invalidAccount = await i18n.t('lixi.messages.invalidAccount');
           throw new Error(invalidAccount);
         }
 
-        const lixiCurrentBalance: number = await this.xpiWallet.getBalance(lixi.address);
+        const { totalBalance, totalBalanceInSatoshis } = await walletService.getBalances(lixi.address);
 
-        if (lixiCurrentBalance === 0) {
+        if (Number(totalBalance) === 0) {
           const unableWithdraw = await i18n.t('lixi.messages.unableWithdraw');
           throw new VError(unableWithdraw);
         }
 
-        const totalAmount: number = await this.walletService.onMax(lixi.address);
+        const totalAmount = await walletService.onMax(lixi.address);
         const receivingAccount = [{ address: account.address, amountXpi: totalAmount }];
 
-        const amount: any = await this.walletService.sendAmount(lixi.address, receivingAccount, keyPair, i18n);
+        const amount: any = await walletService.sendXPIToSingleAddress(
+          lixi.address,
+          account.address,
+          totalAmount.toString(),
+          walletPath,
+          walletPath.fundingWif,
+          undefined
+        );
 
         //If lixi is withdrew before session open then close session
         const pageMessageSession = await this.prisma.pageMessageSession.findUnique({
@@ -888,7 +916,7 @@ export class LixiController {
     @Param('id') id: string,
     @Query() { startId, limit }: PaginationParams,
     @I18n() i18n: I18nContext
-  ): Promise<PaginationResult<Claim>> {
+  ): Promise<IPaginationResult<Claim>> {
     const lixiId = _.toSafeInteger(id);
     const take = limit ? _.toSafeInteger(limit) : 4;
 
@@ -981,7 +1009,7 @@ export class LixiController {
           endCursor
         },
         totalCount: count
-      } as PaginationResult<Claim>;
+      } as IPaginationResult<Claim>;
     } catch (err) {
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
