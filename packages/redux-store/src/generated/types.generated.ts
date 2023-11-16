@@ -1,14 +1,8 @@
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = {
-  [K in keyof T]: T[K];
-};
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]?: Maybe<T[SubKey]>;
-};
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]: Maybe<T[SubKey]>;
-};
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -103,7 +97,7 @@ export enum AccountOrderField {
   CreatedAt = 'createdAt',
   Id = 'id',
   Name = 'name',
-  UpdatedAt = 'updatedAt',
+  UpdatedAt = 'updatedAt'
 }
 
 export type Balances = {
@@ -211,7 +205,7 @@ export enum CommentOrderField {
   CreatedAt = 'createdAt',
   DanaBurnScore = 'danaBurnScore',
   Id = 'id',
-  UpdatedAt = 'updatedAt',
+  UpdatedAt = 'updatedAt'
 }
 
 /** The type comment attach to */
@@ -219,7 +213,7 @@ export enum CommentType {
   Event = 'EVENT',
   Poll = 'POLL',
   Post = 'POST',
-  Product = 'PRODUCT',
+  Product = 'PRODUCT'
 }
 
 export type Commentable = {
@@ -462,7 +456,7 @@ export type EventDana = {
 /** The type of event. */
 export enum EventType {
   Physical = 'PHYSICAL',
-  Virtual = 'VIRTUAL',
+  Virtual = 'VIRTUAL'
 }
 
 export type ExtraArguments = {
@@ -569,7 +563,7 @@ export enum HashtagOrderField {
   CreatedAt = 'createdAt',
   DanaBurnScore = 'danaBurnScore',
   Id = 'id',
-  UpdatedAt = 'updatedAt',
+  UpdatedAt = 'updatedAt'
 }
 
 export type ImageUploadable = {
@@ -594,13 +588,7 @@ export type ImageUploadable = {
   uploads: Array<Upload>;
 };
 
-export type ImageUploadableTo =
-  | Comment
-  | Event
-  | Message
-  | Poll
-  | Post
-  | Product;
+export type ImageUploadableTo = Comment | Event | Message | Poll | Post | Product;
 
 /** Properties by type of the image uploadable. */
 export enum ImageUploadableType {
@@ -616,7 +604,7 @@ export enum ImageUploadableType {
   Post = 'POST',
   Product = 'PRODUCT',
   TempleAvatar = 'TEMPLE_AVATAR',
-  TempleCover = 'TEMPLE_COVER',
+  TempleCover = 'TEMPLE_COVER'
 }
 
 export type ImportAccountInput = {
@@ -723,7 +711,7 @@ export type MessageOrder = {
 export enum MessageOrderField {
   CreatedAt = 'createdAt',
   Id = 'id',
-  UpdatedAt = 'updatedAt',
+  UpdatedAt = 'updatedAt'
 }
 
 export type MessageSession = {
@@ -912,7 +900,7 @@ export type OpenPageMessageSessionInput = {
 /** Possible directions in which to order a list of items when provided an `orderBy` argument. */
 export enum OrderDirection {
   Asc = 'asc',
-  Desc = 'desc',
+  Desc = 'desc'
 }
 
 export type Page = {
@@ -1044,14 +1032,14 @@ export enum PageMessageSessionOrderField {
   CreatedAt = 'createdAt',
   Id = 'id',
   Status = 'status',
-  UpdatedAt = 'updatedAt',
+  UpdatedAt = 'updatedAt'
 }
 
 /** Properties by status of the current PageMessageSession. */
 export enum PageMessageSessionStatus {
   Close = 'CLOSE',
   Open = 'OPEN',
-  Pending = 'PENDING',
+  Pending = 'PENDING'
 }
 
 export type Pin = {
@@ -1202,7 +1190,7 @@ export enum PostOrderField {
   DanaBurnScore = 'danaBurnScore',
   Id = 'id',
   LastRepostAt = 'lastRepostAt',
-  UpdatedAt = 'updatedAt',
+  UpdatedAt = 'updatedAt'
 }
 
 export type PostTranslation = {
@@ -1262,7 +1250,7 @@ export enum ProductOrderField {
   LotusBurnScore = 'lotusBurnScore',
   Name = 'name',
   Title = 'title',
-  UpdatedAt = 'updatedAt',
+  UpdatedAt = 'updatedAt'
 }
 
 export type Query = {
@@ -1319,6 +1307,8 @@ export type Query = {
   page: Page;
   pageMessageSession: PageMessageSession;
   pagesByFollower: PageBasicConnection;
+  pin: Pin;
+  poll: Poll;
   post: Post;
   product: Product;
   temple: Temple;
@@ -1785,6 +1775,14 @@ export type QueryPagesByFollowerArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+export type QueryPinArgs = {
+  id: Scalars['String'];
+};
+
+export type QueryPollArgs = {
+  id: Scalars['String'];
+};
+
 export type QueryPostArgs = {
   id: Scalars['String'];
 };
@@ -1917,7 +1915,7 @@ export enum TempleOrderField {
   CreatedAt = 'createdAt',
   Id = 'id',
   TotalWorshipAmount = 'totalWorshipAmount',
-  UpdatedAt = 'updatedAt',
+  UpdatedAt = 'updatedAt'
 }
 
 export type TimelineItem = {
@@ -2091,7 +2089,7 @@ export enum WorshipOrderField {
   CreatedAt = 'createdAt',
   Id = 'id',
   UpdatedAt = 'updatedAt',
-  WorshipedAmount = 'worshipedAmount',
+  WorshipedAmount = 'worshipedAmount'
 }
 
 export type WorshipedPerson = {
@@ -2145,5 +2143,5 @@ export enum WorshipedPersonOrderField {
   CreatedAt = 'createdAt',
   Id = 'id',
   TotalWorshipAmount = 'totalWorshipAmount',
-  UpdatedAt = 'updatedAt',
+  UpdatedAt = 'updatedAt'
 }
