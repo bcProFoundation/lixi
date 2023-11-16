@@ -41,4 +41,4 @@ export const readAllNotificationsFailure = createAction<string>('notifications/r
 export const userOnline = createAction<SocketUser>('notification/userOnline');
 export const userOffline = createAction<SocketUser>('notification/userOffline');
 
-export const removeAllNotification = createAction('notification/removeAllNotification');
+export const removeAllNotifications = createAction('notification/removeAllNotifications');

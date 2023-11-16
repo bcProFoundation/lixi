@@ -2,7 +2,7 @@ import { createEntityAdapter, createReducer } from '@reduxjs/toolkit';
 
 import {
   activateWalletSuccess,
-  removeAllWallet,
+  removeAllWallets,
   setWalletHasUpdated,
   setWalletPaths,
   setWalletRefreshInterval,
@@ -54,7 +54,7 @@ export const walletStateReducer = createReducer(initialState, builder => {
     .addCase(setWalletPaths, (state, walletPaths) => {
       walletAdapter.setAll(state, walletPaths);
     })
-    .addCase(removeAllWallet, (state, action) => {
+    .addCase(removeAllWallets, (state, action) => {
       walletAdapter.removeAll(state);
       state.walletStatus = {
         balances: {

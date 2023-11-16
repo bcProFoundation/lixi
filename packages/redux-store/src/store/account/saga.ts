@@ -14,9 +14,9 @@ import {
 import { callConfig } from '@context/index';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { setLocalUserAccount, silentLocalLogin } from '@store/localAccount';
-import { fetchNotifications, removeAllNotification } from '@store/notification/actions';
+import { fetchNotifications, removeAllNotifications } from '@store/notification/actions';
 import { getCurrentLocale } from '@store/settings/selectors';
-import { removeAllWallet } from '@store/wallet';
+import { removeAllWallets } from '@store/wallet';
 import { aesGcmDecrypt, aesGcmEncrypt, numberToBase58 } from '@utils/encryptionMethods';
 import { push } from 'connected-next-router';
 import intl from 'react-intl-universal';
@@ -500,8 +500,8 @@ function* deleteAccountSaga(action: PayloadAction<DeleteAccountCommand>) {
     const ids = yield select(getAllAccountsIds);
     //current has 1 account then remove all wallet
     if (ids.length === 1) {
-      yield put(removeAllWallet());
-      yield put(removeAllNotification());
+      yield put(removeAllWallets());
+      yield put(removeAllNotifications());
     }
     yield put(deleteAccountSuccess(id));
   } catch (err) {
@@ -577,7 +577,7 @@ function* refreshLixiListSilentSaga(action: PayloadAction<number>) {
     const lixiesData = yield call(lixiApi.getByAccountId, accountId);
     const lixies = (lixiesData ?? []) as Lixi[];
     yield put(refreshLixiListSilentSuccess({ account: account, lixies: lixies }));
-  } catch (err) {}
+  } catch (err) { }
 }
 
 function* registerViaEmailNoVerifiedSaga(action: PayloadAction<RegisterViaEmailNoVerifiedCommand>) {
@@ -710,16 +710,16 @@ function* setSecondaryLanguageAccountSuccessSaga(action: PayloadAction<Account>)
   yield put(
     secondaryLanguage != null
       ? showToast('success', {
-          message: intl.get('toast.success'),
-          description: intl.get('settings.selectLanguageNotTransSuccess', {
-            language: intl.get(`code.${secondaryLanguage}`)
-          })
+        message: intl.get('toast.success'),
+        description: intl.get('settings.selectLanguageNotTransSuccess', {
+          language: intl.get(`code.${secondaryLanguage}`)
         })
+      })
       : showToast('success', {
-          message: intl.get('toast.success'),
-          description: intl.get('settings.removeLanguageNotTrans'),
-          duration: 5
-        })
+        message: intl.get('toast.success'),
+        description: intl.get('settings.removeLanguageNotTrans'),
+        duration: 5
+      })
   );
 }
 
