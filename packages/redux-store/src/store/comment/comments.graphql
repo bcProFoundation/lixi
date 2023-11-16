@@ -58,9 +58,9 @@ fragment CommentFields on Comment {
     danaBurnScore
     version
   }
-  uploadDetail {
+  imageUploadable {
     id
-    upload {
+    uploads {
       id
       width
       height

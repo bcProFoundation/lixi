@@ -167,9 +167,9 @@ export type Comment = {
   danaBurnScore: Scalars['Float'];
   danaBurnUp: Scalars['Float'];
   id: Scalars['ID'];
+  imageUploadable?: Maybe<ImageUploadable>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
-  uploadDetail?: Maybe<UploadDetail>;
 };
 
 export type CommentConnection = {
@@ -1107,7 +1107,6 @@ export type Post = {
   translations?: Maybe<Array<PostTranslation>>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
-  uploads?: Maybe<Array<UploadDetail>>;
 };
 
 export type PostConnection = {

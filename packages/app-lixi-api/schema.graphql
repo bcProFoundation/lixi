@@ -147,10 +147,10 @@ type Comment {
   danaBurnScore: Float!
   danaBurnUp: Float!
   id: ID!
+  imageUploadable: ImageUploadable
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
-  uploadDetail: UploadDetail
 }
 
 type CommentConnection {
@@ -969,7 +969,6 @@ type Post {
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
-  uploads: [UploadDetail!]
 }
 
 type PostConnection {

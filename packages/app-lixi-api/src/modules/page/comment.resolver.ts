@@ -6,9 +6,17 @@ import {
   Commentable,
   CreateCommentInput,
   PaginationArgs,
-  UploadDetail
+  UploadDetail,
+  ImageUploadable as ImageUploadableModel,
+  IImageUploadableTo
 } from '@bcpros/lixi-models';
-import { CommentType, NotificationLevel } from '@bcpros/lixi-prisma';
+import {
+  CommentType,
+  NotificationLevel,
+  Comment as CommentPrisma,
+  ImageUploadable,
+  ImageUploadableType
+} from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { HttpException, HttpStatus, Inject, Logger, UseGuards } from '@nestjs/common';
@@ -29,6 +37,7 @@ import { XPIJS } from '../wallet/wallet.constants';
 import { CommentCacheService } from './comment-cache.service';
 import CommentLoader from './comment.loader';
 import CommentableLoader from './commentable.loader';
+import ImageUploadableLoader from './imageUploadable.loader';
 
 @SkipThrottle()
 @Resolver(() => Comment)
@@ -44,7 +53,8 @@ export class CommentResolver {
     private readonly commentableLoader: CommentableLoader,
     private readonly notificationService: NotificationService,
     private readonly accountCacheService: AccountCacheService,
-    private readonly commentCacheService: CommentCacheService
+    private readonly commentCacheService: CommentCacheService,
+    private readonly imageUploadableLoader: ImageUploadableLoader
   ) {}
 
   @Query(() => Comment)
@@ -100,7 +110,14 @@ export class CommentResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.comment.findMany({
-          include: { commentAccount: true },
+          include: {
+            commentAccount: true,
+            imageUploadable: {
+              include: {
+                uploads: true
+              }
+            }
+          },
           where: queryComments,
           orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
           ...args
@@ -123,25 +140,27 @@ export class CommentResolver {
         throw new Error(couldNotFindAccount);
       }
 
-      //TODO: Fix this
-      let upload = null;
       const { commentText, commentableId, tipHex, createFeeHex, uploadId } = data;
+      let imageUploadable: ImageUploadable | undefined = undefined;
 
+      //create new imageUploadable
       if (uploadId) {
-        upload = await this.prisma.upload.findUnique({
-          where: {
-            id: uploadId
-          }
+        imageUploadable = await this.prisma.$transaction(async prisma => {
+          const result = await prisma.imageUploadable.create({
+            data: {
+              account: { connect: { id: account.id } },
+              uploads: {
+                connect: { id: uploadId }
+              },
+              type: ImageUploadableType.COMMENT
+            }
+          });
+
+          return result;
         });
       }
 
       const commentable = await this.prisma.commentable.findUnique({
-        where: {
-          id: commentableId
-        }
-      });
-
-      const post = await this.prisma.post.findFirst({
         where: {
           id: commentableId
         }
@@ -192,6 +211,9 @@ export class CommentResolver {
             createFee: createFee,
             commentDana: {
               create: {}
+            },
+            imageUploadable: {
+              connect: imageUploadable ? { id: imageUploadable.id } : undefined
             },
             commentToId: ''
           }
@@ -270,6 +292,20 @@ export class CommentResolver {
   async postAccount(@Parent() comment: Comment) {
     const account = await this.accountCacheService.getById(_.toSafeInteger(comment.commentAccountId));
     return account;
+  }
+
+  @ResolveField('imageUploadable', () => ImageUploadableModel)
+  async imageUploadable(@Parent() comment: CommentPrisma) {
+    if (comment && comment.imageUploadableId) {
+      const result = await this.imageUploadableLoader.batchImageUploadable.load({
+        id: comment.id,
+        imageUploadableId: comment.imageUploadableId
+      } as IImageUploadableTo);
+      return {
+        id: result?.id,
+        uploads: result?.uploads
+      };
+    }
   }
 
   @ResolveField('commentable', () => Commentable)

@@ -210,6 +210,9 @@ export const accountReducer = createReducer(initialState, builder => {
             return image.id !== id;
           });
           break;
+        case UPLOAD_TYPES.COMMENT:
+          state.commentUpload = null;
+          break;
       }
     })
     .addCase(removeAllUpload, (state, action) => {

@@ -5,11 +5,17 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import CommentListItem from './CommentListItem';
 import AvatarUser from '@components/Common/AvatarUser';
 import { Controller, useForm } from 'react-hook-form';
-import { useInfiniteCommentsToPostIdQuery } from '@store/comment/useInfiniteCommentsToPostIdQuery';
+import { useInfiniteCommentsToCommentableIdQuery } from '@store/comment/useInfiniteCommentsToCommentableIdQuery';
 import { CommentOrderField, CreateCommentInput, OrderDirection, PostQueryItem } from '@generated/index';
 import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { getAccountInfoTemp, getCommentUpload, getSelectedAccount, removeUpload } from '@store/account';
+import {
+  getAccountInfoTemp,
+  getCommentUpload,
+  getSelectedAccount,
+  removeUpload,
+  removeUploadFromCache
+} from '@store/account';
 import intl from 'react-intl-universal';
 import { CloseOutlined, SendOutlined } from '@ant-design/icons';
 import _ from 'lodash';
@@ -185,14 +191,14 @@ const Comment = ({ post }: CommentProps) => {
     { isLoading: isLoadingCreateComment, isSuccess: isSuccessCreateComment, isError: isErrorCreateComment }
   ] = useCreateCommentMutation();
 
-  const { data, totalCount, fetchNext, hasNext, isFetching } = useInfiniteCommentsToPostIdQuery(
+  const { data, totalCount, fetchNext, hasNext, isFetching } = useInfiniteCommentsToCommentableIdQuery(
     {
       first: 20,
       orderBy: {
         direction: OrderDirection.Asc,
         field: CommentOrderField.UpdatedAt
       },
-      id: post.id
+      id: post.commentableId
     },
     false
   );
@@ -276,7 +282,7 @@ const Comment = ({ post }: CommentProps) => {
 
             const createCommentInput: CreateCommentInput = {
               commentText: trimComment,
-              commentToId: post.id,
+              commentableId: post.commentableId,
               tipHex: tipHex,
               uploadId: commentUpload?.id || undefined
             };
@@ -302,7 +308,7 @@ const Comment = ({ post }: CommentProps) => {
           if (createFeeHex) {
             const createCommentInput: CreateCommentInput = {
               commentText: trimComment,
-              commentToId: post.id,
+              commentableId: post.commentableId,
               createFeeHex: createFeeHex,
               uploadId: commentUpload?.id || undefined
             };
@@ -317,7 +323,7 @@ const Comment = ({ post }: CommentProps) => {
       } else {
         const createCommentInput: CreateCommentInput = {
           commentText: trimComment,
-          commentToId: post.id,
+          commentableId: post.commentableId,
           uploadId: commentUpload?.id || undefined
         };
 
@@ -338,7 +344,7 @@ const Comment = ({ post }: CommentProps) => {
           if (createFeeHex) {
             const createCommentInput: CreateCommentInput = {
               commentText: '',
-              commentToId: post.id,
+              commentableId: post.commentableId,
               createFeeHex: createFeeHex,
               uploadId: commentUpload?.id || undefined
             };
@@ -353,7 +359,7 @@ const Comment = ({ post }: CommentProps) => {
       } else {
         const createCommentInput: CreateCommentInput = {
           commentText: '',
-          commentToId: post.id,
+          commentableId: post.commentableId,
           uploadId: commentUpload?.id || undefined
         };
 
@@ -470,20 +476,24 @@ const Comment = ({ post }: CommentProps) => {
     try {
       const result = await createCommentTrigger({ input: input }).unwrap();
       patches = dispatch(
-        commentsApi.util.updateQueryData('CommentsToPostId', { id: input.commentToId, ...params }, draft => {
-          draft.allCommentsToPostId.edges.unshift({
+        commentsApi.util.updateQueryData('CommentsToCommentableId', { id: post.commentableId, ...params }, draft => {
+          draft.commentsToCommentableId.edges.unshift({
             cursor: result.createComment.id,
             node: {
               ...result.createComment
             }
           });
-          draft.allCommentsToPostId.totalCount = draft.allCommentsToPostId.totalCount + 1;
+          draft.commentsToCommentableId.totalCount = draft.commentsToCommentableId.totalCount + 1;
         })
       );
+
+      if (commentUpload) {
+        dispatch(removeUploadFromCache({ uploadType: UPLOAD_TYPES.COMMENT }));
+      }
     } catch (error) {
       const message = intl.get('comment.unableCreateComment');
       if (patches) {
-        dispatch(commentsApi.util.patchQueryData('CommentsToPostId', params, patches.inversePatches));
+        dispatch(commentsApi.util.patchQueryData('CommentsToCommentableId', params, patches.inversePatches));
       }
       dispatch(
         showToast('error', {

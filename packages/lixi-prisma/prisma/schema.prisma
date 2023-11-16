@@ -233,7 +233,6 @@ model Comment {
   imageUploadable    ImageUploadable? @relation("comment_image_uploadable", fields: [imageUploadableId], references: [id])
   imageUploadableId  String?          @unique @map("comment_image_uploadable_id")
   commentDana        CommentDana?
-  uploadDetail       UploadDetail?
 
   @@index([commentableId], map: "index_commentable")
   @@index([commentAccountId], map: "index_comment_on_account")
@@ -745,8 +744,6 @@ model UploadDetail {
   coverAccountId          Int?             @unique
   message                 Message?         @relation(fields: [messageId], references: [id])
   messageId               String?
-  comment                 Comment?         @relation(fields: [commentId], references: [id])
-  commentId               String?          @unique
 
   @@map("upload_detail")
 }

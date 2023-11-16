@@ -86,11 +86,11 @@ const CommentListItem = ({ item, post }: CommentListItemProps) => {
       content={
         <React.Fragment>
           <p>{item.commentText}</p>
-          {item.uploadDetail && (
+          {item.imageUploadable && (
             <picture>
               <img
-                alt={item.uploadDetail.id}
-                src={`${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${item?.uploadDetail.upload.cfImageId}/public`}
+                alt={item.imageUploadable.uploads[0].id}
+                src={`${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${item?.imageUploadable.uploads[0].cfImageId}/public`}
                 height={`20vh`}
               />
             </picture>
