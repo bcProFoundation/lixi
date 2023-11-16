@@ -68,14 +68,19 @@ type UploaderProps = {
   icon?: any;
   loading?: boolean;
   setUploadingImage: (state: boolean) => void;
+  multiple?: boolean;
 };
 /* eslint-disable react/display-name */
 export const MultiUploader = React.forwardRef(
-  ({ type, buttonName, buttonType, isIcon, showUploadList, icon, loading, setUploadingImage }: UploaderProps, ref) => {
+  (
+    { type, buttonName, buttonType, isIcon, showUploadList, icon, loading, setUploadingImage, multiple }: UploaderProps,
+    ref
+  ) => {
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
     const [previewVisible, setPreviewVisible] = useState(false);
     const dispatch = useAppDispatch();
+
     useImperativeHandle(ref, () => ({
       async uploadImageFromClipboard(options) {
         const { file } = options;
@@ -253,7 +258,7 @@ export const MultiUploader = React.forwardRef(
           progress={customProgress}
           customRequest={uploadImage}
           showUploadList={showUploadList}
-          multiple={true}
+          multiple={multiple}
         >
           {uploadButton}
         </Upload>

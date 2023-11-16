@@ -201,20 +201,6 @@ const PostListItem = ({ index, item, searchValue }: PostListItemProps) => {
   const [showMoreImage, setShowMoreImage] = useState(true);
   const [imagesList, setImagesList] = useState([]);
   const ref = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    const mapImages = item.uploads.map(img => {
-      const imgUrl = `${process.env.NEXT_PUBLIC_AWS_ENDPOINT}/${img.upload.bucket}/${img.upload.sha}`;
-      let width = img?.upload?.width || 4;
-      let height = img?.upload?.height || 3;
-      let objImg = {
-        src: imgUrl,
-        width: width,
-        height: height
-      };
-      return objImg;
-    });
-    setImagesList(mapImages);
-  }, []);
 
   const { width } = useWindowDimensions();
 
@@ -303,24 +289,6 @@ const PostListItem = ({ index, item, searchValue }: PostListItemProps) => {
             >
               Show more...
             </p>
-          )}
-          {item.uploads.length != 0 && !showMoreImage && (
-            <div className="images-post">
-              <Gallery photos={imagesList} />
-            </div>
-          )}
-          {item.uploads.length != 0 && showMoreImage && (
-            <>
-              <div className="images-post">
-                <Gallery photos={imagesList.slice(0, 1)} />
-                {item.uploads.length > 1 && (
-                  <Button type="link" className="show-more-image no-border-btn">
-                    {'More ' + (item.uploads.length - 1) + ' images'}
-                    <PlusCircleOutlined />
-                  </Button>
-                )}
-              </div>
-            </>
           )}
         </Content>
       </CardContainer>

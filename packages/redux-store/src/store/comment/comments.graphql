@@ -58,6 +58,16 @@ fragment CommentFields on Comment {
     danaBurnScore
     version
   }
+  imageUploadable {
+    id
+    uploads {
+      id
+      width
+      height
+      cfImageId
+      cfImageFilename
+    }
+  }
   createdAt
   updatedAt
   commentable {

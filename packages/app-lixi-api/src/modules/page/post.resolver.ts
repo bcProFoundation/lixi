@@ -1,8 +1,9 @@
 import {
   Account,
   CreatePostInput,
-  ImageUploadable as ImageUploadableModel,
   ICommentableTo,
+  IImageUploadableTo,
+  ImageUploadable as ImageUploadableModel,
   Page,
   PaginationArgs,
   Post,
@@ -13,16 +14,13 @@ import {
   PostTranslation,
   Repost,
   RepostInput,
-  Token,
   UpdatePostInput,
-  UploadDetail,
-  ImageUploadableTo,
-  IImageUploadableTo
+  UploadDetail
 } from '@bcpros/lixi-models';
 import {
+  CommentType,
   ImageUploadable,
   ImageUploadableType,
-  CommentType,
   NotificationLevel,
   Post as PostPrisma
 } from '@bcpros/lixi-prisma';
@@ -52,13 +50,13 @@ import { FollowCacheService } from '../account/follow-cache.service';
 import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
 import { HashtagService } from '../hashtag/hashtag.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { HASHTAG, POSTS } from './constants/meili.constants';
-import { POST_FANOUT_QUEUE } from './constants/post.constants';
-import { MeiliService } from './meili.service';
-import PostLoader from './post.loader';
 import { XPIJS } from '../wallet/wallet.constants';
 import CommentableLoader from './commentable.loader';
+import { HASHTAG, POSTS } from './constants/meili.constants';
+import { CONTENT_FANOUT_QUEUE } from './constants';
 import ImageUploadableLoader from './imageUploadable.loader';
+import { MeiliService } from './meili.service';
+import PostLoader from './post.loader';
 
 const pubSub = new PubSub();
 
@@ -75,7 +73,7 @@ export class PostResolver {
     @InjectRedis() private readonly redis: Redis,
     private readonly notificationService: NotificationService,
     private hashtagService: HashtagService,
-    @InjectQueue(POST_FANOUT_QUEUE) private postFanoutQueue: Queue,
+    @InjectQueue(CONTENT_FANOUT_QUEUE) private postFanoutQueue: Queue,
     @Inject(XPIJS) private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @I18n() private i18n: I18nService,
@@ -92,7 +90,6 @@ export class PostResolver {
     const dbPost = await this.prisma.post.findUnique({
       where: { id: id },
       include: {
-        uploads: true,
         postAccount: true,
         page: true,
         translations: true,
@@ -105,17 +102,15 @@ export class PostResolver {
 
     if (!dbPost) return null;
 
-    const [page, reposts, uploads, danaViewScore] = await Promise.all([
+    const [page, reposts, danaViewScore] = await Promise.all([
       dbPost.pageId ? this.postLoader.batchPages.load(dbPost.pageId) : Promise.resolve(null),
       this.postLoader.batchReposts.load(dbPost.id),
-      this.postLoader.batchUploads.load(dbPost.id),
       this.postLoader.batchDanaViewScores.load(dbPost.id)
     ]);
 
     return new Post({
       ...dbPost,
       id: dbPost.id,
-      uploads: uploads ? (uploads as UploadDetail[]) : [],
       page: page ? (page as Page) : new Page({}),
       repostCount: dbPost._count.reposts,
       reposts: reposts ? (reposts as Repost[]) : [],
@@ -841,7 +836,7 @@ export class PostResolver {
     }
 
     const { uploads, pageId, htmlContent, tokenPrimaryId, pureContent } = data;
-    let imageUploadable: ImageUploadable;
+    let imageUploadable: ImageUploadable | undefined = undefined;
 
     //create new imageUploadable
     if (uploads && uploads.length > 0) {
@@ -870,6 +865,9 @@ export class PostResolver {
       },
       token: {
         connect: tokenPrimaryId ? { id: tokenPrimaryId } : undefined
+      },
+      imageUploadable: {
+        connect: imageUploadable ? { id: imageUploadable.id } : undefined
       }
     };
 
@@ -896,6 +894,9 @@ export class PostResolver {
           txid: txid,
           createFee: createFee,
           postDana: {
+            create: {}
+          },
+          taggable: {
             create: {}
           }
         },
@@ -1026,7 +1027,7 @@ export class PostResolver {
     }
 
     // Fanout the post created
-    await this.postFanoutQueue.add(POST_FANOUT_QUEUE, { post: savedPost });
+    await this.postFanoutQueue.add(CONTENT_FANOUT_QUEUE, { post: savedPost });
 
     return savedPost;
   }
@@ -1203,11 +1204,6 @@ export class PostResolver {
       return translations;
     }
     return null;
-  }
-
-  @ResolveField('uploads', () => [UploadDetail])
-  async uploads(@Parent() post: Post) {
-    return this.postLoader.batchUploads.load(post.id);
   }
 
   @ResolveField('danaViewScore', () => Number)

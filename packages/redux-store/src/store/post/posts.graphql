@@ -338,18 +338,6 @@ query PinnedPostByUserId(
 fragment PostFields on Post {
   id
   content
-  uploads {
-    id
-    upload {
-      id
-      sha
-      bucket
-      width
-      height
-      cfImageId
-      cfImageFilename
-    }
-  }
   postAccount {
     address
     id
@@ -431,18 +419,6 @@ fragment PostFields on Post {
 fragment PostMeiliFields on Post {
   id
   content
-  uploads {
-    id
-    upload {
-      id
-      sha
-      bucket
-      width
-      height
-      cfImageId
-      cfImageFilename
-    }
-  }
   postAccount {
     address
     id
@@ -491,6 +467,18 @@ fragment PostMeiliFields on Post {
     id
     translateContent
     translateLanguage
+  }
+  imageUploadable {
+    id
+    uploads {
+      id
+      sha
+      bucket
+      width
+      height
+      cfImageId
+      cfImageFilename
+    }
   }
   danaViewScore
 }

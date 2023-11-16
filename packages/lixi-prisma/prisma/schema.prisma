@@ -302,6 +302,7 @@ model Account {
   events                         Event[]
   pollAnswers                    PollAnswerOnAccount[]
   imageUploadable                ImageUploadable[]
+  Poll                           Poll[]
 
   @@index([mnemonicHash], type: Hash)
   @@map("account")
@@ -1122,7 +1123,7 @@ model Bookmark {
 model Event {
   id                String           @id @default(cuid())
   account           Account          @relation(fields: [accountId], references: [id])
-  accountId         Int              @map("post_account_id")
+  accountId         Int              @map("account_id")
   name              String
   description       String?
   page              Page?            @relation(fields: [pageId], references: [id])
@@ -1130,6 +1131,8 @@ model Event {
   startDate         DateTime         @map("start_date") @db.Timestamptz
   endDate           DateTime         @map("end_date") @db.Timestamptz
   location          String?
+  createFee         Float?           @map("create_fee")
+  txid              String?
   commentableId     String?          @unique @map("commentable_id")
   commentable       Commentable?     @relation(fields: [commentableId], references: [id])
   bookmarkableId    String?          @map("bookmarkable_id")
@@ -1139,12 +1142,15 @@ model Event {
   pinableId         String?          @map("pinable_id")
   pinable           Pinable?         @relation(fields: [pinableId], references: [id])
   eventType         EventType // Add this field to specify event type (virtual or physical)
-  eventDana         EventDana?
+  dana              EventDana?
   imageUploadable   ImageUploadable? @relation("event_image_uploadable", fields: [imageUploadableId], references: [id])
   imageUploadableId String?          @unique @map("event_image_uploadable_id")
   createdAt         DateTime         @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime         @default(now()) @map("updated_at") @db.Timestamptz
 
+  @@index([commentableId])
+  @@index([accountId])
+  @@index([pageId])
   @@map("event")
 }
 
@@ -1193,12 +1199,16 @@ model PollAnswerOnAccount {
 model Poll {
   id                String           @id @default(cuid())
   question          String
+  account           Account          @relation(fields: [accountId], references: [id])
+  accountId         Int              @map("account_id")
   page              Page?            @relation(fields: [pageId], references: [id])
   pageId            String?          @map("page_id")
   options           PollOption[] // Reference to the PollOption model
   startDate         DateTime         @map("start_date") @db.Timestamptz
   endDate           DateTime         @map("end_date") @db.Timestamptz
-  pollDana          PollDana?
+  createFee         Float?           @map("create_fee")
+  txid              String?
+  dana              PollDana?
   commentableId     String?          @unique @map("commentable_id")
   commentable       Commentable?     @relation(fields: [commentableId], references: [id])
   bookmarkableId    String?          @map("bookmarkable_id")
@@ -1212,6 +1222,9 @@ model Poll {
   createdAt         DateTime         @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime         @default(now()) @map("updated_at") @db.Timestamptz
 
+  @@index([commentableId])
+  @@index([accountId])
+  @@index([pageId])
   @@map("poll")
 }
 
@@ -1246,6 +1259,8 @@ model Product {
   state             State?          @relation(fields: [stateId], references: [id])
   stateId           Int?            @map("state_id")
   address           String?         @default("") @map("address")
+  createFee         Float?          @map("create_fee")
+  txid              String?
   commentableId     String?         @unique @map("commentable_id")
   commentable       Commentable?    @relation(fields: [commentableId], references: [id])
   bookmarkableId    String?         @map("bookmarkable_id")

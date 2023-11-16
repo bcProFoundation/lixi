@@ -500,8 +500,8 @@ const Settings: React.FC = () => {
                   defaultValue={selectedAccount?.secondaryLanguage}
                   onChange={(locale: any) => {
                     const secondaryLanguageAccountCommand: SecondaryLanguageAccountCommand = {
-                      id: selectedAccount.id,
-                      mnemonic: selectedAccount.mnemonic,
+                      id: selectedAccount?.id,
+                      mnemonic: selectedAccount?.mnemonic,
                       secondaryLanguage: locale
                     };
                     dispatch(setSecondaryLanguageAccount(secondaryLanguageAccountCommand));

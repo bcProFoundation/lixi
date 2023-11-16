@@ -7,14 +7,14 @@ import { Job } from 'bullmq';
 import { Redis } from 'ioredis';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { POST_FANOUT_QUEUE } from './constants/post.constants';
+import { CONTENT_FANOUT_QUEUE } from './constants';
 import { Burn, Post } from '@bcpros/lixi-prisma';
 import { FollowCacheService } from '../account/follow-cache.service';
 import ReBloom from '../../common/redis/redis-bloom';
 import { PostCacheService } from './post-cache.service';
 
 @Injectable()
-@Processor(POST_FANOUT_QUEUE, { concurrency: 50 })
+@Processor(CONTENT_FANOUT_QUEUE, { concurrency: 50 })
 export class PostFanoutProcessor extends WorkerHost {
   private logger: Logger = new Logger(this.constructor.name);
 
@@ -32,6 +32,7 @@ export class PostFanoutProcessor extends WorkerHost {
   public async process(job: Job<{ post: Post }, boolean, string>): Promise<boolean> {
     try {
       const { post } = job.data;
+      if (!post) return true;
       const id = `${post.id}`;
 
       // Invalidate the cache

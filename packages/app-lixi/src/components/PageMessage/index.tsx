@@ -1249,6 +1249,7 @@ const PageMessage = () => {
                   showUploadList={false}
                   loading={isUploadingImage}
                   setUploadingImage={setUploadingImage}
+                  multiple={true}
                 />
               </IconContainer>
               <InputContainer className="input-page-message">

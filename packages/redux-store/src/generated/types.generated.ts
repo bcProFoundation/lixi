@@ -1,8 +1,14 @@
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type Exact<T extends { [key: string]: unknown }> = {
+  [K in keyof T]: T[K];
+};
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]?: Maybe<T[SubKey]>;
+};
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]: Maybe<T[SubKey]>;
+};
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -97,7 +103,7 @@ export enum AccountOrderField {
   CreatedAt = 'createdAt',
   Id = 'id',
   Name = 'name',
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type Balances = {
@@ -167,6 +173,7 @@ export type Comment = {
   danaBurnScore: Scalars['Float'];
   danaBurnUp: Scalars['Float'];
   id: Scalars['ID'];
+  imageUploadable?: Maybe<ImageUploadable>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
 };
@@ -204,7 +211,7 @@ export enum CommentOrderField {
   CreatedAt = 'createdAt',
   DanaBurnScore = 'danaBurnScore',
   Id = 'id',
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** The type comment attach to */
@@ -212,7 +219,7 @@ export enum CommentType {
   Event = 'EVENT',
   Poll = 'POLL',
   Post = 'POST',
-  Product = 'PRODUCT'
+  Product = 'PRODUCT',
 }
 
 export type Commentable = {
@@ -249,6 +256,7 @@ export type CreateCommentInput = {
   commentableId: Scalars['String'];
   createFeeHex?: InputMaybe<Scalars['String']>;
   tipHex?: InputMaybe<Scalars['String']>;
+  uploadId?: InputMaybe<Scalars['String']>;
 };
 
 export type CreateFollowAccountInput = {
@@ -286,6 +294,16 @@ export type CreatePageMessageInput = {
   accountSecret?: InputMaybe<Scalars['String']>;
   lixiId?: InputMaybe<Scalars['Int']>;
   pageId: Scalars['String'];
+};
+
+export type CreatePollInput = {
+  createFeeHex?: InputMaybe<Scalars['String']>;
+  endDate: Scalars['DateTime'];
+  htmlContent: Scalars['String'];
+  options: Array<PollOptionInput>;
+  pageId?: InputMaybe<Scalars['String']>;
+  pureContent: Scalars['String'];
+  startDate: Scalars['DateTime'];
 };
 
 export type CreatePostInput = {
@@ -406,16 +424,18 @@ export type Event = {
   __typename?: 'Event';
   account: Account;
   accountId: Scalars['Int'];
-  comments?: Maybe<Array<Comment>>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
+  dana: EventDana;
   danaViewScore?: Maybe<Scalars['Float']>;
   description: Scalars['String'];
   endDate: Scalars['DateTime'];
-  eventDana: EventDana;
   eventType: EventType;
+  followOwner: Scalars['Boolean'];
+  followedPage: Scalars['Boolean'];
+  followedToken: Scalars['Boolean'];
   id: Scalars['ID'];
-  images?: Maybe<Array<Upload>>;
+  imageUploadable?: Maybe<ImageUploadable>;
   location?: Maybe<Scalars['String']>;
   name: Scalars['String'];
   page?: Maybe<Page>;
@@ -442,7 +462,7 @@ export type EventDana = {
 /** The type of event. */
 export enum EventType {
   Physical = 'PHYSICAL',
-  Virtual = 'VIRTUAL'
+  Virtual = 'VIRTUAL',
 }
 
 export type ExtraArguments = {
@@ -549,7 +569,7 @@ export enum HashtagOrderField {
   CreatedAt = 'createdAt',
   DanaBurnScore = 'danaBurnScore',
   Id = 'id',
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type ImageUploadable = {
@@ -574,7 +594,13 @@ export type ImageUploadable = {
   uploads: Array<Upload>;
 };
 
-export type ImageUploadableTo = Comment | Event | Message | Poll | Post | Product;
+export type ImageUploadableTo =
+  | Comment
+  | Event
+  | Message
+  | Poll
+  | Post
+  | Product;
 
 /** Properties by type of the image uploadable. */
 export enum ImageUploadableType {
@@ -590,7 +616,7 @@ export enum ImageUploadableType {
   Post = 'POST',
   Product = 'PRODUCT',
   TempleAvatar = 'TEMPLE_AVATAR',
-  TempleCover = 'TEMPLE_COVER'
+  TempleCover = 'TEMPLE_COVER',
 }
 
 export type ImportAccountInput = {
@@ -697,7 +723,7 @@ export type MessageOrder = {
 export enum MessageOrderField {
   CreatedAt = 'createdAt',
   Id = 'id',
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type MessageSession = {
@@ -723,6 +749,7 @@ export type MessageSessionEdge = {
 export type Mutation = {
   __typename?: 'Mutation';
   closePageMessageSession: PageMessageSession;
+  create: Poll;
   createAccount: Account;
   createBookmark: Bookmark;
   createComment: Comment;
@@ -756,6 +783,10 @@ export type Mutation = {
 
 export type MutationClosePageMessageSessionArgs = {
   data: ClosePageMessageSessionInput;
+};
+
+export type MutationCreateArgs = {
+  data: CreatePollInput;
 };
 
 export type MutationCreateAccountArgs = {
@@ -881,7 +912,7 @@ export type OpenPageMessageSessionInput = {
 /** Possible directions in which to order a list of items when provided an `orderBy` argument. */
 export enum OrderDirection {
   Asc = 'asc',
-  Desc = 'desc'
+  Desc = 'desc',
 }
 
 export type Page = {
@@ -1013,14 +1044,14 @@ export enum PageMessageSessionOrderField {
   CreatedAt = 'createdAt',
   Id = 'id',
   Status = 'status',
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** Properties by status of the current PageMessageSession. */
 export enum PageMessageSessionStatus {
   Close = 'CLOSE',
   Open = 'OPEN',
-  Pending = 'PENDING'
+  Pending = 'PENDING',
 }
 
 export type Pin = {
@@ -1039,17 +1070,18 @@ export type Poll = {
   __typename?: 'Poll';
   account: Account;
   accountId: Scalars['Int'];
-  comments?: Maybe<Array<Comment>>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
+  dana: PollDana;
   danaViewScore?: Maybe<Scalars['Float']>;
   endDate: Scalars['DateTime'];
+  followOwner: Scalars['Boolean'];
+  followedPage: Scalars['Boolean'];
+  followedToken: Scalars['Boolean'];
   id: Scalars['ID'];
-  images?: Maybe<Array<Upload>>;
   options: Array<PollOption>;
   page?: Maybe<Page>;
   pageId?: Maybe<Scalars['String']>;
-  pollDana: PollDana;
   question: Scalars['String'];
   startDate: Scalars['DateTime'];
   totalComments?: Maybe<Scalars['Int']>;
@@ -1074,6 +1106,11 @@ export type PollOption = {
   __typename?: 'PollOption';
   danaPoint: Scalars['Float'];
   id: Scalars['ID'];
+  option: Scalars['String'];
+  pollId: Scalars['Int'];
+};
+
+export type PollOptionInput = {
   option: Scalars['String'];
   pollId: Scalars['Int'];
 };
@@ -1112,7 +1149,6 @@ export type Post = {
   translations?: Maybe<Array<PostTranslation>>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
-  uploads?: Maybe<Array<UploadDetail>>;
 };
 
 export type PostConnection = {
@@ -1166,7 +1202,7 @@ export enum PostOrderField {
   DanaBurnScore = 'danaBurnScore',
   Id = 'id',
   LastRepostAt = 'lastRepostAt',
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type PostTranslation = {
@@ -1226,7 +1262,7 @@ export enum ProductOrderField {
   LotusBurnScore = 'lotusBurnScore',
   Name = 'name',
   Title = 'title',
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type Query = {
@@ -1283,7 +1319,6 @@ export type Query = {
   page: Page;
   pageMessageSession: PageMessageSession;
   pagesByFollower: PageBasicConnection;
-  pin: Pin;
   post: Post;
   product: Product;
   temple: Temple;
@@ -1750,10 +1785,6 @@ export type QueryPagesByFollowerArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
-export type QueryPinArgs = {
-  id: Scalars['String'];
-};
-
 export type QueryPostArgs = {
   id: Scalars['String'];
 };
@@ -1886,7 +1917,7 @@ export enum TempleOrderField {
   CreatedAt = 'createdAt',
   Id = 'id',
   TotalWorshipAmount = 'totalWorshipAmount',
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type TimelineItem = {
@@ -2060,7 +2091,7 @@ export enum WorshipOrderField {
   CreatedAt = 'createdAt',
   Id = 'id',
   UpdatedAt = 'updatedAt',
-  WorshipedAmount = 'worshipedAmount'
+  WorshipedAmount = 'worshipedAmount',
 }
 
 export type WorshipedPerson = {
@@ -2114,5 +2145,5 @@ export enum WorshipedPersonOrderField {
   CreatedAt = 'createdAt',
   Id = 'id',
   TotalWorshipAmount = 'totalWorshipAmount',
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }

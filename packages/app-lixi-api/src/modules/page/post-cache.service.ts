@@ -30,7 +30,6 @@ export class PostCacheService {
         include: {
           postAccount: true,
           translations: true,
-          uploads: true,
           token: true,
           _count: {
             select: { reposts: true }
@@ -48,7 +47,6 @@ export class PostCacheService {
 
       const post: Post = new Post({
         ...dbValue,
-        uploads: uploads ? (uploads as UploadDetail[]) : [],
         repostCount: dbValue._count.reposts,
         reposts: reposts ? (reposts as Repost[]) : [],
         danaBurnScore: (danaViewScore as number) || 0,
@@ -90,7 +88,6 @@ export class PostCacheService {
             include: {
               postAccount: true,
               translations: true,
-              uploads: true,
               token: true,
               _count: {
                 select: { reposts: true }
@@ -110,7 +107,6 @@ export class PostCacheService {
         const item = new Post({
           ...dbValue,
           id: dbValue.id,
-          uploads: arrUploads[i] ? (arrUploads[i] as UploadDetail[]) : [],
           danaViewScore: (arrDanaViewScore[i] ?? 0) as number,
           repostCount: dbValue._count.reposts,
           reposts: arrReposts[i] ? (arrReposts[i] as Repost[]) : [],

@@ -41,6 +41,18 @@ export type CommentQuery = {
       danaBurnScore: number;
       version: number;
     } | null;
+    imageUploadable?: {
+      __typename?: 'ImageUploadable';
+      id: string;
+      uploads: Array<{
+        __typename?: 'Upload';
+        id: string;
+        width?: number | null;
+        height?: number | null;
+        cfImageId?: string | null;
+        cfImageFilename?: string | null;
+      }>;
+    } | null;
     commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
   };
 };
@@ -82,6 +94,18 @@ export type CommentsToCommentableIdQuery = {
           danaBurnScore: number;
           version: number;
         } | null;
+        imageUploadable?: {
+          __typename?: 'ImageUploadable';
+          id: string;
+          uploads: Array<{
+            __typename?: 'Upload';
+            id: string;
+            width?: number | null;
+            height?: number | null;
+            cfImageId?: string | null;
+            cfImageFilename?: string | null;
+          }>;
+        } | null;
         commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
       };
     }> | null;
@@ -114,6 +138,18 @@ export type CommentFieldsFragment = {
     danaBurnScore: number;
     version: number;
   } | null;
+  imageUploadable?: {
+    __typename?: 'ImageUploadable';
+    id: string;
+    uploads: Array<{
+      __typename?: 'Upload';
+      id: string;
+      width?: number | null;
+      height?: number | null;
+      cfImageId?: string | null;
+      cfImageFilename?: string | null;
+    }>;
+  } | null;
   commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
 };
 
@@ -142,6 +178,18 @@ export type CreateCommentMutation = {
       danaBurnScore: number;
       version: number;
     } | null;
+    imageUploadable?: {
+      __typename?: 'ImageUploadable';
+      id: string;
+      uploads: Array<{
+        __typename?: 'Upload';
+        id: string;
+        width?: number | null;
+        height?: number | null;
+        cfImageId?: string | null;
+        cfImageFilename?: string | null;
+      }>;
+    } | null;
     commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
   };
 };
@@ -166,6 +214,16 @@ export const CommentFieldsFragmentDoc = `
     danaBurnDown
     danaBurnScore
     version
+  }
+  imageUploadable {
+    id
+    uploads {
+      id
+      width
+      height
+      cfImageId
+      cfImageFilename
+    }
   }
   createdAt
   updatedAt
