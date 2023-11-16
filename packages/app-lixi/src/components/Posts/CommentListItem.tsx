@@ -86,7 +86,7 @@ const CommentListItem = ({ item, post }: CommentListItemProps) => {
       content={
         <React.Fragment>
           <p>{item.commentText}</p>
-          {item.imageUploadable && (
+          {item?.imageUploadable?.uploads[0] && (
             <picture>
               <img
                 alt={item.imageUploadable.uploads[0].id}

@@ -297,14 +297,19 @@ export class CommentResolver {
   @ResolveField('imageUploadable', () => ImageUploadableModel)
   async imageUploadable(@Parent() comment: CommentPrisma) {
     if (comment && comment.imageUploadableId) {
-      const result = await this.imageUploadableLoader.batchImageUploadable.load({
-        id: comment.id,
-        imageUploadableId: comment.imageUploadableId
-      } as IImageUploadableTo);
-      return {
-        id: result?.id,
-        uploads: result?.uploads
-      };
+      const result = this.imageUploadableLoader.batchImageUploadable
+        .load({
+          id: comment.id,
+          imageUploadableId: comment.imageUploadableId
+        } as IImageUploadableTo)
+        .then(result => {
+          return {
+            id: result?.id,
+            uploads: result?.uploads
+          };
+        });
+
+      return result;
     }
   }
 

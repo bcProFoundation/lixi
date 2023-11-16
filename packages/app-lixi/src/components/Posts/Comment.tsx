@@ -31,6 +31,7 @@ import { showToast } from '@store/toast/actions';
 import { MultiUploader } from '@components/Common/Uploader/MultiUploader';
 import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
 import usePrevious from '@hooks/usePrevious';
+import { createCommentSuccess } from '@store/comment';
 
 const { Search, TextArea } = Input;
 type CommentProps = {
@@ -465,36 +466,15 @@ const Comment = ({ post }: CommentProps) => {
   };
 
   const createComment = async (input: CreateCommentInput) => {
-    const params = {
-      orderBy: {
-        direction: OrderDirection.Asc,
-        field: CommentOrderField.UpdatedAt
-      }
-    };
-
-    let patches: PatchCollection;
     try {
       const result = await createCommentTrigger({ input: input }).unwrap();
-      patches = dispatch(
-        commentsApi.util.updateQueryData('CommentsToCommentableId', { id: post.commentableId, ...params }, draft => {
-          draft.commentsToCommentableId.edges.unshift({
-            cursor: result.createComment.id,
-            node: {
-              ...result.createComment
-            }
-          });
-          draft.commentsToCommentableId.totalCount = draft.commentsToCommentableId.totalCount + 1;
-        })
-      );
+      dispatch(createCommentSuccess(result));
 
       if (commentUpload) {
         dispatch(removeUploadFromCache({ uploadType: UPLOAD_TYPES.COMMENT }));
       }
     } catch (error) {
       const message = intl.get('comment.unableCreateComment');
-      if (patches) {
-        dispatch(commentsApi.util.patchQueryData('CommentsToCommentableId', params, patches.inversePatches));
-      }
       dispatch(
         showToast('error', {
           message: 'Error',
