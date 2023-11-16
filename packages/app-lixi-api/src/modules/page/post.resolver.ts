@@ -788,7 +788,7 @@ export class PostResolver {
     }
 
     const { uploads, pageId, htmlContent, tokenPrimaryId, pureContent } = data;
-    let imageUploadable: ImageUploadable;
+    let imageUploadable: ImageUploadable | undefined = undefined;
 
     //create new imageUploadable
     if (uploads && uploads.length > 0) {
@@ -817,6 +817,9 @@ export class PostResolver {
       },
       token: {
         connect: tokenPrimaryId ? { id: tokenPrimaryId } : undefined
+      },
+      imageUploadable: {
+        connect: imageUploadable ? { id: imageUploadable.id } : undefined
       }
     };
 
