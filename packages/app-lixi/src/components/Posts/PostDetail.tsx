@@ -27,7 +27,7 @@ import parse from 'html-react-parser';
 import _ from 'lodash';
 import moment from 'moment';
 import { useRouter } from 'next/router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ReactDomServer from 'react-dom/server';
 import { Controller, useForm } from 'react-hook-form';
 import ReactHtmlParser from 'react-html-parser';
@@ -351,7 +351,6 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
   const walletPaths = useAppSelector(getAllWalletPaths);
   const selectedAccount = useAppSelector(getSelectedAccount);
-  const [imagesList, setImagesList] = useState([]);
   const [isEncryptedOptionalOpReturnMsg, setIsEncryptedOptionalOpReturnMsg] = useState(true);
   const [open, setOpen] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
@@ -380,23 +379,18 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
     false
   );
 
-  useEffect(() => {
-    const mapImages = post.imageUploadable?.uploads.map(img => {
-      const imgUrl = img
-        ? `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img?.cfImageId}/public`
-        : '';
-
-      let width = img?.width || 4;
-      let height = img?.height || 3;
-      let objImg = {
+  const imagesList = useMemo(() => {
+    let result = post?.imageUploadable?.uploads.map(img => {
+      const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img?.cfImageId}/public`;
+      let newImageObj = {
         src: imgUrl,
-        width: width,
-        height: height
+        width: img?.width || 4,
+        height: img?.height || 3
       };
-      return objImg;
+      return newImageObj;
     });
-    setImagesList(mapImages);
-  }, []);
+    return result || [];
+  }, [post?.imageUploadable?.uploads]);
 
   const [
     createCommentTrigger,
@@ -672,7 +666,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
             </>
           )}
           {post.imageUploadable?.uploads?.length != 0 && !isMobileView && (
-            <div className={`images-post ${imagesList.length > 1 ? 'images-post-desktop' : ''}`}>
+            <div className={`images-post ${imagesList?.length > 1 ? 'images-post-desktop' : ''}`}>
               <Image.PreviewGroup>
                 <Gallery margin={4} photos={imagesList} renderImage={imageRenderer} />
               </Image.PreviewGroup>
