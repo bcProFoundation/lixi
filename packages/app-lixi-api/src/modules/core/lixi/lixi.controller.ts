@@ -49,7 +49,7 @@ import { join } from 'path';
 import { PaginationParams } from 'src/common/models/paginationParams';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
-import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
+import { PageAccountEntity } from 'src/decorators';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwtauth.guard';
 import {
   EXPORT_SUB_LIXIES_QUEUE,

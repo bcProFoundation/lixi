@@ -18,7 +18,7 @@ import { PubSub } from 'graphql-subscriptions';
 import * as _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
-import { AccountEntity } from 'src/decorators/account.decorator';
+import { AccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { aesGcmDecrypt, numberToBase58 } from 'src/utils/encryptionMethods';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';

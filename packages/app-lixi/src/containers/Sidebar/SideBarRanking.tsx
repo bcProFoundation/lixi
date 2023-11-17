@@ -326,7 +326,7 @@ const SidebarRanking = () => {
                         {index === 0 && (
                           <h4 className="distance" key={`${item.id}`}>
                             <ShortcutItemAccess
-                              burnValue={item?.pageDana?.danaReceivedScore}
+                              burnValue={item?.dana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
                               href={`/page/${item.id}`}
@@ -338,7 +338,7 @@ const SidebarRanking = () => {
                         {index === 1 && (
                           <h4 className="distance" key={`${item.id}`}>
                             <ShortcutItemAccess
-                              burnValue={item?.pageDana?.danaReceivedScore}
+                              burnValue={item?.dana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
                               href={`/page/${item.id}`}
@@ -350,7 +350,7 @@ const SidebarRanking = () => {
                         {index === 2 && (
                           <h4 className="distance" key={`${item.id}`}>
                             <ShortcutItemAccess
-                              burnValue={item?.pageDana?.danaReceivedScore}
+                              burnValue={item?.dana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
                               href={`/page/${item.id}`}
@@ -362,7 +362,7 @@ const SidebarRanking = () => {
                         {index > 2 && (
                           <h4 className="distance" key={`${item.id}`}>
                             <ShortcutItemAccess
-                              burnValue={item?.pageDana?.danaReceivedScore}
+                              burnValue={item?.dana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
                               isPage={true}

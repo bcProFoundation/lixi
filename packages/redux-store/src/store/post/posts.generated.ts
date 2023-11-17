@@ -26,7 +26,7 @@ export type PostQuery = {
     __typename?: 'Post';
     id: string;
     content: string;
-    postAccountId: number;
+    accountId: number;
     pageId?: string | null;
     tokenId?: string | null;
     repostCount: number;
@@ -42,7 +42,7 @@ export type PostQuery = {
     followedToken?: boolean | null;
     originalLanguage?: string | null;
     danaViewScore?: number | null;
-    postAccount: {
+    account: {
       __typename?: 'Account';
       address: string;
       id: number;
@@ -65,7 +65,7 @@ export type PostQuery = {
       accountId?: number | null;
       account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
     }> | null;
-    postDana?: {
+    dana?: {
       __typename?: 'PostDana';
       danaBurnUp: number;
       danaBurnDown: number;
@@ -122,7 +122,7 @@ export type PostsByPageIdQuery = {
         __typename?: 'Post';
         id: string;
         content: string;
-        postAccountId: number;
+        accountId: number;
         pageId?: string | null;
         tokenId?: string | null;
         repostCount: number;
@@ -138,7 +138,7 @@ export type PostsByPageIdQuery = {
         followedToken?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
-        postAccount: {
+        account: {
           __typename?: 'Account';
           address: string;
           id: number;
@@ -161,7 +161,7 @@ export type PostsByPageIdQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
-        postDana?: {
+        dana?: {
           __typename?: 'PostDana';
           danaBurnUp: number;
           danaBurnDown: number;
@@ -226,7 +226,7 @@ export type PostsByUserIdQuery = {
         __typename?: 'Post';
         id: string;
         content: string;
-        postAccountId: number;
+        accountId: number;
         pageId?: string | null;
         tokenId?: string | null;
         repostCount: number;
@@ -242,7 +242,7 @@ export type PostsByUserIdQuery = {
         followedToken?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
-        postAccount: {
+        account: {
           __typename?: 'Account';
           address: string;
           id: number;
@@ -265,7 +265,7 @@ export type PostsByUserIdQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
-        postDana?: {
+        dana?: {
           __typename?: 'PostDana';
           danaBurnUp: number;
           danaBurnDown: number;
@@ -330,7 +330,7 @@ export type PostsByHashtagIdQuery = {
         __typename?: 'Post';
         id: string;
         content: string;
-        postAccountId: number;
+        accountId: number;
         pageId?: string | null;
         tokenId?: string | null;
         repostCount: number;
@@ -346,7 +346,7 @@ export type PostsByHashtagIdQuery = {
         followedToken?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
-        postAccount: {
+        account: {
           __typename?: 'Account';
           address: string;
           id: number;
@@ -369,7 +369,7 @@ export type PostsByHashtagIdQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
-        postDana?: {
+        dana?: {
           __typename?: 'PostDana';
           danaBurnUp: number;
           danaBurnDown: number;
@@ -434,7 +434,7 @@ export type PostsByTokenIdQuery = {
         __typename?: 'Post';
         id: string;
         content: string;
-        postAccountId: number;
+        accountId: number;
         pageId?: string | null;
         tokenId?: string | null;
         repostCount: number;
@@ -450,7 +450,7 @@ export type PostsByTokenIdQuery = {
         followedToken?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
-        postAccount: {
+        account: {
           __typename?: 'Account';
           address: string;
           id: number;
@@ -473,7 +473,7 @@ export type PostsByTokenIdQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
-        postDana?: {
+        dana?: {
           __typename?: 'PostDana';
           danaBurnUp: number;
           danaBurnDown: number;
@@ -546,7 +546,7 @@ export type PostsBySearchQuery = {
         followedToken?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
-        postAccount: {
+        account: {
           __typename?: 'Account';
           address: string;
           id: number;
@@ -634,7 +634,7 @@ export type PostsBySearchWithHashtagQuery = {
         followedToken?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
-        postAccount: {
+        account: {
           __typename?: 'Account';
           address: string;
           id: number;
@@ -723,7 +723,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
         followedToken?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
-        postAccount: {
+        account: {
           __typename?: 'Account';
           address: string;
           id: number;
@@ -812,7 +812,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
         followedToken?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
-        postAccount: {
+        account: {
           __typename?: 'Account';
           address: string;
           id: number;
@@ -871,7 +871,7 @@ export type PostFieldsFragment = {
   __typename?: 'Post';
   id: string;
   content: string;
-  postAccountId: number;
+  accountId: number;
   pageId?: string | null;
   tokenId?: string | null;
   repostCount: number;
@@ -887,7 +887,7 @@ export type PostFieldsFragment = {
   followedToken?: boolean | null;
   originalLanguage?: string | null;
   danaViewScore?: number | null;
-  postAccount: {
+  account: {
     __typename?: 'Account';
     address: string;
     id: number;
@@ -910,7 +910,7 @@ export type PostFieldsFragment = {
     accountId?: number | null;
     account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
   }> | null;
-  postDana?: {
+  dana?: {
     __typename?: 'PostDana';
     danaBurnUp: number;
     danaBurnDown: number;
@@ -957,7 +957,7 @@ export type PostMeiliFieldsFragment = {
   followedToken?: boolean | null;
   originalLanguage?: string | null;
   danaViewScore?: number | null;
-  postAccount: {
+  account: {
     __typename?: 'Account';
     address: string;
     id: number;
@@ -1012,7 +1012,7 @@ export type CreatePostMutation = {
     __typename?: 'Post';
     id: string;
     content: string;
-    postAccountId: number;
+    accountId: number;
     pageId?: string | null;
     tokenId?: string | null;
     repostCount: number;
@@ -1028,7 +1028,7 @@ export type CreatePostMutation = {
     followedToken?: boolean | null;
     originalLanguage?: string | null;
     danaViewScore?: number | null;
-    postAccount: {
+    account: {
       __typename?: 'Account';
       address: string;
       id: number;
@@ -1051,7 +1051,7 @@ export type CreatePostMutation = {
       accountId?: number | null;
       account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
     }> | null;
-    postDana?: {
+    dana?: {
       __typename?: 'PostDana';
       danaBurnUp: number;
       danaBurnDown: number;
@@ -1094,7 +1094,7 @@ export type UpdatePostMutation = {
     __typename?: 'Post';
     id: string;
     content: string;
-    postAccountId: number;
+    accountId: number;
     pageId?: string | null;
     tokenId?: string | null;
     repostCount: number;
@@ -1110,7 +1110,7 @@ export type UpdatePostMutation = {
     followedToken?: boolean | null;
     originalLanguage?: string | null;
     danaViewScore?: number | null;
-    postAccount: {
+    account: {
       __typename?: 'Account';
       address: string;
       id: number;
@@ -1133,7 +1133,7 @@ export type UpdatePostMutation = {
       accountId?: number | null;
       account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
     }> | null;
-    postDana?: {
+    dana?: {
       __typename?: 'PostDana';
       danaBurnUp: number;
       danaBurnDown: number;
@@ -1176,14 +1176,14 @@ export const PostFieldsFragmentDoc = `
     fragment PostFields on Post {
   id
   content
-  postAccount {
+  account {
     address
     id
     name
     avatar
     createCommentFee
   }
-  postAccountId
+  accountId
   page {
     avatar
     name
@@ -1215,7 +1215,7 @@ export const PostFieldsFragmentDoc = `
   danaBurnUp
   danaBurnDown
   danaBurnScore
-  postDana {
+  dana {
     danaBurnUp
     danaBurnDown
     danaBurnScore
@@ -1256,7 +1256,7 @@ export const PostMeiliFieldsFragmentDoc = `
     fragment PostMeiliFields on Post {
   id
   content
-  postAccount {
+  account {
     address
     id
     name

@@ -9,7 +9,7 @@ import { ChronikClient } from 'chronik-client';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
-import { PostAccountEntity } from 'src/decorators/postAccount.decorator';
+import { AccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import VError from 'verror';
 import { NOTIFICATION_TYPES } from '../../../common/modules/notifications/notification.constants';
@@ -52,13 +52,13 @@ export class PollResolver {
   @SkipThrottle()
   @Query(() => Poll)
   @UseGuards(GqlJwtAuthGuardByPass)
-  async poll(@PostAccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
+  async poll(@AccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
     return this.pollCacheService.getById(id);
   }
 
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Poll)
-  async create(@PostAccountEntity() account: Account, @Args('data') data: CreatePollInput) {
+  async create(@AccountEntity() account: Account, @Args('data') data: CreatePollInput) {
     if (!account) {
       const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
       throw new Error(couldNotFindAccount);
@@ -233,16 +233,16 @@ export class PollResolver {
   }
 
   @ResolveField('followOwner', () => Boolean)
-  async followOwner(@Parent() post: Post, @PostAccountEntity() account: Account) {
+  async followOwner(@Parent() post: Post, @AccountEntity() account: Account) {
     const payload = {
-      followingAccountId: post?.postAccount?.id,
+      followingAccountId: post?.account?.id,
       accountId: account?.id
     };
     return this.postLoader.batchCheckAccountFollowAllAccount.load(payload);
   }
 
   @ResolveField('followedPage', () => Boolean)
-  async followedPage(@Parent() post: Post, @PostAccountEntity() account: Account) {
+  async followedPage(@Parent() post: Post, @AccountEntity() account: Account) {
     const payload = {
       pageId: post?.page?.id || '',
       accountId: account?.id
@@ -251,7 +251,7 @@ export class PollResolver {
   }
 
   @ResolveField('followedToken', () => Boolean)
-  async followedToken(@Parent() post: Post, @PostAccountEntity() account: Account) {
+  async followedToken(@Parent() post: Post, @AccountEntity() account: Account) {
     const payload = {
       tokenId: post?.token?.tokenId || '',
       accountId: account?.id

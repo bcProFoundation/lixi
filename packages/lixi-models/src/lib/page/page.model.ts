@@ -53,15 +53,6 @@ export class Page {
   @Field(() => String, { nullable: true })
   website?: string;
 
-  @Field(() => Float)
-  danaBurnUp: number;
-
-  @Field(() => Float)
-  danaBurnDown: number;
-
-  @Field(() => Float)
-  danaBurnScore: number;
-
   @Field(() => Float, { nullable: true, description: 'The sum of burn amount for every post on page' })
   totalBurnForPage?: number;
 
@@ -131,7 +122,7 @@ export class Page {
 
   @IsOptional()
   @Field(() => PageDana, { nullable: true })
-  pageDana?: Nullable<PageDana>;
+  dana?: Nullable<PageDana>;
 
   constructor(partial: Partial<Page>) {
     Object.assign(this, partial);

@@ -36,9 +36,6 @@ export type PageQuery = {
     stateName?: string | null;
     address?: string | null;
     website?: string | null;
-    danaBurnUp: number;
-    danaBurnDown: number;
-    danaBurnScore: number;
     totalBurnForPage?: number | null;
     followersCount?: number | null;
     createPostFee: string;
@@ -50,7 +47,7 @@ export type PageQuery = {
     totalPostsBurnScore: number;
     pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
     category?: { __typename?: 'Category'; id: string; name: string } | null;
-    pageDana?: {
+    dana?: {
       __typename?: 'PageDana';
       danaBurnUp: number;
       danaBurnDown: number;
@@ -96,9 +93,6 @@ export type PagesQuery = {
         stateName?: string | null;
         address?: string | null;
         website?: string | null;
-        danaBurnUp: number;
-        danaBurnDown: number;
-        danaBurnScore: number;
         totalBurnForPage?: number | null;
         followersCount?: number | null;
         createPostFee: string;
@@ -110,7 +104,7 @@ export type PagesQuery = {
         totalPostsBurnScore: number;
         pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         category?: { __typename?: 'Category'; id: string; name: string } | null;
-        pageDana?: {
+        dana?: {
           __typename?: 'PageDana';
           danaBurnUp: number;
           danaBurnDown: number;
@@ -156,9 +150,6 @@ export type PagesByFollowerQuery = {
         stateName?: string | null;
         address?: string | null;
         website?: string | null;
-        danaBurnUp: number;
-        danaBurnDown: number;
-        danaBurnScore: number;
         totalBurnForPage?: number | null;
         followersCount?: number | null;
         createPostFee: string;
@@ -170,7 +161,7 @@ export type PagesByFollowerQuery = {
         totalPostsBurnScore: number;
         pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         category?: { __typename?: 'Category'; id: string; name: string } | null;
-        pageDana?: {
+        dana?: {
           __typename?: 'PageDana';
           danaBurnUp: number;
           danaBurnDown: number;
@@ -218,9 +209,6 @@ export type PagesByUserIdQuery = {
         stateName?: string | null;
         address?: string | null;
         website?: string | null;
-        danaBurnUp: number;
-        danaBurnDown: number;
-        danaBurnScore: number;
         totalBurnForPage?: number | null;
         followersCount?: number | null;
         createPostFee: string;
@@ -232,7 +220,7 @@ export type PagesByUserIdQuery = {
         totalPostsBurnScore: number;
         pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         category?: { __typename?: 'Category'; id: string; name: string } | null;
-        pageDana?: {
+        dana?: {
           __typename?: 'PageDana';
           danaBurnUp: number;
           danaBurnDown: number;
@@ -265,9 +253,6 @@ export type PageFieldsFragment = {
   stateName?: string | null;
   address?: string | null;
   website?: string | null;
-  danaBurnUp: number;
-  danaBurnDown: number;
-  danaBurnScore: number;
   totalBurnForPage?: number | null;
   followersCount?: number | null;
   createPostFee: string;
@@ -279,7 +264,7 @@ export type PageFieldsFragment = {
   totalPostsBurnScore: number;
   pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
   category?: { __typename?: 'Category'; id: string; name: string } | null;
-  pageDana?: {
+  dana?: {
     __typename?: 'PageDana';
     danaBurnUp: number;
     danaBurnDown: number;
@@ -314,9 +299,6 @@ export type CreatePageMutation = {
     stateName?: string | null;
     address?: string | null;
     website?: string | null;
-    danaBurnUp: number;
-    danaBurnDown: number;
-    danaBurnScore: number;
     totalBurnForPage?: number | null;
     followersCount?: number | null;
     createPostFee: string;
@@ -328,7 +310,7 @@ export type CreatePageMutation = {
     totalPostsBurnScore: number;
     pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
     category?: { __typename?: 'Category'; id: string; name: string } | null;
-    pageDana?: {
+    dana?: {
       __typename?: 'PageDana';
       danaBurnUp: number;
       danaBurnDown: number;
@@ -364,9 +346,6 @@ export type UpdatePageMutation = {
     stateName?: string | null;
     address?: string | null;
     website?: string | null;
-    danaBurnUp: number;
-    danaBurnDown: number;
-    danaBurnScore: number;
     totalBurnForPage?: number | null;
     followersCount?: number | null;
     createPostFee: string;
@@ -378,7 +357,7 @@ export type UpdatePageMutation = {
     totalPostsBurnScore: number;
     pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
     category?: { __typename?: 'Category'; id: string; name: string } | null;
-    pageDana?: {
+    dana?: {
       __typename?: 'PageDana';
       danaBurnUp: number;
       danaBurnDown: number;
@@ -417,10 +396,7 @@ export const PageFieldsFragmentDoc = `
   stateName
   address
   website
-  danaBurnUp
-  danaBurnDown
-  danaBurnScore
-  pageDana {
+  dana {
     danaBurnUp
     danaBurnDown
     danaBurnScore

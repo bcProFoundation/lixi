@@ -37,7 +37,7 @@ export class TimelineService {
       const posts = await this.prisma.post.findMany({
         select: {
           id: true,
-          postAccountId: true,
+          accountId: true,
           createdAt: true
         },
         where: {
@@ -48,7 +48,7 @@ export class TimelineService {
               }
             },
             {
-              postAccountId: {
+              accountId: {
                 in: [accountId].concat(accountFollowings)
               }
             }
@@ -113,7 +113,7 @@ export class TimelineService {
               burn.burn_for_type = ${postBurnType} 
               AND burn.burned_value > 0 
               AND (
-                (post.post_account_id IN (${accountFollowingsCondition}) ) OR
+                (post.account_id IN (${accountFollowingsCondition}) ) OR
                 (post.page_id IN (${pageFollowingsCondition} ))
               )
             GROUP BY

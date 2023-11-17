@@ -878,7 +878,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
 
             <p>
               {' '}
-              <FireOutlined /> {pageDetailData?.pageDana?.danaReceivedScore || 0 + intl.get('general.dana')}
+              <FireOutlined /> {pageDetailData?.dana?.danaReceivedScore || 0 + intl.get('general.dana')}
             </p>
           </div>
         </ProfileCardHeader>

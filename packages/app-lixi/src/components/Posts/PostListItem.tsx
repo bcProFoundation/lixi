@@ -320,16 +320,16 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
   };
 
   const showUsername = () => {
-    if (_.isNil(post.postAccount)) {
+    if (_.isNil(post.account)) {
       return 'Anonymous';
     }
 
-    return post?.postAccount?.name;
+    return post?.account?.name;
   };
 
   const editPost = () => {
     const editPostProps: EditPostModalProps = {
-      postAccountAddress: post.postAccount.address,
+      accountAddress: post.account.address,
       content: post.content,
       postId: post.id
     };
@@ -399,17 +399,17 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
         {reposted()}
         <CardHeader>
           <InfoCardUser
-            imgUrl={post.postAccount.avatar ? post.postAccount.avatar : ''}
+            imgUrl={post.account.avatar ? post.account.avatar : ''}
             name={showUsername()}
             title={formatRelativeTime(post.createdAt)}
-            postAccountAddress={post.postAccount ? post.postAccount.address : undefined}
+            accountAddress={post.account ? post.account.address : undefined}
             page={post.page ? post.page : undefined}
             token={post.token ? post.token : undefined}
             activatePostLocation={true}
             onEditPostClick={editPost}
             postEdited={post.createdAt !== post.updatedAt}
             isDropdown={true}
-            danaBurnScore={post.postDana.danaReceivedScore}
+            danaBurnScore={post.dana.danaReceivedScore}
             followPostOwner={post.followPostOwner}
             followedPage={post.followedPage}
             followedToken={post.followedToken}

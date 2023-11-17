@@ -23,7 +23,7 @@ async function main() {
                name: true
             }
          },
-         postAccount: {
+         account: {
             select: {
                name: true,
             }
@@ -36,7 +36,7 @@ async function main() {
          primaryId: post.id,
          id: post.id,
          content: stripHtml(post.content).result,
-         postAccountName: post.postAccount.name,
+         accountName: post.account.name,
          createdAt: post.createdAt,
          updatedAt: post.updatedAt,
          page: {

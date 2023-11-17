@@ -225,12 +225,12 @@ function* changeFollowActionSheetPostSaga(action: PayloadAction<ParamPostFollowC
     minBurnFilterHome,
     pageId,
     tokenId,
-    postAccountId,
+    accountId,
     tokenPrimaryId,
     hashtags,
     query,
     level,
-    accountId
+    selectedAccountId
   } = extraArgumentsPostFollow;
 
   yield put(
@@ -238,7 +238,7 @@ function* changeFollowActionSheetPostSaga(action: PayloadAction<ParamPostFollowC
       const listPostUpdateFollow = draft.homeTimeline.edges.map((item, index) => {
         switch (followForType) {
           case FollowForType.Account:
-            if (item.node.data.postAccount.id === postAccountId) {
+            if (item.node.data.account.id === accountId) {
               draft.homeTimeline.edges[index].node.data.followPostOwner = !changeFollow;
             }
             break;
@@ -267,7 +267,7 @@ function* changeFollowActionSheetPostSaga(action: PayloadAction<ParamPostFollowC
         const listPostUpdateFollow = draft.allPostsByTokenId.edges.map((item, index) => {
           switch (followForType) {
             case FollowForType.Account:
-              if (item.node.postAccount.id === postAccountId) {
+              if (item.node.account.id === accountId) {
                 draft.allPostsByTokenId.edges[index].node.followPostOwner = !changeFollow;
               }
               break;
@@ -287,12 +287,12 @@ function* changeFollowActionSheetPostSaga(action: PayloadAction<ParamPostFollowC
   yield put(
     postsApi.util.updateQueryData(
       'PostsByPageId',
-      { id: pageId, minBurnFilter: minBurnFilterPage, accountId: accountId },
+      { id: pageId, minBurnFilter: minBurnFilterPage, accountId: selectedAccountId },
       draft => {
         const listPostUpdateFollow = draft.allPostsByPageId.edges.map((item, index) => {
           switch (followForType) {
             case FollowForType.Account:
-              if (item.node.postAccount.id === postAccountId) {
+              if (item.node.account.id === accountId) {
                 draft.allPostsByPageId.edges[index].node.followPostOwner = !changeFollow;
               }
               break;
@@ -310,17 +310,13 @@ function* changeFollowActionSheetPostSaga(action: PayloadAction<ParamPostFollowC
   );
 
   yield put(
-    postsApi.util.updateQueryData(
-      'PostsByUserId',
-      { id: postAccountId, minBurnFilter: minBurnFilterProfile },
-      draft => {
-        const listPostUpdateFollow = draft.allPostsByUserId.edges.map((item, index) => {
-          if (item.node.postAccount.id === postAccountId) {
-            draft.allPostsByUserId.edges[index].node.followPostOwner = !changeFollow;
-          }
-        });
-      }
-    )
+    postsApi.util.updateQueryData('PostsByUserId', { id: accountId, minBurnFilter: minBurnFilterProfile }, draft => {
+      const listPostUpdateFollow = draft.allPostsByUserId.edges.map((item, index) => {
+        if (item.node.account.id === accountId) {
+          draft.allPostsByUserId.edges[index].node.followPostOwner = !changeFollow;
+        }
+      });
+    })
   );
 
   yield put(
@@ -331,7 +327,7 @@ function* changeFollowActionSheetPostSaga(action: PayloadAction<ParamPostFollowC
         const listPostUpdateFollow = draft.allPostsBySearchWithHashtag.edges.map((item, index) => {
           switch (followForType) {
             case FollowForType.Account:
-              if (item.node.postAccount.id === postAccountId) {
+              if (item.node.account.id === accountId) {
                 draft.allPostsBySearchWithHashtag.edges[index].node.followPostOwner = !changeFollow;
               }
               break;
@@ -361,7 +357,7 @@ function* changeFollowActionSheetPostSaga(action: PayloadAction<ParamPostFollowC
         const listPostUpdateFollow = draft.allPostsBySearchWithHashtagAtPage.edges.map((item, index) => {
           switch (followForType) {
             case FollowForType.Account:
-              if (item.node.postAccount.id === postAccountId) {
+              if (item.node.account.id === accountId) {
                 draft.allPostsBySearchWithHashtagAtPage.edges[index].node.followPostOwner = !changeFollow;
               }
               break;
@@ -386,7 +382,7 @@ function* changeFollowActionSheetPostSaga(action: PayloadAction<ParamPostFollowC
         const listPostUpdateFollow = draft.allPostsBySearchWithHashtagAtToken.edges.map((item, index) => {
           switch (followForType) {
             case FollowForType.Account:
-              if (item.node.postAccount.id === postAccountId) {
+              if (item.node.account.id === accountId) {
                 draft.allPostsBySearchWithHashtagAtToken.edges[index].node.followPostOwner = !changeFollow;
               }
               break;

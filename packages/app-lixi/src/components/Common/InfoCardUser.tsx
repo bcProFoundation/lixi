@@ -24,7 +24,7 @@ type InfoCardProps = {
   page?: any;
   token?: any;
   activatePostLocation?: boolean;
-  postAccountAddress?: string;
+  accountAddress?: string;
   onEditPostClick?: () => void;
   postEdited?: boolean;
   isDropdown?: boolean;
@@ -153,7 +153,7 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
     token,
     page,
     activatePostLocation,
-    postAccountAddress,
+    accountAddress,
     postEdited,
     isDropdown,
     danaBurnScore,
@@ -191,7 +191,7 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
     authorization.authorized
       ? dispatch(
           openActionSheet('PostActionSheet', {
-            isEditPost: selectedAccount.address === postAccountAddress && post.postDana.danaReceivedScore === 0,
+            isEditPost: selectedAccount.address === accountAddress && post.dana.danaReceivedScore === 0,
             post: postContent,
             page: page,
             token: token,
@@ -207,11 +207,11 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
     displayIconFollow //just display icon follow in Home timeline
   ) => (
     <div className="card-container">
-      <div onClick={() => history.push(`/profile/${postAccountAddress}`)}>
+      <div onClick={() => history.push(`/profile/${accountAddress}`)}>
         {imgUrl ? <Avatar src={imgUrl} /> : <AvatarUser name={name} isMarginRight={true} />}
       </div>
       <div className="card-info">
-        <span className="name" onClick={() => history.push(`/profile/${postAccountAddress}`)}>
+        <span className="name" onClick={() => history.push(`/profile/${accountAddress}`)}>
           {name}
         </span>
         <p className="title">
@@ -250,7 +250,7 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
                     src={page?.avatar ? page?.avatar : '/images/default-avatar.jpg'}
                     onClick={() => history.push(`/page/${page.id}`)}
                   />
-                  <div onClick={() => history.push(`/profile/${postAccountAddress}`)}>
+                  <div onClick={() => history.push(`/profile/${accountAddress}`)}>
                     <AvatarUser icon={imgUrl} name={name} isMarginRight={true} />
                   </div>
                 </div>
@@ -259,7 +259,7 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
                     {page?.name}
                   </span>
                   <p className="title">
-                    <span className="account-name" onClick={() => history.push(`/profile/${postAccountAddress}`)}>
+                    <span className="account-name" onClick={() => history.push(`/profile/${accountAddress}`)}>
                       {name}
                     </span>{' '}
                     · {title} ·
@@ -296,7 +296,7 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
                     src={`${currency.tokenIconsUrl}/64/${token.tokenId}.png`}
                     onClick={() => history.push(`/token/${token?.tokenId}`)}
                   />
-                  <div onClick={() => history.push(`/profile/${postAccountAddress}`)}>
+                  <div onClick={() => history.push(`/profile/${accountAddress}`)}>
                     <AvatarUser name={name} isMarginRight={true} icon={null} />
                   </div>
                 </div>
@@ -305,7 +305,7 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
                     {token?.name}
                   </span>
                   <p className="title">
-                    <span className="account-name" onClick={() => history.push(`/profile/${postAccountAddress}`)}>
+                    <span className="account-name" onClick={() => history.push(`/profile/${accountAddress}`)}>
                       {name}
                     </span>{' '}
                     · {title} ·

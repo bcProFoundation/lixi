@@ -526,15 +526,15 @@ export const ShortCutItem = ({
 }) => (
   <SpaceShorcutItem
     className={isCollapse ? 'collapse card' : 'card'}
-    onClick={() => onClickIcon(item?.page?.id || item?.token?.tokenId || item?.postAccount?.address)}
+    onClick={() => onClickIcon(item?.page?.id || item?.token?.tokenId || item?.account?.address)}
     size={5}
   >
     <div className={`avatar-account ${item?.page ? 'avatar-account-page' : ''}`}>
       {item?.page && <img src={item?.page?.avatar || '/images/default-avatar.jpg'} />}
       {item?.token && <img src={`${currency.tokenIconsUrl}/64/${item?.token?.tokenId}.png`} />}
       {!item?.page && !item?.token && (
-        <Avatar src={item?.postAccount?.avatar ? item?.postAccount?.avatar : ''}>
-          {transformShortName(item?.postAccount?.name)}
+        <Avatar src={item?.account?.avatar ? item?.account?.avatar : ''}>
+          {transformShortName(item?.account?.name)}
         </Avatar>
       )}{' '}
     </div>
@@ -545,7 +545,7 @@ export const ShortCutItem = ({
             {item?.page?.name && <p className="page-name">{item?.page?.name}</p>}
             {item?.token?.name && <p className="page-name">{item?.token?.name}</p>}
             <p className={!item?.page?.name && !item?.token?.name ? 'page-name' : 'account-name'}>
-              {item?.postAccount?.name}
+              {item?.account?.name}
             </p>
             <p className="content">
               {item?.content.includes('twitter') ? 'Via Twitter' : stripHtml(item?.content).result}
@@ -645,7 +645,7 @@ export const ShortCutTopicItem = ({
               <div className="content-account">
                 <div className="info-account" onClick={() => onClickIcon(topicName)}>
                   <p className="page-name topic-title">{`${topicName === 'general' ? 'general' : '#' + topicName}`}</p>
-                  <p className="account-name topic-name">{posts[0]?.postAccount?.name}</p>
+                  <p className="account-name topic-name">{posts[0]?.account?.name}</p>
                   <p className="content">{stripHtml(posts[0]?.content).result}</p>
                 </div>
                 <div className="time-score">
@@ -695,13 +695,13 @@ export const ShortCutPageItem = ({
     size={5}
   >
     <div className="avatar-account">
-      <Avatar>{transformShortName(item?.postAccount?.name)}</Avatar>
+      <Avatar>{transformShortName(item?.account?.name)}</Avatar>
     </div>
     {!isCollapse && (
       <>
         <div className="content-account">
           <div className="info-account">
-            <p className="account-name">{item?.postAccount?.name}</p>
+            <p className="account-name">{item?.account?.name}</p>
             <p className="content">
               {item?.content.includes('twitter') ? 'Via Twitter' : stripHtml(item?.content).result}
             </p>
@@ -888,7 +888,7 @@ const SidebarShortcut = () => {
   const timelineItems = useMemo(() => {
     return _.uniqBy(timelineData, item => {
       const post: Post = item.data as Post;
-      return post?.page?.id || post?.token?.tokenId || post?.postAccount?.address;
+      return post?.page?.id || post?.token?.tokenId || post?.account?.address;
     });
   }, [timelineData]);
 

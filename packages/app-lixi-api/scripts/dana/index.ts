@@ -232,7 +232,7 @@ async function main() {
         const post = await prismaClient.post.findUnique({
           where: { id: burn.burnForId },
           include: {
-            postAccount: {
+            account: {
               select: {
                 address: true
               }
@@ -244,7 +244,7 @@ async function main() {
           burnForType,
           burn.burnedValue,
           burnAddress,
-          post?.postAccount!.address!,
+          post?.account!.address!,
           burnForId,
           txid,
           burnCreatedAt,

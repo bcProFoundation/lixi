@@ -14,7 +14,7 @@ import * as Types from '../../generated/types.generated';
 import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
 import { api } from 'src/api/baseApi';
 export type TokenQueryVariables = Types.Exact<{
-  tokenId: Types.Scalars['String'];
+  id: Types.Scalars['String'];
 }>;
 
 export type TokenQuery = {
@@ -30,15 +30,47 @@ export type TokenQuery = {
     tokenDocumentUrl?: string | null;
     totalBurned?: string | null;
     totalMinted?: string | null;
-    danaBurnUp: number;
-    danaBurnDown: number;
-    danaBurnScore: number;
     followersCount?: number | null;
     initialTokenQuantity?: string | null;
     comments?: any | null;
     createdDate: any;
     isFollowed?: boolean | null;
-    tokenDana?: {
+    dana?: {
+      __typename?: 'TokenDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+      version: number;
+    } | null;
+  };
+};
+
+export type TokenByTokenIdQueryVariables = Types.Exact<{
+  tokenId: Types.Scalars['String'];
+}>;
+
+export type TokenByTokenIdQuery = {
+  __typename?: 'Query';
+  tokenByTokenId: {
+    __typename?: 'Token';
+    id: string;
+    tokenId: string;
+    tokenType: string;
+    name: string;
+    ticker: string;
+    decimals: number;
+    tokenDocumentUrl?: string | null;
+    totalBurned?: string | null;
+    totalMinted?: string | null;
+    followersCount?: number | null;
+    initialTokenQuantity?: string | null;
+    comments?: any | null;
+    createdDate: any;
+    isFollowed?: boolean | null;
+    dana?: {
       __typename?: 'TokenDana';
       danaBurnUp: number;
       danaBurnDown: number;
@@ -75,15 +107,12 @@ export type TokensQuery = {
         tokenDocumentUrl?: string | null;
         totalBurned?: string | null;
         totalMinted?: string | null;
-        danaBurnUp: number;
-        danaBurnDown: number;
-        danaBurnScore: number;
         followersCount?: number | null;
         initialTokenQuantity?: string | null;
         comments?: any | null;
         createdDate: any;
         isFollowed?: boolean | null;
-        tokenDana?: {
+        dana?: {
           __typename?: 'TokenDana';
           danaBurnUp: number;
           danaBurnDown: number;
@@ -110,15 +139,12 @@ export type TokenFieldsFragment = {
   tokenDocumentUrl?: string | null;
   totalBurned?: string | null;
   totalMinted?: string | null;
-  danaBurnUp: number;
-  danaBurnDown: number;
-  danaBurnScore: number;
   followersCount?: number | null;
   initialTokenQuantity?: string | null;
   comments?: any | null;
   createdDate: any;
   isFollowed?: boolean | null;
-  tokenDana?: {
+  dana?: {
     __typename?: 'TokenDana';
     danaBurnUp: number;
     danaBurnDown: number;
@@ -147,15 +173,12 @@ export type CreateTokenMutation = {
     tokenDocumentUrl?: string | null;
     totalBurned?: string | null;
     totalMinted?: string | null;
-    danaBurnUp: number;
-    danaBurnDown: number;
-    danaBurnScore: number;
     followersCount?: number | null;
     initialTokenQuantity?: string | null;
     comments?: any | null;
     createdDate: any;
     isFollowed?: boolean | null;
-    tokenDana?: {
+    dana?: {
       __typename?: 'TokenDana';
       danaBurnUp: number;
       danaBurnDown: number;
@@ -179,11 +202,8 @@ export const TokenFieldsFragmentDoc = `
   tokenDocumentUrl
   totalBurned
   totalMinted
-  danaBurnUp
-  danaBurnDown
-  danaBurnScore
   followersCount
-  tokenDana {
+  dana {
     danaBurnUp
     danaBurnDown
     danaBurnScore
@@ -199,8 +219,15 @@ export const TokenFieldsFragmentDoc = `
 }
     `;
 export const TokenDocument = `
-    query Token($tokenId: String!) {
-  token(tokenId: $tokenId) {
+    query Token($id: String!) {
+  token(id: $id) {
+    ...TokenFields
+  }
+}
+    ${TokenFieldsFragmentDoc}`;
+export const TokenByTokenIdDocument = `
+    query TokenByTokenId($tokenId: String!) {
+  tokenByTokenId(tokenId: $tokenId) {
     ...TokenFields
   }
 }
@@ -235,6 +262,9 @@ const injectedRtkApi = api.injectEndpoints({
     Token: build.query<TokenQuery, TokenQueryVariables>({
       query: variables => ({ document: TokenDocument, variables })
     }),
+    TokenByTokenId: build.query<TokenByTokenIdQuery, TokenByTokenIdQueryVariables>({
+      query: variables => ({ document: TokenByTokenIdDocument, variables })
+    }),
     Tokens: build.query<TokensQuery, TokensQueryVariables | void>({
       query: variables => ({ document: TokensDocument, variables })
     }),
@@ -245,5 +275,12 @@ const injectedRtkApi = api.injectEndpoints({
 });
 
 export { injectedRtkApi as api };
-export const { useTokenQuery, useLazyTokenQuery, useTokensQuery, useLazyTokensQuery, useCreateTokenMutation } =
-  injectedRtkApi;
+export const {
+  useTokenQuery,
+  useLazyTokenQuery,
+  useTokenByTokenIdQuery,
+  useLazyTokenByTokenIdQuery,
+  useTokensQuery,
+  useLazyTokensQuery,
+  useCreateTokenMutation
+} = injectedRtkApi;

@@ -1,4 +1,4 @@
-import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
@@ -33,18 +33,6 @@ export class Token {
   @Field(() => Number)
   decimals: number;
 
-  @IsOptional()
-  @Field(() => Float)
-  danaBurnUp: number;
-
-  @IsOptional()
-  @Field(() => Float)
-  danaBurnDown: number;
-
-  @IsOptional()
-  @Field(() => Float)
-  danaBurnScore: number;
-
   @Field(() => String, { nullable: true })
   initialTokenQuantity: Nullable<string>;
 
@@ -70,7 +58,7 @@ export class Token {
 
   @IsOptional()
   @Field(() => TokenDana, { nullable: true })
-  tokenDana?: Nullable<TokenDana>;
+  dana?: Nullable<TokenDana>;
 
   constructor(partial: Partial<Token>) {
     Object.assign(this, partial);

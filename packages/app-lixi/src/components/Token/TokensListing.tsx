@@ -339,9 +339,9 @@ const TokensListing = () => {
     {
       title: intl.get('general.dana'),
       key: 'danaBurn',
-      sorter: (tokenA, tokenB) => tokenA.danaBurnScore - tokenB.danaBurnScore,
+      sorter: (tokenA, tokenB) => tokenA.dana.danaBurnScore - tokenB.dana.danaBurnScore,
       defaultSortOrder: 'descend',
-      render: (_, token) => <Counter num={formatBalance(token.danaBurnScore)} />
+      render: (_, token) => <Counter num={formatBalance(token.dana.danaBurnScore)} />
     },
     {
       title: intl.get('label.comment'),

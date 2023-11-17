@@ -27,7 +27,7 @@ import _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
-import { PostAccountEntity } from 'src/decorators/postAccount.decorator';
+import { AccountEntity } from 'src/decorators';
 import VError from 'verror';
 import { NOTIFICATION_TYPES } from '../../common/modules/notifications/notification.constants';
 import { AccountCacheService } from '../account/account-cache.service';
@@ -65,7 +65,7 @@ export class CommentResolver {
   @Query(() => CommentConnection)
   @UseGuards(GqlJwtAuthGuardByPass)
   async commentsToCommentableId(
-    @PostAccountEntity() account: Account,
+    @AccountEntity() account: Account,
     @Args() { after, before, first, last }: PaginationArgs,
     @Args({ name: 'id', type: () => String, nullable: true })
     id: string,
@@ -133,7 +133,7 @@ export class CommentResolver {
 
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Comment)
-  async createComment(@PostAccountEntity() account: Account, @Args('data') data: CreateCommentInput) {
+  async createComment(@AccountEntity() account: Account, @Args('data') data: CreateCommentInput) {
     try {
       if (!account) {
         const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
@@ -175,7 +175,7 @@ export class CommentResolver {
                 commentableId: commentableId
               },
               include: {
-                postAccount: true
+                account: true
               }
             })
           : null;
@@ -225,8 +225,8 @@ export class CommentResolver {
             txid,
             fromAddress: account.address,
             fromAccountId: account.id,
-            toAddress: post?.postAccount.address as string,
-            toAccountId: post?.postAccount.id as number,
+            toAddress: post?.account.address as string,
+            toAccountId: post?.account.id as number,
             tipValue: tipValue,
             commentId: createdComment.id
           };
@@ -243,7 +243,7 @@ export class CommentResolver {
       });
 
       if (savedComment && post) {
-        const recipient = await this.accountCacheService.getById(_.toSafeInteger(post?.postAccountId));
+        const recipient = await this.accountCacheService.getById(_.toSafeInteger(post?.accountId));
         if (!recipient) {
           const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
           throw new VError(accountNotExistMessage);
@@ -267,7 +267,7 @@ export class CommentResolver {
 
         const createNotif = {
           senderId: account.id,
-          recipientId: post?.postAccount.id as number,
+          recipientId: post?.account.id as number,
           notificationTypeId: tipHex ? NOTIFICATION_TYPES.COMMENT_TO_GIVE : NOTIFICATION_TYPES.COMMENT_ON_POST,
           level: NotificationLevel.INFO,
           url: `/post/${post?.id}?comment=${savedComment.id}`,

@@ -100,10 +100,7 @@ fragment PageFields on Page {
   stateName
   address
   website
-  danaBurnUp
-  danaBurnDown
-  danaBurnScore
-  pageDana {
+  dana {
     danaBurnUp
     danaBurnDown
     danaBurnScore

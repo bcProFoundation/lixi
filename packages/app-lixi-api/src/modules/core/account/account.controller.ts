@@ -34,7 +34,7 @@ import * as _ from 'lodash';
 import { toSafeInteger } from 'lodash';
 import { I18n, I18nContext } from 'nestjs-i18n';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
-import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
+import { PageAccountEntity } from 'src/decorators';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwtauth.guard';
 import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 import { VError } from 'verror';

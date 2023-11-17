@@ -57,7 +57,7 @@ const UserCreate = styled.div`
 `;
 
 export type EditPostModalProps = {
-  postAccountAddress: string;
+  accountAddress: string;
   content: string;
   postId: string;
 };

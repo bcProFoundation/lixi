@@ -142,13 +142,13 @@ export const BurnModal = ({ data, burnForType }: BurnModalProps) => {
 
           tipToAddresses = [
             {
-              address: post.postAccount.address,
+              address: post.account.address,
               amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(0.04)).valueOf().toString()
             }
           ];
-          if (burnType === BurnType.Up && selectedAccount.address !== post.postAccount.address) {
+          if (burnType === BurnType.Up && selectedAccount.address !== post.account.address) {
             tipToAddresses.push({
-              address: post.postAccount.address,
+              address: post.account.address,
               amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(0.04)).valueOf().toString()
             });
           }

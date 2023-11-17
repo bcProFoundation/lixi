@@ -349,7 +349,7 @@ const ReactionToken = ({ token }: ReactionTokenProps) => {
 
   return (
     <>
-      <IconBurnHover burnValue={formatBalance(token?.danaBurnScore ?? 0)} />
+      <IconBurnHover burnValue={formatBalance(token?.dana?.danaBurnScore ?? 0)} />
     </>
   );
 };

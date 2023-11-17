@@ -2,6 +2,7 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import { graphqlRequestBaseQuery } from '@rtk-query/graphql-request-base-query';
 import { GraphQLClient } from 'graphql-request';
 import intl from 'react-intl-universal';
+import { HYDRATE } from 'next-redux-wrapper';
 
 export const client = new GraphQLClient('/graphql', {
   credentials: 'include',
@@ -23,5 +24,10 @@ export const api = createApi({
       };
     }
   }),
-  endpoints: () => ({})
+  endpoints: () => ({}),
+  extractRehydrationInfo(action, { reducerPath }) {
+    if (action.type === HYDRATE) {
+      return action.payload[reducerPath];
+    }
+  }
 });

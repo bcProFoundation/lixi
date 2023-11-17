@@ -164,19 +164,19 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
     switch (burnForType) {
       case BurnForType.Token:
         const token = burnForItem as TokenQueryItem;
-        return token?.tokenDana?.danaBurnUp || 0;
+        return token?.dana?.danaBurnUp || 0;
       case BurnForType.Comment:
         const comment = burnForItem as CommentQueryItem;
-        return comment?.commentDana?.danaBurnUp || 0;
+        return comment?.danaBurnUp || 0;
       case BurnForType.Post:
         const post = burnForItem as PostQueryItem;
-        return post?.postDana?.danaBurnUp || 0;
+        return post?.dana?.danaBurnUp || 0;
       case BurnForType.Account:
         const account = burnForItem as AccountQueryItem;
         return account?.accountDana?.danaBurnUp || 0;
       case BurnForType.Page:
         const page = burnForItem as PageQueryItem;
-        return page?.pageDana?.danaBurnUp || 0;
+        return page?.dana?.danaBurnUp || 0;
       default:
         return 0;
     }
@@ -186,19 +186,19 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
     switch (burnForType) {
       case BurnForType.Token:
         const token = burnForItem as TokenQueryItem;
-        return token?.tokenDana?.danaBurnDown || 0;
+        return token?.dana?.danaBurnDown || 0;
       case BurnForType.Comment:
         const comment = burnForItem as CommentQueryItem;
-        return comment?.commentDana?.danaBurnDown || 0;
+        return comment?.danaBurnDown || 0;
       case BurnForType.Post:
         const post = burnForItem as PostQueryItem;
-        return post?.postDana?.danaBurnDown || 0;
+        return post?.dana?.danaBurnDown || 0;
       case BurnForType.Account:
         const account = burnForItem as AccountQueryItem;
         return account?.accountDana?.danaBurnDown || 0;
       case BurnForType.Page:
         const page = burnForItem as PageQueryItem;
-        return page?.pageDana?.danaBurnDown || 0;
+        return page?.dana?.danaBurnDown || 0;
       default:
         return 0;
     }

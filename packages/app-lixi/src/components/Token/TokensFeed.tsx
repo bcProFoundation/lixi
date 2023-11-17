@@ -461,7 +461,10 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
               </div>
               <InfoSubCard typeName={intl.get('token.ticker')} content={tokenDetailData.ticker} />
               <InfoSubCard typeName={intl.get('token.name')} content={tokenDetailData.name} />
-              <InfoSubCard typeName={intl.get('general.dana')} content={tokenDetailData.danaBurnUp} />
+              <InfoSubCard
+                typeName={intl.get('general.dana')}
+                content={tokenDetailData?.dana?.danaReceivedScore || 0}
+              />
             </div>
             <div className="info-ticker__right">
               <CopyToClipboard text={tokenDetailData.tokenId}>

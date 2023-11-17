@@ -13,8 +13,7 @@ import {
   PostTranslation,
   Repost,
   RepostInput,
-  UpdatePostInput,
-  UploadDetail
+  UpdatePostInput
 } from '@bcpros/lixi-models';
 import {
   CommentType,
@@ -39,7 +38,7 @@ import { I18n, I18nService } from 'nestjs-i18n';
 import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
 import { NOTIFICATION_TYPES } from 'src/common/modules/notifications/notification.constants';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
-import { PostAccountEntity } from 'src/decorators/postAccount.decorator';
+import { AccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import VError from 'verror';
 import { connectionFromArraySlice } from '../../common/custom-graphql-relay/arrayConnection';
@@ -51,8 +50,8 @@ import { HashtagService } from '../hashtag/hashtag.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { XPIJS } from '../wallet/wallet.constants';
 import CommentableLoader from './commentable.loader';
-import { HASHTAG, POSTS } from './constants/meili.constants';
 import { CONTENT_FANOUT_QUEUE } from './constants';
+import { HASHTAG, POSTS } from './constants/meili.constants';
 import ImageUploadableLoader from './imageUploadable.loader';
 import { MeiliService } from './meili.service';
 import PostLoader from './post.loader';
@@ -85,11 +84,11 @@ export class PostResolver {
   @SkipThrottle()
   @Query(() => Post)
   @UseGuards(GqlJwtAuthGuardByPass)
-  async post(@PostAccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
+  async post(@AccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
     const dbPost = await this.prisma.post.findUnique({
       where: { id: id },
       include: {
-        postAccount: true,
+        account: true,
         page: true,
         translations: true,
         reposts: { select: { account: true, accountId: true } },
@@ -121,7 +120,7 @@ export class PostResolver {
   @Query(() => PostConnection)
   @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsByPageId(
-    @PostAccountEntity() account: Account,
+    @AccountEntity() account: Account,
     @Args() { after, before, first, last, minBurnFilter }: PaginationArgs,
     @Args({ name: 'id', type: () => String, nullable: true })
     id: string,
@@ -146,7 +145,7 @@ export class PostResolver {
         args =>
           this.prisma.post.findMany({
             include: {
-              postAccount: true,
+              account: true,
               reposts: { select: { account: true, accountId: true } },
               translations: true
             },
@@ -187,7 +186,7 @@ export class PostResolver {
         async args => {
           const posts = await this.prisma.post.findMany({
             include: {
-              postAccount: true,
+              account: true,
               reposts: { select: { account: true, accountId: true } },
               translations: true,
               page: true
@@ -195,7 +194,7 @@ export class PostResolver {
             where: {
               OR: [
                 {
-                  AND: [{ postAccountId: accountId }, { pageId: id }]
+                  AND: [{ accountId: accountId }, { pageId: id }]
                 },
                 {
                   AND: [{ pageId: id }]
@@ -222,7 +221,7 @@ export class PostResolver {
             where: {
               OR: [
                 {
-                  AND: [{ postAccountId: accountId }, { pageId: id }]
+                  AND: [{ accountId: accountId }, { pageId: id }]
                 },
                 {
                   AND: [{ pageId: id }, { danaBurnScore: { gte: minBurnFilter ?? 0 } }]
@@ -237,7 +236,7 @@ export class PostResolver {
         args =>
           this.prisma.post.findMany({
             include: {
-              postAccount: true,
+              account: true,
               reposts: { select: { account: true, accountId: true } },
               translations: true,
               page: true
@@ -245,7 +244,7 @@ export class PostResolver {
             where: {
               OR: [
                 {
-                  AND: [{ postAccountId: accountId }, { pageId: id }]
+                  AND: [{ accountId: accountId }, { pageId: id }]
                 },
                 {
                   AND: [{ pageId: id }, { danaBurnScore: { gte: minBurnFilter ?? 0 } }]
@@ -260,7 +259,7 @@ export class PostResolver {
             where: {
               OR: [
                 {
-                  AND: [{ postAccountId: accountId }, { pageId: id }]
+                  AND: [{ accountId: accountId }, { pageId: id }]
                 },
                 {
                   AND: [{ pageId: id }, { danaBurnScore: { gte: minBurnFilter ?? 0 } }]
@@ -306,7 +305,7 @@ export class PostResolver {
       },
       include: {
         uploads: true,
-        postAccount: true,
+        account: true,
         page: true,
         translations: true,
         reposts: { select: { account: true, accountId: true } },
@@ -366,7 +365,7 @@ export class PostResolver {
           this.prisma.post.findMany({
             include: {
               uploads: true,
-              postAccount: true,
+              account: true,
               page: true,
               translations: true,
               reposts: { select: { account: true, accountId: true } },
@@ -460,7 +459,7 @@ export class PostResolver {
     const searchPosts = await this.prisma.post.findMany({
       include: {
         uploads: true,
-        postAccount: true,
+        account: true,
         page: true,
         translations: true,
         reposts: { select: { account: true, accountId: true } },
@@ -533,7 +532,7 @@ export class PostResolver {
     const searchPosts = await this.prisma.post.findMany({
       include: {
         uploads: true,
-        postAccount: true,
+        account: true,
         page: true,
         translations: true,
         reposts: { select: { account: true, accountId: true } },
@@ -566,7 +565,7 @@ export class PostResolver {
   @Query(() => PostConnection)
   @UseGuards(GqlJwtAuthGuard)
   async allPostsByTokenId(
-    @PostAccountEntity() account: Account,
+    @AccountEntity() account: Account,
     @Args() { after, before, first, last, minBurnFilter }: PaginationArgs,
     @Args({ name: 'id', type: () => String, nullable: true })
     id: string,
@@ -580,11 +579,11 @@ export class PostResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.post.findMany({
-          include: { postAccount: true, translations: true, token: true },
+          include: { account: true, translations: true, token: true },
           where: {
             OR: [
               {
-                AND: [{ postAccountId: account.id }, { tokenId: id }]
+                AND: [{ accountId: account.id }, { tokenId: id }]
               },
               {
                 AND: [
@@ -608,7 +607,7 @@ export class PostResolver {
           where: {
             OR: [
               {
-                AND: [{ postAccountId: account.id }, { tokenId: id }]
+                AND: [{ accountId: account.id }, { tokenId: id }]
               },
               {
                 AND: [
@@ -634,7 +633,7 @@ export class PostResolver {
   @Query(() => PostConnection)
   @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsByUserId(
-    @PostAccountEntity() account: Account,
+    @AccountEntity() account: Account,
     @Args() { after, before, first, last, minBurnFilter }: PaginationArgs,
     @Args({ name: 'id', type: () => Number, nullable: true })
     id: number,
@@ -650,11 +649,11 @@ export class PostResolver {
       result = await findManyCursorConnection(
         args =>
           this.prisma.post.findMany({
-            include: { postAccount: true, translations: true },
+            include: { account: true, translations: true },
             where: {
               AND: [
                 {
-                  postAccountId: _.toSafeInteger(id)
+                  accountId: _.toSafeInteger(id)
                 },
                 {
                   danaBurnScore: {
@@ -673,7 +672,7 @@ export class PostResolver {
             where: {
               AND: [
                 {
-                  postAccountId: _.toSafeInteger(id)
+                  accountId: _.toSafeInteger(id)
                 },
                 {
                   danaBurnScore: {
@@ -691,11 +690,11 @@ export class PostResolver {
       result = await findManyCursorConnection(
         args =>
           this.prisma.post.findMany({
-            include: { postAccount: true, page: false, token: false, translations: true },
+            include: { account: true, page: false, token: false, translations: true },
             where: {
               AND: [
                 {
-                  postAccountId: _.toSafeInteger(id)
+                  accountId: _.toSafeInteger(id)
                 },
                 {
                   danaBurnScore: {
@@ -714,7 +713,7 @@ export class PostResolver {
             where: {
               AND: [
                 {
-                  postAccountId: _.toSafeInteger(id)
+                  accountId: _.toSafeInteger(id)
                 },
                 {
                   danaBurnScore: {
@@ -736,7 +735,7 @@ export class PostResolver {
   @Query(() => PostConnection)
   @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsByHashtagId(
-    @PostAccountEntity() account: Account,
+    @AccountEntity() account: Account,
     @Args() { after, before, first, last, minBurnFilter }: PaginationArgs,
     @Args({ name: 'id', type: () => String, nullable: true })
     hashtagId: string,
@@ -750,7 +749,7 @@ export class PostResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.post.findMany({
-          include: { postAccount: true, postHashtags: true, translations: true },
+          include: { account: true, postHashtags: true, translations: true },
           where: {
             postHashtags: {
               some: {
@@ -778,7 +777,7 @@ export class PostResolver {
 
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Post)
-  async createPost(@PostAccountEntity() account: Account, @Args('data') data: CreatePostInput) {
+  async createPost(@AccountEntity() account: Account, @Args('data') data: CreatePostInput) {
     if (!account) {
       const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
       throw new Error(couldNotFindAccount);
@@ -808,7 +807,7 @@ export class PostResolver {
 
     const postToSave = {
       content: htmlContent,
-      postAccount: { connect: { id: account.id } },
+      account: { connect: { id: account.id } },
       page: {
         connect: pageId ? { id: pageId } : undefined
       },
@@ -842,7 +841,7 @@ export class PostResolver {
           },
           txid: txid,
           createFee: createFee,
-          postDana: {
+          dana: {
             create: {}
           },
           taggable: {
@@ -863,7 +862,7 @@ export class PostResolver {
               name: true
             }
           },
-          postAccount: {
+          account: {
             select: {
               id: true,
               name: true,
@@ -886,7 +885,7 @@ export class PostResolver {
     const indexedPost = {
       id: savedPost.id,
       content: pureContent,
-      postAccountName: savedPost.postAccount.name,
+      accountName: savedPost.account.name,
       createdAt: savedPost.createdAt,
       updatedAt: savedPost.updatedAt,
       page: {
@@ -984,7 +983,7 @@ export class PostResolver {
   @SkipThrottle()
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Post)
-  async updatePost(@PostAccountEntity() account: Account, @Args('data') data: UpdatePostInput) {
+  async updatePost(@AccountEntity() account: Account, @Args('data') data: UpdatePostInput) {
     if (!account) {
       const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
       throw new Error(couldNotFindAccount);
@@ -997,7 +996,7 @@ export class PostResolver {
         id: id
       },
       include: {
-        postAccount: {
+        account: {
           select: {
             address: true
           }
@@ -1005,7 +1004,7 @@ export class PostResolver {
       }
     });
 
-    if (post?.postAccount.address !== account.address) {
+    if (post?.account.address !== account.address) {
       const noPermissionToUpdate = await this.i18n.t('post.messages.noPermissionToUpdate');
       throw new Error(noPermissionToUpdate);
     }
@@ -1052,7 +1051,7 @@ export class PostResolver {
   @SkipThrottle()
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Boolean)
-  async repost(@PostAccountEntity() account: Account, @Args('data') data: RepostInput) {
+  async repost(@AccountEntity() account: Account, @Args('data') data: RepostInput) {
     if (!account) {
       const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
       throw new Error(couldNotFindAccount);
@@ -1110,9 +1109,9 @@ export class PostResolver {
     return this.postLoader.batchRepostCount.load(post.id);
   }
 
-  @ResolveField('postAccount', () => Account)
+  @ResolveField('account', () => Account)
   async postAccount(@Parent() post: Post) {
-    return this.postLoader.batchAccounts.load(post.postAccountId);
+    return post.accountId ? this.postLoader.batchAccounts.load(post.accountId) : null;
   }
 
   @ResolveField('totalComments', () => Number)
@@ -1161,16 +1160,16 @@ export class PostResolver {
   }
 
   @ResolveField('followPostOwner', () => Boolean)
-  async followPostOwner(@Parent() post: Post, @PostAccountEntity() account: Account) {
+  async followPostOwner(@Parent() post: Post, @AccountEntity() account: Account) {
     const payload = {
-      followingAccountId: post?.postAccount?.id,
+      followingAccountId: post?.account?.id,
       accountId: account?.id
     };
     return this.postLoader.batchCheckAccountFollowAllAccount.load(payload);
   }
 
   @ResolveField('followedPage', () => Boolean)
-  async followedPage(@Parent() post: Post, @PostAccountEntity() account: Account) {
+  async followedPage(@Parent() post: Post, @AccountEntity() account: Account) {
     const payload = {
       pageId: post?.page?.id || '',
       accountId: account?.id
@@ -1179,7 +1178,7 @@ export class PostResolver {
   }
 
   @ResolveField('followedToken', () => Boolean)
-  async followedToken(@Parent() post: Post, @PostAccountEntity() account: Account) {
+  async followedToken(@Parent() post: Post, @AccountEntity() account: Account) {
     const payload = {
       tokenId: post?.token?.tokenId || '',
       accountId: account?.id
@@ -1187,8 +1186,8 @@ export class PostResolver {
     return this.postLoader.batchCheckAccountFollowAllToken.load(payload);
   }
 
-  @ResolveField('postDana', () => PostDana)
-  async postDana(@Parent() post: Post) {
+  @ResolveField('dana', () => PostDana)
+  async dana(@Parent() post: Post) {
     return this.postLoader.batchPostDanas.load(post.id);
   }
 }

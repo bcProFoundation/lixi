@@ -903,9 +903,7 @@ export type Page = {
   createPostFee: Scalars['String'];
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
-  danaBurnDown: Scalars['Float'];
-  danaBurnScore: Scalars['Float'];
-  danaBurnUp: Scalars['Float'];
+  dana?: Maybe<PageDana>;
   description: Scalars['String'];
   encryptedMnemonic?: Maybe<Scalars['String']>;
   followerFreeMessage?: Maybe<Scalars['Boolean']>;
@@ -915,7 +913,6 @@ export type Page = {
   name: Scalars['String'];
   pageAccount: Account;
   pageAccountId: Scalars['Int'];
-  pageDana?: Maybe<PageDana>;
   pageMessageSessions?: Maybe<Array<PageMessageSession>>;
   parent?: Maybe<Page>;
   parentId?: Maybe<Scalars['String']>;
@@ -1077,11 +1074,14 @@ export type PollOptionInput = {
 
 export type Post = {
   __typename?: 'Post';
+  account: Account;
+  accountId: Scalars['Int'];
   bookmarkableId?: Maybe<Scalars['String']>;
   commentableId?: Maybe<Scalars['String']>;
   content: Scalars['String'];
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
+  dana?: Maybe<PostDana>;
   danaBurnDown: Scalars['Float'];
   danaBurnScore: Scalars['Float'];
   danaBurnUp: Scalars['Float'];
@@ -1094,9 +1094,6 @@ export type Post = {
   originalLanguage?: Maybe<Scalars['String']>;
   page?: Maybe<Page>;
   pageId?: Maybe<Scalars['String']>;
-  postAccount: Account;
-  postAccountId: Scalars['Int'];
-  postDana?: Maybe<PostDana>;
   postHashtags?: Maybe<Array<PostHashtag>>;
   repostCount: Scalars['Int'];
   reposts?: Maybe<Array<Repost>>;
@@ -1181,6 +1178,7 @@ export type Product = {
   country?: Maybe<Country>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
+  dana?: Maybe<ProductDana>;
   description: Scalars['String'];
   id: Scalars['ID'];
   imageUploadableId: Scalars['String'];
@@ -1200,6 +1198,19 @@ export type ProductConnection = {
   edges?: Maybe<Array<ProductEdge>>;
   pageInfo: PageInfo;
   totalCount?: Maybe<Scalars['Int']>;
+};
+
+export type ProductDana = {
+  __typename?: 'ProductDana';
+  danaBurnDown: Scalars['Float'];
+  danaBurnScore: Scalars['Float'];
+  danaBurnUp: Scalars['Float'];
+  danaReceivedDown: Scalars['Float'];
+  danaReceivedScore: Scalars['Float'];
+  danaReceivedUp: Scalars['Float'];
+  product: Product;
+  productId: Scalars['String'];
+  version: Scalars['Int'];
 };
 
 export type ProductEdge = {
@@ -1281,6 +1292,7 @@ export type Query = {
   temple: Temple;
   timeline: TimelineItem;
   token: Token;
+  tokenByTokenId: Token;
   userHadMessageToPage?: Maybe<PageMessageSession>;
   worship: Worship;
   worshipedPerson: WorshipedPerson;
@@ -1741,6 +1753,10 @@ export type QueryTimelineArgs = {
 };
 
 export type QueryTokenArgs = {
+  id: Scalars['String'];
+};
+
+export type QueryTokenByTokenIdArgs = {
   tokenId: Scalars['String'];
 };
 
@@ -1879,9 +1895,7 @@ export type Token = {
   comments?: Maybe<Scalars['DateTime']>;
   /** Identifies the date and time when the object was created. */
   createdDate: Scalars['DateTime'];
-  danaBurnDown: Scalars['Float'];
-  danaBurnScore: Scalars['Float'];
-  danaBurnUp: Scalars['Float'];
+  dana?: Maybe<TokenDana>;
   decimals: Scalars['Int'];
   followersCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
@@ -1890,7 +1904,6 @@ export type Token = {
   name: Scalars['String'];
   rank?: Maybe<Scalars['Int']>;
   ticker: Scalars['String'];
-  tokenDana?: Maybe<TokenDana>;
   tokenDocumentUrl?: Maybe<Scalars['String']>;
   tokenId: Scalars['String'];
   tokenType: Scalars['String'];

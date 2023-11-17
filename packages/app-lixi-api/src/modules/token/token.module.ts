@@ -20,6 +20,6 @@ import { TokenCacheService } from './token-cache.service';
     TokenLoader,
     TokenTimelineCacheService
   ],
-  exports: []
+  exports: [TokenCacheService, TokenDanaCacheService, TokenLoader]
 })
 export class TokenModule {}

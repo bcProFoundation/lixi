@@ -35,13 +35,13 @@ const PersistGateServer = (props: any) => {
 const getDescription = (postAsString): string => {
   const post = JSON.parse(postAsString);
 
-  return `${post.postAccount.name} at Lixi: "${stripHtml(post.content).result}"`;
+  return `${post.account.name} at Lixi: "${stripHtml(post.content).result}"`;
 };
 
 const getSitename = (postAsString): string => {
   const post = JSON.parse(postAsString);
 
-  return `Posted by ${post.postAccount.name}`;
+  return `Posted by ${post.account.name}`;
 };
 
 const LixiApp = ({ Component, ...rest }) => {

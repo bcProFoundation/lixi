@@ -37,6 +37,7 @@ import { TranslateService } from './translate/translate.service';
 import { WalletService } from '../wallet/wallet.service';
 import { UploadFilesController } from './upload/upload.controller';
 import { UploadService } from './upload/upload.serivce';
+import { TokenModule } from '../token/token.module';
 const baseCorsConfig = cors({
   origin: process.env.BASE_URL ?? ''
 });
@@ -94,6 +95,7 @@ const baseCorsConfig = cors({
     }),
     AuthModule,
     PageModule,
+    TokenModule,
     AccountModule,
     NotificationModule,
     CloudflareModule,

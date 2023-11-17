@@ -17,7 +17,7 @@ import { SkipThrottle } from '@nestjs/throttler';
 import { PubSub } from 'graphql-subscriptions';
 import * as _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
+import { PageAccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import VError from 'verror';
 import { createEdge } from '../../common/custom-graphql-relay/paginate';
@@ -125,7 +125,7 @@ export class PageResolver {
         },
         salt: salt,
         encryptedMnemonic: encryptedMnemonic,
-        pageDana: {
+        dana: {
           create: {}
         }
       }
@@ -349,8 +349,8 @@ export class PageResolver {
     return this.pageLoader.batchFollowersCount.load(page.id);
   }
 
-  @ResolveField('pageDana', () => PageDana)
-  async pageDana(@Parent() page: Page) {
+  @ResolveField('dana', () => PageDana)
+  async dana(@Parent() page: Page) {
     return this.pageLoader.batchPageDanas.load(page.id);
   }
 }

@@ -27,7 +27,7 @@ export type TimelineQuery = {
       __typename: 'Post';
       id: string;
       content: string;
-      postAccountId: number;
+      accountId: number;
       pageId?: string | null;
       tokenId?: string | null;
       repostCount: number;
@@ -43,7 +43,7 @@ export type TimelineQuery = {
       followedToken?: boolean | null;
       originalLanguage?: string | null;
       danaViewScore?: number | null;
-      postAccount: {
+      account: {
         __typename?: 'Account';
         address: string;
         id: number;
@@ -66,7 +66,7 @@ export type TimelineQuery = {
         accountId?: number | null;
         account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
       }> | null;
-      postDana?: {
+      dana?: {
         __typename?: 'PostDana';
         danaBurnUp: number;
         danaBurnDown: number;
@@ -121,7 +121,7 @@ export type HomeTimelineQuery = {
           __typename: 'Post';
           id: string;
           content: string;
-          postAccountId: number;
+          accountId: number;
           pageId?: string | null;
           tokenId?: string | null;
           repostCount: number;
@@ -137,7 +137,7 @@ export type HomeTimelineQuery = {
           followedToken?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
-          postAccount: {
+          account: {
             __typename?: 'Account';
             address: string;
             id: number;
@@ -160,7 +160,7 @@ export type HomeTimelineQuery = {
             accountId?: number | null;
             account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
           }> | null;
-          postDana?: {
+          dana?: {
             __typename?: 'PostDana';
             danaBurnUp: number;
             danaBurnDown: number;

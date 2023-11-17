@@ -10,7 +10,6 @@ import {
   DeleteFollowTokenInput,
   FollowAccount,
   FollowPage,
-  FollowPageConnection,
   PaginationArgs
 } from '@bcpros/lixi-models';
 import { NotificationLevel } from '@bcpros/lixi-prisma';
@@ -25,8 +24,8 @@ import _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { NOTIFICATION_TYPES } from 'src/common/modules/notifications/notification.constants';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
-import { AccountEntity } from 'src/decorators/account.decorator';
-import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
+import { PageAccountEntity } from 'src/decorators';
+import { AccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import VError from 'verror';
 import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';

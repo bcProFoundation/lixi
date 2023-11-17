@@ -40,19 +40,19 @@ export class PostFanoutProcessor extends WorkerHost {
       const diffHour = moment.duration(moment(post.createdAt).diff(moment(epoch))).asHours();
       const score = 1 * Math.pow(2, diffHour / 12);
 
-      const postAccountId = post.postAccountId;
+      const accountId = post.accountId;
       const pageAccountId = post?.pageId;
 
       // Find all the followers
       const [accountFollowers, pageFollowers] = await Promise.all([
-        this.followCacheService.getAccountFollowers(postAccountId),
+        this.followCacheService.getAccountFollowers(accountId),
         pageAccountId ? this.followCacheService.getPageFollowers(pageAccountId) : Promise.resolve([])
       ]);
 
-      const followers = _.uniq(_.compact(_.concat(postAccountId, accountFollowers, pageFollowers)));
+      const followers = _.uniq(_.compact(_.concat(accountId, accountFollowers, pageFollowers)));
 
       // Check if user view has view the post or not
-      const postviewBfKey = `post-view-exist-bf:${postAccountId}`;
+      const postviewBfKey = `post-view-exist-bf:${accountId}`;
 
       const postviewBfExist = await this.redis.exists(postviewBfKey);
 

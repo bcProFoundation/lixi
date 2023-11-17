@@ -767,9 +767,7 @@ type Page {
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
-  danaBurnDown: Float!
-  danaBurnScore: Float!
-  danaBurnUp: Float!
+  dana: PageDana
   description: String!
   encryptedMnemonic: String
   followerFreeMessage: Boolean
@@ -779,7 +777,6 @@ type Page {
   name: String!
   pageAccount: Account!
   pageAccountId: Int!
-  pageDana: PageDana
   pageMessageSessions: [PageMessageSession!]
   parent: Page
   parentId: String
@@ -937,12 +934,15 @@ input PollOptionInput {
 }
 
 type Post {
+  account: Account!
+  accountId: Int!
   bookmarkableId: String
   commentableId: String
   content: String!
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
+  dana: PostDana
   danaBurnDown: Float!
   danaBurnScore: Float!
   danaBurnUp: Float!
@@ -955,9 +955,6 @@ type Post {
   originalLanguage: String
   page: Page
   pageId: String
-  postAccount: Account!
-  postAccountId: Int!
-  postDana: PostDana
   postHashtags: [PostHashtag!]
   repostCount: Int!
   reposts: [Repost!]
@@ -1040,6 +1037,7 @@ type Product {
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
+  dana: ProductDana
   description: String!
   id: ID!
   imageUploadableId: String!
@@ -1059,6 +1057,18 @@ type ProductConnection {
   edges: [ProductEdge!]
   pageInfo: PageInfo!
   totalCount: Int
+}
+
+type ProductDana {
+  danaBurnDown: Float!
+  danaBurnScore: Float!
+  danaBurnUp: Float!
+  danaReceivedDown: Float!
+  danaReceivedScore: Float!
+  danaReceivedUp: Float!
+  product: Product!
+  productId: String!
+  version: Int!
 }
 
 type ProductEdge {
@@ -1224,7 +1234,8 @@ type Query {
   product(id: String!): Product!
   temple(id: String!): Temple!
   timeline(id: String!): TimelineItem!
-  token(tokenId: String!): Token!
+  token(id: String!): Token!
+  tokenByTokenId(tokenId: String!): Token!
   userHadMessageToPage(accountId: Int, pageId: String): PageMessageSession
   worship(id: String!): Worship!
   worshipedPerson(id: String!): WorshipedPerson!
@@ -1347,9 +1358,7 @@ type Token {
 
   """Identifies the date and time when the object was created."""
   createdDate: DateTime!
-  danaBurnDown: Float!
-  danaBurnScore: Float!
-  danaBurnUp: Float!
+  dana: TokenDana
   decimals: Int!
   followersCount: Int
   id: ID!
@@ -1358,7 +1367,6 @@ type Token {
   name: String!
   rank: Int
   ticker: String!
-  tokenDana: TokenDana
   tokenDocumentUrl: String
   tokenId: String!
   tokenType: String!
