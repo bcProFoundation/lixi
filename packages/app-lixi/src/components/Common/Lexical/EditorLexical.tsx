@@ -330,7 +330,7 @@ const EditorLexical = (props: EditorLexicalProps) => {
             <div className="EditorLexical_pictures">
               {isMobile ? (
                 <React.Fragment>
-                  {imagesList.length > 1 && (
+                  {imagesList?.length > 1 && (
                     <div className="images-post images-post-mobile">
                       {imagesList.map((img, index) => {
                         return (
@@ -347,7 +347,7 @@ const EditorLexical = (props: EditorLexicalProps) => {
                       })}
                     </div>
                   )}
-                  {imagesList.length === 1 && (
+                  {imagesList?.length === 1 && (
                     <>
                       <div className="images-post images-post-mobile only-one-image">
                         {imagesList.map((img, index) => {
