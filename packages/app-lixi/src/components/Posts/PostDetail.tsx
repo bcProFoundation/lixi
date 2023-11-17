@@ -672,7 +672,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
             </>
           )}
           {post.imageUploadable?.uploads?.length != 0 && !isMobileView && (
-            <div className={`images-post ${imagesList.length > 1 ? 'images-post-desktop' : ''}`}>
+            <div className={`images-post ${imagesList?.length > 1 ? 'images-post-desktop' : ''}`}>
               <Image.PreviewGroup>
                 <Gallery margin={4} photos={imagesList} renderImage={imageRenderer} />
               </Image.PreviewGroup>

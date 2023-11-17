@@ -440,9 +440,9 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
           {item.imageUploadable?.uploads.length != 0 && !showMoreImage && imagesList && (
             <div
               onClick={e => handlePostClick(e)}
-              className={`images-post ${imagesList.length > 1 ? 'images-post-desktop' : ''}`}
+              className={`images-post ${imagesList?.length > 1 ? 'images-post-desktop' : ''}`}
             >
-              <Gallery targetRowHeight={200} photos={imagesList.length > 3 ? imagesList.slice(0, 4) : imagesList} />
+              <Gallery targetRowHeight={200} photos={imagesList?.length > 3 ? imagesList.slice(0, 4) : imagesList} />
               {item.imageUploadable?.uploads.length > 3 && (
                 <Button type="link" className="show-more-desktop show-more-image no-border-btn">
                   {item.imageUploadable?.uploads.length - 1 + ' +'}
