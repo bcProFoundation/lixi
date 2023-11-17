@@ -86,7 +86,6 @@ export class TimelineService {
         _.toSafeInteger(item)
       );
       accountFollowings = accountId ? [accountId].concat(accountFollowings) : accountFollowings;
-      console.log('accountFollowings', accountFollowings);
       const pageFollowings = await this.followCacheService.getPageFollowings(accountId);
 
       if (
@@ -94,6 +93,11 @@ export class TimelineService {
         (_.isNil(pageFollowings) || _.isEmpty(pageFollowings))
       )
         return;
+
+      const accountFollowingsCondition =
+        !_.isNil(accountFollowings) && !_.isEmpty(accountFollowings) ? `${Prisma.join(accountFollowings)}` : '';
+      const pageFollowingsCondition =
+        !_.isNil(pageFollowings) && !_.isEmpty(pageFollowings) ? `${Prisma.join(pageFollowings)}` : '';
 
       const posts = await this.prisma.$queryRaw<{ id: string; score: number }[]>(
         Prisma.sql`
@@ -109,8 +113,8 @@ export class TimelineService {
               burn.burn_for_type = ${postBurnType} 
               AND burn.burned_value > 0 
               AND (
-                (post.post_account_id IN (${Prisma.join(accountFollowings)}) ) OR
-                (post.page_id IN (${Prisma.join(pageFollowings)} ))
+                (post.post_account_id IN (${accountFollowingsCondition}) ) OR
+                (post.page_id IN (${pageFollowingsCondition} ))
               )
             GROUP BY
               post.id 
