@@ -643,9 +643,9 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
               <PostTranslate postTranslate={post.translations[0].translateContent} />
             </div>
           )}
-          {post.imageUploadable?.uploads.length != 0 && isMobileView && (
+          {post.imageUploadable?.uploads?.length != 0 && isMobileView && (
             <>
-              {post.imageUploadable?.uploads.length > 1 && (
+              {post.imageUploadable?.uploads?.length > 1 && (
                 <div className="images-post images-post-mobile">
                   <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
                     {imagesList.map((img, index) => (
@@ -656,7 +656,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
                   </PhotoProvider>
                 </div>
               )}
-              {post.imageUploadable?.uploads.length === 1 && (
+              {post.imageUploadable?.uploads?.length === 1 && (
                 <>
                   <div className="images-post images-post-mobile only-one-image">
                     <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
@@ -671,7 +671,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
               )}
             </>
           )}
-          {post.imageUploadable?.uploads.length != 0 && !isMobileView && (
+          {post.imageUploadable?.uploads?.length != 0 && !isMobileView && (
             <div className={`images-post ${imagesList.length > 1 ? 'images-post-desktop' : ''}`}>
               <Image.PreviewGroup>
                 <Gallery margin={4} photos={imagesList} renderImage={imageRenderer} />

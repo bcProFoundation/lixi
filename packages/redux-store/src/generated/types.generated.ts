@@ -1985,6 +1985,7 @@ export type Token = {
   tokenDocumentUrl?: Maybe<Scalars['String']>;
   tokenId: Scalars['String'];
   tokenType: Scalars['String'];
+  totalBurned?: Maybe<Scalars['String']>;
   totalMinted?: Maybe<Scalars['String']>;
 };
 

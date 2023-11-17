@@ -407,9 +407,9 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
                 <PostTranslate postTranslate={post.translations[0].translateContent} />
               </div>
             )}
-            {post.imageUploadable?.uploads.length != 0 && isMobile && (
+            {post.imageUploadable?.uploads?.length != 0 && isMobile && (
               <>
-                {post.imageUploadable?.uploads.length > 1 && (
+                {post.imageUploadable?.uploads?.length > 1 && (
                   <div className="images-post images-post-mobile">
                     <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
                       {imagesList.map((img, index) => (
@@ -420,7 +420,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
                     </PhotoProvider>
                   </div>
                 )}
-                {post.imageUploadable?.uploads.length === 1 && (
+                {post.imageUploadable?.uploads?.length === 1 && (
                   <>
                     <div className="images-post images-post-mobile only-one-image">
                       <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
@@ -435,7 +435,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
                 )}
               </>
             )}
-            {post.imageUploadable?.uploads.length != 0 && !isMobile && (
+            {post.imageUploadable?.uploads?.length != 0 && !isMobile && (
               <div className={`images-post ${imagesList.length > 1 ? 'images-post-desktop' : ''}`}>
                 <Image.PreviewGroup>
                   <Gallery margin={4} photos={imagesList} renderImage={imageRenderer} />
