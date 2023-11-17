@@ -29,7 +29,7 @@ type SocialSharePanelProps = {
 type ShareSocialProps = {
   slug: any;
   content?: string;
-  postAccountName?: string;
+  accountName?: string;
 };
 
 const SocialSharePanel = ({ className, shareUrl }: SocialSharePanelProps): JSX.Element => {
@@ -116,7 +116,7 @@ const ShareButton = styled.span`
 `;
 
 const ShareSocialButton = (props: ShareSocialProps) => {
-  const { slug, content, postAccountName } = props;
+  const { slug, content, accountName } = props;
   const baseUrl = process.env.NEXT_PUBLIC_LIXI_URL;
   const shareUrl = `${baseUrl}post/${slug}`;
   const isMobile = useDetectMobileView();
@@ -132,7 +132,7 @@ const ShareSocialButton = (props: ShareSocialProps) => {
   const ShareSocialButton = (
     <RWebShare
       data={{
-        text: content ? `${postAccountName} at Lixi: "${stripHtml(content).result.substring(0, 50)}..."` : '',
+        text: content ? `${accountName} at Lixi: "${stripHtml(content).result.substring(0, 50)}..."` : '',
         url: shareUrl,
         title: 'Lixi'
       }}

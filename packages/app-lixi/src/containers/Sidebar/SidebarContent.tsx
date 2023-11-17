@@ -246,7 +246,7 @@ const SidebarContent = ({ className }: SidebarContentProps) => {
   const timelineItems = useMemo(() => {
     return _.uniqBy(timelineData, item => {
       const post: PostQueryItem = item.data as PostQueryItem;
-      return post?.page?.id || post?.token?.tokenId || post?.postAccount?.address;
+      return post?.page?.id || post?.token?.tokenId || post?.account?.address;
     });
   }, [timelineData]);
 

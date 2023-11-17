@@ -333,7 +333,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
             text,
             false, // indicate send mode is one to one
             null,
-            post.postAccount.address,
+            post.account.address,
             text.trim().split(' ')[1],
             isEncryptedOptionalOpReturnMsg,
             fundingWif,
@@ -374,7 +374,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
 
   const editPost = () => {
     const editPostProps: EditPostModalProps = {
-      postAccountAddress: post.postAccount.address,
+      accountAddress: post.account.address,
       content: post.content,
       postId: post.id
     };
@@ -399,9 +399,9 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
         </NavBarHeader>
         <InfoCardUser
           imgUrl={post.page ? post.page.avatar : ''}
-          name={post.postAccount.name}
+          name={post.account.name}
           title={moment(post.createdAt).fromNow().toString()}
-          postAccountAddress={post.postAccount ? post.postAccount.address : undefined}
+          accountAddress={post.account ? post.account.address : undefined}
           page={post.page ? post.page : undefined}
           token={post.token ? post.token : undefined}
           activatePostLocation={true}

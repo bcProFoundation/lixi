@@ -265,14 +265,14 @@ query PostsBySearchWithHashtagAtToken(
 fragment PostFields on Post {
   id
   content
-  postAccount {
+  account {
     address
     id
     name
     avatar
     createCommentFee
   }
-  postAccountId
+  accountId
   page {
     avatar
     name
@@ -304,7 +304,7 @@ fragment PostFields on Post {
   danaBurnUp
   danaBurnDown
   danaBurnScore
-  postDana {
+  dana {
     danaBurnUp
     danaBurnDown
     danaBurnScore
@@ -344,7 +344,7 @@ fragment PostFields on Post {
 fragment PostMeiliFields on Post {
   id
   content
-  postAccount {
+  account {
     address
     id
     name

@@ -317,7 +317,7 @@ const PageHome = () => {
       name: pageItem?.name,
       avatar: pageItem?.avatar,
       cover: pageItem?.cover,
-      totalBurnForPage: pageItem?.pageDana?.danaReceivedScore,
+      totalBurnForPage: pageItem?.dana?.danaReceivedScore,
       category: pageItem?.categoryId ? getCategoryName(pageItem.categoryId) : getCategoryName(DEFAULT_CATEGORY)
     };
     return newItemObj;

@@ -42,12 +42,12 @@ export class BurnFanoutProcessor extends WorkerHost {
         ? burn.burnedValue * Math.pow(2, diffHour / 12)
         : -burn.burnedValue * Math.pow(2, diffHour / 12);
 
-      const postAccountId = post.postAccountId;
+      const accountId = post.accountId;
       const pageAccountId = post?.pageId;
 
       // Find all the followers
       const [accountFollowers, pageFollowers] = await Promise.all([
-        this.followCacheService.getAccountFollowers(postAccountId),
+        this.followCacheService.getAccountFollowers(accountId),
         pageAccountId ? this.followCacheService.getPageFollowers(pageAccountId) : Promise.resolve([])
       ]);
 

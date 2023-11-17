@@ -27,7 +27,7 @@ export const api = createApi({
   endpoints: () => ({}),
   extractRehydrationInfo(action, { reducerPath }) {
     if (action.type === HYDRATE) {
-      return action.payload[reducerPath]
+      return action.payload[reducerPath];
     }
-  },
+  }
 });

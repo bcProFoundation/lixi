@@ -17,7 +17,7 @@ import { SkipThrottle } from '@nestjs/throttler';
 import { PubSub } from 'graphql-subscriptions';
 import * as _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { PageAccountEntity } from 'src/decorators/pageAccount.decorator';
+import { PageAccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import VError from 'verror';
 import { createEdge } from '../../common/custom-graphql-relay/paginate';
@@ -49,7 +49,7 @@ export class PageResolver {
     private readonly pageTimelineCacheService: PageTimelineCacheService,
     @I18n() private i18n: I18nService,
     @Inject(XPIJS) private XPI: BCHJS
-  ) { }
+  ) {}
 
   @Query(() => Page)
   async page(@PageAccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
@@ -125,7 +125,7 @@ export class PageResolver {
         },
         salt: salt,
         encryptedMnemonic: encryptedMnemonic,
-        pageDana: {
+        dana: {
           create: {}
         }
       }
@@ -310,23 +310,23 @@ export class PageResolver {
         category: {
           connect: data.categoryId
             ? {
-              id: Number(data.categoryId)
-            }
+                id: Number(data.categoryId)
+              }
             : undefined
         },
         country: {
           connect: data.countryId
             ? {
-              id: Number(data.countryId)
-            }
+                id: Number(data.countryId)
+              }
             : undefined
         },
         state: {
           disconnect: !data.stateId,
           connect: data.stateId
             ? {
-              id: Number(data.stateId)
-            }
+                id: Number(data.stateId)
+              }
             : undefined
         }
       },
@@ -349,9 +349,8 @@ export class PageResolver {
     return this.pageLoader.batchFollowersCount.load(page.id);
   }
 
-  @ResolveField('pageDana', () => PageDana)
-  async pageDana(@Parent() page: Page) {
+  @ResolveField('dana', () => PageDana)
+  async dana(@Parent() page: Page) {
     return this.pageLoader.batchPageDanas.load(page.id);
   }
-
 }

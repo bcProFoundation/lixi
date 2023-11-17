@@ -110,7 +110,7 @@ model Page {
   pageAvatarImageUploadableId String?              @unique @map("page_avatar_image_uploadable_id")
   pageCoverImageUploadable    ImageUploadable?     @relation("page_cover_image_uploadable", fields: [pageCoverImageUploadableId], references: [id])
   pageCoverImageUploadableId  String?              @unique @map("page_cover_image_uploadable_id")
-  pageDana                    PageDana?
+  dana                        PageDana?
   posts                       Post[]
   followers                   FollowPage[]
   events                      Event[]
@@ -138,8 +138,8 @@ model PageDana {
 
 model Post {
   id                String            @id @default(cuid())
-  postAccount       Account           @relation(fields: [postAccountId], references: [id])
-  postAccountId     Int               @map("post_account_id")
+  account           Account           @relation(fields: [accountId], references: [id])
+  accountId         Int               @map("account_id")
   page              Page?             @relation(fields: [pageId], references: [id])
   pageId            String?           @map("page_id")
   token             Token?            @relation(fields: [tokenId], references: [id])
@@ -166,10 +166,10 @@ model Post {
   taggable          Taggable?         @relation(fields: [taggableId], references: [id])
   imageUploadable   ImageUploadable?  @relation("post_image_uploadable", fields: [imageUploadableId], references: [id])
   imageUploadableId String?           @unique @map("post_image_uploadable_id")
-  postDana          PostDana?
+  dana              PostDana?
 
   @@index([commentableId])
-  @@index([postAccountId])
+  @@index([accountId])
   @@index([pageId])
   @@map("post")
 }
@@ -1260,7 +1260,7 @@ model Product {
   updatedAt         DateTime        @default(now()) @map("updated_at") @db.Timestamptz
   imageUploadable   ImageUploadable @relation("product_image_uploadable", fields: [imageUploadableId], references: [id])
   imageUploadableId String          @unique @map("product_image_uploadable_id")
-  productDana       ProductDana?
+  dana              ProductDana?
 
   @@map("product")
 }

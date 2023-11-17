@@ -209,9 +209,9 @@ const Comment = ({ post }: CommentProps) => {
       return post.page.createCommentFee != '0'
         ? intl.get('comment.writeCommentXpi', { commentFee: `${post.page.createCommentFee} ${currency.ticker}` })
         : intl.get('comment.writeCommentFree');
-    } else if (post.postAccount.createCommentFee && _.isNil(post.page)) {
-      return post.postAccount.createCommentFee != '0'
-        ? intl.get('comment.writeCommentXpi', { commentFee: `${post.postAccount.createCommentFee} ${currency.ticker}` })
+    } else if (post.account.createCommentFee && _.isNil(post.page)) {
+      return post.account.createCommentFee != '0'
+        ? intl.get('comment.writeCommentXpi', { commentFee: `${post.account.createCommentFee} ${currency.ticker}` })
         : intl.get('comment.writeCommentFree');
     } else {
       return intl.get('comment.writeComment');
@@ -300,7 +300,7 @@ const Comment = ({ post }: CommentProps) => {
         (post.page &&
           post?.page?.createCommentFee !== '0' &&
           selectedAccount.address !== post?.page?.pageAccount.address) ||
-        (post?.postAccount?.createCommentFee !== '0' && selectedAccount.address !== post?.postAccount?.address)
+        (post?.account?.createCommentFee !== '0' && selectedAccount.address !== post?.account?.address)
       ) {
         try {
           let createFeeHex = undefined;
@@ -336,7 +336,7 @@ const Comment = ({ post }: CommentProps) => {
         (post.page &&
           post?.page?.createCommentFee !== '0' &&
           selectedAccount.address !== post?.page?.pageAccount.address) ||
-        (post?.postAccount?.createCommentFee !== '0' && selectedAccount.address !== post?.postAccount?.address)
+        (post?.account?.createCommentFee !== '0' && selectedAccount.address !== post?.account?.address)
       ) {
         try {
           let createFeeHex = undefined;
@@ -402,7 +402,7 @@ const Comment = ({ post }: CommentProps) => {
         '',
         false, // indicate send mode is one to one
         null,
-        post.postAccount.address,
+        post.account.address,
         amount,
         true,
         fundingWif,
@@ -441,7 +441,7 @@ const Comment = ({ post }: CommentProps) => {
           fundingWif,
           true
         );
-      } else if (post.postAccount.createCommentFee !== '0') {
+      } else if (post.account.createCommentFee !== '0') {
         createFeeHex = await sendXpi(
           XPI,
           chronik,
@@ -451,8 +451,8 @@ const Comment = ({ post }: CommentProps) => {
           '',
           false, // indicate send mode is one to one
           null,
-          post.postAccount.address,
-          post.postAccount.createCommentFee,
+          post.account.address,
+          post.account.createCommentFee,
           true,
           fundingWif,
           true

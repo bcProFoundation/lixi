@@ -19,7 +19,7 @@ import * as _ from 'lodash';
 import moment from 'moment';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { connectionFromArraySlice } from 'src/common/custom-graphql-relay/arrayConnection';
-import { AccountEntity } from 'src/decorators/account.decorator';
+import { AccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import ConnectionArgs, { getPagingParameters } from '../../common/custom-graphql-relay/connection.args';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';

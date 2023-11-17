@@ -168,11 +168,11 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
     level: level,
     pageId: post?.page?.id,
     tokenId: post?.token?.tokenId,
-    postAccountId: post.postAccount.id,
+    accountId: post.account.id,
     tokenPrimaryId: post?.token?.id,
     hashtags: hashtags,
     query: query,
-    accountId: selectedAccountId || null
+    selectedAccountId: selectedAccountId || null
   };
 
   const payloadFollowPage: ParamPostFollowCommand = {
@@ -275,7 +275,7 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
 
   const editPost = () => {
     const editPostProps: EditPostModalProps = {
-      postAccountAddress: post.postAccount.address,
+      accountAddress: post.account.address,
       content: post.content,
       postId: post.id
     };
@@ -307,7 +307,7 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
 
   const handleFollowAccount = async () => {
     const createFollowAccountInput: CreateFollowAccountInput = {
-      followingAccountId: parseInt(post.postAccount.id),
+      followingAccountId: parseInt(post.account.id),
       followerAccountId: selectedAccountId
     };
     setIsFollowedAccount(!isFollowedAccount);
@@ -318,7 +318,7 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
 
   const handleUnfollowAccount = async () => {
     const deleteFollowAccountInput: DeleteFollowAccountInput = {
-      followingAccountId: parseInt(post.postAccount.id),
+      followingAccountId: parseInt(post.account.id),
       followerAccountId: selectedAccountId
     };
     setIsFollowedAccount(!isFollowedAccount);
@@ -396,7 +396,7 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
               />
             </>
           )}
-          {post.page && post.postAccount.id != selectedAccountId && !pageMessageSessionData && (
+          {post.page && post.account.id != selectedAccountId && !pageMessageSessionData && (
             <ItemActionSheetBottom
               text={`${intl.get('messenger.chat')} ${page?.name}`}
               icon="/images/ico-message-heart-circle.svg"
@@ -418,16 +418,16 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
               onClickItem={handleUnfollowPage}
             />
           )}
-          {post.postAccount.id != selectedAccountId && !isFollowedAccount && (
+          {post.account.id != selectedAccountId && !isFollowedAccount && (
             <ItemActionSheetBottom
-              text={`${intl.get('general.follow')} ${post.postAccount?.name}`}
+              text={`${intl.get('general.follow')} ${post.account?.name}`}
               icon="/images/follow.svg"
               onClickItem={handleFollowAccount}
             />
           )}
-          {post.postAccount.id != selectedAccountId && isFollowedAccount && (
+          {post.account.id != selectedAccountId && isFollowedAccount && (
             <ItemActionSheetBottom
-              text={`${intl.get('general.unfollow')} ${post.postAccount?.name}`}
+              text={`${intl.get('general.unfollow')} ${post.account?.name}`}
               icon="/images/follow.svg"
               className={isFollowedAccount ? 'isFollowed' : ''}
               onClickItem={handleUnfollowAccount}

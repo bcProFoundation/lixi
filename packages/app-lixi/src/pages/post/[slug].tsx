@@ -50,14 +50,14 @@ const PostDetailPage = props => {
   return (
     <React.Fragment>
       <NextSeo
-        title={`${post?.postAccount?.name} ${intl.get('post.on')} Lixi: "${paragraphText}"`}
+        title={`${post?.account?.name} ${intl.get('post.on')} Lixi: "${paragraphText}"`}
         description="A place where you have complete control on what you want to see and what you want others to see collectively. No platform influence. No platform ads."
         canonical={canonicalUrl}
         openGraph={{
           url: canonicalUrl,
           title: 'Lixi',
           description: post.content
-            ? `${post.postAccount.name} at Lixi: "${stripHtml(post.content).result}"`
+            ? `${post.account.name} at Lixi: "${stripHtml(post.content).result}"`
             : 'Your Attention Your Money!',
           images: [
             {
@@ -68,7 +68,7 @@ const PostDetailPage = props => {
               type: 'image/jpeg'
             }
           ],
-          site_name: `Posted by ${post.postAccount.name}`
+          site_name: `Posted by ${post.account.name}`
         }}
         twitter={{
           handle: '@lixilotus',
@@ -104,7 +104,7 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
     },
     include: {
       uploads: true,
-      postAccount: true,
+      account: true,
       page: true,
       translations: true,
       reposts: { select: { account: true, accountId: true } },

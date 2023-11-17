@@ -34,11 +34,11 @@ export class ExtraArgumentsPostFollow {
   minBurnFilterProfile?: number;
   minBurnFilterHome?: number;
   level: number;
-  postAccountId?: number;
+  accountId?: number;
   pageId?: string;
   tokenId?: string;
   tokenPrimaryId?: string;
   query?: string;
   hashtags?: string[];
-  accountId?: number;
+  selectedAccountId?: number;
 }

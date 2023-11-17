@@ -1,8 +1,11 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Country, State } from '../geo-location';
 import { Page } from '../page';
+
+import { ProductDana } from './product-dana.model';
 
 @ObjectType()
 export class Product {
@@ -54,6 +57,10 @@ export class Product {
 
   @Field(() => String)
   imageUploadableId: string;
+
+  @IsOptional()
+  @Field(() => ProductDana, { nullable: true })
+  dana?: Nullable<ProductDana>;
 
   constructor(partial: Partial<Product>) {
     Object.assign(this, partial);

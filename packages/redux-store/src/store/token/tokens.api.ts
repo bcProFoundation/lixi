@@ -37,5 +37,4 @@ export const {
   useTokensQuery,
   useLazyTokensQuery,
   useCreateTokenMutation
-} =
-  enhancedApi;
+} = enhancedApi;

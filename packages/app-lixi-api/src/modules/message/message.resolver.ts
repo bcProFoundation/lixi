@@ -1,44 +1,32 @@
 import {
   Account,
   CreateMessageInput,
+  ImageUploadable as ImageUploadableModel,
   Message,
   MessageConnection,
   MessageOrder,
   PaginationArgs,
-  NotificationDto,
-  WebpushNotification,
-  ImageUploadable as ImageUploadableModel
+  WebpushNotification
 } from '@bcpros/lixi-models';
-import {
-  ImageUploadable,
-  ImageUploadableType,
-  MessageType,
-  NotificationLevel,
-  PageMessageSessionStatus
-} from '@bcpros/lixi-prisma';
+import { ImageUploadable, ImageUploadableType, MessageType, PageMessageSessionStatus } from '@bcpros/lixi-prisma';
+import BCHJS from '@bcpros/xpi-js';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { Inject, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
+import { ChronikClient } from 'chronik-client';
 import { PubSub } from 'graphql-subscriptions';
-import * as _ from 'lodash';
-import moment from 'moment';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { connectionFromArraySlice } from 'src/common/custom-graphql-relay/arrayConnection';
+import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
-import { AccountEntity } from 'src/decorators/account.decorator';
+import { NotificationService } from 'src/common/modules/notifications/notification.service';
+import { AccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
-import ConnectionArgs, { getPagingParameters } from '../../common/custom-graphql-relay/connection.args';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
-import { PERSON } from '../page/constants/meili.constants';
 import { MeiliService } from '../page/meili.service';
 import { PrismaService } from '../prisma/prisma.service';
-import BCHJS from '@bcpros/xpi-js';
-import { ChronikClient } from 'chronik-client';
-import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
-import { NotificationService } from 'src/common/modules/notifications/notification.service';
-import { PageMessageSessionCacheService } from './page-message-session-cache.service';
 import { XPIJS } from '../wallet/wallet.constants';
+import { PageMessageSessionCacheService } from './page-message-session-cache.service';
 
 const pubSub = new PubSub();
 

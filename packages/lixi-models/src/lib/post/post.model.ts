@@ -21,10 +21,10 @@ export class Post implements ICommentableTo {
   content: string;
 
   @Field(() => Number)
-  postAccountId: number;
+  accountId: number;
 
   @Field(() => Account)
-  postAccount: Account;
+  account: Account;
 
   @Field(() => String, { nullable: true })
   tokenId?: Nullable<string>;
@@ -38,15 +38,6 @@ export class Post implements ICommentableTo {
   @IsOptional()
   @Field(() => String, { nullable: true })
   pageId?: Nullable<string>;
-
-  @Field(() => Float)
-  danaBurnUp: number;
-
-  @Field(() => Float)
-  danaBurnDown: number;
-
-  @Field(() => Float)
-  danaBurnScore: number;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.'
@@ -102,7 +93,7 @@ export class Post implements ICommentableTo {
 
   @IsOptional()
   @Field(() => PostDana, { nullable: true })
-  postDana?: Nullable<PostDana>;
+  dana?: Nullable<PostDana>;
 
   constructor(partial: Partial<Post>) {
     Object.assign(this, partial);

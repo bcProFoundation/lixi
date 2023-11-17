@@ -22,7 +22,7 @@ import { Requests } from 'cloudflare-images';
 import { I18n, I18nContext } from 'nestjs-i18n';
 import { extname } from 'path';
 import sharp from 'sharp';
-import { PostAccountEntity } from 'src/decorators/postAccount.decorator';
+import { AccountEntity } from 'src/decorators';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwtauth.guard';
 import { VError } from 'verror';
 import { CloudflareImagesService } from '../../../common/modules/cloudflare/cloudflare-images.service';
@@ -47,7 +47,7 @@ export class UploadFilesController {
   @ApiConsumes('multipart/form-data')
   async uploadS3(
     @UploadedFile('file') file: MulterFile,
-    @PostAccountEntity() account: Account,
+    @AccountEntity() account: Account,
     @I18n() i18n: I18nContext,
     @Body() body: any
   ) {
@@ -110,11 +110,7 @@ export class UploadFilesController {
   @Delete('/remove-image-cf/:id')
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
-  async removeImageCloudflare(
-    @Param('id') id: string,
-    @PostAccountEntity() account: Account,
-    @I18n() i18n: I18nContext
-  ) {
+  async removeImageCloudflare(@Param('id') id: string, @AccountEntity() account: Account, @I18n() i18n: I18nContext) {
     try {
       if (!account) {
         const couldNotFindAccount = await i18n.t('lixi.messages.couldNotFindAccount');
@@ -172,7 +168,7 @@ export class UploadFilesController {
   @ApiConsumes('multipart/form-data')
   async uploadS3Multiple(
     @UploadedFile('files') files: Array<Express.Multer.File>,
-    @PostAccountEntity() account: Account,
+    @AccountEntity() account: Account,
     @I18n() i18n: I18nContext,
     @Body() body: any
   ) {
@@ -245,7 +241,7 @@ export class UploadFilesController {
   @ApiConsumes('multipart/form-data')
   async uploadCloudflareMultiple(
     @UploadedFile('files') files: Array<Express.Multer.File>,
-    @PostAccountEntity() account: Account,
+    @AccountEntity() account: Account,
     @I18n() i18n: I18nContext,
     @Body() body: any
   ) {

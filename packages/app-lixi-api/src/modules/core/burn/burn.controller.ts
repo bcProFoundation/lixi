@@ -8,30 +8,27 @@ import {
   TRANSLATION_REQUIRE_AMOUNT,
   TokenDana
 } from '@bcpros/lixi-models';
-import { NotificationLevel, Token } from '@bcpros/lixi-prisma';
+import { NotificationLevel } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Body, Controller, HttpException, HttpStatus, Inject, Logger, Post } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { Queue } from 'bullmq';
 import { ChronikClient } from 'chronik-client';
-import { Redis } from 'ioredis';
 import _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
 import { NOTIFICATION_TYPES } from 'src/common/modules/notifications/notification.constants';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
-import SortedItemRepository from 'src/common/redis/sorted-repository';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { XPIJS } from 'src/modules/wallet/wallet.constants';
 import { VError } from 'verror';
 import { AccountCacheService } from '../../account/account-cache.service';
 import { PostDanaCacheService } from '../../page/post-dana-cache.service';
+import { TokenDanaCacheService } from '../../token/token-dana-cache.service';
 import { TranslateProvider } from '../translate/translate.constant';
 import { TranslateService } from '../translate/translate.service';
 import { ACCOUNT_DANA_QUEUE, BURN_FANOUT_QUEUE, PAGE_DANA_QUEUE } from './burn.constants';
-import { TokenDanaCacheService } from '../../token/token-dana-cache.service';
 
 @SkipThrottle()
 @Controller('burn')
@@ -40,7 +37,6 @@ export class BurnController {
   constructor(
     private prisma: PrismaService,
     private readonly notificationService: NotificationService,
-    @InjectRedis() private readonly redis: Redis,
     @I18n() private i18n: I18nService,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @Inject(XPIJS) private XPI: BCHJS,
@@ -51,7 +47,7 @@ export class BurnController {
     private readonly accountCacheService: AccountCacheService,
     private readonly postDanaCacheService: PostDanaCacheService,
     private readonly tokenDanaCacheService: TokenDanaCacheService
-  ) { }
+  ) {}
 
   private convertBurnedByToAddress(burnedBy: string): string {
     const legacyAddress = this.XPI.Address.hash160ToLegacy(burnedBy);
@@ -103,8 +99,8 @@ export class BurnController {
             },
             include: {
               page: true,
-              postAccount: true,
-              postDana: true
+              account: true,
+              dana: true
             }
           });
 
@@ -117,10 +113,10 @@ export class BurnController {
             }
           });
 
-          let danaBurnUp = post?.postDana?.danaBurnUp ?? 0;
-          let danaBurnDown = post?.postDana?.danaBurnDown ?? 0;
-          let danaReceivedUp = post?.postDana?.danaReceivedUp ?? 0;
-          let danaReceivedDown = post?.postDana?.danaReceivedDown ?? 0;
+          let danaBurnUp = post?.dana?.danaBurnUp ?? 0;
+          let danaBurnDown = post?.dana?.danaBurnDown ?? 0;
+          let danaReceivedUp = post?.dana?.danaReceivedUp ?? 0;
+          let danaReceivedDown = post?.dana?.danaReceivedDown ?? 0;
           const xpiValue = value;
 
           if (command.burnType == BurnType.Up) {
@@ -140,7 +136,7 @@ export class BurnController {
             const newPostDana = await prisma.postDana.upsert({
               where: {
                 postId: command.burnForId,
-                version: post?.postDana?.version
+                version: post?.dana?.version
               },
               update: {
                 version: {
@@ -174,7 +170,7 @@ export class BurnController {
               txid: savedBurn.txid,
               amount: xpiValue,
               givenDanaAddress: burnByAddress,
-              receivedDanaAddress: post?.postAccount?.address
+              receivedDanaAddress: post?.account?.address
             });
           });
 
@@ -322,7 +318,7 @@ export class BurnController {
               }
             });
 
-            await this.tokenDanaCacheService.setTokenDana(command.burnForId, new TokenDana({ ...tokenDana }))
+            await this.tokenDanaCacheService.setTokenDana(command.burnForId, new TokenDana({ ...tokenDana }));
 
             this.accountDanaQueue.add(ACCOUNT_DANA_QUEUE, {
               command: command,
@@ -331,7 +327,6 @@ export class BurnController {
               givenDanaAddress: burnByAddress
             });
           });
-
         } else if (command.burnForType === BurnForType.Comment) {
           const comment = await this.prisma.comment.findFirst({
             where: {
@@ -427,7 +422,7 @@ export class BurnController {
         const post = await this.prisma.post.findFirst({
           where: { id: postId },
           include: {
-            postAccount: true,
+            account: true,
             page: {
               include: {
                 pageAccount: true
@@ -441,7 +436,7 @@ export class BurnController {
           throw new VError(accountNotExistMessage);
         }
 
-        const recipientPostAccount = await this.accountCacheService.getById(_.toSafeInteger(post?.postAccountId));
+        const recipientPostAccount = await this.accountCacheService.getById(_.toSafeInteger(post?.accountId));
         if (!recipientPostAccount) {
           const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
           throw new VError(accountNotExistMessage);
@@ -465,12 +460,12 @@ export class BurnController {
 
         const createNotifBurnAndTip = {
           senderId: sender.id,
-          recipientId: post.page ? post.page.pageAccountId : (post?.postAccountId as number),
+          recipientId: post.page ? post.page.pageAccountId : (post?.accountId as number),
           notificationTypeId: post.page
             ? NOTIFICATION_TYPES.RECEIVE_BURN_PAGE
             : command.burnForType == BurnForType.Comment
-              ? NOTIFICATION_TYPES.RECEIVE_BURN_COMMENT_ACCOUNT
-              : NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT,
+            ? NOTIFICATION_TYPES.RECEIVE_BURN_COMMENT_ACCOUNT
+            : NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT,
           level: NotificationLevel.INFO,
           url:
             command.burnForType == BurnForType.Comment

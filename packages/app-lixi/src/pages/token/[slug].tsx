@@ -46,7 +46,11 @@ const TokenDetailPage = props => {
           cardType: 'summary_large_image'
         }}
       />
-      <TokensFeed token={tokenToRender} checkIsFollowed={currentDataCheckIsFollowed?.checkIfFollowToken} isMobile={isMobile} />
+      <TokensFeed
+        token={tokenToRender}
+        checkIsFollowed={currentDataCheckIsFollowed?.checkIfFollowToken}
+        isMobile={isMobile}
+      />
     </>
   );
 };
@@ -73,7 +77,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
       tokenId: tokenId
     }
   });
-
 
   if (!dbToken) {
     return {

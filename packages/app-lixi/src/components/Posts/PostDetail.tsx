@@ -451,7 +451,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
             text,
             false, // indicate send mode is one to one
             null,
-            post.postAccount.address,
+            post.account.address,
             text.trim().split(' ')[1],
             isEncryptedOptionalOpReturnMsg,
             fundingWif,
@@ -511,7 +511,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
 
   const editPost = () => {
     const editPostProps: EditPostModalProps = {
-      postAccountAddress: post.postAccount.address,
+      accountAddress: post.account.address,
       content: post.content,
       postId: post.id
     };
@@ -528,9 +528,9 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
       return post.page.createCommentFee != '0'
         ? intl.get('comment.writeCommentXpi', { commentFee: `${post.page.createCommentFee} ${currency.ticker}` })
         : intl.get('comment.writeCommentFree');
-    } else if (post.postAccount.createCommentFee && _.isNil(post.page)) {
-      return post.postAccount.createCommentFee != '0'
-        ? intl.get('comment.writeCommentXpi', { commentFee: `${post.postAccount.createCommentFee} ${currency.ticker}` })
+    } else if (post.account.createCommentFee && _.isNil(post.page)) {
+      return post.account.createCommentFee != '0'
+        ? intl.get('comment.writeCommentXpi', { commentFee: `${post.account.createCommentFee} ${currency.ticker}` })
         : intl.get('comment.writeCommentFree');
     } else {
       return intl.get('comment.writeComment');
@@ -612,10 +612,10 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
       <StyledContainerPostDetail className="post-detail" style={{ paddingBottom: isMobileView ? '3rem' : '1rem' }}>
         <NavBarHeader onClick={() => router.back()}>
           <InfoCardUser
-            imgUrl={post.postAccount.avatar ? post.postAccount.avatar : ''}
-            name={post.postAccount.name}
+            imgUrl={post.account.avatar ? post.account.avatar : ''}
+            name={post.account.name}
             title={moment(post.createdAt).fromNow().toString()}
-            postAccountAddress={post.postAccount ? post.postAccount.address : undefined}
+            accountAddress={post.account ? post.account.address : undefined}
             page={post.page ? post.page : undefined}
             token={post.token ? post.token : undefined}
             activatePostLocation={true}

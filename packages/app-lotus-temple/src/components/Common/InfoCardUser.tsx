@@ -18,7 +18,7 @@ type InfoCardProps = {
   page?: any;
   token?: any;
   activatePostLocation?: boolean;
-  postAccountAddress?: string;
+  accountAddress?: string;
   onEditPostClick?: () => void;
   postEdited?: boolean;
   isDropdown?: boolean;
@@ -92,7 +92,7 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
     token,
     page,
     activatePostLocation,
-    postAccountAddress,
+    accountAddress,
     postEdited,
     isDropdown
   } = props;
@@ -126,12 +126,12 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
       <InfoCardUserContainer className={type === 'card' ? 'card' : ''}>
         <CardUser>
           <div className="card-container">
-            <div onClick={() => history.push(`/profile/${postAccountAddress}`)}>
+            <div onClick={() => history.push(`/profile/${accountAddress}`)}>
               {imgUrl ? <Avatar src={imgUrl} /> : <AvatarUser name={name} isMarginRight={true} />}
             </div>
             <div className="card-info">
               {/* pageName or tokenName */}
-              <span className="name" onClick={() => history.push(`/profile/${postAccountAddress}`)}>
+              <span className="name" onClick={() => history.push(`/profile/${accountAddress}`)}>
                 {name}
               </span>
               {page && (
@@ -160,7 +160,7 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
           <>
             <Dropdown
               menu={{ items }}
-              trigger={[selectedAccount && selectedAccount.address === postAccountAddress ? 'click' : 'contextMenu']}
+              trigger={[selectedAccount && selectedAccount.address === accountAddress ? 'click' : 'contextMenu']}
               arrow={{ pointAtCenter: true }}
               placement="bottomRight"
             >

@@ -6,7 +6,7 @@ import { PubSub } from 'graphql-subscriptions';
 import { PrismaService } from '../prisma/prisma.service';
 import * as _ from 'lodash';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
-import { AccountEntity } from 'src/decorators/account.decorator';
+import { AccountEntity } from 'src/decorators';
 import { I18n, I18nService } from 'nestjs-i18n';
 import VError from 'verror';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';

@@ -10,7 +10,7 @@ export class TokenCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:tokens:item-data';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
 
   async getById(id: string): Promise<Token | null> {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id);
@@ -78,10 +78,10 @@ export class TokenCacheService {
       const dbValues =
         uncachedIds.length > 0
           ? await this.prisma.token.findMany({
-            where: {
-              id: { in: uncachedIds }
-            }
-          })
+              where: {
+                id: { in: uncachedIds }
+              }
+            })
           : [];
 
       const dbValuesMap = new Map(

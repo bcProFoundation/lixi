@@ -1,4 +1,4 @@
-import { Post, PostDana, Repost, UploadDetail } from '@bcpros/lixi-models';
+import { Post } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { decode, encode } from '@msgpack/msgpack';
 import { Logger } from '@nestjs/common';
@@ -28,29 +28,13 @@ export class PostCacheService {
           id: id
         },
         include: {
-          postAccount: true,
-          translations: true,
-          token: true,
-          _count: {
-            select: { reposts: true }
-          }
+          account: true
         }
       });
       if (!dbValue) return null;
 
-      const [reposts, uploads, danaViewScore, postDanas] = await Promise.all([
-        this.postLoader.batchReposts.load(dbValue.id),
-        this.postLoader.batchUploads.load(dbValue.id),
-        this.postLoader.batchDanaViewScores.load(dbValue.id),
-        this.postLoader.batchPostDanas.load(dbValue.id)
-      ]);
-
       const post: Post = new Post({
-        ...dbValue,
-        repostCount: dbValue._count.reposts,
-        reposts: reposts ? (reposts as Repost[]) : [],
-        danaBurnScore: (danaViewScore as number) || 0,
-        postDana: postDanas
+        ...dbValue
       });
 
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(post)));
@@ -86,31 +70,15 @@ export class PostCacheService {
               id: { in: uncachedIds }
             },
             include: {
-              postAccount: true,
-              translations: true,
-              token: true,
-              _count: {
-                select: { reposts: true }
-              }
+              account: true
             }
           })
         : [];
 
-    const [arrReposts, arrUploads, arrDanaViewScore, arrPostDanas] = await Promise.all([
-      this.postLoader.batchReposts.loadMany(uncachedIds),
-      this.postLoader.batchUploads.loadMany(uncachedIds),
-      this.postLoader.batchDanaViewScores.loadMany(ids),
-      this.postLoader.batchPostDanas.loadMany(ids)
-    ]);
     const dbValuesMap = new Map(
       dbValues.map((dbValue, i) => {
         const item = new Post({
-          ...dbValue,
-          id: dbValue.id,
-          danaViewScore: (arrDanaViewScore[i] ?? 0) as number,
-          repostCount: dbValue._count.reposts,
-          reposts: arrReposts[i] ? (arrReposts[i] as Repost[]) : [],
-          postDana: arrPostDanas[i] instanceof Error ? new PostDana({}) : (arrPostDanas[i] as PostDana)
+          ...dbValue
         });
         itemsMap.set(dbValue.id, item);
         return [dbValue.id, Buffer.from(encode(item))];

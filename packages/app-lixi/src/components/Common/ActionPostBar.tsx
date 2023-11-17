@@ -225,7 +225,7 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
         />
 
         {/* Currently only apply repost to posts in the page and profile */}
-        {(post.page || post.postAccount.id === selectedAccount?.id) && (
+        {(post.page || post.account.id === selectedAccount?.id) && (
           <Tooltip title={`${intl.get('page.repostFee')}: ${post?.page?.createPostFee ?? 0} ${currency.ticker}`}>
             <Space style={{ padding: '8px' }} className="repost" size={5} onClick={() => handleRepost(post)}>
               <RetweetOutlined />
@@ -241,7 +241,7 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
         </Tooltip>
       </GroupIconText>
 
-      <ShareSocialButton slug={post.id} content={post.content} postAccountName={post.postAccount.name} />
+      <ShareSocialButton slug={post.id} content={post.content} accountName={post.account.name} />
     </ActionBar>
   );
 };

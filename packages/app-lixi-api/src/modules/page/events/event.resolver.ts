@@ -23,7 +23,7 @@ import { Redis } from 'ioredis';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
-import { PostAccountEntity } from 'src/decorators/postAccount.decorator';
+import { AccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import PageLoader from '../page.loader';
 import { EventCacheService } from './event-cache.service';
@@ -59,13 +59,13 @@ export class EventResolver {
   @SkipThrottle()
   @Query(() => Event)
   @UseGuards(GqlJwtAuthGuardByPass)
-  async poll(@PostAccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
+  async poll(@AccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
     return this.eventCacheService.getById(id);
   }
 
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Event)
-  async create(@PostAccountEntity() account: Account, @Args('data') data: CreateEventInput) {
+  async create(@AccountEntity() account: Account, @Args('data') data: CreateEventInput) {
     if (!account) {
       const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
       throw new Error(couldNotFindAccount);
@@ -237,16 +237,16 @@ export class EventResolver {
   }
 
   @ResolveField('followOwner', () => Boolean)
-  async followOwner(@Parent() post: Post, @PostAccountEntity() account: Account) {
+  async followOwner(@Parent() post: Post, @AccountEntity() account: Account) {
     const payload = {
-      followingAccountId: post?.postAccount?.id,
+      followingAccountId: post?.account?.id,
       accountId: account?.id
     };
     return this.postLoader.batchCheckAccountFollowAllAccount.load(payload);
   }
 
   @ResolveField('followedPage', () => Boolean)
-  async followedPage(@Parent() post: Post, @PostAccountEntity() account: Account) {
+  async followedPage(@Parent() post: Post, @AccountEntity() account: Account) {
     const payload = {
       pageId: post?.page?.id || '',
       accountId: account?.id
@@ -255,7 +255,7 @@ export class EventResolver {
   }
 
   @ResolveField('followedToken', () => Boolean)
-  async followedToken(@Parent() post: Post, @PostAccountEntity() account: Account) {
+  async followedToken(@Parent() post: Post, @AccountEntity() account: Account) {
     const payload = {
       tokenId: post?.token?.tokenId || '',
       accountId: account?.id

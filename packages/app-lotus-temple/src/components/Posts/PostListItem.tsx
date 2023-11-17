@@ -248,16 +248,16 @@ const PostListItem = ({ index, item, searchValue }: PostListItemProps) => {
   };
 
   const showUsername = () => {
-    if (_.isNil(post.postAccount)) {
+    if (_.isNil(post.account)) {
       return 'Anonymous';
     }
 
-    return post?.postAccount?.name;
+    return post?.account?.name;
   };
 
   const editPost = () => {
     const editPostProps: EditPostModalProps = {
-      postAccountAddress: post.postAccount.address,
+      accountAddress: post.account.address,
       content: post.content,
       postId: post.id
     };
@@ -272,7 +272,7 @@ const PostListItem = ({ index, item, searchValue }: PostListItemProps) => {
             imgUrl={post.page ? post.page.avatar : ''}
             name={showUsername()}
             title={moment(post.createdAt).fromNow().toString()}
-            postAccountAddress={post.postAccount ? post.postAccount.address : undefined}
+            accountAddress={post.account ? post.account.address : undefined}
             page={post.page ? post.page : undefined}
             token={post.token ? post.token : undefined}
             activatePostLocation={true}

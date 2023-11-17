@@ -47,7 +47,7 @@ export class TokenResolver {
     @InjectRedis() private readonly redis: Redis,
     @I18n() private readonly i18n: I18nService,
     @InjectChronikClient('xec') private chronik: ChronikClient
-  ) { }
+  ) {}
 
   @Query(() => Token)
   @UseGuards(GqlJwtAuthGuardByPass)
