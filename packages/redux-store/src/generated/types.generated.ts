@@ -1082,9 +1082,6 @@ export type Post = {
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
   dana?: Maybe<PostDana>;
-  danaBurnDown: Scalars['Float'];
-  danaBurnScore: Scalars['Float'];
-  danaBurnUp: Scalars['Float'];
   danaViewScore?: Maybe<Scalars['Float']>;
   followPostOwner?: Maybe<Scalars['Boolean']>;
   followedPage?: Maybe<Scalars['Boolean']>;

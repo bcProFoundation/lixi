@@ -943,9 +943,6 @@ type Post {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   dana: PostDana
-  danaBurnDown: Float!
-  danaBurnScore: Float!
-  danaBurnUp: Float!
   danaViewScore: Float
   followPostOwner: Boolean
   followedPage: Boolean

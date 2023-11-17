@@ -301,9 +301,6 @@ fragment PostFields on Post {
       address
     }
   }
-  danaBurnUp
-  danaBurnDown
-  danaBurnScore
   dana {
     danaBurnUp
     danaBurnDown
@@ -376,9 +373,6 @@ fragment PostMeiliFields on Post {
       address
     }
   }
-  danaBurnUp
-  danaBurnDown
-  danaBurnScore
   totalComments
   createdAt
   updatedAt
