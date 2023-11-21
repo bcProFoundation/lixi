@@ -93,6 +93,21 @@ export class UploadFilesController {
         data: uploadToInsert
       });
 
+      await this.prisma.imageUploadable.create({
+        data: {
+          account: {
+            connect: {
+              id: account.id
+            }
+          },
+          uploads: {
+            connect: {
+              id: resultImage.id
+            }
+          }
+        }
+      });
+
       this.accountCacheService.removeByKey(account.id.toString());
 
       return resultImage;
@@ -128,15 +143,15 @@ export class UploadFilesController {
 
       if (account.id === upload?.imageUploadable?.accountId && upload) {
         await this.prisma.$transaction(async prisma => {
-          await prisma.upload.delete({
-            where: {
-              id: upload!.id
-            }
-          });
-
           await prisma.imageUploadable.delete({
             where: {
               id: upload.imageUploadableId!
+            }
+          });
+
+          await prisma.upload.delete({
+            where: {
+              id: upload!.id
             }
           });
 
@@ -220,6 +235,23 @@ export class UploadFilesController {
       const resultImages = await this.prisma.$transaction(
         uploads.map(upload => this.prisma.upload.create({ data: upload }))
       );
+
+      await this.prisma.imageUploadable.create({
+        data: {
+          account: {
+            connect: {
+              id: account.id
+            }
+          },
+          uploads: {
+            connect: resultImages.map(image => {
+              return {
+                id: image.id
+              };
+            })
+          }
+        }
+      });
 
       this.accountCacheService.removeByKey(account.id.toString());
 

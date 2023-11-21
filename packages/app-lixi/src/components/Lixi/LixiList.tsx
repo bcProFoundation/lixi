@@ -10,7 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { CheckboxValueType } from 'antd/lib/checkbox/Group';
 import intl from 'react-intl-universal';
 import _ from 'lodash';
-import { refreshLixiList } from '@store/account/actions';
+import { refreshLixiList, refreshLixiListSilent } from '@store/account/actions';
 import { getSelectedAccount } from '@store/account/selectors';
 import { openModal } from '@store/modal/actions';
 import { getEnvelopes } from '@store/envelope/actions';
@@ -173,11 +173,12 @@ const LixiList = ({ lixies }: LixiListProps) => {
   const [queryLixi, setQueryLixi] = useState('');
   const [searchLixiParams] = useState(['name', 'status']);
   const [listMapData, setListMapData] = useState([]);
+  let selectedFilterList = {};
 
   useEffect(() => {
     dispatch(getEnvelopes());
     if (selectedAccount) {
-      dispatch(refreshLixiList(selectedAccount.id));
+      dispatch(refreshLixiListSilent(selectedAccount.id));
     }
   }, []);
 
@@ -243,8 +244,6 @@ const LixiList = ({ lixies }: LixiListProps) => {
       </>
     );
   };
-
-  let selectedFilterList = {};
 
   const getSelectedClaimType = (checkedClaimTypeValues: CheckboxValueType[]) => {
     selectedFilterList['checkedClaimTypeValues'] = [...checkedClaimTypeValues];
@@ -384,7 +383,18 @@ const LixiList = ({ lixies }: LixiListProps) => {
     {
       title: intl.get('lixi.remaining') + ' (XPI)',
       dataIndex: 'remaining',
-      key: 'remaining'
+      key: 'remaining',
+      render: (_, { remaining, status }) => {
+        return (
+          <React.Fragment>
+            {status === 'withdrawn' ? (
+              <p style={{ marginBottom: '0px' }}>0.00</p>
+            ) : (
+              <p style={{ marginBottom: '0px' }}>{remaining}</p>
+            )}
+          </React.Fragment>
+        );
+      }
     },
     {
       title: intl.get('lixi.status'),

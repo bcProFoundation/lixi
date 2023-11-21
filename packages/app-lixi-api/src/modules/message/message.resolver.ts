@@ -140,21 +140,23 @@ export class MessageResolver {
 
       //check if there is upload
       if (uploadIds && uploadIds.length > 0) {
-        imageUploadable = await this.prisma.$transaction(async prisma => {
-          //create new imageUploadable
-          const result = await prisma.imageUploadable.create({
-            data: {
-              account: { connect: { id: account.id } },
-              uploads: {
-                connect: uploadIds.map((upload: string) => {
-                  return { id: upload };
-                })
+        imageUploadable = await this.prisma.imageUploadable.findFirst({
+          where: {
+            AND: [
+              {
+                accountId: account.id
               },
-              type: ImageUploadableType.MESSAGE
-            }
-          });
-
-          return result;
+              {
+                uploads: {
+                  every: {
+                    id: {
+                      in: uploadIds
+                    }
+                  }
+                }
+              }
+            ]
+          }
         });
       }
 
@@ -198,6 +200,17 @@ export class MessageResolver {
             }
           }
         });
+
+        if (imageUploadable) {
+          await prisma.imageUploadable.update({
+            where: {
+              id: imageUploadable?.id
+            },
+            data: {
+              type: ImageUploadableType.MESSAGE
+            }
+          });
+        }
 
         //Give Tip
         if (tipHex && body) {

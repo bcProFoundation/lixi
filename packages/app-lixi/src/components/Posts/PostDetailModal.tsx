@@ -9,7 +9,7 @@ import { PostQueryItem } from '@generated/index';
 import { CommentOrderField, CreateCommentInput, OrderDirection } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
-import { getAccountInfoTemp, getSelectedAccount } from '@store/account/selectors';
+import { getAccountInfoTemp, getCommentUpload, getSelectedAccount } from '@store/account/selectors';
 import { createCommentFailure, createCommentSuccess } from '@store/comment';
 import { useCreateCommentMutation } from '@store/comment/comments.api';
 import { useInfiniteCommentsToCommentableIdQuery } from '@store/comment/useInfiniteCommentsToCommentableIdQuery';
@@ -34,10 +34,12 @@ import Gallery from 'react-photo-gallery';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import { useSwipeable } from 'react-swipeable';
 import styled from 'styled-components';
+import { removeUpload } from '../../../../redux-store/src/store/account';
 import Comment from './Comment';
 import CommentListItem from './CommentListItem';
 import { EditPostModalProps } from './EditPostModalPopup';
 import PostTranslate from './PostTranslate';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
 
 type PostDetailProps = {
   initialPost: PostQueryItem;
@@ -237,6 +239,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
   const [openPost, setOpenPost] = useState(true);
   const isMobile = useDetectMobileView();
   const [borderColorHeader, setBorderColorHeader] = useState(false);
+  const commentUpload = useAppSelector(getCommentUpload);
 
   const [repostTrigger, { isLoading: isLoadingRepost, isSuccess: isSuccessRepost, isError: isErrorRepost }] =
     useRepostMutation();
@@ -330,6 +333,9 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
       },
       isMobile ? 400 : 200
     );
+    if (commentUpload) {
+      dispatch(removeUpload({ uploadType: UPLOAD_TYPES.COMMENT, id: commentUpload.id }));
+    }
   };
 
   const translatePost = () => {
