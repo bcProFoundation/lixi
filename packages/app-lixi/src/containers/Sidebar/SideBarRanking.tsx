@@ -108,10 +108,8 @@ const RankingSideBar = styled(Sider)`
           }
         }
         .animation-top-ranking {
-          position: absolute;
-          top: 0px;
-          right: 0;
           width: 25px;
+          margin-right: 1rem;
         }
       }
       .content {
@@ -124,6 +122,11 @@ const RankingSideBar = styled(Sider)`
             padding-bottom: 1rem;
           }
         }
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
     }
     .avatar-page {
@@ -316,7 +319,18 @@ const SidebarRanking = () => {
           <div className="right-bar">
             <div className="container-right-bar your-shortcuts card">
               <div className="content">
-                <h3 className="title-card">{intl.get('general.topPages')}</h3>
+                <div className="header">
+                  <h3 className="title-card">{intl.get('general.topPages')}</h3>
+                  <picture>
+                    <img
+                      className="animation-top-ranking"
+                      src={`${
+                        currentTheme === 'dark' ? '/images/ico-fire-static.png' : '/images/ico-fire-animation.gif'
+                      }`}
+                      alt=""
+                    />
+                  </picture>
+                </div>
                 {isLoadingPage ? (
                   <SkeletonStyled active avatar paragraph={{ rows: 1 }} />
                 ) : (
@@ -375,18 +389,26 @@ const SidebarRanking = () => {
                   })
                 )}
               </div>
-              <img
-                className="animation-top-ranking"
-                src={`${currentTheme === 'dark' ? '/images/ico-fire-static.png' : '/images/ico-fire-animation.gif'}`}
-                alt=""
-              />
             </div>
           </div>
 
           <div className="right-bar">
             <div className="container-right-bar your-shortcuts card">
               <div className="content">
-                <h3 className="title-card">{intl.get('general.topAccounts')}</h3>
+                <div className="header">
+                  <h3 className="title-card">{intl.get('general.topAccounts')}</h3>
+                  <picture>
+                    <img
+                      className="animation-top-ranking"
+                      src={`${
+                        currentTheme === 'dark'
+                          ? '/images/ico-fire-heart-static.png'
+                          : '/images/ico-fire-heart-animation.gif'
+                      }`}
+                      alt=""
+                    />
+                  </picture>
+                </div>
                 {isLoadingPage ? (
                   <SkeletonStyled active avatar paragraph={{ rows: 1 }} />
                 ) : (
@@ -441,13 +463,6 @@ const SidebarRanking = () => {
                   })
                 )}
               </div>
-              <img
-                className="animation-top-ranking"
-                src={`${
-                  currentTheme === 'dark' ? '/images/ico-fire-heart-static.png' : '/images/ico-fire-heart-animation.gif'
-                }`}
-                alt=""
-              />
             </div>
           </div>
         </>

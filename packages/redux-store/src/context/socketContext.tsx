@@ -6,6 +6,7 @@ import { connectToChannels } from '@store/websocket';
 import { getSelectedAccount } from '@store/account';
 import { userSubcribeToAddressChannel, userSubcribeToMultiPageMessageSession } from '@store/message/actions';
 import usePrevious from '@hooks/usePrevious';
+import { Account } from '@bcpros/lixi-models';
 
 export const SocketContext = createContext<Socket | null>(null);
 
@@ -17,7 +18,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const dispatch = useAppDispatch();
   const selectedAccount = useAppSelector(getSelectedAccount);
-  const previousSelectedAccount = usePrevious(selectedAccount);
+  const previousSelectedAccount: Account = usePrevious(selectedAccount);
 
   useEffect(() => {
     const setupSocket = async () => {
@@ -49,7 +50,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     //if change account, disconnect socket and reconnect
-    if (previousSelectedAccount && selectedAccount !== previousSelectedAccount) {
+    if (previousSelectedAccount && selectedAccount.address !== previousSelectedAccount.address) {
       if (socket) socket.disconnect();
 
       const setupSocket = async () => {

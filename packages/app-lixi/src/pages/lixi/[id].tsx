@@ -38,6 +38,12 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
       }
     });
 
+    if (!result) {
+      return {
+        notFound: true
+      };
+    }
+
     lixi = _.omit(
       {
         ...result,

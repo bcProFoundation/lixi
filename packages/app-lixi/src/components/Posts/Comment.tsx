@@ -161,6 +161,13 @@ const StyledCommentImageContainer = styled.div`
   }
 `;
 
+const commentCommand = [
+  {
+    label: '/give',
+    value: '/give'
+  }
+];
+
 const Comment = ({ post }: CommentProps) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -178,14 +185,9 @@ const Comment = ({ post }: CommentProps) => {
   const selectedAccount = useAppSelector(getSelectedAccount);
   const [isSendingXPI, setIsSendingXPI] = useState<boolean>(false);
   const commentUpload = useAppSelector(getCommentUpload);
+  const inputText = useRef(null);
+  const multiUploader = useRef(null);
   const txFee = Math.ceil(Wallet.XPI.BitcoinCash.getByteCount({ P2PKH: 1 }, { P2PKH: 1 }) * 2.01); //satoshi
-
-  const commentCommand = [
-    {
-      label: '/give',
-      value: '/give'
-    }
-  ];
 
   const [
     createCommentTrigger,
@@ -203,6 +205,13 @@ const Comment = ({ post }: CommentProps) => {
     },
     false
   );
+
+  useEffect(() => {
+    inputText.current?.addEventListener('paste', handlePasteImage);
+    return () => {
+      inputText.current?.removeEventListener('paste', handlePasteImage);
+    };
+  }, []);
 
   const showTextComment = () => {
     if (post.page) {
@@ -488,6 +497,27 @@ const Comment = ({ post }: CommentProps) => {
     resetField('comment');
   };
 
+  const handlePasteImage = evt => {
+    const clipboardItems = evt.clipboardData.items;
+    const items: DataTransferItem[] | unknown[] = Array.from(clipboardItems).filter(function (item: DataTransferItem) {
+      // Filter the image items only
+      return /^image\//.test(item.type);
+    });
+    if (items.length === 0) {
+      return;
+    }
+
+    const item = items[0] as DataTransferItem;
+    const blob = item.getAsFile();
+    const blobName = blob.name ?? 'image.png';
+    const blobType = blob.type ?? 'image/png';
+    const blobLastModified = blob.lastModified ?? Date.now();
+
+    let file = new File([blob], blobName, { type: blobType, lastModified: blobLastModified });
+
+    multiUploader.current?.uploadImageFromClipboard({ file: file });
+  };
+
   return (
     <React.Fragment>
       <CommentsContainer>
@@ -507,7 +537,7 @@ const Comment = ({ post }: CommentProps) => {
         <div className="ava-ico-cmt" onClick={() => router.push(`/profile/${selectedAccount?.address}`)}>
           <AvatarUser icon={accountInfoTemp?.avatar} name={selectedAccount?.name} isMarginRight={false} />
         </div>
-        <StyledCommentContainer className="comment-container">
+        <StyledCommentContainer className="comment-container" ref={inputText}>
           <Controller
             name="comment"
             key="comment"
@@ -562,6 +592,7 @@ const Comment = ({ post }: CommentProps) => {
             <MultiUploader
               type={UPLOAD_TYPES.COMMENT}
               isIcon={true}
+              ref={multiUploader}
               icon={'/images/ico-picture.svg'}
               buttonName=" "
               buttonType="text"

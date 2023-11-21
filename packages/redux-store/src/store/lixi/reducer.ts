@@ -141,6 +141,7 @@ export const lixiReducer = createReducer(initialState, builder => {
     .addMatcher(isAnyOf(refreshLixiListSuccess, refreshLixiListSilentSuccess), (state, action) => {
       const { lixies } = action.payload;
       const lixiIds = lixies.map(lixi => lixi.id);
+      lixiesAdapter.removeAll(state);
       lixiesAdapter.upsertMany(state, lixies);
       if (lixiIds.length == 0 || !lixiIds.includes(state.selectedId as number)) {
         // The current selected lixi is not the same anymore

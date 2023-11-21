@@ -119,6 +119,12 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
     }
   });
 
+  if (!dbPost) {
+    return {
+      notFound: true
+    };
+  }
+
   const postAsString = JSON.stringify(dbPost);
 
   return {

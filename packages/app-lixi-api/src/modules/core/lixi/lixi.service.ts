@@ -2,7 +2,7 @@ import { CreateLixiCommand, fromSmallestDenomination, Lixi, LixiDto, Notificatio
 import BCHJS from '@bcpros/xpi-js';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Account as AccountDb, Prisma } from '@prisma/client';
+import { Account as AccountDb, ImageUploadableType, Prisma } from '@prisma/client';
 import { FlowJob, FlowProducer, Queue } from 'bullmq';
 import { ChronikClient } from 'chronik-client';
 import IORedis from 'ioredis';
@@ -56,13 +56,24 @@ export class LixiService {
     const encryptedXPriv = await aesGcmEncrypt(xpriv, command.password);
     const secret = await aesGcmDecrypt(account.encryptedSecret, command.mnemonic);
     const encryptedClaimCode = await aesGcmEncrypt(command.password, secret);
-    const uploadDetail = command.uploadId
-      ? await this.prisma.uploadDetail.findFirst({
+    const imageUploadable = command.uploadId
+      ? await this.prisma.imageUploadable.findFirst({
           where: {
-            uploadId: command.uploadId
+            AND: [
+              {
+                accountId: account.id
+              },
+              {
+                uploads: {
+                  every: {
+                    id: command.uploadId
+                  }
+                }
+              }
+            ]
           }
         })
-      : undefined;
+      : null;
 
     // Prepare data to insert into the database
     const data = {
@@ -79,8 +90,7 @@ export class LixiService {
       address,
       totalClaim: BigInt(0),
       envelopeId: command.envelopeId ?? null,
-      envelopeMessage: command.envelopeMessage ?? '',
-      uploadDetail: { connect: uploadDetail ? { id: uploadDetail.id } : undefined }
+      envelopeMessage: command.envelopeMessage ?? ''
     };
 
     const lixiToInsert = _.omit(data, 'password', 'staffAddress', 'charityAddress');
@@ -112,6 +122,21 @@ export class LixiService {
           undefined,
           command.mnemonic
         );
+      }
+      if (imageUploadable) {
+        await prisma.imageUploadable.update({
+          where: {
+            id: imageUploadable.id
+          },
+          data: {
+            lixi: {
+              connect: {
+                id: createdLixi.id
+              }
+            },
+            type: ImageUploadableType.LIXI
+          }
+        });
       }
       return createdLixi;
     });

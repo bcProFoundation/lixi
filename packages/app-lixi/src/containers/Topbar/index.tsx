@@ -897,7 +897,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
               onOpenChange={visible => setOpenProfileOption(visible)}
               overlayClassName={`${currentTheme === 'dark' ? 'popover-dark' : ''} account-popover`}
               arrow={false}
-              content={contentSelectAccount}
+              content={selectedAccount ? contentSelectAccount : null}
               placement="bottom"
               open={openProfileOption}
             >
@@ -909,7 +909,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
               >
                 <AvatarUser name={selectedAccount?.name || null} icon={accountInfoTemp?.avatar} isMarginRight={false} />
                 <p className="account-info">
-                  <span className="account-name">{selectedAccount?.name}</span>
+                  <span className="account-name">{selectedAccount?.name || 'Anonymous'}</span>
                   {walletHasUpdated ? (
                     <span className="account-balance">
                       {balanceAccount(selectedAccount)} <span className="unit">{currency.ticker}</span>

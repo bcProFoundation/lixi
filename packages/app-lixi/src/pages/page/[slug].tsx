@@ -89,6 +89,12 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
     }
   });
 
+  if (!dbValue) {
+    return {
+      notFound: true
+    };
+  }
+
   const page = {
     ..._.omit(dbValue, 'country', 'state'),
     avatar: toImageUrl(deliveryUrl, cfAccountHash, dbValue.avatar?.upload),
@@ -96,12 +102,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
     stateName: dbValue.state?.name || '',
     countryName: dbValue.country?.name || ''
   };
-
-  if (!page) {
-    return {
-      notFound: true
-    };
-  }
 
   const pageAsString = JSON.stringify(page);
 

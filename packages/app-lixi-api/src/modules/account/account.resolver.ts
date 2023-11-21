@@ -303,39 +303,17 @@ export class AccountResolver {
                 }
               },
               {
-                accountAvatar: {
-                  id: account.id
+                uploads: {
+                  every: {
+                    id: avatarId
+                  }
                 }
               }
             ]
           }
         });
 
-        if (!result) {
-          //if not found, create new one and connect to account and uploads
-          const imageUploadable = await prisma.imageUploadable.create({
-            data: {
-              account: {
-                connect: {
-                  id: account.id
-                }
-              },
-              uploads: {
-                connect: {
-                  id: avatarId
-                }
-              },
-              accountAvatar: {
-                connect: {
-                  id: account.id
-                }
-              },
-              type: ImageUploadableType.ACCOUNT_AVATAR
-            }
-          });
-
-          return imageUploadable;
-        } else {
+        if (result) {
           //if found, disconnect all uploads and connect new one
           await prisma.imageUploadable.update({
             where: {
@@ -357,7 +335,13 @@ export class AccountResolver {
                 connect: {
                   id: avatarId
                 }
-              }
+              },
+              accountAvatar: {
+                connect: {
+                  id: account.id
+                }
+              },
+              type: ImageUploadableType.ACCOUNT_AVATAR
             }
           });
 
@@ -379,39 +363,17 @@ export class AccountResolver {
                 }
               },
               {
-                accountCover: {
-                  id: account.id
+                uploads: {
+                  every: {
+                    id: coverId
+                  }
                 }
               }
             ]
           }
         });
 
-        if (!result) {
-          //if not found, create new one and connect to account and uploads
-          const imageUploadable = await prisma.imageUploadable.create({
-            data: {
-              account: {
-                connect: {
-                  id: account.id
-                }
-              },
-              uploads: {
-                connect: {
-                  id: coverId
-                }
-              },
-              accountCover: {
-                connect: {
-                  id: account.id
-                }
-              },
-              type: ImageUploadableType.ACCOUNT_COVER
-            }
-          });
-
-          return imageUploadable;
-        } else {
+        if (result) {
           //if found, disconnect all uploads and connect new one
           await prisma.imageUploadable.update({
             where: {
@@ -433,7 +395,13 @@ export class AccountResolver {
                 connect: {
                   id: coverId
                 }
-              }
+              },
+              accountCover: {
+                connect: {
+                  id: account.id
+                }
+              },
+              type: ImageUploadableType.ACCOUNT_COVER
             }
           });
 
