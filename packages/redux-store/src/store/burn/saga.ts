@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations */
-import { POST_TYPE, PostListType, PostsQueryTag, WORSHIP_TYPES } from '@bcpros/lixi-models/constants';
+import { POST_TYPE, PostsQueryTag, WORSHIP_TYPES } from '@bcpros/lixi-models/constants';
 import {
   Burn,
   BurnCommand,
@@ -62,7 +62,6 @@ import {
 import burnApi from './api';
 
 import { RootState } from '../store';
-import { PostType } from '@prisma/client';
 
 function* prepareBurnCommandSaga(
   action: PayloadAction<{
