@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations */
-import { PostsQueryTag, WORSHIP_TYPES } from '@bcpros/lixi-models/constants';
+import { POST_TYPE, PostListType, PostsQueryTag, WORSHIP_TYPES } from '@bcpros/lixi-models/constants';
 import {
   Burn,
   BurnCommand,
@@ -62,6 +62,7 @@ import {
 import burnApi from './api';
 
 import { RootState } from '../store';
+import { PostType } from '@prisma/client';
 
 function* prepareBurnCommandSaga(
   action: PayloadAction<{
@@ -296,14 +297,14 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
     yield put(removeBurnQueue());
     yield put(
       burnForUpDownVoteSuccess(data) &&
-        showToast('success', {
-          message: intl.get(`toast.success`),
-          description: intl.get('burn.totalBurn', {
-            burnValue: burnValue,
-            totalAmount: burnValue + burnValue * currency.burnFee + Number(minerFee),
-            coin: 'XPI'
-          })
+      showToast('success', {
+        message: intl.get(`toast.success`),
+        description: intl.get('burn.totalBurn', {
+          burnValue: burnValue,
+          totalAmount: burnValue + burnValue * currency.burnFee + Number(minerFee),
+          coin: 'XPI'
         })
+      })
     );
   } catch (err) {
     console.log(err);
@@ -361,7 +362,7 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
     yield put(
       timelineApi.util.updateQueryData('HomeTimeline', originalArgs, draft => {
         const timelineItemToUpdateIndex = draft.homeTimeline.edges.findIndex(
-          item => item.node.id === `post:${burnForId}`
+          item => item.node.id === `${POST_TYPE.POST}:${burnForId}`
         );
         const timelineItemToUpdate = draft.homeTimeline.edges[timelineItemToUpdateIndex];
         if (timelineItemToUpdateIndex >= 0) {
