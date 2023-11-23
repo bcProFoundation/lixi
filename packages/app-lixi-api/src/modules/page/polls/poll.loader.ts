@@ -4,7 +4,6 @@ import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
-import { PollDanaCacheService } from '../poll-dana-cache.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { DanaViewScoreService } from '../dana-view-score.service';
 import { FollowCacheService } from '../../account/follow-cache.service';
@@ -15,37 +14,10 @@ export default class PollLoader {
   constructor(
     private readonly prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis,
-    private readonly pollDanaCacheService: PollDanaCacheService,
     private readonly accountCacheService: AccountCacheService,
     private readonly danaViewScoreService: DanaViewScoreService,
     private readonly followCacheService: FollowCacheService
   ) {}
-
-  public readonly batchDanas = new DataLoader<string, PollDana>(async (ids: readonly string[]) => {
-    const itemIds = ids as unknown as string[];
-    const danas = await this.pollDanaCacheService.getPollDanas(itemIds);
-    const data = itemIds.map((itemId, index) => {
-      return danas[index] ?? new PollDana({});
-    });
-    return Promise.resolve(data);
-  });
-
-  public readonly batchAccounts = new DataLoader(async (accountIds: readonly number[]) => {
-    const ids = (accountIds as unknown as number[]) ?? [];
-    const accounts = await this.accountCacheService.getByIds(ids);
-    const data = accountIds.map((accountId, index) => {
-      return accounts[index] ?? new Account({ id: accountId });
-    });
-    return Promise.resolve(data);
-  });
-
-  public readonly batchDanaViewScores = new DataLoader(async (postIds: readonly string[]) => {
-    const ids = (postIds as unknown as string[]) ?? [];
-    const scores = await this.danaViewScoreService.getByIds(ids);
-    return postIds.map((postId: string, index: number) => {
-      return scores[index] || 0;
-    });
-  });
 
   public readonly batchCheckAccountFollowAllAccount = new DataLoader(
     async (items: readonly { followingAccountId?: number; accountId: number }[]) => {

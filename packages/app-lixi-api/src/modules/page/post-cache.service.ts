@@ -5,19 +5,12 @@ import { Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
 import { PrismaService } from '../prisma/prisma.service';
-import CommentableLoader from './commentable.loader';
-import PostLoader from './post.loader';
 
 export class PostCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:posts:item-data';
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly postLoader: PostLoader,
-    private readonly commentableLoader: CommentableLoader,
-    @InjectRedis() private readonly redis: Redis
-  ) {}
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
 
   async getById(id: string): Promise<Nullable<Post>> {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id);

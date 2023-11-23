@@ -9,7 +9,8 @@ import { I18n, I18nService } from 'nestjs-i18n';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import SortedSet from 'redis-sorted-set';
-import { basicInMemorySortedSetPagination } from '../../common/custom-graphql-relay/paginate';
+import { basicInMemorySortedSetPagination, basicSortedSetPagination } from '../../common/custom-graphql-relay/paginate';
+import { template } from '../../utils/stringTemplate';
 
 @Injectable()
 export class TimelineService {
@@ -18,6 +19,9 @@ export class TimelineService {
   static inNetworkSourceKey = 'timeline:innetwork:source';
   static outNetworkSourceKey = 'timeline:outnetwork:source';
   static ratioSteps = [0.1, 0.3, 0.5, 0.7, 0.9];
+  static profileTimelineKey = 'timeline:profile:{{profileId}}';
+  static pageTimelineKey = 'timeline:page:{{pageId}}';
+  static tokenTimelineKey = 'timeline:token:{{tokenId}}';
 
   constructor(
     private readonly prisma: PrismaService,
@@ -37,6 +41,7 @@ export class TimelineService {
       const posts = await this.prisma.post.findMany({
         select: {
           id: true,
+          type: true,
           accountId: true,
           createdAt: true
         },
@@ -63,8 +68,7 @@ export class TimelineService {
       const epoch = '2023-01-01 00:00:00';
       const pipeline = this.redis.pipeline();
       for (const post of posts) {
-        const id = `post:${post.id}`;
-
+        const id = `${post.type}:${post.id}`;
         const diffHour = moment.duration(moment(post.createdAt).diff(moment(epoch))).asHours();
         const score = 1 * Math.pow(2, diffHour / 12);
         pipeline.zincrby(key, score, id);
@@ -99,10 +103,11 @@ export class TimelineService {
       const pageFollowingsCondition =
         !_.isNil(pageFollowings) && !_.isEmpty(pageFollowings) ? `${Prisma.join(pageFollowings)}` : '';
 
-      const posts = await this.prisma.$queryRaw<{ id: string; score: number }[]>(
+      const posts = await this.prisma.$queryRaw<{ id: string; score: number; type: string }[]>(
         Prisma.sql`
             SELECT
               post.id,
+              post.type,
               total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
             FROM
               post 
@@ -126,7 +131,7 @@ export class TimelineService {
 
       const pipeline = this.redis.pipeline();
       for (const post of posts) {
-        const id = `post:${post.id}`;
+        const id = `${post.type}:${post.id}`;
         pipeline.zincrby(key, post.score, id);
       }
       pipeline.expire(key, 2592000);
@@ -155,10 +160,11 @@ export class TimelineService {
     const epoch = '2023-01-01 00:00:00';
     const halfLife = '12 hours';
     try {
-      const posts = await this.prisma.$queryRaw<{ id: string; score: number }[]>(
+      const posts = await this.prisma.$queryRaw<{ id: string; score: number; type: string }[]>(
         Prisma.sql`
             SELECT
               post.id,
+              post.type,
               total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
             FROM
               post 
@@ -178,7 +184,7 @@ export class TimelineService {
 
       const pipeline = this.redis.pipeline();
       for (const post of posts) {
-        const id = `post:${post.id}`;
+        const id = `${post.type}:${post.id}`;
         pipeline.zadd(key, post.score, id);
       }
       pipeline.expire(key, 2592000);
@@ -315,98 +321,267 @@ export class TimelineService {
     return basicInMemorySortedSetPagination(timelineSortedSet, first, after);
   }
 
-  async getTimelineIdsByLevel(
-    level: number,
-    accountId?: number,
-    first: number = 20,
-    after?: string
-  ): Promise<IPaginatedType<string>> {
-    if (level < 1 || level > 5) {
-      throw new Error('Level should be between 1 and 5');
+  async getPagePaginatedTimeline(pageId: string, first: number = 20, after?: string) {
+    const key = template(`${TimelineService.pageTimelineKey}`, { pageId: pageId });
+    const limit = 1000;
+    const exist = await this.redis.exists([key]);
+    if (!exist) {
+      await this.cachePageTimelineByScore(pageId, limit);
     }
-
-    const ratio = TimelineService.ratioSteps[level - 1];
-    const timelineSortedSet = new SortedSet();
-
-    const inNetworkWithScores = accountId ? (await this.getInNetwork(accountId)) || [] : [];
-    const outNetworkWithScores = await this.getOutNetwork();
-
-    const maxScoreInNetwork = inNetworkWithScores.length > 1 ? inNetworkWithScores[1] : 0;
-    const maxScoreOutNetwork = outNetworkWithScores.length > 1 ? outNetworkWithScores[1] : 0;
-
-    const inNetwork = inNetworkWithScores.filter((item, index) => index % 2 === 0);
-    const outNetwork = outNetworkWithScores.filter((item, index) => index % 2 === 0);
-
-    const timeline =
-      _.toNumber(maxScoreInNetwork) > _.toNumber(maxScoreOutNetwork)
-        ? this.mergeByRatio(_.compact(inNetwork), _.compact(outNetwork), _.round(ratio, 1))
-        : this.mergeByRatio(_.compact(outNetwork), _.compact(inNetwork), _.round(1 - ratio, 1));
-
-    let index = 0;
-    for (const id of timeline) {
-      timelineSortedSet.add(id, index);
-      index += 1;
-    }
-
-    const totalCount = timelineSortedSet.length;
-    if (after) {
-      const startOffset = timelineSortedSet.rank(after);
-      if (startOffset === null) {
-        // Cannot find cursor in the sorted set
-        return {
-          totalCount,
-          edges: [],
-          pageInfo: {
-            hasNextPage: false,
-            hasPreviousPage: true,
-            startCursor: after
-          }
-        };
-      } else {
-        const endOffset = startOffset + first;
-        const ids: string[] = await timelineSortedSet.range(startOffset + 1, startOffset + first);
-        const edges = ids.map((value, index) => {
-          return {
-            cursor: value,
-            node: value
-          };
-        });
-        const firstEdge = edges[0];
-        const lastEdge = edges[edges.length - 1];
-        return {
-          totalCount,
-          edges,
-          pageInfo: {
-            startCursor: firstEdge ? firstEdge.cursor : undefined,
-            endCursor: lastEdge ? lastEdge.cursor : undefined,
-            hasPreviousPage: true,
-            hasNextPage: endOffset < totalCount
-          }
-        };
+    const paginated = await basicSortedSetPagination(this.redis, key, first, after);
+    const hasNextPage = paginated.pageInfo.hasNextPage;
+    if (!hasNextPage) {
+      const offset = paginated.totalCount;
+      const shouldPaginate = await this.cachePageTimelineByScore(pageId, limit, offset);
+      if (shouldPaginate) {
+        return await basicSortedSetPagination(this.redis, key, first, after);
       }
-    } else {
-      // Get data from start
-      const startOffset = 0;
-      const endOffset = startOffset + first;
-      const ids: string[] = timelineSortedSet.range(startOffset, startOffset + first - 1);
-      const edges = ids.map((value, index) => {
-        return {
-          cursor: value,
-          node: value
-        };
-      });
-      const firstEdge = edges[0];
-      const lastEdge = edges[edges.length - 1];
-      return {
-        totalCount,
-        edges,
-        pageInfo: {
-          startCursor: firstEdge ? firstEdge.cursor : undefined,
-          endCursor: lastEdge ? lastEdge.cursor : undefined,
-          hasPreviousPage: true,
-          hasNextPage: endOffset < totalCount
-        }
-      };
+    }
+    // nothing change
+    return paginated;
+  }
+
+  async getTokenPaginatedTimeline(tokenId: string, first: number = 20, after?: string) {
+    const key = template(`${TimelineService.tokenTimelineKey}`, { tokenId: tokenId });
+    const limit = 1000;
+    const exist = await this.redis.exists([key]);
+    if (!exist) {
+      await this.cachePageTimelineByScore(tokenId, limit);
+    }
+    const paginated = await basicSortedSetPagination(this.redis, key, first, after);
+    const hasNextPage = paginated.pageInfo.hasNextPage;
+    if (!hasNextPage) {
+      const offset = paginated.totalCount;
+      const shouldPaginate = await this.cacheTokenTimelineByScore(tokenId, limit, offset);
+      if (shouldPaginate) {
+        return await basicSortedSetPagination(this.redis, key, first, after);
+      }
+    }
+    // nothing change
+    return paginated;
+  }
+
+  async getProfilePaginatedTimeline(profileId: number, first: number = 20, after?: string) {
+    const key = template(`${TimelineService.profileTimelineKey}`, { profileId: profileId });
+    const limit = 1000;
+    const exist = await this.redis.exists([key]);
+    if (!exist) {
+      await this.cacheProfileTimelineByScore(profileId, limit);
+    }
+    const paginated = await basicSortedSetPagination(this.redis, key, first, after);
+    const hasNextPage = paginated.pageInfo.hasNextPage;
+    if (!hasNextPage) {
+      const offset = paginated.totalCount;
+      const shouldPaginate = await this.cacheProfileTimelineByScore(profileId, limit, offset);
+      if (shouldPaginate) {
+        return await basicSortedSetPagination(this.redis, key, first, after);
+      }
+    }
+    // nothing change
+    return paginated;
+  }
+
+  private async cachePageTimelineByScore(pageId: string, limit: number = 0, offset: number = 0) {
+    const key = template(`${TimelineService.pageTimelineKey}`, { pageId: pageId });
+    const postBurnType = BurnForType.Post;
+    const epoch = '2023-01-01 00:00:00';
+    const halfLife = '12 hours';
+    const query = limit
+      ? Prisma.sql`
+      SELECT
+        post.id,
+        post.type,
+        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
+      FROM
+        post 
+        JOIN
+            burn 
+            ON post.id = burn.burned_for_id 
+      WHERE
+        burn.burn_for_type = ${postBurnType} 
+        AND burn.burned_value > 0 
+        AND post.page_id = ${pageId}
+      GROUP BY
+        post.id 
+      ORDER by
+        score desc
+      LIMIT ${limit}
+      OFFSET ${offset}
+    ;
+  `
+      : Prisma.sql`
+      SELECT
+        post.id,
+        post.type,
+        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
+      FROM
+        post 
+        JOIN
+            burn 
+            ON post.id = burn.burned_for_id 
+      WHERE
+        burn.burn_for_type = ${postBurnType} 
+        AND burn.burned_value > 0 
+        AND post.page_id = ${pageId}
+      GROUP BY
+        post.id 
+      ORDER by
+        score desc
+      OFFSET ${offset}
+      ;
+    `;
+    try {
+      const posts = await this.prisma.$queryRaw<{ id: string; score: number; type: string }[]>(query);
+
+      // Check if there are any posts
+      // If not means that we should not need to query anymore
+      if (posts.length == 0) return false;
+      const pipeline = this.redis.pipeline();
+      for (const post of posts) {
+        const id = `${post.type}:${post.id}`;
+        pipeline.zincrby(key, post.score ?? 0, id);
+      }
+      pipeline.expire(key, 2592000);
+      await pipeline.exec();
+      return true;
+    } catch (err) {
+      this.logger.error(err);
+    }
+  }
+
+  private async cacheTokenTimelineByScore(tokenId: string, limit: number = 0, offset: number = 0) {
+    const key = template(`${TimelineService.pageTimelineKey}`, { tokenId: tokenId });
+    const postBurnType = BurnForType.Post;
+    const epoch = '2023-01-01 00:00:00';
+    const halfLife = '12 hours';
+    const query = limit
+      ? Prisma.sql`
+      SELECT
+        post.id,
+        post.type,
+        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
+      FROM
+        post 
+        JOIN
+            burn 
+            ON post.id = burn.burned_for_id 
+      WHERE
+        burn.burn_for_type = ${postBurnType} 
+        AND burn.burned_value > 0 
+        AND post.token_id = ${tokenId}
+      GROUP BY
+        post.id 
+      ORDER by
+        score desc
+      LIMIT ${limit}
+      OFFSET ${offset}
+    ;
+  `
+      : Prisma.sql`
+      SELECT
+        post.id,
+        post.type,
+        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
+      FROM
+        post 
+        JOIN
+            burn 
+            ON post.id = burn.burned_for_id 
+      WHERE
+        burn.burn_for_type = ${postBurnType} 
+        AND burn.burned_value > 0 
+        AND post.token_id = ${tokenId}
+      GROUP BY
+        post.id 
+      ORDER by
+        score desc
+      OFFSET ${offset}
+      ;
+    `;
+    try {
+      const posts = await this.prisma.$queryRaw<{ id: string; score: number; type: string }[]>(query);
+
+      // Check if there are any posts
+      // If not means that we should not need to query anymore
+      if (posts.length == 0) return false;
+      const pipeline = this.redis.pipeline();
+      for (const post of posts) {
+        const id = `${post.type}:${post.id}`;
+        pipeline.zincrby(key, post.score ?? 0, id);
+      }
+      pipeline.expire(key, 2592000);
+      await pipeline.exec();
+      return true;
+    } catch (err) {
+      this.logger.error(err);
+    }
+  }
+
+  private async cacheProfileTimelineByScore(profileId: number, limit: number = 0, offset: number = 0) {
+    const key = template(`${TimelineService.profileTimelineKey}`, { profileId: profileId });
+    const postBurnType = BurnForType.Post;
+    const epoch = '2023-01-01 00:00:00';
+    const halfLife = '12 hours';
+    const query = limit
+      ? Prisma.sql`
+      SELECT
+        post.id,
+        post.type,
+        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
+      FROM
+        post 
+        JOIN
+            burn 
+            ON post.id = burn.burned_for_id 
+      WHERE
+        burn.burn_for_type = ${postBurnType} 
+        AND burn.burned_value > 0 
+        AND post.account_id = ${profileId}
+      GROUP BY
+        post.id 
+      ORDER by
+        score desc
+      LIMIT ${limit}
+      OFFSET ${offset}
+    ;
+  `
+      : Prisma.sql`
+      SELECT
+        post.id,
+        post.type,
+        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
+      FROM
+        post 
+        JOIN
+            burn 
+            ON post.id = burn.burned_for_id 
+      WHERE
+        burn.burn_for_type = ${postBurnType} 
+        AND burn.burned_value > 0 
+        AND post.account_id = ${profileId}
+      GROUP BY
+        post.id 
+      ORDER by
+        score desc
+      OFFSET ${offset}
+      ;
+    `;
+    try {
+      const posts = await this.prisma.$queryRaw<{ id: string; score: number; type: string }[]>(query);
+
+      // Check if there are any posts
+      // If not means that we should not need to query anymore
+      if (posts.length == 0) return false;
+      const pipeline = this.redis.pipeline();
+      for (const post of posts) {
+        const id = `${post.type}:${post.id}`;
+        pipeline.zincrby(key, post.score ?? 0, id);
+      }
+      pipeline.expire(key, 2592000);
+      await pipeline.exec();
+      return true;
+    } catch (err) {
+      this.logger.error(err);
     }
   }
 }

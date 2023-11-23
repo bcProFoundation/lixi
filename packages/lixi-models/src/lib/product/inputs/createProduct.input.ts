@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsOptional } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 @InputType()
 export class CreateProductInput {
   @Field(() => String, { nullable: true })
@@ -7,6 +7,22 @@ export class CreateProductInput {
 
   @Field(() => Number, { nullable: true })
   categoryId?: number;
+
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  uploads: [string];
+
+  @Field(() => String)
+  @IsNotEmpty()
+  htmlContent: string;
+
+  @Field(() => String)
+  @IsNotEmpty()
+  pureContent: string;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  createFeeHex?: Nullable<string>;
 
   @Field(() => Number)
   price: number;
@@ -25,8 +41,4 @@ export class CreateProductInput {
 
   @Field(() => String, { nullable: true })
   description: string;
-
-  @Field(() => [String], { nullable: true })
-  @IsOptional()
-  uploadImages: [string];
 }

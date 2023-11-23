@@ -13,6 +13,7 @@ import {
   PostTranslation,
   Repost,
   RepostInput,
+  Token,
   UpdatePostInput
 } from '@bcpros/lixi-models';
 import {
@@ -55,6 +56,8 @@ import { HASHTAG, POSTS } from './constants/meili.constants';
 import ImageUploadableLoader from './imageUploadable.loader';
 import { MeiliService } from './meili.service';
 import PostLoader from './post.loader';
+import { PostCacheService } from './post-cache.service';
+import TimelineableLoader from './timelineable.loader';
 
 const pubSub = new PubSub();
 
@@ -65,6 +68,7 @@ export class PostResolver {
   private logger: Logger = new Logger(this.constructor.name);
 
   constructor(
+    private readonly postCacheService: PostCacheService,
     private readonly followCacheService: FollowCacheService,
     private prisma: PrismaService,
     private meiliService: MeiliService,
@@ -78,42 +82,15 @@ export class PostResolver {
     private readonly accountCacheService: AccountCacheService,
     private readonly postLoader: PostLoader,
     private readonly commentableLoader: CommentableLoader,
-    private readonly imageUploadableLoader: ImageUploadableLoader
+    private readonly imageUploadableLoader: ImageUploadableLoader,
+    private readonly timelineableLoader: TimelineableLoader
   ) {}
 
   @SkipThrottle()
   @Query(() => Post)
   @UseGuards(GqlJwtAuthGuardByPass)
   async post(@AccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
-    const dbPost = await this.prisma.post.findUnique({
-      where: { id: id },
-      include: {
-        account: true,
-        page: true,
-        translations: true,
-        reposts: { select: { account: true, accountId: true } },
-        _count: {
-          select: { reposts: true }
-        }
-      }
-    });
-
-    if (!dbPost) return null;
-
-    const [page, reposts, danaViewScore] = await Promise.all([
-      dbPost.pageId ? this.postLoader.batchPages.load(dbPost.pageId) : Promise.resolve(null),
-      this.postLoader.batchReposts.load(dbPost.id),
-      this.postLoader.batchDanaViewScores.load(dbPost.id)
-    ]);
-
-    return new Post({
-      ...dbPost,
-      id: dbPost.id,
-      page: page ? (page as Page) : new Page({}),
-      repostCount: dbPost._count.reposts,
-      reposts: reposts ? (reposts as Repost[]) : [],
-      danaViewScore: (danaViewScore as number) || 0
-    });
+    return await this.postCacheService.getById(id);
   }
 
   @SkipThrottle()
@@ -1138,6 +1115,11 @@ export class PostResolver {
     return post?.pageId ? this.postLoader.batchPages.load(post?.pageId) : null;
   }
 
+  @ResolveField('token', () => Token)
+  async token(@Parent() post: Post) {
+    return post?.tokenId ? this.postLoader.batchPages.load(post?.tokenId) : null;
+  }
+
   @ResolveField('translations', () => [PostTranslation])
   async translations(@Parent() post: Post) {
     if (post.translations) {
@@ -1156,7 +1138,7 @@ export class PostResolver {
 
   @ResolveField('danaViewScore', () => Number)
   async danaViewScore(@Parent() post: Post) {
-    return this.postLoader.batchDanaViewScores.load(post.id);
+    return this.timelineableLoader.batchDanaViewScores.load(post.id);
   }
 
   @ResolveField('followPostOwner', () => Boolean)
@@ -1165,7 +1147,7 @@ export class PostResolver {
       followingAccountId: post?.account?.id,
       accountId: account?.id
     };
-    return this.postLoader.batchCheckAccountFollowAllAccount.load(payload);
+    return this.timelineableLoader.batchCheckAccountFollowAllAccount.load(payload);
   }
 
   @ResolveField('followedPage', () => Boolean)
@@ -1174,7 +1156,7 @@ export class PostResolver {
       pageId: post?.page?.id || '',
       accountId: account?.id
     };
-    return this.postLoader.batchCheckAccountFollowAllPage.load(payload);
+    return this.timelineableLoader.batchCheckAccountFollowAllPage.load(payload);
   }
 
   @ResolveField('followedToken', () => Boolean)
@@ -1183,11 +1165,11 @@ export class PostResolver {
       tokenId: post?.token?.tokenId || '',
       accountId: account?.id
     };
-    return this.postLoader.batchCheckAccountFollowAllToken.load(payload);
+    return this.timelineableLoader.batchCheckAccountFollowAllToken.load(payload);
   }
 
   @ResolveField('dana', () => PostDana)
   async dana(@Parent() post: Post) {
-    return this.postLoader.batchPostDanas.load(post.id);
+    return this.timelineableLoader.batchDanas.load(post.id);
   }
 }

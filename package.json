@@ -31,7 +31,7 @@
     "start:dev:api": "NODE_ENV=development lerna exec --scope @bcpros/app-lixi-api -- yarn start",
     "start:lixi-components": "lerna exec --scope @bcpros/lixi-components -- yarn start",
     "prepare": "husky install",
-    "build": "lerna run build --stream",
+    "build": "lerna run build --stream --ignore @bcpros/app-lotus-temple",
     "precommit": "lerna run --stream precommit"
   },
   "workspaces": {

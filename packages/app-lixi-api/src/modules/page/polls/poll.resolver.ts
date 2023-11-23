@@ -1,4 +1,5 @@
-import { Account, CommentType, CreatePollInput, Page, Poll, PollDana, Post } from '@bcpros/lixi-models';
+import { Account, CommentType, CreatePollInput, Page, Poll, Post } from '@bcpros/lixi-models';
+import { PostType } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Inject, Injectable, UseFilters, UseGuards } from '@nestjs/common';
@@ -19,14 +20,11 @@ import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../../auth/guards/gql-jw
 import { HashtagService } from '../../hashtag/hashtag.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { XPIJS } from '../../wallet/wallet.constants';
-import { HASHTAG, POSTS } from '../constants/meili.constants';
 import { CONTENT_FANOUT_QUEUE } from '../constants';
-import ImageUploadableLoader from '../imageUploadable.loader';
+import { HASHTAG, POSTS } from '../constants/meili.constants';
 import { MeiliService } from '../meili.service';
-import PageLoader from '../page.loader';
-import PostLoader from '../post.loader';
+import TimelineableLoader from '../timelineable.loader';
 import { PollCacheService } from './poll-cache.service';
-import PollLoader from './poll.loader';
 
 @Injectable()
 @Resolver(() => Poll)
@@ -43,9 +41,7 @@ export class PollResolver {
     private readonly hashtagService: HashtagService,
     private readonly pollCacheService: PollCacheService,
     private readonly notificationService: NotificationService,
-    private readonly pollLoader: PollLoader,
-    private readonly pageLoader: PageLoader,
-    private readonly postLoader: PostLoader,
+    private readonly timelineableLoader: TimelineableLoader,
     private readonly accountCacheService: AccountCacheService
   ) {}
 
@@ -64,7 +60,7 @@ export class PollResolver {
       throw new Error(couldNotFindAccount);
     }
 
-    const { startDate, endDate, pageId, htmlContent, pureContent, options, createFeeHex } = data;
+    const { startDate, endDate, tokenId, pageId, htmlContent, pureContent, options, createFeeHex } = data;
     let createFee: any;
 
     const savedPoll = await this.prisma.$transaction(async prisma => {
@@ -77,30 +73,39 @@ export class PollResolver {
         txid = broadcastResponse.txid;
       }
 
-      const createdPoll = await prisma.poll.create({
+      const createdPoll = await prisma.post.create({
         data: {
-          question: htmlContent,
+          content: htmlContent,
           account: { connect: { id: account.id } },
           page: {
             connect: pageId ? { id: pageId } : undefined
           },
+          token: {
+            connect: tokenId ? { id: tokenId } : undefined
+          },
           commentable: {
             create: {
-              type: CommentType.POST
+              type: CommentType.POLL
             }
           },
+          type: PostType.POLL,
           txid: txid,
           createFee: createFee,
           dana: {
             create: {}
           },
-          startDate,
-          endDate,
           taggable: {
             create: {}
           },
-          options: {
-            create: options
+          poll: {
+            create: {
+              startDate,
+              endDate,
+              options: {
+                create: options
+              },
+              question: htmlContent
+            }
           }
         },
         include: {
@@ -108,6 +113,12 @@ export class PollResolver {
             select: {
               id: true,
               address: true,
+              name: true
+            }
+          },
+          token: {
+            select: {
+              id: true,
               name: true
             }
           },
@@ -171,7 +182,7 @@ export class PollResolver {
         senderId: account.id,
         recipientId: Number(page?.pageAccountId),
         notificationTypeId: NOTIFICATION_TYPES.POST_ON_PAGE,
-        url: `/poll/${savedPoll.id}`,
+        url: `/post/${savedPoll.id}`,
         additionalData: {
           senderName: account.name,
           senderAddress: account.address,
@@ -224,12 +235,12 @@ export class PollResolver {
 
   @ResolveField('page', () => Page)
   async page(@Parent() poll: Poll) {
-    return poll?.pageId ? this.pageLoader.batchPages.load(poll?.pageId) : null;
+    return poll?.pageId ? this.timelineableLoader.batchPages.load(poll?.pageId) : null;
   }
 
   @ResolveField('danaViewScore', () => Number)
   async danaViewScore(@Parent() poll: Poll) {
-    return this.postLoader.batchDanaViewScores.load(poll.id);
+    return this.timelineableLoader.batchDanaViewScores.load(poll.id);
   }
 
   @ResolveField('followOwner', () => Boolean)
@@ -238,7 +249,7 @@ export class PollResolver {
       followingAccountId: post?.account?.id,
       accountId: account?.id
     };
-    return this.postLoader.batchCheckAccountFollowAllAccount.load(payload);
+    return this.timelineableLoader.batchCheckAccountFollowAllAccount.load(payload);
   }
 
   @ResolveField('followedPage', () => Boolean)
@@ -247,20 +258,6 @@ export class PollResolver {
       pageId: post?.page?.id || '',
       accountId: account?.id
     };
-    return this.postLoader.batchCheckAccountFollowAllPage.load(payload);
-  }
-
-  @ResolveField('followedToken', () => Boolean)
-  async followedToken(@Parent() post: Post, @AccountEntity() account: Account) {
-    const payload = {
-      tokenId: post?.token?.tokenId || '',
-      accountId: account?.id
-    };
-    return this.postLoader.batchCheckAccountFollowAllToken.load(payload);
-  }
-
-  @ResolveField('dana', () => PollDana)
-  async dana(@Parent() poll: Poll) {
-    return this.pollLoader.batchDanas.load(poll.id);
+    return this.timelineableLoader.batchCheckAccountFollowAllPage.load(payload);
   }
 }

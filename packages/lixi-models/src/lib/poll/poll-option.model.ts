@@ -5,14 +5,14 @@ export class PollOption {
   @Field(() => ID)
   id: string;
 
-  @Field(() => Number)
-  pollId: number;
+  @Field(() => String)
+  pollId: string;
 
   @Field(() => String)
   option: string;
 
-  @Field(() => Float)
-  danaPoint: number;
+  @Field(() => Float, { nullable: true })
+  danaPoint?: number;
 
   constructor(partial: Partial<PollOption>) {
     Object.assign(this, partial);

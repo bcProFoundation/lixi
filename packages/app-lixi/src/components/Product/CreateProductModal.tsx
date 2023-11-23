@@ -1,23 +1,25 @@
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import { MultiUploader } from '@components/Common/Uploader/MultiUploader';
+import { WalletContext } from '@context/walletProvider';
+import { PageQueryItem } from '@generated/index';
+import { CreateProductInput } from '@generated/types.generated';
+import useXPI from '@hooks/useXPI';
+import { getProductImageUploads, getSelectedAccount } from '@store/account/selectors';
+import { getAllCategories } from '@store/category/selectors';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { closeModal } from '@store/modal/actions';
+import { useCreateProductMutation } from '@store/product/products.generated';
+import { showToast } from '@store/toast/actions';
+import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
+import { getUtxoWif } from '@utils/cashMethods';
 import { Button, Form, Input, Modal, Select } from 'antd';
 import isEmpty from 'lodash.isempty';
-import React, { useEffect, useRef, useState } from 'react';
+import router from 'next/router';
+import React, { useRef, useState } from 'react';
 import intl from 'react-intl-universal';
-import { getPostCoverUploads, getProductImageUploads, getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { setPage } from '@store/page/action';
-import { showToast } from '@store/toast/actions';
-import { getCountries, getStates } from '@store/country/actions';
-import { CreatePageInput, CreateProductInput } from '@generated/types.generated';
-import { useCreatePageMutation } from '@store/page/pages.generated';
-import { useRouter } from 'next/router';
-import styled from 'styled-components';
-import { closeModal } from '@store/modal/actions';
-import { getAllCategories } from '@store/category/selectors';
-import { getCategories } from '@store/category/actions';
-import { MultiUploader } from '@components/Common/Uploader/MultiUploader';
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
 import Gallery from 'react-photo-gallery';
-import { useCreateProductMutation } from '@store/product/products.generated';
+import styled from 'styled-components';
+import { currency } from '../Common/Ticker';
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -99,18 +101,26 @@ const StyledEditorLexical = styled.div`
 `;
 
 type CreateProductModalProps = {
+  page?: PageQueryItem;
   accountId?: Number;
   pageId: string;
 } & React.HTMLProps<HTMLElement>;
 
 export const CreateProductModal: React.FC<CreateProductModalProps> = ({
+  page,
   accountId,
   pageId,
   disabled
 }: CreateProductModalProps) => {
   const dispatch = useAppDispatch();
+  const pathname = router.pathname ?? '';
+  const walletPaths = useAppSelector(getAllWalletPaths);
+  const Wallet = React.useContext(WalletContext);
+  const { XPI, chronik } = Wallet;
+  const { sendXpi } = useXPI();
   const selectedAccount = useAppSelector(getSelectedAccount);
   const postCoverUploads = useAppSelector(getProductImageUploads);
+  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
 
   const multiUploader = useRef(null);
   const imagesList = postCoverUploads.map(img => {
@@ -206,7 +216,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   // Only enable CreateLixi button if all form entries are valid
   let createPageFormDataIsValid = newProductName && newProductCategory;
 
-  const handleOnCreateNewPage = async () => {
+  const handleOnCreateNewProduct = async ({ htmlContent, pureContent }) => {
     if (!createPageFormDataIsValid && !selectedAccount.id) {
       dispatch(
         showToast('error', {
@@ -217,17 +227,46 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
       );
     }
 
+    let createFeeHex;
+    if (pathname.includes('/page')) {
+      try {
+        if (selectedAccount.id != page.pageAccountId && parseFloat(page.createPostFee) != 0) {
+          const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
+          createFeeHex = await sendXpi(
+            XPI,
+            chronik,
+            walletPaths,
+            slpBalancesAndUtxos.nonSlpUtxos,
+            currency.defaultFee,
+            '',
+            false, // indicate send mode is one to one
+            null,
+            page.pageAccount.address,
+            page.createPostFee,
+            true,
+            fundingWif,
+            true
+          );
+        }
+      } catch (error) {
+        throw new Error(intl.get('account.insufficientFunds'));
+      }
+    }
+
     const createProductInput: CreateProductInput = {
       name: newProductName,
       title: newProductName,
+      htmlContent: htmlContent,
+      pureContent: pureContent,
       categoryId: Number(newProductCategory),
       description: newProductDescription,
       price: Number(newProductPrice),
       phoneNumber: newProductPhoneNumber,
       priceUnit: newProductPriceUnit,
       pageId: pageId,
-      uploadImages: postCoverUploads.map(uploadImage => {
-        return uploadImage.id;
+      createFeeHex: createFeeHex,
+      uploads: postCoverUploads.map(upload => {
+        return upload.id;
       })
     };
 
@@ -280,7 +319,12 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
             <Button
               type="primary"
               htmlType="submit"
-              onClick={handleOnCreateNewPage}
+              onClick={() =>
+                handleOnCreateNewProduct({
+                  htmlContent: '',
+                  pureContent: ''
+                })
+              }
               disabled={!createPageFormDataIsValid}
             >
               {intl.get('page.createPage')}

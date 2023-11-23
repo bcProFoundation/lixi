@@ -1,7 +1,7 @@
 import { api } from './timeline.generated';
 
 const enhancedApi = api.enhanceEndpoints({
-  addTagTypes: ['HomeTimeline', 'CommentCreated'],
+  addTagTypes: ['HomeTimeline', 'ProfileTimeline', 'PageTimeline', 'TokenTimeline', 'CommentCreated'],
   endpoints: {
     HomeTimeline: {
       providesTags: ['HomeTimeline', 'CommentCreated'],
@@ -18,6 +18,51 @@ const enhancedApi = api.enhanceEndpoints({
         currentCacheData.homeTimeline.totalCount = responseData.homeTimeline.totalCount;
       }
     }
+    // ProfileTimeline: {
+    //   providesTags: ['ProfileTimeline', 'CommentCreated'],
+    //   serializeQueryArgs({ queryArgs }) {
+    //     if (queryArgs) {
+    //       const { id, ...otherArgs } = queryArgs;
+    //       return { id };
+    //     }
+    //     return { queryArgs };
+    //   },
+    //   merge(currentCacheData, responseData) {
+    //     currentCacheData.profileTimeline.edges.push(...responseData.profileTimeline.edges);
+    //     currentCacheData.profileTimeline.pageInfo = responseData.profileTimeline.pageInfo;
+    //     currentCacheData.profileTimeline.totalCount = responseData.profileTimeline.totalCount;
+    //   }
+    // },
+    // PageTimeline: {
+    //   providesTags: ['PageTimeline', 'CommentCreated'],
+    //   serializeQueryArgs({ queryArgs }) {
+    //     if (queryArgs) {
+    //       const { id, ...otherArgs } = queryArgs;
+    //       return { id };
+    //     }
+    //     return { queryArgs };
+    //   },
+    //   merge(currentCacheData, responseData) {
+    //     currentCacheData.pageTimeline.edges.push(...responseData.pageTimeline.edges);
+    //     currentCacheData.pageTimeline.pageInfo = responseData.pageTimeline.pageInfo;
+    //     currentCacheData.pageTimeline.totalCount = responseData.pageTimeline.totalCount;
+    //   }
+    // },
+    // TokenTimeline: {
+    //   providesTags: ['TokenTimeline', 'CommentCreated'],
+    //   serializeQueryArgs({ queryArgs }) {
+    //     if (queryArgs) {
+    //       const { id, ...otherArgs } = queryArgs;
+    //       return { id };
+    //     }
+    //     return { queryArgs };
+    //   },
+    //   merge(currentCacheData, responseData) {
+    //     currentCacheData.tokenTimeline.edges.push(...responseData.tokenTimeline.edges);
+    //     currentCacheData.tokenTimeline.pageInfo = responseData.tokenTimeline.pageInfo;
+    //     currentCacheData.tokenTimeline.totalCount = responseData.tokenTimeline.totalCount;
+    //   }
+    // }
   }
 });
 

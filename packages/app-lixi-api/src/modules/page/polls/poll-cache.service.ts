@@ -1,4 +1,4 @@
-import { Poll } from '@bcpros/lixi-models';
+import { Poll, PollOption } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { decode, encode } from '@msgpack/msgpack';
 import { Logger } from '@nestjs/common';
@@ -16,15 +16,26 @@ export class PollCacheService {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id);
     if (!buffer) {
       // cache miss
-      const dbValue = await this.prisma.poll.findUnique({
+      const dbValue = await this.prisma.post.findUnique({
         where: {
           id: id
+        },
+        include: {
+          poll: {
+            include: {
+              options: true
+            }
+          }
         }
       });
-      if (!dbValue) return null;
+      if (!dbValue || !dbValue.poll) return null;
 
       const item: Poll = new Poll({
-        ...dbValue
+        ...dbValue,
+        question: dbValue.poll.question,
+        startDate: dbValue.poll.startDate,
+        endDate: dbValue.poll.endDate,
+        options: dbValue.poll.options
       });
 
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(item)));
@@ -55,17 +66,30 @@ export class PollCacheService {
 
     const dbValues =
       uncachedIds.length > 0
-        ? await this.prisma.poll.findMany({
+        ? await this.prisma.post.findMany({
             where: {
               id: { in: uncachedIds }
+            },
+            include: {
+              poll: {
+                include: {
+                  options: true
+                }
+              }
             }
           })
         : [];
 
     const dbValuesMap = new Map(
       dbValues.map((dbValue, i) => {
+        if (!dbValue || !dbValue.poll) return [dbValue.id, null];
+
         const item = new Poll({
-          ...dbValue
+          ...dbValue,
+          question: dbValue.poll.question,
+          startDate: dbValue.poll.startDate,
+          endDate: dbValue.poll.endDate,
+          options: dbValue.poll.options
         });
         itemsMap.set(dbValue.id, item);
         return [dbValue.id, Buffer.from(encode(item))];

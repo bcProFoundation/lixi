@@ -3,13 +3,16 @@ import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Account } from '../account';
+import { ICommentableTo } from '../comment';
 import { Page } from '../page';
+import { ITimelineable } from '../timeline';
+import { Token } from '../token';
 
 import { PollDana } from './poll-dana.model';
 import { PollOption } from './poll-option.model';
 
 @ObjectType()
-export class Poll {
+export class Poll implements ICommentableTo, ITimelineable {
   @Field(() => ID)
   id: string;
 
@@ -29,6 +32,14 @@ export class Poll {
   @IsOptional()
   @Field(() => String, { nullable: true })
   pageId?: Nullable<string>;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  tokenId?: Nullable<string>;
+
+  @IsOptional()
+  @Field(() => Token, { nullable: true })
+  token?: Nullable<Token>;
 
   @Field(() => GraphQLDateTime)
   startDate: Date;

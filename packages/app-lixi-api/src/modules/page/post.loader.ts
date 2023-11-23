@@ -24,15 +24,6 @@ export default class PostLoader {
     private readonly postDanaCacheService: PostDanaCacheService
   ) {}
 
-  public readonly batchPostDanas = new DataLoader<string, PostDana>(async (ids: readonly string[]) => {
-    const postIds = ids as unknown as string[];
-    const danas = await this.postDanaCacheService.getPostDanas(postIds);
-    const data = postIds.map((postId, index) => {
-      return danas[index] ?? new PostDana({});
-    });
-    return Promise.resolve(data);
-  });
-
   public async getPostsUploadsByBatch(postIds: readonly string[]): Promise<(UploadDetail | any)[]> {
     const ids = postIds as unknown as string[];
     const uploadsDb = await this.prisma.uploadDetail.findMany({
@@ -172,71 +163,6 @@ export default class PostLoader {
       },
       deserialize: value => {
         return _.toSafeInteger(value);
-      }
-    }
-  );
-
-  public readonly batchDanaViewScores = new DataLoader(async (postIds: readonly string[]) => {
-    const ids = (postIds as unknown as string[]) ?? [];
-    const scores = await this.danaViewScoreService.getByIds(ids);
-    return postIds.map((postId: string, index: number) => {
-      return scores[index] || 0;
-    });
-  });
-
-  public readonly batchCheckAccountFollowAllAccount = new DataLoader(
-    async (items: readonly { followingAccountId?: number; accountId: number }[]) => {
-      const listFollowingAccountId = items.map(item => item?.followingAccountId ?? 0);
-      const listCheckAccountFollowAccount = await this.followCacheService.checkAccountFollowAllAccount(
-        items[0].accountId,
-        listFollowingAccountId
-      );
-
-      return listCheckAccountFollowAccount.map((item, index) => {
-        return !!listCheckAccountFollowAccount[index];
-      });
-    },
-    {
-      cacheKeyFn: (item: { followingAccountId?: number; accountId: number }) => {
-        return `${item.accountId}:${item.followingAccountId}`;
-      }
-    }
-  );
-
-  public readonly batchCheckAccountFollowAllPage = new DataLoader(
-    async (items: readonly { pageId?: string; accountId: number }[]) => {
-      const listPageId = items.map(item => item?.pageId ?? '');
-      const listCheckAccountFollowPage = await this.followCacheService.checkAccountFollowAllPage(
-        items[0].accountId,
-        listPageId
-      );
-
-      return listCheckAccountFollowPage.map((item, index) => {
-        return !!listCheckAccountFollowPage[index];
-      });
-    },
-    {
-      cacheKeyFn: (item: { pageId?: string; accountId: number }) => {
-        return `${item.accountId}:${item.pageId}`;
-      }
-    }
-  );
-
-  public readonly batchCheckAccountFollowAllToken = new DataLoader(
-    async (items: readonly { tokenId?: string; accountId: number }[]) => {
-      const listTokenId = items.map(item => item?.tokenId ?? '');
-      const listCheckAccountFollowToken = await this.followCacheService.checkAccountFollowAllToken(
-        items[0].accountId,
-        listTokenId
-      );
-
-      return listCheckAccountFollowToken.map((item, index) => {
-        return !!listCheckAccountFollowToken[index];
-      });
-    },
-    {
-      cacheKeyFn: (item: { tokenId?: string; accountId: number }) => {
-        return `${item.accountId}:${item.tokenId}`;
       }
     }
   );

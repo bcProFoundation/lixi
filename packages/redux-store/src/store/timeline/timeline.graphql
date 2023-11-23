@@ -43,3 +43,93 @@ query HomeTimeline(
     }
   }
 }
+
+query ProfileTimeline(
+  $after: String
+  $first: Int = 20
+  $id: Int!
+) {
+  profileTimeline(
+    after: $after
+    first: $first
+    id: $id
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        id
+        data {
+          __typename
+          ... on Post {
+            ...PostFields
+          }
+        }
+        
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
+query PageTimeline(
+  $after: String
+  $first: Int = 20
+  $id: String!
+) {
+  pageTimeline(
+    after: $after
+    first: $first
+    id: $id
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        id
+        data {
+          __typename
+          ... on Post {
+            ...PostFields
+          }
+        }
+        
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
+query TokenTimeline(
+  $after: String
+  $first: Int = 20
+  $id: String!
+) {
+  tokenTimeline(
+    after: $after
+    first: $first
+    id: $id
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        id
+        data {
+          __typename
+          ... on Post {
+            ...PostFields
+          }
+        }
+        
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}

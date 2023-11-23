@@ -1,68 +1,87 @@
-import {
-  Account,
-  CommentType,
-  CreateEventInput,
-  Event,
-  ImageUploadableType,
-  Page,
-  Poll,
-  Post
-} from '@bcpros/lixi-models';
-import { PostType } from '@bcpros/lixi-prisma';
-import BCHJS from '@bcpros/xpi-js';
-import { Inject, Injectable, UseFilters, UseGuards } from '@nestjs/common';
+import { Account, CreateProductInput, Page, Product } from '@bcpros/lixi-models';
+import { HttpException, HttpStatus, Injectable, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { SkipThrottle } from '@nestjs/throttler';
-import { ChronikClient } from 'chronik-client';
+import { PubSub } from 'graphql-subscriptions';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
-import { NotificationService } from 'src/common/modules/notifications/notification.service';
-import { AccountEntity } from 'src/decorators';
+import { AccountEntity, PageAccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import VError from 'verror';
-import { NOTIFICATION_TYPES } from '../../../common/modules/notifications/notification.constants';
-import { AccountCacheService } from '../../account/account-cache.service';
-import { FollowCacheService } from '../../account/follow-cache.service';
-import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../../auth/guards/gql-jwtauth.guard';
+import { GqlJwtAuthGuard } from '../../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../../prisma/prisma.service';
-import { XPIJS } from '../../wallet/wallet.constants';
 import TimelineableLoader from '../timelineable.loader';
-import { EventCacheService } from './event-cache.service';
+import { ProductCacheService } from './product-cache.service';
+import { CommentType, ImageUploadableType, PostType } from '@bcpros/lixi-prisma';
+import { FollowCacheService } from '../../account/follow-cache.service';
+import { NotificationService } from '../../../common/modules/notifications/notification.service';
+import { InjectChronikClient } from '../../../common/modules/chronik/chronik.decorators';
+import { ChronikClient } from 'chronik-client';
+import { AccountCacheService } from '../../account/account-cache.service';
+import { NOTIFICATION_TYPES } from '../../../common/modules/notifications/notification.constants';
+
+const pubSub = new PubSub();
 
 @Injectable()
-@Resolver(() => Event)
+@Resolver(() => Product)
 @UseFilters(GqlHttpExceptionFilter)
-export class EventResolver {
+export class ProductResolver {
   constructor(
-    private readonly followCacheService: FollowCacheService,
+    private logger: Logger,
     private prisma: PrismaService,
-    @Inject(XPIJS) private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
-    @I18n() private i18n: I18nService,
-    private readonly eventCacheService: EventCacheService,
-    private readonly timelineableLoader: TimelineableLoader,
+    private readonly followCacheService: FollowCacheService,
+    private readonly accountCacheService: AccountCacheService,
     private readonly notificationService: NotificationService,
-    private readonly accountCacheService: AccountCacheService
+    private readonly productCacheService: ProductCacheService,
+    private readonly timelineableLoader: TimelineableLoader,
+    @I18n() private i18n: I18nService
   ) {}
 
-  @SkipThrottle()
-  @Query(() => Event)
-  @UseGuards(GqlJwtAuthGuardByPass)
-  async poll(@AccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
-    return this.eventCacheService.getById(id);
+  @Query(() => Product)
+  async product(@Args('id', { type: () => String }) id: string) {
+    return this.productCacheService.getById(id);
   }
 
+  // @Query(() => ProductConnection)
+  // async allProducts(
+  //   @Args() { after, before, first, last }: PaginationArgs,
+  //   @Args({ name: 'query', type: () => String, nullable: true })
+  //   query: string,
+  //   @Args({
+  //     name: 'orderBy',
+  //     type: () => ProductOrder,
+  //     nullable: true
+  //   })
+  //   orderBy: ProductOrder
+  // ) {
+  //   const result = await findManyCursorConnection(
+  //     async args => {
+  //       const products = await this.prisma.product.findMany({
+  //         orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
+  //         ...args
+  //       });
+
+  //       const output = products.map(product => ({
+  //         ...product
+  //       }));
+  //       return output;
+  //     },
+  //     () => this.prisma.product.count(),
+  //     { first, last, before, after }
+  //   );
+  //   return result;
+  // }
+
   @UseGuards(GqlJwtAuthGuard)
-  @Mutation(() => Event)
-  async create(@AccountEntity() account: Account, @Args('data') data: CreateEventInput) {
+  @Mutation(() => Product)
+  async createProduct(@PageAccountEntity() account: Account, @Args('data') data: CreateProductInput) {
     if (!account) {
-      const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
-      throw new Error(couldNotFindAccount);
+      const couldNotFindAccount = await this.i18n.t('page.messages.couldNotFindAccount');
+      const error = new VError.WError(couldNotFindAccount);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    const { eventType, name, startDate, endDate, uploads, tokenId, pageId, htmlContent, pureContent } = data;
+    const { uploads, title, categoryId, price, priceUnit, phoneNumber, pageId, htmlContent, pureContent } = data;
     let imageUploadable;
-
     //create new imageUploadable
     if (uploads && uploads.length > 0) {
       imageUploadable = await this.prisma.$transaction(async prisma => {
@@ -74,7 +93,7 @@ export class EventResolver {
                 return { id: upload };
               })
             },
-            type: ImageUploadableType.EVENT
+            type: ImageUploadableType.PRODUCT
           }
         });
 
@@ -84,7 +103,7 @@ export class EventResolver {
 
     let createFee: any;
 
-    const savedEvent = await this.prisma.$transaction(async prisma => {
+    const savedProduct = await this.prisma.$transaction(async prisma => {
       let txid: string | undefined;
       if (data.createFeeHex) {
         const broadcastResponse = await this.chronik.broadcastTx(data.createFeeHex);
@@ -94,19 +113,16 @@ export class EventResolver {
         txid = broadcastResponse.txid;
       }
 
-      const createdEvent = await prisma.post.create({
+      const createdProduct = await prisma.post.create({
         data: {
           content: htmlContent,
           account: { connect: { id: account.id } },
           page: {
             connect: pageId ? { id: pageId } : undefined
           },
-          token: {
-            connect: tokenId ? { id: tokenId } : undefined
-          },
           commentable: {
             create: {
-              type: CommentType.EVENT
+              type: CommentType.PRODUCT
             }
           },
           txid: txid,
@@ -117,13 +133,13 @@ export class EventResolver {
           taggable: {
             create: {}
           },
-          type: PostType.EVENT,
-          event: {
+          type: PostType.PRODUCT,
+          product: {
             create: {
-              name,
-              startDate,
-              endDate,
-              eventType,
+              title,
+              price,
+              priceUnit,
+              phoneNumber,
               description: htmlContent
             }
           }
@@ -152,12 +168,12 @@ export class EventResolver {
         }
       });
 
-      return createdEvent;
+      return createdProduct;
     });
 
     let listAccountFollowerIds: number[] = [];
     // Notification
-    if (pageId && savedEvent) {
+    if (pageId && savedProduct) {
       const page = await this.prisma.page.findFirst({
         where: {
           id: pageId
@@ -179,12 +195,12 @@ export class EventResolver {
         senderId: account.id,
         recipientId: Number(page?.pageAccountId),
         notificationTypeId: NOTIFICATION_TYPES.POST_ON_PAGE,
-        url: `/post/${savedEvent.id}`,
+        url: `/product/${savedProduct.id}`,
         additionalData: {
           senderName: account.name,
           senderAddress: account.address,
           senderAvatar: account.avatar,
-          pageName: savedEvent?.page?.name
+          pageName: savedProduct?.page?.name
         }
       };
       const jobData = {
@@ -227,32 +243,32 @@ export class EventResolver {
     }
 
     // Fanout the post created
-    return savedEvent;
+    return savedProduct;
   }
 
   @ResolveField('page', () => Page)
-  async page(@Parent() poll: Poll) {
-    return poll?.pageId ? this.timelineableLoader.batchPages.load(poll?.pageId) : null;
+  async page(@Parent() product: Product) {
+    return product?.pageId ? this.timelineableLoader.batchPages.load(product?.pageId) : null;
   }
 
   @ResolveField('danaViewScore', () => Number)
-  async danaViewScore(@Parent() poll: Poll) {
-    return this.timelineableLoader.batchDanaViewScores.load(poll.id);
+  async danaViewScore(@Parent() product: Product) {
+    return this.timelineableLoader.batchDanaViewScores.load(product.id);
   }
 
   @ResolveField('followOwner', () => Boolean)
-  async followOwner(@Parent() post: Post, @AccountEntity() account: Account) {
+  async followOwner(@Parent() product: Product, @AccountEntity() account: Account) {
     const payload = {
-      followingAccountId: post?.account?.id,
+      followingAccountId: product?.account?.id,
       accountId: account?.id
     };
     return this.timelineableLoader.batchCheckAccountFollowAllAccount.load(payload);
   }
 
   @ResolveField('followedPage', () => Boolean)
-  async followedPage(@Parent() post: Post, @AccountEntity() account: Account) {
+  async followedPage(@Parent() product: Product, @AccountEntity() account: Account) {
     const payload = {
-      pageId: post?.page?.id || '',
+      pageId: product?.page?.id || '',
       accountId: account?.id
     };
     return this.timelineableLoader.batchCheckAccountFollowAllPage.load(payload);

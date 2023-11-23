@@ -68,4 +68,66 @@ export class TimelineResolver {
 
     return result;
   }
+
+  @SkipThrottle()
+  @Query(returns => TimelineItemConnection)
+  @UseFilters(GqlHttpExceptionFilter)
+  @UseGuards(GqlJwtAuthGuardByPass)
+  async profileTimeline(
+    @AccountEntity() account: Account,
+    @Args() { after, first }: BasicPaginationArgs,
+    @Args({ name: 'id', type: () => Number }) id: number
+  ) {
+    const paginated = await this.timelineService.getProfilePaginatedTimeline(id, first, after);
+    const timelineIds = paginated.edges.map(item => item.cursor);
+    const timelines = await this.timelineItemService.getByIds(timelineIds);
+
+    const result = {
+      ...paginated,
+      edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+    } as IBasicPaginated<TimelineItem>;
+    return result;
+  }
+
+  @SkipThrottle()
+  @Query(returns => TimelineItemConnection)
+  @UseFilters(GqlHttpExceptionFilter)
+  @UseGuards(GqlJwtAuthGuardByPass)
+  async pageTimeline(
+    @AccountEntity() account: Account,
+    @Args() { after, first }: BasicPaginationArgs,
+    @Args({ name: 'id', type: () => String }) id: string
+  ) {
+    const paginated = await this.timelineService.getPagePaginatedTimeline(id, first, after);
+    const timelineIds = paginated.edges.map(item => item.cursor);
+    const timelines = await this.timelineItemService.getByIds(timelineIds);
+
+    const result = {
+      ...paginated,
+      edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+    } as IBasicPaginated<TimelineItem>;
+
+    return result;
+  }
+
+  @SkipThrottle()
+  @Query(returns => TimelineItemConnection)
+  @UseFilters(GqlHttpExceptionFilter)
+  @UseGuards(GqlJwtAuthGuardByPass)
+  async tokenTimeline(
+    @AccountEntity() account: Account,
+    @Args() { after, first }: BasicPaginationArgs,
+    @Args({ name: 'id', type: () => String }) id: string
+  ) {
+    const paginated = await this.timelineService.getTokenPaginatedTimeline(id, first, after);
+    const timelineIds = paginated.edges.map(item => item.cursor);
+    const timelines = await this.timelineItemService.getByIds(timelineIds);
+
+    const result = {
+      ...paginated,
+      edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+    } as IBasicPaginated<TimelineItem>;
+
+    return result;
+  }
 }
