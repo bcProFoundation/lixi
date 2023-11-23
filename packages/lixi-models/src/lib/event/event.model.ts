@@ -3,13 +3,16 @@ import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Account } from '../account';
+import { ICommentableTo } from '../comment';
 import { ImageUploadable } from '../imageUploadable';
 import { Page } from '../page';
+import { ITimelineable } from '../timeline';
+import { Token } from '../token';
 
 import { EventDana } from './event-dana.model';
 
 @ObjectType()
-export class Event {
+export class Event implements ICommentableTo, ITimelineable {
   @Field(() => ID)
   id: string;
 
@@ -33,6 +36,14 @@ export class Event {
   @Field(() => String, { nullable: true })
   pageId?: Nullable<string>;
 
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  tokenId?: Nullable<string>;
+
+  @IsOptional()
+  @Field(() => Token, { nullable: true })
+  token?: Nullable<Token>;
+
   @Field(() => GraphQLDateTime)
   startDate: Date;
 
@@ -42,8 +53,8 @@ export class Event {
   @Field(() => String, { nullable: true })
   location?: Nullable<string>;
 
-  @Field(() => EventType)
-  eventType: EventType;
+  @Field(() => String)
+  eventType: string;
 
   @Field(() => Number, { nullable: true })
   totalComments?: Nullable<number>;
@@ -53,6 +64,9 @@ export class Event {
 
   @Field(() => ImageUploadable, { nullable: true })
   imageUploadable?: Nullable<ImageUploadable>;
+
+  @Field(() => String, { nullable: true })
+  imageUploadableId?: Nullable<string>;
 
   @Field(() => EventDana)
   dana?: Nullable<EventDana>;

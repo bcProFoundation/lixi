@@ -274,6 +274,7 @@ input CreatePollInput {
   pageId: String
   pureContent: String!
   startDate: DateTime!
+  tokenId: String
 }
 
 input CreatePostInput {
@@ -289,14 +290,17 @@ input CreatePostInput {
 
 input CreateProductInput {
   categoryId: Int
+  createFeeHex: String
   description: String
+  htmlContent: String!
   name: String
   pageId: String
   phoneNumber: String
   price: Int!
   priceUnit: String!
+  pureContent: String!
   title: String
-  uploadImages: [String!]
+  uploads: [String!]
 }
 
 input CreateTempleInput {
@@ -365,11 +369,6 @@ input DeleteFollowTokenInput {
   tokenId: String!
 }
 
-input DeleteProductInput {
-  id: ID!
-  uploadImages: [String!]
-}
-
 type DistributionModel {
   address: String!
   distributionType: String!
@@ -401,17 +400,19 @@ type Event {
   danaViewScore: Float
   description: String!
   endDate: DateTime!
-  eventType: EventType!
+  eventType: String!
   followOwner: Boolean!
   followedPage: Boolean!
-  followedToken: Boolean!
   id: ID!
   imageUploadable: ImageUploadable
+  imageUploadableId: String
   location: String
   name: String!
   page: Page
   pageId: String
   startDate: DateTime!
+  token: Token
+  tokenId: String
   totalComments: Int
 
   """Identifies the date and time when the object was last updated."""
@@ -428,12 +429,6 @@ type EventDana {
   event: Event!
   eventId: String!
   version: Int!
-}
-
-"""The type of event."""
-enum EventType {
-  PHYSICAL
-  VIRTUAL
 }
 
 input ExtraArguments {
@@ -729,7 +724,6 @@ type Mutation {
   deleteFollowAccount(data: DeleteFollowAccountInput!): Boolean!
   deleteFollowPage(data: DeleteFollowPageInput!): Boolean!
   deleteFollowToken(data: DeleteFollowTokenInput!): Boolean!
-  deleteProduct(data: DeleteProductInput!): Product!
   importAccount(data: ImportAccountInput!): Account!
   openPageMessageSession(data: OpenPageMessageSessionInput!): PageMessageSession!
   removeBookmark(data: RemoveBookmarkInput!): Bookmark!
@@ -896,13 +890,14 @@ type Poll {
   endDate: DateTime!
   followOwner: Boolean!
   followedPage: Boolean!
-  followedToken: Boolean!
   id: ID!
   options: [PollOption!]!
   page: Page
   pageId: String
   question: String!
   startDate: DateTime!
+  token: Token
+  tokenId: String
   totalComments: Int
 
   """Identifies the date and time when the object was last updated."""
@@ -922,10 +917,10 @@ type PollDana {
 }
 
 type PollOption {
-  danaPoint: Float!
+  danaPoint: Float
   id: ID!
   option: String!
-  pollId: Int!
+  pollId: String!
 }
 
 input PollOptionInput {
@@ -960,6 +955,7 @@ type Post {
   tokenId: String
   totalComments: Int!
   translations: [PostTranslation!]
+  type: String!
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
@@ -1028,32 +1024,35 @@ type PostTranslation {
 }
 
 type Product {
+  account: Account!
+  accountId: Int!
   address: String
-  categoryId: String
+  categoryId: Int
   country: Country
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   dana: ProductDana
+  danaViewScore: Int!
   description: String!
+  followOwner: Boolean!
+  followedPage: Boolean!
   id: ID!
-  imageUploadableId: String!
+  imageUploadable: ImageUploadable
+  imageUploadableId: String
   name: String!
-  page: Page!
+  page: Page
+  pageId: String
   phoneNumber: String!
   price: Int!
   priceUnit: String!
   state: State
   title: String!
+  token: Token
+  tokenId: String
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
-}
-
-type ProductConnection {
-  edges: [ProductEdge!]
-  pageInfo: PageInfo!
-  totalCount: Int
 }
 
 type ProductDana {
@@ -1071,21 +1070,6 @@ type ProductDana {
 type ProductEdge {
   cursor: String!
   node: Product!
-}
-
-input ProductOrder {
-  direction: OrderDirection!
-  field: ProductOrderField!
-}
-
-"""Properties by which page connections can be ordered."""
-enum ProductOrderField {
-  createdAt
-  id
-  lotusBurnScore
-  name
-  title
-  updatedAt
 }
 
 type Query {
@@ -1174,8 +1158,6 @@ type Query {
   ): PostConnection!
   allPostsByTokenId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
   allPostsByUserId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: [PostOrder!], skip: Int): PostConnection!
-  allProducts(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: ProductOrder, query: String, skip: Int): ProductConnection!
-  allProductsByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: ProductOrder, skip: Int): ProductConnection!
   allTemple(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: TempleOrder, skip: Int): TempleConnection!
   allTempleBySearch(
     """Paginate after opaque cursor"""
@@ -1225,14 +1207,17 @@ type Query {
   message(id: String!): Message!
   page(id: String!): Page!
   pageMessageSession(id: String!): PageMessageSession!
+  pageTimeline(after: String, first: Int, id: String!, skip: Int): TimelineItemConnection!
   pagesByFollower(after: String, first: Int, skip: Int): PageBasicConnection!
   poll(id: String!): Poll!
   post(id: String!): Post!
   product(id: String!): Product!
+  profileTimeline(after: String, first: Int, id: Int!, skip: Int): TimelineItemConnection!
   temple(id: String!): Temple!
   timeline(id: String!): TimelineItem!
   token(id: String!): Token!
   tokenByTokenId(tokenId: String!): Token!
+  tokenTimeline(after: String, first: Int, id: String!, skip: Int): TimelineItemConnection!
   userHadMessageToPage(accountId: Int, pageId: String): PageMessageSession
   worship(id: String!): Worship!
   worshipedPerson(id: String!): WorshipedPerson!

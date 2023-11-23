@@ -1,50 +1,10 @@
-import { Account, EventDana } from '@bcpros/lixi-models';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
-import { Redis } from 'ioredis';
-import { AccountCacheService } from '../../account/account-cache.service';
 import { FollowCacheService } from '../../account/follow-cache.service';
-import { PrismaService } from '../../prisma/prisma.service';
-import { DanaViewScoreService } from '../dana-view-score.service';
-import { EventDanaCacheService } from '../event-dana-cache.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class EventLoader {
-  constructor(
-    private readonly prisma: PrismaService,
-    @InjectRedis() private readonly redis: Redis,
-    private readonly eventDanaCacheService: EventDanaCacheService,
-    private readonly accountCacheService: AccountCacheService,
-    private readonly danaViewScoreService: DanaViewScoreService,
-    private readonly followCacheService: FollowCacheService
-  ) {}
-
-  public readonly batchDanas = new DataLoader<string, EventDana>(async (ids: readonly string[]) => {
-    const itemIds = ids as unknown as string[];
-    const danas = await this.eventDanaCacheService.getEventDanas(itemIds);
-    const data = itemIds.map((itemId, index) => {
-      return danas[index] ?? new EventDana({});
-    });
-    return Promise.resolve(data);
-  });
-
-  public readonly batchAccounts = new DataLoader(async (accountIds: readonly number[]) => {
-    const ids = (accountIds as unknown as number[]) ?? [];
-    const accounts = await this.accountCacheService.getByIds(ids);
-    const data = accountIds.map((accountId, index) => {
-      return accounts[index] ?? new Account({ id: accountId });
-    });
-    return Promise.resolve(data);
-  });
-
-  public readonly batchDanaViewScores = new DataLoader(async (postIds: readonly string[]) => {
-    const ids = (postIds as unknown as string[]) ?? [];
-    const scores = await this.danaViewScoreService.getByIds(ids);
-    return postIds.map((postId: string, index: number) => {
-      return scores[index] || 0;
-    });
-  });
+  constructor(private readonly followCacheService: FollowCacheService) {}
 
   public readonly batchCheckAccountFollowAllAccount = new DataLoader(
     async (items: readonly { followingAccountId?: number; accountId: number }[]) => {

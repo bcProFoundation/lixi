@@ -7,15 +7,19 @@ import { ICommentableTo } from '../comment';
 import { PostHashtag } from '../hashtag/postHashtag.model';
 import { ImageUploadable } from '../imageUploadable';
 import { Page } from '../page';
+import { ITimelineable } from '../timeline';
 import { Token } from '../token';
 
 import { PostDana } from './post-dana.model';
 import { Repost } from './repost.model';
 
 @ObjectType()
-export class Post implements ICommentableTo {
+export class Post implements ICommentableTo, ITimelineable {
   @Field(() => ID)
   id: string;
+
+  @Field(() => String)
+  type: string;
 
   @Field(() => String)
   content: string;

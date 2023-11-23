@@ -3,34 +3,26 @@ import {
   BasicPaginationArgs,
   CreateTokenInput,
   IBasicPaginated,
-  OrderDirection,
   Token,
   TokenConnection,
-  TokenDana,
-  TokenOrder,
-  TokenOrderField
+  TokenDana
 } from '@bcpros/lixi-models';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { ChronikClient } from 'chronik-client';
-import { Redis } from 'ioredis';
 import moment from 'moment';
 import { I18n, I18nContext, I18nService } from 'nestjs-i18n';
-import { connectionFromArraySlice } from 'src/common/custom-graphql-relay/arrayConnection';
 import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
-import SortedItemRepository from 'src/common/redis/sorted-repository';
 import { AccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from 'src/modules/auth/guards/gql-jwtauth.guard';
 import VError from 'verror';
-import { FollowCacheService } from '../account/follow-cache.service';
+import { createEdge } from '../../common/custom-graphql-relay/paginate';
 import { PrismaService } from '../prisma/prisma.service';
-import TokenLoader from './token.loader';
 import { TokenCacheService } from './token-cache.service';
 import { TokenTimelineCacheService } from './token-timeline-cache.service';
-import { createEdge } from '../../common/custom-graphql-relay/paginate';
+import TokenLoader from './token.loader';
 
 @SkipThrottle()
 @Resolver(() => Token)
@@ -43,8 +35,6 @@ export class TokenResolver {
     private readonly tokenCacheService: TokenCacheService,
     private readonly tokenTimelineCacheService: TokenTimelineCacheService,
     private readonly tokenLoader: TokenLoader,
-    private readonly followCacheService: FollowCacheService,
-    @InjectRedis() private readonly redis: Redis,
     @I18n() private readonly i18n: I18nService,
     @InjectChronikClient('xec') private chronik: ChronikClient
   ) {}

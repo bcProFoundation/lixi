@@ -1,12 +1,8 @@
 import { Post, TimelineItem, TimelineItemData } from '@bcpros/lixi-models';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { PostType } from '@bcpros/lixi-prisma';
 import { Injectable, Logger } from '@nestjs/common';
-import { Redis } from 'ioredis';
 import _ from 'lodash';
-import { I18n, I18nService } from 'nestjs-i18n';
-import { FollowCacheService } from '../account/follow-cache.service';
 import { PostCacheService } from '../page/post-cache.service';
-import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class TimelineItemService {
@@ -18,7 +14,7 @@ export class TimelineItemService {
     const parts = id.split(':');
     const type = parts[0];
     switch (type) {
-      case 'post':
+      case PostType.POST:
       default:
         const post = await this.postCacheService.getById(id);
         if (!post) return null;
@@ -43,11 +39,11 @@ export class TimelineItemService {
     const groups = _.groupBy(objIds, 'type');
     for (const group of _.keys(groups)) {
       switch (group) {
-        case 'post':
+        case PostType.POST:
           const posts = await this.postCacheService.getByIds(_.map(groups[group], 'id'));
           for (const post of posts) {
             if (post) {
-              itemsMap.set(`post:${post.id}`, post);
+              itemsMap.set(`${PostType.POST}:${post.id}`, post);
             }
           }
         default:

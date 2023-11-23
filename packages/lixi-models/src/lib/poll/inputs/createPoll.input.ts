@@ -25,6 +25,10 @@ export class CreatePollInput {
   @Field(() => String, { nullable: true })
   pageId?: Nullable<string>;
 
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  tokenId?: Nullable<string>;
+
   @Field(() => GraphQLDateTime)
   startDate: Date;
 

@@ -298,6 +298,7 @@ export type CreatePollInput = {
   pageId?: InputMaybe<Scalars['String']>;
   pureContent: Scalars['String'];
   startDate: Scalars['DateTime'];
+  tokenId?: InputMaybe<Scalars['String']>;
 };
 
 export type CreatePostInput = {
@@ -313,14 +314,17 @@ export type CreatePostInput = {
 
 export type CreateProductInput = {
   categoryId?: InputMaybe<Scalars['Int']>;
+  createFeeHex?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
+  htmlContent: Scalars['String'];
   name?: InputMaybe<Scalars['String']>;
   pageId?: InputMaybe<Scalars['String']>;
   phoneNumber?: InputMaybe<Scalars['String']>;
   price: Scalars['Int'];
   priceUnit: Scalars['String'];
+  pureContent: Scalars['String'];
   title?: InputMaybe<Scalars['String']>;
-  uploadImages?: InputMaybe<Array<Scalars['String']>>;
+  uploads?: InputMaybe<Array<Scalars['String']>>;
 };
 
 export type CreateTempleInput = {
@@ -381,11 +385,6 @@ export type DeleteFollowTokenInput = {
   tokenId: Scalars['String'];
 };
 
-export type DeleteProductInput = {
-  id: Scalars['ID'];
-  uploadImages?: InputMaybe<Array<Scalars['String']>>;
-};
-
 export type DistributionModel = {
   __typename?: 'DistributionModel';
   address: Scalars['String'];
@@ -418,17 +417,19 @@ export type Event = {
   danaViewScore?: Maybe<Scalars['Float']>;
   description: Scalars['String'];
   endDate: Scalars['DateTime'];
-  eventType: EventType;
+  eventType: Scalars['String'];
   followOwner: Scalars['Boolean'];
   followedPage: Scalars['Boolean'];
-  followedToken: Scalars['Boolean'];
   id: Scalars['ID'];
   imageUploadable?: Maybe<ImageUploadable>;
+  imageUploadableId?: Maybe<Scalars['String']>;
   location?: Maybe<Scalars['String']>;
   name: Scalars['String'];
   page?: Maybe<Page>;
   pageId?: Maybe<Scalars['String']>;
   startDate: Scalars['DateTime'];
+  token?: Maybe<Token>;
+  tokenId?: Maybe<Scalars['String']>;
   totalComments?: Maybe<Scalars['Int']>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
@@ -446,12 +447,6 @@ export type EventDana = {
   eventId: Scalars['String'];
   version: Scalars['Int'];
 };
-
-/** The type of event. */
-export enum EventType {
-  Physical = 'PHYSICAL',
-  Virtual = 'VIRTUAL'
-}
 
 export type ExtraArguments = {
   hashtagId?: InputMaybe<Scalars['String']>;
@@ -751,7 +746,6 @@ export type Mutation = {
   deleteFollowAccount: Scalars['Boolean'];
   deleteFollowPage: Scalars['Boolean'];
   deleteFollowToken: Scalars['Boolean'];
-  deleteProduct: Product;
   importAccount: Account;
   openPageMessageSession: PageMessageSession;
   removeBookmark: Bookmark;
@@ -843,10 +837,6 @@ export type MutationDeleteFollowPageArgs = {
 
 export type MutationDeleteFollowTokenArgs = {
   data: DeleteFollowTokenInput;
-};
-
-export type MutationDeleteProductArgs = {
-  data: DeleteProductInput;
 };
 
 export type MutationImportAccountArgs = {
@@ -1034,13 +1024,14 @@ export type Poll = {
   endDate: Scalars['DateTime'];
   followOwner: Scalars['Boolean'];
   followedPage: Scalars['Boolean'];
-  followedToken: Scalars['Boolean'];
   id: Scalars['ID'];
   options: Array<PollOption>;
   page?: Maybe<Page>;
   pageId?: Maybe<Scalars['String']>;
   question: Scalars['String'];
   startDate: Scalars['DateTime'];
+  token?: Maybe<Token>;
+  tokenId?: Maybe<Scalars['String']>;
   totalComments?: Maybe<Scalars['Int']>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
@@ -1061,10 +1052,10 @@ export type PollDana = {
 
 export type PollOption = {
   __typename?: 'PollOption';
-  danaPoint: Scalars['Float'];
+  danaPoint?: Maybe<Scalars['Float']>;
   id: Scalars['ID'];
   option: Scalars['String'];
-  pollId: Scalars['Int'];
+  pollId: Scalars['String'];
 };
 
 export type PollOptionInput = {
@@ -1099,6 +1090,7 @@ export type Post = {
   tokenId?: Maybe<Scalars['String']>;
   totalComments: Scalars['Int'];
   translations?: Maybe<Array<PostTranslation>>;
+  type: Scalars['String'];
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
 };
@@ -1170,31 +1162,33 @@ export type PostTranslation = {
 
 export type Product = {
   __typename?: 'Product';
+  account: Account;
+  accountId: Scalars['Int'];
   address?: Maybe<Scalars['String']>;
-  categoryId?: Maybe<Scalars['String']>;
+  categoryId?: Maybe<Scalars['Int']>;
   country?: Maybe<Country>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime'];
   dana?: Maybe<ProductDana>;
+  danaViewScore: Scalars['Int'];
   description: Scalars['String'];
+  followOwner: Scalars['Boolean'];
+  followedPage: Scalars['Boolean'];
   id: Scalars['ID'];
-  imageUploadableId: Scalars['String'];
+  imageUploadable?: Maybe<ImageUploadable>;
+  imageUploadableId?: Maybe<Scalars['String']>;
   name: Scalars['String'];
-  page: Page;
+  page?: Maybe<Page>;
+  pageId?: Maybe<Scalars['String']>;
   phoneNumber: Scalars['String'];
   price: Scalars['Int'];
   priceUnit: Scalars['String'];
   state?: Maybe<State>;
   title: Scalars['String'];
+  token?: Maybe<Token>;
+  tokenId?: Maybe<Scalars['String']>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
-};
-
-export type ProductConnection = {
-  __typename?: 'ProductConnection';
-  edges?: Maybe<Array<ProductEdge>>;
-  pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
 };
 
 export type ProductDana = {
@@ -1215,21 +1209,6 @@ export type ProductEdge = {
   cursor: Scalars['String'];
   node: Product;
 };
-
-export type ProductOrder = {
-  direction: OrderDirection;
-  field: ProductOrderField;
-};
-
-/** Properties by which page connections can be ordered. */
-export enum ProductOrderField {
-  CreatedAt = 'createdAt',
-  Id = 'id',
-  LotusBurnScore = 'lotusBurnScore',
-  Name = 'name',
-  Title = 'title',
-  UpdatedAt = 'updatedAt'
-}
 
 export type Query = {
   __typename?: 'Query';
@@ -1257,8 +1236,6 @@ export type Query = {
   allPostsBySearchWithHashtagAtToken: PostConnection;
   allPostsByTokenId: PostConnection;
   allPostsByUserId: PostConnection;
-  allProducts: ProductConnection;
-  allProductsByPageId: ProductConnection;
   allTemple: TempleConnection;
   allTempleBySearch: TempleConnection;
   allTokens: TokenConnection;
@@ -1282,14 +1259,17 @@ export type Query = {
   message: Message;
   page: Page;
   pageMessageSession: PageMessageSession;
+  pageTimeline: TimelineItemConnection;
   pagesByFollower: PageBasicConnection;
   poll: Poll;
   post: Post;
   product: Product;
+  profileTimeline: TimelineItemConnection;
   temple: Temple;
   timeline: TimelineItem;
   token: Token;
   tokenByTokenId: Token;
+  tokenTimeline: TimelineItemConnection;
   userHadMessageToPage?: Maybe<PageMessageSession>;
   worship: Worship;
   worshipedPerson: WorshipedPerson;
@@ -1545,28 +1525,6 @@ export type QueryAllPostsByUserIdArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
-export type QueryAllProductsArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<ProductOrder>;
-  query?: InputMaybe<Scalars['String']>;
-  skip?: InputMaybe<Scalars['Int']>;
-};
-
-export type QueryAllProductsByPageIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<ProductOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
-};
-
 export type QueryAllTempleArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -1723,6 +1681,13 @@ export type QueryPageMessageSessionArgs = {
   id: Scalars['String'];
 };
 
+export type QueryPageTimelineArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  id: Scalars['String'];
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
 export type QueryPagesByFollowerArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -1741,6 +1706,13 @@ export type QueryProductArgs = {
   id: Scalars['String'];
 };
 
+export type QueryProfileTimelineArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  id: Scalars['Int'];
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
 export type QueryTempleArgs = {
   id: Scalars['String'];
 };
@@ -1755,6 +1727,13 @@ export type QueryTokenArgs = {
 
 export type QueryTokenByTokenIdArgs = {
   tokenId: Scalars['String'];
+};
+
+export type QueryTokenTimelineArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  id: Scalars['String'];
+  skip?: InputMaybe<Scalars['Int']>;
 };
 
 export type QueryUserHadMessageToPageArgs = {

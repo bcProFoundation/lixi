@@ -7,69 +7,6 @@ query Product($id: String!) {
   }
 }
 
-query Products(
-  $after: String
-  $before: String
-  $first: Int = 20
-  $last: Int
-  $orderBy: ProductOrder
-  $query: String
-  $skip: Int
-) {
-  allProducts(
-    after: $after
-    before: $before
-    first: $first
-    last: $last
-    orderBy: $orderBy
-    query: $query
-    skip: $skip
-  ) {
-    totalCount
-    edges {
-      cursor
-      node {
-        ...ProductFields
-      }
-    }
-    pageInfo {
-      ...PageInfoFields
-    }
-  }
-}
-
-query ProductsByPageId(
-  $after: String
-  $before: String
-  $first: Int = 20
-  $last: Int
-  $orderBy: ProductOrder
-  $id: String
-  $skip: Int
-  $minBurnFilter: Int
-) {
-  allProductsByPageId(
-    after: $after
-    before: $before
-    first: $first
-    last: $last
-    orderBy: $orderBy
-    id: $id
-    skip: $skip
-    minBurnFilter: $minBurnFilter
-  ) {
-    totalCount
-    edges {
-      cursor
-      node {
-        ...ProductFields
-      }
-    }
-    pageInfo {
-      ...PageInfoFields
-    }
-  }
-}
 
 fragment ProductFields on Product {
   id
@@ -96,9 +33,3 @@ mutation createProduct($input: CreateProductInput!) {
   }
 }
 
-
-mutation deleteProduct($input: DeleteProductInput!) {
-  deleteProduct(data: $input) {
-    ...ProductFields
-  }
-}

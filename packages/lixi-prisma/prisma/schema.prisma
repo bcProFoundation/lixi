@@ -113,9 +113,6 @@ model Page {
   dana                        PageDana?
   posts                       Post[]
   followers                   FollowPage[]
-  events                      Event[]
-  polls                       Poll[]
-  products                    Product[]
 
   @@index([pageAccountId])
   @@map("page")
@@ -166,7 +163,11 @@ model Post {
   taggable          Taggable?         @relation(fields: [taggableId], references: [id])
   imageUploadable   ImageUploadable?  @relation("post_image_uploadable", fields: [imageUploadableId], references: [id])
   imageUploadableId String?           @unique @map("post_image_uploadable_id")
+  type              PostType          @default(value: POST) @map("type")
   dana              PostDana?
+  event             Event?
+  poll              Poll?
+  product           Product?
 
   @@index([commentableId])
   @@index([accountId])
@@ -189,6 +190,15 @@ model PostDana {
   @@map("post_dana")
 }
 
+enum PostType {
+  POST
+  EVENT
+  POLL
+  PRODUCT
+
+  @@map("post_type")
+}
+
 enum CommentType {
   POST
   EVENT
@@ -203,9 +213,6 @@ model Commentable {
   type     CommentType @default(value: POST) @map("type")
   comments Comment[]
   post     Post?
-  event    Event?
-  poll     Poll?
-  product  Product?
 
   @@map("commentable")
 }
@@ -292,10 +299,8 @@ model Account {
   accountCoverImageUploadable    ImageUploadable?      @relation("account_cover_image_uploadable", fields: [accountCoverImageUploadableId], references: [id])
   accountCoverImageUploadableId  String?               @unique @map("account_cover_image_uploadable_id")
   bookmarks                      Bookmark[]
-  events                         Event[]
-  pollAnswers                    PollAnswerOnAccount[]
   imageUploadable                ImageUploadable[]
-  Poll                           Poll[]
+  PollAnswerOnAccount            PollAnswerOnAccount[]
 
   @@index([mnemonicHash], type: Hash)
   @@map("account")
@@ -679,12 +684,9 @@ model ImageUploadable {
   accountId     Int                  @map("account_id")
   uploads       Upload[]
   post          Post?                @relation("post_image_uploadable")
-  product       Product?             @relation("product_image_uploadable")
   lixi          Lixi?                @relation("lixi_image_uploadable")
   comment       Comment?             @relation("comment_image_uploadable")
   message       Message?             @relation("message_image_uploadable")
-  event         Event?               @relation("event_image_uploadable")
-  poll          Poll?                @relation("poll_image_uploadable")
   pageAvatar    Page?                @relation("page_avatar_image_uploadable")
   pageCover     Page?                @relation("page_cover_image_uploadable")
   accountAvatar Account?             @relation("account_avatar_image_uploadable")
@@ -916,12 +918,9 @@ model PostHashtag {
 }
 
 model Taggable {
-  id       String    @id @default(cuid())
-  tagSet   TagSet[]
-  posts    Post[]
-  polls    Poll[]
-  products Product[]
-  events   Event[]
+  id     String   @id @default(cuid())
+  tagSet TagSet[]
+  posts  Post[]
 
   @@map("taggable")
 }
@@ -1089,9 +1088,6 @@ model Bookmarkable {
   type      BookmarkType
   bookmarks Bookmark[]
   posts     Post[]
-  products  Product[]
-  polls     Poll[]
-  events    Event[]
 
   @@map("bookmarkable")
 }
@@ -1114,34 +1110,16 @@ model Bookmark {
 }
 
 model Event {
-  id                String           @id @default(cuid())
-  account           Account          @relation(fields: [accountId], references: [id])
-  accountId         Int              @map("account_id")
-  name              String
-  description       String?
-  page              Page?            @relation(fields: [pageId], references: [id])
-  pageId            String?          @map("page_id")
-  startDate         DateTime         @map("start_date") @db.Timestamptz
-  endDate           DateTime         @map("end_date") @db.Timestamptz
-  location          String?
-  createFee         Float?           @map("create_fee")
-  txid              String?
-  commentableId     String?          @unique @map("commentable_id")
-  commentable       Commentable?     @relation(fields: [commentableId], references: [id])
-  bookmarkableId    String?          @map("bookmarkable_id")
-  bookmarkable      Bookmarkable?    @relation(fields: [bookmarkableId], references: [id])
-  taggableId        String
-  taggable          Taggable         @relation(fields: [taggableId], references: [id])
-  eventType         EventType // Add this field to specify event type (virtual or physical)
-  dana              EventDana?
-  imageUploadable   ImageUploadable? @relation("event_image_uploadable", fields: [imageUploadableId], references: [id])
-  imageUploadableId String?          @unique @map("event_image_uploadable_id")
-  createdAt         DateTime         @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt         DateTime         @default(now()) @map("updated_at") @db.Timestamptz
+  post        Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId      String    @unique
+  name        String
+  description String?
+  startDate   DateTime  @map("start_date") @db.Timestamptz
+  endDate     DateTime  @map("end_date") @db.Timestamptz
+  location    String?
+  eventType   EventType // Add this field to specify event type (virtual or physical)
 
-  @@index([commentableId])
-  @@index([accountId])
-  @@index([pageId])
+  @@index([postId])
   @@map("event")
 }
 
@@ -1150,24 +1128,9 @@ enum EventType {
   PHYSICAL
 }
 
-model EventDana {
-  danaReceivedUp    Float  @default(0.0) @map("dana_received_up")
-  danaReceivedDown  Float  @default(0.0) @map("dana_received_down")
-  danaReceivedScore Float  @default(0.0) @map("dana_received_score")
-  danaBurnUp        Float  @default(0.0) @map("dana_burn_up")
-  danaBurnDown      Float  @default(0.0) @map("dana_burn_down")
-  danaBurnScore     Float  @default(0.0) @map("dana_burn_score")
-  event             Event  @relation(fields: [eventId], references: [id])
-  eventId           String @unique @map("event_id")
-  version           Int    @default(0)
-
-  @@index([eventId])
-  @@map("event_dana")
-}
-
 model PollOption {
   id                  String                @id @default(cuid())
-  poll                Poll                  @relation(fields: [pollId], references: [id])
+  poll                Poll                  @relation(fields: [pollId], references: [postId])
   pollId              String                @map("poll_id")
   option              String
   PollAnswerOnAccount PollAnswerOnAccount[]
@@ -1188,94 +1151,33 @@ model PollAnswerOnAccount {
 }
 
 model Poll {
-  id                String           @id @default(cuid())
-  question          String
-  account           Account          @relation(fields: [accountId], references: [id])
-  accountId         Int              @map("account_id")
-  page              Page?            @relation(fields: [pageId], references: [id])
-  pageId            String?          @map("page_id")
-  options           PollOption[] // Reference to the PollOption model
-  startDate         DateTime         @map("start_date") @db.Timestamptz
-  endDate           DateTime         @map("end_date") @db.Timestamptz
-  createFee         Float?           @map("create_fee")
-  txid              String?
-  dana              PollDana?
-  commentableId     String?          @unique @map("commentable_id")
-  commentable       Commentable?     @relation(fields: [commentableId], references: [id])
-  bookmarkableId    String?          @map("bookmarkable_id")
-  bookmarkable      Bookmarkable?    @relation(fields: [bookmarkableId], references: [id])
-  taggableId        String?
-  taggable          Taggable?        @relation(fields: [taggableId], references: [id])
-  imageUploadable   ImageUploadable? @relation("poll_image_uploadable", fields: [imageUploadableId], references: [id])
-  imageUploadableId String?          @unique @map("poll_image_uploadable_id")
-  createdAt         DateTime         @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt         DateTime         @default(now()) @map("updated_at") @db.Timestamptz
+  post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String       @unique
+  question  String
+  options   PollOption[] // Reference to the PollOption model
+  startDate DateTime     @map("start_date") @db.Timestamptz
+  endDate   DateTime     @map("end_date") @db.Timestamptz
 
-  @@index([commentableId])
-  @@index([accountId])
-  @@index([pageId])
+  @@index([postId])
   @@map("poll")
 }
 
-model PollDana {
-  danaReceivedUp    Float  @default(0.0) @map("dana_received_up")
-  danaReceivedDown  Float  @default(0.0) @map("dana_received_down")
-  danaReceivedScore Float  @default(0.0) @map("dana_received_score")
-  danaBurnUp        Float  @default(0.0) @map("dana_burn_up")
-  danaBurnDown      Float  @default(0.0) @map("dana_burn_down")
-  danaBurnScore     Float  @default(0.0) @map("dana_burn_score")
-  poll              Poll   @relation(fields: [pollId], references: [id])
-  pollId            String @unique @map("poll_id")
-  version           Int    @default(0)
-
-  @@index([pollId])
-  @@map("poll_dana")
-}
-
 model Product {
-  id                String          @id @default(cuid())
-  page              Page            @relation(fields: [pageId], references: [id])
-  pageId            String          @map("page_id")
-  title             String          @default("") @map("title") @db.VarChar(255)
-  price             Float           @default(0.0) @map("price")
-  priceUnit         String          @default("VND") @map("price_unit")
-  phoneNumber       String          @default("") @map("phone_number")
-  category          Category?       @relation(fields: [categoryId], references: [id])
-  categoryId        Int?            @map("category_id")
-  description       String          @default("") @map("description") @db.VarChar(1000)
-  country           Country?        @relation(fields: [countryId], references: [id])
-  countryId         Int?            @map("country_id")
-  state             State?          @relation(fields: [stateId], references: [id])
-  stateId           Int?            @map("state_id")
-  address           String?         @default("") @map("address")
-  createFee         Float?          @map("create_fee")
-  txid              String?
-  commentableId     String?         @unique @map("commentable_id")
-  commentable       Commentable?    @relation(fields: [commentableId], references: [id])
-  bookmarkableId    String?         @map("bookmarkable_id")
-  bookmarkable      Bookmarkable?   @relation(fields: [bookmarkableId], references: [id])
-  taggableId        String?
-  taggable          Taggable?       @relation(fields: [taggableId], references: [id])
-  createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt         DateTime        @default(now()) @map("updated_at") @db.Timestamptz
-  imageUploadable   ImageUploadable @relation("product_image_uploadable", fields: [imageUploadableId], references: [id])
-  imageUploadableId String          @unique @map("product_image_uploadable_id")
-  dana              ProductDana?
+  post        Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId      String    @unique
+  title       String    @default("") @map("title") @db.VarChar(255)
+  price       Float     @default(0.0) @map("price")
+  priceUnit   String    @default("VND") @map("price_unit")
+  phoneNumber String    @default("") @map("phone_number")
+  category    Category? @relation(fields: [categoryId], references: [id])
+  categoryId  Int?      @map("category_id")
+  description String    @default("") @map("description") @db.VarChar(1000)
+  country     Country?  @relation(fields: [countryId], references: [id])
+  countryId   Int?      @map("country_id")
+  state       State?    @relation(fields: [stateId], references: [id])
+  stateId     Int?      @map("state_id")
+  address     String?   @default("") @map("address")
 
+  @@index([postId])
   @@map("product")
-}
-
-model ProductDana {
-  danaReceivedUp    Float   @default(0.0) @map("dana_received_up")
-  danaReceivedDown  Float   @default(0.0) @map("dana_received_down")
-  danaReceivedScore Float   @default(0.0) @map("dana_received_score")
-  danaBurnUp        Float   @default(0.0) @map("dana_burn_up")
-  danaBurnDown      Float   @default(0.0) @map("dana_burn_down")
-  danaBurnScore     Float   @default(0.0) @map("dana_burn_score")
-  product           Product @relation(fields: [productId], references: [id])
-  productId         String  @unique @map("poll_id")
-  version           Int     @default(0)
-
-  @@index([productId])
-  @@map("product_dana")
 }

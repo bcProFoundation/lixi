@@ -30,12 +30,13 @@ import ImageUploadableLoader from './imageUploadable.loader';
 import CommentLoader from './comment.loader';
 import { EventCacheService } from './events/event-cache.service';
 import { PollCacheService } from './polls/poll-cache.service';
-import { EventDanaCacheService } from './event-dana-cache.service';
-import { PollDanaCacheService } from './poll-dana-cache.service';
 import { EventResolver } from './events/event.resolver';
 import { PollResolver } from './polls/poll.resolver';
 import PollLoader from './polls/poll.loader';
 import EventLoader from './events/event.loader';
+import { ProductResolver } from './products/product.resolver';
+import TimelineableLoader from './timelineable.loader';
+import { ProductCacheService } from './products/product-cache.service';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import EventLoader from './events/event.loader';
     PostResolver,
     EventResolver,
     PollResolver,
+    ProductResolver,
     MeiliService,
     CommentResolver,
     NotificationService,
@@ -81,9 +83,8 @@ import EventLoader from './events/event.loader';
     PostCacheService,
     EventCacheService,
     PollCacheService,
+    ProductCacheService,
     PostDanaCacheService,
-    EventDanaCacheService,
-    PollDanaCacheService,
     PollLoader,
     EventLoader,
     CommentCacheService,
@@ -91,7 +92,8 @@ import EventLoader from './events/event.loader';
     CommentableLoader,
     ImageUploadableLoader,
     CommentLoader,
-    CommentableLoader
+    CommentableLoader,
+    TimelineableLoader
   ],
   exports: [
     MeiliService,

@@ -28,7 +28,6 @@ import { CoreModule } from './modules/core/core.module';
 import { HashtagModule } from './modules/hashtag/hashtag.module';
 import { MessageModule } from './modules/message/message.module';
 import { PageModule } from './modules/page/page.module';
-import { ProductModule } from './modules/product/product.module';
 import { WorshipModule } from './modules/worship/worship.module';
 import { TempleModule } from './modules/temple/temple.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
@@ -155,7 +154,6 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
     CoreModule,
     NotificationModule,
     AccountModule,
-    ProductModule,
     PageModule,
     TokenModule,
     WorshipModule,

@@ -1,16 +1,16 @@
-import * as _ from 'lodash';
-import { VError } from 'verror';
-import moment from 'moment';
+import { PostType } from '@bcpros/lixi-prisma';
+import { Post } from '@bcpros/lixi-prisma';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { Redis } from 'ioredis';
+import * as _ from 'lodash';
+import moment from 'moment';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { CONTENT_FANOUT_QUEUE } from './constants';
-import { Burn, Post } from '@bcpros/lixi-prisma';
-import { FollowCacheService } from '../account/follow-cache.service';
 import ReBloom from '../../common/redis/redis-bloom';
+import { FollowCacheService } from '../account/follow-cache.service';
+import { CONTENT_FANOUT_QUEUE } from './constants';
 import { PostCacheService } from './post-cache.service';
 
 @Injectable()
@@ -69,7 +69,7 @@ export class PostFanoutProcessor extends WorkerHost {
 
       const pipeline = this.redis.pipeline();
       // Update score for innetwork
-      const timelineId = `post:${id}`;
+      const timelineId = `${PostType.POST}:${id}`;
       for (const follower of followers) {
         const keyInNetwork = `${PostFanoutProcessor.inNetworkSourceKey}:${follower}`;
         pipeline.zincrby(keyInNetwork, score, timelineId);
