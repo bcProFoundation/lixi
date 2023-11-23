@@ -69,11 +69,23 @@ type UploaderProps = {
   loading?: boolean;
   setUploadingImage: (state: boolean) => void;
   multiple?: boolean;
+  disabled?: boolean;
 };
 /* eslint-disable react/display-name */
 export const MultiUploader = React.forwardRef(
   (
-    { type, buttonName, buttonType, isIcon, showUploadList, icon, loading, setUploadingImage, multiple }: UploaderProps,
+    {
+      type,
+      buttonName,
+      buttonType,
+      isIcon,
+      showUploadList,
+      icon,
+      loading,
+      setUploadingImage,
+      multiple,
+      disabled
+    }: UploaderProps,
     ref
   ) => {
     const [previewImage, setPreviewImage] = useState('');
@@ -259,6 +271,7 @@ export const MultiUploader = React.forwardRef(
           customRequest={uploadImage}
           showUploadList={showUploadList}
           multiple={multiple}
+          disabled={disabled}
         >
           {uploadButton}
         </Upload>

@@ -141,22 +141,25 @@ export class CommentResolver {
       }
 
       const { commentText, commentableId, tipHex, createFeeHex, uploadId } = data;
-      let imageUploadable: ImageUploadable | undefined = undefined;
+      let imageUploadable: ImageUploadable | null = null;
 
-      //create new imageUploadable
+      //find existing imageUploadable
       if (uploadId) {
-        imageUploadable = await this.prisma.$transaction(async prisma => {
-          const result = await prisma.imageUploadable.create({
-            data: {
-              account: { connect: { id: account.id } },
-              uploads: {
-                connect: { id: uploadId }
+        imageUploadable = await this.prisma.imageUploadable.findFirst({
+          where: {
+            AND: [
+              {
+                accountId: account.id
               },
-              type: ImageUploadableType.COMMENT
-            }
-          });
-
-          return result;
+              {
+                uploads: {
+                  every: {
+                    id: uploadId
+                  }
+                }
+              }
+            ]
+          }
         });
       }
 
@@ -218,6 +221,17 @@ export class CommentResolver {
             commentToId: ''
           }
         });
+
+        if (imageUploadable) {
+          await prisma.imageUploadable.update({
+            where: {
+              id: imageUploadable?.id
+            },
+            data: {
+              type: ImageUploadableType.COMMENT
+            }
+          });
+        }
 
         //Check if tipHex then create tip transaction
         if (tipHex && post) {

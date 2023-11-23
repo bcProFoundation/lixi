@@ -15,7 +15,12 @@ import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
 import { MultiUploader } from '../Uploader/MultiUploader';
 import { PictureOutlined, CloseOutlined } from '@ant-design/icons';
-import { LIMIT_CONTENT_POST, UPLOAD_API_S3_MULTIPLE, UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import {
+  LIMIT_CONTENT_POST,
+  UPLOAD_API_S3_MULTIPLE,
+  UPLOAD_TYPES,
+  WARNING_NUMBER
+} from '@bcpros/lixi-models/constants';
 import styled from 'styled-components';
 import LinkPlugin from './plugins/LinkPlugin';
 import ButtonLinkPlugin from './plugins/ButtonLinkPlugin';
@@ -159,6 +164,16 @@ const StyledEditorLexical = styled.div`
       transition: width 0.2s linear;
     }
     .ant-progress-text {
+      font-size: 14px;
+      color: rgb(113, 118, 123);
+    }
+  }
+
+  .progress-content-post-overLimit {
+    position: absolute;
+    bottom: 5px;
+    right: 150px;
+    .ant-progress-text {
       color: rgb(244, 33, 46);
     }
   }
@@ -280,6 +295,10 @@ const EditorLexical = (props: EditorLexicalProps) => {
     return htmlContent.length > LIMIT_CONTENT_POST;
   };
 
+  const displayWarningNumber = () => {
+    return LIMIT_CONTENT_POST - htmlContent.length <= WARNING_NUMBER;
+  };
+
   const calculatePercentContent = () => {
     // minus default html content
     const num = ((htmlContent.length - 50) / LIMIT_CONTENT_POST) * 100;
@@ -395,7 +414,7 @@ const EditorLexical = (props: EditorLexicalProps) => {
             <Progress
               type="circle"
               size={35}
-              className="progress-content-post"
+              className="progress-content-post-overLimit"
               percent={100}
               status="exception"
               strokeColor="rgb(244, 33, 46)"
@@ -407,7 +426,10 @@ const EditorLexical = (props: EditorLexicalProps) => {
               strokeColor={calculatePercentContent() > 99 ? 'rgb(255, 212, 0)' : '#1677ff'}
               className="progress-content-post"
               percent={calculatePercentContent()}
-              showInfo={false}
+              showInfo={displayWarningNumber() ? true : false}
+              format={percent => {
+                if (displayWarningNumber()) return LIMIT_CONTENT_POST - htmlContent.length;
+              }}
             />
           )}
 

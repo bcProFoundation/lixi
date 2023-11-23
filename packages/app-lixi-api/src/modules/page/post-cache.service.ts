@@ -21,7 +21,8 @@ export class PostCacheService {
           id: id
         },
         include: {
-          account: true
+          account: true,
+          translations: true
         }
       });
       if (!dbValue) return null;
@@ -63,7 +64,8 @@ export class PostCacheService {
               id: { in: uncachedIds }
             },
             include: {
-              account: true
+              account: true,
+              translations: true
             }
           })
         : [];

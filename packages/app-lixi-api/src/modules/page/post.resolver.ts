@@ -631,14 +631,7 @@ export class PostResolver {
               AND: [
                 {
                   accountId: _.toSafeInteger(id)
-                },
-                {
-                  danaBurnScore: {
-                    gte: minBurnFilter ?? 0
-                  }
-                },
-                { pageId: null },
-                { tokenId: null }
+                }
               ]
             },
             orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
@@ -650,14 +643,7 @@ export class PostResolver {
               AND: [
                 {
                   accountId: _.toSafeInteger(id)
-                },
-                {
-                  danaBurnScore: {
-                    gte: minBurnFilter ?? 0
-                  }
-                },
-                { pageId: null },
-                { tokenId: null }
+                }
               ]
             }
           }),
@@ -677,9 +663,7 @@ export class PostResolver {
                   danaBurnScore: {
                     gte: minBurnFilter ?? 0
                   }
-                },
-                { pageId: null },
-                { tokenId: null }
+                }
               ]
             },
             orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
@@ -696,9 +680,7 @@ export class PostResolver {
                   danaBurnScore: {
                     gte: minBurnFilter ?? 0
                   }
-                },
-                { pageId: null },
-                { tokenId: null }
+                }
               ]
             }
           }),
@@ -761,24 +743,27 @@ export class PostResolver {
     }
 
     const { uploads, pageId, htmlContent, tokenPrimaryId, pureContent } = data;
-    let imageUploadable: ImageUploadable | undefined = undefined;
+    let imageUploadable: ImageUploadable | null = null;
 
-    //create new imageUploadable
+    //find existing imageUploadable
     if (uploads && uploads.length > 0) {
-      imageUploadable = await this.prisma.$transaction(async prisma => {
-        const result = await prisma.imageUploadable.create({
-          data: {
-            account: { connect: { id: account.id } },
-            uploads: {
-              connect: uploads.map((upload: string) => {
-                return { id: upload };
-              })
+      imageUploadable = await this.prisma.imageUploadable.findFirst({
+        where: {
+          AND: [
+            {
+              accountId: account.id
             },
-            type: ImageUploadableType.POST
-          }
-        });
-
-        return result;
+            {
+              uploads: {
+                every: {
+                  id: {
+                    in: uploads
+                  }
+                }
+              }
+            }
+          ]
+        }
       });
     }
 
@@ -848,6 +833,17 @@ export class PostResolver {
           }
         }
       });
+
+      if (imageUploadable) {
+        await prisma.imageUploadable.update({
+          where: {
+            id: imageUploadable?.id
+          },
+          data: {
+            type: ImageUploadableType.POST
+          }
+        });
+      }
 
       return createdPost;
     });

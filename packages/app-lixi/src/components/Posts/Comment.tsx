@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AutoComplete, Button, Input, Skeleton } from 'antd';
 import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -25,13 +25,13 @@ import { currency } from '@components/Common/Ticker';
 import { WalletContext } from '@context/index';
 import useXPI from '@hooks/useXPI';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
-import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
-import { api as commentsApi, useCreateCommentMutation } from '@store/comment/comments.api';
+import { useCreateCommentMutation } from '@store/comment/comments.api';
 import { showToast } from '@store/toast/actions';
 import { MultiUploader } from '@components/Common/Uploader/MultiUploader';
 import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
-import usePrevious from '@hooks/usePrevious';
 import { createCommentSuccess } from '@store/comment';
+import { AuthorizationContext } from '@context/index';
+import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 
 const { Search, TextArea } = Input;
 type CommentProps = {
@@ -73,7 +73,6 @@ const CommentInputContainer = styled.div`
   margin-top: 1rem;
   gap: 1rem;
   padding: 1rem;
-  background: #fff;
   .ava-ico-cmt {
     padding-top: 1px;
     .ant-avatar {
@@ -161,6 +160,13 @@ const StyledCommentImageContainer = styled.div`
   }
 `;
 
+const commentCommand = [
+  {
+    label: '/give',
+    value: '/give'
+  }
+];
+
 const Comment = ({ post }: CommentProps) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -178,14 +184,11 @@ const Comment = ({ post }: CommentProps) => {
   const selectedAccount = useAppSelector(getSelectedAccount);
   const [isSendingXPI, setIsSendingXPI] = useState<boolean>(false);
   const commentUpload = useAppSelector(getCommentUpload);
+  const inputText = useRef(null);
+  const multiUploader = useRef(null);
   const txFee = Math.ceil(Wallet.XPI.BitcoinCash.getByteCount({ P2PKH: 1 }, { P2PKH: 1 }) * 2.01); //satoshi
-
-  const commentCommand = [
-    {
-      label: '/give',
-      value: '/give'
-    }
-  ];
+  const authorization = useContext(AuthorizationContext);
+  const askAuthorization = useAuthorization();
 
   const [
     createCommentTrigger,
@@ -203,6 +206,13 @@ const Comment = ({ post }: CommentProps) => {
     },
     false
   );
+
+  useEffect(() => {
+    inputText.current?.addEventListener('paste', handlePasteImage);
+    return () => {
+      inputText.current?.removeEventListener('paste', handlePasteImage);
+    };
+  }, []);
 
   const showTextComment = () => {
     if (post.page) {
@@ -245,12 +255,6 @@ const Comment = ({ post }: CommentProps) => {
     if (slpBalancesAndUtxos === slpBalancesAndUtxosRef.current) return;
     setIsSendingXPI(false);
   }, [slpBalancesAndUtxos.nonSlpUtxos]);
-
-  // useEffect(() => {
-  //   if (commentUpload) {
-  //     handleRemoveCommentUpload(commentUpload?.id);
-  //   }
-  // }, []);
 
   const handleRemoveCommentUpload = imgId => {
     if (imgId) {
@@ -488,6 +492,35 @@ const Comment = ({ post }: CommentProps) => {
     resetField('comment');
   };
 
+  const handlePasteImage = evt => {
+    const clipboardItems = evt.clipboardData.items;
+    const items: DataTransferItem[] | unknown[] = Array.from(clipboardItems).filter(function (item: DataTransferItem) {
+      // Filter the image items only
+      return /^image\//.test(item.type);
+    });
+    if (items.length === 0) {
+      return;
+    }
+
+    const item = items[0] as DataTransferItem;
+    const blob = item.getAsFile();
+    const blobName = blob.name ?? 'image.png';
+    const blobType = blob.type ?? 'image/png';
+    const blobLastModified = blob.lastModified ?? Date.now();
+
+    let file = new File([blob], blobName, { type: blobType, lastModified: blobLastModified });
+
+    multiUploader.current?.uploadImageFromClipboard({ file: file });
+  };
+
+  const onClickAccountAvatar = () => {
+    if (authorization.authorized) {
+      router.push(`/profile/${selectedAccount?.address}`);
+    } else {
+      askAuthorization();
+    }
+  };
+
   return (
     <React.Fragment>
       <CommentsContainer>
@@ -504,10 +537,18 @@ const Comment = ({ post }: CommentProps) => {
         </InfiniteScroll>
       </CommentsContainer>
       <CommentInputContainer className="comment-input-container">
-        <div className="ava-ico-cmt" onClick={() => router.push(`/profile/${selectedAccount?.address}`)}>
+        <div className="ava-ico-cmt" onClick={() => onClickAccountAvatar()}>
           <AvatarUser icon={accountInfoTemp?.avatar} name={selectedAccount?.name} isMarginRight={false} />
         </div>
-        <StyledCommentContainer className="comment-container">
+        <StyledCommentContainer
+          className="comment-container"
+          ref={inputText}
+          onClick={() => {
+            if (!authorization.authorized) {
+              askAuthorization();
+            }
+          }}
+        >
           <Controller
             name="comment"
             key="comment"
@@ -532,7 +573,7 @@ const Comment = ({ post }: CommentProps) => {
                 }}
                 defaultActiveFirstOption
                 getPopupContainer={trigger => trigger.parentElement}
-                disabled={isLoadingCreateComment || isSendingXPI || isUploadingImage}
+                disabled={isLoadingCreateComment || isSendingXPI || isUploadingImage || !authorization.authorized}
                 style={{ width: '-webkit-fill-available', textAlign: 'left' }}
               >
                 <StyledTextArea
@@ -552,16 +593,22 @@ const Comment = ({ post }: CommentProps) => {
           <StyledIconContainer>
             <Button
               type="text"
-              disabled={isLoadingCreateComment || isSendingXPI || isUploadingImage}
+              disabled={isLoadingCreateComment || isSendingXPI || isUploadingImage || !authorization.authorized}
               style={{ borderColor: 'transparent !important' }}
               onClick={async () => {
                 await processComment(getValues('comment'));
               }}
-              icon={<SendOutlined style={{ fontSize: '20px' }} />}
+              icon={
+                <SendOutlined
+                  style={{ fontSize: '20px' }}
+                  disabled={isLoadingCreateComment || isSendingXPI || isUploadingImage || !authorization.authorized}
+                />
+              }
             />
             <MultiUploader
               type={UPLOAD_TYPES.COMMENT}
               isIcon={true}
+              ref={multiUploader}
               icon={'/images/ico-picture.svg'}
               buttonName=" "
               buttonType="text"
@@ -569,6 +616,7 @@ const Comment = ({ post }: CommentProps) => {
               loading={isUploadingImage}
               setUploadingImage={setUploadingImage}
               multiple={false}
+              disabled={isLoadingCreateComment || isSendingXPI || isUploadingImage || !authorization.authorized}
             />
           </StyledIconContainer>
         </StyledCommentContainer>

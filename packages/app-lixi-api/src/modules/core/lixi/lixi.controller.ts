@@ -720,6 +720,15 @@ export class LixiController {
       }
 
       if (lixi.claimType === ClaimType.Single) {
+        await this.prisma.lixi.update({
+          where: {
+            id: lixi.id
+          },
+          data: {
+            status: 'withdrawn'
+          }
+        });
+
         const lixiIndex = lixi.derivationIndex;
         const walletService = this.walletServices['xpi'];
         const { address, xpriv } = await walletService.deriveAddress(mnemonicFromApi, lixiIndex);

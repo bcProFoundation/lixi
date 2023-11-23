@@ -161,39 +161,17 @@ export class PageResolver {
                 }
               },
               {
-                pageAvatar: {
-                  id: pageId
+                uploads: {
+                  every: {
+                    id: avatarId
+                  }
                 }
               }
             ]
           }
         });
 
-        if (!result) {
-          //if not found, create new one and connect to account, page and uploads
-          const imageUploadable = await prisma.imageUploadable.create({
-            data: {
-              account: {
-                connect: {
-                  id: account.id
-                }
-              },
-              uploads: {
-                connect: {
-                  id: avatarId
-                }
-              },
-              pageAvatar: {
-                connect: {
-                  id: pageId
-                }
-              },
-              type: ImageUploadableType.PAGE_AVATAR
-            }
-          });
-
-          return imageUploadable;
-        } else {
+        if (result) {
           //if found, disconnect all uploads and connect new one
           await prisma.imageUploadable.update({
             where: {
@@ -215,7 +193,13 @@ export class PageResolver {
                 connect: {
                   id: avatarId
                 }
-              }
+              },
+              pageAvatar: {
+                connect: {
+                  id: pageId
+                }
+              },
+              type: ImageUploadableType.PAGE_AVATAR
             }
           });
 
@@ -237,39 +221,17 @@ export class PageResolver {
                 }
               },
               {
-                pageCover: {
-                  id: coverId
+                uploads: {
+                  every: {
+                    id: coverId
+                  }
                 }
               }
             ]
           }
         });
 
-        if (!result) {
-          //if not found, create new one and connect to account, page and uploads
-          const imageUploadable = await prisma.imageUploadable.create({
-            data: {
-              account: {
-                connect: {
-                  id: account.id
-                }
-              },
-              uploads: {
-                connect: {
-                  id: coverId
-                }
-              },
-              pageCover: {
-                connect: {
-                  id: pageId
-                }
-              },
-              type: ImageUploadableType.PAGE_COVER
-            }
-          });
-
-          return imageUploadable;
-        } else {
+        if (result) {
           //if found, disconnect all uploads and connect new one
           await prisma.imageUploadable.update({
             where: {
@@ -291,7 +253,13 @@ export class PageResolver {
                 connect: {
                   id: coverId
                 }
-              }
+              },
+              pageCover: {
+                connect: {
+                  id: pageId
+                }
+              },
+              type: ImageUploadableType.PAGE_COVER
             }
           });
 
