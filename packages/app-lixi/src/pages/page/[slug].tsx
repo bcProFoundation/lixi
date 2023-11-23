@@ -19,7 +19,7 @@ const PageDetailPage = props => {
   const canonicalUrl = process.env.NEXT_PUBLIC_LIXI_URL + `page/${page.id}`;
   const selectedAccount = useAppSelector(getSelectedAccount);
 
-  const { currentData: currentDataPageQuery } = usePageQuery({ id: page.id }, { skip: !selectedAccount || !page });
+  const { currentData: currentDataPageQuery } = usePageQuery({ id: page.id }, { skip: !page });
 
   const { currentData: currentDataCheckIsFollowed, isSuccess: isSuccessCheckIsFollowed } = useCheckIfFollowPageQuery(
     {
@@ -84,8 +84,16 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
       category: true,
       country: true,
       state: true,
-      avatar: { include: { upload: true } },
-      cover: { include: { upload: true } }
+      pageAvatarImageUploadable: {
+        select: {
+          uploads: true
+        }
+      },
+      pageCoverImageUploadable: {
+        select: {
+          uploads: true
+        }
+      }
     }
   });
 
@@ -97,8 +105,8 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
 
   const page = {
     ..._.omit(dbValue, 'country', 'state'),
-    avatar: toImageUrl(deliveryUrl, cfAccountHash, dbValue.avatar?.upload),
-    cover: toImageUrl(deliveryUrl, cfAccountHash, dbValue.cover?.upload),
+    avatar: toImageUrl(deliveryUrl, cfAccountHash, dbValue.pageAvatarImageUploadable?.uploads[0]),
+    cover: toImageUrl(deliveryUrl, cfAccountHash, dbValue.pageCoverImageUploadable?.uploads[0]),
     stateName: dbValue.state?.name || '',
     countryName: dbValue.country?.name || ''
   };

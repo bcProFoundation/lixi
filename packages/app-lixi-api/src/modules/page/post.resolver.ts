@@ -654,14 +654,7 @@ export class PostResolver {
               AND: [
                 {
                   accountId: _.toSafeInteger(id)
-                },
-                {
-                  danaBurnScore: {
-                    gte: minBurnFilter ?? 0
-                  }
-                },
-                { pageId: null },
-                { tokenId: null }
+                }
               ]
             },
             orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
@@ -673,14 +666,7 @@ export class PostResolver {
               AND: [
                 {
                   accountId: _.toSafeInteger(id)
-                },
-                {
-                  danaBurnScore: {
-                    gte: minBurnFilter ?? 0
-                  }
-                },
-                { pageId: null },
-                { tokenId: null }
+                }
               ]
             }
           }),
@@ -700,9 +686,7 @@ export class PostResolver {
                   danaBurnScore: {
                     gte: minBurnFilter ?? 0
                   }
-                },
-                { pageId: null },
-                { tokenId: null }
+                }
               ]
             },
             orderBy: orderBy ? orderBy.map(item => ({ [item.field]: item.direction })) : undefined,
@@ -719,9 +703,7 @@ export class PostResolver {
                   danaBurnScore: {
                     gte: minBurnFilter ?? 0
                   }
-                },
-                { pageId: null },
-                { tokenId: null }
+                }
               ]
             }
           }),

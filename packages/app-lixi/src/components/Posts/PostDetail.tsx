@@ -39,6 +39,7 @@ import styled from 'styled-components';
 import CommentListItem from './CommentListItem';
 import { EditPostModalProps } from './EditPostModalPopup';
 import PostTranslate from './PostTranslate';
+import Comment from './Comment';
 
 const { Search, TextArea } = Input;
 
@@ -315,6 +316,10 @@ const StyledIconContainer = styled.div`
   margin-right: 5px;
 `;
 
+const ShareButton = styled.span`
+  margin-left: 10px;
+`;
+
 export const IconBurn = ({
   icon,
   burnValue,
@@ -360,25 +365,6 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   const [repostTrigger, { isLoading: isLoadingRepost, isSuccess: isSuccessRepost, isError: isErrorRepost }] =
     useRepostMutation();
 
-  const dataSource = [
-    {
-      label: '/give',
-      value: '/give'
-    }
-  ];
-
-  const { data, totalCount, fetchNext, hasNext, isFetching } = useInfiniteCommentsToCommentableIdQuery(
-    {
-      first: 20,
-      orderBy: {
-        direction: OrderDirection.Asc,
-        field: CommentOrderField.UpdatedAt
-      },
-      id: post.commentableId
-    },
-    false
-  );
-
   const imagesList = useMemo(() => {
     let result = post?.imageUploadable?.uploads.map(img => {
       const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img?.cfImageId}/public`;
@@ -391,117 +377,6 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
     });
     return result || [];
   }, [post?.imageUploadable?.uploads]);
-
-  const [
-    createCommentTrigger,
-    { isLoading: isLoadingCreateComment, isSuccess: isSuccessCreateComment, isError: isErrorCreateComment }
-  ] = useCreateCommentMutation();
-
-  const ShareButton = styled.span`
-    margin-left: 10px;
-  `;
-
-  const loadMoreComments = () => {
-    if (hasNext && !isFetching) {
-      fetchNext().finally(() => {
-        // setFocus('comment', { shouldSelect: true });
-      });
-    } else if (hasNext) {
-      fetchNext().finally(() => {
-        // setFocus('comment', { shouldSelect: true });
-      });
-    }
-  };
-
-  const isNumeric = (num: string) => {
-    num = num.replace(',', '.');
-    return !isNaN(num as unknown as number) && Number(num) > 0;
-  };
-
-  const handleCreateNewComment = async (text: string) => {
-    if (_.isNil(text) || _.isEmpty(text) || text === '/') {
-      return;
-    }
-
-    if (open) return;
-
-    if (text !== '' || !_.isNil(text)) {
-      let tipHex;
-      let createFeeHex;
-      if (text.trim().toLowerCase().split(' ')[0] === '/give') {
-        try {
-          if (!isNumeric(text.trim().split(' ')[1])) {
-            const error = new Error(intl.get('send.syntaxError') as string);
-            throw error;
-          }
-
-          const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-          tipHex = await sendXpi(
-            XPI,
-            chronik,
-            walletPaths,
-            slpBalancesAndUtxos.nonSlpUtxos,
-            currency.defaultFee,
-            text,
-            false, // indicate send mode is one to one
-            null,
-            post.account.address,
-            text.trim().split(' ')[1],
-            isEncryptedOptionalOpReturnMsg,
-            fundingWif,
-            true
-          );
-        } catch (e) {
-          const message = e.message || e.error || JSON.stringify(e);
-          dispatch(sendXPIFailure(message));
-        }
-      }
-
-      if (post.page) {
-        if (selectedAccount.id != post.page.pageAccount.id && post.page.createCommentFee != '0') {
-          try {
-            const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-            createFeeHex = await sendXpi(
-              XPI,
-              chronik,
-              walletPaths,
-              slpBalancesAndUtxos.nonSlpUtxos,
-              currency.defaultFee,
-              '',
-              false, // indicate send mode is one to one
-              null,
-              post.page.pageAccount.address,
-              post.page.createCommentFee,
-              isEncryptedOptionalOpReturnMsg,
-              fundingWif,
-              true
-            );
-          } catch (e) {
-            const message = e.message || e.error || JSON.stringify(e);
-            dispatch(sendXPIFailure(message));
-          }
-        }
-      }
-
-      const createCommentInput: CreateCommentInput = {
-        commentText: text,
-        commentableId: post.commentableId,
-        tipHex: tipHex,
-        createFeeHex: createFeeHex
-      };
-
-      try {
-        const result = await createCommentTrigger({ input: createCommentInput }).unwrap();
-        dispatch(createCommentSuccess(result));
-      } catch (error) {
-        const message = intl.get('comment.unableCreateComment');
-        dispatch(createCommentFailure(message));
-      }
-
-      setFocus('comment', { shouldSelect: true });
-      setValue('comment', '');
-    }
-  };
 
   const editPost = () => {
     const editPostProps: EditPostModalProps = {
@@ -516,20 +391,6 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
     ({ photo }) => <Image src={photo?.src} width={photo?.width} height={photo?.height} />,
     []
   );
-
-  const showTextComment = () => {
-    if (post.page) {
-      return post.page.createCommentFee != '0'
-        ? intl.get('comment.writeCommentXpi', { commentFee: `${post.page.createCommentFee} ${currency.ticker}` })
-        : intl.get('comment.writeCommentFree');
-    } else if (post.account.createCommentFee && _.isNil(post.page)) {
-      return post.account.createCommentFee != '0'
-        ? intl.get('comment.writeCommentXpi', { commentFee: `${post.account.createCommentFee} ${currency.ticker}` })
-        : intl.get('comment.writeCommentFree');
-    } else {
-      return intl.get('comment.writeComment');
-    }
-  };
 
   useDidMountEffectNotification();
 
@@ -594,15 +455,8 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
     setShowTranslation(!showTranslation);
   };
 
-  const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault(); // Prevent the default behavior of adding a new line
-      await handleCreateNewComment(e.currentTarget.value); // Call your function to post the comment
-    }
-  };
-
   return (
-    <>
+    <React.Fragment>
       <StyledContainerPostDetail className="post-detail" style={{ paddingBottom: isMobileView ? '3rem' : '1rem' }}>
         <NavBarHeader onClick={() => router.back()}>
           <InfoCardUser
@@ -672,75 +526,12 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
               </Image.PreviewGroup>
             </div>
           )}
-          <ActionPostBar post={post} onClickIconComment={e => setFocus('comment', { shouldSelect: true })} />
+          <ActionPostBar post={post} onClickIconComment={e => {}} />
         </PostContentDetail>
 
-        <CommentContainer>
-          <InfiniteScroll
-            dataLength={data.length}
-            next={loadMoreComments}
-            hasMore={hasNext}
-            loader={<Skeleton style={{ marginTop: '1rem' }} avatar active />}
-            scrollableTarget="scrollableDiv"
-          >
-            {data.map((item, index) => {
-              return <CommentListItem item={item} post={post} key={item.id} />;
-            })}
-          </InfiniteScroll>
-        </CommentContainer>
-        <CommentInputContainer>
-          <div className="ava-ico-cmt" onClick={() => router.push(`/profile/${selectedAccount?.address}`)}>
-            <AvatarUser icon={accountInfoTemp?.avatar} name={selectedAccount?.name} isMarginRight={false} />
-          </div>
-          <StyledCommentContainer>
-            <Controller
-              name="comment"
-              key="comment"
-              control={control}
-              render={({ field: { onChange, onBlur, value, ref } }) => (
-                <AutoComplete
-                  onSelect={() => {
-                    setOpen(false);
-                  }}
-                  options={dataSource}
-                  open={open}
-                  onChange={onChange}
-                  onBlur={onBlur}
-                  value={value}
-                  onSearch={value => {
-                    //TODO: This is not the best way to implement. Will come back later
-                    if (/\d+$/.test(value) || value === '') {
-                      setOpen(false);
-                    } else if (value.startsWith('/')) {
-                      setOpen(true);
-                    }
-                  }}
-                  defaultActiveFirstOption
-                  getPopupContainer={trigger => trigger.parentElement}
-                  disabled={isLoadingCreateComment}
-                  style={{ width: '-webkit-fill-available', textAlign: 'left' }}
-                >
-                  <StyledTextArea
-                    style={{ fontSize: '12px' }}
-                    ref={ref}
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    value={value}
-                    placeholder={showTextComment()}
-                    size="large"
-                    autoSize
-                    onKeyDown={handleKeyDown}
-                  />
-                </AutoComplete>
-              )}
-            />
-            <StyledIconContainer>
-              <SendOutlined style={{ fontSize: '20px' }} onClick={() => handleCreateNewComment(getValues('comment'))} />
-            </StyledIconContainer>
-          </StyledCommentContainer>
-        </CommentInputContainer>
+        <Comment post={post} />
       </StyledContainerPostDetail>
-    </>
+    </React.Fragment>
   );
 };
 

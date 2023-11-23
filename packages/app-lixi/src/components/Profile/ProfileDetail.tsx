@@ -546,24 +546,24 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   };
 
   const getAvatarAccount = () => {
-    let urlAvatarAccount = '';
-    if (selectedAccountId == user.id) {
+    let urlAvatarAccount = URL_AVATAR_DEFAULT;
+    if (selectedAccountId === user.id) {
       urlAvatarAccount = accountInfoTemp?.avatar;
     } else {
-      const cfUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${user?.avatar?.upload?.cfImageId}/public`;
-      urlAvatarAccount = cfUrl.includes('undefined') ? undefined : cfUrl;
+      urlAvatarAccount = user?.avatar;
     }
+
     return urlAvatarAccount;
   };
 
   const getCoverAccount = () => {
-    let urlCoverAccount = '';
-    if (selectedAccountId == user?.id) {
-      urlCoverAccount = accountInfoTemp?.cover || URL_COVER_DEFAULT;
+    let urlCoverAccount = URL_COVER_DEFAULT;
+    if (selectedAccountId === user?.id) {
+      urlCoverAccount = accountInfoTemp?.cover;
     } else {
-      const cfUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${user?.cover?.upload?.cfImageId}/public`;
-      urlCoverAccount = cfUrl.includes('undefined') ? URL_COVER_DEFAULT : cfUrl;
+      urlCoverAccount = user?.cover;
     }
+
     return urlCoverAccount;
   };
 
@@ -576,7 +576,9 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
       <StyledContainerProfileDetail className="profile-detail">
         <ProfileCardHeader>
           <div className="container-img">
-            <img className="cover-img" src={getCoverAccount()} alt="" />
+            <picture>
+              <img className="cover-img" src={getCoverAccount()} alt="" />
+            </picture>
             {selectedAccountId == user.id && (
               <Button type="primary" className="no-border-btn" onClick={() => uploadModal(false)}>
                 <CameraOutlined />
@@ -586,8 +588,10 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
           </div>
           <div className="info-profile">
             <div className="wrapper-avatar">
-              {getAvatarAccount() ? (
-                <img className="avatar-img" src={getAvatarAccount()} alt="" />
+              {user?.avatar ? (
+                <picture>
+                  <img className="avatar-img" src={getAvatarAccount()} alt="" />
+                </picture>
               ) : (
                 <StyledAvatar className="avatar-img">{transformShortName(user?.name)}</StyledAvatar>
               )}

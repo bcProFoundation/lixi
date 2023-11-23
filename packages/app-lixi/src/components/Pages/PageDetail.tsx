@@ -762,7 +762,11 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   };
 
   const openPageMessageLixiModal = () => {
-    dispatch(openModal('PageMessageLixiModal', { account: selectedAccount, page: page, wallet: walletStatus }));
+    if (authorization.authorized) {
+      dispatch(openModal('PageMessageLixiModal', { account: selectedAccount, page: page, wallet: walletStatus }));
+    } else {
+      askAuthorization();
+    }
   };
 
   return (
@@ -770,7 +774,9 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
       <StyledContainerProfileDetail className="page-detail">
         <ProfileCardHeader>
           <div className="container-img">
-            <img className="cover-img" src={pageDetailData?.cover || '/images/default-cover.jpg'} alt="" />
+            <picture>
+              <img className="cover-img" src={pageDetailData?.cover || '/images/default-cover.jpg'} alt="" />
+            </picture>
             {selectedAccountId == pageDetailData?.pageAccountId && (
               <Button type="primary" className="no-border-btn" onClick={() => uploadModal(false)}>
                 <CameraOutlined />
