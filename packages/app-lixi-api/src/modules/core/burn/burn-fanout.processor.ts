@@ -8,7 +8,7 @@ import { Redis } from 'ioredis';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { BURN_FANOUT_QUEUE } from './burn.constants';
-import { Burn, Post } from '@bcpros/lixi-prisma';
+import { Burn, Post, PostType } from '@bcpros/lixi-prisma';
 import { FollowCacheService } from '../../account/follow-cache.service';
 import { PostCacheService } from '../../page/post-cache.service';
 
@@ -60,7 +60,7 @@ export class BurnFanoutProcessor extends WorkerHost {
 
       // Update score for outnetwork
       const keyOutnetwork = BurnFanoutProcessor.outNetworkSourceKey;
-      const timelineId = `post:${id}`;
+      const timelineId = `${PostType.POST}:${id}`;
       pipeline.zincrby(keyOutnetwork, score, timelineId);
 
       // Update score for innetwork
