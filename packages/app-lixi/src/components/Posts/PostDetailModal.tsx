@@ -40,6 +40,7 @@ import CommentListItem from './CommentListItem';
 import { EditPostModalProps } from './EditPostModalPopup';
 import PostTranslate from './PostTranslate';
 import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import { getCurrentLocale } from '@store/settings';
 
 type PostDetailProps = {
   initialPost: PostQueryItem;
@@ -240,6 +241,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
   const isMobile = useDetectMobileView();
   const [borderColorHeader, setBorderColorHeader] = useState(false);
   const commentUpload = useAppSelector(getCommentUpload);
+  const currentLocale = useAppSelector(getCurrentLocale);
 
   const [repostTrigger, { isLoading: isLoadingRepost, isSuccess: isSuccessRepost, isError: isErrorRepost }] =
     useRepostMutation();
@@ -355,6 +357,9 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
     onSwipedRight: eventData => handleOnCancel()
   });
 
+  const indexPostTranslate =
+    post?.translations && post.translations.findIndex(item => item.translateLanguage === currentLocale);
+
   return (
     <React.Fragment>
       <Modal
@@ -410,7 +415,11 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
               ))}
             {showTranslation && post.translations && post.translations.length > 0 && (
               <div className="description-translate">
-                <PostTranslate postTranslate={post.translations[0].translateContent} />
+                <PostTranslate
+                  postTranslate={
+                    post.translations[indexPostTranslate === -1 ? 0 : indexPostTranslate]?.translateContent
+                  }
+                />
               </div>
             )}
             {post.imageUploadable?.uploads?.length != 0 && isMobile && (
