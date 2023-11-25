@@ -623,7 +623,7 @@ export default {
   'comment.unableToBurn': 'Unable to burn for the comment',
   'comment.writeComment': 'Write a comment...',
   'comment.writeCommentFree': 'Write a free comment on this post...',
-  'comment.writeCommentXpi': '{commentFee} to comment on this post...',
+  'comment.writeCommentXpi': '{commentFee} to reply',
 
   /* 18. Category */
   'category.art': 'Art',

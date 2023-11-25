@@ -622,7 +622,7 @@ export default {
   'comment.unableToBurn': 'Không thể đốt cho bình luận',
   'comment.writeComment': 'Viết bình luận...',
   'comment.writeCommentFree': 'Viết bình luận miễn phí trên bài viết này...',
-  'comment.writeCommentXpi': '{commentFee} để bình luận trên bài viết này...',
+  'comment.writeCommentXpi': '{commentFee} để bình luận',
 
   /* 18. Category */
   'category.art': 'Mỹ thuật',

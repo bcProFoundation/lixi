@@ -142,6 +142,7 @@ export class CommentResolver {
 
       const { commentText, commentableId, tipHex, createFeeHex, uploadId } = data;
       let imageUploadable: ImageUploadable | null = null;
+      const tipValue = parseFloat(commentText.trim().toLowerCase().split(' ')[1]);
 
       //find existing imageUploadable
       if (uploadId) {
@@ -183,8 +184,7 @@ export class CommentResolver {
             })
           : null;
 
-      let createFee: any;
-      let tipValue: any;
+      const createFee = post?.account?.createCommentFee ? parseFloat(post?.account?.createCommentFee) : 0;
 
       const savedComment = await this.prisma.$transaction(async prisma => {
         let txid: string = '';
@@ -211,7 +211,7 @@ export class CommentResolver {
             commentAccount: { connect: { id: account.id } },
             commentable: { connect: { id: commentableId || undefined } },
             txid: txid,
-            createFee: createFee,
+            createFee: tipHex ? 0 : createFee,
             commentDana: {
               create: {}
             },
