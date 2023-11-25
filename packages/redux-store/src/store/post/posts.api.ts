@@ -3,6 +3,7 @@ import { EntityState } from '@reduxjs/toolkit';
 
 import { api } from './posts.generated';
 import { api as timelineApi } from '@store/timeline/timeline.api';
+import { PostType } from '@prisma/client';
 
 export interface PostApiState extends EntityState<Post> {
   pageInfo: PageInfo;
@@ -159,7 +160,7 @@ const enhancedApi = api.enhanceEndpoints({
                 for (const field of fields) {
                   if (!draft[field]) continue;
 
-                  const timelineId = `post:${result.createPost.id}`;
+                  const timelineId = `${PostType.POST}:${result.createPost.id}`;
                   draft[field].edges.unshift({
                     cursor: timelineId,
                     node: {
