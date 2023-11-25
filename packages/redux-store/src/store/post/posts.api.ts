@@ -1,9 +1,9 @@
 import { PageInfo, Post } from '@generated/types.generated';
 import { EntityState } from '@reduxjs/toolkit';
 
-import { api } from './posts.generated';
+import { POST_TYPE } from '@bcpros/lixi-models/constants';
 import { api as timelineApi } from '@store/timeline/timeline.api';
-import { PostType } from '@prisma/client';
+import { api } from './posts.generated';
 
 export interface PostApiState extends EntityState<Post> {
   pageInfo: PageInfo;
@@ -160,7 +160,7 @@ const enhancedApi = api.enhanceEndpoints({
                 for (const field of fields) {
                   if (!draft[field]) continue;
 
-                  const timelineId = `${PostType.POST}:${result.createPost.id}`;
+                  const timelineId = `${POST_TYPE.POST}:${result.createPost.id}`;
                   draft[field].edges.unshift({
                     cursor: timelineId,
                     node: {
@@ -197,7 +197,7 @@ const enhancedApi = api.enhanceEndpoints({
               })
             );
           }
-        } catch {}
+        } catch { }
       }
     },
     updatePost: {
@@ -206,7 +206,7 @@ const enhancedApi = api.enhanceEndpoints({
         const { minBurnFilter } = extraArguments;
         try {
           const { data: result } = await queryFulfilled;
-        } catch {}
+        } catch { }
       }
     },
     repost: {}
