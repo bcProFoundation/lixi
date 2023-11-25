@@ -19,6 +19,9 @@ export class PostFanoutProcessor extends WorkerHost {
   private logger: Logger = new Logger(this.constructor.name);
 
   static inNetworkSourceKey = 'timeline:innetwork:source';
+  static timelinePageKey = 'timeline:page';
+  static timelineTokenKey = 'timeline:token';
+  static timelineProfileKey = 'timeline:profile';
 
   constructor(
     private readonly postCacheService: PostCacheService,
@@ -73,6 +76,18 @@ export class PostFanoutProcessor extends WorkerHost {
       for (const follower of followers) {
         const keyInNetwork = `${PostFanoutProcessor.inNetworkSourceKey}:${follower}`;
         pipeline.zincrby(keyInNetwork, score, timelineId);
+      }
+
+      //add default score when create post in page, token, profile
+      if (post.pageId) {
+        const keyPage = `${PostFanoutProcessor.timelinePageKey}:${post.pageId}`;
+        pipeline.zincrby(keyPage, score, timelineId);
+      } else if (post.tokenId) {
+        const keyToken = `${PostFanoutProcessor.timelineTokenKey}:${post.tokenId}`;
+        pipeline.zincrby(keyToken, score, timelineId);
+      } else {
+        const keyProfile = `${PostFanoutProcessor.timelineProfileKey}:${post.accountId}`;
+        pipeline.zincrby(keyProfile, score, timelineId);
       }
 
       await pipeline.exec();

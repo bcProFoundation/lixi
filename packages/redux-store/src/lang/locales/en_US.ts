@@ -125,6 +125,7 @@ export default {
   'general.support': 'Support',
   'general.all': 'All',
   'general.installApp': 'Install App',
+  'general.postsByTime': 'Posts by time: ',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Valid mnemonic seed phrase required',

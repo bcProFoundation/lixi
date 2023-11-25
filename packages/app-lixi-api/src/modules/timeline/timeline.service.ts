@@ -450,7 +450,7 @@ export class TimelineService {
   }
 
   private async cacheTokenTimelineByScore(tokenId: string, limit: number = 0, offset: number = 0) {
-    const key = template(`${TimelineService.pageTimelineKey}`, { tokenId: tokenId });
+    const key = template(`${TimelineService.tokenTimelineKey}`, { tokenId: tokenId });
     const postBurnType = BurnForType.Post;
     const epoch = '2023-01-01 00:00:00';
     const halfLife = '12 hours';

@@ -5,4 +5,4 @@ export const POST_TYPE = {
   POLL: 'POLL',
   PRODUCT: 'PRODUCT',
   EVENT: 'EVENT'
-}
+};

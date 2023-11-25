@@ -10,7 +10,7 @@ export interface PostApiState extends EntityState<Post> {
 }
 
 const enhancedApi = api.enhanceEndpoints({
-  addTagTypes: ['Post', 'Posts', 'HomeTimeline', 'CommentCreated'],
+  addTagTypes: ['Post', 'Posts', 'Timeline', 'CommentCreated'],
   endpoints: {
     PostsBySearch: {
       providesTags: (result, error, arg) => ['Posts'],
@@ -145,28 +145,33 @@ const enhancedApi = api.enhanceEndpoints({
     createPost: {
       async onQueryStarted({ input }, { dispatch, getState, queryFulfilled }) {
         const { extraArguments, pageId, tokenPrimaryId } = input;
-        const { hashtagId, hashtags, isTop, minBurnFilter, orderBy, query } = extraArguments;
+        const { hashtagId, hashtags, minBurnFilter, orderBy, query } = extraArguments;
 
         try {
           const { data: result } = await queryFulfilled;
 
-          const timelineInvalidatedBy = timelineApi.util.selectInvalidatedBy(getState(), ['HomeTimeline']);
+          const timelineInvalidatedBy = timelineApi.util.selectInvalidatedBy(getState(), ['Timeline']);
           for (const invalidatedBy of timelineInvalidatedBy) {
-            const { originalArgs } = invalidatedBy;
+            const { endpointName, originalArgs } = invalidatedBy;
             dispatch(
-              timelineApi.util.updateQueryData('HomeTimeline', originalArgs, draft => {
-                const timelineId = `post:${result.createPost.id}`;
-                draft.homeTimeline.edges.unshift({
-                  cursor: timelineId,
-                  node: {
-                    id: timelineId,
-                    data: {
-                      __typename: 'Post',
-                      ...result.createPost
+              timelineApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
+                const fields = Object.keys(draft);
+                for (const field of fields) {
+                  if (!draft[field]) continue;
+
+                  const timelineId = `post:${result.createPost.id}`;
+                  draft[field].edges.unshift({
+                    cursor: timelineId,
+                    node: {
+                      id: timelineId,
+                      data: {
+                        __typename: 'Post',
+                        ...result.createPost
+                      }
                     }
-                  }
-                });
-                draft.homeTimeline.totalCount = draft.homeTimeline.totalCount + 1;
+                  });
+                  draft[field].totalCount = draft[field].totalCount + 1;
+                }
               })
             );
           }
@@ -197,7 +202,7 @@ const enhancedApi = api.enhanceEndpoints({
     updatePost: {
       async onQueryStarted({ input }, { dispatch, queryFulfilled }) {
         const { extraArguments } = input;
-        const { isTop, minBurnFilter } = extraArguments;
+        const { minBurnFilter } = extraArguments;
         try {
           const { data: result } = await queryFulfilled;
         } catch {}

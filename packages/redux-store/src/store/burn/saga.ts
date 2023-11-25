@@ -296,14 +296,14 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
     yield put(removeBurnQueue());
     yield put(
       burnForUpDownVoteSuccess(data) &&
-      showToast('success', {
-        message: intl.get(`toast.success`),
-        description: intl.get('burn.totalBurn', {
-          burnValue: burnValue,
-          totalAmount: burnValue + burnValue * currency.burnFee + Number(minerFee),
-          coin: 'XPI'
+        showToast('success', {
+          message: intl.get(`toast.success`),
+          description: intl.get('burn.totalBurn', {
+            burnValue: burnValue,
+            totalAmount: burnValue + burnValue * currency.burnFee + Number(minerFee),
+            coin: 'XPI'
+          })
         })
-      })
     );
   } catch (err) {
     console.log(err);
@@ -345,8 +345,7 @@ function* burnForUpDownVoteFailureSaga(action: PayloadAction<string>) {
 
 function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
   const { extraArguments, burnValue: burnValueAsString, burnType, burnForId } = action.payload;
-  const { isTop, hashtagId, hashtags, minBurnFilter, pageId, query, tokenId, userId, postQueryTags, level } =
-    extraArguments;
+  const { hashtagId, hashtags, minBurnFilter, pageId, query, tokenId, userId, postQueryTags, level } = extraArguments;
 
   let burnValue = _.toNumber(burnValueAsString);
 
@@ -355,41 +354,45 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
   const rootState: RootState = yield select();
 
   // Update timeline
-  const timelineInvalidatedBy = yield call(timelineApi.util.selectInvalidatedBy, rootState, ['HomeTimeline']);
+  const timelineInvalidatedBy = yield call(timelineApi.util.selectInvalidatedBy, rootState, ['Timeline']);
   for (const invalidatedBy of timelineInvalidatedBy) {
     const { endpointName, originalArgs } = invalidatedBy;
     yield put(
-      timelineApi.util.updateQueryData('HomeTimeline', originalArgs, draft => {
-        const timelineItemToUpdateIndex = draft.homeTimeline.edges.findIndex(
-          item => item.node.id === `${POST_TYPE.POST}:${burnForId}`
-        );
-        const timelineItemToUpdate = draft.homeTimeline.edges[timelineItemToUpdateIndex];
-        if (timelineItemToUpdateIndex >= 0) {
-          let danaBurnUp = timelineItemToUpdate?.node?.data?.dana?.danaBurnUp ?? 0;
-          let danaBurnDown = timelineItemToUpdate?.node?.data?.dana?.danaBurnDown ?? 0;
-          let danaReceivedUp = timelineItemToUpdate?.node?.data?.dana?.danaReceivedUp ?? 0;
-          let danaReceivedDown = timelineItemToUpdate?.node?.data?.dana?.danaReceivedDown ?? 0;
-          if (burnType == BurnType.Up) {
-            danaBurnUp = danaBurnUp + burnValue;
-            danaReceivedUp = danaReceivedUp + burnValue;
-          } else {
-            danaBurnDown = danaBurnDown + burnValue;
-            danaReceivedDown = danaReceivedDown + burnValue;
-          }
-          const danaBurnScore = danaBurnUp - danaBurnDown;
-          const danaReceivedScore = danaReceivedUp - danaReceivedDown;
-          draft.homeTimeline.edges[timelineItemToUpdateIndex].node.data.dana.danaBurnUp = danaBurnUp;
-          draft.homeTimeline.edges[timelineItemToUpdateIndex].node.data.dana.danaBurnDown = danaBurnDown;
-          draft.homeTimeline.edges[timelineItemToUpdateIndex].node.data.dana.danaBurnScore = danaBurnScore;
-          draft.homeTimeline.edges[timelineItemToUpdateIndex].node.data.dana.danaReceivedUp = danaReceivedUp;
-          draft.homeTimeline.edges[timelineItemToUpdateIndex].node.data.dana.danaReceivedDown = danaReceivedDown;
-          draft.homeTimeline.edges[timelineItemToUpdateIndex].node.data.dana.danaReceivedScore = danaReceivedScore;
-          if (
-            danaReceivedScore < 0 &&
-            account?.id !== draft.homeTimeline.edges[timelineItemToUpdateIndex]?.node?.data?.account?.id
-          ) {
-            draft.homeTimeline.edges.splice(timelineItemToUpdateIndex, 1);
-            draft.homeTimeline.totalCount = draft.homeTimeline.totalCount - 1;
+      timelineApi.util.updateQueryData(endpointName, originalArgs, draft => {
+        const fields = Object.keys(draft);
+        for (const field of fields) {
+          if (!draft[field]) continue;
+          const timelineItemToUpdateIndex = draft[field].edges.findIndex(
+            item => item.node.id === `${POST_TYPE.POST}:${burnForId}`
+          );
+          const timelineItemToUpdate = draft[field].edges[timelineItemToUpdateIndex];
+          if (timelineItemToUpdateIndex >= 0) {
+            let danaBurnUp = timelineItemToUpdate?.node?.data?.dana?.danaBurnUp ?? 0;
+            let danaBurnDown = timelineItemToUpdate?.node?.data?.dana?.danaBurnDown ?? 0;
+            let danaReceivedUp = timelineItemToUpdate?.node?.data?.dana?.danaReceivedUp ?? 0;
+            let danaReceivedDown = timelineItemToUpdate?.node?.data?.dana?.danaReceivedDown ?? 0;
+            if (burnType == BurnType.Up) {
+              danaBurnUp = danaBurnUp + burnValue;
+              danaReceivedUp = danaReceivedUp + burnValue;
+            } else {
+              danaBurnDown = danaBurnDown + burnValue;
+              danaReceivedDown = danaReceivedDown + burnValue;
+            }
+            const danaBurnScore = danaBurnUp - danaBurnDown;
+            const danaReceivedScore = danaReceivedUp - danaReceivedDown;
+            draft[field].edges[timelineItemToUpdateIndex].node.data.dana.danaBurnUp = danaBurnUp;
+            draft[field].edges[timelineItemToUpdateIndex].node.data.dana.danaBurnDown = danaBurnDown;
+            draft[field].edges[timelineItemToUpdateIndex].node.data.dana.danaBurnScore = danaBurnScore;
+            draft[field].edges[timelineItemToUpdateIndex].node.data.dana.danaReceivedUp = danaReceivedUp;
+            draft[field].edges[timelineItemToUpdateIndex].node.data.dana.danaReceivedDown = danaReceivedDown;
+            draft[field].edges[timelineItemToUpdateIndex].node.data.dana.danaReceivedScore = danaReceivedScore;
+            if (
+              danaReceivedScore < 0 &&
+              account?.id !== draft[field].edges[timelineItemToUpdateIndex]?.node?.data?.account?.id
+            ) {
+              draft[field].edges.splice(timelineItemToUpdateIndex, 1);
+              draft[field].totalCount = draft[field].totalCount - 1;
+            }
           }
         }
       })

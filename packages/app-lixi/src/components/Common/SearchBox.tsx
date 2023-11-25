@@ -20,13 +20,11 @@ import {
   removeRecentHashtagAtPages,
   removeRecentHashtagAtToken
 } from '@store/account';
-import { getCurrentThemes, saveTopPostsFilter } from '@store/settings';
+import { getCurrentThemes, getIsPostsByTime, savePostsByTimeFilter } from '@store/settings';
 import { ReactSVG } from 'react-svg';
 import { ButtonTopbar, PopoverStyled, TitleFilterStyled } from '@containers/Topbar';
 import { FilterBurnt } from './FilterBurn';
 import { FilterLevel } from './FilterLevel';
-import { Icon } from '@ant-design/compatible';
-import FollowSvg from '@assets/icons/follow.svg';
 import { FilterType } from '@bcpros/lixi-models/lib/filter';
 
 const Container = styled.div`
@@ -174,6 +172,7 @@ const SearchBox = () => {
   const currentTheme = useAppSelector(getCurrentThemes);
   const currentPathName = router.pathname ?? '';
   const pathDirection = currentPathName.split('/', 2);
+  const isPostsByTime = useAppSelector(getIsPostsByTime);
 
   const { control, getValues, setValue } = useForm({
     defaultValues: {
@@ -429,7 +428,7 @@ const SearchBox = () => {
   };
 
   const handleMenuPosts = (checked: boolean) => {
-    dispatch(saveTopPostsFilter(checked));
+    dispatch(savePostsByTimeFilter(checked));
   };
 
   const filterType = () => {
@@ -453,17 +452,15 @@ const SearchBox = () => {
       {router?.pathname && router?.pathname != '/' ? (
         <PopoverStyled>
           <TitleFilterStyled>
-            <p className="follow-title">
-              {intl.get('general.postFilter')} <Icon component={() => <FollowSvg />} />
-            </p>
+            <p className="title">{intl.get('general.postsByTime')}</p>
             <Switch
               checkedChildren={intl.get('general.on')}
               unCheckedChildren={intl.get('general.off')}
-              defaultChecked={true}
+              defaultChecked={isPostsByTime}
               onChange={handleMenuPosts}
             />
           </TitleFilterStyled>
-          <FilterBurnt filterForType={filterType()} />
+          {isPostsByTime && <FilterBurnt filterForType={filterType()} />}
         </PopoverStyled>
       ) : (
         <PopoverStyled>
@@ -518,6 +515,7 @@ const SearchBox = () => {
             )}
           </SearchBoxContainer>
         </Popover>
+        {/*Filter in mobile*/}
         <Popover
           overlayClassName={`${currentTheme === 'dark' ? 'popover-dark' : ''} filter-btn-w-search`}
           arrow={false}

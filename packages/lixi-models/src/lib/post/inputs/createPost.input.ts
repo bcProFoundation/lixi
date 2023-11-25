@@ -45,10 +45,6 @@ export class ExtraArguments {
 
   @IsOptional()
   @Field(() => String, { nullable: true })
-  isTop?: string;
-
-  @IsOptional()
-  @Field(() => String, { nullable: true })
   hashtagId?: string;
 
   @IsOptional()
