@@ -5,7 +5,7 @@ import {
   saveAllowPushNotification,
   saveBurnFilter,
   saveLevelFilter,
-  saveTopPostsFilter,
+  savePostsByTimeFilter,
   saveWebAuthnConfig,
   saveWebPushNotifConfig,
   setCurrentThemes,
@@ -31,7 +31,7 @@ const initialState: SettingsState = {
   filterPostsPage: 0,
   filterPostsToken: 1,
   filterPostsProfile: 1,
-  isTopPosts: false,
+  isPostsByTime: false,
   currentThemes: 'system',
   isSystemThemes: true,
   levelFilter: 3
@@ -74,8 +74,8 @@ export const settingsReducer = createReducer(initialState, builder => {
           break;
       }
     })
-    .addCase(saveTopPostsFilter, (state, action) => {
-      state.isTopPosts = action.payload;
+    .addCase(savePostsByTimeFilter, (state, action) => {
+      state.isPostsByTime = action.payload;
     })
     .addCase(setCurrentThemes, (state, action) => {
       state.currentThemes = action.payload;

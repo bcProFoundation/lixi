@@ -13,7 +13,7 @@ import { UpdatePostInput, OrderDirection, PostOrderField } from '@generated/type
 import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { UpdatePostMutation } from '@store/post/posts.generated';
 import { showToast } from '@store/toast/actions';
-import { getFilterPostsHome, getIsTopPosts } from '@store/settings/selectors';
+import { getFilterPostsHome } from '@store/settings/selectors';
 
 const UserCreate = styled.div`
   .user-create-post {
@@ -66,7 +66,6 @@ export const EditPostModalPopup: React.FC<EditPostModalProps> = props => {
   const dispatch = useAppDispatch();
   const selectedAccount = useAppSelector(getSelectedAccount);
   const filterValue = useAppSelector(getFilterPostsHome);
-  const isTop = useAppSelector(getIsTopPosts);
 
   const [
     updatePostTrigger,
@@ -83,7 +82,6 @@ export const EditPostModalPopup: React.FC<EditPostModalProps> = props => {
       pureContent: pureContent,
       id: props.postId,
       extraArguments: {
-        isTop: String(isTop),
         minBurnFilter: filterValue
       }
     };

@@ -11,8 +11,8 @@ import { getAccountInfoTemp, getAllAccounts, getSelectedAccount, getSelectedAcco
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { getAllNotifications } from '@store/notification/selectors';
 import { api as postApi } from '@store/post/posts.api';
-import { saveTopPostsFilter, toggleCollapsedSideNav } from '@store/settings/actions';
-import { getCurrentThemes, getFilterPostsHome, getIsTopPosts, getNavCollapsed } from '@store/settings/selectors';
+import { savePostsByTimeFilter, toggleCollapsedSideNav } from '@store/settings/actions';
+import { getCurrentThemes, getFilterPostsHome, getIsPostsByTime, getNavCollapsed } from '@store/settings/selectors';
 import { Badge, Button, Popover, Space, Switch } from 'antd';
 import { Header } from 'antd/lib/layout/layout';
 import { push } from 'connected-next-router';
@@ -341,7 +341,9 @@ export const PopoverStyled = styled.div`
 export const TitleFilterStyled = styled.span`
   display: flex;
   justify-content: space-between;
-  .follow-title {
+  column-gap: 20px;
+  width: 180px;
+  .title {
     font-weight: 500;
   }
   svg {
@@ -455,7 +457,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
   const [openMoreOption, setOpenMoreOption] = useState(false);
   const [openProfileOption, setOpenProfileOption] = useState(false);
   const savedAccounts: Account[] = useAppSelector(getAllAccounts);
-  let isTop = useAppSelector(getIsTopPosts);
+  const isPostsByTime = useAppSelector(getIsPostsByTime);
   const currentTheme = useAppSelector(getCurrentThemes);
   const isMobile = useDetectMobileView();
   const authorization = useContext(AuthorizationContext);
@@ -534,7 +536,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
   };
 
   const handleMenuPosts = (checked: boolean) => {
-    dispatch(saveTopPostsFilter(checked));
+    dispatch(savePostsByTimeFilter(checked));
   };
 
   const balanceAccount = (acc?: any) => {
@@ -562,17 +564,15 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
       {router?.pathname && router?.pathname != '/' ? (
         <PopoverStyled>
           <TitleFilterStyled>
-            <p className="follow-title">
-              {intl.get('general.postFilter')} <Icon component={() => <FollowSvg />} />
-            </p>
+            <p className="title">{intl.get('general.postsByTime')}</p>
             <Switch
               checkedChildren={intl.get('general.on')}
               unCheckedChildren={intl.get('general.off')}
-              defaultChecked={true}
+              defaultChecked={isPostsByTime}
               onChange={handleMenuPosts}
             />
           </TitleFilterStyled>
-          <FilterBurnt filterForType={filterType()} />
+          {isPostsByTime && <FilterBurnt filterForType={filterType()} />}
         </PopoverStyled>
       ) : (
         <PopoverStyled>

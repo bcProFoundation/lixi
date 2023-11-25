@@ -14,7 +14,7 @@ import { setNewPostAvailable, setSelectedPost } from '@store/post/actions';
 import { api as postApi } from '@store/post/posts.api';
 import { getNewPostAvailable, getSelectedPostId } from '@store/post/selectors';
 import { useInfinitePostsBySearchQueryWithHashtag } from '@store/post/useInfinitePostsBySearchQueryWithHashtag';
-import { getFilterPostsHome, getIsTopPosts, getLevelFilter } from '@store/settings/selectors';
+import { getFilterPostsHome, getLevelFilter } from '@store/settings/selectors';
 import { useInfiniteHomeTimelineQuery } from '@store/timeline/useInfiniteHomeTimelineQuery';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { Skeleton } from 'antd';
@@ -136,7 +136,6 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
   const postIdSelected = useAppSelector(getSelectedPostId);
   const [suggestedHashtag, setSuggestedTags] = useState([]);
   const newPostAvailable = useAppSelector(getNewPostAvailable);
-  let isTop = useAppSelector(getIsTopPosts);
   const [query, setQuery] = useState<string | null>(null);
   const [hashtags, setHashtags] = useState<string[]>([]);
   const level = useAppSelector(getLevelFilter);

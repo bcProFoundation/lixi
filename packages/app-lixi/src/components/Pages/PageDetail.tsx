@@ -35,7 +35,7 @@ import { setSelectedPost } from '@store/post/actions';
 import { getSelectedPostId } from '@store/post/selectors';
 import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
 import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
-import { getFilterPostsPage } from '@store/settings/selectors';
+import { getFilterPostsPage, getIsPostsByTime } from '@store/settings/selectors';
 import { getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { Button, Skeleton, Space, Tabs, Tag } from 'antd';
 import _ from 'lodash';
@@ -45,6 +45,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
+import { useInfinitePageTimelineQuery } from '@store/timeline';
 
 type PageDetailProps = {
   page: PageQueryItem;
@@ -455,6 +456,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const pageCoverUpload = useAppSelector(getPageCoverUpload);
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
+  const isPostsByTime = useAppSelector(getIsPostsByTime);
 
   useEffect(() => {
     if (router.query.q) {
@@ -547,6 +549,57 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     false
   );
 
+  //#region QueryVirtuoso
+  const { queryData, fetchNextQuery, hasNextQuery, isQueryFetching, isFetchingQueryNext, isQueryLoading, noMoreQuery } =
+    useInfinitePostsBySearchQueryWithHashtagAtPage(
+      {
+        first: 20,
+        minBurnFilter: filterValue ?? 1,
+        query: query,
+        hashtags: hashtags,
+        pageId: page.id,
+        orderBy: {
+          direction: OrderDirection.Desc,
+          field: PostOrderField.UpdatedAt
+        }
+      },
+      false
+    );
+
+  const {
+    data: pageTimelineScore,
+    hasNext: hasNextPageTimelineScore,
+    isFetching: isFetchingPageTimelineScore,
+    fetchNext: fetchNextPageTimelineScore
+  } = useInfinitePageTimelineQuery({
+    first: 20,
+    id: page.id
+  });
+
+  const loadMoreItems = () => {
+    if (hasNext && !isFetching) {
+      fetchNext();
+    } else if (hasNext) {
+      fetchNext();
+    }
+  };
+
+  const loadMoreQueryItems = () => {
+    if (hasNextQuery && !isQueryFetching && !noMoreQuery) {
+      fetchNextQuery();
+    } else if (hasNextQuery && !noMoreQuery) {
+      fetchNextQuery();
+    }
+  };
+
+  const loadMoreItemsPageTimelineScore = () => {
+    if (hasNextPageTimelineScore && !isFetchingPageTimelineScore) {
+      fetchNextPageTimelineScore();
+    } else if (hasNextPageTimelineScore) {
+      fetchNextPageTimelineScore();
+    }
+  };
+
   useEffect(() => {
     const pageId = page.id;
     const topHashtags = _.map(hashtagData, 'content');
@@ -557,14 +610,6 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
 
     setSuggestedTags(combinedHashtags);
   }, [recentTagAtPages, hashtagData]);
-
-  const loadMoreItems = () => {
-    if (hasNext && !isFetching) {
-      fetchNext();
-    } else if (hasNext) {
-      fetchNext();
-    }
-  };
 
   useEffect(() => {
     if (refs.current[postIdSelected]) {
@@ -624,31 +669,6 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     }
   };
 
-  //#region QueryVirtuoso
-  const { queryData, fetchNextQuery, hasNextQuery, isQueryFetching, isFetchingQueryNext, isQueryLoading, noMoreQuery } =
-    useInfinitePostsBySearchQueryWithHashtagAtPage(
-      {
-        first: 20,
-        minBurnFilter: filterValue ?? 1,
-        query: query,
-        hashtags: hashtags,
-        pageId: page.id,
-        orderBy: {
-          direction: OrderDirection.Desc,
-          field: PostOrderField.UpdatedAt
-        }
-      },
-      false
-    );
-
-  const loadMoreQueryItems = () => {
-    if (hasNextQuery && !isQueryFetching && !noMoreQuery) {
-      fetchNextQuery();
-    } else if (hasNextQuery && !noMoreQuery) {
-      fetchNextQuery();
-    }
-  };
-
   const QueryFooter = () => {
     if (isQueryLoading) return null;
     return (
@@ -695,38 +715,73 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     return (
       <React.Fragment>
         {!query && hashtags.length === 0 ? (
-          <InfiniteScroll
-            dataLength={data.length}
-            next={loadMoreItems}
-            hasMore={hasNext}
-            loader={<Skeleton avatar active />}
-            endMessage={
-              <p style={{ textAlign: 'center' }}>
-                <b>{data.length > 0 ? 'end reached' : ''}</b>
-              </p>
-            }
-            scrollableTarget="scrollableDiv"
-          >
-            {data.map((item, index) => {
-              return (
-                <div
-                  key={item.id}
-                  ref={element => {
-                    refs.current[item.id] = element;
-                  }}
-                >
-                  <PostListItem
-                    item={item}
+          isPostsByTime ? (
+            <InfiniteScroll
+              dataLength={data.length}
+              next={loadMoreItems}
+              hasMore={hasNext}
+              loader={<Skeleton avatar active />}
+              endMessage={
+                <p style={{ textAlign: 'center' }}>
+                  <b>{data.length > 0 ? 'end reached' : ''}</b>
+                </p>
+              }
+              scrollableTarget="scrollableDiv"
+            >
+              {data.map((item, index) => {
+                return (
+                  <div
                     key={item.id}
-                    postListType={PostListType.Page}
-                    addToRecentHashtags={hashtag =>
-                      dispatch(addRecentHashtagAtPages({ id: page.id, hashtag: hashtag.substring(1) }))
-                    }
-                  />
-                </div>
-              );
-            })}
-          </InfiniteScroll>
+                    ref={element => {
+                      refs.current[item.id] = element;
+                    }}
+                  >
+                    <PostListItem
+                      item={item}
+                      key={item.id}
+                      postListType={PostListType.Page}
+                      addToRecentHashtags={hashtag =>
+                        dispatch(addRecentHashtagAtPages({ id: page.id, hashtag: hashtag.substring(1) }))
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </InfiniteScroll>
+          ) : (
+            <InfiniteScroll
+              dataLength={pageTimelineScore.length}
+              next={loadMoreItemsPageTimelineScore}
+              hasMore={hasNextPageTimelineScore}
+              loader={<Skeleton avatar active />}
+              endMessage={
+                <p style={{ textAlign: 'center' }}>
+                  <b>{pageTimelineScore.length > 0 ? 'end reached' : ''}</b>
+                </p>
+              }
+              scrollableTarget="scrollableDiv"
+            >
+              {pageTimelineScore.map((item, index) => {
+                return (
+                  <div
+                    key={item.id}
+                    ref={element => {
+                      refs.current[item.id] = element;
+                    }}
+                  >
+                    <PostListItem
+                      item={item.data}
+                      key={item.id}
+                      postListType={PostListType.Page}
+                      addToRecentHashtags={hashtag =>
+                        dispatch(addRecentHashtagAtPages({ id: page.id, hashtag: hashtag.substring(1) }))
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </InfiniteScroll>
+          )
         ) : (
           <InfiniteScroll
             dataLength={queryData.length}
@@ -1024,7 +1079,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                       setQuery('angular');
                     }}
                   /> */}
-                  {data.length == 0 && (
+                  {(pageTimelineScore.length == 0 || data.length == 0) && (
                     <div className="blank-timeline">
                       <img className="time-line-blank" src="/images/time-line-blank.svg" alt="" />
                       <p>Become a first person post on the page...</p>

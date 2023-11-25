@@ -19,6 +19,9 @@ export class BurnFanoutProcessor extends WorkerHost {
 
   static inNetworkSourceKey = 'timeline:innetwork:source';
   static outNetworkSourceKey = 'timeline:outnetwork:source';
+  static timelinePageKey = 'timeline:page';
+  static timelineTokenKey = 'timeline:token';
+  static timelineProfileKey = 'timeline:profile';
 
   constructor(
     private readonly followCacheService: FollowCacheService,
@@ -68,6 +71,19 @@ export class BurnFanoutProcessor extends WorkerHost {
         const keyInNetwork = `${BurnFanoutProcessor.inNetworkSourceKey}:${follower}`;
         pipeline.zincrby(keyInNetwork, score, timelineId);
       }
+
+      //update score for post in page or token
+      if (post.pageId) {
+        const keyPage = `${BurnFanoutProcessor.timelinePageKey}:${post.pageId}`;
+        pipeline.zincrby(keyPage, score, timelineId);
+      } else if (post.tokenId) {
+        const keyToken = `${BurnFanoutProcessor.timelineTokenKey}:${post.tokenId}`;
+        pipeline.zincrby(keyToken, score, timelineId);
+      }
+
+      //update score for post in profile
+      const keyProfile = `${BurnFanoutProcessor.timelineProfileKey}:${post.accountId}`;
+      pipeline.zincrby(keyProfile, score, timelineId);
 
       await pipeline.exec();
     } catch (error) {

@@ -64,9 +64,9 @@ export const getIsSystemThemes = createSelector(
   (state: SettingsState) => state.isSystemThemes
 );
 
-export const getIsTopPosts = createSelector(
+export const getIsPostsByTime = createSelector(
   (state: RootState) => state.settings,
-  (state: SettingsState) => state.isTopPosts
+  (state: SettingsState) => state.isPostsByTime
 );
 
 export const getLevelFilter = createSelector(

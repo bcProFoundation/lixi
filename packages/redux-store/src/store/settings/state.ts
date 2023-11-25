@@ -10,7 +10,7 @@ export interface SettingsState {
   filterPostsPage: number;
   filterPostsToken: number;
   filterPostsProfile: number;
-  isTopPosts: boolean;
+  isPostsByTime: boolean;
   currentThemes: string;
   isSystemThemes: boolean;
   levelFilter: number;

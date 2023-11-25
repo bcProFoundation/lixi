@@ -124,6 +124,7 @@ export default {
   'general.support': 'Hỗ trợ',
   'general.all': 'Tất cả',
   'general.installApp': 'Cài đặt ứng dụng',
+  'general.postsByTime': 'Bài viết theo thời gian: ',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Bạn cần nhập đúng cụm từ bảo mật',

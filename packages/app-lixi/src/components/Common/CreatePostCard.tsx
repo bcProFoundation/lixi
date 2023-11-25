@@ -15,8 +15,7 @@ import {
   getCurrentThemes,
   getFilterPostsHome,
   getFilterPostsPage,
-  getFilterPostsToken,
-  getIsTopPosts
+  getFilterPostsToken
 } from '@store/settings/selectors';
 import { api as timelineApi } from '@store/timeline/timeline.generated';
 import { showToast } from '@store/toast/actions';
@@ -226,7 +225,6 @@ const CreatePostCard = (props: CreatePostCardProp) => {
   const askAuthorization = useAuthorization();
   const showCreatePostMobile = useAppSelector(getShowCreatePost);
   const accountInfoTemp = useAppSelector(getAccountInfoTemp);
-  const isTop = useAppSelector(getIsTopPosts);
   const level = useAppSelector(getLevelFilter);
 
   const [
@@ -302,7 +300,6 @@ const CreatePostCard = (props: CreatePostCardProp) => {
           hashtagId: hashtagId,
           hashtags: hashtags,
           query: query,
-          isTop: String(isTop),
           minBurnFilter: filterValue,
           orderBy: {
             direction: OrderDirection.Desc,

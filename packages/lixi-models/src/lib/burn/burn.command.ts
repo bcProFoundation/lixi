@@ -65,8 +65,6 @@ export class BurnQueueCommand {
 }
 
 export class BurnExtraArguments {
-  isTop?: boolean;
-
   query?: string;
 
   hashtags?: string[];

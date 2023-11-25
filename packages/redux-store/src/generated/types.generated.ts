@@ -451,7 +451,6 @@ export type EventDana = {
 export type ExtraArguments = {
   hashtagId?: InputMaybe<Scalars['String']>;
   hashtags?: InputMaybe<Array<Scalars['String']>>;
-  isTop?: InputMaybe<Scalars['String']>;
   minBurnFilter?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<PostOrder>;
   query?: InputMaybe<Scalars['String']>;

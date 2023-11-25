@@ -19,7 +19,7 @@ import { useCreateFollowAccountMutation, useDeleteFollowAccountMutation } from '
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
 import { useInfinitePostsByUserIdQuery } from '@store/post/useInfinitePostsByUserIdQuery';
-import { getFilterPostsProfile, getLevelFilter } from '@store/settings/selectors';
+import { getFilterPostsProfile, getIsPostsByTime, getLevelFilter } from '@store/settings/selectors';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { Avatar, Button, Skeleton, Space, Tabs } from 'antd';
 import _ from 'lodash';
@@ -29,6 +29,7 @@ import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
 import { WithAuthorizeAction } from '../Common/Authorization/WithAuthorizeAction';
+import { useInfiniteProfileTimelineQuery } from '@store/timeline';
 
 export const URL_AVATAR_DEFAULT = '/images/default-avatar.jpg';
 export const URL_COVER_DEFAULT = '/images/default-avatar.jpg';
@@ -463,6 +464,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const level = useAppSelector(getLevelFilter);
   const [query, setQuery] = useState('');
   const [hashtags, setHashtags] = useState([]);
+  const isPostsByTime = useAppSelector(getIsPostsByTime);
 
   const [
     createFollowAccountTrigger,
@@ -504,10 +506,12 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
       false
     );
 
-  useEffect(() => {
-    if (slpBalancesAndUtxos === slpBalancesAndUtxosRef.current) return;
-    dispatch(setTransactionReady());
-  }, [slpBalancesAndUtxos.nonSlpUtxos]);
+  const {
+    data: profileTimelineScore,
+    fetchNext: fetchNextprofileTimelineScore,
+    isFetching: isFetchingProfileTimelineScore,
+    hasNext: hasNextProfileTimelineScore
+  } = useInfiniteProfileTimelineQuery({ first: 20, id: _.toSafeInteger(user.id) });
 
   const loadMoreItems = () => {
     if (hasNext && !isFetching) {
@@ -516,6 +520,19 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
       fetchNext();
     }
   };
+
+  const loadMoreItemsProfileTimelineScore = () => {
+    if (hasNextProfileTimelineScore && !isFetchingProfileTimelineScore) {
+      fetchNextprofileTimelineScore();
+    } else if (hasNextProfileTimelineScore) {
+      fetchNextprofileTimelineScore();
+    }
+  };
+
+  useEffect(() => {
+    if (slpBalancesAndUtxos === slpBalancesAndUtxosRef.current) return;
+    dispatch(setTransactionReady());
+  }, [slpBalancesAndUtxos.nonSlpUtxos]);
 
   useDidMountEffectNotification();
 
@@ -801,7 +818,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                 </div> */}
                 {selectedAccountId == user.id && <CreatePostCard userId={user.id} hashtags={hashtags} query={query} />}
                 <Timeline>
-                  {data.length == 0 && !isLoading && (
+                  {(data.length == 0 || profileTimelineScore.length == 0) && (
                     <div className="blank-timeline">
                       <img className="time-line-blank" src="/images/time-line-blank.svg" alt="" />
                       <p>Sharing your thinking...</p>
@@ -809,22 +826,41 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                   )}
 
                   <React.Fragment>
-                    <InfiniteScroll
-                      dataLength={data.length}
-                      next={loadMoreItems}
-                      hasMore={hasNext}
-                      loader={<Skeleton avatar active />}
-                      endMessage={
-                        <p style={{ textAlign: 'center' }}>
-                          <b>{data.length > 0 ? 'end reached' : ''}</b>
-                        </p>
-                      }
-                      scrollableTarget="scrollableDiv"
-                    >
-                      {data.map((item, index) => {
-                        return <PostListItem item={item} key={item.id} postListType={PostListType.Profile} />;
-                      })}
-                    </InfiniteScroll>
+                    {isPostsByTime ? (
+                      <InfiniteScroll
+                        dataLength={data.length}
+                        next={loadMoreItems}
+                        hasMore={hasNext}
+                        loader={<Skeleton avatar active />}
+                        endMessage={
+                          <p style={{ textAlign: 'center' }}>
+                            <b>{data.length > 0 ? 'end reached' : ''}</b>
+                          </p>
+                        }
+                        scrollableTarget="scrollableDiv"
+                      >
+                        {data.map((item, index) => {
+                          return <PostListItem item={item} key={item.id} postListType={PostListType.Profile} />;
+                        })}
+                      </InfiniteScroll>
+                    ) : (
+                      <InfiniteScroll
+                        dataLength={profileTimelineScore.length}
+                        next={loadMoreItemsProfileTimelineScore}
+                        hasMore={hasNextProfileTimelineScore}
+                        loader={<Skeleton avatar active />}
+                        endMessage={
+                          <p style={{ textAlign: 'center' }}>
+                            <b>{profileTimelineScore.length > 0 ? 'end reached' : ''}</b>
+                          </p>
+                        }
+                        scrollableTarget="scrollableDiv"
+                      >
+                        {profileTimelineScore.map((item, index) => {
+                          return <PostListItem item={item.data} key={item.id} postListType={PostListType.Profile} />;
+                        })}
+                      </InfiniteScroll>
+                    )}
                   </React.Fragment>
                 </Timeline>
               </ContentTimeline>
