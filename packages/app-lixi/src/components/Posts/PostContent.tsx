@@ -15,10 +15,12 @@ const PostContent = ({ post, showTranslation, currentLocale }) => {
         ? post.translations[0].translateContent
         : post.content;
     } else {
+      const indexPostTranslate =
+        post?.translations && post.translations.findIndex(item => item.translateLanguage === currentLocale);
+
       return post?.translations && post?.translations.length > 0 && showTranslation
-        ? currentLocale === 'en'
-          ? post.translations[Language.en].translateContent
-          : post.translations[Language.vi]?.translateContent || post.translations[Language.en].translateContent //old post dont have vi trans will translate => en
+        ? post.translations[indexPostTranslate === -1 ? 0 : indexPostTranslate]?.translateContent ||
+            post.translations[Language.en].translateContent //old post dont have vi trans will translate => en
         : post.content;
     }
   }, [showTranslation, currentLocale]);
