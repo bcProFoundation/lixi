@@ -11,6 +11,7 @@ import { Args, Query, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PubSub } from 'graphql-subscriptions';
 import { Redis } from 'ioredis';
+import _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { createEdge } from '../../common/custom-graphql-relay/paginate';
 import { AccountEntity } from '../../decorators';
@@ -98,6 +99,79 @@ export class TimelineResolver {
     @Args() { after, first }: BasicPaginationArgs,
     @Args({ name: 'id', type: () => String }) id: string
   ) {
+    const paginated = await this.timelineService.getPagePaginatedTimeline(id, first, after);
+    const timelineIds = paginated.edges.map(item => item.cursor);
+    const timelines = await this.timelineItemService.getByIds(timelineIds);
+
+    const result = {
+      ...paginated,
+      edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+    } as IBasicPaginated<TimelineItem>;
+
+    return result;
+  }
+
+  @SkipThrottle()
+  @Query(returns => TimelineItemConnection)
+  @UseFilters(GqlHttpExceptionFilter)
+  @UseGuards(GqlJwtAuthGuardByPass)
+  async pageTimelineByTime(
+    @AccountEntity() account: Account,
+    @Args() { after, first }: BasicPaginationArgs,
+    @Args({ name: 'id', type: () => String }) id: string,
+    @Args({ name: 'level', type: () => Number }) level: number
+  ) {
+    const page = await this.prisma.page.findUnique({
+      where: { id: id },
+      select: {
+        id: true,
+        showNegativePost: true
+      }
+    });
+
+    if (!page) {
+      return null;
+    }
+
+    if ((level === 0 || _.isNil(level)) && page.showNegativePost) {
+      const paginated = await this.timelineService.getPagePaginatedTimelineByTimeNoLevelShowNegative(id, first, after);
+      const timelineIds = paginated.edges.map(item => item.cursor);
+      const timelines = await this.timelineItemService.getByIds(timelineIds);
+
+      const result = {
+        ...paginated,
+        edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+      } as IBasicPaginated<TimelineItem>;
+
+      return result;
+    }
+
+    if (level !== 0 && !_.isNil(level)) {
+      const paginated = await this.timelineService.getPagePaginatedTimelineByTimeWithLevel(id, level, first, after);
+      const timelineIds = paginated.edges.map(item => item.cursor);
+      const timelines = await this.timelineItemService.getByIds(timelineIds);
+
+      const result = {
+        ...paginated,
+        edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+      } as IBasicPaginated<TimelineItem>;
+
+      return result;
+    }
+
+    if ((level === 0 || _.isNil(level)) && page.showNegativePost === false && account) {
+      const paginated = await this.timelineService.getPagePaginatedTimeline(id, first, after);
+      const timelineIds = paginated.edges.map(item => item.cursor);
+      const timelines = await this.timelineItemService.getByIds(timelineIds);
+
+      const result = {
+        ...paginated,
+        edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+      } as IBasicPaginated<TimelineItem>;
+
+      return result;
+    }
+
     const paginated = await this.timelineService.getPagePaginatedTimeline(id, first, after);
     const timelineIds = paginated.edges.map(item => item.cursor);
     const timelines = await this.timelineItemService.getByIds(timelineIds);

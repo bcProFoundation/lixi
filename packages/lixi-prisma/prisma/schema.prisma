@@ -110,6 +110,7 @@ model Page {
   pageAvatarImageUploadableId String?              @unique @map("page_avatar_image_uploadable_id")
   pageCoverImageUploadable    ImageUploadable?     @relation("page_cover_image_uploadable", fields: [pageCoverImageUploadableId], references: [id])
   pageCoverImageUploadableId  String?              @unique @map("page_cover_image_uploadable_id")
+  showNegativePost            Boolean?             @default(false) @map("show_negative_post")
   dana                        PageDana?
   posts                       Post[]
   followers                   FollowPage[]
