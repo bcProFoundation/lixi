@@ -21,6 +21,7 @@ export class TimelineService {
   static ratioSteps = [0.1, 0.3, 0.5, 0.7, 0.9];
   static profileTimelineKey = 'timeline:profile:{{profileId}}';
   static pageTimelineKey = 'timeline:page:{{pageId}}';
+  static pageTimelineWithLevelKey = 'timeline:page:{{pageId}}:{{level}}';
   static tokenTimelineKey = 'timeline:token:{{tokenId}}';
 
   constructor(
@@ -342,9 +343,18 @@ export class TimelineService {
   }
 
   async getPagePaginatedTimelineByTimeWithLevel(pageId: string, level: number, first: number = 20, after?: string) {
-    const key = template(`${TimelineService.pageTimelineKey}`, { pageId: pageId, level: level });
+    const key = template(`${TimelineService.pageTimelineWithLevelKey}`, { pageId: pageId, level: level });
     const limit = 1000;
+    console.log(
+      '🚀 ~ file: timeline.service.ts:347 ~ TimelineService ~ getPagePaginatedTimelineByTimeWithLevel ~ key:',
+      key
+    );
     const exist = await this.redis.exists([key]);
+
+    console.log(
+      '🚀 ~ file: timeline.service.ts:348 ~ TimelineService ~ getPagePaginatedTimelineByTimeWithLevel ~ exist:',
+      exist
+    );
     if (!exist) {
       await this.cachePageTimelineByTimeWithLevel(pageId, level, limit);
     }
@@ -422,7 +432,7 @@ export class TimelineService {
   }
 
   private async cachePageTimelineByTimeWithLevel(pageId: string, level: number, limit: number = 0, offset: number = 0) {
-    const key = template(`${TimelineService.pageTimelineKey}`, { pageId: pageId, level: level });
+    const key = template(`${TimelineService.pageTimelineWithLevelKey}`, { pageId: pageId, level: level });
     try {
       //query all posts in page where level = level order by time
       const posts = await this.prisma.post.findMany({

@@ -197,7 +197,7 @@ const enhancedApi = api.enhanceEndpoints({
               })
             );
           }
-        } catch { }
+        } catch {}
       }
     },
     updatePost: {
@@ -206,7 +206,7 @@ const enhancedApi = api.enhanceEndpoints({
         const { minBurnFilter } = extraArguments;
         try {
           const { data: result } = await queryFulfilled;
-        } catch { }
+        } catch {}
       }
     },
     repost: {}

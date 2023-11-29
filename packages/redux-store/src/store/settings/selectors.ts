@@ -73,3 +73,8 @@ export const getLevelFilter = createSelector(
   (state: RootState) => state.settings,
   (state: SettingsState) => state.levelFilter
 );
+
+export const getNegativeDanaStatus = createSelector(
+  (state: RootState) => state.settings,
+  (state: SettingsState) => state.negativeDana
+);

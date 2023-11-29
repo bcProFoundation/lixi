@@ -48,6 +48,21 @@ const enhancedApi = api.enhanceEndpoints({
         currentCacheData.pageTimeline.totalCount = responseData.pageTimeline.totalCount;
       }
     },
+    PageTimelineByTime: {
+      providesTags: ['Timeline', 'CommentCreated'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { id, level, showNegative, ...otherArgs } = queryArgs;
+          return { id, level, showNegative };
+        }
+        return { queryArgs };
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.pageTimelineByTime.edges.push(...responseData.pageTimelineByTime.edges);
+        currentCacheData.pageTimelineByTime.pageInfo = responseData.pageTimelineByTime.pageInfo;
+        currentCacheData.pageTimelineByTime.totalCount = responseData.pageTimelineByTime.totalCount;
+      }
+    },
     TokenTimeline: {
       providesTags: ['Timeline', 'CommentCreated'],
       serializeQueryArgs({ queryArgs }) {
@@ -75,6 +90,8 @@ export const {
   useLazyHomeTimelineQuery,
   usePageTimelineQuery,
   useLazyPageTimelineQuery,
+  usePageTimelineByTimeQuery,
+  useLazyPageTimelineByTimeQuery,
   useProfileTimelineQuery,
   useLazyProfileTimelineQuery,
   useTokenTimelineQuery,

@@ -1,4 +1,4 @@
-import { IBasicPaginated, IEdge } from '@bcpros/lixi-models';
+import { IBasicPaginated, IEdge, POST_TYPE } from '@bcpros/lixi-models';
 import { InternalServerErrorException } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
@@ -63,6 +63,30 @@ export async function basicSortedSetPagination(
   const lastKnownRank = totalCount - 1;
   const endRank = Math.min(startRank + first - 1, lastKnownRank);
   const ids = await redis.zrevrange(key, startRank, endRank);
+  return basicPaginate<string>(ids, totalCount, startRank);
+}
+
+export async function basicSortedSetPaginationWithPrisma(
+  objectIds: string[],
+  first: number,
+  after?: string
+): Promise<IBasicPaginated<string>> {
+  // We assume that the key is existed
+  let startRank = 0;
+  let cursorRank = null;
+  if (after) {
+    cursorRank = objectIds.indexOf(after);
+    startRank = cursorRank ? cursorRank + 1 : 0;
+  }
+
+  // and the rank of latest item in the sorted set
+  const totalCount = objectIds.length;
+  const lastKnownRank = totalCount - 1;
+  const endRank = Math.min(startRank + first - 1, lastKnownRank);
+  const ids = objectIds.slice(startRank, endRank + 1).map(id => {
+    return `${POST_TYPE.POST}:${id}`;
+  });
+
   return basicPaginate<string>(ids, totalCount, startRank);
 }
 

@@ -13,7 +13,8 @@ import {
   setIsSystemThemes,
   toggleCollapsedSideNav,
   updateLocale,
-  changeCurrentLocale
+  changeCurrentLocale,
+  setNegativeDanaStatus
 } from './actions';
 import { SettingsState } from './state';
 // import { SearchBoxType } from '@bcpros/lixi-models/src/lib/search';
@@ -34,7 +35,8 @@ const initialState: SettingsState = {
   isPostsByTime: false,
   currentThemes: 'system',
   isSystemThemes: true,
-  levelFilter: 3
+  levelFilter: 0,
+  negativeDana: false
 };
 
 export const settingsReducer = createReducer(initialState, builder => {
@@ -85,6 +87,9 @@ export const settingsReducer = createReducer(initialState, builder => {
     })
     .addCase(saveLevelFilter, (state, action) => {
       state.levelFilter = action.payload;
+    })
+    .addCase(setNegativeDanaStatus, (state, action) => {
+      state.negativeDana = action.payload;
     })
     .addCase(changeCurrentLocale, (state, action) => {
       state.locale = action.payload;

@@ -379,6 +379,102 @@ export type PageTimelineQuery = {
   };
 };
 
+export type PageTimelineByTimeQueryVariables = Types.Exact<{
+  after?: Types.InputMaybe<Types.Scalars['String']>;
+  first?: Types.InputMaybe<Types.Scalars['Int']>;
+  id: Types.Scalars['String'];
+  level: Types.Scalars['Int'];
+  showNegative: Types.Scalars['Boolean'];
+}>;
+
+export type PageTimelineByTimeQuery = {
+  __typename?: 'Query';
+  pageTimelineByTime: {
+    __typename?: 'TimelineItemConnection';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'TimelineItemBasicEdge';
+      cursor: string;
+      node: {
+        __typename?: 'TimelineItem';
+        id: string;
+        data: {
+          __typename: 'Post';
+          id: string;
+          content: string;
+          accountId: number;
+          pageId?: string | null;
+          tokenId?: string | null;
+          repostCount: number;
+          totalComments: number;
+          commentableId?: string | null;
+          createdAt: any;
+          updatedAt: any;
+          followPostOwner?: boolean | null;
+          followedPage?: boolean | null;
+          followedToken?: boolean | null;
+          originalLanguage?: string | null;
+          danaViewScore?: number | null;
+          account: {
+            __typename?: 'Account';
+            address: string;
+            id: number;
+            name: string;
+            avatar?: string | null;
+            createCommentFee?: string | null;
+          };
+          page?: {
+            __typename?: 'Page';
+            avatar?: string | null;
+            name: string;
+            id: string;
+            createPostFee: string;
+            createCommentFee: string;
+            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          } | null;
+          token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
+          reposts?: Array<{
+            __typename?: 'Repost';
+            accountId?: number | null;
+            account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+          }> | null;
+          dana?: {
+            __typename?: 'PostDana';
+            danaBurnUp: number;
+            danaBurnDown: number;
+            danaBurnScore: number;
+            danaReceivedUp: number;
+            danaReceivedDown: number;
+            danaReceivedScore: number;
+            version: number;
+          } | null;
+          translations?: Array<{
+            __typename?: 'PostTranslation';
+            id: string;
+            translateContent?: string | null;
+            translateLanguage?: string | null;
+          }> | null;
+          imageUploadable?: {
+            __typename?: 'ImageUploadable';
+            id: string;
+            uploads: Array<{
+              __typename?: 'Upload';
+              id: string;
+              sha: string;
+              bucket?: string | null;
+              width?: number | null;
+              height?: number | null;
+              cfImageId?: string | null;
+              cfImageFilename?: string | null;
+            }>;
+          } | null;
+        };
+      };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
+  };
+};
+
 export type TokenTimelineQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
   first?: Types.InputMaybe<Types.Scalars['Int']>;
@@ -555,6 +651,35 @@ export const PageTimelineDocument = `
 }
     ${PostFieldsFragmentDoc}
 ${BasicPageInfoFieldsFragmentDoc}`;
+export const PageTimelineByTimeDocument = `
+    query PageTimelineByTime($after: String, $first: Int = 20, $id: String!, $level: Int!, $showNegative: Boolean!) {
+  pageTimelineByTime(
+    after: $after
+    first: $first
+    id: $id
+    level: $level
+    showNegative: $showNegative
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        id
+        data {
+          __typename
+          ... on Post {
+            ...PostFields
+          }
+        }
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+    ${PostFieldsFragmentDoc}
+${BasicPageInfoFieldsFragmentDoc}`;
 export const TokenTimelineDocument = `
     query TokenTimeline($after: String, $first: Int = 20, $id: String!) {
   tokenTimeline(after: $after, first: $first, id: $id) {
@@ -594,6 +719,9 @@ const injectedRtkApi = api.injectEndpoints({
     PageTimeline: build.query<PageTimelineQuery, PageTimelineQueryVariables>({
       query: variables => ({ document: PageTimelineDocument, variables })
     }),
+    PageTimelineByTime: build.query<PageTimelineByTimeQuery, PageTimelineByTimeQueryVariables>({
+      query: variables => ({ document: PageTimelineByTimeDocument, variables })
+    }),
     TokenTimeline: build.query<TokenTimelineQuery, TokenTimelineQueryVariables>({
       query: variables => ({ document: TokenTimelineDocument, variables })
     })
@@ -610,6 +738,8 @@ export const {
   useLazyProfileTimelineQuery,
   usePageTimelineQuery,
   useLazyPageTimelineQuery,
+  usePageTimelineByTimeQuery,
+  useLazyPageTimelineByTimeQuery,
   useTokenTimelineQuery,
   useLazyTokenTimelineQuery
 } = injectedRtkApi;

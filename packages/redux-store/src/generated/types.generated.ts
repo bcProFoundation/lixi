@@ -1259,6 +1259,7 @@ export type Query = {
   page: Page;
   pageMessageSession: PageMessageSession;
   pageTimeline: TimelineItemConnection;
+  pageTimelineByTime: TimelineItemConnection;
   pagesByFollower: PageBasicConnection;
   poll: Poll;
   post: Post;
@@ -1684,6 +1685,15 @@ export type QueryPageTimelineArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   id: Scalars['String'];
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
+export type QueryPageTimelineByTimeArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  id: Scalars['String'];
+  level: Scalars['Int'];
+  showNegative: Scalars['Boolean'];
   skip?: InputMaybe<Scalars['Int']>;
 };
 
