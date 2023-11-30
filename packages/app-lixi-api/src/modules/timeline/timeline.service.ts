@@ -21,8 +21,10 @@ export class TimelineService {
   static ratioSteps = [0.1, 0.3, 0.5, 0.7, 0.9];
   static profileTimelineKey = 'timeline:profile:{{profileId}}';
   static pageTimelineKey = 'timeline:page:{{pageId}}';
-  static pageTimelineWithLevelKey = 'timeline:page:{{pageId}}:{{level}}';
-  static pageTimelineNoLevelShowNegativeKey = 'timeline:page:{{pageId}}:showNegative:true';
+  static pageTimelineByTimeNoAccountKey = 'timeline:page:{{pageId}}:account:none';
+  static pageTimelineByTimeWithAccountKey = 'timeline:page:{{pageId}}:account:{{accountId}}';
+  static pageTimelineByTimeWithLevelKey = 'timeline:page:{{pageId}}:{{level}}';
+  static pageTimelineByTimeNoLevelShowNegativeKey = 'timeline:page:{{pageId}}:showNegative:true';
   static tokenTimelineKey = 'timeline:token:{{tokenId}}';
 
   constructor(
@@ -343,8 +345,56 @@ export class TimelineService {
     return paginated;
   }
 
+  async getPagePaginatedTimelineByTimeNoAccount(pageId: string, first: number = 20, after?: string) {
+    const key = template(`${TimelineService.pageTimelineByTimeNoAccountKey}`, { pageId: pageId });
+    const limit = 1000;
+    const exist = await this.redis.exists([key]);
+    if (!exist) {
+      await this.cachePageTimelineByTimeNoAccount(pageId, limit);
+    }
+    const paginated = await basicSortedSetPagination(this.redis, key, first, after);
+    const hasNextPage = paginated.pageInfo.hasNextPage;
+    if (!hasNextPage) {
+      const offset = paginated.totalCount;
+      const shouldPaginate = await this.cachePageTimelineByTimeNoAccount(pageId, limit, offset);
+      if (shouldPaginate) {
+        return await basicSortedSetPagination(this.redis, key, first, after);
+      }
+    }
+    // nothing change
+    return paginated;
+  }
+
+  async getPagePaginatedTimelineByTimeWithAccount(
+    pageId: string,
+    accountId: number,
+    first: number = 20,
+    after?: string
+  ) {
+    const key = template(`${TimelineService.pageTimelineByTimeWithAccountKey}`, {
+      pageId: pageId,
+      accountId: accountId
+    });
+    const limit = 1000;
+    const exist = await this.redis.exists([key]);
+    if (!exist) {
+      await this.cachePageTimelineByTimeWithAccount(pageId, accountId, limit);
+    }
+    const paginated = await basicSortedSetPagination(this.redis, key, first, after);
+    const hasNextPage = paginated.pageInfo.hasNextPage;
+    if (!hasNextPage) {
+      const offset = paginated.totalCount;
+      const shouldPaginate = await this.cachePageTimelineByTimeWithAccount(pageId, accountId, limit, offset);
+      if (shouldPaginate) {
+        return await basicSortedSetPagination(this.redis, key, first, after);
+      }
+    }
+    // nothing change
+    return paginated;
+  }
+
   async getPagePaginatedTimelineByTimeWithLevel(pageId: string, level: number, first: number = 20, after?: string) {
-    const key = template(`${TimelineService.pageTimelineWithLevelKey}`, { pageId: pageId, level: level });
+    const key = template(`${TimelineService.pageTimelineByTimeWithLevelKey}`, { pageId: pageId, level: level });
     const limit = 1000;
     const exist = await this.redis.exists([key]);
     if (!exist) {
@@ -364,7 +414,7 @@ export class TimelineService {
   }
 
   async getPagePaginatedTimelineByTimeNoLevelShowNegative(pageId: string, first: number = 20, after?: string) {
-    const key = template(`${TimelineService.pageTimelineNoLevelShowNegativeKey}`, { pageId: pageId });
+    const key = template(`${TimelineService.pageTimelineByTimeNoLevelShowNegativeKey}`, { pageId: pageId });
     const limit = 1000;
     const exist = await this.redis.exists([key]);
     if (!exist) {
@@ -423,8 +473,113 @@ export class TimelineService {
     return paginated;
   }
 
+  private async cachePageTimelineByTimeWithAccount(
+    pageId: string,
+    accountId: number,
+    limit: number = 0,
+    offset: number = 0
+  ) {
+    const key = template(`${TimelineService.pageTimelineByTimeWithAccountKey}`, {
+      pageId: pageId,
+      accountId: accountId
+    });
+    try {
+      //query all posts in page where level = level order by time
+      const posts = await this.prisma.post.findMany({
+        where: {
+          OR: [
+            {
+              AND: [{ accountId: accountId }, { pageId: pageId }]
+            },
+            {
+              AND: [
+                { pageId: pageId },
+                {
+                  dana: {
+                    danaReceivedScore: {
+                      gte: 0
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        select: {
+          id: true,
+          type: true,
+          createdAt: true
+        },
+        orderBy: {
+          createdAt: 'desc'
+        },
+        take: limit,
+        skip: offset
+      });
+
+      // Check if there are any posts
+      // If not means that we should not need to query anymore
+      if (posts.length == 0) return false;
+      const pipeline = this.redis.pipeline();
+      for (const post of posts) {
+        const id = `${post.type}:${post.id}`;
+        pipeline.zincrby(key, post.createdAt.getTime(), id);
+      }
+      pipeline.expire(key, 2592000);
+      await pipeline.exec();
+      return true;
+    } catch (err) {
+      this.logger.error(err);
+    }
+  }
+
+  private async cachePageTimelineByTimeNoAccount(pageId: string, limit: number = 0, offset: number = 0) {
+    const key = template(`${TimelineService.pageTimelineByTimeNoAccountKey}`, { pageId: pageId });
+    try {
+      //query all posts in page where level = level order by time
+      const posts = await this.prisma.post.findMany({
+        where: {
+          AND: [
+            { pageId: pageId },
+            {
+              dana: {
+                danaReceivedScore: {
+                  gte: 0
+                }
+              }
+            }
+          ]
+        },
+        select: {
+          id: true,
+          type: true,
+          createdAt: true
+        },
+        orderBy: {
+          createdAt: 'desc'
+        },
+        take: limit,
+        skip: offset
+      });
+
+      // Check if there are any posts
+      // If not means that we should not need to query anymore
+      if (posts.length == 0) return false;
+      const pipeline = this.redis.pipeline();
+      for (const post of posts) {
+        const id = `${post.type}:${post.id}`;
+        pipeline.zincrby(key, post.createdAt.getTime(), id);
+      }
+      pipeline.expire(key, 2592000);
+      await pipeline.exec();
+      return true;
+    } catch (err) {
+      this.logger.error(err);
+    }
+  }
+
   private async cachePageTimelineByTimeWithLevel(pageId: string, level: number, limit: number = 0, offset: number = 0) {
-    const key = template(`${TimelineService.pageTimelineWithLevelKey}`, { pageId: pageId, level: level });
+    const key = template(`${TimelineService.pageTimelineByTimeWithLevelKey}`, { pageId: pageId, level: level });
     try {
       //query all posts in page where level = level order by time
       const posts = await this.prisma.post.findMany({
@@ -471,7 +626,7 @@ export class TimelineService {
   }
 
   private async cachePageTimelineByTimeNoLevelShowNegative(pageId: string, limit: number = 0, offset: number = 0) {
-    const key = template(`${TimelineService.pageTimelineNoLevelShowNegativeKey}`, { pageId: pageId });
+    const key = template(`${TimelineService.pageTimelineByTimeNoLevelShowNegativeKey}`, { pageId: pageId });
     try {
       //query all posts in page where level = level order by time
       const posts = await this.prisma.post.findMany({
@@ -489,6 +644,10 @@ export class TimelineService {
         take: limit,
         skip: offset
       });
+      console.log(
+        '🚀 ~ file: timeline.service.ts:651 ~ TimelineService ~ cachePageTimelineByTimeNoLevelShowNegative ~ posts:',
+        posts
+      );
 
       // Check if there are any posts
       // If not means that we should not need to query anymore

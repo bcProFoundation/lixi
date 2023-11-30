@@ -3,6 +3,7 @@ import {
   BasicPaginationArgs,
   IBasicPaginated,
   PostConnection,
+  POST_TYPE,
   TimelineItem,
   TimelineItemConnection
 } from '@bcpros/lixi-models';
@@ -137,39 +138,12 @@ export class TimelineResolver {
 
     if ((level === 0 || _.isNil(level)) && showNegative === false) {
       if (account) {
-        //Filter out negative post and query larger than 0 but also include post account
-        const posts = await this.prisma.post.findMany({
-          where: {
-            OR: [
-              {
-                AND: [{ accountId: account.id }, { pageId: id }]
-              },
-              {
-                AND: [
-                  { pageId: id },
-                  {
-                    dana: {
-                      danaReceivedScore: {
-                        gte: 0
-                      }
-                    }
-                  }
-                ]
-              }
-            ]
-          },
-          select: {
-            id: true
-          },
-          cursor: after ? { id: after } : undefined,
-          orderBy: {
-            createdAt: 'desc'
-          },
-          take: first
-        });
-
-        const postIds = posts.map(post => post.id);
-        const paginated = await basicSortedSetPaginationWithPrisma(postIds, first!, after);
+        const paginated = await this.timelineService.getPagePaginatedTimelineByTimeWithAccount(
+          id,
+          account.id,
+          first,
+          after
+        );
         const timelineIds = paginated.edges.map(item => item.cursor);
         const timelines = await this.timelineItemService.getByIds(timelineIds);
 
@@ -181,31 +155,7 @@ export class TimelineResolver {
         return result;
       } else {
         //Filter out negative post and query larger than 0 but also include post account
-        const posts = await this.prisma.post.findMany({
-          where: {
-            AND: [
-              { pageId: id },
-              {
-                dana: {
-                  danaReceivedScore: {
-                    gte: 0
-                  }
-                }
-              }
-            ]
-          },
-          select: {
-            id: true
-          },
-          cursor: after ? { id: after } : undefined,
-          orderBy: {
-            createdAt: 'desc'
-          },
-          take: first
-        });
-
-        const postIds = posts.map(post => post.id);
-        const paginated = await basicSortedSetPaginationWithPrisma(postIds, first!, after);
+        const paginated = await this.timelineService.getPagePaginatedTimelineByTimeNoAccount(id, first, after);
         const timelineIds = paginated.edges.map(item => item.cursor);
         const timelines = await this.timelineItemService.getByIds(timelineIds);
 
@@ -232,7 +182,7 @@ export class TimelineResolver {
       return result;
     }
 
-    //Query by level with show negative and must have an account
+    //Query no level with show negative and must have an account
     if ((level === 0 || _.isNil(level)) && showNegative === true && account) {
       const paginated = await this.timelineService.getPagePaginatedTimelineByTimeNoLevelShowNegative(id, first, after);
       const timelineIds = paginated.edges.map(item => item.cursor);

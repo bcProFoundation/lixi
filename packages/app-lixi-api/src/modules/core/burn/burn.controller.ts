@@ -241,7 +241,9 @@ export class BurnController {
           // Put burn result to fanout
           await this.burnFanoutQueue.add(BURN_FANOUT_QUEUE, {
             burn: savedBurn,
-            post: post
+            post: post,
+            previousDanaBurnScore: post?.dana?.danaBurnScore ?? 0,
+            latestDanaBurnScore: danaBurnScore
           });
         } else if (command.burnForType === BurnForType.Token) {
           const burnByAddress = this.convertBurnedByToAddress(command.burnedBy);
