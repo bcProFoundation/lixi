@@ -22,6 +22,7 @@ export class TimelineService {
   static profileTimelineKey = 'timeline:profile:{{profileId}}';
   static pageTimelineKey = 'timeline:page:{{pageId}}';
   static pageTimelineWithLevelKey = 'timeline:page:{{pageId}}:{{level}}';
+  static pageTimelineNoLevelShowNegativeKey = 'timeline:page:{{pageId}}:showNegative:true';
   static tokenTimelineKey = 'timeline:token:{{tokenId}}';
 
   constructor(
@@ -345,16 +346,7 @@ export class TimelineService {
   async getPagePaginatedTimelineByTimeWithLevel(pageId: string, level: number, first: number = 20, after?: string) {
     const key = template(`${TimelineService.pageTimelineWithLevelKey}`, { pageId: pageId, level: level });
     const limit = 1000;
-    console.log(
-      '🚀 ~ file: timeline.service.ts:347 ~ TimelineService ~ getPagePaginatedTimelineByTimeWithLevel ~ key:',
-      key
-    );
     const exist = await this.redis.exists([key]);
-
-    console.log(
-      '🚀 ~ file: timeline.service.ts:348 ~ TimelineService ~ getPagePaginatedTimelineByTimeWithLevel ~ exist:',
-      exist
-    );
     if (!exist) {
       await this.cachePageTimelineByTimeWithLevel(pageId, level, limit);
     }
@@ -372,7 +364,7 @@ export class TimelineService {
   }
 
   async getPagePaginatedTimelineByTimeNoLevelShowNegative(pageId: string, first: number = 20, after?: string) {
-    const key = template(`${TimelineService.pageTimelineKey}`, { pageId: pageId, showNegative: true });
+    const key = template(`${TimelineService.pageTimelineNoLevelShowNegativeKey}`, { pageId: pageId });
     const limit = 1000;
     const exist = await this.redis.exists([key]);
     if (!exist) {
@@ -479,7 +471,7 @@ export class TimelineService {
   }
 
   private async cachePageTimelineByTimeNoLevelShowNegative(pageId: string, limit: number = 0, offset: number = 0) {
-    const key = template(`${TimelineService.pageTimelineKey}`, { pageId: pageId });
+    const key = template(`${TimelineService.pageTimelineNoLevelShowNegativeKey}`, { pageId: pageId });
     try {
       //query all posts in page where level = level order by time
       const posts = await this.prisma.post.findMany({

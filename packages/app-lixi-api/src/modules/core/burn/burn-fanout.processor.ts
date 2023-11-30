@@ -11,6 +11,7 @@ import { BURN_FANOUT_QUEUE } from './burn.constants';
 import { Burn, Post, PostType } from '@bcpros/lixi-prisma';
 import { FollowCacheService } from '../../account/follow-cache.service';
 import { PostCacheService } from '../../page/post-cache.service';
+import { template } from 'src/utils/stringTemplate';
 
 @Injectable()
 @Processor(BURN_FANOUT_QUEUE, { concurrency: 50 })
@@ -19,7 +20,9 @@ export class BurnFanoutProcessor extends WorkerHost {
 
   static inNetworkSourceKey = 'timeline:innetwork:source';
   static outNetworkSourceKey = 'timeline:outnetwork:source';
-  static timelinePageKey = 'timeline:page';
+  static pageTimelineKey = 'timeline:page:{{pageId}}';
+  static pageTimelineWithLevelKey = 'timeline:page:{{pageId}}:{{level}}';
+  static pageTimelineNoLevelShowNegativeKey = 'timeline:page:{{pageId}}:showNegative:true';
   static timelineTokenKey = 'timeline:token';
   static timelineProfileKey = 'timeline:profile';
 
@@ -74,8 +77,15 @@ export class BurnFanoutProcessor extends WorkerHost {
 
       //update score for post in page or token
       if (post.pageId) {
-        const keyPage = `${BurnFanoutProcessor.timelinePageKey}:${post.pageId}`;
+        const level = [1, 10, 100, 1000];
+        const keyPage = template(`${BurnFanoutProcessor.pageTimelineKey}`, { pageId: post.pageId });
         pipeline.zincrby(keyPage, score, timelineId);
+        for (let i = 0; i < level.length; i++) {
+          pipeline.del(
+            template(`${BurnFanoutProcessor.pageTimelineWithLevelKey}`, { pageId: post.pageId, level: level[i] })
+          );
+        }
+        pipeline.del(template(`${BurnFanoutProcessor.pageTimelineNoLevelShowNegativeKey}`, { pageId: post.pageId }));
       } else if (post.tokenId) {
         const keyToken = `${BurnFanoutProcessor.timelineTokenKey}:${post.tokenId}`;
         pipeline.zincrby(keyToken, score, timelineId);

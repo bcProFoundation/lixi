@@ -162,7 +162,9 @@ export class TimelineResolver {
             id: true
           },
           cursor: after ? { id: after } : undefined,
-
+          orderBy: {
+            createdAt: 'desc'
+          },
           take: first
         });
 
@@ -181,21 +183,14 @@ export class TimelineResolver {
         //Filter out negative post and query larger than 0 but also include post account
         const posts = await this.prisma.post.findMany({
           where: {
-            OR: [
+            AND: [
+              { pageId: id },
               {
-                pageId: id
-              },
-              {
-                AND: [
-                  { pageId: id },
-                  {
-                    dana: {
-                      danaReceivedScore: {
-                        gte: 0
-                      }
-                    }
+                dana: {
+                  danaReceivedScore: {
+                    gte: 0
                   }
-                ]
+                }
               }
             ]
           },
@@ -203,7 +198,9 @@ export class TimelineResolver {
             id: true
           },
           cursor: after ? { id: after } : undefined,
-
+          orderBy: {
+            createdAt: 'desc'
+          },
           take: first
         });
 
