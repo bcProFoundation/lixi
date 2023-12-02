@@ -35,7 +35,13 @@ import { setSelectedPost } from '@store/post/actions';
 import { getSelectedPostId } from '@store/post/selectors';
 import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
 import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
-import { getFilterPostsPage, getIsPostsByTime, getLevelFilter, getNegativeDanaStatus } from '@store/settings/selectors';
+import {
+  getFilterPostsPage,
+  getIsPostsByTime,
+  getLevelFilter,
+  getMinimumDanaFilter,
+  getNegativeDanaStatus
+} from '@store/settings/selectors';
 import { getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { Button, Skeleton, Space, Tabs, Tag } from 'antd';
 import _ from 'lodash';
@@ -457,7 +463,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
   const isPostsByTime = useAppSelector(getIsPostsByTime);
-  const levelFilter = useAppSelector(getLevelFilter);
+  const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
   const negativeDanaStatus = useAppSelector(getNegativeDanaStatus);
 
   useEffect(() => {
@@ -586,7 +592,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   } = useInfinitePageTimelineByTimeQuery({
     first: 20,
     id: page.id,
-    level: levelFilter,
+    level: minimumDanaFilter,
     showNegative: negativeDanaStatus
   });
 

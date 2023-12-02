@@ -20,6 +20,7 @@ export const savePostsByTimeFilter = createAction<boolean>('settings/savePostsBy
 export const saveWebPushNotifConfig = createAction<WebPushNotifConfig>('settings/saveWebPushNotifConfig');
 export const saveAllowPushNotification = createAction<boolean>('settings/saveAllowPushNotification');
 export const saveLevelFilter = createAction<number>('settings/saveLevelFilter');
+export const saveMinimumDanaFilter = createAction<number>('settings/saveMinimumDanaFilter');
 export const setNegativeDanaStatus = createAction<boolean>('settings/setNegativeDanaStatus');
 
 export const changeCurrentLocale = createAction<string>('settings/changeCurrentLocale');

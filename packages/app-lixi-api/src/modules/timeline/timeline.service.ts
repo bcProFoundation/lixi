@@ -644,10 +644,6 @@ export class TimelineService {
         take: limit,
         skip: offset
       });
-      console.log(
-        '🚀 ~ file: timeline.service.ts:651 ~ TimelineService ~ cachePageTimelineByTimeNoLevelShowNegative ~ posts:',
-        posts
-      );
 
       // Check if there are any posts
       // If not means that we should not need to query anymore

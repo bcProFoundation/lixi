@@ -11,14 +11,14 @@ const pageTimelineAdapter = createEntityAdapter<TimelineQueryItem>({
 
 const { selectAll } = pageTimelineAdapter.getSelectors();
 
-interface TimelineListParams extends PaginationArgs {
+interface PageTimelineByTimeListParams extends PaginationArgs {
   id: string;
   level: number;
   showNegative: boolean;
 }
 
 export function useInfinitePageTimelineByTimeQuery(
-  params: TimelineListParams,
+  params: PageTimelineByTimeListParams,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
   const baseResult = usePageTimelineByTimeQuery(params);

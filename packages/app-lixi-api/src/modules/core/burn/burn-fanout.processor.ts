@@ -94,9 +94,11 @@ export class BurnFanoutProcessor extends WorkerHost {
             level: level[i]
           });
 
-          pipeline.zrem(keyPageByTimeWithLevel, timelineId);
+          if (latestDanaBurnScore < level[i]) {
+            pipeline.zrem(keyPageByTimeWithLevel, timelineId);
+          }
 
-          if (latestDanaBurnScore >= level[i] && latestDanaBurnScore < level[i + 1]) {
+          if (latestDanaBurnScore >= level[i]) {
             pipeline.zadd(keyPageByTimeWithLevel, postCreatedAt, timelineId);
           }
         }

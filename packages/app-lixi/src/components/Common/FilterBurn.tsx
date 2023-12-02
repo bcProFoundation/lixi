@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Checkbox, Input } from 'antd';
 import { FilterType } from '@bcpros/lixi-models/lib/filter';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { saveLevelFilter, setNegativeDanaStatus } from '@store/settings/actions';
+import { saveMinimumDanaFilter, setNegativeDanaStatus } from '@store/settings/actions';
 import styled from 'styled-components';
 import intl from 'react-intl-universal';
-import { getLevelFilter, getNegativeDanaStatus } from '@store/settings/selectors';
+import { getMinimumDanaFilter, getNegativeDanaStatus } from '@store/settings/selectors';
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import 'animate.css';
 import { CheckboxChangeEvent } from 'antd/es/checkbox';
 import { getAccountInfoTemp, getSelectedAccount } from '@store/account';
+import _ from 'lodash';
 
 const FilterStyle = styled.div`
   display: flex;
@@ -66,25 +67,31 @@ type FilterBurntProps = {
 export const FilterBurnt = ({ filterType }: FilterBurntProps) => {
   const dispatch = useAppDispatch();
   const selectedAccount = useAppSelector(getAccountInfoTemp);
-  const levelFilter = useAppSelector(getLevelFilter);
+  const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
   const negativeDanaStatus = useAppSelector(getNegativeDanaStatus);
 
   const handleChangeAmount = (isIncrement: boolean) => {
     let valueToSave = 0;
     if (isIncrement) {
-      valueToSave = levelFilter === 0 ? 1 : levelFilter * 10;
+      valueToSave = minimumDanaFilter === 0 ? 1 : minimumDanaFilter * 10;
     } else {
-      valueToSave = levelFilter < 10 ? 0 : levelFilter / 10;
+      valueToSave = minimumDanaFilter < 10 ? 0 : minimumDanaFilter / 10;
     }
 
     if (valueToSave > 0) dispatch(setNegativeDanaStatus(false));
 
-    dispatch(saveLevelFilter(valueToSave));
+    dispatch(saveMinimumDanaFilter(valueToSave));
   };
 
   const onChange = (e: CheckboxChangeEvent) => {
     dispatch(setNegativeDanaStatus(e.target.checked));
   };
+
+  useEffect(() => {
+    if (_.isNil(minimumDanaFilter)) {
+      dispatch(saveMinimumDanaFilter(0));
+    }
+  }, [minimumDanaFilter]);
 
   return (
     <React.Fragment>
@@ -96,17 +103,17 @@ export const FilterBurnt = ({ filterType }: FilterBurntProps) => {
               className="down-value"
               icon={<MinusOutlined />}
               onClick={() => handleChangeAmount(false)}
-              disabled={levelFilter === 0}
+              disabled={minimumDanaFilter === 0}
             />
-            <Input disabled value={levelFilter !== 0 ? levelFilter + intl.get('general.dana') : 'None'} />
+            <Input disabled value={minimumDanaFilter !== 0 ? minimumDanaFilter + intl.get('general.dana') : 'None'} />
             <Button
               className="up-value"
               icon={<PlusOutlined />}
               onClick={() => handleChangeAmount(true)}
-              disabled={levelFilter === 1000}
+              disabled={minimumDanaFilter === 1000}
             />
             {selectedAccount?.accountDana?.danaGiven > 0 && (
-              <Checkbox onChange={onChange} checked={negativeDanaStatus} disabled={levelFilter > 0}>
+              <Checkbox onChange={onChange} checked={negativeDanaStatus} disabled={minimumDanaFilter > 0}>
                 Show Negative
               </Checkbox>
             )}

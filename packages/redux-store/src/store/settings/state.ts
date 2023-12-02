@@ -15,4 +15,5 @@ export interface SettingsState {
   isSystemThemes: boolean;
   levelFilter: number;
   negativeDana: boolean;
+  minimumDanaFilter: number;
 }

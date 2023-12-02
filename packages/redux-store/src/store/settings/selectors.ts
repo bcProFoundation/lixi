@@ -78,3 +78,8 @@ export const getNegativeDanaStatus = createSelector(
   (state: RootState) => state.settings,
   (state: SettingsState) => state.negativeDana
 );
+
+export const getMinimumDanaFilter = createSelector(
+  (state: RootState) => state.settings,
+  (state: SettingsState) => state.minimumDanaFilter
+);

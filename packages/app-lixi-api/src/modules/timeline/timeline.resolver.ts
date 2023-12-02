@@ -16,10 +16,11 @@ import { PubSub } from 'graphql-subscriptions';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { basicSortedSetPaginationWithPrisma, createEdge } from '../../common/custom-graphql-relay/paginate';
+import { createEdge } from '../../common/custom-graphql-relay/paginate';
 import { AccountEntity } from '../../decorators';
 import { GqlHttpExceptionFilter } from '../../middlewares/gql.exception.filter';
 import { GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
+import { PageCacheService } from '../page/page-cache.service';
 import PostLoader from '../page/post.loader';
 import { PrismaService } from '../prisma/prisma.service';
 import { TimelineItemService } from './timeline-item.service';
@@ -39,6 +40,7 @@ export class TimelineResolver {
     private readonly postLoader: PostLoader,
     private readonly timelineService: TimelineService,
     private readonly timelineItemService: TimelineItemService,
+    private readonly pageCacheService: PageCacheService,
     @InjectRedis() private readonly redis: Redis,
     @I18n() private readonly i18n: I18nService
   ) {}
@@ -125,12 +127,7 @@ export class TimelineResolver {
     @Args({ name: 'level', type: () => Number }) level: number,
     @Args({ name: 'showNegative', type: () => Boolean }) showNegative: boolean
   ) {
-    const page = await this.prisma.page.findUnique({
-      where: { id: id },
-      select: {
-        id: true
-      }
-    });
+    const page = await this.pageCacheService.getById(id);
 
     if (!page) {
       return null;
