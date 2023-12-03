@@ -107,9 +107,9 @@ function BookmarkContainer() {
 
   const savedFromContent = post => {
     return intl.get('post.bookmarkFrom', {
-      postType: post.__typename,
+      postType: intl.get(`post.type${post.__typename}`),
       postName: post.account.name,
-      postTypeLower: post.__typename.toLowerCase()
+      postTypeLower: intl.get(`post.type${post.__typename}`).toLowerCase()
     });
   };
 
