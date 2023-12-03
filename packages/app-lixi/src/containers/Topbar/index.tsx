@@ -735,6 +735,19 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
           }}
         />
         <ItemAccess
+          icon={'/images/ico-bookmark.svg'}
+          text={intl.get('general.bookmark')}
+          active={currentPathName === '/bookmarks'}
+          direction="horizontal"
+          key="bookmarks"
+          onClickItem={() => {
+            if (authorization.authorized) handleIconClick('/bookmarks');
+            else {
+              currentModal.length === 0 && askAuthorization();
+            }
+          }}
+        />
+        <ItemAccess
           icon={'/images/ico-setting.svg'}
           text={intl.get('general.settings')}
           active={currentPathName === '/settings'}

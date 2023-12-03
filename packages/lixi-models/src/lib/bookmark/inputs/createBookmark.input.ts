@@ -6,5 +6,5 @@ export class CreateBookmarkInput {
   accountId: number;
 
   @Field(() => String)
-  bookmarkableId: string;
+  bookmarkForId: string;
 }

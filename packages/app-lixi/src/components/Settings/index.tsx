@@ -177,7 +177,7 @@ export const WrapperPage = styled.div`
   display: block;
   @media (max-width: 768px) {
     padding: 1rem;
-    padding-bottom: 8rem;
+    padding-bottom: 3rem;
   }
   .ant-alert-with-description {
     padding: 1rem;

@@ -1168,4 +1168,13 @@ export class PostResolver {
   async dana(@Parent() post: Post) {
     return this.timelineableLoader.batchDanas.load(post.id);
   }
+
+  @ResolveField('isBookmarked', () => Boolean)
+  async isBookmarked(@Parent() post: Post, @AccountEntity() account: Account) {
+    const payload = {
+      postTimelineId: `${post.type}:${post.id}`,
+      accountId: account.id
+    };
+    return this.timelineableLoader.batchCheckAllBookmark.load(payload);
+  }
 }

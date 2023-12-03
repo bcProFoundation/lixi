@@ -1,3 +1,6 @@
+# import PostFields from '../post/posts.graphql
+# import BasicPageInfoFields from '../../graphql/fragments/basic-page-info-fields.fragment.graphql'
+
 fragment BookmarkFields on Bookmark {
   id
   account {
@@ -13,6 +16,27 @@ fragment BookmarkFields on Bookmark {
 query Bookmark($id: String!) {
   bookmark(id: $id) {
     ...BookmarkFields
+  }
+}
+
+query BookmarkTimeline($first: Int = 20, $after: String, $id: Int!) {
+  bookmarkTimeline(first: $first, after: $after, id: $id) {
+    totalCount
+    edges {
+      cursor
+      node {
+        id
+        data {
+          __typename
+          ... on Post {
+            ...PostFields
+          }
+        }
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
   }
 }
 

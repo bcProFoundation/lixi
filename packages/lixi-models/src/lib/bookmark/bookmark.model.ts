@@ -8,6 +8,9 @@ export class Bookmark {
   @Field(() => ID)
   id: string;
 
+  @Field(() => Number)
+  accountId: number;
+
   @Field(() => Account)
   account: Account;
 

@@ -3,6 +3,7 @@ import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Account } from '../account';
+import { Bookmarkable } from '../bookmark';
 import { ICommentableTo } from '../comment';
 import { PostHashtag } from '../hashtag/postHashtag.model';
 import { ImageUploadable } from '../imageUploadable';
@@ -68,6 +69,9 @@ export class Post implements ICommentableTo, ITimelineable {
   @Field(() => Boolean, { nullable: true })
   followedToken?: Nullable<boolean>;
 
+  @Field(() => Boolean, { nullable: true })
+  isBookmarked?: Nullable<boolean>;
+
   @Field(() => Number)
   repostCount: number;
 
@@ -83,8 +87,8 @@ export class Post implements ICommentableTo, ITimelineable {
   @Field(() => String, { nullable: true })
   commentableId?: Nullable<string>;
 
-  @Field(() => String, { nullable: true })
-  bookmarkableId?: Nullable<string>;
+  @Field(() => Bookmarkable, { nullable: true })
+  bookmarkable?: Nullable<Bookmarkable>;
 
   @Field(() => String, { nullable: true })
   taggableId?: Nullable<string>;

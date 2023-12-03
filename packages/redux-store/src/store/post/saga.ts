@@ -1,5 +1,6 @@
-import { CreatePostCommand, EditPostCommand, Follow, ParamPostFollowCommand } from '@bcpros/lixi-models';
-import { all, fork, put, takeLatest } from 'redux-saga/effects';
+import { CreatePostCommand, EditPostCommand, ParamPostFollowCommand } from '@bcpros/lixi-models';
+import { POST_TYPE } from '@bcpros/lixi-models/constants';
+import { all, fork, put, select, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import * as _ from 'lodash';
 import intl from 'react-intl-universal';
@@ -25,13 +26,15 @@ import {
   setPost,
   setPostsByAccountId,
   setSelectedPost,
-  changeFollowActionSheetPost
+  changeFollowActionSheetPost,
+  changeBookmarkActionSheet
 } from './actions';
 import postApi from './api';
 import { api as timelineApi } from '@store/timeline/timeline.api';
 import { api as postsApi } from '@store/post/posts.api';
 import { FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
 import { OrderDirection, PostOrderField } from '@generated/types.generated';
+import { RootState } from '@store/store';
 const call: any = Effects.call;
 /**
  * Generate a post
@@ -287,7 +290,11 @@ function* changeFollowActionSheetPostSaga(action: PayloadAction<ParamPostFollowC
   yield put(
     postsApi.util.updateQueryData(
       'PostsByPageId',
-      { id: pageId, minBurnFilter: minBurnFilterPage, accountId: selectedAccountId },
+      {
+        id: pageId,
+        minBurnFilter: minBurnFilterPage,
+        accountId: selectedAccountId
+      },
       draft => {
         const listPostUpdateFollow = draft.allPostsByPageId.edges.map((item, index) => {
           switch (followForType) {
@@ -377,7 +384,12 @@ function* changeFollowActionSheetPostSaga(action: PayloadAction<ParamPostFollowC
   yield put(
     postsApi.util.updateQueryData(
       'PostsBySearchWithHashtagAtToken',
-      { tokenId: tokenPrimaryId, hashtags, query, minBurnFilter: minBurnFilterToken },
+      {
+        tokenId: tokenPrimaryId,
+        hashtags,
+        query,
+        minBurnFilter: minBurnFilterToken
+      },
       draft => {
         const listPostUpdateFollow = draft.allPostsBySearchWithHashtagAtToken.edges.map((item, index) => {
           switch (followForType) {
@@ -398,6 +410,47 @@ function* changeFollowActionSheetPostSaga(action: PayloadAction<ParamPostFollowC
       }
     )
   );
+}
+
+function* changeBookmarkActionSheetSaga(action: PayloadAction<string>) {
+  const bookmarkForId = action.payload;
+  const rootState: RootState = yield select();
+
+  // Update timeline
+  const timelineInvalidatedBy = yield call(timelineApi.util.selectInvalidatedBy, rootState, ['Timeline']);
+  for (const invalidatedBy of timelineInvalidatedBy) {
+    const { endpointName, originalArgs } = invalidatedBy;
+    yield put(
+      timelineApi.util.updateQueryData(endpointName, originalArgs, draft => {
+        const fields = Object.keys(draft);
+        for (const field of fields) {
+          if (!draft[field]) continue;
+          const timelineItemToUpdateIndex = draft[field].edges.findIndex(
+            item => item.node.id === `${POST_TYPE.POST}:${bookmarkForId}`
+          );
+          const isBookmarked = draft[field].edges[timelineItemToUpdateIndex].node.data.isBookmarked;
+          draft[field].edges[timelineItemToUpdateIndex].node.data.isBookmarked = !isBookmarked;
+        }
+      })
+    );
+  }
+
+  //update posts
+  const postsInvalidatedBy = yield call(postsApi.util.selectInvalidatedBy, rootState, ['Posts']);
+  for (const invalidatedBy of postsInvalidatedBy) {
+    const { endpointName, originalArgs } = invalidatedBy;
+    yield put(
+      postsApi.util.updateQueryData(endpointName, originalArgs, draft => {
+        const fields = Object.keys(draft);
+        for (const field of fields) {
+          if (!draft[field]) continue;
+          const postToUpdateIndex = draft[field].edges.findIndex(item => item.node.id === bookmarkForId);
+          const isBookmarked = draft[field].edges[postToUpdateIndex].node.isBookmarked;
+          draft[field].edges[postToUpdateIndex].node.isBookmarked = !isBookmarked;
+        }
+      })
+    );
+  }
 }
 
 function* fetchAllPostsSuccessSaga(action: any) {}
@@ -460,6 +513,10 @@ function* watchChangeFollowActionSheetPost() {
   yield takeLatest(changeFollowActionSheetPost.type, changeFollowActionSheetPostSaga);
 }
 
+function* watchChangeBookmarkActionSheet() {
+  yield takeLatest(changeBookmarkActionSheet.type, changeBookmarkActionSheetSaga);
+}
+
 export default function* postSaga() {
   yield all([
     fork(watchPostPost),
@@ -475,6 +532,7 @@ export default function* postSaga() {
     fork(watchEditPostSuccess),
     fork(watchGetPost),
     fork(watchGetPostFailure),
-    fork(watchChangeFollowActionSheetPost)
+    fork(watchChangeFollowActionSheetPost),
+    fork(watchChangeBookmarkActionSheet)
   ]);
 }

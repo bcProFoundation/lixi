@@ -11,6 +11,8 @@
 
 import * as Types from '../../generated/types.generated';
 
+import { PostFieldsFragmentDoc } from '../post/posts.generated';
+import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
 import { api } from 'src/api/baseApi';
 export type BookmarkFieldsFragment = {
   __typename?: 'Bookmark';
@@ -34,6 +36,102 @@ export type BookmarkQuery = {
     createdAt?: any | null;
     updatedAt?: any | null;
     account: { __typename?: 'Account'; address: string; id: number; name: string };
+  };
+};
+
+export type BookmarkTimelineQueryVariables = Types.Exact<{
+  first?: Types.InputMaybe<Types.Scalars['Int']>;
+  after?: Types.InputMaybe<Types.Scalars['String']>;
+  id: Types.Scalars['Int'];
+}>;
+
+export type BookmarkTimelineQuery = {
+  __typename?: 'Query';
+  bookmarkTimeline: {
+    __typename?: 'TimelineItemConnection';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'TimelineItemBasicEdge';
+      cursor: string;
+      node: {
+        __typename?: 'TimelineItem';
+        id: string;
+        data: {
+          __typename: 'Post';
+          id: string;
+          content: string;
+          accountId: number;
+          pageId?: string | null;
+          tokenId?: string | null;
+          repostCount: number;
+          totalComments: number;
+          commentableId?: string | null;
+          createdAt: any;
+          updatedAt: any;
+          followPostOwner?: boolean | null;
+          followedPage?: boolean | null;
+          followedToken?: boolean | null;
+          isBookmarked?: boolean | null;
+          originalLanguage?: string | null;
+          danaViewScore?: number | null;
+          account: {
+            __typename?: 'Account';
+            address: string;
+            id: number;
+            name: string;
+            avatar?: string | null;
+            createCommentFee?: string | null;
+          };
+          page?: {
+            __typename?: 'Page';
+            avatar?: string | null;
+            name: string;
+            id: string;
+            createPostFee: string;
+            createCommentFee: string;
+            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          } | null;
+          token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
+          reposts?: Array<{
+            __typename?: 'Repost';
+            accountId?: number | null;
+            account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+          }> | null;
+          dana?: {
+            __typename?: 'PostDana';
+            danaBurnUp: number;
+            danaBurnDown: number;
+            danaBurnScore: number;
+            danaReceivedUp: number;
+            danaReceivedDown: number;
+            danaReceivedScore: number;
+            version: number;
+          } | null;
+          bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
+          translations?: Array<{
+            __typename?: 'PostTranslation';
+            id: string;
+            translateContent?: string | null;
+            translateLanguage?: string | null;
+          }> | null;
+          imageUploadable?: {
+            __typename?: 'ImageUploadable';
+            id: string;
+            uploads: Array<{
+              __typename?: 'Upload';
+              id: string;
+              sha: string;
+              bucket?: string | null;
+              width?: number | null;
+              height?: number | null;
+              cfImageId?: string | null;
+              cfImageFilename?: string | null;
+            }>;
+          } | null;
+        };
+      };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
   };
 };
 
@@ -89,6 +187,29 @@ export const BookmarkDocument = `
   }
 }
     ${BookmarkFieldsFragmentDoc}`;
+export const BookmarkTimelineDocument = `
+    query BookmarkTimeline($first: Int = 20, $after: String, $id: Int!) {
+  bookmarkTimeline(first: $first, after: $after, id: $id) {
+    totalCount
+    edges {
+      cursor
+      node {
+        id
+        data {
+          __typename
+          ... on Post {
+            ...PostFields
+          }
+        }
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+    ${PostFieldsFragmentDoc}
+${BasicPageInfoFieldsFragmentDoc}`;
 export const CreateBookmarkDocument = `
     mutation CreateBookmark($input: CreateBookmarkInput!) {
   createBookmark(data: $input) {
@@ -110,6 +231,9 @@ const injectedRtkApi = api.injectEndpoints({
     Bookmark: build.query<BookmarkQuery, BookmarkQueryVariables>({
       query: variables => ({ document: BookmarkDocument, variables })
     }),
+    BookmarkTimeline: build.query<BookmarkTimelineQuery, BookmarkTimelineQueryVariables>({
+      query: variables => ({ document: BookmarkTimelineDocument, variables })
+    }),
     CreateBookmark: build.mutation<CreateBookmarkMutation, CreateBookmarkMutationVariables>({
       query: variables => ({ document: CreateBookmarkDocument, variables })
     }),
@@ -120,5 +244,11 @@ const injectedRtkApi = api.injectEndpoints({
 });
 
 export { injectedRtkApi as api };
-export const { useBookmarkQuery, useLazyBookmarkQuery, useCreateBookmarkMutation, useRemoveBookmarkMutation } =
-  injectedRtkApi;
+export const {
+  useBookmarkQuery,
+  useLazyBookmarkQuery,
+  useBookmarkTimelineQuery,
+  useLazyBookmarkTimelineQuery,
+  useCreateBookmarkMutation,
+  useRemoveBookmarkMutation
+} = injectedRtkApi;

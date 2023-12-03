@@ -11,6 +11,7 @@ import { DanaViewScoreService } from './dana-view-score.service';
 import { PageCacheService } from './page-cache.service';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { PostDanaCacheService } from './post-dana-cache.service';
+import { BookmarkCacheService } from '../bookmark/bookmark-cache.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class TimelineableLoader {
@@ -21,7 +22,8 @@ export default class TimelineableLoader {
     private readonly accountCacheService: AccountCacheService,
     private readonly postDanaCacheService: PostDanaCacheService,
     private readonly followCacheService: FollowCacheService,
-    private readonly danaViewScoreService: DanaViewScoreService
+    private readonly danaViewScoreService: DanaViewScoreService,
+    private readonly bookmarkCacheService: BookmarkCacheService
   ) {}
 
   public readonly batchPages = new DataLoader(async (keys: readonly string[]) => {
@@ -192,6 +194,20 @@ export default class TimelineableLoader {
       cacheKeyFn: (item: { tokenId?: string; accountId: number }) => {
         return `${item.accountId}:${item.tokenId}`;
       }
+    }
+  );
+
+  public readonly batchCheckAllBookmark = new DataLoader(
+    async (items: readonly { postTimelineId: string; accountId: number }[]) => {
+      const listPostTimelineIds = items.map(item => item.postTimelineId);
+      const accountId = items[0].accountId;
+      const listCheckBookmark = await this.bookmarkCacheService.checkAccountBookmarkAllPost(
+        listPostTimelineIds,
+        accountId
+      );
+      return listCheckBookmark.map(item => {
+        return !!item;
+      });
     }
   );
 }

@@ -8,6 +8,7 @@ import { closeActionSheet } from '@store/action-sheet/actions';
 import { EditPostModalProps } from '@components/Posts/EditPostModalPopup';
 import { openModal } from '@store/modal/actions';
 import {
+  CreateBookmarkInput,
   CreateFollowPageInput,
   CreateFollowTokenInput,
   DeleteFollowPageInput,
@@ -38,9 +39,10 @@ import {
   getFilterPostsToken,
   getLevelFilter
 } from '@store/settings';
-import { changeFollowActionSheetPost } from '@store/post/actions';
+import { changeBookmarkActionSheet, changeFollowActionSheetPost } from '@store/post/actions';
 import { FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
 import { useRouter } from 'next/router';
+import { showToast } from '@store/toast';
 
 interface PostActionSheetProps {
   id?: string;
@@ -110,7 +112,8 @@ export const ItemActionSheet = styled.div`
     height: 17px;
     filter: var(--filter-svg-gray-color);
 
-    &.isFollowed {
+    &.isFollowed,
+    &.isBookmarked {
       filter: var(--filter-color-primary) !important;
     }
   }
@@ -143,6 +146,9 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
   const filterValueHome = useAppSelector(getFilterPostsHome);
   const [query, setQuery] = useState<string | null>(null);
   const [hashtags, setHashtags] = useState<string[]>([]);
+
+  //bookmark
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(post?.isBookmarked);
 
   useEffect(() => {
     if (router.query.hashtags) {
@@ -349,6 +355,38 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
     dispatch(changeFollowActionSheetPost(payloadFollowToken));
   };
 
+  const bookmarkPost = async () => {
+    const createBookmarkInput: CreateBookmarkInput = {
+      accountId: selectedAccountId,
+      bookmarkForId: post.id
+    };
+    setIsBookmarked(!isBookmarked);
+    await createBookmarkTrigger({ input: createBookmarkInput });
+
+    dispatch(
+      showToast('success', {
+        message: intl.get('toast.success'),
+        description: intl.get('post.bookmarkSuccess')
+      })
+    );
+  };
+
+  const unBookmarkPost = async () => {
+    const removeBookmarkInput: RemoveBookmarkInput = {
+      accountId: selectedAccountId,
+      bookmarkForId: post.id
+    };
+    setIsBookmarked(!isBookmarked);
+    await removeBookmarkTrigger({ input: removeBookmarkInput });
+
+    dispatch(
+      showToast('success', {
+        message: intl.get('toast.success'),
+        description: intl.get('post.unbookmarkSuccess')
+      })
+    );
+  };
+
   const openPageMessageLixiModal = () => {
     dispatch(openModal('PageMessageLixiModal', { account: selectedAccount, page: page, wallet: walletStatus }));
   };
@@ -396,6 +434,13 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
               />
             </>
           )}
+          <ItemActionSheetBottom
+            text={isBookmarked ? intl.get('post.unbookmarkPost') : intl.get('post.bookmarkPost')}
+            icon="/images/ico-bookmark.svg"
+            className={isBookmarked ? 'isBookmarked' : ''}
+            onClickItem={isBookmarked ? unBookmarkPost : bookmarkPost}
+          />
+
           {post.page && post.account.id != selectedAccountId && !pageMessageSessionData && (
             <ItemActionSheetBottom
               text={`${intl.get('messenger.chat')} ${page?.name}`}
