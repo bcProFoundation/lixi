@@ -489,6 +489,7 @@ export default {
   'zeroBalanceHeader.deposit': 'Hãy nạp thêm vào tài khoản để có thể sử dụng tính năng giao dịch',
   'send.syntaxError': 'Lỗi cú pháp. XPI để tặng không được nhỏ hơn hoặc bằng 0 ',
   'send.sendXpi': ' Gửi',
+  'send.notEnoughtFund': 'Không đủ phí',
 
   /* 13.Page */
   'page.createNewPage': 'Tạo trang mới',

@@ -799,7 +799,7 @@ const PageMessage = () => {
           dispatch(sendXPISuccess(parseFloat(amount).toFixed(2)));
           resetField('message');
         } else {
-          dispatch(sendXPIFailure(intl.get('send.syntaxError')));
+          dispatch(sendXPIFailure(intl.get('send.notEnoughtFund')));
         }
       } else {
         const input: CreateMessageInput = {

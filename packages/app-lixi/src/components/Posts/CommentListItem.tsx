@@ -16,6 +16,11 @@ import { useRouter } from 'next/router';
 import React, { useContext, useMemo } from 'react';
 import intl from 'react-intl-universal';
 import { PostQueryItem, CommentQueryItem } from '@generated/index';
+import styled from 'styled-components';
+
+const SpaceCustom = styled(Space)`
+  gap: 7px !important;
+`;
 
 const ACTION_VOTE = {
   UP_VOTE: 'upVote',
@@ -55,20 +60,20 @@ const CommentListItem = ({ item, post }: CommentListItemProps) => {
     }
   };
   const actions = [
-    <span key={`comment-up-vote-${item.id}`}>
+    <span style={{ marginInlineEnd: '15px' }} key={`comment-up-vote-${item.id}`}>
       <Tooltip title={intl.get('general.burnUp')}>
-        <Space onClick={() => actionsComment(item, ACTION_VOTE.UP_VOTE)}>
+        <SpaceCustom onClick={() => actionsComment(item, ACTION_VOTE.UP_VOTE)}>
           {item?.danaBurnUp > 0 ? <LikeFilled /> : <LikeOutlined />}
           <Counter num={formatBalance(item?.danaBurnUp ?? 0)} />
-        </Space>
+        </SpaceCustom>
       </Tooltip>
     </span>,
     <span key={`comment-down-vote-${item.id}`}>
       <Tooltip title={intl.get('general.burnDown')}>
-        <Space onClick={() => actionsComment(item, ACTION_VOTE.DOWN_VOTE)}>
+        <SpaceCustom onClick={() => actionsComment(item, ACTION_VOTE.DOWN_VOTE)}>
           {item?.danaBurnDown > 0 ? <DislikeFilled /> : <DislikeOutlined />}
           <Counter num={formatBalance(item?.danaBurnDown ?? 0)} />
-        </Space>
+        </SpaceCustom>
       </Tooltip>
     </span>
   ];
