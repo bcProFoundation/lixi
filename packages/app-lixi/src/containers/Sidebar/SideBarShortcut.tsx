@@ -554,7 +554,7 @@ export const ShortCutItem = ({
           <div className="time-score">
             <p className="create-date">{transformCreatedAt(item?.createdAt)}</p>
             <div className="content-score">
-              <p className="lotus-burn-score">{item?.danaBurnScore}</p>
+              <p className="lotus-burn-score">{item?.dana.danaBurnScore}</p>
             </div>
           </div>
         </div>
@@ -613,7 +613,7 @@ export const ShortCutTopicItem = ({
     let burnScore = 0;
     if (posts.length > 0) {
       burnScore = posts.reduce((result, post) => {
-        return (result += post?.danaBurnScore);
+        return (result += post?.dana.danaBurnScore);
       }, 0);
     }
     return burnScore;
@@ -709,7 +709,7 @@ export const ShortCutPageItem = ({
           <div className="time-score">
             <p className="create-date">{transformCreatedAt(item?.createdAt)}</p>
             <div className="content-score">
-              <p className="lotus-burn-score">{item?.danaBurnScore}</p>
+              <p className="lotus-burn-score">{item?.dana.danaBurnScore}</p>
             </div>
           </div>
         </div>

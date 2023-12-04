@@ -485,6 +485,7 @@ export default {
   'send.optionalPrivateMessage': 'Optional Private Message',
   'send.syntaxError': "Syntax error. XPI to give can't be less than or equal to 0",
   'send.sendXpi': ' Send',
+  'send.notEnoughtFund': 'Not enough fund.',
 
   /* 12.Zero balance header */
   'zeroBalanceHeader.noBalance': 'You currently have 0 {ticker}',

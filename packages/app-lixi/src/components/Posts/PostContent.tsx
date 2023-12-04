@@ -50,7 +50,7 @@ const PostContent = ({ post, showTranslation, currentLocale }) => {
 
   const handleContentEmbed = useMemo(() => {
     let staticMarkupContent = ReactDomServer.renderToStaticMarkup(content);
-    const postScore = post?.danaBurnScore;
+    const postScore = post?.dana.danaBurnScore;
     if (staticMarkupContent.includes('iframe') && postScore >= 50) {
       let indexOfIframe = staticMarkupContent.indexOf('<div data-lexical-decorator="true" contenteditable="false">');
       let contentText = staticMarkupContent.slice(0, indexOfIframe) || null;
@@ -67,7 +67,7 @@ const PostContent = ({ post, showTranslation, currentLocale }) => {
 
   const lineContentShow = useMemo(() => {
     let lineNum = 3;
-    const postScore = post?.danaBurnScore;
+    const postScore = post?.dana.danaBurnScore;
     if (postScore < 10) {
       if (postScore >= 1 && postScore < 2) {
         lineNum = 4;
@@ -90,7 +90,7 @@ const PostContent = ({ post, showTranslation, currentLocale }) => {
       }
     }
     return lineNum;
-  }, [post?.danaBurnScore]);
+  }, [post?.dana.danaBurnScore]);
 
   return (
     <div className="read-more">
@@ -99,7 +99,7 @@ const PostContent = ({ post, showTranslation, currentLocale }) => {
         linesToShow={lineContentShow + lineContentShow * 0.1} //default lineHeight of Readmoremore is 1 but we custom lineHeight is 1.1
         parseHtml
         text={handleContentEmbed}
-        checkFor={1000}
+        checkFor={300}
         transDuration={0}
         readMoreText={intl.get('general.showMore')}
         readLessText={' '}

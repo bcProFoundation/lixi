@@ -294,10 +294,10 @@ const Comment = ({ post }: CommentProps) => {
 
             await createComment(createCommentInput);
           } else {
-            dispatch(sendXPIFailure(intl.get('send.syntaxError')));
+            dispatch(sendXPIFailure(intl.get('send.notEnoughtFund')));
           }
         } else {
-          dispatch(sendXPIFailure(intl.get('send.syntaxError')));
+          dispatch(sendXPIFailure(intl.get('send.notEnoughtFund')));
         }
       } else if (
         //Check if post owner self comment
