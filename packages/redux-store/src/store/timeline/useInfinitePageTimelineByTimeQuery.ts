@@ -13,8 +13,7 @@ const { selectAll } = pageTimelineAdapter.getSelectors();
 
 interface PageTimelineByTimeListParams extends PaginationArgs {
   id: string;
-  level: number;
-  showNegative: boolean;
+  minimumDanaFilter: number;
 }
 
 export function useInfinitePageTimelineByTimeQuery(

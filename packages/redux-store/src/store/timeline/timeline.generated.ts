@@ -383,8 +383,7 @@ export type PageTimelineByTimeQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
   first?: Types.InputMaybe<Types.Scalars['Int']>;
   id: Types.Scalars['String'];
-  level: Types.Scalars['Int'];
-  showNegative: Types.Scalars['Boolean'];
+  minimumDanaFilter: Types.Scalars['Int'];
 }>;
 
 export type PageTimelineByTimeQuery = {
@@ -652,13 +651,12 @@ export const PageTimelineDocument = `
     ${PostFieldsFragmentDoc}
 ${BasicPageInfoFieldsFragmentDoc}`;
 export const PageTimelineByTimeDocument = `
-    query PageTimelineByTime($after: String, $first: Int = 20, $id: String!, $level: Int!, $showNegative: Boolean!) {
+    query PageTimelineByTime($after: String, $first: Int = 20, $id: String!, $minimumDanaFilter: Int!) {
   pageTimelineByTime(
     after: $after
     first: $first
     id: $id
-    level: $level
-    showNegative: $showNegative
+    minimumDanaFilter: $minimumDanaFilter
   ) {
     totalCount
     edges {

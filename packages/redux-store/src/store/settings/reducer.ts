@@ -38,7 +38,7 @@ const initialState: SettingsState = {
   isSystemThemes: true,
   levelFilter: 3,
   negativeDana: false,
-  minimumDanaFilter: 0
+  minimumDanaFilter: 1
 };
 
 export const settingsReducer = createReducer(initialState, builder => {

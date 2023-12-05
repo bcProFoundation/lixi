@@ -1692,8 +1692,7 @@ export type QueryPageTimelineByTimeArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   id: Scalars['String'];
-  level: Scalars['Int'];
-  showNegative: Scalars['Boolean'];
+  minimumDanaFilter: Scalars['Int'];
   skip?: InputMaybe<Scalars['Int']>;
 };
 

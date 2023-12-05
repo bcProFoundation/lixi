@@ -124,74 +124,62 @@ export class TimelineResolver {
     @AccountEntity() account: Account,
     @Args() { after, first }: BasicPaginationArgs,
     @Args({ name: 'id', type: () => String }) id: string,
-    @Args({ name: 'level', type: () => Number }) level: number,
-    @Args({ name: 'showNegative', type: () => Boolean }) showNegative: boolean
+    @Args({ name: 'minimumDanaFilter', type: () => Number }) minimumDanaFilter: number
   ) {
     const page = await this.pageCacheService.getById(id);
+    const showAll = minimumDanaFilter === -1 ? true : false;
 
     if (!page) {
       return null;
     }
 
-    if ((level === 0 || _.isNil(level)) && showNegative === false) {
-      if (account) {
-        const paginated = await this.timelineService.getPagePaginatedTimelineByTimeWithAccount(
-          id,
-          account.id,
-          first,
-          after
-        );
-        const timelineIds = paginated.edges.map(item => item.cursor);
-        const timelines = await this.timelineItemService.getByIds(timelineIds);
+    if (showAll && account) {
+      const paginated = await this.timelineService.getPagePaginatedTimelineByTimeShowAll(id, first, after);
+      const timelineIds = paginated.edges.map(item => item.cursor);
+      const timelines = await this.timelineItemService.getByIds(timelineIds);
 
-        const result = {
-          ...paginated,
-          edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
-        } as IBasicPaginated<TimelineItem>;
+      const result = {
+        ...paginated,
+        edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+      } as IBasicPaginated<TimelineItem>;
 
-        return result;
-      } else {
-        //Filter out negative post and query larger than 0 but also include post account
-        const paginated = await this.timelineService.getPagePaginatedTimelineByTimeNoAccount(id, first, after);
-        const timelineIds = paginated.edges.map(item => item.cursor);
-        const timelines = await this.timelineItemService.getByIds(timelineIds);
+      return result;
+    } else {
+      const paginated = await this.timelineService.getPagePaginatedTimelineByTimeWithLevel(
+        id,
+        minimumDanaFilter,
+        first,
+        after
+      );
+      const timelineIds = paginated.edges.map(item => item.cursor);
+      const timelines = await this.timelineItemService.getByIds(timelineIds);
 
-        const result = {
-          ...paginated,
-          edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
-        } as IBasicPaginated<TimelineItem>;
+      const result = {
+        ...paginated,
+        edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+      } as IBasicPaginated<TimelineItem>;
 
-        return result;
-      }
+      return result;
     }
 
     //Query by level
-    if (level !== 0 && !_.isNil(level)) {
-      const paginated = await this.timelineService.getPagePaginatedTimelineByTimeWithLevel(id, level, first, after);
-      const timelineIds = paginated.edges.map(item => item.cursor);
-      const timelines = await this.timelineItemService.getByIds(timelineIds);
+    // if (minimumDanaFilter !== 0 && !_.isNil(minimumDanaFilter)) {
 
-      const result = {
-        ...paginated,
-        edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
-      } as IBasicPaginated<TimelineItem>;
+    // }
 
-      return result;
-    }
+    //Query no level and must have an account
+    // if ((minimumDanaFilter === 0 || _.isNil(minimumDanaFilter)) && account) {
+    //   const paginated = await this.timelineService.getPagePaginatedTimelineByTimeNoLevelShowNegative(id, first, after);
+    //   const timelineIds = paginated.edges.map(item => item.cursor);
+    //   const timelines = await this.timelineItemService.getByIds(timelineIds);
 
-    //Query no level with show negative and must have an account
-    if ((level === 0 || _.isNil(level)) && showNegative === true && account) {
-      const paginated = await this.timelineService.getPagePaginatedTimelineByTimeNoLevelShowNegative(id, first, after);
-      const timelineIds = paginated.edges.map(item => item.cursor);
-      const timelines = await this.timelineItemService.getByIds(timelineIds);
+    //   const result = {
+    //     ...paginated,
+    //     edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+    //   } as IBasicPaginated<TimelineItem>;
 
-      const result = {
-        ...paginated,
-        edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
-      } as IBasicPaginated<TimelineItem>;
-
-      return result;
-    }
+    //   return result;
+    // }
   }
 
   @SkipThrottle()

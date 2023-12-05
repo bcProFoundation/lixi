@@ -8,6 +8,7 @@ import { Redis } from 'ioredis';
 import * as _ from 'lodash';
 import moment from 'moment';
 import { I18n, I18nService } from 'nestjs-i18n';
+import { template } from 'src/utils/stringTemplate';
 import ReBloom from '../../common/redis/redis-bloom';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { CONTENT_FANOUT_QUEUE } from './constants';
@@ -19,9 +20,12 @@ export class PostFanoutProcessor extends WorkerHost {
   private logger: Logger = new Logger(this.constructor.name);
 
   static inNetworkSourceKey = 'timeline:innetwork:source';
-  static timelinePageKey = 'timeline:page';
   static timelineTokenKey = 'timeline:token';
   static timelineProfileKey = 'timeline:profile';
+  static pageTimelineKey = 'timeline:page:{{pageId}}';
+  static pageTimelineByTimeWithAccountKey = 'timeline:page:{{pageId}}:account:{{accountId}}';
+  static pageTimelineByTimeWithLevelKey = 'timeline:page:{{pageId}}:{{level}}';
+  static pageTimelineByTimeShowAll = 'timeline:page:{{pageId}}:showAll';
 
   constructor(
     private readonly postCacheService: PostCacheService,
@@ -80,8 +84,19 @@ export class PostFanoutProcessor extends WorkerHost {
 
       //add default score when create post in page, token, profile
       if (post.pageId) {
-        const keyPage = `${PostFanoutProcessor.timelinePageKey}:${post.pageId}`;
+        const keyPage = template(`${PostFanoutProcessor.pageTimelineKey}`, { pageId: post.pageId });
+        const keyPageTimelineByTimeWithLevel = template(`${PostFanoutProcessor.pageTimelineByTimeWithLevelKey}`, {
+          pageId: post.pageId,
+          level: 0
+        });
+        const keyPageTimelineByTimeShowAll = template(`${PostFanoutProcessor.pageTimelineByTimeShowAll}`, {
+          pageId: post.pageId
+        });
+        const postCreatedAt = new Date(post.createdAt).getTime();
+
         pipeline.zincrby(keyPage, score, timelineId);
+        pipeline.zadd(keyPageTimelineByTimeWithLevel, postCreatedAt, timelineId);
+        pipeline.zadd(keyPageTimelineByTimeShowAll, postCreatedAt, timelineId);
       } else if (post.tokenId) {
         const keyToken = `${PostFanoutProcessor.timelineTokenKey}:${post.tokenId}`;
         pipeline.zincrby(keyToken, score, timelineId);

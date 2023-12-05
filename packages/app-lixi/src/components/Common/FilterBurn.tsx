@@ -69,14 +69,11 @@ export const FilterBurnt = ({ filterType }: FilterBurntProps) => {
   const selectedAccount = useAppSelector(getAccountInfoTemp);
   const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
   const negativeDanaStatus = useAppSelector(getNegativeDanaStatus);
+  const filterLevel = [-1, 0, 1, 10, 100, 1000];
 
   const handleChangeAmount = (isIncrement: boolean) => {
-    let valueToSave = 0;
-    if (isIncrement) {
-      valueToSave = minimumDanaFilter === 0 ? 1 : minimumDanaFilter * 10;
-    } else {
-      valueToSave = minimumDanaFilter < 10 ? 0 : minimumDanaFilter / 10;
-    }
+    const currentLevel = filterLevel.indexOf(minimumDanaFilter);
+    let valueToSave = isIncrement ? filterLevel[currentLevel + 1] : filterLevel[currentLevel - 1];
 
     if (valueToSave > 0) dispatch(setNegativeDanaStatus(false));
 
@@ -103,20 +100,19 @@ export const FilterBurnt = ({ filterType }: FilterBurntProps) => {
               className="down-value"
               icon={<MinusOutlined />}
               onClick={() => handleChangeAmount(false)}
-              disabled={minimumDanaFilter === 0}
+              disabled={
+                selectedAccount && selectedAccount?.accountDana?.danaGiven > 0
+                  ? minimumDanaFilter === -1
+                  : minimumDanaFilter === 0
+              }
             />
-            <Input disabled value={minimumDanaFilter !== 0 ? minimumDanaFilter + intl.get('general.dana') : 'None'} />
+            <Input disabled value={minimumDanaFilter !== -1 ? minimumDanaFilter + intl.get('general.dana') : 'All'} />
             <Button
               className="up-value"
               icon={<PlusOutlined />}
               onClick={() => handleChangeAmount(true)}
               disabled={minimumDanaFilter === 1000}
             />
-            {selectedAccount?.accountDana?.danaGiven > 0 && (
-              <Checkbox onChange={onChange} checked={negativeDanaStatus} disabled={minimumDanaFilter > 0}>
-                Show Negative
-              </Checkbox>
-            )}
           </Input.Group>
         </FilterStyle>
       </FilterContainer>

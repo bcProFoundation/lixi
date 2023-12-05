@@ -77,8 +77,8 @@ query PageTimeline($after: String, $first: Int = 20, $id: String!) {
   }
 }
 
-query PageTimelineByTime($after: String, $first: Int = 20, $id: String!, $level: Int!, $showNegative: Boolean!) {
-  pageTimelineByTime(after: $after, first: $first, id: $id, level: $level, showNegative: $showNegative) {
+query PageTimelineByTime($after: String, $first: Int = 20, $id: String!, $minimumDanaFilter: Int!) {
+  pageTimelineByTime(after: $after, first: $first, id: $id, minimumDanaFilter: $minimumDanaFilter) {
     totalCount
     edges {
       cursor

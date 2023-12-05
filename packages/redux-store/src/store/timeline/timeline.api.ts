@@ -52,8 +52,8 @@ const enhancedApi = api.enhanceEndpoints({
       providesTags: ['Timeline', 'CommentCreated'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
-          const { id, level, showNegative, ...otherArgs } = queryArgs;
-          return { id, level, showNegative };
+          const { id, minimumDanaFilter, ...otherArgs } = queryArgs;
+          return { id, minimumDanaFilter };
         }
         return { queryArgs };
       },

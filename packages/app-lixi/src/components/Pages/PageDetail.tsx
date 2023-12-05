@@ -592,8 +592,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   } = useInfinitePageTimelineByTimeQuery({
     first: 20,
     id: page.id,
-    level: minimumDanaFilter,
-    showNegative: negativeDanaStatus
+    minimumDanaFilter: minimumDanaFilter
   });
 
   const loadMoreItems = () => {

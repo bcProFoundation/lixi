@@ -21,10 +21,8 @@ export class BurnFanoutProcessor extends WorkerHost {
   static inNetworkSourceKey = 'timeline:innetwork:source';
   static outNetworkSourceKey = 'timeline:outnetwork:source';
   static pageTimelineKey = 'timeline:page:{{pageId}}';
-  static pageTimelineByTimeNoAccountKey = 'timeline:page:{{pageId}}:account:none';
-  static pageTimelineByTimeWithAccountKey = 'timeline:page:{{pageId}}:account:{{accountId}}';
   static pageTimelineByTimeWithLevelKey = 'timeline:page:{{pageId}}:{{level}}';
-  static pageTimelineByTimeNoLevelShowNegativeKey = 'timeline:page:{{pageId}}:showNegative:true';
+  static pageTimelineByTimeShowAll = 'timeline:page:{{pageId}}:showAll';
   static timelineTokenKey = 'timeline:token';
   static timelineProfileKey = 'timeline:profile';
 
@@ -37,12 +35,12 @@ export class BurnFanoutProcessor extends WorkerHost {
   }
 
   public async process(
-    job: Job<{ burn: Burn; post: Post; previousDanaBurnScore: number; latestDanaBurnScore: number }, boolean, string>
+    job: Job<{ burn: Burn; post: Post; burnAccountId: string; latestDanaBurnScore: number }, boolean, string>
   ): Promise<boolean> {
     try {
       // This is only for post
       // @todo: Need to more organize for multiple types
-      const { burn, post, latestDanaBurnScore, previousDanaBurnScore } = job.data;
+      const { burn, post, latestDanaBurnScore, burnAccountId } = job.data;
       const id = post.id;
 
       // Invalidate the cache
@@ -87,7 +85,6 @@ export class BurnFanoutProcessor extends WorkerHost {
 
         const postCreatedAt = new Date(post.createdAt).getTime();
 
-        // move timelineId from level to level based on latestDanaBurnScore and previousDanaBurnScore
         for (let i = 0; i < level.length; i++) {
           const keyPageByTimeWithLevel = template(`${BurnFanoutProcessor.pageTimelineByTimeWithLevelKey}`, {
             pageId: post.pageId,
@@ -103,18 +100,11 @@ export class BurnFanoutProcessor extends WorkerHost {
           }
         }
 
-        //If latestDanaBurnScore is negative, add postId to pageTimelineByTimeNoLevelShowNegativeKey, and remove postId from pageTimelineByTimeWithAccountKey
+        //If latestDanaBurnScore is negative, add postId to pageTimelineByTimeNoLevelShowNegativeKey
         if (latestDanaBurnScore < 0) {
           pipeline.zadd(
-            template(`${BurnFanoutProcessor.pageTimelineByTimeNoLevelShowNegativeKey}`, { pageId: post.pageId }),
+            template(`${BurnFanoutProcessor.pageTimelineByTimeShowAll}`, { pageId: post.pageId }),
             postCreatedAt,
-            timelineId
-          );
-          pipeline.zrem(
-            template(`${BurnFanoutProcessor.pageTimelineByTimeWithAccountKey}`, {
-              pageId: post.pageId,
-              accountId: post.accountId
-            }),
             timelineId
           );
         }
