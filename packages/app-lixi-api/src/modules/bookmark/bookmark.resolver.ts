@@ -88,32 +88,48 @@ export class BookmarkResolver {
         throw new Error(couldNotFindAccount);
       }
 
-      const result = await this.prisma.$transaction(async prisma => {
-        //create bookmark
-        const bookmark = await prisma.bookmark.create({
-          data: {
-            account: { connect: { id: accountId } }
-          }
-        });
-
-        //create bookmarkable
-        const bookmarkable = await prisma.bookmarkable.create({
-          data: {
-            type: BookmarkType.POST,
-            bookmarks: { connect: { id: bookmark.id } },
-            posts: { connect: { id: bookmarkForId } }
-          }
-        });
-
-        return bookmark;
-      });
-
       const currentPost = await this.prisma.post.findFirst({
         where: { id: bookmarkForId }
       });
+
+      const result = await this.prisma.$transaction(async prisma => {
+        //check post have bookmarkableId
+        if (currentPost?.bookmarkableId) {
+          //create bookmark and connect to bookmarkable
+          const bookmark = await prisma.bookmark.create({
+            data: {
+              account: { connect: { id: accountId } },
+              bookmarkable: { connect: { id: currentPost.bookmarkableId } }
+            }
+          });
+
+          return bookmark;
+        } else {
+          //create bookmarkable and connect post
+          const bookmarkable = await prisma.bookmarkable.create({
+            data: {
+              type: BookmarkType.POST,
+              post: { connect: { id: bookmarkForId } }
+            }
+          });
+
+          //create bookmark
+          const bookmark = await prisma.bookmark.create({
+            data: {
+              account: { connect: { id: accountId } },
+              bookmarkable: { connect: { id: bookmarkable.id } }
+            }
+          });
+          return bookmark;
+        }
+      });
+
       const timelineBookmarkId = `${currentPost?.type}:${currentPost?.id}`;
-      await this.postCacheService.removeByKeys([bookmarkForId]);
-      await this.bookmarkCacheService.cacheBookmark(accountId, result.createdAt.getTime(), timelineBookmarkId);
+      //clear cache of post and cache bookmark
+      await Promise.all([
+        this.postCacheService.removeByKeys([bookmarkForId]),
+        this.bookmarkCacheService.cacheBookmark(accountId, result.createdAt.getTime(), timelineBookmarkId)
+      ]);
 
       return result;
     } catch (error) {
@@ -132,34 +148,30 @@ export class BookmarkResolver {
       }
 
       if (!bookmarkForId) return;
-
-      const bookmarkRemoved = await this.prisma.$transaction(async prisma => {
-        //get
-        const currentBookmarkable = await prisma.bookmarkable.findFirst({
-          where: { postId: bookmarkForId, bookmarks: { some: { accountId: accountId } } },
-          include: { bookmarks: true, posts: true }
-        });
-
-        const currentBookmarkId = currentBookmarkable?.bookmarks[0].id;
-        const currentPost = currentBookmarkable?.posts;
-
-        const removedBookmarkable = await prisma.bookmarkable.delete({
-          where: { id: currentBookmarkable?.id }
-        });
-
-        const removedBookmark = await prisma.bookmark.delete({
-          where: { id: currentBookmarkId }
-        });
-
-        await this.postCacheService.removeByKeys([currentPost?.id || '']);
-
-        const timelineBookmarkId = `${currentPost?.type}:${currentPost?.id}`;
-        await this.bookmarkCacheService.removeBookmark(accountId, [timelineBookmarkId]);
-
-        return removedBookmark;
+      const currentPost = await this.prisma.post.findFirst({
+        where: { id: bookmarkForId }
       });
 
-      return bookmarkRemoved;
+      if (currentPost?.bookmarkableId) {
+        const removedBookmark = await this.prisma.bookmark.deleteMany({
+          where: {
+            bookmarkableId: currentPost.bookmarkableId,
+            accountId: accountId
+          }
+        });
+
+        const timelineBookmarkId = `${currentPost?.type}:${currentPost?.id}`;
+        //clear post-bookmark cache
+        await Promise.all([
+          this.postCacheService.removeByKeys([currentPost?.id || '']),
+          this.bookmarkCacheService.removeBookmark(accountId, [timelineBookmarkId])
+        ]);
+
+        return removedBookmark;
+      } else {
+        this.logger.error("Can't find bookmarkable for this post");
+        return;
+      }
     } catch (error) {
       this.logger.error(error);
     }

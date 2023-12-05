@@ -199,12 +199,9 @@ export default class TimelineableLoader {
 
   public readonly batchCheckAllBookmark = new DataLoader(
     async (items: readonly { postTimelineId: string; accountId: number }[]) => {
-      const listPostTimelineIds = items.map(item => item.postTimelineId);
+      const listTimelineIds = items.map(item => item.postTimelineId);
       const accountId = items[0].accountId;
-      const listCheckBookmark = await this.bookmarkCacheService.checkAccountBookmarkAllPost(
-        listPostTimelineIds,
-        accountId
-      );
+      const listCheckBookmark = await this.bookmarkCacheService.checkAccountBookmarkAllPost(listTimelineIds, accountId);
       return listCheckBookmark.map(item => {
         return !!item;
       });

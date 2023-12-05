@@ -157,7 +157,8 @@ model Post {
   translations      PostTranslation[]
   commentableId     String?           @unique @map("commentable_id")
   commentable       Commentable?      @relation(fields: [commentableId], references: [id])
-  bookmarkable      Bookmarkable[]
+  bookmarkableId    String?           @unique @map("bookmarkable_id")
+  bookmarkable      Bookmarkable?     @relation(fields: [bookmarkableId], references: [id])
   taggableId        String?
   taggable          Taggable?         @relation(fields: [taggableId], references: [id])
   imageUploadable   ImageUploadable?  @relation("post_image_uploadable", fields: [imageUploadableId], references: [id])
@@ -1086,8 +1087,7 @@ model Bookmarkable {
   id        String       @id @default(cuid())
   type      BookmarkType
   bookmarks Bookmark[]
-  posts     Post         @relation(fields: [postId], references: [id])
-  postId    String
+  post      Post?
 
   @@map("bookmarkable")
 }

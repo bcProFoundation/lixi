@@ -21,14 +21,14 @@ export class BookmarkCacheService {
 
     const exist = await this.redis.exists([key]);
     if (!exist) {
-      await this.cacheBookmarkTimeline(accountId, key);
+      await this._cacheBookmarkTimeline(accountId, key, after);
     }
     const paginated = await basicSortedSetPagination(this.redis, key, first, after);
     const hasNextPage = paginated.pageInfo.hasNextPage;
     //cache again for sure
     if (!hasNextPage) {
       const offset = paginated.totalCount;
-      const shouldPaginated = await this.cacheBookmarkTimeline(accountId, key, offset);
+      const shouldPaginated = await this._cacheBookmarkTimeline(accountId, key, after);
       if (shouldPaginated) {
         return await basicSortedSetPagination(this.redis, key, first, after);
       }
@@ -38,11 +38,14 @@ export class BookmarkCacheService {
     return paginated;
   }
 
-  async cacheBookmarkTimeline(accountId: number, key: string, offset: number = 0) {
+  async _cacheBookmarkTimeline(accountId: number, key: string, after?: string) {
     try {
       const bookmarks = await this.prisma.bookmark.findMany({
         where: { accountId: accountId },
-        include: { bookmarkable: { include: { posts: true } } }
+        include: { bookmarkable: { include: { post: true } } },
+        orderBy: { createdAt: 'desc' },
+        cursor: after ? { id: after } : undefined,
+        take: 1000
       });
 
       //check account have bookmark
@@ -51,7 +54,7 @@ export class BookmarkCacheService {
       const pipeline = this.redis.pipeline();
 
       for (const bookmark of bookmarks) {
-        const post = bookmark.bookmarkable?.posts;
+        const post = bookmark.bookmarkable?.post;
         const id = `${post?.type}:${post?.id}`;
         pipeline.zadd(key, bookmark.createdAt.getTime(), id);
       }
@@ -64,17 +67,17 @@ export class BookmarkCacheService {
     }
   }
 
-  async checkAccountBookmarkAllPost(listPostTimelineIds: string[], accountId: number) {
+  async checkAccountBookmarkAllPost(listTimelineIds: string[], accountId: number) {
     const key = template(`${BookmarkCacheService.keyPrefix}`, { userId: accountId });
     const exist = await this.redis.exists([key]);
 
     let listCheckAccountBookmarkPost: boolean[] | (string | null)[] = [];
 
     if (!exist) {
-      const userHaveBookmark = await this.cacheBookmarkTimeline(accountId, key);
+      const userHaveBookmark = await this._cacheBookmarkTimeline(accountId, key);
       //user dont have bookmark => return false list
       if (!userHaveBookmark) {
-        listPostTimelineIds.forEach((item, index) => {
+        listTimelineIds.forEach((item, index) => {
           listCheckAccountBookmarkPost[index] = false;
         });
 
@@ -82,7 +85,7 @@ export class BookmarkCacheService {
       }
     }
 
-    listCheckAccountBookmarkPost = await this.redis.zmscore(key, ...listPostTimelineIds);
+    listCheckAccountBookmarkPost = await this.redis.zmscore(key, ...listTimelineIds);
     return listCheckAccountBookmarkPost;
   }
 
