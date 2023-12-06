@@ -109,12 +109,10 @@ type Bookmark {
 """The type of bookmark."""
 enum BookmarkType {
   COMMENT
+  EVENT
+  POLL
   POST
-}
-
-type Bookmarkable {
-  id: ID!
-  type: BookmarkType!
+  PRODUCT
 }
 
 type Category {
@@ -225,6 +223,7 @@ input CreateAccountInput {
 input CreateBookmarkInput {
   accountId: Int!
   bookmarkForId: String!
+  bookmarkType: BookmarkType!
 }
 
 input CreateCommentInput {
@@ -937,7 +936,7 @@ input PollOptionInput {
 type Post {
   account: Account!
   accountId: Int!
-  bookmarkable: Bookmarkable
+  bookmarkableId: String
   commentableId: String
   content: String!
 

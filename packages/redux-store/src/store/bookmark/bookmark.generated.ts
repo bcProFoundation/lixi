@@ -71,6 +71,7 @@ export type BookmarkTimelineQuery = {
           followPostOwner?: boolean | null;
           followedPage?: boolean | null;
           followedToken?: boolean | null;
+          bookmarkableId?: string | null;
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
@@ -107,7 +108,6 @@ export type BookmarkTimelineQuery = {
             danaReceivedScore: number;
             version: number;
           } | null;
-          bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
           translations?: Array<{
             __typename?: 'PostTranslation';
             id: string;

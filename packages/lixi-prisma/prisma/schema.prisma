@@ -1094,6 +1094,9 @@ model Bookmarkable {
 
 enum BookmarkType {
   POST
+  POLL
+  EVENT
+  PRODUCT
   COMMENT
 }
 

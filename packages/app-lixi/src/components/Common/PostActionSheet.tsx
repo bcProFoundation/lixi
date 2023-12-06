@@ -8,7 +8,6 @@ import { closeActionSheet } from '@store/action-sheet/actions';
 import { EditPostModalProps } from '@components/Posts/EditPostModalPopup';
 import { openModal } from '@store/modal/actions';
 import {
-  CreateBookmarkInput,
   CreateFollowPageInput,
   CreateFollowTokenInput,
   DeleteFollowPageInput,
@@ -27,7 +26,13 @@ import {
   useDeleteFollowTokenMutation
 } from '@store/follow/follows.api';
 import { useCreateBookmarkMutation, useRemoveBookmarkMutation } from '@store/bookmark/bookmark.api';
-import { CreateFollowAccountInput, DeleteFollowAccountInput, RemoveBookmarkInput } from '@generated/types.generated';
+import {
+  BookmarkType,
+  CreateBookmarkInput,
+  CreateFollowAccountInput,
+  DeleteFollowAccountInput,
+  RemoveBookmarkInput
+} from '@generated/types.generated';
 import { getWalletStatus } from '@store/wallet';
 import { useSwipeable } from 'react-swipeable';
 import { useUserHadMessageToPageQuery } from '@store/message/pageMessageSession.generated';
@@ -39,7 +44,7 @@ import {
   getFilterPostsToken,
   getLevelFilter
 } from '@store/settings';
-import { changeBookmarkActionSheet, changeFollowActionSheetPost } from '@store/post/actions';
+import { changeFollowActionSheetPost } from '@store/post/actions';
 import { FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
 import { useRouter } from 'next/router';
 import { showToast } from '@store/toast';
@@ -358,7 +363,8 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
   const bookmarkPost = async () => {
     const createBookmarkInput: CreateBookmarkInput = {
       accountId: selectedAccountId,
-      bookmarkForId: post.id
+      bookmarkForId: post.id,
+      bookmarkType: BookmarkType.Post
     };
     setIsBookmarked(!isBookmarked);
     await createBookmarkTrigger({ input: createBookmarkInput });

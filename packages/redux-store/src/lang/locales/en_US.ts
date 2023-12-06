@@ -612,7 +612,7 @@ export default {
   /* 16.Token */
   'token.importToken': 'Import token',
   'token.couldNotpostToken': 'Could not create token',
-  'token.createTokenSuccbessful': 'Create token successful',
+  'token.createTokenSuccessful': 'Create token successful',
   'token.unableCreateTokenServer': 'Unable to create token on server',
   'token.errorWhenCreateToken': "There's an error happens when create new Token",
   'token.couldNotFindToken': 'Could not find tokens',

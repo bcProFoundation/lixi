@@ -37,6 +37,7 @@ export type PostQuery = {
     followPostOwner?: boolean | null;
     followedPage?: boolean | null;
     followedToken?: boolean | null;
+    bookmarkableId?: string | null;
     isBookmarked?: boolean | null;
     originalLanguage?: string | null;
     danaViewScore?: number | null;
@@ -73,7 +74,6 @@ export type PostQuery = {
       danaReceivedScore: number;
       version: number;
     } | null;
-    bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -132,6 +132,7 @@ export type PostsByPageIdQuery = {
         followPostOwner?: boolean | null;
         followedPage?: boolean | null;
         followedToken?: boolean | null;
+        bookmarkableId?: string | null;
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
@@ -168,7 +169,6 @@ export type PostsByPageIdQuery = {
           danaReceivedScore: number;
           version: number;
         } | null;
-        bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -235,6 +235,7 @@ export type PostsByUserIdQuery = {
         followPostOwner?: boolean | null;
         followedPage?: boolean | null;
         followedToken?: boolean | null;
+        bookmarkableId?: string | null;
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
@@ -271,7 +272,6 @@ export type PostsByUserIdQuery = {
           danaReceivedScore: number;
           version: number;
         } | null;
-        bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -338,6 +338,7 @@ export type PostsByHashtagIdQuery = {
         followPostOwner?: boolean | null;
         followedPage?: boolean | null;
         followedToken?: boolean | null;
+        bookmarkableId?: string | null;
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
@@ -374,7 +375,6 @@ export type PostsByHashtagIdQuery = {
           danaReceivedScore: number;
           version: number;
         } | null;
-        bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -441,6 +441,7 @@ export type PostsByTokenIdQuery = {
         followPostOwner?: boolean | null;
         followedPage?: boolean | null;
         followedToken?: boolean | null;
+        bookmarkableId?: string | null;
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
@@ -477,7 +478,6 @@ export type PostsByTokenIdQuery = {
           danaReceivedScore: number;
           version: number;
         } | null;
-        bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -536,6 +536,7 @@ export type PostsBySearchQuery = {
         followPostOwner?: boolean | null;
         followedPage?: boolean | null;
         followedToken?: boolean | null;
+        bookmarkableId?: string | null;
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
@@ -562,7 +563,6 @@ export type PostsBySearchQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
-        bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -623,6 +623,7 @@ export type PostsBySearchWithHashtagQuery = {
         followPostOwner?: boolean | null;
         followedPage?: boolean | null;
         followedToken?: boolean | null;
+        bookmarkableId?: string | null;
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
@@ -649,7 +650,6 @@ export type PostsBySearchWithHashtagQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
-        bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -711,6 +711,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
         followPostOwner?: boolean | null;
         followedPage?: boolean | null;
         followedToken?: boolean | null;
+        bookmarkableId?: string | null;
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
@@ -737,7 +738,6 @@ export type PostsBySearchWithHashtagAtPageQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
-        bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -799,6 +799,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
         followPostOwner?: boolean | null;
         followedPage?: boolean | null;
         followedToken?: boolean | null;
+        bookmarkableId?: string | null;
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
@@ -825,7 +826,6 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
-        bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -873,6 +873,7 @@ export type PostFieldsFragment = {
   followPostOwner?: boolean | null;
   followedPage?: boolean | null;
   followedToken?: boolean | null;
+  bookmarkableId?: string | null;
   isBookmarked?: boolean | null;
   originalLanguage?: string | null;
   danaViewScore?: number | null;
@@ -909,7 +910,6 @@ export type PostFieldsFragment = {
     danaReceivedScore: number;
     version: number;
   } | null;
-  bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
   translations?: Array<{
     __typename?: 'PostTranslation';
     id: string;
@@ -942,6 +942,7 @@ export type PostMeiliFieldsFragment = {
   followPostOwner?: boolean | null;
   followedPage?: boolean | null;
   followedToken?: boolean | null;
+  bookmarkableId?: string | null;
   isBookmarked?: boolean | null;
   originalLanguage?: string | null;
   danaViewScore?: number | null;
@@ -968,7 +969,6 @@ export type PostMeiliFieldsFragment = {
     accountId?: number | null;
     account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
   }> | null;
-  bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
   translations?: Array<{
     __typename?: 'PostTranslation';
     id: string;
@@ -1012,6 +1012,7 @@ export type CreatePostMutation = {
     followPostOwner?: boolean | null;
     followedPage?: boolean | null;
     followedToken?: boolean | null;
+    bookmarkableId?: string | null;
     isBookmarked?: boolean | null;
     originalLanguage?: string | null;
     danaViewScore?: number | null;
@@ -1048,7 +1049,6 @@ export type CreatePostMutation = {
       danaReceivedScore: number;
       version: number;
     } | null;
-    bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -1093,6 +1093,7 @@ export type UpdatePostMutation = {
     followPostOwner?: boolean | null;
     followedPage?: boolean | null;
     followedToken?: boolean | null;
+    bookmarkableId?: string | null;
     isBookmarked?: boolean | null;
     originalLanguage?: string | null;
     danaViewScore?: number | null;
@@ -1129,7 +1130,6 @@ export type UpdatePostMutation = {
       danaReceivedScore: number;
       version: number;
     } | null;
-    bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -1215,10 +1215,7 @@ export const PostFieldsFragmentDoc = `
   followPostOwner
   followedPage
   followedToken
-  bookmarkable {
-    id
-    type
-  }
+  bookmarkableId
   isBookmarked
   originalLanguage
   translations {
@@ -1283,10 +1280,7 @@ export const PostMeiliFieldsFragmentDoc = `
   followPostOwner
   followedPage
   followedToken
-  bookmarkable {
-    id
-    type
-  }
+  bookmarkableId
   isBookmarked
   originalLanguage
   translations {

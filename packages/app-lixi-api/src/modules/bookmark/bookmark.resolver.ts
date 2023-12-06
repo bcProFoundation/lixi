@@ -82,7 +82,7 @@ export class BookmarkResolver {
   @Mutation(() => Bookmark)
   async createBookmark(@AccountEntity() account: Account, @Args('data') data: CreateBookmarkInput) {
     try {
-      const { bookmarkForId, accountId } = data;
+      const { bookmarkForId, accountId, bookmarkType } = data;
       if (!account || account.id !== accountId) {
         const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
         throw new Error(couldNotFindAccount);
@@ -124,7 +124,7 @@ export class BookmarkResolver {
         }
       });
 
-      const timelineBookmarkId = `${currentPost?.type}:${currentPost?.id}`;
+      const timelineBookmarkId = `${bookmarkType}:${currentPost?.id}`;
       //clear cache of post and cache bookmark
       await Promise.all([
         this.postCacheService.removeByKeys([bookmarkForId]),

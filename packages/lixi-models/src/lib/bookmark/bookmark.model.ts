@@ -36,6 +36,9 @@ export class Bookmark {
 
 export enum BookmarkType {
   POST = 'POST',
+  POLL = 'POLL',
+  EVENT = 'EVENT',
+  PRODUCT = 'PRODUCT',
   COMMENT = 'COMMENT'
 }
 

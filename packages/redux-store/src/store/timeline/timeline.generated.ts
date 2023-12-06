@@ -38,6 +38,7 @@ export type TimelineQuery = {
       followPostOwner?: boolean | null;
       followedPage?: boolean | null;
       followedToken?: boolean | null;
+      bookmarkableId?: string | null;
       isBookmarked?: boolean | null;
       originalLanguage?: string | null;
       danaViewScore?: number | null;
@@ -74,7 +75,6 @@ export type TimelineQuery = {
         danaReceivedScore: number;
         version: number;
       } | null;
-      bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
       translations?: Array<{
         __typename?: 'PostTranslation';
         id: string;
@@ -131,6 +131,7 @@ export type HomeTimelineQuery = {
           followPostOwner?: boolean | null;
           followedPage?: boolean | null;
           followedToken?: boolean | null;
+          bookmarkableId?: string | null;
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
@@ -167,7 +168,6 @@ export type HomeTimelineQuery = {
             danaReceivedScore: number;
             version: number;
           } | null;
-          bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
           translations?: Array<{
             __typename?: 'PostTranslation';
             id: string;
@@ -227,6 +227,7 @@ export type ProfileTimelineQuery = {
           followPostOwner?: boolean | null;
           followedPage?: boolean | null;
           followedToken?: boolean | null;
+          bookmarkableId?: string | null;
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
@@ -263,7 +264,6 @@ export type ProfileTimelineQuery = {
             danaReceivedScore: number;
             version: number;
           } | null;
-          bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
           translations?: Array<{
             __typename?: 'PostTranslation';
             id: string;
@@ -323,6 +323,7 @@ export type PageTimelineQuery = {
           followPostOwner?: boolean | null;
           followedPage?: boolean | null;
           followedToken?: boolean | null;
+          bookmarkableId?: string | null;
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
@@ -359,7 +360,6 @@ export type PageTimelineQuery = {
             danaReceivedScore: number;
             version: number;
           } | null;
-          bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
           translations?: Array<{
             __typename?: 'PostTranslation';
             id: string;
@@ -419,6 +419,7 @@ export type TokenTimelineQuery = {
           followPostOwner?: boolean | null;
           followedPage?: boolean | null;
           followedToken?: boolean | null;
+          bookmarkableId?: string | null;
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
@@ -455,7 +456,6 @@ export type TokenTimelineQuery = {
             danaReceivedScore: number;
             version: number;
           } | null;
-          bookmarkable?: { __typename?: 'Bookmarkable'; id: string; type: Types.BookmarkType } | null;
           translations?: Array<{
             __typename?: 'PostTranslation';
             id: string;

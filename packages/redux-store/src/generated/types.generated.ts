@@ -127,14 +127,11 @@ export type Bookmark = {
 /** The type of bookmark. */
 export enum BookmarkType {
   Comment = 'COMMENT',
-  Post = 'POST'
+  Event = 'EVENT',
+  Poll = 'POLL',
+  Post = 'POST',
+  Product = 'PRODUCT'
 }
-
-export type Bookmarkable = {
-  __typename?: 'Bookmarkable';
-  id: Scalars['ID'];
-  type: BookmarkType;
-};
 
 export type Category = {
   __typename?: 'Category';
@@ -249,6 +246,7 @@ export type CreateAccountInput = {
 export type CreateBookmarkInput = {
   accountId: Scalars['Int'];
   bookmarkForId: Scalars['String'];
+  bookmarkType: BookmarkType;
 };
 
 export type CreateCommentInput = {
@@ -1073,7 +1071,7 @@ export type Post = {
   __typename?: 'Post';
   account: Account;
   accountId: Scalars['Int'];
-  bookmarkable?: Maybe<Bookmarkable>;
+  bookmarkableId?: Maybe<Scalars['String']>;
   commentableId?: Maybe<Scalars['String']>;
   content: Scalars['String'];
   /** Identifies the date and time when the object was created. */

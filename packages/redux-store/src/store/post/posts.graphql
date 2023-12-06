@@ -324,10 +324,7 @@ fragment PostFields on Post {
   followPostOwner
   followedPage
   followedToken
-  bookmarkable {
-    id
-    type
-  }
+  bookmarkableId
   isBookmarked
   originalLanguage
   translations {
@@ -391,10 +388,7 @@ fragment PostMeiliFields on Post {
   followPostOwner
   followedPage
   followedToken
-  bookmarkable {
-    id
-    type
-  }
+  bookmarkableId
   isBookmarked
   originalLanguage
   translations {
