@@ -1,4 +1,4 @@
-import { IBasicPaginated, IEdge } from '@bcpros/lixi-models';
+import { IBasicPaginated, IEdge, POST_TYPE } from '@bcpros/lixi-models';
 import { InternalServerErrorException } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import _ from 'lodash';

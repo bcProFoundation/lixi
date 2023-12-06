@@ -14,16 +14,8 @@ query Timeline($id: String!) {
   }
 }
 
-query HomeTimeline(
-  $after: String
-  $first: Int = 20
-  $level: Int
-) {
-  homeTimeline(
-    after: $after
-    first: $first
-    level: $level
-  ) {
+query HomeTimeline($after: String, $first: Int = 20, $level: Int) {
+  homeTimeline(after: $after, first: $first, level: $level) {
     totalCount
     edges {
       cursor
@@ -35,7 +27,6 @@ query HomeTimeline(
             ...PostFields
           }
         }
-        
       }
     }
     pageInfo {
@@ -44,16 +35,8 @@ query HomeTimeline(
   }
 }
 
-query ProfileTimeline(
-  $after: String
-  $first: Int = 20
-  $id: Int!
-) {
-  profileTimeline(
-    after: $after
-    first: $first
-    id: $id
-  ) {
+query ProfileTimeline($after: String, $first: Int = 20, $id: Int!) {
+  profileTimeline(after: $after, first: $first, id: $id) {
     totalCount
     edges {
       cursor
@@ -65,7 +48,6 @@ query ProfileTimeline(
             ...PostFields
           }
         }
-        
       }
     }
     pageInfo {
@@ -74,16 +56,8 @@ query ProfileTimeline(
   }
 }
 
-query PageTimeline(
-  $after: String
-  $first: Int = 20
-  $id: String!
-) {
-  pageTimeline(
-    after: $after
-    first: $first
-    id: $id
-  ) {
+query PageTimeline($after: String, $first: Int = 20, $id: String!) {
+  pageTimeline(after: $after, first: $first, id: $id) {
     totalCount
     edges {
       cursor
@@ -95,7 +69,6 @@ query PageTimeline(
             ...PostFields
           }
         }
-        
       }
     }
     pageInfo {
@@ -104,16 +77,8 @@ query PageTimeline(
   }
 }
 
-query TokenTimeline(
-  $after: String
-  $first: Int = 20
-  $id: String!
-) {
-  tokenTimeline(
-    after: $after
-    first: $first
-    id: $id
-  ) {
+query PageTimelineByTime($after: String, $first: Int = 20, $id: String!, $minimumDanaFilter: Int!) {
+  pageTimelineByTime(after: $after, first: $first, id: $id, minimumDanaFilter: $minimumDanaFilter) {
     totalCount
     edges {
       cursor
@@ -125,7 +90,27 @@ query TokenTimeline(
             ...PostFields
           }
         }
-        
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
+query TokenTimeline($after: String, $first: Int = 20, $id: String!) {
+  tokenTimeline(after: $after, first: $first, id: $id) {
+    totalCount
+    edges {
+      cursor
+      node {
+        id
+        data {
+          __typename
+          ... on Post {
+            ...PostFields
+          }
+        }
       }
     }
     pageInfo {

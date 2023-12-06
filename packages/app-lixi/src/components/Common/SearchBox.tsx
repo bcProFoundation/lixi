@@ -173,6 +173,7 @@ const SearchBox = () => {
   const currentPathName = router.pathname ?? '';
   const pathDirection = currentPathName.split('/', 2);
   const isPostsByTime = useAppSelector(getIsPostsByTime);
+  const [filterType, setFilterType] = useState<FilterType>();
 
   const { control, getValues, setValue } = useForm({
     defaultValues: {
@@ -431,24 +432,23 @@ const SearchBox = () => {
     dispatch(savePostsByTimeFilter(checked));
   };
 
-  const filterType = () => {
+  useEffect(() => {
     switch (pathDirection[1]) {
       case '':
-        return FilterType.PostsHome;
+        return setFilterType(FilterType.PostsHome);
       case 'page':
-        return FilterType.PostsPage;
+        return setFilterType(FilterType.PostsPage);
       case 'profile':
-        return FilterType.PostsProfile;
+        return setFilterType(FilterType.PostsProfile);
       case 'token':
-        return FilterType.PostsToken;
-
+        return setFilterType(FilterType.PostsToken);
       default:
-        return FilterType.PostsHome;
+        return setFilterType(FilterType.PostsHome);
     }
-  };
+  }, []);
 
   const contentFilterBurn = (
-    <>
+    <React.Fragment>
       {router?.pathname && router?.pathname != '/' ? (
         <PopoverStyled>
           <TitleFilterStyled>
@@ -460,14 +460,14 @@ const SearchBox = () => {
               onChange={handleMenuPosts}
             />
           </TitleFilterStyled>
-          {isPostsByTime && <FilterBurnt filterForType={filterType()} />}
+          {isPostsByTime && <FilterBurnt filterType={filterType} />}
         </PopoverStyled>
       ) : (
         <PopoverStyled>
           <FilterLevel />
         </PopoverStyled>
       )}
-    </>
+    </React.Fragment>
   );
 
   const recentContent = recentComponent;

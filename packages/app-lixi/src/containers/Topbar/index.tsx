@@ -465,6 +465,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
   const currentModal = useAppSelector(getModals);
   const walletStatus = useAppSelector(getWalletStatus);
   const walletHasUpdated = useAppSelector(getWalletHasUpdated);
+  const [filterType, setFilterType] = useState<FilterType>();
 
   const slug: string = _.isArray(router?.query?.slug) ? router?.query?.slug[0] : router?.query?.slug;
   const { currentData: currentDataPageQuery } = usePageQuery({ id: slug }, { skip: !slug || !slug.startsWith('c') });
@@ -504,21 +505,20 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
     dispatch(toggleCollapsedSideNav(!navCollapsed));
   };
 
-  const filterType = () => {
+  useEffect(() => {
     switch (pathDirection[1]) {
       case '':
-        return FilterType.PostsHome;
+        return setFilterType(FilterType.PostsHome);
       case 'page':
-        return FilterType.PostsPage;
+        return setFilterType(FilterType.PostsPage);
       case 'profile':
-        return FilterType.PostsProfile;
+        return setFilterType(FilterType.PostsProfile);
       case 'token':
-        return FilterType.PostsToken;
-
+        return setFilterType(FilterType.PostsToken);
       default:
-        return FilterType.PostsHome;
+        return setFilterType(FilterType.PostsHome);
     }
-  };
+  }, []);
 
   const handleIconClick = (newPath?: string) => {
     if (currentPathName === '/' && newPath === '/') {
@@ -560,7 +560,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
   const contentNotification = <PopoverStyled>{NotificationPopup(notifications, selectedAccount, true)}</PopoverStyled>;
 
   const contentFilterBurn = (
-    <>
+    <React.Fragment>
       {router?.pathname && router?.pathname != '/' ? (
         <PopoverStyled>
           <TitleFilterStyled>
@@ -572,14 +572,14 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
               onChange={handleMenuPosts}
             />
           </TitleFilterStyled>
-          {isPostsByTime && <FilterBurnt filterForType={filterType()} />}
+          {isPostsByTime && <FilterBurnt filterType={filterType} />}
         </PopoverStyled>
       ) : (
         <PopoverStyled>
           <FilterLevel />
         </PopoverStyled>
       )}
-    </>
+    </React.Fragment>
   );
 
   const contentSelectAccount = (

@@ -35,7 +35,13 @@ import { setSelectedPost } from '@store/post/actions';
 import { getSelectedPostId } from '@store/post/selectors';
 import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
 import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
-import { getFilterPostsPage, getIsPostsByTime } from '@store/settings/selectors';
+import {
+  getFilterPostsPage,
+  getIsPostsByTime,
+  getLevelFilter,
+  getMinimumDanaFilter,
+  getNegativeDanaStatus
+} from '@store/settings/selectors';
 import { getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { Button, Skeleton, Space, Tabs, Tag } from 'antd';
 import _ from 'lodash';
@@ -45,7 +51,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
-import { useInfinitePageTimelineQuery } from '@store/timeline';
+import { useInfinitePageTimelineQuery, useInfinitePageTimelineByTimeQuery } from '@store/timeline';
 
 type PageDetailProps = {
   page: PageQueryItem;
@@ -457,6 +463,8 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
   const isPostsByTime = useAppSelector(getIsPostsByTime);
+  const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
+  const negativeDanaStatus = useAppSelector(getNegativeDanaStatus);
 
   useEffect(() => {
     if (router.query.q) {
@@ -576,6 +584,17 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     id: page.id
   });
 
+  const {
+    data: pageTimelineByTime,
+    hasNext: hasNextPageTimelineByTime,
+    isFetching: isFetchingPageTimelineByTime,
+    fetchNext: fetchNextPageTimelineByTime
+  } = useInfinitePageTimelineByTimeQuery({
+    first: 20,
+    id: page.id,
+    minimumDanaFilter: minimumDanaFilter
+  });
+
   const loadMoreItems = () => {
     if (hasNext && !isFetching) {
       fetchNext();
@@ -597,6 +616,14 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
       fetchNextPageTimelineScore();
     } else if (hasNextPageTimelineScore) {
       fetchNextPageTimelineScore();
+    }
+  };
+
+  const loadMoreItemsPageTimelineByTime = () => {
+    if (hasNextPageTimelineByTime && !isFetchingPageTimelineByTime) {
+      fetchNextPageTimelineByTime();
+    } else if (hasNextPageTimelineByTime) {
+      fetchNextPageTimelineByTime();
     }
   };
 
@@ -717,9 +744,9 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
         {!query && hashtags.length === 0 ? (
           isPostsByTime ? (
             <InfiniteScroll
-              dataLength={data.length}
-              next={loadMoreItems}
-              hasMore={hasNext}
+              dataLength={pageTimelineByTime.length}
+              next={loadMoreItemsPageTimelineByTime}
+              hasMore={hasNextPageTimelineByTime}
               loader={<Skeleton avatar active />}
               endMessage={
                 <p style={{ textAlign: 'center' }}>
@@ -728,7 +755,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
               }
               scrollableTarget="scrollableDiv"
             >
-              {data.map((item, index) => {
+              {pageTimelineByTime.map((item, index) => {
                 return (
                   <div
                     key={item.id}
@@ -737,7 +764,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                     }}
                   >
                     <PostListItem
-                      item={item}
+                      item={item.data}
                       key={item.id}
                       postListType={PostListType.Page}
                       addToRecentHashtags={hashtag =>

@@ -669,7 +669,6 @@ function* verifyEmailFailureSaga(action: PayloadAction<any>) {
 
 function* removeUploadSaga(action) {
   const { id } = action.payload;
-  console.log('🚀 ~ file: saga.ts:672 ~ function*removeUploadSaga ~ id:', id);
   try {
     if (id) {
       yield call(accountApi.removeUpload, id);

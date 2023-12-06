@@ -2,20 +2,25 @@ import {
   Account,
   BasicPaginationArgs,
   IBasicPaginated,
+  PostConnection,
+  POST_TYPE,
   TimelineItem,
   TimelineItemConnection
 } from '@bcpros/lixi-models';
+import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Query, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PubSub } from 'graphql-subscriptions';
 import { Redis } from 'ioredis';
+import _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { createEdge } from '../../common/custom-graphql-relay/paginate';
 import { AccountEntity } from '../../decorators';
 import { GqlHttpExceptionFilter } from '../../middlewares/gql.exception.filter';
 import { GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
+import { PageCacheService } from '../page/page-cache.service';
 import PostLoader from '../page/post.loader';
 import { PrismaService } from '../prisma/prisma.service';
 import { TimelineItemService } from './timeline-item.service';
@@ -35,6 +40,7 @@ export class TimelineResolver {
     private readonly postLoader: PostLoader,
     private readonly timelineService: TimelineService,
     private readonly timelineItemService: TimelineItemService,
+    private readonly pageCacheService: PageCacheService,
     @InjectRedis() private readonly redis: Redis,
     @I18n() private readonly i18n: I18nService
   ) {}
@@ -108,6 +114,72 @@ export class TimelineResolver {
     } as IBasicPaginated<TimelineItem>;
 
     return result;
+  }
+
+  @SkipThrottle()
+  @Query(returns => TimelineItemConnection)
+  @UseFilters(GqlHttpExceptionFilter)
+  @UseGuards(GqlJwtAuthGuardByPass)
+  async pageTimelineByTime(
+    @AccountEntity() account: Account,
+    @Args() { after, first }: BasicPaginationArgs,
+    @Args({ name: 'id', type: () => String }) id: string,
+    @Args({ name: 'minimumDanaFilter', type: () => Number }) minimumDanaFilter: number
+  ) {
+    const page = await this.pageCacheService.getById(id);
+    const showAll = minimumDanaFilter === -1 ? true : false;
+
+    if (!page) {
+      return null;
+    }
+
+    if (showAll && account) {
+      const paginated = await this.timelineService.getPagePaginatedTimelineByTimeShowAll(id, first, after);
+      const timelineIds = paginated.edges.map(item => item.cursor);
+      const timelines = await this.timelineItemService.getByIds(timelineIds);
+
+      const result = {
+        ...paginated,
+        edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+      } as IBasicPaginated<TimelineItem>;
+
+      return result;
+    } else {
+      const paginated = await this.timelineService.getPagePaginatedTimelineByTimeWithDanaFilter(
+        id,
+        minimumDanaFilter,
+        first,
+        after
+      );
+      const timelineIds = paginated.edges.map(item => item.cursor);
+      const timelines = await this.timelineItemService.getByIds(timelineIds);
+
+      const result = {
+        ...paginated,
+        edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+      } as IBasicPaginated<TimelineItem>;
+
+      return result;
+    }
+
+    //Query by level
+    // if (minimumDanaFilter !== 0 && !_.isNil(minimumDanaFilter)) {
+
+    // }
+
+    //Query no level and must have an account
+    // if ((minimumDanaFilter === 0 || _.isNil(minimumDanaFilter)) && account) {
+    //   const paginated = await this.timelineService.getPagePaginatedTimelineByTimeNoLevelShowNegative(id, first, after);
+    //   const timelineIds = paginated.edges.map(item => item.cursor);
+    //   const timelines = await this.timelineItemService.getByIds(timelineIds);
+
+    //   const result = {
+    //     ...paginated,
+    //     edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+    //   } as IBasicPaginated<TimelineItem>;
+
+    //   return result;
+    // }
   }
 
   @SkipThrottle()

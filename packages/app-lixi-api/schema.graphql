@@ -1207,6 +1207,7 @@ type Query {
   page(id: String!): Page!
   pageMessageSession(id: String!): PageMessageSession!
   pageTimeline(after: String, first: Int, id: String!, skip: Int): TimelineItemConnection!
+  pageTimelineByTime(after: String, first: Int, id: String!, minimumDanaFilter: Int!, skip: Int): TimelineItemConnection!
   pagesByFollower(after: String, first: Int, skip: Int): PageBasicConnection!
   poll(id: String!): Poll!
   post(id: String!): Post!

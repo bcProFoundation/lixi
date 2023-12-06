@@ -11,6 +11,7 @@ import { BURN_FANOUT_QUEUE } from './burn.constants';
 import { Burn, Post, PostType } from '@bcpros/lixi-prisma';
 import { FollowCacheService } from '../../account/follow-cache.service';
 import { PostCacheService } from '../../page/post-cache.service';
+import { template } from 'src/utils/stringTemplate';
 
 @Injectable()
 @Processor(BURN_FANOUT_QUEUE, { concurrency: 50 })
@@ -19,7 +20,9 @@ export class BurnFanoutProcessor extends WorkerHost {
 
   static inNetworkSourceKey = 'timeline:innetwork:source';
   static outNetworkSourceKey = 'timeline:outnetwork:source';
-  static timelinePageKey = 'timeline:page';
+  static pageTimelineKey = 'timeline:page:{{pageId}}';
+  static pageTimelineByTimeWithDanaFilterKey = 'timeline:page:{{pageId}}:{{level}}';
+  static pageTimelineByTimeShowAll = 'timeline:page:{{pageId}}:showAll';
   static timelineTokenKey = 'timeline:token';
   static timelineProfileKey = 'timeline:profile';
 
@@ -31,12 +34,14 @@ export class BurnFanoutProcessor extends WorkerHost {
     super();
   }
 
-  public async process(job: Job<{ burn: Burn; post: Post }, boolean, string>): Promise<boolean> {
+  public async process(
+    job: Job<{ burn: Burn; post: Post; burnAccountId: string; latestDanaBurnScore: number }, boolean, string>
+  ): Promise<boolean> {
     try {
       // This is only for post
       // @todo: Need to more organize for multiple types
-      const { burn, post } = job.data;
-      const id = `${post.id}`;
+      const { burn, post, latestDanaBurnScore, burnAccountId } = job.data;
+      const id = post.id;
 
       // Invalidate the cache
       const epoch = '2023-01-01 00:00:00';
@@ -74,8 +79,35 @@ export class BurnFanoutProcessor extends WorkerHost {
 
       //update score for post in page or token
       if (post.pageId) {
-        const keyPage = `${BurnFanoutProcessor.timelinePageKey}:${post.pageId}`;
+        const level = [0, 1, 10, 100, 1000];
+        const keyPage = template(`${BurnFanoutProcessor.pageTimelineKey}`, { pageId: post.pageId });
         pipeline.zincrby(keyPage, score, timelineId);
+
+        const postCreatedAt = new Date(post.createdAt).getTime();
+
+        for (let i = 0; i < level.length; i++) {
+          const keyPageByTimeWithDanaFilter = template(`${BurnFanoutProcessor.pageTimelineByTimeWithDanaFilterKey}`, {
+            pageId: post.pageId,
+            level: level[i]
+          });
+
+          if (latestDanaBurnScore < level[i]) {
+            pipeline.zrem(keyPageByTimeWithDanaFilter, timelineId);
+          }
+
+          if (latestDanaBurnScore >= level[i]) {
+            pipeline.zadd(keyPageByTimeWithDanaFilter, postCreatedAt, timelineId);
+          }
+        }
+
+        //If latestDanaBurnScore is negative, add postId to pageTimelineByTimeNoLevelShowNegativeKey
+        if (latestDanaBurnScore < 0) {
+          pipeline.zadd(
+            template(`${BurnFanoutProcessor.pageTimelineByTimeShowAll}`, { pageId: post.pageId }),
+            postCreatedAt,
+            timelineId
+          );
+        }
       } else if (post.tokenId) {
         const keyToken = `${BurnFanoutProcessor.timelineTokenKey}:${post.tokenId}`;
         pipeline.zincrby(keyToken, score, timelineId);

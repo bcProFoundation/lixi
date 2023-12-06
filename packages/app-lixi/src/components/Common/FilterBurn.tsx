@@ -1,18 +1,16 @@
-import { Button, Input } from 'antd';
+import React, { useEffect } from 'react';
+import { Button, Checkbox, Input } from 'antd';
 import { FilterType } from '@bcpros/lixi-models/lib/filter';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { saveBurnFilter } from '@store/settings/actions';
+import { saveMinimumDanaFilter, setNegativeDanaStatus } from '@store/settings/actions';
 import styled from 'styled-components';
 import intl from 'react-intl-universal';
-import {
-  getFilterPostsHome,
-  getFilterPostsPage,
-  getFilterPostsProfile,
-  getFilterPostsToken
-} from '@store/settings/selectors';
+import { getMinimumDanaFilter, getNegativeDanaStatus } from '@store/settings/selectors';
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import 'animate.css';
-import { SliderMarks } from 'antd/es/slider';
+import { CheckboxChangeEvent } from 'antd/es/checkbox';
+import { getAccountInfoTemp, getSelectedAccount } from '@store/account';
+import _ from 'lodash';
 
 const FilterStyle = styled.div`
   display: flex;
@@ -63,44 +61,37 @@ const FilterStyle = styled.div`
 const FilterContainer = styled.div``;
 
 type FilterBurntProps = {
-  filterForType: FilterType;
+  filterType: FilterType;
 };
 
-export const FilterBurnt = (props: FilterBurntProps) => {
+export const FilterBurnt = ({ filterType }: FilterBurntProps) => {
   const dispatch = useAppDispatch();
-  const { filterForType } = props;
+  const selectedAccount = useAppSelector(getAccountInfoTemp);
+  const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
+  const negativeDanaStatus = useAppSelector(getNegativeDanaStatus);
+  const filterLevel = [-1, 0, 1, 10, 100, 1000];
 
-  let valueForType;
-  if (filterForType == FilterType.PostsHome) {
-    valueForType = useAppSelector(getFilterPostsHome) ?? 10;
-  } else if (filterForType == FilterType.PostsPage) {
-    valueForType = useAppSelector(getFilterPostsPage) ?? 0;
-  } else if (filterForType == FilterType.PostsToken) {
-    valueForType = useAppSelector(getFilterPostsToken) ?? 1;
-  } else {
-    valueForType = useAppSelector(getFilterPostsProfile) ?? 1;
-  }
+  const handleChangeAmount = (isIncrement: boolean) => {
+    const currentLevel = filterLevel.indexOf(minimumDanaFilter);
+    let valueToSave = isIncrement ? filterLevel[currentLevel + 1] : filterLevel[currentLevel - 1];
 
-  const handleUpDownBtn = (isUp: boolean) => {
-    if (isUp) {
-      valueForType === 0 ? (valueForType = 1) : (valueForType *= 10);
-    } else {
-      if (valueForType < 10) {
-        valueForType = 0;
-      } else {
-        valueForType /= 10;
-      }
-    }
+    if (valueToSave > 0) dispatch(setNegativeDanaStatus(false));
 
-    const filteredData = {
-      filterForType: filterForType,
-      filterValue: valueForType
-    };
-    dispatch(saveBurnFilter(filteredData));
+    dispatch(saveMinimumDanaFilter(valueToSave));
   };
 
+  const onChange = (e: CheckboxChangeEvent) => {
+    dispatch(setNegativeDanaStatus(e.target.checked));
+  };
+
+  useEffect(() => {
+    if (_.isNil(minimumDanaFilter)) {
+      dispatch(saveMinimumDanaFilter(0));
+    }
+  }, [minimumDanaFilter]);
+
   return (
-    <>
+    <React.Fragment>
       <FilterContainer>
         <FilterStyle>
           <p>{intl.get('general.level')}: </p>
@@ -108,19 +99,23 @@ export const FilterBurnt = (props: FilterBurntProps) => {
             <Button
               className="down-value"
               icon={<MinusOutlined />}
-              onClick={() => handleUpDownBtn(false)}
-              disabled={valueForType === 0}
+              onClick={() => handleChangeAmount(false)}
+              disabled={
+                selectedAccount && selectedAccount?.accountDana?.danaGiven > 0
+                  ? minimumDanaFilter === -1
+                  : minimumDanaFilter === 0
+              }
             />
-            <Input disabled value={valueForType + intl.get('general.dana')} />
+            <Input disabled value={minimumDanaFilter !== -1 ? minimumDanaFilter + intl.get('general.dana') : 'All'} />
             <Button
               className="up-value"
               icon={<PlusOutlined />}
-              onClick={() => handleUpDownBtn(true)}
-              disabled={valueForType === 1000}
+              onClick={() => handleChangeAmount(true)}
+              disabled={minimumDanaFilter === 1000}
             />
           </Input.Group>
         </FilterStyle>
       </FilterContainer>
-    </>
+    </React.Fragment>
   );
 };

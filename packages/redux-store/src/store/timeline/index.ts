@@ -3,3 +3,4 @@ export * from './useInfiniteHomeTimelineQuery';
 export * from './useInfinitePageTimelineQuery';
 export * from './useInfiniteProfileTimelineQuery';
 export * from './useInfiniteTokenTimelineQuery';
+export * from './useInfinitePageTimelineByTimeQuery';

@@ -4,10 +4,11 @@ import { TimelineService } from './timeline.service';
 import { AuthModule } from '../auth/auth.module';
 import { PageModule } from '../page/page.module';
 import { TimelineItemService } from './timeline-item.service';
+import { PageCacheService } from '../page/page-cache.service';
 
 @Module({
   imports: [AuthModule, PageModule],
-  providers: [Logger, TimelineService, TimelineItemService, TimelineResolver],
+  providers: [Logger, TimelineService, TimelineItemService, TimelineResolver, PageCacheService],
   exports: []
 })
 export class TimelineModule {}
