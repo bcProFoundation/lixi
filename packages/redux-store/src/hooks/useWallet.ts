@@ -30,7 +30,7 @@ import { getAllAccounts } from '@store/account';
 import useInterval from './useInterval';
 import useXPI from './useXPI';
 
-const chronik = new ChronikClient('https://chronik01.abcpay.cash/xpi');
+const chronik = new ChronikClient('https://chronik.be.cash/xpi');
 const websocketConnectedRefreshInterval = 10000;
 
 const useWallet = () => {
