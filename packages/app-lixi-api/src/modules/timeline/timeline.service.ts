@@ -21,7 +21,7 @@ export class TimelineService {
   static ratioSteps = [0.1, 0.3, 0.5, 0.7, 0.9];
   static profileTimelineKey = 'timeline:profile:{{profileId}}';
   static pageTimelineKey = 'timeline:page:{{pageId}}';
-  static pageTimelineByTimeWithLevelKey = 'timeline:page:{{pageId}}:{{level}}';
+  static pageTimelineByTimeWithDanaFilterKey = 'timeline:page:{{pageId}}:{{level}}';
   static pageTimelineByTimeShowAll = 'timeline:page:{{pageId}}:showAll';
   static tokenTimelineKey = 'timeline:token:{{tokenId}}';
 
@@ -365,18 +365,23 @@ export class TimelineService {
     return paginated;
   }
 
-  async getPagePaginatedTimelineByTimeWithLevel(pageId: string, level: number, first: number = 20, after?: string) {
-    const key = template(`${TimelineService.pageTimelineByTimeWithLevelKey}`, { pageId: pageId, level: level });
+  async getPagePaginatedTimelineByTimeWithDanaFilter(
+    pageId: string,
+    level: number,
+    first: number = 20,
+    after?: string
+  ) {
+    const key = template(`${TimelineService.pageTimelineByTimeWithDanaFilterKey}`, { pageId: pageId, level: level });
     const limit = 1000;
     const exist = await this.redis.exists([key]);
     if (!exist) {
-      await this.cachePageTimelineByTimeWithLevel(pageId, level, limit);
+      await this.cachePageTimelineByTimeWithDanaFilter(pageId, level, limit);
     }
     const paginated = await basicSortedSetPagination(this.redis, key, first, after);
     const hasNextPage = paginated.pageInfo.hasNextPage;
     if (!hasNextPage) {
       const offset = paginated.totalCount;
-      const shouldPaginate = await this.cachePageTimelineByTimeWithLevel(pageId, level, limit, offset);
+      const shouldPaginate = await this.cachePageTimelineByTimeWithDanaFilter(pageId, level, limit, offset);
       if (shouldPaginate) {
         return await basicSortedSetPagination(this.redis, key, first, after);
       }
@@ -425,8 +430,13 @@ export class TimelineService {
     return paginated;
   }
 
-  private async cachePageTimelineByTimeWithLevel(pageId: string, level: number, limit: number = 0, offset: number = 0) {
-    const key = template(`${TimelineService.pageTimelineByTimeWithLevelKey}`, { pageId: pageId, level: level });
+  private async cachePageTimelineByTimeWithDanaFilter(
+    pageId: string,
+    level: number,
+    limit: number = 0,
+    offset: number = 0
+  ) {
+    const key = template(`${TimelineService.pageTimelineByTimeWithDanaFilterKey}`, { pageId: pageId, level: level });
     try {
       //query all posts in page where level = level order by time
       const posts = await this.prisma.post.findMany({

@@ -145,7 +145,7 @@ export class TimelineResolver {
 
       return result;
     } else {
-      const paginated = await this.timelineService.getPagePaginatedTimelineByTimeWithLevel(
+      const paginated = await this.timelineService.getPagePaginatedTimelineByTimeWithDanaFilter(
         id,
         minimumDanaFilter,
         first,

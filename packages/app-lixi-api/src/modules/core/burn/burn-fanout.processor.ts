@@ -21,7 +21,7 @@ export class BurnFanoutProcessor extends WorkerHost {
   static inNetworkSourceKey = 'timeline:innetwork:source';
   static outNetworkSourceKey = 'timeline:outnetwork:source';
   static pageTimelineKey = 'timeline:page:{{pageId}}';
-  static pageTimelineByTimeWithLevelKey = 'timeline:page:{{pageId}}:{{level}}';
+  static pageTimelineByTimeWithDanaFilterKey = 'timeline:page:{{pageId}}:{{level}}';
   static pageTimelineByTimeShowAll = 'timeline:page:{{pageId}}:showAll';
   static timelineTokenKey = 'timeline:token';
   static timelineProfileKey = 'timeline:profile';
@@ -79,24 +79,24 @@ export class BurnFanoutProcessor extends WorkerHost {
 
       //update score for post in page or token
       if (post.pageId) {
-        const level = [1, 10, 100, 1000];
+        const level = [0, 1, 10, 100, 1000];
         const keyPage = template(`${BurnFanoutProcessor.pageTimelineKey}`, { pageId: post.pageId });
         pipeline.zincrby(keyPage, score, timelineId);
 
         const postCreatedAt = new Date(post.createdAt).getTime();
 
         for (let i = 0; i < level.length; i++) {
-          const keyPageByTimeWithLevel = template(`${BurnFanoutProcessor.pageTimelineByTimeWithLevelKey}`, {
+          const keyPageByTimeWithDanaFilter = template(`${BurnFanoutProcessor.pageTimelineByTimeWithDanaFilterKey}`, {
             pageId: post.pageId,
             level: level[i]
           });
 
           if (latestDanaBurnScore < level[i]) {
-            pipeline.zrem(keyPageByTimeWithLevel, timelineId);
+            pipeline.zrem(keyPageByTimeWithDanaFilter, timelineId);
           }
 
           if (latestDanaBurnScore >= level[i]) {
-            pipeline.zadd(keyPageByTimeWithLevel, postCreatedAt, timelineId);
+            pipeline.zadd(keyPageByTimeWithDanaFilter, postCreatedAt, timelineId);
           }
         }
 

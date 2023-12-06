@@ -24,7 +24,7 @@ export class PostFanoutProcessor extends WorkerHost {
   static timelineProfileKey = 'timeline:profile';
   static pageTimelineKey = 'timeline:page:{{pageId}}';
   static pageTimelineByTimeWithAccountKey = 'timeline:page:{{pageId}}:account:{{accountId}}';
-  static pageTimelineByTimeWithLevelKey = 'timeline:page:{{pageId}}:{{level}}';
+  static pageTimelineByTimeWithDanaFilterKey = 'timeline:page:{{pageId}}:{{level}}';
   static pageTimelineByTimeShowAll = 'timeline:page:{{pageId}}:showAll';
 
   constructor(
@@ -85,17 +85,20 @@ export class PostFanoutProcessor extends WorkerHost {
       //add default score when create post in page, token, profile
       if (post.pageId) {
         const keyPage = template(`${PostFanoutProcessor.pageTimelineKey}`, { pageId: post.pageId });
-        const keyPageTimelineByTimeWithLevel = template(`${PostFanoutProcessor.pageTimelineByTimeWithLevelKey}`, {
-          pageId: post.pageId,
-          level: 0
-        });
+        const keyPageTimelineByTimeWithDanaFilter = template(
+          `${PostFanoutProcessor.pageTimelineByTimeWithDanaFilterKey}`,
+          {
+            pageId: post.pageId,
+            level: 0
+          }
+        );
         const keyPageTimelineByTimeShowAll = template(`${PostFanoutProcessor.pageTimelineByTimeShowAll}`, {
           pageId: post.pageId
         });
         const postCreatedAt = new Date(post.createdAt).getTime();
 
         pipeline.zincrby(keyPage, score, timelineId);
-        pipeline.zadd(keyPageTimelineByTimeWithLevel, postCreatedAt, timelineId);
+        pipeline.zadd(keyPageTimelineByTimeWithDanaFilter, postCreatedAt, timelineId);
         pipeline.zadd(keyPageTimelineByTimeShowAll, postCreatedAt, timelineId);
       } else if (post.tokenId) {
         const keyToken = `${PostFanoutProcessor.timelineTokenKey}:${post.tokenId}`;
