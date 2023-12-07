@@ -2,8 +2,8 @@ import { EntityState } from '@reduxjs/toolkit';
 import { PageInfo } from '@generated/types.generated';
 import { api, BookmarkQuery } from './bookmark.generated';
 import { api as postsApi } from '../post/posts.api';
-import { PostType } from '@prisma/client';
 import { changeBookmarkActionSheet } from '@store/post/actions';
+import { POST_TYPE } from '@bcpros/lixi-models/constants';
 
 export interface BookmarkApiState extends EntityState<BookmarkQuery['bookmark']> {
   pageInfo: PageInfo;
@@ -47,7 +47,7 @@ const enhancedApi = api.enhanceEndpoints({
                 for (const field of fields) {
                   if (!draft[field]) continue;
 
-                  const timelineId = `${PostType.POST}:${postBookmarked.data.post.id}`;
+                  const timelineId = `${POST_TYPE.POST}:${postBookmarked.data.post.id}`;
                   draft[field].edges.unshift({
                     cursor: timelineId,
                     node: {
@@ -84,7 +84,7 @@ const enhancedApi = api.enhanceEndpoints({
                   if (!draft[field]) continue;
 
                   const indexToUpdate = draft[field].edges.findIndex(
-                    item => item.cursor === `${PostType.POST}:${bookmarkForId}`
+                    item => item.cursor === `${POST_TYPE.POST}:${bookmarkForId}`
                   );
 
                   if (indexToUpdate != -1) {
