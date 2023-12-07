@@ -2,10 +2,11 @@ import { EntityState } from '@reduxjs/toolkit';
 import { PageInfo } from '@generated/types.generated';
 import { api, BookmarkQuery } from './bookmark.generated';
 import { api as postsApi } from '../post/posts.api';
-import { PostType } from '@prisma/client';
 import { changeBookmarkActionSheet } from '@store/post/actions';
+import { POST_TYPE } from '@bcpros/lixi-models/constants';
 
-export interface BookmarkApiState extends EntityState<BookmarkQuery['bookmark']> {
+export interface BookmarkApiState
+  extends EntityState<BookmarkQuery['bookmark']> {
   pageInfo: PageInfo;
   totalCount: number;
 }
@@ -14,7 +15,7 @@ const enhancedApi = api.enhanceEndpoints({
   addTagTypes: ['Bookmark', 'BookmarkTimeline'],
   endpoints: {
     Bookmark: {
-      providesTags: (result, error, arg) => ['Bookmark']
+      providesTags: (result, error, arg) => ['Bookmark'],
     },
     BookmarkTimeline: {
       providesTags: (result, error, arg) => ['BookmarkTimeline'],
@@ -26,9 +27,12 @@ const enhancedApi = api.enhanceEndpoints({
         return { queryArgs };
       },
       merge(currentCacheData, responseData) {
-        currentCacheData.bookmarkTimeline.edges.push(...responseData.bookmarkTimeline.edges);
-        currentCacheData.bookmarkTimeline.pageInfo = responseData.bookmarkTimeline.pageInfo;
-      }
+        currentCacheData.bookmarkTimeline.edges.push(
+          ...responseData.bookmarkTimeline.edges
+        );
+        currentCacheData.bookmarkTimeline.pageInfo =
+          responseData.bookmarkTimeline.pageInfo;
+      },
     },
 
     CreateBookmark: {
@@ -36,63 +40,80 @@ const enhancedApi = api.enhanceEndpoints({
         const { accountId, bookmarkForId } = input;
 
         try {
-          const postBookmarked = await dispatch(postsApi.endpoints.Post.initiate({ id: bookmarkForId }));
+          const postBookmarked = await dispatch(
+            postsApi.endpoints.Post.initiate({ id: bookmarkForId })
+          );
 
-          const bookmarkTimelineInvalidatedBy = enhancedApi.util.selectInvalidatedBy(getState(), ['BookmarkTimeline']);
+          const bookmarkTimelineInvalidatedBy =
+            enhancedApi.util.selectInvalidatedBy(getState(), [
+              'BookmarkTimeline',
+            ]);
           for (const invalidatedBy of bookmarkTimelineInvalidatedBy) {
             const { endpointName, originalArgs } = invalidatedBy;
             dispatch(
-              enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
-                const fields = Object.keys(draft);
-                for (const field of fields) {
-                  if (!draft[field]) continue;
+              enhancedApi.util.updateQueryData(
+                endpointName as any,
+                originalArgs,
+                (draft) => {
+                  const fields = Object.keys(draft);
+                  for (const field of fields) {
+                    if (!draft[field]) continue;
 
-                  const timelineId = `${PostType.POST}:${postBookmarked.data.post.id}`;
-                  draft[field].edges.unshift({
-                    cursor: timelineId,
-                    node: {
-                      id: timelineId,
-                      data: {
-                        __typename: 'Post',
-                        ...postBookmarked.data.post
-                      }
-                    }
-                  });
-                  draft[field].totalCount = draft[field].totalCount + 1;
+                    const timelineId = `${POST_TYPE.POST}:${postBookmarked.data.post.id}`;
+                    draft[field].edges.unshift({
+                      cursor: timelineId,
+                      node: {
+                        id: timelineId,
+                        data: {
+                          __typename: 'Post',
+                          ...postBookmarked.data.post,
+                        },
+                      },
+                    });
+                    draft[field].totalCount = draft[field].totalCount + 1;
+                  }
                 }
-              })
+              )
             );
           }
           dispatch(changeBookmarkActionSheet(bookmarkForId));
         } catch (error) {
           console.log('Error in bookmark.api: ', error);
         }
-      }
+      },
     },
     RemoveBookmark: {
       async onQueryStarted({ input }, { dispatch, getState, queryFulfilled }) {
         const { bookmarkForId } = input;
 
         try {
-          const bookmarkTimelineInvalidatedBy = enhancedApi.util.selectInvalidatedBy(getState(), ['BookmarkTimeline']);
+          const bookmarkTimelineInvalidatedBy =
+            enhancedApi.util.selectInvalidatedBy(getState(), [
+              'BookmarkTimeline',
+            ]);
           for (const invalidatedBy of bookmarkTimelineInvalidatedBy) {
             const { endpointName, originalArgs } = invalidatedBy;
             dispatch(
-              enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
-                const fields = Object.keys(draft);
-                for (const field of fields) {
-                  if (!draft[field]) continue;
+              enhancedApi.util.updateQueryData(
+                endpointName as any,
+                originalArgs,
+                (draft) => {
+                  const fields = Object.keys(draft);
+                  for (const field of fields) {
+                    if (!draft[field]) continue;
 
-                  const indexToUpdate = draft[field].edges.findIndex(
-                    item => item.cursor === `${PostType.POST}:${bookmarkForId}`
-                  );
+                    const indexToUpdate = draft[field].edges.findIndex(
+                      (item) =>
+                        item.cursor === `${POST_TYPE.POST}:${bookmarkForId}`
+                    );
 
-                  if (indexToUpdate != -1) {
-                    draft[field].edges.splice(indexToUpdate, 1);
-                    draft[field].totalCount = draft[field].totalCount - 1;
+                    if (indexToUpdate != -1) {
+                      draft[field].edges.splice(indexToUpdate, 1);
+                      draft[field].totalCount = draft[field].totalCount - 1;
+                    }
                   }
                 }
-              })
+              )
             );
           }
 
@@ -100,9 +121,9 @@ const enhancedApi = api.enhanceEndpoints({
         } catch (error) {
           console.log('Error in bookmark.api: ', error);
         }
-      }
-    }
-  }
+      },
+    },
+  },
 });
 
 export { enhancedApi as api };
@@ -113,5 +134,5 @@ export const {
   useRemoveBookmarkMutation,
   useLazyBookmarkQuery,
   useBookmarkTimelineQuery,
-  useLazyBookmarkTimelineQuery
+  useLazyBookmarkTimelineQuery,
 } = enhancedApi;
