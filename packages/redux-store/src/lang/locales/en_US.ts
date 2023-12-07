@@ -126,6 +126,8 @@ export default {
   'general.all': 'All',
   'general.installApp': 'Install App',
   'general.postsByTime': 'Posts by time: ',
+  'general.bookmark': 'Bookmark',
+  'general.noBookmark': 'No bookmarks',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Valid mnemonic seed phrase required',
@@ -597,6 +599,16 @@ export default {
   'post.hideTranslate': 'Hide translation',
   'post.originTranslate': 'Translated from {language}. Show original.',
   'post.danaViewScore': 'Dana View Score',
+  'post.bookmarkPost': 'Bookmark post',
+  'post.unbookmarkPost': 'Unbookmark post',
+  'post.unSave': 'Unsave',
+  'post.typePost': 'Post',
+  'post.typePoll': 'Poll',
+  'post.typeProduct': 'Product',
+  'post.typeEvent': 'Event',
+  'post.bookmarkFrom': '{postType} • Saved from {postName}’{postTypeLower}',
+  'post.bookmarkSuccess': 'Save post success',
+  'post.unbookmarkSuccess': 'Unsave post success',
 
   /* 16.Token */
   'token.importToken': 'Import token',

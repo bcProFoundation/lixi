@@ -38,6 +38,8 @@ export type TimelineQuery = {
       followPostOwner?: boolean | null;
       followedPage?: boolean | null;
       followedToken?: boolean | null;
+      bookmarkableId?: string | null;
+      isBookmarked?: boolean | null;
       originalLanguage?: string | null;
       danaViewScore?: number | null;
       account: {
@@ -129,6 +131,8 @@ export type HomeTimelineQuery = {
           followPostOwner?: boolean | null;
           followedPage?: boolean | null;
           followedToken?: boolean | null;
+          bookmarkableId?: string | null;
+          isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
           account: {
@@ -223,6 +227,8 @@ export type ProfileTimelineQuery = {
           followPostOwner?: boolean | null;
           followedPage?: boolean | null;
           followedToken?: boolean | null;
+          bookmarkableId?: string | null;
+          isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
           account: {
@@ -317,6 +323,8 @@ export type PageTimelineQuery = {
           followPostOwner?: boolean | null;
           followedPage?: boolean | null;
           followedToken?: boolean | null;
+          bookmarkableId?: string | null;
+          isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
           account: {
@@ -506,6 +514,8 @@ export type TokenTimelineQuery = {
           followPostOwner?: boolean | null;
           followedPage?: boolean | null;
           followedToken?: boolean | null;
+          bookmarkableId?: string | null;
+          isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
           account: {

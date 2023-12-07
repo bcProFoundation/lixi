@@ -95,6 +95,7 @@ type BasicPageInfo {
 
 type Bookmark {
   account: Account!
+  accountId: Int!
   bookmarkableId: String!
 
   """Identifies the date and time when the object was created."""
@@ -105,9 +106,13 @@ type Bookmark {
   updatedAt: DateTime
 }
 
-type BookmarkEdge {
-  cursor: String!
-  node: Bookmark!
+"""The type of bookmark."""
+enum BookmarkType {
+  COMMENT
+  EVENT
+  POLL
+  POST
+  PRODUCT
 }
 
 type Category {
@@ -217,7 +222,8 @@ input CreateAccountInput {
 
 input CreateBookmarkInput {
   accountId: Int!
-  bookmarkableId: String!
+  bookmarkForId: String!
+  bookmarkType: BookmarkType!
 }
 
 input CreateCommentInput {
@@ -943,6 +949,7 @@ type Post {
   followedToken: Boolean
   id: ID!
   imageUploadable: ImageUploadable
+  isBookmarked: Boolean
   originalLanguage: String
   page: Page
   pageId: String
@@ -1194,6 +1201,7 @@ type Query {
   allWorshipedPersonByUserId(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: WorshipedPersonOrder, skip: Int): WorshipedPersonConnection!
   allWorshipedPersonSpecialDate(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: WorshipedPersonOrder, skip: Int): WorshipedPersonConnection!
   bookmark(id: String!): Bookmark!
+  bookmarkTimeline(after: String, first: Int, id: Int!, skip: Int): TimelineItemConnection!
   checkIfFollowAccount(followingAccountId: Int!): Boolean!
   checkIfFollowPage(pageId: String): Boolean!
   checkIfFollowToken(tokenId: String): Boolean!
@@ -1225,7 +1233,7 @@ type Query {
 
 input RemoveBookmarkInput {
   accountId: Int!
-  bookmarkId: String!
+  bookmarkForId: String!
 }
 
 type Repost {

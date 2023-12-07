@@ -141,7 +141,14 @@ query PostsByTokenId(
   }
 }
 
-query PostsBySearch($after: String, $before: String, $first: Int, $last: Int, $query: String, $minBurnFilter: Int) {
+query PostsBySearch(
+  $after: String
+  $before: String
+  $first: Int
+  $last: Int
+  $query: String
+  $minBurnFilter: Int
+) {
   allPostsBySearch(
     after: $after
     before: $before
@@ -317,6 +324,8 @@ fragment PostFields on Post {
   followPostOwner
   followedPage
   followedToken
+  bookmarkableId
+  isBookmarked
   originalLanguage
   translations {
     id
@@ -379,6 +388,8 @@ fragment PostMeiliFields on Post {
   followPostOwner
   followedPage
   followedToken
+  bookmarkableId
+  isBookmarked
   originalLanguage
   translations {
     id

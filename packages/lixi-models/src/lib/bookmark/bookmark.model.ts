@@ -8,6 +8,9 @@ export class Bookmark {
   @Field(() => ID)
   id: string;
 
+  @Field(() => Number)
+  accountId: number;
+
   @Field(() => Account)
   account: Account;
 
@@ -33,6 +36,9 @@ export class Bookmark {
 
 export enum BookmarkType {
   POST = 'POST',
+  POLL = 'POLL',
+  EVENT = 'EVENT',
+  PRODUCT = 'PRODUCT',
   COMMENT = 'COMMENT'
 }
 

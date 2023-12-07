@@ -1,15 +1,13 @@
 import {
   Account,
-  PaginationArgs,
+  BasicPaginationArgs,
   Bookmark,
-  BookmarkConnection,
-  BookmarkOrder,
   CreateBookmarkInput,
+  IBasicPaginated,
   RemoveBookmarkInput,
-  BookmarkType as BookmarkTypeEnum
+  TimelineItem,
+  TimelineItemConnection
 } from '@bcpros/lixi-models';
-import { BookmarkType } from '@bcpros/lixi-prisma';
-import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
@@ -20,6 +18,10 @@ import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { BookmarkCacheService } from './bookmark-cache.service';
+import { BookmarkType } from '@bcpros/lixi-prisma';
+import { PostCacheService } from '../page/post-cache.service';
+import { TimelineItemService } from '../timeline/timeline-item.service';
+import { createEdge } from 'src/common/custom-graphql-relay/paginate';
 
 const pubSub = new PubSub();
 
@@ -31,7 +33,9 @@ export class BookmarkResolver {
     private logger: Logger,
     private prisma: PrismaService,
     @I18n() private i18n: I18nService,
-    private bookmarkCacheService: BookmarkCacheService
+    private bookmarkCacheService: BookmarkCacheService,
+    private readonly timelineItemService: TimelineItemService,
+    private postCacheService: PostCacheService
   ) {}
 
   @Subscription(() => Bookmark)
@@ -48,100 +52,128 @@ export class BookmarkResolver {
     return result;
   }
 
+  @SkipThrottle()
+  @Query(() => TimelineItemConnection)
+  @UseFilters(GqlHttpExceptionFilter)
   @UseGuards(GqlJwtAuthGuard)
-  @Mutation(() => Bookmark)
-  async createBookmark(@AccountEntity() account: Account, @Args('data') data: CreateBookmarkInput) {
-    if (!account || account.id !== data.accountId) {
+  async bookmarkTimeline(
+    @AccountEntity() account: Account,
+    @Args() { after, first }: BasicPaginationArgs,
+    @Args('id', { type: () => Number }) id: number
+  ) {
+    if (!account || account.id != id) {
       const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
       throw new Error(couldNotFindAccount);
     }
 
-    const { accountId, bookmarkableId } = data;
+    const paginated = await this.bookmarkCacheService.getBookmarkPaginatedTimeline(id, first, after);
+    const timelineIds = paginated.edges.map(item => item.cursor);
+    const timelines = await this.timelineItemService.getByIds(timelineIds);
 
-    const bookmarkable = await this.prisma.bookmarkable.findUnique({
-      where: {
-        id: bookmarkableId
-      }
-    });
-
-    if (!bookmarkable) {
-      throw new Error('Could not create bookmark');
-    }
-
-    const result = await this.prisma.bookmark.create({
-      data: {
-        account: {
-          connect: {
-            id: account.id
-          }
-        },
-        bookmarkable: {
-          connect: {
-            id: bookmarkableId
-          }
-        }
-      },
-      include: {
-        account: true,
-        bookmarkable: true
-      }
-    });
-    const type = bookmarkable.type;
-
-    await this.bookmarkCacheService.createBookmark(account.id, result.id, bookmarkableId, type, result.createdAt);
+    const result = {
+      ...paginated,
+      edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+    } as IBasicPaginated<TimelineItem>;
 
     return result;
   }
 
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Bookmark)
-  async removeBookmark(@AccountEntity() account: Account, @Args('data') data: RemoveBookmarkInput) {
-    if (!account || account.id !== data.accountId) {
-      const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
-      throw new Error(couldNotFindAccount);
+  async createBookmark(@AccountEntity() account: Account, @Args('data') data: CreateBookmarkInput) {
+    try {
+      const { bookmarkForId, accountId, bookmarkType } = data;
+      if (!account || account.id !== accountId) {
+        const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
+        throw new Error(couldNotFindAccount);
+      }
+
+      const currentPost = await this.prisma.post.findFirst({
+        where: { id: bookmarkForId }
+      });
+
+      const result = await this.prisma.$transaction(async prisma => {
+        //check post have bookmarkableId
+        if (currentPost?.bookmarkableId) {
+          //create bookmark and connect to bookmarkable
+          const bookmark = await prisma.bookmark.create({
+            data: {
+              account: { connect: { id: accountId } },
+              bookmarkable: { connect: { id: currentPost.bookmarkableId } }
+            }
+          });
+
+          return bookmark;
+        } else {
+          //create bookmarkable and connect post
+          const bookmarkable = await prisma.bookmarkable.create({
+            data: {
+              type: BookmarkType.POST,
+              post: { connect: { id: bookmarkForId } }
+            }
+          });
+
+          //create bookmark
+          const bookmark = await prisma.bookmark.create({
+            data: {
+              account: { connect: { id: accountId } },
+              bookmarkable: { connect: { id: bookmarkable.id } }
+            }
+          });
+          return bookmark;
+        }
+      });
+
+      const timelineBookmarkId = `${bookmarkType}:${currentPost?.id}`;
+      //clear cache of post and cache bookmark
+      await Promise.all([
+        this.postCacheService.removeByKeys([bookmarkForId]),
+        this.bookmarkCacheService.cacheBookmark(accountId, result.createdAt.getTime(), timelineBookmarkId)
+      ]);
+
+      return result;
+    } catch (error) {
+      this.logger.error(error);
     }
+  }
 
-    const { bookmarkId, accountId } = data;
+  @UseGuards(GqlJwtAuthGuard)
+  @Mutation(() => Bookmark)
+  async removeBookmark(@AccountEntity() account: Account, @Args('data') data: RemoveBookmarkInput) {
+    try {
+      const { accountId, bookmarkForId } = data;
+      if (!account || account.id !== accountId) {
+        const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
+        throw new Error(couldNotFindAccount);
+      }
 
-    //   const bookmark = await this.prisma.bookmark.findUnique({
-    //     where: {
-    //       id: bookmarkId,
-    //       account: {
-    //         id: accountId
-    //       }
-    //     },
-    //     include: {
-    //       bookmarkable: true
-    //     }
-    //   });
+      if (!bookmarkForId) return;
+      const currentPost = await this.prisma.post.findFirst({
+        where: { id: bookmarkForId }
+      });
 
-    //   if (!bookmark) {
-    //     const bookmarkNotFound = 'Bookmark not found';
-    //     throw new Error(bookmarkNotFound);
-    //   }
+      if (currentPost?.bookmarkableId) {
+        const removedBookmark = await this.prisma.bookmark.deleteMany({
+          where: {
+            bookmarkableId: currentPost.bookmarkableId,
+            accountId: accountId
+          }
+        });
 
-    //   const result = await this.prisma.bookmark.delete({
-    //     where: {
-    //       id: bookmark.id,
-    //       account: {
-    //         id: accountId
-    //       }
-    //     },
-    //     include: {
-    //       account: true
-    //     }
-    //   });
+        const timelineBookmarkId = `${currentPost?.type}:${currentPost?.id}`;
+        //clear post-bookmark cache
+        await Promise.all([
+          this.postCacheService.removeByKeys([currentPost?.id || '']),
+          this.bookmarkCacheService.removeBookmark(accountId, [timelineBookmarkId])
+        ]);
 
-    //   const { bookmarkable } = bookmark;
-    //   const type = bookmarkable.type;
-
-    //   await this.bookmarkCacheService.removeBookmark(
-    //     accountId,
-    //     bookmarkId,
-    //     bookmark.bookmarkableId,
-    //     bookmark.bookmarkable.type!
-    //   );
-
-    //   return result;
+        return removedBookmark;
+      } else {
+        this.logger.error("Can't find bookmarkable for this post");
+        return;
+      }
+    } catch (error) {
+      this.logger.error(error);
+    }
   }
 }

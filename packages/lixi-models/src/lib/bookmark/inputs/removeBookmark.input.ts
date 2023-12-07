@@ -6,5 +6,5 @@ export class RemoveBookmarkInput {
   accountId: number;
 
   @Field(() => String)
-  bookmarkId: string;
+  bookmarkForId: string;
 }

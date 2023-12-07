@@ -22,3 +22,5 @@ export const setNewPostAvailable = createAction<boolean>('posts/setNewPostAvaila
 export const setShowCreatePost = createAction<boolean>('posts/setShowCreatePost');
 
 export const changeFollowActionSheetPost = createAction<ParamPostFollowCommand>('posts/changeFollowActionSheetPost');
+
+export const changeBookmarkActionSheet = createAction<string>('posts/changeBookmarkActionSheet');

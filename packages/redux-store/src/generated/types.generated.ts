@@ -115,6 +115,7 @@ export type BasicPageInfo = {
 export type Bookmark = {
   __typename?: 'Bookmark';
   account: Account;
+  accountId: Scalars['Int'];
   bookmarkableId: Scalars['String'];
   /** Identifies the date and time when the object was created. */
   createdAt?: Maybe<Scalars['DateTime']>;
@@ -123,11 +124,14 @@ export type Bookmark = {
   updatedAt?: Maybe<Scalars['DateTime']>;
 };
 
-export type BookmarkEdge = {
-  __typename?: 'BookmarkEdge';
-  cursor: Scalars['String'];
-  node: Bookmark;
-};
+/** The type of bookmark. */
+export enum BookmarkType {
+  Comment = 'COMMENT',
+  Event = 'EVENT',
+  Poll = 'POLL',
+  Post = 'POST',
+  Product = 'PRODUCT'
+}
 
 export type Category = {
   __typename?: 'Category';
@@ -241,7 +245,8 @@ export type CreateAccountInput = {
 
 export type CreateBookmarkInput = {
   accountId: Scalars['Int'];
-  bookmarkableId: Scalars['String'];
+  bookmarkForId: Scalars['String'];
+  bookmarkType: BookmarkType;
 };
 
 export type CreateCommentInput = {
@@ -1078,6 +1083,7 @@ export type Post = {
   followedToken?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   imageUploadable?: Maybe<ImageUploadable>;
+  isBookmarked?: Maybe<Scalars['Boolean']>;
   originalLanguage?: Maybe<Scalars['String']>;
   page?: Maybe<Page>;
   pageId?: Maybe<Scalars['String']>;
@@ -1246,6 +1252,7 @@ export type Query = {
   allWorshipedPersonByUserId: WorshipedPersonConnection;
   allWorshipedPersonSpecialDate: WorshipedPersonConnection;
   bookmark: Bookmark;
+  bookmarkTimeline: TimelineItemConnection;
   checkIfFollowAccount: Scalars['Boolean'];
   checkIfFollowPage: Scalars['Boolean'];
   checkIfFollowToken: Scalars['Boolean'];
@@ -1623,6 +1630,13 @@ export type QueryBookmarkArgs = {
   id: Scalars['String'];
 };
 
+export type QueryBookmarkTimelineArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  id: Scalars['Int'];
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
 export type QueryCheckIfFollowAccountArgs = {
   followingAccountId: Scalars['Int'];
 };
@@ -1759,7 +1773,7 @@ export type QueryWorshipedPersonArgs = {
 
 export type RemoveBookmarkInput = {
   accountId: Scalars['Int'];
-  bookmarkId: Scalars['String'];
+  bookmarkForId: Scalars['String'];
 };
 
 export type Repost = {

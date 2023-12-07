@@ -68,6 +68,9 @@ export class Post implements ICommentableTo, ITimelineable {
   @Field(() => Boolean, { nullable: true })
   followedToken?: Nullable<boolean>;
 
+  @Field(() => Boolean, { nullable: true })
+  isBookmarked?: Nullable<boolean>;
+
   @Field(() => Number)
   repostCount: number;
 

@@ -125,6 +125,8 @@ export default {
   'general.all': 'Tất cả',
   'general.installApp': 'Cài đặt ứng dụng',
   'general.postsByTime': 'Bài viết theo thời gian: ',
+  'general.bookmark': 'Bài đã lưu',
+  'general.noBookmark': 'Không có bài đã lưu',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Bạn cần nhập đúng cụm từ bảo mật',
@@ -596,6 +598,16 @@ export default {
   'post.hideTranslate': 'Ẩn bài dịch',
   'post.originTranslate': 'Được dịch từ {language}. Hiện ngôn ngữ gốc.',
   'post.danaViewScore': 'Lượt xem dana',
+  'post.bookmarkPost': 'Lưu bài viết',
+  'post.unbookmarkPost': 'Bỏ lưu bài viết',
+  'post.unSave': 'Bỏ lưu',
+  'post.typePost': 'Bài viết',
+  'post.typePoll': 'Bầu chọn',
+  'post.typeProduct': 'Sản phẩm',
+  'post.typeEvent': 'Sự kiện',
+  'post.bookmarkFrom': '{postType} • Được lưu từ {postTypeLower} của {postName}',
+  'post.bookmarkSuccess': 'Lưu bài viết thành công ',
+  'post.unbookmarkSuccess': 'Bỏ lưu bài viết thành công',
 
   /* 16.Token */
   'token.importToken': 'Thêm token',

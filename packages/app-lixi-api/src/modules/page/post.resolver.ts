@@ -58,6 +58,7 @@ import { MeiliService } from './meili.service';
 import PostLoader from './post.loader';
 import { PostCacheService } from './post-cache.service';
 import TimelineableLoader from './timelineable.loader';
+import BookmarkLoader from '../bookmark/bookmark.loader';
 
 const pubSub = new PubSub();
 
@@ -83,7 +84,8 @@ export class PostResolver {
     private readonly postLoader: PostLoader,
     private readonly commentableLoader: CommentableLoader,
     private readonly imageUploadableLoader: ImageUploadableLoader,
-    private readonly timelineableLoader: TimelineableLoader
+    private readonly timelineableLoader: TimelineableLoader,
+    private readonly bookmarkLoader: BookmarkLoader
   ) {}
 
   @SkipThrottle()
@@ -1167,5 +1169,14 @@ export class PostResolver {
   @ResolveField('dana', () => PostDana)
   async dana(@Parent() post: Post) {
     return this.timelineableLoader.batchDanas.load(post.id);
+  }
+
+  @ResolveField('isBookmarked', () => Boolean)
+  async isBookmarked(@Parent() post: Post, @AccountEntity() account: Account) {
+    const payload = {
+      timelineIds: `${post.type}:${post.id}`,
+      accountId: account.id
+    };
+    return this.bookmarkLoader.batchCheckAllBookmark.load(payload);
   }
 }

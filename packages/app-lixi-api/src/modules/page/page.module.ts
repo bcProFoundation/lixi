@@ -37,6 +37,8 @@ import EventLoader from './events/event.loader';
 import { ProductResolver } from './products/product.resolver';
 import TimelineableLoader from './timelineable.loader';
 import { ProductCacheService } from './products/product-cache.service';
+import { BookmarkCacheService } from '../bookmark/bookmark-cache.service';
+import BookmarkLoader from '../bookmark/bookmark.loader';
 
 @Module({
   imports: [
@@ -93,7 +95,9 @@ import { ProductCacheService } from './products/product-cache.service';
     ImageUploadableLoader,
     CommentLoader,
     CommentableLoader,
-    TimelineableLoader
+    TimelineableLoader,
+    BookmarkCacheService,
+    BookmarkLoader
   ],
   exports: [
     MeiliService,
