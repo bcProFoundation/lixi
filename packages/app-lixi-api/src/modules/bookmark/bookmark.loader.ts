@@ -16,9 +16,7 @@ export default class BookmarkLoader {
       });
     },
     {
-      cacheKeyFn: (item: { timelineIds: string; accountId: number }) => {
-        `${item.accountId}:${item.timelineIds}`;
-      }
+      cacheKeyFn: (item: { timelineIds: string; accountId: number }) => `${item.accountId}:${item.timelineIds}`
     }
   );
 }

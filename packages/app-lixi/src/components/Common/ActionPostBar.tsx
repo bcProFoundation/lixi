@@ -21,6 +21,7 @@ import Counter from './Counter';
 import BaseReaction from './Reaction';
 import ShareSocialButton from './ShareSocialButton';
 import _ from 'lodash';
+import BookmarkIcon from './BookmarkIcon';
 
 export const GroupIconText = styled.div`
   align-items: center;
@@ -113,6 +114,25 @@ const ActionBar = styled.div`
   }
   @media (max-width: 520px) {
     padding: 4px;
+  }
+  .bookmark-share {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .bookmark {
+      padding: 8px;
+      border-radius: 12px;
+      cursor: pointer;
+
+      .icon-bookmark-fill,
+      .icon-bookmark {
+        height: 22px;
+      }
+    }
+    .bookmark:hover {
+      background-color: #faf1fa;
+    }
   }
 `;
 
@@ -241,7 +261,10 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
         </Tooltip>
       </GroupIconText>
 
-      <ShareSocialButton slug={post.id} content={post.content} accountName={post.account.name} />
+      <div className="bookmark-share">
+        <BookmarkIcon post={post} />
+        <ShareSocialButton slug={post.id} content={post.content} accountName={post.account.name} />
+      </div>
     </ActionBar>
   );
 };
