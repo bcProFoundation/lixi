@@ -36,6 +36,7 @@ import styled from 'styled-components';
 import { WithAuthorizeAction } from '../Common/Authorization/WithAuthorizeAction';
 import { useInfiniteProfileTimelineByScoreQuery } from '@store/timeline';
 import { useInfiniteProfileTimelineByTimeQuery } from '@store/timeline';
+import SearchBox from '@components/Common/SearchBox';
 
 export const URL_AVATAR_DEFAULT = '/images/default-avatar.jpg';
 export const URL_COVER_DEFAULT = '/images/default-avatar.jpg';
@@ -362,8 +363,12 @@ const FriendBox = styled.div`
 const ContentTimeline = styled.div`
   width: 100%;
   .search-bar {
-    display: flex;
-    gap: 1rem;
+    margin: 1rem 0;
+    @media (min-width: 960px) {
+      .search-container {
+        display: none !important;
+      }
+    }
   }
 `;
 
@@ -381,6 +386,7 @@ const Timeline = styled.div`
     margin-top: 1rem;
     img {
       max-height: 45vh;
+      max-width: 100%;
       @media (max-width: 426px) {
         max-width: 100%;
         max-height: 45vh;
@@ -814,9 +820,9 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                 </FriendBox>
               </LegacyProfile> */}
               <ContentTimeline>
-                {/* <div className="search-bar">
-                  <FilterBurnt filterForType={FilterType.PostsProfile} />
-                </div> */}
+                <div className="search-bar">
+                  <SearchBox />
+                </div>
                 {selectedAccountId == user.id && <CreatePostCard userId={user.id} hashtags={hashtags} query={query} />}
                 <Timeline>
                   {(profileTimelineByTime.length == 0 || profileTimelineScore.length == 0) && (

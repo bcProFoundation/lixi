@@ -364,6 +364,7 @@ const Timeline = styled.div`
     margin-top: 1rem;
     img {
       max-height: 45vh;
+      max-width: 100%;
       @media (max-width: 426px) {
         max-width: 100%;
         max-height: 45vh;
