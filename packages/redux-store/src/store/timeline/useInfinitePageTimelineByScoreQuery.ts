@@ -15,7 +15,7 @@ interface TimelineListParams extends PaginationArgs {
   id: string;
 }
 
-export function useInfinitePageTimelineQuery(
+export function useInfinitePageTimelineByScoreQuery(
   params: TimelineListParams,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {

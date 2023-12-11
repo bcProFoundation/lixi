@@ -33,6 +33,21 @@ const enhancedApi = api.enhanceEndpoints({
         currentCacheData.profileTimeline.totalCount = responseData.profileTimeline.totalCount;
       }
     },
+    ProfileTimelineByTime: {
+      providesTags: ['Timeline', 'CommentCreated'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { id, minimumDanaFilter, ...otherArgs } = queryArgs;
+          return { id, minimumDanaFilter };
+        }
+        return { queryArgs };
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.profileTimelineByTime.edges.push(...responseData.profileTimelineByTime.edges);
+        currentCacheData.profileTimelineByTime.pageInfo = responseData.profileTimelineByTime.pageInfo;
+        currentCacheData.profileTimelineByTime.totalCount = responseData.profileTimelineByTime.totalCount;
+      }
+    },
     PageTimeline: {
       providesTags: ['Timeline', 'CommentCreated'],
       serializeQueryArgs({ queryArgs }) {
@@ -77,6 +92,21 @@ const enhancedApi = api.enhanceEndpoints({
         currentCacheData.tokenTimeline.pageInfo = responseData.tokenTimeline.pageInfo;
         currentCacheData.tokenTimeline.totalCount = responseData.tokenTimeline.totalCount;
       }
+    },
+    TokenTimelineByTime: {
+      providesTags: ['Timeline', 'CommentCreated'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { id, minimumDanaFilter, ...otherArgs } = queryArgs;
+          return { id, minimumDanaFilter };
+        }
+        return { queryArgs };
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.tokenTimelineByTime.edges.push(...responseData.tokenTimelineByTime.edges);
+        currentCacheData.tokenTimelineByTime.pageInfo = responseData.tokenTimelineByTime.pageInfo;
+        currentCacheData.tokenTimelineByTime.totalCount = responseData.tokenTimelineByTime.totalCount;
+      }
     }
   }
 });
@@ -95,5 +125,9 @@ export const {
   useProfileTimelineQuery,
   useLazyProfileTimelineQuery,
   useTokenTimelineQuery,
-  useLazyTokenTimelineQuery
+  useLazyTokenTimelineQuery,
+  useProfileTimelineByTimeQuery,
+  useLazyProfileTimelineByTimeQuery,
+  useTokenTimelineByTimeQuery,
+  useLazyTokenTimelineByTimeQuery
 } = enhancedApi;

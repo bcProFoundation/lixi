@@ -1,11 +1,9 @@
 import * as _ from 'lodash';
-import { VError } from 'verror';
 import moment from 'moment';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { Redis } from 'ioredis';
-import { I18n, I18nService } from 'nestjs-i18n';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { BURN_FANOUT_QUEUE } from './burn.constants';
 import { Burn, Post, PostType } from '@bcpros/lixi-prisma';
@@ -20,11 +18,19 @@ export class BurnFanoutProcessor extends WorkerHost {
 
   static inNetworkSourceKey = 'timeline:innetwork:source';
   static outNetworkSourceKey = 'timeline:outnetwork:source';
+  //page key
   static pageTimelineKey = 'timeline:page:{{pageId}}';
   static pageTimelineByTimeWithDanaFilterKey = 'timeline:page:{{pageId}}:{{level}}';
   static pageTimelineByTimeShowAll = 'timeline:page:{{pageId}}:showAll';
-  static timelineTokenKey = 'timeline:token';
-  static timelineProfileKey = 'timeline:profile';
+  //profile key
+  static profileTimelineKey = 'timeline:profile:{{accountId}}';
+  static profileTimelineByTimeWithDanaFilterKey = 'timeline:profile:{{accountId}}:{{level}}';
+  static profileTimelineByTimeShowAll = 'timeline:profile:{{accountId}}:showAll';
+
+  //token key
+  static tokenTimelineKey = 'timeline:token:{{tokenId}}';
+  static tokenTimelineByTimeWithDanaFilterKey = 'timeline:token:{{tokenId}}:{{level}}';
+  static tokenTimelineByTimeShowAll = 'timeline:token:{{tokenId}}:showAll';
 
   constructor(
     private readonly followCacheService: FollowCacheService,
@@ -78,12 +84,11 @@ export class BurnFanoutProcessor extends WorkerHost {
       }
 
       //update score for post in page or token
+      const level = [0, 1, 10, 100, 1000];
+      const postCreatedAt = new Date(post.createdAt).getTime();
       if (post.pageId) {
-        const level = [0, 1, 10, 100, 1000];
         const keyPage = template(`${BurnFanoutProcessor.pageTimelineKey}`, { pageId: post.pageId });
         pipeline.zincrby(keyPage, score, timelineId);
-
-        const postCreatedAt = new Date(post.createdAt).getTime();
 
         for (let i = 0; i < level.length; i++) {
           const keyPageByTimeWithDanaFilter = template(`${BurnFanoutProcessor.pageTimelineByTimeWithDanaFilterKey}`, {
@@ -109,13 +114,64 @@ export class BurnFanoutProcessor extends WorkerHost {
           );
         }
       } else if (post.tokenId) {
-        const keyToken = `${BurnFanoutProcessor.timelineTokenKey}:${post.tokenId}`;
+        const keyToken = template(`${BurnFanoutProcessor.tokenTimelineKey}`, { tokenId: post.tokenId });
         pipeline.zincrby(keyToken, score, timelineId);
+
+        for (let i = 0; i < level.length; i++) {
+          const keyTokenByTimeWithDanaFilter = template(`${BurnFanoutProcessor.tokenTimelineByTimeWithDanaFilterKey}`, {
+            tokenId: post.tokenId,
+            level: level[i]
+          });
+
+          if (latestDanaBurnScore < level[i]) {
+            pipeline.zrem(keyTokenByTimeWithDanaFilter, timelineId);
+          }
+
+          if (latestDanaBurnScore >= level[i]) {
+            pipeline.zadd(keyTokenByTimeWithDanaFilter, postCreatedAt, timelineId);
+          }
+        }
+
+        //If latestDanaBurnScore is negative, add postId to tokenTimelineByTimeNoLevelShowNegativeKey
+        if (latestDanaBurnScore < 0) {
+          pipeline.zadd(
+            template(`${BurnFanoutProcessor.tokenTimelineByTimeShowAll}`, { tokenId: post.tokenId }),
+            postCreatedAt,
+            timelineId
+          );
+        }
       }
 
       //update score for post in profile
-      const keyProfile = `${BurnFanoutProcessor.timelineProfileKey}:${post.accountId}`;
+      const keyProfile = template(`${BurnFanoutProcessor.profileTimelineKey}`, { accountId: post.accountId });
       pipeline.zincrby(keyProfile, score, timelineId);
+      //update time for post in profile
+      for (let i = 0; i < level.length; i++) {
+        const keyProfileByTimeWithDanaFilter = template(
+          `${BurnFanoutProcessor.profileTimelineByTimeWithDanaFilterKey}`,
+          {
+            accountId: post.accountId,
+            level: level[i]
+          }
+        );
+
+        if (latestDanaBurnScore < level[i]) {
+          pipeline.zrem(keyProfileByTimeWithDanaFilter, timelineId);
+        }
+
+        if (latestDanaBurnScore >= level[i]) {
+          pipeline.zadd(keyProfileByTimeWithDanaFilter, postCreatedAt, timelineId);
+        }
+      }
+
+      //If latestDanaBurnScore is negative, add postId to proflieTimelineByTimeNoLevelShowNegativeKey
+      if (latestDanaBurnScore < 0) {
+        pipeline.zadd(
+          template(`${BurnFanoutProcessor.profileTimelineByTimeShowAll}`, { accountId: post.accountId }),
+          postCreatedAt,
+          timelineId
+        );
+      }
 
       await pipeline.exec();
     } catch (error) {

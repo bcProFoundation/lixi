@@ -3,26 +3,27 @@ import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { TimelineQueryItem } from '@generated/index';
-import { useLazyProfileTimelineQuery, useProfileTimelineQuery } from './timeline.api';
+import { useLazyTokenTimelineByTimeQuery, useTokenTimelineByTimeQuery } from './timeline.api';
 
-const profileTimelineAdapter = createEntityAdapter<TimelineQueryItem>({
+const tokenTimelineAdapter = createEntityAdapter<TimelineQueryItem>({
   selectId: item => item.id
 });
 
-const { selectAll } = profileTimelineAdapter.getSelectors();
+const { selectAll } = tokenTimelineAdapter.getSelectors();
 
-interface TimelineListParams extends PaginationArgs {
-  id: number;
+interface TokenTimelineByTimeListParams extends PaginationArgs {
+  id: string;
+  minimumDanaFilter: number;
 }
 
-export function useInfiniteProfileTimelineQuery(
-  params: TimelineListParams,
+export function useInfiniteTokenTimelineByTimeQuery(
+  params: TokenTimelineByTimeListParams,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const baseResult = useProfileTimelineQuery(params);
+  const baseResult = useTokenTimelineByTimeQuery(params);
 
-  const [trigger, nextResult] = useLazyProfileTimelineQuery();
-  const [combinedData, setCombinedData] = useState(profileTimelineAdapter.getInitialState({}));
+  const [trigger, nextResult] = useLazyTokenTimelineByTimeQuery();
+  const [combinedData, setCombinedData] = useState(tokenTimelineAdapter.getInitialState({}));
 
   const isBaseReady = useRef(false);
   const isNextDone = useRef(true);
@@ -37,13 +38,13 @@ export function useInfiniteProfileTimelineQuery(
 
   // Base result
   useEffect(() => {
-    next.current = baseResult.data?.profileTimeline?.pageInfo?.endCursor;
-    if (baseResult?.data?.profileTimeline) {
+    next.current = baseResult.data?.tokenTimelineByTime?.pageInfo?.endCursor;
+    if (baseResult?.data?.tokenTimelineByTime) {
       isBaseReady.current = true;
 
-      const adapterSetAll = profileTimelineAdapter.setAll(
+      const adapterSetAll = tokenTimelineAdapter.setAll(
         combinedData,
-        baseResult.data.profileTimeline.edges.map(item => item.node)
+        baseResult.data.tokenTimelineByTime.edges.map(item => item.node)
       );
 
       setCombinedData(adapterSetAll);
@@ -77,7 +78,7 @@ export function useInfiniteProfileTimelineQuery(
   };
   return {
     data: data ?? [],
-    totalCount: baseResult?.data?.profileTimeline?.totalCount ?? 0,
+    totalCount: baseResult?.data?.tokenTimelineByTime?.totalCount ?? 0,
     error: baseResult?.error,
     isError: baseResult?.isError,
     isLoading: baseResult?.isLoading,
@@ -85,7 +86,7 @@ export function useInfiniteProfileTimelineQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: !!baseResult.data?.profileTimeline?.pageInfo?.hasNextPage,
+    hasNext: !!baseResult.data?.tokenTimelineByTime?.pageInfo?.hasNextPage,
     fetchNext,
     refetch
   };

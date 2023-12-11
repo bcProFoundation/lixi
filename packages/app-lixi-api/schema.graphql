@@ -1221,11 +1221,13 @@ type Query {
   post(id: String!): Post!
   product(id: String!): Product!
   profileTimeline(after: String, first: Int, id: Int!, skip: Int): TimelineItemConnection!
+  profileTimelineByTime(after: String, first: Int, id: Int!, minimumDanaFilter: Int!, skip: Int): TimelineItemConnection!
   temple(id: String!): Temple!
   timeline(id: String!): TimelineItem!
   token(id: String!): Token!
   tokenByTokenId(tokenId: String!): Token!
   tokenTimeline(after: String, first: Int, id: String!, skip: Int): TimelineItemConnection!
+  tokenTimelineByTime(after: String, first: Int, id: String!, minimumDanaFilter: Int!, skip: Int): TimelineItemConnection!
   userHadMessageToPage(accountId: Int, pageId: String): PageMessageSession
   worship(id: String!): Worship!
   worshipedPerson(id: String!): WorshipedPerson!

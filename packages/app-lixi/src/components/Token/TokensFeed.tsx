@@ -20,8 +20,7 @@ import { useCreateFollowTokenMutation, useDeleteFollowTokenMutation } from '@sto
 import { useInfiniteHashtagByTokenQuery } from '@store/hashtag/useInfiniteHashtagByTokenQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { useInfinitePostsBySearchQueryWithHashtagAtToken } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtToken';
-import { useInfinitePostsByTokenIdQuery } from '@store/post/useInfinitePostsByTokenIdQuery';
-import { getFilterPostsToken, getIsPostsByTime } from '@store/settings/selectors';
+import { getFilterPostsToken, getIsPostsByTime, getMinimumDanaFilter } from '@store/settings/selectors';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { Button, Image, Menu, Skeleton, Tabs, Tag } from 'antd';
@@ -33,7 +32,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
-import { useInfiniteTokenTimelineQuery } from '@store/timeline';
+import { useInfiniteTokenTimelineByScoreQuery, useInfiniteTokenTimelineByTimeQuery } from '@store/timeline';
 
 const StyledTokensFeed = styled.div`
   margin: 1rem auto;
@@ -221,6 +220,7 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
   const [query, setQuery] = useState<any>('');
   const [hashtags, setHashtags] = useState<any>([]);
   const isPostsByTime = useAppSelector(getIsPostsByTime);
+  const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
 
   let options = ['Withdraw', 'Rename', 'Export'];
 
@@ -240,15 +240,15 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
     }
   }, [router.query.q]);
 
-  const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } = useInfinitePostsByTokenIdQuery(
+  const {
+    data: tokenTimelineByTime,
+    fetchNext: fetchNextTokenTimelineByTime,
+    hasNext: hasNextTokenTimelineByTime,
+    isFetching: isFetchingTokenTimelineByTime
+  } = useInfiniteTokenTimelineByTimeQuery(
     {
       first: 20,
-      minBurnFilter: filterValue ?? 1,
-      accountId: selectedAccountId ?? null,
-      orderBy: {
-        direction: OrderDirection.Desc,
-        field: PostOrderField.UpdatedAt
-      },
+      minimumDanaFilter: minimumDanaFilter,
       id: token.id
     },
     false
@@ -259,7 +259,7 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
     fetchNext: fetchNextTokenTimelineScore,
     isFetching: isFetchingTokenTimelineScore,
     hasNext: hasNextTokenTimelineScore
-  } = useInfiniteTokenTimelineQuery({ first: 20, id: token.id });
+  } = useInfiniteTokenTimelineByScoreQuery({ first: 20, id: token.id });
 
   const { queryData, fetchNextQuery, hasNextQuery, isQueryFetching, isFetchingQueryNext, isQueryLoading, noMoreQuery } =
     useInfinitePostsBySearchQueryWithHashtagAtToken(
@@ -290,10 +290,10 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
   );
 
   const loadMoreItems = () => {
-    if (hasNext && !isFetching) {
-      fetchNext();
-    } else if (hasNext) {
-      fetchNext();
+    if (hasNextTokenTimelineByTime && !isFetchingTokenTimelineByTime) {
+      fetchNextTokenTimelineByTime();
+    } else if (hasNextTokenTimelineByTime) {
+      fetchNextTokenTimelineByTime();
     }
   };
 
@@ -403,21 +403,21 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
         {!query && hashtags.length === 0 ? (
           isPostsByTime ? (
             <InfiniteScroll
-              dataLength={data.length}
+              dataLength={tokenTimelineByTime.length}
               next={loadMoreItems}
-              hasMore={hasNext}
+              hasMore={hasNextTokenTimelineByTime}
               loader={<Skeleton avatar active />}
               endMessage={
                 <p style={{ textAlign: 'center' }}>
-                  <b>{data.length > 0 ? 'end reached' : ''}</b>
+                  <b>{tokenTimelineByTime.length > 0 ? 'end reached' : ''}</b>
                 </p>
               }
               scrollableTarget="scrollableDiv"
             >
-              {data.map((item, index) => {
+              {tokenTimelineByTime.map((item, index) => {
                 return (
                   <PostListItem
-                    item={item}
+                    item={item.data}
                     key={item.id}
                     addToRecentHashtags={hashtag =>
                       dispatch(addRecentHashtagAtToken({ id: token.id, hashtag: hashtag.substring(1) }))
@@ -462,7 +462,7 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
             loader={<Skeleton avatar active />}
             endMessage={
               <p style={{ textAlign: 'center' }}>
-                <b>{data.length > 0 ? 'end reached' : ''}</b>
+                <b>{queryData.length > 0 ? 'end reached' : ''}</b>
               </p>
             }
             scrollableTarget="scrollableDiv"
