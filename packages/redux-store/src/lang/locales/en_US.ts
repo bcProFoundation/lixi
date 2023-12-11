@@ -607,6 +607,7 @@ export default {
   'post.typeProduct': 'Product',
   'post.typeEvent': 'Event',
   'post.bookmarkFrom': '{postType} • Saved from {postName}’{postTypeLower}',
+  'post.bookmarkInPage': ' in {pageName}',
   'post.bookmarkSuccess': 'Save post success',
   'post.unbookmarkSuccess': 'Unsave post success',
 

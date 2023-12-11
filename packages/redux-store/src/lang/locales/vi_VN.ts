@@ -606,6 +606,7 @@ export default {
   'post.typeProduct': 'Sản phẩm',
   'post.typeEvent': 'Sự kiện',
   'post.bookmarkFrom': '{postType} • Được lưu từ {postTypeLower} của {postName}',
+  'post.bookmarkInPage': ' trong {pageName}',
   'post.bookmarkSuccess': 'Lưu bài viết thành công ',
   'post.unbookmarkSuccess': 'Bỏ lưu bài viết thành công',
 

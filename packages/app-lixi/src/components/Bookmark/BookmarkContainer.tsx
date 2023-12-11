@@ -106,11 +106,13 @@ function BookmarkContainer() {
   };
 
   const savedFromContent = post => {
-    return intl.get('post.bookmarkFrom', {
-      postType: intl.get(`post.type${post.__typename}`),
-      postName: post.account.name,
-      postTypeLower: intl.get(`post.type${post.__typename}`).toLowerCase()
-    });
+    const savePostContent =
+      intl.get('post.bookmarkFrom', {
+        postType: intl.get(`post.type${post.__typename}`),
+        postName: post.account.name,
+        postTypeLower: intl.get(`post.type${post.__typename}`).toLowerCase()
+      }) + (post?.page ? intl.get('post.bookmarkInPage', { pageName: post.page?.name }) : '');
+    return savePostContent;
   };
 
   const unBookmark = async post => {
