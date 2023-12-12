@@ -32,6 +32,7 @@ import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtau
 import { PrismaService } from '../prisma/prisma.service';
 import { AccountCacheService } from './account-cache.service';
 import { FollowCacheService } from './follow-cache.service';
+import { PageCacheService } from '../page/page-cache.service';
 
 const pubSub = new PubSub();
 
@@ -47,7 +48,8 @@ export class FollowResolver {
     private readonly notificationService: NotificationService,
     @I18n() private readonly i18n: I18nService,
     @InjectRedis() private readonly redis: Redis,
-    private readonly accountCacheService: AccountCacheService
+    private readonly accountCacheService: AccountCacheService,
+    private readonly pageCacheService: PageCacheService
   ) {}
 
   @Subscription(() => FollowAccount)
@@ -334,6 +336,9 @@ export class FollowResolver {
           throw new VError(accountNotExistMessage);
         }
 
+        //clear cache page to recalculate followScore
+        await this.pageCacheService.removeByKeys([pageId]);
+
         const createNotif = {
           senderId: account.id,
           recipientId: recipient.id,
@@ -428,7 +433,12 @@ export class FollowResolver {
         }
       });
 
-      pageId && (await this.followCacheService.removeFollowPage(accountId, pageId));
+      //clear cache
+      pageId &&
+        (await Promise.all([
+          this.followCacheService.removeFollowPage(accountId, pageId),
+          this.pageCacheService.removeByKeys([pageId])
+        ]));
 
       pubSub.publish('followPageDeleted', { followPageDeleted: deletedFollowPage });
       return deletedFollowPage ? true : false;

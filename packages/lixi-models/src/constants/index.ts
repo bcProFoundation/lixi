@@ -10,3 +10,4 @@ export * from './burn';
 export * from './postListType';
 export * from './notification';
 export * from './post';
+export * from './formatNumber';

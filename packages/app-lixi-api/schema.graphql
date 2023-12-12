@@ -769,6 +769,7 @@ type Page {
   dana: PageDana
   description: String!
   encryptedMnemonic: String
+  followScore: Int
   followerFreeMessage: Boolean
   followersCount: Int
   id: ID!

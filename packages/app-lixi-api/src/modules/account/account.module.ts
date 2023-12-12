@@ -8,6 +8,7 @@ import { AccountResolver } from './account.resolver';
 import { FollowCacheService } from './follow-cache.service';
 import { FollowResolver } from './follow.resolver';
 import { WalletModule } from '../wallet/wallet.module';
+import { PageCacheService } from '../page/page-cache.service';
 
 @Module({
   imports: [forwardRef(() => AuthModule), forwardRef(() => NotificationModule)],
@@ -19,7 +20,8 @@ import { WalletModule } from '../wallet/wallet.module';
     FollowCacheService,
     AccountCacheService,
     AccountDanaCacheService,
-    AccountLoader
+    AccountLoader,
+    PageCacheService
   ],
   exports: [FollowCacheService, AccountCacheService, AccountDanaCacheService]
 })

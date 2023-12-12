@@ -900,6 +900,7 @@ export type Page = {
   dana?: Maybe<PageDana>;
   description: Scalars['String'];
   encryptedMnemonic?: Maybe<Scalars['String']>;
+  followScore?: Maybe<Scalars['Int']>;
   followerFreeMessage?: Maybe<Scalars['Boolean']>;
   followersCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];

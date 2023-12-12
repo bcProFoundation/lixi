@@ -111,13 +111,44 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
     followingPagesCountPromise
   ]);
 
+  //cal follow score
+  const followAccounts = await prisma.followAccount.findMany({
+    where: { followingAccountId: account.id },
+    include: {
+      followerAccount: {
+        include: {
+          accountDana: {
+            select: {
+              danaGiven: true,
+              danaReceived: true
+            }
+          }
+        }
+      }
+    }
+  });
+
+  let followScore: number = 0;
+  followAccounts.map(item => {
+    const danaGiven = item?.followerAccount?.accountDana?.danaGiven;
+    const danaReceived = item?.followerAccount?.accountDana?.danaReceived;
+
+    if (danaGiven) {
+      followScore += danaGiven;
+    }
+    if (danaReceived) {
+      followScore += danaReceived;
+    }
+  });
+
   const result = {
     ..._.omit(account, 'accountAvatarImageUploadable', 'accountCoverImageUploadable'),
     avatar: toImageUrl(deliveryUrl, cfAccountHash, account.accountAvatarImageUploadable?.uploads[0]),
     cover: toImageUrl(deliveryUrl, cfAccountHash, account.accountCoverImageUploadable?.uploads[0]),
     followersCount: followersCount,
     followingsCount: followingsCount,
-    followingPagesCount: followingPagesCount
+    followingPagesCount: followingPagesCount,
+    followScore: followScore ?? 0
   };
   const accountAsString = JSON.stringify(result);
 

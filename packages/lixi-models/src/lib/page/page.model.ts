@@ -53,7 +53,10 @@ export class Page {
   @Field(() => String, { nullable: true })
   website?: string;
 
-  @Field(() => Float, { nullable: true, description: 'The sum of burn amount for every post on page' })
+  @Field(() => Float, {
+    nullable: true,
+    description: 'The sum of burn amount for every post on page'
+  })
   totalBurnForPage?: number;
 
   @Field(() => GraphQLDateTime, {
@@ -80,6 +83,9 @@ export class Page {
 
   @Field(() => Number, { nullable: true })
   followersCount?: Nullable<number>;
+
+  @Field(() => Number, { nullable: true })
+  followScore?: Nullable<number>;
 
   @Field(() => String, { nullable: true })
   encryptedMnemonic?: Nullable<string>;

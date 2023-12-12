@@ -53,12 +53,43 @@ export class PageCacheService {
 
       if (!dbValue) return null;
 
+      //cal follow score
+      const accountFollowPages = await this.prisma.followPage.findMany({
+        where: { pageId: id },
+        include: {
+          account: {
+            include: {
+              accountDana: {
+                select: {
+                  danaGiven: true,
+                  danaReceived: true
+                }
+              }
+            }
+          }
+        }
+      });
+
+      let followScore: number = 0;
+      accountFollowPages.map(item => {
+        const danaGiven = item?.account?.accountDana?.danaGiven;
+        const danaReceived = item?.account?.accountDana?.danaReceived;
+
+        if (danaGiven) {
+          followScore += danaGiven;
+        }
+        if (danaReceived) {
+          followScore += danaReceived;
+        }
+      });
+
       const page: Page = new Page({
         ..._.omit(dbValue, 'country', 'state'),
         avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.pageAvatarImageUploadable?.uploads[0]),
         cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.pageCoverImageUploadable?.uploads[0]),
         stateName: dbValue.state?.name || '',
-        countryName: dbValue.country?.name || ''
+        countryName: dbValue.country?.name || '',
+        followScore: followScore ?? 0
       });
 
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(page)));

@@ -26,7 +26,7 @@ import {
   getMinimumDanaFilter
 } from '@store/settings/selectors';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
-import { Avatar, Button, Skeleton, Space, Tabs } from 'antd';
+import { Avatar, Button, Skeleton, Space, Tabs, Tooltip } from 'antd';
 import _ from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -37,6 +37,7 @@ import { WithAuthorizeAction } from '../Common/Authorization/WithAuthorizeAction
 import { useInfiniteProfileTimelineByScoreQuery } from '@store/timeline';
 import { useInfiniteProfileTimelineByTimeQuery } from '@store/timeline';
 import SearchBox from '@components/Common/SearchBox';
+import formatDana from 'src/utils/formatDana';
 
 export const URL_AVATAR_DEFAULT = '/images/default-avatar.jpg';
 export const URL_COVER_DEFAULT = '/images/default-avatar.jpg';
@@ -209,6 +210,10 @@ const ProfileCardHeader = styled.div`
       margin-left: 0;
       text-align: center;
       overflow-wrap: anywhere;
+    }
+    .infor-profile {
+      display: flex;
+      gap: 7px;
     }
   }
   .follow-profile {
@@ -478,6 +483,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const [hashtags, setHashtags] = useState([]);
   const isPostsByTime = useAppSelector(getIsPostsByTime);
   const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
+  const followScore: Number = user?.followScore ?? 0;
 
   const [
     createFollowAccountTrigger,
@@ -671,21 +677,6 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
             )}
           </div>
 
-          <div className="description-profile">
-            {user.description && (
-              <p>
-                <InfoCircleOutlined /> {user.description}
-              </p>
-            )}
-
-            {user.website && (
-              <p>
-                <CompassOutlined />
-                {<a href={user.website}> {user.website}</a>}
-              </p>
-            )}
-          </div>
-
           {selectedAccountId == user.id && (
             <div className="follow-profile">
               <Button
@@ -716,6 +707,30 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
               </Button>
             </div>
           )}
+
+          <div className="description-profile">
+            {user.description && (
+              <p className="infor-profile">
+                <InfoCircleOutlined /> {user.description}
+              </p>
+            )}
+
+            {user.website && (
+              <p className="infor-profile">
+                <CompassOutlined />
+                {<a href={user.website}> {user.website}</a>}
+              </p>
+            )}
+
+            {followScore != 0 && (
+              <Tooltip title={intl.get('general.followScore', { dana: followScore.toLocaleString('en-US') })}>
+                <p style={{ width: 'fit-content' }} className="infor-profile">
+                  <img src="../../images/follow.svg" style={{ width: '14px' }} />
+                  {formatDana(followScore) + ' ' + intl.get('general.dana')}
+                </p>
+              </Tooltip>
+            )}
+          </div>
         </ProfileCardHeader>
 
         <ProfileContentContainer>
@@ -825,7 +840,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                 </div>
                 {selectedAccountId == user.id && <CreatePostCard userId={user.id} hashtags={hashtags} query={query} />}
                 <Timeline>
-                  {(profileTimelineByTime.length == 0 || profileTimelineScore.length == 0) && (
+                  {profileTimelineScore.length == 0 && (
                     <div className="blank-timeline">
                       <img className="time-line-blank" src="/images/time-line-blank.svg" alt="" />
                       <p>Sharing your thinking...</p>
