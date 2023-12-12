@@ -48,7 +48,7 @@ const PostContent = ({ post, showTranslation, currentLocale }) => {
     });
   }, [postContent]);
 
-  const handleContentEmbed = useMemo(() => {
+  const handleContentEmbed = () => {
     let staticMarkupContent = ReactDomServer.renderToStaticMarkup(content);
     const postScore = post?.dana.danaBurnScore;
     if (staticMarkupContent.includes('iframe') && postScore >= 50) {
@@ -63,7 +63,7 @@ const PostContent = ({ post, showTranslation, currentLocale }) => {
       staticMarkupContent = contentText;
     }
     return staticMarkupContent;
-  }, [content]);
+  };
 
   const lineContentShow = useMemo(() => {
     let lineNum = 3;
@@ -98,7 +98,7 @@ const PostContent = ({ post, showTranslation, currentLocale }) => {
         id="readMore"
         linesToShow={lineContentShow + lineContentShow * 0.1} //default lineHeight of Readmoremore is 1 but we custom lineHeight is 1.1
         parseHtml
-        text={handleContentEmbed}
+        text={handleContentEmbed()}
         checkFor={300}
         transDuration={0}
         readMoreText={intl.get('general.showMore')}

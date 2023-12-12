@@ -711,6 +711,10 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     dispatch(addRecentHashtagAtPages({ id: page.id, hashtag: hashtag.substring(1) }));
   };
 
+  const itemLengthCurrent = useRef(pageTimelineByTime.length);
+  //save length when change query
+  itemLengthCurrent.current = pageTimelineByTime.length;
+
   const showPosts = () => {
     return (
       <React.Fragment>
@@ -719,7 +723,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
             <InfiniteScroll
               dataLength={pageTimelineByTime.length}
               next={loadMoreItemsPageTimelineByTime}
-              hasMore={hasNextPageTimelineByTime}
+              hasMore={itemLengthCurrent.current === pageTimelineByTime.length ? false : hasNextPageTimelineByTime}
               loader={<Skeleton avatar active />}
               endMessage={
                 <p style={{ textAlign: 'center' }}>

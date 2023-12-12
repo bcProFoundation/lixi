@@ -397,6 +397,10 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
     await deleteFollowTokenTrigger({ input: deleteFollowTokenInput });
   };
 
+  const itemLengthCurrent = useRef(tokenTimelineByTime.length);
+  //save length when change query
+  itemLengthCurrent.current = tokenTimelineByTime.length;
+
   const showPosts = () => {
     return (
       <React.Fragment>
@@ -405,7 +409,7 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
             <InfiniteScroll
               dataLength={tokenTimelineByTime.length}
               next={loadMoreItems}
-              hasMore={hasNextTokenTimelineByTime}
+              hasMore={itemLengthCurrent.current === tokenTimelineByTime.length ? false : hasNextTokenTimelineByTime}
               loader={<Skeleton avatar active />}
               endMessage={
                 <p style={{ textAlign: 'center' }}>

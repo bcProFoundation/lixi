@@ -595,6 +595,10 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
     dispatch(openModal('EditProfileModal', { profile: account }));
   };
 
+  const itemLengthCurrent = useRef(profileTimelineByTime.length);
+  //save length when change query
+  itemLengthCurrent.current = profileTimelineByTime.length;
+
   return (
     <>
       <StyledContainerProfileDetail className="profile-detail">
@@ -837,7 +841,11 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                       <InfiniteScroll
                         dataLength={profileTimelineByTime.length}
                         next={loadMoreItems}
-                        hasMore={hasNextProfileTimelineByTime}
+                        hasMore={
+                          itemLengthCurrent.current === profileTimelineByTime.length
+                            ? false
+                            : hasNextProfileTimelineByTime
+                        }
                         loader={<Skeleton avatar active />}
                         endMessage={
                           <p style={{ textAlign: 'center' }}>
