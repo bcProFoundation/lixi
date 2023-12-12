@@ -2,12 +2,9 @@ import {
   Account,
   BasicPaginationArgs,
   IBasicPaginated,
-  PostConnection,
-  POST_TYPE,
   TimelineItem,
   TimelineItemConnection
 } from '@bcpros/lixi-models';
-import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Query, Resolver } from '@nestjs/graphql';
@@ -93,6 +90,52 @@ export class TimelineResolver {
       edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
     } as IBasicPaginated<TimelineItem>;
     return result;
+  }
+
+  @SkipThrottle()
+  @Query(returns => TimelineItemConnection)
+  @UseFilters(GqlHttpExceptionFilter)
+  @UseGuards(GqlJwtAuthGuardByPass)
+  async profileTimelineByTime(
+    @AccountEntity() account: Account,
+    @Args() { after, first }: BasicPaginationArgs,
+    @Args({ name: 'id', type: () => Number }) id: number,
+    @Args({ name: 'minimumDanaFilter', type: () => Number }) minimumDanaFilter: number
+  ) {
+    const showAll = minimumDanaFilter === -1 ? true : false;
+
+    if (!id) {
+      return null;
+    }
+
+    if (showAll && account) {
+      const paginated = await this.timelineService.getProfilePaginatedTimelineByTimeShowAll(id, first, after);
+      const timelineIds = paginated.edges.map(item => item.cursor);
+      const timelines = await this.timelineItemService.getByIds(timelineIds);
+
+      const result = {
+        ...paginated,
+        edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+      } as IBasicPaginated<TimelineItem>;
+
+      return result;
+    } else {
+      const paginated = await this.timelineService.getProfilePaginatedTimelineByTimeWithDanaFilter(
+        id,
+        minimumDanaFilter,
+        first,
+        after
+      );
+      const timelineIds = paginated.edges.map(item => item.cursor);
+      const timelines = await this.timelineItemService.getByIds(timelineIds);
+
+      const result = {
+        ...paginated,
+        edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+      } as IBasicPaginated<TimelineItem>;
+
+      return result;
+    }
   }
 
   @SkipThrottle()
@@ -201,5 +244,51 @@ export class TimelineResolver {
     } as IBasicPaginated<TimelineItem>;
 
     return result;
+  }
+
+  @SkipThrottle()
+  @Query(returns => TimelineItemConnection)
+  @UseFilters(GqlHttpExceptionFilter)
+  @UseGuards(GqlJwtAuthGuardByPass)
+  async tokenTimelineByTime(
+    @AccountEntity() account: Account,
+    @Args() { after, first }: BasicPaginationArgs,
+    @Args({ name: 'id', type: () => String }) id: string,
+    @Args({ name: 'minimumDanaFilter', type: () => Number }) minimumDanaFilter: number
+  ) {
+    const showAll = minimumDanaFilter === -1 ? true : false;
+
+    if (!id) {
+      return null;
+    }
+
+    if (showAll && account) {
+      const paginated = await this.timelineService.getTokenPaginatedTimelineByTimeShowAll(id, first, after);
+      const timelineIds = paginated.edges.map(item => item.cursor);
+      const timelines = await this.timelineItemService.getByIds(timelineIds);
+
+      const result = {
+        ...paginated,
+        edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+      } as IBasicPaginated<TimelineItem>;
+
+      return result;
+    } else {
+      const paginated = await this.timelineService.getTokenPaginatedTimelineByTimeWithDanaFilter(
+        id,
+        minimumDanaFilter,
+        first,
+        after
+      );
+      const timelineIds = paginated.edges.map(item => item.cursor);
+      const timelines = await this.timelineItemService.getByIds(timelineIds);
+
+      const result = {
+        ...paginated,
+        edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+      } as IBasicPaginated<TimelineItem>;
+
+      return result;
+    }
   }
 }

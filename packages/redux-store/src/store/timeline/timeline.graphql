@@ -56,6 +56,37 @@ query ProfileTimeline($after: String, $first: Int = 20, $id: Int!) {
   }
 }
 
+query ProfileTimelineByTime(
+  $after: String
+  $first: Int = 20
+  $id: Int!
+  $minimumDanaFilter: Int!
+) {
+  profileTimelineByTime(
+    after: $after
+    first: $first
+    id: $id
+    minimumDanaFilter: $minimumDanaFilter
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        id
+        data {
+          __typename
+          ... on Post {
+            ...PostFields
+          }
+        }
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
 query PageTimeline($after: String, $first: Int = 20, $id: String!) {
   pageTimeline(after: $after, first: $first, id: $id) {
     totalCount
@@ -77,8 +108,18 @@ query PageTimeline($after: String, $first: Int = 20, $id: String!) {
   }
 }
 
-query PageTimelineByTime($after: String, $first: Int = 20, $id: String!, $minimumDanaFilter: Int!) {
-  pageTimelineByTime(after: $after, first: $first, id: $id, minimumDanaFilter: $minimumDanaFilter) {
+query PageTimelineByTime(
+  $after: String
+  $first: Int = 20
+  $id: String!
+  $minimumDanaFilter: Int!
+) {
+  pageTimelineByTime(
+    after: $after
+    first: $first
+    id: $id
+    minimumDanaFilter: $minimumDanaFilter
+  ) {
     totalCount
     edges {
       cursor
@@ -100,6 +141,37 @@ query PageTimelineByTime($after: String, $first: Int = 20, $id: String!, $minimu
 
 query TokenTimeline($after: String, $first: Int = 20, $id: String!) {
   tokenTimeline(after: $after, first: $first, id: $id) {
+    totalCount
+    edges {
+      cursor
+      node {
+        id
+        data {
+          __typename
+          ... on Post {
+            ...PostFields
+          }
+        }
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
+query TokenTimelineByTime(
+  $after: String
+  $first: Int = 20
+  $id: String!
+  $minimumDanaFilter: Int!
+) {
+  tokenTimelineByTime(
+    after: $after
+    first: $first
+    id: $id
+    minimumDanaFilter: $minimumDanaFilter
+  ) {
     totalCount
     edges {
       cursor

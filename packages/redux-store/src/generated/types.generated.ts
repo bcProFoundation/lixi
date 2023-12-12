@@ -1272,11 +1272,13 @@ export type Query = {
   post: Post;
   product: Product;
   profileTimeline: TimelineItemConnection;
+  profileTimelineByTime: TimelineItemConnection;
   temple: Temple;
   timeline: TimelineItem;
   token: Token;
   tokenByTokenId: Token;
   tokenTimeline: TimelineItemConnection;
+  tokenTimelineByTime: TimelineItemConnection;
   userHadMessageToPage?: Maybe<PageMessageSession>;
   worship: Worship;
   worshipedPerson: WorshipedPerson;
@@ -1735,6 +1737,14 @@ export type QueryProfileTimelineArgs = {
   skip?: InputMaybe<Scalars['Int']>;
 };
 
+export type QueryProfileTimelineByTimeArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  id: Scalars['Int'];
+  minimumDanaFilter: Scalars['Int'];
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
 export type QueryTempleArgs = {
   id: Scalars['String'];
 };
@@ -1755,6 +1765,14 @@ export type QueryTokenTimelineArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   id: Scalars['String'];
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
+export type QueryTokenTimelineByTimeArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  id: Scalars['String'];
+  minimumDanaFilter: Scalars['Int'];
   skip?: InputMaybe<Scalars['Int']>;
 };
 

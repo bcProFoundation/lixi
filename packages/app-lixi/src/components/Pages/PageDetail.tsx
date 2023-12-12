@@ -51,7 +51,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
-import { useInfinitePageTimelineQuery, useInfinitePageTimelineByTimeQuery } from '@store/timeline';
+import { useInfinitePageTimelineByScoreQuery, useInfinitePageTimelineByTimeQuery } from '@store/timeline';
 
 type PageDetailProps = {
   page: PageQueryItem;
@@ -364,6 +364,7 @@ const Timeline = styled.div`
     margin-top: 1rem;
     img {
       max-height: 45vh;
+      max-width: 100%;
       @media (max-width: 426px) {
         max-width: 100%;
         max-height: 45vh;
@@ -525,26 +526,6 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     { skip: selectedAccount?.id === page?.pageAccountId || !selectedAccount?.id }
   );
 
-  const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } = useInfinitePostsByPageIdQuery(
-    {
-      first: 20,
-      minBurnFilter: filterValue ?? 1,
-      accountId: selectedAccountId ?? undefined,
-      orderBy: [
-        {
-          direction: OrderDirection.Desc,
-          field: PostOrderField.LastRepostAt
-        },
-        {
-          direction: OrderDirection.Desc,
-          field: PostOrderField.UpdatedAt
-        }
-      ],
-      id: page.id
-    },
-    false
-  );
-
   const { data: hashtagData } = useInfiniteHashtagByPageQuery(
     {
       first: 3,
@@ -579,7 +560,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     hasNext: hasNextPageTimelineScore,
     isFetching: isFetchingPageTimelineScore,
     fetchNext: fetchNextPageTimelineScore
-  } = useInfinitePageTimelineQuery({
+  } = useInfinitePageTimelineByScoreQuery({
     first: 20,
     id: page.id
   });
@@ -594,14 +575,6 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     id: page.id,
     minimumDanaFilter: minimumDanaFilter
   });
-
-  const loadMoreItems = () => {
-    if (hasNext && !isFetching) {
-      fetchNext();
-    } else if (hasNext) {
-      fetchNext();
-    }
-  };
 
   const loadMoreQueryItems = () => {
     if (hasNextQuery && !isQueryFetching && !noMoreQuery) {
@@ -653,7 +626,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
       headerNode ? (headerNode.style.display = 'grid') : null;
       dispatch(setSelectedPost(''));
     }
-  }, [data, postIdSelected]);
+  }, [pageTimelineByTime, postIdSelected]);
 
   const navigateEditPage = () => {
     dispatch(openModal('EditPageModal', { page: pageDetailData }));
@@ -750,7 +723,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
               loader={<Skeleton avatar active />}
               endMessage={
                 <p style={{ textAlign: 'center' }}>
-                  <b>{data.length > 0 ? 'end reached' : ''}</b>
+                  <b>{pageTimelineByTime.length > 0 ? 'end reached' : ''}</b>
                 </p>
               }
               scrollableTarget="scrollableDiv"
@@ -1106,7 +1079,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                       setQuery('angular');
                     }}
                   /> */}
-                  {(pageTimelineScore.length == 0 || data.length == 0) && (
+                  {(pageTimelineScore.length == 0 || pageTimelineByTime.length == 0) && (
                     <div className="blank-timeline">
                       <img className="time-line-blank" src="/images/time-line-blank.svg" alt="" />
                       <p>Become a first person post on the page...</p>

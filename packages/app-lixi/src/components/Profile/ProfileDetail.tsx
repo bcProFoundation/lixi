@@ -19,7 +19,12 @@ import { useCreateFollowAccountMutation, useDeleteFollowAccountMutation } from '
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
 import { useInfinitePostsByUserIdQuery } from '@store/post/useInfinitePostsByUserIdQuery';
-import { getFilterPostsProfile, getIsPostsByTime, getLevelFilter } from '@store/settings/selectors';
+import {
+  getFilterPostsProfile,
+  getIsPostsByTime,
+  getLevelFilter,
+  getMinimumDanaFilter
+} from '@store/settings/selectors';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { Avatar, Button, Skeleton, Space, Tabs } from 'antd';
 import _ from 'lodash';
@@ -29,7 +34,9 @@ import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
 import { WithAuthorizeAction } from '../Common/Authorization/WithAuthorizeAction';
-import { useInfiniteProfileTimelineQuery } from '@store/timeline';
+import { useInfiniteProfileTimelineByScoreQuery } from '@store/timeline';
+import { useInfiniteProfileTimelineByTimeQuery } from '@store/timeline';
+import SearchBox from '@components/Common/SearchBox';
 
 export const URL_AVATAR_DEFAULT = '/images/default-avatar.jpg';
 export const URL_COVER_DEFAULT = '/images/default-avatar.jpg';
@@ -356,8 +363,12 @@ const FriendBox = styled.div`
 const ContentTimeline = styled.div`
   width: 100%;
   .search-bar {
-    display: flex;
-    gap: 1rem;
+    margin: 1rem 0;
+    @media (min-width: 960px) {
+      .search-container {
+        display: none !important;
+      }
+    }
   }
 `;
 
@@ -375,6 +386,7 @@ const Timeline = styled.div`
     margin-top: 1rem;
     img {
       max-height: 45vh;
+      max-width: 100%;
       @media (max-width: 426px) {
         max-width: 100%;
         max-height: 45vh;
@@ -465,6 +477,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const [query, setQuery] = useState('');
   const [hashtags, setHashtags] = useState([]);
   const isPostsByTime = useAppSelector(getIsPostsByTime);
+  const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
 
   const [
     createFollowAccountTrigger,
@@ -486,38 +499,32 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
     }
   ] = useDeleteFollowAccountMutation();
 
-  const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch, isLoading } =
-    useInfinitePostsByUserIdQuery(
-      {
-        first: 20,
-        minBurnFilter: filterValue ?? 1,
-        orderBy: [
-          {
-            direction: OrderDirection.Desc,
-            field: PostOrderField.LastRepostAt
-          },
-          {
-            direction: OrderDirection.Desc,
-            field: PostOrderField.UpdatedAt
-          }
-        ],
-        id: _.toSafeInteger(user.id)
-      },
-      false
-    );
+  const {
+    data: profileTimelineByTime,
+    fetchNext: fetchNextProfileTimelineByTime,
+    hasNext: hasNextProfileTimelineByTime,
+    isFetching: isFetchingProfileTimelineByTime
+  } = useInfiniteProfileTimelineByTimeQuery(
+    {
+      first: 20,
+      minimumDanaFilter: minimumDanaFilter,
+      id: _.toSafeInteger(user.id)
+    },
+    false
+  );
 
   const {
     data: profileTimelineScore,
     fetchNext: fetchNextprofileTimelineScore,
     isFetching: isFetchingProfileTimelineScore,
     hasNext: hasNextProfileTimelineScore
-  } = useInfiniteProfileTimelineQuery({ first: 20, id: _.toSafeInteger(user.id) });
+  } = useInfiniteProfileTimelineByScoreQuery({ first: 20, id: _.toSafeInteger(user.id) });
 
   const loadMoreItems = () => {
-    if (hasNext && !isFetching) {
-      fetchNext();
-    } else if (hasNext) {
-      fetchNext();
+    if (hasNextProfileTimelineByTime && !isFetchingProfileTimelineByTime) {
+      fetchNextProfileTimelineByTime();
+    } else if (hasNextProfileTimelineByTime) {
+      fetchNextProfileTimelineByTime();
     }
   };
 
@@ -813,12 +820,12 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                 </FriendBox>
               </LegacyProfile> */}
               <ContentTimeline>
-                {/* <div className="search-bar">
-                  <FilterBurnt filterForType={FilterType.PostsProfile} />
-                </div> */}
+                <div className="search-bar">
+                  <SearchBox />
+                </div>
                 {selectedAccountId == user.id && <CreatePostCard userId={user.id} hashtags={hashtags} query={query} />}
                 <Timeline>
-                  {(data.length == 0 || profileTimelineScore.length == 0) && (
+                  {(profileTimelineByTime.length == 0 || profileTimelineScore.length == 0) && (
                     <div className="blank-timeline">
                       <img className="time-line-blank" src="/images/time-line-blank.svg" alt="" />
                       <p>Sharing your thinking...</p>
@@ -828,19 +835,19 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                   <React.Fragment>
                     {isPostsByTime ? (
                       <InfiniteScroll
-                        dataLength={data.length}
+                        dataLength={profileTimelineByTime.length}
                         next={loadMoreItems}
-                        hasMore={hasNext}
+                        hasMore={hasNextProfileTimelineByTime}
                         loader={<Skeleton avatar active />}
                         endMessage={
                           <p style={{ textAlign: 'center' }}>
-                            <b>{data.length > 0 ? 'end reached' : ''}</b>
+                            <b>{profileTimelineByTime.length > 0 ? 'end reached' : ''}</b>
                           </p>
                         }
                         scrollableTarget="scrollableDiv"
                       >
-                        {data.map((item, index) => {
-                          return <PostListItem item={item} key={item.id} postListType={PostListType.Profile} />;
+                        {profileTimelineByTime.map((item, index) => {
+                          return <PostListItem item={item.data} key={item.id} postListType={PostListType.Profile} />;
                         })}
                       </InfiniteScroll>
                     ) : (
