@@ -1175,7 +1175,7 @@ export class PostResolver {
   async isBookmarked(@Parent() post: Post, @AccountEntity() account: Account) {
     const payload = {
       timelineIds: `${post.type}:${post.id}`,
-      accountId: account.id
+      accountId: account?.id
     };
     return this.bookmarkLoader.batchCheckAllBookmark.load(payload);
   }
