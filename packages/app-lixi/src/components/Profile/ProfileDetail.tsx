@@ -478,6 +478,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const [hashtags, setHashtags] = useState([]);
   const isPostsByTime = useAppSelector(getIsPostsByTime);
   const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
+  const keyInfinite = `${user.id}:${minimumDanaFilter}`;
 
   const [
     createFollowAccountTrigger,
@@ -594,10 +595,6 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const showEditProfileModal = (account: Account) => {
     dispatch(openModal('EditProfileModal', { profile: account }));
   };
-
-  const itemLengthCurrent = useRef(profileTimelineByTime.length);
-  //save length when change query
-  itemLengthCurrent.current = profileTimelineByTime.length;
 
   return (
     <>
@@ -839,13 +836,10 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                   <React.Fragment>
                     {isPostsByTime ? (
                       <InfiniteScroll
+                        key={keyInfinite}
                         dataLength={profileTimelineByTime.length}
                         next={loadMoreItems}
-                        hasMore={
-                          itemLengthCurrent.current === profileTimelineByTime.length
-                            ? false
-                            : hasNextProfileTimelineByTime
-                        }
+                        hasMore={hasNextProfileTimelineByTime}
                         loader={<Skeleton avatar active />}
                         endMessage={
                           <p style={{ textAlign: 'center' }}>

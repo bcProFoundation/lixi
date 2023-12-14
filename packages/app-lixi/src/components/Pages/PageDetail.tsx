@@ -466,6 +466,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const isPostsByTime = useAppSelector(getIsPostsByTime);
   const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
   const negativeDanaStatus = useAppSelector(getNegativeDanaStatus);
+  const keyInfinite = `${page.id}:${minimumDanaFilter}`;
 
   useEffect(() => {
     if (router.query.q) {
@@ -711,19 +712,16 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     dispatch(addRecentHashtagAtPages({ id: page.id, hashtag: hashtag.substring(1) }));
   };
 
-  const itemLengthCurrent = useRef(pageTimelineByTime.length);
-  //save length when change query
-  itemLengthCurrent.current = pageTimelineByTime.length;
-
   const showPosts = () => {
     return (
       <React.Fragment>
         {!query && hashtags.length === 0 ? (
           isPostsByTime ? (
             <InfiniteScroll
+              key={keyInfinite}
               dataLength={pageTimelineByTime.length}
               next={loadMoreItemsPageTimelineByTime}
-              hasMore={itemLengthCurrent.current === pageTimelineByTime.length ? false : hasNextPageTimelineByTime}
+              hasMore={hasNextPageTimelineByTime}
               loader={<Skeleton avatar active />}
               endMessage={
                 <p style={{ textAlign: 'center' }}>
