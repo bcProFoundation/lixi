@@ -1,16 +1,13 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import {
-  useAllFollowersByPageQuery,
-  useLazyAllFollowersByPageQuery,
-} from '@store/account/accounts.generated';
+import { useAllFollowersByPageQuery, useLazyAllFollowersByPageQuery } from '@store/account/accounts.generated';
 import _ from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AccountQueryItem } from '@generated/types';
 
 const accountsAdapter = createEntityAdapter<AccountQueryItem>({
-  selectId: (account) => account.id,
-  sortComparer: (a, b) => b.createdAt - a.createdAt,
+  selectId: account => account.id,
+  sortComparer: (a, b) => b.createdAt - a.createdAt
 });
 
 const { selectAll } = accountsAdapter.getSelectors();
@@ -24,13 +21,11 @@ export function useInfiniteFollowersByPageQuery(
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
   const baseResult = useAllFollowersByPageQuery(params, {
-    skip: !params?.id,
+    skip: !params?.id
   });
 
   const [trigger, nextResult] = useLazyAllFollowersByPageQuery();
-  const [combinedData, setCombinedData] = useState(
-    accountsAdapter.getInitialState({})
-  );
+  const [combinedData, setCombinedData] = useState(accountsAdapter.getInitialState({}));
 
   const isBaseReady = useRef(false);
   const isNextDone = useRef(true);
@@ -49,12 +44,10 @@ export function useInfiniteFollowersByPageQuery(
     if (baseResult?.data?.allFollowersByPage) {
       isBaseReady.current = true;
 
-      const baseResultParse = baseResult.data.allFollowersByPage.edges.map(
-        (item) => item.node
-      );
+      const baseResultParse = baseResult.data.allFollowersByPage.edges.map(item => item.node);
       const adapterSetAll = accountsAdapter.setAll(
         combinedData,
-        baseResult.data.allFollowersByPage.edges.map((item) => item.node)
+        baseResult.data.allFollowersByPage.edges.map(item => item.node)
       );
 
       setCombinedData(adapterSetAll);
@@ -63,12 +56,7 @@ export function useInfiniteFollowersByPageQuery(
   }, [baseResult]);
 
   const fetchNext = async () => {
-    if (
-      !isBaseReady.current ||
-      !isNextDone.current ||
-      next.current === undefined ||
-      next.current === null
-    ) {
+    if (!isBaseReady.current || !isNextDone.current || next.current === undefined || next.current === null) {
       return;
     }
 
@@ -76,7 +64,7 @@ export function useInfiniteFollowersByPageQuery(
       isNextDone.current = false;
       await trigger({
         ...params,
-        after: next.current,
+        after: next.current
       });
     } catch (e) {
     } finally {
@@ -103,6 +91,6 @@ export function useInfiniteFollowersByPageQuery(
     isFetchingNext: nextResult?.isFetching,
     hasNext: !!baseResult.data?.allFollowersByPage?.pageInfo?.hasNextPage,
     fetchNext,
-    refetch,
+    refetch
   };
 }
