@@ -6,7 +6,7 @@ import { currency } from '@bcpros/lixi-models';
 import { appConfig } from './xec.constant';
 import * as cashaddr from 'ecashaddrjs';
 import bs58 from 'bs58';
-import * as utxolib from '@bitgo/utxo-lib';
+import utxolib from '@bitgo/utxo-lib';
 
 export type TxInputObj = {
   txBuilder: any;

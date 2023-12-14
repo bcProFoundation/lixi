@@ -9,7 +9,7 @@ import {
   getChangeAddressFromInputUtxosXec
 } from './cashMethods';
 // import ecies from 'ecies-lite';
-import * as utxolib from '@bitgo/utxo-lib';
+import utxolib from '@bitgo/utxo-lib';
 import BigNumber from 'bignumber.js';
 import { SEND_XEC_ERRORS, appConfig } from './xec.constant';
 import { ChronikClient, Utxo } from 'chronik-client';
