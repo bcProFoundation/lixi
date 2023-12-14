@@ -478,6 +478,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const [hashtags, setHashtags] = useState([]);
   const isPostsByTime = useAppSelector(getIsPostsByTime);
   const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
+  const keyInfinite = `${user.id}:${minimumDanaFilter}`;
 
   const [
     createFollowAccountTrigger,
@@ -835,6 +836,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                   <React.Fragment>
                     {isPostsByTime ? (
                       <InfiniteScroll
+                        key={keyInfinite}
                         dataLength={profileTimelineByTime.length}
                         next={loadMoreItems}
                         hasMore={hasNextProfileTimelineByTime}
