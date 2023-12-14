@@ -11,6 +11,8 @@ import {
 } from './wallet.interface';
 import { WalletService } from './wallet.service';
 import { ChronikClients } from '../../common/modules/chronik/chronik.interfaces';
+import { XecWalletService } from './xec-wallet.service';
+import { XpiWalletService } from './xpi-wallet.service';
 
 export const currencyToCoin: Record<string, string> = {
   xec: 'xec',
@@ -29,8 +31,16 @@ export function createFactory(
     const coin = currencyToCoin[currency];
     const chronikClient = chronikClients[coin];
 
-    const service = new WalletService(XPI, chronikClient, currency, redis);
-    services[currency] = service;
+    switch (currency) {
+      case 'xec':
+        services[currency] = new XecWalletService(XPI, coin, redis, chronikClient);
+        break;
+      case 'xpi':
+        services[currency] = new XpiWalletService(XPI, coin, redis, chronikClient);
+        break;
+      default:
+        break;
+    }
   }
   return services;
 }

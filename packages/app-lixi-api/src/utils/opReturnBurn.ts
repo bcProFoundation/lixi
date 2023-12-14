@@ -252,6 +252,7 @@ export const parseBurnOutput = (scriptpubkey: Buffer | string): ParseBurnResult 
 
 export const generateBurnTxOutput = (
   XPI: BCHJS,
+  feeInSatsPerByte: number,
   satoshisToBurn: BigNumber,
   burnType: BurnType,
   burnForType: BurnForType,
@@ -260,18 +261,22 @@ export const generateBurnTxOutput = (
   totalInputUtxoValue: BigNumber,
   changeAddress: string,
   txFee: number,
-  txBuilder: any
+  txBuilder: any,
+  tipToAddresseses?: { address: string; amount: string }[]
 ) => {
   if (!XPI || !satoshisToBurn || !txFee || !txBuilder) {
     throw new Error('Invalid tx input parameters');
   }
 
+  let remainder: BigNumber = new BigNumber(totalInputUtxoValue).minus(satoshisToBurn).minus(txFee);
+
   try {
     // amount to send back to the remainder address.
-    const remainder = new BigNumber(totalInputUtxoValue).minus(satoshisToBurn).minus(txFee);
-    if (remainder.lt(0)) {
-      throw new Error(`Insufficient funds`);
-    }
+    tipToAddresseses!.map(item => {
+      if (item.address !== changeAddress) {
+        remainder = remainder.minus(item.amount);
+      }
+    });
 
     const burnOutputScript = generateBurnOpReturnScript(
       0x01,
@@ -280,7 +285,21 @@ export const generateBurnTxOutput = (
       burnedBy,
       burnForId
     );
+
+    // Minus the op_return fee
+    remainder = remainder.minus(burnOutputScript.length * feeInSatsPerByte);
+
+    if (remainder.lt(0)) {
+      throw new Error(`Insufficient funds`);
+    }
     txBuilder.addOutput(burnOutputScript, parseInt(satoshisToBurn.toString()));
+
+    tipToAddresseses &&
+      tipToAddresseses.forEach(item => {
+        if (item.address && item.address !== changeAddress) {
+          txBuilder.addOutput(item.address, parseInt(item.amount.toString()));
+        }
+      });
 
     // if a remainder exists, return to change address as the final output
     if (remainder.gte(new BigNumber(currency.dustSats))) {
@@ -289,6 +308,7 @@ export const generateBurnTxOutput = (
 
     return txBuilder;
   } catch (err) {
+    console.log(err);
     throw err;
   }
 };

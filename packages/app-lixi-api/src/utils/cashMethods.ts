@@ -3,6 +3,10 @@ import BigNumber from 'bignumber.js';
 import { Utxo } from 'chronik-client';
 import { createSharedKey, decrypt, encrypt } from './encryption';
 import { currency } from '@bcpros/lixi-models';
+import { appConfig } from './xec.constant';
+import * as cashaddr from 'ecashaddrjs';
+import bs58 from 'bs58';
+import * as utxolib from '@bitgo/utxo-lib';
 
 export type TxInputObj = {
   txBuilder: any;
@@ -48,7 +52,7 @@ export const fromXpiToSatoshis = (sendAmount: BigNumber, cashDecimals = currency
   return sendAmountSmallestDenomination;
 };
 
-export const fromSmallestDenomination = (amount: number, cashDecimals = currency.cashDecimals) => {
+export const fromSmallestDenomination = (amount: any, cashDecimals = currency.cashDecimals) => {
   const amountBig = new BigNumber(amount);
   const multiplier = new BigNumber(10 ** (-1 * cashDecimals));
   const amountInBaseUnits = amountBig.times(multiplier);
@@ -136,12 +140,23 @@ export const calcFee = (utxos: Array<Utxo>, p2pkhOutputNumber = 2, satoshisPerBy
   return txFee;
 };
 
+export const getWalletBalanceFromUtxos = (nonSlpUtxos: Utxo[]) => {
+  const totalBalanceInSatoshis = nonSlpUtxos.reduce(
+    (previousBalance, utxo) => previousBalance.plus(new BigNumber(utxo.value)),
+    new BigNumber(0)
+  );
+  return {
+    totalBalanceInSatoshis: totalBalanceInSatoshis.toString(),
+    totalBalance: fromSmallestDenomination(totalBalanceInSatoshis).toString()
+  };
+};
+
 export const generateTxInput = (
   XPI: BCHJS,
   isOneToMany: boolean,
   utxos: Array<Utxo & { address: string }>,
   txBuilder: any,
-  destinationAddressAndValueArray: Array<any>,
+  destinationAddressAndValueArray: Array<any> | null,
   satoshisToSend: any,
   feeInSatsPerByte: any
 ): TxInputObj => {
@@ -162,7 +177,7 @@ export const generateTxInput = (
 
     // A normal tx will have 2 outputs, destination and change
     // A one to many tx will have n outputs + 2 change output, where n is the number of recipients, 1 destination and 1 change
-    const txOutputs = isOneToMany ? destinationAddressAndValueArray.length + 2 : 2;
+    const txOutputs = isOneToMany ? destinationAddressAndValueArray!.length + 2 : 2;
     for (let i = 0; i < utxos.length; i++) {
       const utxo = utxos[i];
       totalInputUtxoValue = totalInputUtxoValue.plus(utxo.value);
@@ -486,4 +501,276 @@ export const decryptOpReturnMsg = async (opReturnMsgHex: string, privateKeyWIF: 
       error
     };
   }
+};
+
+export const isValidXecAddress = (addr: string) => {
+  /* 
+  Returns true for a valid XEC address
+
+  Valid XEC address:
+  - May or may not have prefix `ecash:`
+  - Checksum must validate for prefix `ecash:`
+  
+  An eToken address is not considered a valid XEC address
+  */
+
+  if (!addr) {
+    return false;
+  }
+
+  let isValidXecAddress;
+  let isPrefixedXecAddress;
+
+  // Check for possible prefix
+  if (addr.includes(':')) {
+    // Test for 'ecash:' prefix
+    isPrefixedXecAddress = addr.slice(0, 6) === 'ecash:';
+    // Any address including ':' that doesn't start explicitly with 'ecash:' is invalid
+    if (!isPrefixedXecAddress) {
+      isValidXecAddress = false;
+      return isValidXecAddress;
+    }
+  } else {
+    isPrefixedXecAddress = false;
+  }
+
+  // If no prefix, assume it is checksummed for an ecash: prefix
+  const testedXecAddr = isPrefixedXecAddress ? addr : `ecash:${addr}`;
+
+  try {
+    const decoded = cashaddr.decode(testedXecAddr);
+    if (decoded.prefix === 'ecash') {
+      isValidXecAddress = true;
+    }
+  } catch (err) {
+    isValidXecAddress = false;
+  }
+  return isValidXecAddress;
+};
+
+export const fromXecToSatoshis = (sendAmount: any, cashDecimals = appConfig.cashDecimals) => {
+  // Replace the BCH.toSatoshi method with an equivalent function that works for arbitrary decimal places
+  // Example, for an 8 decimal place currency like Bitcoin
+  // Input: a BigNumber of the amount of Bitcoin to be sent
+  // Output: a BigNumber of the amount of satoshis to be sent, or false if input is invalid
+
+  // Validate
+  // Input should be a BigNumber with no more decimal places than cashDecimals
+  const isValidSendAmount = BigNumber.isBigNumber(sendAmount) && sendAmount.dp()! <= cashDecimals;
+  if (!isValidSendAmount) {
+    return false;
+  }
+  const conversionFactor = new BigNumber(10 ** cashDecimals);
+  const sendAmountSmallestDenomination = sendAmount.times(conversionFactor);
+  return sendAmountSmallestDenomination;
+};
+
+export function toHash160(addr: string) {
+  try {
+    // decode address hash
+    const { hash } = cashaddr.decode(addr);
+    // encode the address hash to legacy format (bitcoin)
+    const legacyAdress = bs58.encode(hash);
+    // convert legacy to hash160
+    const addrHash160 = Buffer.from(bs58.decode(legacyAdress)).toString('hex');
+    return addrHash160;
+  } catch (err) {
+    console.log('Error converting address to hash160');
+    throw err;
+  }
+}
+
+export const fromSatoshisToXec = (amount: any, cashDecimals = appConfig.cashDecimals) => {
+  const amountBig = new BigNumber(amount);
+  const multiplier = new BigNumber(10 ** (-1 * cashDecimals));
+  const amountInBaseUnits = amountBig.times(multiplier);
+  return amountInBaseUnits;
+};
+
+export const sumOneToManyXec = (destinationAddressAndValueArray: any) => {
+  return destinationAddressAndValueArray.reduce((prev: any, curr: any) => {
+    return parseFloat(prev) + parseFloat(curr.split(',')[1]);
+  }, 0);
+};
+
+export const generateXecTxInput = (
+  isOneToMany: boolean,
+  utxos: Array<Utxo & { address: string }>,
+  txBuilder: any,
+  destinationAddressAndValueArray: Array<any> | null,
+  satoshisToSend: any,
+  feeInSatsPerByte: any,
+  opReturnByteCount: any
+) => {
+  let txInputObj: any = {};
+  const inputUtxos = [];
+  let txFee = 0;
+  let totalInputUtxoValue = new BigNumber(0);
+  try {
+    if (
+      (isOneToMany && !destinationAddressAndValueArray) ||
+      !utxos ||
+      !txBuilder ||
+      !satoshisToSend ||
+      !feeInSatsPerByte
+    ) {
+      throw new Error('Invalid tx input parameter');
+    }
+
+    // A normal tx will have 2 outputs, destination and change
+    // A one to many tx will have n outputs + 1 change output, where n is the number of recipients
+    const txOutputs = isOneToMany ? destinationAddressAndValueArray!.length + 1 : 2;
+    for (let i = 0; i < utxos.length; i++) {
+      const utxo = utxos[i];
+      totalInputUtxoValue = totalInputUtxoValue.plus(utxo.value);
+      const vout = utxo.outpoint.outIdx;
+      const txid = utxo.outpoint.txid;
+      // add input with txid and index of vout
+      txBuilder.addInput(txid, vout);
+
+      inputUtxos.push(utxo);
+      txFee = calcFee(inputUtxos, txOutputs, feeInSatsPerByte, opReturnByteCount);
+
+      if (totalInputUtxoValue.minus(satoshisToSend).minus(txFee).gte(0)) {
+        break;
+      }
+    }
+  } catch (err) {
+    console.log(`generateTxInput() error: ` + err);
+    throw err;
+  }
+  txInputObj.txBuilder = txBuilder;
+  txInputObj.totalInputUtxoValue = totalInputUtxoValue;
+  txInputObj.inputUtxos = inputUtxos;
+  txInputObj.txFee = txFee;
+  return txInputObj;
+};
+
+export const generateXecTxOutput = (
+  isOneToMany: boolean,
+  singleSendValue: Nullable<BigNumber>,
+  satoshisToSend: Nullable<BigNumber>,
+  totalInputUtxoValue: BigNumber,
+  destinationAddress: Nullable<string>,
+  destinationAddressAndValueArray: Nullable<Array<string>>,
+  changeAddress: Nullable<string>,
+  txFee: number,
+  txBuilder: any
+) => {
+  try {
+    if (
+      (isOneToMany && !destinationAddressAndValueArray) ||
+      (!isOneToMany && !destinationAddress && !singleSendValue) ||
+      !changeAddress ||
+      !satoshisToSend ||
+      !totalInputUtxoValue ||
+      !txFee ||
+      !txBuilder
+    ) {
+      throw new Error('Invalid tx input parameter');
+    }
+
+    // amount to send back to the remainder address.
+    const remainder = new BigNumber(totalInputUtxoValue).minus(satoshisToSend).minus(txFee);
+
+    if (remainder.lt(0)) {
+      throw new Error(`Insufficient funds`);
+    }
+
+    if (isOneToMany) {
+      // for one to many mode, add the multiple outputs from the array
+      let arrayLength = destinationAddressAndValueArray!.length;
+      for (let i = 0; i < arrayLength; i++) {
+        // add each send tx from the array as an output
+        let outputAddress = destinationAddressAndValueArray![i].split(',')[0];
+        let outputValue = new BigNumber(destinationAddressAndValueArray![i].split(',')[1]);
+        txBuilder.addOutput(cashaddr.toLegacy(outputAddress), parseInt(fromXecToSatoshis(outputValue).toString()));
+      }
+    } else {
+      // for one to one mode, add output w/ single address and amount to send
+      txBuilder.addOutput(
+        cashaddr.toLegacy(destinationAddress),
+        parseInt(fromXecToSatoshis(singleSendValue).toString())
+      );
+    }
+
+    // if a remainder exists, return to change address as the final output
+    if (remainder.gte(new BigNumber(appConfig.dustSats))) {
+      txBuilder.addOutput(cashaddr.toLegacy(changeAddress), parseInt(remainder.toString()));
+    }
+  } catch (err) {
+    console.log('Error in generateTxOutput(): ' + err);
+    throw err;
+  }
+
+  return txBuilder;
+};
+
+export const signXecUtxosByAddress = (inputUtxos: any, wallet: any, txBuilder: any) => {
+  for (let i = 0; i < inputUtxos.length; i++) {
+    const utxo = inputUtxos[i];
+
+    const wif = wallet.filter((path: any) => path.cashAddress === utxo.address).pop().fundingWif;
+
+    const utxoECPair = utxolib.ECPair.fromWIF(wif, utxolib.networks.ecash);
+
+    // Specify hash type
+    // This should be handled at the utxo-lib level, pending latest published version
+    const hashTypes = {
+      SIGHASH_ALL: 0x01,
+      SIGHASH_FORKID: 0x40
+    };
+
+    txBuilder.sign(
+      i, // vin
+      utxoECPair, // keyPair
+      undefined, // redeemScript
+      hashTypes.SIGHASH_ALL | hashTypes.SIGHASH_FORKID, // hashType
+      parseInt(utxo.value) // value
+    );
+  }
+
+  return txBuilder;
+};
+
+export const signAndBuildXecTx = (inputUtxos: any, txBuilder: any, wallet: any) => {
+  if (!inputUtxos || inputUtxos.length === 0 || !txBuilder || !wallet) {
+    throw new Error('Invalid buildTx parameter');
+  }
+
+  // Sign each XEC UTXO being consumed and refresh transactionBuilder
+  txBuilder = signXecUtxosByAddress(inputUtxos, wallet, txBuilder);
+
+  let hex;
+  try {
+    // build tx
+    const tx = txBuilder.build();
+    // output rawhex
+    hex = tx.toHex();
+  } catch (err) {
+    throw new Error('Transaction build failed');
+  }
+  return hex;
+};
+
+export const getChangeAddressFromInputUtxosXec = (inputUtxos: any, wallet: any): string => {
+  if (!inputUtxos || !wallet) {
+    throw new Error('Invalid getChangeAddressFromWallet input parameter');
+  }
+
+  // Assume change address is input address of utxo at index 0
+  const { prefix, type, hash } = cashaddr.decode(inputUtxos[0].address);
+  const changeAddress = cashaddr.encode('ecash', type, hash);
+
+  // Validate address
+  try {
+    const valid = isValidXecAddress(changeAddress);
+
+    if (!valid) {
+      throw new Error('Invalid change address');
+    }
+  } catch (err) {
+    throw new Error('Invalid input utxo');
+  }
+  return changeAddress;
 };
