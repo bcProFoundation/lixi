@@ -51,6 +51,19 @@ export type Account = {
   yearOfBirth?: Maybe<Scalars['Int']>;
 };
 
+export type AccountBasicConnection = {
+  __typename?: 'AccountBasicConnection';
+  edges: Array<AccountBasicEdge>;
+  pageInfo: BasicPageInfo;
+  totalCount: Scalars['Int'];
+};
+
+export type AccountBasicEdge = {
+  __typename?: 'AccountBasicEdge';
+  cursor: Scalars['String'];
+  node: Account;
+};
+
 export type AccountConnection = {
   __typename?: 'AccountConnection';
   edges?: Maybe<Array<AccountEdge>>;
@@ -1220,6 +1233,8 @@ export type Query = {
   account: Account;
   allClosedPageMessageSession: PageMessageSessionConnection;
   allFollowersByFollowing: AccountConnection;
+  allFollowersByPage: AccountBasicConnection;
+  allFollowersByToken: AccountBasicConnection;
   allFollowingsByFollower: AccountConnection;
   allHashtag: HashtagConnection;
   allHashtagByPage: HashtagConnection;
@@ -1308,6 +1323,20 @@ export type QueryAllFollowersByFollowingArgs = {
   last?: InputMaybe<Scalars['Int']>;
   minBurnFilter?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<AccountOrder>;
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
+export type QueryAllFollowersByPageArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  id?: InputMaybe<Scalars['String']>;
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
+export type QueryAllFollowersByTokenArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  id?: InputMaybe<Scalars['String']>;
   skip?: InputMaybe<Scalars['Int']>;
 };
 

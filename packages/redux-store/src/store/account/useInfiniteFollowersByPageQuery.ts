@@ -1,31 +1,36 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
-import { AccountOrder, AccountQueryItem } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { useAllFollowingsByFollowerQuery, useLazyAllFollowingsByFollowerQuery } from '@store/follow/follows.generated';
+import {
+  useAllFollowersByPageQuery,
+  useLazyAllFollowersByPageQuery,
+} from '@store/account/accounts.generated';
+import _ from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { AccountQueryItem } from '@generated/types';
 
 const accountsAdapter = createEntityAdapter<AccountQueryItem>({
-  selectId: account => account.id,
-  sortComparer: (a, b) => b.createdAt - a.createdAt
+  selectId: (account) => account.id,
+  sortComparer: (a, b) => b.createdAt - a.createdAt,
 });
 
-const { selectAll, selectEntities, selectIds, selectTotal } = accountsAdapter.getSelectors();
+const { selectAll } = accountsAdapter.getSelectors();
 
-interface AccountListByIdParams extends PaginationArgs {
-  orderBy?: AccountOrder;
-  followerAccountId?: number;
+interface AccountListByPageIdParams extends PaginationArgs {
+  id: string;
 }
 
-export function useInfiniteFollowingsByFollowerQuery(
-  params: AccountListByIdParams,
+export function useInfiniteFollowersByPageQuery(
+  params: AccountListByPageIdParams,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const baseResult = useAllFollowingsByFollowerQuery(params, {
-    skip: !params?.followerAccountId
+  const baseResult = useAllFollowersByPageQuery(params, {
+    skip: !params?.id,
   });
 
-  const [trigger, nextResult] = useLazyAllFollowingsByFollowerQuery();
-  const [combinedData, setCombinedData] = useState(accountsAdapter.getInitialState({}));
+  const [trigger, nextResult] = useLazyAllFollowersByPageQuery();
+  const [combinedData, setCombinedData] = useState(
+    accountsAdapter.getInitialState({})
+  );
 
   const isBaseReady = useRef(false);
   const isNextDone = useRef(true);
@@ -40,14 +45,16 @@ export function useInfiniteFollowingsByFollowerQuery(
 
   // Base result
   useEffect(() => {
-    next.current = baseResult.data?.allFollowingsByFollower?.pageInfo?.endCursor;
-    if (baseResult?.data?.allFollowingsByFollower) {
+    next.current = baseResult.data?.allFollowersByPage?.pageInfo?.endCursor;
+    if (baseResult?.data?.allFollowersByPage) {
       isBaseReady.current = true;
 
-      const baseResultParse = baseResult.data.allFollowingsByFollower.edges.map(item => item.node);
+      const baseResultParse = baseResult.data.allFollowersByPage.edges.map(
+        (item) => item.node
+      );
       const adapterSetAll = accountsAdapter.setAll(
         combinedData,
-        baseResult.data.allFollowingsByFollower.edges.map(item => item.node)
+        baseResult.data.allFollowersByPage.edges.map((item) => item.node)
       );
 
       setCombinedData(adapterSetAll);
@@ -56,7 +63,12 @@ export function useInfiniteFollowingsByFollowerQuery(
   }, [baseResult]);
 
   const fetchNext = async () => {
-    if (!isBaseReady.current || !isNextDone.current || next.current === undefined || next.current === null) {
+    if (
+      !isBaseReady.current ||
+      !isNextDone.current ||
+      next.current === undefined ||
+      next.current === null
+    ) {
       return;
     }
 
@@ -64,7 +76,7 @@ export function useInfiniteFollowingsByFollowerQuery(
       isNextDone.current = false;
       await trigger({
         ...params,
-        after: next.current
+        after: next.current,
       });
     } catch (e) {
     } finally {
@@ -81,7 +93,7 @@ export function useInfiniteFollowingsByFollowerQuery(
 
   return {
     data: data ?? [],
-    totalCount: baseResult?.data?.allFollowingsByFollower?.totalCount ?? 0,
+    totalCount: baseResult?.data?.allFollowersByPage?.totalCount ?? 0,
     error: baseResult?.error,
     isError: baseResult?.isError,
     isLoading: baseResult?.isLoading,
@@ -89,8 +101,8 @@ export function useInfiniteFollowingsByFollowerQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: !!baseResult.data?.allFollowingsByFollower?.pageInfo?.endCursor,
+    hasNext: !!baseResult.data?.allFollowersByPage?.pageInfo?.hasNextPage,
     fetchNext,
-    refetch
+    refetch,
   };
 }

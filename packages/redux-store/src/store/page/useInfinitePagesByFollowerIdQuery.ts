@@ -14,7 +14,7 @@ export function useInfinitePagesByFollowerIdQuery(
   params: PaginationArgs & { id: number },
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const baseResult = usePagesByFollowerQuery(params);
+  const baseResult = usePagesByFollowerQuery(params, { skip: !params?.id });
 
   const [trigger, nextResult] = useLazyPagesByFollowerQuery();
   const [combinedData, setCombinedData] = useState(followPagesAdapter.getInitialState({}));

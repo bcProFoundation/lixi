@@ -5,12 +5,7 @@ import { Follow } from '@bcpros/lixi-models/lib/follow/follow.model';
 import { transformShortName } from '@components/Common/AvatarUser';
 import PostListItem from '@components/Posts/PostListItem';
 import CreatePostCard from '@components/Common/CreatePostCard';
-import {
-  CreateFollowAccountInput,
-  DeleteFollowAccountInput,
-  OrderDirection,
-  PostOrderField
-} from '@generated/types.generated';
+import { CreateFollowAccountInput, DeleteFollowAccountInput } from '@generated/types.generated';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { setTransactionReady } from '@store/account/actions';
 import { getAccountInfoTemp, getSelectedAccountId } from '@store/account/selectors';
@@ -18,7 +13,7 @@ import { getFailQueue } from '@store/burn';
 import { useCreateFollowAccountMutation, useDeleteFollowAccountMutation } from '@store/follow/follows.api';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
-import { useInfinitePostsByUserIdQuery } from '@store/post/useInfinitePostsByUserIdQuery';
+
 import {
   getFilterPostsProfile,
   getIsPostsByTime,

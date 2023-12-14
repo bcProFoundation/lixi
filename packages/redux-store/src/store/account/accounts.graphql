@@ -1,4 +1,3 @@
-
 query Account($id: Int!) {
   account(id: $id) {
     ...AccountFields
@@ -8,6 +7,36 @@ query Account($id: Int!) {
 query getAccountByAddress($address: String!) {
   getAccountByAddress(address: $address) {
     ...AccountFields
+  }
+}
+
+query AllFollowersByPage($after: String, $first: Int = 20, $id: String!) {
+  allFollowersByPage(after: $after, first: $first, id: $id) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...AccountFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
+query AllFollowersByToken($after: String, $first: Int = 20, $id: String!) {
+  allFollowersByToken(after: $after, first: $first, id: $id) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...AccountFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
   }
 }
 

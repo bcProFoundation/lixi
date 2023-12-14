@@ -11,6 +11,7 @@
 
 import * as Types from '../../generated/types.generated';
 
+import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
 import { api } from 'src/api/baseApi';
 export type AccountQueryVariables = Types.Exact<{
   id: Types.Scalars['Int'];
@@ -85,6 +86,104 @@ export type GetAccountByAddressQuery = {
       danaReceivedDown: number;
       danaReceivedScore: number;
     } | null;
+  };
+};
+
+export type AllFollowersByPageQueryVariables = Types.Exact<{
+  after?: Types.InputMaybe<Types.Scalars['String']>;
+  first?: Types.InputMaybe<Types.Scalars['Int']>;
+  id: Types.Scalars['String'];
+}>;
+
+export type AllFollowersByPageQuery = {
+  __typename?: 'Query';
+  allFollowersByPage: {
+    __typename?: 'AccountBasicConnection';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'AccountBasicEdge';
+      cursor: string;
+      node: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        mnemonicHash?: string | null;
+        encryptedMnemonic?: string | null;
+        encryptedSecret?: string | null;
+        publicKey?: string | null;
+        language: string;
+        followersCount?: number | null;
+        followingsCount?: number | null;
+        followingPagesCount?: number | null;
+        createdAt: any;
+        updatedAt: any;
+        avatar?: string | null;
+        cover?: string | null;
+        pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+        accountDana?: {
+          __typename?: 'AccountDana';
+          danaGiven?: number | null;
+          danaReceived?: number | null;
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+        } | null;
+      };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
+  };
+};
+
+export type AllFollowersByTokenQueryVariables = Types.Exact<{
+  after?: Types.InputMaybe<Types.Scalars['String']>;
+  first?: Types.InputMaybe<Types.Scalars['Int']>;
+  id: Types.Scalars['String'];
+}>;
+
+export type AllFollowersByTokenQuery = {
+  __typename?: 'Query';
+  allFollowersByToken: {
+    __typename?: 'AccountBasicConnection';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'AccountBasicEdge';
+      cursor: string;
+      node: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        mnemonicHash?: string | null;
+        encryptedMnemonic?: string | null;
+        encryptedSecret?: string | null;
+        publicKey?: string | null;
+        language: string;
+        followersCount?: number | null;
+        followingsCount?: number | null;
+        followingPagesCount?: number | null;
+        createdAt: any;
+        updatedAt: any;
+        avatar?: string | null;
+        cover?: string | null;
+        pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+        accountDana?: {
+          __typename?: 'AccountDana';
+          danaGiven?: number | null;
+          danaReceived?: number | null;
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+        } | null;
+      };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
   };
 };
 
@@ -280,6 +379,40 @@ export const GetAccountByAddressDocument = `
   }
 }
     ${AccountFieldsFragmentDoc}`;
+export const AllFollowersByPageDocument = `
+    query AllFollowersByPage($after: String, $first: Int = 20, $id: String!) {
+  allFollowersByPage(after: $after, first: $first, id: $id) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...AccountFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+    ${AccountFieldsFragmentDoc}
+${BasicPageInfoFieldsFragmentDoc}`;
+export const AllFollowersByTokenDocument = `
+    query AllFollowersByToken($after: String, $first: Int = 20, $id: String!) {
+  allFollowersByToken(after: $after, first: $first, id: $id) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...AccountFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+    ${AccountFieldsFragmentDoc}
+${BasicPageInfoFieldsFragmentDoc}`;
 export const CreateAccountDocument = `
     mutation createAccount($input: CreateAccountInput!) {
   createAccount(data: $input) {
@@ -311,6 +444,12 @@ const injectedRtkApi = api.injectEndpoints({
     getAccountByAddress: build.query<GetAccountByAddressQuery, GetAccountByAddressQueryVariables>({
       query: variables => ({ document: GetAccountByAddressDocument, variables })
     }),
+    AllFollowersByPage: build.query<AllFollowersByPageQuery, AllFollowersByPageQueryVariables>({
+      query: variables => ({ document: AllFollowersByPageDocument, variables })
+    }),
+    AllFollowersByToken: build.query<AllFollowersByTokenQuery, AllFollowersByTokenQueryVariables>({
+      query: variables => ({ document: AllFollowersByTokenDocument, variables })
+    }),
     createAccount: build.mutation<CreateAccountMutation, CreateAccountMutationVariables>({
       query: variables => ({ document: CreateAccountDocument, variables })
     }),
@@ -329,6 +468,10 @@ export const {
   useLazyAccountQuery,
   useGetAccountByAddressQuery,
   useLazyGetAccountByAddressQuery,
+  useAllFollowersByPageQuery,
+  useLazyAllFollowersByPageQuery,
+  useAllFollowersByTokenQuery,
+  useLazyAllFollowersByTokenQuery,
   useCreateAccountMutation,
   useImportAccountMutation,
   useUpdateAccountMutation
