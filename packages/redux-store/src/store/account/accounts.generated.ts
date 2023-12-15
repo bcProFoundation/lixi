@@ -32,6 +32,8 @@ export type AccountQuery = {
     followingsCount?: number | null;
     followingPagesCount?: number | null;
     followScore?: number | null;
+    website?: string | null;
+    description?: string | null;
     createdAt: any;
     updatedAt: any;
     avatar?: string | null;
@@ -71,6 +73,8 @@ export type GetAccountByAddressQuery = {
     followingsCount?: number | null;
     followingPagesCount?: number | null;
     followScore?: number | null;
+    website?: string | null;
+    description?: string | null;
     createdAt: any;
     updatedAt: any;
     avatar?: string | null;
@@ -104,6 +108,8 @@ export type AccountFieldsFragment = {
   followingsCount?: number | null;
   followingPagesCount?: number | null;
   followScore?: number | null;
+  website?: string | null;
+  description?: string | null;
   createdAt: any;
   updatedAt: any;
   avatar?: string | null;
@@ -142,6 +148,8 @@ export type CreateAccountMutation = {
     followingsCount?: number | null;
     followingPagesCount?: number | null;
     followScore?: number | null;
+    website?: string | null;
+    description?: string | null;
     createdAt: any;
     updatedAt: any;
     avatar?: string | null;
@@ -181,6 +189,8 @@ export type ImportAccountMutation = {
     followingsCount?: number | null;
     followingPagesCount?: number | null;
     followScore?: number | null;
+    website?: string | null;
+    description?: string | null;
     createdAt: any;
     updatedAt: any;
     avatar?: string | null;
@@ -220,6 +230,8 @@ export type UpdateAccountMutation = {
     followingsCount?: number | null;
     followingPagesCount?: number | null;
     followScore?: number | null;
+    website?: string | null;
+    description?: string | null;
     createdAt: any;
     updatedAt: any;
     avatar?: string | null;
@@ -257,6 +269,8 @@ export const AccountFieldsFragmentDoc = `
   followingsCount
   followingPagesCount
   followScore
+  website
+  description
   createdAt
   updatedAt
   avatar

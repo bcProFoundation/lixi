@@ -55,6 +55,8 @@ export type AllFollowersByFollowingQuery = {
         followingsCount?: number | null;
         followingPagesCount?: number | null;
         followScore?: number | null;
+        website?: string | null;
+        description?: string | null;
         createdAt: any;
         updatedAt: any;
         avatar?: string | null;
@@ -115,6 +117,8 @@ export type AllFollowingsByFollowerQuery = {
         followingsCount?: number | null;
         followingPagesCount?: number | null;
         followScore?: number | null;
+        website?: string | null;
+        description?: string | null;
         createdAt: any;
         updatedAt: any;
         avatar?: string | null;
