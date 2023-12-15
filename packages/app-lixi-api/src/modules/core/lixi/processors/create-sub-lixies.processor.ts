@@ -15,6 +15,7 @@ import {
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 import { WalletService } from 'src/modules/wallet/wallet.service';
+import { XpiWalletService } from 'src/modules/wallet/xpi-wallet.service';
 import { aesGcmEncrypt, generateRandomBase58Str } from 'src/utils/encryptionMethods';
 import { VError } from 'verror';
 
@@ -49,7 +50,7 @@ export class CreateSubLixiesProcessor extends WorkerHost {
   }
 
   private async processCreateSubLixiesChunk(job: Job): Promise<boolean> {
-    const walletService = this.walletServices['xpi'];
+    const walletService = this.walletServices['xpi'] as XpiWalletService;
     const jobData = job.data as CreateSubLixiesChunkJobData;
     const {
       numberOfSubLixiInChunk,

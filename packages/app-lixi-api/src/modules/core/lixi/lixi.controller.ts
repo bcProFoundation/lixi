@@ -59,6 +59,7 @@ import {
 import { LixiService } from 'src/modules/core/lixi/lixi.service';
 import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 import { WalletService } from 'src/modules/wallet/wallet.service';
+import { XpiWalletService } from 'src/modules/wallet/xpi-wallet.service';
 import { aesGcmDecrypt, base58ToNumber, numberToBase58 } from 'src/utils/encryptionMethods';
 import { VError } from 'verror';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -730,7 +731,7 @@ export class LixiController {
         });
 
         const lixiIndex = lixi.derivationIndex;
-        const walletService = this.walletServices['xpi'];
+        const walletService = this.walletServices['xpi'] as XpiWalletService;
         const { address, xpriv } = await walletService.deriveAddress(mnemonicFromApi, lixiIndex);
 
         const childNode = this.XPI.HDNode.fromXPriv(xpriv);

@@ -30,6 +30,7 @@ import { ReqSocket } from 'src/decorators/req.socket.decorator';
 import { LixiService } from 'src/modules/core/lixi/lixi.service';
 import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 import { WalletService } from 'src/modules/wallet/wallet.service';
+import { XpiWalletService } from 'src/modules/wallet/xpi-wallet.service';
 import { getUtxosSingleHashChronik } from 'src/utils/chronik';
 import { aesGcmDecrypt, base58ToNumber } from 'src/utils/encryptionMethods';
 import { VError } from 'verror';
@@ -193,7 +194,7 @@ export class ClaimController {
     if (claimApi) {
       try {
         const ip = (headerIp || socket.remoteAddress) as string;
-        const walletService = this.walletServices['xpi'];
+        const walletService = this.walletServices['xpi'] as XpiWalletService;
         let xpiValue = 0;
 
         let claimCode = _.trim(claimApi.claimCode) ?? '';
