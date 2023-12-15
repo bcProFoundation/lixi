@@ -565,7 +565,7 @@ export const fromXecToSatoshis = (sendAmount: any, cashDecimals = appConfig.cash
   return sendAmountSmallestDenomination;
 };
 
-export function toHash160(addr: string) {
+export function cashaddrToHash160(addr: string) {
   try {
     // decode address hash
     const { hash } = cashaddr.decode(addr);

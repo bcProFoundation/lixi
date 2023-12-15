@@ -272,11 +272,13 @@ export const generateBurnTxOutput = (
 
   try {
     // amount to send back to the remainder address.
-    tipToAddresseses!.map(item => {
-      if (item.address !== changeAddress) {
-        remainder = remainder.minus(item.amount);
-      }
-    });
+    if (tipToAddresseses !== undefined && tipToAddresseses.length > 0) {
+      tipToAddresseses.map(item => {
+        if (item.address !== changeAddress) {
+          remainder = remainder.minus(item.amount);
+        }
+      });
+    }
 
     const burnOutputScript = generateBurnOpReturnScript(
       0x01,

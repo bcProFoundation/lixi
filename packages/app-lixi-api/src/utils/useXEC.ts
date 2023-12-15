@@ -1,6 +1,6 @@
 import {
   fromXecToSatoshis,
-  toHash160,
+  cashaddrToHash160,
   fromSatoshisToXec,
   sumOneToManyXec,
   generateXecTxInput,
@@ -15,7 +15,7 @@ import { SEND_XEC_ERRORS, appConfig } from './xec.constant';
 import { ChronikClient, Utxo } from 'chronik-client';
 
 export const getRecipientPublicKey = async (
-  chronik: any,
+  chronik: ChronikClient,
   recipientAddress: string,
   optionalMockPubKeyResponse = false
 ) => {
@@ -28,10 +28,10 @@ export const getRecipientPublicKey = async (
   // get hash160 of address
   let recipientAddressHash160;
   try {
-    recipientAddressHash160 = toHash160(recipientAddress);
+    recipientAddressHash160 = cashaddrToHash160(recipientAddress);
   } catch (err) {
-    console.log(`Error determining toHash160(${recipientAddress} in getRecipientPublicKey())`, err);
-    throw new Error(`Error determining toHash160(${recipientAddress} in getRecipientPublicKey())`);
+    console.log(`Error determining cashaddrToHash160(${recipientAddress} in getRecipientPublicKey())`, err);
+    throw new Error(`Error determining cashaddrToHash160(${recipientAddress} in getRecipientPublicKey())`);
   }
 
   let chronikTxHistoryAtAddress;
@@ -52,7 +52,7 @@ export const getRecipientPublicKey = async (
     for (let j = 0; j < inputs.length; j += 1) {
       const thisInput = inputs[j];
       const thisInputSendingHash160 = thisInput.outputScript;
-      if (thisInputSendingHash160.includes(recipientAddressHash160)) {
+      if (thisInputSendingHash160?.includes(recipientAddressHash160)) {
         // Then this is an outgoing tx, you can get the public key from this tx
         // Get the public key
         try {
