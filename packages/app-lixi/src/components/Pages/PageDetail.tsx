@@ -476,6 +476,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const isPostsByTime = useAppSelector(getIsPostsByTime);
   const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
   const negativeDanaStatus = useAppSelector(getNegativeDanaStatus);
+  const keyInfinite = `${page.id}:${minimumDanaFilter}`;
   const followScore = page.followScore ?? 0;
 
   useEffect(() => {
@@ -728,6 +729,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
         {!query && hashtags.length === 0 ? (
           isPostsByTime ? (
             <InfiniteScroll
+              key={keyInfinite}
               dataLength={pageTimelineByTime.length}
               next={loadMoreItemsPageTimelineByTime}
               hasMore={hasNextPageTimelineByTime}
