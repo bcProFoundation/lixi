@@ -2,6 +2,7 @@ import {
   Account,
   BasicPaginationArgs,
   CreateTokenInput,
+  FollowOfType,
   IBasicPaginated,
   Token,
   TokenConnection,
@@ -23,6 +24,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { TokenCacheService } from './token-cache.service';
 import { TokenTimelineCacheService } from './token-timeline-cache.service';
 import TokenLoader from './token.loader';
+import FollowScoreLoader from '../account/follow-score.loader';
 
 @SkipThrottle()
 @Resolver(() => Token)
@@ -35,6 +37,7 @@ export class TokenResolver {
     private readonly tokenCacheService: TokenCacheService,
     private readonly tokenTimelineCacheService: TokenTimelineCacheService,
     private readonly tokenLoader: TokenLoader,
+    private readonly followScoreLoader: FollowScoreLoader,
     @I18n() private readonly i18n: I18nService,
     @InjectChronikClient('xec') private chronik: ChronikClient
   ) {}
@@ -132,5 +135,14 @@ export class TokenResolver {
   async isFollowed(@AccountEntity() account: Account, @Parent() token: Token) {
     if (!account) return false;
     return this.tokenLoader.batchIsFollowed.load({ accountId: account.id, tokenId: token.id });
+  }
+
+  @ResolveField('followScore', () => Number)
+  async followScore(@Parent() token: Token) {
+    const followOfType: FollowOfType = {
+      tokenId: token.id
+    };
+
+    return this.followScoreLoader.batchTotalDanaFollowers.load(followOfType);
   }
 }

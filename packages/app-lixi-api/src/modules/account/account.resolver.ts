@@ -1,4 +1,11 @@
-import { Account, AccountDana, CreateAccountInput, ImportAccountInput, UpdateAccountInput } from '@bcpros/lixi-models';
+import {
+  Account,
+  AccountDana,
+  CreateAccountInput,
+  FollowOfType,
+  ImportAccountInput,
+  UpdateAccountInput
+} from '@bcpros/lixi-models';
 import { ImageUploadableType } from '@bcpros/lixi-prisma';
 import { HttpException, HttpStatus, Inject, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
@@ -16,6 +23,7 @@ import { WALLET_SERVICES } from '../wallet/wallet.constants';
 import { WalletService } from '../wallet/wallet.service';
 import { AccountCacheService } from './account-cache.service';
 import AccountLoader from './account.loader';
+import FollowScoreLoader from './follow-score.loader';
 
 const pubSub = new PubSub();
 
@@ -28,7 +36,8 @@ export class AccountResolver {
     @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
     @I18n() private i18n: I18nService,
     private readonly accountCacheService: AccountCacheService,
-    private readonly accountLoader: AccountLoader
+    private readonly accountLoader: AccountLoader,
+    private readonly followScoreLoader: FollowScoreLoader
   ) {}
 
   @Query(() => Account)
@@ -426,7 +435,9 @@ export class AccountResolver {
       updatedAccount.address
     ]);
 
+    //save to cache
     const cachedAccount = await this.accountCacheService.getById(updatedAccount.id);
+    await this.accountCacheService.getByAddress(updatedAccount.address);
 
     const result = _.omit(
       {
@@ -459,5 +470,14 @@ export class AccountResolver {
   @ResolveField('followingPagesCount', () => Number)
   async followingPagesCount(@Parent() account: Account) {
     return this.accountLoader.batchFollowingPagesCount.load(account.id);
+  }
+
+  @ResolveField('followScore', () => Number)
+  async followScore(@Parent() account: Account) {
+    const followOfType: FollowOfType = {
+      accountId: account.id
+    };
+
+    return this.followScoreLoader.batchTotalDanaFollowers.load(followOfType);
   }
 }

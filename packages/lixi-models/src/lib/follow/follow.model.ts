@@ -9,3 +9,9 @@ export enum FollowForType {
   Page = 'followPage',
   Token = 'followToken'
 }
+
+export interface FollowOfType {
+  pageId?: string;
+  tokenId?: string;
+  accountId?: number;
+}

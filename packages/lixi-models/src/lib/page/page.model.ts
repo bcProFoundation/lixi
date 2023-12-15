@@ -53,7 +53,10 @@ export class Page {
   @Field(() => String, { nullable: true })
   website?: string;
 
-  @Field(() => Float, { nullable: true, description: 'The sum of burn amount for every post on page' })
+  @Field(() => Float, {
+    nullable: true,
+    description: 'The sum of burn amount for every post on page'
+  })
   totalBurnForPage?: number;
 
   @Field(() => GraphQLDateTime, {
@@ -123,6 +126,9 @@ export class Page {
   @IsOptional()
   @Field(() => PageDana, { nullable: true })
   dana?: Nullable<PageDana>;
+
+  @Field(() => Number, { nullable: true })
+  followScore?: Nullable<number>;
 
   constructor(partial: Partial<Page>) {
     Object.assign(this, partial);

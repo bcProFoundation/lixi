@@ -3,6 +3,7 @@ import {
   BasicPaginationArgs,
   CreatePageInput,
   DEFAULT_CATEGORY,
+  FollowOfType,
   IBasicPaginated,
   Page,
   PageBasicConnection,
@@ -31,6 +32,7 @@ import { XPIJS } from '../wallet/wallet.constants';
 import { PageTimelineCacheService } from './page-timeline-cache.service';
 import PageLoader from './page.loader';
 import { toImageUrl } from './page.utils';
+import FollowScoreLoader from '../account/follow-score.loader';
 
 const pubSub = new PubSub();
 
@@ -47,6 +49,7 @@ export class PageResolver {
     private readonly pageCacheService: PageCacheService,
     private readonly followCacheService: FollowCacheService,
     private readonly pageTimelineCacheService: PageTimelineCacheService,
+    private readonly followScoreLoader: FollowScoreLoader,
     @I18n() private i18n: I18nService,
     @Inject(XPIJS) private XPI: BCHJS
   ) {}
@@ -320,5 +323,13 @@ export class PageResolver {
   @ResolveField('dana', () => PageDana)
   async dana(@Parent() page: Page) {
     return this.pageLoader.batchPageDanas.load(page.id);
+  }
+
+  @ResolveField('followScore', () => Number)
+  async followScore(@Parent() page: Page) {
+    const followOfType: FollowOfType = {
+      pageId: page.id
+    };
+    return this.followScoreLoader.batchTotalDanaFollowers.load(followOfType);
   }
 }

@@ -43,7 +43,7 @@ import {
   getNegativeDanaStatus
 } from '@store/settings/selectors';
 import { getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
-import { Button, Skeleton, Space, Tabs, Tag } from 'antd';
+import { Button, Skeleton, Space, Tabs, Tag, Tooltip } from 'antd';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import React, { useContext, useEffect, useRef, useState } from 'react';
@@ -52,6 +52,7 @@ import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
 import { useInfinitePageTimelineByScoreQuery, useInfinitePageTimelineByTimeQuery } from '@store/timeline';
+import Counter from '@components/Common/Counter';
 
 type PageDetailProps = {
   page: PageQueryItem;
@@ -208,7 +209,7 @@ const ProfileCardHeader = styled.div`
     }
   }
 
-  .description-profile {
+  .description-page {
     width: 100%;
     background: #fff;
     padding: 0 calc(0px + 48px);
@@ -218,6 +219,15 @@ const ProfileCardHeader = styled.div`
     @media (max-width: 768px) {
       margin-left: 0;
       text-align: center;
+    }
+    .infor-page {
+      display: flex;
+      gap: 7px;
+
+      .count {
+        color: black;
+        cursor: auto;
+      }
     }
   }
 `;
@@ -466,6 +476,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const isPostsByTime = useAppSelector(getIsPostsByTime);
   const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
   const negativeDanaStatus = useAppSelector(getNegativeDanaStatus);
+  const followScore = page.followScore ?? 0;
 
   useEffect(() => {
     if (router.query.q) {
@@ -914,15 +925,15 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
               </div>
             )}
           </div>
-          <div className="description-profile">
+          <div className="description-page">
             {pageDetailData.description && (
-              <p>
+              <p className="infor-page">
                 <InfoCircleOutlined /> {pageDetailData.description}
               </p>
             )}
 
             {(pageDetailData.address || pageDetailData.stateName || pageDetailData.countryName) && (
-              <p>
+              <p className="infor-page">
                 <HomeOutlined />{' '}
                 {[pageDetailData.address, pageDetailData.stateName, pageDetailData.countryName]
                   .filter(Boolean)
@@ -931,16 +942,29 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
             )}
 
             {pageDetailData.website && (
-              <p>
+              <p className="infor-page">
                 <CompassOutlined />
                 {<a href={pageDetailData.website}> {pageDetailData.website}</a>}
               </p>
             )}
 
-            <p>
+            <p className="infor-page">
               {' '}
               <FireOutlined /> {pageDetailData?.dana?.danaReceivedScore || 0 + intl.get('general.dana')}
             </p>
+
+            {followScore != 0 && (
+              <Tooltip
+                title={intl.get('general.followScore', {
+                  dana: followScore.toLocaleString('en-US')
+                })}
+              >
+                <p style={{ width: 'fit-content' }} className="infor-page">
+                  <img src="../../images/follow.svg" style={{ width: '14px' }} />
+                  {<Counter num={followScore} isShowXPI={true} numberAbbreviation={true} />}
+                </p>
+              </Tooltip>
+            )}
           </div>
         </ProfileCardHeader>
         <ProfileContentContainer>

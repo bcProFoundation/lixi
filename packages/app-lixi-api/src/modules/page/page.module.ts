@@ -39,6 +39,7 @@ import TimelineableLoader from './timelineable.loader';
 import { ProductCacheService } from './products/product-cache.service';
 import { BookmarkCacheService } from '../bookmark/bookmark-cache.service';
 import BookmarkLoader from '../bookmark/bookmark.loader';
+import FollowScoreLoader from '../account/follow-score.loader';
 
 @Module({
   imports: [
@@ -97,7 +98,8 @@ import BookmarkLoader from '../bookmark/bookmark.loader';
     CommentableLoader,
     TimelineableLoader,
     BookmarkCacheService,
-    BookmarkLoader
+    BookmarkLoader,
+    FollowScoreLoader
   ],
   exports: [
     MeiliService,

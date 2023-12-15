@@ -15,53 +15,43 @@ query Pages(
   $last: Int
   $skip: Int
 ) {
-  allPages(after: $after, before: $before, first: $first, last: $last, skip: $skip) {
-    totalCount
-    edges {
-      cursor
-      node {
-        ...PageFields
-      }
-    }
-    pageInfo {
-      ...BasicPageInfoFields
-    }
-  }
-}
-
-query PagesByFollower(
-  $after: String
-  $first: Int = 20
-) {
-  pagesByFollower(
+  allPages(
     after: $after
+    before: $before
     first: $first
-  ) {
-    totalCount
-    edges {
-      cursor
-      node {
-        ...PageFields
-      }
-    }
-    pageInfo {
-      ...BasicPageInfoFields
-    }
-  }
-}
-
-query PagesByUserId(
-  $after: String
-  $first: Int = 20
-  $id: Int
-  $skip: Int
-) {
-  allPagesByUserId(
-    after: $after
-    first: $first
-    id: $id
+    last: $last
     skip: $skip
   ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...PageFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
+query PagesByFollower($after: String, $first: Int = 20) {
+  pagesByFollower(after: $after, first: $first) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...PageFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
+query PagesByUserId($after: String, $first: Int = 20, $id: Int, $skip: Int) {
+  allPagesByUserId(after: $after, first: $first, id: $id, skip: $skip) {
     totalCount
     edges {
       cursor
@@ -118,6 +108,7 @@ fragment PageFields on Page {
   totalPostsBurnUp
   totalPostsBurnDown
   totalPostsBurnScore
+  followScore
 }
 
 mutation createPage($input: CreatePageInput!) {
