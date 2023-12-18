@@ -212,7 +212,7 @@ const Comment = ({ post }: CommentProps) => {
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
   const [openModalResend, setOpenModalResend] = useState(false);
-  const previoutComment = useRef('');
+  const previousComment = useRef('');
 
   const [
     createCommentTrigger,
@@ -290,7 +290,7 @@ const Comment = ({ post }: CommentProps) => {
   };
 
   const processComment = async (comment: string) => {
-    previoutComment.current = comment;
+    previousComment.current = comment;
     resetField('comment');
     //Check if the message is not empty
     if (comment && comment !== '') {
@@ -677,12 +677,12 @@ const Comment = ({ post }: CommentProps) => {
         onCancel={() => setOpenModalResend(false)}
         onOk={async () => {
           setOpenModalResend(false);
-          await processComment(previoutComment.current);
+          await processComment(previousComment.current);
         }}
         okText={<span>{intl.get('comment.resend')}</span>}
       >
         <p>
-          {intl.get('label.comment')}: {previoutComment.current}
+          {intl.get('label.comment')}: {previousComment.current}
         </p>
       </ModalResend>
     </React.Fragment>
