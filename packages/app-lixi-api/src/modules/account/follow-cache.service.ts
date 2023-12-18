@@ -413,7 +413,7 @@ export class FollowCacheService {
   }
 
   async getPaginatedFollowersByToken(tokenId: string, first: number, after?: string) {
-    const key = `page:${tokenId}:followers`;
+    const key = `token:${tokenId}:followers`;
     const exist = await this.redis.exists([key]);
     if (!exist) {
       await this._cachePageFollowers(key, tokenId);
