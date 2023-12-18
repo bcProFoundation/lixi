@@ -10,10 +10,11 @@ import {
   SecondaryLanguageAccountCommand,
   Upload
 } from '@bcpros/lixi-models';
+import { COIN } from '@bcpros/lixi-models/constants';
 import { createAction } from '@reduxjs/toolkit';
 import { WorshipedPersonFieldsFragment as WorshipedPerson } from '@store/worship/worshipedPerson.generated';
 
-export const generateAccount = createAction('account/generateAccount');
+export const generateAccount = createAction<{ coin?: COIN }>('account/generateAccount');
 export const setAccountInfoTemp = createAction<any>('account/setAccountInfoTemp');
 export const getAccount = createAction<number>('account/getAccount');
 export const getAccountSuccess = createAction<Account>('account/getAccountSuccess');

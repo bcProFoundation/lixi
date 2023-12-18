@@ -17,6 +17,7 @@ import React, { useState } from 'react';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import { AuthorizationOptions } from './Authorization.interface';
+import { COIN } from '@bcpros/lixi-models/constants';
 
 export const MaybeLaterLink = styled.a`
   width: 100%;
@@ -95,7 +96,7 @@ export const AuthorizationModal = ({ classStyle }: AuthorizationModalProps) => {
       cancelText: intl.get('onboarding.cancel'),
       centered: true,
       onOk() {
-        dispatch(generateAccount());
+        dispatch(generateAccount({ coin: COIN.XEC }));
         dispatch(closeModal());
       },
       onCancel() {}

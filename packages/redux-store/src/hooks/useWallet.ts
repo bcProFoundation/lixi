@@ -30,7 +30,7 @@ import { getAllAccounts } from '@store/account';
 import useInterval from './useInterval';
 import useXPI from './useXPI';
 
-const chronik = new ChronikClient('https://chronik.be.cash/xpi');
+const chronik = new ChronikClient('https://chronik.be.cash/xec');
 const websocketConnectedRefreshInterval = 10000;
 
 const useWallet = () => {
@@ -114,7 +114,7 @@ const useWallet = () => {
     }
   };
 
-  const syncAccountsToWallets = async (accounts: Account[], walletPaths: WalletPathAddressInfo[]) => {
+  const syncAccountsToWallets = async (accounts: any, walletPaths: WalletPathAddressInfo[]) => {
     const accountsNotInWallets = _.filter(accounts, (account: Account) => {
       return !_.some(walletPaths, (walletPath: WalletPathAddressInfo) => {
         return walletPath.xAddress === account.address;
@@ -132,8 +132,12 @@ const useWallet = () => {
       const derivedWalletPathsPromises: Array<Promise<WalletPathAddressInfo[]>> = _.map(
         accountsNotInWallets,
         account => {
-          const defaultPath = "m/44'/10605'/0'/0/0";
-          return getWalletPathDetails(account.mnemonic, [defaultPath]);
+          switch (account.coin) {
+            case 'XPI':
+              return getWalletPathDetails(account.mnemonic, ["m/44'/10605'/0'/0/0"]);
+            case 'XEC':
+              return getWalletPathDetails(account.mnemonic, ["m/44'/1899'/0'/0/0"]);
+          }
         }
       );
       // Calculate the wallet not synced yet
@@ -337,6 +341,11 @@ const useWallet = () => {
 
       const { nonSlpUtxos } = organizeUtxosByType(chronikUtxos);
       const { chronikTxHistory } = await getTxHistoryChronik(chronik, XPI, wallet);
+
+      console.log(
+        '🚀 ~ file: useWallet.ts:353 ~ update ~ newWalletStatus: WalletStatus.getWalletBalanceFromUtxos(nonSlpUtxos):',
+        getWalletBalanceFromUtxos(nonSlpUtxos)
+      );
 
       const newWalletStatus: WalletStatus = {
         balances: getWalletBalanceFromUtxos(nonSlpUtxos),

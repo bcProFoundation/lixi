@@ -541,7 +541,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
 
   const balanceAccount = (acc?: any) => {
     const balanceString = fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis ?? 0);
-    return `~ ${balanceString.toFixed(2)}`;
+    return `~ ${balanceString.toFixed(10)}`;
   };
 
   const handleOnCopy = () => {

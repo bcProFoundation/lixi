@@ -327,6 +327,10 @@ const Settings: React.FC = () => {
     dispatch(openModal('DeleteAccountModal', deleteAcountModalProps));
   };
 
+  const showPopulatedCreateAccountModal = () => {
+    dispatch(openModal('CreateAccountModal', null));
+  };
+
   const handleChange = e => {
     const { value, name } = e.target;
 
@@ -395,7 +399,7 @@ const Settings: React.FC = () => {
           </SettingBar>
           <SettingBar>
             <h2 style={{ color: 'var(--color-primary)' }}>{intl.get('settings.manageAccounts')}</h2>
-            <PrimaryButton onClick={() => dispatch(generateAccount())}>
+            <PrimaryButton onClick={() => showPopulatedCreateAccountModal()}>
               <PlusSquareOutlined /> {intl.get('settings.newAccount')}
             </PrimaryButton>
             <SecondaryButton onClick={() => openSeedInput(!seedInput)}>

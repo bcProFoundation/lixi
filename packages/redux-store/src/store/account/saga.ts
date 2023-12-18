@@ -11,6 +11,7 @@ import {
   RenameAccountCommand,
   SecondaryLanguageAccountCommand
 } from '@bcpros/lixi-models';
+import { COIN } from '@bcpros/lixi-models/constants';
 import { callConfig } from '@context/index';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { setLocalUserAccount, silentLocalLogin } from '@store/localAccount';
@@ -96,7 +97,8 @@ const nameConfigGenerator: Config = {
  * Generate a account with random encryption password
  * @param action The data to needed generate a account
  */
-function* generateAccountSaga(action: PayloadAction) {
+function* generateAccountSaga(action: PayloadAction<{ coin: COIN }>) {
+  const { coin } = action.payload;
   const { XPI } = callConfig.call.walletContext;
   const lang = 'english';
   const Bip39128BitMnemonic = XPI.Mnemonic.generate(128, XPI.Mnemonic.wordLists()[lang]);
@@ -114,7 +116,8 @@ function* generateAccountSaga(action: PayloadAction) {
     mnemonic: Bip39128BitMnemonic,
     encryptedMnemonic,
     mnemonicHash,
-    language: locale
+    language: locale,
+    coin: coin ? coin : COIN.XPI
   };
 
   yield put(postAccount(account));
@@ -188,7 +191,8 @@ function* postAccountSaga(action: PayloadAction<CreateAccountCommand>) {
     // Merge back to action payload
     const result = {
       ...command,
-      ...data
+      ...data,
+      coin: command.coin
     } as Account;
 
     yield put(postAccountSuccess(result));
@@ -396,6 +400,7 @@ function* setAccountSuccessSaga(action: PayloadAction<Account>) {
     address: account.address,
     balance: account.balance,
     name: account.name,
+    coin: account.coin,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt
   };
