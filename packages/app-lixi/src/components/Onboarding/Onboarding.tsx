@@ -8,6 +8,7 @@ import intl from 'react-intl-universal';
 import { useAppDispatch } from '@store/hooks';
 import { WalletContext } from '@context/index';
 import styled from 'styled-components';
+import { COIN } from '@bcpros/lixi-models/constants';
 
 export const LotusLogo = styled.img`
   width: 70px;
@@ -65,7 +66,7 @@ const OnboardingComponent: React.FC = () => {
       cancelText: intl.get('onboarding.cancel'),
       centered: true,
       onOk() {
-        dispatch(generateAccount());
+        dispatch(generateAccount({ coin: COIN.XPI }));
       },
       onCancel() {
         console.log('Cancel');

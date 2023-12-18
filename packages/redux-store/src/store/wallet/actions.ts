@@ -14,4 +14,5 @@ export const activateWalletFailure = createAction<string>('wallet/activateWallet
 export const setWalletRefreshInterval = createAction<number>('wallet/setWalletRefreshInterval');
 export const setWalletHasUpdated = createAction<boolean>('wallet/setWalletHasUpdated');
 export const setWalletPaths = createAction<WalletPathAddressInfo[]>('wallet/setWalletPaths');
+export const removeWalletPaths = createAction<string>('wallet/removeWalletPaths');
 export const removeAllWallets = createAction<string>('wallet/removeAllWallets');

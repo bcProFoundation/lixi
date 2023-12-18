@@ -12,6 +12,7 @@ import {
   RenameAccountCommand,
   SecondaryLanguageAccountCommand
 } from '@bcpros/lixi-models';
+import { COIN } from '@bcpros/lixi-models/constants';
 import {
   AntdFormWrapper,
   LanguageNotAutoTransDropdown,
@@ -440,6 +441,9 @@ const Settings: React.FC = () => {
                         <SWName>
                           <h3>{selectedAccount?.name}</h3>
                         </SWName>
+                        <SWName>
+                          <h3>{selectedAccount?.coin ? selectedAccount.coin : COIN.XPI}</h3>
+                        </SWName>
                         <SWButtonCtn>
                           <span onClick={() => showPopulatedRenameAccountModal(selectedAccount as Account)}>
                             <Edit />
@@ -459,6 +463,9 @@ const Settings: React.FC = () => {
                           <SWRow key={acc.id}>
                             <SWName>
                               <h3>{acc.name}</h3>
+                            </SWName>
+                            <SWName>
+                              <h3>{acc.coin ? acc.coin : COIN.XPI}</h3>
                             </SWName>
 
                             <SWButtonCtn>

@@ -174,7 +174,7 @@ export class LixiService {
   ): Promise<Lixi> {
     // If users input the amount means that the lixi need to be prefund
     const isPrefund = !!command.amount;
-    const walletService = this.walletServices['xpi'];
+    const walletService = this.walletServices['xpi'] as XpiWalletService;
 
     // Calculate the lixi encrypted claim code from the input password
     const { address, xpriv } = await walletService.deriveAddress(command.mnemonic, derivationIndex);

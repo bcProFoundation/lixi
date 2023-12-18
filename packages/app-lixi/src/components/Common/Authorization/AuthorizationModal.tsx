@@ -96,7 +96,7 @@ export const AuthorizationModal = ({ classStyle }: AuthorizationModalProps) => {
       cancelText: intl.get('onboarding.cancel'),
       centered: true,
       onOk() {
-        dispatch(generateAccount({ coin: COIN.XEC }));
+        dispatch(generateAccount({ coin: COIN.XPI }));
         dispatch(closeModal());
       },
       onCancel() {}

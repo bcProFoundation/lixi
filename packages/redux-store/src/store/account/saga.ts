@@ -17,7 +17,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { setLocalUserAccount, silentLocalLogin } from '@store/localAccount';
 import { fetchNotifications, removeAllNotifications } from '@store/notification/actions';
 import { getCurrentLocale } from '@store/settings/selectors';
-import { removeAllWallets } from '@store/wallet';
+import { removeAllWallets, removeWalletPaths } from '@store/wallet';
 import { aesGcmDecrypt, aesGcmEncrypt, numberToBase58 } from '@utils/encryptionMethods';
 import { push } from 'connected-next-router';
 import intl from 'react-intl-universal';
@@ -368,7 +368,8 @@ function* selectAccountSuccessSaga(
     balance: account.balance,
     name: account.name,
     createdAt: account.createdAt,
-    updatedAt: account.updatedAt
+    updatedAt: account.updatedAt,
+    coin: account.coin ? account.coin : COIN.XPI
   };
   yield put(setLocalUserAccount(localAccount));
   yield putResolve(silentLogin(account.mnemonic));
@@ -400,7 +401,7 @@ function* setAccountSuccessSaga(action: PayloadAction<Account>) {
     address: account.address,
     balance: account.balance,
     name: account.name,
-    coin: account.coin,
+    coin: account.coin ? account.coin : COIN.XPI,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt
   };
@@ -503,6 +504,8 @@ function* deleteAccountSaga(action: PayloadAction<DeleteAccountCommand>) {
     const { id } = action.payload;
     const account: Account = yield select(getAccountById(id));
     const ids = yield select(getAllAccountsIds);
+    yield put(removeWalletPaths(account.address));
+
     //current has 1 account then remove all wallet
     if (ids.length === 1) {
       yield put(removeAllWallets());
@@ -907,7 +910,8 @@ function* silentLoginSuccessSaga(action: PayloadAction) {
   const localUser: LocalUser = {
     id: account.address,
     address: account.address,
-    name: account.name
+    name: account.name,
+    coin: account.coin ? account.coin : COIN.XPI
   };
   // yield put(activateWallet(account.mnemonic));
   yield put(silentLocalLogin(localUser));

@@ -26,11 +26,12 @@ import _ from 'lodash';
 import { useEffect, useState } from 'react';
 // @ts-ignore
 import { Account, Hash160AndAddress } from '@bcpros/lixi-models';
-import { getAllAccounts } from '@store/account';
+import { COIN } from '@bcpros/lixi-models/constants';
+import { getAllAccounts, getSelectedAccount } from '@store/account';
 import useInterval from './useInterval';
 import useXPI from './useXPI';
 
-const chronik = new ChronikClient('https://chronik.be.cash/xec');
+// const chronik = new ChronikClient('https://chronik.be.cash/xec');
 const websocketConnectedRefreshInterval = 10000;
 
 const useWallet = () => {
@@ -40,6 +41,7 @@ const useWallet = () => {
   const [chronikWebsocket, setChronikWebsocket] = useState(null);
 
   const [apiError, setApiError] = useState(false);
+  const [chronik, setChronik] = useState<ChronikClient>(new ChronikClient('https://chronik.be.cash/xpi'));
 
   const { getXPI } = useXPI();
   const [XPI, setXPI] = useState<BCHJS>(getXPI());
@@ -53,6 +55,27 @@ const useWallet = () => {
   const walletUtxos = useAppSelector(getWalletUtxos);
   const dispatch = useAppDispatch();
   const walletStatus = useAppSelector(getWalletStatus);
+  const selectedAccount = useAppSelector(getSelectedAccount);
+
+  useEffect(() => {
+    if (!selectedAccount) return;
+
+    let accountCoin: string;
+
+    switch (selectedAccount.coin) {
+      case COIN.XPI:
+        accountCoin = 'xpi';
+        break;
+      case COIN.XEC:
+        accountCoin = 'xec';
+        break;
+      default:
+        accountCoin = 'xpi';
+        break;
+    }
+
+    setChronik(new ChronikClient(`https://chronik.be.cash/${accountCoin}`));
+  }, [selectedAccount]);
 
   const getWalletPathDetails = async (mnemonic: string, paths: string[]): Promise<WalletPathAddressInfo[]> => {
     const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
@@ -341,11 +364,6 @@ const useWallet = () => {
 
       const { nonSlpUtxos } = organizeUtxosByType(chronikUtxos);
       const { chronikTxHistory } = await getTxHistoryChronik(chronik, XPI, wallet);
-
-      console.log(
-        '🚀 ~ file: useWallet.ts:353 ~ update ~ newWalletStatus: WalletStatus.getWalletBalanceFromUtxos(nonSlpUtxos):',
-        getWalletBalanceFromUtxos(nonSlpUtxos)
-      );
 
       const newWalletStatus: WalletStatus = {
         balances: getWalletBalanceFromUtxos(nonSlpUtxos),

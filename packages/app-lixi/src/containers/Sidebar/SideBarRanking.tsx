@@ -1,5 +1,6 @@
 import { LockOutlined } from '@ant-design/icons';
 import { Account } from '@bcpros/lixi-models';
+import { COIN } from '@bcpros/lixi-models/constants';
 import AvatarUser from '@components/Common/AvatarUser';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
 import { SmartButton } from '@components/Common/PrimaryButton';
@@ -541,7 +542,7 @@ const SidebarRanking = () => {
               type="primary"
               className="outline-btn"
               style={{ margin: '1rem 0' }}
-              onClick={() => dispatch(generateAccount())}
+              onClick={() => dispatch(generateAccount({ coin: COIN.XPI }))}
             >
               New account
             </Button>

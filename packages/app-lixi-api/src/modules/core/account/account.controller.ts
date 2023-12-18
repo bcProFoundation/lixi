@@ -7,7 +7,8 @@ import {
   Lixi,
   NotificationDto,
   PatchAccountCommand,
-  fromSmallestDenomination
+  fromSmallestDenomination,
+  COIN
 } from '@bcpros/lixi-models';
 import {
   Body,
@@ -42,6 +43,8 @@ import { aesGcmDecrypt, aesGcmEncrypt, generateRandomBase58Str, hashMnemonic } f
 import { AccountCacheService } from '../../account/account-cache.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { WalletService } from '../../wallet/wallet.service';
+import { XpiWalletService } from 'src/modules/wallet/xpi-wallet.service';
+import { XecWalletService } from 'src/modules/wallet/xec-wallet.service';
 
 @SkipThrottle()
 @Controller('accounts')
@@ -75,12 +78,8 @@ export class AccountController {
         throw new VError(accountNotExistMessage);
       }
 
-      const walletService = this.walletServices['xpi'];
-      const { totalBalanceInSatoshis } = await walletService.getBalances(account.address);
-
       const result = {
         ...account,
-        balance: Number(totalBalanceInSatoshis),
         page: account.pages
       };
 
@@ -274,7 +273,18 @@ export class AccountController {
   async createAccount(@Body() command: CreateAccountCommand, @I18n() i18n: I18nContext): Promise<AccountDto> {
     if (command) {
       try {
-        const walletService = this.walletServices['xpi'];
+        let walletService;
+        switch (command.coin) {
+          case COIN.XPI:
+            walletService = this.walletServices['xpi'] as XpiWalletService;
+            break;
+          case COIN.XEC:
+            walletService = this.walletServices['xec'] as XecWalletService;
+            break;
+          default:
+            walletService = this.walletServices['xpi'] as XpiWalletService;
+            break;
+        }
 
         const { address, publicKey } = await walletService.deriveAddress(command.mnemonic, 0);
         const name = address.slice(12, 17);

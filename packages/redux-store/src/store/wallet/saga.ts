@@ -10,7 +10,6 @@ function* activateWalletSaga(action: PayloadAction<{ mnemonic: string; coin: COI
   try {
     const Wallet = callConfig.call.walletContext;
     const { mnemonic, coin } = action.payload;
-    console.log('🚀 ~ file: saga.ts:13 ~ function*activateWalletSaga ~ coin:', coin);
     let walletPaths: WalletPathAddressInfo[];
     let defaultPath: string;
 
@@ -23,9 +22,11 @@ function* activateWalletSaga(action: PayloadAction<{ mnemonic: string; coin: COI
         defaultPath = "m/44'/1899'/0'/0/0";
         walletPaths = yield call(Wallet.getWalletPathDetails, mnemonic, [defaultPath]);
         break;
+      default:
+        defaultPath = "m/44'/10605'/0'/0/0";
+        walletPaths = yield call(Wallet.getWalletPathDetails, mnemonic, [defaultPath]);
+        break;
     }
-
-    console.log('🚀 ~ file: saga.ts:25 ~ function*activateWalletSaga ~ walletPaths:', walletPaths);
 
     yield put(setWalletHasUpdated(false));
     yield put(

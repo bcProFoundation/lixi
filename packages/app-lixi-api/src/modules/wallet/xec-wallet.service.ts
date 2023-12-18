@@ -15,6 +15,7 @@ import { WalletPathAddressInfo, Hash160AndAddress } from '@bcpros/lixi-models';
 import { WalletService } from './wallet.service';
 import { currency } from 'src/utils/constants';
 import { sendXec } from 'src/utils/useXEC';
+import HDNode from '@bcpros/xpi-js/types/hdnode';
 
 @Injectable()
 export class XecWalletService extends WalletService {
@@ -32,6 +33,32 @@ export class XecWalletService extends WalletService {
 
   async deriveAccount({ masterHDNode, path }: { masterHDNode: any; path: string }) {
     return super.deriveAccount({ masterHDNode, path });
+  }
+
+  async deriveAddress(
+    mnemonic: string,
+    vaultIndex: number
+  ): Promise<{ address: any; xpriv: any; wifKey: any; publicKey: any; keyPair: any; balance: string }> {
+    const rootSeedBuffer: Buffer = await this.XPI.Mnemonic.toSeed(mnemonic);
+    const masterHDNode = this.XPI.HDNode.fromSeed(rootSeedBuffer);
+    const hdPath = `m/44'/1899'/${vaultIndex}'/0/0`;
+    const childNode: HDNode = this.XPI.HDNode.derivePath(masterHDNode, hdPath);
+    const xAddress = this.XPI.HDNode.toXAddress(childNode);
+    const xpriv = this.XPI.HDNode.toXPriv(childNode);
+    const wif = this.XPI.HDNode.toWIF(childNode);
+    const publicKey = this.XPI.HDNode.toPublicKey(childNode).toString('hex');
+    const keyPair = this.XPI.HDNode.toKeyPair(childNode);
+
+    const balance = await this.getBalances(xAddress);
+
+    return {
+      address: xAddress,
+      xpriv: xpriv,
+      wifKey: wif,
+      publicKey: publicKey,
+      keyPair: keyPair,
+      balance: balance.totalBalance
+    };
   }
 
   async send(sendWalletPath: WalletPathAddressInfo[], recieveAddress: string, amount: number) {

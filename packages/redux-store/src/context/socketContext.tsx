@@ -50,7 +50,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     //if change account, disconnect socket and reconnect
-    if (previousSelectedAccount && selectedAccount.address !== previousSelectedAccount.address) {
+    if (previousSelectedAccount && selectedAccount?.address !== previousSelectedAccount?.address) {
       if (socket) socket.disconnect();
 
       const setupSocket = async () => {

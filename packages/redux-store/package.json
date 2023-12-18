@@ -90,6 +90,7 @@
     "@shoooe/derive": "^0.2.7",
     "bitcoinjs-message": "^2.2.0",
     "class-validator": "^0.14.0",
+    "ecashaddrjs": "^1.5.3",
     "prisma-graphql-type-decimal": "^2.0.6",
     "ts-morph": "^17.0.1",
     "wif": "^2.0.6"
