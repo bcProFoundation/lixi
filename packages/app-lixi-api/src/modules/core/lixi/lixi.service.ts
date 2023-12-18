@@ -16,6 +16,8 @@ import {
 } from 'src/modules/core/lixi/constants/lixi.constants';
 import { CreateSubLixiesChunkJobData, CreateSubLixiesJobData } from 'src/modules/core/lixi/models/lixi.models';
 import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
+import { XpiWalletService } from 'src/modules/wallet/xpi-wallet.service';
+import { currency } from 'src/utils/constants';
 import { aesGcmDecrypt, aesGcmEncrypt, numberToBase58 } from 'src/utils/encryptionMethods';
 import { template } from 'src/utils/stringTemplate';
 import { VError } from 'verror';
@@ -49,7 +51,7 @@ export class LixiService {
   ): Promise<Lixi> {
     // If users input the amount means that the lixi need to be prefund
     const isPrefund = !!command.amount;
-    const walletService = this.walletServices['xpi'];
+    const walletService = this.walletServices['xpi'] as XpiWalletService;
 
     // Calculate the lixi encrypted claim code from the input password
     const { address, xpriv } = await walletService.deriveAddress(command.mnemonic, derivationIndex);
@@ -98,6 +100,7 @@ export class LixiService {
     const accountHash160 = this.XPI.Address.toHash160(account.address);
     const utxos = await getUtxosSingleHashChronik(this.chronik, accountHash160);
     let fee = walletService.calcFee(this.XPI, utxos);
+    const txFeeXpi = fee / 10 ** currency.cashDecimals;
 
     // Validate the amount params
     if (isPrefund) {
@@ -110,6 +113,8 @@ export class LixiService {
       }
     }
 
+    const amountToSend = isPrefund ? parseFloat(command.amount.toString()) + txFeeXpi : 0;
+
     // Save the lixi into the database
     const savedLixi = await this.prisma.$transaction(async prisma => {
       const createdLixi = await prisma.lixi.create({ data: lixiToInsert });
@@ -117,7 +122,7 @@ export class LixiService {
         await walletService.sendXPIToSingleAddress(
           account.address,
           lixiToInsert.address,
-          command.amount.toString(),
+          amountToSend.toString(),
           undefined,
           undefined,
           command.mnemonic
