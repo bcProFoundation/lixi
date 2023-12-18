@@ -639,6 +639,8 @@ export default {
   'comment.writeComment': 'Write a comment...',
   'comment.writeCommentFree': 'Write a free comment on this post...',
   'comment.writeCommentXpi': '{commentFee} to reply',
+  'comment.failAndResend': 'Comment fail, you want to resend?',
+  'comment.resend': 'Resend',
 
   /* 18. Category */
   'category.art': 'Art',
