@@ -221,6 +221,7 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
   const [hashtags, setHashtags] = useState<any>([]);
   const isPostsByTime = useAppSelector(getIsPostsByTime);
   const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
+  const keyInfinite = `${token.id}:${minimumDanaFilter}`;
 
   let options = ['Withdraw', 'Rename', 'Export'];
 
@@ -403,6 +404,7 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
         {!query && hashtags.length === 0 ? (
           isPostsByTime ? (
             <InfiniteScroll
+              key={keyInfinite}
               dataLength={tokenTimelineByTime.length}
               next={loadMoreItems}
               hasMore={hasNextTokenTimelineByTime}

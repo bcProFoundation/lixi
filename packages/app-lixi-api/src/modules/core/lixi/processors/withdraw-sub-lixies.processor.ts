@@ -8,6 +8,7 @@ import { WithdrawSubLixiesJobData, WithdrawSubLixiesJobResult } from 'src/module
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 import { WalletService } from 'src/modules/wallet/wallet.service';
+import { XpiWalletService } from 'src/modules/wallet/xpi-wallet.service';
 import { AccountCacheService } from '../../../account/account-cache.service';
 
 @Injectable()
@@ -29,7 +30,7 @@ export class WithdrawSubLixiesProcessor extends WorkerHost {
 
   public async processWithdrawSubLixies(job: Job): Promise<WithdrawSubLixiesJobResult> {
     const jobData = job.data as WithdrawSubLixiesJobData;
-    const walletService = this.walletServices['xpi'];
+    const walletService = this.walletServices['xpi'] as XpiWalletService;
 
     const lixi = await this.prisma.lixi.findFirst({
       where: {

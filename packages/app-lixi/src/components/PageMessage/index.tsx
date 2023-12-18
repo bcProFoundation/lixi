@@ -908,20 +908,26 @@ const PageMessage = () => {
     }
     if (captcha) {
       await captcha.ready(() => {
-        captcha.execute(SITE_KEY, { action: 'submit' }).then(async (token: any) => {
-          dispatch(
-            postClaim({
-              claimAddress: cleanAddress,
-              claimCode: currentPageMessageSession.lixiClaimCode,
-              captchaToken: token
-            } as CreateClaimDto)
-          );
-
-          const input: OpenPageMessageSessionInput = {
-            pageMessageSessionId: currentPageMessageSession?.id
-          };
-          await openPageMessageSessionTrigger({ input }).unwrap();
-        });
+        captcha
+          .execute(SITE_KEY, { action: 'submit' })
+          .then(async (token: any) => {
+            dispatch(
+              postClaim({
+                claimAddress: cleanAddress,
+                claimCode: currentPageMessageSession.lixiClaimCode,
+                captchaToken: token
+              } as CreateClaimDto)
+            );
+          })
+          .then(async () => {
+            const input: OpenPageMessageSessionInput = {
+              pageMessageSessionId: currentPageMessageSession?.id
+            };
+            await openPageMessageSessionTrigger({ input }).unwrap();
+          })
+          .catch((err: any) => {
+            console.log(err);
+          });
       });
     }
   };

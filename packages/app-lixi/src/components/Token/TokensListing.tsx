@@ -160,7 +160,7 @@ const TokensListing = () => {
       {
         first: pageSize
       },
-      true
+      false
     );
 
   const [
