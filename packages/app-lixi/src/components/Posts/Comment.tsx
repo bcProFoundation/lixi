@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { AutoComplete, Button, Input, Skeleton } from 'antd';
+import { AutoComplete, Button, Input, Modal, Skeleton } from 'antd';
 import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import CommentListItem from './CommentListItem';
@@ -160,6 +160,28 @@ const StyledCommentImageContainer = styled.div`
   }
 `;
 
+const ModalResend = styled(Modal)`
+  .ant-modal-header {
+    padding: 16px 32px;
+    .ant-modal-title {
+      font-size: 20px;
+    }
+  }
+  .ant-modal-body {
+    padding: 0 24px;
+  }
+
+  .ant-modal-footer {
+    .ant-btn:hover {
+      color: var(--color-primary);
+      -webkit-transition: color 0.3s;
+      transition: color 0.3s;
+      background-color: #fff;
+      border-color: var(--color-primary);
+    }
+  }
+`;
+
 const commentCommand = [
   {
     label: '/give',
@@ -189,6 +211,8 @@ const Comment = ({ post }: CommentProps) => {
   const txFee = Math.ceil(Wallet.XPI.BitcoinCash.getByteCount({ P2PKH: 1 }, { P2PKH: 1 }) * 2.01); //satoshi
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
+  const [openModalResend, setOpenModalResend] = useState(false);
+  const previousComment = useRef('');
 
   const [
     createCommentTrigger,
@@ -243,6 +267,9 @@ const Comment = ({ post }: CommentProps) => {
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault(); // Prevent the default behavior of adding a new line
+      //don't allow create comment when previous comment not loading yet
+
+      if (isLoadingCreateComment || isSendingXPI || isUploadingImage) return;
       await processComment(e.currentTarget.value); // Call your function to post the comment
     }
   };
@@ -263,6 +290,8 @@ const Comment = ({ post }: CommentProps) => {
   };
 
   const processComment = async (comment: string) => {
+    previousComment.current = comment;
+    resetField('comment');
     //Check if the message is not empty
     if (comment && comment !== '') {
       const trimComment = comment.trim();
@@ -487,9 +516,8 @@ const Comment = ({ post }: CommentProps) => {
         })
       );
       setIsSendingXPI(false);
+      setOpenModalResend(true);
     }
-
-    resetField('comment');
   };
 
   const handlePasteImage = evt => {
@@ -573,7 +601,7 @@ const Comment = ({ post }: CommentProps) => {
                 }}
                 defaultActiveFirstOption
                 getPopupContainer={trigger => trigger.parentElement}
-                disabled={isLoadingCreateComment || isSendingXPI || isUploadingImage || !authorization.authorized}
+                disabled={!authorization.authorized}
                 style={{ width: '-webkit-fill-available', textAlign: 'left' }}
               >
                 <StyledTextArea
@@ -643,6 +671,20 @@ const Comment = ({ post }: CommentProps) => {
           </div>
         </StyledCommentImageContainer>
       )}
+      <ModalResend
+        title={<div>{intl.get('comment.failAndResend')}</div>}
+        open={openModalResend}
+        onCancel={() => setOpenModalResend(false)}
+        onOk={async () => {
+          setOpenModalResend(false);
+          await processComment(previousComment.current);
+        }}
+        okText={<span>{intl.get('comment.resend')}</span>}
+      >
+        <p>
+          {intl.get('label.comment')}: {previousComment.current}
+        </p>
+      </ModalResend>
     </React.Fragment>
   );
 };

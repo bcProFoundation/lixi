@@ -1,23 +1,31 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
-import { PageQueryItem } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
+import { useAllFollowersByPageQuery, useLazyAllFollowersByPageQuery } from '@store/account/accounts.generated';
+import _ from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useLazyPagesByFollowerQuery, usePagesByFollowerQuery } from './pages.generated';
+import { AccountQueryItem } from '@generated/types';
 
-const followPagesAdapter = createEntityAdapter<PageQueryItem>({
-  selectId: entity => entity.id
+const accountsAdapter = createEntityAdapter<AccountQueryItem>({
+  selectId: account => account.id,
+  sortComparer: (a, b) => b.createdAt - a.createdAt
 });
 
-const { selectAll, selectEntities, selectIds, selectTotal } = followPagesAdapter.getSelectors();
+const { selectAll } = accountsAdapter.getSelectors();
 
-export function useInfinitePagesByFollowerIdQuery(
-  params: PaginationArgs & { id: number },
+interface AccountListByPageIdParams extends PaginationArgs {
+  id: string;
+}
+
+export function useInfiniteFollowersByPageQuery(
+  params: AccountListByPageIdParams,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const baseResult = usePagesByFollowerQuery(params, { skip: !params?.id });
+  const baseResult = useAllFollowersByPageQuery(params, {
+    skip: !params?.id
+  });
 
-  const [trigger, nextResult] = useLazyPagesByFollowerQuery();
-  const [combinedData, setCombinedData] = useState(followPagesAdapter.getInitialState({}));
+  const [trigger, nextResult] = useLazyAllFollowersByPageQuery();
+  const [combinedData, setCombinedData] = useState(accountsAdapter.getInitialState({}));
 
   const isBaseReady = useRef(false);
   const isNextDone = useRef(true);
@@ -32,18 +40,15 @@ export function useInfinitePagesByFollowerIdQuery(
 
   // Base result
   useEffect(() => {
-    next.current = baseResult.data?.pagesByFollower?.pageInfo?.endCursor;
-    if (baseResult?.data?.pagesByFollower) {
+    next.current = baseResult.data?.allFollowersByPage?.pageInfo?.endCursor;
+    if (baseResult?.data?.allFollowersByPage) {
       isBaseReady.current = true;
 
-      const baseResultParse = baseResult.data.pagesByFollower.edges.reduce((entities, edge) => {
-        const entity = edge.node;
-        if (entity) {
-          return { ...entities, [entity.id]: entity };
-        }
-        return entities;
-      }, {});
-      const adapterSetAll = followPagesAdapter.setAll(combinedData, baseResultParse);
+      const baseResultParse = baseResult.data.allFollowersByPage.edges.map(item => item.node);
+      const adapterSetAll = accountsAdapter.setAll(
+        combinedData,
+        baseResult.data.allFollowersByPage.edges.map(item => item.node)
+      );
 
       setCombinedData(adapterSetAll);
       fetchAll && fetchNext();
@@ -76,7 +81,7 @@ export function useInfinitePagesByFollowerIdQuery(
 
   return {
     data: data ?? [],
-    totalCount: baseResult?.data?.pagesByFollower?.totalCount ?? 0,
+    totalCount: baseResult?.data?.allFollowersByPage?.totalCount ?? 0,
     error: baseResult?.error,
     isError: baseResult?.isError,
     isLoading: baseResult?.isLoading,
@@ -84,7 +89,7 @@ export function useInfinitePagesByFollowerIdQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: !!baseResult.data?.pagesByFollower?.pageInfo?.hasNextPage,
+    hasNext: !!baseResult.data?.allFollowersByPage?.pageInfo?.hasNextPage,
     fetchNext,
     refetch
   };

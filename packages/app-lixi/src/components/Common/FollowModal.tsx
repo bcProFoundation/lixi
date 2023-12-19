@@ -10,7 +10,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import AvatarUser from './AvatarUser';
-import { currency } from './Ticker';
+import { useInfiniteFollowersByPageQuery } from '@store/account';
 
 const { TabPane } = Tabs;
 
@@ -37,7 +37,8 @@ const ShortcutItemAccess = ({
 );
 
 export type FollowModalProps = {
-  accountId: number;
+  accountId?: number;
+  pageId?: string;
   type: string;
   classStyle?: string;
 };
@@ -84,7 +85,7 @@ export const FollowModal: React.FC<FollowModalProps> = (props: FollowModalProps)
   } = useInfiniteFollowersByFollowingQuery(
     {
       first: 20,
-      followingAccountId: props.accountId
+      followingAccountId: props?.accountId
     },
     false
   );
@@ -105,7 +106,7 @@ export const FollowModal: React.FC<FollowModalProps> = (props: FollowModalProps)
   } = useInfiniteFollowingsByFollowerQuery(
     {
       first: 20,
-      followerAccountId: props.accountId
+      followerAccountId: props?.accountId
     },
     false
   );
@@ -126,7 +127,7 @@ export const FollowModal: React.FC<FollowModalProps> = (props: FollowModalProps)
   } = useInfinitePagesByFollowerIdQuery(
     {
       first: 20,
-      id: props.accountId
+      id: props?.accountId
     },
     false
   );
@@ -135,6 +136,26 @@ export const FollowModal: React.FC<FollowModalProps> = (props: FollowModalProps)
       followingPagesFetchNext();
     } else if (followingPagesHasNext) {
       followingPagesFetchNext();
+    }
+  };
+
+  const {
+    data: followersByPage,
+    fetchNext: followersByPageFetchNext,
+    hasNext: followersByPageHasNext,
+    isFetching: followersByPageIsFetching
+  } = useInfiniteFollowersByPageQuery(
+    {
+      id: props?.pageId,
+      first: 20
+    },
+    false
+  );
+  const loadMoreFollowersByPage = () => {
+    if (followersByPageHasNext && !followersByPageIsFetching) {
+      followersByPageFetchNext();
+    } else if (followersByPageHasNext) {
+      followersByPageFetchNext();
     }
   };
 
@@ -153,97 +174,131 @@ export const FollowModal: React.FC<FollowModalProps> = (props: FollowModalProps)
         closable={false}
         footer={null}
       >
-        <Tabs type="card" defaultActiveKey={props.type}>
-          {/* Followers s*/}
-          <Tabs.TabPane tab={intl.get('general.followers')} key="followers">
-            <React.Fragment>
-              <StyledInfiniteScroll
-                dataLength={followers.length}
-                next={loadMoreFollowers}
-                hasMore={followersHasNext}
-                loader={<Skeleton avatar active />}
-                scrollableTarget="scrollableDiv"
-              >
-                {followers.length == 0 ? (
-                  <p>{intl.get('follow.noFollowers')}</p>
-                ) : (
-                  followers.map((item, index) => {
-                    return (
-                      <React.Fragment key={index}>
-                        <ShortcutItemAccess
-                          icon={item?.avatar ? item.avatar : ''}
-                          name={item.name}
-                          href={`/profile/${item.address}`}
-                          onClickItem={handleCloseModal}
-                        />
-                      </React.Fragment>
-                    );
-                  })
-                )}
-              </StyledInfiniteScroll>
-            </React.Fragment>
-          </Tabs.TabPane>
+        {props?.accountId ? (
+          <Tabs type="card" defaultActiveKey={props.type}>
+            {/* Followers of account*/}
+            <Tabs.TabPane tab={intl.get('general.followers')} key="followers">
+              <React.Fragment>
+                <StyledInfiniteScroll
+                  dataLength={followers.length}
+                  next={loadMoreFollowers}
+                  hasMore={followersHasNext}
+                  loader={<Skeleton avatar active />}
+                  scrollableTarget="scrollableDiv"
+                >
+                  {followers.length == 0 ? (
+                    <p>{intl.get('follow.noFollowers')}</p>
+                  ) : (
+                    followers.map((item, index) => {
+                      return (
+                        <React.Fragment key={index}>
+                          <ShortcutItemAccess
+                            icon={item?.avatar ? item.avatar : ''}
+                            name={item.name}
+                            href={`/profile/${item.address}`}
+                            onClickItem={handleCloseModal}
+                          />
+                        </React.Fragment>
+                      );
+                    })
+                  )}
+                </StyledInfiniteScroll>
+              </React.Fragment>
+            </Tabs.TabPane>
 
-          {/* Following accounts */}
-          <Tabs.TabPane tab={intl.get('general.youFollow')} key="youFollow">
-            <React.Fragment>
-              <StyledInfiniteScroll
-                dataLength={followings.length}
-                next={loadMoreFollowings}
-                hasMore={followingsHasNext}
-                loader={<Skeleton avatar active />}
-                scrollableTarget="scrollableDiv"
-              >
-                {followings.length == 0 ? (
-                  <p>{intl.get('follow.noFollowings')}</p>
-                ) : (
-                  followings.map((item, index) => {
-                    return (
-                      <React.Fragment key={index}>
-                        <ShortcutItemAccess
-                          icon={item?.avatar ? item.avatar : ''}
-                          name={item.name}
-                          href={`/profile/${item.address}`}
-                          onClickItem={handleCloseModal}
-                        />
-                      </React.Fragment>
-                    );
-                  })
-                )}
-              </StyledInfiniteScroll>
-            </React.Fragment>
-          </Tabs.TabPane>
+            {/* Following accounts */}
+            <Tabs.TabPane tab={intl.get('general.youFollow')} key="youFollow">
+              <React.Fragment>
+                <StyledInfiniteScroll
+                  dataLength={followings.length}
+                  next={loadMoreFollowings}
+                  hasMore={followingsHasNext}
+                  loader={<Skeleton avatar active />}
+                  scrollableTarget="scrollableDiv"
+                >
+                  {followings.length == 0 ? (
+                    <p>{intl.get('follow.noFollowings')}</p>
+                  ) : (
+                    followings.map((item, index) => {
+                      return (
+                        <React.Fragment key={index}>
+                          <ShortcutItemAccess
+                            icon={item?.avatar ? item.avatar : ''}
+                            name={item.name}
+                            href={`/profile/${item.address}`}
+                            onClickItem={handleCloseModal}
+                          />
+                        </React.Fragment>
+                      );
+                    })
+                  )}
+                </StyledInfiniteScroll>
+              </React.Fragment>
+            </Tabs.TabPane>
 
-          {/* Following page */}
-          <Tabs.TabPane tab={intl.get('general.followingPages')} key="followingPages">
-            <React.Fragment>
-              <StyledInfiniteScroll
-                dataLength={followingPages.length}
-                next={loadMoreFollowingPages}
-                hasMore={followingPagesHasNext}
-                loader={<Skeleton avatar active />}
-                scrollableTarget="scrollableDiv"
-              >
-                {followingPages.length == 0 ? (
-                  <p>{intl.get('follow.noFollowingPages')}</p>
-                ) : (
-                  followingPages.map((page, index) => {
-                    return (
-                      <React.Fragment key={index}>
-                        <ShortcutItemAccess
-                          icon={page?.avatar ? page.avatar : '/images/default-avatar.jpg'}
-                          name={page ? page.name : 'default'}
-                          href={page ? `/page/${page.id}` : `/`}
-                          onClickItem={handleCloseModal}
-                        />
-                      </React.Fragment>
-                    );
-                  })
-                )}
-              </StyledInfiniteScroll>
-            </React.Fragment>
-          </Tabs.TabPane>
-        </Tabs>
+            {/* Following page */}
+            <Tabs.TabPane tab={intl.get('general.followingPages')} key="followingPages">
+              <React.Fragment>
+                <StyledInfiniteScroll
+                  dataLength={followingPages.length}
+                  next={loadMoreFollowingPages}
+                  hasMore={followingPagesHasNext}
+                  loader={<Skeleton avatar active />}
+                  scrollableTarget="scrollableDiv"
+                >
+                  {followingPages.length == 0 ? (
+                    <p>{intl.get('follow.noFollowingPages')}</p>
+                  ) : (
+                    followingPages.map((page, index) => {
+                      return (
+                        <React.Fragment key={index}>
+                          <ShortcutItemAccess
+                            icon={page?.avatar ? page.avatar : '/images/default-avatar.jpg'}
+                            name={page ? page.name : 'default'}
+                            href={page ? `/page/${page.id}` : `/`}
+                            onClickItem={handleCloseModal}
+                          />
+                        </React.Fragment>
+                      );
+                    })
+                  )}
+                </StyledInfiniteScroll>
+              </React.Fragment>
+            </Tabs.TabPane>
+          </Tabs>
+        ) : (
+          <Tabs type="card" defaultActiveKey={props.type}>
+            {/* Followers of page*/}
+            <Tabs.TabPane tab={intl.get('general.followers')} key="followers">
+              <React.Fragment>
+                <StyledInfiniteScroll
+                  dataLength={followersByPage.length}
+                  next={loadMoreFollowersByPage}
+                  hasMore={followersByPageHasNext}
+                  loader={<Skeleton avatar active />}
+                  scrollableTarget="scrollableDiv"
+                >
+                  {followersByPage.length == 0 ? (
+                    <p>{intl.get('follow.noFollowers')}</p>
+                  ) : (
+                    followersByPage.map((item, index) => {
+                      return (
+                        <React.Fragment key={index}>
+                          <ShortcutItemAccess
+                            icon={item?.avatar ? item.avatar : ''}
+                            name={item.name}
+                            href={`/profile/${item.address}`}
+                            onClickItem={handleCloseModal}
+                          />
+                        </React.Fragment>
+                      );
+                    })
+                  )}
+                </StyledInfiniteScroll>
+              </React.Fragment>
+            </Tabs.TabPane>
+          </Tabs>
+        )}
       </StyledModel>
     </>
   );

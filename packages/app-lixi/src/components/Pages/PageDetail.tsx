@@ -16,13 +16,7 @@ import {
 } from '@generated/index';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { addRecentHashtagAtPages, setTransactionReady } from '@store/account/actions';
-import {
-  getPageAvatarUpload,
-  getPageCoverUpload,
-  getRecentHashtagAtPages,
-  getSelectedAccount,
-  getSelectedAccountId
-} from '@store/account/selectors';
+import { getRecentHashtagAtPages, getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';
 import { useCreateFollowPageMutation, useDeleteFollowPageMutation } from '@store/follow/follows.api';
 import { useInfiniteHashtagByPageQuery } from '@store/hashtag/useInfiniteHashtagByPageQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
@@ -33,15 +27,8 @@ import {
 import { openModal } from '@store/modal/actions';
 import { setSelectedPost } from '@store/post/actions';
 import { getSelectedPostId } from '@store/post/selectors';
-import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
 import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
-import {
-  getFilterPostsPage,
-  getIsPostsByTime,
-  getLevelFilter,
-  getMinimumDanaFilter,
-  getNegativeDanaStatus
-} from '@store/settings/selectors';
+import { getFilterPostsPage, getIsPostsByTime, getMinimumDanaFilter } from '@store/settings/selectors';
 import { getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { Button, Skeleton, Space, Tabs, Tag } from 'antd';
 import _ from 'lodash';
@@ -52,6 +39,7 @@ import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
 import { useInfinitePageTimelineByScoreQuery, useInfinitePageTimelineByTimeQuery } from '@store/timeline';
+import { Follow } from '@bcpros/lixi-models/lib/follow/follow.model';
 
 type PageDetailProps = {
   page: PageQueryItem;
@@ -218,6 +206,36 @@ const ProfileCardHeader = styled.div`
     @media (max-width: 768px) {
       margin-left: 0;
       text-align: center;
+    }
+  }
+
+  .follow-page {
+    width: 100%;
+    padding-left: calc(0px + 48px);
+    padding-bottom: 15px;
+    text-align: left;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+    background: #fff;
+    button {
+      height: fit-content;
+      @media (min-width: 768px) {
+        display: inline-flex;
+        gap: 4px;
+      }
+    }
+    @media (max-width: 768px) {
+      margin-left: 0;
+      text-align: center;
+      padding-left: 0;
+      justify-content: center;
+    }
+    h2 {
+      font-weight: 600;
+      margin-bottom: 0;
+      text-transform: capitalize;
     }
   }
 `;
@@ -459,8 +477,6 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const [hashtags, setHashtags] = useState<any>([]);
   const postIdSelected = useAppSelector(getSelectedPostId);
   const refs = useRef([]);
-  const pageAvatarUpload = useAppSelector(getPageAvatarUpload);
-  const pageCoverUpload = useAppSelector(getPageCoverUpload);
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
   const isPostsByTime = useAppSelector(getIsPostsByTime);
@@ -826,6 +842,10 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
     }
   };
 
+  const openFollowModal = (type: Follow) => {
+    dispatch(openModal('FollowModal', { pageId: page.id, type: type }));
+  };
+
   return (
     <React.Fragment>
       <StyledContainerProfileDetail className="page-detail">
@@ -916,6 +936,22 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
               </div>
             )}
           </div>
+          {/* Follower of page */}
+          {selectedAccountId == page.pageAccountId && (
+            <div className="follow-page">
+              <Button
+                type="primary"
+                className="outline-btn"
+                style={{ alignItems: 'center' }}
+                onClick={() => openFollowModal(Follow.Followers)}
+              >
+                {page.followersCount}
+                <br />
+                {intl.get('general.followers')}
+              </Button>
+            </div>
+          )}
+
           <div className="description-profile">
             {pageDetailData.description && (
               <p>
