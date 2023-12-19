@@ -679,34 +679,6 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
             )}
           </div>
 
-          <div className="description-profile">
-            {user.description && (
-              <p className="infor-profile">
-                <InfoCircleOutlined /> {user.description}
-              </p>
-            )}
-
-            {user.website && (
-              <p className="infor-profile">
-                <CompassOutlined />
-                {<a href={user.website}> {user.website}</a>}
-              </p>
-            )}
-
-            {followScore != 0 && (
-              <Tooltip
-                title={intl.get('general.followScore', {
-                  dana: followScore.toLocaleString('en-US')
-                })}
-              >
-                <p style={{ width: 'fit-content' }} className="infor-profile">
-                  <img src="../../images/follow.svg" style={{ width: '14px' }} />
-                  {<Counter num={followScore} isShowXPI={true} numberAbbreviation={true} />}
-                </p>
-              </Tooltip>
-            )}
-          </div>
-
           {selectedAccountId == user.id && (
             <div className="follow-profile">
               <Button
@@ -737,6 +709,34 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
               </Button>
             </div>
           )}
+
+          <div className="description-profile">
+            {user.description && (
+              <p className="infor-profile">
+                <InfoCircleOutlined /> {user.description}
+              </p>
+            )}
+
+            {user.website && (
+              <p className="infor-profile">
+                <CompassOutlined />
+                {<a href={user.website}> {user.website}</a>}
+              </p>
+            )}
+
+            {followScore != 0 && (
+              <Tooltip
+                title={intl.get('general.followScore', {
+                  dana: followScore.toLocaleString('en-US')
+                })}
+              >
+                <p style={{ width: 'fit-content' }} className="infor-profile">
+                  <img src="../../images/follow.svg" style={{ width: '14px' }} />
+                  {<Counter num={followScore} isShowXPI={true} numberAbbreviation={true} />}
+                </p>
+              </Tooltip>
+            )}
+          </div>
         </ProfileCardHeader>
 
         <ProfileContentContainer>
