@@ -1,8 +1,11 @@
 import {
   Account,
+  AccountBasicConnection,
   AccountDana,
+  BasicPaginationArgs,
   CreateAccountInput,
   FollowOfType,
+  IBasicPaginated,
   ImportAccountInput,
   UpdateAccountInput
 } from '@bcpros/lixi-models';
@@ -23,6 +26,8 @@ import { WALLET_SERVICES } from '../wallet/wallet.constants';
 import { WalletService } from '../wallet/wallet.service';
 import { AccountCacheService } from './account-cache.service';
 import AccountLoader from './account.loader';
+import { FollowCacheService } from './follow-cache.service';
+import { createEdge } from 'src/common/custom-graphql-relay/paginate';
 import FollowScoreLoader from './follow-score.loader';
 
 const pubSub = new PubSub();
@@ -37,6 +42,7 @@ export class AccountResolver {
     @I18n() private i18n: I18nService,
     private readonly accountCacheService: AccountCacheService,
     private readonly accountLoader: AccountLoader,
+    private readonly followCacheService: FollowCacheService,
     private readonly followScoreLoader: FollowScoreLoader
   ) {}
 
@@ -114,6 +120,36 @@ export class AccountResolver {
         throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
+  }
+
+  @Query(() => AccountBasicConnection)
+  async allFollowersByPage(
+    @Args() { after, first = 20 }: BasicPaginationArgs,
+    @Args({ name: 'id', type: () => String, nullable: true })
+    id: string
+  ) {
+    const paginated = await this.followCacheService.getPaginatedFollowersByPage(id, first, after);
+    const accountIds = paginated.edges.map(item => Number(item.cursor));
+    const accounts = await this.accountCacheService.getByIds(accountIds);
+    return {
+      ...paginated,
+      edges: accounts.map(account => (account ? createEdge<Account>(account, 'id') : null))
+    } as IBasicPaginated<Account>;
+  }
+
+  @Query(() => AccountBasicConnection)
+  async allFollowersByToken(
+    @Args() { after, first = 20 }: BasicPaginationArgs,
+    @Args({ name: 'id', type: () => String, nullable: true })
+    id: string
+  ) {
+    const paginated = await this.followCacheService.getPaginatedFollowersByToken(id, first, after);
+    const accountIds = paginated.edges.map(item => Number(item.cursor));
+    const accounts = await this.accountCacheService.getByIds(accountIds);
+    return {
+      ...paginated,
+      edges: accounts.map(account => (account ? createEdge<Account>(account, 'id') : null))
+    } as IBasicPaginated<Account>;
   }
 
   @Mutation(() => Account)

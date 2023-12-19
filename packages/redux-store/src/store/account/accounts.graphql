@@ -10,6 +10,36 @@ query getAccountByAddress($address: String!) {
   }
 }
 
+query AllFollowersByPage($after: String, $first: Int = 20, $id: String!) {
+  allFollowersByPage(after: $after, first: $first, id: $id) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...AccountFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
+query AllFollowersByToken($after: String, $first: Int = 20, $id: String!) {
+  allFollowersByToken(after: $after, first: $first, id: $id) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...AccountFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
 fragment AccountFields on Account {
   id
   name

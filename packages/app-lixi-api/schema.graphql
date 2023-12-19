@@ -39,6 +39,17 @@ type Account {
   yearOfBirth: Int
 }
 
+type AccountBasicConnection {
+  edges: [AccountBasicEdge!]!
+  pageInfo: BasicPageInfo!
+  totalCount: Int!
+}
+
+type AccountBasicEdge {
+  cursor: String!
+  node: Account!
+}
+
 type AccountConnection {
   edges: [AccountEdge!]
   pageInfo: PageInfo!
@@ -1084,6 +1095,8 @@ type Query {
   account(id: Int!): Account!
   allClosedPageMessageSession(accountId: Int, after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, pageId: String, skip: Int): PageMessageSessionConnection!
   allFollowersByFollowing(after: String, before: String, first: Int, followingAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
+  allFollowersByPage(after: String, first: Int, id: String, skip: Int): AccountBasicConnection!
+  allFollowersByToken(after: String, first: Int, id: String, skip: Int): AccountBasicConnection!
   allFollowingsByFollower(after: String, before: String, first: Int, followerAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
   allHashtag(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: HashtagOrder, skip: Int): HashtagConnection!
   allHashtagByPage(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: HashtagOrder, skip: Int): HashtagConnection!
