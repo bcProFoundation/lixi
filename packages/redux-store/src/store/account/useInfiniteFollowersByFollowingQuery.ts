@@ -27,7 +27,9 @@ export function useInfiniteFollowersByFollowingQuery(
   params: AccountListByIdParams,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const baseResult = useAllFollowersByFollowingQuery(params);
+  const baseResult = useAllFollowersByFollowingQuery(params, {
+    skip: !params?.followingAccountId
+  });
 
   const [trigger, nextResult] = useLazyAllFollowersByFollowingQuery();
   const [combinedData, setCombinedData] = useState(accountsAdapter.getInitialState({}));

@@ -394,11 +394,29 @@ export class FollowCacheService {
     return await basicSortedSetPagination(this.redis, key, first, after);
   }
 
+  async getPaginatedFollowersByPage(pageId: string, first: number, after?: string) {
+    const key = `page:${pageId}:followers`;
+    const exist = await this.redis.exists([key]);
+    if (!exist) {
+      await this._cachePageFollowers(key, pageId);
+    }
+    return await basicSortedSetPagination(this.redis, key, first, after);
+  }
+
   async getPaginatedTokenFollowings(accountId: number, first: number, after?: string) {
     const key = `user:${accountId}:followingTokens`;
     const exist = await this.redis.exists([key]);
     if (!exist) {
       await this._cacheTokenFollowingOfAccount(key, accountId);
+    }
+    return await basicSortedSetPagination(this.redis, key, first, after);
+  }
+
+  async getPaginatedFollowersByToken(tokenId: string, first: number, after?: string) {
+    const key = `token:${tokenId}:followers`;
+    const exist = await this.redis.exists([key]);
+    if (!exist) {
+      await this._cachePageFollowers(key, tokenId);
     }
     return await basicSortedSetPagination(this.redis, key, first, after);
   }
