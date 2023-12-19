@@ -119,7 +119,13 @@ export const UploadAvatarCoverModal: React.FC<UploadAvatarCoverProps> = (props: 
         input: isAvatar ? updateAccountAvatar : updateAccountCover
       }).unwrap();
 
-      dispatch(setAccountInfoTemp({ ...accountInfoTemp, avatar: accountUpdated.updateAccount.avatar }));
+      dispatch(
+        setAccountInfoTemp({
+          ...accountInfoTemp,
+          avatar: accountUpdated.updateAccount.avatar,
+          cover: accountUpdated.updateAccount.cover
+        })
+      );
 
       dispatch(
         showToast('success', {

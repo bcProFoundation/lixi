@@ -34,7 +34,7 @@ import { useInfiniteProfileTimelineByTimeQuery } from '@store/timeline';
 import SearchBox from '@components/Common/SearchBox';
 
 export const URL_AVATAR_DEFAULT = '/images/default-avatar.jpg';
-export const URL_COVER_DEFAULT = '/images/default-avatar.jpg';
+export const URL_COVER_DEFAULT = '/images/default-cover.jpg';
 
 const AuthorizedButton = WithAuthorizeAction(Button);
 
@@ -566,22 +566,30 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   };
 
   const getAvatarAccount = () => {
-    let urlAvatarAccount = URL_AVATAR_DEFAULT;
+    let urlAvatarAccount;
     if (selectedAccountId === user.id) {
       urlAvatarAccount = accountInfoTemp?.avatar;
     } else {
       urlAvatarAccount = user?.avatar;
     }
 
+    if (_.isNil(urlAvatarAccount) || urlAvatarAccount === '') {
+      urlAvatarAccount = URL_AVATAR_DEFAULT;
+    }
+
     return urlAvatarAccount;
   };
 
   const getCoverAccount = () => {
-    let urlCoverAccount = URL_COVER_DEFAULT;
+    let urlCoverAccount;
     if (selectedAccountId === user?.id) {
       urlCoverAccount = accountInfoTemp?.cover;
     } else {
       urlCoverAccount = user?.cover;
+    }
+
+    if (_.isNil(urlCoverAccount) || urlCoverAccount === '') {
+      urlCoverAccount = URL_COVER_DEFAULT;
     }
 
     return urlCoverAccount;

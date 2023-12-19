@@ -28,7 +28,12 @@ import { openModal } from '@store/modal/actions';
 import { setSelectedPost } from '@store/post/actions';
 import { getSelectedPostId } from '@store/post/selectors';
 import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
-import { getFilterPostsPage, getIsPostsByTime, getMinimumDanaFilter } from '@store/settings/selectors';
+import {
+  getFilterPostsPage,
+  getIsPostsByTime,
+  getMinimumDanaFilter,
+  getNegativeDanaStatus
+} from '@store/settings/selectors';
 import { getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { Button, Skeleton, Space, Tabs, Tag } from 'antd';
 import _ from 'lodash';
