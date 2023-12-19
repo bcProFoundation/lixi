@@ -638,6 +638,8 @@ export default {
   'comment.writeComment': 'Viết bình luận...',
   'comment.writeCommentFree': 'Viết bình luận miễn phí trên bài viết này...',
   'comment.writeCommentXpi': '{commentFee} để bình luận',
+  'comment.failAndResend': 'Bình luận thất bại, bạn có muốn gửi lại?',
+  'comment.resend': 'Gửi lại',
 
   /* 18. Category */
   'category.art': 'Mỹ thuật',
