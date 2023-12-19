@@ -248,35 +248,6 @@ const ProfileCardHeader = styled.div`
       text-transform: capitalize;
     }
   }
-
-  .follow-page {
-    width: 100%;
-    padding-left: calc(0px + 48px);
-    padding-bottom: 15px;
-    text-align: left;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 8px;
-    background: #fff;
-    button {
-      height: fit-content;
-      @media (min-width: 768px) {
-        display: inline-flex;
-        gap: 4px;
-      }
-    }
-    @media (max-width: 768px) {
-      margin-left: 0;
-      text-align: center;
-      padding-left: 0;
-      justify-content: center;
-    }
-    h2 {
-      font-weight: 600;
-      margin-bottom: 0;
-      text-transform: capitalize;
-    }
   }
 `;
 
