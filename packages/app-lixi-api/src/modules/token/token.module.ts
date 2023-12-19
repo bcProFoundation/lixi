@@ -7,6 +7,7 @@ import { TokenDanaCacheService } from './token-dana-cache.service';
 import TokenLoader from './token.loader';
 import { TokenTimelineCacheService } from './token-timeline-cache.service';
 import { TokenCacheService } from './token-cache.service';
+import FollowScoreLoader from '../account/follow-score.loader';
 
 @Module({
   imports: [AuthModule, NotificationModule],
@@ -18,7 +19,8 @@ import { TokenCacheService } from './token-cache.service';
     TokenCacheService,
     TokenDanaCacheService,
     TokenLoader,
-    TokenTimelineCacheService
+    TokenTimelineCacheService,
+    FollowScoreLoader
   ],
   exports: [TokenCacheService, TokenDanaCacheService, TokenLoader]
 })

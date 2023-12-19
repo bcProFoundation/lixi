@@ -18,7 +18,6 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Int, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
-import { PubSub } from 'graphql-subscriptions';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
@@ -32,8 +31,7 @@ import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtau
 import { PrismaService } from '../prisma/prisma.service';
 import { AccountCacheService } from './account-cache.service';
 import { FollowCacheService } from './follow-cache.service';
-
-const pubSub = new PubSub();
+import FollowScoreLoader from './follow-score.loader';
 
 @SkipThrottle()
 @Resolver(() => FollowAccount)
@@ -47,13 +45,9 @@ export class FollowResolver {
     private readonly notificationService: NotificationService,
     @I18n() private readonly i18n: I18nService,
     @InjectRedis() private readonly redis: Redis,
-    private readonly accountCacheService: AccountCacheService
+    private readonly accountCacheService: AccountCacheService,
+    private readonly followScoreLoader: FollowScoreLoader
   ) {}
-
-  @Subscription(() => FollowAccount)
-  followAccountCreated() {
-    return pubSub.asyncIterator('followAccountCreated');
-  }
 
   @Query(() => Boolean)
   @UseGuards(GqlJwtAuthGuardByPass)
@@ -178,11 +172,14 @@ export class FollowResolver {
       });
 
       // Save to cache
-      await this.followCacheService.createFollowAccount(
-        followerAccountId,
-        followingAccountId,
-        createdFollowAccount.createdAt
-      );
+      await Promise.all([
+        this.followCacheService.createFollowAccount(
+          followerAccountId,
+          followingAccountId,
+          createdFollowAccount.createdAt
+        ),
+        this.followScoreLoader.batchTotalDanaFollowers.clear({ accountId: followingAccountId })
+      ]);
 
       // get recipient account
       const recipientAccount = await this.accountCacheService.getById(followingAccountId);
@@ -208,7 +205,6 @@ export class FollowResolver {
         await this.notificationService.saveAndDispatchNotification(createNotif);
       }
 
-      pubSub.publish('followAccountCreated', { followAccountCreated: createdFollowAccount });
       return createdFollowAccount;
     } catch (err) {
       if (err instanceof VError) {
@@ -240,9 +236,12 @@ export class FollowResolver {
         }
       });
 
-      await this.followCacheService.removeFollowAccount(followerAccountId, followingAccountId);
+      // save and clear cache
+      await Promise.all([
+        this.followCacheService.removeFollowAccount(followerAccountId, followingAccountId),
+        this.followScoreLoader.batchTotalDanaFollowers.clear({ accountId: followingAccountId })
+      ]);
 
-      pubSub.publish('followAccountDeleted', { followAccountDeleted: deletedFollowAccount });
       return deletedFollowAccount ? true : false;
     } catch (err) {
       if (err instanceof VError) {
@@ -312,8 +311,12 @@ export class FollowResolver {
         }
       });
 
-      // Save to cache
-      pageId && (await this.followCacheService.createFollowPage(accountId, pageId, createdFollowPage.createdAt));
+      // Save and clear cache
+      pageId &&
+        (await Promise.all([
+          this.followCacheService.createFollowPage(accountId, pageId, createdFollowPage.createdAt),
+          this.followScoreLoader.batchTotalDanaFollowers.clear({ pageId })
+        ]));
 
       if (pageId) {
         const recipient = await this.prisma.account.findFirst({
@@ -351,9 +354,6 @@ export class FollowResolver {
         createNotif.senderId !== createNotif.recipientId &&
           (await this.notificationService.saveAndDispatchNotification(createNotif));
       }
-
-      pubSub.publish('followPageCreated', { followPageCreated: createdFollowPage });
-      return createdFollowPage;
     } catch (err) {
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -394,10 +394,13 @@ export class FollowResolver {
         }
       });
 
-      // Save to cache
-      tokenId && (await this.followCacheService.createFollowToken(accountId, tokenId, followTokenCreated.createdAt));
+      // Save and clear cache
+      tokenId &&
+        (await Promise.all([
+          this.followCacheService.createFollowToken(accountId, tokenId, followTokenCreated.createdAt),
+          this.followScoreLoader.batchTotalDanaFollowers.clear({ tokenId })
+        ]));
 
-      pubSub.publish('followTokenCreated', { followTokenCreated: followTokenCreated });
       return followTokenCreated;
     } catch (err) {
       if (err instanceof VError) {
@@ -428,9 +431,13 @@ export class FollowResolver {
         }
       });
 
-      pageId && (await this.followCacheService.removeFollowPage(accountId, pageId));
+      //save and clear cache
+      pageId &&
+        (await Promise.all([
+          this.followCacheService.removeFollowPage(accountId, pageId),
+          this.followScoreLoader.batchTotalDanaFollowers.clear({ pageId })
+        ]));
 
-      pubSub.publish('followPageDeleted', { followPageDeleted: deletedFollowPage });
       return deletedFollowPage ? true : false;
     } catch (err) {
       if (err instanceof VError) {
@@ -461,9 +468,13 @@ export class FollowResolver {
         }
       });
 
-      tokenId && (await this.followCacheService.removeFollowToken(accountId, tokenId));
+      //save and clear cache
+      tokenId &&
+        (await Promise.all([
+          this.followCacheService.removeFollowToken(accountId, tokenId),
+          this.followScoreLoader.batchTotalDanaFollowers.clear({ tokenId })
+        ]));
 
-      pubSub.publish('followPageDeleted', { followPageDeleted: deletedFollowPage });
       return deletedFollowPage ? true : false;
     } catch (err) {
       if (err instanceof VError) {

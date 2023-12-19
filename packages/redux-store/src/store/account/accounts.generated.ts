@@ -32,6 +32,9 @@ export type AccountQuery = {
     followersCount?: number | null;
     followingsCount?: number | null;
     followingPagesCount?: number | null;
+    followScore?: number | null;
+    website?: string | null;
+    description?: string | null;
     createdAt: any;
     updatedAt: any;
     avatar?: string | null;
@@ -70,6 +73,9 @@ export type GetAccountByAddressQuery = {
     followersCount?: number | null;
     followingsCount?: number | null;
     followingPagesCount?: number | null;
+    followScore?: number | null;
+    website?: string | null;
+    description?: string | null;
     createdAt: any;
     updatedAt: any;
     avatar?: string | null;
@@ -200,6 +206,9 @@ export type AccountFieldsFragment = {
   followersCount?: number | null;
   followingsCount?: number | null;
   followingPagesCount?: number | null;
+  followScore?: number | null;
+  website?: string | null;
+  description?: string | null;
   createdAt: any;
   updatedAt: any;
   avatar?: string | null;
@@ -237,6 +246,9 @@ export type CreateAccountMutation = {
     followersCount?: number | null;
     followingsCount?: number | null;
     followingPagesCount?: number | null;
+    followScore?: number | null;
+    website?: string | null;
+    description?: string | null;
     createdAt: any;
     updatedAt: any;
     avatar?: string | null;
@@ -275,6 +287,9 @@ export type ImportAccountMutation = {
     followersCount?: number | null;
     followingsCount?: number | null;
     followingPagesCount?: number | null;
+    followScore?: number | null;
+    website?: string | null;
+    description?: string | null;
     createdAt: any;
     updatedAt: any;
     avatar?: string | null;
@@ -313,6 +328,9 @@ export type UpdateAccountMutation = {
     followersCount?: number | null;
     followingsCount?: number | null;
     followingPagesCount?: number | null;
+    followScore?: number | null;
+    website?: string | null;
+    description?: string | null;
     createdAt: any;
     updatedAt: any;
     avatar?: string | null;
@@ -349,6 +367,9 @@ export const AccountFieldsFragmentDoc = `
   followersCount
   followingsCount
   followingPagesCount
+  followScore
+  website
+  description
   createdAt
   updatedAt
   avatar

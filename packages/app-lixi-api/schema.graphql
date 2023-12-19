@@ -16,6 +16,7 @@ type Account {
   description: String
   encryptedMnemonic: String
   encryptedSecret: String
+  followScore: Int
   followersCount: Int
   followingPagesCount: Int
   followingsCount: Int
@@ -780,6 +781,7 @@ type Page {
   dana: PageDana
   description: String!
   encryptedMnemonic: String
+  followScore: Int
   followerFreeMessage: Boolean
   followersCount: Int
   id: ID!
@@ -1280,7 +1282,6 @@ type State {
 
 type Subscription {
   bookmarkCreated: Bookmark!
-  followAccountCreated: FollowAccount!
   hashtagCreated: Hashtag!
   messageCreated: Message!
   pageMessageSessionCreated: PageMessageSession!
@@ -1365,6 +1366,7 @@ type Token {
   createdDate: DateTime!
   dana: TokenDana
   decimals: Int!
+  followScore: Int
   followersCount: Int
   id: ID!
   initialTokenQuantity: String

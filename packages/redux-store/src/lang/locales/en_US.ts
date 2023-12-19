@@ -128,6 +128,7 @@ export default {
   'general.postsByTime': 'Posts by time: ',
   'general.bookmark': 'Bookmark',
   'general.noBookmark': 'No bookmarks',
+  'general.followScore': 'Follow Score (Dana of followers): {dana}',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Valid mnemonic seed phrase required',

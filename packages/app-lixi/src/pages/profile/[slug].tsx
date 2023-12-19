@@ -9,10 +9,16 @@ import { NextSeo } from 'next-seo';
 import { getSelectorsByUserAgent } from 'react-device-detect';
 import { END } from 'redux-saga';
 import { toImageUrl } from '@utils/index';
+import { useGetAccountByAddressQuery } from '@store/account/accounts.api';
 
 const ProfileDetailPage = props => {
   const { userAddress, isMobile, accountAsString } = props;
   const account = JSON.parse(accountAsString);
+
+  const { currentData: currentDataProfile } = useGetAccountByAddressQuery(
+    { address: account.address },
+    { skip: !account.address }
+  );
   const { currentData: currentIsFollowedData, isSuccess: isSuccessCheckFollowed } = useCheckIfFollowAccountQuery({
     followingAccountId: account.id
   });
@@ -43,7 +49,11 @@ const ProfileDetailPage = props => {
               cardType: 'summary_large_image'
             }}
           />
-          <ProfileDetail user={account} isMobile={isMobile} checkIsFollowed={isFollowed} />
+          <ProfileDetail
+            user={currentDataProfile?.getAccountByAddress ?? account}
+            isMobile={isMobile}
+            checkIsFollowed={isFollowed}
+          />
         </React.Fragment>
       )}
     </React.Fragment>
