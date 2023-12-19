@@ -127,6 +127,7 @@ export default {
   'general.postsByTime': 'Bài viết theo thời gian: ',
   'general.bookmark': 'Bài đã lưu',
   'general.noBookmark': 'Không có bài đã lưu',
+  'account.chooseNewAccount': 'Chọn tài khoản mới',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Bạn cần nhập đúng cụm từ bảo mật',
