@@ -1,4 +1,5 @@
 import { LocalUserAccount } from '@bcpros/lixi-models';
+import { COIN } from '@bcpros/lixi-models/constants';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { activateWallet } from '@store/wallet';
 import { all, call, fork, put, takeLatest } from 'redux-saga/effects';
@@ -12,9 +13,10 @@ function* setLocalUserAccountSaga(action: PayloadAction<LocalUserAccount>) {
   const localUser: LocalUser = {
     id: account.address,
     address: account.address,
-    name: account.name
+    name: account.name,
+    coin: account.coin ? account.coin : COIN.XPI
   };
-  yield put(activateWallet(account.mnemonic));
+  yield put(activateWallet({ mnemonic: account.mnemonic, coin: account.coin }));
   yield put(silentLocalLogin(localUser));
 }
 

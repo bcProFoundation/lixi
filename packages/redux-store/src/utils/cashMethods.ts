@@ -1,8 +1,9 @@
+import { COIN } from '@bcpros/lixi-models/constants';
 import BCHJS from '@bcpros/xpi-js';
 import { WalletPathAddressInfo, WalletState } from '@store/wallet';
 import BigNumber from 'bignumber.js';
 import { Utxo } from 'chronik-client';
-import { currency } from '../components/Common/Ticker';
+import { currency, xecCurrency } from '../components/Common/Ticker';
 import { createSharedKey, decrypt, encrypt } from './encryption';
 
 export type TxInputObj = {
@@ -21,7 +22,18 @@ export const fromLegacyDecimals = (amount, cashDecimals = currency.cashDecimals)
   return amountSmallestDenomination;
 };
 
-export const fromSmallestDenomination = (amount, cashDecimals = currency.cashDecimals) => {
+export const fromSmallestDenomination = (amount, coin?: COIN) => {
+  let cashDecimals: number;
+  switch (coin) {
+    case COIN.XPI:
+      cashDecimals = currency.cashDecimals;
+      break;
+    case COIN.XEC:
+      cashDecimals = xecCurrency.cashDecimals;
+      break;
+    default:
+      cashDecimals = currency.cashDecimals;
+  }
   const amountBig = new BigNumber(amount);
   const multiplier = new BigNumber(10 ** (-1 * cashDecimals));
   const amountInBaseUnits = amountBig.times(multiplier);

@@ -1,7 +1,8 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
+import { COIN } from '../../constants';
 import { Message, PageMessageSession } from '../message';
 import { Page } from '../page';
 
@@ -103,6 +104,9 @@ export class Account {
   @Field(() => AccountDana, { nullable: true })
   accountDana?: Nullable<AccountDana>;
 
+  @Field(() => COIN, { nullable: true })
+  coin?: Nullable<COIN>;
+
   @Field(() => Number, { nullable: true })
   followScore?: Nullable<number>;
 
@@ -110,3 +114,8 @@ export class Account {
     Object.assign(this, partial);
   }
 }
+
+registerEnumType(COIN, {
+  name: 'Coin',
+  description: 'The type of coin.'
+});

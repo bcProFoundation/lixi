@@ -1,9 +1,10 @@
+import { COIN } from '@bcpros/lixi-models/constants';
 import { createAction } from '@reduxjs/toolkit';
 
 import { WalletPathAddressInfo, WalletStatus } from './models';
 
 export const writeWalletStatus = createAction<WalletStatus>('wallet/writeWalletStatus');
-export const activateWallet = createAction<string>('wallet/activateWallet');
+export const activateWallet = createAction<{ mnemonic: string; coin: COIN }>('wallet/activateWallet');
 export const activateWalletSuccess = createAction<{
   walletPaths: WalletPathAddressInfo[];
   mnemonic: string;
@@ -13,4 +14,5 @@ export const activateWalletFailure = createAction<string>('wallet/activateWallet
 export const setWalletRefreshInterval = createAction<number>('wallet/setWalletRefreshInterval');
 export const setWalletHasUpdated = createAction<boolean>('wallet/setWalletHasUpdated');
 export const setWalletPaths = createAction<WalletPathAddressInfo[]>('wallet/setWalletPaths');
+export const removeWalletPaths = createAction<string>('wallet/removeWalletPaths');
 export const removeAllWallets = createAction<string>('wallet/removeAllWallets');

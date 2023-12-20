@@ -7,6 +7,7 @@ type Account {
   address: String!
   avatar: String
   balance: Int!
+  coin: Coin
   cover: String
   createCommentFee: String
 
@@ -146,6 +147,12 @@ type City {
 
 input ClosePageMessageSessionInput {
   pageMessageSessionId: String!
+}
+
+"""The type of coin."""
+enum Coin {
+  XEC
+  XPI
 }
 
 type Comment {

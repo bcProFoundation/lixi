@@ -1,3 +1,4 @@
+import { COIN } from '../../constants';
 export class LocalUserAccount {
   name: string;
   address: string;
@@ -6,6 +7,7 @@ export class LocalUserAccount {
   balance?: number;
   createdAt: Date;
   updatedAt: Date;
+  coin?: COIN;
 }
 
 export class RenameLocalUserAccountCommand {

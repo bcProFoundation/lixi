@@ -90,7 +90,6 @@ export class AccountResolver {
   }
 
   @Query(() => Account)
-  @UseGuards(GqlJwtAuthGuard)
   async getAccountByAddress(@Args('address', { type: () => String }) address: string) {
     try {
       const account = await this.accountCacheService.getByAddress(address);

@@ -29,6 +29,7 @@ import { openModal } from '@store/modal/actions';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import InApp from '@utils/inapp';
 import { generateAccount } from '@store/account';
+import { COIN } from '@bcpros/lixi-models/constants';
 
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
 
@@ -151,7 +152,7 @@ const ClaimComponent = ({ isClaimFromAccount, claimCodeFromURL }: ClaimProps) =>
             dispatch(checkInformationAndClaim(payload));
           } else {
             dispatch(checkInformationAndClaimNoAccount(token));
-            dispatch(generateAccount());
+            dispatch(generateAccount({ coin: COIN.XPI }));
           }
         });
       });

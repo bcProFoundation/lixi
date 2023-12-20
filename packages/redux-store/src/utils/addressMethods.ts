@@ -1,5 +1,6 @@
 import { currency } from '@components/Common/Ticker';
 import BigNumber from 'bignumber.js';
+import cashaddr from 'ecashaddrjs';
 
 export interface AddressInfo {
   address: string;
@@ -51,3 +52,11 @@ export function parseAddress(XPI: any, addressString: string): AddressInfo {
   addressInfo.amount = amount;
   return addressInfo;
 }
+
+export const parseEcashAddress = (walletPath: any) => {
+  const { cashAddress } = walletPath;
+  const { type, hash } = cashaddr.decode(cashAddress);
+  const changeAddress = cashaddr.encode('ecash', type, hash);
+
+  return changeAddress;
+};

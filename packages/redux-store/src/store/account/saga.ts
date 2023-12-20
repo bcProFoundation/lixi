@@ -11,12 +11,13 @@ import {
   RenameAccountCommand,
   SecondaryLanguageAccountCommand
 } from '@bcpros/lixi-models';
+import { COIN } from '@bcpros/lixi-models/constants';
 import { callConfig } from '@context/index';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { setLocalUserAccount, silentLocalLogin } from '@store/localAccount';
 import { fetchNotifications, removeAllNotifications } from '@store/notification/actions';
 import { getCurrentLocale } from '@store/settings/selectors';
-import { removeAllWallets } from '@store/wallet';
+import { removeAllWallets, removeWalletPaths } from '@store/wallet';
 import { aesGcmDecrypt, aesGcmEncrypt, numberToBase58 } from '@utils/encryptionMethods';
 import { push } from 'connected-next-router';
 import intl from 'react-intl-universal';
@@ -96,7 +97,8 @@ const nameConfigGenerator: Config = {
  * Generate a account with random encryption password
  * @param action The data to needed generate a account
  */
-function* generateAccountSaga(action: PayloadAction) {
+function* generateAccountSaga(action: PayloadAction<{ coin: COIN }>) {
+  const { coin } = action.payload;
   const { XPI } = callConfig.call.walletContext;
   const lang = 'english';
   const Bip39128BitMnemonic = XPI.Mnemonic.generate(128, XPI.Mnemonic.wordLists()[lang]);
@@ -114,7 +116,8 @@ function* generateAccountSaga(action: PayloadAction) {
     mnemonic: Bip39128BitMnemonic,
     encryptedMnemonic,
     mnemonicHash,
-    language: locale
+    language: locale,
+    coin: coin ? coin : COIN.XPI
   };
 
   yield put(postAccount(account));
@@ -188,7 +191,8 @@ function* postAccountSaga(action: PayloadAction<CreateAccountCommand>) {
     // Merge back to action payload
     const result = {
       ...command,
-      ...data
+      ...data,
+      coin: command.coin
     } as Account;
 
     yield put(postAccountSuccess(result));
@@ -364,7 +368,8 @@ function* selectAccountSuccessSaga(
     balance: account.balance,
     name: account.name,
     createdAt: account.createdAt,
-    updatedAt: account.updatedAt
+    updatedAt: account.updatedAt,
+    coin: account.coin ? account.coin : COIN.XPI
   };
   yield put(setLocalUserAccount(localAccount));
   yield putResolve(silentLogin(account.mnemonic));
@@ -396,6 +401,7 @@ function* setAccountSuccessSaga(action: PayloadAction<Account>) {
     address: account.address,
     balance: account.balance,
     name: account.name,
+    coin: account.coin ? account.coin : COIN.XPI,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt
   };
@@ -498,6 +504,8 @@ function* deleteAccountSaga(action: PayloadAction<DeleteAccountCommand>) {
     const { id } = action.payload;
     const account: Account = yield select(getAccountById(id));
     const ids = yield select(getAllAccountsIds);
+    yield put(removeWalletPaths(account.address));
+
     //current has 1 account then remove all wallet
     if (ids.length === 1) {
       yield put(removeAllWallets());
@@ -902,7 +910,8 @@ function* silentLoginSuccessSaga(action: PayloadAction) {
   const localUser: LocalUser = {
     id: account.address,
     address: account.address,
-    name: account.name
+    name: account.name,
+    coin: account.coin ? account.coin : COIN.XPI
   };
   // yield put(activateWallet(account.mnemonic));
   yield put(silentLocalLogin(localUser));

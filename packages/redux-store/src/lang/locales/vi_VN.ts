@@ -225,6 +225,7 @@ export default {
   'account.updateProfileSuccessful': 'Hồ sơ đã được cập nhật thành công',
   'account.unableUpdateProfile': 'Không thể cập nhật hồ sơ.',
   'account.unableSetSecondLanguage': 'Không thể chọn ngôn ngữ thứ 2',
+  'account.chooseNewAccount': 'Chọn tài khoản mới',
 
   /* 03.Lixi */
   'lixi.createLixi': 'Tạo lixi mới',

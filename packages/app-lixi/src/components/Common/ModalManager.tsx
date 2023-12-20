@@ -24,6 +24,7 @@ import { getCurrentThemes } from '@store/settings';
 import darkTheme from 'src/styles/themes/darkTheme';
 import { EditProfileModal } from './EditProfileModal';
 import LixiEnvelopeViewModal from '@components/Lixi/LixiEnvelopeViewModal';
+import CreateAccountModal from '@components/Account/CreateAccountModal';
 
 const modalComponentLookupTable = {
   CreateLixiConfirmationModal,
@@ -44,7 +45,8 @@ const modalComponentLookupTable = {
   AuthorizationModal,
   PageMessageLixiModal,
   EditProfileModal,
-  LixiEnvelopeViewModal
+  LixiEnvelopeViewModal,
+  CreateAccountModal
 };
 
 const ModalManager = () => {

@@ -12,6 +12,7 @@ import {
   RenameAccountCommand,
   SecondaryLanguageAccountCommand
 } from '@bcpros/lixi-models';
+import { COIN } from '@bcpros/lixi-models/constants';
 import {
   AntdFormWrapper,
   LanguageNotAutoTransDropdown,
@@ -327,6 +328,10 @@ const Settings: React.FC = () => {
     dispatch(openModal('DeleteAccountModal', deleteAcountModalProps));
   };
 
+  const showPopulatedCreateAccountModal = () => {
+    dispatch(openModal('CreateAccountModal', null));
+  };
+
   const handleChange = e => {
     const { value, name } = e.target;
 
@@ -395,7 +400,7 @@ const Settings: React.FC = () => {
           </SettingBar>
           <SettingBar>
             <h2 style={{ color: 'var(--color-primary)' }}>{intl.get('settings.manageAccounts')}</h2>
-            <PrimaryButton onClick={() => dispatch(generateAccount())}>
+            <PrimaryButton onClick={() => showPopulatedCreateAccountModal()}>
               <PlusSquareOutlined /> {intl.get('settings.newAccount')}
             </PrimaryButton>
             <SecondaryButton onClick={() => openSeedInput(!seedInput)}>
@@ -436,6 +441,9 @@ const Settings: React.FC = () => {
                         <SWName>
                           <h3>{selectedAccount?.name}</h3>
                         </SWName>
+                        <SWName>
+                          <h3>{selectedAccount?.coin ? selectedAccount.coin : COIN.XPI}</h3>
+                        </SWName>
                         <SWButtonCtn>
                           <span onClick={() => showPopulatedRenameAccountModal(selectedAccount as Account)}>
                             <Edit />
@@ -455,6 +463,9 @@ const Settings: React.FC = () => {
                           <SWRow key={acc.id}>
                             <SWName>
                               <h3>{acc.name}</h3>
+                            </SWName>
+                            <SWName>
+                              <h3>{acc.coin ? acc.coin : COIN.XPI}</h3>
                             </SWName>
 
                             <SWButtonCtn>

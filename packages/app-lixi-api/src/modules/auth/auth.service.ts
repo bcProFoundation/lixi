@@ -12,6 +12,7 @@ import { hashMnemonic } from '../../utils/encryptionMethods';
 import { AccountCacheService } from '../account/account-cache.service';
 import { WalletService } from '../wallet/wallet.service';
 import { WALLET_SERVICES } from '../wallet/wallet.constants';
+import { XpiWalletService } from '../wallet/xpi-wallet.service';
 const wif = require('wif');
 
 @Injectable()
@@ -52,7 +53,7 @@ export class AuthService implements OnModuleInit {
       throw new VError(accountNotExistMessage);
     }
 
-    const walletService = this.walletServices['xpi'];
+    const walletService = this.walletServices['xpi'] as XpiWalletService;
     const { publicKey, wifKey } = await walletService.deriveAddress(mnemonic, 0);
     if (!account.publicKey) {
       // There're  no public key, old account

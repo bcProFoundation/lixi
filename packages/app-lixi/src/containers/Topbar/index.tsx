@@ -1,5 +1,6 @@
 import Icon, { UserSwitchOutlined, SendOutlined, CopyOutlined, SyncOutlined } from '@ant-design/icons';
 import { Account } from '@bcpros/lixi-models';
+import { COIN } from '@bcpros/lixi-models/constants';
 import { FilterType } from '@bcpros/lixi-models/lib/filter';
 import AvatarUser from '@components/Common/AvatarUser';
 import { FilterBurnt } from '@components/Common/FilterBurn';
@@ -29,7 +30,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Link from 'next/link';
 import { getModals } from '@store/modal/selectors';
 import { showToast } from '@store/toast/actions';
-import { getWalletHasUpdated, getWalletStatus } from '@store/wallet';
+import { getSelectedWalletPath, getWalletHasUpdated, getWalletStatus } from '@store/wallet';
 import { ReactSVG } from 'react-svg';
 import { currency } from '@bcpros/lixi-components/components/Common/Ticker';
 import { openActionSheet } from '@store/action-sheet/actions';
@@ -37,6 +38,7 @@ import { usePageQuery } from '@store/page/pages.generated';
 import { useGetAccountByAddressQuery } from '@store/account/accounts.generated';
 import { FilterLevel } from '../../components/Common/FilterLevel';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
+import { parseEcashAddress } from '@utils/addressMethods';
 
 export type TopbarProps = {
   className?: string;
@@ -466,6 +468,22 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
   const walletStatus = useAppSelector(getWalletStatus);
   const walletHasUpdated = useAppSelector(getWalletHasUpdated);
   const [filterType, setFilterType] = useState<FilterType>();
+  const walletPath = useAppSelector(getSelectedWalletPath);
+  const [address, setAddress] = useState('');
+
+  useEffect(() => {
+    switch (selectedAccount?.coin) {
+      case COIN.XPI:
+        setAddress(selectedAccount?.address);
+        break;
+      case COIN.XEC:
+        setAddress(parseEcashAddress(walletPath));
+        break;
+      default:
+        setAddress(selectedAccount?.address);
+        break;
+    }
+  }, [selectedAccount]);
 
   const slug: string = _.isArray(router?.query?.slug) ? router?.query?.slug[0] : router?.query?.slug;
   const { currentData: currentDataPageQuery } = usePageQuery({ id: slug }, { skip: !slug || !slug.startsWith('c') });
@@ -540,7 +558,10 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
   };
 
   const balanceAccount = (acc?: any) => {
-    const balanceString = fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis ?? 0);
+    const balanceString = fromSmallestDenomination(
+      walletStatus.balances.totalBalanceInSatoshis ?? 0,
+      selectedAccount?.coin ?? COIN.XPI
+    );
     return `~ ${balanceString.toFixed(2)}`;
   };
 
@@ -582,10 +603,14 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
     </React.Fragment>
   );
 
+  const formatAddress = (address: string) => {
+    return address.slice(0, 5) + '...' + address.slice(-8);
+  };
+
   const contentSelectAccount = (
     <AccountBox>
       {selectedAccount && (
-        <>
+        <React.Fragment>
           <div>
             <h3>Current Account</h3>
             <div>
@@ -595,9 +620,14 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
               >
                 {selectedAccount?.name}
               </h3>
-              <CopyToClipboard text={selectedAccount?.address} onCopy={handleOnCopy}>
+              <CopyToClipboard text={address} onCopy={handleOnCopy}>
                 <div className="profile-feature">
-                  <span>{selectedAccount?.address.slice(-8) + ' '}</span>
+                  {
+                    {
+                      [COIN.XPI]: <span>{formatAddress(selectedAccount?.address)}</span>,
+                      [COIN.XEC]: <span>{formatAddress(parseEcashAddress(walletPath))}</span>
+                    }[selectedAccount?.coin ?? COIN.XPI]
+                  }
                   <span>
                     <CopyOutlined />
                   </span>
@@ -608,11 +638,11 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
             <div className="profile-feature">
               {walletHasUpdated ? (
                 <span>
-                  {balanceAccount(selectedAccount)} {currency.ticker}
+                  {balanceAccount(selectedAccount)} {selectedAccount.coin ? selectedAccount.coin : COIN.XPI}
                 </span>
               ) : (
                 <div>
-                  <SyncOutlined spin /> {currency.ticker}
+                  <SyncOutlined spin /> {selectedAccount.coin ? selectedAccount.coin : COIN.XPI}
                 </div>
               )}
 
@@ -623,10 +653,10 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
               </div>
             </div>
           </div>
-        </>
+        </React.Fragment>
       )}
       {otherAccounts.length > 0 && (
-        <>
+        <React.Fragment>
           <h3 style={{ marginTop: '1rem' }}>Switch Accounts</h3>
           {otherAccounts &&
             otherAccounts.map((acc, index) => {
@@ -634,7 +664,10 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
                 <div className="sub-account" key={index}>
                   <div className="sub-account-info">
                     <AvatarUser name={acc?.name || null} icon={acc?.avatar} isMarginRight={false} />
-                    <span className="name">{acc?.name}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span className="name">{acc?.name}</span>
+                      <p className="name">{acc?.coin ?? COIN.XPI}</p>
+                    </div>
                   </div>
                   <Button
                     type="primary"
@@ -647,7 +680,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
                 </div>
               );
             })}
-        </>
+        </React.Fragment>
       )}
     </AccountBox>
   );

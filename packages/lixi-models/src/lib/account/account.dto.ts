@@ -1,3 +1,4 @@
+import { COIN } from '../../constants';
 import { Page } from '../page';
 
 export interface CreateAccountCommand {
@@ -5,6 +6,7 @@ export interface CreateAccountCommand {
   encryptedMnemonic: string;
   mnemonicHash: string;
   language?: string;
+  coin?: COIN;
 }
 
 export interface ImportAccountCommand {
