@@ -30,6 +30,7 @@ export type Account = {
   description?: Maybe<Scalars['String']>;
   encryptedMnemonic?: Maybe<Scalars['String']>;
   encryptedSecret?: Maybe<Scalars['String']>;
+  followScore?: Maybe<Scalars['Int']>;
   followersCount?: Maybe<Scalars['Int']>;
   followingPagesCount?: Maybe<Scalars['Int']>;
   followingsCount?: Maybe<Scalars['Int']>;
@@ -913,6 +914,7 @@ export type Page = {
   dana?: Maybe<PageDana>;
   description: Scalars['String'];
   encryptedMnemonic?: Maybe<Scalars['String']>;
+  followScore?: Maybe<Scalars['Int']>;
   followerFreeMessage?: Maybe<Scalars['Boolean']>;
   followersCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
@@ -1853,7 +1855,6 @@ export type State = {
 export type Subscription = {
   __typename?: 'Subscription';
   bookmarkCreated: Bookmark;
-  followAccountCreated: FollowAccount;
   hashtagCreated: Hashtag;
   messageCreated: Message;
   pageMessageSessionCreated: PageMessageSession;
@@ -1942,6 +1943,7 @@ export type Token = {
   createdDate: Scalars['DateTime'];
   dana?: Maybe<TokenDana>;
   decimals: Scalars['Int'];
+  followScore?: Maybe<Scalars['Int']>;
   followersCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   initialTokenQuantity?: Maybe<Scalars['String']>;

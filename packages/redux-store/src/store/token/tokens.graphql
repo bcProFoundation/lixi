@@ -14,16 +14,8 @@ query TokenByTokenId($tokenId: String!) {
   }
 }
 
-query Tokens(
-  $after: String
-  $first: Int = 20
-  $skip: Int
-) {
-  allTokens(
-    after: $after,
-    first: $first,
-    skip: $skip
-  ) {
+query Tokens($after: String, $first: Int = 20, $skip: Int) {
+  allTokens(after: $after, first: $first, skip: $skip) {
     totalCount
     edges {
       node {
@@ -47,6 +39,7 @@ fragment TokenFields on Token {
   totalBurned
   totalMinted
   followersCount
+  followScore
   dana {
     danaBurnUp
     danaBurnDown

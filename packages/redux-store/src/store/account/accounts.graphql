@@ -56,6 +56,9 @@ fragment AccountFields on Account {
   followersCount
   followingsCount
   followingPagesCount
+  followScore
+  website
+  description
   createdAt
   updatedAt
   avatar

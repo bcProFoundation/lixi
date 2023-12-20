@@ -127,7 +127,7 @@ export default {
   'general.postsByTime': 'Bài viết theo thời gian: ',
   'general.bookmark': 'Bài đã lưu',
   'general.noBookmark': 'Không có bài đã lưu',
-  'account.chooseNewAccount': 'Chọn tài khoản mới',
+  'general.followScore': 'Điểm theo dõi (Dana của người theo dõi): {dana}',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Bạn cần nhập đúng cụm từ bảo mật',
@@ -225,6 +225,7 @@ export default {
   'account.updateProfileSuccessful': 'Hồ sơ đã được cập nhật thành công',
   'account.unableUpdateProfile': 'Không thể cập nhật hồ sơ.',
   'account.unableSetSecondLanguage': 'Không thể chọn ngôn ngữ thứ 2',
+  'account.chooseNewAccount': 'Chọn tài khoản mới',
 
   /* 03.Lixi */
   'lixi.createLixi': 'Tạo lixi mới',
