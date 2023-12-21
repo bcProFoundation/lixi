@@ -128,6 +128,42 @@ enum BookmarkType {
   PRODUCT
 }
 
+type BurnBasicConnection {
+  edges: [BurnItemBasicEdge!]!
+  pageInfo: BasicPageInfo!
+  totalCount: Int!
+}
+
+enum BurnForTypeItem {
+  Account
+  Comment
+  Page
+  Post
+  Token
+  Worship
+}
+
+type BurnItem {
+  burnForId: String!
+  burnForType: BurnForTypeItem!
+  burnType: Boolean!
+  burnedBy: Account!
+  burnedValue: Int!
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime
+  id: ID!
+  txid: String!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime
+}
+
+type BurnItemBasicEdge {
+  cursor: String!
+  node: BurnItem!
+}
+
 type Category {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
@@ -1241,6 +1277,7 @@ type Query {
   pagesByFollower(after: String, first: Int, skip: Int): PageBasicConnection!
   poll(id: String!): Poll!
   post(id: String!): Post!
+  postBurnHistory(after: String, first: Int, id: String!, skip: Int): BurnBasicConnection!
   product(id: String!): Product!
   profileTimeline(after: String, first: Int, id: Int!, skip: Int): TimelineItemConnection!
   profileTimelineByTime(after: String, first: Int, id: Int!, minimumDanaFilter: Int!, skip: Int): TimelineItemConnection!

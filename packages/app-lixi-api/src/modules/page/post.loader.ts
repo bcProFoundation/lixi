@@ -11,9 +11,12 @@ import { DanaViewScoreService } from './dana-view-score.service';
 import { PageCacheService } from './page-cache.service';
 import { PostDanaCacheService } from './post-dana-cache.service';
 import { RedisDataLoader } from '../../common/redis/redis-dataloader';
+import BCHJS from '@bcpros/xpi-js';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class PostLoader {
+  private XPI = new BCHJS({});
+
   constructor(
     private readonly prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis,
@@ -85,6 +88,16 @@ export default class PostLoader {
     const accounts = await this.accountCacheService.getByIds(ids);
     const data = accountIds.map((accountId, index) => {
       return accounts[index] ?? new Account({ id: accountId });
+    });
+    return Promise.resolve(data);
+  });
+
+  public readonly batchAccountsByAddressHash160 = new DataLoader(async (addresses: readonly string[]) => {
+    const listAddressHash160 = (addresses as unknown as string[]) ?? [];
+    const listAddress = listAddressHash160.map(item => this._convertBurnedByToAddress(item));
+    const accounts = await this.accountCacheService.getByAddresses(listAddress);
+    const data = listAddress.map((address, index) => {
+      return accounts[index] ?? new Account({ address: address });
     });
     return Promise.resolve(data);
   });
@@ -166,4 +179,12 @@ export default class PostLoader {
       }
     }
   );
+
+  _convertBurnedByToAddress = (burnedBy: string): string => {
+    const legacyAddress = this.XPI.Address.hash160ToLegacy(burnedBy);
+
+    const publicAddress = this.XPI.Address.toXAddress(legacyAddress);
+
+    return publicAddress;
+  };
 }

@@ -1,3 +1,4 @@
+import { BurnFieldsFragment } from '@store/burn/burn.generated';
 import { AccountQuery } from '../store/account/accounts.generated';
 import { CommentQuery } from '../store/comment/comments.generated';
 import { HashtagQuery } from '../store/hashtag';
@@ -18,6 +19,7 @@ export type TimelineQueryItem = TimelineQuery['timeline'];
 export type TokenQueryItem = TokenQuery['token'];
 export type WorshipQueryItem = WorshipQuery['worship'];
 export type WorshipedPersonQueryItem = WorshipedPersonQuery['worshipedPerson'];
+export type BurnQueryItem = BurnFieldsFragment;
 
 export type BurnForItem =
   | PostQueryItem

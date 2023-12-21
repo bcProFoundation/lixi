@@ -32,6 +32,9 @@ export class BurnFanoutProcessor extends WorkerHost {
   static tokenTimelineByTimeWithDanaFilterKey = 'timeline:token:{{tokenId}}:{{level}}';
   static tokenTimelineByTimeShowAll = 'timeline:token:{{tokenId}}:showAll';
 
+  //burn key
+  static burnTimelineKey = 'timeline:burn:{{postId}}';
+
   constructor(
     private readonly followCacheService: FollowCacheService,
     private readonly postCacheService: PostCacheService,
@@ -71,6 +74,10 @@ export class BurnFanoutProcessor extends WorkerHost {
 
       // Clear the post from cache
       await this.postCacheService.removeByKeys([id]);
+
+      //update burnTimeline
+      const burnKey = template(`${BurnFanoutProcessor.burnTimelineKey}`, { postId: id });
+      pipeline.zadd(burnKey, new Date(burn?.createdAt ?? 0).getTime(), burn.id);
 
       // Update score for outnetwork
       const keyOutnetwork = BurnFanoutProcessor.outNetworkSourceKey;

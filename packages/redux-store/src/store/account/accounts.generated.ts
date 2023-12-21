@@ -122,6 +122,9 @@ export type AllFollowersByPageQuery = {
         followersCount?: number | null;
         followingsCount?: number | null;
         followingPagesCount?: number | null;
+        followScore?: number | null;
+        website?: string | null;
+        description?: string | null;
         createdAt: any;
         updatedAt: any;
         avatar?: string | null;
@@ -171,6 +174,9 @@ export type AllFollowersByTokenQuery = {
         followersCount?: number | null;
         followingsCount?: number | null;
         followingPagesCount?: number | null;
+        followScore?: number | null;
+        website?: string | null;
+        description?: string | null;
         createdAt: any;
         updatedAt: any;
         avatar?: string | null;

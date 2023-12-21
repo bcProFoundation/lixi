@@ -611,6 +611,8 @@ export default {
   'post.bookmarkInPage': ' trong {pageName}',
   'post.bookmarkSuccess': 'Lưu bài viết thành công ',
   'post.unbookmarkSuccess': 'Bỏ lưu bài viết thành công',
+  'post.burnHistory': 'Lịch sử đốt',
+  'post.noBurnHistory': 'Không ai đốt bài viết',
 
   /* 16.Token */
   'token.importToken': 'Thêm token',
