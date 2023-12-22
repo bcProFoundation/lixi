@@ -249,7 +249,7 @@ export class CommentResolver {
 
         // Clear the cache from relevant loaders
         await this.commentableLoader.batchTotalComments.clear({
-          id: createdComment.id,
+          id: post?.id ?? '',
           commentableId
         });
 
