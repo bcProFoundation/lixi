@@ -1,0 +1,31 @@
+fragment BurnFields on BurnItem {
+  id
+  txid
+  burnType
+  burnForType
+  burnForId
+  burnedValue
+  burnedBy {
+    id
+    name
+    avatar
+    address
+  }
+  createdAt
+  updatedAt
+}
+
+query PostBurnHistory($id: String!, $first: Int = 20, $after: String) {
+  postBurnHistory(id: $id, first: $first, after: $after) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...BurnFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}

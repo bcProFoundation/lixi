@@ -37,6 +37,7 @@ import { WalletModule } from './modules/wallet/wallet.module';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
 import { EventsAnalyticModule } from './modules/events-analytic/events-analytic.module';
 import { BookmarkModule } from './modules/bookmark/bookmark.module';
+import { BurnHistoryModule } from './modules/burn-history/burn-history.module';
 
 //enabled serving multiple static for fastify
 type FastifyServeStaticModuleOptions = ServeStaticModuleOptions & {
@@ -178,7 +179,8 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
     DevtoolsModule.register({
       http: process.env.NODE_ENV !== 'production'
     }),
-    BookmarkModule
+    BookmarkModule,
+    BurnHistoryModule
   ],
   controllers: [],
   providers: [

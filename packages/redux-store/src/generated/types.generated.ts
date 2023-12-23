@@ -22,6 +22,7 @@ export type Account = {
   address: Scalars['String'];
   avatar?: Maybe<Scalars['String']>;
   balance: Scalars['Int'];
+  coin?: Maybe<Coin>;
   cover?: Maybe<Scalars['String']>;
   createCommentFee?: Maybe<Scalars['String']>;
   /** Identifies the date and time when the object was created. */
@@ -147,6 +148,43 @@ export enum BookmarkType {
   Product = 'PRODUCT'
 }
 
+export type BurnBasicConnection = {
+  __typename?: 'BurnBasicConnection';
+  edges: Array<BurnItemBasicEdge>;
+  pageInfo: BasicPageInfo;
+  totalCount: Scalars['Int'];
+};
+
+export enum BurnForTypeItem {
+  Account = 'Account',
+  Comment = 'Comment',
+  Page = 'Page',
+  Post = 'Post',
+  Token = 'Token',
+  Worship = 'Worship'
+}
+
+export type BurnItem = {
+  __typename?: 'BurnItem';
+  burnForId: Scalars['String'];
+  burnForType: BurnForTypeItem;
+  burnType: Scalars['Boolean'];
+  burnedBy: Account;
+  burnedValue: Scalars['Int'];
+  /** Identifies the date and time when the object was created. */
+  createdAt?: Maybe<Scalars['DateTime']>;
+  id: Scalars['ID'];
+  txid: Scalars['String'];
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt?: Maybe<Scalars['DateTime']>;
+};
+
+export type BurnItemBasicEdge = {
+  __typename?: 'BurnItemBasicEdge';
+  cursor: Scalars['String'];
+  node: BurnItem;
+};
+
 export type Category = {
   __typename?: 'Category';
   /** Identifies the date and time when the object was created. */
@@ -168,6 +206,12 @@ export type City = {
 export type ClosePageMessageSessionInput = {
   pageMessageSessionId: Scalars['String'];
 };
+
+/** The type of coin. */
+export enum Coin {
+  Xec = 'XEC',
+  Xpi = 'XPI'
+}
 
 export type Comment = {
   __typename?: 'Comment';
@@ -1287,6 +1331,7 @@ export type Query = {
   pagesByFollower: PageBasicConnection;
   poll: Poll;
   post: Post;
+  postBurnHistory: BurnBasicConnection;
   product: Product;
   profileTimeline: TimelineItemConnection;
   profileTimelineByTime: TimelineItemConnection;
@@ -1755,6 +1800,13 @@ export type QueryPollArgs = {
 
 export type QueryPostArgs = {
   id: Scalars['String'];
+};
+
+export type QueryPostBurnHistoryArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  id: Scalars['String'];
+  skip?: InputMaybe<Scalars['Int']>;
 };
 
 export type QueryProductArgs = {

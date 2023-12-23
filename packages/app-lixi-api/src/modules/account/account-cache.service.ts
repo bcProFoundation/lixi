@@ -167,6 +167,71 @@ export class AccountCacheService {
     return account;
   }
 
+  async getByAddresses(addresses: string[]): Promise<Nullable<Account>[]> {
+    if (addresses.length === 0) return [];
+
+    const accountsMap = new Map();
+
+    try {
+      const values = await this.redis.hmgetBuffer(this.keyPrefix, ...addresses);
+      const uncachedAddresses: string[] = [];
+      for (let i = 0; i < addresses.length; i++) {
+        if (!values[i]) {
+          uncachedAddresses.push(addresses[i]);
+        }
+      }
+      _.compact(values).map(value => {
+        const account = decode(value) as Account;
+        accountsMap.set(account.address, account);
+      });
+
+      const dbValues =
+        uncachedAddresses.length > 0
+          ? await this.prisma.account.findMany({
+              where: {
+                address: { in: uncachedAddresses }
+              },
+              include: {
+                avatar: {
+                  include: {
+                    upload: true
+                  }
+                },
+                cover: {
+                  include: {
+                    upload: true
+                  }
+                }
+              }
+            })
+          : [];
+
+      const dbValuesMap = new Map(
+        dbValues.map(dbValue => {
+          const account = new Account({
+            ...dbValue,
+            avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.avatar?.upload),
+            cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.cover?.upload)
+          });
+          accountsMap.set(dbValue.address, account);
+          const buffer = encode(account);
+          return [dbValue.address, Buffer.from(buffer)];
+        })
+      );
+
+      if (dbValuesMap.size > 0) {
+        this.redis.hmset(this.keyPrefix, dbValuesMap);
+      }
+    } catch (err) {
+      this.logger.error(err);
+    }
+
+    return addresses.map(address => {
+      const account = accountsMap.get(address);
+      return account ? new Account({ ...account }) : null;
+    });
+  }
+
   async getByMnemonicHash(mnemonicHash: string): Promise<Nullable<Account>> {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, mnemonicHash);
     if (!buffer) {

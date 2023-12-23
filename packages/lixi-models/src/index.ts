@@ -33,3 +33,5 @@ export * from './lib/poll';
 export * from './lib/event';
 export * from './lib/product';
 export * from './lib/imageUploadable';
+export * from './lib/burn-item.model';
+export * from './lib/burn-connection.model';

@@ -404,6 +404,10 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
     setOpenCreatePost(true);
   };
 
+  const openBurnHistoryModal = () => {
+    dispatch(openModal('BurnHistoryModal', { postId: post.id }));
+  };
+
   return (
     <>
       <Drawer
@@ -439,6 +443,12 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
               />
             </>
           )}
+
+          <ItemActionSheetBottom
+            text={intl.get('post.burnHistory')}
+            icon="/images/ico-burn-history.svg"
+            onClickItem={openBurnHistoryModal}
+          />
 
           <ItemActionSheetBottom
             text={isBookmarked ? intl.get('post.unbookmarkPost') : intl.get('post.bookmarkPost')}

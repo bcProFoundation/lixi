@@ -612,6 +612,8 @@ export default {
   'post.bookmarkInPage': ' in {pageName}',
   'post.bookmarkSuccess': 'Save post success',
   'post.unbookmarkSuccess': 'Unsave post success',
+  'post.burnHistory': 'Burn History',
+  'post.noBurnHistory': 'No one burn for post',
 
   /* 16.Token */
   'token.importToken': 'Import token',
