@@ -32,7 +32,6 @@ export class BurnHistoryResolver {
 
   @ResolveField('burnedBy', () => Account)
   async postAccount(@Parent() burn: BurnItem) {
-    const a = 1;
     return this.postLoader.batchAccountsByAddressHash160.load(burn.burnedBy);
   }
 }

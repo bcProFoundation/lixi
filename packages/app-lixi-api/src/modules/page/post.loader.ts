@@ -1,6 +1,6 @@
 import { Account, PostDana, Repost, UploadDetail } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
@@ -12,11 +12,10 @@ import { PageCacheService } from './page-cache.service';
 import { PostDanaCacheService } from './post-dana-cache.service';
 import { RedisDataLoader } from '../../common/redis/redis-dataloader';
 import BCHJS from '@bcpros/xpi-js';
+import { XPIJS } from '../wallet/wallet.constants';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class PostLoader {
-  private XPI = new BCHJS({});
-
   constructor(
     private readonly prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis,
@@ -24,7 +23,8 @@ export default class PostLoader {
     private readonly accountCacheService: AccountCacheService,
     private readonly danaViewScoreService: DanaViewScoreService,
     private readonly followCacheService: FollowCacheService,
-    private readonly postDanaCacheService: PostDanaCacheService
+    private readonly postDanaCacheService: PostDanaCacheService,
+    @Inject(XPIJS) private XPI: BCHJS
   ) {}
 
   public async getPostsUploadsByBatch(postIds: readonly string[]): Promise<(UploadDetail | any)[]> {
