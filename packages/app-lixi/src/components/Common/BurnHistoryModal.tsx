@@ -12,6 +12,7 @@ import intl from 'react-intl-universal';
 
 interface BurnHistoryProps {
   postId: string;
+  classStyle?: string;
 }
 
 const BurnHistoryModalCustom = styled(Modal)`
@@ -78,7 +79,7 @@ const BurnHistoryItem = styled.div`
   }
 `;
 
-const BurnHistoryModal = ({ postId }: BurnHistoryProps) => {
+const BurnHistoryModal = ({ postId, classStyle }: BurnHistoryProps) => {
   const dispatch = useAppDispatch();
   const history = useRouter();
 
@@ -119,6 +120,7 @@ const BurnHistoryModal = ({ postId }: BurnHistoryProps) => {
       onCancel={handleCloseModal}
       open={true}
       footer={null}
+      className={`${classStyle} custom-burn-history`}
     >
       {isLoadingBurnHistory ? (
         <Skeleton avatar active paragraph={{ rows: 0 }} title={{ width: '90%' }} />

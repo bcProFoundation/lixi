@@ -287,6 +287,7 @@ export class PostResolver {
         account: true,
         page: true,
         translations: true,
+        dana: true,
         reposts: { select: { account: true, accountId: true } },
         _count: {
           select: { reposts: true }
@@ -347,6 +348,7 @@ export class PostResolver {
               account: true,
               page: true,
               translations: true,
+              dana: true,
               reposts: { select: { account: true, accountId: true } },
               _count: {
                 select: { reposts: true }
@@ -441,6 +443,7 @@ export class PostResolver {
         account: true,
         page: true,
         translations: true,
+        dana: true,
         reposts: { select: { account: true, accountId: true } },
         _count: {
           select: { reposts: true }
@@ -514,6 +517,7 @@ export class PostResolver {
         account: true,
         page: true,
         translations: true,
+        dana: true,
         reposts: { select: { account: true, accountId: true } },
         _count: {
           select: { reposts: true }
@@ -710,7 +714,7 @@ export class PostResolver {
     const result = await findManyCursorConnection(
       args =>
         this.prisma.post.findMany({
-          include: { account: true, postHashtags: true, translations: true },
+          include: { account: true, postHashtags: true, translations: true, dana: true },
           where: {
             postHashtags: {
               some: {
