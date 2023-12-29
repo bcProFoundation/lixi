@@ -1150,7 +1150,7 @@ export class PostResolver {
   @ResolveField('followPostOwner', () => Boolean)
   async followPostOwner(@Parent() post: Post, @AccountEntity() account: Account) {
     const payload = {
-      followingAccountId: post?.account?.id,
+      followingAccountId: post?.accountId,
       accountId: account?.id
     };
     return this.timelineableLoader.batchCheckAccountFollowAllAccount.load(payload);
@@ -1159,7 +1159,7 @@ export class PostResolver {
   @ResolveField('followedPage', () => Boolean)
   async followedPage(@Parent() post: Post, @AccountEntity() account: Account) {
     const payload = {
-      pageId: post?.page?.id || '',
+      pageId: post?.pageId || '',
       accountId: account?.id
     };
     return this.timelineableLoader.batchCheckAccountFollowAllPage.load(payload);
@@ -1168,7 +1168,7 @@ export class PostResolver {
   @ResolveField('followedToken', () => Boolean)
   async followedToken(@Parent() post: Post, @AccountEntity() account: Account) {
     const payload = {
-      tokenId: post?.token?.tokenId || '',
+      tokenId: post?.tokenId || '',
       accountId: account?.id
     };
     return this.timelineableLoader.batchCheckAccountFollowAllToken.load(payload);

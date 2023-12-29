@@ -221,195 +221,81 @@ function* fetchAllPostsSaga() {
 
 function* changeFollowActionSheetPostSaga(action: PayloadAction<ParamPostFollowCommand>) {
   const { changeFollow, followForType, extraArgumentsPostFollow } = action.payload;
-  const {
-    minBurnFilterPage,
-    minBurnFilterToken,
-    minBurnFilterProfile,
-    minBurnFilterHome,
-    pageId,
-    tokenId,
-    accountId,
-    tokenPrimaryId,
-    hashtags,
-    query,
-    level,
-    selectedAccountId
-  } = extraArgumentsPostFollow;
+  const { pageId, tokenId, accountId } = extraArgumentsPostFollow;
 
-  yield put(
-    timelineApi.util.updateQueryData('HomeTimeline', { level }, draft => {
-      const listPostUpdateFollow = draft.homeTimeline.edges.map((item, index) => {
-        switch (followForType) {
-          case FollowForType.Account:
-            if (item.node.data.account.id === accountId) {
-              draft.homeTimeline.edges[index].node.data.followPostOwner = !changeFollow;
+  const rootState: RootState = yield select();
+
+  // Update timeline
+  const timelineInvalidatedBy = yield call(timelineApi.util.selectInvalidatedBy, rootState, ['Timeline']);
+  for (const invalidatedBy of timelineInvalidatedBy) {
+    const { endpointName, originalArgs } = invalidatedBy;
+    yield put(
+      timelineApi.util.updateQueryData(endpointName, originalArgs, draft => {
+        const fields = Object.keys(draft);
+        for (const field of fields) {
+          if (!draft[field]) continue;
+
+          const timelineUpdateFollow = draft[field].edges.map((item, index) => {
+            switch (followForType) {
+              case FollowForType.Account:
+                if (item.node.data.account.id === accountId) {
+                  draft[field].edges[index].node.data.followPostOwner = !changeFollow;
+                }
+                break;
+              case FollowForType.Page:
+                if (item.node.data?.page?.id === pageId) {
+                  draft[field].edges[index].node.data.followedPage = !changeFollow;
+                }
+                break;
+              case FollowForType.Token:
+                if (item.node.data?.token?.tokenId === tokenId) {
+                  draft[field].edges[index].node.data.followedToken = !changeFollow;
+                }
+                break;
+              default:
+                break;
             }
-            break;
-          case FollowForType.Page:
-            if (item.node.data?.page?.id === pageId) {
-              draft.homeTimeline.edges[index].node.data.followedPage = !changeFollow;
-            }
-            break;
-          case FollowForType.Token:
-            if (item.node.data?.token?.tokenId === tokenId) {
-              draft.homeTimeline.edges[index].node.data.followedToken = !changeFollow;
-            }
-            break;
-          default:
-            break;
+          });
         }
-      });
-    })
-  );
+      })
+    );
+  }
 
-  yield put(
-    postsApi.util.updateQueryData(
-      'PostsByTokenId',
-      { id: tokenPrimaryId, minBurnFilter: minBurnFilterToken },
-      draft => {
-        const listPostUpdateFollow = draft.allPostsByTokenId.edges.map((item, index) => {
-          switch (followForType) {
-            case FollowForType.Account:
-              if (item.node.account.id === accountId) {
-                draft.allPostsByTokenId.edges[index].node.followPostOwner = !changeFollow;
-              }
-              break;
-            case FollowForType.Token:
-              if (item.node?.token?.tokenId === tokenId) {
-                draft.allPostsByTokenId.edges[index].node.followedToken = !changeFollow;
-              }
-              break;
-            default:
-              break;
-          }
-        });
-      }
-    )
-  );
+  //update hashtag post (not use cache)
+  const postsInvalidatedBy = yield call(postsApi.util.selectInvalidatedBy, rootState, ['Posts']);
+  for (const invalidatedBy of postsInvalidatedBy) {
+    const { endpointName, originalArgs } = invalidatedBy;
+    yield put(
+      postsApi.util.updateQueryData(endpointName, originalArgs, draft => {
+        const fields = Object.keys(draft);
+        for (const field of fields) {
+          if (!draft[field]) continue;
 
-  yield put(
-    postsApi.util.updateQueryData(
-      'PostsByPageId',
-      {
-        id: pageId,
-        minBurnFilter: minBurnFilterPage,
-        accountId: selectedAccountId
-      },
-      draft => {
-        const listPostUpdateFollow = draft.allPostsByPageId.edges.map((item, index) => {
-          switch (followForType) {
-            case FollowForType.Account:
-              if (item.node.account.id === accountId) {
-                draft.allPostsByPageId.edges[index].node.followPostOwner = !changeFollow;
-              }
-              break;
-            case FollowForType.Page:
-              if (item.node?.page?.id === pageId) {
-                draft.allPostsByPageId.edges[index].node.followedPage = !changeFollow;
-              }
-              break;
-            default:
-              break;
-          }
-        });
-      }
-    )
-  );
-
-  yield put(
-    postsApi.util.updateQueryData('PostsByUserId', { id: accountId, minBurnFilter: minBurnFilterProfile }, draft => {
-      const listPostUpdateFollow = draft.allPostsByUserId.edges.map((item, index) => {
-        if (item.node.account.id === accountId) {
-          draft.allPostsByUserId.edges[index].node.followPostOwner = !changeFollow;
+          const postsUpdateFollow = draft[field].edges.map((item, index) => {
+            switch (followForType) {
+              case FollowForType.Account:
+                if (item.node.data.account.id === accountId) {
+                  draft[field].edges[index].node.followPostOwner = !changeFollow;
+                }
+                break;
+              case FollowForType.Page:
+                if (item.node.data?.page?.id === pageId) {
+                  draft[field].edges[index].node.followedPage = !changeFollow;
+                }
+                break;
+              case FollowForType.Token:
+                if (item.node.data?.token?.tokenId === tokenId) {
+                  draft[field].edges[index].node.followedToken = !changeFollow;
+                }
+                break;
+              default:
+                break;
+            }
+          });
         }
-      });
-    })
-  );
-
-  yield put(
-    postsApi.util.updateQueryData(
-      'PostsBySearchWithHashtag',
-      { hashtags: hashtags, query: query, minBurnFilter: minBurnFilterHome },
-      draft => {
-        const listPostUpdateFollow = draft.allPostsBySearchWithHashtag.edges.map((item, index) => {
-          switch (followForType) {
-            case FollowForType.Account:
-              if (item.node.account.id === accountId) {
-                draft.allPostsBySearchWithHashtag.edges[index].node.followPostOwner = !changeFollow;
-              }
-              break;
-            case FollowForType.Page:
-              if (item.node?.page?.id === pageId) {
-                draft.allPostsBySearchWithHashtag.edges[index].node.followedPage = !changeFollow;
-              }
-              break;
-            case FollowForType.Token:
-              if (item.node?.token?.tokenId === tokenId) {
-                draft.allPostsBySearchWithHashtag.edges[index].node.followedToken = !changeFollow;
-              }
-              break;
-            default:
-              break;
-          }
-        });
-      }
-    )
-  );
-
-  yield put(
-    postsApi.util.updateQueryData(
-      'PostsBySearchWithHashtagAtPage',
-      { pageId, hashtags, query, minBurnFilter: minBurnFilterPage },
-      draft => {
-        const listPostUpdateFollow = draft.allPostsBySearchWithHashtagAtPage.edges.map((item, index) => {
-          switch (followForType) {
-            case FollowForType.Account:
-              if (item.node.account.id === accountId) {
-                draft.allPostsBySearchWithHashtagAtPage.edges[index].node.followPostOwner = !changeFollow;
-              }
-              break;
-            case FollowForType.Page:
-              if (item.node?.page?.id === pageId) {
-                draft.allPostsBySearchWithHashtagAtPage.edges[index].node.followedPage = !changeFollow;
-              }
-              break;
-            default:
-              break;
-          }
-        });
-      }
-    )
-  );
-
-  yield put(
-    postsApi.util.updateQueryData(
-      'PostsBySearchWithHashtagAtToken',
-      {
-        tokenId: tokenPrimaryId,
-        hashtags,
-        query,
-        minBurnFilter: minBurnFilterToken
-      },
-      draft => {
-        const listPostUpdateFollow = draft.allPostsBySearchWithHashtagAtToken.edges.map((item, index) => {
-          switch (followForType) {
-            case FollowForType.Account:
-              if (item.node.account.id === accountId) {
-                draft.allPostsBySearchWithHashtagAtToken.edges[index].node.followPostOwner = !changeFollow;
-              }
-              break;
-            case FollowForType.Token:
-              if (item.node?.token?.tokenId === tokenId) {
-                draft.allPostsBySearchWithHashtagAtToken.edges[index].node.followedToken = !changeFollow;
-              }
-              break;
-            default:
-              break;
-          }
-        });
-      }
-    )
-  );
+      })
+    );
+  }
 }
 
 function* changeBookmarkActionSheetSaga(action: PayloadAction<string>) {

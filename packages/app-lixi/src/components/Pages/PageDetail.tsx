@@ -25,7 +25,7 @@ import {
   useUserHadMessageToPageQuery
 } from '@store/message/pageMessageSession.generated';
 import { openModal } from '@store/modal/actions';
-import { setSelectedPost } from '@store/post/actions';
+import { changeFollowActionSheetPost, setSelectedPost } from '@store/post/actions';
 import { getSelectedPostId } from '@store/post/selectors';
 import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
 import {
@@ -44,8 +44,9 @@ import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
 import { useInfinitePageTimelineByScoreQuery, useInfinitePageTimelineByTimeQuery } from '@store/timeline';
-import { Follow } from '@bcpros/lixi-models/lib/follow/follow.model';
+import { Follow, FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
 import Counter from '@components/Common/Counter';
+import { ParamPostFollowCommand } from '@bcpros/lixi-models/build/module/lib/post';
 
 type PageDetailProps = {
   page: PageQueryItem;
@@ -676,6 +677,14 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
 
   useDidMountEffectNotification();
 
+  const paramFollowPage: ParamPostFollowCommand = {
+    changeFollow: checkIsFollowed,
+    followForType: FollowForType.Page,
+    extraArgumentsPostFollow: {
+      pageId: page.id
+    }
+  };
+
   const handleFollowPage = async () => {
     if (authorization.authorized) {
       const createFollowPageInput: CreateFollowPageInput = {
@@ -684,6 +693,8 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
       };
 
       await createFollowPageTrigger({ input: createFollowPageInput });
+
+      dispatch(changeFollowActionSheetPost(paramFollowPage));
     } else {
       askAuthorization();
     }
@@ -697,6 +708,8 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
       };
 
       await deleteFollowPageTrigger({ input: deleteFollowPageInput });
+
+      dispatch(changeFollowActionSheetPost(paramFollowPage));
     } else {
       askAuthorization();
     }
