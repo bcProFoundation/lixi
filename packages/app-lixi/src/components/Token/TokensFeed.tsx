@@ -33,6 +33,9 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import { useInfiniteTokenTimelineByScoreQuery, useInfiniteTokenTimelineByTimeQuery } from '@store/timeline';
+import { FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
+import { ParamPostFollowCommand } from '@bcpros/lixi-models/build/module/lib/post';
+import { changeFollowActionSheetPost } from '@store/post/actions';
 
 const StyledTokensFeed = styled.div`
   margin: 1rem auto;
@@ -380,6 +383,14 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
     dispatch(addRecentHashtagAtToken({ id: token.id, hashtag: hashtag.substring(1) }));
   };
 
+  const paramFollowToken: ParamPostFollowCommand = {
+    changeFollow: checkIsFollowed,
+    followForType: FollowForType.Token,
+    extraArgumentsPostFollow: {
+      pageId: token.id
+    }
+  };
+
   const handleFollowToken = async () => {
     const createFollowTokenInput: CreateFollowTokenInput = {
       accountId: selectedAccountId,
@@ -387,6 +398,8 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
     };
 
     await createFollowTokenTrigger({ input: createFollowTokenInput });
+
+    dispatch(changeFollowActionSheetPost(paramFollowToken));
   };
 
   const handleUnfollowToken = async () => {
@@ -396,6 +409,8 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
     };
 
     await deleteFollowTokenTrigger({ input: deleteFollowTokenInput });
+
+    dispatch(changeFollowActionSheetPost(paramFollowToken));
   };
 
   const showPosts = () => {

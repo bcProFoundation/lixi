@@ -1,7 +1,7 @@
 import { CameraOutlined, CompassOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { Account } from '@bcpros/lixi-models';
 import { PostListType } from '@bcpros/lixi-models/constants';
-import { Follow } from '@bcpros/lixi-models/lib/follow/follow.model';
+import { Follow, FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
 import { transformShortName } from '@components/Common/AvatarUser';
 import PostListItem from '@components/Posts/PostListItem';
 import CreatePostCard from '@components/Common/CreatePostCard';
@@ -33,6 +33,8 @@ import { useInfiniteProfileTimelineByScoreQuery } from '@store/timeline';
 import { useInfiniteProfileTimelineByTimeQuery } from '@store/timeline';
 import SearchBox from '@components/Common/SearchBox';
 import Counter from '@components/Common/Counter';
+import { ParamPostFollowCommand } from '@bcpros/lixi-models/build/module/lib/post';
+import { changeFollowActionSheetPost } from '@store/post/actions';
 
 export const URL_AVATAR_DEFAULT = '/images/default-avatar.jpg';
 export const URL_COVER_DEFAULT = '/images/default-cover.jpg';
@@ -551,6 +553,14 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
 
   useDidMountEffectNotification();
 
+  const paramFollowAccount: ParamPostFollowCommand = {
+    changeFollow: checkIsFollowed,
+    followForType: FollowForType.Account,
+    extraArgumentsPostFollow: {
+      accountId: parseInt(user.id)
+    }
+  };
+
   const handleFollow = async () => {
     const createFollowAccountInput: CreateFollowAccountInput = {
       followingAccountId: parseInt(user.id),
@@ -558,6 +568,8 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
     };
 
     await createFollowAccountTrigger({ input: createFollowAccountInput });
+
+    dispatch(changeFollowActionSheetPost(paramFollowAccount));
   };
 
   const handleUnfollow = async () => {
@@ -567,6 +579,8 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
     };
 
     await deleteFollowAccountTrigger({ input: deleteFollowAccountInput });
+
+    dispatch(changeFollowActionSheetPost(paramFollowAccount));
   };
 
   const openFollowModal = (type: Follow) => {

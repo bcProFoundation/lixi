@@ -143,46 +143,14 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
   const [openCreatePost, setOpenCreatePost] = useState<boolean>(false);
   const selectedAccount = useAppSelector(getSelectedAccount);
   const walletStatus = useAppSelector(getWalletStatus);
-  const level = useAppSelector(getLevelFilter);
-  const filterValuePage = useAppSelector(getFilterPostsPage);
-  const filterValueToken = useAppSelector(getFilterPostsToken);
-  const filterValueProfile = useAppSelector(getFilterPostsProfile);
-  const filterValueHome = useAppSelector(getFilterPostsHome);
-  const [query, setQuery] = useState<string | null>(null);
-  const [hashtags, setHashtags] = useState<string[]>([]);
 
   //bookmark
   const [isBookmarked, setIsBookmarked] = useState<boolean>(post?.isBookmarked);
 
-  useEffect(() => {
-    if (router.query.hashtags) {
-      setHashtags((router.query.hashtags as string).split(' '));
-    } else {
-      setHashtags([]);
-    }
-  }, [router.query.hashtags]);
-
-  useEffect(() => {
-    if (router.query.q) {
-      setQuery(router.query.q as string);
-    } else {
-      setQuery(null);
-    }
-  }, [router.query.q]);
-
   const extraArgumentsPostFollow: ExtraArgumentsPostFollow = {
-    minBurnFilterPage: filterValuePage,
-    minBurnFilterToken: filterValueToken,
-    minBurnFilterProfile: filterValueProfile,
-    minBurnFilterHome: filterValueHome,
-    level: level,
     pageId: post?.page?.id,
     tokenId: post?.token?.tokenId,
-    accountId: post.account.id,
-    tokenPrimaryId: post?.token?.id,
-    hashtags: hashtags,
-    query: query,
-    selectedAccountId: selectedAccountId || null
+    accountId: post.account.id
   };
 
   const payloadFollowPage: ParamPostFollowCommand = {
@@ -464,49 +432,42 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
               onClickItem={openPageMessageLixiModal}
             />
           )}
-          {post.page && !isFollowedPage && (
+
+          {post.page && (
             <ItemActionSheetBottom
-              text={`${intl.get('general.follow')} ${page?.name}`}
-              icon="/images/follow.svg"
-              onClickItem={handleFollowPage}
-            />
-          )}
-          {post.page && isFollowedPage && (
-            <ItemActionSheetBottom
-              text={`${intl.get('general.unfollow')} ${page?.name}`}
+              text={
+                isFollowedPage
+                  ? `${intl.get('general.unfollow')} ${page?.name}`
+                  : `${intl.get('general.follow')} ${page?.name}`
+              }
               icon="/images/follow.svg"
               className={isFollowedPage ? 'isFollowed' : ''}
-              onClickItem={handleUnfollowPage}
+              onClickItem={isFollowedPage ? handleUnfollowPage : handleFollowPage}
             />
           )}
-          {post.account.id != selectedAccountId && !isFollowedAccount && (
+          {post.account.id != selectedAccountId && (
             <ItemActionSheetBottom
-              text={`${intl.get('general.follow')} ${post.account?.name}`}
-              icon="/images/follow.svg"
-              onClickItem={handleFollowAccount}
-            />
-          )}
-          {post.account.id != selectedAccountId && isFollowedAccount && (
-            <ItemActionSheetBottom
-              text={`${intl.get('general.unfollow')} ${post.account?.name}`}
+              text={
+                isFollowedAccount
+                  ? `${intl.get('general.unfollow')} ${post.account?.name}`
+                  : `${intl.get('general.follow')} ${post.account?.name}`
+              }
               icon="/images/follow.svg"
               className={isFollowedAccount ? 'isFollowed' : ''}
-              onClickItem={handleUnfollowAccount}
+              onClickItem={isFollowedAccount ? handleUnfollowAccount : handleFollowAccount}
             />
           )}
-          {post.token && !isFollowedToken && (
+
+          {post.token && (
             <ItemActionSheetBottom
-              text={`${intl.get('general.follow')} ${token?.name}`}
-              icon="/images/follow.svg"
-              onClickItem={handleFollowToken}
-            />
-          )}
-          {post.token && isFollowedToken && (
-            <ItemActionSheetBottom
-              text={`${intl.get('general.unfollow')} ${token?.name}`}
+              text={
+                isFollowedToken
+                  ? `${intl.get('general.unfollow')} ${token?.name}`
+                  : `${intl.get('general.follow')} ${token?.name}`
+              }
               icon="/images/follow.svg"
               className={isFollowedToken ? 'isFollowed' : ''}
-              onClickItem={handleUnfollowToken}
+              onClickItem={isFollowedToken ? handleUnfollowToken : handleFollowToken}
             />
           )}
         </ContainerActionSheet>

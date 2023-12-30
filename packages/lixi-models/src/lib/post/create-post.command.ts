@@ -29,16 +29,7 @@ export class ParamPostFollowCommand {
 }
 
 export class ExtraArgumentsPostFollow {
-  minBurnFilterPage?: number;
-  minBurnFilterToken?: number;
-  minBurnFilterProfile?: number;
-  minBurnFilterHome?: number;
-  level: number;
   accountId?: number;
   pageId?: string;
   tokenId?: string;
-  tokenPrimaryId?: string;
-  query?: string;
-  hashtags?: string[];
-  selectedAccountId?: number;
 }
