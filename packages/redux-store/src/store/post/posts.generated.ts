@@ -563,6 +563,16 @@ export type PostsBySearchQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
+        dana?: {
+          __typename?: 'PostDana';
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+          version: number;
+        } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -650,6 +660,16 @@ export type PostsBySearchWithHashtagQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
+        dana?: {
+          __typename?: 'PostDana';
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+          version: number;
+        } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -738,6 +758,16 @@ export type PostsBySearchWithHashtagAtPageQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
+        dana?: {
+          __typename?: 'PostDana';
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+          version: number;
+        } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -826,6 +856,16 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
           accountId?: number | null;
           account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
         }> | null;
+        dana?: {
+          __typename?: 'PostDana';
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+          version: number;
+        } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -969,6 +1009,16 @@ export type PostMeiliFieldsFragment = {
     accountId?: number | null;
     account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
   }> | null;
+  dana?: {
+    __typename?: 'PostDana';
+    danaBurnUp: number;
+    danaBurnDown: number;
+    danaBurnScore: number;
+    danaReceivedUp: number;
+    danaReceivedDown: number;
+    danaReceivedScore: number;
+    version: number;
+  } | null;
   translations?: Array<{
     __typename?: 'PostTranslation';
     id: string;
@@ -1273,6 +1323,15 @@ export const PostMeiliFieldsFragmentDoc = `
       name
       address
     }
+  }
+  dana {
+    danaBurnUp
+    danaBurnDown
+    danaBurnScore
+    danaReceivedUp
+    danaReceivedDown
+    danaReceivedScore
+    version
   }
   totalComments
   createdAt
