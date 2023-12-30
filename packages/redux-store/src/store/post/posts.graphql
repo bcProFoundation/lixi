@@ -382,6 +382,15 @@ fragment PostMeiliFields on Post {
       address
     }
   }
+  dana {
+    danaBurnUp
+    danaBurnDown
+    danaBurnScore
+    danaReceivedUp
+    danaReceivedDown
+    danaReceivedScore
+    version
+  }
   totalComments
   createdAt
   updatedAt
