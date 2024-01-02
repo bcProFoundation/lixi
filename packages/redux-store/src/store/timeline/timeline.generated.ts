@@ -42,6 +42,7 @@ export type TimelineQuery = {
       isBookmarked?: boolean | null;
       originalLanguage?: string | null;
       danaViewScore?: number | null;
+      burnByOthers?: boolean | null;
       account: {
         __typename?: 'Account';
         address: string;
@@ -135,6 +136,7 @@ export type HomeTimelineQuery = {
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
+          burnByOthers?: boolean | null;
           account: {
             __typename?: 'Account';
             address: string;
@@ -231,6 +233,7 @@ export type ProfileTimelineQuery = {
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
+          burnByOthers?: boolean | null;
           account: {
             __typename?: 'Account';
             address: string;
@@ -328,6 +331,7 @@ export type ProfileTimelineByTimeQuery = {
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
+          burnByOthers?: boolean | null;
           account: {
             __typename?: 'Account';
             address: string;
@@ -424,6 +428,7 @@ export type PageTimelineQuery = {
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
+          burnByOthers?: boolean | null;
           account: {
             __typename?: 'Account';
             address: string;
@@ -521,6 +526,7 @@ export type PageTimelineByTimeQuery = {
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
+          burnByOthers?: boolean | null;
           account: {
             __typename?: 'Account';
             address: string;
@@ -617,6 +623,7 @@ export type TokenTimelineQuery = {
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
+          burnByOthers?: boolean | null;
           account: {
             __typename?: 'Account';
             address: string;
@@ -714,6 +721,7 @@ export type TokenTimelineByTimeQuery = {
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
+          burnByOthers?: boolean | null;
           account: {
             __typename?: 'Account';
             address: string;

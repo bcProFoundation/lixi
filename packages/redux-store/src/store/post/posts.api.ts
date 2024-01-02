@@ -209,7 +209,48 @@ const enhancedApi = api.enhanceEndpoints({
         } catch {}
       }
     },
-    repost: {}
+    repost: {},
+    removePost: {
+      async onQueryStarted({ input }, { dispatch, getState, queryFulfilled }) {
+        try {
+          const { data: result } = await queryFulfilled;
+
+          const timelineInvalidatedBy = timelineApi.util.selectInvalidatedBy(getState(), ['Timeline']);
+          for (const invalidatedBy of timelineInvalidatedBy) {
+            const { endpointName, originalArgs } = invalidatedBy;
+            dispatch(
+              timelineApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
+                const fields = Object.keys(draft);
+                for (const field of fields) {
+                  if (!draft[field]) continue;
+
+                  const timelineId = `${POST_TYPE.POST}:${result.removePost.id}`;
+                  const indexToRemove = draft[field].edges.findIndex(item => item.cursor === timelineId);
+                  draft[field].edges.splice(indexToRemove, 1);
+                  draft[field].totalCount = draft[field].totalCount - 1;
+                }
+              })
+            );
+          }
+
+          const postsInvalidatedBy = enhancedApi.util.selectInvalidatedBy(getState(), ['Posts']);
+          for (const invalidatedBy of postsInvalidatedBy) {
+            const { endpointName, originalArgs } = invalidatedBy;
+            dispatch(
+              enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
+                const fields = Object.keys(draft);
+                for (const field of fields) {
+                  if (!draft[field]) continue;
+                  const indexToRemove = draft[field].edges.findIndex(item => item.cursor === result.removePost.id);
+                  draft[field].edges.splice(indexToRemove, 1);
+                  draft[field].totalCount = draft[field].totalCount - 1;
+                }
+              })
+            );
+          }
+        } catch {}
+      }
+    }
   }
 });
 
@@ -236,5 +277,6 @@ export const {
   usePostsBySearchWithHashtagAtTokenQuery,
   useCreatePostMutation,
   useUpdatePostMutation,
-  useRepostMutation
+  useRepostMutation,
+  useRemovePostMutation
 } = enhancedApi;

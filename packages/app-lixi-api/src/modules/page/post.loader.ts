@@ -1,18 +1,16 @@
-import { Account, PostDana, Repost, UploadDetail } from '@bcpros/lixi-models';
+import { Account, Repost, UploadDetail } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
 import { AccountCacheService } from '../account/account-cache.service';
-import { FollowCacheService } from '../account/follow-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { DanaViewScoreService } from './dana-view-score.service';
 import { PageCacheService } from './page-cache.service';
-import { PostDanaCacheService } from './post-dana-cache.service';
 import { RedisDataLoader } from '../../common/redis/redis-dataloader';
 import BCHJS from '@bcpros/xpi-js';
 import { XPIJS } from '../wallet/wallet.constants';
+import { BurnHistoryCacheService } from '../burn-history/burn-history-cache.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class PostLoader {
@@ -21,9 +19,7 @@ export default class PostLoader {
     @InjectRedis() private readonly redis: Redis,
     private readonly pageCacheService: PageCacheService,
     private readonly accountCacheService: AccountCacheService,
-    private readonly danaViewScoreService: DanaViewScoreService,
-    private readonly followCacheService: FollowCacheService,
-    private readonly postDanaCacheService: PostDanaCacheService,
+    private readonly burnHistoryCacheService: BurnHistoryCacheService,
     @Inject(XPIJS) private XPI: BCHJS
   ) {}
 
@@ -177,6 +173,15 @@ export default class PostLoader {
       deserialize: value => {
         return _.toSafeInteger(value);
       }
+    }
+  );
+
+  public readonly batchPostHasBurnByOthers = new DataLoader(
+    async (items: readonly { postId: string; accountAddress: string }[]) => {
+      const listPostAdress = items as any;
+      const result = await this.burnHistoryCacheService.checkPostBurnByOthers(listPostAdress);
+
+      return items.map((item, index) => result[index]);
     }
   );
 

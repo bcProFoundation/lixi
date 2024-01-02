@@ -466,8 +466,7 @@ export class AccountResolver {
     await this.accountCacheService.removeByKeys([
       updatedAccount.id.toString(),
       updatedAccount.address,
-      updatedAccount.mnemonicHash,
-      updatedAccount.address
+      updatedAccount.mnemonicHash
     ]);
 
     //save to cache

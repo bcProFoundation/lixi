@@ -345,6 +345,7 @@ fragment PostFields on Post {
     }
   }
   danaViewScore
+  burnByOthers
 }
 
 fragment PostMeiliFields on Post {
@@ -418,6 +419,7 @@ fragment PostMeiliFields on Post {
     }
   }
   danaViewScore
+  burnByOthers
 }
 
 mutation createPost($input: CreatePostInput!) {
@@ -434,4 +436,10 @@ mutation updatePost($input: UpdatePostInput!) {
 
 mutation repost($input: RepostInput!) {
   repost(data: $input)
+}
+
+mutation removePost($input: RemovePostInput!) {
+  removePost(data: $input) {
+    ...PostFields
+  }
 }

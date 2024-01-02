@@ -41,6 +41,7 @@ export type PostQuery = {
     isBookmarked?: boolean | null;
     originalLanguage?: string | null;
     danaViewScore?: number | null;
+    burnByOthers?: boolean | null;
     account: {
       __typename?: 'Account';
       address: string;
@@ -136,6 +137,7 @@ export type PostsByPageIdQuery = {
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
+        burnByOthers?: boolean | null;
         account: {
           __typename?: 'Account';
           address: string;
@@ -239,6 +241,7 @@ export type PostsByUserIdQuery = {
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
+        burnByOthers?: boolean | null;
         account: {
           __typename?: 'Account';
           address: string;
@@ -342,6 +345,7 @@ export type PostsByHashtagIdQuery = {
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
+        burnByOthers?: boolean | null;
         account: {
           __typename?: 'Account';
           address: string;
@@ -445,6 +449,7 @@ export type PostsByTokenIdQuery = {
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
+        burnByOthers?: boolean | null;
         account: {
           __typename?: 'Account';
           address: string;
@@ -540,6 +545,7 @@ export type PostsBySearchQuery = {
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
+        burnByOthers?: boolean | null;
         account: {
           __typename?: 'Account';
           address: string;
@@ -637,6 +643,7 @@ export type PostsBySearchWithHashtagQuery = {
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
+        burnByOthers?: boolean | null;
         account: {
           __typename?: 'Account';
           address: string;
@@ -735,6 +742,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
+        burnByOthers?: boolean | null;
         account: {
           __typename?: 'Account';
           address: string;
@@ -833,6 +841,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
+        burnByOthers?: boolean | null;
         account: {
           __typename?: 'Account';
           address: string;
@@ -917,6 +926,7 @@ export type PostFieldsFragment = {
   isBookmarked?: boolean | null;
   originalLanguage?: string | null;
   danaViewScore?: number | null;
+  burnByOthers?: boolean | null;
   account: {
     __typename?: 'Account';
     address: string;
@@ -986,6 +996,7 @@ export type PostMeiliFieldsFragment = {
   isBookmarked?: boolean | null;
   originalLanguage?: string | null;
   danaViewScore?: number | null;
+  burnByOthers?: boolean | null;
   account: {
     __typename?: 'Account';
     address: string;
@@ -1066,6 +1077,7 @@ export type CreatePostMutation = {
     isBookmarked?: boolean | null;
     originalLanguage?: string | null;
     danaViewScore?: number | null;
+    burnByOthers?: boolean | null;
     account: {
       __typename?: 'Account';
       address: string;
@@ -1147,6 +1159,7 @@ export type UpdatePostMutation = {
     isBookmarked?: boolean | null;
     originalLanguage?: string | null;
     danaViewScore?: number | null;
+    burnByOthers?: boolean | null;
     account: {
       __typename?: 'Account';
       address: string;
@@ -1208,6 +1221,88 @@ export type RepostMutationVariables = Types.Exact<{
 }>;
 
 export type RepostMutation = { __typename?: 'Mutation'; repost: boolean };
+
+export type RemovePostMutationVariables = Types.Exact<{
+  input: Types.RemovePostInput;
+}>;
+
+export type RemovePostMutation = {
+  __typename?: 'Mutation';
+  removePost: {
+    __typename?: 'Post';
+    id: string;
+    content: string;
+    accountId: number;
+    pageId?: string | null;
+    tokenId?: string | null;
+    repostCount: number;
+    totalComments: number;
+    commentableId?: string | null;
+    createdAt: any;
+    updatedAt: any;
+    followPostOwner?: boolean | null;
+    followedPage?: boolean | null;
+    followedToken?: boolean | null;
+    bookmarkableId?: string | null;
+    isBookmarked?: boolean | null;
+    originalLanguage?: string | null;
+    danaViewScore?: number | null;
+    burnByOthers?: boolean | null;
+    account: {
+      __typename?: 'Account';
+      address: string;
+      id: number;
+      name: string;
+      avatar?: string | null;
+      createCommentFee?: string | null;
+    };
+    page?: {
+      __typename?: 'Page';
+      avatar?: string | null;
+      name: string;
+      id: string;
+      createPostFee: string;
+      createCommentFee: string;
+      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+    } | null;
+    token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
+    reposts?: Array<{
+      __typename?: 'Repost';
+      accountId?: number | null;
+      account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+    }> | null;
+    dana?: {
+      __typename?: 'PostDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+      version: number;
+    } | null;
+    translations?: Array<{
+      __typename?: 'PostTranslation';
+      id: string;
+      translateContent?: string | null;
+      translateLanguage?: string | null;
+    }> | null;
+    imageUploadable?: {
+      __typename?: 'ImageUploadable';
+      id: string;
+      uploads: Array<{
+        __typename?: 'Upload';
+        id: string;
+        sha: string;
+        bucket?: string | null;
+        width?: number | null;
+        height?: number | null;
+        cfImageId?: string | null;
+        cfImageFilename?: string | null;
+      }>;
+    } | null;
+  };
+};
 
 export const PostFieldsFragmentDoc = `
     fragment PostFields on Post {
@@ -1286,6 +1381,7 @@ export const PostFieldsFragmentDoc = `
     }
   }
   danaViewScore
+  burnByOthers
 }
     `;
 export const PostMeiliFieldsFragmentDoc = `
@@ -1360,6 +1456,7 @@ export const PostMeiliFieldsFragmentDoc = `
     }
   }
   danaViewScore
+  burnByOthers
 }
     `;
 export const PostDocument = `
@@ -1593,6 +1690,13 @@ export const RepostDocument = `
   repost(data: $input)
 }
     `;
+export const RemovePostDocument = `
+    mutation removePost($input: RemovePostInput!) {
+  removePost(data: $input) {
+    ...PostFields
+  }
+}
+    ${PostFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
   overrideExisting: true,
@@ -1640,6 +1744,9 @@ const injectedRtkApi = api.injectEndpoints({
     }),
     repost: build.mutation<RepostMutation, RepostMutationVariables>({
       query: variables => ({ document: RepostDocument, variables })
+    }),
+    removePost: build.mutation<RemovePostMutation, RemovePostMutationVariables>({
+      query: variables => ({ document: RemovePostDocument, variables })
     })
   })
 });
@@ -1666,5 +1773,6 @@ export const {
   useLazyPostsBySearchWithHashtagAtTokenQuery,
   useCreatePostMutation,
   useUpdatePostMutation,
-  useRepostMutation
+  useRepostMutation,
+  useRemovePostMutation
 } = injectedRtkApi;

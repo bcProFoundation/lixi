@@ -614,6 +614,9 @@ export default {
   'post.unbookmarkSuccess': 'Unsave post success',
   'post.burnHistory': 'Burn History',
   'post.noBurnHistory': 'No one burn for post',
+  'post.removePost': 'Remove post',
+  'post.confirmRemovePost': 'Do you sure to delete post?',
+  'post.removeSuccess': 'Remove post success',
 
   /* 16.Token */
   'token.importToken': 'Import token',

@@ -75,6 +75,8 @@ export class BurnFanoutProcessor extends WorkerHost {
       // Clear the post from cache
       await this.postCacheService.removeByKeys([id]);
 
+      pipeline.zadd(`post:${id}:burnAddress`, new Date(burn.createdAt ?? 0).getTime(), burn.burnedBy!);
+
       //update burnTimeline
       const burnKey = template(`${BurnFanoutProcessor.burnTimelineKey}`, { postId: id });
       pipeline.zadd(burnKey, new Date(burn?.createdAt ?? 0).getTime(), burn.id);

@@ -11,6 +11,7 @@ import {
   PostDana,
   PostOrder,
   PostTranslation,
+  RemovePostInput,
   Repost,
   RepostInput,
   Token,
@@ -51,7 +52,7 @@ import { HashtagService } from '../hashtag/hashtag.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { XPIJS } from '../wallet/wallet.constants';
 import CommentableLoader from './commentable.loader';
-import { CONTENT_FANOUT_QUEUE } from './constants';
+import { CONTENT_FANOUT_QUEUE, REMOVE_POST_FANOUT_QUEUE } from './constants';
 import { HASHTAG, POSTS } from './constants/meili.constants';
 import ImageUploadableLoader from './imageUploadable.loader';
 import { MeiliService } from './meili.service';
@@ -77,6 +78,7 @@ export class PostResolver {
     private readonly notificationService: NotificationService,
     private hashtagService: HashtagService,
     @InjectQueue(CONTENT_FANOUT_QUEUE) private postFanoutQueue: Queue,
+    @InjectQueue(REMOVE_POST_FANOUT_QUEUE) private removePostFanoutQueue: Queue,
     @Inject(XPIJS) private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     @I18n() private i18n: I18nService,
@@ -1078,6 +1080,60 @@ export class PostResolver {
     return reposted ? true : false;
   }
 
+  @SkipThrottle()
+  @UseGuards(GqlJwtAuthGuard)
+  @Mutation(() => Post)
+  async removePost(@AccountEntity() account: Account, @Args('data') data: RemovePostInput) {
+    try {
+      const { accountId, postId } = data;
+      if (!account) {
+        const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
+        throw new Error(couldNotFindAccount);
+      }
+
+      if (account.id !== accountId) {
+        const noPermission = await this.i18n.t('account.messages.noPermission');
+        throw new Error(noPermission);
+      }
+
+      //remove post
+      const removedPost = await this.prisma.$transaction(async prisma => {
+        const postRemoved = await prisma.post.delete({
+          where: {
+            id: postId
+          }
+        });
+        const { bookmarkableId, imageUploadableId, commentableId } = postRemoved;
+
+        if (imageUploadableId) {
+          await prisma.imageUploadable.delete({
+            where: { id: imageUploadableId }
+          });
+        }
+
+        if (bookmarkableId) {
+          await prisma.bookmarkable.delete({
+            where: { id: bookmarkableId }
+          });
+        }
+
+        if (commentableId) {
+          await prisma.commentable.delete({
+            where: { id: commentableId }
+          });
+        }
+
+        return postRemoved;
+      });
+
+      // Fanout the post removed
+      await this.removePostFanoutQueue.add(REMOVE_POST_FANOUT_QUEUE, { post: removedPost });
+
+      return removedPost;
+    } catch (error) {
+      this.logger.error(error);
+    }
+  }
   @ResolveField('reposts', () => Repost)
   async reposts(@Parent() post: Post) {
     return this.postLoader.batchReposts.load(post.id);
@@ -1186,5 +1242,14 @@ export class PostResolver {
       accountId: account?.id
     };
     return this.bookmarkLoader.batchCheckAllBookmark.load(payload);
+  }
+
+  @ResolveField('burnByOthers', () => Boolean)
+  async burnByOthers(@Parent() post: Post) {
+    const param = {
+      postId: post?.id || '',
+      accountAddress: post?.account?.address || ''
+    };
+    return this.postLoader.batchPostHasBurnByOthers.load(param);
   }
 }

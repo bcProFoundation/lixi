@@ -1,5 +1,5 @@
 import { BullModule } from '@nestjs/bullmq';
-import { Logger, Module } from '@nestjs/common';
+import { Logger, Module, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import IORedis from 'ioredis';
 import _ from 'lodash';
@@ -11,7 +11,7 @@ import { AuthModule } from '../auth/auth.module';
 import { HashtagModule } from '../hashtag/hashtag.module';
 import { CommentDanaCacheService } from './comment-dana-cache.service';
 import { CommentResolver } from './comment.resolver';
-import { CONTENT_FANOUT_QUEUE } from './constants';
+import { CONTENT_FANOUT_QUEUE, REMOVE_POST_FANOUT_QUEUE } from './constants';
 import { DanaViewScoreService } from './dana-view-score.service';
 import { MeiliService } from './meili.service';
 import { PageCacheService } from './page-cache.service';
@@ -40,6 +40,8 @@ import { ProductCacheService } from './products/product-cache.service';
 import { BookmarkCacheService } from '../bookmark/bookmark-cache.service';
 import BookmarkLoader from '../bookmark/bookmark.loader';
 import FollowScoreLoader from '../account/follow-score.loader';
+import { BurnHistoryModule } from '../burn-history/burn-history.module';
+import { RemovePostFanoutProcessor } from './remove-post-fanout.processor';
 
 @Module({
   imports: [
@@ -47,22 +49,41 @@ import FollowScoreLoader from '../account/follow-score.loader';
     NotificationModule,
     HashtagModule,
     AccountModule,
-    BullModule.registerQueueAsync({
-      name: CONTENT_FANOUT_QUEUE,
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        return {
-          prefix: 'lixilotus:lixi',
-          name: CONTENT_FANOUT_QUEUE,
-          connection: new IORedis({
-            maxRetriesPerRequest: null,
-            enableReadyCheck: false,
-            host: config.get<string>('REDIS_HOST') ? config.get<string>('REDIS_HOST') : 'redis-lixi',
-            port: config.get<string>('REDIS_PORT') ? _.toSafeInteger(config.get<string>('REDIS_PORT')) : 6379
-          })
-        };
+    forwardRef(() => BurnHistoryModule),
+    BullModule.registerQueueAsync(
+      {
+        name: CONTENT_FANOUT_QUEUE,
+        inject: [ConfigService],
+        useFactory: (config: ConfigService) => {
+          return {
+            prefix: 'lixilotus:lixi',
+            name: CONTENT_FANOUT_QUEUE,
+            connection: new IORedis({
+              maxRetriesPerRequest: null,
+              enableReadyCheck: false,
+              host: config.get<string>('REDIS_HOST') ? config.get<string>('REDIS_HOST') : 'redis-lixi',
+              port: config.get<string>('REDIS_PORT') ? _.toSafeInteger(config.get<string>('REDIS_PORT')) : 6379
+            })
+          };
+        }
+      },
+      {
+        name: REMOVE_POST_FANOUT_QUEUE,
+        inject: [ConfigService],
+        useFactory: (config: ConfigService) => {
+          return {
+            prefix: 'lixilotus:lixi',
+            name: REMOVE_POST_FANOUT_QUEUE,
+            connection: new IORedis({
+              maxRetriesPerRequest: null,
+              enableReadyCheck: false,
+              host: config.get<string>('REDIS_HOST') ? config.get<string>('REDIS_HOST') : 'redis-lixi',
+              port: config.get<string>('REDIS_PORT') ? _.toSafeInteger(config.get<string>('REDIS_PORT')) : 6379
+            })
+          };
+        }
       }
-    })
+    )
   ],
   providers: [
     PageResolver,
@@ -99,7 +120,8 @@ import FollowScoreLoader from '../account/follow-score.loader';
     TimelineableLoader,
     BookmarkCacheService,
     BookmarkLoader,
-    FollowScoreLoader
+    FollowScoreLoader,
+    RemovePostFanoutProcessor
   ],
   exports: [
     MeiliService,

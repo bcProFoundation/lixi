@@ -787,6 +787,7 @@ type Mutation {
   importAccount(data: ImportAccountInput!): Account!
   openPageMessageSession(data: OpenPageMessageSessionInput!): PageMessageSession!
   removeBookmark(data: RemoveBookmarkInput!): Bookmark!
+  removePost(data: RemovePostInput!): Post!
   repost(data: RepostInput!): Boolean!
   updateAccount(data: UpdateAccountInput!): Account!
   updatePage(data: UpdatePageInput!): Page!
@@ -993,6 +994,7 @@ type Post {
   account: Account!
   accountId: Int!
   bookmarkableId: String
+  burnByOthers: Boolean
   commentableId: String
   content: String!
 
@@ -1295,6 +1297,11 @@ type Query {
 input RemoveBookmarkInput {
   accountId: Int!
   bookmarkForId: String!
+}
+
+input RemovePostInput {
+  accountId: Int!
+  postId: String!
 }
 
 type Repost {

@@ -1,12 +1,14 @@
 import { BurnItem } from '@bcpros/lixi-models';
 import { PrismaService } from '../prisma/prisma.service';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import { basicSortedSetPagination } from 'src/common/custom-graphql-relay/paginate';
 import { template } from 'src/utils/stringTemplate';
 import { decode, encode } from '@msgpack/msgpack';
 import _ from 'lodash';
+import { XPIJS } from '../wallet/wallet.constants';
+import BCHJS from '@bcpros/xpi-js';
 
 @Injectable()
 export class BurnHistoryCacheService {
@@ -15,7 +17,11 @@ export class BurnHistoryCacheService {
   static burnTimeline = 'timeline:burn:{{postId}}';
   static KeyBurnItem = 'items:burns:item-data';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis,
+    @Inject(XPIJS) private XPI: BCHJS
+  ) {}
 
   async getById(id: string) {
     const buffer = await this.redis.hgetBuffer(BurnHistoryCacheService.KeyBurnItem, id);
@@ -135,5 +141,50 @@ export class BurnHistoryCacheService {
     } catch (error) {
       this.logger.error(error);
     }
+  }
+
+  private async _cacheBurnOfPost(key: string, postId: string) {
+    const burns = await this.prisma.burn.findMany({
+      where: {
+        burnForId: postId
+      },
+      select: { burnedBy: true, createdAt: true }
+    });
+
+    const promises = [];
+    for (const burn of burns) {
+      promises.push(this.redis.zadd(key, new Date(burn.createdAt ?? 0).getTime(), burn.burnedBy.toString('hex')!));
+    }
+
+    if (_.isNil(promises) || promises.length === 0) return null;
+
+    return Promise.all(promises);
+  }
+
+  async checkPostBurnByOthers(items: { postId: string; accountAddress: string }[]) {
+    const result = items.map(async item => {
+      const { postId, accountAddress } = item;
+      let postBurnByOthers;
+      const key = `post:${postId}:burnAddress`;
+      const exist = await this.redis.exists([key]);
+      if (!exist) {
+        postBurnByOthers = await this._cacheBurnOfPost(key, postId);
+      }
+
+      //post has no burn
+      if (postBurnByOthers === null) {
+        return false;
+      } else {
+        //check post has burn of others
+        const numberBurnPost = await this.redis.zcard(key);
+        if (numberBurnPost > 1) {
+          return true;
+        } else if (numberBurnPost === 1) {
+          return !(await this.redis.zscore(key, this.XPI.Address.toHash160(accountAddress)));
+        }
+      }
+    });
+
+    return Promise.all(result);
   }
 }
