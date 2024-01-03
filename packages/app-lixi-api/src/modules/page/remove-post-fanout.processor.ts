@@ -128,23 +128,23 @@ export class RemovePostFanoutProcessor extends WorkerHost {
         pipeline.zrem(keyToken, timelineId);
         pipeline.zrem(keyTokenTimelineByTimeWithDanaFilter, timelineId);
         pipeline.zrem(keyTokenTimelineByTimeShowAll, timelineId);
-      } else {
-        const keyProfile = template(`${RemovePostFanoutProcessor.profileTimelineKey}`, { accountId: post.accountId });
-        const keyProfileTimelineByTimeWithDanaFilter = template(
-          `${RemovePostFanoutProcessor.profileTimelineByTimeWithDanaFilterKey}`,
-          {
-            accountId: post.accountId,
-            level: 0
-          }
-        );
-        const keyProfileTimelineByTimeShowAll = template(`${RemovePostFanoutProcessor.profileTimelineByTimeShowAll}`, {
-          accountId: post.accountId
-        });
-
-        pipeline.zrem(keyProfile, timelineId);
-        pipeline.zrem(keyProfileTimelineByTimeWithDanaFilter, timelineId);
-        pipeline.zrem(keyProfileTimelineByTimeShowAll, timelineId);
       }
+
+      const keyProfile = template(`${RemovePostFanoutProcessor.profileTimelineKey}`, { accountId: post.accountId });
+      const keyProfileTimelineByTimeWithDanaFilter = template(
+        `${RemovePostFanoutProcessor.profileTimelineByTimeWithDanaFilterKey}`,
+        {
+          accountId: post.accountId,
+          level: 0
+        }
+      );
+      const keyProfileTimelineByTimeShowAll = template(`${RemovePostFanoutProcessor.profileTimelineByTimeShowAll}`, {
+        accountId: post.accountId
+      });
+
+      pipeline.zrem(keyProfile, timelineId);
+      pipeline.zrem(keyProfileTimelineByTimeWithDanaFilter, timelineId);
+      pipeline.zrem(keyProfileTimelineByTimeShowAll, timelineId);
 
       await pipeline.exec();
     } catch (error) {
