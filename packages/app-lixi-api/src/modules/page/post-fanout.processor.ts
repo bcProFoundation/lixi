@@ -21,10 +21,12 @@ export class PostFanoutProcessor extends WorkerHost {
 
   static inNetworkSourceKey = 'timeline:innetwork:source';
   static outNetworkSourceKey = 'timeline:outnetwork:source';
+
   //page key
   static pageTimelineKey = 'timeline:page:{{pageId}}';
   static pageTimelineByTimeWithDanaFilterKey = 'timeline:page:{{pageId}}:{{level}}';
   static pageTimelineByTimeShowAll = 'timeline:page:{{pageId}}:showAll';
+
   //profile key
   static profileTimelineKey = 'timeline:profile:{{accountId}}';
   static profileTimelineByTimeWithDanaFilterKey = 'timeline:profile:{{accountId}}:{{level}}';
@@ -125,24 +127,24 @@ export class PostFanoutProcessor extends WorkerHost {
         pipeline.zincrby(keyToken, score, timelineId);
         pipeline.zadd(keyTokenTimelineByTimeWithDanaFilter, postCreatedAt, timelineId);
         pipeline.zadd(keyTokenTimelineByTimeShowAll, postCreatedAt, timelineId);
-      } else {
-        const keyProfile = template(`${PostFanoutProcessor.profileTimelineKey}`, { accountId: post.accountId });
-        const keyProfileTimelineByTimeWithDanaFilter = template(
-          `${PostFanoutProcessor.profileTimelineByTimeWithDanaFilterKey}`,
-          {
-            accountId: post.accountId,
-            level: 0
-          }
-        );
-        const keyProfileTimelineByTimeShowAll = template(`${PostFanoutProcessor.profileTimelineByTimeShowAll}`, {
-          acocuntId: post.accountId
-        });
-        const postCreatedAt = new Date(post.createdAt).getTime();
-
-        pipeline.zincrby(keyProfile, score, timelineId);
-        pipeline.zadd(keyProfileTimelineByTimeWithDanaFilter, postCreatedAt, timelineId);
-        pipeline.zadd(keyProfileTimelineByTimeShowAll, postCreatedAt, timelineId);
       }
+
+      const keyProfile = template(`${PostFanoutProcessor.profileTimelineKey}`, { accountId: post.accountId });
+      const keyProfileTimelineByTimeWithDanaFilter = template(
+        `${PostFanoutProcessor.profileTimelineByTimeWithDanaFilterKey}`,
+        {
+          accountId: post.accountId,
+          level: 0
+        }
+      );
+      const keyProfileTimelineByTimeShowAll = template(`${PostFanoutProcessor.profileTimelineByTimeShowAll}`, {
+        acocuntId: post.accountId
+      });
+      const postCreatedAt = new Date(post.createdAt).getTime();
+
+      pipeline.zincrby(keyProfile, score, timelineId);
+      pipeline.zadd(keyProfileTimelineByTimeWithDanaFilter, postCreatedAt, timelineId);
+      pipeline.zadd(keyProfileTimelineByTimeShowAll, postCreatedAt, timelineId);
 
       await pipeline.exec();
     } catch (error) {

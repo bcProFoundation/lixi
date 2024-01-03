@@ -39,6 +39,11 @@ export class RemovePostFanoutProcessor extends WorkerHost {
   static burnTimelineKey = 'timeline:burn:{{postId}}';
   static addressBurnOfPost = 'post:{{postId}}:burnAddress';
 
+  //post key
+  static postItemKey = 'items:posts:item-data';
+  static postDanaItemKey = 'items:posts:dana';
+  static postDanaViewItemKey = 'items:posts:item-data:danaview';
+
   constructor(
     private readonly postCacheService: PostCacheService,
     private readonly followCacheService: FollowCacheService,
@@ -84,6 +89,11 @@ export class RemovePostFanoutProcessor extends WorkerHost {
       //clear burn timeline
       pipeline.del(template(RemovePostFanoutProcessor.burnTimelineKey, { postId: post.id }));
       pipeline.del(template(RemovePostFanoutProcessor.addressBurnOfPost, { postId: post.id }));
+
+      //clear post-item data
+      pipeline.hdel(RemovePostFanoutProcessor.postItemKey, post.id);
+      pipeline.hdel(RemovePostFanoutProcessor.postDanaItemKey, post.id);
+      pipeline.hdel(RemovePostFanoutProcessor.postDanaViewItemKey, post.id);
 
       //remove post in page, token, profile
       if (post.pageId) {
