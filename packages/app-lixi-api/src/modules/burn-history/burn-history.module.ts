@@ -5,7 +5,7 @@ import { BurnHistoryCacheService } from './burn-history-cache.service';
 import { PageModule } from '../page/page.module';
 
 @Module({
-  imports: [AuthModule, forwardRef(() => PageModule)],
+  imports: [AuthModule, PageModule],
   controllers: [],
   providers: [BurnHistoryCacheService, BurnHistoryResolver, Logger],
   exports: [BurnHistoryCacheService, BurnHistoryResolver, Logger]

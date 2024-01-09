@@ -41,7 +41,7 @@ export type PostQuery = {
     isBookmarked?: boolean | null;
     originalLanguage?: string | null;
     danaViewScore?: number | null;
-    burnByOthers?: boolean | null;
+    burnedByOthers?: boolean | null;
     account: {
       __typename?: 'Account';
       address: string;
@@ -137,7 +137,7 @@ export type PostsByPageIdQuery = {
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
-        burnByOthers?: boolean | null;
+        burnedByOthers?: boolean | null;
         account: {
           __typename?: 'Account';
           address: string;
@@ -241,7 +241,7 @@ export type PostsByUserIdQuery = {
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
-        burnByOthers?: boolean | null;
+        burnedByOthers?: boolean | null;
         account: {
           __typename?: 'Account';
           address: string;
@@ -345,7 +345,7 @@ export type PostsByHashtagIdQuery = {
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
-        burnByOthers?: boolean | null;
+        burnedByOthers?: boolean | null;
         account: {
           __typename?: 'Account';
           address: string;
@@ -449,7 +449,7 @@ export type PostsByTokenIdQuery = {
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
-        burnByOthers?: boolean | null;
+        burnedByOthers?: boolean | null;
         account: {
           __typename?: 'Account';
           address: string;
@@ -545,7 +545,7 @@ export type PostsBySearchQuery = {
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
-        burnByOthers?: boolean | null;
+        burnedByOthers?: boolean | null;
         account: {
           __typename?: 'Account';
           address: string;
@@ -643,7 +643,7 @@ export type PostsBySearchWithHashtagQuery = {
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
-        burnByOthers?: boolean | null;
+        burnedByOthers?: boolean | null;
         account: {
           __typename?: 'Account';
           address: string;
@@ -742,7 +742,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
-        burnByOthers?: boolean | null;
+        burnedByOthers?: boolean | null;
         account: {
           __typename?: 'Account';
           address: string;
@@ -841,7 +841,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
         isBookmarked?: boolean | null;
         originalLanguage?: string | null;
         danaViewScore?: number | null;
-        burnByOthers?: boolean | null;
+        burnedByOthers?: boolean | null;
         account: {
           __typename?: 'Account';
           address: string;
@@ -926,7 +926,7 @@ export type PostFieldsFragment = {
   isBookmarked?: boolean | null;
   originalLanguage?: string | null;
   danaViewScore?: number | null;
-  burnByOthers?: boolean | null;
+  burnedByOthers?: boolean | null;
   account: {
     __typename?: 'Account';
     address: string;
@@ -996,7 +996,7 @@ export type PostMeiliFieldsFragment = {
   isBookmarked?: boolean | null;
   originalLanguage?: string | null;
   danaViewScore?: number | null;
-  burnByOthers?: boolean | null;
+  burnedByOthers?: boolean | null;
   account: {
     __typename?: 'Account';
     address: string;
@@ -1077,7 +1077,7 @@ export type CreatePostMutation = {
     isBookmarked?: boolean | null;
     originalLanguage?: string | null;
     danaViewScore?: number | null;
-    burnByOthers?: boolean | null;
+    burnedByOthers?: boolean | null;
     account: {
       __typename?: 'Account';
       address: string;
@@ -1159,7 +1159,7 @@ export type UpdatePostMutation = {
     isBookmarked?: boolean | null;
     originalLanguage?: string | null;
     danaViewScore?: number | null;
-    burnByOthers?: boolean | null;
+    burnedByOthers?: boolean | null;
     account: {
       __typename?: 'Account';
       address: string;
@@ -1247,7 +1247,7 @@ export type RemovePostMutation = {
     isBookmarked?: boolean | null;
     originalLanguage?: string | null;
     danaViewScore?: number | null;
-    burnByOthers?: boolean | null;
+    burnedByOthers?: boolean | null;
     account: {
       __typename?: 'Account';
       address: string;
@@ -1381,7 +1381,7 @@ export const PostFieldsFragmentDoc = `
     }
   }
   danaViewScore
-  burnByOthers
+  burnedByOthers
 }
     `;
 export const PostMeiliFieldsFragmentDoc = `
@@ -1456,7 +1456,7 @@ export const PostMeiliFieldsFragmentDoc = `
     }
   }
   danaViewScore
-  burnByOthers
+  burnedByOthers
 }
     `;
 export const PostDocument = `

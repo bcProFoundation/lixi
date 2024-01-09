@@ -345,7 +345,7 @@ fragment PostFields on Post {
     }
   }
   danaViewScore
-  burnByOthers
+  burnedByOthers
 }
 
 fragment PostMeiliFields on Post {
@@ -419,7 +419,7 @@ fragment PostMeiliFields on Post {
     }
   }
   danaViewScore
-  burnByOthers
+  burnedByOthers
 }
 
 mutation createPost($input: CreatePostInput!) {

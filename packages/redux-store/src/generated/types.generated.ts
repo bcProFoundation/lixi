@@ -1136,7 +1136,7 @@ export type Post = {
   account: Account;
   accountId: Scalars['Int'];
   bookmarkableId?: Maybe<Scalars['String']>;
-  burnByOthers?: Maybe<Scalars['Boolean']>;
+  burnedByOthers?: Maybe<Scalars['Boolean']>;
   commentableId?: Maybe<Scalars['String']>;
   content: Scalars['String'];
   /** Identifies the date and time when the object was created. */

@@ -994,7 +994,7 @@ type Post {
   account: Account!
   accountId: Int!
   bookmarkableId: String
-  burnByOthers: Boolean
+  burnedByOthers: Boolean
   commentableId: String
   content: String!
 

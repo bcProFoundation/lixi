@@ -244,7 +244,7 @@ export class BurnController {
 
           // Put burn result to fanout
           await this.burnFanoutQueue.add(BURN_FANOUT_QUEUE, {
-            burn: { ...savedBurn, burnedBy: savedBurn.burnedBy.toString('hex') },
+            burn: { ...savedBurn },
             post: post,
             latestDanaBurnScore: danaBurnScore,
             burnAccountId: burnAccount?.id

@@ -49,7 +49,6 @@ import { RemovePostFanoutProcessor } from './remove-post-fanout.processor';
     NotificationModule,
     HashtagModule,
     AccountModule,
-    forwardRef(() => BurnHistoryModule),
     BullModule.registerQueueAsync(
       {
         name: CONTENT_FANOUT_QUEUE,

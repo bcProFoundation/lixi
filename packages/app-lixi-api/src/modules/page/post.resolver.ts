@@ -1244,12 +1244,8 @@ export class PostResolver {
     return this.bookmarkLoader.batchCheckAllBookmark.load(payload);
   }
 
-  @ResolveField('burnByOthers', () => Boolean)
-  async burnByOthers(@Parent() post: Post) {
-    const param = {
-      postId: post?.id || '',
-      accountAddress: post?.account?.address || ''
-    };
-    return this.postLoader.batchPostHasBurnByOthers.load(param);
+  @ResolveField('burnedByOthers', () => Boolean)
+  async burnedByOthers(@Parent() post: Post) {
+    return this.postLoader.batchPostHasBurnedByOthers.load(post.id);
   }
 }

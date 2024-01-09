@@ -1,4 +1,4 @@
-import { Account, Repost, UploadDetail } from '@bcpros/lixi-models';
+import { Account, POST_FLAG, Repost, UploadDetail } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
@@ -10,16 +10,18 @@ import { PageCacheService } from './page-cache.service';
 import { RedisDataLoader } from '../../common/redis/redis-dataloader';
 import BCHJS from '@bcpros/xpi-js';
 import { XPIJS } from '../wallet/wallet.constants';
-import { BurnHistoryCacheService } from '../burn-history/burn-history-cache.service';
+import { template } from 'src/utils/stringTemplate';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class PostLoader {
+  //post-bitmap
+  static bitMapPostKey = 'bitmap:post:{{postId}}';
+
   constructor(
     private readonly prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis,
     private readonly pageCacheService: PageCacheService,
     private readonly accountCacheService: AccountCacheService,
-    private readonly burnHistoryCacheService: BurnHistoryCacheService,
     @Inject(XPIJS) private XPI: BCHJS
   ) {}
 
@@ -176,14 +178,23 @@ export default class PostLoader {
     }
   );
 
-  public readonly batchPostHasBurnByOthers = new DataLoader(
-    async (items: readonly { postId: string; accountAddress: string }[]) => {
-      const listPostAdress = items as any;
-      const result = await this.burnHistoryCacheService.checkPostBurnByOthers(listPostAdress);
+  public readonly batchPostHasBurnedByOthers = new DataLoader(async (postIds: readonly string[]) => {
+    const pipeline = this.redis.pipeline();
 
-      return items.map((item, index) => result[index]);
-    }
-  );
+    postIds.map(id => {
+      pipeline.getbit(template(`${PostLoader.bitMapPostKey}`, { postId: id }), POST_FLAG.BURNED_BY_OTHERS);
+    });
+
+    //exec pipeline
+    const result = await pipeline.exec();
+
+    return result == null
+      ? postIds.map(item => false)
+      : result.map(item => {
+          if (item[0] != null) return false;
+          return !!item[1];
+        });
+  });
 
   _convertBurnedByToAddress = (burnedBy: string): string => {
     const legacyAddress = this.XPI.Address.hash160ToLegacy(burnedBy);

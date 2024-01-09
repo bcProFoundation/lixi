@@ -373,7 +373,7 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
     dispatch(openModal('BurnHistoryModal', { postId: post.id }));
   };
 
-  const handdleRemovePost = async () => {
+  const handleRemovePost = async () => {
     const sure = confirm(intl.get('post.confirmRemovePost'));
     if (sure) {
       const removePostInput: RemovePostInput = {
@@ -397,7 +397,7 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
       post.accountId === selectedAccountId &&
       post.dana.danaBurnScore <= 0 &&
       post.totalComments === 0 &&
-      !post.burnByOthers
+      !post.burnedByOthers
     );
   };
 

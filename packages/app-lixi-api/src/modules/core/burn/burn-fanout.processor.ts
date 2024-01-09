@@ -10,6 +10,7 @@ import { Burn, Post, PostType } from '@bcpros/lixi-prisma';
 import { FollowCacheService } from '../../account/follow-cache.service';
 import { PostCacheService } from '../../page/post-cache.service';
 import { template } from 'src/utils/stringTemplate';
+import { POST_FLAG } from '@bcpros/lixi-models';
 
 @Injectable()
 @Processor(BURN_FANOUT_QUEUE, { concurrency: 50 })
@@ -18,10 +19,12 @@ export class BurnFanoutProcessor extends WorkerHost {
 
   static inNetworkSourceKey = 'timeline:innetwork:source';
   static outNetworkSourceKey = 'timeline:outnetwork:source';
+
   //page key
   static pageTimelineKey = 'timeline:page:{{pageId}}';
   static pageTimelineByTimeWithDanaFilterKey = 'timeline:page:{{pageId}}:{{level}}';
   static pageTimelineByTimeShowAll = 'timeline:page:{{pageId}}:showAll';
+
   //profile key
   static profileTimelineKey = 'timeline:profile:{{accountId}}';
   static profileTimelineByTimeWithDanaFilterKey = 'timeline:profile:{{accountId}}:{{level}}';
@@ -35,6 +38,9 @@ export class BurnFanoutProcessor extends WorkerHost {
   //burn key
   static burnTimelineKey = 'timeline:burn:{{postId}}';
 
+  //post-bitmap
+  static bitMapPostKey = 'bitmap:post:{{postId}}';
+
   constructor(
     private readonly followCacheService: FollowCacheService,
     private readonly postCacheService: PostCacheService,
@@ -44,7 +50,7 @@ export class BurnFanoutProcessor extends WorkerHost {
   }
 
   public async process(
-    job: Job<{ burn: Burn; post: Post; burnAccountId: string; latestDanaBurnScore: number }, boolean, string>
+    job: Job<{ burn: Burn; post: Post; burnAccountId: number; latestDanaBurnScore: number }, boolean, string>
   ): Promise<boolean> {
     try {
       // This is only for post
@@ -75,7 +81,14 @@ export class BurnFanoutProcessor extends WorkerHost {
       // Clear the post from cache
       await this.postCacheService.removeByKeys([id]);
 
-      pipeline.zadd(`post:${id}:burnAddress`, new Date(burn.createdAt ?? 0).getTime(), burn.burnedBy!);
+      //set bitMap of post
+      if (Number(burnAccountId) !== post.accountId) {
+        pipeline.setbit(
+          template(BurnFanoutProcessor.bitMapPostKey, { postId: post.id }),
+          POST_FLAG.BURNED_BY_OTHERS,
+          1
+        );
+      }
 
       //update burnTimeline
       const burnKey = template(`${BurnFanoutProcessor.burnTimelineKey}`, { postId: id });
