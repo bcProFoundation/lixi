@@ -215,6 +215,7 @@ export enum Coin {
 
 export type Comment = {
   __typename?: 'Comment';
+  children?: Maybe<Array<Comment>>;
   commentAccount: Account;
   commentAccountId?: Maybe<Scalars['Int']>;
   commentByPublicKey?: Maybe<Scalars['String']>;
@@ -230,6 +231,7 @@ export type Comment = {
   danaBurnUp: Scalars['Float'];
   id: Scalars['ID'];
   imageUploadable?: Maybe<ImageUploadable>;
+  parentId?: Maybe<Scalars['String']>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
 };
@@ -312,6 +314,7 @@ export type CreateCommentInput = {
   commentText: Scalars['String'];
   commentableId: Scalars['String'];
   createFeeHex?: InputMaybe<Scalars['String']>;
+  replyCommentId?: InputMaybe<Scalars['String']>;
   tipHex?: InputMaybe<Scalars['String']>;
   uploadId?: InputMaybe<Scalars['String']>;
 };
@@ -800,6 +803,7 @@ export type Mutation = {
   createPageMessageSession: PageMessageSession;
   createPost: Post;
   createProduct: Product;
+  createReplyComment: Comment;
   createTemple: Temple;
   createToken: Token;
   createWorship: Worship;
@@ -867,6 +871,10 @@ export type MutationCreatePostArgs = {
 
 export type MutationCreateProductArgs = {
   data: CreateProductInput;
+};
+
+export type MutationCreateReplyCommentArgs = {
+  data: CreateCommentInput;
 };
 
 export type MutationCreateTempleArgs = {
@@ -2077,6 +2085,7 @@ export type Upload = {
   bucket?: Maybe<Scalars['String']>;
   cfImageFilename?: Maybe<Scalars['String']>;
   cfImageId?: Maybe<Scalars['String']>;
+  commentId?: Maybe<Scalars['String']>;
   extension?: Maybe<Scalars['String']>;
   height?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];

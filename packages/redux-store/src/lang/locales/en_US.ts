@@ -129,6 +129,8 @@ export default {
   'general.bookmark': 'Bookmark',
   'general.noBookmark': 'No bookmarks',
   'general.followScore': 'Follow Score (Dana of followers): {dana}',
+  'general.burnUp': 'Burn up',
+  'general.burnDown': 'Burn down',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Valid mnemonic seed phrase required',
@@ -645,6 +647,8 @@ export default {
   'comment.writeCommentXpi': '{commentFee} to reply',
   'comment.failAndResend': 'Comment fail, you want to resend?',
   'comment.resend': 'Resend',
+  'comment.reply': 'Reply',
+  'comment.displayComment': 'Display comment',
 
   /* 18. Category */
   'category.art': 'Art',

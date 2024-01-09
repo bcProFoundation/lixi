@@ -192,6 +192,7 @@ enum Coin {
 }
 
 type Comment {
+  children: [Comment!]
   commentAccount: Account!
   commentAccountId: Int
   commentByPublicKey: String
@@ -208,6 +209,7 @@ type Comment {
   danaBurnUp: Float!
   id: ID!
   imageUploadable: ImageUploadable
+  parentId: String
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
@@ -286,6 +288,7 @@ input CreateCommentInput {
   commentText: String!
   commentableId: String!
   createFeeHex: String
+  replyCommentId: String
   tipHex: String
   uploadId: String
 }
@@ -776,6 +779,7 @@ type Mutation {
   createPageMessageSession(data: CreatePageMessageInput!): PageMessageSession!
   createPost(data: CreatePostInput!): Post!
   createProduct(data: CreateProductInput!): Product!
+  createReplyComment(data: CreateCommentInput!): Comment!
   createTemple(data: CreateTempleInput!): Temple!
   createToken(data: CreateTokenInput!): Token!
   createWorship(data: CreateWorshipInput!): Worship!
@@ -1488,6 +1492,7 @@ type Upload {
   bucket: String
   cfImageFilename: String
   cfImageId: String
+  commentId: String
   extension: String
   height: Int
   id: ID!

@@ -57,6 +57,7 @@ export type AllFollowersByFollowingQuery = {
         followScore?: number | null;
         website?: string | null;
         description?: string | null;
+        createCommentFee?: string | null;
         createdAt: any;
         updatedAt: any;
         avatar?: string | null;
@@ -119,6 +120,7 @@ export type AllFollowingsByFollowerQuery = {
         followScore?: number | null;
         website?: string | null;
         description?: string | null;
+        createCommentFee?: string | null;
         createdAt: any;
         updatedAt: any;
         avatar?: string | null;

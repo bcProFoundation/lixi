@@ -66,6 +66,9 @@ export class Upload {
   @Field(() => String, { nullable: true })
   bucket?: Nullable<string>;
 
+  @Field(() => String, { nullable: true })
+  commentId?: Nullable<string>;
+
   constructor(partial: Partial<Upload>) {
     Object.assign(this, partial);
   }

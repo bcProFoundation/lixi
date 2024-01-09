@@ -13,6 +13,9 @@ export class CreateCommentInput {
   @Field(() => String)
   commentableId: string;
 
+  @Field(() => String, { nullable: true })
+  replyCommentId?: Nullable<string>;
+
   @IsOptional()
   @Field(() => String, { nullable: true })
   createFeeHex?: Nullable<string>;

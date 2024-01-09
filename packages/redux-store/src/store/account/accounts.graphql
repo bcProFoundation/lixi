@@ -59,6 +59,7 @@ fragment AccountFields on Account {
   followScore
   website
   description
+  createCommentFee
   createdAt
   updatedAt
   avatar
