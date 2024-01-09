@@ -50,10 +50,10 @@ const CustomButtonSubmitPlugin = props => {
 
       const rootElementString = editor.getRootElement().innerHTML;
 
-      props.onSubmit({ htmlContent: rootElementString, pureContent: getEditorStateTextString() });
+      props.onSubmit({ htmlContent: rootElementString, pureContent: rootElementString });
     });
   };
-  const invalidPost = (_.trim(props.currentContent) === '' && props.image.length === 0) || props.overLimitContent;
+  // const invalidPost = (_.trim(props.currentContent) === '' && props.image.length === 0) || props.overLimitContent;
 
   return (
     <Button
@@ -62,7 +62,7 @@ const CustomButtonSubmitPlugin = props => {
       type="primary"
       onClick={handleClick}
       loading={props.loading}
-      disabled={invalidPost}
+      // disabled={invalidPost}
     >
       {intl.get('general.post')}
     </Button>

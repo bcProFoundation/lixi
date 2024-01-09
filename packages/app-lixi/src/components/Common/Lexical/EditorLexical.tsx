@@ -36,6 +36,7 @@ import FigmaPlugin from './plugins/FigmaPlugin';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import MyOnChangePlugin from './plugins/MyOnChangePlugin';
 import MaxLengthPlugin from './plugins/MaxLengthPlugin';
+import PollPlugin, { InsertPollDialog } from './plugins/PollPlugin';
 
 export type EditorLexicalProps = {
   initialContent?: string;
@@ -408,6 +409,7 @@ const EditorLexical = (props: EditorLexicalProps) => {
                 multiple={true}
               />
               <ButtonLinkPlugin />
+              <PollPlugin />
             </div>
           </div>
           {overLimitContent() ? (
