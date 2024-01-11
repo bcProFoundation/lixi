@@ -35,6 +35,7 @@ export type Account = {
   followersCount?: Maybe<Scalars['Int']>;
   followingPagesCount?: Maybe<Scalars['Int']>;
   followingsCount?: Maybe<Scalars['Int']>;
+  hash160?: Maybe<Scalars['String']>;
   id: Scalars['Int'];
   language: Scalars['String'];
   messages?: Maybe<Array<Message>>;
