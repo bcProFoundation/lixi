@@ -55,7 +55,7 @@ export class AccountCacheService {
         ...dbValue,
         avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.accountAvatarImageUploadable?.uploads[0]),
         cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.accountCoverImageUploadable?.uploads[0]),
-        addressHash160: dbValue.addressHash160.toString('hex')
+        hash160: dbValue.hash160.toString('hex')
       });
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(account)));
       return account;
@@ -110,7 +110,7 @@ export class AccountCacheService {
             ...dbValue,
             avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.avatar?.upload),
             cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.cover?.upload),
-            addressHash160: dbValue.addressHash160.toString('hex')
+            hash160: dbValue.hash160.toString('hex')
           });
           accountsMap.set(dbValue.id.toString(), account);
           const buffer = encode(account);
@@ -159,7 +159,7 @@ export class AccountCacheService {
         ...dbValue,
         avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.accountAvatarImageUploadable?.uploads[0]),
         cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.accountCoverImageUploadable?.uploads[0]),
-        addressHash160: dbValue.addressHash160.toString('hex')
+        hash160: dbValue.hash160.toString('hex')
       });
 
       await this.redis.hset(this.keyPrefix, address, Buffer.from(encode(account)));
@@ -215,7 +215,7 @@ export class AccountCacheService {
             ...dbValue,
             avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.avatar?.upload),
             cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.cover?.upload),
-            addressHash160: dbValue.addressHash160.toString('hex')
+            hash160: dbValue.hash160.toString('hex')
           });
           accountsMap.set(dbValue.address, account);
           const buffer = encode(account);
@@ -263,7 +263,7 @@ export class AccountCacheService {
         ...dbValue,
         avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.accountAvatarImageUploadable?.uploads[0]),
         cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.accountCoverImageUploadable?.uploads[0]),
-        addressHash160: dbValue.addressHash160.toString('hex')
+        hash160: dbValue.hash160.toString('hex')
       });
 
       await this.redis.hset(this.keyPrefix, mnemonicHash, Buffer.from(encode(account)));

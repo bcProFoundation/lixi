@@ -10,7 +10,7 @@ async function main() {
   for (const account of allAccount) {
     await prismaClient.account.update({
       where: { id: account.id },
-      data: { addressHash160: Buffer.from(XPI.Address.toHash160(account.address), 'hex') }
+      data: { hash160: Buffer.from(XPI.Address.toHash160(account.address), 'hex') }
     });
   }
 

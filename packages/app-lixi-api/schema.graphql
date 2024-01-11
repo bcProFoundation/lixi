@@ -5,7 +5,6 @@
 type Account {
   accountDana: AccountDana
   address: String!
-  addressHash160: String
   avatar: String
   balance: Int!
   coin: Coin
@@ -22,6 +21,7 @@ type Account {
   followersCount: Int
   followingPagesCount: Int
   followingsCount: Int
+  hash160: String
   id: Int!
   language: String!
   messages: [Message!]

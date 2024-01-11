@@ -267,7 +267,7 @@ model Account {
   lixies                         Lixi[]
   mnemonicHash                   String                @map("mnemonic_hash")
   address                        String                @default("") @map("address")
-  addressHash160                 Bytes                 @default("") @map("address_hash_160")
+  hash160                        Bytes                 @default("") @map("hash_160")
   notifications                  Notification[]
   language                       String                @default("en")
   secondaryLanguage              String?               @map("secondary_language")

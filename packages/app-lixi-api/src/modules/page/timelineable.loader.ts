@@ -65,7 +65,7 @@ export default class TimelineableLoader {
         const reposts = repostsDb.map(item => {
           return new Repost({
             ...item,
-            account: { ...item.account, addressHash160: item?.account.addressHash160.toString('hex') }
+            account: { ...item.account, hash160: item?.account.hash160.toString('hex') }
           });
         });
         return postIds.map(postId => {

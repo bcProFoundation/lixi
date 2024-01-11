@@ -185,7 +185,7 @@ export class AccountResolver {
           mnemonicHash: data.mnemonicHash,
           id: undefined,
           address: address,
-          addressHash160: Buffer.from(this.XPI.Address.toHash160(address)),
+          hash160: Buffer.from(this.XPI.Address.toHash160(address)),
           publicKey: publicKey,
           accountDana: {
             create: {}

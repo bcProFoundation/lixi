@@ -20,7 +20,6 @@ export type Account = {
   __typename?: 'Account';
   accountDana?: Maybe<AccountDana>;
   address: Scalars['String'];
-  addressHash160?: Maybe<Scalars['String']>;
   avatar?: Maybe<Scalars['String']>;
   balance: Scalars['Int'];
   coin?: Maybe<Coin>;
@@ -36,6 +35,7 @@ export type Account = {
   followersCount?: Maybe<Scalars['Int']>;
   followingPagesCount?: Maybe<Scalars['Int']>;
   followingsCount?: Maybe<Scalars['Int']>;
+  hash160?: Maybe<Scalars['String']>;
   id: Scalars['Int'];
   language: Scalars['String'];
   messages?: Maybe<Array<Message>>;
