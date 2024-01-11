@@ -1259,6 +1259,7 @@ export type RemovePostMutation = {
     account: {
       __typename?: 'Account';
       address: string;
+      hash160?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
