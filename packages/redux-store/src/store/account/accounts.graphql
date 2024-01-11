@@ -44,6 +44,7 @@ fragment AccountFields on Account {
   id
   name
   address
+  hash160
   mnemonicHash
   encryptedMnemonic
   encryptedSecret

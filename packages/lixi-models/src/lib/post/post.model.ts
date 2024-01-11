@@ -102,6 +102,9 @@ export class Post implements ICommentableTo, ITimelineable {
   @Field(() => PostDana, { nullable: true })
   dana?: Nullable<PostDana>;
 
+  @Field(() => Boolean, { nullable: true })
+  burnedByOthers?: Nullable<boolean>;
+
   constructor(partial: Partial<Post>) {
     Object.assign(this, partial);
   }

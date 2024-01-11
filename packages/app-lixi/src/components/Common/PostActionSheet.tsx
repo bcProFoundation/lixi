@@ -12,7 +12,8 @@ import {
   DeleteFollowPageInput,
   DeleteFollowTokenInput,
   ExtraArgumentsPostFollow,
-  ParamPostFollowCommand
+  ParamPostFollowCommand,
+  RemovePostInput
 } from '@bcpros/lixi-models';
 import { getSelectedAccount, getSelectedAccountId } from '@store/account';
 import { usePageQuery } from '@store/page/pages.generated';
@@ -35,18 +36,12 @@ import { getWalletStatus } from '@store/wallet';
 import { useSwipeable } from 'react-swipeable';
 import { useUserHadMessageToPageQuery } from '@store/message/pageMessageSession.generated';
 import CreatePostCard from './CreatePostCard';
-import {
-  getFilterPostsHome,
-  getFilterPostsPage,
-  getFilterPostsProfile,
-  getFilterPostsToken,
-  getLevelFilter
-} from '@store/settings';
 import { changeFollowActionSheetPost } from '@store/post/actions';
 import { FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
 import { useRouter } from 'next/router';
 import { useCreateBookmarkMutation, useRemoveBookmarkMutation } from '@store/bookmark/bookmark.api';
 import { showToast } from '@store/toast';
+import { useRemovePostMutation } from '@store/post/posts.api';
 
 interface PostActionSheetProps {
   id?: string;
@@ -234,6 +229,8 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
     }
   ] = useDeleteFollowTokenMutation();
 
+  const [removePostTrigger] = useRemovePostMutation();
+
   const { data: pageMessageSessionData, refetch: pageMessageSessionRefetch } = useUserHadMessageToPageQuery(
     {
       accountId: selectedAccount?.id,
@@ -376,6 +373,34 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
     dispatch(openModal('BurnHistoryModal', { postId: post.id }));
   };
 
+  const handleRemovePost = async () => {
+    const sure = confirm(intl.get('post.confirmRemovePost'));
+    if (sure) {
+      const removePostInput: RemovePostInput = {
+        accountId: selectedAccountId,
+        postId: post.id
+      };
+      await removePostTrigger({ input: removePostInput });
+
+      dispatch(
+        showToast('success', {
+          message: intl.get('toast.success'),
+          description: intl.get('post.removeSuccess')
+        })
+      );
+      dispatch(closeActionSheet());
+    }
+  };
+
+  const conditionToDeletePost = () => {
+    return (
+      post.accountId === selectedAccountId &&
+      post.dana.danaBurnScore <= 0 &&
+      post.totalComments === 0 &&
+      !post.burnedByOthers
+    );
+  };
+
   return (
     <>
       <Drawer
@@ -393,6 +418,15 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
           <div className="bar-close" onClick={onClose}></div>
           {isEditPost && <ItemActionSheetBottom text="Edit post" icon="/images/ico-edit.svg" onClickItem={editPost} />}
           {/* <ItemActionSheetBottom type="danger" text="Remove" /> */}
+
+          {/*remove post (post has dana <= 0, no one else burn , no comment - owner) */}
+          {conditionToDeletePost() && (
+            <ItemActionSheetBottom
+              text={intl.get('post.removePost')}
+              icon="/images/ico-trash.svg"
+              onClickItem={handleRemovePost}
+            />
+          )}
           {post.page && isSuccessPageQuery && (
             <>
               <ItemActionSheetBottom

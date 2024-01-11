@@ -28,7 +28,8 @@ export class PostCacheService {
       if (!dbValue) return null;
 
       const post: Post = new Post({
-        ...dbValue
+        ...dbValue,
+        account: { ...dbValue.account, hash160: dbValue?.account.hash160.toString('hex') }
       });
 
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(post)));
@@ -73,7 +74,8 @@ export class PostCacheService {
     const dbValuesMap = new Map(
       dbValues.map((dbValue, i) => {
         const item = new Post({
-          ...dbValue
+          ...dbValue,
+          account: { ...dbValue.account, hash160: dbValue?.account.hash160.toString('hex') }
         });
         itemsMap.set(dbValue.id, item);
         return [dbValue.id, Buffer.from(encode(item))];
