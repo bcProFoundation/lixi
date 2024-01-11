@@ -21,6 +21,7 @@ type Account {
   followersCount: Int
   followingPagesCount: Int
   followingsCount: Int
+  hash160: String
   id: Int!
   language: String!
   messages: [Message!]

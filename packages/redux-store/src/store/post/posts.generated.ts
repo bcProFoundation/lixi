@@ -45,6 +45,7 @@ export type PostQuery = {
     account: {
       __typename?: 'Account';
       address: string;
+      hash160?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
@@ -141,6 +142,7 @@ export type PostsByPageIdQuery = {
         account: {
           __typename?: 'Account';
           address: string;
+          hash160?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
@@ -245,6 +247,7 @@ export type PostsByUserIdQuery = {
         account: {
           __typename?: 'Account';
           address: string;
+          hash160?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
@@ -349,6 +352,7 @@ export type PostsByHashtagIdQuery = {
         account: {
           __typename?: 'Account';
           address: string;
+          hash160?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
@@ -453,6 +457,7 @@ export type PostsByTokenIdQuery = {
         account: {
           __typename?: 'Account';
           address: string;
+          hash160?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
@@ -930,6 +935,7 @@ export type PostFieldsFragment = {
   account: {
     __typename?: 'Account';
     address: string;
+    hash160?: string | null;
     id: number;
     name: string;
     avatar?: string | null;
@@ -1081,6 +1087,7 @@ export type CreatePostMutation = {
     account: {
       __typename?: 'Account';
       address: string;
+      hash160?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
@@ -1163,6 +1170,7 @@ export type UpdatePostMutation = {
     account: {
       __typename?: 'Account';
       address: string;
+      hash160?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
@@ -1310,6 +1318,7 @@ export const PostFieldsFragmentDoc = `
   content
   account {
     address
+    hash160
     id
     name
     avatar

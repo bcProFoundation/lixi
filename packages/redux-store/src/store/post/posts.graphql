@@ -274,6 +274,7 @@ fragment PostFields on Post {
   content
   account {
     address
+    hash160
     id
     name
     avatar

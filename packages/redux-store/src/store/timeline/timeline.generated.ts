@@ -46,6 +46,7 @@ export type TimelineQuery = {
       account: {
         __typename?: 'Account';
         address: string;
+        hash160?: string | null;
         id: number;
         name: string;
         avatar?: string | null;
@@ -140,6 +141,7 @@ export type HomeTimelineQuery = {
           account: {
             __typename?: 'Account';
             address: string;
+            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -237,6 +239,7 @@ export type ProfileTimelineQuery = {
           account: {
             __typename?: 'Account';
             address: string;
+            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -335,6 +338,7 @@ export type ProfileTimelineByTimeQuery = {
           account: {
             __typename?: 'Account';
             address: string;
+            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -432,6 +436,7 @@ export type PageTimelineQuery = {
           account: {
             __typename?: 'Account';
             address: string;
+            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -530,6 +535,7 @@ export type PageTimelineByTimeQuery = {
           account: {
             __typename?: 'Account';
             address: string;
+            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -627,6 +633,7 @@ export type TokenTimelineQuery = {
           account: {
             __typename?: 'Account';
             address: string;
+            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -725,6 +732,7 @@ export type TokenTimelineByTimeQuery = {
           account: {
             __typename?: 'Account';
             address: string;
+            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;

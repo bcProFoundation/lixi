@@ -58,7 +58,8 @@ export class PageCacheService {
         avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.pageAvatarImageUploadable?.uploads[0]),
         cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.pageCoverImageUploadable?.uploads[0]),
         stateName: dbValue.state?.name || '',
-        countryName: dbValue.country?.name || ''
+        countryName: dbValue.country?.name || '',
+        pageAccount: { ...dbValue.pageAccount, hash160: dbValue?.pageAccount.hash160.toString('hex') }
       });
 
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(page)));
@@ -118,7 +119,8 @@ export class PageCacheService {
             avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.avatar?.upload),
             cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.cover?.upload),
             stateName: dbValue.state?.name || '',
-            countryName: dbValue.country?.name || ''
+            countryName: dbValue.country?.name || '',
+            pageAccount: { ...dbValue.pageAccount, hash160: dbValue?.pageAccount.hash160.toString('hex') }
           });
           itemsMap.set(dbValue.id, page);
           const buffer = encode(page);
