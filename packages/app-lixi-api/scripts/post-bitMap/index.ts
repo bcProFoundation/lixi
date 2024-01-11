@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { Redis } from 'ioredis';
-import _ from 'lodash';
+import * as _ from 'lodash';
 
 const prismaClient = new PrismaClient();
 const redis = new Redis();
