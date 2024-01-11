@@ -812,6 +812,7 @@ export type Mutation = {
   importAccount: Account;
   openPageMessageSession: PageMessageSession;
   removeBookmark: Bookmark;
+  removePost: Post;
   repost: Scalars['Boolean'];
   updateAccount: Account;
   updatePage: Page;
@@ -912,6 +913,10 @@ export type MutationOpenPageMessageSessionArgs = {
 
 export type MutationRemoveBookmarkArgs = {
   data: RemoveBookmarkInput;
+};
+
+export type MutationRemovePostArgs = {
+  data: RemovePostInput;
 };
 
 export type MutationRepostArgs = {
@@ -1132,6 +1137,7 @@ export type Post = {
   account: Account;
   accountId: Scalars['Int'];
   bookmarkableId?: Maybe<Scalars['String']>;
+  burnedByOthers?: Maybe<Scalars['Boolean']>;
   commentableId?: Maybe<Scalars['String']>;
   content: Scalars['String'];
   /** Identifies the date and time when the object was created. */
@@ -1876,6 +1882,11 @@ export type QueryWorshipedPersonArgs = {
 export type RemoveBookmarkInput = {
   accountId: Scalars['Int'];
   bookmarkForId: Scalars['String'];
+};
+
+export type RemovePostInput = {
+  accountId: Scalars['Int'];
+  postId: Scalars['String'];
 };
 
 export type Repost = {

@@ -7,7 +7,6 @@ import { basicSortedSetPagination } from 'src/common/custom-graphql-relay/pagina
 import { template } from 'src/utils/stringTemplate';
 import { decode, encode } from '@msgpack/msgpack';
 import _ from 'lodash';
-
 @Injectable()
 export class BurnHistoryCacheService {
   private logger: Logger = new Logger(this.constructor.name);

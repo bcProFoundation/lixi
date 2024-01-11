@@ -11,22 +11,20 @@ import { I18n, I18nService } from 'nestjs-i18n';
 import { template } from 'src/utils/stringTemplate';
 import ReBloom from '../../common/redis/redis-bloom';
 import { FollowCacheService } from '../account/follow-cache.service';
-import { CONTENT_FANOUT_QUEUE } from './constants';
+import { REMOVE_POST_FANOUT_QUEUE } from './constants';
 import { PostCacheService } from './post-cache.service';
 
 @Injectable()
-@Processor(CONTENT_FANOUT_QUEUE, { concurrency: 50 })
-export class PostFanoutProcessor extends WorkerHost {
+@Processor(REMOVE_POST_FANOUT_QUEUE, { concurrency: 50 })
+export class RemovePostFanoutProcessor extends WorkerHost {
   private logger: Logger = new Logger(this.constructor.name);
 
   static inNetworkSourceKey = 'timeline:innetwork:source';
   static outNetworkSourceKey = 'timeline:outnetwork:source';
-
   //page key
   static pageTimelineKey = 'timeline:page:{{pageId}}';
   static pageTimelineByTimeWithDanaFilterKey = 'timeline:page:{{pageId}}:{{level}}';
   static pageTimelineByTimeShowAll = 'timeline:page:{{pageId}}:showAll';
-
   //profile key
   static profileTimelineKey = 'timeline:profile:{{accountId}}';
   static profileTimelineByTimeWithDanaFilterKey = 'timeline:profile:{{accountId}}:{{level}}';
@@ -36,6 +34,14 @@ export class PostFanoutProcessor extends WorkerHost {
   static tokenTimelineKey = 'timeline:token:{{tokenId}}';
   static tokenTimelineByTimeWithDanaFilterKey = 'timeline:token:{{tokenId}}:{{level}}';
   static tokenTimelineByTimeShowAll = 'timeline:token:{{tokenId}}:showAll';
+
+  //burn key
+  static burnTimelineKey = 'timeline:burn:{{postId}}';
+
+  //post key
+  static postItemKey = 'items:posts:item-data';
+  static postDanaItemKey = 'items:posts:dana';
+  static postDanaViewItemKey = 'items:posts:item-data:danaview';
 
   constructor(
     private readonly postCacheService: PostCacheService,
@@ -50,12 +56,7 @@ export class PostFanoutProcessor extends WorkerHost {
     try {
       const { post } = job.data;
       if (!post) return true;
-      const id = `${post.id}`;
-
-      // Invalidate the cache
-      const epoch = '2023-01-01 00:00:00';
-      const diffHour = moment.duration(moment(post.createdAt).diff(moment(epoch))).asHours();
-      const score = 1 * Math.pow(2, diffHour / 12);
+      const { id } = post;
 
       const accountId = post.accountId;
       const pageAccountId = post?.pageId;
@@ -68,83 +69,80 @@ export class PostFanoutProcessor extends WorkerHost {
 
       const followers = _.uniq(_.compact(_.concat(accountId, accountFollowers, pageFollowers)));
 
-      // Check if user view has view the post or not
-      const postviewBfKey = `post-view-exist-bf:${accountId}`;
-
-      const postviewBfExist = await this.redis.exists(postviewBfKey);
-
-      const reBloom = new ReBloom(this.redis);
-      if (!postviewBfExist) {
-        await reBloom.reserve(postviewBfKey, 0.001, 1000);
-      }
-
-      // Update dana view score and view for the post user
-      await reBloom.add(postviewBfKey, id);
-
       // Clear the post from cache
-      await this.postCacheService.removeByKeys([id]);
+      await this.postCacheService.removeByKeys([post.id]);
 
+      //clear cache timeline
       const pipeline = this.redis.pipeline();
-      // Update score for innetwork
+
+      // clear post cache innetwork
       const timelineId = `${PostType.POST}:${id}`;
       for (const follower of followers) {
-        const keyInNetwork = `${PostFanoutProcessor.inNetworkSourceKey}:${follower}`;
-        pipeline.zincrby(keyInNetwork, score, timelineId);
+        const keyInNetwork = `${RemovePostFanoutProcessor.inNetworkSourceKey}:${follower}`;
+        pipeline.zrem(keyInNetwork, timelineId);
       }
 
-      //add default score when create post in page, token, profile
+      //clear post cache outnetwork
+      pipeline.zrem(RemovePostFanoutProcessor.outNetworkSourceKey, timelineId);
+
+      //clear burn timeline
+      pipeline.del(template(RemovePostFanoutProcessor.burnTimelineKey, { postId: post.id }));
+
+      //clear post-item data
+      pipeline.hdel(RemovePostFanoutProcessor.postItemKey, post.id);
+      pipeline.hdel(RemovePostFanoutProcessor.postDanaItemKey, post.id);
+      pipeline.hdel(RemovePostFanoutProcessor.postDanaViewItemKey, post.id);
+
+      //remove post in page, token, profile
       if (post.pageId) {
-        const keyPage = template(`${PostFanoutProcessor.pageTimelineKey}`, { pageId: post.pageId });
+        const keyPage = template(`${RemovePostFanoutProcessor.pageTimelineKey}`, { pageId: post.pageId });
         const keyPageTimelineByTimeWithDanaFilter = template(
-          `${PostFanoutProcessor.pageTimelineByTimeWithDanaFilterKey}`,
+          `${RemovePostFanoutProcessor.pageTimelineByTimeWithDanaFilterKey}`,
           {
             pageId: post.pageId,
             level: 0
           }
         );
-        const keyPageTimelineByTimeShowAll = template(`${PostFanoutProcessor.pageTimelineByTimeShowAll}`, {
+        const keyPageTimelineByTimeShowAll = template(`${RemovePostFanoutProcessor.pageTimelineByTimeShowAll}`, {
           pageId: post.pageId
         });
-        const postCreatedAt = new Date(post.createdAt).getTime();
 
-        pipeline.zincrby(keyPage, score, timelineId);
-        pipeline.zadd(keyPageTimelineByTimeWithDanaFilter, postCreatedAt, timelineId);
-        pipeline.zadd(keyPageTimelineByTimeShowAll, postCreatedAt, timelineId);
+        pipeline.zrem(keyPage, timelineId);
+        pipeline.zrem(keyPageTimelineByTimeWithDanaFilter, timelineId);
+        pipeline.zrem(keyPageTimelineByTimeShowAll, timelineId);
       } else if (post.tokenId) {
-        const keyToken = template(`${PostFanoutProcessor.tokenTimelineKey}`, { tokenId: post.tokenId });
+        const keyToken = template(`${RemovePostFanoutProcessor.tokenTimelineKey}`, { tokenId: post.tokenId });
         const keyTokenTimelineByTimeWithDanaFilter = template(
-          `${PostFanoutProcessor.tokenTimelineByTimeWithDanaFilterKey}`,
+          `${RemovePostFanoutProcessor.tokenTimelineByTimeWithDanaFilterKey}`,
           {
             tokenId: post.tokenId,
             level: 0
           }
         );
-        const keyTokenTimelineByTimeShowAll = template(`${PostFanoutProcessor.tokenTimelineByTimeShowAll}`, {
+        const keyTokenTimelineByTimeShowAll = template(`${RemovePostFanoutProcessor.tokenTimelineByTimeShowAll}`, {
           tokenId: post.tokenId
         });
-        const postCreatedAt = new Date(post.createdAt).getTime();
 
-        pipeline.zincrby(keyToken, score, timelineId);
-        pipeline.zadd(keyTokenTimelineByTimeWithDanaFilter, postCreatedAt, timelineId);
-        pipeline.zadd(keyTokenTimelineByTimeShowAll, postCreatedAt, timelineId);
+        pipeline.zrem(keyToken, timelineId);
+        pipeline.zrem(keyTokenTimelineByTimeWithDanaFilter, timelineId);
+        pipeline.zrem(keyTokenTimelineByTimeShowAll, timelineId);
       }
 
-      const keyProfile = template(`${PostFanoutProcessor.profileTimelineKey}`, { accountId: post.accountId });
+      const keyProfile = template(`${RemovePostFanoutProcessor.profileTimelineKey}`, { accountId: post.accountId });
       const keyProfileTimelineByTimeWithDanaFilter = template(
-        `${PostFanoutProcessor.profileTimelineByTimeWithDanaFilterKey}`,
+        `${RemovePostFanoutProcessor.profileTimelineByTimeWithDanaFilterKey}`,
         {
           accountId: post.accountId,
           level: 0
         }
       );
-      const keyProfileTimelineByTimeShowAll = template(`${PostFanoutProcessor.profileTimelineByTimeShowAll}`, {
-        acocuntId: post.accountId
+      const keyProfileTimelineByTimeShowAll = template(`${RemovePostFanoutProcessor.profileTimelineByTimeShowAll}`, {
+        accountId: post.accountId
       });
-      const postCreatedAt = new Date(post.createdAt).getTime();
 
-      pipeline.zincrby(keyProfile, score, timelineId);
-      pipeline.zadd(keyProfileTimelineByTimeWithDanaFilter, postCreatedAt, timelineId);
-      pipeline.zadd(keyProfileTimelineByTimeShowAll, postCreatedAt, timelineId);
+      pipeline.zrem(keyProfile, timelineId);
+      pipeline.zrem(keyProfileTimelineByTimeWithDanaFilter, timelineId);
+      pipeline.zrem(keyProfileTimelineByTimeShowAll, timelineId);
 
       await pipeline.exec();
     } catch (error) {

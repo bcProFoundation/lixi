@@ -613,6 +613,9 @@ export default {
   'post.unbookmarkSuccess': 'Bỏ lưu bài viết thành công',
   'post.burnHistory': 'Lịch sử đốt',
   'post.noBurnHistory': 'Không ai đốt bài viết',
+  'post.removePost': 'Xóa bài viết',
+  'post.confirmRemovePost': 'Bạn có chắc chắn muốn xóa bài viết?',
+  'post.removeSuccess': 'Xóa bài viết thành công',
 
   /* 16.Token */
   'token.importToken': 'Thêm token',

@@ -75,6 +75,7 @@ export type BookmarkTimelineQuery = {
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
+          burnedByOthers?: boolean | null;
           account: {
             __typename?: 'Account';
             address: string;

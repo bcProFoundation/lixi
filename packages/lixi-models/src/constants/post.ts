@@ -6,3 +6,7 @@ export const POST_TYPE = {
   PRODUCT: 'PRODUCT',
   EVENT: 'EVENT'
 };
+
+export const POST_FLAG = {
+  BURNED_BY_OTHERS: 0
+};

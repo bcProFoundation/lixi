@@ -1159,7 +1159,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                       setQuery('angular');
                     }}
                   /> */}
-                  {(pageTimelineScore.length == 0 || pageTimelineByTime.length == 0) && (
+                  {pageTimelineScore.length == 0 && (
                     <div className="blank-timeline">
                       <img className="time-line-blank" src="/images/time-line-blank.svg" alt="" />
                       <p>Become a first person post on the page...</p>

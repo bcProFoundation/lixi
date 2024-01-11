@@ -182,7 +182,7 @@ model PostDana {
   danaBurnUp        Float  @default(0.0) @map("dana_burn_up")
   danaBurnDown      Float  @default(0.0) @map("dana_burn_down")
   danaBurnScore     Float  @default(0.0) @map("dana_burn_score")
-  post              Post   @relation(fields: [postId], references: [id])
+  post              Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId            String @unique @map("post_id")
   version           Int    @default(0)
 
@@ -545,7 +545,7 @@ model Upload {
   bucket            String?
   cfImageId         String?          @map("cf_image_id")
   cfImageFilename   String?          @map("cf_image_filename")
-  imageUploadable   ImageUploadable? @relation(fields: [imageUploadableId], references: [id])
+  imageUploadable   ImageUploadable? @relation(fields: [imageUploadableId], references: [id], onDelete: Cascade)
   imageUploadableId String?          @map("image_uploadable_id")
 
   @@index([imageUploadableId], map: "index_image_uploadable")
@@ -910,7 +910,7 @@ model PostHashtag {
   id        String   @id @default(cuid())
   hashtag   Hashtag  @relation(fields: [hashtagId], references: [id])
   hashtagId String
-  post      Post?    @relation(fields: [postId], references: [id])
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId    String?
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz
@@ -972,7 +972,7 @@ model Repost {
   id         String      @id @default(cuid())
   account    Account     @relation(fields: [accountId], references: [id])
   accountId  Int         @map("account_id")
-  post       Post        @relation(fields: [postId], references: [id])
+  post       Post        @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId     String      @map("post_id")
   txid       String?
   repostFee  Float?      @default(0) @map("repost_fee")
@@ -987,7 +987,7 @@ model RepostDana {
   danaBurnUp    Float  @default(0.0) @map("dana_burn_up")
   danaBurnDown  Float  @default(0.0) @map("dana_burn_down")
   danaBurnScore Float  @default(0.0) @map("dana_burn_score")
-  repost        Repost @relation(fields: [repostId], references: [id])
+  repost        Repost @relation(fields: [repostId], references: [id], onDelete: Cascade)
   repostId      String @unique @map("repost_id")
   version       Int    @default(0)
 
@@ -997,7 +997,7 @@ model RepostDana {
 
 model PostTranslation {
   id                String   @id @default(cuid())
-  post              Post     @relation(fields: [postId], references: [id])
+  post              Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId            String   @map("post_id")
   translateLanguage String?  @map("translate_language")
   translateContent  String?  @map("translate_content")
@@ -1106,7 +1106,7 @@ model Bookmark {
   account        Account       @relation(fields: [accountId], references: [id])
   accountId      Int           @map("account_id")
   bookmarkableId String?       @map("bookmarkable_id")
-  bookmarkable   Bookmarkable? @relation(fields: [bookmarkableId], references: [id])
+  bookmarkable   Bookmarkable? @relation(fields: [bookmarkableId], references: [id], onDelete: Cascade)
   createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz
   updatedAt      DateTime      @default(now()) @map("updated_at") @db.Timestamptz
 
