@@ -50,6 +50,9 @@ export class Account {
   @Field(() => String)
   address: string;
 
+  @Field(() => String, { nullable: true })
+  addressHash160?: Nullable<string>;
+
   @Field(() => String)
   language?: string;
 

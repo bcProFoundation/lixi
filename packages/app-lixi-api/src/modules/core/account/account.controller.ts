@@ -300,6 +300,7 @@ export class AccountController {
           mnemonicHash: command.mnemonicHash,
           id: undefined,
           address: address,
+          addressHash160: Buffer.from(this.XPI.Address.toHash160(address), 'hex'),
           publicKey: publicKey
         };
 

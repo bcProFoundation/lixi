@@ -121,7 +121,8 @@ export default class PostLoader {
         });
         const reposts = repostsDb.map(item => {
           return new Repost({
-            ...item
+            ...item,
+            account: { ...item.account, addressHash160: item?.account.addressHash160.toString('hex') }
           });
         });
         return postIds.map(postId => {

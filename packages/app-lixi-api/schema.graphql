@@ -5,6 +5,7 @@
 type Account {
   accountDana: AccountDana
   address: String!
+  addressHash160: String
   avatar: String
   balance: Int!
   coin: Coin

@@ -24,6 +24,7 @@ export type AccountQuery = {
     id: number;
     name: string;
     address: string;
+    addressHash160?: string | null;
     mnemonicHash?: string | null;
     encryptedMnemonic?: string | null;
     encryptedSecret?: string | null;
@@ -65,6 +66,7 @@ export type GetAccountByAddressQuery = {
     id: number;
     name: string;
     address: string;
+    addressHash160?: string | null;
     mnemonicHash?: string | null;
     encryptedMnemonic?: string | null;
     encryptedSecret?: string | null;
@@ -114,6 +116,7 @@ export type AllFollowersByPageQuery = {
         id: number;
         name: string;
         address: string;
+        addressHash160?: string | null;
         mnemonicHash?: string | null;
         encryptedMnemonic?: string | null;
         encryptedSecret?: string | null;
@@ -166,6 +169,7 @@ export type AllFollowersByTokenQuery = {
         id: number;
         name: string;
         address: string;
+        addressHash160?: string | null;
         mnemonicHash?: string | null;
         encryptedMnemonic?: string | null;
         encryptedSecret?: string | null;
@@ -204,6 +208,7 @@ export type AccountFieldsFragment = {
   id: number;
   name: string;
   address: string;
+  addressHash160?: string | null;
   mnemonicHash?: string | null;
   encryptedMnemonic?: string | null;
   encryptedSecret?: string | null;
@@ -244,6 +249,7 @@ export type CreateAccountMutation = {
     id: number;
     name: string;
     address: string;
+    addressHash160?: string | null;
     mnemonicHash?: string | null;
     encryptedMnemonic?: string | null;
     encryptedSecret?: string | null;
@@ -285,6 +291,7 @@ export type ImportAccountMutation = {
     id: number;
     name: string;
     address: string;
+    addressHash160?: string | null;
     mnemonicHash?: string | null;
     encryptedMnemonic?: string | null;
     encryptedSecret?: string | null;
@@ -326,6 +333,7 @@ export type UpdateAccountMutation = {
     id: number;
     name: string;
     address: string;
+    addressHash160?: string | null;
     mnemonicHash?: string | null;
     encryptedMnemonic?: string | null;
     encryptedSecret?: string | null;
@@ -361,6 +369,7 @@ export const AccountFieldsFragmentDoc = `
   id
   name
   address
+  addressHash160
   mnemonicHash
   encryptedMnemonic
   encryptedSecret
