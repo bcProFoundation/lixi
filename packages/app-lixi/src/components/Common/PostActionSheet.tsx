@@ -424,7 +424,7 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
             <ItemActionSheetBottom
               text={intl.get('post.removePost')}
               icon="/images/ico-trash.svg"
-              onClickItem={handdleRemovePost}
+              onClickItem={handleRemovePost}
             />
           )}
           {post.page && isSuccessPageQuery && (
