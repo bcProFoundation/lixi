@@ -14,7 +14,7 @@ export class CreateCommentInput {
   commentableId: string;
 
   @Field(() => String, { nullable: true })
-  replyCommentId?: Nullable<string>;
+  replyToCommentId?: Nullable<string>;
 
   @IsOptional()
   @Field(() => String, { nullable: true })

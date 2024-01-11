@@ -288,7 +288,7 @@ input CreateCommentInput {
   commentText: String!
   commentableId: String!
   createFeeHex: String
-  replyCommentId: String
+  replyToCommentId: String
   tipHex: String
   uploadId: String
 }

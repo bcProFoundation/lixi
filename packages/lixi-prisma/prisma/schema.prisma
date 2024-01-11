@@ -237,7 +237,7 @@ model Comment {
   imageUploadable    ImageUploadable? @relation("comment_image_uploadable", fields: [imageUploadableId], references: [id])
   imageUploadableId  String?          @unique @map("comment_image_uploadable_id")
   commentDana        CommentDana?
-  closure            Closure[]
+  closure            CommentClosure[]
   parentId           String?
 
   @@index([commentableId], map: "index_commentable")
@@ -1187,7 +1187,7 @@ model Product {
   @@map("product")
 }
 
-model Closure {
+model CommentClosure {
   ancestor   String
   descendant String
   depth      Int
@@ -1197,4 +1197,5 @@ model Closure {
   @@id([ancestor, descendant])
   @@index([ancestor])
   @@index([descendant])
+  @@map("comment_closure")
 }

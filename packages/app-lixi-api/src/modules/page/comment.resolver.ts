@@ -227,6 +227,16 @@ export class CommentResolver {
           }
         });
 
+        //create closure
+        await prisma.commentClosure.create({
+          data: {
+            ancestor: createdComment.id,
+            descendant: createdComment.id,
+            depth: 0,
+            commentId: createdComment.id
+          }
+        });
+
         if (imageUploadable) {
           await prisma.imageUploadable.update({
             where: {
@@ -316,7 +326,7 @@ export class CommentResolver {
         throw new Error(couldNotFindAccount);
       }
 
-      const { commentText, commentableId, tipHex, createFeeHex, uploadId, replyCommentId } = data;
+      const { commentText, commentableId, tipHex, createFeeHex, uploadId, replyToCommentId } = data;
       let imageUploadable: ImageUploadable | null = null;
       const arrayStringComment = commentText.toLowerCase().split(' ');
       const indexOfGiveString = arrayStringComment.findIndex(item => item === '/give');
@@ -363,7 +373,7 @@ export class CommentResolver {
           : null;
 
       const replyComment = await this.prisma.comment.findFirst({
-        where: { id: replyCommentId ?? '' },
+        where: { id: replyToCommentId ?? '' },
         include: { commentAccount: true }
       });
       if (!replyComment) throw new Error('Reply comment invalid');
@@ -403,7 +413,7 @@ export class CommentResolver {
               connect: imageUploadable ? { id: imageUploadable.id } : undefined
             },
             commentToId: '',
-            parentId: replyCommentId
+            parentId: replyToCommentId
           }
         });
 
@@ -444,46 +454,33 @@ export class CommentResolver {
       if (savedComment && post) {
         //create closure table
         await this.prisma.$transaction(async prisma => {
+          await prisma.commentClosure.create({
+            data: {
+              ancestor: savedComment.id,
+              descendant: savedComment.id,
+              depth: 0,
+              commentId: savedComment.id
+            }
+          });
           //get ancestor of replyComment
-          const ancestorComment = await prisma.closure.findMany({
+          const ancestorComment = await prisma.commentClosure.findMany({
             where: {
-              descendant: replyCommentId ?? ''
+              descendant: replyToCommentId ?? ''
             },
             select: { ancestor: true, depth: true, comment: true },
             orderBy: { depth: 'desc' }
           });
 
-          //take max-depth
-          const maxDepthComment = ancestorComment[0];
           const dataCreateClosure = ancestorComment.map(closureItem => {
-            const plusDepth = closureItem.depth + 1;
-            //take depth of parent if maxdepth is 2
-            const depthOfNewComment = maxDepthComment?.depth === 2 ? closureItem.depth : plusDepth;
             return {
               ancestor: closureItem.ancestor,
               descendant: savedComment.id,
-              depth: depthOfNewComment,
+              depth: closureItem.depth + 1,
               commentId: savedComment.id ?? ''
             };
           });
 
-          if (maxDepthComment?.depth === 2) {
-            //update parentId of comment
-            await this.prisma.comment.update({
-              where: { id: savedComment.id ?? '' },
-              data: { parentId: maxDepthComment.comment.parentId }
-            });
-            savedComment.parentId = maxDepthComment.comment.parentId;
-          } else {
-            dataCreateClosure.unshift({
-              ancestor: replyCommentId ?? '',
-              descendant: savedComment.id,
-              depth: 1,
-              commentId: savedComment.id ?? ''
-            });
-          }
-
-          await prisma.closure.createMany({
+          await prisma.commentClosure.createMany({
             data: dataCreateClosure
           });
         });

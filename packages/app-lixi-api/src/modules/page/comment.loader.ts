@@ -76,7 +76,7 @@ export default class CommentLoader {
     const commentIds = ids as unknown as string[];
     const mapResult = new Map();
 
-    const allReplyComment = await this.prisma.closure.findMany({
+    const allReplyComment = await this.prisma.commentClosure.findMany({
       where: {
         ancestor: { in: commentIds },
         depth: 1

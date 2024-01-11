@@ -314,7 +314,7 @@ export type CreateCommentInput = {
   commentText: Scalars['String'];
   commentableId: Scalars['String'];
   createFeeHex?: InputMaybe<Scalars['String']>;
-  replyCommentId?: InputMaybe<Scalars['String']>;
+  replyToCommentId?: InputMaybe<Scalars['String']>;
   tipHex?: InputMaybe<Scalars['String']>;
   uploadId?: InputMaybe<Scalars['String']>;
 };

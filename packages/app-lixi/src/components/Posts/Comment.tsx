@@ -292,7 +292,8 @@ const Comment = ({ post, listComment, isMainInput = true, depth = 0 }: CommentPr
       //don't allow create comment when previous comment not loading yet
       if (isReplyComment) {
         if (isLoadingCreateReplyComment || isSendingXPI || isUploadingImage) return;
-        await processComment(e.currentTarget.value, true, item.id, item.commentAccount.address); // Call your function to post the comment
+        const replyToCommentId = depth === 2 ? item.parentId : item.id;
+        await processComment(e.currentTarget.value, true, replyToCommentId, item.commentAccount.address); // Call your function to post the comment
       } else {
         if (isLoadingCreateComment || isSendingXPI || isUploadingImage) return;
         await processComment(e.currentTarget.value); // Call your function to post the comment
@@ -318,11 +319,11 @@ const Comment = ({ post, listComment, isMainInput = true, depth = 0 }: CommentPr
   const processComment = async (
     comment: string,
     isReplyComment = false,
-    replyCommentId: string = '',
+    replyToCommentId: string = '',
     replyCommentAdress: string = ''
   ) => {
-    previousComment.current = { text: comment, commentId: replyCommentId, commentAddress: replyCommentAdress };
-    if (isReplyComment) resetField(`reply-comment-${replyCommentId}`);
+    previousComment.current = { text: comment, commentId: replyToCommentId, commentAddress: replyCommentAdress };
+    if (isReplyComment) resetField(`reply-comment-${replyToCommentId}`);
     else {
       resetField('comment');
     }
@@ -357,7 +358,7 @@ const Comment = ({ post, listComment, isMainInput = true, depth = 0 }: CommentPr
               commentableId: post.commentableId,
               tipHex: tipHex,
               uploadId: commentUpload?.id || undefined,
-              replyCommentId: isReplyComment ? replyCommentId : ''
+              replyToCommentId: isReplyComment ? replyToCommentId : ''
             };
 
             await createComment(createCommentInput, isReplyComment);
@@ -384,7 +385,7 @@ const Comment = ({ post, listComment, isMainInput = true, depth = 0 }: CommentPr
               commentableId: post.commentableId,
               createFeeHex: createFeeHex,
               uploadId: commentUpload?.id || undefined,
-              replyCommentId: isReplyComment ? replyCommentId : ''
+              replyToCommentId: isReplyComment ? replyToCommentId : ''
             };
 
             await createComment(createCommentInput, isReplyComment);
@@ -399,7 +400,7 @@ const Comment = ({ post, listComment, isMainInput = true, depth = 0 }: CommentPr
           commentText: trimComment,
           commentableId: post.commentableId,
           uploadId: commentUpload?.id || undefined,
-          replyCommentId: isReplyComment ? replyCommentId : ''
+          replyToCommentId: isReplyComment ? replyToCommentId : ''
         };
 
         await createComment(createCommentInput, isReplyComment);
@@ -422,7 +423,7 @@ const Comment = ({ post, listComment, isMainInput = true, depth = 0 }: CommentPr
               commentableId: post.commentableId,
               createFeeHex: createFeeHex,
               uploadId: commentUpload?.id || undefined,
-              replyCommentId: isReplyComment ? replyCommentId : ''
+              replyToCommentId: isReplyComment ? replyToCommentId : ''
             };
 
             await createComment(createCommentInput, isReplyComment);
@@ -437,7 +438,7 @@ const Comment = ({ post, listComment, isMainInput = true, depth = 0 }: CommentPr
           commentText: '',
           commentableId: post.commentableId,
           uploadId: commentUpload?.id || undefined,
-          replyCommentId: isReplyComment ? replyCommentId : ''
+          replyToCommentId: isReplyComment ? replyToCommentId : ''
         };
 
         await createComment(createCommentInput, isReplyComment);
@@ -669,7 +670,13 @@ const Comment = ({ post, listComment, isMainInput = true, depth = 0 }: CommentPr
               disabled={isLoadingCreateReplyComment || isSendingXPI || isUploadingImage || !authorization.authorized}
               style={{ borderColor: 'transparent !important' }}
               onClick={async () => {
-                await processComment(getValues(`reply-comment-${item.id}`), true, item.id, item.commentAccount.address);
+                const replyToCommentId = depth === 2 ? item.parentId : item.id;
+                await processComment(
+                  getValues(`reply-comment-${item.id}`),
+                  true,
+                  replyToCommentId,
+                  item.commentAccount.address
+                );
               }}
               icon={
                 <SendOutlined
