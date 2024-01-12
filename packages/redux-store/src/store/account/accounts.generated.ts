@@ -36,6 +36,7 @@ export type AccountQuery = {
     followScore?: number | null;
     website?: string | null;
     description?: string | null;
+    createCommentFee?: string | null;
     createdAt: any;
     updatedAt: any;
     avatar?: string | null;
@@ -78,6 +79,7 @@ export type GetAccountByAddressQuery = {
     followScore?: number | null;
     website?: string | null;
     description?: string | null;
+    createCommentFee?: string | null;
     createdAt: any;
     updatedAt: any;
     avatar?: string | null;
@@ -128,6 +130,7 @@ export type AllFollowersByPageQuery = {
         followScore?: number | null;
         website?: string | null;
         description?: string | null;
+        createCommentFee?: string | null;
         createdAt: any;
         updatedAt: any;
         avatar?: string | null;
@@ -181,6 +184,7 @@ export type AllFollowersByTokenQuery = {
         followScore?: number | null;
         website?: string | null;
         description?: string | null;
+        createCommentFee?: string | null;
         createdAt: any;
         updatedAt: any;
         avatar?: string | null;
@@ -220,6 +224,7 @@ export type AccountFieldsFragment = {
   followScore?: number | null;
   website?: string | null;
   description?: string | null;
+  createCommentFee?: string | null;
   createdAt: any;
   updatedAt: any;
   avatar?: string | null;
@@ -261,6 +266,7 @@ export type CreateAccountMutation = {
     followScore?: number | null;
     website?: string | null;
     description?: string | null;
+    createCommentFee?: string | null;
     createdAt: any;
     updatedAt: any;
     avatar?: string | null;
@@ -303,6 +309,7 @@ export type ImportAccountMutation = {
     followScore?: number | null;
     website?: string | null;
     description?: string | null;
+    createCommentFee?: string | null;
     createdAt: any;
     updatedAt: any;
     avatar?: string | null;
@@ -345,6 +352,7 @@ export type UpdateAccountMutation = {
     followScore?: number | null;
     website?: string | null;
     description?: string | null;
+    createCommentFee?: string | null;
     createdAt: any;
     updatedAt: any;
     avatar?: string | null;
@@ -385,6 +393,7 @@ export const AccountFieldsFragmentDoc = `
   followScore
   website
   description
+  createCommentFee
   createdAt
   updatedAt
   avatar

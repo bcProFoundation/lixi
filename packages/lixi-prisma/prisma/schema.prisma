@@ -237,6 +237,8 @@ model Comment {
   imageUploadable    ImageUploadable? @relation("comment_image_uploadable", fields: [imageUploadableId], references: [id])
   imageUploadableId  String?          @unique @map("comment_image_uploadable_id")
   commentDana        CommentDana?
+  closure            CommentClosure[]
+  parentId           String?
 
   @@index([commentableId], map: "index_commentable")
   @@index([commentAccountId], map: "index_comment_on_account")
@@ -1184,4 +1186,17 @@ model Product {
 
   @@index([postId])
   @@map("product")
+}
+
+model CommentClosure {
+  ancestor   String
+  descendant String
+  depth      Int
+  commentId  String
+  comment    Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@id([ancestor, descendant])
+  @@index([ancestor])
+  @@index([descendant])
+  @@map("comment_closure")
 }

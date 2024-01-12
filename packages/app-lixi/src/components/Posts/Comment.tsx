@@ -6,7 +6,13 @@ import CommentListItem from './CommentListItem';
 import AvatarUser from '@components/Common/AvatarUser';
 import { Controller, useForm } from 'react-hook-form';
 import { useInfiniteCommentsToCommentableIdQuery } from '@store/comment/useInfiniteCommentsToCommentableIdQuery';
-import { CommentOrderField, CreateCommentInput, OrderDirection, PostQueryItem } from '@generated/index';
+import {
+  CommentOrderField,
+  CommentQueryItem,
+  CreateCommentInput,
+  OrderDirection,
+  PostQueryItem
+} from '@generated/index';
 import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import {
@@ -25,7 +31,7 @@ import { currency } from '@components/Common/Ticker';
 import { WalletContext } from '@context/index';
 import useXPI from '@hooks/useXPI';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
-import { useCreateCommentMutation } from '@store/comment/comments.api';
+import { useCreateCommentMutation, useCreateReplyCommentMutation } from '@store/comment/comments.api';
 import { showToast } from '@store/toast/actions';
 import { MultiUploader } from '@components/Common/Uploader/MultiUploader';
 import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
@@ -36,6 +42,9 @@ import useAuthorization from '@components/Common/Authorization/use-authorization
 const { Search, TextArea } = Input;
 type CommentProps = {
   post: PostQueryItem;
+  listComment?: CommentQueryItem[];
+  isMainInput?: Boolean;
+  depth?: number;
 };
 
 const CommentsContainer = styled.div`
@@ -44,7 +53,7 @@ const CommentsContainer = styled.div`
     text-align: left;
     border: 0 !important;
     .ant-comment-inner {
-      padding: 16px 0 8px 0;
+      padding: ${props => (props.className === 'main-comment' ? '16px 0 8px 0' : '10px 0 0 0 ')};
       .ant-comment-avatar {
         .ant-avatar {
           width: 37px !important;
@@ -59,6 +68,13 @@ const CommentsContainer = styled.div`
     .ant-comment-content-author-name {
       text-transform: capitalize;
     }
+  }
+
+  .display-comment {
+  }
+
+  .reply-comment .infinite-scroll-component__outerdiv {
+    border-left: 1px solid #f0f2f5;
   }
 `;
 
@@ -128,10 +144,11 @@ const StyledCommentImageContainer = styled.div`
     }
     img {
       width: auto;
-      max-width: 75vw !important;
-      height: 20vh;
+      height: auto;
+      max-width: 100% !important;
+      max-height: 30vh !important;
       object-fit: cover;
-      border-radius: var(--border-radius-primary);
+      border-radius: var(--border-radius-item);
       border: 1px solid var(--lt-color-gray-100);
     }
     &.only-one-image {
@@ -189,7 +206,7 @@ const commentCommand = [
   }
 ];
 
-const Comment = ({ post }: CommentProps) => {
+const Comment = ({ post, listComment, isMainInput = true, depth = 0 }: CommentProps) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const Wallet = React.useContext(WalletContext);
@@ -212,12 +229,17 @@ const Comment = ({ post }: CommentProps) => {
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
   const [openModalResend, setOpenModalResend] = useState(false);
-  const previousComment = useRef('');
+  const previousComment = useRef({ text: '', commentId: '', commentAddress: '' });
 
   const [
     createCommentTrigger,
     { isLoading: isLoadingCreateComment, isSuccess: isSuccessCreateComment, isError: isErrorCreateComment }
   ] = useCreateCommentMutation();
+
+  const [
+    createReplyCommentTrigger,
+    { isLoading: isLoadingCreateReplyComment, isSuccess: isSuccessCreateReplyComment }
+  ] = useCreateReplyCommentMutation();
 
   const { data, totalCount, fetchNext, hasNext, isFetching } = useInfiniteCommentsToCommentableIdQuery(
     {
@@ -254,23 +276,28 @@ const Comment = ({ post }: CommentProps) => {
 
   const loadMoreComments = () => {
     if (hasNext && !isFetching) {
-      fetchNext().finally(() => {
-        setFocus('comment', { shouldSelect: true });
-      });
+      fetchNext();
     } else if (hasNext) {
-      fetchNext().finally(() => {
-        setFocus('comment', { shouldSelect: true });
-      });
+      fetchNext();
     }
   };
 
-  const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = async (
+    e: React.KeyboardEvent<HTMLTextAreaElement>,
+    isReplyComment = false,
+    item?: CommentQueryItem
+  ) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault(); // Prevent the default behavior of adding a new line
       //don't allow create comment when previous comment not loading yet
-
-      if (isLoadingCreateComment || isSendingXPI || isUploadingImage) return;
-      await processComment(e.currentTarget.value); // Call your function to post the comment
+      if (isReplyComment) {
+        if (isLoadingCreateReplyComment || isSendingXPI || isUploadingImage) return;
+        const replyToCommentId = depth === 2 ? item.parentId : item.id;
+        await processComment(e.currentTarget.value, true, replyToCommentId, item.commentAccount.address); // Call your function to post the comment
+      } else {
+        if (isLoadingCreateComment || isSendingXPI || isUploadingImage) return;
+        await processComment(e.currentTarget.value); // Call your function to post the comment
+      }
     }
   };
 
@@ -289,9 +316,18 @@ const Comment = ({ post }: CommentProps) => {
     }
   };
 
-  const processComment = async (comment: string) => {
-    previousComment.current = comment;
-    resetField('comment');
+  const processComment = async (
+    comment: string,
+    isReplyComment = false,
+    replyToCommentId: string = '',
+    replyCommentAdress: string = ''
+  ) => {
+    previousComment.current = { text: comment, commentId: replyToCommentId, commentAddress: replyCommentAdress };
+    if (isReplyComment) resetField(`reply-comment-${replyToCommentId}`);
+    else {
+      resetField('comment');
+    }
+
     //Check if the message is not empty
     if (comment && comment !== '') {
       const trimComment = comment.trim();
@@ -301,13 +337,16 @@ const Comment = ({ post }: CommentProps) => {
       }
 
       //Check if comment is tip
-      if (trimComment.toLowerCase().split(' ')[0] === '/give') {
-        const amount: string = trimComment.toLowerCase().split(' ')[1];
+      const arrayStringComment = trimComment.toLowerCase().split(' ');
+      const indexOfGiveString = arrayStringComment.findIndex(item => item === '/give');
+
+      if (indexOfGiveString !== -1 && indexOfGiveString !== arrayStringComment.length - 1) {
+        const amount: string = arrayStringComment[indexOfGiveString + 1];
 
         //check if amount is valid
         if (validateXPIAmount(amount)) {
           let tipHex = undefined;
-          tipHex = await giveXPIAsTip(trimComment, amount).then(result => {
+          tipHex = await giveXPIAsTip(trimComment, amount, isReplyComment, replyCommentAdress).then(result => {
             return result;
           });
 
@@ -318,10 +357,11 @@ const Comment = ({ post }: CommentProps) => {
               commentText: trimComment,
               commentableId: post.commentableId,
               tipHex: tipHex,
-              uploadId: commentUpload?.id || undefined
+              uploadId: commentUpload?.id || undefined,
+              replyToCommentId: isReplyComment ? replyToCommentId : ''
             };
 
-            await createComment(createCommentInput);
+            await createComment(createCommentInput, isReplyComment);
           } else {
             dispatch(sendXPIFailure(intl.get('send.notEnoughtFund')));
           }
@@ -344,10 +384,11 @@ const Comment = ({ post }: CommentProps) => {
               commentText: trimComment,
               commentableId: post.commentableId,
               createFeeHex: createFeeHex,
-              uploadId: commentUpload?.id || undefined
+              uploadId: commentUpload?.id || undefined,
+              replyToCommentId: isReplyComment ? replyToCommentId : ''
             };
 
-            await createComment(createCommentInput);
+            await createComment(createCommentInput, isReplyComment);
           } else {
             throw new Error(intl.get('account.insufficientFunds'));
           }
@@ -358,10 +399,11 @@ const Comment = ({ post }: CommentProps) => {
         const createCommentInput: CreateCommentInput = {
           commentText: trimComment,
           commentableId: post.commentableId,
-          uploadId: commentUpload?.id || undefined
+          uploadId: commentUpload?.id || undefined,
+          replyToCommentId: isReplyComment ? replyToCommentId : ''
         };
 
-        await createComment(createCommentInput);
+        await createComment(createCommentInput, isReplyComment);
       }
     } else if (commentUpload) {
       if (
@@ -380,10 +422,11 @@ const Comment = ({ post }: CommentProps) => {
               commentText: '',
               commentableId: post.commentableId,
               createFeeHex: createFeeHex,
-              uploadId: commentUpload?.id || undefined
+              uploadId: commentUpload?.id || undefined,
+              replyToCommentId: isReplyComment ? replyToCommentId : ''
             };
 
-            await createComment(createCommentInput);
+            await createComment(createCommentInput, isReplyComment);
           } else {
             throw new Error(intl.get('account.insufficientFunds'));
           }
@@ -394,10 +437,11 @@ const Comment = ({ post }: CommentProps) => {
         const createCommentInput: CreateCommentInput = {
           commentText: '',
           commentableId: post.commentableId,
-          uploadId: commentUpload?.id || undefined
+          uploadId: commentUpload?.id || undefined,
+          replyToCommentId: isReplyComment ? replyToCommentId : ''
         };
 
-        await createComment(createCommentInput);
+        await createComment(createCommentInput, isReplyComment);
       }
     }
   };
@@ -421,7 +465,12 @@ const Comment = ({ post }: CommentProps) => {
     return true;
   };
 
-  const giveXPIAsTip = async (text: string, amount: string): Promise<string> => {
+  const giveXPIAsTip = async (
+    text: string,
+    amount: string,
+    isReplyComment: boolean,
+    replyCommentAdress: string
+  ): Promise<string> => {
     setIsSendingXPI(true);
     try {
       let tipHex;
@@ -435,7 +484,7 @@ const Comment = ({ post }: CommentProps) => {
         '',
         false, // indicate send mode is one to one
         null,
-        post.account.address,
+        isReplyComment ? replyCommentAdress : post.account.address,
         amount,
         true,
         fundingWif,
@@ -498,10 +547,15 @@ const Comment = ({ post }: CommentProps) => {
     }
   };
 
-  const createComment = async (input: CreateCommentInput) => {
+  const createComment = async (input: CreateCommentInput, isReplyComment = false) => {
     try {
-      const result = await createCommentTrigger({ input: input }).unwrap();
-      dispatch(createCommentSuccess(result));
+      if (isReplyComment) {
+        const result = await createReplyCommentTrigger({ input: input }).unwrap();
+        dispatch(createCommentSuccess({ dataCreateReplyComment: result, isReplyComment }));
+      } else {
+        const result = await createCommentTrigger({ input: input }).unwrap();
+        dispatch(createCommentSuccess({ dataCreateComment: result, isReplyComment }));
+      }
 
       if (commentUpload) {
         dispatch(removeUploadFromCache({ uploadType: UPLOAD_TYPES.COMMENT }));
@@ -549,21 +603,134 @@ const Comment = ({ post }: CommentProps) => {
     }
   };
 
-  return (
-    <React.Fragment>
-      <CommentsContainer>
-        <InfiniteScroll
-          dataLength={data.length}
-          next={loadMoreComments}
-          hasMore={hasNext}
-          loader={<Skeleton style={{ marginTop: '1rem' }} avatar active />}
-          scrollableTarget="scrollableDiv"
+  const inputComment = (item: CommentQueryItem) => (
+    <>
+      <CommentInputContainer
+        className="comment-input-container"
+        css={depth < 2 ? { padding: '10px 0 0 0', margin: '0 0 0 45px' } : { padding: '10px 0 0 0', margin: '0' }}
+      >
+        <div className="ava-ico-cmt" onClick={() => onClickAccountAvatar()}>
+          <AvatarUser icon={accountInfoTemp?.avatar} name={selectedAccount?.name} isMarginRight={false} />
+        </div>
+        <StyledCommentContainer
+          className="comment-container"
+          ref={inputText}
+          onClick={() => {
+            if (!authorization.authorized) {
+              askAuthorization();
+            }
+          }}
         >
-          {data.map((item, index) => {
-            return <CommentListItem item={item} post={post} key={item.id} />;
-          })}
-        </InfiniteScroll>
-      </CommentsContainer>
+          <Controller
+            name={`reply-comment-${item.id}`}
+            key={`reply-comment-${item.id}`}
+            control={control}
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <AutoComplete
+                onSelect={() => {
+                  setOpen(false);
+                }}
+                options={commentCommand}
+                open={open}
+                onChange={onChange}
+                onBlur={onBlur}
+                value={value}
+                onSearch={value => {
+                  //TODO: This is not the best way to implement. Will come back later
+                  if (/\d+$/.test(value) || value === '') {
+                    setOpen(false);
+                  } else if (value.startsWith('/')) {
+                    setOpen(true);
+                  }
+                }}
+                defaultActiveFirstOption
+                defaultValue={`@${item.commentAccount.name} `}
+                getPopupContainer={trigger => trigger.parentElement}
+                disabled={!authorization.authorized}
+                style={{ width: '-webkit-fill-available', textAlign: 'left' }}
+              >
+                <StyledTextArea
+                  style={{ fontSize: '12px' }}
+                  ref={ref}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                  placeholder={showTextComment()}
+                  defaultValue={`@${item.commentAccount.name} `}
+                  size="large"
+                  autoSize
+                  onKeyDown={e => handleKeyDown(e, true, item)}
+                />
+              </AutoComplete>
+            )}
+          />
+          <StyledIconContainer>
+            <Button
+              type="text"
+              disabled={isLoadingCreateReplyComment || isSendingXPI || isUploadingImage || !authorization.authorized}
+              style={{ borderColor: 'transparent !important' }}
+              onClick={async () => {
+                const replyToCommentId = depth === 2 ? item.parentId : item.id;
+                await processComment(
+                  getValues(`reply-comment-${item.id}`),
+                  true,
+                  replyToCommentId,
+                  item.commentAccount.address
+                );
+              }}
+              icon={
+                <SendOutlined
+                  style={{ fontSize: '20px' }}
+                  disabled={
+                    isLoadingCreateReplyComment || isSendingXPI || isUploadingImage || !authorization.authorized
+                  }
+                />
+              }
+            />
+            <MultiUploader
+              type={UPLOAD_TYPES.COMMENT}
+              isIcon={true}
+              ref={multiUploader}
+              icon={'/images/ico-picture.svg'}
+              buttonName=" "
+              buttonType="text"
+              showUploadList={false}
+              loading={isUploadingImage}
+              setUploadingImage={setUploadingImage}
+              multiple={false}
+              disabled={isLoadingCreateReplyComment || isSendingXPI || isUploadingImage || !authorization.authorized}
+              commentId={item.id}
+            />
+          </StyledIconContainer>
+        </StyledCommentContainer>
+      </CommentInputContainer>
+      {commentUpload && commentUpload?.commentId === item.id && (
+        <StyledCommentImageContainer css={{ paddingTop: '16px', margin: '0' }}>
+          <div className="images-post images-post-mobile only-one-image">
+            <div className="item-image-upload">
+              <picture>
+                <img
+                  src={`${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${commentUpload.cfImageId}/public`}
+                  alt={commentUpload?.originalFilename}
+                  width={commentUpload?.width}
+                  height={commentUpload?.height}
+                />
+              </picture>
+              <Button
+                type="text"
+                className="no-border-btn"
+                icon={<CloseOutlined />}
+                onClick={() => handleRemoveCommentUpload(commentUpload?.id)}
+              />
+            </div>
+          </div>
+        </StyledCommentImageContainer>
+      )}
+    </>
+  );
+
+  const mainInputComment = (
+    <>
       <CommentInputContainer className="comment-input-container">
         <div className="ava-ico-cmt" onClick={() => onClickAccountAvatar()}>
           <AvatarUser icon={accountInfoTemp?.avatar} name={selectedAccount?.name} isMarginRight={false} />
@@ -649,7 +816,7 @@ const Comment = ({ post }: CommentProps) => {
           </StyledIconContainer>
         </StyledCommentContainer>
       </CommentInputContainer>
-      {commentUpload && (
+      {commentUpload && !commentUpload?.commentId && (
         <StyledCommentImageContainer>
           <div className="images-post images-post-mobile only-one-image">
             <div className="item-image-upload">
@@ -671,18 +838,62 @@ const Comment = ({ post }: CommentProps) => {
           </div>
         </StyledCommentImageContainer>
       )}
+    </>
+  );
+
+  return (
+    <React.Fragment>
+      <CommentsContainer className={`${listComment ? 'reply-comment' : 'main-comment'}`}>
+        <InfiniteScroll
+          dataLength={(listComment || data).length}
+          next={loadMoreComments}
+          hasMore={hasNext}
+          loader={<Skeleton style={{ marginTop: '1rem' }} avatar active />}
+          scrollableTarget="scrollableDiv"
+          css={listComment && { marginLeft: '30px' }}
+        >
+          {(listComment || data).map(item => {
+            return (
+              <>
+                <CommentListItem
+                  key={`item-${item.id}`}
+                  item={item}
+                  post={post}
+                  inputComment={inputComment}
+                  hiddenInputComment={isSuccessCreateReplyComment ? true : false}
+                  css={{ margin: '50px' }}
+                />
+
+                {/* {depth === 0 && <button className="display-comment">{intl.get('comment.displayComment')}</button>} */}
+                {item?.children && item.children.length > 0 && (
+                  <Comment
+                    key={`list-item-${item.id}`}
+                    post={post}
+                    listComment={item.children}
+                    isMainInput={false}
+                    depth={depth + 1}
+                  />
+                )}
+              </>
+            );
+          })}
+        </InfiniteScroll>
+      </CommentsContainer>
+      {isMainInput && mainInputComment}
+
       <ModalResend
         title={<div>{intl.get('comment.failAndResend')}</div>}
         open={openModalResend}
         onCancel={() => setOpenModalResend(false)}
         onOk={async () => {
           setOpenModalResend(false);
-          await processComment(previousComment.current);
+          const { text, commentId, commentAddress } = previousComment.current;
+          await processComment(text, listComment && true, commentId, commentAddress);
         }}
         okText={<span>{intl.get('comment.resend')}</span>}
       >
         <p>
-          {intl.get('label.comment')}: {previousComment.current}
+          {intl.get('label.comment')}: {previousComment.current.text}
         </p>
       </ModalResend>
     </React.Fragment>

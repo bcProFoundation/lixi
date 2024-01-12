@@ -33,6 +33,75 @@ export type CommentQuery = {
     danaBurnScore: number;
     createdAt: any;
     updatedAt: any;
+    parentId?: string | null;
+    children?: Array<{
+      __typename?: 'Comment';
+      id: string;
+      commentText: string;
+      commentByPublicKey?: string | null;
+      commentableId?: string | null;
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      createdAt: any;
+      updatedAt: any;
+      parentId?: string | null;
+      children?: Array<{
+        __typename?: 'Comment';
+        id: string;
+        commentText: string;
+        commentByPublicKey?: string | null;
+        commentableId?: string | null;
+        danaBurnUp: number;
+        danaBurnDown: number;
+        danaBurnScore: number;
+        createdAt: any;
+        updatedAt: any;
+        parentId?: string | null;
+        commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+        commentDana?: {
+          __typename?: 'CommentDana';
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          version: number;
+        } | null;
+        imageUploadable?: {
+          __typename?: 'ImageUploadable';
+          id: string;
+          uploads: Array<{
+            __typename?: 'Upload';
+            id: string;
+            width?: number | null;
+            height?: number | null;
+            cfImageId?: string | null;
+            cfImageFilename?: string | null;
+          }>;
+        } | null;
+        commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
+      }> | null;
+      commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+      commentDana?: {
+        __typename?: 'CommentDana';
+        danaBurnUp: number;
+        danaBurnDown: number;
+        danaBurnScore: number;
+        version: number;
+      } | null;
+      imageUploadable?: {
+        __typename?: 'ImageUploadable';
+        id: string;
+        uploads: Array<{
+          __typename?: 'Upload';
+          id: string;
+          width?: number | null;
+          height?: number | null;
+          cfImageId?: string | null;
+          cfImageFilename?: string | null;
+        }>;
+      } | null;
+      commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
+    }> | null;
     commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
     commentDana?: {
       __typename?: 'CommentDana';
@@ -86,6 +155,86 @@ export type CommentsToCommentableIdQuery = {
         danaBurnScore: number;
         createdAt: any;
         updatedAt: any;
+        parentId?: string | null;
+        children?: Array<{
+          __typename?: 'Comment';
+          id: string;
+          commentText: string;
+          commentByPublicKey?: string | null;
+          commentableId?: string | null;
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          createdAt: any;
+          updatedAt: any;
+          parentId?: string | null;
+          children?: Array<{
+            __typename?: 'Comment';
+            id: string;
+            commentText: string;
+            commentByPublicKey?: string | null;
+            commentableId?: string | null;
+            danaBurnUp: number;
+            danaBurnDown: number;
+            danaBurnScore: number;
+            createdAt: any;
+            updatedAt: any;
+            parentId?: string | null;
+            commentAccount: {
+              __typename?: 'Account';
+              address: string;
+              id: number;
+              name: string;
+              avatar?: string | null;
+            };
+            commentDana?: {
+              __typename?: 'CommentDana';
+              danaBurnUp: number;
+              danaBurnDown: number;
+              danaBurnScore: number;
+              version: number;
+            } | null;
+            imageUploadable?: {
+              __typename?: 'ImageUploadable';
+              id: string;
+              uploads: Array<{
+                __typename?: 'Upload';
+                id: string;
+                width?: number | null;
+                height?: number | null;
+                cfImageId?: string | null;
+                cfImageFilename?: string | null;
+              }>;
+            } | null;
+            commentable?: {
+              __typename?: 'Commentable';
+              id: string;
+              type: Types.CommentType;
+              commentToId: string;
+            } | null;
+          }> | null;
+          commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+          commentDana?: {
+            __typename?: 'CommentDana';
+            danaBurnUp: number;
+            danaBurnDown: number;
+            danaBurnScore: number;
+            version: number;
+          } | null;
+          imageUploadable?: {
+            __typename?: 'ImageUploadable';
+            id: string;
+            uploads: Array<{
+              __typename?: 'Upload';
+              id: string;
+              width?: number | null;
+              height?: number | null;
+              cfImageId?: string | null;
+              cfImageFilename?: string | null;
+            }>;
+          } | null;
+          commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
+        }> | null;
         commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
         commentDana?: {
           __typename?: 'CommentDana';
@@ -130,6 +279,110 @@ export type CommentFieldsFragment = {
   danaBurnScore: number;
   createdAt: any;
   updatedAt: any;
+  parentId?: string | null;
+  commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+  commentDana?: {
+    __typename?: 'CommentDana';
+    danaBurnUp: number;
+    danaBurnDown: number;
+    danaBurnScore: number;
+    version: number;
+  } | null;
+  imageUploadable?: {
+    __typename?: 'ImageUploadable';
+    id: string;
+    uploads: Array<{
+      __typename?: 'Upload';
+      id: string;
+      width?: number | null;
+      height?: number | null;
+      cfImageId?: string | null;
+      cfImageFilename?: string | null;
+    }>;
+  } | null;
+  commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
+};
+
+export type ReplyCommentFieldsFragment = {
+  __typename?: 'Comment';
+  id: string;
+  commentText: string;
+  commentByPublicKey?: string | null;
+  commentableId?: string | null;
+  danaBurnUp: number;
+  danaBurnDown: number;
+  danaBurnScore: number;
+  createdAt: any;
+  updatedAt: any;
+  parentId?: string | null;
+  children?: Array<{
+    __typename?: 'Comment';
+    id: string;
+    commentText: string;
+    commentByPublicKey?: string | null;
+    commentableId?: string | null;
+    danaBurnUp: number;
+    danaBurnDown: number;
+    danaBurnScore: number;
+    createdAt: any;
+    updatedAt: any;
+    parentId?: string | null;
+    children?: Array<{
+      __typename?: 'Comment';
+      id: string;
+      commentText: string;
+      commentByPublicKey?: string | null;
+      commentableId?: string | null;
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      createdAt: any;
+      updatedAt: any;
+      parentId?: string | null;
+      commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+      commentDana?: {
+        __typename?: 'CommentDana';
+        danaBurnUp: number;
+        danaBurnDown: number;
+        danaBurnScore: number;
+        version: number;
+      } | null;
+      imageUploadable?: {
+        __typename?: 'ImageUploadable';
+        id: string;
+        uploads: Array<{
+          __typename?: 'Upload';
+          id: string;
+          width?: number | null;
+          height?: number | null;
+          cfImageId?: string | null;
+          cfImageFilename?: string | null;
+        }>;
+      } | null;
+      commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
+    }> | null;
+    commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+    commentDana?: {
+      __typename?: 'CommentDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      version: number;
+    } | null;
+    imageUploadable?: {
+      __typename?: 'ImageUploadable';
+      id: string;
+      uploads: Array<{
+        __typename?: 'Upload';
+        id: string;
+        width?: number | null;
+        height?: number | null;
+        cfImageId?: string | null;
+        cfImageFilename?: string | null;
+      }>;
+    } | null;
+    commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
+  }> | null;
   commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
   commentDana?: {
     __typename?: 'CommentDana';
@@ -170,6 +423,49 @@ export type CreateCommentMutation = {
     danaBurnScore: number;
     createdAt: any;
     updatedAt: any;
+    parentId?: string | null;
+    commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+    commentDana?: {
+      __typename?: 'CommentDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      version: number;
+    } | null;
+    imageUploadable?: {
+      __typename?: 'ImageUploadable';
+      id: string;
+      uploads: Array<{
+        __typename?: 'Upload';
+        id: string;
+        width?: number | null;
+        height?: number | null;
+        cfImageId?: string | null;
+        cfImageFilename?: string | null;
+      }>;
+    } | null;
+    commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
+  };
+};
+
+export type CreateReplyCommentMutationVariables = Types.Exact<{
+  input: Types.CreateCommentInput;
+}>;
+
+export type CreateReplyCommentMutation = {
+  __typename?: 'Mutation';
+  createReplyComment: {
+    __typename?: 'Comment';
+    id: string;
+    commentText: string;
+    commentByPublicKey?: string | null;
+    commentableId?: string | null;
+    danaBurnUp: number;
+    danaBurnDown: number;
+    danaBurnScore: number;
+    createdAt: any;
+    updatedAt: any;
+    parentId?: string | null;
     commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
     commentDana?: {
       __typename?: 'CommentDana';
@@ -232,15 +528,27 @@ export const CommentFieldsFragmentDoc = `
     type
     commentToId
   }
+  parentId
 }
     `;
-export const CommentDocument = `
-    query Comment($id: String!) {
-  comment(id: $id) {
+export const ReplyCommentFieldsFragmentDoc = `
+    fragment ReplyCommentFields on Comment {
+  ...CommentFields
+  children {
     ...CommentFields
+    children {
+      ...CommentFields
+    }
   }
 }
     ${CommentFieldsFragmentDoc}`;
+export const CommentDocument = `
+    query Comment($id: String!) {
+  comment(id: $id) {
+    ...ReplyCommentFields
+  }
+}
+    ${ReplyCommentFieldsFragmentDoc}`;
 export const CommentsToCommentableIdDocument = `
     query CommentsToCommentableId($after: String, $before: String, $first: Int = 20, $last: Int, $orderBy: CommentOrder, $id: String, $skip: Int) {
   commentsToCommentableId(
@@ -256,7 +564,7 @@ export const CommentsToCommentableIdDocument = `
     edges {
       cursor
       node {
-        ...CommentFields
+        ...ReplyCommentFields
       }
     }
     pageInfo {
@@ -264,11 +572,18 @@ export const CommentsToCommentableIdDocument = `
     }
   }
 }
-    ${CommentFieldsFragmentDoc}
+    ${ReplyCommentFieldsFragmentDoc}
 ${PageInfoFieldsFragmentDoc}`;
 export const CreateCommentDocument = `
     mutation createComment($input: CreateCommentInput!) {
   createComment(data: $input) {
+    ...CommentFields
+  }
+}
+    ${CommentFieldsFragmentDoc}`;
+export const CreateReplyCommentDocument = `
+    mutation createReplyComment($input: CreateCommentInput!) {
+  createReplyComment(data: $input) {
     ...CommentFields
   }
 }
@@ -285,6 +600,9 @@ const injectedRtkApi = api.injectEndpoints({
     }),
     createComment: build.mutation<CreateCommentMutation, CreateCommentMutationVariables>({
       query: variables => ({ document: CreateCommentDocument, variables })
+    }),
+    createReplyComment: build.mutation<CreateReplyCommentMutation, CreateReplyCommentMutationVariables>({
+      query: variables => ({ document: CreateReplyCommentDocument, variables })
     })
   })
 });
@@ -295,5 +613,6 @@ export const {
   useLazyCommentQuery,
   useCommentsToCommentableIdQuery,
   useLazyCommentsToCommentableIdQuery,
-  useCreateCommentMutation
+  useCreateCommentMutation,
+  useCreateReplyCommentMutation
 } = injectedRtkApi;

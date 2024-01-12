@@ -1,4 +1,4 @@
-import { CommentType, Commentable } from '@bcpros/lixi-models';
+import { Comment, CommentType, Commentable } from '@bcpros/lixi-models';
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import _ from 'lodash';
@@ -71,4 +71,31 @@ export default class CommentLoader {
       buffer: false
     }
   );
+
+  public readonly batchReplyComment = new DataLoader(async (ids: readonly string[]) => {
+    const commentIds = ids as unknown as string[];
+    const mapResult = new Map();
+
+    const allReplyComment = await this.prisma.commentClosure.findMany({
+      where: {
+        ancestor: { in: commentIds },
+        depth: 1
+      },
+      include: { comment: true },
+      orderBy: { depth: 'desc' }
+    });
+
+    //groupBy ancestor (root-comment)
+    const groups = _.groupBy(allReplyComment, item => item.ancestor);
+
+    //make children with depth = 1, graphql will recursive to create children of children
+    for (const group of _.keys(groups)) {
+      mapResult.set(
+        group,
+        groups[group].map(item => item.comment)
+      );
+    }
+
+    return ids.map(item => mapResult.get(item) ?? []);
+  });
 }

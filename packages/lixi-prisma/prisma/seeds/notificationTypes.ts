@@ -83,5 +83,10 @@ export const notificationTypes = [
     id: 17,
     name: 'page-message-denied',
     description: 'Notification has new page message denied'
+  },
+  {
+    id: 18,
+    name: 'reply-comment',
+    description: 'Notification to reply comment'
   }
 ];

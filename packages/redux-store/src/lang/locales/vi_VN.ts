@@ -128,6 +128,8 @@ export default {
   'general.bookmark': 'Bài đã lưu',
   'general.noBookmark': 'Không có bài đã lưu',
   'general.followScore': 'Điểm theo dõi (Dana của người theo dõi): {dana}',
+  'general.burnUp': 'Ủng hộ',
+  'general.burnDown': 'Phản đối',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Bạn cần nhập đúng cụm từ bảo mật',
@@ -647,6 +649,8 @@ export default {
   'comment.writeCommentXpi': '{commentFee} để bình luận',
   'comment.failAndResend': 'Bình luận thất bại, bạn có muốn gửi lại?',
   'comment.resend': 'Gửi lại',
+  'comment.reply': 'Trả lời',
+  'comment.displayComment': 'Hiện nhận xét',
 
   /* 18. Category */
   'category.art': 'Mỹ thuật',
