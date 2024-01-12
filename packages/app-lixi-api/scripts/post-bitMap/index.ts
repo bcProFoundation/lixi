@@ -1,9 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 import { Redis } from 'ioredis';
 import * as _ from 'lodash';
+require('dotenv').config();
 
 const prismaClient = new PrismaClient();
-const redis = new Redis();
+const redis = new Redis({
+  port: Number(process.env.REDIS_PORT) ?? 6379,
+  host: process.env.REDIS_HOST
+});
 
 async function main() {
   const pipeline = redis.pipeline();
