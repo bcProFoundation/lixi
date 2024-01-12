@@ -9,7 +9,8 @@ import {
   LoginViaEmailCommand,
   RegisterViaEmailNoVerifiedCommand,
   RenameAccountCommand,
-  SecondaryLanguageAccountCommand
+  SecondaryLanguageAccountCommand,
+  UpdateAccountInput
 } from '@bcpros/lixi-models';
 import { COIN } from '@bcpros/lixi-models/constants';
 import { callConfig } from '@context/index';
@@ -412,16 +413,21 @@ function* setAccountSuccessSaga(action: PayloadAction<Account>) {
 function* renameAccountSaga(action: PayloadAction<RenameAccountCommand>) {
   try {
     yield put(showLoading(renameAccount.type));
-    const { id } = action.payload;
+    const { id, name } = action.payload;
 
-    const patchAccountCommand: PatchAccountCommand = {
-      id: action.payload.id,
-      mnemonic: action.payload.mnemonic,
-      name: action.payload.name
+    const input: UpdateAccountInput = {
+      id,
+      name
     };
 
-    const data = yield call(accountApi.patch, id, patchAccountCommand);
-    const account = data as Account;
+    const promise = yield put(
+      accountGraphApi.endpoints.updateAccount.initiate({
+        input
+      })
+    );
+
+    const data = yield promise.unwrap();
+    const account = data.updateAccount as Account;
     yield put(renameAccountSuccess(account));
   } catch (err) {
     const message = (err as Error).message ?? intl.get('account.unableToSelect');

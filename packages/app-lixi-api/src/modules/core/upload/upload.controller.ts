@@ -137,25 +137,24 @@ export class UploadFilesController {
           id: id
         },
         include: {
-          imageUploadable: true
+          imageUploadable: { include: { uploads: true } }
         }
       });
 
       if (account.id === upload?.imageUploadable?.accountId && upload) {
         await this.prisma.$transaction(async prisma => {
-          await prisma.imageUploadable.delete({
-            where: {
-              id: upload.imageUploadableId!
-            }
-          });
-
-          await prisma.upload.delete({
-            where: {
-              id: upload!.id
-            }
-          });
-
-          return upload;
+          const lengthImages = upload.imageUploadable?.uploads.length;
+          if (lengthImages === 1) {
+            await prisma.imageUploadable.delete({
+              where: {
+                id: upload.imageUploadableId!
+              }
+            });
+          } else {
+            await prisma.upload.delete({
+              where: { id }
+            });
+          }
         });
 
         await this.cloudflareService.deleteImage(upload.cfImageId!);
@@ -188,7 +187,7 @@ export class UploadFilesController {
     @Body() body: any
   ) {
     try {
-      const { type } = body;
+      const { type, imageUploadableId } = body;
       if (!account) {
         const couldNotFindAccount = await i18n.t('lixi.messages.couldNotFindAccount');
         throw new Error(couldNotFindAccount);
@@ -236,26 +235,42 @@ export class UploadFilesController {
         uploads.map(upload => this.prisma.upload.create({ data: upload }))
       );
 
-      await this.prisma.imageUploadable.create({
-        data: {
-          account: {
-            connect: {
-              id: account.id
+      let imageUploadableCreated;
+      if (!imageUploadableId) {
+        imageUploadableCreated = await this.prisma.imageUploadable.create({
+          data: {
+            account: {
+              connect: {
+                id: account.id
+              }
+            },
+            uploads: {
+              connect: resultImages.map(image => {
+                return {
+                  id: image.id
+                };
+              })
             }
-          },
-          uploads: {
-            connect: resultImages.map(image => {
-              return {
-                id: image.id
-              };
-            })
           }
-        }
-      });
+        });
+      } else {
+        imageUploadableCreated = await this.prisma.imageUploadable.update({
+          where: { id: imageUploadableId },
+          data: {
+            uploads: {
+              connect: resultImages.map(image => {
+                return {
+                  id: image.id
+                };
+              })
+            }
+          }
+        });
+      }
 
       this.accountCacheService.removeByKey(account.id.toString());
 
-      return resultImages;
+      return { images: resultImages, imageUploadableId: imageUploadableCreated.id };
     } catch (err) {
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -103,7 +103,7 @@ const EditorLexical = (props: EditorLexicalProps) => {
   const { initialContent, onSubmit, isEditMode, loading } = props;
   const [floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
   const postCoverUploads = useAppSelector(getPostCoverUploads);
-  const imagesList = postCoverUploads.map(img => {
+  const imagesList = postCoverUploads.images.map(img => {
     const imgUrl = `${process.env.NEXT_PUBLIC_AWS_ENDPOINT}/${img.bucket}/${img.sha}`;
     let width = img?.width || 4;
     let height = img?.height || 3;
