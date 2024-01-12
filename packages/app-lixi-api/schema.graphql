@@ -21,6 +21,7 @@ type Account {
   followersCount: Int
   followingPagesCount: Int
   followingsCount: Int
+  hash160: String
   id: Int!
   language: String!
   messages: [Message!]
@@ -192,6 +193,7 @@ enum Coin {
 }
 
 type Comment {
+  children: [Comment!]
   commentAccount: Account!
   commentAccountId: Int
   commentByPublicKey: String
@@ -208,6 +210,7 @@ type Comment {
   danaBurnUp: Float!
   id: ID!
   imageUploadable: ImageUploadable
+  parentId: String
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
@@ -286,6 +289,7 @@ input CreateCommentInput {
   commentText: String!
   commentableId: String!
   createFeeHex: String
+  replyToCommentId: String
   tipHex: String
   uploadId: String
 }
@@ -776,6 +780,7 @@ type Mutation {
   createPageMessageSession(data: CreatePageMessageInput!): PageMessageSession!
   createPost(data: CreatePostInput!): Post!
   createProduct(data: CreateProductInput!): Product!
+  createReplyComment(data: CreateCommentInput!): Comment!
   createTemple(data: CreateTempleInput!): Temple!
   createToken(data: CreateTokenInput!): Token!
   createWorship(data: CreateWorshipInput!): Worship!
@@ -787,6 +792,7 @@ type Mutation {
   importAccount(data: ImportAccountInput!): Account!
   openPageMessageSession(data: OpenPageMessageSessionInput!): PageMessageSession!
   removeBookmark(data: RemoveBookmarkInput!): Bookmark!
+  removePost(data: RemovePostInput!): Post!
   repost(data: RepostInput!): Boolean!
   updateAccount(data: UpdateAccountInput!): Account!
   updatePage(data: UpdatePageInput!): Page!
@@ -993,6 +999,7 @@ type Post {
   account: Account!
   accountId: Int!
   bookmarkableId: String
+  burnedByOthers: Boolean
   commentableId: String
   content: String!
 
@@ -1297,6 +1304,11 @@ input RemoveBookmarkInput {
   bookmarkForId: String!
 }
 
+input RemovePostInput {
+  accountId: Int!
+  postId: String!
+}
+
 type Repost {
   account: Account
   accountId: Int
@@ -1488,6 +1500,7 @@ type Upload {
   bucket: String
   cfImageFilename: String
   cfImageId: String
+  commentId: String
   extension: String
   height: Int
   id: ID!

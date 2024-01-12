@@ -35,6 +35,7 @@ export type Account = {
   followersCount?: Maybe<Scalars['Int']>;
   followingPagesCount?: Maybe<Scalars['Int']>;
   followingsCount?: Maybe<Scalars['Int']>;
+  hash160?: Maybe<Scalars['String']>;
   id: Scalars['Int'];
   language: Scalars['String'];
   messages?: Maybe<Array<Message>>;
@@ -215,6 +216,7 @@ export enum Coin {
 
 export type Comment = {
   __typename?: 'Comment';
+  children?: Maybe<Array<Comment>>;
   commentAccount: Account;
   commentAccountId?: Maybe<Scalars['Int']>;
   commentByPublicKey?: Maybe<Scalars['String']>;
@@ -230,6 +232,7 @@ export type Comment = {
   danaBurnUp: Scalars['Float'];
   id: Scalars['ID'];
   imageUploadable?: Maybe<ImageUploadable>;
+  parentId?: Maybe<Scalars['String']>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
 };
@@ -312,6 +315,7 @@ export type CreateCommentInput = {
   commentText: Scalars['String'];
   commentableId: Scalars['String'];
   createFeeHex?: InputMaybe<Scalars['String']>;
+  replyToCommentId?: InputMaybe<Scalars['String']>;
   tipHex?: InputMaybe<Scalars['String']>;
   uploadId?: InputMaybe<Scalars['String']>;
 };
@@ -800,6 +804,7 @@ export type Mutation = {
   createPageMessageSession: PageMessageSession;
   createPost: Post;
   createProduct: Product;
+  createReplyComment: Comment;
   createTemple: Temple;
   createToken: Token;
   createWorship: Worship;
@@ -811,6 +816,7 @@ export type Mutation = {
   importAccount: Account;
   openPageMessageSession: PageMessageSession;
   removeBookmark: Bookmark;
+  removePost: Post;
   repost: Scalars['Boolean'];
   updateAccount: Account;
   updatePage: Page;
@@ -869,6 +875,10 @@ export type MutationCreateProductArgs = {
   data: CreateProductInput;
 };
 
+export type MutationCreateReplyCommentArgs = {
+  data: CreateCommentInput;
+};
+
 export type MutationCreateTempleArgs = {
   data: CreateTempleInput;
 };
@@ -911,6 +921,10 @@ export type MutationOpenPageMessageSessionArgs = {
 
 export type MutationRemoveBookmarkArgs = {
   data: RemoveBookmarkInput;
+};
+
+export type MutationRemovePostArgs = {
+  data: RemovePostInput;
 };
 
 export type MutationRepostArgs = {
@@ -1131,6 +1145,7 @@ export type Post = {
   account: Account;
   accountId: Scalars['Int'];
   bookmarkableId?: Maybe<Scalars['String']>;
+  burnedByOthers?: Maybe<Scalars['Boolean']>;
   commentableId?: Maybe<Scalars['String']>;
   content: Scalars['String'];
   /** Identifies the date and time when the object was created. */
@@ -1877,6 +1892,11 @@ export type RemoveBookmarkInput = {
   bookmarkForId: Scalars['String'];
 };
 
+export type RemovePostInput = {
+  accountId: Scalars['Int'];
+  postId: Scalars['String'];
+};
+
 export type Repost = {
   __typename?: 'Repost';
   account?: Maybe<Account>;
@@ -2077,6 +2097,7 @@ export type Upload = {
   bucket?: Maybe<Scalars['String']>;
   cfImageFilename?: Maybe<Scalars['String']>;
   cfImageId?: Maybe<Scalars['String']>;
+  commentId?: Maybe<Scalars['String']>;
   extension?: Maybe<Scalars['String']>;
   height?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];

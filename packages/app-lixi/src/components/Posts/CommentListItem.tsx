@@ -13,13 +13,22 @@ import { Space, Tooltip } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import { useRouter } from 'next/router';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import intl from 'react-intl-universal';
 import { PostQueryItem, CommentQueryItem } from '@generated/index';
 import styled from 'styled-components';
 
 const SpaceCustom = styled(Space)`
   gap: 7px !important;
+`;
+const ImageComment = styled.div`
+  img {
+    width: auto;
+    height: auto;
+    max-width: 100% !important;
+    max-height: 30vh !important;
+    border-radius: var(--border-radius-item);
+  }
 `;
 
 const ACTION_VOTE = {
@@ -31,13 +40,17 @@ const DEFAULT_USERNAME = 'Anonymous';
 type CommentListItemProps = {
   item: CommentQueryItem;
   post?: PostQueryItem;
+  inputComment?: any;
+  hiddenInputComment: boolean;
 };
 
-const CommentListItem = ({ item, post }: CommentListItemProps) => {
+const CommentListItem = ({ item, post, inputComment, hiddenInputComment }: CommentListItemProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
+  const [displayReply, setDisplayReply] = useState(false);
+  const image = item?.imageUploadable?.uploads[0];
 
   const userName = useMemo(() => {
     return _.isNil(item?.commentAccount) ? DEFAULT_USERNAME : item?.commentAccount?.name;
@@ -59,9 +72,20 @@ const CommentListItem = ({ item, post }: CommentListItemProps) => {
       askAuthorization();
     }
   };
+
+  const handleClickReply = () => {
+    setDisplayReply(pre => !pre);
+  };
+
+  useEffect(() => {
+    if (hiddenInputComment) {
+      setDisplayReply(false);
+    }
+  }, [hiddenInputComment]);
+
   const actions = [
     <span style={{ marginInlineEnd: '15px' }} key={`comment-up-vote-${item.id}`}>
-      <Tooltip title={intl.get('general.burnUp')}>
+      <Tooltip title={() => intl.get('general.burnUp')}>
         <SpaceCustom onClick={() => actionsComment(item, ACTION_VOTE.UP_VOTE)}>
           {item?.danaBurnUp > 0 ? <LikeFilled /> : <LikeOutlined />}
           <Counter num={formatBalance(item?.danaBurnUp ?? 0)} />
@@ -69,45 +93,54 @@ const CommentListItem = ({ item, post }: CommentListItemProps) => {
       </Tooltip>
     </span>,
     <span key={`comment-down-vote-${item.id}`}>
-      <Tooltip title={intl.get('general.burnDown')}>
+      <Tooltip title={() => intl.get('general.burnDown')}>
         <SpaceCustom onClick={() => actionsComment(item, ACTION_VOTE.DOWN_VOTE)}>
           {item?.danaBurnDown > 0 ? <DislikeFilled /> : <DislikeOutlined />}
           <Counter num={formatBalance(item?.danaBurnDown ?? 0)} />
         </SpaceCustom>
       </Tooltip>
+    </span>,
+    <span key={`reply-${item.id}`}>
+      <SpaceCustom className="anticon" onClick={handleClickReply}>
+        {intl.get('comment.reply')}
+      </SpaceCustom>
     </span>
   ];
 
   return (
-    <AntdComment
-      className="comment-item"
-      actions={actions}
-      author={<a href={`/profile/${item.commentAccount.address}`}>{userName}</a>}
-      avatar={
-        <div onClick={() => router.push(`/profile/${item.commentAccount.address}`)}>
-          <AvatarUser icon={item?.commentAccount?.avatar} name={item?.commentAccount?.name} isMarginRight={false} />
-        </div>
-      }
-      content={
-        <React.Fragment>
-          <p>{item.commentText}</p>
-          {item?.imageUploadable?.uploads[0] && (
-            <picture>
-              <img
-                alt={item.imageUploadable.uploads[0].id}
-                src={`${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${item?.imageUploadable.uploads[0].cfImageId}/public`}
-                height={`20vh`}
-              />
-            </picture>
-          )}
-        </React.Fragment>
-      }
-      datetime={
-        <Tooltip title={moment(item.createdAt).format('YYYY-MM-DD HH:mm:ss')}>
-          <span>{moment(item.createdAt).fromNow()}</span>
-        </Tooltip>
-      }
-    />
+    <>
+      <AntdComment
+        className="comment-item"
+        actions={actions}
+        author={<a href={`/profile/${item.commentAccount.address}`}>{userName}</a>}
+        avatar={
+          <div onClick={() => router.push(`/profile/${item.commentAccount.address}`)}>
+            <AvatarUser icon={item?.commentAccount?.avatar} name={item?.commentAccount?.name} isMarginRight={false} />
+          </div>
+        }
+        content={
+          <React.Fragment>
+            <p>{item.commentText}</p>
+            <ImageComment>
+              {image && (
+                <picture>
+                  <img
+                    alt={item.imageUploadable.uploads[0].id}
+                    src={`${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${image.cfImageId}/public`}
+                  />
+                </picture>
+              )}
+            </ImageComment>
+          </React.Fragment>
+        }
+        datetime={
+          <Tooltip title={moment(item.createdAt).format('YYYY-MM-DD HH:mm:ss')}>
+            <span>{moment(item.createdAt).fromNow()}</span>
+          </Tooltip>
+        }
+      />
+      {displayReply && inputComment(item)}
+    </>
   );
 };
 

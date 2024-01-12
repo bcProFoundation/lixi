@@ -42,9 +42,11 @@ export type TimelineQuery = {
       isBookmarked?: boolean | null;
       originalLanguage?: string | null;
       danaViewScore?: number | null;
+      burnedByOthers?: boolean | null;
       account: {
         __typename?: 'Account';
         address: string;
+        hash160?: string | null;
         id: number;
         name: string;
         avatar?: string | null;
@@ -135,9 +137,11 @@ export type HomeTimelineQuery = {
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
+          burnedByOthers?: boolean | null;
           account: {
             __typename?: 'Account';
             address: string;
+            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -231,9 +235,11 @@ export type ProfileTimelineQuery = {
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
+          burnedByOthers?: boolean | null;
           account: {
             __typename?: 'Account';
             address: string;
+            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -328,9 +334,11 @@ export type ProfileTimelineByTimeQuery = {
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
+          burnedByOthers?: boolean | null;
           account: {
             __typename?: 'Account';
             address: string;
+            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -424,9 +432,11 @@ export type PageTimelineQuery = {
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
+          burnedByOthers?: boolean | null;
           account: {
             __typename?: 'Account';
             address: string;
+            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -521,9 +531,11 @@ export type PageTimelineByTimeQuery = {
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
+          burnedByOthers?: boolean | null;
           account: {
             __typename?: 'Account';
             address: string;
+            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -617,9 +629,11 @@ export type TokenTimelineQuery = {
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
+          burnedByOthers?: boolean | null;
           account: {
             __typename?: 'Account';
             address: string;
+            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -714,9 +728,11 @@ export type TokenTimelineByTimeQuery = {
           isBookmarked?: boolean | null;
           originalLanguage?: string | null;
           danaViewScore?: number | null;
+          burnedByOthers?: boolean | null;
           account: {
             __typename?: 'Account';
             address: string;
+            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;

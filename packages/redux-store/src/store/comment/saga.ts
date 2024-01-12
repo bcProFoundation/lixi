@@ -9,24 +9,81 @@ import { all, call, fork, put, select, takeLatest } from 'redux-saga/effects';
 import { RootState } from '../store';
 import { showToast } from '../toast';
 import { createCommentFailure, createCommentSuccess } from './action';
-import { CreateCommentMutation } from './comments.generated';
+import { CreateCommentMutation, CreateReplyCommentMutation } from './comments.generated';
 
-function* createCommentSuccessSaga(action: PayloadAction<CreateCommentMutation>) {
+function* createCommentSuccessSaga(
+  action: PayloadAction<{
+    dataCreateComment?: CreateCommentMutation;
+    dataCreateReplyComment?: CreateReplyCommentMutation;
+    isReplyComment: boolean;
+  }>
+) {
+  const { dataCreateComment, dataCreateReplyComment, isReplyComment } = action.payload;
   const rootState: RootState = yield select();
-  const commentToId = action.payload.createComment.commentable.commentToId;
-  const commentToType = action.payload.createComment.commentable.type;
+
+  const commentToId = isReplyComment
+    ? dataCreateReplyComment.createReplyComment.commentable.commentToId
+    : dataCreateComment.createComment;
+
+  const commentToType = isReplyComment
+    ? dataCreateReplyComment.createReplyComment.commentable.type
+    : dataCreateComment.createComment.commentable.type;
+
+  const commentableId = isReplyComment
+    ? dataCreateReplyComment.createReplyComment.commentableId
+    : dataCreateComment.createComment.commentableId;
+
   const commentCreatedInvalidatedBy = yield call(commentsApi.util.selectInvalidatedBy, rootState, ['CommentCreated']);
   for (const invalidatedBy of commentCreatedInvalidatedBy) {
     const { endpointName, originalArgs } = invalidatedBy;
-    if (endpointName === 'CommentsToCommentableId' && originalArgs.id === action.payload.createComment.commentableId) {
+    if (endpointName === 'CommentsToCommentableId' && originalArgs.id === commentableId) {
+      //update comment in post
       yield put(
         commentsApi.util.updateQueryData('CommentsToCommentableId', originalArgs, draft => {
-          draft.commentsToCommentableId.edges.unshift({
-            cursor: action.payload.createComment.id,
-            node: {
-              ...action.payload.createComment
-            }
-          });
+          //update children
+          if (isReplyComment) {
+            const { parentId } = dataCreateReplyComment.createReplyComment;
+            draft.commentsToCommentableId.edges.every((item, index) => {
+              if (item.cursor === parentId) {
+                //means node to insert at depth 1
+
+                draft.commentsToCommentableId.edges[index].node.children.push({
+                  ...dataCreateReplyComment.createReplyComment,
+                  children: []
+                });
+                //break the loop
+                return false;
+              }
+
+              //loop the children of node
+              item.node.children &&
+                item.node.children.every((itemChildren, indexChildren) => {
+                  if (itemChildren.id === parentId) {
+                    //means node to insert at depth 2
+                    draft.commentsToCommentableId.edges[index].node.children[indexChildren].children.push({
+                      ...dataCreateReplyComment.createReplyComment
+                    });
+                    //break the loop children
+                    return false;
+                  }
+
+                  //continue loop children
+                  return true;
+                });
+
+              //continue
+              return true;
+            });
+          } else {
+            //update root comment
+            draft.commentsToCommentableId.edges.unshift({
+              cursor: dataCreateComment.createComment.id,
+              node: {
+                ...dataCreateComment.createComment,
+                children: []
+              }
+            });
+          }
         })
       );
     } else if (endpointName === 'Post') {

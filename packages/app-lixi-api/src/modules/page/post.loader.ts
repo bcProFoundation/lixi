@@ -1,29 +1,27 @@
-import { Account, PostDana, Repost, UploadDetail } from '@bcpros/lixi-models';
+import { Account, POST_FLAG, Repost, UploadDetail } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
 import { AccountCacheService } from '../account/account-cache.service';
-import { FollowCacheService } from '../account/follow-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { DanaViewScoreService } from './dana-view-score.service';
 import { PageCacheService } from './page-cache.service';
-import { PostDanaCacheService } from './post-dana-cache.service';
 import { RedisDataLoader } from '../../common/redis/redis-dataloader';
 import BCHJS from '@bcpros/xpi-js';
 import { XPIJS } from '../wallet/wallet.constants';
+import { template } from 'src/utils/stringTemplate';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class PostLoader {
+  //post-bitmap
+  static bitMapPostKey = 'bitmap:post:{{postId}}';
+
   constructor(
     private readonly prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis,
     private readonly pageCacheService: PageCacheService,
     private readonly accountCacheService: AccountCacheService,
-    private readonly danaViewScoreService: DanaViewScoreService,
-    private readonly followCacheService: FollowCacheService,
-    private readonly postDanaCacheService: PostDanaCacheService,
     @Inject(XPIJS) private XPI: BCHJS
   ) {}
 
@@ -121,7 +119,8 @@ export default class PostLoader {
         });
         const reposts = repostsDb.map(item => {
           return new Repost({
-            ...item
+            ...item,
+            account: { ...item.account, hash160: item?.account.hash160.toString('hex') }
           });
         });
         return postIds.map(postId => {
@@ -179,6 +178,24 @@ export default class PostLoader {
       }
     }
   );
+
+  public readonly batchPostHasBurnedByOthers = new DataLoader(async (postIds: readonly string[]) => {
+    const pipeline = this.redis.pipeline();
+
+    postIds.map(id => {
+      pipeline.getbit(template(`${PostLoader.bitMapPostKey}`, { postId: id }), POST_FLAG.BURNED_BY_OTHERS);
+    });
+
+    //exec pipeline
+    const result = await pipeline.exec();
+
+    return result == null
+      ? postIds.map(item => false)
+      : result.map(item => {
+          if (item[0] != null) return false;
+          return !!item[1];
+        });
+  });
 
   _convertBurnedByToAddress = (burnedBy: string): string => {
     const legacyAddress = this.XPI.Address.hash160ToLegacy(burnedBy);

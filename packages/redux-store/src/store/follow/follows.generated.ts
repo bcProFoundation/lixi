@@ -46,6 +46,7 @@ export type AllFollowersByFollowingQuery = {
         id: number;
         name: string;
         address: string;
+        hash160?: string | null;
         mnemonicHash?: string | null;
         encryptedMnemonic?: string | null;
         encryptedSecret?: string | null;
@@ -57,6 +58,7 @@ export type AllFollowersByFollowingQuery = {
         followScore?: number | null;
         website?: string | null;
         description?: string | null;
+        createCommentFee?: string | null;
         createdAt: any;
         updatedAt: any;
         avatar?: string | null;
@@ -108,6 +110,7 @@ export type AllFollowingsByFollowerQuery = {
         id: number;
         name: string;
         address: string;
+        hash160?: string | null;
         mnemonicHash?: string | null;
         encryptedMnemonic?: string | null;
         encryptedSecret?: string | null;
@@ -119,6 +122,7 @@ export type AllFollowingsByFollowerQuery = {
         followScore?: number | null;
         website?: string | null;
         description?: string | null;
+        createCommentFee?: string | null;
         createdAt: any;
         updatedAt: any;
         avatar?: string | null;

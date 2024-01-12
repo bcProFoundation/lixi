@@ -22,13 +22,14 @@ import { aesGcmDecrypt, aesGcmEncrypt, generateRandomBase58Str, hashMnemonic } f
 import VError from 'verror';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
-import { WALLET_SERVICES } from '../wallet/wallet.constants';
+import { WALLET_SERVICES, XPIJS } from '../wallet/wallet.constants';
 import { WalletService } from '../wallet/wallet.service';
 import { AccountCacheService } from './account-cache.service';
 import AccountLoader from './account.loader';
 import { FollowCacheService } from './follow-cache.service';
 import { createEdge } from 'src/common/custom-graphql-relay/paginate';
 import FollowScoreLoader from './follow-score.loader';
+import BCHJS from '@bcpros/xpi-js';
 
 const pubSub = new PubSub();
 
@@ -43,7 +44,8 @@ export class AccountResolver {
     private readonly accountCacheService: AccountCacheService,
     private readonly accountLoader: AccountLoader,
     private readonly followCacheService: FollowCacheService,
-    private readonly followScoreLoader: FollowScoreLoader
+    private readonly followScoreLoader: FollowScoreLoader,
+    @Inject(XPIJS) private XPI: BCHJS
   ) {}
 
   @Query(() => Account)
@@ -183,6 +185,7 @@ export class AccountResolver {
           mnemonicHash: data.mnemonicHash,
           id: undefined,
           address: address,
+          hash160: Buffer.from(this.XPI.Address.toHash160(address)),
           publicKey: publicKey,
           accountDana: {
             create: {}
@@ -466,8 +469,7 @@ export class AccountResolver {
     await this.accountCacheService.removeByKeys([
       updatedAccount.id.toString(),
       updatedAccount.address,
-      updatedAccount.mnemonicHash,
-      updatedAccount.address
+      updatedAccount.mnemonicHash
     ]);
 
     //save to cache

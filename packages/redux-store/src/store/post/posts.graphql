@@ -274,6 +274,7 @@ fragment PostFields on Post {
   content
   account {
     address
+    hash160
     id
     name
     avatar
@@ -345,6 +346,7 @@ fragment PostFields on Post {
     }
   }
   danaViewScore
+  burnedByOthers
 }
 
 fragment PostMeiliFields on Post {
@@ -418,6 +420,7 @@ fragment PostMeiliFields on Post {
     }
   }
   danaViewScore
+  burnedByOthers
 }
 
 mutation createPost($input: CreatePostInput!) {
@@ -434,4 +437,10 @@ mutation updatePost($input: UpdatePostInput!) {
 
 mutation repost($input: RepostInput!) {
   repost(data: $input)
+}
+
+mutation removePost($input: RemovePostInput!) {
+  removePost(data: $input) {
+    ...PostFields
+  }
 }

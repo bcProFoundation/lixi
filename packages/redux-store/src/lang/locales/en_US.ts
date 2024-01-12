@@ -129,6 +129,8 @@ export default {
   'general.bookmark': 'Bookmark',
   'general.noBookmark': 'No bookmarks',
   'general.followScore': 'Follow Score (Dana of followers): {dana}',
+  'general.burnUp': 'Burn up',
+  'general.burnDown': 'Burn down',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Valid mnemonic seed phrase required',
@@ -614,6 +616,9 @@ export default {
   'post.unbookmarkSuccess': 'Unsave post success',
   'post.burnHistory': 'Burn History',
   'post.noBurnHistory': 'No one burn for post',
+  'post.removePost': 'Remove post',
+  'post.confirmRemovePost': 'Do you sure to delete post?',
+  'post.removeSuccess': 'Remove post success',
 
   /* 16.Token */
   'token.importToken': 'Import token',
@@ -645,6 +650,8 @@ export default {
   'comment.writeCommentXpi': '{commentFee} to reply',
   'comment.failAndResend': 'Comment fail, you want to resend?',
   'comment.resend': 'Resend',
+  'comment.reply': 'Reply',
+  'comment.displayComment': 'Display comment',
 
   /* 18. Category */
   'category.art': 'Art',

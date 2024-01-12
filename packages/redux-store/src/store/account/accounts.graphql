@@ -44,6 +44,7 @@ fragment AccountFields on Account {
   id
   name
   address
+  hash160
   mnemonicHash
   encryptedMnemonic
   encryptedSecret
@@ -59,6 +60,7 @@ fragment AccountFields on Account {
   followScore
   website
   description
+  createCommentFee
   createdAt
   updatedAt
   avatar

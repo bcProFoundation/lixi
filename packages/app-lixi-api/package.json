@@ -30,7 +30,10 @@
     "update:page": "ts-node scripts/page/index.ts",
     "update:dana": "ts-node scripts/dana/index.ts",
     "update:comment": "ts-node scripts/comment/index.ts",
-    "update:uploadable": "ts-node scripts/upload/index.ts"
+    "update:uploadable": "ts-node scripts/upload/index.ts",
+    "update:account": "ts-node scripts/account/index.ts",
+    "update:postBitMap": "ts-node scripts/post-bitMap/index.ts",
+    "update:closure": "ts-node scripts/comment/closure/index.ts"
   },
   "dependencies": {
     "@abcpros/bitcore-lib-xpi": "^8.25.37",

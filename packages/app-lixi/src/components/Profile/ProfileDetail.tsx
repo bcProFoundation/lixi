@@ -868,7 +868,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                 </div>
                 {selectedAccountId == user.id && <CreatePostCard userId={user.id} hashtags={hashtags} query={query} />}
                 <Timeline>
-                  {(profileTimelineByTime.length == 0 || profileTimelineScore.length == 0) && (
+                  {profileTimelineScore.length == 0 && (
                     <div className="blank-timeline">
                       <img className="time-line-blank" src="/images/time-line-blank.svg" alt="" />
                       <p>Sharing your thinking...</p>

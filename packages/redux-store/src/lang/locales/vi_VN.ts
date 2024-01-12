@@ -128,6 +128,8 @@ export default {
   'general.bookmark': 'Bài đã lưu',
   'general.noBookmark': 'Không có bài đã lưu',
   'general.followScore': 'Điểm theo dõi (Dana của người theo dõi): {dana}',
+  'general.burnUp': 'Ủng hộ',
+  'general.burnDown': 'Phản đối',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Bạn cần nhập đúng cụm từ bảo mật',
@@ -613,6 +615,9 @@ export default {
   'post.unbookmarkSuccess': 'Bỏ lưu bài viết thành công',
   'post.burnHistory': 'Lịch sử đốt',
   'post.noBurnHistory': 'Không ai đốt bài viết',
+  'post.removePost': 'Xóa bài viết',
+  'post.confirmRemovePost': 'Bạn có chắc chắn muốn xóa bài viết?',
+  'post.removeSuccess': 'Xóa bài viết thành công',
 
   /* 16.Token */
   'token.importToken': 'Thêm token',
@@ -644,6 +649,8 @@ export default {
   'comment.writeCommentXpi': '{commentFee} để bình luận',
   'comment.failAndResend': 'Bình luận thất bại, bạn có muốn gửi lại?',
   'comment.resend': 'Gửi lại',
+  'comment.reply': 'Trả lời',
+  'comment.displayComment': 'Hiện nhận xét',
 
   /* 18. Category */
   'category.art': 'Mỹ thuật',

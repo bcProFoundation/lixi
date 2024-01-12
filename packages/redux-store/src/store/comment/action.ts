@@ -1,5 +1,9 @@
 import { createAction } from '@reduxjs/toolkit';
-import { CreateCommentMutation } from './comments.generated';
+import { CreateCommentMutation, CreateReplyCommentMutation, useCreateReplyCommentMutation } from './comments.generated';
 
-export const createCommentSuccess = createAction<CreateCommentMutation>('comment/createCommentSuccess');
+export const createCommentSuccess = createAction<{
+  dataCreateComment?: CreateCommentMutation;
+  dataCreateReplyComment?: CreateReplyCommentMutation;
+  isReplyComment: boolean;
+}>('comment/createCommentSuccess');
 export const createCommentFailure = createAction<string>('comment/createCommentFailure');
