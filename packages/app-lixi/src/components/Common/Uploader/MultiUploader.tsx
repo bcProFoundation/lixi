@@ -69,6 +69,7 @@ type UploaderProps = {
   setUploadingImage: (state: boolean) => void;
   multiple?: boolean;
   disabled?: boolean;
+  commentId?: string;
 };
 /* eslint-disable react/display-name */
 export const MultiUploader = React.forwardRef(
@@ -83,7 +84,8 @@ export const MultiUploader = React.forwardRef(
       loading,
       setUploadingImage,
       multiple,
-      disabled
+      disabled,
+      commentId
     }: UploaderProps,
     ref
   ) => {
@@ -257,7 +259,7 @@ export const MultiUploader = React.forwardRef(
             const { images, imageUploadableId } = data;
             return onSuccess(
               images.map(image => {
-                dispatch(setUpload({ upload: image, type: type, imageUploadableId }));
+                dispatch(setUpload({ upload: { ...image, commentId }, type: type, imageUploadableId }));
               })
             );
           })

@@ -227,5 +227,20 @@ export const notificationTypeTranslations = [
     language: 'vi',
     isDefault: false,
     template: 'Yêu cầu trò chuyện với trang {{pageName}} đã không được đồng ý. Bạn đã được hoàn lại {{lixiAmount}} XPI.'
+  },
+  //reply-comment
+  {
+    id: 33,
+    notificationTypeId: 18,
+    language: 'en',
+    isDefault: true,
+    template: '{{senderName}} replied you.'
+  },
+  {
+    id: 34,
+    notificationTypeId: 18,
+    language: 'vi',
+    isDefault: false,
+    template: '{{senderName}} đã trả lời bạn.'
   }
 ];

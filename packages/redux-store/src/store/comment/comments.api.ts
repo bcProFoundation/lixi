@@ -36,5 +36,6 @@ export const {
   useCommentQuery,
   useCommentsToCommentableIdQuery,
   useLazyCommentsToCommentableIdQuery,
-  useCreateCommentMutation
+  useCreateCommentMutation,
+  useCreateReplyCommentMutation
 } = enhancedApi;

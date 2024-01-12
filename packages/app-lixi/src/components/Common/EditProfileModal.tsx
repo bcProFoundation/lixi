@@ -26,7 +26,7 @@ type EditProfileModalProps = {
 export const EditProfileModal: React.FC<EditProfileModalProps> = ({ profile, classStyle }: EditProfileModalProps) => {
   const dispatch = useAppDispatch();
   // const createRepostFee = [0, 1, 10, 100, 1000];
-  const createCommentFee = [0, fromSmallestDenomination(currency.dustSats), 1, 10, 100];
+  const createCommentFee = [0, fromSmallestDenomination(currency.dustSats)];
 
   const [componentDisabled, setComponentDisabled] = useState<boolean>(true);
   const onFormLayoutChange = ({ disabled }: { disabled: boolean }) => {

@@ -3,7 +3,7 @@
 
 query Comment($id: String!) {
   comment(id: $id) {
-    ...CommentFields
+    ...ReplyCommentFields
   }
 }
 
@@ -29,7 +29,7 @@ query CommentsToCommentableId(
     edges {
       cursor
       node {
-        ...CommentFields
+        ...ReplyCommentFields
       }
     }
     pageInfo {
@@ -75,10 +75,27 @@ fragment CommentFields on Comment {
     type
     commentToId
   }
+  parentId
+}
+
+fragment ReplyCommentFields on Comment {
+  ...CommentFields
+  children {
+    ...CommentFields
+    children {
+      ...CommentFields
+    }
+  }
 }
 
 mutation createComment($input: CreateCommentInput!) {
   createComment(data: $input) {
+    ...CommentFields
+  }
+}
+
+mutation createReplyComment($input: CreateCommentInput!) {
+  createReplyComment(data: $input) {
     ...CommentFields
   }
 }
