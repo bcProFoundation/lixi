@@ -5,18 +5,20 @@ const prismaClient = new PrismaClient();
 async function main() {
   const allComment = await prismaClient.comment.findMany({});
 
-  const dataCreateClosure = allComment.map(item => {
-    return {
-      ancestor: item.id,
-      descendant: item.id,
-      depth: 0,
-      commentId: item.id
-    };
-  });
-
-  await prismaClient.commentClosure.createMany({
-    data: dataCreateClosure
-  });
+  await Promise.all(
+    allComment.map(async (item) => {
+      return await prismaClient.commentClosure.upsert({
+        where: { ancestor_descendant: { ancestor: item.id, descendant: item.id } },
+        update: { depth: 0, commentId: item.id, ancestor: item.id, descendant: item.id },
+        create: {
+          ancestor: item.id,
+          descendant: item.id,
+          depth: 0,
+          commentId: item.id
+        }
+      })
+    })
+  );
 
   console.log('Finish');
 }
