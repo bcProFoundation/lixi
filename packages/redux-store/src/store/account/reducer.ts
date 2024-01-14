@@ -51,7 +51,7 @@ const initialState: AccountsState = accountsAdapter.getInitialState({
   accountCoverUpload: null,
   pageAvatarUpload: null,
   pageCoverUpload: null,
-  postCoverUploads: [],
+  postCoverUploads: { images: [], imageUploadableId: null },
   productImageUploads: [],
   editorCache: null,
   leaderBoard: [],
@@ -124,7 +124,7 @@ export const accountReducer = createReducer(initialState, builder => {
       accountsAdapter.removeOne(state, action.payload);
     })
     .addCase(setUpload, (state, action) => {
-      const { type, upload } = action.payload;
+      const { type, upload, imageUploadableId } = action.payload;
 
       switch (type) {
         case UPLOAD_TYPES.ENVELOPE:
@@ -143,7 +143,10 @@ export const accountReducer = createReducer(initialState, builder => {
           state.pageCoverUpload = upload;
           break;
         case UPLOAD_TYPES.POST:
-          state.postCoverUploads.push(upload);
+          if (imageUploadableId) {
+            state.postCoverUploads.imageUploadableId = imageUploadableId;
+          }
+          state.postCoverUploads.images.push(upload);
           break;
         case UPLOAD_TYPES.MESSAGE:
           state.messageUploads.push(upload);
@@ -170,9 +173,12 @@ export const accountReducer = createReducer(initialState, builder => {
           state.pageCoverUpload = null;
           break;
         case UPLOAD_TYPES.POST:
-          state.postCoverUploads = state.postCoverUploads.filter(image => {
+          state.postCoverUploads.images = state.postCoverUploads.images.filter(image => {
             return image.id !== id;
           });
+          if (state.postCoverUploads.images.length === 0) {
+            state.postCoverUploads.imageUploadableId = null;
+          }
           break;
         case UPLOAD_TYPES.MESSAGE:
           state.messageUploads = state.messageUploads.filter(image => {
@@ -201,9 +207,12 @@ export const accountReducer = createReducer(initialState, builder => {
           state.pageCoverUpload = null;
           break;
         case UPLOAD_TYPES.POST:
-          state.postCoverUploads = state.postCoverUploads.filter(image => {
+          state.postCoverUploads.images = state.postCoverUploads.images.filter(image => {
             return image.id !== id;
           });
+          if (state.postCoverUploads.images.length === 0) {
+            state.postCoverUploads.imageUploadableId = null;
+          }
           break;
         case UPLOAD_TYPES.MESSAGE:
           state.messageUploads = state.messageUploads.filter(image => {
@@ -216,7 +225,7 @@ export const accountReducer = createReducer(initialState, builder => {
       }
     })
     .addCase(removeAllUpload, (state, action) => {
-      state.postCoverUploads.length = 0;
+      state.postCoverUploads.images.length = 0;
       state.productImageUploads.length = 0;
     })
     .addCase(removeAllMessageUpload, (state, action) => {
