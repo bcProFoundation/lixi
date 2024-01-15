@@ -13,7 +13,7 @@ export interface AccountsState extends EntityState<Account> {
   accountAvatarUpload: Upload;
   pageCoverUpload: Upload;
   pageAvatarUpload: Upload;
-  postCoverUploads: Upload[];
+  postCoverUploads: { images: Upload[]; imageUploadableId: string };
   productImageUploads: Upload[];
   messageUploads: Upload[];
   editorCache: Nullable<string> | undefined;

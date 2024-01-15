@@ -1,20 +1,19 @@
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import { useImperativeHandle, useRef, useState } from 'react';
 import intl from 'react-intl-universal';
-import { message, Upload, Button, Modal } from 'antd';
+import { Upload, Button } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { RcFile, UploadChangeParam } from 'antd/lib/upload';
 import styled from 'styled-components';
-import Image from 'next/image';
 import type { UploadFile } from 'antd/es/upload/interface';
-import { isMobile } from 'react-device-detect';
-import { useAppDispatch } from '@store/hooks';
-import { setUpload, removeUpload } from '@store/account/actions';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { setUpload } from '@store/account/actions';
 import axiosClient from '@utils/axiosClient';
 import { UPLOAD_API_S3_MULTIPLE } from '@bcpros/lixi-models/constants';
 import _ from 'lodash';
 import { ButtonType } from 'antd/lib/button';
 import { showToast } from '@store/toast/actions';
 import React from 'react';
+import { getPostCoverUploads } from '@store/account/selectors';
 
 const getBase64 = (file: RcFile): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -93,7 +92,12 @@ export const MultiUploader = React.forwardRef(
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
     const [previewVisible, setPreviewVisible] = useState(false);
+    const countFile = useRef(0);
+    const lastLengthUpload = useRef(0);
+    const formData = new FormData();
     const dispatch = useAppDispatch();
+    const postCoverUploads = useAppSelector(getPostCoverUploads);
+    const { imageUploadableId } = postCoverUploads;
 
     useImperativeHandle(ref, () => ({
       async uploadImageFromClipboard(options) {
@@ -204,6 +208,7 @@ export const MultiUploader = React.forwardRef(
       const { status } = info.file;
       switch (status) {
         case 'uploading':
+          countFile.current = info.fileList.length;
           setUploadingImage(true);
           break;
         case 'done':
@@ -230,10 +235,9 @@ export const MultiUploader = React.forwardRef(
     const uploadImage = async options => {
       const { onSuccess, onError, file, onProgress } = options;
       const url = UPLOAD_API_S3_MULTIPLE;
-      const formData = new FormData();
 
       formData.append('files', file);
-      formData.append('type', type);
+      lastLengthUpload.current += 1;
 
       const config = {
         headers: { 'content-type': 'multipart/form-data' },
@@ -242,22 +246,28 @@ export const MultiUploader = React.forwardRef(
           onProgress({ percent: (event.loaded / event.total) * 100 });
         }
       };
+      if (lastLengthUpload.current === countFile.current) {
+        if (imageUploadableId) {
+          formData.append('imageUploadableId', imageUploadableId);
+        }
+        formData.append('type', type);
 
-      await axiosClient
-        .post(url, formData, config)
-        .then(response => {
-          const { data } = response;
-
-          return onSuccess(
-            data.map(image => {
-              dispatch(setUpload({ upload: { ...image, commentId }, type: type }));
-            })
-          );
-        })
-        .catch(err => {
-          const { response } = err;
-          return onError(response);
-        });
+        await axiosClient
+          .post(url, formData, config)
+          .then(response => {
+            const { data } = response;
+            const { images, imageUploadableId } = data;
+            return onSuccess(
+              images.map(image => {
+                dispatch(setUpload({ upload: { ...image, commentId }, type: type, imageUploadableId }));
+              })
+            );
+          })
+          .catch(err => {
+            const { response } = err;
+            return onError(response);
+          });
+      }
     };
 
     return (

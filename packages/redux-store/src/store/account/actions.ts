@@ -63,9 +63,16 @@ export const refreshLixiListSilentFailure = createAction<string>('lixi/refreshLi
 export const silentLogin = createAction<string>('account/silentLogin');
 export const silentLoginSuccess = createAction('account/silentLoginSuccess');
 export const silentLoginFailure = createAction('account/silentLoginFailure');
-export const setUpload = createAction<{ upload: Upload; type: any }>('account/setUpload');
+export const setUpload = createAction<{
+  upload: Upload;
+  type: any;
+  imageUploadableId?: string;
+}>('account/setUpload');
 export const removeUpload = createAction<{ uploadType: any; id?: string }>('account/removeUpload');
-export const removeUploadFromCache = createAction<{ uploadType: any; id?: string }>('account/removeUploadFromCache');
+export const removeUploadFromCache = createAction<{
+  uploadType: any;
+  id?: string;
+}>('account/removeUploadFromCache');
 export const removeAllUpload = createAction('account/removeAllUpload');
 export const removeAllMessageUpload = createAction('account/removeAllMessageUpload');
 export const loginViaEmail = createAction<LoginViaEmailCommand>('account/loginViaEmail');

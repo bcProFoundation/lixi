@@ -189,7 +189,7 @@ const EditorLexical = (props: EditorLexicalProps) => {
   const inputText = useRef(null);
   const multiUploader = useRef(null);
   const imagesList = useMemo(() => {
-    let imagesListResult = postCoverUploads.map(img => {
+    let imagesListResult = postCoverUploads.images.map(img => {
       const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.cfImageId}/public`;
       let width = img?.width || 4;
       let height = img?.height || 3;
