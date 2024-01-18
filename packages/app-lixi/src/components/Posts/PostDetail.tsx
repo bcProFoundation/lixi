@@ -458,7 +458,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   return (
     <React.Fragment>
       <StyledContainerPostDetail className="post-detail" style={{ paddingBottom: isMobileView ? '3rem' : '1rem' }}>
-        <NavBarHeader onClick={() => router.back()}>
+        <NavBarHeader>
           <InfoCardUser
             imgUrl={post.account.avatar ? post.account.avatar : ''}
             name={post.account.name}
@@ -467,7 +467,9 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
             page={post.page ? post.page : undefined}
             token={post.token ? post.token : undefined}
             activatePostLocation={true}
+            isDropdown={true}
             onEditPostClick={editPost}
+            post={post}
             postEdited={post.createdAt !== post.updatedAt}
           ></InfoCardUser>
         </NavBarHeader>

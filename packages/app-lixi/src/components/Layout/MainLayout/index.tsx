@@ -51,7 +51,6 @@ const AppBody = styled.div`
 `;
 
 export const NavBarHeader = styled(Header)`
-  cursor: pointer;
   background: transparent !important;
   width: 100%;
   display: flex;
