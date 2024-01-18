@@ -34,6 +34,7 @@ export class TranslateService {
             to: ['en', 'vi'],
             textType: 'html'
           },
+          paramsSerializer: { indexes: null },
           data: [
             {
               text: content.length > 24999 ? content.slice(0, 24999) : content
