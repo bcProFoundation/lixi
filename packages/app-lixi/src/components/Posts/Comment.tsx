@@ -267,6 +267,7 @@ const Comment = ({ post }: CommentProps) => {
   const [isReplyComment, setIsReplyComment] = useState(false);
   const [replyCommentData, setReplyCommentData] = useState<CommentQueryItem>(null);
   const previousComment = useRef({ text: '', commentId: '', commentAddress: '' });
+  const refsComment = useRef({});
 
   const [
     createCommentTrigger,
@@ -797,13 +798,20 @@ const Comment = ({ post }: CommentProps) => {
         >
           {data.map(item => {
             return (
-              <CommentListItem
-                key={`item-${item.id}`}
-                item={item}
-                post={post}
-                setReplyCommentCustom={setReplyCommentCustom}
-                setFocusComment={setFocusComment}
-              />
+              <div
+                ref={element => {
+                  refsComment.current[item.id] = element;
+                }}
+              >
+                <CommentListItem
+                  key={`item-${item.id}`}
+                  item={item}
+                  post={post}
+                  setReplyCommentCustom={setReplyCommentCustom}
+                  setFocusComment={setFocusComment}
+                  refsComment={refsComment.current}
+                />
+              </div>
             );
           })}
         </InfiniteScroll>

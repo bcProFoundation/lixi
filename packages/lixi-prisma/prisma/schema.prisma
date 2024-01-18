@@ -253,7 +253,7 @@ model CommentDana {
   danaBurnUp    Float   @default(0.0) @map("dana_burn_up")
   danaBurnDown  Float   @default(0.0) @map("dana_burn_down")
   danaBurnScore Float   @default(0.0) @map("dana_burn_score")
-  comment       Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  comment       Comment @relation(fields: [commentId], references: [id])
   commentId     String  @unique @map("comment_id")
   version       Int     @default(0)
 

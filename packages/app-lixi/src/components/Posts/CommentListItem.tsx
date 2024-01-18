@@ -40,11 +40,12 @@ const DEFAULT_USERNAME = 'Anonymous';
 type CommentListItemProps = {
   item: CommentQueryItem;
   post?: PostQueryItem;
+  refsComment?: Object;
   setReplyCommentCustom?: (display: boolean, item: CommentQueryItem) => void;
   setFocusComment?: () => void;
 };
 
-const CommentListItem = ({ item, post, setReplyCommentCustom, setFocusComment }: CommentListItemProps) => {
+const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFocusComment }: CommentListItemProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const authorization = useContext(AuthorizationContext);
@@ -101,13 +102,13 @@ const CommentListItem = ({ item, post, setReplyCommentCustom, setFocusComment }:
     </span>
   ];
 
-  const handleJump = () => {
-    const elementJumped = document.querySelector(`#${item.parentId}`);
+  const handleJump = parentId => {
+    const elementJumped = refsComment[parentId];
     if (elementJumped) {
-      elementJumped.classList.add('active-comment');
+      elementJumped.firstChild.classList.add('active-comment');
       elementJumped.scrollIntoView({ behavior: 'smooth', block: 'center' });
       setTimeout(() => {
-        elementJumped.classList.remove('active-comment');
+        elementJumped.firstChild.classList.remove('active-comment');
       }, 3000);
     }
   };
@@ -126,7 +127,7 @@ const CommentListItem = ({ item, post, setReplyCommentCustom, setFocusComment }:
         content={
           <React.Fragment>
             {item.parent && (
-              <div className="reply-comment-jump" onClick={handleJump}>
+              <div className="reply-comment-jump" onClick={() => handleJump(item.parentId)}>
                 <p className="reply-comment-jump-name"> {item.commentAccount.name}</p>
                 <p className="reply-comment-jump-content hide-content">{item.parent.commentText}</p>
               </div>
