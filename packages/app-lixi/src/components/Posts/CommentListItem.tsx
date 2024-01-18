@@ -132,7 +132,7 @@ const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFo
                 <p className="reply-comment-jump-content hide-content">{item.parent.commentText}</p>
               </div>
             )}
-            <p id={`${item.id}`}>{item.commentText}</p>
+            <p>{item.commentText}</p>
             <ImageComment>
               {image && (
                 <picture>
