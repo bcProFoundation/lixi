@@ -90,6 +90,14 @@ code {
   }
 }
 
+// hide text-content over 1 line (just display line one)
+.hide-content {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
 /* Hide scroll bars on antd modals*/
 .ant-modal-wrap.ant-modal-centered::-webkit-scrollbar {
   display: none;
@@ -1568,6 +1576,22 @@ code {
   animation: activePostAnimation 5s;
 }
 
+.active-comment {
+  animation: activeCommentAnimation 3s ease-out;
+}
+
+@keyframes activeCommentAnimation {
+  0% {
+    background-color: #fff;
+  }
+  30% {
+    background-color: #faf0fa;
+  }
+  100% {
+    background-color: #fff;
+  }
+}
+
 .ant-modal-dark {
   h1,
   h2,
@@ -1761,6 +1785,22 @@ code {
   // PostDetailModal
   .post-detail-modal {
     background: var(--bg-color-dark-item) !important;
+
+    .reply-comment-box {
+      border-top: 1px solid #3e4042;
+
+      .reply-to-name {
+        color: var(--text-color-primary-dark);
+      }
+
+      .reply-content {
+        color: var(--text-color-on-dark);
+      }
+    }
+
+    .reply-comment-jump {
+      background-color: #3f4040 !important;
+    }
 
     .ant-layout-header,
     .action-post-bar,
@@ -2129,10 +2169,6 @@ code {
 
     &:hover {
       background: #303031 !important;
-
-      .ant-comment-content-detail {
-        color: var(--text-color-primary-dark) !important;
-      }
     }
 
     &.un-read {
@@ -2601,6 +2637,10 @@ code {
   .post-detail {
     background: var(--bg-color-dark-item) !important;
 
+    .comment-input-container {
+      background: var(--bg-color-dark-item) !important;
+    }
+
     .anticon {
       color: #fff;
     }
@@ -2624,10 +2664,26 @@ code {
           color: gray;
         }
       }
+    }
 
-      .ant-comment-content-detail {
+    .ant-comment-content-detail {
+      color: var(--text-color-on-dark);
+    }
+
+    .reply-comment-box {
+      border-top: 1px solid #3e4042;
+
+      .reply-to-name {
+        color: var(--text-color-primary-dark);
+      }
+
+      .reply-content {
         color: var(--text-color-on-dark);
       }
+    }
+
+    .reply-comment-jump {
+      background-color: #3f4040 !important;
     }
 
     .images-post {

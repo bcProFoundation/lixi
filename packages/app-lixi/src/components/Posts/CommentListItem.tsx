@@ -40,16 +40,16 @@ const DEFAULT_USERNAME = 'Anonymous';
 type CommentListItemProps = {
   item: CommentQueryItem;
   post?: PostQueryItem;
-  inputComment?: any;
-  hiddenInputComment: boolean;
+  refsComment?: Object;
+  setReplyCommentCustom?: (display: boolean, item: CommentQueryItem) => void;
+  setFocusComment?: () => void;
 };
 
-const CommentListItem = ({ item, post, inputComment, hiddenInputComment }: CommentListItemProps) => {
+const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFocusComment }: CommentListItemProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
-  const [displayReply, setDisplayReply] = useState(false);
   const image = item?.imageUploadable?.uploads[0];
 
   const userName = useMemo(() => {
@@ -73,15 +73,10 @@ const CommentListItem = ({ item, post, inputComment, hiddenInputComment }: Comme
     }
   };
 
-  const handleClickReply = () => {
-    setDisplayReply(pre => !pre);
+  const handleClickReply = item => {
+    setReplyCommentCustom(true, item);
+    setFocusComment();
   };
-
-  useEffect(() => {
-    if (hiddenInputComment) {
-      setDisplayReply(false);
-    }
-  }, [hiddenInputComment]);
 
   const actions = [
     <span style={{ marginInlineEnd: '15px' }} key={`comment-up-vote-${item.id}`}>
@@ -101,11 +96,22 @@ const CommentListItem = ({ item, post, inputComment, hiddenInputComment }: Comme
       </Tooltip>
     </span>,
     <span key={`reply-${item.id}`}>
-      <SpaceCustom className="anticon" onClick={handleClickReply}>
+      <SpaceCustom className="anticon" onClick={() => handleClickReply(item)}>
         {intl.get('comment.reply')}
       </SpaceCustom>
     </span>
   ];
+
+  const handleJump = parentId => {
+    const elementJumped = refsComment[parentId];
+    if (elementJumped) {
+      elementJumped.firstChild.classList.add('active-comment');
+      elementJumped.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => {
+        elementJumped.firstChild.classList.remove('active-comment');
+      }, 3000);
+    }
+  };
 
   return (
     <>
@@ -120,6 +126,12 @@ const CommentListItem = ({ item, post, inputComment, hiddenInputComment }: Comme
         }
         content={
           <React.Fragment>
+            {item.parent && (
+              <div className="reply-comment-jump" onClick={() => handleJump(item.parentId)}>
+                <p className="reply-comment-jump-name"> {item.commentAccount.name}</p>
+                <p className="reply-comment-jump-content hide-content">{item.parent.commentText}</p>
+              </div>
+            )}
             <p>{item.commentText}</p>
             <ImageComment>
               {image && (
@@ -139,7 +151,6 @@ const CommentListItem = ({ item, post, inputComment, hiddenInputComment }: Comme
           </Tooltip>
         }
       />
-      {displayReply && inputComment(item)}
     </>
   );
 };

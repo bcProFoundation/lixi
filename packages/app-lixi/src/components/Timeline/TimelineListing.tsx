@@ -156,7 +156,7 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
     }
   }, [router.query.q]);
 
-  const refs = useRef([]);
+  const refs = useRef({});
   useEffect(() => {
     // when refresh page , or first time go in => no show new post for account
     if (!!newPostAvailable) {

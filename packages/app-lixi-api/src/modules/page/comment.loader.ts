@@ -72,30 +72,19 @@ export default class CommentLoader {
     }
   );
 
-  public readonly batchReplyComment = new DataLoader(async (ids: readonly string[]) => {
+  public readonly batchParentOfReplyComment = new DataLoader(async (ids: readonly string[]) => {
     const commentIds = ids as unknown as string[];
     const mapResult = new Map();
 
-    const allReplyComment = await this.prisma.commentClosure.findMany({
-      where: {
-        ancestor: { in: commentIds },
-        depth: 1
-      },
-      include: { comment: true },
-      orderBy: { depth: 'desc' }
+    const result = await this.prisma.comment.findMany({
+      where: { id: { in: commentIds } },
+      include: { parent: true }
     });
 
-    //groupBy ancestor (root-comment)
-    const groups = _.groupBy(allReplyComment, item => item.ancestor);
+    result.map(item => {
+      mapResult.set(item.id, item.parent);
+    });
 
-    //make children with depth = 1, graphql will recursive to create children of children
-    for (const group of _.keys(groups)) {
-      mapResult.set(
-        group,
-        groups[group].map(item => item.comment)
-      );
-    }
-
-    return ids.map(item => mapResult.get(item) ?? []);
+    return ids.map(item => mapResult.get(item) ?? null);
   });
 }

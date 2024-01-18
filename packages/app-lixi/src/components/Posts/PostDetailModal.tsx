@@ -384,6 +384,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
           {...handlersSwipe}
           className={`${!borderColorHeader ? 'no-border-color' : ''} post-detail-modal`}
           onScroll={e => handleSrcolling(e)}
+          id="scrollableComment"
         >
           <NavBarHeader onClick={handleOnCancel}>
             <InfoCardUser
