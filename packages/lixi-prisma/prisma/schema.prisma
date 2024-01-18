@@ -237,8 +237,10 @@ model Comment {
   imageUploadable    ImageUploadable? @relation("comment_image_uploadable", fields: [imageUploadableId], references: [id])
   imageUploadableId  String?          @unique @map("comment_image_uploadable_id")
   commentDana        CommentDana?
-  closure            CommentClosure[]
   parentId           String?
+  parent             Comment?         @relation("ParentChildren", fields: [parentId], references: [id])
+  children           Comment[]        @relation("ParentChildren")
+  rootId             String?
 
   @@index([commentableId], map: "index_commentable")
   @@index([commentAccountId], map: "index_comment_on_account")
@@ -251,7 +253,7 @@ model CommentDana {
   danaBurnUp    Float   @default(0.0) @map("dana_burn_up")
   danaBurnDown  Float   @default(0.0) @map("dana_burn_down")
   danaBurnScore Float   @default(0.0) @map("dana_burn_score")
-  comment       Comment @relation(fields: [commentId], references: [id])
+  comment       Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
   commentId     String  @unique @map("comment_id")
   version       Int     @default(0)
 
@@ -1186,17 +1188,4 @@ model Product {
 
   @@index([postId])
   @@map("product")
-}
-
-model CommentClosure {
-  ancestor   String
-  descendant String
-  depth      Int
-  commentId  String
-  comment    Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
-
-  @@id([ancestor, descendant])
-  @@index([ancestor])
-  @@index([descendant])
-  @@map("comment_closure")
 }

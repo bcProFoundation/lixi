@@ -42,18 +42,18 @@ import useAuthorization from '@components/Common/Authorization/use-authorization
 const { Search, TextArea } = Input;
 type CommentProps = {
   post: PostQueryItem;
-  listComment?: CommentQueryItem[];
-  isMainInput?: Boolean;
-  depth?: number;
 };
 
 const CommentsContainer = styled.div`
+  .ant-comment:last-child {
+    margin-bottom: 1rem;
+  }
   padding: 0 1rem;
   .comment-item {
     text-align: left;
     border: 0 !important;
     .ant-comment-inner {
-      padding: ${props => (props.className === 'main-comment' ? '16px 0 8px 0' : '10px 0 0 0 ')};
+      padding: 10px 0 8px 0;
       .ant-comment-avatar {
         .ant-avatar {
           width: 37px !important;
@@ -61,20 +61,26 @@ const CommentsContainer = styled.div`
           font-size: 14px;
         }
       }
+      .ant-comment-content-detail .reply-comment-jump {
+        cursor: pointer;
+        padding: 5px;
+        border-left: 4px solid var(--color-primary);
+        background-color: #faf0fa;
+        border-radius: 5px;
+        .reply-comment-jump-name {
+          font-weight: 600;
+        }
+        .reply-comment-jump-content {
+        }
+      }
     }
+
     .ant-comment-actions {
       margin-top: 4px;
     }
     .ant-comment-content-author-name {
       text-transform: capitalize;
     }
-  }
-
-  .display-comment {
-  }
-
-  .reply-comment .infinite-scroll-component__outerdiv {
-    border-left: 1px solid #f0f2f5;
   }
 `;
 
@@ -83,12 +89,9 @@ const CommentInputContainer = styled.div`
   z-index: 999;
   bottom: -1px;
   display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: flex-start;
-  margin-top: 1rem;
-  gap: 1rem;
-  padding: 1rem;
+  flex-direction: column;
+  padding: 0 1rem 1rem;
+  background-color: #fff;
   .ava-ico-cmt {
     padding-top: 1px;
     .ant-avatar {
@@ -107,6 +110,38 @@ const CommentInputContainer = styled.div`
     button {
       border-top-right-radius: 6px !important;
       border-bottom-right-radius: 6px !important;
+    }
+  }
+
+  .comment-input {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .reply-comment-box {
+    border-top: 1px solid #d6d6d6;
+    padding: 7px 5px 12px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    .close-reply-comment {
+      position: absolute;
+      top: 5px;
+      right: 15px;
+    }
+
+    .reply-to-name {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .reply-content {
+      color: #65676b;
     }
   }
 `;
@@ -206,7 +241,7 @@ const commentCommand = [
   }
 ];
 
-const Comment = ({ post, listComment, isMainInput = true, depth = 0 }: CommentProps) => {
+const Comment = ({ post }: CommentProps) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const Wallet = React.useContext(WalletContext);
@@ -229,6 +264,8 @@ const Comment = ({ post, listComment, isMainInput = true, depth = 0 }: CommentPr
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
   const [openModalResend, setOpenModalResend] = useState(false);
+  const [isReplyComment, setIsReplyComment] = useState(false);
+  const [replyCommentData, setReplyCommentData] = useState<CommentQueryItem>(null);
   const previousComment = useRef({ text: '', commentId: '', commentAddress: '' });
 
   const [
@@ -282,18 +319,13 @@ const Comment = ({ post, listComment, isMainInput = true, depth = 0 }: CommentPr
     }
   };
 
-  const handleKeyDown = async (
-    e: React.KeyboardEvent<HTMLTextAreaElement>,
-    isReplyComment = false,
-    item?: CommentQueryItem
-  ) => {
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault(); // Prevent the default behavior of adding a new line
       //don't allow create comment when previous comment not loading yet
       if (isReplyComment) {
         if (isLoadingCreateReplyComment || isSendingXPI || isUploadingImage) return;
-        const replyToCommentId = depth === 2 ? item.parentId : item.id;
-        await processComment(e.currentTarget.value, true, replyToCommentId, item.commentAccount.address); // Call your function to post the comment
+        await processComment(e.currentTarget.value, true, replyCommentData.id, replyCommentData.commentAccount.address); // Call your function to post the comment
       } else {
         if (isLoadingCreateComment || isSendingXPI || isUploadingImage) return;
         await processComment(e.currentTarget.value); // Call your function to post the comment
@@ -323,10 +355,7 @@ const Comment = ({ post, listComment, isMainInput = true, depth = 0 }: CommentPr
     replyCommentAdress: string = ''
   ) => {
     previousComment.current = { text: comment, commentId: replyToCommentId, commentAddress: replyCommentAdress };
-    if (isReplyComment) resetField(`reply-comment-${replyToCommentId}`);
-    else {
-      resetField('comment');
-    }
+    resetField('comment');
 
     //Check if the message is not empty
     if (comment && comment !== '') {
@@ -560,6 +589,9 @@ const Comment = ({ post, listComment, isMainInput = true, depth = 0 }: CommentPr
       if (commentUpload) {
         dispatch(removeUploadFromCache({ uploadType: UPLOAD_TYPES.COMMENT }));
       }
+      //reset reply comment
+      setIsReplyComment(false);
+      setReplyCommentData(null);
     } catch (error) {
       const message = intl.get('comment.unableCreateComment');
       dispatch(
@@ -603,218 +635,120 @@ const Comment = ({ post, listComment, isMainInput = true, depth = 0 }: CommentPr
     }
   };
 
-  const inputComment = (item: CommentQueryItem) => (
-    <>
-      <CommentInputContainer
-        className="comment-input-container"
-        css={depth < 2 ? { padding: '10px 0 0 0', margin: '0 0 0 45px' } : { padding: '10px 0 0 0', margin: '0' }}
-      >
-        <div className="ava-ico-cmt" onClick={() => onClickAccountAvatar()}>
-          <AvatarUser icon={accountInfoTemp?.avatar} name={selectedAccount?.name} isMarginRight={false} />
+  const replyCommentUI = () => {
+    return isReplyComment ? (
+      <div className="reply-comment-box">
+        <Button
+          type="text"
+          className="no-border-btn close-reply-comment"
+          icon={<CloseOutlined />}
+          onClick={() => setIsReplyComment(false)}
+        />
+        <div className="reply-to-name">
+          {intl.get('comment.replyTo', { name: replyCommentData.commentAccount.name })}
         </div>
-        <StyledCommentContainer
-          className="comment-container"
-          ref={inputText}
-          onClick={() => {
-            if (!authorization.authorized) {
-              askAuthorization();
-            }
-          }}
-        >
-          <Controller
-            name={`reply-comment-${item.id}`}
-            key={`reply-comment-${item.id}`}
-            control={control}
-            render={({ field: { onChange, onBlur, value, ref } }) => (
-              <AutoComplete
-                onSelect={() => {
-                  setOpen(false);
-                }}
-                options={commentCommand}
-                open={open}
-                onChange={onChange}
-                onBlur={onBlur}
-                value={value}
-                onSearch={value => {
-                  //TODO: This is not the best way to implement. Will come back later
-                  if (/\d+$/.test(value) || value === '') {
-                    setOpen(false);
-                  } else if (value.startsWith('/')) {
-                    setOpen(true);
-                  }
-                }}
-                defaultActiveFirstOption
-                defaultValue={`@${item.commentAccount.name} `}
-                getPopupContainer={trigger => trigger.parentElement}
-                disabled={!authorization.authorized}
-                style={{ width: '-webkit-fill-available', textAlign: 'left' }}
-              >
-                <StyledTextArea
-                  style={{ fontSize: '12px' }}
-                  ref={ref}
-                  onChange={onChange}
-                  onBlur={onBlur}
-                  value={value}
-                  placeholder={showTextComment()}
-                  defaultValue={`@${item.commentAccount.name} `}
-                  size="large"
-                  autoSize
-                  onKeyDown={e => handleKeyDown(e, true, item)}
-                />
-              </AutoComplete>
-            )}
-          />
-          <StyledIconContainer>
-            <Button
-              type="text"
-              disabled={isLoadingCreateReplyComment || isSendingXPI || isUploadingImage || !authorization.authorized}
-              style={{ borderColor: 'transparent !important' }}
-              onClick={async () => {
-                const replyToCommentId = depth === 2 ? item.parentId : item.id;
-                await processComment(
-                  getValues(`reply-comment-${item.id}`),
-                  true,
-                  replyToCommentId,
-                  item.commentAccount.address
-                );
-              }}
-              icon={
-                <SendOutlined
-                  style={{ fontSize: '20px' }}
-                  disabled={
-                    isLoadingCreateReplyComment || isSendingXPI || isUploadingImage || !authorization.authorized
-                  }
-                />
-              }
-            />
-            <MultiUploader
-              type={UPLOAD_TYPES.COMMENT}
-              isIcon={true}
-              ref={multiUploader}
-              icon={'/images/ico-picture.svg'}
-              buttonName=" "
-              buttonType="text"
-              showUploadList={false}
-              loading={isUploadingImage}
-              setUploadingImage={setUploadingImage}
-              multiple={false}
-              disabled={isLoadingCreateReplyComment || isSendingXPI || isUploadingImage || !authorization.authorized}
-              commentId={item.id}
-            />
-          </StyledIconContainer>
-        </StyledCommentContainer>
-      </CommentInputContainer>
-      {commentUpload && commentUpload?.commentId === item.id && (
-        <StyledCommentImageContainer css={{ paddingTop: '16px', margin: '0' }}>
-          <div className="images-post images-post-mobile only-one-image">
-            <div className="item-image-upload">
-              <picture>
-                <img
-                  src={`${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${commentUpload.cfImageId}/public`}
-                  alt={commentUpload?.originalFilename}
-                  width={commentUpload?.width}
-                  height={commentUpload?.height}
-                />
-              </picture>
-              <Button
-                type="text"
-                className="no-border-btn"
-                icon={<CloseOutlined />}
-                onClick={() => handleRemoveCommentUpload(commentUpload?.id)}
-              />
-            </div>
-          </div>
-        </StyledCommentImageContainer>
-      )}
-    </>
-  );
+        <div className="reply-content hide-content">{replyCommentData.commentText}</div>
+      </div>
+    ) : undefined;
+  };
 
   const mainInputComment = (
     <>
       <CommentInputContainer className="comment-input-container">
-        <div className="ava-ico-cmt" onClick={() => onClickAccountAvatar()}>
-          <AvatarUser icon={accountInfoTemp?.avatar} name={selectedAccount?.name} isMarginRight={false} />
-        </div>
-        <StyledCommentContainer
-          className="comment-container"
-          ref={inputText}
-          onClick={() => {
-            if (!authorization.authorized) {
-              askAuthorization();
-            }
-          }}
-        >
-          <Controller
-            name="comment"
-            key="comment"
-            control={control}
-            render={({ field: { onChange, onBlur, value, ref } }) => (
-              <AutoComplete
-                onSelect={() => {
-                  setOpen(false);
-                }}
-                options={commentCommand}
-                open={open}
-                onChange={onChange}
-                onBlur={onBlur}
-                value={value}
-                onSearch={value => {
-                  //TODO: This is not the best way to implement. Will come back later
-                  if (/\d+$/.test(value) || value === '') {
+        {replyCommentUI()}
+        <div className="comment-input">
+          <div className="ava-ico-cmt" onClick={() => onClickAccountAvatar()}>
+            <AvatarUser icon={accountInfoTemp?.avatar} name={selectedAccount?.name} isMarginRight={false} />
+          </div>
+          <StyledCommentContainer
+            className="comment-container"
+            ref={inputText}
+            onClick={() => {
+              if (!authorization.authorized) {
+                askAuthorization();
+              }
+            }}
+          >
+            <Controller
+              name="comment"
+              key="comment"
+              control={control}
+              render={({ field: { onChange, onBlur, value, ref } }) => (
+                <AutoComplete
+                  onSelect={() => {
                     setOpen(false);
-                  } else if (value.startsWith('/')) {
-                    setOpen(true);
-                  }
-                }}
-                defaultActiveFirstOption
-                getPopupContainer={trigger => trigger.parentElement}
-                disabled={!authorization.authorized}
-                style={{ width: '-webkit-fill-available', textAlign: 'left' }}
-              >
-                <StyledTextArea
-                  style={{ fontSize: '12px' }}
-                  ref={ref}
+                  }}
+                  options={commentCommand}
+                  open={open}
                   onChange={onChange}
                   onBlur={onBlur}
                   value={value}
-                  placeholder={showTextComment()}
-                  size="large"
-                  autoSize
-                  onKeyDown={handleKeyDown}
-                />
-              </AutoComplete>
-            )}
-          />
-          <StyledIconContainer>
-            <Button
-              type="text"
-              disabled={isLoadingCreateComment || isSendingXPI || isUploadingImage || !authorization.authorized}
-              style={{ borderColor: 'transparent !important' }}
-              onClick={async () => {
-                await processComment(getValues('comment'));
-              }}
-              icon={
-                <SendOutlined
-                  style={{ fontSize: '20px' }}
-                  disabled={isLoadingCreateComment || isSendingXPI || isUploadingImage || !authorization.authorized}
-                />
-              }
+                  onSearch={value => {
+                    //TODO: This is not the best way to implement. Will come back later
+                    if (/\d+$/.test(value) || value === '') {
+                      setOpen(false);
+                    } else if (value.startsWith('/')) {
+                      setOpen(true);
+                    }
+                  }}
+                  defaultActiveFirstOption
+                  getPopupContainer={trigger => trigger.parentElement}
+                  disabled={!authorization.authorized}
+                  style={{ width: '-webkit-fill-available', textAlign: 'left' }}
+                >
+                  <StyledTextArea
+                    style={{ fontSize: '12px' }}
+                    ref={ref}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    value={value}
+                    placeholder={showTextComment()}
+                    size="large"
+                    autoSize
+                    onKeyDown={handleKeyDown}
+                    className={'test-focus'}
+                  />
+                </AutoComplete>
+              )}
             />
-            <MultiUploader
-              type={UPLOAD_TYPES.COMMENT}
-              isIcon={true}
-              ref={multiUploader}
-              icon={'/images/ico-picture.svg'}
-              buttonName=" "
-              buttonType="text"
-              showUploadList={false}
-              loading={isUploadingImage}
-              setUploadingImage={setUploadingImage}
-              multiple={false}
-              disabled={isLoadingCreateComment || isSendingXPI || isUploadingImage || !authorization.authorized}
-            />
-          </StyledIconContainer>
-        </StyledCommentContainer>
+            <StyledIconContainer>
+              <Button
+                type="text"
+                disabled={isLoadingCreateComment || isSendingXPI || isUploadingImage || !authorization.authorized}
+                style={{ borderColor: 'transparent !important' }}
+                onClick={async () => {
+                  isReplyComment
+                    ? await processComment(
+                        getValues('comment'),
+                        true,
+                        replyCommentData.id,
+                        replyCommentData.commentAccount.address
+                      )
+                    : await processComment(getValues('comment'));
+                }}
+                icon={
+                  <SendOutlined
+                    style={{ fontSize: '20px' }}
+                    disabled={isLoadingCreateComment || isSendingXPI || isUploadingImage || !authorization.authorized}
+                  />
+                }
+              />
+              <MultiUploader
+                type={UPLOAD_TYPES.COMMENT}
+                isIcon={true}
+                ref={multiUploader}
+                icon={'/images/ico-picture.svg'}
+                buttonName=" "
+                buttonType="text"
+                showUploadList={false}
+                loading={isUploadingImage}
+                setUploadingImage={setUploadingImage}
+                multiple={false}
+                disabled={isLoadingCreateComment || isSendingXPI || isUploadingImage || !authorization.authorized}
+              />
+            </StyledIconContainer>
+          </StyledCommentContainer>
+        </div>
       </CommentInputContainer>
       {commentUpload && !commentUpload?.commentId && (
         <StyledCommentImageContainer>
@@ -841,45 +775,40 @@ const Comment = ({ post, listComment, isMainInput = true, depth = 0 }: CommentPr
     </>
   );
 
+  const setReplyCommentCustom = (display: boolean, item: CommentQueryItem) => {
+    setIsReplyComment(display);
+    setReplyCommentData(item);
+  };
+
+  const setFocusComment = () => {
+    setFocus('comment');
+  };
+
   return (
     <React.Fragment>
-      <CommentsContainer className={`${listComment ? 'reply-comment' : 'main-comment'}`}>
+      <CommentsContainer>
         <InfiniteScroll
-          dataLength={(listComment || data).length}
+          key={data.length}
+          dataLength={data.length}
           next={loadMoreComments}
           hasMore={hasNext}
           loader={<Skeleton style={{ marginTop: '1rem' }} avatar active />}
-          scrollableTarget="scrollableDiv"
-          css={listComment && { marginLeft: '30px' }}
+          scrollableTarget="scrollableComment"
         >
-          {(listComment || data).map(item => {
+          {data.map(item => {
             return (
-              <>
-                <CommentListItem
-                  key={`item-${item.id}`}
-                  item={item}
-                  post={post}
-                  inputComment={inputComment}
-                  hiddenInputComment={isSuccessCreateReplyComment ? true : false}
-                  css={{ margin: '50px' }}
-                />
-
-                {/* {depth === 0 && <button className="display-comment">{intl.get('comment.displayComment')}</button>} */}
-                {item?.children && item.children.length > 0 && (
-                  <Comment
-                    key={`list-item-${item.id}`}
-                    post={post}
-                    listComment={item.children}
-                    isMainInput={false}
-                    depth={depth + 1}
-                  />
-                )}
-              </>
+              <CommentListItem
+                key={`item-${item.id}`}
+                item={item}
+                post={post}
+                setReplyCommentCustom={setReplyCommentCustom}
+                setFocusComment={setFocusComment}
+              />
             );
           })}
         </InfiniteScroll>
       </CommentsContainer>
-      {isMainInput && mainInputComment}
+      {mainInputComment}
 
       <ModalResend
         title={<div>{intl.get('comment.failAndResend')}</div>}
@@ -888,7 +817,7 @@ const Comment = ({ post, listComment, isMainInput = true, depth = 0 }: CommentPr
         onOk={async () => {
           setOpenModalResend(false);
           const { text, commentId, commentAddress } = previousComment.current;
-          await processComment(text, listComment && true, commentId, commentAddress);
+          await processComment(text, isReplyComment, commentId, commentAddress);
         }}
         okText={<span>{intl.get('comment.resend')}</span>}
       >

@@ -34,7 +34,7 @@ export type CommentQuery = {
     createdAt: any;
     updatedAt: any;
     parentId?: string | null;
-    children?: Array<{
+    parent?: {
       __typename?: 'Comment';
       id: string;
       commentText: string;
@@ -46,40 +46,6 @@ export type CommentQuery = {
       createdAt: any;
       updatedAt: any;
       parentId?: string | null;
-      children?: Array<{
-        __typename?: 'Comment';
-        id: string;
-        commentText: string;
-        commentByPublicKey?: string | null;
-        commentableId?: string | null;
-        danaBurnUp: number;
-        danaBurnDown: number;
-        danaBurnScore: number;
-        createdAt: any;
-        updatedAt: any;
-        parentId?: string | null;
-        commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
-        commentDana?: {
-          __typename?: 'CommentDana';
-          danaBurnUp: number;
-          danaBurnDown: number;
-          danaBurnScore: number;
-          version: number;
-        } | null;
-        imageUploadable?: {
-          __typename?: 'ImageUploadable';
-          id: string;
-          uploads: Array<{
-            __typename?: 'Upload';
-            id: string;
-            width?: number | null;
-            height?: number | null;
-            cfImageId?: string | null;
-            cfImageFilename?: string | null;
-          }>;
-        } | null;
-        commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
-      }> | null;
       commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
       commentDana?: {
         __typename?: 'CommentDana';
@@ -101,7 +67,7 @@ export type CommentQuery = {
         }>;
       } | null;
       commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
-    }> | null;
+    } | null;
     commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
     commentDana?: {
       __typename?: 'CommentDana';
@@ -156,7 +122,7 @@ export type CommentsToCommentableIdQuery = {
         createdAt: any;
         updatedAt: any;
         parentId?: string | null;
-        children?: Array<{
+        parent?: {
           __typename?: 'Comment';
           id: string;
           commentText: string;
@@ -168,51 +134,6 @@ export type CommentsToCommentableIdQuery = {
           createdAt: any;
           updatedAt: any;
           parentId?: string | null;
-          children?: Array<{
-            __typename?: 'Comment';
-            id: string;
-            commentText: string;
-            commentByPublicKey?: string | null;
-            commentableId?: string | null;
-            danaBurnUp: number;
-            danaBurnDown: number;
-            danaBurnScore: number;
-            createdAt: any;
-            updatedAt: any;
-            parentId?: string | null;
-            commentAccount: {
-              __typename?: 'Account';
-              address: string;
-              id: number;
-              name: string;
-              avatar?: string | null;
-            };
-            commentDana?: {
-              __typename?: 'CommentDana';
-              danaBurnUp: number;
-              danaBurnDown: number;
-              danaBurnScore: number;
-              version: number;
-            } | null;
-            imageUploadable?: {
-              __typename?: 'ImageUploadable';
-              id: string;
-              uploads: Array<{
-                __typename?: 'Upload';
-                id: string;
-                width?: number | null;
-                height?: number | null;
-                cfImageId?: string | null;
-                cfImageFilename?: string | null;
-              }>;
-            } | null;
-            commentable?: {
-              __typename?: 'Commentable';
-              id: string;
-              type: Types.CommentType;
-              commentToId: string;
-            } | null;
-          }> | null;
           commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
           commentDana?: {
             __typename?: 'CommentDana';
@@ -234,7 +155,7 @@ export type CommentsToCommentableIdQuery = {
             }>;
           } | null;
           commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
-        }> | null;
+        } | null;
         commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
         commentDana?: {
           __typename?: 'CommentDana';
@@ -315,7 +236,7 @@ export type ReplyCommentFieldsFragment = {
   createdAt: any;
   updatedAt: any;
   parentId?: string | null;
-  children?: Array<{
+  parent?: {
     __typename?: 'Comment';
     id: string;
     commentText: string;
@@ -327,40 +248,6 @@ export type ReplyCommentFieldsFragment = {
     createdAt: any;
     updatedAt: any;
     parentId?: string | null;
-    children?: Array<{
-      __typename?: 'Comment';
-      id: string;
-      commentText: string;
-      commentByPublicKey?: string | null;
-      commentableId?: string | null;
-      danaBurnUp: number;
-      danaBurnDown: number;
-      danaBurnScore: number;
-      createdAt: any;
-      updatedAt: any;
-      parentId?: string | null;
-      commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
-      commentDana?: {
-        __typename?: 'CommentDana';
-        danaBurnUp: number;
-        danaBurnDown: number;
-        danaBurnScore: number;
-        version: number;
-      } | null;
-      imageUploadable?: {
-        __typename?: 'ImageUploadable';
-        id: string;
-        uploads: Array<{
-          __typename?: 'Upload';
-          id: string;
-          width?: number | null;
-          height?: number | null;
-          cfImageId?: string | null;
-          cfImageFilename?: string | null;
-        }>;
-      } | null;
-      commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
-    }> | null;
     commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
     commentDana?: {
       __typename?: 'CommentDana';
@@ -382,7 +269,7 @@ export type ReplyCommentFieldsFragment = {
       }>;
     } | null;
     commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
-  }> | null;
+  } | null;
   commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
   commentDana?: {
     __typename?: 'CommentDana';
@@ -466,6 +353,40 @@ export type CreateReplyCommentMutation = {
     createdAt: any;
     updatedAt: any;
     parentId?: string | null;
+    parent?: {
+      __typename?: 'Comment';
+      id: string;
+      commentText: string;
+      commentByPublicKey?: string | null;
+      commentableId?: string | null;
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      createdAt: any;
+      updatedAt: any;
+      parentId?: string | null;
+      commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+      commentDana?: {
+        __typename?: 'CommentDana';
+        danaBurnUp: number;
+        danaBurnDown: number;
+        danaBurnScore: number;
+        version: number;
+      } | null;
+      imageUploadable?: {
+        __typename?: 'ImageUploadable';
+        id: string;
+        uploads: Array<{
+          __typename?: 'Upload';
+          id: string;
+          width?: number | null;
+          height?: number | null;
+          cfImageId?: string | null;
+          cfImageFilename?: string | null;
+        }>;
+      } | null;
+      commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
+    } | null;
     commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
     commentDana?: {
       __typename?: 'CommentDana';
@@ -534,11 +455,8 @@ export const CommentFieldsFragmentDoc = `
 export const ReplyCommentFieldsFragmentDoc = `
     fragment ReplyCommentFields on Comment {
   ...CommentFields
-  children {
+  parent {
     ...CommentFields
-    children {
-      ...CommentFields
-    }
   }
 }
     ${CommentFieldsFragmentDoc}`;
@@ -584,10 +502,10 @@ export const CreateCommentDocument = `
 export const CreateReplyCommentDocument = `
     mutation createReplyComment($input: CreateCommentInput!) {
   createReplyComment(data: $input) {
-    ...CommentFields
+    ...ReplyCommentFields
   }
 }
-    ${CommentFieldsFragmentDoc}`;
+    ${ReplyCommentFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
   overrideExisting: true,

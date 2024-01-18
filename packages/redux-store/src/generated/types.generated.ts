@@ -216,7 +216,6 @@ export enum Coin {
 
 export type Comment = {
   __typename?: 'Comment';
-  children?: Maybe<Array<Comment>>;
   commentAccount: Account;
   commentAccountId?: Maybe<Scalars['Int']>;
   commentByPublicKey?: Maybe<Scalars['String']>;
@@ -232,6 +231,7 @@ export type Comment = {
   danaBurnUp: Scalars['Float'];
   id: Scalars['ID'];
   imageUploadable?: Maybe<ImageUploadable>;
+  parent?: Maybe<Comment>;
   parentId?: Maybe<Scalars['String']>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];

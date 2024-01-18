@@ -80,11 +80,8 @@ fragment CommentFields on Comment {
 
 fragment ReplyCommentFields on Comment {
   ...CommentFields
-  children {
+  parent {
     ...CommentFields
-    children {
-      ...CommentFields
-    }
   }
 }
 
@@ -96,6 +93,6 @@ mutation createComment($input: CreateCommentInput!) {
 
 mutation createReplyComment($input: CreateCommentInput!) {
   createReplyComment(data: $input) {
-    ...CommentFields
+    ...ReplyCommentFields
   }
 }
