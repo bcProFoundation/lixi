@@ -651,6 +651,7 @@ export default {
   'comment.resend': 'Gửi lại',
   'comment.reply': 'Trả lời',
   'comment.displayComment': 'Hiện nhận xét',
+  'comment.replyTo': 'Trả lời tới {name}',
 
   /* 18. Category */
   'category.art': 'Mỹ thuật',

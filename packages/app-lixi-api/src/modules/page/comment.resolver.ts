@@ -80,7 +80,6 @@ export class CommentResolver {
       OR: [
         {
           AND: [
-            { parentId: null },
             {
               commentableId: id
             },
@@ -95,7 +94,6 @@ export class CommentResolver {
           ? [
               {
                 AND: [
-                  { parentId: null },
                   { commentableId: id },
                   {
                     commentAccount: {
@@ -118,7 +116,8 @@ export class CommentResolver {
               include: {
                 uploads: true
               }
-            }
+            },
+            parent: true
           },
           where: queryComments,
           orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
@@ -224,16 +223,6 @@ export class CommentResolver {
               connect: imageUploadable ? { id: imageUploadable.id } : undefined
             },
             commentToId: ''
-          }
-        });
-
-        //create closure
-        await prisma.commentClosure.create({
-          data: {
-            ancestor: createdComment.id,
-            descendant: createdComment.id,
-            depth: 0,
-            commentId: createdComment.id
           }
         });
 
@@ -413,7 +402,8 @@ export class CommentResolver {
               connect: imageUploadable ? { id: imageUploadable.id } : undefined
             },
             commentToId: '',
-            parentId: replyToCommentId
+            parent: { connect: { id: replyToCommentId ?? '' } },
+            rootId: replyComment.rootId ? replyComment.rootId : replyComment.id
           }
         });
 
@@ -452,39 +442,6 @@ export class CommentResolver {
       });
 
       if (savedComment && post) {
-        //create closure table
-        await this.prisma.$transaction(async prisma => {
-          await prisma.commentClosure.create({
-            data: {
-              ancestor: savedComment.id,
-              descendant: savedComment.id,
-              depth: 0,
-              commentId: savedComment.id
-            }
-          });
-          //get ancestor of replyComment
-          const ancestorComment = await prisma.commentClosure.findMany({
-            where: {
-              descendant: replyToCommentId ?? ''
-            },
-            select: { ancestor: true, depth: true, comment: true },
-            orderBy: { depth: 'desc' }
-          });
-
-          const dataCreateClosure = ancestorComment.map(closureItem => {
-            return {
-              ancestor: closureItem.ancestor,
-              descendant: savedComment.id,
-              depth: closureItem.depth + 1,
-              commentId: savedComment.id ?? ''
-            };
-          });
-
-          await prisma.commentClosure.createMany({
-            data: dataCreateClosure
-          });
-        });
-
         //notification to reply-comment-account
         const recipient = await this.accountCacheService.getById(_.toSafeInteger(replyComment?.commentAccountId));
         if (!recipient) {
@@ -565,8 +522,8 @@ export class CommentResolver {
     return this.commentLoader.batchCommentable.load(comment.commentableId);
   }
 
-  @ResolveField('children', () => [Comment])
-  async children(@Parent() comment: Comment) {
-    return this.commentLoader.batchReplyComment.load(comment.id);
+  @ResolveField('parent', () => Comment)
+  async parent(@Parent() comment: Comment) {
+    return this.commentLoader.batchParentOfReplyComment.load(comment.id);
   }
 }

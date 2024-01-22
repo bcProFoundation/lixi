@@ -193,7 +193,6 @@ enum Coin {
 }
 
 type Comment {
-  children: [Comment!]
   commentAccount: Account!
   commentAccountId: Int
   commentByPublicKey: String
@@ -210,6 +209,7 @@ type Comment {
   danaBurnUp: Float!
   id: ID!
   imageUploadable: ImageUploadable
+  parent: Comment
   parentId: String
 
   """Identifies the date and time when the object was last updated."""

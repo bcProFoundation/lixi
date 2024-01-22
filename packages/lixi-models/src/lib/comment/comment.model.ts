@@ -53,11 +53,13 @@ export class Comment {
   @Field(() => ImageUploadable, { nullable: true })
   imageUploadable?: Nullable<ImageUploadable>;
 
+  @IsOptional()
   @Field(() => String, { nullable: true })
   parentId?: Nullable<string>;
 
-  @Field(() => [Comment], { nullable: true })
-  children?: Nullable<Comment[]>;
+  @IsOptional()
+  @Field(() => Comment, { nullable: true })
+  parent?: Nullable<Comment>;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.'

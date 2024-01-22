@@ -652,6 +652,7 @@ export default {
   'comment.resend': 'Resend',
   'comment.reply': 'Reply',
   'comment.displayComment': 'Display comment',
+  'comment.replyTo': 'Reply to {name}',
 
   /* 18. Category */
   'category.art': 'Art',

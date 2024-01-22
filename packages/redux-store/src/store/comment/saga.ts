@@ -40,50 +40,12 @@ function* createCommentSuccessSaga(
       //update comment in post
       yield put(
         commentsApi.util.updateQueryData('CommentsToCommentableId', originalArgs, draft => {
-          //update children
-          if (isReplyComment) {
-            const { parentId } = dataCreateReplyComment.createReplyComment;
-            draft.commentsToCommentableId.edges.every((item, index) => {
-              if (item.cursor === parentId) {
-                //means node to insert at depth 1
-
-                draft.commentsToCommentableId.edges[index].node.children.push({
-                  ...dataCreateReplyComment.createReplyComment,
-                  children: []
-                });
-                //break the loop
-                return false;
-              }
-
-              //loop the children of node
-              item.node.children &&
-                item.node.children.every((itemChildren, indexChildren) => {
-                  if (itemChildren.id === parentId) {
-                    //means node to insert at depth 2
-                    draft.commentsToCommentableId.edges[index].node.children[indexChildren].children.push({
-                      ...dataCreateReplyComment.createReplyComment
-                    });
-                    //break the loop children
-                    return false;
-                  }
-
-                  //continue loop children
-                  return true;
-                });
-
-              //continue
-              return true;
-            });
-          } else {
-            //update root comment
-            draft.commentsToCommentableId.edges.unshift({
-              cursor: dataCreateComment.createComment.id,
-              node: {
-                ...dataCreateComment.createComment,
-                children: []
-              }
-            });
-          }
+          draft.commentsToCommentableId.edges.unshift({
+            cursor: isReplyComment ? dataCreateReplyComment.createReplyComment.id : dataCreateComment.createComment.id,
+            node: isReplyComment
+              ? { ...dataCreateReplyComment.createReplyComment }
+              : { ...dataCreateComment.createComment }
+          });
         })
       );
     } else if (endpointName === 'Post') {
