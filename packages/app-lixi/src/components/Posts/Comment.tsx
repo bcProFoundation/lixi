@@ -45,7 +45,7 @@ type CommentProps = {
 };
 
 const CommentsContainer = styled.div`
-  .ant-comment:last-child {
+  .infiniteScroll-comment:last-child {
     margin-bottom: 1rem;
   }
   padding: 0 1rem;
@@ -795,6 +795,7 @@ const Comment = ({ post }: CommentProps) => {
           hasMore={hasNext}
           loader={<Skeleton style={{ marginTop: '1rem' }} avatar active />}
           scrollableTarget="scrollableComment"
+          className="infiniteScroll-comment"
         >
           {data.map(item => {
             return (

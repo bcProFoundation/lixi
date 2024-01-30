@@ -8,7 +8,13 @@ import {
   PaginationArgs,
   WebpushNotification
 } from '@bcpros/lixi-models';
-import { ImageUploadable, ImageUploadableType, MessageType, PageMessageSessionStatus } from '@bcpros/lixi-prisma';
+import {
+  ImageUploadable,
+  ImageUploadableType,
+  MessageType,
+  NotificationLevel,
+  PageMessageSessionStatus
+} from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { Inject, Logger, UseFilters, UseGuards } from '@nestjs/common';
@@ -27,6 +33,7 @@ import { MeiliService } from '../page/meili.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { XPIJS } from '../wallet/wallet.constants';
 import { PageMessageSessionCacheService } from './page-message-session-cache.service';
+import { NOTIFICATION_TYPES } from 'src/common/modules/notifications/notification.constants';
 
 const pubSub = new PubSub();
 
@@ -101,6 +108,7 @@ export class MessageResolver {
     }
 
     const { authorId, body, isPageOwner, pageMessageSessionId, tipHex, uploadIds } = data;
+    let tipValue;
 
     if (account.id !== authorId) {
       return null;
@@ -117,7 +125,8 @@ export class MessageResolver {
         account: {
           select: {
             id: true,
-            address: true
+            address: true,
+            name: true
           }
         },
         page: {
@@ -214,7 +223,7 @@ export class MessageResolver {
 
         //Give Tip
         if (tipHex && body) {
-          const tipValue = parseFloat(body.toLowerCase().split(' ')[1]);
+          tipValue = parseFloat(body.toLowerCase().split(' ')[1]);
           const broadcastResponse = await this.chronik.broadcastTx(tipHex);
           if (!broadcastResponse) {
             throw new Error('Empty chronik broadcast response');
@@ -279,6 +288,30 @@ export class MessageResolver {
       );
 
       await this.notificationService.dispatchMessagePushNotification(webpushNotification);
+
+      //notification for give message
+      if (tipHex) {
+        const messageToGiveData = {
+          senderName: isPageOwner ? pageMessageSession.page.name : pageMessageSession.account.name,
+          senderAddress: account.address,
+          senderAvatar: account.avatar,
+          xpiGive: tipValue
+        };
+        const createNotif = {
+          senderId: account.id,
+          recipientId: isPageOwner ? pageMessageSession.account.id : pageMessageSession.page.pageAccount.id,
+          notificationTypeId: NOTIFICATION_TYPES.MESSAGE_TO_GIVE,
+          level: NotificationLevel.INFO,
+          url: `page-message`,
+          additionalData: messageToGiveData
+        };
+
+        const jobData = {
+          notification: createNotif
+        };
+        createNotif.senderId !== createNotif.recipientId &&
+          (await this.notificationService.saveAndDispatchNotification(jobData.notification));
+      }
 
       this.notificationGateway.publishMessage(pageMessageSessionId!, result);
 
