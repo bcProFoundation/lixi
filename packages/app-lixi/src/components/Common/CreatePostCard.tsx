@@ -31,6 +31,9 @@ import AvatarUser from './AvatarUser';
 import { SocialsEnum } from './Embed';
 import EditorLexical from './Lexical/EditorLexical';
 import { currency } from './Ticker';
+import { POST_TYPE } from '@bcpros/lixi-models/constants';
+import { CreatePollInput } from '@bcpros/lixi-models';
+import { useCreatePollMutation } from '@store/post/polls.api';
 
 type ErrorType = 'unsupported' | 'invalid';
 
@@ -231,6 +234,10 @@ const CreatePostCard = (props: CreatePostCardProp) => {
     createPostTrigger,
     { isLoading: isLoadingCreatePost, isSuccess: isSuccessCreatePost, isError: isErrorCreatePost }
   ] = useCreatePostMutation();
+  const [
+    createPollTrigger,
+    { isLoading: isLoadingCreatePoll, isSuccess: isSuccessCreatePoll, isError: isErrorCreatePoll }
+  ] = useCreatePollMutation();
 
   const handleNewPostClick = () => {
     if (authorization.authorized) {
@@ -246,15 +253,9 @@ const CreatePostCard = (props: CreatePostCardProp) => {
     }
   }, []);
 
-  const handleCreateNewPost = async ({ htmlContent, pureContent }) => {
+  const handleCreateNewPost = async props => {
+    const { htmlContent, pureContent, question, options, endDate, postType, singleSelect, canAddOption } = props;
     let timelinePatches: PatchCollection;
-    const params = {
-      orderBy: {
-        direction: OrderDirection.Desc,
-        field: PostOrderField.UpdatedAt
-      }
-    };
-
     try {
       let filterValue: number;
       let createFeeHex;
@@ -289,26 +290,47 @@ const CreatePostCard = (props: CreatePostCardProp) => {
         filterValue = filterHome;
       }
 
-      const createPostInput: CreatePostInput = {
-        uploads: postCoverUploads.images.map(upload => upload.id),
-        htmlContent: htmlContent,
-        pureContent: pureContent,
-        pageId: pageId || undefined,
-        tokenPrimaryId: tokenPrimaryId || undefined,
-        createFeeHex: createFeeHex,
-        extraArguments: {
-          hashtagId: hashtagId,
-          hashtags: hashtags,
-          query: query,
-          minBurnFilter: filterValue,
-          orderBy: {
-            direction: OrderDirection.Desc,
-            field: PostOrderField.UpdatedAt
-          }
-        }
-      };
+      switch (postType) {
+        case POST_TYPE.POST:
+          const createPostInput: CreatePostInput = {
+            uploads: postCoverUploads.images.map(upload => upload.id),
+            htmlContent: htmlContent,
+            pureContent: pureContent,
+            pageId: pageId || undefined,
+            tokenPrimaryId: tokenPrimaryId || undefined,
+            createFeeHex: createFeeHex,
+            extraArguments: {
+              hashtagId: hashtagId,
+              hashtags: hashtags,
+              query: query,
+              minBurnFilter: filterValue,
+              orderBy: {
+                direction: OrderDirection.Desc,
+                field: PostOrderField.UpdatedAt
+              }
+            }
+          };
 
-      await createPostTrigger({ input: createPostInput });
+          await createPostTrigger({ input: createPostInput });
+          break;
+        case POST_TYPE.POLL:
+          const createPollInput: CreatePollInput = {
+            options,
+            question,
+            pageId: pageId || undefined,
+            tokenId: tokenPrimaryId || undefined,
+            createFeeHex,
+            startDate: new Date(),
+            endDate,
+            canAddOption,
+            singleSelect
+          };
+
+          await createPollTrigger({ input: createPollInput });
+          break;
+        default:
+          break;
+      }
 
       dispatch(
         showToast('success', {

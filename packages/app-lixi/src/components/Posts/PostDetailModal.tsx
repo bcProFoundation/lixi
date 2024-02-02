@@ -41,6 +41,7 @@ import { EditPostModalProps } from './EditPostModalPopup';
 import PostTranslate from './PostTranslate';
 import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
 import { getCurrentLocale } from '@store/settings';
+import PollContent from './PollContent';
 
 type PostDetailProps = {
   initialPost: PostQueryItem;
@@ -400,9 +401,13 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
             ></InfoCardUser>
           </NavBarHeader>
           <PostContentDetail>
-            <div className="description-post" onClick={e => handleHashtagClick(e)}>
-              {ReactHtmlParser(ReactDomServer.renderToStaticMarkup(postContent))}
-            </div>
+            {post.poll ? (
+              <PollContent poll={post.poll} />
+            ) : (
+              <div className="description-post" onClick={e => handleHashtagClick(e)}>
+                {ReactHtmlParser(ReactDomServer.renderToStaticMarkup(postContent))}
+              </div>
+            )}
             {post.translations &&
               post.translations.length > 0 &&
               (showTranslation ? (

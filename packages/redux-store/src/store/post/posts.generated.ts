@@ -96,6 +96,29 @@ export type PostQuery = {
         cfImageFilename?: string | null;
       }>;
     } | null;
+    poll?: {
+      __typename?: 'Poll';
+      postId: string;
+      question: string;
+      startDate: any;
+      endDate: any;
+      canAddOption: boolean;
+      singleSelect: boolean;
+      defaultOptions?: Array<string> | null;
+      totalVote?: number | null;
+      options: Array<{
+        __typename?: 'PollOption';
+        id: string;
+        option: string;
+        pollId: string;
+        danaScoreOption?: number | null;
+        pollAnswerOnAccount?: Array<{
+          __typename?: 'PollAnswerOnAccount';
+          pollDanaScore: number;
+          accountId: number;
+        }> | null;
+      }>;
+    } | null;
   };
 };
 
@@ -191,6 +214,29 @@ export type PostsByPageIdQuery = {
             height?: number | null;
             cfImageId?: string | null;
             cfImageFilename?: string | null;
+          }>;
+        } | null;
+        poll?: {
+          __typename?: 'Poll';
+          postId: string;
+          question: string;
+          startDate: any;
+          endDate: any;
+          canAddOption: boolean;
+          singleSelect: boolean;
+          defaultOptions?: Array<string> | null;
+          totalVote?: number | null;
+          options: Array<{
+            __typename?: 'PollOption';
+            id: string;
+            option: string;
+            pollId: string;
+            danaScoreOption?: number | null;
+            pollAnswerOnAccount?: Array<{
+              __typename?: 'PollAnswerOnAccount';
+              pollDanaScore: number;
+              accountId: number;
+            }> | null;
           }>;
         } | null;
       };
@@ -298,6 +344,29 @@ export type PostsByUserIdQuery = {
             cfImageFilename?: string | null;
           }>;
         } | null;
+        poll?: {
+          __typename?: 'Poll';
+          postId: string;
+          question: string;
+          startDate: any;
+          endDate: any;
+          canAddOption: boolean;
+          singleSelect: boolean;
+          defaultOptions?: Array<string> | null;
+          totalVote?: number | null;
+          options: Array<{
+            __typename?: 'PollOption';
+            id: string;
+            option: string;
+            pollId: string;
+            danaScoreOption?: number | null;
+            pollAnswerOnAccount?: Array<{
+              __typename?: 'PollAnswerOnAccount';
+              pollDanaScore: number;
+              accountId: number;
+            }> | null;
+          }>;
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -401,6 +470,29 @@ export type PostsByHashtagIdQuery = {
             height?: number | null;
             cfImageId?: string | null;
             cfImageFilename?: string | null;
+          }>;
+        } | null;
+        poll?: {
+          __typename?: 'Poll';
+          postId: string;
+          question: string;
+          startDate: any;
+          endDate: any;
+          canAddOption: boolean;
+          singleSelect: boolean;
+          defaultOptions?: Array<string> | null;
+          totalVote?: number | null;
+          options: Array<{
+            __typename?: 'PollOption';
+            id: string;
+            option: string;
+            pollId: string;
+            danaScoreOption?: number | null;
+            pollAnswerOnAccount?: Array<{
+              __typename?: 'PollAnswerOnAccount';
+              pollDanaScore: number;
+              accountId: number;
+            }> | null;
           }>;
         } | null;
       };
@@ -508,6 +600,29 @@ export type PostsByTokenIdQuery = {
             cfImageFilename?: string | null;
           }>;
         } | null;
+        poll?: {
+          __typename?: 'Poll';
+          postId: string;
+          question: string;
+          startDate: any;
+          endDate: any;
+          canAddOption: boolean;
+          singleSelect: boolean;
+          defaultOptions?: Array<string> | null;
+          totalVote?: number | null;
+          options: Array<{
+            __typename?: 'PollOption';
+            id: string;
+            option: string;
+            pollId: string;
+            danaScoreOption?: number | null;
+            pollAnswerOnAccount?: Array<{
+              __typename?: 'PollAnswerOnAccount';
+              pollDanaScore: number;
+              accountId: number;
+            }> | null;
+          }>;
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -602,6 +717,29 @@ export type PostsBySearchQuery = {
             height?: number | null;
             cfImageId?: string | null;
             cfImageFilename?: string | null;
+          }>;
+        } | null;
+        poll?: {
+          __typename?: 'Poll';
+          postId: string;
+          question: string;
+          startDate: any;
+          endDate: any;
+          canAddOption: boolean;
+          singleSelect: boolean;
+          defaultOptions?: Array<string> | null;
+          totalVote?: number | null;
+          options: Array<{
+            __typename?: 'PollOption';
+            id: string;
+            option: string;
+            pollId: string;
+            danaScoreOption?: number | null;
+            pollAnswerOnAccount?: Array<{
+              __typename?: 'PollAnswerOnAccount';
+              pollDanaScore: number;
+              accountId: number;
+            }> | null;
           }>;
         } | null;
       };
@@ -700,6 +838,29 @@ export type PostsBySearchWithHashtagQuery = {
             height?: number | null;
             cfImageId?: string | null;
             cfImageFilename?: string | null;
+          }>;
+        } | null;
+        poll?: {
+          __typename?: 'Poll';
+          postId: string;
+          question: string;
+          startDate: any;
+          endDate: any;
+          canAddOption: boolean;
+          singleSelect: boolean;
+          defaultOptions?: Array<string> | null;
+          totalVote?: number | null;
+          options: Array<{
+            __typename?: 'PollOption';
+            id: string;
+            option: string;
+            pollId: string;
+            danaScoreOption?: number | null;
+            pollAnswerOnAccount?: Array<{
+              __typename?: 'PollAnswerOnAccount';
+              pollDanaScore: number;
+              accountId: number;
+            }> | null;
           }>;
         } | null;
       };
@@ -801,6 +962,29 @@ export type PostsBySearchWithHashtagAtPageQuery = {
             cfImageFilename?: string | null;
           }>;
         } | null;
+        poll?: {
+          __typename?: 'Poll';
+          postId: string;
+          question: string;
+          startDate: any;
+          endDate: any;
+          canAddOption: boolean;
+          singleSelect: boolean;
+          defaultOptions?: Array<string> | null;
+          totalVote?: number | null;
+          options: Array<{
+            __typename?: 'PollOption';
+            id: string;
+            option: string;
+            pollId: string;
+            danaScoreOption?: number | null;
+            pollAnswerOnAccount?: Array<{
+              __typename?: 'PollAnswerOnAccount';
+              pollDanaScore: number;
+              accountId: number;
+            }> | null;
+          }>;
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -900,6 +1084,29 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
             cfImageFilename?: string | null;
           }>;
         } | null;
+        poll?: {
+          __typename?: 'Poll';
+          postId: string;
+          question: string;
+          startDate: any;
+          endDate: any;
+          canAddOption: boolean;
+          singleSelect: boolean;
+          defaultOptions?: Array<string> | null;
+          totalVote?: number | null;
+          options: Array<{
+            __typename?: 'PollOption';
+            id: string;
+            option: string;
+            pollId: string;
+            danaScoreOption?: number | null;
+            pollAnswerOnAccount?: Array<{
+              __typename?: 'PollAnswerOnAccount';
+              pollDanaScore: number;
+              accountId: number;
+            }> | null;
+          }>;
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -910,6 +1117,30 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
       startCursor?: string | null;
     };
   };
+};
+
+export type PollFieldsFragment = {
+  __typename?: 'Poll';
+  postId: string;
+  question: string;
+  startDate: any;
+  endDate: any;
+  canAddOption: boolean;
+  singleSelect: boolean;
+  defaultOptions?: Array<string> | null;
+  totalVote?: number | null;
+  options: Array<{
+    __typename?: 'PollOption';
+    id: string;
+    option: string;
+    pollId: string;
+    danaScoreOption?: number | null;
+    pollAnswerOnAccount?: Array<{
+      __typename?: 'PollAnswerOnAccount';
+      pollDanaScore: number;
+      accountId: number;
+    }> | null;
+  }>;
 };
 
 export type PostFieldsFragment = {
@@ -986,6 +1217,29 @@ export type PostFieldsFragment = {
       cfImageFilename?: string | null;
     }>;
   } | null;
+  poll?: {
+    __typename?: 'Poll';
+    postId: string;
+    question: string;
+    startDate: any;
+    endDate: any;
+    canAddOption: boolean;
+    singleSelect: boolean;
+    defaultOptions?: Array<string> | null;
+    totalVote?: number | null;
+    options: Array<{
+      __typename?: 'PollOption';
+      id: string;
+      option: string;
+      pollId: string;
+      danaScoreOption?: number | null;
+      pollAnswerOnAccount?: Array<{
+        __typename?: 'PollAnswerOnAccount';
+        pollDanaScore: number;
+        accountId: number;
+      }> | null;
+    }>;
+  } | null;
 };
 
 export type PostMeiliFieldsFragment = {
@@ -1054,6 +1308,29 @@ export type PostMeiliFieldsFragment = {
       height?: number | null;
       cfImageId?: string | null;
       cfImageFilename?: string | null;
+    }>;
+  } | null;
+  poll?: {
+    __typename?: 'Poll';
+    postId: string;
+    question: string;
+    startDate: any;
+    endDate: any;
+    canAddOption: boolean;
+    singleSelect: boolean;
+    defaultOptions?: Array<string> | null;
+    totalVote?: number | null;
+    options: Array<{
+      __typename?: 'PollOption';
+      id: string;
+      option: string;
+      pollId: string;
+      danaScoreOption?: number | null;
+      pollAnswerOnAccount?: Array<{
+        __typename?: 'PollAnswerOnAccount';
+        pollDanaScore: number;
+        accountId: number;
+      }> | null;
     }>;
   } | null;
 };
@@ -1138,6 +1415,29 @@ export type CreatePostMutation = {
         cfImageFilename?: string | null;
       }>;
     } | null;
+    poll?: {
+      __typename?: 'Poll';
+      postId: string;
+      question: string;
+      startDate: any;
+      endDate: any;
+      canAddOption: boolean;
+      singleSelect: boolean;
+      defaultOptions?: Array<string> | null;
+      totalVote?: number | null;
+      options: Array<{
+        __typename?: 'PollOption';
+        id: string;
+        option: string;
+        pollId: string;
+        danaScoreOption?: number | null;
+        pollAnswerOnAccount?: Array<{
+          __typename?: 'PollAnswerOnAccount';
+          pollDanaScore: number;
+          accountId: number;
+        }> | null;
+      }>;
+    } | null;
   };
 };
 
@@ -1219,6 +1519,29 @@ export type UpdatePostMutation = {
         height?: number | null;
         cfImageId?: string | null;
         cfImageFilename?: string | null;
+      }>;
+    } | null;
+    poll?: {
+      __typename?: 'Poll';
+      postId: string;
+      question: string;
+      startDate: any;
+      endDate: any;
+      canAddOption: boolean;
+      singleSelect: boolean;
+      defaultOptions?: Array<string> | null;
+      totalVote?: number | null;
+      options: Array<{
+        __typename?: 'PollOption';
+        id: string;
+        option: string;
+        pollId: string;
+        danaScoreOption?: number | null;
+        pollAnswerOnAccount?: Array<{
+          __typename?: 'PollAnswerOnAccount';
+          pollDanaScore: number;
+          accountId: number;
+        }> | null;
       }>;
     } | null;
   };
@@ -1310,9 +1633,54 @@ export type RemovePostMutation = {
         cfImageFilename?: string | null;
       }>;
     } | null;
+    poll?: {
+      __typename?: 'Poll';
+      postId: string;
+      question: string;
+      startDate: any;
+      endDate: any;
+      canAddOption: boolean;
+      singleSelect: boolean;
+      defaultOptions?: Array<string> | null;
+      totalVote?: number | null;
+      options: Array<{
+        __typename?: 'PollOption';
+        id: string;
+        option: string;
+        pollId: string;
+        danaScoreOption?: number | null;
+        pollAnswerOnAccount?: Array<{
+          __typename?: 'PollAnswerOnAccount';
+          pollDanaScore: number;
+          accountId: number;
+        }> | null;
+      }>;
+    } | null;
   };
 };
 
+export const PollFieldsFragmentDoc = `
+    fragment PollFields on Poll {
+  postId
+  question
+  startDate
+  endDate
+  canAddOption
+  singleSelect
+  defaultOptions
+  totalVote
+  options {
+    id
+    option
+    pollId
+    danaScoreOption
+    pollAnswerOnAccount {
+      pollDanaScore
+      accountId
+    }
+  }
+}
+    `;
 export const PostFieldsFragmentDoc = `
     fragment PostFields on Post {
   id
@@ -1392,8 +1760,11 @@ export const PostFieldsFragmentDoc = `
   }
   danaViewScore
   burnedByOthers
+  poll {
+    ...PollFields
+  }
 }
-    `;
+    ${PollFieldsFragmentDoc}`;
 export const PostMeiliFieldsFragmentDoc = `
     fragment PostMeiliFields on Post {
   id
@@ -1467,8 +1838,11 @@ export const PostMeiliFieldsFragmentDoc = `
   }
   danaViewScore
   burnedByOthers
+  poll {
+    ...PollFields
+  }
 }
-    `;
+    ${PollFieldsFragmentDoc}`;
 export const PostDocument = `
     query Post($id: String!) {
   post(id: $id) {

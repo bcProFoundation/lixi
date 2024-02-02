@@ -5,7 +5,6 @@ import { HashtagNode } from '@lexical/hashtag';
 import EditorLexicalTheme from './themes/EditorLexicalTheme';
 import { YouTubeNode } from './nodes/YouTubeNode';
 import { FigmaNode } from './nodes/FigmaNode';
-import { PollNode } from './nodes/PollNode';
 
 const editorConfig = {
   namespace: 'lixilotus',
@@ -13,7 +12,7 @@ const editorConfig = {
   onError(error) {
     throw error;
   },
-  nodes: [EmojiNode, TweetNode, AutoLinkNode, LinkNode, HashtagNode, YouTubeNode, FigmaNode, PollNode]
+  nodes: [EmojiNode, TweetNode, AutoLinkNode, LinkNode, HashtagNode, YouTubeNode, FigmaNode]
 };
 
 export default editorConfig;

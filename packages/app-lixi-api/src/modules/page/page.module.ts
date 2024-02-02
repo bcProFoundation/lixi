@@ -40,8 +40,8 @@ import { ProductCacheService } from './products/product-cache.service';
 import { BookmarkCacheService } from '../bookmark/bookmark-cache.service';
 import BookmarkLoader from '../bookmark/bookmark.loader';
 import FollowScoreLoader from '../account/follow-score.loader';
-import { BurnHistoryModule } from '../burn-history/burn-history.module';
 import { RemovePostFanoutProcessor } from './remove-post-fanout.processor';
+import { PollOptionResolver } from './polls/poll-option.resolver';
 
 @Module({
   imports: [
@@ -90,6 +90,7 @@ import { RemovePostFanoutProcessor } from './remove-post-fanout.processor';
     PostResolver,
     EventResolver,
     PollResolver,
+    PollOptionResolver,
     ProductResolver,
     MeiliService,
     CommentResolver,

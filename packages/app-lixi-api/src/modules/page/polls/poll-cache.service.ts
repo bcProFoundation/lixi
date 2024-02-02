@@ -23,7 +23,7 @@ export class PollCacheService {
         include: {
           poll: {
             include: {
-              options: true
+              options: { include: { pollAnswerOnAccount: true } }
             }
           }
         }
@@ -31,7 +31,7 @@ export class PollCacheService {
       if (!dbValue || !dbValue.poll) return null;
 
       const item: Poll = new Poll({
-        ...dbValue,
+        ...dbValue.poll,
         question: dbValue.poll.question,
         startDate: dbValue.poll.startDate,
         endDate: dbValue.poll.endDate,
@@ -60,7 +60,7 @@ export class PollCacheService {
     const itemsMap = new Map(
       _.compact(values).map(value => {
         const item = decode(value) as Poll;
-        return [item.id, item];
+        return [item.postId, item];
       })
     );
 
@@ -73,7 +73,7 @@ export class PollCacheService {
             include: {
               poll: {
                 include: {
-                  options: true
+                  options: { include: { pollAnswerOnAccount: true } }
                 }
               }
             }
@@ -82,10 +82,10 @@ export class PollCacheService {
 
     const dbValuesMap = new Map(
       dbValues.map((dbValue, i) => {
-        if (!dbValue || !dbValue.poll) return [dbValue.id, null];
+        if (!dbValue || !dbValue.poll) return [undefined, undefined];
 
         const item = new Poll({
-          ...dbValue,
+          ...dbValue.poll,
           question: dbValue.poll.question,
           startDate: dbValue.poll.startDate,
           endDate: dbValue.poll.endDate,

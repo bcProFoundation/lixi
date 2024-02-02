@@ -25,6 +25,7 @@ import styled from 'styled-components';
 import { EditPostModalProps } from './EditPostModalPopup';
 import PostContent from './PostContent';
 import { setSelectedPost } from '@store/post/actions';
+import PollContent from './PollContent';
 
 export const CommentList = ({ comments }: { comments: CommentItem[] }) => (
   <List
@@ -418,8 +419,14 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
           />
         </CardHeader>
         <Content>
-          <div onClick={e => handlePostClick(e)} className="description-post">
-            <PostContent post={post} showTranslation={showTranslation} currentLocale={currentLocale} />
+          <div className="description-post">
+            {post.poll ? (
+              <PollContent poll={post.poll} />
+            ) : (
+              <div onClick={e => handlePostClick(e)}>
+                <PostContent post={post} showTranslation={showTranslation} currentLocale={currentLocale} />
+              </div>
+            )}
           </div>
 
           {post.translations &&

@@ -130,6 +130,29 @@ export type BookmarkTimelineQuery = {
               cfImageFilename?: string | null;
             }>;
           } | null;
+          poll?: {
+            __typename?: 'Poll';
+            postId: string;
+            question: string;
+            startDate: any;
+            endDate: any;
+            canAddOption: boolean;
+            singleSelect: boolean;
+            defaultOptions?: Array<string> | null;
+            totalVote?: number | null;
+            options: Array<{
+              __typename?: 'PollOption';
+              id: string;
+              option: string;
+              pollId: string;
+              danaScoreOption?: number | null;
+              pollAnswerOnAccount?: Array<{
+                __typename?: 'PollAnswerOnAccount';
+                pollDanaScore: number;
+                accountId: number;
+              }> | null;
+            }>;
+          } | null;
         };
       };
     }>;

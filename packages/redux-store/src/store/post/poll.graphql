@@ -1,0 +1,11 @@
+mutation createPoll($input: CreatePollInput!) {
+  createPoll(data: $input) {
+    ...PostFields
+  }
+}
+
+mutation createVote($input: CreateVoteInput!) {
+  createVote(data: $input) {
+    pollDanaScore
+  }
+}

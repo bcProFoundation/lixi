@@ -4,6 +4,7 @@ export * from './api';
 export * from './selectors';
 export * from './saga';
 export * as postApi from './posts.api';
+export * as pollApi from './polls.api';
 export * from './useInfinitePostsByPageIdQuery';
 export * from './useInfinitePostsBySearchQuery';
 export * from './useInfinitePostsByTokenIdQuery';
