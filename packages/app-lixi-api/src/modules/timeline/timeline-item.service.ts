@@ -12,17 +12,12 @@ export class TimelineItemService {
 
   async getById(id: string): Promise<Nullable<TimelineItem>> {
     const parts = id.split(':');
-    const type = parts[0];
-    switch (type) {
-      case PostType.POST:
-      default:
-        const post = await this.postCacheService.getById(id);
-        if (!post) return null;
-        return new TimelineItem({
-          id,
-          data: post
-        });
-    }
+    const post = await this.postCacheService.getById(parts[1]);
+    if (!post) return null;
+    return new TimelineItem({
+      id,
+      data: post
+    });
   }
 
   async getByIds(timelineIds: string[]) {

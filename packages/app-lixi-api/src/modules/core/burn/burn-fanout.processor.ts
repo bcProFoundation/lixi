@@ -6,7 +6,7 @@ import { Job } from 'bullmq';
 import { Redis } from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { BURN_FANOUT_QUEUE } from './burn.constants';
-import { Burn, Post, PostType } from '@bcpros/lixi-prisma';
+import { Burn, Post } from '@bcpros/lixi-prisma';
 import { FollowCacheService } from '../../account/follow-cache.service';
 import { PostCacheService } from '../../page/post-cache.service';
 import { template } from 'src/utils/stringTemplate';
@@ -96,7 +96,7 @@ export class BurnFanoutProcessor extends WorkerHost {
 
       // Update score for outnetwork
       const keyOutnetwork = BurnFanoutProcessor.outNetworkSourceKey;
-      const timelineId = `${PostType.POST}:${id}`;
+      const timelineId = `${post.type}:${id}`;
       pipeline.zincrby(keyOutnetwork, score, timelineId);
 
       // Update score for innetwork

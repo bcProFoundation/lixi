@@ -76,7 +76,7 @@ export class RemovePostFanoutProcessor extends WorkerHost {
       const pipeline = this.redis.pipeline();
 
       // clear post cache innetwork
-      const timelineId = `${PostType.POST}:${id}`;
+      const timelineId = `${post.type}:${id}`;
       for (const follower of followers) {
         const keyInNetwork = `${RemovePostFanoutProcessor.inNetworkSourceKey}:${follower}`;
         pipeline.zrem(keyInNetwork, timelineId);
