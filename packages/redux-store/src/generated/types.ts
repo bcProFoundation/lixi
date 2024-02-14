@@ -23,7 +23,6 @@ export type BurnQueryItem = BurnFieldsFragment;
 
 export type BurnForItem =
   | PostQueryItem
-  | PollQueryItem
   | PageQueryItem
   | CommentQueryItem
   | TokenQueryItem

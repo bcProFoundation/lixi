@@ -892,5 +892,22 @@ export default {
   'code.xh': 'Xhosa',
   'code.yi': 'Yiddish',
   'code.yo': 'Yoruba',
-  'code.zu': 'Zulu'
+  'code.zu': 'Zulu',
+
+  /* 21. Poll */
+  'poll.requireField': 'This is required',
+  'poll.addOption': 'Add option',
+  'poll.removePoll': 'Remove poll',
+  'poll.singleType': 'Single',
+  'poll.mutipleType': 'Mutiple',
+  'poll.notAddType': 'No',
+  'poll.addType': 'Yes',
+  'poll.question': 'Question',
+  'poll.option': 'Option ',
+  'poll.day': 'Days',
+  'poll.hour': 'Hour',
+  'poll.minute': 'Minutes',
+  'poll.selectType': 'Select-type ',
+  'poll.canAdd': 'User can add option',
+  'poll.vote': 'Vote'
 };

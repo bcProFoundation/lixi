@@ -1141,7 +1141,7 @@ model PollOption {
   poll                Poll                  @relation(fields: [pollId], references: [postId])
   pollId              String                @map("poll_id")
   option              String
-  PollAnswerOnAccount PollAnswerOnAccount[]
+  pollAnswerOnAccount PollAnswerOnAccount[]
 
   @@map("poll_option")
 }
@@ -1159,12 +1159,14 @@ model PollAnswerOnAccount {
 }
 
 model Poll {
-  post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId    String       @unique
-  question  String
-  options   PollOption[] // Reference to the PollOption model
-  startDate DateTime     @map("start_date") @db.Timestamptz
-  endDate   DateTime     @map("end_date") @db.Timestamptz
+  post         Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId       String       @unique
+  question     String
+  options      PollOption[] // Reference to the PollOption model
+  startDate    DateTime     @map("start_date") @db.Timestamptz
+  endDate      DateTime     @map("end_date") @db.Timestamptz
+  singleSelect Boolean      @default(true) @map("single_select")
+  canAddOption Boolean      @default(false) @map("can_add_option")
 
   @@index([postId])
   @@map("poll")

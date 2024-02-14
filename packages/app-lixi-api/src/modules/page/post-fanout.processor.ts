@@ -86,7 +86,7 @@ export class PostFanoutProcessor extends WorkerHost {
 
       const pipeline = this.redis.pipeline();
       // Update score for innetwork
-      const timelineId = `${PostType.POST}:${id}`;
+      const timelineId = `${post.type}:${id}`;
       for (const follower of followers) {
         const keyInNetwork = `${PostFanoutProcessor.inNetworkSourceKey}:${follower}`;
         pipeline.zincrby(keyInNetwork, score, timelineId);

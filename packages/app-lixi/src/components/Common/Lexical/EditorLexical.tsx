@@ -5,7 +5,6 @@ import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
-import TreeViewPlugin from './plugins/TreeViewPlugin';
 import MyCustomAutoFocusPlugin from './plugins/MyCustomAutoFocusPlugin';
 import editorConfig from './editorConfig';
 import CustomButtonSubmitPlugin from './plugins/CustomButtonSubmitPlugin';
@@ -36,6 +35,7 @@ import FigmaPlugin from './plugins/FigmaPlugin';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import MyOnChangePlugin from './plugins/MyOnChangePlugin';
 import MaxLengthPlugin from './plugins/MaxLengthPlugin';
+import CreatePoll from '../CreatePoll';
 
 export type EditorLexicalProps = {
   initialContent?: string;
@@ -99,6 +99,9 @@ const StyledEditorLexical = styled.div`
       .anticon-twitter {
         font-size: 26px;
       }
+    }
+    .poll-icon:hover {
+      filter: var(--filter-color-primary);
     }
   }
 
@@ -207,6 +210,7 @@ const EditorLexical = (props: EditorLexicalProps) => {
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
   const [pureContent, setPureContent] = useState<string>('');
   const [htmlContent, setHtmlContent] = useState<string>('');
+  const [openPoll, setOpenPoll] = useState<boolean>(false);
 
   useEffect(() => {
     inputText.current?.addEventListener('paste', handlePasteImage);
@@ -305,70 +309,59 @@ const EditorLexical = (props: EditorLexicalProps) => {
     return num;
   };
 
+  const handleClickPoll = () => {
+    setOpenPoll(pre => !pre);
+  };
+
   return (
     <React.Fragment>
-      <StyledEditorLexical>
-        <LexicalComposer initialConfig={editorConfig}>
-          <div className="EditorLexical_container">
-            <RichTextPlugin
-              contentEditable={
-                <div className="editor-container" ref={inputText}>
-                  <div className="editor" ref={onRef}>
-                    <ContentEditable className="EditorLexical_root" />
-                  </div>
-                </div>
-              }
-              placeholder={Placeholder}
-              ErrorBoundary={LexicalErrorBoundary}
-            />
-            <MaxLengthPlugin maxLength={overLimitContent() ? pureContent.length : 24000} />
-            <MyOnChangePlugin setStateHtmlContent={setStateHtmlContent} setStatePureContent={setStatePureContent} />
-            {/* <TreeViewPlugin /> */}
-            <TwitterPlugin />
-            <YouTubePlugin />
-            <FigmaPlugin />
-            <EmojisPlugin />
-            <HistoryPlugin />
-            <AutoLinkPlugin />
-            <LinkPlugin />
-            <HashtagPlugin />
-            <AutoEmbedPlugin />
-            <YouTubePlugin />
-            <FigmaPlugin />
-            <MyCustomAutoFocusPlugin
-              initialContent={setInitialContent(hashtags, initialContent, isEditMode)}
-              hashtags={hashtags}
-            />
-            {floatingAnchorElem && (
-              <FloatingLinkEditorPlugin
-                anchorElem={floatingAnchorElem}
-                isLinkEditMode={isLinkEditMode}
-                setIsLinkEditMode={setIsLinkEditMode}
-              />
-            )}
-            <div className="EditorLexical_pictures">
-              {isMobile ? (
-                <React.Fragment>
-                  {imagesList?.length > 1 && (
-                    <div className="images-post images-post-mobile">
-                      {imagesList.map((img, index) => {
-                        return (
-                          <div className="item-image-upload" key={img.id}>
-                            <Image key={index} src={img.src || 'error'} fallback="/images/default-image-fallback.png" />
-                            <Button
-                              type="text"
-                              className="no-border-btn"
-                              icon={<CloseOutlined />}
-                              onClick={() => handleRemove(img?.id)}
-                            />
-                          </div>
-                        );
-                      })}
+      {openPoll ? (
+        <CreatePoll handleClickPoll={handleClickPoll} onSubmit={onSubmit} />
+      ) : (
+        <StyledEditorLexical>
+          <LexicalComposer initialConfig={editorConfig}>
+            <div className="EditorLexical_container">
+              <RichTextPlugin
+                contentEditable={
+                  <div className="editor-container" ref={inputText}>
+                    <div className="editor" ref={onRef}>
+                      <ContentEditable className="EditorLexical_root" />
                     </div>
-                  )}
-                  {imagesList?.length === 1 && (
-                    <>
-                      <div className="images-post images-post-mobile only-one-image">
+                  </div>
+                }
+                placeholder={Placeholder}
+                ErrorBoundary={LexicalErrorBoundary}
+              />
+              <MaxLengthPlugin maxLength={overLimitContent() ? pureContent.length : 24000} />
+              <MyOnChangePlugin setStateHtmlContent={setStateHtmlContent} setStatePureContent={setStatePureContent} />
+              {/* <TreeViewPlugin /> */}
+              <TwitterPlugin />
+              <YouTubePlugin />
+              <FigmaPlugin />
+              <EmojisPlugin />
+              <HistoryPlugin />
+              <AutoLinkPlugin />
+              <LinkPlugin />
+              <HashtagPlugin />
+              <AutoEmbedPlugin />
+              <YouTubePlugin />
+              <FigmaPlugin />
+              <MyCustomAutoFocusPlugin
+                initialContent={setInitialContent(hashtags, initialContent, isEditMode)}
+                hashtags={hashtags}
+              />
+              {floatingAnchorElem && (
+                <FloatingLinkEditorPlugin
+                  anchorElem={floatingAnchorElem}
+                  isLinkEditMode={isLinkEditMode}
+                  setIsLinkEditMode={setIsLinkEditMode}
+                />
+              )}
+              <div className="EditorLexical_pictures">
+                {isMobile ? (
+                  <React.Fragment>
+                    {imagesList?.length > 1 && (
+                      <div className="images-post images-post-mobile">
                         {imagesList.map((img, index) => {
                           return (
                             <div className="item-image-upload" key={img.id}>
@@ -387,62 +380,91 @@ const EditorLexical = (props: EditorLexicalProps) => {
                           );
                         })}
                       </div>
-                    </>
-                  )}
-                </React.Fragment>
-              ) : (
-                <Gallery renderImage={imageRenderer} photos={imagesList} />
-              )}
+                    )}
+                    {imagesList?.length === 1 && (
+                      <>
+                        <div className="images-post images-post-mobile only-one-image">
+                          {imagesList.map((img, index) => {
+                            return (
+                              <div className="item-image-upload" key={img.id}>
+                                <Image
+                                  key={index}
+                                  src={img.src || 'error'}
+                                  fallback="/images/default-image-fallback.png"
+                                />
+                                <Button
+                                  type="text"
+                                  className="no-border-btn"
+                                  icon={<CloseOutlined />}
+                                  onClick={() => handleRemove(img?.id)}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </>
+                    )}
+                  </React.Fragment>
+                ) : (
+                  <Gallery renderImage={imageRenderer} photos={imagesList} />
+                )}
+              </div>
+              <div className="EditorLexical_action">
+                <MultiUploader
+                  ref={multiUploader}
+                  type={UPLOAD_TYPES.POST}
+                  isIcon={true}
+                  icon={'/images/ico-picture.svg'}
+                  buttonName=" "
+                  buttonType="text"
+                  showUploadList={false}
+                  loading={isUploadingImage}
+                  setUploadingImage={setUploadingImage}
+                  multiple={true}
+                />
+                <ButtonLinkPlugin />
+                <Button
+                  className="poll-icon"
+                  style={{ border: 0, backgroundColor: 'transparent' }}
+                  onClick={handleClickPoll}
+                >
+                  <img src="images/poll.svg" />
+                </Button>
+              </div>
             </div>
-            <div className="EditorLexical_action">
-              <MultiUploader
-                ref={multiUploader}
-                type={UPLOAD_TYPES.POST}
-                isIcon={true}
-                icon={'/images/ico-picture.svg'}
-                buttonName=" "
-                buttonType="text"
-                showUploadList={false}
-                loading={isUploadingImage}
-                setUploadingImage={setUploadingImage}
-                multiple={true}
+            {overLimitContent() ? (
+              <Progress
+                type="circle"
+                size={35}
+                className="progress-content-post-overLimit"
+                percent={100}
+                status="exception"
+                strokeColor="rgb(244, 33, 46)"
               />
-              <ButtonLinkPlugin />
-            </div>
-          </div>
-          {overLimitContent() ? (
-            <Progress
-              type="circle"
-              size={35}
-              className="progress-content-post-overLimit"
-              percent={100}
-              status="exception"
-              strokeColor="rgb(244, 33, 46)"
+            ) : (
+              <Progress
+                type="circle"
+                size={calculatePercentContent() > 99 ? 35 : 30}
+                strokeColor={calculatePercentContent() > 99 ? 'rgb(255, 212, 0)' : '#1677ff'}
+                className="progress-content-post"
+                percent={calculatePercentContent()}
+                showInfo={displayWarningNumber() ? true : false}
+                format={percent => {
+                  if (displayWarningNumber()) return LIMIT_CONTENT_POST - htmlContent.length;
+                }}
+              />
+            )}
+            <CustomButtonSubmitPlugin
+              onSubmit={value => onSubmit(value)}
+              loading={loading || isUploadingImage}
+              isEditMode={isEditMode}
+              currentContent={pureContent}
+              image={postCoverUploads.images}
+              overLimitContent={overLimitContent()}
             />
-          ) : (
-            <Progress
-              type="circle"
-              size={calculatePercentContent() > 99 ? 35 : 30}
-              strokeColor={calculatePercentContent() > 99 ? 'rgb(255, 212, 0)' : '#1677ff'}
-              className="progress-content-post"
-              percent={calculatePercentContent()}
-              showInfo={displayWarningNumber() ? true : false}
-              format={percent => {
-                if (displayWarningNumber()) return LIMIT_CONTENT_POST - htmlContent.length;
-              }}
-            />
-          )}
-
-          <CustomButtonSubmitPlugin
-            onSubmit={value => onSubmit(value)}
-            loading={loading || isUploadingImage}
-            isEditMode={isEditMode}
-            currentContent={pureContent}
-            image={postCoverUploads}
-            overLimitContent={overLimitContent()}
-          />
-        </LexicalComposer>
-      </StyledEditorLexical>
+          </LexicalComposer>
+        </StyledEditorLexical>
+      )}
     </React.Fragment>
   );
 };

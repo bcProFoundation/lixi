@@ -97,6 +97,29 @@ export type TimelineQuery = {
           cfImageFilename?: string | null;
         }>;
       } | null;
+      poll?: {
+        __typename?: 'Poll';
+        postId: string;
+        question: string;
+        startDate: any;
+        endDate: any;
+        canAddOption: boolean;
+        singleSelect: boolean;
+        defaultOptions?: Array<string> | null;
+        totalVote?: number | null;
+        options: Array<{
+          __typename?: 'PollOption';
+          id: string;
+          option: string;
+          pollId: string;
+          danaScoreOption?: number | null;
+          pollAnswerOnAccount?: Array<{
+            __typename?: 'PollAnswerOnAccount';
+            pollDanaScore: number;
+            accountId: number;
+          }> | null;
+        }>;
+      } | null;
     };
   };
 };
@@ -190,6 +213,29 @@ export type HomeTimelineQuery = {
               height?: number | null;
               cfImageId?: string | null;
               cfImageFilename?: string | null;
+            }>;
+          } | null;
+          poll?: {
+            __typename?: 'Poll';
+            postId: string;
+            question: string;
+            startDate: any;
+            endDate: any;
+            canAddOption: boolean;
+            singleSelect: boolean;
+            defaultOptions?: Array<string> | null;
+            totalVote?: number | null;
+            options: Array<{
+              __typename?: 'PollOption';
+              id: string;
+              option: string;
+              pollId: string;
+              danaScoreOption?: number | null;
+              pollAnswerOnAccount?: Array<{
+                __typename?: 'PollAnswerOnAccount';
+                pollDanaScore: number;
+                accountId: number;
+              }> | null;
             }>;
           } | null;
         };
@@ -288,6 +334,29 @@ export type ProfileTimelineQuery = {
               height?: number | null;
               cfImageId?: string | null;
               cfImageFilename?: string | null;
+            }>;
+          } | null;
+          poll?: {
+            __typename?: 'Poll';
+            postId: string;
+            question: string;
+            startDate: any;
+            endDate: any;
+            canAddOption: boolean;
+            singleSelect: boolean;
+            defaultOptions?: Array<string> | null;
+            totalVote?: number | null;
+            options: Array<{
+              __typename?: 'PollOption';
+              id: string;
+              option: string;
+              pollId: string;
+              danaScoreOption?: number | null;
+              pollAnswerOnAccount?: Array<{
+                __typename?: 'PollAnswerOnAccount';
+                pollDanaScore: number;
+                accountId: number;
+              }> | null;
             }>;
           } | null;
         };
@@ -389,6 +458,29 @@ export type ProfileTimelineByTimeQuery = {
               cfImageFilename?: string | null;
             }>;
           } | null;
+          poll?: {
+            __typename?: 'Poll';
+            postId: string;
+            question: string;
+            startDate: any;
+            endDate: any;
+            canAddOption: boolean;
+            singleSelect: boolean;
+            defaultOptions?: Array<string> | null;
+            totalVote?: number | null;
+            options: Array<{
+              __typename?: 'PollOption';
+              id: string;
+              option: string;
+              pollId: string;
+              danaScoreOption?: number | null;
+              pollAnswerOnAccount?: Array<{
+                __typename?: 'PollAnswerOnAccount';
+                pollDanaScore: number;
+                accountId: number;
+              }> | null;
+            }>;
+          } | null;
         };
       };
     }>;
@@ -485,6 +577,29 @@ export type PageTimelineQuery = {
               height?: number | null;
               cfImageId?: string | null;
               cfImageFilename?: string | null;
+            }>;
+          } | null;
+          poll?: {
+            __typename?: 'Poll';
+            postId: string;
+            question: string;
+            startDate: any;
+            endDate: any;
+            canAddOption: boolean;
+            singleSelect: boolean;
+            defaultOptions?: Array<string> | null;
+            totalVote?: number | null;
+            options: Array<{
+              __typename?: 'PollOption';
+              id: string;
+              option: string;
+              pollId: string;
+              danaScoreOption?: number | null;
+              pollAnswerOnAccount?: Array<{
+                __typename?: 'PollAnswerOnAccount';
+                pollDanaScore: number;
+                accountId: number;
+              }> | null;
             }>;
           } | null;
         };
@@ -586,6 +701,29 @@ export type PageTimelineByTimeQuery = {
               cfImageFilename?: string | null;
             }>;
           } | null;
+          poll?: {
+            __typename?: 'Poll';
+            postId: string;
+            question: string;
+            startDate: any;
+            endDate: any;
+            canAddOption: boolean;
+            singleSelect: boolean;
+            defaultOptions?: Array<string> | null;
+            totalVote?: number | null;
+            options: Array<{
+              __typename?: 'PollOption';
+              id: string;
+              option: string;
+              pollId: string;
+              danaScoreOption?: number | null;
+              pollAnswerOnAccount?: Array<{
+                __typename?: 'PollAnswerOnAccount';
+                pollDanaScore: number;
+                accountId: number;
+              }> | null;
+            }>;
+          } | null;
         };
       };
     }>;
@@ -682,6 +820,29 @@ export type TokenTimelineQuery = {
               height?: number | null;
               cfImageId?: string | null;
               cfImageFilename?: string | null;
+            }>;
+          } | null;
+          poll?: {
+            __typename?: 'Poll';
+            postId: string;
+            question: string;
+            startDate: any;
+            endDate: any;
+            canAddOption: boolean;
+            singleSelect: boolean;
+            defaultOptions?: Array<string> | null;
+            totalVote?: number | null;
+            options: Array<{
+              __typename?: 'PollOption';
+              id: string;
+              option: string;
+              pollId: string;
+              danaScoreOption?: number | null;
+              pollAnswerOnAccount?: Array<{
+                __typename?: 'PollAnswerOnAccount';
+                pollDanaScore: number;
+                accountId: number;
+              }> | null;
             }>;
           } | null;
         };
@@ -781,6 +942,29 @@ export type TokenTimelineByTimeQuery = {
               height?: number | null;
               cfImageId?: string | null;
               cfImageFilename?: string | null;
+            }>;
+          } | null;
+          poll?: {
+            __typename?: 'Poll';
+            postId: string;
+            question: string;
+            startDate: any;
+            endDate: any;
+            canAddOption: boolean;
+            singleSelect: boolean;
+            defaultOptions?: Array<string> | null;
+            totalVote?: number | null;
+            options: Array<{
+              __typename?: 'PollOption';
+              id: string;
+              option: string;
+              pollId: string;
+              danaScoreOption?: number | null;
+              pollAnswerOnAccount?: Array<{
+                __typename?: 'PollAnswerOnAccount';
+                pollDanaScore: number;
+                accountId: number;
+              }> | null;
             }>;
           } | null;
         };

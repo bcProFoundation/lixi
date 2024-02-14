@@ -7,6 +7,7 @@ import { ICommentableTo } from '../comment';
 import { PostHashtag } from '../hashtag/postHashtag.model';
 import { ImageUploadable } from '../imageUploadable';
 import { Page } from '../page';
+import { Poll } from '../poll';
 import { ITimelineable } from '../timeline';
 import { Token } from '../token';
 
@@ -104,6 +105,9 @@ export class Post implements ICommentableTo, ITimelineable {
 
   @Field(() => Boolean, { nullable: true })
   burnedByOthers?: Nullable<boolean>;
+
+  @Field(() => Poll, { nullable: true })
+  poll?: Nullable<Poll>;
 
   constructor(partial: Partial<Post>) {
     Object.assign(this, partial);

@@ -1,4 +1,4 @@
-import { Account, CommentType, CreatePollInput, Page, Poll, Post } from '@bcpros/lixi-models';
+import { Account, CommentType, CreatePollInput, Poll, Post } from '@bcpros/lixi-models';
 import { PostType } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -25,6 +25,9 @@ import { HASHTAG, POSTS } from '../constants/meili.constants';
 import { MeiliService } from '../meili.service';
 import TimelineableLoader from '../timelineable.loader';
 import { PollCacheService } from './poll-cache.service';
+import { PollAnswerOnAccount, CreateVoteInput } from '@bcpros/lixi-models';
+import { AccountDanaCacheService } from 'src/modules/account/account-dana-cache.service';
+import PollLoader from './poll.loader';
 
 @Injectable()
 @Resolver(() => Poll)
@@ -41,8 +44,9 @@ export class PollResolver {
     private readonly hashtagService: HashtagService,
     private readonly pollCacheService: PollCacheService,
     private readonly notificationService: NotificationService,
-    private readonly timelineableLoader: TimelineableLoader,
-    private readonly accountCacheService: AccountCacheService
+    private readonly accountCacheService: AccountCacheService,
+    private readonly accountDanaCacheService: AccountDanaCacheService,
+    private readonly pollLoader: PollLoader
   ) {}
 
   @SkipThrottle()
@@ -53,14 +57,14 @@ export class PollResolver {
   }
 
   @UseGuards(GqlJwtAuthGuard)
-  @Mutation(() => Poll)
-  async create(@AccountEntity() account: Account, @Args('data') data: CreatePollInput) {
+  @Mutation(() => Post)
+  async createPoll(@AccountEntity() account: Account, @Args('data') data: CreatePollInput) {
     if (!account) {
       const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
       throw new Error(couldNotFindAccount);
     }
 
-    const { startDate, endDate, tokenId, pageId, htmlContent, pureContent, options, createFeeHex } = data;
+    const { startDate, endDate, tokenId, pageId, options, createFeeHex, question } = data;
     let createFee: any;
 
     const savedPoll = await this.prisma.$transaction(async prisma => {
@@ -75,7 +79,7 @@ export class PollResolver {
 
       const createdPoll = await prisma.post.create({
         data: {
-          content: htmlContent,
+          content: '',
           account: { connect: { id: account.id } },
           page: {
             connect: pageId ? { id: pageId } : undefined
@@ -104,7 +108,7 @@ export class PollResolver {
               options: {
                 create: options
               },
-              question: htmlContent
+              question
             }
           }
         },
@@ -136,15 +140,15 @@ export class PollResolver {
     });
 
     //Hashtag
-    const hashtags = await this.hashtagService.extractAndSave(
-      `${process.env.MEILISEARCH_BUCKET}_${HASHTAG}`,
-      pureContent,
-      savedPoll.id
-    );
+    // const hashtags = await this.hashtagService.extractAndSave(
+    //   `${process.env.MEILISEARCH_BUCKET}_${HASHTAG}`,
+    //   pureContent,
+    //   savedPoll.id
+    // );
 
     const indexedPost = {
       id: savedPoll.id,
-      content: pureContent,
+      content: question,
       postAccountName: savedPoll.account.name,
       createdAt: savedPoll.createdAt,
       updatedAt: savedPoll.updatedAt,
@@ -152,8 +156,8 @@ export class PollResolver {
         id: savedPoll.page?.id,
         name: savedPoll.page?.name
       },
-      type: 'POLL',
-      hashtag: hashtags
+      type: 'POLL'
+      // hashtag: hashtags
     };
 
     await this.meiliService.add(`${process.env.MEILISEARCH_BUCKET}_${POSTS}`, indexedPost, savedPoll.id);
@@ -228,36 +232,85 @@ export class PollResolver {
     }
 
     // Fanout the post created
-    await this.postFanoutQueue.add(CONTENT_FANOUT_QUEUE, { poll: savedPoll });
+    await this.postFanoutQueue.add(CONTENT_FANOUT_QUEUE, { post: savedPoll });
 
     return savedPoll;
   }
 
-  @ResolveField('page', () => Page)
-  async page(@Parent() poll: Poll) {
-    return poll?.pageId ? this.timelineableLoader.batchPages.load(poll?.pageId) : null;
+  @SkipThrottle()
+  @UseGuards(GqlJwtAuthGuard)
+  @Mutation(() => PollAnswerOnAccount)
+  async createVote(@AccountEntity() account: Account, @Args('data') data: CreateVoteInput) {
+    if (!account) {
+      const couldNotFindAccount = await this.i18n.t('post.messages.couldNotFindAccount');
+      throw new Error(couldNotFindAccount);
+    }
+    const { accountId, previousOptionIds, optionId, singleSelect, pollId } = data;
+
+    if (account.id !== accountId) {
+      const noPermission = await this.i18n.t('account.messages.noPermission');
+      throw new Error(noPermission);
+    }
+
+    let createdPollAnswer;
+    const accountDana = await this.accountDanaCacheService.getAccountDana(accountId);
+
+    //process 2 type vote
+    if (singleSelect) {
+      if (previousOptionIds && previousOptionIds.length > 0) {
+        //check user has voted for the same option
+        //if has, update it
+        if (previousOptionIds[0] === optionId) {
+          createdPollAnswer = await this.prisma.pollAnswerOnAccount.updateMany({
+            where: { AND: [{ pollOptionId: optionId }, { accountId }] },
+            data: { pollDanaScore: accountDana?.danaGiven || 0 }
+          });
+        } else {
+          //if not, remove old option and create new one
+          createdPollAnswer = await this.prisma.$transaction(async prisma => {
+            await prisma.pollAnswerOnAccount.deleteMany({
+              where: { AND: [{ pollOptionId: previousOptionIds[0] }, { accountId }] }
+            });
+            const createdNewAnswer = await prisma.pollAnswerOnAccount.create({
+              data: {
+                accountId,
+                pollOptionId: optionId,
+                pollDanaScore: accountDana?.danaGiven
+              }
+            });
+            return createdNewAnswer;
+          });
+        }
+      } else {
+        createdPollAnswer = await this.prisma.pollAnswerOnAccount.create({
+          data: {
+            accountId,
+            pollOptionId: optionId,
+            pollDanaScore: accountDana?.danaGiven
+          }
+        });
+      }
+    } else {
+      //TODO (mutiple select)
+    }
+
+    //remove cache poll
+    await this.pollCacheService.removeByKeys([pollId]);
+
+    return createdPollAnswer;
   }
 
-  @ResolveField('danaViewScore', () => Number)
-  async danaViewScore(@Parent() poll: Poll) {
-    return this.timelineableLoader.batchDanaViewScores.load(poll.id);
-  }
-
-  @ResolveField('followOwner', () => Boolean)
-  async followOwner(@Parent() post: Post, @AccountEntity() account: Account) {
-    const payload = {
-      followingAccountId: post?.account?.id,
-      accountId: account?.id
+  @ResolveField('defaultOptions', () => [String])
+  async defaultOptions(@Parent() poll: Poll, @AccountEntity() account: Account) {
+    const param = {
+      accountId: account.id,
+      postId: poll.postId
     };
-    return this.timelineableLoader.batchCheckAccountFollowAllAccount.load(payload);
+    return this.pollLoader.batchDefaultOptionsPoll.load(param);
   }
 
-  @ResolveField('followedPage', () => Boolean)
-  async followedPage(@Parent() post: Post, @AccountEntity() account: Account) {
-    const payload = {
-      pageId: post?.page?.id || '',
-      accountId: account?.id
-    };
-    return this.timelineableLoader.batchCheckAccountFollowAllPage.load(payload);
+  @ResolveField('totalVote', () => Number)
+  async totalVote(@Parent() poll: Poll) {
+    return this.pollLoader.batchTotalVote.load(poll.postId);
   }
 }

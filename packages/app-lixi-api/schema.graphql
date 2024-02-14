@@ -294,6 +294,20 @@ input CreateCommentInput {
   uploadId: String
 }
 
+input CreateEventInput {
+  createFeeHex: String
+  endDate: DateTime!
+  eventType: EventType!
+  htmlContent: String!
+  location: String
+  name: String!
+  pageId: String
+  pureContent: String!
+  startDate: DateTime!
+  tokenId: String
+  uploads: [String!]
+}
+
 input CreateFollowAccountInput {
   followerAccountId: Int!
   followingAccountId: Int!
@@ -332,12 +346,13 @@ input CreatePageMessageInput {
 }
 
 input CreatePollInput {
+  canAddOption: Boolean!
   createFeeHex: String
   endDate: DateTime!
-  htmlContent: String!
   options: [PollOptionInput!]!
   pageId: String
-  pureContent: String!
+  question: String!
+  singleSelect: Boolean!
   startDate: DateTime!
   tokenId: String
 }
@@ -387,6 +402,14 @@ input CreateTempleInput {
 
 input CreateTokenInput {
   tokenId: String!
+}
+
+input CreateVoteInput {
+  accountId: Int!
+  optionId: String!
+  pollId: String!
+  previousOptionIds: [String!]
+  singleSelect: Boolean!
 }
 
 input CreateWorshipInput {
@@ -466,8 +489,6 @@ type Event {
   description: String!
   endDate: DateTime!
   eventType: String!
-  followOwner: Boolean!
-  followedPage: Boolean!
   id: ID!
   imageUploadable: ImageUploadable
   imageUploadableId: String
@@ -494,6 +515,12 @@ type EventDana {
   event: Event!
   eventId: String!
   version: Int!
+}
+
+"""The type of event."""
+enum EventType {
+  PHYSICAL
+  VIRTUAL
 }
 
 input ExtraArguments {
@@ -768,7 +795,7 @@ type MessageSessionEdge {
 
 type Mutation {
   closePageMessageSession(data: ClosePageMessageSessionInput!): PageMessageSession!
-  create(data: CreatePollInput!): Poll!
+  create(data: CreateEventInput!): Event!
   createAccount(data: CreateAccountInput!): Account!
   createBookmark(data: CreateBookmarkInput!): Bookmark!
   createComment(data: CreateCommentInput!): Comment!
@@ -778,11 +805,13 @@ type Mutation {
   createMessage(data: CreateMessageInput!): Message!
   createPage(data: CreatePageInput!): Page!
   createPageMessageSession(data: CreatePageMessageInput!): PageMessageSession!
+  createPoll(data: CreatePollInput!): Post!
   createPost(data: CreatePostInput!): Post!
   createProduct(data: CreateProductInput!): Product!
   createReplyComment(data: CreateCommentInput!): Comment!
   createTemple(data: CreateTempleInput!): Temple!
   createToken(data: CreateTokenInput!): Token!
+  createVote(data: CreateVoteInput!): PollAnswerOnAccount!
   createWorship(data: CreateWorshipInput!): Worship!
   createWorshipTemple(data: CreateWorshipInput!): Worship!
   createWorshipedPerson(data: CreateWorshipedPersonInput!): WorshipedPerson!
@@ -947,52 +976,34 @@ enum PageMessageSessionStatus {
 }
 
 type Poll {
-  account: Account!
-  accountId: Int!
-
-  """Identifies the date and time when the object was created."""
-  createdAt: DateTime!
-  dana: PollDana!
-  danaViewScore: Float
+  canAddOption: Boolean!
+  defaultOptions: [String!]
   endDate: DateTime!
-  followOwner: Boolean!
-  followedPage: Boolean!
-  id: ID!
   options: [PollOption!]!
-  page: Page
-  pageId: String
+  postId: String!
   question: String!
+  singleSelect: Boolean!
   startDate: DateTime!
-  token: Token
-  tokenId: String
-  totalComments: Int
-
-  """Identifies the date and time when the object was last updated."""
-  updatedAt: DateTime!
+  totalVote: Int
 }
 
-type PollDana {
-  danaBurnDown: Float!
-  danaBurnScore: Float!
-  danaBurnUp: Float!
-  danaReceivedDown: Float!
-  danaReceivedScore: Float!
-  danaReceivedUp: Float!
-  poll: Poll!
-  pollId: String!
-  version: Int!
+type PollAnswerOnAccount {
+  account: Account
+  accountId: Int!
+  pollDanaScore: Float!
 }
 
 type PollOption {
-  danaPoint: Float
+  danaScoreOption: Int
   id: ID!
   option: String!
+  pollAnswerOnAccount: [PollAnswerOnAccount!]
   pollId: String!
 }
 
 input PollOptionInput {
   option: String!
-  pollId: Int!
+  pollId: String
 }
 
 type Post {
@@ -1016,6 +1027,7 @@ type Post {
   originalLanguage: String
   page: Page
   pageId: String
+  poll: Poll
   postHashtags: [PostHashtag!]
   repostCount: Int!
   reposts: [Repost!]

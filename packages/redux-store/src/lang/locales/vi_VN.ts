@@ -892,5 +892,22 @@ export default {
   'code.xh': 'Xhosa',
   'code.yi': 'Yiddish',
   'code.yo': 'Yoruba',
-  'code.zu': 'Zulu'
+  'code.zu': 'Zulu',
+
+  /* 21. Poll */
+  'poll.requireField': 'Trường này bắt buộc',
+  'poll.addOption': 'Thêm lựa chọn',
+  'poll.removePoll': 'Xóa bầu chọn',
+  'poll.singleType': 'Chọn một',
+  'poll.mutipleType': 'Chọn nhiều',
+  'poll.notAddType': 'Không',
+  'poll.addType': 'Có',
+  'poll.question': 'Câu hỏi',
+  'poll.option': 'Lựa chọn ',
+  'poll.day': 'Ngày',
+  'poll.hour': 'Giờ',
+  'poll.minute': 'Phút',
+  'poll.selectType': 'Chọn theo loại',
+  'poll.canAdd': 'Người bầu chọn có thể thêm lựa chọn',
+  'poll.vote': 'Bầu chọn'
 };

@@ -229,32 +229,4 @@ export class EventResolver {
     // Fanout the post created
     return savedEvent;
   }
-
-  @ResolveField('page', () => Page)
-  async page(@Parent() poll: Poll) {
-    return poll?.pageId ? this.timelineableLoader.batchPages.load(poll?.pageId) : null;
-  }
-
-  @ResolveField('danaViewScore', () => Number)
-  async danaViewScore(@Parent() poll: Poll) {
-    return this.timelineableLoader.batchDanaViewScores.load(poll.id);
-  }
-
-  @ResolveField('followOwner', () => Boolean)
-  async followOwner(@Parent() post: Post, @AccountEntity() account: Account) {
-    const payload = {
-      followingAccountId: post?.account?.id,
-      accountId: account?.id
-    };
-    return this.timelineableLoader.batchCheckAccountFollowAllAccount.load(payload);
-  }
-
-  @ResolveField('followedPage', () => Boolean)
-  async followedPage(@Parent() post: Post, @AccountEntity() account: Account) {
-    const payload = {
-      pageId: post?.page?.id || '',
-      accountId: account?.id
-    };
-    return this.timelineableLoader.batchCheckAccountFollowAllPage.load(payload);
-  }
 }

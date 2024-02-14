@@ -145,9 +145,6 @@ const enhancedApi = api.enhanceEndpoints({
 
     createPost: {
       async onQueryStarted({ input }, { dispatch, getState, queryFulfilled }) {
-        const { extraArguments, pageId, tokenPrimaryId } = input;
-        const { hashtagId, hashtags, minBurnFilter, orderBy, query } = extraArguments;
-
         try {
           const { data: result } = await queryFulfilled;
 

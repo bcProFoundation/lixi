@@ -1,4 +1,3 @@
-import { Account, PollDana, PostDana, Repost, UploadDetail } from '@bcpros/lixi-models';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
@@ -8,6 +7,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { DanaViewScoreService } from '../dana-view-score.service';
 import { FollowCacheService } from '../../account/follow-cache.service';
 import { AccountCacheService } from '../../account/account-cache.service';
+import { PollCacheService } from './poll-cache.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class PollLoader {
@@ -16,7 +16,8 @@ export default class PollLoader {
     @InjectRedis() private readonly redis: Redis,
     private readonly accountCacheService: AccountCacheService,
     private readonly danaViewScoreService: DanaViewScoreService,
-    private readonly followCacheService: FollowCacheService
+    private readonly followCacheService: FollowCacheService,
+    private readonly pollCacheService: PollCacheService
   ) {}
 
   public readonly batchCheckAccountFollowAllAccount = new DataLoader(
@@ -75,4 +76,64 @@ export default class PollLoader {
       }
     }
   );
+
+  public readonly batchDefaultOptionsPoll = new DataLoader(
+    async (items: readonly { accountId: number; postId: string }[]) => {
+      const postIds = items.map(item => item.postId);
+      const accountId = items[0].accountId;
+
+      const resultMap = new Map();
+
+      const polls = await this.pollCacheService.getByIds(postIds);
+
+      polls &&
+        polls.map(item => {
+          item?.options.map(option => {
+            const foundAccountInOption = option.pollAnswerOnAccount?.findIndex(item => item.accountId === accountId);
+            if (foundAccountInOption !== -1) {
+              resultMap.set(item.postId, [...(resultMap.get(item.postId) ?? []), option.id]);
+            }
+          });
+        });
+
+      return postIds.map(id => {
+        return [...new Set(resultMap.get(id))]; //remove duplicate
+      });
+    }
+  );
+
+  public readonly batchTotalVote = new DataLoader(async (items: readonly string[]) => {
+    const postIds = items as string[];
+
+    const options = await this.prisma.pollOption.findMany({
+      where: { pollId: { in: postIds } },
+      include: { pollAnswerOnAccount: true }
+    });
+
+    const groupOption = _.groupBy(options, item => item.pollId);
+
+    return postIds.map(id => {
+      return (
+        groupOption[id].reduce((accumulate, cur) => {
+          return accumulate + cur.pollAnswerOnAccount.length;
+        }, 0) ?? 0
+      );
+    });
+  });
+
+  public readonly batchDanaScoreOption = new DataLoader(async (items: readonly string[]) => {
+    const optionIds = items as string[];
+
+    const pollAnswers = await this.prisma.pollAnswerOnAccount.findMany({
+      where: {
+        pollOptionId: { in: optionIds }
+      },
+      select: { pollDanaScore: true, pollOptionId: true }
+    });
+    const groupPollAnswer = _.groupBy(pollAnswers, item => item.pollOptionId);
+
+    return optionIds.map(id => {
+      return groupPollAnswer[id]?.reduce((accumulate, cur) => accumulate + cur.pollDanaScore, 0) ?? 0;
+    });
+  });
 }

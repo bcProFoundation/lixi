@@ -6,6 +6,7 @@ import {
   ImageUploadable as ImageUploadableModel,
   Page,
   PaginationArgs,
+  Poll,
   Post,
   PostConnection,
   PostDana,
@@ -1247,5 +1248,10 @@ export class PostResolver {
   @ResolveField('burnedByOthers', () => Boolean)
   async burnedByOthers(@Parent() post: Post) {
     return this.postLoader.batchPostHasBurnedByOthers.load(post.id);
+  }
+
+  @ResolveField('poll', () => Poll)
+  async poll(@Parent() post: Post) {
+    return this.postLoader.batchPolls.load(post.id);
   }
 }

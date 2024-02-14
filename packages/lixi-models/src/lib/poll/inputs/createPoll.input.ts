@@ -1,11 +1,11 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 @InputType()
 export class PollOptionInput {
-  @Field(() => Number)
-  pollId: number;
+  @Field(() => String, { nullable: true })
+  pollId?: Nullable<string>;
 
   @Field(() => String)
   option: string;
@@ -13,14 +13,6 @@ export class PollOptionInput {
 
 @InputType()
 export class CreatePollInput {
-  @Field(() => String)
-  @IsNotEmpty()
-  htmlContent: string;
-
-  @Field(() => String)
-  @IsNotEmpty()
-  pureContent: string;
-
   @IsOptional()
   @Field(() => String, { nullable: true })
   pageId?: Nullable<string>;
@@ -28,6 +20,15 @@ export class CreatePollInput {
   @IsOptional()
   @Field(() => String, { nullable: true })
   tokenId?: Nullable<string>;
+
+  @Field(() => String)
+  question: string;
+
+  @Field(() => Boolean)
+  singleSelect: boolean;
+
+  @Field(() => Boolean)
+  canAddOption: boolean;
 
   @Field(() => GraphQLDateTime)
   startDate: Date;

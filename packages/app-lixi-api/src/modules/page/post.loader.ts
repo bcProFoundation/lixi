@@ -11,6 +11,7 @@ import { RedisDataLoader } from '../../common/redis/redis-dataloader';
 import BCHJS from '@bcpros/xpi-js';
 import { XPIJS } from '../wallet/wallet.constants';
 import { template } from 'src/utils/stringTemplate';
+import { PollCacheService } from './polls/poll-cache.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class PostLoader {
@@ -22,6 +23,7 @@ export default class PostLoader {
     @InjectRedis() private readonly redis: Redis,
     private readonly pageCacheService: PageCacheService,
     private readonly accountCacheService: AccountCacheService,
+    private readonly pollCacheService: PollCacheService,
     @Inject(XPIJS) private XPI: BCHJS
   ) {}
 
@@ -88,6 +90,19 @@ export default class PostLoader {
       return accounts[index] ?? new Account({ id: accountId });
     });
     return Promise.resolve(data);
+  });
+
+  public readonly batchPolls = new DataLoader(async (postIds: readonly string[]) => {
+    const ids = (postIds as unknown as string[]) ?? [];
+    const resultMap = new Map();
+    const polls = await this.pollCacheService.getByIds(ids);
+
+    polls &&
+      polls.map(item => {
+        resultMap.set(item?.postId, item);
+      });
+
+    return postIds.map(item => resultMap.get(item) ?? undefined);
   });
 
   public readonly batchAccountsByAddressHash160 = new DataLoader(async (addresses: readonly string[]) => {

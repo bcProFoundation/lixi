@@ -38,16 +38,11 @@ export class TimelineItemService {
     });
     const groups = _.groupBy(objIds, 'type');
     for (const group of _.keys(groups)) {
-      switch (group) {
-        case PostType.POST:
-          const posts = await this.postCacheService.getByIds(_.map(groups[group], 'id'));
-          for (const post of posts) {
-            if (post) {
-              itemsMap.set(`${PostType.POST}:${post.id}`, post);
-            }
-          }
-        default:
-          break;
+      const posts = await this.postCacheService.getByIds(_.map(groups[group], 'id'));
+      for (const post of posts) {
+        if (post) {
+          itemsMap.set(`${post.type}:${post.id}`, post);
+        }
       }
     }
 

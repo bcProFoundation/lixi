@@ -1,4 +1,6 @@
-import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
+
+import { PollAnswerOnAccount } from './poll-answer-on-account.model';
 
 @ObjectType()
 export class PollOption {
@@ -11,8 +13,11 @@ export class PollOption {
   @Field(() => String)
   option: string;
 
-  @Field(() => Float, { nullable: true })
-  danaPoint?: number;
+  @Field(() => Number, { nullable: true })
+  danaScoreOption?: Nullable<number>;
+
+  @Field(() => [PollAnswerOnAccount], { nullable: true })
+  pollAnswerOnAccount?: Nullable<PollAnswerOnAccount[]>;
 
   constructor(partial: Partial<PollOption>) {
     Object.assign(this, partial);
