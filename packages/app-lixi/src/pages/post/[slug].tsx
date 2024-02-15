@@ -24,10 +24,15 @@ const PostDetailPage = props => {
   const [post, setPost] = useState(initialPost);
   const postQuery = usePostQuery({ id: postId });
   const { isLoading, isError, data } = postQuery;
+  let paragraphText;
 
-  const document = new DOMParser().parseFromString(post.content, 'text/html');
-  const paragraphElement = document.querySelector('.EditorLexical_paragraph');
-  const paragraphText = paragraphElement?.textContent;
+  if (postQuery.data?.post?.poll?.question) {
+    paragraphText = postQuery.data.post.poll.question;
+  } else {
+    const document = new DOMParser().parseFromString(post.content, 'text/html');
+    const paragraphElement = document.querySelector('.EditorLexical_paragraph');
+    paragraphText = paragraphElement?.textContent;
+  }
 
   useEffect(() => {
     // analytic event
@@ -115,7 +120,8 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
         include: {
           uploads: true
         }
-      }
+      },
+      poll: true
     }
   });
 
