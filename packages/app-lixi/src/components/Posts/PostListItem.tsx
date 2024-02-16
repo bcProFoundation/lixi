@@ -13,10 +13,10 @@ import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
 import { getCurrentLocale } from '@store/settings/selectors';
 import { formatRelativeTime } from '@utils/formatting';
-import { Button, List, Spin } from 'antd';
+import { Button, List, Spin, Image } from 'antd';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import intl from 'react-intl-universal';
 import Gallery from 'react-photo-gallery';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
@@ -393,6 +393,11 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
     dispatch(analyticEvent(payload));
   };
 
+  const imageRenderer = useCallback(
+    ({ photo }) => <Image src={photo?.src} width={photo?.width} height={photo?.height} />,
+    []
+  );
+
   return (
     <PostListItemContainer className="post-list-item" key={post.id} ref={ref}>
       <Waypoint onEnter={onEnterPostItem} />
@@ -445,11 +450,14 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
             ))}
 
           {item.imageUploadable?.uploads.length != 0 && !showMoreImage && imagesList && (
-            <div
-              onClick={e => handlePostClick(e)}
-              className={`images-post ${imagesList?.length > 1 ? 'images-post-desktop' : ''}`}
-            >
-              <Gallery targetRowHeight={200} photos={imagesList?.length > 3 ? imagesList.slice(0, 4) : imagesList} />
+            <div className={`images-post ${imagesList?.length > 1 ? 'images-post-desktop' : ''}`}>
+              <Image.PreviewGroup>
+                <Gallery
+                  targetRowHeight={200}
+                  photos={imagesList?.length > 3 ? imagesList.slice(0, 3) : imagesList}
+                  renderImage={imageRenderer}
+                />
+              </Image.PreviewGroup>
               {item.imageUploadable?.uploads.length > 3 && (
                 <Button type="link" className="show-more-desktop show-more-image no-border-btn">
                   {item.imageUploadable?.uploads.length - 1 + ' +'}

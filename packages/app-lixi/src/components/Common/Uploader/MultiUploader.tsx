@@ -103,40 +103,50 @@ export const MultiUploader = React.forwardRef(
       async uploadImageFromClipboard(options) {
         const { file } = options;
         const url = UPLOAD_API_S3_MULTIPLE;
-        const formData = new FormData();
 
         formData.append('files', file);
-        formData.append('type', type);
+        lastLengthUpload.current += 1;
+        countFile.current += 1;
 
         const config = {
           headers: { 'content-type': 'multipart/form-data' },
           withCredentials: true
         };
-        setUploadingImage(true);
-        await axiosClient
-          .post(url, formData, config)
-          .then(response => {
-            setUploadingImage(false);
-            const { data } = response;
-            data.map(image => {
-              dispatch(setUpload({ upload: image, type: type }));
+
+        if (lastLengthUpload.current === countFile.current) {
+          if (imageUploadableId) {
+            formData.append('imageUploadableId', imageUploadableId);
+          }
+          formData.append('type', type);
+
+          setUploadingImage(true);
+          await axiosClient
+            .post(url, formData, config)
+            .then(response => {
+              setUploadingImage(false);
+              const { data } = response;
+              const { images, imageUploadableId } = data;
+              images.map(image => {
+                dispatch(setUpload({ upload: { ...image, commentId }, type: type, imageUploadableId }));
+              });
+
+              dispatch(
+                showToast('success', {
+                  message: intl.get('toast.success'),
+                  description: intl.get('lixi.fileUploadSuccess')
+                })
+              );
+            })
+            .catch(err => {
+              const { response } = err;
+              dispatch(
+                showToast('error', {
+                  message: intl.get('toast.error'),
+                  description: intl.get('lixi.fileUploadError')
+                })
+              );
             });
-            dispatch(
-              showToast('success', {
-                message: intl.get('toast.success'),
-                description: intl.get('lixi.fileUploadSuccess')
-              })
-            );
-          })
-          .catch(err => {
-            const { response } = err;
-            dispatch(
-              showToast('error', {
-                message: intl.get('toast.error'),
-                description: intl.get('lixi.fileUploadError')
-              })
-            );
-          });
+        }
       }
     }));
 

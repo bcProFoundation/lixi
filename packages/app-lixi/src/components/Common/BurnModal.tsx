@@ -420,11 +420,11 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
         <Button.Group style={{ width: '100%' }}>
           <UpDownButton className="downVote" onClick={() => handleBurn(false)}>
             <DownVoteSvg />
-            &nbsp; {intl.get('general.voteDown')}
+            &nbsp; {intl.get('general.demote')}
           </UpDownButton>
           <UpDownButton className="upVote" onClick={() => handleBurn(true)}>
             <UpVoteSvg />
-            &nbsp; {intl.get('general.voteUp')}
+            &nbsp; {intl.get('general.promote')}
           </UpDownButton>
         </Button.Group>
       }
