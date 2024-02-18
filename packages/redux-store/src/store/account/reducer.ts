@@ -226,6 +226,7 @@ export const accountReducer = createReducer(initialState, builder => {
     })
     .addCase(removeAllUpload, (state, action) => {
       state.postCoverUploads.images.length = 0;
+      state.postCoverUploads.imageUploadableId = null;
       state.productImageUploads.length = 0;
     })
     .addCase(removeAllMessageUpload, (state, action) => {

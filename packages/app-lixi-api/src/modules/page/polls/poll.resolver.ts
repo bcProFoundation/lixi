@@ -303,7 +303,7 @@ export class PollResolver {
   @ResolveField('defaultOptions', () => [String])
   async defaultOptions(@Parent() poll: Poll, @AccountEntity() account: Account) {
     const param = {
-      accountId: account.id,
+      accountId: account?.id,
       postId: poll.postId
     };
     return this.pollLoader.batchDefaultOptionsPoll.load(param);
