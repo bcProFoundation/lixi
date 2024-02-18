@@ -1,45 +1,36 @@
-import { SendOutlined } from '@ant-design/icons';
 import ActionPostBar from '@components/Common/ActionPostBar';
-import AvatarUser from '@components/Common/AvatarUser';
 import Counter from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
-import { currency } from '@components/Common/Ticker';
 import { LoadingIcon, NavBarHeader } from '@components/Layout/MainLayout';
 import { WalletContext } from '@context/walletProvider';
 import { PostQueryItem } from '@generated/index';
-import { CommentOrderField, CreateCommentInput, OrderDirection, RepostInput } from '@generated/types.generated';
+import { RepostInput } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { getAccountInfoTemp, getSelectedAccount } from '@store/account/selectors';
-import { createCommentFailure, createCommentSuccess } from '@store/comment';
-import { useCreateCommentMutation } from '@store/comment/comments.api';
-import { useInfiniteCommentsToCommentableIdQuery } from '@store/comment/useInfiniteCommentsToCommentableIdQuery';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
 import { useRepostMutation } from '@store/post/posts.generated';
-import { sendXPIFailure } from '@store/send/actions';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
-import { getUtxoWif } from '@utils/cashMethods';
-import { AutoComplete, Image, Input, Skeleton, Space, Spin } from 'antd';
+import { Image, Input, Space, Spin } from 'antd';
 import parse from 'html-react-parser';
 import _ from 'lodash';
 import moment from 'moment';
 import { useRouter } from 'next/router';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import ReactDomServer from 'react-dom/server';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import ReactHtmlParser from 'react-html-parser';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import Gallery from 'react-photo-gallery';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import styled from 'styled-components';
-import CommentListItem from './CommentListItem';
 import { EditPostModalProps } from './EditPostModalPopup';
 import PostTranslate from './PostTranslate';
 import Comment from './Comment';
+import PollContent from './PollContent';
 
 const { Search, TextArea } = Input;
 
@@ -474,20 +465,27 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
           ></InfoCardUser>
         </NavBarHeader>
         <PostContentDetail>
-          <div className="description-post" onClick={e => handleHashtagClick(e)}>
-            {ReactHtmlParser(ReactDomServer.renderToStaticMarkup(content))}
-          </div>
-          {post.translations &&
-            post.translations.length > 0 &&
-            (showTranslation ? (
-              <StyledTranslate onClick={translatePost} className="post-translation">
-                {intl.get('post.hideTranslate')}
-              </StyledTranslate>
-            ) : (
-              <StyledTranslate onClick={translatePost} className="post-translation">
-                {intl.get('post.showTranslate')}
-              </StyledTranslate>
-            ))}
+          {post.poll ? (
+            <PollContent poll={post.poll} />
+          ) : (
+            <div>
+              <div className="description-post" onClick={e => handleHashtagClick(e)}>
+                {ReactHtmlParser(ReactDomServer.renderToStaticMarkup(content))}
+              </div>
+              {post.translations &&
+                post.translations.length > 0 &&
+                (showTranslation ? (
+                  <StyledTranslate onClick={translatePost} className="post-translation">
+                    {intl.get('post.hideTranslate')}
+                  </StyledTranslate>
+                ) : (
+                  <StyledTranslate onClick={translatePost} className="post-translation">
+                    {intl.get('post.showTranslate')}
+                  </StyledTranslate>
+                ))}
+            </div>
+          )}
+
           {showTranslation && post.translations && post.translations.length > 0 && (
             <div className="description-translate">
               <PostTranslate postTranslate={post.translations[0].translateContent} />

@@ -145,6 +145,28 @@ const enhancedApi = pollApi.enhanceEndpoints({
               })
             );
           }
+
+          //update single post
+          const postInvalidatedBy = postApi.util.selectInvalidatedBy(getState(), ['Post']);
+          for (const invalidatedBy of postInvalidatedBy) {
+            const { endpointName, originalArgs } = invalidatedBy;
+            dispatch(
+              postApi.util.updateQueryData('Post', originalArgs, draft => {
+                //change default option of poll
+                draft.post.poll.defaultOptions = [optionId];
+
+                //plus % to new option
+                const indexToPlusOption = draft.post.poll.options.findIndex(item => item.id === optionId);
+                if (indexToPlusOption != -1)
+                  draft.post.poll.options[indexToPlusOption].danaScoreOption += createVote.pollDanaScore;
+
+                //minus % to old option
+                const indexToMinusOption = draft.post.poll.options.findIndex(item => item.id === previousOptionIds[0]);
+                if (indexToMinusOption != -1)
+                  draft.post.poll.options[indexToMinusOption].danaScoreOption -= createVote.pollDanaScore;
+              })
+            );
+          }
         } catch {}
       }
     }
