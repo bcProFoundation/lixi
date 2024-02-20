@@ -338,15 +338,15 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
           <h3>{intl.get('general.goodOrNot')}</h3>
           <div className="banner-count-burn">
             <div className="banner-item">
-              <LikeOutlined />
-              <div className="count-bar">
-                <p className="title">{getDanaBurnUp(burnForType) + intl.get('general.dana')}</p>
-              </div>
-            </div>
-            <div className="banner-item">
               <DislikeOutlined />
               <div className="count-bar">
                 <p className="title">{getDanaBurnDown(burnForType) + intl.get('general.dana')}</p>
+              </div>
+            </div>
+            <div className="banner-item">
+              <LikeOutlined />
+              <div className="count-bar">
+                <p className="title">{getDanaBurnUp(burnForType) + intl.get('general.dana')}</p>
               </div>
             </div>
           </div>

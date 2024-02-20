@@ -335,7 +335,7 @@ export class AccountResolver {
       throw new VError.WError(couldNotFindAccount);
     }
 
-    const { avatar: avatarId, cover: coverId } = data;
+    const { avatar: avatarId, cover: coverId, id } = data;
 
     /*Account Avatar*/
     if (avatarId) {
@@ -459,7 +459,7 @@ export class AccountResolver {
 
     const updatedAccount = await this.prisma.account.update({
       where: {
-        id: _.toSafeInteger(account.id)
+        id: id ?? _.toSafeInteger(account.id)
       },
       data: {
         ..._.omit(data, ['id', 'avatar', 'cover']),
