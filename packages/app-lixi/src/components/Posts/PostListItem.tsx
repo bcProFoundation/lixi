@@ -393,10 +393,7 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
     dispatch(analyticEvent(payload));
   };
 
-  const imageRenderer = useCallback(
-    ({ photo }) => <Image src={photo?.src} width={photo?.width} height={photo?.height} />,
-    []
-  );
+  const imageRenderer = useCallback(({ photo }) => <Image src={photo?.src} width={photo?.width} />, []);
 
   return (
     <PostListItemContainer className="post-list-item" key={post.id} ref={ref}>
