@@ -99,7 +99,7 @@ const PostContent = ({ post, showTranslation, currentLocale }) => {
         linesToShow={lineContentShow + lineContentShow * 0.1} //default lineHeight of Readmoremore is 1 but we custom lineHeight is 1.1
         parseHtml
         text={handleContentEmbed()}
-        checkFor={300 + 100 * (lineContentShow - 3)} //increase 100 chacracterToCheck when increate 1 lineToShow
+        checkFor={450 + 150 * (lineContentShow - 3)} //increase 150 chacracterToCheck when increate 1 lineToShow
         transDuration={0}
         readMoreText={intl.get('general.showMore')}
         readLessText={' '}
