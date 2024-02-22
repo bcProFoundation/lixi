@@ -195,6 +195,9 @@ const Content = styled.div`
         object-fit: cover;
       }
     }
+    .ant-image {
+      max-height: 50vh;
+    }
   }
 `;
 
@@ -393,7 +396,10 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
     dispatch(analyticEvent(payload));
   };
 
-  const imageRenderer = useCallback(({ photo }) => <Image src={photo?.src} width={photo?.width} />, []);
+  const imageRenderer = useCallback(
+    ({ photo }) => <Image src={photo?.src} width={photo?.width} height={photo?.height} />,
+    []
+  );
 
   return (
     <PostListItemContainer className="post-list-item" key={post.id} ref={ref}>

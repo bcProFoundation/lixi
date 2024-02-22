@@ -509,7 +509,9 @@ export const PageGroupItem = ({
                           </p>
                         ) : (
                           <p className="content">
-                            Give you {Math.round(parseFloat(item?.lixi?.amount))} XPI for messaging
+                            {intl.get('messenger.offerChat', {
+                              xpi: Math.round(Number(item?.lixi.amount))
+                            })}
                           </p>
                         )}
                       </div>
@@ -557,7 +559,12 @@ export const PageGroupItem = ({
                             {item?.latestMessage?.body}
                           </p>
                         ) : (
-                          <p className="content">Give {Math.round(parseFloat(item?.lixi?.amount))} XPI for messaging</p>
+                          <p className="content">
+                            {' '}
+                            {intl.get('messenger.offerChat', {
+                              xpi: Math.round(Number(item?.lixi.amount))
+                            })}
+                          </p>
                         )}
                       </div>
                       <div className="time-score" onClick={() => onClickIcon(item)}>
@@ -597,7 +604,12 @@ export const PageGroupItem = ({
                       {item?.latestMessage?.body}
                     </p>
                   ) : (
-                    <p className="content">Give you {Math.round(parseFloat(item?.lixi?.amount))} XPI for messaging</p>
+                    <p className="content">
+                      {' '}
+                      {intl.get('messenger.offerChat', {
+                        xpi: Math.round(Number(item?.lixi.amount))
+                      })}
+                    </p>
                   )}
                 </div>
                 <div className="time-score">
