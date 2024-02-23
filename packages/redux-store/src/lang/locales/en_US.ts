@@ -131,6 +131,7 @@ export default {
   'general.followScore': 'Follow Score (Dana of followers): {dana}',
   'general.burnUp': 'Burn up',
   'general.burnDown': 'Burn down',
+  'general.wallets': 'Wallets',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Valid mnemonic seed phrase required',
