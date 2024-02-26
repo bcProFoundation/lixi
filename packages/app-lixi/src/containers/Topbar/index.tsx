@@ -758,7 +758,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
         />
         <ItemAccess
           icon={'/images/ico-account.svg'}
-          text={intl.get('general.accounts')}
+          text={intl.get('general.wallets')}
           active={currentPathName === '/wallet'}
           direction="horizontal"
           key="wallet-lotus"

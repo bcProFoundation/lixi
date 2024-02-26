@@ -1802,6 +1802,22 @@ code {
       background-color: #3f4040 !important;
     }
 
+    .poll-wrapper {
+      border-color: #3e4042;
+
+      .ant-radio-wrapper {
+        border-color: #3e4042;
+      }
+
+      .poll-question,
+      .poll__vote-closeTime {
+        color: var(--text-color-primary-dark);
+      }
+      .percentage-bar {
+        background-color: #1877f24f;
+      }
+    }
+
     .ant-layout-header,
     .action-post-bar,
     .comment-input-container {
@@ -2654,6 +2670,13 @@ code {
   //PostDetail
   .post-detail {
     background: var(--bg-color-dark-item) !important;
+
+    .poll-wrapper {
+      .poll-question,
+      .poll__vote-closeTime {
+        color: var(--text-color-primary-dark);
+      }
+    }
 
     .comment-input-container {
       background: var(--bg-color-dark-item) !important;

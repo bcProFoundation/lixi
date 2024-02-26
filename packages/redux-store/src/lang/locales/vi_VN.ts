@@ -130,6 +130,7 @@ export default {
   'general.followScore': 'Điểm theo dõi (Dana của người theo dõi): {dana}',
   'general.burnUp': 'Ủng hộ',
   'general.burnDown': 'Phản đối',
+  'general.wallets': 'Ví',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Bạn cần nhập đúng cụm từ bảo mật',

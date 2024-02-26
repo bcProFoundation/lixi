@@ -55,6 +55,28 @@ export default class CommentLoader {
                   itemsMap.set(`${post.commentableId}`, commentable);
                 }
               }
+            case CommentType.POLL:
+              const polls = await this.prisma.post.findMany({
+                where: {
+                  commentableId: {
+                    in: idsInGroup
+                  }
+                },
+                select: {
+                  id: true,
+                  commentableId: true
+                }
+              });
+              for (const poll of polls) {
+                if (poll && poll.commentableId) {
+                  const commentable = new Commentable({
+                    id: poll.commentableId,
+                    type: CommentType.POLL,
+                    commentToId: poll.id
+                  });
+                  itemsMap.set(`${poll.commentableId}`, commentable);
+                }
+              }
             default:
               break;
           }

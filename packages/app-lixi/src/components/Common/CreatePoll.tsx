@@ -131,7 +131,7 @@ const CreatePoll = ({ handleClickPoll, onSubmit }: CreatePollProps) => {
             {errors[`option-${index}`] && <p className="error-message">{intl.get('poll.requireField')}</p>}
           </Form.Item>
         ))}
-        <Button onClick={handleAddOption}> {intl.get('poll.addOption')}</Button>
+        {options.length < 4 && <Button onClick={handleAddOption}> {intl.get('poll.addOption')}</Button>}
 
         <Row>
           <Col span={8}>

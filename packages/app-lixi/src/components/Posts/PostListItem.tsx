@@ -68,7 +68,7 @@ const CardHeader = styled.div`
   }
 `;
 
-const Content = styled.div`
+const Content = styled.div<{ imageHeight: number }>`
   .description-post {
     font-size: 15px;
     font-weight: 400;
@@ -138,7 +138,7 @@ const Content = styled.div`
     transition: 0.5s ease;
     img {
       max-width: 100%;
-      max-height: 50vh;
+      max-height: ${props => props.imageHeight + 'vh' || '15vh'};
       object-fit: contain;
       border-radius: var(--border-radius-primary);
     }
@@ -170,14 +170,9 @@ const Content = styled.div`
         display: none; // Safari and Chrome
       }
       img {
-        // max-width: fit-content;
-        // height: 100%;
-        // max-height: 50vh;
-        // object-fit: contain;
-        // border-radius: 0;
         width: auto;
         max-width: 75vw;
-        max-height: 50vh;
+        max-height: ${props => props.imageHeight + 'vh' || '15vh'};
         object-fit: cover;
         border-radius: var(--border-radius-primary);
         border: 1px solid var(--lt-color-gray-100);
@@ -196,7 +191,7 @@ const Content = styled.div`
       }
     }
     .ant-image {
-      max-height: 50vh;
+      max-height: ${props => props.imageHeight + 'vh' || '15vh'};
     }
   }
 `;
@@ -401,6 +396,18 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
     []
   );
 
+  //Height Image post: < 10 dana (1/6 screen), < 50 dana (1/4 screen), < 100 dana (1/3 screen), 100 >= (1/2 screen)
+  const heightImage = () => {
+    let maxHeightImage = 15;
+    const danaBurnScore = post.dana.danaBurnScore;
+
+    if (danaBurnScore > 100) maxHeightImage = 50;
+    else if (danaBurnScore > 50) maxHeightImage = 35;
+    else if (danaBurnScore > 10) maxHeightImage = 25;
+
+    return maxHeightImage;
+  };
+
   return (
     <PostListItemContainer className="post-list-item" key={post.id} ref={ref}>
       <Waypoint onEnter={onEnterPostItem} />
@@ -426,7 +433,7 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
             postListType={postListType}
           />
         </CardHeader>
-        <Content>
+        <Content imageHeight={heightImage()}>
           <div className="description-post">
             {post.poll ? (
               <PollContent poll={post.poll} />
