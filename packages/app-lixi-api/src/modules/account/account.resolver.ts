@@ -28,7 +28,7 @@ import { AccountCacheService } from './account-cache.service';
 import AccountLoader from './account.loader';
 import { FollowCacheService } from './follow-cache.service';
 import { createEdge } from 'src/common/custom-graphql-relay/paginate';
-import FollowScoreLoader from './follow-score.loader';
+import TotalPostViewsLoader from './follow-score.loader';
 import BCHJS from '@bcpros/xpi-js';
 
 const pubSub = new PubSub();
@@ -44,7 +44,7 @@ export class AccountResolver {
     private readonly accountCacheService: AccountCacheService,
     private readonly accountLoader: AccountLoader,
     private readonly followCacheService: FollowCacheService,
-    private readonly followScoreLoader: FollowScoreLoader,
+    private readonly totalPostViewsLoader: TotalPostViewsLoader,
     @Inject(XPIJS) private XPI: BCHJS
   ) {}
 
@@ -509,12 +509,12 @@ export class AccountResolver {
     return this.accountLoader.batchFollowingPagesCount.load(account.id);
   }
 
-  @ResolveField('followScore', () => Number)
-  async followScore(@Parent() account: Account) {
+  @ResolveField('postViews', () => Number)
+  async postViews(@Parent() account: Account) {
     const followOfType: FollowOfType = {
       accountId: account.id
     };
 
-    return this.followScoreLoader.batchTotalDanaFollowers.load(followOfType);
+    return this.totalPostViewsLoader.batchTotalPostViews.load(followOfType);
   }
 }

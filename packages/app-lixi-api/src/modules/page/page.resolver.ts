@@ -31,8 +31,7 @@ import { ImageUploadableType } from '@bcpros/lixi-prisma';
 import { XPIJS } from '../wallet/wallet.constants';
 import { PageTimelineCacheService } from './page-timeline-cache.service';
 import PageLoader from './page.loader';
-import { toImageUrl } from './page.utils';
-import FollowScoreLoader from '../account/follow-score.loader';
+import TotalPostViewsLoader from '../account/follow-score.loader';
 
 const pubSub = new PubSub();
 
@@ -49,7 +48,7 @@ export class PageResolver {
     private readonly pageCacheService: PageCacheService,
     private readonly followCacheService: FollowCacheService,
     private readonly pageTimelineCacheService: PageTimelineCacheService,
-    private readonly followScoreLoader: FollowScoreLoader,
+    private readonly totalPostViewsLoader: TotalPostViewsLoader,
     @I18n() private i18n: I18nService,
     @Inject(XPIJS) private XPI: BCHJS
   ) {}
@@ -325,11 +324,11 @@ export class PageResolver {
     return this.pageLoader.batchPageDanas.load(page.id);
   }
 
-  @ResolveField('followScore', () => Number)
-  async followScore(@Parent() page: Page) {
+  @ResolveField('postViews', () => Number)
+  async postViews(@Parent() page: Page) {
     const followOfType: FollowOfType = {
       pageId: page.id
     };
-    return this.followScoreLoader.batchTotalDanaFollowers.load(followOfType);
+    return this.totalPostViewsLoader.batchTotalPostViews.load(followOfType);
   }
 }

@@ -6,71 +6,102 @@ import _ from 'lodash';
 import { RedisDataLoader } from 'src/common/redis/redis-dataloader';
 import { PrismaService } from '../prisma/prisma.service';
 import { FollowOfType } from '@bcpros/lixi-models';
-import { Prisma } from '@bcpros/lixi-prisma';
+import { DanaViewScoreService } from '../page/dana-view-score.service';
 
 @Injectable({ scope: Scope.REQUEST })
-export default class FollowScoreLoader {
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
+export default class TotalPostViewsLoader {
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis,
+    private readonly danaViewScoreService: DanaViewScoreService
+  ) {}
 
-  public readonly batchTotalDanaFollowers = new RedisDataLoader(
+  public readonly batchTotalPostViews = new RedisDataLoader(
     this.redis,
-    'dataloader:FollowScoreLoader:batchTotalDanaFollowers',
+    'dataloader:PostViewsLoader:batchTotalPostViews',
     new DataLoader(
       async (followOfType: readonly FollowOfType[]) => {
         const listFollowOfType = _.compact(followOfType);
         let mapItem = new Map();
-        const listPageIds = listFollowOfType.filter(item => !_.isNil(item.pageId)).map(item => item.pageId);
-        const listTokenIds = listFollowOfType.filter(item => !_.isNil(item.tokenId)).map(item => item.tokenId);
-        const listAccountIds = listFollowOfType.filter(item => !_.isNil(item.accountId)).map(item => item.accountId);
+        const listPageIds = _.compact(listFollowOfType.map(item => item.pageId));
+        const listTokenIds = _.compact(listFollowOfType.map(item => item.tokenId));
+        const listAccountIds = _.compact(listFollowOfType.map(item => item.accountId));
 
         if (listPageIds.length > 0) {
-          const listFollowScorePage: any[] = await this.prisma.$queryRaw`
-          SELECT
-            follow_page.page_id, SUM(account_dana.dana_given) + SUM(account_dana.dana_received) AS FollowScore
-          FROM account_dana
-          JOIN account
-            ON account_dana.account_id = account.id 
-          JOIN follow_page
-            ON account.id = follow_page.account_id
-          WHERE follow_page.page_id IN (${Prisma.join(listPageIds)})
-          GROUP BY follow_page.page_id 
-        `;
-          listFollowScorePage.map(item => {
-            mapItem.set(item.page_id, item.followscore);
+          const postsInPages = await this.prisma.post.findMany({
+            where: { pageId: { in: listPageIds } },
+            select: { id: true, pageId: true }
+          });
+
+          const allPostIdsPages = postsInPages.map(item => item.id);
+
+          const listPostView = await this.danaViewScoreService.getByIds(allPostIdsPages);
+          const mapPostView = new Map(allPostIdsPages.map((item, index) => [item, listPostView[index]]));
+
+          const groupPostsInPage = _.groupBy(postsInPages, item => item.pageId);
+
+          listPageIds.map(pageId => {
+            const postsInPage = groupPostsInPage[pageId];
+            const postIdsInPage = postsInPage.map(item => item.id);
+
+            let totalPostViewsInPage = 0;
+            postIdsInPage.map(item => {
+              totalPostViewsInPage += parseFloat(mapPostView.get(item) ?? '0');
+            });
+
+            mapItem.set(pageId, totalPostViewsInPage);
           });
         }
 
         if (listTokenIds.length > 0) {
-          const listFollowScoreToken: any[] = await this.prisma.$queryRaw`
-          SELECT
-            follow_page.token_id, SUM(account_dana.dana_given) + SUM(account_dana.dana_received) AS FollowScore
-          FROM account_dana
-          JOIN account
-            ON account_dana.account_id = account.id
-          JOIN follow_page
-            ON account.id = follow_page.account_id
-          WHERE follow_page.token_id IN (${Prisma.join(listTokenIds)})
-          GROUP BY follow_page.token_id 
-        `;
-          listFollowScoreToken.map(item => {
-            mapItem.set(item.token_id, item.followscore);
+          const postsInTokens = await this.prisma.post.findMany({
+            where: { tokenId: { in: listTokenIds } },
+            select: { id: true, tokenId: true }
+          });
+
+          const allPostIdsTokens = postsInTokens.map(item => item.id);
+
+          const listPostView = await this.danaViewScoreService.getByIds(allPostIdsTokens);
+          const mapPostView = new Map(allPostIdsTokens.map((item, index) => [item, listPostView[index]]));
+
+          const groupPostsInToken = _.groupBy(postsInTokens, item => item.tokenId);
+
+          listTokenIds.map(tokenId => {
+            const postsInToken = groupPostsInToken[tokenId];
+            const postIdsInToken = postsInToken.map(item => item.id);
+
+            let totalPostViewsInToken = 0;
+            postIdsInToken.map(item => {
+              totalPostViewsInToken += parseFloat(mapPostView.get(item) ?? '0');
+            });
+
+            mapItem.set(tokenId, totalPostViewsInToken);
           });
         }
 
         if (listAccountIds.length > 0) {
-          const listFollowScoreAccount: any[] = await this.prisma.$queryRaw`
-          SELECT
-            follow_account.following_account_id, SUM(account_dana.dana_given) + SUM(account_dana.dana_received) AS FollowScore
-          FROM account_dana
-          JOIN account
-            ON account_dana.account_id = account.id
-          JOIN follow_account
-            ON account.id = follow_account.follower_account_id
-          WHERE follow_account.following_account_id IN (${Prisma.join(listAccountIds)})
-          GROUP BY follow_account.following_account_id
-        `;
-          listFollowScoreAccount.map(item => {
-            mapItem.set(item.following_account_id, item.followscore);
+          const postsInAccounts = await this.prisma.post.findMany({
+            where: { accountId: { in: listAccountIds } },
+            select: { id: true, accountId: true }
+          });
+
+          const allPostIdsAccounts = postsInAccounts.map(item => item.id);
+
+          const listPostView = await this.danaViewScoreService.getByIds(allPostIdsAccounts);
+          const mapPostView = new Map(allPostIdsAccounts.map((item, index) => [item, listPostView[index]]));
+
+          const groupPostsInAccount = _.groupBy(postsInAccounts, item => item.accountId);
+
+          listAccountIds.map(accountId => {
+            const postsInAccount = groupPostsInAccount[accountId];
+            const postIdsInAccount = postsInAccount.map(item => item.id);
+
+            let totalPostViewsInAccount = 0;
+            postIdsInAccount.map(item => {
+              totalPostViewsInAccount += parseFloat(mapPostView.get(item) ?? '0');
+            });
+
+            mapItem.set(accountId, totalPostViewsInAccount);
           });
         }
 

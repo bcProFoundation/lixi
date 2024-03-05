@@ -33,7 +33,7 @@ export type AccountQuery = {
     followersCount?: number | null;
     followingsCount?: number | null;
     followingPagesCount?: number | null;
-    followScore?: number | null;
+    postViews?: number | null;
     website?: string | null;
     description?: string | null;
     createCommentFee?: string | null;
@@ -76,7 +76,7 @@ export type GetAccountByAddressQuery = {
     followersCount?: number | null;
     followingsCount?: number | null;
     followingPagesCount?: number | null;
-    followScore?: number | null;
+    postViews?: number | null;
     website?: string | null;
     description?: string | null;
     createCommentFee?: string | null;
@@ -127,7 +127,7 @@ export type AllFollowersByPageQuery = {
         followersCount?: number | null;
         followingsCount?: number | null;
         followingPagesCount?: number | null;
-        followScore?: number | null;
+        postViews?: number | null;
         website?: string | null;
         description?: string | null;
         createCommentFee?: string | null;
@@ -181,7 +181,7 @@ export type AllFollowersByTokenQuery = {
         followersCount?: number | null;
         followingsCount?: number | null;
         followingPagesCount?: number | null;
-        followScore?: number | null;
+        postViews?: number | null;
         website?: string | null;
         description?: string | null;
         createCommentFee?: string | null;
@@ -221,7 +221,7 @@ export type AccountFieldsFragment = {
   followersCount?: number | null;
   followingsCount?: number | null;
   followingPagesCount?: number | null;
-  followScore?: number | null;
+  postViews?: number | null;
   website?: string | null;
   description?: string | null;
   createCommentFee?: string | null;
@@ -263,7 +263,7 @@ export type CreateAccountMutation = {
     followersCount?: number | null;
     followingsCount?: number | null;
     followingPagesCount?: number | null;
-    followScore?: number | null;
+    postViews?: number | null;
     website?: string | null;
     description?: string | null;
     createCommentFee?: string | null;
@@ -306,7 +306,7 @@ export type ImportAccountMutation = {
     followersCount?: number | null;
     followingsCount?: number | null;
     followingPagesCount?: number | null;
-    followScore?: number | null;
+    postViews?: number | null;
     website?: string | null;
     description?: string | null;
     createCommentFee?: string | null;
@@ -349,7 +349,7 @@ export type UpdateAccountMutation = {
     followersCount?: number | null;
     followingsCount?: number | null;
     followingPagesCount?: number | null;
-    followScore?: number | null;
+    postViews?: number | null;
     website?: string | null;
     description?: string | null;
     createCommentFee?: string | null;
@@ -390,7 +390,7 @@ export const AccountFieldsFragmentDoc = `
   followersCount
   followingsCount
   followingPagesCount
-  followScore
+  postViews
   website
   description
   createCommentFee

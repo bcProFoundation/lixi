@@ -414,7 +414,7 @@ export const SpaceShorcutItem = styled(Space)`
         margin: 0;
         color: gray;
         &.create-date {
-          font-size: 10px;
+          font-size: 11px;
         }
         &.lotus-burn-score {
           font-size: 10px;

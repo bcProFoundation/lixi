@@ -128,7 +128,7 @@ export class Page {
   dana?: Nullable<PageDana>;
 
   @Field(() => Number, { nullable: true })
-  followScore?: Nullable<number>;
+  postViews?: Nullable<number>;
 
   constructor(partial: Partial<Page>) {
     Object.assign(this, partial);

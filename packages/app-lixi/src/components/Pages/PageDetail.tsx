@@ -1,4 +1,11 @@
-import { CameraOutlined, CompassOutlined, FireOutlined, HomeOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import {
+  BarChartOutlined,
+  CameraOutlined,
+  CompassOutlined,
+  FireOutlined,
+  HomeOutlined,
+  InfoCircleOutlined
+} from '@ant-design/icons';
 import { PostListType } from '@bcpros/lixi-models/constants';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import CreatePostCard from '@components/Common/CreatePostCard';
@@ -499,7 +506,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const isPostsByTime = useAppSelector(getIsPostsByTime);
   const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
   const keyInfinite = `${page.id}:${minimumDanaFilter}`;
-  const followScore = page.followScore ?? 0;
+  const postViews = page.postViews ?? 0;
 
   useEffect(() => {
     if (router.query.q) {
@@ -1009,15 +1016,15 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
               <FireOutlined /> {pageDetailData?.dana?.danaReceivedScore || 0 + intl.get('general.dana')}
             </p>
 
-            {followScore != 0 && (
+            {postViews != 0 && (
               <Tooltip
-                title={intl.get('general.followScore', {
-                  dana: followScore.toLocaleString('en-US')
+                title={intl.get('general.postViews', {
+                  dana: postViews.toLocaleString('en-US')
                 })}
               >
                 <p style={{ width: 'fit-content' }} className="infor-page">
-                  <img src="../../images/follow.svg" style={{ width: '14px' }} />
-                  {<Counter num={followScore} isShowXPI={true} numberAbbreviation={true} />}
+                  <BarChartOutlined />
+                  {<Counter num={postViews} isShowXPI={true} numberAbbreviation={true} />}
                 </p>
               </Tooltip>
             )}

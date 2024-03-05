@@ -17,7 +17,6 @@ type Account {
   description: String
   encryptedMnemonic: String
   encryptedSecret: String
-  followScore: Int
   followersCount: Int
   followingPagesCount: Int
   followingsCount: Int
@@ -31,6 +30,7 @@ type Account {
   name: String!
   pageMessageSessions: [PageMessageSession!]
   pages: [Page!]
+  postViews: Int
   publicKey: String
   secondaryLanguage: String
   secret: String
@@ -859,7 +859,6 @@ type Page {
   dana: PageDana
   description: String!
   encryptedMnemonic: String
-  followScore: Int
   followerFreeMessage: Boolean
   followersCount: Int
   id: ID!
@@ -870,6 +869,7 @@ type Page {
   pageMessageSessions: [PageMessageSession!]
   parent: Page
   parentId: String
+  postViews: Int
   salt: String
   stateId: Int
   stateName: String
@@ -1434,12 +1434,12 @@ type Token {
   createdDate: DateTime!
   dana: TokenDana
   decimals: Int!
-  followScore: Int
   followersCount: Int
   id: ID!
   initialTokenQuantity: String
   isFollowed: Boolean
   name: String!
+  postViews: Int
   rank: Int
   ticker: String!
   tokenDocumentUrl: String

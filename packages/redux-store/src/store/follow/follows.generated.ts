@@ -55,7 +55,7 @@ export type AllFollowersByFollowingQuery = {
         followersCount?: number | null;
         followingsCount?: number | null;
         followingPagesCount?: number | null;
-        followScore?: number | null;
+        postViews?: number | null;
         website?: string | null;
         description?: string | null;
         createCommentFee?: string | null;
@@ -119,7 +119,7 @@ export type AllFollowingsByFollowerQuery = {
         followersCount?: number | null;
         followingsCount?: number | null;
         followingPagesCount?: number | null;
-        followScore?: number | null;
+        postViews?: number | null;
         website?: string | null;
         description?: string | null;
         createCommentFee?: string | null;

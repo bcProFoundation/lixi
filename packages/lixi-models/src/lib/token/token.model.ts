@@ -61,7 +61,7 @@ export class Token {
   dana?: Nullable<TokenDana>;
 
   @Field(() => Number, { nullable: true })
-  followScore?: Nullable<number>;
+  postViews?: Nullable<number>;
 
   constructor(partial: Partial<Token>) {
     Object.assign(this, partial);

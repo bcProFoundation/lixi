@@ -31,7 +31,6 @@ export type Account = {
   description?: Maybe<Scalars['String']>;
   encryptedMnemonic?: Maybe<Scalars['String']>;
   encryptedSecret?: Maybe<Scalars['String']>;
-  followScore?: Maybe<Scalars['Int']>;
   followersCount?: Maybe<Scalars['Int']>;
   followingPagesCount?: Maybe<Scalars['Int']>;
   followingsCount?: Maybe<Scalars['Int']>;
@@ -45,6 +44,7 @@ export type Account = {
   name: Scalars['String'];
   pageMessageSessions?: Maybe<Array<PageMessageSession>>;
   pages?: Maybe<Array<Page>>;
+  postViews?: Maybe<Scalars['Int']>;
   publicKey?: Maybe<Scalars['String']>;
   secondaryLanguage?: Maybe<Scalars['String']>;
   secret?: Maybe<Scalars['String']>;
@@ -431,7 +431,6 @@ export type CreateTokenInput = {
 };
 
 export type CreateVoteInput = {
-  accountDanaGiven?: InputMaybe<Scalars['Int']>;
   accountId: Scalars['Int'];
   optionId: Scalars['String'];
   pollId: Scalars['String'];
@@ -1010,7 +1009,6 @@ export type Page = {
   dana?: Maybe<PageDana>;
   description: Scalars['String'];
   encryptedMnemonic?: Maybe<Scalars['String']>;
-  followScore?: Maybe<Scalars['Int']>;
   followerFreeMessage?: Maybe<Scalars['Boolean']>;
   followersCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
@@ -1021,6 +1019,7 @@ export type Page = {
   pageMessageSessions?: Maybe<Array<PageMessageSession>>;
   parent?: Maybe<Page>;
   parentId?: Maybe<Scalars['String']>;
+  postViews?: Maybe<Scalars['Int']>;
   salt?: Maybe<Scalars['String']>;
   stateId?: Maybe<Scalars['Int']>;
   stateName?: Maybe<Scalars['String']>;
@@ -2038,12 +2037,12 @@ export type Token = {
   createdDate: Scalars['DateTime'];
   dana?: Maybe<TokenDana>;
   decimals: Scalars['Int'];
-  followScore?: Maybe<Scalars['Int']>;
   followersCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   initialTokenQuantity?: Maybe<Scalars['String']>;
   isFollowed?: Maybe<Scalars['Boolean']>;
   name: Scalars['String'];
+  postViews?: Maybe<Scalars['Int']>;
   rank?: Maybe<Scalars['Int']>;
   ticker: Scalars['String'];
   tokenDocumentUrl?: Maybe<Scalars['String']>;

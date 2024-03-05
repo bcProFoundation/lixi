@@ -39,7 +39,7 @@ import TimelineableLoader from './timelineable.loader';
 import { ProductCacheService } from './products/product-cache.service';
 import { BookmarkCacheService } from '../bookmark/bookmark-cache.service';
 import BookmarkLoader from '../bookmark/bookmark.loader';
-import FollowScoreLoader from '../account/follow-score.loader';
+import TotalPostViewsLoader from '../account/follow-score.loader';
 import { RemovePostFanoutProcessor } from './remove-post-fanout.processor';
 import { PollOptionResolver } from './polls/poll-option.resolver';
 
@@ -120,7 +120,7 @@ import { PollOptionResolver } from './polls/poll-option.resolver';
     TimelineableLoader,
     BookmarkCacheService,
     BookmarkLoader,
-    FollowScoreLoader,
+    TotalPostViewsLoader,
     RemovePostFanoutProcessor
   ],
   exports: [
