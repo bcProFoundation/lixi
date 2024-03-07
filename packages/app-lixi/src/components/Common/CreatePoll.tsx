@@ -213,7 +213,7 @@ const CreatePoll = ({ handleClickPoll, onSubmit }: CreatePollProps) => {
         </Button>
       </CreatePollForm>
       <Button className="btn-post" type="primary" htmlType="submit" onClick={handleSubmit(onSubmitForm)}>
-        {intl.get('post.postTitle')}
+        {intl.get('general.post')}
       </Button>
     </CreatePollContent>
   );

@@ -21,7 +21,6 @@ import Counter from './Counter';
 import BaseReaction from './Reaction';
 import ShareSocialButton from './ShareSocialButton';
 import _ from 'lodash';
-import BookmarkIcon from './BookmarkIcon';
 
 export const GroupIconText = styled.div`
   align-items: center;

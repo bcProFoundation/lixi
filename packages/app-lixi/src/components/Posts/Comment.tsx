@@ -579,13 +579,24 @@ const Comment = ({ post }: CommentProps) => {
 
   const createComment = async (input: CreateCommentInput, isReplyComment = false) => {
     try {
+      let newCommentId;
       if (isReplyComment) {
         const result = await createReplyCommentTrigger({ input: input }).unwrap();
+        newCommentId = result.createReplyComment.id;
         dispatch(createCommentSuccess({ dataCreateReplyComment: result, isReplyComment }));
       } else {
         const result = await createCommentTrigger({ input: input }).unwrap();
+        newCommentId = result.createComment.id;
         dispatch(createCommentSuccess({ dataCreateComment: result, isReplyComment }));
       }
+
+      // scroll to new-comment
+      setTimeout(() => {
+        const elementJumped = refsComment.current[newCommentId];
+        if (elementJumped) {
+          elementJumped.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 10);
 
       if (commentUpload) {
         dispatch(removeUploadFromCache({ uploadType: UPLOAD_TYPES.COMMENT }));

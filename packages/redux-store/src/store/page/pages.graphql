@@ -108,7 +108,7 @@ fragment PageFields on Page {
   totalPostsBurnUp
   totalPostsBurnDown
   totalPostsBurnScore
-  followScore
+  totalDanaViewScore
 }
 
 mutation createPage($input: CreatePageInput!) {

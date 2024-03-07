@@ -31,7 +31,6 @@ export type Account = {
   description?: Maybe<Scalars['String']>;
   encryptedMnemonic?: Maybe<Scalars['String']>;
   encryptedSecret?: Maybe<Scalars['String']>;
-  followScore?: Maybe<Scalars['Int']>;
   followersCount?: Maybe<Scalars['Int']>;
   followingPagesCount?: Maybe<Scalars['Int']>;
   followingsCount?: Maybe<Scalars['Int']>;
@@ -48,6 +47,7 @@ export type Account = {
   publicKey?: Maybe<Scalars['String']>;
   secondaryLanguage?: Maybe<Scalars['String']>;
   secret?: Maybe<Scalars['String']>;
+  totalDanaViewScore?: Maybe<Scalars['Int']>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
   website?: Maybe<Scalars['String']>;
@@ -431,7 +431,6 @@ export type CreateTokenInput = {
 };
 
 export type CreateVoteInput = {
-  accountDanaGiven?: InputMaybe<Scalars['Int']>;
   accountId: Scalars['Int'];
   optionId: Scalars['String'];
   pollId: Scalars['String'];
@@ -1010,7 +1009,6 @@ export type Page = {
   dana?: Maybe<PageDana>;
   description: Scalars['String'];
   encryptedMnemonic?: Maybe<Scalars['String']>;
-  followScore?: Maybe<Scalars['Int']>;
   followerFreeMessage?: Maybe<Scalars['Boolean']>;
   followersCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
@@ -1027,6 +1025,7 @@ export type Page = {
   title?: Maybe<Scalars['String']>;
   /** The sum of burn amount for every post on page */
   totalBurnForPage?: Maybe<Scalars['Float']>;
+  totalDanaViewScore?: Maybe<Scalars['Int']>;
   totalPostsBurnDown: Scalars['Float'];
   totalPostsBurnScore: Scalars['Float'];
   totalPostsBurnUp: Scalars['Float'];
@@ -2038,7 +2037,6 @@ export type Token = {
   createdDate: Scalars['DateTime'];
   dana?: Maybe<TokenDana>;
   decimals: Scalars['Int'];
-  followScore?: Maybe<Scalars['Int']>;
   followersCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   initialTokenQuantity?: Maybe<Scalars['String']>;
@@ -2050,6 +2048,7 @@ export type Token = {
   tokenId: Scalars['String'];
   tokenType: Scalars['String'];
   totalBurned?: Maybe<Scalars['String']>;
+  totalDanaViewScore?: Maybe<Scalars['Int']>;
   totalMinted?: Maybe<Scalars['String']>;
 };
 

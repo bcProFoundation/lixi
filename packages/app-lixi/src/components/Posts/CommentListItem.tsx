@@ -128,7 +128,7 @@ const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFo
           <React.Fragment>
             {item.parent && (
               <div className="reply-comment-jump" onClick={() => handleJump(item.parentId)}>
-                <p className="reply-comment-jump-name"> {item.commentAccount.name}</p>
+                <p className="reply-comment-jump-name"> {item.parent.commentAccount.name}</p>
                 <p className="reply-comment-jump-content hide-content">{item.parent.commentText}</p>
               </div>
             )}

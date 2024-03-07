@@ -1,34 +1,22 @@
-import { CloseOutlined, LeftOutlined, SendOutlined } from '@ant-design/icons';
+import { CloseOutlined, LeftOutlined } from '@ant-design/icons';
 import ActionPostBar from '@components/Common/ActionPostBar';
-import AvatarUser from '@components/Common/AvatarUser';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { currency } from '@components/Common/Ticker';
 import { LoadingIcon, NavBarHeader } from '@components/Layout/MainLayout';
-import { WalletContext } from '@context/walletProvider';
 import { PostQueryItem } from '@generated/index';
-import { CommentOrderField, CreateCommentInput, OrderDirection } from '@generated/types.generated';
-import useXPI from '@hooks/useXPI';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
-import { getAccountInfoTemp, getCommentUpload, getSelectedAccount } from '@store/account/selectors';
-import { createCommentFailure, createCommentSuccess } from '@store/comment';
-import { useCreateCommentMutation } from '@store/comment/comments.api';
-import { useInfiniteCommentsToCommentableIdQuery } from '@store/comment/useInfiniteCommentsToCommentableIdQuery';
+import { getCommentUpload } from '@store/account/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { closeModal, openModal } from '@store/modal/actions';
-import { usePostQuery, useRepostMutation } from '@store/post/posts.generated';
-import { sendXPIFailure, sendXPISuccess } from '@store/send/actions';
-import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
-import { fromSmallestDenomination, getUtxoWif } from '@utils/cashMethods';
-import { AutoComplete, Button, Image, Input, Modal, Skeleton, Spin } from 'antd';
+import { usePostQuery } from '@store/post/posts.generated';
+import { Image, Modal, Spin } from 'antd';
 import parse from 'html-react-parser';
 import _ from 'lodash';
 import moment from 'moment';
 import { useRouter } from 'next/router';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ReactDomServer from 'react-dom/server';
-import { Controller, useForm } from 'react-hook-form';
 import ReactHtmlParser from 'react-html-parser';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import Gallery from 'react-photo-gallery';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
@@ -36,7 +24,6 @@ import { useSwipeable } from 'react-swipeable';
 import styled from 'styled-components';
 import { removeUpload } from '../../../../redux-store/src/store/account';
 import Comment from './Comment';
-import CommentListItem from './CommentListItem';
 import { EditPostModalProps } from './EditPostModalPopup';
 import PostTranslate from './PostTranslate';
 import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
@@ -149,6 +136,10 @@ const PostContentDetail = styled.div`
       gap: 4px;
       background: #fff;
     }
+
+    .ant-image {
+      max-height: 100vh;
+    }
   }
 `;
 
@@ -244,9 +235,6 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
   const commentUpload = useAppSelector(getCommentUpload);
   const currentLocale = useAppSelector(getCurrentLocale);
 
-  const [repostTrigger, { isLoading: isLoadingRepost, isSuccess: isSuccessRepost, isError: isErrorRepost }] =
-    useRepostMutation();
-
   const { isLoading, currentData, isError } = usePostQuery({ id: post.id });
 
   const imagesList = useMemo(() => {
@@ -281,20 +269,6 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
     ({ photo }) => <Image src={photo?.src} width={photo?.width} height={photo?.height} />,
     []
   );
-
-  const showTextComment = () => {
-    if (post.page) {
-      return post.page.createCommentFee != '0'
-        ? intl.get('comment.writeCommentXpi', { commentFee: `${post.page.createCommentFee} ${currency.ticker}` })
-        : intl.get('comment.writeCommentFree');
-    } else if (post.account.createCommentFee && _.isNil(post.page)) {
-      return post.account.createCommentFee != '0'
-        ? intl.get('comment.writeCommentXpi', { commentFee: `${post.account.createCommentFee} ${currency.ticker}` })
-        : intl.get('comment.writeCommentFree');
-    } else {
-      return intl.get('comment.writeComment');
-    }
-  };
 
   const handleHashtagClick = e => {
     if (e.target.className === 'hashtag-link') {

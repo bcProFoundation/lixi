@@ -31,7 +31,6 @@ import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtau
 import { PrismaService } from '../prisma/prisma.service';
 import { AccountCacheService } from './account-cache.service';
 import { FollowCacheService } from './follow-cache.service';
-import FollowScoreLoader from './follow-score.loader';
 
 @SkipThrottle()
 @Resolver(() => FollowAccount)
@@ -45,8 +44,7 @@ export class FollowResolver {
     private readonly notificationService: NotificationService,
     @I18n() private readonly i18n: I18nService,
     @InjectRedis() private readonly redis: Redis,
-    private readonly accountCacheService: AccountCacheService,
-    private readonly followScoreLoader: FollowScoreLoader
+    private readonly accountCacheService: AccountCacheService
   ) {}
 
   @Query(() => Boolean)
@@ -177,8 +175,7 @@ export class FollowResolver {
           followerAccountId,
           followingAccountId,
           createdFollowAccount.createdAt
-        ),
-        this.followScoreLoader.batchTotalDanaFollowers.clear({ accountId: followingAccountId })
+        )
       ]);
 
       // get recipient account
@@ -237,10 +234,7 @@ export class FollowResolver {
       });
 
       // save and clear cache
-      await Promise.all([
-        this.followCacheService.removeFollowAccount(followerAccountId, followingAccountId),
-        this.followScoreLoader.batchTotalDanaFollowers.clear({ accountId: followingAccountId })
-      ]);
+      await Promise.all([this.followCacheService.removeFollowAccount(followerAccountId, followingAccountId)]);
 
       return deletedFollowAccount ? true : false;
     } catch (err) {
@@ -313,10 +307,7 @@ export class FollowResolver {
 
       // Save and clear cache
       pageId &&
-        (await Promise.all([
-          this.followCacheService.createFollowPage(accountId, pageId, createdFollowPage.createdAt),
-          this.followScoreLoader.batchTotalDanaFollowers.clear({ pageId })
-        ]));
+        (await Promise.all([this.followCacheService.createFollowPage(accountId, pageId, createdFollowPage.createdAt)]));
 
       if (pageId) {
         const recipient = await this.prisma.account.findFirst({
@@ -397,8 +388,7 @@ export class FollowResolver {
       // Save and clear cache
       tokenId &&
         (await Promise.all([
-          this.followCacheService.createFollowToken(accountId, tokenId, followTokenCreated.createdAt),
-          this.followScoreLoader.batchTotalDanaFollowers.clear({ tokenId })
+          this.followCacheService.createFollowToken(accountId, tokenId, followTokenCreated.createdAt)
         ]));
 
       return followTokenCreated;
@@ -432,11 +422,7 @@ export class FollowResolver {
       });
 
       //save and clear cache
-      pageId &&
-        (await Promise.all([
-          this.followCacheService.removeFollowPage(accountId, pageId),
-          this.followScoreLoader.batchTotalDanaFollowers.clear({ pageId })
-        ]));
+      pageId && (await Promise.all([this.followCacheService.removeFollowPage(accountId, pageId)]));
 
       return deletedFollowPage ? true : false;
     } catch (err) {
@@ -469,11 +455,7 @@ export class FollowResolver {
       });
 
       //save and clear cache
-      tokenId &&
-        (await Promise.all([
-          this.followCacheService.removeFollowToken(accountId, tokenId),
-          this.followScoreLoader.batchTotalDanaFollowers.clear({ tokenId })
-        ]));
+      tokenId && (await Promise.all([this.followCacheService.removeFollowToken(accountId, tokenId)]));
 
       return deletedFollowPage ? true : false;
     } catch (err) {

@@ -17,7 +17,6 @@ type Account {
   description: String
   encryptedMnemonic: String
   encryptedSecret: String
-  followScore: Int
   followersCount: Int
   followingPagesCount: Int
   followingsCount: Int
@@ -34,6 +33,7 @@ type Account {
   publicKey: String
   secondaryLanguage: String
   secret: String
+  totalDanaViewScore: Int
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
@@ -859,7 +859,6 @@ type Page {
   dana: PageDana
   description: String!
   encryptedMnemonic: String
-  followScore: Int
   followerFreeMessage: Boolean
   followersCount: Int
   id: ID!
@@ -877,6 +876,7 @@ type Page {
 
   """The sum of burn amount for every post on page"""
   totalBurnForPage: Float
+  totalDanaViewScore: Int
   totalPostsBurnDown: Float!
   totalPostsBurnScore: Float!
   totalPostsBurnUp: Float!
@@ -1434,7 +1434,6 @@ type Token {
   createdDate: DateTime!
   dana: TokenDana
   decimals: Int!
-  followScore: Int
   followersCount: Int
   id: ID!
   initialTokenQuantity: String
@@ -1446,6 +1445,7 @@ type Token {
   tokenId: String!
   tokenType: String!
   totalBurned: String
+  totalDanaViewScore: Int
   totalMinted: String
 }
 

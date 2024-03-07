@@ -31,7 +31,7 @@ export type TokenQuery = {
     totalBurned?: string | null;
     totalMinted?: string | null;
     followersCount?: number | null;
-    followScore?: number | null;
+    totalDanaViewScore?: number | null;
     initialTokenQuantity?: string | null;
     comments?: any | null;
     createdDate: any;
@@ -67,7 +67,7 @@ export type TokenByTokenIdQuery = {
     totalBurned?: string | null;
     totalMinted?: string | null;
     followersCount?: number | null;
-    followScore?: number | null;
+    totalDanaViewScore?: number | null;
     initialTokenQuantity?: string | null;
     comments?: any | null;
     createdDate: any;
@@ -110,7 +110,7 @@ export type TokensQuery = {
         totalBurned?: string | null;
         totalMinted?: string | null;
         followersCount?: number | null;
-        followScore?: number | null;
+        totalDanaViewScore?: number | null;
         initialTokenQuantity?: string | null;
         comments?: any | null;
         createdDate: any;
@@ -143,7 +143,7 @@ export type TokenFieldsFragment = {
   totalBurned?: string | null;
   totalMinted?: string | null;
   followersCount?: number | null;
-  followScore?: number | null;
+  totalDanaViewScore?: number | null;
   initialTokenQuantity?: string | null;
   comments?: any | null;
   createdDate: any;
@@ -178,7 +178,7 @@ export type CreateTokenMutation = {
     totalBurned?: string | null;
     totalMinted?: string | null;
     followersCount?: number | null;
-    followScore?: number | null;
+    totalDanaViewScore?: number | null;
     initialTokenQuantity?: string | null;
     comments?: any | null;
     createdDate: any;
@@ -208,7 +208,7 @@ export const TokenFieldsFragmentDoc = `
   totalBurned
   totalMinted
   followersCount
-  followScore
+  totalDanaViewScore
   dana {
     danaBurnUp
     danaBurnDown

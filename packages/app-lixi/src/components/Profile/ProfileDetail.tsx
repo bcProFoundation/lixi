@@ -1,4 +1,4 @@
-import { CameraOutlined, CompassOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { BarChartOutlined, CameraOutlined, CompassOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { Account } from '@bcpros/lixi-models';
 import { PostListType } from '@bcpros/lixi-models/constants';
 import { Follow, FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
@@ -487,7 +487,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const isPostsByTime = useAppSelector(getIsPostsByTime);
   const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
   const keyInfinite = `${user.id}:${minimumDanaFilter}`;
-  const followScore = user.followScore ?? 0;
+  const totalDanaViewScore = user.totalDanaViewScore ?? 0;
 
   const [
     createFollowAccountTrigger,
@@ -746,15 +746,15 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
               </p>
             )}
 
-            {followScore != 0 && (
+            {totalDanaViewScore != 0 && (
               <Tooltip
-                title={intl.get('general.followScore', {
-                  dana: followScore.toLocaleString('en-US')
+                title={intl.get('general.totalDanaViewScore', {
+                  dana: totalDanaViewScore.toLocaleString('en-US')
                 })}
               >
                 <p style={{ width: 'fit-content' }} className="infor-profile">
-                  <img src="../../images/follow.svg" style={{ width: '14px' }} />
-                  {<Counter num={followScore} isShowXPI={true} numberAbbreviation={true} />}
+                  <BarChartOutlined />
+                  {<Counter num={totalDanaViewScore} isShowXPI={true} numberAbbreviation={true} />}
                 </p>
               </Tooltip>
             )}

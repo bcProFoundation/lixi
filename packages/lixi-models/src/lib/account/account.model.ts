@@ -111,7 +111,7 @@ export class Account {
   coin?: Nullable<COIN>;
 
   @Field(() => Number, { nullable: true })
-  followScore?: Nullable<number>;
+  totalDanaViewScore?: Nullable<number>;
 
   constructor(partial: Partial<Account>) {
     Object.assign(this, partial);

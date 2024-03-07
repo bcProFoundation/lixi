@@ -7,7 +7,8 @@ import AccountLoader from './account.loader';
 import { AccountResolver } from './account.resolver';
 import { FollowCacheService } from './follow-cache.service';
 import { FollowResolver } from './follow.resolver';
-import FollowScoreLoader from './follow-score.loader';
+import TotalDanaViewScoreLoader from './total-dana-view-score.loader';
+import { DanaViewScoreService } from '../page/dana-view-score.service';
 
 @Module({
   imports: [forwardRef(() => AuthModule), forwardRef(() => NotificationModule)],
@@ -20,8 +21,9 @@ import FollowScoreLoader from './follow-score.loader';
     AccountCacheService,
     AccountDanaCacheService,
     AccountLoader,
-    FollowScoreLoader
+    TotalDanaViewScoreLoader,
+    DanaViewScoreService
   ],
-  exports: [FollowCacheService, AccountCacheService, AccountDanaCacheService, FollowScoreLoader]
+  exports: [FollowCacheService, AccountCacheService, AccountDanaCacheService, TotalDanaViewScoreLoader]
 })
 export class AccountModule {}
