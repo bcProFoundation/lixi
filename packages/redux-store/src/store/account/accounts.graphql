@@ -57,7 +57,7 @@ fragment AccountFields on Account {
   followersCount
   followingsCount
   followingPagesCount
-  postViews
+  totalDanaViewScore
   website
   description
   createCommentFee

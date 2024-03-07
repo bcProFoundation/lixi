@@ -44,10 +44,10 @@ export type Account = {
   name: Scalars['String'];
   pageMessageSessions?: Maybe<Array<PageMessageSession>>;
   pages?: Maybe<Array<Page>>;
-  postViews?: Maybe<Scalars['Int']>;
   publicKey?: Maybe<Scalars['String']>;
   secondaryLanguage?: Maybe<Scalars['String']>;
   secret?: Maybe<Scalars['String']>;
+  totalDanaViewScore?: Maybe<Scalars['Int']>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime'];
   website?: Maybe<Scalars['String']>;
@@ -1019,13 +1019,13 @@ export type Page = {
   pageMessageSessions?: Maybe<Array<PageMessageSession>>;
   parent?: Maybe<Page>;
   parentId?: Maybe<Scalars['String']>;
-  postViews?: Maybe<Scalars['Int']>;
   salt?: Maybe<Scalars['String']>;
   stateId?: Maybe<Scalars['Int']>;
   stateName?: Maybe<Scalars['String']>;
   title?: Maybe<Scalars['String']>;
   /** The sum of burn amount for every post on page */
   totalBurnForPage?: Maybe<Scalars['Float']>;
+  totalDanaViewScore?: Maybe<Scalars['Int']>;
   totalPostsBurnDown: Scalars['Float'];
   totalPostsBurnScore: Scalars['Float'];
   totalPostsBurnUp: Scalars['Float'];
@@ -2042,13 +2042,13 @@ export type Token = {
   initialTokenQuantity?: Maybe<Scalars['String']>;
   isFollowed?: Maybe<Scalars['Boolean']>;
   name: Scalars['String'];
-  postViews?: Maybe<Scalars['Int']>;
   rank?: Maybe<Scalars['Int']>;
   ticker: Scalars['String'];
   tokenDocumentUrl?: Maybe<Scalars['String']>;
   tokenId: Scalars['String'];
   tokenType: Scalars['String'];
   totalBurned?: Maybe<Scalars['String']>;
+  totalDanaViewScore?: Maybe<Scalars['Int']>;
   totalMinted?: Maybe<Scalars['String']>;
 };
 

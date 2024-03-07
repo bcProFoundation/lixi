@@ -30,10 +30,10 @@ type Account {
   name: String!
   pageMessageSessions: [PageMessageSession!]
   pages: [Page!]
-  postViews: Int
   publicKey: String
   secondaryLanguage: String
   secret: String
+  totalDanaViewScore: Int
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
@@ -869,7 +869,6 @@ type Page {
   pageMessageSessions: [PageMessageSession!]
   parent: Page
   parentId: String
-  postViews: Int
   salt: String
   stateId: Int
   stateName: String
@@ -877,6 +876,7 @@ type Page {
 
   """The sum of burn amount for every post on page"""
   totalBurnForPage: Float
+  totalDanaViewScore: Int
   totalPostsBurnDown: Float!
   totalPostsBurnScore: Float!
   totalPostsBurnUp: Float!
@@ -1439,13 +1439,13 @@ type Token {
   initialTokenQuantity: String
   isFollowed: Boolean
   name: String!
-  postViews: Int
   rank: Int
   ticker: String!
   tokenDocumentUrl: String
   tokenId: String!
   tokenType: String!
   totalBurned: String
+  totalDanaViewScore: Int
   totalMinted: String
 }
 

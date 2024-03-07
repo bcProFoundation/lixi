@@ -128,7 +128,7 @@ export default {
   'general.postsByTime': 'Posts by time: ',
   'general.bookmark': 'Bookmark',
   'general.noBookmark': 'No bookmarks',
-  'general.postViews': 'Total Post View: {dana}',
+  'general.totalDanaViewScore': 'Total Dana View Score: {dana}',
   'general.burnUp': 'Burn up',
   'general.burnDown': 'Burn down',
   'general.wallets': 'Wallets',

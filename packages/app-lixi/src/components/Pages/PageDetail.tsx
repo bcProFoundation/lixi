@@ -506,7 +506,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const isPostsByTime = useAppSelector(getIsPostsByTime);
   const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
   const keyInfinite = `${page.id}:${minimumDanaFilter}`;
-  const postViews = page.postViews ?? 0;
+  const totalDanaViewScore = page.totalDanaViewScore ?? 0;
 
   useEffect(() => {
     if (router.query.q) {
@@ -1016,15 +1016,15 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
               <FireOutlined /> {pageDetailData?.dana?.danaReceivedScore || 0 + intl.get('general.dana')}
             </p>
 
-            {postViews != 0 && (
+            {totalDanaViewScore != 0 && (
               <Tooltip
-                title={intl.get('general.postViews', {
-                  dana: postViews.toLocaleString('en-US')
+                title={intl.get('general.totalDanaViewScore', {
+                  dana: totalDanaViewScore.toLocaleString('en-US')
                 })}
               >
                 <p style={{ width: 'fit-content' }} className="infor-page">
                   <BarChartOutlined />
-                  {<Counter num={postViews} isShowXPI={true} numberAbbreviation={true} />}
+                  {<Counter num={totalDanaViewScore} isShowXPI={true} numberAbbreviation={true} />}
                 </p>
               </Tooltip>
             )}

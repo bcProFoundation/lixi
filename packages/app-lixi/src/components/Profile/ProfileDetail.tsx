@@ -487,7 +487,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
   const isPostsByTime = useAppSelector(getIsPostsByTime);
   const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
   const keyInfinite = `${user.id}:${minimumDanaFilter}`;
-  const postViews = user.postViews ?? 0;
+  const totalDanaViewScore = user.totalDanaViewScore ?? 0;
 
   const [
     createFollowAccountTrigger,
@@ -746,15 +746,15 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
               </p>
             )}
 
-            {postViews != 0 && (
+            {totalDanaViewScore != 0 && (
               <Tooltip
-                title={intl.get('general.postViews', {
-                  dana: postViews.toLocaleString('en-US')
+                title={intl.get('general.totalDanaViewScore', {
+                  dana: totalDanaViewScore.toLocaleString('en-US')
                 })}
               >
                 <p style={{ width: 'fit-content' }} className="infor-profile">
                   <BarChartOutlined />
-                  {<Counter num={postViews} isShowXPI={true} numberAbbreviation={true} />}
+                  {<Counter num={totalDanaViewScore} isShowXPI={true} numberAbbreviation={true} />}
                 </p>
               </Tooltip>
             )}

@@ -9,16 +9,16 @@ import { FollowOfType } from '@bcpros/lixi-models';
 import { DanaViewScoreService } from '../page/dana-view-score.service';
 
 @Injectable({ scope: Scope.REQUEST })
-export default class TotalPostViewsLoader {
+export default class TotalDanaViewScoreLoader {
   constructor(
     private readonly prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis,
     private readonly danaViewScoreService: DanaViewScoreService
   ) {}
 
-  public readonly batchTotalPostViews = new RedisDataLoader(
+  public readonly batchTotalDanaViewScore = new RedisDataLoader(
     this.redis,
-    'dataloader:PostViewsLoader:batchTotalPostViews',
+    'dataloader:DanaViewScoreLoader:batchTotalDanaViewScore',
     new DataLoader(
       async (followOfType: readonly FollowOfType[]) => {
         const listFollowOfType = _.compact(followOfType);
@@ -35,8 +35,8 @@ export default class TotalPostViewsLoader {
 
           const allPostIdsPages = postsInPages.map(item => item.id);
 
-          const listPostView = await this.danaViewScoreService.getByIds(allPostIdsPages);
-          const mapPostView = new Map(allPostIdsPages.map((item, index) => [item, listPostView[index]]));
+          const listDanaViewScore = await this.danaViewScoreService.getByIds(allPostIdsPages);
+          const mapDanaViewScore = new Map(allPostIdsPages.map((item, index) => [item, listDanaViewScore[index]]));
 
           const groupPostsInPage = _.groupBy(postsInPages, item => item.pageId);
 
@@ -44,12 +44,12 @@ export default class TotalPostViewsLoader {
             const postsInPage = groupPostsInPage[pageId];
             const postIdsInPage = postsInPage.map(item => item.id);
 
-            let totalPostViewsInPage = 0;
+            let totalDanaViewScoreInPage = 0;
             postIdsInPage.map(item => {
-              totalPostViewsInPage += parseFloat(mapPostView.get(item) ?? '0');
+              totalDanaViewScoreInPage += parseFloat(mapDanaViewScore.get(item) ?? '0');
             });
 
-            mapItem.set(pageId, totalPostViewsInPage);
+            mapItem.set(pageId, totalDanaViewScoreInPage);
           });
         }
 
@@ -61,8 +61,8 @@ export default class TotalPostViewsLoader {
 
           const allPostIdsTokens = postsInTokens.map(item => item.id);
 
-          const listPostView = await this.danaViewScoreService.getByIds(allPostIdsTokens);
-          const mapPostView = new Map(allPostIdsTokens.map((item, index) => [item, listPostView[index]]));
+          const listDanaViewScore = await this.danaViewScoreService.getByIds(allPostIdsTokens);
+          const mapDanaViewScore = new Map(allPostIdsTokens.map((item, index) => [item, listDanaViewScore[index]]));
 
           const groupPostsInToken = _.groupBy(postsInTokens, item => item.tokenId);
 
@@ -70,12 +70,12 @@ export default class TotalPostViewsLoader {
             const postsInToken = groupPostsInToken[tokenId];
             const postIdsInToken = postsInToken.map(item => item.id);
 
-            let totalPostViewsInToken = 0;
+            let totalDanaViewScoreInToken = 0;
             postIdsInToken.map(item => {
-              totalPostViewsInToken += parseFloat(mapPostView.get(item) ?? '0');
+              totalDanaViewScoreInToken += parseFloat(mapDanaViewScore.get(item) ?? '0');
             });
 
-            mapItem.set(tokenId, totalPostViewsInToken);
+            mapItem.set(tokenId, totalDanaViewScoreInToken);
           });
         }
 
@@ -87,8 +87,8 @@ export default class TotalPostViewsLoader {
 
           const allPostIdsAccounts = postsInAccounts.map(item => item.id);
 
-          const listPostView = await this.danaViewScoreService.getByIds(allPostIdsAccounts);
-          const mapPostView = new Map(allPostIdsAccounts.map((item, index) => [item, listPostView[index]]));
+          const listDanaViewScore = await this.danaViewScoreService.getByIds(allPostIdsAccounts);
+          const mapDanaViewScore = new Map(allPostIdsAccounts.map((item, index) => [item, listDanaViewScore[index]]));
 
           const groupPostsInAccount = _.groupBy(postsInAccounts, item => item.accountId);
 
@@ -96,12 +96,12 @@ export default class TotalPostViewsLoader {
             const postsInAccount = groupPostsInAccount[accountId];
             const postIdsInAccount = postsInAccount.map(item => item.id);
 
-            let totalPostViewsInAccount = 0;
+            let totalDanaViewScoreInAccount = 0;
             postIdsInAccount.map(item => {
-              totalPostViewsInAccount += parseFloat(mapPostView.get(item) ?? '0');
+              totalDanaViewScoreInAccount += parseFloat(mapDanaViewScore.get(item) ?? '0');
             });
 
-            mapItem.set(accountId, totalPostViewsInAccount);
+            mapItem.set(accountId, totalDanaViewScoreInAccount);
           });
         }
 

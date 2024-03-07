@@ -39,7 +39,7 @@ fragment TokenFields on Token {
   totalBurned
   totalMinted
   followersCount
-  postViews
+  totalDanaViewScore
   dana {
     danaBurnUp
     danaBurnDown

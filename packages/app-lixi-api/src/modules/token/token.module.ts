@@ -7,7 +7,7 @@ import { TokenDanaCacheService } from './token-dana-cache.service';
 import TokenLoader from './token.loader';
 import { TokenTimelineCacheService } from './token-timeline-cache.service';
 import { TokenCacheService } from './token-cache.service';
-import TotalPostViewsLoader from '../account/follow-score.loader';
+import TotalDanaViewScoreLoader from '../account/total-dana-view-score.loader';
 import { DanaViewScoreService } from '../page/dana-view-score.service';
 
 @Module({
@@ -21,7 +21,7 @@ import { DanaViewScoreService } from '../page/dana-view-score.service';
     TokenDanaCacheService,
     TokenLoader,
     TokenTimelineCacheService,
-    TotalPostViewsLoader,
+    TotalDanaViewScoreLoader,
     DanaViewScoreService
   ],
   exports: [TokenCacheService, TokenDanaCacheService, TokenLoader]

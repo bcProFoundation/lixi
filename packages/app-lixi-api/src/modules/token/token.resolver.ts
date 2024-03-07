@@ -24,7 +24,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { TokenCacheService } from './token-cache.service';
 import { TokenTimelineCacheService } from './token-timeline-cache.service';
 import TokenLoader from './token.loader';
-import TotalPostViewsLoader from '../account/follow-score.loader';
+import TotalDanaViewScoreLoader from '../account/total-dana-view-score.loader';
 
 @SkipThrottle()
 @Resolver(() => Token)
@@ -37,7 +37,7 @@ export class TokenResolver {
     private readonly tokenCacheService: TokenCacheService,
     private readonly tokenTimelineCacheService: TokenTimelineCacheService,
     private readonly tokenLoader: TokenLoader,
-    private readonly totalPostViewsLoader: TotalPostViewsLoader,
+    private readonly totalDanaViewScoreLoader: TotalDanaViewScoreLoader,
     @I18n() private readonly i18n: I18nService,
     @InjectChronikClient('xec') private chronik: ChronikClient
   ) {}
@@ -137,12 +137,12 @@ export class TokenResolver {
     return this.tokenLoader.batchIsFollowed.load({ accountId: account.id, tokenId: token.id });
   }
 
-  @ResolveField('postViews', () => Number)
-  async postViews(@Parent() token: Token) {
+  @ResolveField('totalDanaViewScore', () => Number)
+  async totalDanaViewScore(@Parent() token: Token) {
     const followOfType: FollowOfType = {
       tokenId: token.id
     };
 
-    return this.totalPostViewsLoader.batchTotalPostViews.load(followOfType);
+    return this.totalDanaViewScoreLoader.batchTotalDanaViewScore.load(followOfType);
   }
 }

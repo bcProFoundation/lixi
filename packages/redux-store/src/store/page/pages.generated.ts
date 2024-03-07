@@ -45,7 +45,7 @@ export type PageQuery = {
     totalPostsBurnUp: number;
     totalPostsBurnDown: number;
     totalPostsBurnScore: number;
-    postViews?: number | null;
+    totalDanaViewScore?: number | null;
     pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
     category?: { __typename?: 'Category'; id: string; name: string } | null;
     dana?: {
@@ -103,7 +103,7 @@ export type PagesQuery = {
         totalPostsBurnUp: number;
         totalPostsBurnDown: number;
         totalPostsBurnScore: number;
-        postViews?: number | null;
+        totalDanaViewScore?: number | null;
         pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         category?: { __typename?: 'Category'; id: string; name: string } | null;
         dana?: {
@@ -161,7 +161,7 @@ export type PagesByFollowerQuery = {
         totalPostsBurnUp: number;
         totalPostsBurnDown: number;
         totalPostsBurnScore: number;
-        postViews?: number | null;
+        totalDanaViewScore?: number | null;
         pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         category?: { __typename?: 'Category'; id: string; name: string } | null;
         dana?: {
@@ -221,7 +221,7 @@ export type PagesByUserIdQuery = {
         totalPostsBurnUp: number;
         totalPostsBurnDown: number;
         totalPostsBurnScore: number;
-        postViews?: number | null;
+        totalDanaViewScore?: number | null;
         pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
         category?: { __typename?: 'Category'; id: string; name: string } | null;
         dana?: {
@@ -266,7 +266,7 @@ export type PageFieldsFragment = {
   totalPostsBurnUp: number;
   totalPostsBurnDown: number;
   totalPostsBurnScore: number;
-  postViews?: number | null;
+  totalDanaViewScore?: number | null;
   pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
   category?: { __typename?: 'Category'; id: string; name: string } | null;
   dana?: {
@@ -313,7 +313,7 @@ export type CreatePageMutation = {
     totalPostsBurnUp: number;
     totalPostsBurnDown: number;
     totalPostsBurnScore: number;
-    postViews?: number | null;
+    totalDanaViewScore?: number | null;
     pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
     category?: { __typename?: 'Category'; id: string; name: string } | null;
     dana?: {
@@ -361,7 +361,7 @@ export type UpdatePageMutation = {
     totalPostsBurnUp: number;
     totalPostsBurnDown: number;
     totalPostsBurnScore: number;
-    postViews?: number | null;
+    totalDanaViewScore?: number | null;
     pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
     category?: { __typename?: 'Category'; id: string; name: string } | null;
     dana?: {
@@ -421,7 +421,7 @@ export const PageFieldsFragmentDoc = `
   totalPostsBurnUp
   totalPostsBurnDown
   totalPostsBurnScore
-  postViews
+  totalDanaViewScore
 }
     `;
 export const PageDocument = `
