@@ -45,6 +45,8 @@ export type Account = {
   pageMessageSessions?: Maybe<Array<PageMessageSession>>;
   pages?: Maybe<Array<Page>>;
   publicKey?: Maybe<Scalars['String']>;
+  rankNumber?: Maybe<Scalars['Int']>;
+  rankScore?: Maybe<Scalars['Int']>;
   secondaryLanguage?: Maybe<Scalars['String']>;
   secret?: Maybe<Scalars['String']>;
   totalDanaViewScore?: Maybe<Scalars['Int']>;
@@ -1314,6 +1316,7 @@ export type ProductEdge = {
 export type Query = {
   __typename?: 'Query';
   account: Account;
+  allAccounts: AccountBasicConnection;
   allClosedPageMessageSession: PageMessageSessionConnection;
   allFollowersByFollowing: AccountConnection;
   allFollowersByPage: AccountBasicConnection;
@@ -1378,6 +1381,8 @@ export type Query = {
   tokenByTokenId: Token;
   tokenTimeline: TimelineItemConnection;
   tokenTimelineByTime: TimelineItemConnection;
+  topMonthAccountDanaGiven: AccountBasicConnection;
+  topWeekAccountDanaGiven: AccountBasicConnection;
   userHadMessageToPage?: Maybe<PageMessageSession>;
   worship: Worship;
   worshipedPerson: WorshipedPerson;
@@ -1385,6 +1390,15 @@ export type Query = {
 
 export type QueryAccountArgs = {
   id: Scalars['Int'];
+};
+
+export type QueryAllAccountsArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']>;
 };
 
 export type QueryAllClosedPageMessageSessionArgs = {
@@ -1893,6 +1907,24 @@ export type QueryTokenTimelineByTimeArgs = {
   first?: InputMaybe<Scalars['Int']>;
   id: Scalars['String'];
   minimumDanaFilter: Scalars['Int'];
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
+export type QueryTopMonthAccountDanaGivenArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']>;
+};
+
+export type QueryTopWeekAccountDanaGivenArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']>;
   skip?: InputMaybe<Scalars['Int']>;
 };
 

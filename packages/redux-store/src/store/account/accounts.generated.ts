@@ -41,6 +41,8 @@ export type AccountQuery = {
     updatedAt: any;
     avatar?: string | null;
     cover?: string | null;
+    rankNumber?: number | null;
+    rankScore?: number | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -84,6 +86,8 @@ export type GetAccountByAddressQuery = {
     updatedAt: any;
     avatar?: string | null;
     cover?: string | null;
+    rankNumber?: number | null;
+    rankScore?: number | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -135,6 +139,8 @@ export type AllFollowersByPageQuery = {
         updatedAt: any;
         avatar?: string | null;
         cover?: string | null;
+        rankNumber?: number | null;
+        rankScore?: number | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -189,6 +195,182 @@ export type AllFollowersByTokenQuery = {
         updatedAt: any;
         avatar?: string | null;
         cover?: string | null;
+        rankNumber?: number | null;
+        rankScore?: number | null;
+        pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+        accountDana?: {
+          __typename?: 'AccountDana';
+          danaGiven?: number | null;
+          danaReceived?: number | null;
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+        } | null;
+      };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
+  };
+};
+
+export type AccountsQueryVariables = Types.Exact<{
+  after?: Types.InputMaybe<Types.Scalars['String']>;
+  before?: Types.InputMaybe<Types.Scalars['String']>;
+  first?: Types.InputMaybe<Types.Scalars['Int']>;
+  last?: Types.InputMaybe<Types.Scalars['Int']>;
+  skip?: Types.InputMaybe<Types.Scalars['Int']>;
+}>;
+
+export type AccountsQuery = {
+  __typename?: 'Query';
+  allAccounts: {
+    __typename?: 'AccountBasicConnection';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'AccountBasicEdge';
+      cursor: string;
+      node: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        hash160?: string | null;
+        mnemonicHash?: string | null;
+        encryptedMnemonic?: string | null;
+        encryptedSecret?: string | null;
+        publicKey?: string | null;
+        language: string;
+        followersCount?: number | null;
+        followingsCount?: number | null;
+        followingPagesCount?: number | null;
+        totalDanaViewScore?: number | null;
+        website?: string | null;
+        description?: string | null;
+        createCommentFee?: string | null;
+        createdAt: any;
+        updatedAt: any;
+        avatar?: string | null;
+        cover?: string | null;
+        rankNumber?: number | null;
+        rankScore?: number | null;
+        pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+        accountDana?: {
+          __typename?: 'AccountDana';
+          danaGiven?: number | null;
+          danaReceived?: number | null;
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+        } | null;
+      };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
+  };
+};
+
+export type TopWeekAccountsQueryVariables = Types.Exact<{
+  after?: Types.InputMaybe<Types.Scalars['String']>;
+  before?: Types.InputMaybe<Types.Scalars['String']>;
+  first?: Types.InputMaybe<Types.Scalars['Int']>;
+  last?: Types.InputMaybe<Types.Scalars['Int']>;
+  skip?: Types.InputMaybe<Types.Scalars['Int']>;
+}>;
+
+export type TopWeekAccountsQuery = {
+  __typename?: 'Query';
+  topWeekAccountDanaGiven: {
+    __typename?: 'AccountBasicConnection';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'AccountBasicEdge';
+      cursor: string;
+      node: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        hash160?: string | null;
+        mnemonicHash?: string | null;
+        encryptedMnemonic?: string | null;
+        encryptedSecret?: string | null;
+        publicKey?: string | null;
+        language: string;
+        followersCount?: number | null;
+        followingsCount?: number | null;
+        followingPagesCount?: number | null;
+        totalDanaViewScore?: number | null;
+        website?: string | null;
+        description?: string | null;
+        createCommentFee?: string | null;
+        createdAt: any;
+        updatedAt: any;
+        avatar?: string | null;
+        cover?: string | null;
+        rankNumber?: number | null;
+        rankScore?: number | null;
+        pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+        accountDana?: {
+          __typename?: 'AccountDana';
+          danaGiven?: number | null;
+          danaReceived?: number | null;
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+        } | null;
+      };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
+  };
+};
+
+export type TopMonthAccountsQueryVariables = Types.Exact<{
+  after?: Types.InputMaybe<Types.Scalars['String']>;
+  before?: Types.InputMaybe<Types.Scalars['String']>;
+  first?: Types.InputMaybe<Types.Scalars['Int']>;
+  last?: Types.InputMaybe<Types.Scalars['Int']>;
+  skip?: Types.InputMaybe<Types.Scalars['Int']>;
+}>;
+
+export type TopMonthAccountsQuery = {
+  __typename?: 'Query';
+  topMonthAccountDanaGiven: {
+    __typename?: 'AccountBasicConnection';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'AccountBasicEdge';
+      cursor: string;
+      node: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        hash160?: string | null;
+        mnemonicHash?: string | null;
+        encryptedMnemonic?: string | null;
+        encryptedSecret?: string | null;
+        publicKey?: string | null;
+        language: string;
+        followersCount?: number | null;
+        followingsCount?: number | null;
+        followingPagesCount?: number | null;
+        totalDanaViewScore?: number | null;
+        website?: string | null;
+        description?: string | null;
+        createCommentFee?: string | null;
+        createdAt: any;
+        updatedAt: any;
+        avatar?: string | null;
+        cover?: string | null;
+        rankNumber?: number | null;
+        rankScore?: number | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -229,6 +411,8 @@ export type AccountFieldsFragment = {
   updatedAt: any;
   avatar?: string | null;
   cover?: string | null;
+  rankNumber?: number | null;
+  rankScore?: number | null;
   pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
   accountDana?: {
     __typename?: 'AccountDana';
@@ -271,6 +455,8 @@ export type CreateAccountMutation = {
     updatedAt: any;
     avatar?: string | null;
     cover?: string | null;
+    rankNumber?: number | null;
+    rankScore?: number | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -314,6 +500,8 @@ export type ImportAccountMutation = {
     updatedAt: any;
     avatar?: string | null;
     cover?: string | null;
+    rankNumber?: number | null;
+    rankScore?: number | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -357,6 +545,8 @@ export type UpdateAccountMutation = {
     updatedAt: any;
     avatar?: string | null;
     cover?: string | null;
+    rankNumber?: number | null;
+    rankScore?: number | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -398,6 +588,8 @@ export const AccountFieldsFragmentDoc = `
   updatedAt
   avatar
   cover
+  rankNumber
+  rankScore
   accountDana {
     danaGiven
     danaReceived
@@ -458,6 +650,75 @@ export const AllFollowersByTokenDocument = `
 }
     ${AccountFieldsFragmentDoc}
 ${BasicPageInfoFieldsFragmentDoc}`;
+export const AccountsDocument = `
+    query Accounts($after: String, $before: String, $first: Int = 20, $last: Int, $skip: Int) {
+  allAccounts(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    skip: $skip
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...AccountFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+    ${AccountFieldsFragmentDoc}
+${BasicPageInfoFieldsFragmentDoc}`;
+export const TopWeekAccountsDocument = `
+    query topWeekAccounts($after: String, $before: String, $first: Int = 19, $last: Int, $skip: Int) {
+  topWeekAccountDanaGiven(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    skip: $skip
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...AccountFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+    ${AccountFieldsFragmentDoc}
+${BasicPageInfoFieldsFragmentDoc}`;
+export const TopMonthAccountsDocument = `
+    query topMonthAccounts($after: String, $before: String, $first: Int = 19, $last: Int, $skip: Int) {
+  topMonthAccountDanaGiven(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    skip: $skip
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...AccountFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+    ${AccountFieldsFragmentDoc}
+${BasicPageInfoFieldsFragmentDoc}`;
 export const CreateAccountDocument = `
     mutation createAccount($input: CreateAccountInput!) {
   createAccount(data: $input) {
@@ -495,6 +756,15 @@ const injectedRtkApi = api.injectEndpoints({
     AllFollowersByToken: build.query<AllFollowersByTokenQuery, AllFollowersByTokenQueryVariables>({
       query: variables => ({ document: AllFollowersByTokenDocument, variables })
     }),
+    Accounts: build.query<AccountsQuery, AccountsQueryVariables | void>({
+      query: variables => ({ document: AccountsDocument, variables })
+    }),
+    topWeekAccounts: build.query<TopWeekAccountsQuery, TopWeekAccountsQueryVariables | void>({
+      query: variables => ({ document: TopWeekAccountsDocument, variables })
+    }),
+    topMonthAccounts: build.query<TopMonthAccountsQuery, TopMonthAccountsQueryVariables | void>({
+      query: variables => ({ document: TopMonthAccountsDocument, variables })
+    }),
     createAccount: build.mutation<CreateAccountMutation, CreateAccountMutationVariables>({
       query: variables => ({ document: CreateAccountDocument, variables })
     }),
@@ -517,6 +787,12 @@ export const {
   useLazyAllFollowersByPageQuery,
   useAllFollowersByTokenQuery,
   useLazyAllFollowersByTokenQuery,
+  useAccountsQuery,
+  useLazyAccountsQuery,
+  useTopWeekAccountsQuery,
+  useLazyTopWeekAccountsQuery,
+  useTopMonthAccountsQuery,
+  useLazyTopMonthAccountsQuery,
   useCreateAccountMutation,
   useImportAccountMutation,
   useUpdateAccountMutation

@@ -29,11 +29,18 @@ import { TokenDanaCacheService } from '../../token/token-dana-cache.service';
 import { TranslateProvider } from '../translate/translate.constant';
 import { TranslateService } from '../translate/translate.service';
 import { ACCOUNT_DANA_QUEUE, BURN_FANOUT_QUEUE, PAGE_DANA_QUEUE } from './burn.constants';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { Redis } from 'ioredis';
+import moment from 'moment';
+import { template } from 'src/utils/stringTemplate';
 
 @SkipThrottle()
 @Controller('burn')
 export class BurnController {
   private logger: Logger = new Logger(BurnController.name);
+  static topAccountWeekKey = 'topAccountDanaGiven:weekly:{{weekNumber}}:{{year}}';
+  static topAccountMonthKey = 'topAccountDanaGiven:monthly:{{monthNumber}}:{{year}}';
+
   constructor(
     private prisma: PrismaService,
     private readonly notificationService: NotificationService,
@@ -46,7 +53,8 @@ export class BurnController {
     private translateService: TranslateService,
     private readonly accountCacheService: AccountCacheService,
     private readonly postDanaCacheService: PostDanaCacheService,
-    private readonly tokenDanaCacheService: TokenDanaCacheService
+    private readonly tokenDanaCacheService: TokenDanaCacheService,
+    @InjectRedis() private readonly redis: Redis
   ) {}
 
   private convertBurnedByToAddress(burnedBy: string): string {
@@ -492,6 +500,25 @@ export class BurnController {
         createNotifBurnAndTip.senderId !== createNotifBurnAndTip.recipientId &&
           (await this.notificationService.saveAndDispatchNotification(createNotifBurnAndTip));
       }
+
+      //make top account dana weekly and monthly
+      //just dana giving for now
+      const now = moment();
+      const numberWeek = now.week();
+      const numberMonth = now.month() + 1;
+      const numberYear = now.year();
+
+      const weekKey = template(BurnController.topAccountWeekKey, {
+        weekNumber: numberWeek,
+        year: numberYear
+      });
+      const monthKey = template(BurnController.topAccountMonthKey, {
+        monthNumber: numberMonth,
+        year: numberYear
+      });
+
+      await this.redis.zincrby(weekKey, value, sender.id);
+      await this.redis.zincrby(monthKey, value, sender.id);
 
       const result: Burn = {
         ...savedBurn,

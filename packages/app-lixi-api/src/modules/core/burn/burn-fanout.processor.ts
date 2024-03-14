@@ -24,6 +24,7 @@ export class BurnFanoutProcessor extends WorkerHost {
   static pageTimelineKey = 'timeline:page:{{pageId}}';
   static pageTimelineByTimeWithDanaFilterKey = 'timeline:page:{{pageId}}:{{level}}';
   static pageTimelineByTimeShowAll = 'timeline:page:{{pageId}}:showAll';
+  static feedPageTimeline = 'timeline:pages';
 
   //profile key
   static profileTimelineKey = 'timeline:profile:{{accountId}}';
@@ -111,6 +112,7 @@ export class BurnFanoutProcessor extends WorkerHost {
       if (post.pageId) {
         const keyPage = template(`${BurnFanoutProcessor.pageTimelineKey}`, { pageId: post.pageId });
         pipeline.zincrby(keyPage, score, timelineId);
+        pipeline.zincrby(BurnFanoutProcessor.feedPageTimeline, score, post.pageId);
 
         for (let i = 0; i < level.length; i++) {
           const keyPageByTimeWithDanaFilter = template(`${BurnFanoutProcessor.pageTimelineByTimeWithDanaFilterKey}`, {

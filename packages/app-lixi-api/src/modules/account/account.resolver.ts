@@ -7,6 +7,7 @@ import {
   FollowOfType,
   IBasicPaginated,
   ImportAccountInput,
+  PaginationArgs,
   UpdateAccountInput
 } from '@bcpros/lixi-models';
 import { ImageUploadableType } from '@bcpros/lixi-prisma';
@@ -27,9 +28,13 @@ import { WalletService } from '../wallet/wallet.service';
 import { AccountCacheService } from './account-cache.service';
 import AccountLoader from './account.loader';
 import { FollowCacheService } from './follow-cache.service';
-import { createEdge } from 'src/common/custom-graphql-relay/paginate';
+import { basicPaginate, createEdge } from 'src/common/custom-graphql-relay/paginate';
 import TotalDanaViewScoreLoader from './total-dana-view-score.loader';
 import BCHJS from '@bcpros/xpi-js';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
+import moment from 'moment';
+import { template } from 'src/utils/stringTemplate';
 
 const pubSub = new PubSub();
 
@@ -37,6 +42,9 @@ const pubSub = new PubSub();
 @Resolver(() => Account)
 @UseFilters(GqlHttpExceptionFilter)
 export class AccountResolver {
+  static topAccountWeekKey = 'topAccountDanaGiven:weekly:{{weekNumber}}:{{year}}';
+  static topAccountMonthKey = 'topAccountDanaGiven:monthly:{{monthNumber}}:{{year}}';
+
   constructor(
     private prisma: PrismaService,
     @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
@@ -45,7 +53,8 @@ export class AccountResolver {
     private readonly accountLoader: AccountLoader,
     private readonly followCacheService: FollowCacheService,
     private readonly totalDanaViewScoreLoader: TotalDanaViewScoreLoader,
-    @Inject(XPIJS) private XPI: BCHJS
+    @Inject(XPIJS) private XPI: BCHJS,
+    @InjectRedis() private readonly redis: Redis
   ) {}
 
   @Query(() => Account)
@@ -150,6 +159,84 @@ export class AccountResolver {
     return {
       ...paginated,
       edges: accounts.map(account => (account ? createEdge<Account>(account, 'id') : null))
+    } as IBasicPaginated<Account>;
+  }
+
+  @Query(() => AccountBasicConnection)
+  async allAccounts(@Args() { first = 20, after }: PaginationArgs) {
+    const top100AccountIds = await this.prisma.accountDana.findMany({
+      orderBy: { danaGiven: 'desc' },
+      take: first
+    });
+    const accountIds = top100AccountIds.map(item => item.accountId);
+    const accounts = await this.accountCacheService.getByIds(accountIds);
+
+    const paginated = await basicPaginate(accountIds, accountIds.length, accountIds[0]);
+    return {
+      ...paginated,
+      edges: accounts.map((account, index) =>
+        account ? createEdge<Account>({ ...account, rankNumber: index + 1 }, 'id') : null
+      )
+    } as IBasicPaginated<Account>;
+  }
+
+  @Query(() => AccountBasicConnection)
+  async topWeekAccountDanaGiven(@Args() { first = 19, after }: PaginationArgs) {
+    const now = moment();
+    const numberWeek = now.week();
+    const numberYear = now.year();
+
+    const weekKey = template(AccountResolver.topAccountWeekKey, {
+      weekNumber: numberWeek,
+      year: numberYear
+    });
+    const accountIdScores = await this.redis.zrevrange(weekKey, 0, first, 'WITHSCORES');
+    const accountIdScoresNumber = accountIdScores.map(item => Number(item));
+
+    //redis return array with even position is member and odd postion is score
+    const accountIds = accountIdScoresNumber.filter((_, index) => index % 2 === 0);
+    const accountScores = accountIdScoresNumber.filter((_, index) => index % 2 !== 0);
+
+    const accounts = await this.accountCacheService.getByIds(accountIds);
+
+    const paginated = await basicPaginate(accountIds, accountIds.length, accountIds[0]);
+    return {
+      ...paginated,
+      edges: accounts.map((account, index) =>
+        account
+          ? createEdge<Account>({ ...account, rankNumber: index + 1, rankScore: accountScores[index] }, 'id')
+          : null
+      )
+    } as IBasicPaginated<Account>;
+  }
+
+  @Query(() => AccountBasicConnection)
+  async topMonthAccountDanaGiven(@Args() { first = 19, after }: PaginationArgs) {
+    const now = moment();
+    const numberMonth = now.month() + 1;
+    const numberYear = now.year();
+
+    const monthKey = template(AccountResolver.topAccountMonthKey, {
+      monthNumber: numberMonth,
+      year: numberYear
+    });
+    const accountIdScores = await this.redis.zrevrange(monthKey, 0, first, 'WITHSCORES');
+    const accountIdScoresNumber = accountIdScores.map(item => Number(item));
+
+    //redis return array with even position is member and odd postion is score
+    const accountIds = accountIdScoresNumber.filter((_, index) => index % 2 === 0);
+    const accountScores = accountIdScoresNumber.filter((_, index) => index % 2 !== 0);
+
+    const accounts = await this.accountCacheService.getByIds(accountIds);
+
+    const paginated = await basicPaginate(accountIds, accountIds.length, accountIds[0]);
+    return {
+      ...paginated,
+      edges: accounts.map((account, index) =>
+        account
+          ? createEdge<Account>({ ...account, rankNumber: index + 1, rankScore: accountScores[index] }, 'id')
+          : null
+      )
     } as IBasicPaginated<Account>;
   }
 

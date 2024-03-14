@@ -24,6 +24,8 @@ export default {
   'label.comment': 'Bình luận',
   'label.created': 'Khởi tạo',
   'label.action': 'Hành động',
+  'label.avatar': 'Hình đại diện',
+  'label.address': 'Địa chỉ',
   'text.createPage':
     'Trang là không gian nơi mọi người có thể kết nối công khai với doanh nghiệp, thương hiệu cá nhân hoặc tổ chức của bạn. Bạn có thể làm những việc như giới thiệu sản phẩm và dịch vụ, quyên góp.',
   'text.createPageName':
@@ -131,6 +133,8 @@ export default {
   'general.burnUp': 'Ủng hộ',
   'general.burnDown': 'Phản đối',
   'general.wallets': 'Ví',
+  'general.topWeek': 'Xếp hạng tuần',
+  'general.topMonth': 'Xếp hạng tháng',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Bạn cần nhập đúng cụm từ bảo mật',
