@@ -1916,7 +1916,9 @@ export type QueryTopMonthAccountDanaGivenArgs = {
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
   minBurnFilter?: InputMaybe<Scalars['Int']>;
+  month: Scalars['Int'];
   skip?: InputMaybe<Scalars['Int']>;
+  year: Scalars['Int'];
 };
 
 export type QueryTopWeekAccountDanaGivenArgs = {
@@ -1926,6 +1928,8 @@ export type QueryTopWeekAccountDanaGivenArgs = {
   last?: InputMaybe<Scalars['Int']>;
   minBurnFilter?: InputMaybe<Scalars['Int']>;
   skip?: InputMaybe<Scalars['Int']>;
+  week: Scalars['Int'];
+  year: Scalars['Int'];
 };
 
 export type QueryUserHadMessageToPageArgs = {

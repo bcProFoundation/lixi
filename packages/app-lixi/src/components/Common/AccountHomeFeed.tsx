@@ -104,8 +104,10 @@ const AccountHomeFeed = () => {
   const [getTopAccountWeek, setGetTopAccountWeek] = useState(false);
   const [getTopAccountMonth, setGetTopAccountMonth] = useState(false);
 
-  const now = moment();
+  const now = moment().utc();
   const week = now.week();
+  const month = now.month() + 1;
+  const year = now.year();
   const monthName = now.format('MMMM');
 
   const { data, totalCount } = useInfiniteAccountsQuery(
@@ -117,14 +119,18 @@ const AccountHomeFeed = () => {
 
   const { data: dataAccountTopWeek, totalCount: totalCountAccountTopWeek } = useInfiniteTopWeekAccountsQuery(
     {
-      first: 19 //get top 20 accounts week
+      first: 20, //get top 20 accounts week
+      week,
+      year
     },
     false
   );
 
   const { data: dataAccountTopMonth, totalCount: totalCountAccountTopMonth } = useInfiniteTopMonthAccountsQuery(
     {
-      first: 19 //get top 100 accounts
+      first: 20, //get top 20 accounts month
+      month,
+      year
     },
     false
   );

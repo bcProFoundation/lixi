@@ -217,10 +217,7 @@ export type AllFollowersByTokenQuery = {
 
 export type AccountsQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
-  before?: Types.InputMaybe<Types.Scalars['String']>;
   first?: Types.InputMaybe<Types.Scalars['Int']>;
-  last?: Types.InputMaybe<Types.Scalars['Int']>;
-  skip?: Types.InputMaybe<Types.Scalars['Int']>;
 }>;
 
 export type AccountsQuery = {
@@ -275,10 +272,9 @@ export type AccountsQuery = {
 
 export type TopWeekAccountsQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
-  before?: Types.InputMaybe<Types.Scalars['String']>;
   first?: Types.InputMaybe<Types.Scalars['Int']>;
-  last?: Types.InputMaybe<Types.Scalars['Int']>;
-  skip?: Types.InputMaybe<Types.Scalars['Int']>;
+  week: Types.Scalars['Int'];
+  year: Types.Scalars['Int'];
 }>;
 
 export type TopWeekAccountsQuery = {
@@ -333,10 +329,9 @@ export type TopWeekAccountsQuery = {
 
 export type TopMonthAccountsQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']>;
-  before?: Types.InputMaybe<Types.Scalars['String']>;
   first?: Types.InputMaybe<Types.Scalars['Int']>;
-  last?: Types.InputMaybe<Types.Scalars['Int']>;
-  skip?: Types.InputMaybe<Types.Scalars['Int']>;
+  month: Types.Scalars['Int'];
+  year: Types.Scalars['Int'];
 }>;
 
 export type TopMonthAccountsQuery = {
@@ -651,14 +646,8 @@ export const AllFollowersByTokenDocument = `
     ${AccountFieldsFragmentDoc}
 ${BasicPageInfoFieldsFragmentDoc}`;
 export const AccountsDocument = `
-    query Accounts($after: String, $before: String, $first: Int = 20, $last: Int, $skip: Int) {
-  allAccounts(
-    after: $after
-    before: $before
-    first: $first
-    last: $last
-    skip: $skip
-  ) {
+    query Accounts($after: String, $first: Int = 20) {
+  allAccounts(after: $after, first: $first) {
     totalCount
     edges {
       cursor
@@ -674,14 +663,8 @@ export const AccountsDocument = `
     ${AccountFieldsFragmentDoc}
 ${BasicPageInfoFieldsFragmentDoc}`;
 export const TopWeekAccountsDocument = `
-    query topWeekAccounts($after: String, $before: String, $first: Int = 19, $last: Int, $skip: Int) {
-  topWeekAccountDanaGiven(
-    after: $after
-    before: $before
-    first: $first
-    last: $last
-    skip: $skip
-  ) {
+    query topWeekAccounts($after: String, $first: Int = 20, $week: Int!, $year: Int!) {
+  topWeekAccountDanaGiven(after: $after, first: $first, week: $week, year: $year) {
     totalCount
     edges {
       cursor
@@ -697,13 +680,12 @@ export const TopWeekAccountsDocument = `
     ${AccountFieldsFragmentDoc}
 ${BasicPageInfoFieldsFragmentDoc}`;
 export const TopMonthAccountsDocument = `
-    query topMonthAccounts($after: String, $before: String, $first: Int = 19, $last: Int, $skip: Int) {
+    query topMonthAccounts($after: String, $first: Int = 19, $month: Int!, $year: Int!) {
   topMonthAccountDanaGiven(
     after: $after
-    before: $before
     first: $first
-    last: $last
-    skip: $skip
+    month: $month
+    year: $year
   ) {
     totalCount
     edges {
@@ -759,10 +741,10 @@ const injectedRtkApi = api.injectEndpoints({
     Accounts: build.query<AccountsQuery, AccountsQueryVariables | void>({
       query: variables => ({ document: AccountsDocument, variables })
     }),
-    topWeekAccounts: build.query<TopWeekAccountsQuery, TopWeekAccountsQueryVariables | void>({
+    topWeekAccounts: build.query<TopWeekAccountsQuery, TopWeekAccountsQueryVariables>({
       query: variables => ({ document: TopWeekAccountsDocument, variables })
     }),
-    topMonthAccounts: build.query<TopMonthAccountsQuery, TopMonthAccountsQueryVariables | void>({
+    topMonthAccounts: build.query<TopMonthAccountsQuery, TopMonthAccountsQueryVariables>({
       query: variables => ({ document: TopMonthAccountsDocument, variables })
     }),
     createAccount: build.mutation<CreateAccountMutation, CreateAccountMutationVariables>({

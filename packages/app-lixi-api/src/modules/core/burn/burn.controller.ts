@@ -503,7 +503,7 @@ export class BurnController {
 
       //make top account dana weekly and monthly
       //just dana giving for now
-      const now = moment();
+      const now = moment().utc();
       const numberWeek = now.week();
       const numberMonth = now.month() + 1;
       const numberYear = now.year();

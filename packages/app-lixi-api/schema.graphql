@@ -1309,8 +1309,8 @@ type Query {
   tokenByTokenId(tokenId: String!): Token!
   tokenTimeline(after: String, first: Int, id: String!, skip: Int): TimelineItemConnection!
   tokenTimelineByTime(after: String, first: Int, id: String!, minimumDanaFilter: Int!, skip: Int): TimelineItemConnection!
-  topMonthAccountDanaGiven(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): AccountBasicConnection!
-  topWeekAccountDanaGiven(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): AccountBasicConnection!
+  topMonthAccountDanaGiven(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, month: Int!, skip: Int, year: Int!): AccountBasicConnection!
+  topWeekAccountDanaGiven(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int, week: Int!, year: Int!): AccountBasicConnection!
   userHadMessageToPage(accountId: Int, pageId: String): PageMessageSession
   worship(id: String!): Worship!
   worshipedPerson(id: String!): WorshipedPerson!

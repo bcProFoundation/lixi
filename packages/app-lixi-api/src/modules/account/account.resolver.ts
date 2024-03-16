@@ -12,7 +12,7 @@ import {
 } from '@bcpros/lixi-models';
 import { ImageUploadableType } from '@bcpros/lixi-prisma';
 import { HttpException, HttpStatus, Inject, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, Int, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PubSub } from 'graphql-subscriptions';
 import _ from 'lodash';
@@ -164,11 +164,11 @@ export class AccountResolver {
 
   @Query(() => AccountBasicConnection)
   async allAccounts(@Args() { first = 20, after }: PaginationArgs) {
-    const top100AccountIds = await this.prisma.accountDana.findMany({
+    const topAccountIds = await this.prisma.accountDana.findMany({
       orderBy: { danaGiven: 'desc' },
       take: first
     });
-    const accountIds = top100AccountIds.map(item => item.accountId);
+    const accountIds = topAccountIds.map(item => item.accountId);
     const accounts = await this.accountCacheService.getByIds(accountIds);
 
     const paginated = await basicPaginate(accountIds, accountIds.length, accountIds[0]);
@@ -181,16 +181,16 @@ export class AccountResolver {
   }
 
   @Query(() => AccountBasicConnection)
-  async topWeekAccountDanaGiven(@Args() { first = 19, after }: PaginationArgs) {
-    const now = moment();
-    const numberWeek = now.week();
-    const numberYear = now.year();
-
+  async topWeekAccountDanaGiven(
+    @Args() { first = 20, after }: PaginationArgs,
+    @Args('week', { type: () => Int }) week: number,
+    @Args('year', { type: () => Int }) year: number
+  ) {
     const weekKey = template(AccountResolver.topAccountWeekKey, {
-      weekNumber: numberWeek,
-      year: numberYear
+      weekNumber: week,
+      year: year
     });
-    const accountIdScores = await this.redis.zrevrange(weekKey, 0, first, 'WITHSCORES');
+    const accountIdScores = await this.redis.zrevrange(weekKey, 0, first - 1, 'WITHSCORES');
     const accountIdScoresNumber = accountIdScores.map(item => Number(item));
 
     //redis return array with even position is member and odd postion is score
@@ -211,16 +211,16 @@ export class AccountResolver {
   }
 
   @Query(() => AccountBasicConnection)
-  async topMonthAccountDanaGiven(@Args() { first = 19, after }: PaginationArgs) {
-    const now = moment();
-    const numberMonth = now.month() + 1;
-    const numberYear = now.year();
-
+  async topMonthAccountDanaGiven(
+    @Args() { first = 20, after }: PaginationArgs,
+    @Args('month', { type: () => Int }) month: number,
+    @Args('year', { type: () => Int }) year: number
+  ) {
     const monthKey = template(AccountResolver.topAccountMonthKey, {
-      monthNumber: numberMonth,
-      year: numberYear
+      monthNumber: month,
+      year: year
     });
-    const accountIdScores = await this.redis.zrevrange(monthKey, 0, first, 'WITHSCORES');
+    const accountIdScores = await this.redis.zrevrange(monthKey, 0, first - 1, 'WITHSCORES');
     const accountIdScoresNumber = accountIdScores.map(item => Number(item));
 
     //redis return array with even position is member and odd postion is score

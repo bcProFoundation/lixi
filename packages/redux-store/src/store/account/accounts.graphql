@@ -40,20 +40,8 @@ query AllFollowersByToken($after: String, $first: Int = 20, $id: String!) {
   }
 }
 
-query Accounts(
-  $after: String
-  $before: String
-  $first: Int = 20
-  $last: Int
-  $skip: Int
-) {
-  allAccounts(
-    after: $after
-    before: $before
-    first: $first
-    last: $last
-    skip: $skip
-  ) {
+query Accounts($after: String, $first: Int = 20) {
+  allAccounts(after: $after, first: $first) {
     totalCount
     edges {
       cursor
@@ -69,17 +57,15 @@ query Accounts(
 
 query topWeekAccounts(
   $after: String
-  $before: String
-  $first: Int = 19
-  $last: Int
-  $skip: Int
+  $first: Int = 20
+  $week: Int!
+  $year: Int!
 ) {
   topWeekAccountDanaGiven(
     after: $after
-    before: $before
     first: $first
-    last: $last
-    skip: $skip
+    week: $week
+    year: $year
   ) {
     totalCount
     edges {
@@ -96,17 +82,15 @@ query topWeekAccounts(
 
 query topMonthAccounts(
   $after: String
-  $before: String
   $first: Int = 19
-  $last: Int
-  $skip: Int
+  $month: Int!
+  $year: Int!
 ) {
   topMonthAccountDanaGiven(
     after: $after
-    before: $before
     first: $first
-    last: $last
-    skip: $skip
+    month: $month
+    year: $year
   ) {
     totalCount
     edges {

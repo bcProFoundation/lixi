@@ -10,8 +10,13 @@ const accountsAdapter = createEntityAdapter<AccountQueryItem>({
 
 const { selectAll } = accountsAdapter.getSelectors();
 
+interface PaginationTopWeekAccount extends PaginationArgs {
+  month: number;
+  year: number;
+}
+
 export function useInfiniteTopMonthAccountsQuery(
-  params: PaginationArgs,
+  params: PaginationTopWeekAccount,
   fetchAll: boolean = false // if `true`: auto do next fetches to get all notes at once
 ) {
   const baseResult = useTopMonthAccountsQuery(params);
