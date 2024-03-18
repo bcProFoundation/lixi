@@ -16,8 +16,11 @@ import { WalletModule } from '../wallet/wallet.module';
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     ThrottlerModule.forRoot({
-      limit: 30,
-      ttl: 60
+      throttlers: [{
+        name: 'default',
+        limit: 30,
+        ttl: 600
+      }]
     }),
     forwardRef(() => AccountModule)
   ],
@@ -33,4 +36,4 @@ import { WalletModule } from '../wallet/wallet.module';
   ],
   exports: [AuthService, GqlThrottlerGuard, JwtAuthGuard, WsAuthGuardByPass, GqlJwtAuthGuard, GqlJwtAuthGuardByPass]
 })
-export class AuthModule {}
+export class AuthModule { }

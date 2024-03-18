@@ -19,24 +19,22 @@ import {
   UnarchiveLixiCommand,
   WithdrawLixiCommand
 } from '@bcpros/lixi-models/lib/lixi';
-import { all, fork, put, takeLatest } from '@redux-saga/core/effects';
+import { CreatePageMessageInput } from '@generated/types.generated';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { removeUpload, removeUploadFromCache } from '@store/account/actions';
+import { removeUploadFromCache } from '@store/account/actions';
 import { getAccountById } from '@store/account/selectors';
+import { api as pageMessageApi } from '@store/message/pageMessageSession.api';
 import { generateRandomBase58Str } from '@utils/encryptionMethods';
-import { Modal } from 'antd';
 import { push } from 'connected-next-router';
 import { saveAs } from 'file-saver';
 import * as _ from 'lodash';
 import moment from 'moment';
 import intl from 'react-intl-universal';
 import * as Effects from 'redux-saga/effects';
-import { select } from 'redux-saga/effects';
-import { put as putEffect } from 'redux-saga/effects';
+import { all, fork, put, put as putEffect, select, takeLatest } from 'redux-saga/effects';
 import claimApi from '../claim/api';
 import { hideLoading, showLoading } from '../loading/actions';
 import { showToast } from '../toast/actions';
-import { api as pageMessageApi } from '@store/message/pageMessageSession.api';
 import {
   archiveLixi,
   archiveLixiFailure,
@@ -85,7 +83,6 @@ import {
 } from './actions';
 import lixiApi from './api';
 import { getLixiById } from './selectors';
-import { CreatePageMessageInput } from '@generated/types.generated';
 
 const call: any = Effects.call;
 /**
@@ -173,7 +170,7 @@ function* fetchInitialSubLixiesSaga(action: PayloadAction<number>) {
   }
 }
 
-function* fetchInitialSubLixiesSuccessSaga(action: PayloadAction<Lixi[]>) {}
+function* fetchInitialSubLixiesSuccessSaga(action: PayloadAction<Lixi[]>) { }
 
 function* fetchInitialSubLixiesFailureSaga(action: PayloadAction<string>) {
   const message = action.payload ?? intl.get('lixi.unableGetChildLixi');
@@ -199,7 +196,7 @@ function* fetchMoreSubLixiesSaga(action: PayloadAction<{ parentId: number; start
   }
 }
 
-function* fetchMoreSubLixiesSuccessSaga(action: PayloadAction<Lixi[]>) {}
+function* fetchMoreSubLixiesSuccessSaga(action: PayloadAction<Lixi[]>) { }
 
 function* fetchMoreSubLixiesFailureSaga(action: PayloadAction<string>) {
   const message = action.payload ?? intl.get('lixi.unableCreateChildLixi');
@@ -288,9 +285,14 @@ function* registerLixiPackSaga(action: PayloadAction<any>) {
 }
 
 function* registerLixiPackSuccessSaga(action: PayloadAction<Account>) {
-  Modal.success({
-    content: intl.get('lixi.registerSuccess')
-  });
+  const message = intl.get('lixi.registerSuccess');
+  yield put(
+    showToast('success', {
+      message: 'Success',
+      description: message,
+      duration: 5
+    })
+  );
   yield put(hideLoading(registerLixiPack.type));
 }
 
@@ -585,15 +587,25 @@ function* renameLixiSaga(action: PayloadAction<RenameLixiCommand>) {
 function* renameLixiSuccessSaga(action: PayloadAction<Lixi>) {
   const lixi = action.payload;
   yield put(hideLoading(renameLixi.type));
-  Modal.success({
-    content: intl.get('lixi.renameSuccess', { lixiName: lixi.name })
-  });
+  const message = intl.get('lixi.renameSuccess', { lixiName: lixi.name })
+  yield put(
+    showToast('success', {
+      message: 'Success',
+      description: message,
+      duration: 5
+    })
+  );
 }
 
 function* renameLixiFailureSaga(action: PayloadAction<string>) {
-  Modal.error({
-    content: intl.get('lixi.renameFailed')
-  });
+  const message = intl.get('lixi.renameFailed');
+  yield put(
+    showToast('error', {
+      message: 'Error',
+      description: message,
+      duration: 5
+    })
+  );
   yield put(hideLoading(renameLixi.type));
 }
 

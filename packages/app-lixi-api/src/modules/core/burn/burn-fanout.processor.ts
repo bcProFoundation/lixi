@@ -4,7 +4,7 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { Redis } from 'ioredis';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { BURN_FANOUT_QUEUE } from './burn.constants';
 import { Burn, Post } from '@bcpros/lixi-prisma';
 import { FollowCacheService } from '../../account/follow-cache.service';

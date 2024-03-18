@@ -5,7 +5,7 @@ import {
   TimelineItem,
   TimelineItemConnection
 } from '@bcpros/lixi-models';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Query, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
@@ -40,7 +40,7 @@ export class TimelineResolver {
     private readonly pageCacheService: PageCacheService,
     @InjectRedis() private readonly redis: Redis,
     @I18n() private readonly i18n: I18nService
-  ) {}
+  ) { }
 
   @SkipThrottle()
   @Query(returns => TimelineItem)

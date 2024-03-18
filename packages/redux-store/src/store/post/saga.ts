@@ -1,15 +1,20 @@
 import { CreatePostCommand, EditPostCommand, ParamPostFollowCommand } from '@bcpros/lixi-models';
 import { POST_TYPE } from '@bcpros/lixi-models/constants';
-import { all, fork, put, select, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import * as _ from 'lodash';
 import intl from 'react-intl-universal';
 import * as Effects from 'redux-saga/effects';
+import { all, fork, put, select, takeLatest } from 'redux-saga/effects';
 
 import { hideLoading, showLoading } from '../loading/actions';
 import { showToast } from '../toast/actions';
 
+import { FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
+import { api as postsApi } from '@store/post/posts.api';
+import { api as timelineApi } from '@store/timeline/timeline.api';
 import {
+  changeBookmarkActionSheet,
+  changeFollowActionSheetPost,
   editPost,
   editPostFailure,
   editPostSuccess,
@@ -18,23 +23,15 @@ import {
   fetchAllPostsSuccess,
   getPost,
   getPostFailure,
-  getPostsByAccountId,
   getPostSuccess,
+  getPostsByAccountId,
   postPost,
   postPostFailure,
   postPostSuccess,
   setPost,
-  setPostsByAccountId,
-  setSelectedPost,
-  changeFollowActionSheetPost,
-  changeBookmarkActionSheet
+  setPostsByAccountId
 } from './actions';
 import postApi from './api';
-import { api as timelineApi } from '@store/timeline/timeline.api';
-import { api as postsApi } from '@store/post/posts.api';
-import { FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
-import { OrderDirection, PostOrderField } from '@generated/types.generated';
-import { RootState } from '@store/store';
 const call: any = Effects.call;
 /**
  * Generate a post
@@ -223,7 +220,7 @@ function* changeFollowActionSheetPostSaga(action: PayloadAction<ParamPostFollowC
   const { changeFollow, followForType, extraArgumentsPostFollow } = action.payload;
   const { pageId, tokenId, accountId } = extraArgumentsPostFollow;
 
-  const rootState: RootState = yield select();
+  const rootState = yield select();
 
   // Update timeline
   const timelineInvalidatedBy = yield call(timelineApi.util.selectInvalidatedBy, rootState, ['Timeline']);
@@ -300,7 +297,7 @@ function* changeFollowActionSheetPostSaga(action: PayloadAction<ParamPostFollowC
 
 function* changeBookmarkActionSheetSaga(action: PayloadAction<string>) {
   const bookmarkForId = action.payload;
-  const rootState: RootState = yield select();
+  const rootState = yield select();
 
   // Update timeline
   const timelineInvalidatedBy = yield call(timelineApi.util.selectInvalidatedBy, rootState, ['Timeline']);
@@ -339,9 +336,9 @@ function* changeBookmarkActionSheetSaga(action: PayloadAction<string>) {
   }
 }
 
-function* fetchAllPostsSuccessSaga(action: any) {}
+function* fetchAllPostsSuccessSaga(action: any) { }
 
-function* fetchAllPostsFailureSaga(action: any) {}
+function* fetchAllPostsFailureSaga(action: any) { }
 
 function* watchPostPost() {
   yield takeLatest(postPost.type, postPostSaga);

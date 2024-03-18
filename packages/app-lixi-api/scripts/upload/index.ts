@@ -1,5 +1,4 @@
-import { PrismaClient, BurnType as BurnTypePrisma, ImageUploadableType } from '@prisma/client';
-import BCHJS from '@bcpros/xpi-js';
+import { ImageUploadableType, PrismaClient } from '@bcpros/lixi-prisma';
 
 require('dotenv').config();
 

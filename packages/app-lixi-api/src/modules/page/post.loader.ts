@@ -1,5 +1,5 @@
 import { Account, POST_FLAG, Repost, UploadDetail } from '@bcpros/lixi-models';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { Redis } from 'ioredis';
@@ -25,7 +25,7 @@ export default class PostLoader {
     private readonly accountCacheService: AccountCacheService,
     private readonly pollCacheService: PollCacheService,
     @Inject(XPIJS) private XPI: BCHJS
-  ) {}
+  ) { }
 
   public async getPostsUploadsByBatch(postIds: readonly string[]): Promise<(UploadDetail | any)[]> {
     const ids = postIds as unknown as string[];
@@ -207,9 +207,9 @@ export default class PostLoader {
     return result == null
       ? postIds.map(item => false)
       : result.map(item => {
-          if (item[0] != null) return false;
-          return !!item[1];
-        });
+        if (item[0] != null) return false;
+        return !!item[1];
+      });
   });
 
   _convertBurnedByToAddress = (burnedBy: string): string => {

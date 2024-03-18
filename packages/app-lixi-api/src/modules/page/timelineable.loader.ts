@@ -1,5 +1,5 @@
 import { Account, ITimelineable, PostDana, Repost } from '@bcpros/lixi-models';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { Redis } from 'ioredis';
@@ -24,7 +24,7 @@ export default class TimelineableLoader {
     private readonly followCacheService: FollowCacheService,
     private readonly danaViewScoreService: DanaViewScoreService,
     private readonly bookmarkCacheService: BookmarkCacheService
-  ) {}
+  ) { }
 
   public readonly batchPages = new DataLoader(async (keys: readonly string[]) => {
     const pageIds = _.compact(keys);

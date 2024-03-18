@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
 
@@ -7,7 +7,7 @@ export class DanaViewScoreService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:posts:item-data:danaview';
 
-  constructor(@InjectRedis() private readonly redis: Redis) {}
+  constructor(@InjectRedis() private readonly redis: Redis) { }
 
   async getById(id: string) {
     return (await this.redis.hget(this.keyPrefix, `${id}`)) ?? 0;

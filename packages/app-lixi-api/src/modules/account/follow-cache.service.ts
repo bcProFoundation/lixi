@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { PrismaService } from '../prisma/prisma.service';
@@ -9,7 +9,7 @@ import { basicSortedSetPagination } from '../../common/custom-graphql-relay/pagi
 export class FollowCacheService {
   private logger: Logger = new Logger(this.constructor.name);
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
 
   private async _cacheAccountFollowers(key: string, accountId: number) {
     const followers = await this.prisma.followAccount.findMany({

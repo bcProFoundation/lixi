@@ -1,7 +1,7 @@
 import useXPI from '@hooks/useXPI';
-import createSagaMiddleware, { Task } from '@redux-saga/core';
 import { Action, Store, configureStore } from '@reduxjs/toolkit';
 import { AnyAction } from 'redux';
+import createSagaMiddleware, { Task } from 'redux-saga';
 import { setupListeners } from '@reduxjs/toolkit/dist/query';
 import { createRouterMiddleware, initialRouterState } from 'connected-next-router';
 import { Context, createWrapper } from 'next-redux-wrapper';
@@ -68,13 +68,13 @@ const makeStore = (context: Context) => {
         process.env.NODE_ENV === 'production'
           ? false
           : {
-              actionsDenylist: [
-                'wallet/writeWalletStatus',
-                'posts/setShowCreatePost',
-                'analyticEvent/batchEvents',
-                'analyticEvent/analyticEvent'
-              ]
-            },
+            actionsDenylist: [
+              'wallet/writeWalletStatus',
+              'posts/setShowCreatePost',
+              'analyticEvent/batchEvents',
+              'analyticEvent/analyticEvent'
+            ]
+          },
       preloadedState: initialState
     });
     setupListeners(store.dispatch);

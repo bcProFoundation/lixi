@@ -1,5 +1,5 @@
 import { Comment } from '@bcpros/lixi-models';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { decode, encode } from '@msgpack/msgpack';
 import { Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
@@ -10,7 +10,7 @@ export class CommentCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:comments:item-data';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
 
   async getById(id: string): Promise<Nullable<Comment>> {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id);
@@ -52,10 +52,10 @@ export class CommentCacheService {
     const dbValues =
       uncachedIds.length > 0
         ? await this.prisma.comment.findMany({
-            where: {
-              id: { in: uncachedIds }
-            }
-          })
+          where: {
+            id: { in: uncachedIds }
+          }
+        })
         : [];
 
     const dbValuesMap = new Map(

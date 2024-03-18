@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@bcpros/lixi-prisma';
 import { Redis } from 'ioredis';
 import * as _ from 'lodash';
 require('dotenv').config();

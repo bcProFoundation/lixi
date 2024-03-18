@@ -1,6 +1,6 @@
 import { WebpushSubscribeCommand, WebpushUnsubscribeCommand } from '@bcpros/lixi-models';
 import { callConfig } from '@context/shareContext';
-import { all, call, fork, put, takeLatest } from '@redux-saga/core/effects';
+import { all, call, fork, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { getSelectedAccount } from '@store/account';
 import { getWebPushNotifConfig } from '@store/settings/selectors';

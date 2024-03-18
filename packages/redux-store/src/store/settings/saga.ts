@@ -1,6 +1,6 @@
 import { Account, ChangeAccountLocaleCommand } from '@bcpros/lixi-models';
 import { FilterBurnCommand } from '@bcpros/lixi-models/lib/filter';
-import { all, call, fork, put, select, takeLatest } from '@redux-saga/core/effects';
+import { all, call, fork, put, select, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { changeAccountLocale } from '@store/account/actions';
 import { getSelectedAccount } from '@store/account/selectors';

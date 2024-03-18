@@ -1,5 +1,5 @@
 import { AnalyticEvent, NotificationDto as Notification, SessionAction, SocketUser } from '@bcpros/lixi-models';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Logger, UseGuards } from '@nestjs/common';
 import Redis from 'ioredis';
 
@@ -38,7 +38,7 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
     @InjectRedis() private readonly redis: Redis,
     private readonly prisma: PrismaService,
     @InjectQueue(EVENTS_ANALYTIC_QUEUE) private readonly eventsAnalyticQueue: Queue
-  ) {}
+  ) { }
 
   handleConnection(client: Socket, ...args: any[]) {
     this.logger.log(`Client connected: ${client.id}`);
@@ -270,12 +270,12 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
     const account: Account = client.data.account;
     const payload = account
       ? {
-          events,
-          accountId: account.id
-        }
+        events,
+        accountId: account.id
+      }
       : {
-          events
-        };
+        events
+      };
 
     this.eventsAnalyticQueue.add(EVENTS_ANALYTIC_QUEUE, payload);
     return {

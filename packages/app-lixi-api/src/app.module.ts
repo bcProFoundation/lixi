@@ -1,4 +1,4 @@
-import { RedisClientOptions, RedisModule } from '@liaoliaots/nestjs-redis';
+import { RedisClientOptions, RedisModule } from '@songkeys/nestjs-redis';
 import { BullModule } from '@nestjs/bullmq';
 import { CacheModule } from '@nestjs/cache-manager';
 import { HttpException, Logger, Module, OnApplicationShutdown } from '@nestjs/common';

@@ -1,15 +1,12 @@
-import { PostType } from '@bcpros/lixi-prisma';
 import { Post } from '@bcpros/lixi-prisma';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Job } from 'bullmq';
 import { Redis } from 'ioredis';
 import * as _ from 'lodash';
-import moment from 'moment';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { template } from 'src/utils/stringTemplate';
-import ReBloom from '../../common/redis/redis-bloom';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { REMOVE_POST_FANOUT_QUEUE } from './constants';
 import { PostCacheService } from './post-cache.service';

@@ -8,11 +8,11 @@ import {
   WebpushNotification,
   BurnForTypeString
 } from '@bcpros/lixi-models';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Inject, Injectable, Logger, OnModuleInit, forwardRef } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { Notification as NotificationDb, NotificationLevel as NotificationLevelDb, Prisma } from '@prisma/client';
+import { Notification as NotificationDb, NotificationLevel as NotificationLevelDb, Prisma } from '@bcpros/lixi-prisma';
 import { Queue } from 'bullmq';
 import Redis from 'ioredis';
 import _ from 'lodash';
@@ -40,7 +40,7 @@ export class NotificationService implements OnModuleInit {
     @InjectQueue(WEBPUSH_NOTIFICATION_QUEUE) private webpushQueue: Queue,
     @InjectRedis() private readonly redis: Redis,
     @I18n() private i18n: I18nService
-  ) {}
+  ) { }
 
   onModuleInit() {
     // this.accountCacheService = this.moduleRef.get(AccountCacheService);

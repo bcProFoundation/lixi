@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Document, EnqueuedTask, MeiliSearch } from 'meilisearch';
+import { EnqueuedTask, MeiliSearch } from 'meilisearch';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { InjectMeiliSearch } from 'nestjs-meilisearch';
 import { HASHTAG, PERSON, POSTS, TEMPLE } from './constants/meili.constants';
@@ -8,7 +8,7 @@ import { HASHTAG, PERSON, POSTS, TEMPLE } from './constants/meili.constants';
 export class MeiliService implements OnModuleInit {
   private logger: Logger = new Logger(MeiliService.name);
 
-  constructor(@I18n() private i18n: I18nService, @InjectMeiliSearch() private readonly meiliSearch: MeiliSearch) {}
+  constructor(@I18n() private i18n: I18nService, @InjectMeiliSearch() private readonly meiliSearch: MeiliSearch) { }
 
   async onModuleInit() {
     await this.meiliSearch.index(`${process.env.MEILISEARCH_BUCKET}_${POSTS}`).updateSettings({

@@ -1,7 +1,7 @@
 import { BullModule } from '@nestjs/bullmq';
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import cors from 'cors';
+import cors, { CorsOptions } from 'cors';
 import IORedis from 'ioredis';
 import _ from 'lodash';
 import { NotificationModule } from 'src/common/modules/notifications/notification.module';
@@ -12,6 +12,7 @@ import { AuthModule } from '../auth/auth.module';
 import { MessageModule } from '../message/message.module';
 import { MeiliService } from '../page/meili.service';
 import { PageModule } from '../page/page.module';
+import { TokenModule } from '../token/token.module';
 import { WalletModule } from '../wallet/wallet.module';
 import { AccountController } from './account/account.controller';
 import { AccountDanaProcessor } from './burn/account-dana.processor';
@@ -34,11 +35,9 @@ import { ExportSubLixiesProcessor } from './lixi/processors/export-sub-lixies.pr
 import { WithdrawSubLixiesEventsListener } from './lixi/processors/withdraw-sub-lixies.eventslistener';
 import { WithdrawSubLixiesProcessor } from './lixi/processors/withdraw-sub-lixies.processor';
 import { TranslateService } from './translate/translate.service';
-import { WalletService } from '../wallet/wallet.service';
 import { UploadFilesController } from './upload/upload.controller';
 import { UploadService } from './upload/upload.serivce';
-import { TokenModule } from '../token/token.module';
-const baseCorsConfig = cors({
+const baseCorsConfig: CorsOptions = ({
   origin: process.env.BASE_URL ?? ''
 });
 
@@ -150,6 +149,6 @@ const baseCorsConfig = cors({
 })
 export class CoreModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(baseCorsConfig).forRoutes({ path: '/api/claims/validate', method: RequestMethod.POST });
+    consumer.apply(cors(baseCorsConfig)).forRoutes({ path: '/api/claims/validate', method: RequestMethod.POST });
   }
 }

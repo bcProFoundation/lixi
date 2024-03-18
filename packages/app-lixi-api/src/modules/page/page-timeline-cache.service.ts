@@ -1,6 +1,6 @@
 import { BurnForType, Page } from '@bcpros/lixi-models';
 import { Prisma } from '@bcpros/lixi-prisma';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { basicSortedSetPagination } from '../../common/custom-graphql-relay/paginate';
@@ -11,7 +11,7 @@ export class PageTimelineCacheService {
   static pageTimelineKey = 'timeline:pages';
   static pageByUserTimelineKeyPrefix = 'timeline:pages:user';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
 
   async cachePageTimeline() {
     const key = `${PageTimelineCacheService.pageTimelineKey}`;

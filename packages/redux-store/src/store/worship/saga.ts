@@ -1,24 +1,12 @@
-import { AccountDto as Account, NotificationDto } from '@bcpros/lixi-models';
-import { currency } from '@components/Common/Ticker';
-import { all, call, cancelled, fork, put, select, take, takeLatest } from '@redux-saga/core/effects';
-import { PayloadAction } from '@reduxjs/toolkit';
+import { AccountDto as Account } from '@bcpros/lixi-models';
+import { OrderDirection, WorshipOrderField } from '@generated/types.generated';
 import { getSelectedAccount } from '@store/account/selectors';
-import { notification } from 'antd';
-import { ArgsProps } from 'antd/lib/notification/interface';
-import Paragraph from 'antd/lib/typography/Paragraph';
-import BigNumber from 'bignumber.js';
 import { isMobile } from 'react-device-detect';
-import intl from 'react-intl-universal';
 import { eventChannel } from 'redux-saga';
-import { delay, race } from 'redux-saga/effects';
+import { all, call, cancelled, delay, fork, put, put as putAction, race, select, take } from 'redux-saga/effects';
 import io, { Socket } from 'socket.io-client';
-import { downloadExportedLixi, refreshLixiSilent } from '../lixi/actions';
-import { hideLoading, showLoading } from '../loading/actions';
-import { showToast } from '../toast/actions';
 import { channelOff, channelOn, serverOff, serverOn, startChannel, stopChannel } from './actions';
 import { api as worshipApi } from './worshipedPerson.api';
-import { OrderDirection, WorshipOrderField } from '@generated/types.generated';
-import { put as putAction } from 'redux-saga/effects';
 
 const getDeviceNotificationStyle = () => {
   if (isMobile) {

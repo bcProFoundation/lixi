@@ -11,22 +11,20 @@ import SplashScreen from '@components/Common/SplashScreen';
 import {
   AuthenticationProvider,
   AuthorizationProvider,
+  FeatureToggleProvider,
   ServiceWorkerProvider,
-  WalletProvider,
-  callConfig,
   SocketProvider,
-  FeatureToggleProvider
+  WalletProvider,
+  callConfig
 } from '@context/index';
 import { wrapper } from '@store/store';
-import { ConfigProvider } from 'antd';
 import { ConnectedRouter } from 'connected-next-router';
 import { NextSeo } from 'next-seo';
-import OutsideCallConsumer from 'react-outside-call';
-import lightTheme from 'src/styles/themes/lightTheme';
-import { stripHtml } from 'string-strip-html';
-import { useEffect, useState } from 'react';
-import axiosClient from 'src/utils/axiosClient';
 import NextNProgress from 'nextjs-progressbar';
+import { useEffect, useState } from 'react';
+import OutsideCallConsumer from 'react-outside-call';
+import axiosClient from 'src/utils/axiosClient';
+import { stripHtml } from 'string-strip-html';
 
 const PersistGateServer = (props: any) => {
   return props.children;

@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { Redis } from 'ioredis';
@@ -18,7 +18,7 @@ export default class PollLoader {
     private readonly danaViewScoreService: DanaViewScoreService,
     private readonly followCacheService: FollowCacheService,
     private readonly pollCacheService: PollCacheService
-  ) {}
+  ) { }
 
   public readonly batchCheckAccountFollowAllAccount = new DataLoader(
     async (items: readonly { followingAccountId?: number; accountId: number }[]) => {

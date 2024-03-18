@@ -1,7 +1,7 @@
 // import { CashReceivedNotificationIcon } from '@bcpros/lixi-components/components/Common/CustomIcons';
 import { NotificationDto as Notification, SocketUser } from '@bcpros/lixi-models';
 import { currency } from '@components/Common/Ticker';
-import { all, call, cancelled, fork, put, select, take, takeLatest } from '@redux-saga/core/effects';
+import { all, call, cancelled, fork, put, select, take, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { notification } from 'antd';
 import { ArgsProps } from 'antd/lib/notification/interface';

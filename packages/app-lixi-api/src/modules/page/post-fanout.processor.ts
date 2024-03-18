@@ -1,6 +1,6 @@
 import { PostType } from '@bcpros/lixi-prisma';
 import { Post } from '@bcpros/lixi-prisma';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';

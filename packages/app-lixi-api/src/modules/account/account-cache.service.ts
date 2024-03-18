@@ -1,5 +1,5 @@
 import { Account, AccountDana } from '@bcpros/lixi-models';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { decode, encode } from '@msgpack/msgpack';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -86,22 +86,22 @@ export class AccountCacheService {
       const dbValues =
         uncachedIds.length > 0
           ? await this.prisma.account.findMany({
-              where: {
-                id: { in: uncachedIds }
+            where: {
+              id: { in: uncachedIds }
+            },
+            include: {
+              avatar: {
+                include: {
+                  upload: true
+                }
               },
-              include: {
-                avatar: {
-                  include: {
-                    upload: true
-                  }
-                },
-                cover: {
-                  include: {
-                    upload: true
-                  }
+              cover: {
+                include: {
+                  upload: true
                 }
               }
-            })
+            }
+          })
           : [];
 
       const dbValuesMap = new Map(
@@ -191,22 +191,22 @@ export class AccountCacheService {
       const dbValues =
         uncachedAddresses.length > 0
           ? await this.prisma.account.findMany({
-              where: {
-                address: { in: uncachedAddresses }
+            where: {
+              address: { in: uncachedAddresses }
+            },
+            include: {
+              avatar: {
+                include: {
+                  upload: true
+                }
               },
-              include: {
-                avatar: {
-                  include: {
-                    upload: true
-                  }
-                },
-                cover: {
-                  include: {
-                    upload: true
-                  }
+              cover: {
+                include: {
+                  upload: true
                 }
               }
-            })
+            }
+          })
           : [];
 
       const dbValuesMap = new Map(

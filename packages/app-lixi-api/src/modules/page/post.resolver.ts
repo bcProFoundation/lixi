@@ -27,7 +27,7 @@ import {
 } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { HttpException, HttpStatus, Inject, Injectable, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Int, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
@@ -89,7 +89,7 @@ export class PostResolver {
     private readonly imageUploadableLoader: ImageUploadableLoader,
     private readonly timelineableLoader: TimelineableLoader,
     private readonly bookmarkLoader: BookmarkLoader
-  ) {}
+  ) { }
 
   @SkipThrottle()
   @Query(() => Post)

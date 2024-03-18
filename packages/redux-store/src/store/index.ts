@@ -6,7 +6,7 @@ export * from './comment';
 export * from './country';
 export * from './envelope';
 export * from './error';
-export * from './hooks';
+export * from '../../../app-lixi/src/store/hooks';
 export * from './lixi';
 export * from './loading';
 export * from './localAccount';

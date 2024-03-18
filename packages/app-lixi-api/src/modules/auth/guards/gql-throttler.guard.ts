@@ -1,7 +1,8 @@
 import { ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlArgumentsHost, GqlExecutionContext } from '@nestjs/graphql';
-import { ThrottlerGuard, ThrottlerModuleOptions, ThrottlerStorage } from '@nestjs/throttler';
+import { ThrottlerGenerateKeyFunction, ThrottlerGetTrackerFunction, ThrottlerGuard, ThrottlerModuleOptions, ThrottlerOptions, ThrottlerStorage } from '@nestjs/throttler';
+import { ThrottlerLimitDetail } from '@nestjs/throttler/dist/throttler.guard.interface';
 
 @Injectable()
 export class GqlThrottlerGuard extends ThrottlerGuard {
@@ -11,32 +12,36 @@ export class GqlThrottlerGuard extends ThrottlerGuard {
     super(options, storageService, reflector);
   }
 
-  protected getTracker(req: Record<string, any>): string {
-    this.logger.log('getTracker');
-    this.logger.log(req.ip);
+  protected getTracker(req: Record<string, any>): Promise<string> {
     return req.ips && req.ips.length ? req.ips[0] : req.ip; // individualize IP extraction to meet your own needs
   }
 
-  protected async handleRequest(context: ExecutionContext, limit: number, ttl: number): Promise<boolean> {
+  protected async handleRequest(context: ExecutionContext, limit: number, ttl: number, throttler: ThrottlerOptions, getTracker: ThrottlerGetTrackerFunction, generateKey: ThrottlerGenerateKeyFunction): Promise<boolean> {
     // Here we start to check the amount of requests being done against the ttl.
     const { req, res } = this.getRequestResponse(context);
 
+
     // Return early if the current user agent should be ignored.
-    if (Array.isArray(this.options.ignoreUserAgents)) {
-      for (const pattern of this.options.ignoreUserAgents) {
+    if (Array.isArray(throttler.ignoreUserAgents)) {
+      for (const pattern of throttler.ignoreUserAgents) {
         if (pattern.test(req.headers['user-agent'])) {
           return true;
         }
       }
     }
-    const tracker = this.getTracker(req);
-    const key = this.generateKey(context, tracker);
+    const tracker = await getTracker(req);
+    const key = generateKey(context, tracker, 'default');
     const { totalHits, timeToExpire } = await this.storageService.increment(key, ttl);
 
     // Throw an error when the user reached their limit.
     if (totalHits > limit) {
       res.header('Retry-After', timeToExpire);
-      this.throwThrottlingException(context);
+      this.throwThrottlingException(context, {
+        ttl,
+        limit,
+        tracker,
+        key
+      } as ThrottlerLimitDetail);
     }
 
     res.header(`${this.headerPrefix}-Limit`, limit);

@@ -1,5 +1,5 @@
 import { Page } from '@bcpros/lixi-models';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { decode, encode } from '@msgpack/msgpack';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -90,26 +90,26 @@ export class PageCacheService {
       const dbValues =
         uncachedIds.length > 0
           ? await this.prisma.page.findMany({
-              where: {
-                id: { in: uncachedIds }
+            where: {
+              id: { in: uncachedIds }
+            },
+            include: {
+              pageAccount: true,
+              category: true,
+              country: true,
+              state: true,
+              avatar: {
+                include: {
+                  upload: true
+                }
               },
-              include: {
-                pageAccount: true,
-                category: true,
-                country: true,
-                state: true,
-                avatar: {
-                  include: {
-                    upload: true
-                  }
-                },
-                cover: {
-                  include: {
-                    upload: true
-                  }
+              cover: {
+                include: {
+                  upload: true
                 }
               }
-            })
+            }
+          })
           : [];
 
       const dbValuesMap = new Map(

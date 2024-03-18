@@ -1,3 +1,4 @@
+import * as React from 'react';
 import styled, { DefaultTheme } from 'styled-components';
 
 type INavButtonProps = React.PropsWithChildren<{
@@ -44,3 +45,5 @@ export const NavButton: React.FC<INavButtonProps> = styled.button<INavButtonProp
         }
   `}
 `;
+
+export default NavButton;                                            

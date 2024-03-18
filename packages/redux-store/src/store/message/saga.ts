@@ -1,4 +1,4 @@
-import { all, fork, takeLatest } from '@redux-saga/core/effects';
+import { all, fork, takeLatest } from 'redux-saga/effects';
 import {
   userSubcribeToAddressChannel,
   userSubcribeToPageMessageSession,

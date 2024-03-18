@@ -2,7 +2,7 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { Redis } from 'ioredis';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { ACCOUNT_DANA_QUEUE } from './burn.constants';
 import { AccountDanaHistoryType, BurnType as BurnTypePrisma } from '@bcpros/lixi-prisma';
 import { PrismaService } from 'src/modules/prisma/prisma.service';

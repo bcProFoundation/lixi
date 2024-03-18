@@ -1,6 +1,6 @@
 import { COIN } from '@bcpros/lixi-models/constants';
 import { callConfig } from '@context/index';
-import { all, call, fork, put, takeLatest } from '@redux-saga/core/effects';
+import { all, call, fork, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 
 import { activateWallet, activateWalletFailure, activateWalletSuccess, setWalletHasUpdated } from './actions';

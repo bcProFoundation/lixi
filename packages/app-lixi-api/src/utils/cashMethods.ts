@@ -538,7 +538,7 @@ export const isValidXecAddress = (addr: string) => {
   const testedXecAddr = isPrefixedXecAddress ? addr : `ecash:${addr}`;
 
   try {
-    const decoded = cashaddr.decode(testedXecAddr);
+    const decoded = cashaddr.decode(testedXecAddr, true);
     if (decoded.prefix === 'ecash') {
       isValidXecAddress = true;
     }
@@ -568,9 +568,9 @@ export const fromXecToSatoshis = (sendAmount: any, cashDecimals = appConfig.cash
 export function cashaddrToHash160(addr: string) {
   try {
     // decode address hash
-    const { hash } = cashaddr.decode(addr);
+    const { hash } = cashaddr.decode(addr, false);
     // encode the address hash to legacy format (bitcoin)
-    const legacyAdress = bs58.encode(hash);
+    const legacyAdress = bs58.encode(hash as Uint8Array);
     // convert legacy to hash160
     const addrHash160 = Buffer.from(bs58.decode(legacyAdress)).toString('hex');
     return addrHash160;
@@ -689,7 +689,7 @@ export const generateXecTxOutput = (
     } else {
       // for one to one mode, add output w/ single address and amount to send
       txBuilder.addOutput(
-        cashaddr.toLegacy(destinationAddress),
+        cashaddr.toLegacy(destinationAddress!),
         parseInt(fromXecToSatoshis(singleSendValue).toString())
       );
     }
@@ -759,7 +759,7 @@ export const getChangeAddressFromInputUtxosXec = (inputUtxos: any, wallet: any):
   }
 
   // Assume change address is input address of utxo at index 0
-  const { prefix, type, hash } = cashaddr.decode(inputUtxos[0].address);
+  const { prefix, type, hash } = cashaddr.decode(inputUtxos[0].address, true);
   const changeAddress = cashaddr.encode('ecash', type, hash);
 
   // Validate address

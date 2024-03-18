@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { ApiConsumes } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
-import { Upload as UploadDb } from '@prisma/client';
+import { Upload as UploadDb } from '@bcpros/lixi-prisma';
 import { FileInterceptor, FilesInterceptor } from '@webundsoehne/nest-fastify-file-upload';
 import { MulterFile } from '@webundsoehne/nest-fastify-file-upload/dist/interfaces/multer-options.interface';
 import { Requests } from 'cloudflare-images';
@@ -39,7 +39,7 @@ export class UploadFilesController {
     private prisma: PrismaService,
     private readonly cloudflareService: CloudflareImagesService,
     private readonly accountCacheService: AccountCacheService
-  ) {}
+  ) { }
 
   @Post('/s3')
   @UseGuards(JwtAuthGuard)

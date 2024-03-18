@@ -1,5 +1,5 @@
 import BCHJS from '@bcpros/xpi-js';
-import { RedisService } from '@liaoliaots/nestjs-redis';
+import { RedisService } from '@songkeys/nestjs-redis';
 import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import _ from 'lodash';

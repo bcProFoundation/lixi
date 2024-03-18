@@ -1,5 +1,5 @@
 import { Claim, ClaimDto, CreateClaimDto, ViewClaimDto } from '@bcpros/lixi-models';
-import { all, call, fork, put, select, takeLatest } from '@redux-saga/core/effects';
+import { all, call, fork, put, select, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import intl from 'react-intl-universal';
 

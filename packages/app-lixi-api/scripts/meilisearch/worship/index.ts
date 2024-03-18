@@ -1,6 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@bcpros/lixi-prisma';
 import { MeiliSearch } from 'meilisearch';
-import { stripHtml } from "string-strip-html";
 require('dotenv').config();
 
 const prisma = new PrismaClient();
@@ -20,7 +19,7 @@ async function main() {
          placeOfBirth: true,
          placeOfDeath: true,
          placeOfBurial: true,
-         bio:true,
+         bio: true,
          quote: true,
       }
    });
@@ -37,7 +36,7 @@ async function main() {
          placeOfBirth: person.placeOfBirth,
          placeOfDeath: person.placeOfDeath,
          placeOfBurial: person.placeOfBurial,
-         bio:person.bio,
+         bio: person.bio,
          quote: person.quote,
       };
 

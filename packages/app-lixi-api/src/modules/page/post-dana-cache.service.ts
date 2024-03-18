@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
 import { decode, encode } from '@msgpack/msgpack';
 import { Redis } from 'ioredis';
@@ -11,7 +11,7 @@ export class PostDanaCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:posts:dana';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
+  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
 
   async getPostDana(id: string) {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id.toString());
@@ -61,12 +61,12 @@ export class PostDanaCacheService {
     const dbValues =
       uncachedPostIds.length > 0
         ? await this.prisma.postDana.findMany({
-            where: {
-              postId: {
-                in: uncachedPostIds
-              }
+          where: {
+            postId: {
+              in: uncachedPostIds
             }
-          })
+          }
+        })
         : [];
 
     const dbValuesMap = new Map(

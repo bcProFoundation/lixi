@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Inject, Injectable, Logger, OnModuleInit, forwardRef } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { TokenSigner, TokenVerifier, decodeToken } from 'jsontokens';
@@ -27,7 +27,7 @@ export class AuthService implements OnModuleInit {
     @InjectRedis() private readonly redis: Redis,
     @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
     @I18n() private i18n: I18nService // private moduleRef: ModuleRef
-  ) {}
+  ) { }
 
   onModuleInit() {
     // this.accountCacheService = this.moduleRef.get(AccountCacheService);

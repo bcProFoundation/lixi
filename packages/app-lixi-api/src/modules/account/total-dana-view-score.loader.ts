@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import Redis from 'ioredis';
@@ -14,7 +14,7 @@ export default class TotalDanaViewScoreLoader {
     private readonly prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis,
     private readonly danaViewScoreService: DanaViewScoreService
-  ) {}
+  ) { }
 
   public readonly batchTotalDanaViewScore = new RedisDataLoader(
     this.redis,

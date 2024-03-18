@@ -26,7 +26,7 @@ import {
   Request,
   UseGuards
 } from '@nestjs/common';
-import { Account as AccountDb } from '@prisma/client';
+import { Account as AccountDb } from '@bcpros/lixi-prisma';
 import { FastifyRequest } from 'fastify';
 
 import BCHJS from '@bcpros/xpi-js';
@@ -55,7 +55,7 @@ export class AccountController {
     @Inject(XPIJS) private XPI: BCHJS,
     private readonly accountCacheService: AccountCacheService,
     private readonly notificationService: NotificationService
-  ) {}
+  ) { }
 
   @Get(':id')
   async getAccount(@Param('id') id: string, @I18n() i18n: I18nContext) {
