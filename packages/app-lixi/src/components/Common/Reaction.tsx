@@ -213,6 +213,14 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
     hideReact();
   };
 
+  const changeBackgroundColor = (e, color: string) => {
+    e.currentTarget.style.cssText = `background-color: ${color}`;
+  };
+
+  const changeFilterSvgColor = (e, color: string) => {
+    e.currentTarget.style.cssText = `filter: ${color}`;
+  };
+
   const contentBurn = (
     <SpaceContentBurn>
       <Popover
@@ -222,12 +230,18 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         content={contentHoverHeart}
         trigger="hover"
       >
-        <div className="container-ico-hover">
+        <div
+          className="container-ico-hover"
+          onMouseOver={e => changeBackgroundColor(e, 'var(--color-danger)')}
+          onMouseOut={e => changeBackgroundColor(e, '#fff')}
+        >
           <StyledBurnIconHover
             src={'/images/down-arrow.svg'}
             style={{
               filter: 'var(--filter-svg-red-color)'
             }}
+            onMouseOver={e => changeFilterSvgColor(e, 'var(--filter-svg-white-color)')}
+            onMouseOut={e => changeFilterSvgColor(e, 'var(--filter-svg-red-color)')}
             onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.DISLIKE, false)}
           />
         </div>
@@ -239,12 +253,18 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         content={contentHoverDisLike}
         trigger="hover"
       >
-        <div className="container-ico-hover">
+        <div
+          className="container-ico-hover"
+          onMouseOver={e => changeBackgroundColor(e, '#00abe7')}
+          onMouseOut={e => changeBackgroundColor(e, '#fff')}
+        >
           <StyledBurnIconHover
             src={'/images/up-arrow.svg'}
             style={{
               filter: 'var(--filter-svg-blue-color)'
             }}
+            onMouseOver={e => changeFilterSvgColor(e, 'var(--filter-svg-white-color)')}
+            onMouseOut={e => changeFilterSvgColor(e, 'var(--filter-svg-blue-color)')}
             onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LIKE, true)}
           />
         </div>
@@ -256,12 +276,18 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         content={contentHoverLike}
         trigger="hover"
       >
-        <div className="container-ico-hover">
+        <div
+          className="container-ico-hover"
+          onMouseOver={e => changeBackgroundColor(e, '#00abe7')}
+          onMouseOut={e => changeBackgroundColor(e, '#fff')}
+        >
           <StyledBurnIconHover
             src={'/images/double-up-arrow.svg'}
             style={{
               filter: 'var(--filter-svg-blue-color)'
             }}
+            onMouseOver={e => changeFilterSvgColor(e, 'var(--filter-svg-white-color)')}
+            onMouseOut={e => changeFilterSvgColor(e, 'var(--filter-svg-blue-color)')}
             onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LOVE, true)}
           />
         </div>

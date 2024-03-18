@@ -19,7 +19,7 @@ import { PostQueryItem, CommentQueryItem } from '@generated/index';
 import styled from 'styled-components';
 
 const SpaceCustom = styled(Space)`
-  gap: 7px !important;
+  gap: 5px !important;
 `;
 const ImageComment = styled.div`
   img {
@@ -79,17 +79,28 @@ const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFo
   };
 
   const upImg = (isUp: boolean) => (
-    <img
-      src={`/images/${isUp ? 'up' : 'down'}-arrow.svg`}
-      width={`15px`}
-      style={{ filter: 'var(--filter-svg-gray-color)' }}
+    <div
+      style={{ padding: '2px', borderRadius: '20px' }}
       onMouseOver={e => {
-        e.currentTarget.style.cssText = `filter: var(--filter-svg-${isUp ? 'blue' : 'red'}-color)`;
+        e.currentTarget.style.backgroundColor = isUp ? '#00abe7' : 'var(--color-danger)';
       }}
       onMouseOut={e => {
-        e.currentTarget.style.cssText = 'filter: var(--filter-svg-gray-color)';
+        e.currentTarget.style.backgroundColor = 'white';
       }}
-    />
+    >
+      <img
+        src={`/images/${isUp ? 'up' : 'down'}-arrow.svg`}
+        style={{ filter: 'var(--filter-svg-gray-color)' }}
+        width={`18px`}
+        onMouseOver={e => {
+          e.currentTarget.style.cssText = `
+          filter: var(--filter-svg-white-color);`;
+        }}
+        onMouseOut={e => {
+          e.currentTarget.style.cssText = 'filter: var(--filter-svg-gray-color)';
+        }}
+      />
+    </div>
   );
 
   const actions = [
