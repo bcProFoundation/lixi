@@ -8,7 +8,11 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "precommit": "turbo run format"
+    "precommit": "turbo run format",
+    "build": "turbo run build --include-dependencies",
+    "build:api": "turbo run build --filter=@bcpros/app-lixi-api",
+    "db:deploy": "turbo run db:deploy --filter=@bcpros/lixi-prisma",
+    "format": "turbo run format"
   },
   "workspaces": {
     "packages": [
