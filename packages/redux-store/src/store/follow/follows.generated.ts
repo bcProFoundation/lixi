@@ -63,6 +63,8 @@ export type AllFollowersByFollowingQuery = {
         updatedAt: any;
         avatar?: string | null;
         cover?: string | null;
+        rankNumber?: number | null;
+        rankScore?: number | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -127,6 +129,8 @@ export type AllFollowingsByFollowerQuery = {
         updatedAt: any;
         avatar?: string | null;
         cover?: string | null;
+        rankNumber?: number | null;
+        rankScore?: number | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';

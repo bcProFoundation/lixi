@@ -24,6 +24,8 @@ export default {
   'label.comment': 'Comments',
   'label.created': 'Created',
   'label.action': 'Action',
+  'label.avatar': 'Avatar',
+  'label.address': 'Address',
   'text.createPage':
     'A Page is a space where people can publicly connect with your business, personal brand or organisation. You can do things such as showcase products and services, collect donations.',
   'text.createPageName':
@@ -132,6 +134,8 @@ export default {
   'general.burnUp': 'Burn up',
   'general.burnDown': 'Burn down',
   'general.wallets': 'Wallets',
+  'general.topWeek': 'Top week',
+  'general.topMonth': 'Top month',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Valid mnemonic seed phrase required',

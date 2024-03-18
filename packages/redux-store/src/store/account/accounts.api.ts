@@ -22,5 +22,11 @@ export const {
   useLazyGetAccountByAddressQuery,
   useCreateAccountMutation,
   useImportAccountMutation,
-  useUpdateAccountMutation
+  useUpdateAccountMutation,
+  useAccountsQuery,
+  useLazyAccountsQuery,
+  useTopWeekAccountsQuery,
+  useLazyTopWeekAccountsQuery,
+  useTopMonthAccountsQuery,
+  useLazyTopMonthAccountsQuery
 } = enhancedApi;

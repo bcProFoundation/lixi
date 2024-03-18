@@ -40,6 +40,71 @@ query AllFollowersByToken($after: String, $first: Int = 20, $id: String!) {
   }
 }
 
+query Accounts($after: String, $first: Int = 20) {
+  allAccounts(after: $after, first: $first) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...AccountFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
+query topWeekAccounts(
+  $after: String
+  $first: Int = 20
+  $week: Int!
+  $year: Int!
+) {
+  topWeekAccountDanaGiven(
+    after: $after
+    first: $first
+    week: $week
+    year: $year
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...AccountFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
+query topMonthAccounts(
+  $after: String
+  $first: Int = 19
+  $month: Int!
+  $year: Int!
+) {
+  topMonthAccountDanaGiven(
+    after: $after
+    first: $first
+    month: $month
+    year: $year
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...AccountFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
 fragment AccountFields on Account {
   id
   name
@@ -65,6 +130,8 @@ fragment AccountFields on Account {
   updatedAt
   avatar
   cover
+  rankNumber
+  rankScore
   accountDana {
     danaGiven
     danaReceived

@@ -717,6 +717,14 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
           onClickItem={() => handleIconClick('/page/feed')}
         />
         <ItemAccess
+          icon={'/images/ico-account.svg'}
+          text={intl.get('general.accounts')}
+          active={currentPathName.includes('/account')}
+          direction="horizontal"
+          key="account-feed"
+          onClickItem={() => handleIconClick('/account/feed')}
+        />
+        <ItemAccess
           icon={'/images/ico-notifications.svg'}
           text={intl.get('general.notifications')}
           active={currentPathName === '/notifications'}
