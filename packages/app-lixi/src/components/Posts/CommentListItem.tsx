@@ -1,5 +1,5 @@
 import { Comment as AntdComment } from '@ant-design/compatible';
-import { DislikeFilled, DislikeOutlined, LikeFilled, LikeOutlined } from '@ant-design/icons';
+import { DislikeFilled, DislikeOutlined, DownOutlined, LikeFilled, LikeOutlined, UpOutlined } from '@ant-design/icons';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import AvatarUser from '@components/Common/AvatarUser';
@@ -78,20 +78,34 @@ const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFo
     setFocusComment();
   };
 
+  const upImg = (isUp: boolean) => (
+    <img
+      src={`/images/${isUp ? 'up' : 'down'}-arrow.svg`}
+      width={`15px`}
+      style={{ filter: 'var(--filter-svg-gray-color)' }}
+      onMouseOver={e => {
+        e.currentTarget.style.cssText = `filter: var(--filter-svg-${isUp ? 'blue' : 'red'}-color)`;
+      }}
+      onMouseOut={e => {
+        e.currentTarget.style.cssText = 'filter: var(--filter-svg-gray-color)';
+      }}
+    />
+  );
+
   const actions = [
-    <span style={{ marginInlineEnd: '15px' }} key={`comment-up-vote-${item.id}`}>
-      <Tooltip title={() => intl.get('general.burnUp')}>
-        <SpaceCustom onClick={() => actionsComment(item, ACTION_VOTE.UP_VOTE)}>
-          {item?.danaBurnUp > 0 ? <LikeFilled /> : <LikeOutlined />}
-          <Counter num={formatBalance(item?.danaBurnUp ?? 0)} />
-        </SpaceCustom>
-      </Tooltip>
-    </span>,
     <span key={`comment-down-vote-${item.id}`}>
       <Tooltip title={() => intl.get('general.burnDown')}>
         <SpaceCustom onClick={() => actionsComment(item, ACTION_VOTE.DOWN_VOTE)}>
-          {item?.danaBurnDown > 0 ? <DislikeFilled /> : <DislikeOutlined />}
+          {upImg(false)}
           <Counter num={formatBalance(item?.danaBurnDown ?? 0)} />
+        </SpaceCustom>
+      </Tooltip>
+    </span>,
+    <span style={{ marginInlineEnd: '15px' }} key={`comment-up-vote-${item.id}`}>
+      <Tooltip title={() => intl.get('general.burnUp')}>
+        <SpaceCustom onClick={() => actionsComment(item, ACTION_VOTE.UP_VOTE)}>
+          {upImg(true)}
+          <Counter num={formatBalance(item?.danaBurnUp ?? 0)} />
         </SpaceCustom>
       </Tooltip>
     </span>,
