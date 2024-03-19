@@ -22,7 +22,8 @@
         "^build"
       ],
       "outputs": [
-        "dist/**"
+        "dist/**",
+        "build/**"
       ]
     },
     "db:generate": {
