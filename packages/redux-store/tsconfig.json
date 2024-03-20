@@ -7,7 +7,6 @@
     "rootDir": "src",
     // "moduleResolution": "node",
     "module": "commonjs",
-    "declaration": true,
     "inlineSourceMap": true,
     "composite": true,
     "noImplicitAny": false,

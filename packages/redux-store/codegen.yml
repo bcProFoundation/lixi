@@ -26,5 +26,5 @@ generates:
       - typescript-operations
       - typescript-rtk-query:
           importBaseApiFrom: 'src/api/baseApi'
-          exportHooks: true
+          exportHooks: false
           overrideExisting: true

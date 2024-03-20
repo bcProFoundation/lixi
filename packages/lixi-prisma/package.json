@@ -48,7 +48,7 @@
     "seed:countries": "ts-node prisma/seeds/countries.ts"
   },
   "devDependencies": {
-    "@types/node": "^18.11.18",
+    "@types/node": "^20.11.29",
     "eslint": "^8.33.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-prettier": "^4.2.1",

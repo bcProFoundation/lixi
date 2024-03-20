@@ -336,9 +336,9 @@ function* changeBookmarkActionSheetSaga(action: PayloadAction<string>) {
   }
 }
 
-function* fetchAllPostsSuccessSaga(action: any) { }
+function* fetchAllPostsSuccessSaga(action: any) {}
 
-function* fetchAllPostsFailureSaga(action: any) { }
+function* fetchAllPostsFailureSaga(action: any) {}
 
 function* watchPostPost() {
   yield takeLatest(postPost.type, postPostSaga);

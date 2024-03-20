@@ -1,4 +1,4 @@
-import { EntityState } from '@reduxjs/toolkit';
+import { Dictionary, EntityId, EntityState } from '@reduxjs/toolkit';
 
 import { WalletPathAddressInfo, WalletStatus } from './models';
 export interface WalletState extends EntityState<WalletPathAddressInfo> {
@@ -7,4 +7,6 @@ export interface WalletState extends EntityState<WalletPathAddressInfo> {
   mnemonic: string;
   walletRefreshInterval: number;
   walletHasUpdated: boolean;
+  ids: EntityId[];
+  entities: Dictionary<WalletPathAddressInfo>;
 }

@@ -25,7 +25,8 @@ export interface ParsedChronikTx {
 }
 
 const getWalletPathsFromWalletState = (wallet: WalletState) => {
-  return Object.entries(wallet.entities).map(([key, value]) => {
+  const entities = wallet.entities;
+  return Object.entries(entities).map(([key, value]) => {
     return value;
   });
 };

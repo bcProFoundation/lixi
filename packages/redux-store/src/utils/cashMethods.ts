@@ -470,7 +470,7 @@ export const getHashArrayFromWallet = (wallet: WalletState): string[] => {
     return [];
   }
   const hash160Array = Object.entries(wallet.entities).map(([key, value]) => {
-    return value.hash160;
+    return (value as WalletPathAddressInfo).hash160;
   });
   return hash160Array;
 };
