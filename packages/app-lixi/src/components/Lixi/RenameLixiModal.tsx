@@ -8,12 +8,12 @@ import { refreshLixiList } from '@store/account/actions';
 import { Lixi } from '@bcpros/lixi-models';
 import { ProfileFilled } from '@ant-design/icons';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
-import { AnyAction } from '@reduxjs/toolkit';
+import { UnknownAction } from '@reduxjs/toolkit';
 import { getSelectedAccount } from '@store/account/selectors';
 
 export type RenameLixiModalProps = {
   lixi: Lixi;
-  onOkAction?: AnyAction;
+  onOkAction?: UnknownAction;
   classStyle?: string;
 };
 

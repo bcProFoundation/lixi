@@ -2,7 +2,7 @@ import { EntityState } from '@reduxjs/toolkit';
 import { PageInfo } from '@generated/types.generated';
 import { api, WorshipedPersonQuery } from './worshipedPerson.generated';
 
-export interface WorshipedPersonApiState extends EntityState<WorshipedPersonQuery['worshipedPerson']> {
+export type WorshipedPersonApiState = EntityState<WorshipedPersonQuery['worshipedPerson']> & {
   pageInfo: PageInfo;
   totalCount: number;
 }
@@ -96,6 +96,8 @@ const enhancedApi = api.enhanceEndpoints({
 
 export { enhancedApi as api };
 
+
+
 export const {
   useWorshipedPeopleQuery,
   useCreateWorshipMutation,
@@ -103,5 +105,13 @@ export const {
   useCreateWorshipTempleMutation,
   useLazyWorshipedPeopleQuery,
   useLazyWorshipedPersonQuery,
-  useWorshipedPersonQuery
+  useWorshipedPersonQuery,
+  useLazyWorshipedPersonBySearchQuery,
+  useWorshipedPersonBySearchQuery,
+  useAllWorshipedByPersonIdQuery,
+  useLazyAllWorshipedByPersonIdQuery,
+  useAllWorshipedByTempleIdQuery,
+  useLazyAllWorshipedByTempleIdQuery,
+  useAllWorshipQuery,
+  useLazyAllWorshipQuery
 } = enhancedApi;

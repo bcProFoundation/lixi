@@ -4,7 +4,7 @@ import { createEntityAdapter } from '@reduxjs/toolkit';
 import {
   useAllWorshipedByPersonIdQuery,
   useLazyAllWorshipedByPersonIdQuery
-} from '@store/worship/worshipedPerson.generated';
+} from '@store/worship/worshipedPerson.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 const worshipAdapter = createEntityAdapter<WorshipQueryItem>({

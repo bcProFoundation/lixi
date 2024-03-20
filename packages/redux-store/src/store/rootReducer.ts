@@ -1,4 +1,4 @@
-import { AnyAction, combineReducers } from '@reduxjs/toolkit';
+import { UnknownAction, combineReducers } from '@reduxjs/toolkit';
 import { routerReducer } from 'connected-next-router';
 import { HYDRATE } from 'next-redux-wrapper';
 import { persistReducer } from 'redux-persist';
@@ -214,7 +214,7 @@ export const appReducer = combineReducers({
   action: actionReducer
 });
 
-const reducer = (state, action: AnyAction) => {
+const reducer = (state, action: UnknownAction) => {
   if (action.type === HYDRATE) {
     // const { api: _ignore_and_let_RTK_handle_this, router, ...hydrate } = action.payload;
     const nextState = {

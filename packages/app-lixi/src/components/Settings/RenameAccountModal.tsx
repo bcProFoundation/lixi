@@ -8,11 +8,11 @@ import { Controller, useForm } from 'react-hook-form';
 import { Account } from '@bcpros/lixi-models';
 import { ProfileFilled } from '@ant-design/icons';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
-import { AnyAction } from '@reduxjs/toolkit';
+import { UnknownAction } from '@reduxjs/toolkit';
 
 export type RenameAccountModalProps = {
   account: Account;
-  onOkAction?: AnyAction;
+  onOkAction?: UnknownAction;
   classStyle?: string;
 };
 

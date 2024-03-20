@@ -2,14 +2,14 @@ import { graphqlRequestBaseQuery } from '@rtk-query/graphql-request-base-query';
 import { GraphQLClient } from 'graphql-request';
 import intl from 'react-intl-universal';
 import { HYDRATE } from 'next-redux-wrapper';
-import { createApi } from '@reduxjs/toolkit/query';
+import { createApi } from '@reduxjs/toolkit/query/react';
 
 export const client = new GraphQLClient('/graphql', {
   credentials: 'include',
   cache: 'no-cache'
 });
 
-export const { injectEndpoints, enhanceEndpoints } = createApi({
+export const api = createApi({
   baseQuery: graphqlRequestBaseQuery({
     client,
     customErrors: ({ name, stack, response }) => {
@@ -32,4 +32,3 @@ export const { injectEndpoints, enhanceEndpoints } = createApi({
   }
 });
 
-export const api = { injectEndpoints, enhanceEndpoints };

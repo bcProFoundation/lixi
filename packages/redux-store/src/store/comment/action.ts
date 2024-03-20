@@ -1,5 +1,5 @@
 import { createAction } from '@reduxjs/toolkit';
-import { CreateCommentMutation, CreateReplyCommentMutation, useCreateReplyCommentMutation } from './comments.generated';
+import { CreateCommentMutation, CreateReplyCommentMutation } from './comments.generated';
 
 export const createCommentSuccess = createAction<{
   dataCreateComment?: CreateCommentMutation;

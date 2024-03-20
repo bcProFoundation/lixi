@@ -8,13 +8,13 @@ import { closeModal } from '@store/modal/actions';
 import { Account } from '@bcpros/lixi-models';
 import { WalletFilled } from '@ant-design/icons';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
-import { AnyAction } from '@reduxjs/toolkit';
+import { UnknownAction } from '@reduxjs/toolkit';
 import { selectAccount } from '@store/account/actions';
 
 export type DeleteAccountModalProps = {
   account: Account;
   remainingAccounts?: Account[];
-  onOkAction?: AnyAction;
+  onOkAction?: UnknownAction;
 };
 
 export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = (props: DeleteAccountModalProps) => {

@@ -1,7 +1,7 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
 import { PageQueryItem } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { useLazyPagesByUserIdQuery, usePagesByUserIdQuery } from '@store/page/pages.generated';
+import { useLazyPagesByUserIdQuery, usePagesByUserIdQuery } from '@store/page/pages.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 const pagesAdapter = createEntityAdapter<PageQueryItem>({

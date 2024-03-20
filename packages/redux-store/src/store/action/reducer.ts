@@ -1,4 +1,4 @@
-import { AnyAction } from 'redux';
+import { UnknownAction } from 'redux';
 
 import { ActionState } from './state';
 
@@ -13,7 +13,7 @@ const initialState: ActionState = {
   count: 0
 };
 
-export const actionReducer = (state = initialState, action: AnyAction): ActionState => {
+export const actionReducer = (state = initialState, action: UnknownAction): ActionState => {
   return {
     ...state,
     type: action.type,

@@ -1,14 +1,15 @@
 import { DependencyList, useEffect, useRef } from 'react';
 import { TypedUseSelectorHook, useDispatch, useSelector, useStore } from 'react-redux';
-import { AnyAction } from 'redux';
+import { UnknownAction } from 'redux';
 
-import type { AppDispatch, RootState } from './store';
+import { AppStore, type AppDispatch, type RootState } from './store';
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
-export const useAppDispatch = () => useDispatch<AppDispatch>();
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+export const useAppDispatch = () => useDispatch.withTypes<AppDispatch>();
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector.withTypes<RootState>;
+export const useAppStore = useStore.withTypes<AppStore>();
 
-export type ReduxEffect = (action: AnyAction) => void;
+export type ReduxEffect = (action: UnknownAction) => void;
 
 export function useReduxEffect(effect: ReduxEffect, type: string | string[], deps: DependencyList = []): void {
   const currentValue = useRef(null);

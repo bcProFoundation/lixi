@@ -1,6 +1,6 @@
 import useXPI from '@hooks/useXPI';
 import { Action, Store, configureStore } from '@reduxjs/toolkit';
-import { AnyAction } from 'redux';
+import { UnknownAction } from 'redux';
 import createSagaMiddleware, { Task } from 'redux-saga';
 import { setupListeners } from '@reduxjs/toolkit/dist/query';
 import { createRouterMiddleware, initialRouterState } from 'connected-next-router';
@@ -61,20 +61,20 @@ const makeStore = (context: Context) => {
             // If we concat multiple middleware here, each time there's an internal rtk query action
             // multiple instances of same action will be dispatched, caused onQueryStarted run multiple times.
             .concat(pagesApi.middleware)
-            .concat(sagaMiddleware, routerMiddleware)
+            .concat(sagaMiddleware)
         );
       },
       devTools:
         process.env.NODE_ENV === 'production'
           ? false
           : {
-              actionsDenylist: [
-                'wallet/writeWalletStatus',
-                'posts/setShowCreatePost',
-                'analyticEvent/batchEvents',
-                'analyticEvent/analyticEvent'
-              ]
-            },
+            actionsDenylist: [
+              'wallet/writeWalletStatus',
+              'posts/setShowCreatePost',
+              'analyticEvent/batchEvents',
+              'analyticEvent/analyticEvent'
+            ]
+          },
       preloadedState: initialState
     });
     setupListeners(store.dispatch);
@@ -87,9 +87,9 @@ const makeStore = (context: Context) => {
 
 // Define utilities types for redux toolkit
 export type AppStore = ReturnType<typeof makeStore>;
-export type RootState = ReturnType<typeof rootReducer>;
+export type RootState = ReturnType<AppStore['getState']>;
 export type AppDispatch = AppStore['dispatch'];
-export type AppThunkDispatch = ThunkDispatch<RootState, void, AnyAction>;
-export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, Action<string>>;
+export type AppThunkDispatch = ThunkDispatch<RootState, void, UnknownAction>;
+export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, Action>;
 
 export const wrapper = createWrapper<AppStore>(makeStore, { debug: true });

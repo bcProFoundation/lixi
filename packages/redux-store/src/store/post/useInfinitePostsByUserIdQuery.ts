@@ -1,7 +1,7 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
 import { PostOrder, PostQueryItem } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { useLazyPostsByUserIdQuery, usePostsByUserIdQuery } from '@store/post/posts.generated';
+import { useLazyPostsByUserIdQuery, usePostsByUserIdQuery } from '@store/post/posts.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 const postsAdapter = createEntityAdapter<PostQueryItem>({

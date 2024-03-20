@@ -8,11 +8,11 @@ import { closeModal } from '@store/modal/actions';
 import { Account } from '@bcpros/lixi-models';
 import { ProfileFilled } from '@ant-design/icons';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
-import { AnyAction } from '@reduxjs/toolkit';
+import { UnknownAction } from '@reduxjs/toolkit';
 
 export type RenameAccountModalProps = {
   account: Account;
-  onOkAction?: AnyAction;
+  onOkAction?: UnknownAction;
 };
 
 export const RenameAccountModal: React.FC<RenameAccountModalProps> = (props: RenameAccountModalProps) => {

@@ -2,7 +2,7 @@ import { PaginationArgs } from '@bcpros/lixi-models';
 import { WorshipedPersonQueryItem } from '@generated/index';
 import { WorshipedPersonOrder } from '@generated/types.generated';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { useLazyWorshipedPeopleQuery, useWorshipedPeopleQuery } from '@store/worship/worshipedPerson.generated';
+import { useLazyWorshipedPeopleQuery, useWorshipedPeopleQuery } from '@store/worship/worshipedPerson.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 const worshipAdapter = createEntityAdapter<WorshipedPersonQueryItem>({

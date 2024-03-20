@@ -1,4 +1,4 @@
-import { AnyAction } from 'redux';
+import { UnknownAction } from 'redux';
 import intl from 'react-intl-universal';
 import { Descriptions, Modal } from 'antd';
 import _ from 'lodash';
@@ -35,7 +35,7 @@ export type CreateLixiConfirmationModalProps = {
   newCharityAddress: string | null;
   joinLotteryProgram: boolean;
   networkType: string;
-  onOkAction?: AnyAction;
+  onOkAction?: UnknownAction;
 };
 
 export const CreateLixiConfirmationModal: React.FC<CreateLixiConfirmationModalProps> = (

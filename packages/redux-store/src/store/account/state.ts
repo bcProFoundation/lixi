@@ -3,7 +3,7 @@ import { Upload } from '@bcpros/lixi-models/lib/upload';
 import { EntityState } from '@reduxjs/toolkit';
 import { WorshipedPersonFieldsFragment as WorshipedPerson } from '@store/worship/worshipedPerson.generated';
 
-export interface AccountsState extends EntityState<Account> {
+export type AccountsState = EntityState<Account> & {
   selectedId: Nullable<number> | undefined;
   lixiIdsById: {
     [key: number]: Array<number>;
@@ -23,21 +23,21 @@ export interface AccountsState extends EntityState<Account> {
   recentVisitedPeople: WorshipedPerson[];
   recentHashtagAtHome: string[];
   recentHashtagAtPages:
-    | [
-        {
-          id: string | null;
-          hashtags: string[];
-        }
-      ]
-    | [];
+  | [
+    {
+      id: string | null;
+      hashtags: string[];
+    }
+  ]
+  | [];
   recentHashtagAtToken:
-    | [
-        {
-          id: string | null;
-          hashtags: string[];
-        }
-      ]
-    | [];
+  | [
+    {
+      id: string | null;
+      hashtags: string[];
+    }
+  ]
+  | [];
   accountInfoTemp: Account;
   commentUpload: Upload;
 }

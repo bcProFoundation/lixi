@@ -143,7 +143,7 @@ const useWallet = () => {
         return walletPath.xAddress === account.address;
       });
     });
-    const walletsAlreadySync = _.filter(walletPaths, (walletPath: WalletPathAddressInfo) => {
+    const walletsAlreadySync: WalletPathAddressInfo[] = _.filter(walletPaths, (walletPath: WalletPathAddressInfo) => {
       return _.some(accounts, (account: Account) => {
         return walletPath.xAddress === account.address;
       });
@@ -164,9 +164,10 @@ const useWallet = () => {
         }
       );
       // Calculate the wallet not synced yet
-      const walletsPathToSync = (await Promise.all(derivedWalletPathsPromises)).flat();
-
-      dispatch(setWalletPaths([...walletsAlreadySync, ...walletsPathToSync]));
+      const walletsPathToSync: WalletPathAddressInfo[] = (await Promise.all(derivedWalletPathsPromises)).flat();
+      const walletPaths: WalletPathAddressInfo[] = [...walletsAlreadySync, ...walletsPathToSync];
+      const a = setWalletPaths(walletPaths);
+      dispatch(a);
     }
   };
 

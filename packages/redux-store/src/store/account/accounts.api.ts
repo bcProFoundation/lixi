@@ -22,5 +22,7 @@ export const {
   useLazyGetAccountByAddressQuery,
   useCreateAccountMutation,
   useImportAccountMutation,
-  useUpdateAccountMutation
+  useUpdateAccountMutation,
+  useAllFollowersByPageQuery,
+  useLazyAllFollowersByPageQuery
 } = enhancedApi;

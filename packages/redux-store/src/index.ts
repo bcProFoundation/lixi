@@ -1,3 +1,6 @@
+import type { } from "graphql";
+import type { } from "socket.io-client";
+import type { } from "@reduxjs/toolkit";
 export * as baseApi from './api/baseApi';
 export * from './components/Common/Ticker';
 export * from './context/index';
