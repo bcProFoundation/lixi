@@ -10,7 +10,7 @@ import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { getSelectedAccount } from '@store/account/selectors';
 import { getWalletHasUpdated, getWalletParsedTxHistory, getWalletState } from '@store/wallet';
 import { ParsedChronikTx, getTxHistoryChronik } from '@utils/chronik';
-import { ChronikClient, Tx } from 'chronik-client';
+import { Tx } from 'chronik-client';
 import { formatDate } from '@utils/formatting';
 import _ from 'lodash';
 import { getCurrentLocale } from '@store/settings/selectors';
@@ -20,9 +20,8 @@ import Reply from '@assets/icons/reply.svg';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import { selectTokens } from '@store/token';
 import { Skeleton } from 'antd';
-import useXPI from '@hooks/useXPI';
-import BCHJS from '@bcpros/xpi-js';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { WalletContext } from '@context/index';
 
 interface UserItem {
   email: string;
@@ -180,11 +179,12 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
   const walletHasUpdated = useAppSelector(getWalletHasUpdated);
   const walletParsedHistory = useAppSelector(getWalletParsedTxHistory);
   const walletState = useAppSelector(getWalletState);
+  const Wallet = React.useContext(WalletContext);
 
-  const { getXPI } = useXPI();
-  const [chronik, setChronik] = useState<ChronikClient>(new ChronikClient('https://chronik.be.cash/xpi'));
-  const [XPI, setXPI] = useState<BCHJS>(getXPI());
-  const pageNumberRef = useRef(1); //start pagination at page 1 (already have data at page 0)
+  const { XPI, chronik } = Wallet;
+
+  const [pageNumber, setPageNumber] = useState<number>(1); //start pagination at page 1 (already have data at page 0)
+  const [hasMoreTxHistory, setHasMoreTxHistory] = useState<boolean>(true);
 
   const [dataWalletParsedHistory, setDataWalletParsedHistory] = useState<Tx[]>(walletParsedHistory || []);
 
@@ -246,12 +246,15 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
 
   const fetchNextDataWalletHistory = async (pageNumber = 0) => {
     const { chronikTxHistory } = await getTxHistoryChronik(chronik, XPI, walletState, pageNumber);
+    if (chronikTxHistory.length === 0) {
+      setHasMoreTxHistory(pre => !pre);
+    }
     setDataWalletParsedHistory(pre => pre.concat(chronikTxHistory));
-    pageNumberRef.current += 1;
+    setPageNumber(pre => pre + 1);
   };
 
   const loadMoreItems = () => {
-    fetchNextDataWalletHistory(pageNumberRef.current);
+    fetchNextDataWalletHistory(pageNumber);
   };
 
   //set state when switch account
@@ -275,7 +278,7 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
                 <InfiniteScroll
                   dataLength={dataWalletParsedHistory.length}
                   next={loadMoreItems}
-                  hasMore={true}
+                  hasMore={hasMoreTxHistory}
                   loader={<SkeletonStyled active paragraph={{ rows: 2 }} title={false} />}
                   scrollableTarget="scrollableDivTxHistory"
                 >

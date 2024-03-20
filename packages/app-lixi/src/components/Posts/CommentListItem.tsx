@@ -17,6 +17,7 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 import intl from 'react-intl-universal';
 import { PostQueryItem, CommentQueryItem } from '@generated/index';
 import styled from 'styled-components';
+import IconBurnComment from './IconBurnComment';
 
 const SpaceCustom = styled(Space)`
   gap: 5px !important;
@@ -51,6 +52,7 @@ const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFo
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
   const image = item?.imageUploadable?.uploads[0];
+  const [isHoverIconBurn, setIsHoverIconBurn] = useState<boolean>(false);
 
   const userName = useMemo(() => {
     return _.isNil(item?.commentAccount) ? DEFAULT_USERNAME : item?.commentAccount?.name;
@@ -78,36 +80,11 @@ const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFo
     setFocusComment();
   };
 
-  const upImg = (isUp: boolean) => (
-    <div
-      style={{ padding: '2px', borderRadius: '20px' }}
-      onMouseOver={e => {
-        e.currentTarget.style.backgroundColor = isUp ? '#00abe7' : 'var(--color-danger)';
-      }}
-      onMouseOut={e => {
-        e.currentTarget.style.backgroundColor = 'white';
-      }}
-    >
-      <img
-        src={`/images/${isUp ? 'up' : 'down'}-arrow.svg`}
-        style={{ filter: 'var(--filter-svg-gray-color)' }}
-        width={`18px`}
-        onMouseOver={e => {
-          e.currentTarget.style.cssText = `
-          filter: var(--filter-svg-white-color);`;
-        }}
-        onMouseOut={e => {
-          e.currentTarget.style.cssText = 'filter: var(--filter-svg-gray-color)';
-        }}
-      />
-    </div>
-  );
-
   const actions = [
     <span key={`comment-down-vote-${item.id}`}>
       <Tooltip title={() => intl.get('general.burnDown')}>
         <SpaceCustom onClick={() => actionsComment(item, ACTION_VOTE.DOWN_VOTE)}>
-          {upImg(false)}
+          <IconBurnComment isUp={false} />
           <Counter num={formatBalance(item?.danaBurnDown ?? 0)} />
         </SpaceCustom>
       </Tooltip>
@@ -115,7 +92,7 @@ const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFo
     <span style={{ marginInlineEnd: '15px' }} key={`comment-up-vote-${item.id}`}>
       <Tooltip title={() => intl.get('general.burnUp')}>
         <SpaceCustom onClick={() => actionsComment(item, ACTION_VOTE.UP_VOTE)}>
-          {upImg(true)}
+          <IconBurnComment isUp />
           <Counter num={formatBalance(item?.danaBurnUp ?? 0)} />
         </SpaceCustom>
       </Tooltip>
