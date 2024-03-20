@@ -19,6 +19,7 @@ import intl from 'react-intl-universal';
 import SwipeToDelete from 'react-swipe-to-delete-ios';
 import styled from 'styled-components';
 import _ from 'lodash';
+import { setScrollToCommentId } from '@store/account';
 
 export type NotificationMenuProps = {
   notifications: Notification[];
@@ -207,6 +208,14 @@ const NotificationPopup = (notifications: Notification[], account: Account, isPo
 
   const handleRead = (account: Account, notification: Notification) => {
     notification.url && dispatch(push(`${notification.url}`));
+
+    const stringComment = 'comment=';
+    const haveCommentInNotification = notification.url.indexOf(stringComment);
+    if (haveCommentInNotification !== -1) {
+      const commentId = notification.url.slice(haveCommentInNotification + stringComment.length);
+      dispatch(setScrollToCommentId(commentId));
+    }
+
     dispatch(readNotification({ mnemonichHash: account.mnemonicHash, notificationId: notification.id }));
     if (notification.notificationTypeId === 3) {
       const { parentId, mnemonicHash, fileName } = notification.additionalData as any;

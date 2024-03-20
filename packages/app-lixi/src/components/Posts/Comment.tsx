@@ -38,6 +38,7 @@ import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
 import { createCommentSuccess } from '@store/comment';
 import { AuthorizationContext } from '@context/index';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
+import { getScrollToCommentId, setScrollToCommentId } from '@store/account';
 
 const { Search, TextArea } = Input;
 type CommentProps = {
@@ -268,6 +269,7 @@ const Comment = ({ post }: CommentProps) => {
   const [replyCommentData, setReplyCommentData] = useState<CommentQueryItem>(null);
   const previousComment = useRef({ text: '', commentId: '', commentAddress: '' });
   const refsComment = useRef({});
+  const currentPathName = router.pathname ?? '';
 
   const [
     createCommentTrigger,
@@ -297,6 +299,22 @@ const Comment = ({ post }: CommentProps) => {
       inputText.current?.removeEventListener('paste', handlePasteImage);
     };
   }, []);
+  const scrollToCommentId = useAppSelector(getScrollToCommentId);
+
+  useEffect(() => {
+    if (scrollToCommentId) {
+      console.log('running');
+      const elementJumped = refsComment.current[scrollToCommentId];
+      if (elementJumped) {
+        setTimeout(() => {
+          elementJumped.firstChild.classList.add('active-comment');
+          elementJumped.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+
+        dispatch(setScrollToCommentId(null));
+      }
+    }
+  });
 
   const showTextComment = () => {
     if (post.page) {
@@ -805,7 +823,7 @@ const Comment = ({ post }: CommentProps) => {
           next={loadMoreComments}
           hasMore={hasNext}
           loader={<Skeleton style={{ marginTop: '1rem' }} avatar active />}
-          scrollableTarget="scrollableComment"
+          scrollableTarget={currentPathName == '/' ? 'scrollableComment' : 'scrollableDiv'}
           className="infiniteScroll-comment"
         >
           {data.map(item => {
