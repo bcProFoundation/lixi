@@ -209,6 +209,7 @@ export default {
   'account.verificationCodeRequired': 'Vui lòng nhập mã xác thực',
   'account.verificationCodeSent': 'Mã xác thực đã được gửi tới <b>{email}</b>. Vui lòng kiểm tra email của bạn !',
   'account.transactionHistory': 'Lịch sử giao dịch',
+  'account.noTransaction': 'Bạn chưa thực hiện giao dịch nào cả :((',
   'account.loginSuccess': 'Đăng nhập thành công!',
   'account.loginFailed': 'Đăng nhập thất bại',
   'account.registerEmailSuccess': 'Đăng kí qua email thành công!',

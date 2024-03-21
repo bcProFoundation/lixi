@@ -148,7 +148,13 @@ const BurnHistoryModal = ({ postId, classStyle }: BurnHistoryProps) => {
                     </div>
                   </div>
                   <div className="burn-value">
-                    <img src={item.burnType ? '../../images/like.svg' : '../../images/dislike.svg'} />
+                    <img
+                      src={item.burnType ? '/images/up-arrow.svg' : '/images/down-arrow.svg'}
+                      width={'30px'}
+                      style={{
+                        filter: item.burnType ? 'var(--filter-svg-blue-color)' : 'var(--filter-svg-red-color)'
+                      }}
+                    />
                     <span className="value">
                       <span>
                         {item.burnedValue} {intl.get('general.dana')}

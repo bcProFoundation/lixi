@@ -211,6 +211,7 @@ export default {
   'account.verificationCodeRequired': 'Verification code is required',
   'account.verificationCodeSent': 'Verification code has been sent to <b>{email}</b>. Please check your inbox !',
   'account.transactionHistory': 'Transaction History',
+  'account.noTransaction': 'No transaction',
   'account.loginSuccess': 'Login sucessfully!',
   'account.loginFailed': 'Login failed',
   'account.registerEmailSuccess': 'Register via email success!',

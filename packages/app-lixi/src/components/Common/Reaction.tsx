@@ -15,6 +15,7 @@ import styled from 'styled-components';
 import { match } from 'ts-pattern';
 import useAuthorization from './Authorization/use-authorization.hooks';
 import Counter from './Counter';
+import IconBurnCustomProps from './IconBurn/IconBurnCustom';
 
 const SpaceIconBurnHover = styled(Space)`
   min-height: 38px;
@@ -36,7 +37,7 @@ const SpaceIconBurnHover = styled(Space)`
   }
 `;
 
-const StyledBurnIconHover = styled.img`
+export const StyledBurnIconHover = styled.img`
   transition: all 0.2s ease-in-out;
   width: 24px;
   height: 24px;
@@ -222,15 +223,16 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         content={contentHoverHeart}
         trigger="hover"
       >
-        <div className="container-ico-hover">
-          <StyledBurnIconHover
-            src={'/images/down-arrow.svg'}
-            style={{
-              filter: 'var(--filter-svg-red-color)'
-            }}
-            onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.DISLIKE, false)}
-          />
-        </div>
+        <IconBurnCustomProps
+          icon="down-arrow.svg"
+          colorBackground="var(--color-danger)"
+          colorFilterIcon="var(--filter-svg-red-color)"
+          burnForType={burnForType}
+          dataItem={dataItem}
+          optionBurnType={OPTION_BURN_TYPE.DISLIKE}
+          isUpBurn={false}
+          hideReact={hideReact}
+        />
       </Popover>
       <Popover
         arrow={false}
@@ -239,15 +241,16 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         content={contentHoverDisLike}
         trigger="hover"
       >
-        <div className="container-ico-hover">
-          <StyledBurnIconHover
-            src={'/images/up-arrow.svg'}
-            style={{
-              filter: 'var(--filter-svg-blue-color)'
-            }}
-            onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LIKE, true)}
-          />
-        </div>
+        <IconBurnCustomProps
+          icon="up-arrow.svg"
+          colorBackground="#00abe7"
+          colorFilterIcon="var(--filter-svg-blue-color)"
+          burnForType={burnForType}
+          dataItem={dataItem}
+          optionBurnType={OPTION_BURN_TYPE.LIKE}
+          isUpBurn={true}
+          hideReact={hideReact}
+        />
       </Popover>
       <Popover
         arrow={false}
@@ -256,15 +259,16 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         content={contentHoverLike}
         trigger="hover"
       >
-        <div className="container-ico-hover">
-          <StyledBurnIconHover
-            src={'/images/double-up-arrow.svg'}
-            style={{
-              filter: 'var(--filter-svg-blue-color)'
-            }}
-            onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LOVE, true)}
-          />
-        </div>
+        <IconBurnCustomProps
+          icon="double-up-arrow.svg"
+          colorBackground="#00abe7"
+          colorFilterIcon="var(--filter-svg-blue-color)"
+          burnForType={burnForType}
+          dataItem={dataItem}
+          optionBurnType={OPTION_BURN_TYPE.LOVE}
+          isUpBurn={true}
+          hideReact={hideReact}
+        />
       </Popover>
       <Popover
         arrow={false}
