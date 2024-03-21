@@ -303,7 +303,6 @@ const Comment = ({ post }: CommentProps) => {
 
   useEffect(() => {
     if (scrollToCommentId) {
-      console.log('running');
       const elementJumped = refsComment.current[scrollToCommentId];
       if (elementJumped) {
         setTimeout(() => {
