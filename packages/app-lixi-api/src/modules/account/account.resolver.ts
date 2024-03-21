@@ -165,6 +165,7 @@ export class AccountResolver {
   @Query(() => AccountBasicConnection)
   async allAccounts(@Args() { first = 20, after }: PaginationArgs) {
     const topAccountIds = await this.prisma.accountDana.findMany({
+      where: { danaGiven: { gt: 0 } },
       orderBy: { danaGiven: 'desc' },
       take: first
     });

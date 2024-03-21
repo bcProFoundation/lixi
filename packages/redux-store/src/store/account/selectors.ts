@@ -113,3 +113,8 @@ export const getRecentHashtagAtToken = createSelector(
   (state: RootState) => state.accounts,
   (accounts: AccountsState) => accounts.recentHashtagAtToken
 );
+
+export const getScrollToCommentId = createSelector(
+  (state: RootState) => state.accounts,
+  (accounts: AccountsState) => accounts.scrollToCommentId
+);
