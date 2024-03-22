@@ -28,9 +28,11 @@ export const RenameLixiModal: React.FC<RenameLixiModalProps> = (props: RenameLix
     if (props.onOkAction) {
       // There's an action should be dispatch on ok
       // Set selected name to the clone action and dispatch
-      const newAction = _.cloneDeep(props.onOkAction);
-      newAction.payload.name = newLixiName;
-      dispatch(newAction);
+      let newAction = _.cloneDeep(props.onOkAction);
+      if (newAction && newAction.payload) {
+        (newAction.payload as any).name = newLixiName;
+        dispatch(newAction);
+      }
     }
     dispatch(closeModal());
   };

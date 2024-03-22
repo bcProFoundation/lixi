@@ -64,7 +64,7 @@ const SocialSharePanel = ({ shareUrl }) => {
   return (
     <div>
       <div className="socialshare-network">
-        <FacebookShareButton url={shareUrl} quote={title} className="socialshare-button">
+        <FacebookShareButton url={shareUrl} className="socialshare-button">
           <FacebookIcon size={32} round />
         </FacebookShareButton>
       </div>
@@ -154,20 +154,6 @@ const LixiEnvelopeViewModal = ({ lixiClaimed, envelopeUrl, shareUrl }) => {
   const handleOnCopyLink = () => {
     message.info(intl.get('claim.copyToClipboard'));
   };
-
-  const CopyLinkButton = (
-    <CopyToClipboard
-      style={{
-        position: 'relative'
-      }}
-      text={shareUrl}
-      onCopy={handleOnCopyLink}
-    >
-      <ClaimButton>
-        <LinkOutlined /> {intl.get('special.copy')}
-      </ClaimButton>
-    </CopyToClipboard>
-  );
 
   const handleOnCancel = () => {
     dispatch(closeModal());

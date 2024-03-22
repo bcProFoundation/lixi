@@ -12,13 +12,13 @@ import { StyledUploader } from './Uploader/Uploader';
 import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
 import { Button, Form, Modal } from 'antd';
 import { setPage } from '@store/page/action';
-import { useUpdatePageMutation } from '@store/page/pages.generated';
+import { useUpdatePageMutation } from '@store/page/pages.api';
 import { showToast } from '@store/toast/actions';
 import intl from 'react-intl-universal';
 import { closeModal } from '@store/modal/actions';
 import { useState } from 'react';
 import { setAccount, setAccountAvatar, setAccountCover, setAccountInfoTemp } from '@store/account';
-import { useUpdateAccountMutation } from '@store/account/accounts.generated';
+import { useUpdateAccountMutation } from '@store/account/accounts.api';
 
 export interface UploadAvatarCoverProps {
   profile?: Account;

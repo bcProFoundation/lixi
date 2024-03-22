@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.path.json",
   "compilerOptions": {
+    "traceResolution": true,
     "noErrorTruncation": true,
     "baseUrl": ".",
     "target": "es5",

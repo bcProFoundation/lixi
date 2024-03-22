@@ -416,7 +416,7 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
       (claimType == ClaimType.OneTime &&
         Number(value) > 0 &&
         fromSmallestDenomination(account.balance) >=
-          Number(value) + fromSmallestDenomination(txFee) * Number(newNumberOfSubLixi))
+        Number(value) + fromSmallestDenomination(txFee) * Number(newNumberOfSubLixi))
     ) {
       setNewLixiAmountValueIsValid(true);
     } else {
@@ -943,7 +943,7 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
             style={{
               width: '100%'
             }}
-            onSelect={handleNewActivatedTimeInput}
+            onCalendarChange={handleNewActivatedTimeInput}
             onOk={onActivatedOk}
           />
         </Form.Item>
@@ -963,7 +963,7 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
             style={{
               width: '100%'
             }}
-            onSelect={handleNewExpityTimeInput}
+            onCalendarChange={handleNewExpityTimeInput}
             onOk={onOk}
           />
         </Form.Item>
@@ -1111,7 +1111,7 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
                 style={{
                   width: '100%'
                 }}
-                onSelect={handleNewActivatedTimeInput}
+                onCalendarChange={handleNewActivatedTimeInput}
                 onOk={onActivatedOk}
               />
             </Form.Item>
@@ -1130,7 +1130,7 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
                 style={{
                   width: '100%'
                 }}
-                onSelect={handleNewExpityTimeInput}
+                onCalendarChange={handleNewExpityTimeInput}
                 onOk={onOk}
               />
             </Form.Item>
@@ -1185,10 +1185,10 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
                         !newEnvelopeId && !envelopeUpload
                           ? '/images/lotus_logo.png'
                           : (newEnvelopeId &&
-                              !envelopeUpload &&
-                              baseUrl + 'api/' + envelopes.find(item => item.id === newEnvelopeId).thumbnail) ||
-                            (envelopeUpload &&
-                              `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${envelopeUpload.cfImageId}/small`)
+                            !envelopeUpload &&
+                            baseUrl + 'api/' + envelopes.find(item => item.id === newEnvelopeId).thumbnail) ||
+                          (envelopeUpload &&
+                            `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${envelopeUpload.cfImageId}/small`)
                       }
                       style={{
                         position: 'absolute',

@@ -6,8 +6,11 @@ import {
   HomeOutlined,
   InfoCircleOutlined
 } from '@ant-design/icons';
+import { ParamPostFollowCommand } from '@bcpros/lixi-models/build/module/lib/post';
 import { PostListType } from '@bcpros/lixi-models/constants';
+import { Follow, FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
+import Counter from '@components/Common/Counter';
 import CreatePostCard from '@components/Common/CreatePostCard';
 import SearchBox from '@components/Common/SearchBox';
 import PostListItem from '@components/Posts/PostListItem';
@@ -30,7 +33,7 @@ import { useAppDispatch, useAppSelector } from '@store/hooks';
 import {
   useCreatePageMessageSessionMutation,
   useUserHadMessageToPageQuery
-} from '@store/message/pageMessageSession.generated';
+} from '@store/message/pageMessageSession.api';
 import { openModal } from '@store/modal/actions';
 import { changeFollowActionSheetPost, setSelectedPost } from '@store/post/actions';
 import { getSelectedPostId } from '@store/post/selectors';
@@ -38,9 +41,9 @@ import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useI
 import {
   getFilterPostsPage,
   getIsPostsByTime,
-  getMinimumDanaFilter,
-  getNegativeDanaStatus
+  getMinimumDanaFilter
 } from '@store/settings/selectors';
+import { useInfinitePageTimelineByScoreQuery, useInfinitePageTimelineByTimeQuery } from '@store/timeline';
 import { getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { Button, Skeleton, Space, Tabs, Tag, Tooltip } from 'antd';
 import _ from 'lodash';
@@ -50,10 +53,6 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
-import { useInfinitePageTimelineByScoreQuery, useInfinitePageTimelineByTimeQuery } from '@store/timeline';
-import { Follow, FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
-import Counter from '@components/Common/Counter';
-import { ParamPostFollowCommand } from '@bcpros/lixi-models/build/module/lib/post';
 
 type PageDetailProps = {
   page: PageQueryItem;

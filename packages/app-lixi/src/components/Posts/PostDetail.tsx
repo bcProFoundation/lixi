@@ -11,7 +11,7 @@ import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotific
 import { getAccountInfoTemp, getSelectedAccount } from '@store/account/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
-import { useRepostMutation } from '@store/post/posts.generated';
+import { useRepostMutation } from '@store/post/posts.api';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
 import { Image, Input, Space, Spin } from 'antd';
@@ -526,7 +526,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
               </Image.PreviewGroup>
             </div>
           )}
-          <ActionPostBar post={post} onClickIconComment={e => {}} />
+          <ActionPostBar post={post} onClickIconComment={e => { }} />
         </PostContentDetail>
 
         <Comment post={post} />

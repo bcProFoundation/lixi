@@ -164,7 +164,7 @@ const SwapMobileCard: React.FC = () => {
                   <Image src={Checkmark} alt="checkmark" />
                 </ImageContainer>
               )}
-              <Image src={item.src} />
+              <Image src={item.src} alt="mobile-cart" />
             </StyledMNButton>
           );
         })}

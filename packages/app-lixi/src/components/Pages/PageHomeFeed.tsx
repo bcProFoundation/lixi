@@ -5,7 +5,7 @@ import { getCategories } from '@store/category/actions';
 import { getAllCategories } from '@store/category/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { openModal } from '@store/modal/actions';
-import { usePagesByUserIdQuery } from '@store/page/pages.generated';
+import { usePagesByUserIdQuery } from '@store/page/pages.api';
 import { useInfinitePagesByFollowerIdQuery } from '@store/page/useInfinitePagesByFollowerIdQuery';
 import { useInfinitePagesByUserIdQuery } from '@store/page/useInfinitePagesByUserIdQuery';
 import { useInfinitePagesQuery } from '@store/page/useInfinitePagesQuery';

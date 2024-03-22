@@ -38,7 +38,7 @@ const SocialSharePanel = ({ className, shareUrl }: SocialSharePanelProps): JSX.E
   return (
     <div className={className}>
       <div className="socialshare-network">
-        <FacebookShareButton url={shareUrl} quote={title} className="socialshare-button">
+        <FacebookShareButton url={shareUrl} className="socialshare-button">
           <FacebookIcon size={32} round />
         </FacebookShareButton>
       </div>
@@ -136,7 +136,7 @@ const ShareSocialButton = (props: ShareSocialProps) => {
         url: shareUrl,
         title: 'Lixi'
       }}
-      onClick={() => {}}
+      onClick={() => { }}
     >
       <ShareButton className="share-social-btn">
         <ShareAltOutlined />

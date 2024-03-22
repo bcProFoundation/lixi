@@ -8,7 +8,7 @@ import { getProductImageUploads, getSelectedAccount } from '@store/account/selec
 import { getAllCategories } from '@store/category/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { closeModal } from '@store/modal/actions';
-import { useCreateProductMutation } from '@store/product/products.generated';
+import { useCreateProductMutation } from '@store/product/products.api';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
 import { getUtxoWif } from '@utils/cashMethods';

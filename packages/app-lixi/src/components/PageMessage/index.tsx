@@ -1,20 +1,13 @@
-import { Avatar, Button, Input, Popover, Skeleton, Spin } from 'antd';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import styled from 'styled-components';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { getMessageUploads, getSelectedAccount, removeAllMessageUpload, removeUpload } from '@store/account';
+import { CloseOutlined } from '@ant-design/icons';
 import { ClosePageMessageSessionInput, CreateClaimDto } from '@bcpros/lixi-models';
-import _ from 'lodash';
-import { useInfinitePageMessageSessionByAccountId } from '@store/message/useInfinitePageMessageSessionByAccountId';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { getCurrentPageMessageSession } from '@store/page/selectors';
-import { setPageMessageSession } from '@store/page/action';
-import {
-  PageMessageSessionQuery,
-  useClosePageMessageSessionMutation,
-  useOpenPageMessageSessionMutation
-} from '@store/message/pageMessageSession.generated';
-import Message from './Message';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import { transformShortName } from '@components/Common/AvatarUser';
+import { currency } from '@components/Common/Ticker';
+import { MultiUploader } from '@components/Common/Uploader/MultiUploader';
+import { LoadingIcon } from '@components/Layout/MainLayout';
+import { URL_AVATAR_DEFAULT } from '@components/Profile/ProfileDetail';
+import { SpaceShorcutItem, transformCreatedAt } from '@containers/Sidebar/SideBarShortcut';
+import { WalletContext } from '@context/walletProvider';
 import {
   CreateMessageInput,
   MessageOrderField,
@@ -22,32 +15,38 @@ import {
   OrderDirection,
   PageMessageSessionStatus
 } from '@generated/types.generated';
-import { useInfiniteMessageByPageMessageSessionId } from '@store/message/useInfiniteMessageByPageMessageSessionId';
-import { useForm, Controller } from 'react-hook-form';
-import { useCreateMessageMutation } from '@store/message/message.generated';
-import { postClaim } from '@store/claim/actions';
-import { WalletContext } from '@context/walletProvider';
-import { SpaceShorcutItem, transformCreatedAt } from '@containers/Sidebar/SideBarShortcut';
-import { transformShortName } from '@components/Common/AvatarUser';
-import { ReactSVG } from 'react-svg';
-import { useRouter } from 'next/router';
-import intl from 'react-intl-universal';
-import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
-import { getUtxoWif } from '@utils/cashMethods';
 import useXPI from '@hooks/useXPI';
-import { currency } from '@components/Common/Ticker';
-import { sendXPIFailure, sendXPISuccess } from '@store/send/actions';
-import { fromSmallestDenomination } from '@utils/cashMethods';
-import { useSwipeable } from 'react-swipeable';
-import { MultiUploader } from '@components/Common/Uploader/MultiUploader';
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
-import { URL_AVATAR_DEFAULT } from '@components/Profile/ProfileDetail';
-import { PhotoProvider, PhotoView } from 'react-photo-view';
-import { LoadingIcon } from '@components/Layout/MainLayout';
-import { CloseOutlined } from '@ant-design/icons';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
+import { getMessageUploads, getSelectedAccount, removeAllMessageUpload, removeUpload } from '@store/account';
+import { postClaim } from '@store/claim/actions';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { removePageMessageSession, upsertPageMessageSession } from '@store/message/actions';
-import { getAllPageMessageSessionEntities, getPageMessageSessionById } from '@store/message/selectors';
+import { useCreateMessageMutation } from '@store/message/message.api';
+import {
+  useClosePageMessageSessionMutation,
+  useOpenPageMessageSessionMutation
+} from '@store/message/pageMessageSession.api';
+import { PageMessageSessionQuery } from '@store/message/pageMessageSession.generated';
+import { getAllPageMessageSessionEntities } from '@store/message/selectors';
+import { useInfiniteMessageByPageMessageSessionId } from '@store/message/useInfiniteMessageByPageMessageSessionId';
+import { useInfinitePageMessageSessionByAccountId } from '@store/message/useInfinitePageMessageSessionByAccountId';
+import { setPageMessageSession } from '@store/page/action';
+import { getCurrentPageMessageSession } from '@store/page/selectors';
+import { sendXPIFailure, sendXPISuccess } from '@store/send/actions';
+import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
+import { fromSmallestDenomination, getUtxoWif } from '@utils/cashMethods';
+import { Avatar, Button, Input, Popover, Skeleton, Spin } from 'antd';
+import _ from 'lodash';
+import { useRouter } from 'next/router';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import intl from 'react-intl-universal';
+import { PhotoProvider, PhotoView } from 'react-photo-view';
+import { ReactSVG } from 'react-svg';
+import { useSwipeable } from 'react-swipeable';
+import styled from 'styled-components';
+import Message from './Message';
 
 type PageMessageSessionItem = PageMessageSessionQuery['pageMessageSession'];
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
@@ -985,9 +984,8 @@ const PageMessage = () => {
       onClick={() => onClickSeenMessage(data.find(item => item.id === currentPageMessageSession?.id))}
     >
       <StyledSideContainer
-        className={`${currentPageMessageSession ? 'hide-side-message' : 'show-side-message'} ${
-          isMobile ? 'animate__faster animate__animated animate__slideInRight' : ''
-        }`}
+        className={`${currentPageMessageSession ? 'hide-side-message' : 'show-side-message'} ${isMobile ? 'animate__faster animate__animated animate__slideInRight' : ''
+          }`}
       >
         <h2 className="title-chat">
           Chats <span className="badge-total-message">{data.length}</span>
@@ -1044,9 +1042,8 @@ const PageMessage = () => {
 
       <StyledChatContainer
         {...handlersSwip}
-        className={`${currentPageMessageSession ? 'full-content-chat' : 'hide-content-chat'} ${
-          isMobile ? 'animate__faster animate__animated animate__slideInLeft' : ''
-        }`}
+        className={`${currentPageMessageSession ? 'full-content-chat' : 'hide-content-chat'} ${isMobile ? 'animate__faster animate__animated animate__slideInLeft' : ''
+          }`}
       >
         <StyledChatHeader>
           {currentPageMessageSession ? (
@@ -1252,11 +1249,10 @@ const PageMessage = () => {
             )}
             <StyledFooterChat>
               <IconContainer
-                className={`${
-                  currentPageMessageSession?.status !== PageMessageSessionStatus.Pending
-                    ? 'enable-upload'
-                    : 'disable-upload'
-                }`}
+                className={`${currentPageMessageSession?.status !== PageMessageSessionStatus.Pending
+                  ? 'enable-upload'
+                  : 'disable-upload'
+                  }`}
               >
                 <MultiUploader
                   type={UPLOAD_TYPES.MESSAGE}
@@ -1291,8 +1287,8 @@ const PageMessage = () => {
                         currentPageMessageSession.status === PageMessageSessionStatus.Open
                           ? 'Aa'
                           : currentPageMessageSession.status === PageMessageSessionStatus.Pending
-                          ? `${intl.get('messenger.acceptToChat')}`
-                          : `${intl.get('messenger.sessionClose')}`
+                            ? `${intl.get('messenger.acceptToChat')}`
+                            : `${intl.get('messenger.sessionClose')}`
                       }
                       disabled={
                         isLoadingCreateMessage ||

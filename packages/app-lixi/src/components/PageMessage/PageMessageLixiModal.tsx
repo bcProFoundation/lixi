@@ -128,7 +128,7 @@ const PageMessageLixiModal = ({ account, page, wallet, classStyle }: PageMessage
                 checkEnoughXPI: value => {
                   return (
                     fromSmallestDenomination(wallet.balances.totalBalanceInSatoshis) >=
-                      parseFloat(value) + fromSmallestDenomination(txFee) || 'Not enough XPI'
+                    parseFloat(value) + fromSmallestDenomination(txFee) || 'Not enough XPI'
                   );
                 }
                 // can add more validate below here
@@ -147,7 +147,7 @@ const PageMessageLixiModal = ({ account, page, wallet, classStyle }: PageMessage
             )}
           />
         </Descriptions.Item>
-        <Descriptions.Item>{errors?.amount?.message}</Descriptions.Item>
+        {errors.amount && <Descriptions.Item>errors.amount?.message</Descriptions.Item>}
       </Descriptions>
     </StyledModal>
   );

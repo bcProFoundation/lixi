@@ -29,8 +29,8 @@ export const RenameAccountModal: React.FC<RenameAccountModalProps> = (props: Ren
     if (props.onOkAction) {
       // There's an action should be dispatch on ok
       // Set selected name to the clone action and dispatch
-      const newAction = _.cloneDeep(props.onOkAction);
-      newAction.payload.name = name.trim();
+      let newAction = _.cloneDeep(props.onOkAction);
+      (newAction.payload as any).name = name.trim();
       dispatch(newAction);
     }
     dispatch(closeModal());
@@ -52,7 +52,7 @@ export const RenameAccountModal: React.FC<RenameAccountModalProps> = (props: Ren
       >
         <AntdFormWrapper>
           <Form style={{ width: 'auto' }}>
-            <Form.Item validateStatus={!errors.name ? '' : 'error'} help={!errors.name ? '' : errors.name.message}>
+            <Form.Item validateStatus={!errors.name ? '' : 'error'} help={errors.name ? `${errors.name.message}` : ''}>
               <Controller
                 name="name"
                 control={control}
