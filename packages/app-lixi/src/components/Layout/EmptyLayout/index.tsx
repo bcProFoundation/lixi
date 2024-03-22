@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Layout, Spin } from 'antd';
 import Link from 'next/link';
 import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
@@ -71,7 +71,8 @@ export const AppContainer = styled.div`
   }
 `;
 
-type EmptyLayoutProps = React.PropsWithChildren<{}>;
+export interface EmptyLayoutProps extends PropsWithChildren {
+}
 
 const EmptyLayout: React.FC = (props: EmptyLayoutProps) => {
   const { children } = props;

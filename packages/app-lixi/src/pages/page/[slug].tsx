@@ -4,7 +4,7 @@ import PageDetail from '@components/Pages/PageDetail';
 import { getSelectedAccount } from '@store/account';
 import { useCheckIfFollowPageQuery } from '@store/follow/follows.api';
 import { useAppSelector } from '@store/hooks';
-import { usePageQuery } from '@store/page/pages.generated';
+import { usePageQuery } from '@store/page/pages.api';
 import { SagaStore, wrapper } from '@store/store';
 import { toImageUrl } from '@utils/index';
 import _ from 'lodash';
@@ -121,6 +121,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   };
 });
 
-PageDetailPage.Layout = ({ children }) => <MainLayout children={children} />;
+PageDetailPage.getLayout = ({ children }) => <MainLayout children={children} />;
 
 export default PageDetailPage;

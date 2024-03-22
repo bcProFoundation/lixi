@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getIronSession } from 'iron-session/edge';
 import { sessionOptions } from './shared/models/session';
+import { IronSessionData, getIronSession } from 'iron-session';
 
 function shouldExclude(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -23,7 +23,7 @@ export const middleware = async (req: NextRequest) => {
 
   const { pathname } = req.nextUrl;
 
-  const session = await getIronSession(req, res, sessionOptions);
+  const session = await getIronSession<IronSessionData>(req, res, sessionOptions);
 
   const { localUser } = session;
 

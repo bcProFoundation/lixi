@@ -33,7 +33,7 @@ const useDidMountEffectNotification = (func?) => {
               burnValue: burn.burnValue,
               coin: 'XPI'
             });
-          })
+          }).join('\n')
         })
       );
     }

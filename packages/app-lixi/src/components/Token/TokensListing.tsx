@@ -138,6 +138,10 @@ const StyledNavBarHeader = styled.div`
   }
 `;
 
+interface NewTokenInputTypes {
+  tokenId: string;
+}
+
 const TokensListing = () => {
   const dispatch = useAppDispatch();
   const selectedAccountId = useAppSelector(getSelectedAccountId);
@@ -197,7 +201,7 @@ const TokensListing = () => {
     handleSubmit,
     formState: { errors },
     control
-  } = useForm();
+  } = useForm<NewTokenInputTypes>();
 
   const getColumnSearchProps = (dataIndex: any): ColumnType<any> => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (

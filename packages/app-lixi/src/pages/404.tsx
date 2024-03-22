@@ -52,6 +52,6 @@ const FourOhFourPage = () => {
   return <FourOhFourComponent />;
 };
 
-FourOhFourPage.Layout = ({ children }) => <EmptyLayout children={children} />;
+FourOhFourPage.Layout = ({ children }) => <EmptyLayout>{children}</EmptyLayout>;
 
 export default FourOhFourPage;

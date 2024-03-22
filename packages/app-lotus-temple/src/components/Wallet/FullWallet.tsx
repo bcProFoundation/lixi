@@ -18,7 +18,7 @@ import Link from 'next/link';
 import Reply from '@assets/icons/reply.svg';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import { selectTokens } from '@store/token';
-import { useCommentQuery } from '@store/comment/comments.generated';
+import { useCommentQuery } from '@store/comment/comments.api';
 
 interface UserItem {
   email: string;
