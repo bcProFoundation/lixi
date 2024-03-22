@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { TimelineQueryItem } from '@generated/index';
 import { useLazyProfileTimelineQuery, useProfileTimelineQuery } from './timeline.api';
 
-const profileTimelineAdapter = createEntityAdapter<TimelineQueryItem>({
+const profileTimelineAdapter = createEntityAdapter<TimelineQueryItem, string>({
   selectId: item => item.id
 });
 

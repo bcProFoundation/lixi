@@ -2,7 +2,7 @@ import { EntityState } from '@reduxjs/toolkit';
 import { PageInfo } from '@generated/types.generated';
 import { api, PageMessageSessionQuery } from './pageMessageSession.generated';
 
-export interface PageMessageSessionApiState extends EntityState<PageMessageSessionQuery['pageMessageSession']> {
+export interface PageMessageSessionApiState extends EntityState<PageMessageSessionQuery['pageMessageSession'], string> {
   pageInfo: PageInfo;
   totalCount: number;
 }

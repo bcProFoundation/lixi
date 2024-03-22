@@ -6,7 +6,7 @@ import _ from 'lodash';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { TempleQuery } from './temple.generated';
 
-const templeAdapter = createEntityAdapter<TempleQuery['temple']>({
+const templeAdapter = createEntityAdapter<TempleQuery['temple'], string>({
   selectId: temple => temple.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });

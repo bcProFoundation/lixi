@@ -2,7 +2,7 @@ import { EntityState } from '@reduxjs/toolkit';
 import { PageInfo } from '@generated/types.generated';
 import { api, TempleQuery } from './temple.generated';
 
-export interface TempleApiState extends EntityState<TempleQuery['temple']> {
+export interface TempleApiState extends EntityState<TempleQuery['temple'], string> {
   pageInfo: PageInfo;
   totalCount: number;
 }

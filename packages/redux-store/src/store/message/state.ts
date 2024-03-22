@@ -6,6 +6,6 @@ export interface IPageMessageSessionState {
   latestMessageId: string;
 }
 
-export interface PageMessageSessionState extends EntityState<IPageMessageSessionState> {
+export interface PageMessageSessionState extends EntityState<IPageMessageSessionState, string> {
   selectedId: string;
 }

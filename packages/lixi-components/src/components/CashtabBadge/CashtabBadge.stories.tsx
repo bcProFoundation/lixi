@@ -1,4 +1,4 @@
-import { Meta, Story } from '@storybook/react/types-6-0';
+import { Meta, StoryFn } from '@storybook/react/types-6-0';
 import CashtabBadge from './CashtabBadge';
 import type { CashtabBadgeProps } from './CashtabBadge';
 import { currencyOptions } from '../../utils/currency-helpers';
@@ -12,74 +12,79 @@ const tokenIdOptions = [
   '259908ae44f46ef585edef4bcc1e50dc06e4c391ac4be929fae27235b8158cf1'
 ];
 
-const Template: Story<CashtabBadgeProps> = (args: CashtabBadgeProps) => <CashtabBadge {...args} />;
-
-export const Standard = Template.bind({});
-Standard.args = {
-  price: 0.05,
-  currency: 'USD',
-  to: 'ecash:qrcl220pxeec78vnchwyh6fsdyf60uv9tca7668slm'
+export const Standard = {
+  args: {
+    price: 0.05,
+    currency: 'USD',
+    to: 'ecash:qrcl220pxeec78vnchwyh6fsdyf60uv9tca7668slm'
+  }
 };
 
-export const MostProps = Template.bind({});
-MostProps.args = {
-  price: 0.0025,
-  currency: 'GBP',
-  to: 'ecash:qrcl220pxeec78vnchwyh6fsdyf60uv9tca7668slm',
-  isRepeatable: true,
-  repeatTimeout: 4000,
-  text: 'My Cash Button',
-  showAmount: true,
-  showBorder: true,
-  showQR: false
+export const MostProps = {
+  args: {
+    price: 0.0025,
+    currency: 'GBP',
+    to: 'ecash:qrcl220pxeec78vnchwyh6fsdyf60uv9tca7668slm',
+    isRepeatable: true,
+    repeatTimeout: 4000,
+    text: 'My Cash Button',
+    showAmount: true,
+    showBorder: true,
+    showQR: false
+  }
 };
 
-export const Minimal = Template.bind({});
-Minimal.args = {
-  amount: 0.01,
-  to: 'ecash:qrcl220pxeec78vnchwyh6fsdyf60uv9tca7668slm',
-  showAmount: false,
-  showQR: true
+export const Minimal = {
+  args: {
+    amount: 0.01,
+    to: 'ecash:qrcl220pxeec78vnchwyh6fsdyf60uv9tca7668slm',
+    showAmount: false,
+    showQR: true
+  }
 };
 
-export const Fiat = Template.bind({});
-Fiat.args = {
-  price: 3.5,
-  currency: 'CAD',
-  text: 'Pay with Cashtab',
-  to: 'ecash:qrcl220pxeec78vnchwyh6fsdyf60uv9tca7668slm'
+export const Fiat = {
+  args: {
+    price: 3.5,
+    currency: 'CAD',
+    text: 'Pay with Cashtab',
+    to: 'ecash:qrcl220pxeec78vnchwyh6fsdyf60uv9tca7668slm'
+  },
+
+  name: 'price in fiat'
 };
 
-Fiat.storyName = 'price in fiat';
+export const BCHA = {
+  args: {
+    coinType: Ticker.coinSymbol,
+    amount: 0.33,
+    to: 'ecash:qrcl220pxeec78vnchwyh6fsdyf60uv9tca7668slm'
+  },
 
-export const BCHA = Template.bind({});
-BCHA.args = {
-  coinType: Ticker.coinSymbol,
-  amount: 0.33,
-  to: 'ecash:qrcl220pxeec78vnchwyh6fsdyf60uv9tca7668slm'
+  name: `price in ${Ticker.coinSymbol}`
 };
 
-BCHA.storyName = `price in ${Ticker.coinSymbol}`;
+export const SLPA = {
+  args: {
+    coinType: Ticker.tokenTicker,
+    tokenId: tokenIdOptions[0],
+    amount: 100,
+    to: 'etoken:qrcl220pxeec78vnchwyh6fsdyf60uv9tcnqnc3hmv',
+    showQR: true
+  },
 
-export const SLPA = Template.bind({});
-SLPA.args = {
-  coinType: Ticker.tokenTicker,
-  tokenId: tokenIdOptions[0],
-  amount: 100,
-  to: 'etoken:qrcl220pxeec78vnchwyh6fsdyf60uv9tcnqnc3hmv',
-  showQR: true
+  name: `price in ${Ticker.tokenTicker}`
 };
 
-SLPA.storyName = `price in ${Ticker.tokenTicker}`;
+export const StepControlled = {
+  args: {
+    amount: 0.012,
+    to: 'ecash:qrcl220pxeec78vnchwyh6fsdyf60uv9tca7668slm',
+    stepControlled: 'fresh'
+  },
 
-export const StepControlled = Template.bind({});
-StepControlled.args = {
-  amount: 0.012,
-  to: 'ecash:qrcl220pxeec78vnchwyh6fsdyf60uv9tca7668slm',
-  stepControlled: 'fresh'
+  name: `Controlled Step`
 };
-
-StepControlled.storyName = `Controlled Step`;
 
 export default {
   title: 'CashtabBadge',

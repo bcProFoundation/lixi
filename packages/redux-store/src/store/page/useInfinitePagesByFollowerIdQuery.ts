@@ -4,7 +4,7 @@ import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLazyPagesByFollowerQuery, usePagesByFollowerQuery } from './pages.api';
 
-const followPagesAdapter = createEntityAdapter<PageQueryItem>({
+const followPagesAdapter = createEntityAdapter<PageQueryItem, string>({
   selectId: entity => entity.id
 });
 

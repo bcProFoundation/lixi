@@ -3,7 +3,7 @@ import { PageMessageSessionQuery } from '@store/message/pageMessageSession.gener
 
 type PageMessageSessionItem = PageMessageSessionQuery['pageMessageSession'];
 
-export interface PageState extends EntityState<any> {
+export interface PageState extends EntityState<any, string> {
   selectedId: string;
   pagesByAccountId: Array<any>;
   currentPageMessageSession: PageMessageSessionItem | null;

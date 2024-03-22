@@ -5,7 +5,6 @@ import { useLazyPostsByPageIdQuery, usePostsByPageIdQuery } from '@store/post/po
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 const postsAdapter = createEntityAdapter<PostQueryItem>({
-  selectId: post => post.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });
 

@@ -9,7 +9,7 @@ import _ from 'lodash';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { PageMessageSessionQuery } from './pageMessageSession.generated';
 
-const pageMessageSessionAdapter = createEntityAdapter<PageMessageSessionQuery['pageMessageSession']>({
+const pageMessageSessionAdapter = createEntityAdapter<PageMessageSessionQuery['pageMessageSession'], string>({
   selectId: pageMessageSession => pageMessageSession.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });

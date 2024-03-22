@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { TimelineQueryItem } from '@generated/index';
 import { useLazyTokenTimelineQuery, useTokenTimelineQuery } from './timeline.api';
 
-const tokenTimelineAdapter = createEntityAdapter<TimelineQueryItem>({
+const tokenTimelineAdapter = createEntityAdapter<TimelineQueryItem, string>({
   selectId: item => item.id
 });
 

@@ -4,7 +4,7 @@ import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useLazyPagesByUserIdQuery, usePagesByUserIdQuery } from '@store/page/pages.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-const pagesAdapter = createEntityAdapter<PageQueryItem>({
+const pagesAdapter = createEntityAdapter<PageQueryItem, string>({
   selectId: post => post.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });

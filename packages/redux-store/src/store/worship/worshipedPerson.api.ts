@@ -2,7 +2,7 @@ import { EntityState } from '@reduxjs/toolkit';
 import { PageInfo } from '@generated/types.generated';
 import { api, WorshipedPersonQuery } from './worshipedPerson.generated';
 
-export type WorshipedPersonApiState = EntityState<WorshipedPersonQuery['worshipedPerson']> & {
+export interface WorshipedPersonApiState extends EntityState<WorshipedPersonQuery['worshipedPerson'], string> {
   pageInfo: PageInfo;
   totalCount: number;
 }

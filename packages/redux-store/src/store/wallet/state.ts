@@ -1,7 +1,7 @@
 import { EntityState } from '@reduxjs/toolkit';
 
 import { WalletPathAddressInfo, WalletStatus } from './models';
-export type WalletState = EntityState<WalletPathAddressInfo> & {
+export interface WalletState extends EntityState<WalletPathAddressInfo, string> {
   selectedWalletPath?: Nullable<string>;
   walletStatus?: WalletStatus;
   mnemonic: string;

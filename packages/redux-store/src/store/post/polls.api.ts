@@ -5,7 +5,7 @@ import { api as timelineApi } from '@store/timeline/timeline.api';
 import { api as pollApi } from './poll.generated';
 import { api as postApi } from './posts.api';
 
-export interface PostApiState extends EntityState<Post> {
+export interface PostApiState extends EntityState<Post, string> {
   pageInfo: PageInfo;
   totalCount: number;
 }
@@ -65,7 +65,7 @@ const enhancedApi = pollApi.enhanceEndpoints({
               })
             );
           }
-        } catch {}
+        } catch { }
       }
     },
     createVote: {
@@ -167,7 +167,7 @@ const enhancedApi = pollApi.enhanceEndpoints({
               })
             );
           }
-        } catch {}
+        } catch { }
       }
     }
   }

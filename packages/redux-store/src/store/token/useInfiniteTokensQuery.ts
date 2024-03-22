@@ -4,7 +4,7 @@ import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useLazyTokensQuery, useTokensQuery } from '@store/token/tokens.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-const tokensAdapter = createEntityAdapter<TokenQueryItem>({
+const tokensAdapter = createEntityAdapter<TokenQueryItem, string>({
   selectId: token => token.id
 });
 

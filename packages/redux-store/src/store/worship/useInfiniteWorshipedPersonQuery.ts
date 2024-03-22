@@ -5,7 +5,7 @@ import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useLazyWorshipedPeopleQuery, useWorshipedPeopleQuery } from '@store/worship/worshipedPerson.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-const worshipedPeopleAdapter = createEntityAdapter<WorshipedPersonQueryItem>({
+const worshipedPeopleAdapter = createEntityAdapter<WorshipedPersonQueryItem, string>({
   selectId: person => person.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });

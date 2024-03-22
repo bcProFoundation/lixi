@@ -9,7 +9,7 @@ export interface CommentsByCommentableIdParams extends PaginationArgs {
   id: string;
 }
 
-const commentsAdapter = createEntityAdapter<CommentQueryItem>({
+const commentsAdapter = createEntityAdapter<CommentQueryItem, string>({
   selectId: comment => comment.id,
   sortComparer: (a: Comment, b: Comment) => {
     const dateA = new Date(a.createdAt);

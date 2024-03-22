@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { TimelineQueryItem } from '@generated/index';
 import { useHomeTimelineQuery } from './timeline.api';
 
-const homeTimelineAdapter = createEntityAdapter<TimelineQueryItem>({
+const homeTimelineAdapter = createEntityAdapter<TimelineQueryItem, string>({
   selectId: item => item.id
 });
 

@@ -4,7 +4,7 @@ import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useBookmarkTimelineQuery, useLazyBookmarkTimelineQuery } from './bookmark.api';
 
-const bookmarksAdapter = createEntityAdapter<TimelineQueryItem>({
+const bookmarksAdapter = createEntityAdapter<TimelineQueryItem, string>({
   selectId: item => item.id
 });
 

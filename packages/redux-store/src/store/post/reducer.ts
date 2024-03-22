@@ -14,7 +14,7 @@ import {
 } from './actions';
 import { PostState } from './state';
 
-export const postAdapter = createEntityAdapter<Post>({
+export const postAdapter = createEntityAdapter<Post, string>({
   selectId: post => post.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });

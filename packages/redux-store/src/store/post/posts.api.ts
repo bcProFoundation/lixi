@@ -5,7 +5,7 @@ import { POST_TYPE } from '@bcpros/lixi-models/constants';
 import { api as timelineApi } from '@store/timeline/timeline.api';
 import { api } from './posts.generated';
 
-export interface PostApiState extends EntityState<Post> {
+export interface PostApiState extends EntityState<Post, string> {
   pageInfo: PageInfo;
   totalCount: number;
 }
@@ -194,7 +194,7 @@ const enhancedApi = api.enhanceEndpoints({
               })
             );
           }
-        } catch {}
+        } catch { }
       }
     },
     updatePost: {
@@ -203,7 +203,7 @@ const enhancedApi = api.enhanceEndpoints({
         const { minBurnFilter } = extraArguments;
         try {
           const { data: result } = await queryFulfilled;
-        } catch {}
+        } catch { }
       }
     },
     repost: {},
@@ -245,7 +245,7 @@ const enhancedApi = api.enhanceEndpoints({
               })
             );
           }
-        } catch {}
+        } catch { }
       }
     }
   }

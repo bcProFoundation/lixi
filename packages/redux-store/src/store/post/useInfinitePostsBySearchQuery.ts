@@ -4,7 +4,7 @@ import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useLazyPostsBySearchQuery, usePostsBySearchQuery } from '@store/post/posts.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-const postsAdapter = createEntityAdapter<any>({
+const postsAdapter = createEntityAdapter<PostQueryItem, string>({
   selectId: post => post.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });

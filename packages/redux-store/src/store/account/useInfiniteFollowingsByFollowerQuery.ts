@@ -4,7 +4,7 @@ import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useAllFollowingsByFollowerQuery, useLazyAllFollowingsByFollowerQuery } from '@store/follow/follows.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-const accountsAdapter = createEntityAdapter<AccountQueryItem>({
+const accountsAdapter = createEntityAdapter<AccountQueryItem, number>({
   selectId: account => account.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });

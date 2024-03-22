@@ -8,7 +8,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { GetAccountByAddressQuery } from './accounts.generated';
 
-const accountsAdapter = createEntityAdapter<GetAccountByAddressQuery['getAccountByAddress']>({
+const accountsAdapter = createEntityAdapter<GetAccountByAddressQuery['getAccountByAddress'], number>({
   selectId: account => account.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });

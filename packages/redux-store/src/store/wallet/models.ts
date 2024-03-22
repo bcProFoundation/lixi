@@ -2,7 +2,6 @@ import { ParsedChronikTx } from '@utils/chronik';
 import { Tx, Utxo } from 'chronik-client';
 
 export interface WalletPathAddressInfo {
-  id: string;
   path: string;
   cashAddress: string;
   fundingAddress: string;

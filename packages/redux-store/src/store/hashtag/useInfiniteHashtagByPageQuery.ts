@@ -6,7 +6,7 @@ import _ from 'lodash';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { HashtagQuery } from './hashtag.generated';
 
-const hashtagAdapter = createEntityAdapter<HashtagQuery['hashtag']>({
+const hashtagAdapter = createEntityAdapter<HashtagQuery['hashtag'], string>({
   selectId: hashtag => hashtag.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });

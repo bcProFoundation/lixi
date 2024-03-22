@@ -3,7 +3,7 @@ import { EntityState } from '@reduxjs/toolkit';
 
 import { api } from './comments.generated';
 
-export interface CommentApiState extends EntityState<Comment> {
+export interface CommentApiState extends EntityState<Comment, string> {
   pageInfo: PageInfo;
   totalCount: number;
 }

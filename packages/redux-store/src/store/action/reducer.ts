@@ -19,7 +19,7 @@ export const actionReducer = (state = initialState, action: UnknownAction): Acti
     type: action.type,
     payload: action.payload ?? null,
     meta: action.meta ?? null,
-    error: action.error ?? null,
+    error: !!action.error ?? null,
     count: state.count + 1
   };
 };
