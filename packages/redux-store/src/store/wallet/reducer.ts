@@ -12,7 +12,7 @@ import {
 import { WalletPathAddressInfo } from './models';
 import { WalletState } from './state';
 
-export const walletAdapter = createEntityAdapter<WalletPathAddressInfo>({
+export const walletAdapter = createEntityAdapter<WalletPathAddressInfo, string>({
   selectId: wallet => wallet.xAddress
 });
 

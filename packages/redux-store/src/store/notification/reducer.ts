@@ -14,7 +14,8 @@ import {
 } from './actions';
 import { NotificationsState } from './state';
 
-export const notificationsAdapter = createEntityAdapter<NotificationDto>({
+export const notificationsAdapter = createEntityAdapter<NotificationDto, string>({
+  selectId: notification => notification.id,
   sortComparer: (a, b) => {
     if (a.createdAt === b.createdAt) {
       return 0;
@@ -43,7 +44,7 @@ export const notificationReducer = createReducer(initialState, builder => {
     })
     .addCase(readNotificationSuccess, (state, action) => {
       const notification = action.payload as NotificationDto;
-      const updateNotification: Update<NotificationDto> = {
+      const updateNotification: Update<NotificationDto, string> = {
         id: notification.id,
         changes: {
           readAt: notification.readAt

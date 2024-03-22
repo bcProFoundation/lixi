@@ -8,7 +8,7 @@ import { userSubcribeToAddressChannel, userSubcribeToMultiPageMessageSession } f
 import usePrevious from '@hooks/usePrevious';
 import { Account } from '@bcpros/lixi-models';
 
-export const SocketContext = createContext<Socket | null>(null);
+export const SocketContext = createContext(null);
 
 export const useSocket = () => {
   return useContext(SocketContext);

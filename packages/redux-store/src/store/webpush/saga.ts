@@ -177,7 +177,7 @@ function* subscribeSelectedAccountSuccessSaga(action: PayloadAction<{ interactiv
 function* subscribeSelectedAccountFailureSaga(action: PayloadAction<{ interactive: boolean; modifySetting: boolean }>) {
   const { interactive, modifySetting } = action.payload;
   yield put(hideLoading(subscribeSelectedAccount.type));
-  const message = action.payload ?? intl.get('webpush.unableToSubscribe');
+  const message = interactive ? intl.get('webpush.unableToSubscribe') : '';
 
   if (interactive) {
     yield put(
@@ -208,7 +208,7 @@ function* unsubscribeAllSuccessSaga(action: PayloadAction<{ interactive: boolean
 function* unsubscribeAllFailureSaga(action: PayloadAction<{ interactive: boolean; modifySetting: boolean }>) {
   const { interactive } = action.payload;
   yield put(hideLoading(unsubscribeAll.type));
-  const message = action.payload ?? intl.get('webpush.unableToUnsubscribe');
+  const message = action.payload ? intl.get('webpush.unableToUnsubscribe') : '';
   if (interactive) {
     yield put(
       showToast('error', {

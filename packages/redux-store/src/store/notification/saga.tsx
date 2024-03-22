@@ -118,7 +118,7 @@ function* readNotificationSuccessSaga(action: PayloadAction<Notification>) {
 }
 
 function* readNotificationFailureSaga(action: PayloadAction<Notification>) {
-  const message = action.payload ?? intl.get('notification.unableToRead');
+  const message = action.payload ? intl.get('notification.unableToRead') : '';
   yield put(
     showToast('error', {
       message: 'Error',
@@ -158,7 +158,7 @@ function* readAllNotificationsSuccessSaga(action: PayloadAction<{ accountId; mne
 }
 
 function* readAllNotificationsFailureSaga(action: PayloadAction<Notification>) {
-  const message = action.payload ?? intl.get('notification.unableToRead');
+  const message = action.payload ? intl.get('notification.unableToRead') : '';
   yield put(
     showToast('error', {
       message: 'Error',
@@ -171,11 +171,12 @@ function* readAllNotificationsFailureSaga(action: PayloadAction<Notification>) {
 
 function* sendXpiNotificationSaga(action: PayloadAction<string>) {
   const link = action.payload;
-  let description = (
-    <a href={link} target="_blank" rel="noopener noreferrer">
-      <p>Transaction successful. Click to view in block explorer.</p>
-    </a>
-  );
+  // let description = (
+  //   <a href={link} target="_blank" rel="noopener noreferrer">
+  //     <p>Transaction successful. Click to view in block explorer.</p>
+  //   </a>
+  // );
+  let description = 'Transaction successful. Click to view in block explorer.';
   yield put(
     showToast('success', {
       message: intl.get('toast.info'),

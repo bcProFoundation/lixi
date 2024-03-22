@@ -112,7 +112,7 @@ export const accountReducer = createReducer(initialState, builder => {
     })
     .addCase(renameAccountSuccess, (state, action) => {
       const account = action.payload;
-      const updateAccount: Update<Account> = {
+      const updateAccount: Update<Account, number> = {
         id: account.id,
         changes: {
           ...account

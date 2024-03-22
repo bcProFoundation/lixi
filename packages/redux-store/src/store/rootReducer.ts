@@ -204,11 +204,11 @@ export const appReducer = combineReducers({
   burn: burnReducer,
   pageMessage: persistReducer(pageMessagePersistConfig, messageReducer),
   [pagesApi.reducerPath]: pagesApi.reducer,
-  [postApi.reducerPath]: postApi.reducer,
-  [commentsApi.reducerPath]: commentsApi.reducer,
-  [worshipedPersonApi.reducerPath]: worshipedPersonApi.reducer,
-  [messageApi.reducerPath]: messageApi.reducer,
-  [pageMessageApi.reducerPath]: pageMessageApi.reducer,
+  // [postApi.reducerPath]: postApi.reducer,
+  // [commentsApi.reducerPath]: commentsApi.reducer,
+  // [worshipedPersonApi.reducerPath]: worshipedPersonApi.reducer,
+  // [messageApi.reducerPath]: messageApi.reducer,
+  // [pageMessageApi.reducerPath]: pageMessageApi.reducer,
   // This is use for useReduxEffect
   // Should be always at the end
   action: actionReducer
