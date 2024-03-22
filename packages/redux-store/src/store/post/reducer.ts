@@ -35,7 +35,7 @@ export const postReducer = createReducer(initialState, builder => {
     .addCase(getPostSuccess, (state, action) => {
       const post = action.payload;
       state.selectedId = post.id;
-      const updatePost: Update<Post> = {
+      const updatePost: Update<Post, string> = {
         id: post.id,
         changes: {
           ...post
@@ -58,7 +58,7 @@ export const postReducer = createReducer(initialState, builder => {
     })
     .addCase(editPostSuccess, (state, action) => {
       const post = action.payload;
-      const updatePost: Update<Post> = {
+      const updatePost: Update<Post, string> = {
         id: post.id,
         changes: {
           ...post

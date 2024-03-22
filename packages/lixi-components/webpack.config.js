@@ -50,7 +50,12 @@ const config = {
       '.gif',
       '.jpg',
       '.svg',
-    ]
+    ],
+    fallback: {
+      'fs': false,
+      'stream': require.resolve('stream-browserify'),
+      'zlib': require.resolve('browserify-zlib')
+    }
   },
   output: {
     path: path.resolve(__dirname, 'dist/'),
