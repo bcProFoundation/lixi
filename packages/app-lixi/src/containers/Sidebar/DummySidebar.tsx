@@ -28,16 +28,16 @@ export const ItemAccess = ({
   direction?: string;
   onClickItem?: () => void;
 }) => (
-  <Link onClick={onClickItem} href={href}>
-    <a>
-      <Space direction={direction === 'horizontal' ? 'horizontal' : 'vertical'} className={'item-access'}>
-        <div className={classNames('icon-item', { 'active-item-access': active })}>
-          <img src={icon} />
-        </div>
-        <span className="text-item">{text}</span>
-      </Space>
-    </a>
-  </Link>
+  (<Link onClick={onClickItem} href={href}>
+
+    <Space direction={direction === 'horizontal' ? 'horizontal' : 'vertical'} className={'item-access'}>
+      <div className={classNames('icon-item', { 'active-item-access': active })}>
+        <img src={icon} />
+      </div>
+      <span className="text-item">{text}</span>
+    </Space>
+
+  </Link>)
 );
 
 export const ItemAccessBarcode = ({
@@ -49,14 +49,14 @@ export const ItemAccessBarcode = ({
   component: JSX.Element;
   active: boolean;
 }) => (
-  <Link href="">
-    <a>
-      <Space direction="vertical" className={'item-access'}>
-        <div className={classNames('icon-item', { 'active-item-access': active })}>{React.createElement(icon)}</div>
-        <span className="text-item">{component}</span>
-      </Space>
-    </a>
-  </Link>
+  (<Link href="">
+
+    <Space direction="vertical" className={'item-access'}>
+      <div className={classNames('icon-item', { 'active-item-access': active })}>{React.createElement(icon)}</div>
+      <span className="text-item">{component}</span>
+    </Space>
+
+  </Link>)
 );
 
 export const ContainerAccess = styled.div`

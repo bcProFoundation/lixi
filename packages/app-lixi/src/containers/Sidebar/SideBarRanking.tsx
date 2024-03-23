@@ -36,21 +36,21 @@ export const ShortcutItemAccess = ({
   href?: string;
   onClickItem?: () => void;
 }) => (
-  <Link onClick={onClickItem} href={href}>
-    <a>
-      <Space className={`${isPage ? 'avatar-page' : ''} item-access`}>
-        <AvatarUser icon={icon} name={text} isMarginRight={false} />
-        <div>
-          {text}
-          <span style={{ display: 'block', paddingTop: '4px', fontSize: '12px', color: 'rgba(30, 26, 29, 0.38)' }}>
-            {burnValue}
-            {intl.get('general.dana')}
-          </span>
-        </div>
-        {icoRanking && <img className="ranking-img" src={icoRanking} />}
-      </Space>
-    </a>
-  </Link>
+  (<Link onClick={onClickItem} href={href}>
+
+    <Space className={`${isPage ? 'avatar-page' : ''} item-access`}>
+      <AvatarUser icon={icon} name={text} isMarginRight={false} />
+      <div>
+        {text}
+        <span style={{ display: 'block', paddingTop: '4px', fontSize: '12px', color: 'rgba(30, 26, 29, 0.38)' }}>
+          {burnValue}
+          {intl.get('general.dana')}
+        </span>
+      </div>
+      {icoRanking && <img className="ranking-img" src={icoRanking} />}
+    </Space>
+
+  </Link>)
 );
 
 const RankingSideBar = styled(Sider)`
