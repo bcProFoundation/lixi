@@ -12,7 +12,7 @@
 import * as Types from '../../generated/types.generated';
 
 import { PageInfoFieldsFragmentDoc, PostMeiliPageInfoFieldsFragmentDoc } from '../../graphql/fragments/page-info-fields.fragment.generated';
-import { api } from 'src/api/baseApi';
+import { api } from '@bcpros/redux-store/api/baseApi';
 export type MessageFieldsFragment = { __typename?: 'Message', id: string, body?: string | null, isPageOwner?: boolean | null, createdAt?: any | null, updatedAt?: any | null, author: { __typename?: 'Account', id: number, name: string, address: string }, pageMessageSession?: { __typename?: 'PageMessageSession', id: string } | null, imageUploadable?: { __typename?: 'ImageUploadable', id: string, uploads: Array<{ __typename?: 'Upload', id: string, sha: string, bucket?: string | null, width?: number | null, height?: number | null, cfImageId?: string | null, cfImageFilename?: string | null }> } | null };
 
 export type MessageQueryVariables = Types.Exact<{

@@ -5,7 +5,7 @@ import PostDetail from '@components/Posts/PostDetail';
 import { PostQueryItem } from '@generated/index';
 import { analyticEvent } from '@store/analytic-event';
 import { useAppDispatch } from '@store/hooks';
-import { usePostQuery } from '@store/post/posts.generated';
+import { usePostQuery } from '@store/post/posts.api';
 import { SagaStore, wrapper } from '@store/store';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
@@ -142,6 +142,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   };
 });
 
-PostDetailPage.Layout = ({ children }) => <MainLayout children={children} />;
+PostDetailPage.getLayout = ({ children }) => <MainLayout>{children}</MainLayout>;
 
 export default PostDetailPage;

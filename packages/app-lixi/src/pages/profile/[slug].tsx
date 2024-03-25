@@ -140,6 +140,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   };
 });
 
-ProfileDetailPage.Layout = ({ children }) => <MainLayout children={children} />;
+ProfileDetailPage.getLayout = ({ children }) => <MainLayout>{children}</MainLayout>;
 
 export default ProfileDetailPage;

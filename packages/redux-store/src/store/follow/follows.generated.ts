@@ -13,7 +13,7 @@ import * as Types from '../../generated/types.generated';
 
 import { AccountFieldsFragmentDoc } from '../account/accounts.generated';
 import { PageInfoFieldsFragmentDoc, PostMeiliPageInfoFieldsFragmentDoc } from '../../graphql/fragments/page-info-fields.fragment.generated';
-import { api } from 'src/api/baseApi';
+import { api } from '@bcpros/redux-store/api/baseApi';
 export type CheckIfFollowAccountQueryVariables = Types.Exact<{
   followingAccountId: Types.Scalars['Int']['input'];
 }>;

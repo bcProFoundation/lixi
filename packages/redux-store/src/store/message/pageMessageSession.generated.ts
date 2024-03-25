@@ -12,7 +12,7 @@
 import * as Types from '../../generated/types.generated';
 
 import { PageInfoFieldsFragmentDoc, PostMeiliPageInfoFieldsFragmentDoc } from '../../graphql/fragments/page-info-fields.fragment.generated';
-import { api } from 'src/api/baseApi';
+import { api } from '@bcpros/redux-store/api/baseApi';
 export type PageMessageSessionFieldsFragment = { __typename?: 'PageMessageSession', id: string, lixiClaimCode?: string | null, sessionOpenedAt?: any | null, sessionClosedAt?: any | null, status: Types.PageMessageSessionStatus, createdAt?: any | null, updatedAt?: any | null, page: { __typename?: 'Page', id: string, name: string, avatar?: string | null, pageAccount: { __typename?: 'Account', id: number, name: string, address: string } }, account: { __typename?: 'Account', id: number, name: string, address: string, avatar?: string | null }, lixi?: { __typename?: 'LixiModel', id: string, name: string, amount: string, expiryAt?: any | null, activationAt?: any | null, status: string } | null, latestMessage?: { __typename?: 'LatestMessage', id?: string | null, body?: string | null, author?: { __typename?: 'LatestMessageAuthor', id?: number | null, address?: string | null } | null } | null };
 
 export type PageMessageSessionQueryVariables = Types.Exact<{

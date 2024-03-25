@@ -86,7 +86,7 @@ export const AppContainer = styled.div`
 
 type PageDetailsLayoutProps = React.PropsWithChildren<{}>;
 
-const PageDetailLayout: React.FC = (props: PageDetailsLayoutProps) => {
+const PageDetailLayout: React.FC<PageDetailsLayoutProps> = (props: PageDetailsLayoutProps) => {
   const { children } = props;
   const [loading, setLoading] = useState(false);
   const currentLocale = useAppSelector(getCurrentLocale);

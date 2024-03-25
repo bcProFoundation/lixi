@@ -1,16 +1,15 @@
+import { PrismaClient } from '@bcpros/lixi-prisma';
 import MainLayout from '@components/Layout/MainLayout';
 import TokensFeed from '@components/Token/TokensFeed';
+import { getSelectedAccount } from '@store/account';
+import { useCheckIfFollowTokenQuery } from '@store/follow/follows.api';
+import { useAppSelector } from '@store/hooks';
 import { AppThunkDispatch, SagaStore, wrapper } from '@store/store';
-import { useTokenQuery } from '@store/token/tokens.generated';
+import { useTokenQuery } from '@store/token/tokens.api';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
 import { getSelectorsByUserAgent } from 'react-device-detect';
 import { END } from 'redux-saga';
-import { useCheckIfFollowTokenQuery } from '@store/follow/follows.api';
-import { getSelectedAccount } from '@store/account';
-import { useAppSelector } from '@store/hooks';
-import { PrismaClient } from '@bcpros/lixi-prisma';
-import { api as tokenApi } from '@store/token/tokens.api';
 
 const TokenDetailPage = props => {
   const { tokenAsString, isMobile } = props;
@@ -94,6 +93,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   };
 });
 
-TokenDetailPage.Layout = ({ children }) => <MainLayout children={children} />;
+TokenDetailPage.getLayout = ({ children }) => <MainLayout>{children}</MainLayout>;
 
 export default TokenDetailPage;

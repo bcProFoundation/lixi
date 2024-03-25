@@ -217,8 +217,7 @@ export const LixiTextLogo = styled.img`
 
 type MainLayoutProps = React.PropsWithChildren<{}>;
 
-const MainLayout: React.FC = (props: MainLayoutProps) => {
-  const { children } = props;
+const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const selectedAccount = useAppSelector(getSelectedAccount);
   const currentLocale = useAppSelector(getCurrentLocale);
   const intlInitDone = useAppSelector(getIntlInitStatus);
@@ -298,13 +297,12 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
                     <Sidebar className="sidebar-mobile" />
                     {!hideStatusBar && (
                       <Topbar
-                        className={`animate__animated animate__faster ${
-                          isMobile && selectedKey === '/'
+                        className={`animate__animated animate__faster ${isMobile && selectedKey === '/'
                             ? visible
                               ? 'animate__fadeInDown'
                               : 'animate__fadeOutUp'
                             : ''
-                        }`}
+                          }`}
                       />
                     )}
                     <div
@@ -323,13 +321,12 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
                       <DummySidebar />
                       {!hideStatusBar && (
                         <Footer
-                          classList={`animate__animated animate__faster ${
-                            isMobile && selectedKey === '/'
+                          classList={`animate__animated animate__faster ${isMobile && selectedKey === '/'
                               ? visible
                                 ? 'animate__fadeInUp'
                                 : 'animate__fadeOutDown'
                               : ''
-                          }`}
+                            }`}
                         />
                       )}
                     </div>

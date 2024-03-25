@@ -12,7 +12,7 @@
 import * as Types from '../../generated/types.generated';
 
 import { PageInfoFieldsFragmentDoc, PostMeiliPageInfoFieldsFragmentDoc } from '../../graphql/fragments/page-info-fields.fragment.generated';
-import { api } from 'src/api/baseApi';
+import { api } from '@bcpros/redux-store/api/baseApi';
 export type TempleFieldsFragment = { __typename?: 'Temple', id: string, name: string, achievement?: string | null, description?: string | null, alias?: string | null, religion?: string | null, address?: string | null, president?: string | null, website?: string | null, verified: boolean, totalWorshipAmount?: number | null, dateOfCompleted?: any | null, createdAt?: any | null, updatedAt?: any | null, account: { __typename?: 'Account', address: string, id: number, name: string }, avatar?: { __typename?: 'UploadDetail', id: string, upload: { __typename?: 'Upload', id: string, sha: string, bucket?: string | null, width?: number | null, height?: number | null } } | null, cover?: { __typename?: 'UploadDetail', id: string, upload: { __typename?: 'Upload', id: string, sha: string, bucket?: string | null, width?: number | null, height?: number | null } } | null, country?: { __typename?: 'Country', id: string, name: string } | null, state?: { __typename?: 'State', id: string, name: string } | null, city?: { __typename?: 'City', id: string, name: string } | null };
 
 export type TempleQueryVariables = Types.Exact<{

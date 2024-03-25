@@ -4,12 +4,10 @@ import TokensTrading from '@components/Token/TokensTrading';
 
 const TokensListingPage = () => {
   return (
-    <>
-      <TokensTrading />
-    </>
+    <TokensTrading />
   );
 };
 
-TokensListingPage.Layout = ({ children }) => <PageDetailLayout children={children} />;
+TokensListingPage.getLayout = ({ children }) => <PageDetailLayout>{children}</PageDetailLayout>;
 
 export default TokensListingPage;

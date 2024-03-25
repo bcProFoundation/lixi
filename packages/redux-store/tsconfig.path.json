@@ -35,6 +35,9 @@
       "@context/*": [
         "src/context/*"
       ],
+      "@bcpros/redux-store/api/*": [
+        "src/api/*"
+      ],
       "@bcpros/lixi-components/*": [
         "../../packages/lixi-components/src/*"
       ],

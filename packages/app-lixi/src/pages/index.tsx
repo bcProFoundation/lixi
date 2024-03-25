@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { getIsBootstrapped } from '@store/persistor/selectors';
 import { SagaStore, wrapper } from '@store/store';
 import axios from 'axios';
-import { withIronSessionSsr } from 'iron-session/next';
+import { IronSessionData, getIronSession } from 'iron-session';
 import { useRouter } from 'next/router';
 import { getSelectorsByUserAgent } from 'react-device-detect';
 import { END } from 'redux-saga';
@@ -17,10 +17,6 @@ type HomePageProps = {
 };
 
 const HomePage = ({ isMobile, localUser }: HomePageProps) => {
-  const router = useRouter();
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const isHydrated = useAppSelector(getIsBootstrapped);
 
   const localLogout = async () => {
     const url = '/_api/local-logout';
@@ -31,9 +27,16 @@ const HomePage = ({ isMobile, localUser }: HomePageProps) => {
 };
 
 export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) =>
-  withIronSessionSsr(async function getServerSideProps(context) {
+  async function getServerSideProps(context) {
     const { req } = context;
     const { headers } = req;
+
+    const session = await getIronSession<IronSessionData>(
+      context.req,
+      context.res,
+      sessionOptions,
+    );
+
 
     store.dispatch(END);
     await (store as SagaStore).__sagaTask.toPromise();
@@ -44,7 +47,8 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
       isMobile = getSelectorsByUserAgent(userAgent).isMobile;
     }
 
-    const localUser = req.session.localUser;
+
+    const localUser = session.localUser;
 
     return {
       props: {
@@ -52,7 +56,7 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
         localUser: localUser ?? null
       }
     };
-  }, sessionOptions)
+  }
 );
 
 export default HomePage;

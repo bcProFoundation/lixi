@@ -15,7 +15,7 @@ import { RWebShare } from 'react-web-share';
 import { Button, Popover } from 'antd';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
-import { stripHtml } from 'string-strip-html';
+import stripHtml from 'string-strip-html';
 import { useAppDispatch } from '@store/hooks';
 import { showToast } from '@store/toast/actions';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
@@ -132,7 +132,7 @@ const ShareSocialButton = (props: ShareSocialProps) => {
   const ShareSocialButton = (
     <RWebShare
       data={{
-        text: content ? `${accountName} at Lixi: "${stripHtml(content).result.substring(0, 50)}..."` : '',
+        text: content ? `${accountName} at Lixi: "${stripHtml.stripHtml(content).result.substring(0, 50)}..."` : '',
         url: shareUrl,
         title: 'Lixi'
       }}

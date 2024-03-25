@@ -12,7 +12,7 @@
 import * as Types from '../../generated/types.generated';
 
 import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
-import { api } from 'src/api/baseApi';
+import { api } from '@bcpros/redux-store/api/baseApi';
 export type AccountQueryVariables = Types.Exact<{
   id: Types.Scalars['Int']['input'];
 }>;

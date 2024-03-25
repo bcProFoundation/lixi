@@ -1,5 +1,5 @@
 import { LixiDto } from '@bcpros/lixi-models';
-import { PrismaService } from '@bcpros/lixi-prisma';
+import { PrismaClient } from '@bcpros/lixi-prisma';
 import Lixi from '@components/Lixi';
 import _ from 'lodash';
 import { GetServerSideProps } from 'next';
@@ -11,7 +11,7 @@ const LixiPage = ({ lixiAsString }) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res, params }) => {
-  const prisma = new PrismaService();
+  const prisma = new PrismaClient();
   const { id } = params;
   let lixi: LixiDto;
   let lixiAsString;

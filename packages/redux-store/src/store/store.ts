@@ -2,7 +2,6 @@ import useXPI from '@hooks/useXPI';
 import { Action, Store, configureStore } from '@reduxjs/toolkit';
 import { UnknownAction } from 'redux';
 import createSagaMiddleware, { Task } from 'redux-saga';
-import { setupListeners } from '@reduxjs/toolkit/dist/query';
 import { createRouterMiddleware, initialRouterState } from 'connected-next-router';
 import { Context, createWrapper } from 'next-redux-wrapper';
 import { Router } from 'next/router';
@@ -12,6 +11,7 @@ import { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { api as pagesApi } from './page/pages.api';
 import rootReducer, { serverReducer } from './rootReducer';
 import rootSaga from './rootSaga';
+import { setupListeners } from '@reduxjs/toolkit/query';
 
 export interface SagaStore extends Store {
   __sagaTask: Task;

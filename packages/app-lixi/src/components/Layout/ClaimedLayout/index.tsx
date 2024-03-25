@@ -78,8 +78,7 @@ export const AppContainer = styled.div`
 
 type ClaimedLayoutProps = React.PropsWithChildren<{}>;
 
-const ClaimedLayout: React.FC = (props: ClaimedLayoutProps) => {
-  const { children } = props;
+const ClaimedLayout: React.FC<ClaimedLayoutProps> = ({ children }) => {
   const claimId = children[0][''];
   const [loading, setLoading] = useState(false);
   const currentLocale = useAppSelector(getCurrentLocale);

@@ -6,7 +6,7 @@ import _ from 'lodash';
 import { NextSeo } from 'next-seo';
 import { getSelectorsByUserAgent } from 'react-device-detect';
 import { END } from 'redux-saga';
-import { useProductQuery } from '../../../../redux-store/src/store/product/products.generated';
+import { useProductQuery } from '@store/product/products.api';
 
 const ProductDetailPage = props => {
   const { productAsString, productId, isMobile } = props;
@@ -91,6 +91,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   };
 });
 
-ProductDetailPage.Layout = ({ children }) => <MainLayout children={children} />;
+ProductDetailPage.getLayout = ({ children }) => <MainLayout>{children}</MainLayout>;
 
 export default ProductDetailPage;

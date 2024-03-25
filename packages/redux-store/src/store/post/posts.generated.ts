@@ -12,7 +12,7 @@
 import * as Types from '../../generated/types.generated';
 
 import { PageInfoFieldsFragmentDoc, PostMeiliPageInfoFieldsFragmentDoc } from '../../graphql/fragments/page-info-fields.fragment.generated';
-import { api } from 'src/api/baseApi';
+import { api } from '@bcpros/redux-store/api/baseApi';
 export type PostQueryVariables = Types.Exact<{
   id: Types.Scalars['String']['input'];
 }>;

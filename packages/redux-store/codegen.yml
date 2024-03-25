@@ -25,6 +25,6 @@ generates:
               */
       - typescript-operations
       - typescript-rtk-query:
-          importBaseApiFrom: 'src/api/baseApi'
+          importBaseApiFrom: '@bcpros/redux-store/api/baseApi'
           exportHooks: false
           overrideExisting: true

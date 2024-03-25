@@ -63,6 +63,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   };
 });
 
-TempleDetailPage.Layout = ({ children }) => <MainLayout children={children} />;
+TempleDetailPage.getLayout = ({ children }) => <MainLayout>{children}</MainLayout>;
 
 export default TempleDetailPage;

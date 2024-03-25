@@ -12,7 +12,7 @@
 import * as Types from '../../generated/types.generated';
 
 import { PageInfoFieldsFragmentDoc, PostMeiliPageInfoFieldsFragmentDoc } from '../../graphql/fragments/page-info-fields.fragment.generated';
-import { api } from 'src/api/baseApi';
+import { api } from '@bcpros/redux-store/api/baseApi';
 export type HashtagFieldsFragment = { __typename?: 'Hashtag', id: string, content: string, normalizedContent: string, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, createdAt?: any | null, updatedAt?: any | null };
 
 export type HashtagQueryVariables = Types.Exact<{

@@ -20,6 +20,8 @@
     "@bcpros/lixi-components": "workspace:*",
     "@bcpros/lixi-models": "workspace:*",
     "@bcpros/lixi-prisma": "workspace:*",
+    "@bcpros/redux-store": "workspace:*",
+    "@bcpros/xpi-js": "4.0.6",
     "@fortawesome/fontawesome-free": "^6.2.1",
     "@lexical/hashtag": "^0.14.2",
     "@lexical/html": "^0.14.2",
@@ -32,6 +34,7 @@
     "animate.css": "^4.1.1",
     "antd": "^5.15.3",
     "axios": "^1.4.0",
+    "bignumber.js": "^9.0.0",
     "chronik-client": "^0.26.0",
     "classnames": "^2.5.1",
     "connected-next-router": "^5.0.0",
@@ -91,6 +94,8 @@
     "wif": "^4.0.0"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-decorators": "^7.24.1",
+    "@babel/plugin-transform-modules-commonjs": "^7.24.1",
     "@next/bundle-analyzer": "^14.1.4",
     "@svgr/webpack": "^8.1.0",
     "@types/jest": "^29.4.0",

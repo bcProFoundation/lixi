@@ -7,6 +7,6 @@ const ClaimPage = () => {
   return <ClaimComponent isClaimFromAccount={false} />;
 };
 
-ClaimPage.Layout = ({ children }) => <ClaimedLayout children={children} />;
+ClaimPage.getLayout = ({ page }) => <ClaimedLayout>{page}</ClaimedLayout>;
 
 export default ClaimPage;

@@ -12,7 +12,7 @@
 import * as Types from '../../generated/types.generated';
 
 import { PageInfoFieldsFragmentDoc, PostMeiliPageInfoFieldsFragmentDoc } from '../../graphql/fragments/page-info-fields.fragment.generated';
-import { api } from 'src/api/baseApi';
+import { api } from '@bcpros/redux-store/api/baseApi';
 export type WorshipedPersonFieldsFragment = { __typename?: 'WorshipedPerson', id: string, name: string, wikiAvatar?: string | null, countryOfCitizenship?: string | null, achievement?: string | null, bio?: string | null, alias?: string | null, religion?: string | null, placeOfBirth?: string | null, placeOfDeath?: string | null, placeOfBurial?: string | null, quote?: string | null, wikiDataId?: string | null, totalWorshipAmount?: number | null, dateOfBirth?: any | null, dateOfDeath?: any | null, createdAt?: any | null, updatedAt?: any | null, avatar?: { __typename?: 'UploadDetail', id: string, upload: { __typename?: 'Upload', id: string, sha: string, bucket?: string | null, width?: number | null, height?: number | null } } | null, country?: { __typename?: 'Country', id: string, name: string } | null, state?: { __typename?: 'State', id: string, name: string } | null, city?: { __typename?: 'City', id: string, name: string } | null };
 
 export type WorshipFieldsFragment = { __typename?: 'Worship', id: string, worshipedAmount: number, location?: string | null, latitude?: any | null, longitude?: any | null, createdAt: any, updatedAt: any, account: { __typename?: 'Account', id: number, name: string, address: string }, worshipedPerson?: { __typename?: 'WorshipedPerson', id: string, name: string, totalWorshipAmount?: number | null } | null, temple?: { __typename?: 'Temple', id: string, name: string, totalWorshipAmount?: number | null } | null };

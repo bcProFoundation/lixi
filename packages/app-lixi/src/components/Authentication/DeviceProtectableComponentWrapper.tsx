@@ -28,6 +28,6 @@ const DeviceProtectableComponentWrapper: React.FC<DeviceProtectableComponentWrap
   }
 
   // authentication = null  => authentication is not supported
-  return <>{children}</>;
+  return (<>{children}</>);
 };
 export default DeviceProtectableComponentWrapper;

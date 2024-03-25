@@ -140,7 +140,7 @@ const nextConfig = withLess({
 		// strictPostcssConfiguration: true,
 	},
 	// @link https://nextjs.org/docs/advanced-features/compiler#minification
-	swcMinify: false,
+	swcMinify: true,
 	lessVarsFilePath: './src/styles/variables.less',
 	lessVarsFilePathAppendToEndOfContent: true,
 	// optional https://github.com/webpack-contrib/css-loader#object
@@ -220,9 +220,6 @@ const nextConfig = withLess({
 			],
 		});
 
-		config.plugins.push(
-			new webpack.EnvironmentPlugin({ ...process.env, 'THEME': { ...antdVariables } }),
-		);
 
 		if (!isServer) {
 			config.resolve.fallback = { fs: false };
@@ -246,14 +243,10 @@ const nextConfig = withLess({
 let config;
 
 if (tmModules.length > 0) {
-	const withNextTranspileModules = require('next-transpile-modules')(
-		tmModules,
-		{
-			resolveSymlinks: true,
-			debug: true,
-		}
-	);
-	config = withNextTranspileModules(nextConfig);
+	config = {
+		...nextConfig,
+		transpilePackages: tmModules
+	};
 } else {
 	config = nextConfig;
 }

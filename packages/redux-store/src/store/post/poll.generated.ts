@@ -12,7 +12,7 @@
 import * as Types from '../../generated/types.generated';
 
 import { PostFieldsFragmentDoc } from './posts.generated';
-import { api } from 'src/api/baseApi';
+import { api } from '@bcpros/redux-store/api/baseApi';
 export type CreatePollMutationVariables = Types.Exact<{
   input: Types.CreatePollInput;
 }>;

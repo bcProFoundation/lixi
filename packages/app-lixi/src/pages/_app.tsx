@@ -21,10 +21,12 @@ import { wrapper } from '@store/store';
 import { ConnectedRouter } from 'connected-next-router';
 import { NextSeo } from 'next-seo';
 import NextNProgress from 'nextjs-progressbar';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import OutsideCallConsumer from 'react-outside-call';
 import axiosClient from 'src/utils/axiosClient';
 import { stripHtml } from 'string-strip-html';
+import { NextComponentType } from 'next';
+import { AppContext, AppInitialProps, AppLayoutProps } from 'next/app';
 
 const PersistGateServer = (props: any) => {
   return props.children;
@@ -42,11 +44,12 @@ const getSitename = (postAsString): string => {
   return `Posted by ${post.account.name}`;
 };
 
-const LixiApp = ({ Component, ...rest }) => {
+const LixiApp: NextComponentType<AppContext, AppInitialProps, AppLayoutProps> = ({ Component, ...rest }: AppLayoutProps) => {
   const { store, props } = wrapper.useWrappedStore(rest);
   const [enabledFeatures, setEnabledFeatures] = useState<string[]>([]);
 
-  const Layout = Component.Layout || MainLayout;
+  // const Layout = Component.Layout || MainLayout;
+  const getLayout = Component.getLayout || ((page: ReactNode) => page);
   const defaultImage = `${process.env.NEXT_PUBLIC_LIXI_URL}images/lixilotus-logo.svg`;
   const { pageProps } = props;
   const { postId, isMobile, postAsString } = pageProps;
@@ -113,12 +116,12 @@ const LixiApp = ({ Component, ...rest }) => {
                 <AuthenticationProvider>
                   <AuthorizationProvider>
                     <OutsideCallConsumer config={callConfig}>
-                      <Layout className="lixi-app-layout">
-                        <ConnectedRouter>
-                          <NextNProgress options={{ showSpinner: false }} height={5} />
-                          <Component {...props.pageProps} />
-                        </ConnectedRouter>
-                      </Layout>
+                      {/* <Layout className="lixi-app-layout"> */}
+                      <ConnectedRouter>
+                        <NextNProgress options={{ showSpinner: false }} height={5} />
+                        {getLayout(<Component {...props.pageProps} />)}
+                      </ConnectedRouter>
+                      {/* </Layout> */}
                     </OutsideCallConsumer>
                   </AuthorizationProvider>
                 </AuthenticationProvider>

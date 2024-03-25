@@ -46,6 +46,9 @@
       ],
       "@bcpros/lixi-models/*": [
         "../../packages/lixi-models/src/*"
+      ],
+      "@bcpros/redux-store/*": [
+        "../../packages/redux-store/src/*"
       ]
     }
   }

@@ -12,7 +12,7 @@
 import * as Types from '../../generated/types.generated';
 
 import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
-import { api } from 'src/api/baseApi';
+import { api } from '@bcpros/redux-store/api/baseApi';
 export type BurnFieldsFragment = { __typename?: 'BurnItem', id: string, txid: string, burnType: boolean, burnForType: Types.BurnForTypeItem, burnForId: string, burnedValue: number, createdAt?: any | null, updatedAt?: any | null, burnedBy: { __typename?: 'Account', id: number, name: string, avatar?: string | null, address: string } };
 
 export type PostBurnHistoryQueryVariables = Types.Exact<{

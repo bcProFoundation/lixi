@@ -67,6 +67,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   };
 });
 
-ClaimPage.Layout = ({ children }) => <ClaimedLayout children={children} />;
+ClaimPage.getLayout = ({ children }) => <ClaimedLayout>{children}</ClaimedLayout>;
 
 export default ClaimPage;

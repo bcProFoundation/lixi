@@ -13,7 +13,7 @@ import * as Types from '../../generated/types.generated';
 
 import { PostFieldsFragmentDoc } from '../post/posts.generated';
 import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
-import { api } from 'src/api/baseApi';
+import { api } from '@bcpros/redux-store/api/baseApi';
 export type BookmarkFieldsFragment = { __typename?: 'Bookmark', id: string, bookmarkableId: string, createdAt?: any | null, updatedAt?: any | null, account: { __typename?: 'Account', address: string, id: number, name: string } };
 
 export type BookmarkQueryVariables = Types.Exact<{

@@ -74,8 +74,7 @@ export const AppContainer = styled.div`
 export interface EmptyLayoutProps extends PropsWithChildren {
 }
 
-const EmptyLayout: React.FC = (props: EmptyLayoutProps) => {
-  const { children } = props;
+const EmptyLayout = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const currentLocale = useAppSelector(getCurrentLocale);
   const intlInitDone = useAppSelector(getIntlInitStatus);

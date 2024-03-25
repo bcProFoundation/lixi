@@ -4,7 +4,6 @@ import { WalletPathAddressInfo, WalletState } from '@store/wallet';
 import BigNumber from 'bignumber.js';
 import { Utxo } from 'chronik-client';
 import { createSharedKey, decrypt, encrypt } from './encryption';
-import localforage from 'localforage';
 
 export type TxInputObj = {
   txBuilder: any;

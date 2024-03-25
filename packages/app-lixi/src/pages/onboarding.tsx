@@ -1,6 +1,6 @@
 import OnboardingComponent from '@components/Onboarding/Onboarding';
 import { SagaStore, wrapper } from '@store/store';
-import { withIronSessionSsr } from 'iron-session/next';
+import { IronSessionData, getIronSession } from 'iron-session';
 import { getSelectorsByUserAgent } from 'react-device-detect';
 import { END } from 'redux-saga';
 import { LocalUser } from 'src/shared/models/localUser';
@@ -16,9 +16,15 @@ const OnboardingPage = ({ isMobile, localUser }: OnboardingProps) => {
 };
 
 export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) =>
-  withIronSessionSsr(async function getServerSideProps(context) {
+  async function getServerSideProps(context) {
     const { req } = context;
     const { headers } = req;
+
+    const session = await getIronSession<IronSessionData>(
+      context.req,
+      context.res,
+      sessionOptions,
+    );
 
     store.dispatch(END);
     await (store as SagaStore).__sagaTask.toPromise();
@@ -29,7 +35,7 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
       isMobile = getSelectorsByUserAgent(userAgent).isMobile;
     }
 
-    const localUser = req.session.localUser;
+    const localUser = session.localUser;
 
     return {
       props: {
@@ -37,7 +43,7 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
         localUser: localUser ?? null
       }
     };
-  }, sessionOptions)
+  }
 );
 
 export default OnboardingPage;
