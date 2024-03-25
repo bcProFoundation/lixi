@@ -1,9 +1,11 @@
 {
   "extends": "./tsconfig",
   "compilerOptions": {
-    "target": "es6",
+    "target": "ES2017",
     "outDir": "build/module",
-    "module": "esnext"
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true
   },
   "exclude": [
     "node_modules/**"
