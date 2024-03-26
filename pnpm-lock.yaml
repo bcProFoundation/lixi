@@ -933,6 +933,9 @@ importers:
       prettier:
         specifier: ^3.2.5
         version: 3.2.5
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.5
       ts-morph:
         specifier: ^22.0.0
         version: 22.0.0

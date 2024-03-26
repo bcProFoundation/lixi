@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { MeiliSearch } from 'meilisearch';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { InjectMeiliSearch } from 'nestjs-meilisearch';
+import { InjectMeiliSearch, MEILI_CLIENT } from 'nestjs-meilisearch';
 import { extractHashtagFromText } from 'src/utils/extractHashtagFromText';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -11,7 +11,7 @@ export class HashtagService {
 
   constructor(
     @I18n() private i18n: I18nService,
-    @InjectMeiliSearch() private readonly meiliSearch: MeiliSearch,
+    @Inject(MEILI_CLIENT) private readonly meiliSearch: MeiliSearch,
     private prisma: PrismaService
   ) { }
 

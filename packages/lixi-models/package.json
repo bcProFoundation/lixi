@@ -37,7 +37,7 @@
     "fix:lint": "eslint src --ext .ts --fix"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=16"
   },
   "peerDependencies": {
     "@nestjs/common": ">=10.1.3",
