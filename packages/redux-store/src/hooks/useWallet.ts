@@ -166,8 +166,7 @@ const useWallet = () => {
       // Calculate the wallet not synced yet
       const walletsPathToSync: WalletPathAddressInfo[] = (await Promise.all(derivedWalletPathsPromises)).flat();
       const walletPaths: WalletPathAddressInfo[] = [...walletsAlreadySync, ...walletsPathToSync];
-      const a = setWalletPaths(walletPaths);
-      dispatch(a);
+      dispatch(setWalletPaths(walletPaths));
     }
   };
 
