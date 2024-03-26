@@ -11,18 +11,23 @@
   "keywords": [],
   "exports": {
     ".": {
+      "types": "./build/types/index.d.ts",
       "require": "./build/main/index.js",
-      "import": "./dist/module/index.mjs"
+      "import": "./build/module/index.js",
+      "default": "./build/main/index.js"
     },
     "./*": {
+      "types": "./build/types/*.d.ts",
       "require": "./build/main/*.js",
-      "import": "./build/module/*.mjs"
+      "import": "./build/module/*.js",
+      "default": "./build/main/*.js"
     }
   },
   "scripts": {
-    "build": "run-p build:*",
+    "build": "rimraf build && run-p build:*",
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p tsconfig.module.json",
+    "build:types": "tsc -p tsconfig.types.json",
     "precommit": "yarn fix && yarn lint",
     "fix": "run-s fix:*",
     "lint": "run-s lint:*",
@@ -52,6 +57,7 @@
     "eslint-plugin-import": "^2.27.5",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.2.5",
+    "rimraf": "^5.0.5",
     "ts-morph": "^22.0.0",
     "ts-node": "^10.9.1",
     "typescript": "5.4.2"
