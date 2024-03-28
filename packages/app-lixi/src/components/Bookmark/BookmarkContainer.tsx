@@ -1,16 +1,16 @@
 import { RemoveBookmarkInput } from '@bcpros/lixi-models';
+import AvatarUser from '@components/Common/AvatarUser';
+import { getSelectedAccountId } from '@store/account';
+import { useInfiniteBookmarkTimelineQuery } from '@store/bookmark';
+import { useRemoveBookmarkMutation } from '@store/bookmark/bookmark.api';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { showToast } from '@store/toast';
+import { Button, List } from 'antd';
+import router from 'next/router';
 import React from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { useInfiniteBookmarkTimelineQuery } from '@store/bookmark';
-import { getSelectedAccountId } from '@store/account';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { Avatar, Button, List, Skeleton } from 'antd';
-import styled from 'styled-components';
-import AvatarUser from '@components/Common/AvatarUser';
-import router from 'next/router';
 import intl from 'react-intl-universal';
-import { useRemoveBookmarkMutation } from '@store/bookmark/bookmark.api';
-import { showToast } from '@store/toast';
+import styled from 'styled-components';
 
 const Container = styled.div`
   @media (max-width: 968px) {

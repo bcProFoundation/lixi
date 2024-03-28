@@ -62,3 +62,5 @@ MyDocument.getInitialProps = async (ctx: DocumentContext) => {
   };
 }
 
+export default MyDocument;
+

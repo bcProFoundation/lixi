@@ -4,7 +4,6 @@ import Trashcan from '@assets/icons/trashcan.svg';
 import {
   CashLoadingIcon,
   ThemedQuerstionCircleOutlinedFaded,
-  ThemedSettingOutlined
 } from '@bcpros/lixi-components/components/Common/CustomIcons';
 import {
   Account,
@@ -23,7 +22,6 @@ import { StyledCollapse } from '@components/Common/StyledCollapse';
 import { WalletContext } from '@context/index';
 import {
   deleteAccount,
-  generateAccount,
   importAccount,
   renameAccount,
   selectAccount,
