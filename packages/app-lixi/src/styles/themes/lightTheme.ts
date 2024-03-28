@@ -1,4 +1,6 @@
-export default {
+import type { ThemeConfig } from "antd";
+
+const lightTheme: ThemeConfig = {
   token: {
     colorPrimary: '#9e2a9c',
     colorText: '#1e1a1d',
@@ -20,3 +22,5 @@ export default {
     }
   }
 };
+
+export default lightTheme;

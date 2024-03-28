@@ -5,7 +5,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import { RcFile, UploadChangeParam } from 'antd/lib/upload';
 import styled from 'styled-components';
 import Image from 'next/image';
-import type { UploadFile } from 'antd/es/upload/interface';
+import type { UploadFile } from 'antd/lib/upload/interface';
 import { isMobile } from 'react-device-detect';
 import { useAppDispatch } from '@store/hooks';
 import { setUpload, removeUpload } from '@store/account/actions';

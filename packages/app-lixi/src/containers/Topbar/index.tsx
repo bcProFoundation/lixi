@@ -3,8 +3,10 @@ import { currency } from '@bcpros/lixi-components/components/Common/Ticker';
 import { Account } from '@bcpros/lixi-models';
 import { COIN } from '@bcpros/lixi-models/constants';
 import { FilterType } from '@bcpros/lixi-models/lib/filter';
+import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import AvatarUser from '@components/Common/AvatarUser';
 import { FilterBurnt } from '@components/Common/FilterBurn';
+import { FilterLevel } from '@components/Common/FilterLevel';
 import SearchBox from '@components/Common/SearchBox';
 import NotificationPopup from '@components/NotificationPopup';
 import { ItemAccess } from '@containers/Sidebar/SideBarShortcut';
@@ -35,8 +37,6 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
-import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
-import { FilterLevel } from '@components/Common/FilterLevel';
 
 export type TopbarProps = {
   className?: string;

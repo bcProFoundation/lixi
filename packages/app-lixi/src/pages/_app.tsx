@@ -5,7 +5,6 @@ import Head from 'next/head';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
-import MainLayout from '@components/Layout/MainLayout';
 
 import SplashScreen from '@components/Common/SplashScreen';
 import {
@@ -19,14 +18,14 @@ import {
 } from '@context/index';
 import { wrapper } from '@store/store';
 import { ConnectedRouter } from 'connected-next-router';
+import { NextComponentType } from 'next';
 import { NextSeo } from 'next-seo';
+import { AppContext, AppInitialProps, AppLayoutProps } from 'next/app';
 import NextNProgress from 'nextjs-progressbar';
 import { ReactNode, useEffect, useState } from 'react';
 import OutsideCallConsumer from 'react-outside-call';
 import axiosClient from 'src/utils/axiosClient';
 import { stripHtml } from 'string-strip-html';
-import { NextComponentType } from 'next';
-import { AppContext, AppInitialProps, AppLayoutProps } from 'next/app';
 
 const PersistGateServer = (props: any) => {
   return props.children;

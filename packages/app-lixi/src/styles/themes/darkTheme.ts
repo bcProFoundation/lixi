@@ -1,4 +1,6 @@
-export default {
+import type { ThemeConfig } from "antd";
+
+const darkTheme: ThemeConfig = {
   token: {
     colorPrimary: '#9e2a9c'
   },
@@ -10,3 +12,5 @@ export default {
     }
   }
 };
+
+export default darkTheme

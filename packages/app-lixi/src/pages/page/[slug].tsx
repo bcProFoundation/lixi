@@ -9,7 +9,7 @@ import { SagaStore, wrapper } from '@store/store';
 import { toImageUrl } from '@utils/index';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { getSelectorsByUserAgent } from 'react-device-detect';
 import { END } from 'redux-saga';
 
@@ -121,6 +121,10 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   };
 });
 
-PageDetailPage.getLayout = ({ children }) => <MainLayout children={children} />;
+PageDetailPage.getLayout = function getLayout(page: ReactElement){ 
+  return (
+    <MainLayout>{page}</MainLayout>
+  )
+}
 
 export default PageDetailPage;

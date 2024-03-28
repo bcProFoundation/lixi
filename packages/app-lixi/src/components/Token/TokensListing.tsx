@@ -22,7 +22,7 @@ import { useInfiniteTokensQuery } from '@store/token/useInfiniteTokensQuery';
 import { getSlpBalancesAndUtxos } from '@store/wallet';
 import { formatBalance } from '@utils/cashMethods';
 import { Button, Form, Image, Input, InputRef, Modal, Space, Table, Tooltip } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType } from 'antd/lib/table';
 import { ColumnType } from 'antd/lib/table';
 import { FilterConfirmProps } from 'antd/lib/table/interface';
 import { push } from 'connected-next-router';

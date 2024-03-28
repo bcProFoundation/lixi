@@ -8,9 +8,9 @@ import intl from 'react-intl-universal';
 import { getMinimumDanaFilter, getNegativeDanaStatus } from '@store/settings/selectors';
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import 'animate.css';
-import { CheckboxChangeEvent } from 'antd/es/checkbox';
 import { getAccountInfoTemp, getSelectedAccount } from '@store/account';
 import _ from 'lodash';
+import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 
 const FilterStyle = styled.div`
   display: flex;
