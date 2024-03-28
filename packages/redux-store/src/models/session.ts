@@ -1,8 +1,8 @@
-import type { IronSessionOptions } from 'iron-session';
 
+import { SessionOptions } from 'iron-session';
 import type { LocalUser } from './localUser';
 
-export const sessionOptions: IronSessionOptions = {
+export const sessionOptions: SessionOptions = {
   password: process.env.IRON_SESSION_SECRET as string,
   cookieName: 'iron-session',
   cookieOptions: {

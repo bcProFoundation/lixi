@@ -77,6 +77,7 @@ const LixiApp: NextComponentType<AppContext, AppInitialProps, AppLayoutProps> = 
         <title>Lixi</title>
         {/*This is for sharing on telegram. If didnt work remove next commit*/}
         <meta name="twitter:image:src" content={defaultImage} />
+        <meta name="viewport" content="viewport-fit=cover" />
       </Head>
       <NextSeo
         title="Lixi"

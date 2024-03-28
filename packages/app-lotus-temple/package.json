@@ -17,7 +17,7 @@
   "dependencies": {
     "@abcpros/bitcore-lib-xpi": "^8.25.37",
     "@ant-design/compatible": "^5.1.1",
-    "@ant-design/icons": "^5.0.1",
+    "@ant-design/icons": "^5.3.5",
     "@bcpros/lixi-components": "workspace:*",
     "@bcpros/lixi-models": "workspace:*",
     "@bcpros/lixi-prisma": "workspace:*",
@@ -82,7 +82,7 @@
     "babel-plugin-import": "^1.13.6",
     "babel-plugin-styled-components": "^2.0.7",
     "eslint": "^8.33.0",
-    "eslint-config-next": "13.1.6",
+    "eslint-config-next": "14.1.4",
     "jest": "^29.4.1",
     "less": "^4.1.3",
     "less-loader": "^12.2.0",
