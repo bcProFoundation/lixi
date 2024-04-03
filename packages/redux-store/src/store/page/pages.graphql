@@ -72,6 +72,10 @@ fragment PageFields on Page {
     id
     name
     address
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   name
   title

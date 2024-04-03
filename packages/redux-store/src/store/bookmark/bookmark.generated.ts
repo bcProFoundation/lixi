@@ -20,7 +20,13 @@ export type BookmarkFieldsFragment = {
   bookmarkableId: string;
   createdAt?: any | null;
   updatedAt?: any | null;
-  account: { __typename?: 'Account'; address: string; id: number; name: string };
+  account: {
+    __typename?: 'Account';
+    address: string;
+    id: number;
+    name: string;
+    accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+  };
 };
 
 export type BookmarkQueryVariables = Types.Exact<{
@@ -35,7 +41,13 @@ export type BookmarkQuery = {
     bookmarkableId: string;
     createdAt?: any | null;
     updatedAt?: any | null;
-    account: { __typename?: 'Account'; address: string; id: number; name: string };
+    account: {
+      __typename?: 'Account';
+      address: string;
+      id: number;
+      name: string;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    };
   };
 };
 
@@ -79,11 +91,15 @@ export type BookmarkTimelineQuery = {
           account: {
             __typename?: 'Account';
             address: string;
-            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
             createCommentFee?: string | null;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
           };
           page?: {
             __typename?: 'Page';
@@ -92,13 +108,33 @@ export type BookmarkTimelineQuery = {
             id: string;
             createPostFee: string;
             createCommentFee: string;
-            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+            pageAccount: {
+              __typename?: 'Account';
+              id: number;
+              name: string;
+              address: string;
+              accountAddress?: {
+                __typename?: 'AccountAddress';
+                xpiAddress?: string | null;
+                xecAddress?: string | null;
+              } | null;
+            };
           } | null;
           token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
           reposts?: Array<{
             __typename?: 'Repost';
             accountId?: number | null;
-            account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+            account?: {
+              __typename?: 'Account';
+              id: number;
+              name: string;
+              address: string;
+              accountAddress?: {
+                __typename?: 'AccountAddress';
+                xpiAddress?: string | null;
+                xecAddress?: string | null;
+              } | null;
+            } | null;
           }> | null;
           dana?: {
             __typename?: 'PostDana';
@@ -172,7 +208,13 @@ export type CreateBookmarkMutation = {
     bookmarkableId: string;
     createdAt?: any | null;
     updatedAt?: any | null;
-    account: { __typename?: 'Account'; address: string; id: number; name: string };
+    account: {
+      __typename?: 'Account';
+      address: string;
+      id: number;
+      name: string;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    };
   };
 };
 
@@ -188,7 +230,13 @@ export type RemoveBookmarkMutation = {
     bookmarkableId: string;
     createdAt?: any | null;
     updatedAt?: any | null;
-    account: { __typename?: 'Account'; address: string; id: number; name: string };
+    account: {
+      __typename?: 'Account';
+      address: string;
+      id: number;
+      name: string;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    };
   };
 };
 
@@ -199,6 +247,10 @@ export const BookmarkFieldsFragmentDoc = `
     address
     id
     name
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   bookmarkableId
   createdAt

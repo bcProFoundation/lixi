@@ -1,5 +1,6 @@
 import {
   Account,
+  AccountAddress,
   AccountBasicConnection,
   AccountDana,
   BasicPaginationArgs,
@@ -21,7 +22,7 @@ import { AccountEntity, PageAccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { aesGcmDecrypt, aesGcmEncrypt, generateRandomBase58Str, hashMnemonic } from 'src/utils/encryptionMethods';
 import VError from 'verror';
-import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
+import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { WALLET_SERVICES, XPIJS } from '../wallet/wallet.constants';
 import { WalletService } from '../wallet/wallet.service';
@@ -415,14 +416,9 @@ export class AccountResolver {
     }
   }
 
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlJwtAuthGuardByPass)
   @Mutation(() => Account)
   async updateAccount(@PageAccountEntity() account: Account, @Args('data') data: UpdateAccountInput) {
-    if (!account) {
-      const couldNotFindAccount = await this.i18n.t('page.messages.couldNotFindAccount');
-      throw new VError.WError(couldNotFindAccount);
-    }
-
     const { avatar: avatarId, cover: coverId, id } = data;
 
     /*Account Avatar*/
@@ -580,6 +576,11 @@ export class AccountResolver {
   @ResolveField('accountDana', () => AccountDana)
   async accountDana(@Parent() account: Account) {
     return this.accountLoader.batchAccountDanas.load(account.id);
+  }
+
+  @ResolveField('accountAddress', () => AccountAddress)
+  async accountAddress(@Parent() account: Account) {
+    return this.accountLoader.batchAccountAddresses.load(account.id);
   }
 
   @ResolveField('followersCount', () => Number)

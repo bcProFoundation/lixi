@@ -5,6 +5,10 @@ fragment TempleFields on Temple {
     address
     id
     name
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   avatar {
     id
@@ -58,8 +62,22 @@ query Temple($id: String!) {
   }
 }
 
-query Temples($after: String, $before: String, $first: Int = 20, $last: Int, $orderBy: TempleOrder, $skip: Int) {
-  allTemple(after: $after, before: $before, first: $first, last: $last, orderBy: $orderBy, skip: $skip) {
+query Temples(
+  $after: String
+  $before: String
+  $first: Int = 20
+  $last: Int
+  $orderBy: TempleOrder
+  $skip: Int
+) {
+  allTemple(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    orderBy: $orderBy
+    skip: $skip
+  ) {
     totalCount
     edges {
       cursor
@@ -73,8 +91,20 @@ query Temples($after: String, $before: String, $first: Int = 20, $last: Int, $or
   }
 }
 
-query TempleBySearch($after: String, $before: String, $first: Int, $last: Int, $query: String) {
-  allTempleBySearch(after: $after, before: $before, first: $first, last: $last, query: $query) {
+query TempleBySearch(
+  $after: String
+  $before: String
+  $first: Int
+  $last: Int
+  $query: String
+) {
+  allTempleBySearch(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    query: $query
+  ) {
     edges {
       cursor
       node {

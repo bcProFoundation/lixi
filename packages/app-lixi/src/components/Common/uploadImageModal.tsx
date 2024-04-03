@@ -7,7 +7,6 @@ import {
 } from '@store/account/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { UpdatePageInput, Page, Account, UpdateAccountInput } from '@generated/types.generated';
-import Image from 'next/image';
 import { StyledUploader } from './Uploader/Uploader';
 import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
 import { Button, Form, Modal } from 'antd';
@@ -17,7 +16,7 @@ import { showToast } from '@store/toast/actions';
 import intl from 'react-intl-universal';
 import { closeModal } from '@store/modal/actions';
 import { useState } from 'react';
-import { setAccount, setAccountAvatar, setAccountCover, setAccountInfoTemp } from '@store/account';
+import { setAccountAvatar, setAccountCover, setAccountInfoTemp } from '@store/account';
 import { useUpdateAccountMutation } from '@store/account/accounts.generated';
 
 export interface UploadAvatarCoverProps {

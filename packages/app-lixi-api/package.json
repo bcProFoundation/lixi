@@ -32,7 +32,8 @@
     "update:comment": "ts-node scripts/comment/index.ts",
     "update:uploadable": "ts-node scripts/upload/index.ts",
     "update:account": "ts-node scripts/account/index.ts",
-    "update:postBitMap": "ts-node scripts/post-bitMap/index.ts"
+    "update:postBitMap": "ts-node scripts/post-bitMap/index.ts",
+    "update:accountAddress": "ts-node scripts/account/accountAddress/index.ts"
   },
   "dependencies": {
     "@abcpros/bitcore-lib-xpi": "^8.25.37",

@@ -32,7 +32,13 @@ export type TempleFieldsFragment = {
   dateOfCompleted?: any | null;
   createdAt?: any | null;
   updatedAt?: any | null;
-  account: { __typename?: 'Account'; address: string; id: number; name: string };
+  account: {
+    __typename?: 'Account';
+    address: string;
+    id: number;
+    name: string;
+    accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+  };
   avatar?: {
     __typename?: 'UploadDetail';
     id: string;
@@ -84,7 +90,13 @@ export type TempleQuery = {
     dateOfCompleted?: any | null;
     createdAt?: any | null;
     updatedAt?: any | null;
-    account: { __typename?: 'Account'; address: string; id: number; name: string };
+    account: {
+      __typename?: 'Account';
+      address: string;
+      id: number;
+      name: string;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    };
     avatar?: {
       __typename?: 'UploadDetail';
       id: string;
@@ -148,7 +160,17 @@ export type TemplesQuery = {
         dateOfCompleted?: any | null;
         createdAt?: any | null;
         updatedAt?: any | null;
-        account: { __typename?: 'Account'; address: string; id: number; name: string };
+        account: {
+          __typename?: 'Account';
+          address: string;
+          id: number;
+          name: string;
+          accountAddress?: {
+            __typename?: 'AccountAddress';
+            xpiAddress?: string | null;
+            xecAddress?: string | null;
+          } | null;
+        };
         avatar?: {
           __typename?: 'UploadDetail';
           id: string;
@@ -219,7 +241,17 @@ export type TempleBySearchQuery = {
         dateOfCompleted?: any | null;
         createdAt?: any | null;
         updatedAt?: any | null;
-        account: { __typename?: 'Account'; address: string; id: number; name: string };
+        account: {
+          __typename?: 'Account';
+          address: string;
+          id: number;
+          name: string;
+          accountAddress?: {
+            __typename?: 'AccountAddress';
+            xpiAddress?: string | null;
+            xecAddress?: string | null;
+          } | null;
+        };
         avatar?: {
           __typename?: 'UploadDetail';
           id: string;
@@ -281,7 +313,13 @@ export type CreateTempleMutation = {
     dateOfCompleted?: any | null;
     createdAt?: any | null;
     updatedAt?: any | null;
-    account: { __typename?: 'Account'; address: string; id: number; name: string };
+    account: {
+      __typename?: 'Account';
+      address: string;
+      id: number;
+      name: string;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    };
     avatar?: {
       __typename?: 'UploadDetail';
       id: string;
@@ -320,6 +358,10 @@ export const TempleFieldsFragmentDoc = `
     address
     id
     name
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   avatar {
     id

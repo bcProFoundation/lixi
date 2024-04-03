@@ -18,6 +18,7 @@ export type Scalars = {
 
 export type Account = {
   __typename?: 'Account';
+  accountAddress?: Maybe<AccountAddress>;
   accountDana?: Maybe<AccountDana>;
   address: Scalars['String'];
   avatar?: Maybe<Scalars['String']>;
@@ -54,6 +55,16 @@ export type Account = {
   updatedAt: Scalars['DateTime'];
   website?: Maybe<Scalars['String']>;
   yearOfBirth?: Maybe<Scalars['Int']>;
+};
+
+export type AccountAddress = {
+  __typename?: 'AccountAddress';
+  accountId: Scalars['Int'];
+  id: Scalars['String'];
+  publicKey?: Maybe<Scalars['String']>;
+  xecAddress?: Maybe<Scalars['String']>;
+  xpiAddress?: Maybe<Scalars['String']>;
+  xpiAddressHash160?: Maybe<Scalars['String']>;
 };
 
 export type AccountBasicConnection = {

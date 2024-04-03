@@ -45,11 +45,11 @@ export type PostQuery = {
     account: {
       __typename?: 'Account';
       address: string;
-      hash160?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
       createCommentFee?: string | null;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
     };
     page?: {
       __typename?: 'Page';
@@ -58,13 +58,33 @@ export type PostQuery = {
       id: string;
       createPostFee: string;
       createCommentFee: string;
-      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+      pageAccount: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
+        } | null;
+      };
     } | null;
     token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
     reposts?: Array<{
       __typename?: 'Repost';
       accountId?: number | null;
-      account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+      account?: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
+        } | null;
+      } | null;
     }> | null;
     dana?: {
       __typename?: 'PostDana';
@@ -165,11 +185,15 @@ export type PostsByPageIdQuery = {
         account: {
           __typename?: 'Account';
           address: string;
-          hash160?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
           createCommentFee?: string | null;
+          accountAddress?: {
+            __typename?: 'AccountAddress';
+            xpiAddress?: string | null;
+            xecAddress?: string | null;
+          } | null;
         };
         page?: {
           __typename?: 'Page';
@@ -178,13 +202,33 @@ export type PostsByPageIdQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          pageAccount: {
+            __typename?: 'Account';
+            id: number;
+            name: string;
+            address: string;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
+          };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+          account?: {
+            __typename?: 'Account';
+            id: number;
+            name: string;
+            address: string;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
+          } | null;
         }> | null;
         dana?: {
           __typename?: 'PostDana';
@@ -293,11 +337,15 @@ export type PostsByUserIdQuery = {
         account: {
           __typename?: 'Account';
           address: string;
-          hash160?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
           createCommentFee?: string | null;
+          accountAddress?: {
+            __typename?: 'AccountAddress';
+            xpiAddress?: string | null;
+            xecAddress?: string | null;
+          } | null;
         };
         page?: {
           __typename?: 'Page';
@@ -306,13 +354,33 @@ export type PostsByUserIdQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          pageAccount: {
+            __typename?: 'Account';
+            id: number;
+            name: string;
+            address: string;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
+          };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+          account?: {
+            __typename?: 'Account';
+            id: number;
+            name: string;
+            address: string;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
+          } | null;
         }> | null;
         dana?: {
           __typename?: 'PostDana';
@@ -421,11 +489,15 @@ export type PostsByHashtagIdQuery = {
         account: {
           __typename?: 'Account';
           address: string;
-          hash160?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
           createCommentFee?: string | null;
+          accountAddress?: {
+            __typename?: 'AccountAddress';
+            xpiAddress?: string | null;
+            xecAddress?: string | null;
+          } | null;
         };
         page?: {
           __typename?: 'Page';
@@ -434,13 +506,33 @@ export type PostsByHashtagIdQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          pageAccount: {
+            __typename?: 'Account';
+            id: number;
+            name: string;
+            address: string;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
+          };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+          account?: {
+            __typename?: 'Account';
+            id: number;
+            name: string;
+            address: string;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
+          } | null;
         }> | null;
         dana?: {
           __typename?: 'PostDana';
@@ -549,11 +641,15 @@ export type PostsByTokenIdQuery = {
         account: {
           __typename?: 'Account';
           address: string;
-          hash160?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
           createCommentFee?: string | null;
+          accountAddress?: {
+            __typename?: 'AccountAddress';
+            xpiAddress?: string | null;
+            xecAddress?: string | null;
+          } | null;
         };
         page?: {
           __typename?: 'Page';
@@ -562,13 +658,33 @@ export type PostsByTokenIdQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          pageAccount: {
+            __typename?: 'Account';
+            id: number;
+            name: string;
+            address: string;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
+          };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+          account?: {
+            __typename?: 'Account';
+            id: number;
+            name: string;
+            address: string;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
+          } | null;
         }> | null;
         dana?: {
           __typename?: 'PostDana';
@@ -673,6 +789,11 @@ export type PostsBySearchQuery = {
           name: string;
           avatar?: string | null;
           createCommentFee?: string | null;
+          accountAddress?: {
+            __typename?: 'AccountAddress';
+            xpiAddress?: string | null;
+            xecAddress?: string | null;
+          } | null;
         };
         page?: {
           __typename?: 'Page';
@@ -681,13 +802,33 @@ export type PostsBySearchQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          pageAccount: {
+            __typename?: 'Account';
+            id: number;
+            name: string;
+            address: string;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
+          };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+          account?: {
+            __typename?: 'Account';
+            id: number;
+            name: string;
+            address: string;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
+          } | null;
         }> | null;
         dana?: {
           __typename?: 'PostDana';
@@ -794,6 +935,11 @@ export type PostsBySearchWithHashtagQuery = {
           name: string;
           avatar?: string | null;
           createCommentFee?: string | null;
+          accountAddress?: {
+            __typename?: 'AccountAddress';
+            xpiAddress?: string | null;
+            xecAddress?: string | null;
+          } | null;
         };
         page?: {
           __typename?: 'Page';
@@ -802,13 +948,33 @@ export type PostsBySearchWithHashtagQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          pageAccount: {
+            __typename?: 'Account';
+            id: number;
+            name: string;
+            address: string;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
+          };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+          account?: {
+            __typename?: 'Account';
+            id: number;
+            name: string;
+            address: string;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
+          } | null;
         }> | null;
         dana?: {
           __typename?: 'PostDana';
@@ -916,6 +1082,11 @@ export type PostsBySearchWithHashtagAtPageQuery = {
           name: string;
           avatar?: string | null;
           createCommentFee?: string | null;
+          accountAddress?: {
+            __typename?: 'AccountAddress';
+            xpiAddress?: string | null;
+            xecAddress?: string | null;
+          } | null;
         };
         page?: {
           __typename?: 'Page';
@@ -924,13 +1095,33 @@ export type PostsBySearchWithHashtagAtPageQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          pageAccount: {
+            __typename?: 'Account';
+            id: number;
+            name: string;
+            address: string;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
+          };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+          account?: {
+            __typename?: 'Account';
+            id: number;
+            name: string;
+            address: string;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
+          } | null;
         }> | null;
         dana?: {
           __typename?: 'PostDana';
@@ -1038,6 +1229,11 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
           name: string;
           avatar?: string | null;
           createCommentFee?: string | null;
+          accountAddress?: {
+            __typename?: 'AccountAddress';
+            xpiAddress?: string | null;
+            xecAddress?: string | null;
+          } | null;
         };
         page?: {
           __typename?: 'Page';
@@ -1046,13 +1242,33 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          pageAccount: {
+            __typename?: 'Account';
+            id: number;
+            name: string;
+            address: string;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
+          };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
           __typename?: 'Repost';
           accountId?: number | null;
-          account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+          account?: {
+            __typename?: 'Account';
+            id: number;
+            name: string;
+            address: string;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
+          } | null;
         }> | null;
         dana?: {
           __typename?: 'PostDana';
@@ -1166,11 +1382,11 @@ export type PostFieldsFragment = {
   account: {
     __typename?: 'Account';
     address: string;
-    hash160?: string | null;
     id: number;
     name: string;
     avatar?: string | null;
     createCommentFee?: string | null;
+    accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
   };
   page?: {
     __typename?: 'Page';
@@ -1179,13 +1395,25 @@ export type PostFieldsFragment = {
     id: string;
     createPostFee: string;
     createCommentFee: string;
-    pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+    pageAccount: {
+      __typename?: 'Account';
+      id: number;
+      name: string;
+      address: string;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    };
   } | null;
   token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
   reposts?: Array<{
     __typename?: 'Repost';
     accountId?: number | null;
-    account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+    account?: {
+      __typename?: 'Account';
+      id: number;
+      name: string;
+      address: string;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    } | null;
   }> | null;
   dana?: {
     __typename?: 'PostDana';
@@ -1264,6 +1492,7 @@ export type PostMeiliFieldsFragment = {
     name: string;
     avatar?: string | null;
     createCommentFee?: string | null;
+    accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
   };
   page?: {
     __typename?: 'Page';
@@ -1272,13 +1501,25 @@ export type PostMeiliFieldsFragment = {
     id: string;
     createPostFee: string;
     createCommentFee: string;
-    pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+    pageAccount: {
+      __typename?: 'Account';
+      id: number;
+      name: string;
+      address: string;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    };
   } | null;
   token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
   reposts?: Array<{
     __typename?: 'Repost';
     accountId?: number | null;
-    account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+    account?: {
+      __typename?: 'Account';
+      id: number;
+      name: string;
+      address: string;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    } | null;
   }> | null;
   dana?: {
     __typename?: 'PostDana';
@@ -1364,11 +1605,11 @@ export type CreatePostMutation = {
     account: {
       __typename?: 'Account';
       address: string;
-      hash160?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
       createCommentFee?: string | null;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
     };
     page?: {
       __typename?: 'Page';
@@ -1377,13 +1618,33 @@ export type CreatePostMutation = {
       id: string;
       createPostFee: string;
       createCommentFee: string;
-      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+      pageAccount: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
+        } | null;
+      };
     } | null;
     token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
     reposts?: Array<{
       __typename?: 'Repost';
       accountId?: number | null;
-      account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+      account?: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
+        } | null;
+      } | null;
     }> | null;
     dana?: {
       __typename?: 'PostDana';
@@ -1470,11 +1731,11 @@ export type UpdatePostMutation = {
     account: {
       __typename?: 'Account';
       address: string;
-      hash160?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
       createCommentFee?: string | null;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
     };
     page?: {
       __typename?: 'Page';
@@ -1483,13 +1744,33 @@ export type UpdatePostMutation = {
       id: string;
       createPostFee: string;
       createCommentFee: string;
-      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+      pageAccount: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
+        } | null;
+      };
     } | null;
     token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
     reposts?: Array<{
       __typename?: 'Repost';
       accountId?: number | null;
-      account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+      account?: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
+        } | null;
+      } | null;
     }> | null;
     dana?: {
       __typename?: 'PostDana';
@@ -1582,11 +1863,11 @@ export type RemovePostMutation = {
     account: {
       __typename?: 'Account';
       address: string;
-      hash160?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
       createCommentFee?: string | null;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
     };
     page?: {
       __typename?: 'Page';
@@ -1595,13 +1876,33 @@ export type RemovePostMutation = {
       id: string;
       createPostFee: string;
       createCommentFee: string;
-      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+      pageAccount: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
+        } | null;
+      };
     } | null;
     token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
     reposts?: Array<{
       __typename?: 'Repost';
       accountId?: number | null;
-      account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+      account?: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
+        } | null;
+      } | null;
     }> | null;
     dana?: {
       __typename?: 'PostDana';
@@ -1687,11 +1988,14 @@ export const PostFieldsFragmentDoc = `
   content
   account {
     address
-    hash160
     id
     name
     avatar
     createCommentFee
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   accountId
   page {
@@ -1704,6 +2008,10 @@ export const PostFieldsFragmentDoc = `
       id
       name
       address
+      accountAddress {
+        xpiAddress
+        xecAddress
+      }
     }
   }
   pageId
@@ -1720,6 +2028,10 @@ export const PostFieldsFragmentDoc = `
       id
       name
       address
+      accountAddress {
+        xpiAddress
+        xecAddress
+      }
     }
   }
   dana {
@@ -1775,6 +2087,10 @@ export const PostMeiliFieldsFragmentDoc = `
     name
     avatar
     createCommentFee
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   page {
     avatar
@@ -1786,6 +2102,10 @@ export const PostMeiliFieldsFragmentDoc = `
       id
       name
       address
+      accountAddress {
+        xpiAddress
+        xecAddress
+      }
     }
   }
   token {
@@ -1799,6 +2119,10 @@ export const PostMeiliFieldsFragmentDoc = `
       id
       name
       address
+      accountAddress {
+        xpiAddress
+        xecAddress
+      }
     }
   }
   dana {

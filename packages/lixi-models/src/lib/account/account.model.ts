@@ -6,6 +6,7 @@ import { COIN } from '../../constants';
 import { Message, PageMessageSession } from '../message';
 import { Page } from '../page';
 
+import { AccountAddress } from './account-address.model';
 import { AccountDana } from './account-dana.model';
 
 @ObjectType()
@@ -106,6 +107,9 @@ export class Account {
 
   @Field(() => AccountDana, { nullable: true })
   accountDana?: Nullable<AccountDana>;
+
+  @Field(() => AccountAddress, { nullable: true })
+  accountAddress?: Nullable<AccountAddress>;
 
   @Field(() => COIN, { nullable: true })
   coin?: Nullable<COIN>;

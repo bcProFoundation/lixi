@@ -3,6 +3,7 @@
 # ------------------------------------------------------
 
 type Account {
+  accountAddress: AccountAddress
   accountDana: AccountDana
   address: String!
   avatar: String
@@ -41,6 +42,15 @@ type Account {
   updatedAt: DateTime!
   website: String
   yearOfBirth: Int
+}
+
+type AccountAddress {
+  accountId: Int!
+  id: String!
+  publicKey: String
+  xecAddress: String
+  xpiAddress: String
+  xpiAddressHash160: String
 }
 
 type AccountBasicConnection {

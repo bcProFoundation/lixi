@@ -50,6 +50,10 @@ fragment WorshipFields on Worship {
     id
     name
     address
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   worshipedPerson {
     id
@@ -89,7 +93,14 @@ query WorshipedPeople(
   $orderBy: WorshipedPersonOrder
   $skip: Int
 ) {
-  allWorshipedPerson(after: $after, before: $before, first: $first, last: $last, orderBy: $orderBy, skip: $skip) {
+  allWorshipedPerson(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    orderBy: $orderBy
+    skip: $skip
+  ) {
     totalCount
     edges {
       cursor
@@ -132,8 +143,20 @@ query WorshipedPeopleByUserId(
   }
 }
 
-query WorshipedPersonBySearch($after: String, $before: String, $first: Int, $last: Int, $query: String) {
-  allWorshipedPersonBySearch(after: $after, before: $before, first: $first, last: $last, query: $query) {
+query WorshipedPersonBySearch(
+  $after: String
+  $before: String
+  $first: Int
+  $last: Int
+  $query: String
+) {
+  allWorshipedPersonBySearch(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    query: $query
+  ) {
     edges {
       cursor
       node {
@@ -237,8 +260,22 @@ query allWorshipedByTempleId(
   }
 }
 
-query allWorship($after: String, $before: String, $first: Int = 20, $last: Int, $orderBy: WorshipOrder, $skip: Int) {
-  allWorship(after: $after, before: $before, first: $first, last: $last, orderBy: $orderBy, skip: $skip) {
+query allWorship(
+  $after: String
+  $before: String
+  $first: Int = 20
+  $last: Int
+  $orderBy: WorshipOrder
+  $skip: Int
+) {
+  allWorship(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    orderBy: $orderBy
+    skip: $skip
+  ) {
     totalCount
     edges {
       cursor

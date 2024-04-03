@@ -272,6 +272,7 @@ model Account {
   mnemonicHash                   String                @map("mnemonic_hash")
   address                        String                @default("") @map("address")
   hash160                        Bytes                 @default("") @map("hash_160")
+  accountAddress                 AccountAddress?
   notifications                  Notification[]
   language                       String                @default("en")
   secondaryLanguage              String?               @map("secondary_language")
@@ -347,6 +348,16 @@ model AccountDanaHistory {
   updatedAt         DateTime                @default(now()) @map("updated_at") @db.Timestamptz
 
   @@map("account_dana_history")
+}
+
+model AccountAddress {
+  id                String  @id @default(cuid())
+  account           Account @relation(fields: [accountId], references: [id])
+  accountId         Int     @unique @map("account_id")
+  xpiAddress        String  @default("") @map("xpi_address")
+  xpiAddressHash160 Bytes   @default("") @map("xpi_address_hash_160")
+  publicKey         String  @default("") @map("public_key")
+  xecAddress        String  @default("") @map("xec_address")
 }
 
 enum BurnType {

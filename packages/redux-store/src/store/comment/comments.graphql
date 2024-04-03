@@ -46,6 +46,10 @@ fragment CommentFields on Comment {
     id
     name
     avatar
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   commentByPublicKey
   commentableId

@@ -62,7 +62,13 @@ export type WorshipFieldsFragment = {
   longitude?: any | null;
   createdAt: any;
   updatedAt: any;
-  account: { __typename?: 'Account'; id: number; name: string; address: string };
+  account: {
+    __typename?: 'Account';
+    id: number;
+    name: string;
+    address: string;
+    accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+  };
   worshipedPerson?: {
     __typename?: 'WorshipedPerson';
     id: string;
@@ -131,7 +137,13 @@ export type WorshipQuery = {
     longitude?: any | null;
     createdAt: any;
     updatedAt: any;
-    account: { __typename?: 'Account'; id: number; name: string; address: string };
+    account: {
+      __typename?: 'Account';
+      id: number;
+      name: string;
+      address: string;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    };
     worshipedPerson?: {
       __typename?: 'WorshipedPerson';
       id: string;
@@ -423,7 +435,17 @@ export type AllWorshipedByPersonIdQuery = {
         longitude?: any | null;
         createdAt: any;
         updatedAt: any;
-        account: { __typename?: 'Account'; id: number; name: string; address: string };
+        account: {
+          __typename?: 'Account';
+          id: number;
+          name: string;
+          address: string;
+          accountAddress?: {
+            __typename?: 'AccountAddress';
+            xpiAddress?: string | null;
+            xecAddress?: string | null;
+          } | null;
+        };
         worshipedPerson?: {
           __typename?: 'WorshipedPerson';
           id: string;
@@ -470,7 +492,17 @@ export type AllWorshipedByTempleIdQuery = {
         longitude?: any | null;
         createdAt: any;
         updatedAt: any;
-        account: { __typename?: 'Account'; id: number; name: string; address: string };
+        account: {
+          __typename?: 'Account';
+          id: number;
+          name: string;
+          address: string;
+          accountAddress?: {
+            __typename?: 'AccountAddress';
+            xpiAddress?: string | null;
+            xecAddress?: string | null;
+          } | null;
+        };
         worshipedPerson?: {
           __typename?: 'WorshipedPerson';
           id: string;
@@ -516,7 +548,17 @@ export type AllWorshipQuery = {
         longitude?: any | null;
         createdAt: any;
         updatedAt: any;
-        account: { __typename?: 'Account'; id: number; name: string; address: string };
+        account: {
+          __typename?: 'Account';
+          id: number;
+          name: string;
+          address: string;
+          accountAddress?: {
+            __typename?: 'AccountAddress';
+            xpiAddress?: string | null;
+            xecAddress?: string | null;
+          } | null;
+        };
         worshipedPerson?: {
           __typename?: 'WorshipedPerson';
           id: string;
@@ -595,7 +637,13 @@ export type CreateWorshipMutation = {
     longitude?: any | null;
     createdAt: any;
     updatedAt: any;
-    account: { __typename?: 'Account'; id: number; name: string; address: string };
+    account: {
+      __typename?: 'Account';
+      id: number;
+      name: string;
+      address: string;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    };
     worshipedPerson?: {
       __typename?: 'WorshipedPerson';
       id: string;
@@ -621,7 +669,13 @@ export type CreateWorshipTempleMutation = {
     longitude?: any | null;
     createdAt: any;
     updatedAt: any;
-    account: { __typename?: 'Account'; id: number; name: string; address: string };
+    account: {
+      __typename?: 'Account';
+      id: number;
+      name: string;
+      address: string;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    };
     worshipedPerson?: {
       __typename?: 'WorshipedPerson';
       id: string;
@@ -683,6 +737,10 @@ export const WorshipFieldsFragmentDoc = `
     id
     name
     address
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   worshipedPerson {
     id

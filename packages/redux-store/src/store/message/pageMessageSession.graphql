@@ -7,6 +7,10 @@ fragment PageMessageSessionFields on PageMessageSession {
       id
       name
       address
+      accountAddress {
+        xpiAddress
+        xecAddress
+      }
     }
     avatar
   }
@@ -15,6 +19,10 @@ fragment PageMessageSessionFields on PageMessageSession {
     name
     address
     avatar
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   lixi {
     id

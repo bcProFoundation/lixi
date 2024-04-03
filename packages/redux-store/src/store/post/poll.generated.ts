@@ -42,11 +42,11 @@ export type CreatePollMutation = {
     account: {
       __typename?: 'Account';
       address: string;
-      hash160?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
       createCommentFee?: string | null;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
     };
     page?: {
       __typename?: 'Page';
@@ -55,13 +55,33 @@ export type CreatePollMutation = {
       id: string;
       createPostFee: string;
       createCommentFee: string;
-      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+      pageAccount: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
+        } | null;
+      };
     } | null;
     token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
     reposts?: Array<{
       __typename?: 'Repost';
       accountId?: number | null;
-      account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+      account?: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
+        } | null;
+      } | null;
     }> | null;
     dana?: {
       __typename?: 'PostDana';

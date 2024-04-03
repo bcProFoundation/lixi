@@ -9,6 +9,7 @@ import { FollowCacheService } from './follow-cache.service';
 import { FollowResolver } from './follow.resolver';
 import TotalDanaViewScoreLoader from './total-dana-view-score.loader';
 import { DanaViewScoreService } from '../page/dana-view-score.service';
+import { AccountAddressCacheService } from './account-address-cache.service';
 
 @Module({
   imports: [forwardRef(() => AuthModule), forwardRef(() => NotificationModule)],
@@ -20,6 +21,7 @@ import { DanaViewScoreService } from '../page/dana-view-score.service';
     FollowCacheService,
     AccountCacheService,
     AccountDanaCacheService,
+    AccountAddressCacheService,
     AccountLoader,
     TotalDanaViewScoreLoader,
     DanaViewScoreService

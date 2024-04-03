@@ -7,6 +7,10 @@ fragment BookmarkFields on Bookmark {
     address
     id
     name
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   bookmarkableId
   createdAt

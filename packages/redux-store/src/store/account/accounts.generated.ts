@@ -24,7 +24,6 @@ export type AccountQuery = {
     id: number;
     name: string;
     address: string;
-    hash160?: string | null;
     mnemonicHash?: string | null;
     encryptedMnemonic?: string | null;
     encryptedSecret?: string | null;
@@ -55,6 +54,12 @@ export type AccountQuery = {
       danaReceivedDown: number;
       danaReceivedScore: number;
     } | null;
+    accountAddress?: {
+      __typename?: 'AccountAddress';
+      publicKey?: string | null;
+      xpiAddress?: string | null;
+      xecAddress?: string | null;
+    } | null;
   };
 };
 
@@ -69,7 +74,6 @@ export type GetAccountByAddressQuery = {
     id: number;
     name: string;
     address: string;
-    hash160?: string | null;
     mnemonicHash?: string | null;
     encryptedMnemonic?: string | null;
     encryptedSecret?: string | null;
@@ -99,6 +103,12 @@ export type GetAccountByAddressQuery = {
       danaReceivedUp: number;
       danaReceivedDown: number;
       danaReceivedScore: number;
+    } | null;
+    accountAddress?: {
+      __typename?: 'AccountAddress';
+      publicKey?: string | null;
+      xpiAddress?: string | null;
+      xecAddress?: string | null;
     } | null;
   };
 };
@@ -122,7 +132,6 @@ export type AllFollowersByPageQuery = {
         id: number;
         name: string;
         address: string;
-        hash160?: string | null;
         mnemonicHash?: string | null;
         encryptedMnemonic?: string | null;
         encryptedSecret?: string | null;
@@ -152,6 +161,12 @@ export type AllFollowersByPageQuery = {
           danaReceivedUp: number;
           danaReceivedDown: number;
           danaReceivedScore: number;
+        } | null;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          publicKey?: string | null;
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
         } | null;
       };
     }>;
@@ -178,7 +193,6 @@ export type AllFollowersByTokenQuery = {
         id: number;
         name: string;
         address: string;
-        hash160?: string | null;
         mnemonicHash?: string | null;
         encryptedMnemonic?: string | null;
         encryptedSecret?: string | null;
@@ -209,6 +223,12 @@ export type AllFollowersByTokenQuery = {
           danaReceivedDown: number;
           danaReceivedScore: number;
         } | null;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          publicKey?: string | null;
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
+        } | null;
       };
     }>;
     pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
@@ -233,7 +253,6 @@ export type AccountsQuery = {
         id: number;
         name: string;
         address: string;
-        hash160?: string | null;
         mnemonicHash?: string | null;
         encryptedMnemonic?: string | null;
         encryptedSecret?: string | null;
@@ -263,6 +282,12 @@ export type AccountsQuery = {
           danaReceivedUp: number;
           danaReceivedDown: number;
           danaReceivedScore: number;
+        } | null;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          publicKey?: string | null;
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
         } | null;
       };
     }>;
@@ -290,7 +315,6 @@ export type TopWeekAccountsQuery = {
         id: number;
         name: string;
         address: string;
-        hash160?: string | null;
         mnemonicHash?: string | null;
         encryptedMnemonic?: string | null;
         encryptedSecret?: string | null;
@@ -320,6 +344,12 @@ export type TopWeekAccountsQuery = {
           danaReceivedUp: number;
           danaReceivedDown: number;
           danaReceivedScore: number;
+        } | null;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          publicKey?: string | null;
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
         } | null;
       };
     }>;
@@ -347,7 +377,6 @@ export type TopMonthAccountsQuery = {
         id: number;
         name: string;
         address: string;
-        hash160?: string | null;
         mnemonicHash?: string | null;
         encryptedMnemonic?: string | null;
         encryptedSecret?: string | null;
@@ -378,6 +407,12 @@ export type TopMonthAccountsQuery = {
           danaReceivedDown: number;
           danaReceivedScore: number;
         } | null;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          publicKey?: string | null;
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
+        } | null;
       };
     }>;
     pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
@@ -389,7 +424,6 @@ export type AccountFieldsFragment = {
   id: number;
   name: string;
   address: string;
-  hash160?: string | null;
   mnemonicHash?: string | null;
   encryptedMnemonic?: string | null;
   encryptedSecret?: string | null;
@@ -420,6 +454,12 @@ export type AccountFieldsFragment = {
     danaReceivedDown: number;
     danaReceivedScore: number;
   } | null;
+  accountAddress?: {
+    __typename?: 'AccountAddress';
+    publicKey?: string | null;
+    xpiAddress?: string | null;
+    xecAddress?: string | null;
+  } | null;
 };
 
 export type CreateAccountMutationVariables = Types.Exact<{
@@ -433,7 +473,6 @@ export type CreateAccountMutation = {
     id: number;
     name: string;
     address: string;
-    hash160?: string | null;
     mnemonicHash?: string | null;
     encryptedMnemonic?: string | null;
     encryptedSecret?: string | null;
@@ -463,6 +502,12 @@ export type CreateAccountMutation = {
       danaReceivedUp: number;
       danaReceivedDown: number;
       danaReceivedScore: number;
+    } | null;
+    accountAddress?: {
+      __typename?: 'AccountAddress';
+      publicKey?: string | null;
+      xpiAddress?: string | null;
+      xecAddress?: string | null;
     } | null;
   };
 };
@@ -478,7 +523,6 @@ export type ImportAccountMutation = {
     id: number;
     name: string;
     address: string;
-    hash160?: string | null;
     mnemonicHash?: string | null;
     encryptedMnemonic?: string | null;
     encryptedSecret?: string | null;
@@ -508,6 +552,12 @@ export type ImportAccountMutation = {
       danaReceivedUp: number;
       danaReceivedDown: number;
       danaReceivedScore: number;
+    } | null;
+    accountAddress?: {
+      __typename?: 'AccountAddress';
+      publicKey?: string | null;
+      xpiAddress?: string | null;
+      xecAddress?: string | null;
     } | null;
   };
 };
@@ -523,7 +573,6 @@ export type UpdateAccountMutation = {
     id: number;
     name: string;
     address: string;
-    hash160?: string | null;
     mnemonicHash?: string | null;
     encryptedMnemonic?: string | null;
     encryptedSecret?: string | null;
@@ -554,6 +603,12 @@ export type UpdateAccountMutation = {
       danaReceivedDown: number;
       danaReceivedScore: number;
     } | null;
+    accountAddress?: {
+      __typename?: 'AccountAddress';
+      publicKey?: string | null;
+      xpiAddress?: string | null;
+      xecAddress?: string | null;
+    } | null;
   };
 };
 
@@ -562,7 +617,6 @@ export const AccountFieldsFragmentDoc = `
   id
   name
   address
-  hash160
   mnemonicHash
   encryptedMnemonic
   encryptedSecret
@@ -594,6 +648,11 @@ export const AccountFieldsFragmentDoc = `
     danaReceivedUp
     danaReceivedDown
     danaReceivedScore
+  }
+  accountAddress {
+    publicKey
+    xpiAddress
+    xecAddress
   }
 }
     `;

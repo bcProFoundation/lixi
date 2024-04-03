@@ -45,6 +45,8 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { WalletService } from '../../wallet/wallet.service';
 import { XpiWalletService } from 'src/modules/wallet/xpi-wallet.service';
 import { XecWalletService } from 'src/modules/wallet/xec-wallet.service';
+import * as cashaddr from 'ecashaddrjs';
+import { parseEcashAddress } from 'src/utils/parseAddress';
 
 @SkipThrottle()
 @Controller('accounts')
@@ -152,7 +154,8 @@ export class AccountController {
                 }
               }
             }
-          }
+          },
+          accountAddress: true
         },
         orderBy: {
           accountDana: {
@@ -181,6 +184,28 @@ export class AccountController {
       const account = await this.prisma.account.findFirst({
         where: {
           mnemonicHash: mnemonicHash
+        },
+        include: {
+          accountDana: {
+            select: {
+              danaGiven: true,
+              danaReceived: true,
+              danaBurnDown: true,
+              danaBurnUp: true,
+              danaBurnScore: true,
+              danaReceivedDown: true,
+              danaReceivedScore: true,
+              danaReceivedUp: true
+            }
+          },
+          accountAddress: {
+            select: {
+              publicKey: true,
+              xpiAddress: true,
+              xecAddress: true,
+              xpiAddressHash160: true
+            }
+          }
         }
       });
 
@@ -202,7 +227,10 @@ export class AccountController {
 
         // create account in database
         const { address, publicKey } = await walletService.deriveAddress(mnemonic, 0);
+        const cashAddress = this.XPI.Address.toCashAddress(address);
+        const eCashAddress = parseEcashAddress(cashAddress);
         const name = address.slice(12, 17);
+
         const accountToInsert = {
           name: name,
           encryptedMnemonic: encryptedMnemonic,
@@ -211,12 +239,23 @@ export class AccountController {
           id: undefined,
           address: address,
           publicKey: publicKey,
-          accountDana: {
-            create: {}
-          }
+          hash160: Buffer.from(this.XPI.Address.toHash160(address), 'hex')
         };
         const createdAccount: AccountDb = await this.prisma.account.create({
-          data: accountToInsert
+          data: {
+            ...accountToInsert,
+            accountDana: {
+              create: {}
+            },
+            accountAddress: {
+              create: {
+                xpiAddress: address,
+                xpiAddressHash160: Buffer.from(this.XPI.Address.toHash160(address), 'hex'),
+                publicKey,
+                xecAddress: eCashAddress
+              }
+            }
+          }
         });
         await this.accountCacheService.removeByKey(createdAccount.id.toString());
         const { totalBalanceInSatoshis } = await walletService.getBalances(createdAccount.address);
@@ -287,6 +326,8 @@ export class AccountController {
         }
 
         const { address, publicKey } = await walletService.deriveAddress(command.mnemonic, 0);
+        const cashAddress = this.XPI.Address.toCashAddress(address);
+        const eCashAddress = parseEcashAddress(cashAddress);
         const name = address.slice(12, 17);
 
         // Create random account secret then encrypt it using mnemonic
@@ -309,6 +350,14 @@ export class AccountController {
             ...accountToInsert,
             accountDana: {
               create: {}
+            },
+            accountAddress: {
+              create: {
+                xpiAddress: address,
+                xpiAddressHash160: Buffer.from(this.XPI.Address.toHash160(address), 'hex'),
+                publicKey,
+                xecAddress: eCashAddress
+              }
             }
           }
         });

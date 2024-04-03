@@ -477,7 +477,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
         setAddress(selectedAccount?.address);
         break;
       case COIN.XEC:
-        setAddress(parseEcashAddress(walletPath));
+        setAddress(parseEcashAddress(walletPath?.cashAddress));
         break;
       default:
         setAddress(selectedAccount?.address);
@@ -627,7 +627,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
                   {
                     {
                       [COIN.XPI]: <span>{formatAddress(selectedAccount?.address)}</span>,
-                      [COIN.XEC]: <span>{formatAddress(parseEcashAddress(walletPath))}</span>
+                      [COIN.XEC]: <span>{formatAddress(parseEcashAddress(walletPath?.cashAddress))}</span>
                     }[selectedAccount?.coin ?? COIN.XPI]
                   }
                   <span>

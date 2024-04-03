@@ -46,7 +46,18 @@ export type CommentQuery = {
       createdAt: any;
       updatedAt: any;
       parentId?: string | null;
-      commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+      commentAccount: {
+        __typename?: 'Account';
+        address: string;
+        id: number;
+        name: string;
+        avatar?: string | null;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
+        } | null;
+      };
       commentDana?: {
         __typename?: 'CommentDana';
         danaBurnUp: number;
@@ -68,7 +79,14 @@ export type CommentQuery = {
       } | null;
       commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
     } | null;
-    commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+    commentAccount: {
+      __typename?: 'Account';
+      address: string;
+      id: number;
+      name: string;
+      avatar?: string | null;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    };
     commentDana?: {
       __typename?: 'CommentDana';
       danaBurnUp: number;
@@ -134,7 +152,18 @@ export type CommentsToCommentableIdQuery = {
           createdAt: any;
           updatedAt: any;
           parentId?: string | null;
-          commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+          commentAccount: {
+            __typename?: 'Account';
+            address: string;
+            id: number;
+            name: string;
+            avatar?: string | null;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
+          };
           commentDana?: {
             __typename?: 'CommentDana';
             danaBurnUp: number;
@@ -156,7 +185,18 @@ export type CommentsToCommentableIdQuery = {
           } | null;
           commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
         } | null;
-        commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+        commentAccount: {
+          __typename?: 'Account';
+          address: string;
+          id: number;
+          name: string;
+          avatar?: string | null;
+          accountAddress?: {
+            __typename?: 'AccountAddress';
+            xpiAddress?: string | null;
+            xecAddress?: string | null;
+          } | null;
+        };
         commentDana?: {
           __typename?: 'CommentDana';
           danaBurnUp: number;
@@ -201,7 +241,14 @@ export type CommentFieldsFragment = {
   createdAt: any;
   updatedAt: any;
   parentId?: string | null;
-  commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+  commentAccount: {
+    __typename?: 'Account';
+    address: string;
+    id: number;
+    name: string;
+    avatar?: string | null;
+    accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+  };
   commentDana?: {
     __typename?: 'CommentDana';
     danaBurnUp: number;
@@ -248,7 +295,14 @@ export type ReplyCommentFieldsFragment = {
     createdAt: any;
     updatedAt: any;
     parentId?: string | null;
-    commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+    commentAccount: {
+      __typename?: 'Account';
+      address: string;
+      id: number;
+      name: string;
+      avatar?: string | null;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    };
     commentDana?: {
       __typename?: 'CommentDana';
       danaBurnUp: number;
@@ -270,7 +324,14 @@ export type ReplyCommentFieldsFragment = {
     } | null;
     commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
   } | null;
-  commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+  commentAccount: {
+    __typename?: 'Account';
+    address: string;
+    id: number;
+    name: string;
+    avatar?: string | null;
+    accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+  };
   commentDana?: {
     __typename?: 'CommentDana';
     danaBurnUp: number;
@@ -311,7 +372,14 @@ export type CreateCommentMutation = {
     createdAt: any;
     updatedAt: any;
     parentId?: string | null;
-    commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+    commentAccount: {
+      __typename?: 'Account';
+      address: string;
+      id: number;
+      name: string;
+      avatar?: string | null;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    };
     commentDana?: {
       __typename?: 'CommentDana';
       danaBurnUp: number;
@@ -365,7 +433,18 @@ export type CreateReplyCommentMutation = {
       createdAt: any;
       updatedAt: any;
       parentId?: string | null;
-      commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+      commentAccount: {
+        __typename?: 'Account';
+        address: string;
+        id: number;
+        name: string;
+        avatar?: string | null;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
+        } | null;
+      };
       commentDana?: {
         __typename?: 'CommentDana';
         danaBurnUp: number;
@@ -387,7 +466,14 @@ export type CreateReplyCommentMutation = {
       } | null;
       commentable?: { __typename?: 'Commentable'; id: string; type: Types.CommentType; commentToId: string } | null;
     } | null;
-    commentAccount: { __typename?: 'Account'; address: string; id: number; name: string; avatar?: string | null };
+    commentAccount: {
+      __typename?: 'Account';
+      address: string;
+      id: number;
+      name: string;
+      avatar?: string | null;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    };
     commentDana?: {
       __typename?: 'CommentDana';
       danaBurnUp: number;
@@ -420,6 +506,10 @@ export const CommentFieldsFragmentDoc = `
     id
     name
     avatar
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   commentByPublicKey
   commentableId

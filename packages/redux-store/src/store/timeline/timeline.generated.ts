@@ -46,11 +46,15 @@ export type TimelineQuery = {
       account: {
         __typename?: 'Account';
         address: string;
-        hash160?: string | null;
         id: number;
         name: string;
         avatar?: string | null;
         createCommentFee?: string | null;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
+        } | null;
       };
       page?: {
         __typename?: 'Page';
@@ -59,13 +63,33 @@ export type TimelineQuery = {
         id: string;
         createPostFee: string;
         createCommentFee: string;
-        pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+        pageAccount: {
+          __typename?: 'Account';
+          id: number;
+          name: string;
+          address: string;
+          accountAddress?: {
+            __typename?: 'AccountAddress';
+            xpiAddress?: string | null;
+            xecAddress?: string | null;
+          } | null;
+        };
       } | null;
       token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
       reposts?: Array<{
         __typename?: 'Repost';
         accountId?: number | null;
-        account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+        account?: {
+          __typename?: 'Account';
+          id: number;
+          name: string;
+          address: string;
+          accountAddress?: {
+            __typename?: 'AccountAddress';
+            xpiAddress?: string | null;
+            xecAddress?: string | null;
+          } | null;
+        } | null;
       }> | null;
       dana?: {
         __typename?: 'PostDana';
@@ -164,11 +188,15 @@ export type HomeTimelineQuery = {
           account: {
             __typename?: 'Account';
             address: string;
-            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
             createCommentFee?: string | null;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
           };
           page?: {
             __typename?: 'Page';
@@ -177,13 +205,33 @@ export type HomeTimelineQuery = {
             id: string;
             createPostFee: string;
             createCommentFee: string;
-            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+            pageAccount: {
+              __typename?: 'Account';
+              id: number;
+              name: string;
+              address: string;
+              accountAddress?: {
+                __typename?: 'AccountAddress';
+                xpiAddress?: string | null;
+                xecAddress?: string | null;
+              } | null;
+            };
           } | null;
           token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
           reposts?: Array<{
             __typename?: 'Repost';
             accountId?: number | null;
-            account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+            account?: {
+              __typename?: 'Account';
+              id: number;
+              name: string;
+              address: string;
+              accountAddress?: {
+                __typename?: 'AccountAddress';
+                xpiAddress?: string | null;
+                xecAddress?: string | null;
+              } | null;
+            } | null;
           }> | null;
           dana?: {
             __typename?: 'PostDana';
@@ -285,11 +333,15 @@ export type ProfileTimelineQuery = {
           account: {
             __typename?: 'Account';
             address: string;
-            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
             createCommentFee?: string | null;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
           };
           page?: {
             __typename?: 'Page';
@@ -298,13 +350,33 @@ export type ProfileTimelineQuery = {
             id: string;
             createPostFee: string;
             createCommentFee: string;
-            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+            pageAccount: {
+              __typename?: 'Account';
+              id: number;
+              name: string;
+              address: string;
+              accountAddress?: {
+                __typename?: 'AccountAddress';
+                xpiAddress?: string | null;
+                xecAddress?: string | null;
+              } | null;
+            };
           } | null;
           token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
           reposts?: Array<{
             __typename?: 'Repost';
             accountId?: number | null;
-            account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+            account?: {
+              __typename?: 'Account';
+              id: number;
+              name: string;
+              address: string;
+              accountAddress?: {
+                __typename?: 'AccountAddress';
+                xpiAddress?: string | null;
+                xecAddress?: string | null;
+              } | null;
+            } | null;
           }> | null;
           dana?: {
             __typename?: 'PostDana';
@@ -407,11 +479,15 @@ export type ProfileTimelineByTimeQuery = {
           account: {
             __typename?: 'Account';
             address: string;
-            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
             createCommentFee?: string | null;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
           };
           page?: {
             __typename?: 'Page';
@@ -420,13 +496,33 @@ export type ProfileTimelineByTimeQuery = {
             id: string;
             createPostFee: string;
             createCommentFee: string;
-            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+            pageAccount: {
+              __typename?: 'Account';
+              id: number;
+              name: string;
+              address: string;
+              accountAddress?: {
+                __typename?: 'AccountAddress';
+                xpiAddress?: string | null;
+                xecAddress?: string | null;
+              } | null;
+            };
           } | null;
           token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
           reposts?: Array<{
             __typename?: 'Repost';
             accountId?: number | null;
-            account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+            account?: {
+              __typename?: 'Account';
+              id: number;
+              name: string;
+              address: string;
+              accountAddress?: {
+                __typename?: 'AccountAddress';
+                xpiAddress?: string | null;
+                xecAddress?: string | null;
+              } | null;
+            } | null;
           }> | null;
           dana?: {
             __typename?: 'PostDana';
@@ -528,11 +624,15 @@ export type PageTimelineQuery = {
           account: {
             __typename?: 'Account';
             address: string;
-            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
             createCommentFee?: string | null;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
           };
           page?: {
             __typename?: 'Page';
@@ -541,13 +641,33 @@ export type PageTimelineQuery = {
             id: string;
             createPostFee: string;
             createCommentFee: string;
-            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+            pageAccount: {
+              __typename?: 'Account';
+              id: number;
+              name: string;
+              address: string;
+              accountAddress?: {
+                __typename?: 'AccountAddress';
+                xpiAddress?: string | null;
+                xecAddress?: string | null;
+              } | null;
+            };
           } | null;
           token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
           reposts?: Array<{
             __typename?: 'Repost';
             accountId?: number | null;
-            account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+            account?: {
+              __typename?: 'Account';
+              id: number;
+              name: string;
+              address: string;
+              accountAddress?: {
+                __typename?: 'AccountAddress';
+                xpiAddress?: string | null;
+                xecAddress?: string | null;
+              } | null;
+            } | null;
           }> | null;
           dana?: {
             __typename?: 'PostDana';
@@ -650,11 +770,15 @@ export type PageTimelineByTimeQuery = {
           account: {
             __typename?: 'Account';
             address: string;
-            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
             createCommentFee?: string | null;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
           };
           page?: {
             __typename?: 'Page';
@@ -663,13 +787,33 @@ export type PageTimelineByTimeQuery = {
             id: string;
             createPostFee: string;
             createCommentFee: string;
-            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+            pageAccount: {
+              __typename?: 'Account';
+              id: number;
+              name: string;
+              address: string;
+              accountAddress?: {
+                __typename?: 'AccountAddress';
+                xpiAddress?: string | null;
+                xecAddress?: string | null;
+              } | null;
+            };
           } | null;
           token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
           reposts?: Array<{
             __typename?: 'Repost';
             accountId?: number | null;
-            account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+            account?: {
+              __typename?: 'Account';
+              id: number;
+              name: string;
+              address: string;
+              accountAddress?: {
+                __typename?: 'AccountAddress';
+                xpiAddress?: string | null;
+                xecAddress?: string | null;
+              } | null;
+            } | null;
           }> | null;
           dana?: {
             __typename?: 'PostDana';
@@ -771,11 +915,15 @@ export type TokenTimelineQuery = {
           account: {
             __typename?: 'Account';
             address: string;
-            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
             createCommentFee?: string | null;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
           };
           page?: {
             __typename?: 'Page';
@@ -784,13 +932,33 @@ export type TokenTimelineQuery = {
             id: string;
             createPostFee: string;
             createCommentFee: string;
-            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+            pageAccount: {
+              __typename?: 'Account';
+              id: number;
+              name: string;
+              address: string;
+              accountAddress?: {
+                __typename?: 'AccountAddress';
+                xpiAddress?: string | null;
+                xecAddress?: string | null;
+              } | null;
+            };
           } | null;
           token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
           reposts?: Array<{
             __typename?: 'Repost';
             accountId?: number | null;
-            account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+            account?: {
+              __typename?: 'Account';
+              id: number;
+              name: string;
+              address: string;
+              accountAddress?: {
+                __typename?: 'AccountAddress';
+                xpiAddress?: string | null;
+                xecAddress?: string | null;
+              } | null;
+            } | null;
           }> | null;
           dana?: {
             __typename?: 'PostDana';
@@ -893,11 +1061,15 @@ export type TokenTimelineByTimeQuery = {
           account: {
             __typename?: 'Account';
             address: string;
-            hash160?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
             createCommentFee?: string | null;
+            accountAddress?: {
+              __typename?: 'AccountAddress';
+              xpiAddress?: string | null;
+              xecAddress?: string | null;
+            } | null;
           };
           page?: {
             __typename?: 'Page';
@@ -906,13 +1078,33 @@ export type TokenTimelineByTimeQuery = {
             id: string;
             createPostFee: string;
             createCommentFee: string;
-            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+            pageAccount: {
+              __typename?: 'Account';
+              id: number;
+              name: string;
+              address: string;
+              accountAddress?: {
+                __typename?: 'AccountAddress';
+                xpiAddress?: string | null;
+                xecAddress?: string | null;
+              } | null;
+            };
           } | null;
           token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
           reposts?: Array<{
             __typename?: 'Repost';
             accountId?: number | null;
-            account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+            account?: {
+              __typename?: 'Account';
+              id: number;
+              name: string;
+              address: string;
+              accountAddress?: {
+                __typename?: 'AccountAddress';
+                xpiAddress?: string | null;
+                xecAddress?: string | null;
+              } | null;
+            } | null;
           }> | null;
           dana?: {
             __typename?: 'PostDana';

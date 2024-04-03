@@ -71,12 +71,20 @@ fragment FollowAccountFields on FollowAccount {
     id
     name
     address
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   followingAccountId
   followingAccount {
     id
     name
     address
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   isFollowed
   createdAt
@@ -108,6 +116,10 @@ fragment FollowPageFields on FollowPage {
     id
     name
     address
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   pageId
   page {

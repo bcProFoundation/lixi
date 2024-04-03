@@ -295,11 +295,14 @@ fragment PostFields on Post {
   content
   account {
     address
-    hash160
     id
     name
     avatar
     createCommentFee
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   accountId
   page {
@@ -312,6 +315,10 @@ fragment PostFields on Post {
       id
       name
       address
+      accountAddress {
+        xpiAddress
+        xecAddress
+      }
     }
   }
   pageId
@@ -328,6 +335,10 @@ fragment PostFields on Post {
       id
       name
       address
+      accountAddress {
+        xpiAddress
+        xecAddress
+      }
     }
   }
   dana {
@@ -382,6 +393,10 @@ fragment PostMeiliFields on Post {
     name
     avatar
     createCommentFee
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   page {
     avatar
@@ -393,6 +408,10 @@ fragment PostMeiliFields on Post {
       id
       name
       address
+      accountAddress {
+        xpiAddress
+        xecAddress
+      }
     }
   }
   token {
@@ -406,6 +425,10 @@ fragment PostMeiliFields on Post {
       id
       name
       address
+      accountAddress {
+        xpiAddress
+        xecAddress
+      }
     }
   }
   dana {

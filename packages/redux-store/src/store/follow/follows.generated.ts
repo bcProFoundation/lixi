@@ -46,7 +46,6 @@ export type AllFollowersByFollowingQuery = {
         id: number;
         name: string;
         address: string;
-        hash160?: string | null;
         mnemonicHash?: string | null;
         encryptedMnemonic?: string | null;
         encryptedSecret?: string | null;
@@ -76,6 +75,12 @@ export type AllFollowersByFollowingQuery = {
           danaReceivedUp: number;
           danaReceivedDown: number;
           danaReceivedScore: number;
+        } | null;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          publicKey?: string | null;
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
         } | null;
       };
     }> | null;
@@ -112,7 +117,6 @@ export type AllFollowingsByFollowerQuery = {
         id: number;
         name: string;
         address: string;
-        hash160?: string | null;
         mnemonicHash?: string | null;
         encryptedMnemonic?: string | null;
         encryptedSecret?: string | null;
@@ -143,6 +147,12 @@ export type AllFollowingsByFollowerQuery = {
           danaReceivedDown: number;
           danaReceivedScore: number;
         } | null;
+        accountAddress?: {
+          __typename?: 'AccountAddress';
+          publicKey?: string | null;
+          xpiAddress?: string | null;
+          xecAddress?: string | null;
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -163,8 +173,20 @@ export type FollowAccountFieldsFragment = {
   isFollowed?: boolean | null;
   createdAt: any;
   updatedAt: any;
-  followerAccount?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
-  followingAccount?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+  followerAccount?: {
+    __typename?: 'Account';
+    id: number;
+    name: string;
+    address: string;
+    accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+  } | null;
+  followingAccount?: {
+    __typename?: 'Account';
+    id: number;
+    name: string;
+    address: string;
+    accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+  } | null;
 };
 
 export type CreateFollowAccountMutationVariables = Types.Exact<{
@@ -181,8 +203,20 @@ export type CreateFollowAccountMutation = {
     isFollowed?: boolean | null;
     createdAt: any;
     updatedAt: any;
-    followerAccount?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
-    followingAccount?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+    followerAccount?: {
+      __typename?: 'Account';
+      id: number;
+      name: string;
+      address: string;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    } | null;
+    followingAccount?: {
+      __typename?: 'Account';
+      id: number;
+      name: string;
+      address: string;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    } | null;
   };
 };
 
@@ -213,7 +247,13 @@ export type FollowPageFieldsFragment = {
   isFollowed?: boolean | null;
   createdAt: any;
   updatedAt: any;
-  account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+  account?: {
+    __typename?: 'Account';
+    id: number;
+    name: string;
+    address: string;
+    accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+  } | null;
   page?: {
     __typename?: 'Page';
     id: string;
@@ -241,7 +281,13 @@ export type CreateFollowPageMutation = {
     isFollowed?: boolean | null;
     createdAt: any;
     updatedAt: any;
-    account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+    account?: {
+      __typename?: 'Account';
+      id: number;
+      name: string;
+      address: string;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    } | null;
     page?: {
       __typename?: 'Page';
       id: string;
@@ -276,7 +322,13 @@ export type CreateFollowTokenMutation = {
     isFollowed?: boolean | null;
     createdAt: any;
     updatedAt: any;
-    account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+    account?: {
+      __typename?: 'Account';
+      id: number;
+      name: string;
+      address: string;
+      accountAddress?: { __typename?: 'AccountAddress'; xpiAddress?: string | null; xecAddress?: string | null } | null;
+    } | null;
     page?: {
       __typename?: 'Page';
       id: string;
@@ -304,12 +356,20 @@ export const FollowAccountFieldsFragmentDoc = `
     id
     name
     address
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   followingAccountId
   followingAccount {
     id
     name
     address
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   isFollowed
   createdAt
@@ -324,6 +384,10 @@ export const FollowPageFieldsFragmentDoc = `
     id
     name
     address
+    accountAddress {
+      xpiAddress
+      xecAddress
+    }
   }
   pageId
   page {

@@ -1,13 +1,15 @@
-import { AccountDana } from '@bcpros/lixi-models';
+import { AccountAddress, AccountDana } from '@bcpros/lixi-models';
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { AccountDanaCacheService } from './account-dana-cache.service';
+import { AccountAddressCacheService } from './account-address-cache.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class AccountLoader {
   constructor(
     private readonly accountDanaCacheService: AccountDanaCacheService,
+    private readonly accountAddressCacheService: AccountAddressCacheService,
     private readonly followCacheService: FollowCacheService
   ) {}
 
@@ -16,6 +18,15 @@ export default class AccountLoader {
     const accountDanas = await this.accountDanaCacheService.getAccountDanas(accountIds);
     const data = accountIds.map((accountId, index) => {
       return accountDanas[index] ?? new AccountDana({});
+    });
+    return Promise.resolve(data);
+  });
+
+  public readonly batchAccountAddresses = new DataLoader<number, AccountAddress>(async (ids: readonly number[]) => {
+    const accountIds = ids as unknown as number[];
+    const accountAddresses = await this.accountAddressCacheService.getAccountAddresses(accountIds);
+    const data = accountIds.map((accountId, index) => {
+      return accountAddresses[index] ?? new AccountAddress({});
     });
     return Promise.resolve(data);
   });

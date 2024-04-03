@@ -45,7 +45,8 @@ export class AuthService implements OnModuleInit {
     const account = await this.prisma.account.findFirst({
       where: {
         mnemonicHash: mnemonicHash
-      }
+      },
+      include: { accountAddress: { select: { publicKey: true } } }
     });
 
     if (!account) {
@@ -55,14 +56,19 @@ export class AuthService implements OnModuleInit {
 
     const walletService = this.walletServices['xpi'] as XpiWalletService;
     const { publicKey, wifKey } = await walletService.deriveAddress(mnemonic, 0);
-    if (!account.publicKey) {
+    const accountPublicKey = account.accountAddress?.publicKey;
+    if (!accountPublicKey) {
       // There're  no public key, old account
       await this.prisma.account.update({
         where: {
           id: account.id
         },
         data: {
-          publicKey: publicKey
+          accountAddress: {
+            update: {
+              publicKey
+            }
+          }
         }
       });
       await this.accountCacheService.removeByKey(account.id.toString());
