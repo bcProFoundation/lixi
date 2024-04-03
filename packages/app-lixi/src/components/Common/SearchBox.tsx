@@ -500,7 +500,7 @@ const SearchBox = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   style={{ paddingLeft: '0px' }}
-                  bordered={false}
+                  variant="outlined"
                   onChange={onChange}
                   onBlur={onBlur}
                   value={value}

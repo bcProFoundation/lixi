@@ -402,14 +402,14 @@ const CreatePostCard = (props: CreatePostCardProp) => {
           <div className="avatar">
             <AvatarUser icon={accountInfoTemp?.avatar} name={selectedAccount?.name} isMarginRight={false} />
             <Input
-              bordered={false}
+              variant="outlined"
               placeholder={
                 hashtags && hashtags.length > 0
                   ? `Write about ${hashtags
-                      .map(hashtag => {
-                        return `${hashtag}`;
-                      })
-                      .join(' ')}`
+                    .map(hashtag => {
+                      return `${hashtag}`;
+                    })
+                    .join(' ')}`
                   : `What's on your mind?`
               }
               value=""
@@ -431,9 +431,8 @@ const CreatePostCard = (props: CreatePostCardProp) => {
       </DesktopCreatePost>
       <MobileCreatePost
         hidden={!showCreatePostMobile}
-        className={`animate__animated ${
-          showCreatePostMobile ? 'animate__fadeIn' : 'animate__fadeOut'
-        } create-post-card-container`}
+        className={`animate__animated ${showCreatePostMobile ? 'animate__fadeIn' : 'animate__fadeOut'
+          } create-post-card-container`}
         onClick={handleNewPostClick}
       >
         <div className="fab-btn">

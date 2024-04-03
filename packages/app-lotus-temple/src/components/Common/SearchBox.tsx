@@ -59,7 +59,7 @@ const SearchBox = props => {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
-              bordered={false}
+              variant="outlined"
               onChange={onChange}
               onBlur={onBlur}
               value={value}

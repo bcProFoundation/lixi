@@ -94,7 +94,7 @@ const ClaimComponent = ({ isClaimFromAccount, claimCodeFromURL }: ClaimProps) =>
   const scannerSupported = false; // width < 769 && isMobile && !(isIOS && !isSafari);
 
   const currentAddress = useAppSelector(getCurrentAddress);
-  const currentClaimCode = claimCodeFromURL ?? useSelector(getCurrentClaimCode);
+  const currentClaimCode = claimCodeFromURL ?? useAppSelector(getCurrentClaimCode);
   const selectedAccount = useAppSelector(getSelectedAccount);
   const askAuthorization = useAuthorization();
   const authorization = useContext(AuthorizationContext);

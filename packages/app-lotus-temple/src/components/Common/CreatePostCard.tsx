@@ -232,7 +232,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
       <DesktopCreatePost onClick={() => setEnableEditor(!enableEditor)}>
         <div className="avatar">
           <AvatarUser name={selectedAccount?.name} isMarginRight={false} />
-          <Input bordered={false} placeholder="What's on your mind?" value="" />
+          <Input variant="outlined" placeholder="What's on your mind?" value="" />
         </div>
         <div className="btn-create">
           <PlusCircleOutlined />

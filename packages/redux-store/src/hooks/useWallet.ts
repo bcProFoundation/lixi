@@ -290,8 +290,9 @@ const useWallet = () => {
     let activeSubscriptionsMatchActiveWallet = true;
 
     const previousWebsocketSubscriptions = ws._subs;
+
     // If there are no previous subscriptions, then activeSubscriptionsMatchActiveWallet is certainly false
-    if (previousWebsocketSubscriptions.length === 0) {
+    if (!previousWebsocketSubscriptions || previousWebsocketSubscriptions.length === 0) {
       activeSubscriptionsMatchActiveWallet = false;
     } else {
       const subscribedHash160Array = previousWebsocketSubscriptions.map(function (subscription) {
@@ -313,7 +314,7 @@ const useWallet = () => {
     }
 
     // Unsubscribe to any active subscriptions
-    if (previousWebsocketSubscriptions.length > 0) {
+    if (previousWebsocketSubscriptions && previousWebsocketSubscriptions.length > 0) {
       for (let i = 0; i < previousWebsocketSubscriptions.length; i += 1) {
         const unsubHash160 = previousWebsocketSubscriptions[i].scriptPayload;
         ws.unsubscribe('p2pkh', unsubHash160);

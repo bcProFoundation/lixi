@@ -183,7 +183,7 @@ importers:
         specifier: ^6.1.0
         version: 6.1.0(react@18.2.0)
       react-intl-universal:
-        specifier: ^2.6.11
+        specifier: ^2.11.1
         version: 2.11.1(react@18.2.0)
       react-outside-call:
         specifier: ^0.2.0
@@ -1088,7 +1088,7 @@ importers:
         specifier: ^2.2.2
         version: 2.2.3(react-dom@18.2.0)(react@18.2.0)
       react-intl-universal:
-        specifier: '>=2.6.11'
+        specifier: '>=2.11.1'
         version: 2.11.1(react@18.2.0)
       react-outside-call:
         specifier: '>=0.2.0'
@@ -4430,12 +4430,14 @@ packages:
 
   /@formatjs/intl-unified-numberformat@3.3.7:
     resolution: {integrity: sha512-KnWgLRHzCAgT9eyt3OS34RHoyD7dPDYhRcuKn+/6Kv2knDF8Im43J6vlSW6Hm1w63fNq3ZIT1cFk7RuVO3Psag==}
+    deprecated: We have renamed the package to @formatjs/intl-numberformat
     dependencies:
       '@formatjs/intl-utils': 2.3.0
     dev: false
 
   /@formatjs/intl-utils@2.3.0:
     resolution: {integrity: sha512-KWk80UPIzPmUg+P0rKh6TqspRw0G6eux1PuJr+zz47ftMaZ9QDwbGzHZbtzWkl5hgayM/qrKRutllRC7D/vVXQ==}
+    deprecated: the package is rather renamed to @formatjs/ecma-abstract with some changes in functionality (primarily selectUnit is removed and we don't plan to make any further changes to this package
     dev: false
 
   /@fortawesome/fontawesome-free@6.5.1:
@@ -15730,6 +15732,7 @@ packages:
 
   /intl-messageformat-parser@3.6.4:
     resolution: {integrity: sha512-RgPGwue0mJtoX2Ax8EmMzJzttxjnva7gx0Q7mKJ4oALrTZvtmCeAw5Msz2PcjW4dtCh/h7vN/8GJCxZO1uv+OA==}
+    deprecated: We've written a new parser that's 6x faster and is backwards compatible. Please use @formatjs/icu-messageformat-parser
     dependencies:
       '@formatjs/intl-unified-numberformat': 3.3.7
     dev: false

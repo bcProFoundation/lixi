@@ -4,11 +4,8 @@ import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotific
 import { addRecentHashtagAtHome, setGraphqlRequestDone } from '@store/account/actions';
 import {
   getGraphqlRequestStatus,
-  getRecentHashtagAtHome,
-  getSelectedAccount,
-  getSelectedAccountId
+  getRecentHashtagAtHome
 } from '@store/account/selectors';
-import { getFailQueue } from '@store/burn';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { setNewPostAvailable, setSelectedPost } from '@store/post/actions';
 import { api as postApi } from '@store/post/posts.api';
@@ -16,7 +13,6 @@ import { getNewPostAvailable, getSelectedPostId } from '@store/post/selectors';
 import { useInfinitePostsBySearchQueryWithHashtag } from '@store/post/useInfinitePostsBySearchQueryWithHashtag';
 import { getFilterPostsHome, getLevelFilter } from '@store/settings/selectors';
 import { useInfiniteHomeTimelineQuery } from '@store/timeline/useInfiniteHomeTimelineQuery';
-import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { Skeleton } from 'antd';
 import { useRouter } from 'next/router';
 import React, { useEffect, useRef, useState } from 'react';

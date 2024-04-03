@@ -35,7 +35,6 @@ function* loadLocaleSaga(action: PayloadAction<string>) {
     const language: string = action.payload ?? 'en';
     const currentAppLocale = AppLocale[language];
     const initDone: boolean = yield call(initLocale, currentAppLocale);
-    const selectedAccount: Account | undefined = yield select(getSelectedAccount);
 
     moment.locale(language);
 
