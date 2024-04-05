@@ -27,7 +27,7 @@ export default class TotalDanaViewScoreLoader {
         const listTokenIds = _.compact(listFollowOfType.map(item => item.tokenId));
         const listAccountIds = _.compact(listFollowOfType.map(item => item.accountId));
 
-        if (listPageIds.length > 0) {
+        if (listPageIds && listPageIds.length > 0) {
           const postsInPages = await this.prisma.post.findMany({
             where: { pageId: { in: listPageIds } },
             select: { id: true, pageId: true }
@@ -40,7 +40,7 @@ export default class TotalDanaViewScoreLoader {
 
           const groupPostsInPage = _.groupBy(postsInPages, item => item.pageId);
 
-          listPageIds.map(pageId => {
+          listPageIds && listPageIds.map(pageId => {
             const postsInPage = groupPostsInPage[pageId];
             const postIdsInPage = postsInPage.map(item => item.id);
 
