@@ -124,7 +124,7 @@ export class TimelineService {
               burn.burn_for_type = ${postBurnType} 
               AND burn.burned_value > 0 
               AND (
-                (post.account_id IN (${accountFollowingsCondition}) ) OR
+                (post.account_id = ANY(ARRAY[${Prisma.join(accountFollowings)}]::int[])) OR
                 (post.page_id IN (${pageFollowingsCondition} ))
               )
             GROUP BY
@@ -134,6 +134,8 @@ export class TimelineService {
             LIMIT 500;
           `
       );
+      // Note that the workaround for account_id = ANY instead of IN
+      // https://github.com/prisma/prisma/issues/14978
 
       const pipeline = this.redis.pipeline();
       for (const post of posts) {

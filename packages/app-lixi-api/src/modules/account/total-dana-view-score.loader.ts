@@ -41,7 +41,6 @@ export default class TotalDanaViewScoreLoader {
 
           const groupPostsInPage = _.groupBy(postsInPages, item => item.pageId);
 
-          console.log('listPageIds', listPageIds);
           !_.isNil(listPageIds) && listPageIds.map(pageId => {
             const postsInPage = groupPostsInPage[pageId];
             const postIdsInPage = postsInPage.map(item => item.id);

@@ -62,6 +62,7 @@ const makeStore = (context: Context) => {
             // multiple instances of same action will be dispatched, caused onQueryStarted run multiple times.
             .concat(pagesApi.middleware)
             .concat(sagaMiddleware)
+            .concat(routerMiddleware)
         );
       },
       devTools:
