@@ -27,7 +27,8 @@ export default class TotalDanaViewScoreLoader {
         const listTokenIds = _.compact(listFollowOfType.map(item => item.tokenId));
         const listAccountIds = _.compact(listFollowOfType.map(item => item.accountId));
 
-        if (listPageIds && listPageIds.length > 0) {
+
+        if (!_.isNil(listPageIds) && listPageIds.length > 0) {
           const postsInPages = await this.prisma.post.findMany({
             where: { pageId: { in: listPageIds } },
             select: { id: true, pageId: true }
@@ -40,7 +41,8 @@ export default class TotalDanaViewScoreLoader {
 
           const groupPostsInPage = _.groupBy(postsInPages, item => item.pageId);
 
-          listPageIds && listPageIds.map(pageId => {
+          console.log('listPageIds', listPageIds);
+          !_.isNil(listPageIds) && listPageIds.map(pageId => {
             const postsInPage = groupPostsInPage[pageId];
             const postIdsInPage = postsInPage.map(item => item.id);
 
@@ -53,7 +55,9 @@ export default class TotalDanaViewScoreLoader {
           });
         }
 
-        if (listTokenIds.length > 0) {
+
+
+        if (!_.isNil(listTokenIds) && listTokenIds.length > 0) {
           const postsInTokens = await this.prisma.post.findMany({
             where: { tokenId: { in: listTokenIds } },
             select: { id: true, tokenId: true }
@@ -66,7 +70,7 @@ export default class TotalDanaViewScoreLoader {
 
           const groupPostsInToken = _.groupBy(postsInTokens, item => item.tokenId);
 
-          listTokenIds.map(tokenId => {
+          !_.isNil(listTokenIds) && listTokenIds.map(tokenId => {
             const postsInToken = groupPostsInToken[tokenId];
             const postIdsInToken = postsInToken.map(item => item.id);
 
@@ -79,7 +83,8 @@ export default class TotalDanaViewScoreLoader {
           });
         }
 
-        if (listAccountIds.length > 0) {
+
+        if (!_.isNil(listAccountIds) && listAccountIds.length > 0) {
           const postsInAccounts = await this.prisma.post.findMany({
             where: { accountId: { in: listAccountIds } },
             select: { id: true, accountId: true }
@@ -92,7 +97,7 @@ export default class TotalDanaViewScoreLoader {
 
           const groupPostsInAccount = _.groupBy(postsInAccounts, item => item.accountId);
 
-          listAccountIds.map(accountId => {
+          !_.isNil(listAccountIds) && listAccountIds.map(accountId => {
             const postsInAccount = groupPostsInAccount[accountId];
             const postIdsInAccount = postsInAccount.map(item => item.id);
 

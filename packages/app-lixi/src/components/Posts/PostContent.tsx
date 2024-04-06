@@ -20,7 +20,7 @@ const PostContent = ({ post, showTranslation, currentLocale }) => {
 
       return post?.translations && post?.translations.length > 0 && showTranslation
         ? post.translations[indexPostTranslate === -1 ? 0 : indexPostTranslate]?.translateContent ||
-            post.translations[Language.en].translateContent //old post dont have vi trans will translate => en
+        post.translations[Language.en].translateContent //old post dont have vi trans will translate => en
         : post.content;
     }
   }, [showTranslation, currentLocale]);
@@ -28,7 +28,9 @@ const PostContent = ({ post, showTranslation, currentLocale }) => {
   const content: any = useMemo(() => {
     return parse(postContent, {
       replace: (domNode: any) => {
-        if (domNode?.attribs && domNode?.attribs?.class === 'EditorLexical_hashtag') {
+        if (domNode.name === 'iframe') {
+          delete domNode.attribs.allowtransparency;
+        } else if (domNode?.attribs && domNode?.attribs?.class === 'EditorLexical_hashtag') {
           const hashtag: string = domNode?.children[0]?.data;
           return (
             <span
