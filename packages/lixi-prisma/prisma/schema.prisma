@@ -306,6 +306,7 @@ model Account {
   bookmarks                      Bookmark[]
   imageUploadable                ImageUploadable[]
   PollAnswerOnAccount            PollAnswerOnAccount[]
+  walletPath                     WalletPath[]
 
   @@index([mnemonicHash], type: Hash)
   @@map("account")
@@ -1190,4 +1191,27 @@ model Product {
 
   @@index([postId])
   @@map("product")
+}
+
+model WalletPath {
+  path      String
+  address   String      @unique
+  hash160   String      @unique
+  type      AddressType
+  publicKey String      @map("public_key")
+  accountId Int         @map("account_id")
+  account   Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  network   Coin
+
+  @@map("wallet_path")
+}
+
+enum AddressType {
+  P2PKH
+  P2SH
+}
+
+enum Coin {
+  XPI
+  XEC
 }

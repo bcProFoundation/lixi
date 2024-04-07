@@ -8,7 +8,8 @@ import {
   NotificationDto,
   PatchAccountCommand,
   fromSmallestDenomination,
-  COIN
+  COIN,
+  walletPath
 } from '@bcpros/lixi-models';
 import {
   Body,
@@ -45,6 +46,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { WalletService } from '../../wallet/wallet.service';
 import { XpiWalletService } from 'src/modules/wallet/xpi-wallet.service';
 import { XecWalletService } from 'src/modules/wallet/xec-wallet.service';
+import cashaddr from 'ecashaddrjs';
 
 @SkipThrottle()
 @Controller('accounts')
@@ -181,12 +183,18 @@ export class AccountController {
       const account = await this.prisma.account.findFirst({
         where: {
           mnemonicHash: mnemonicHash
+        },
+        include: {
+          walletPath: true
         }
       });
 
-      if (!account) {
-        const walletService = this.walletServices['xpi'];
+      const walletService = this.walletServices['xpi'];
+      const { address, publicKey } = await walletService.deriveAddress(mnemonic, 0);
+      const cashAddress = this.XPI.Address.toCashAddress(address);
+      const { hash, type } = cashaddr.decode(cashAddress);
 
+      if (!account) {
         // Validate mnemonic
         let isValidMnemonic = await walletService.validateMnemonic(mnemonic);
         if (!isValidMnemonic) {
@@ -201,7 +209,6 @@ export class AccountController {
         const encryptedSecret = await aesGcmEncrypt(accountSecret, mnemonic);
 
         // create account in database
-        const { address, publicKey } = await walletService.deriveAddress(mnemonic, 0);
         const name = address.slice(12, 17);
         const accountToInsert = {
           name: name,
@@ -213,6 +220,16 @@ export class AccountController {
           publicKey: publicKey,
           accountDana: {
             create: {}
+          },
+          walletPath: {
+            create: {
+              path: walletPath.XPI,
+              address: address,
+              hash160: Buffer.from(hash).toString('hex'),
+              type,
+              network: COIN.XPI,
+              publicKey
+            }
           }
         };
         const createdAccount: AccountDb = await this.prisma.account.create({
@@ -241,9 +258,29 @@ export class AccountController {
           throw Error(importAccountNotFoundMessage);
         }
 
-        const walletService = this.walletServices['xpi'];
         const { totalBalanceInSatoshis } = await walletService.getBalances(account.address);
         const accountSecret = await aesGcmDecrypt(account.encryptedSecret, mnemonic);
+
+        //check account connect to walletPath
+        if (!account.walletPath) {
+          await this.prisma.account.update({
+            where: {
+              id: account.id
+            },
+            data: {
+              walletPath: {
+                create: {
+                  path: walletPath.XPI,
+                  address: address,
+                  hash160: Buffer.from(hash).toString('hex'),
+                  type,
+                  network: COIN.XPI,
+                  publicKey
+                }
+              }
+            }
+          });
+        }
 
         const resultApi = _.omit(
           {
@@ -287,6 +324,9 @@ export class AccountController {
         }
 
         const { address, publicKey } = await walletService.deriveAddress(command.mnemonic, 0);
+        const cashAddress = this.XPI.Address.toCashAddress(address);
+        const { hash, type } = cashaddr.decode(cashAddress);
+
         const name = address.slice(12, 17);
 
         // Create random account secret then encrypt it using mnemonic
@@ -309,6 +349,16 @@ export class AccountController {
             ...accountToInsert,
             accountDana: {
               create: {}
+            },
+            walletPath: {
+              create: {
+                path: walletPath.XPI,
+                address: address,
+                hash160: Buffer.from(hash).toString('hex'),
+                type,
+                network: COIN.XPI,
+                publicKey
+              }
             }
           }
         });
