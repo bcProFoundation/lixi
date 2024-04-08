@@ -68,7 +68,7 @@ const CardHeader = styled.div`
   }
 `;
 
-const Content = styled.div<{ imageHeight: number }>`
+const Content = styled.div<{ imageheight: number }>`
   .description-post {
     font-size: 15px;
     font-weight: 400;
@@ -138,7 +138,7 @@ const Content = styled.div<{ imageHeight: number }>`
     transition: 0.5s ease;
     img {
       max-width: 100%;
-      max-height: ${props => props.imageHeight + 'vh' || '15vh'};
+      max-height: ${props => props.imageheight + 'vh' || '15vh'};
       object-fit: contain;
       border-radius: var(--border-radius-primary);
     }
@@ -172,7 +172,7 @@ const Content = styled.div<{ imageHeight: number }>`
       img {
         width: auto;
         max-width: 75vw;
-        max-height: ${props => props.imageHeight + 'vh' || '15vh'};
+        max-height: ${props => props.imageheight + 'vh' || '15vh'};
         object-fit: cover;
         border-radius: var(--border-radius-primary);
         border: 1px solid var(--lt-color-gray-100);
@@ -191,7 +191,7 @@ const Content = styled.div<{ imageHeight: number }>`
       }
     }
     .ant-image {
-      max-height: ${props => props.imageHeight + 'vh' || '15vh'};
+      max-height: ${props => props.imageheight + 'vh' || '15vh'};
     }
   }
 `;
@@ -433,7 +433,7 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
             postListType={postListType}
           />
         </CardHeader>
-        <Content imageHeight={heightImage()}>
+        <Content imageheight={heightImage()}>
           <div className="description-post">
             {post.poll ? (
               <PollContent poll={post.poll} />

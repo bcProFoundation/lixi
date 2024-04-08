@@ -26,6 +26,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import OutsideCallConsumer from 'react-outside-call';
 import axiosClient from 'src/utils/axiosClient';
 import { stripHtml } from 'string-strip-html';
+import MainLayout from '../components/Layout/MainLayout';
 
 const PersistGateServer = (props: any) => {
   return props.children;
@@ -48,7 +49,7 @@ const LixiApp: NextComponentType<AppContext, AppInitialProps, AppLayoutProps> = 
   const [enabledFeatures, setEnabledFeatures] = useState<string[]>([]);
 
   // const Layout = Component.Layout || MainLayout;
-  const getLayout = Component.getLayout || ((page: ReactNode) => page);
+  const getLayout = Component.getLayout || ((page: ReactNode) => <MainLayout>{page}</MainLayout>);
   const defaultImage = `${process.env.NEXT_PUBLIC_LIXI_URL}images/lixilotus-logo.svg`;
   const { pageProps } = props;
   const { postId, isMobile, postAsString } = pageProps;
@@ -117,10 +118,12 @@ const LixiApp: NextComponentType<AppContext, AppInitialProps, AppLayoutProps> = 
                   <AuthorizationProvider>
                     <OutsideCallConsumer config={callConfig}>
                       {/* <Layout className="lixi-app-layout"> */}
-                      <ConnectedRouter>
-                        <NextNProgress options={{ showSpinner: false }} height={5} />
-                        {getLayout(<Component {...props.pageProps} />)}
-                      </ConnectedRouter>
+                      {getLayout(
+                        <ConnectedRouter>
+                          <NextNProgress options={{ showSpinner: false }} height={5} />
+                          <Component {...props.pageProps} />
+                        </ConnectedRouter>
+                      )}
                       {/* </Layout> */}
                     </OutsideCallConsumer>
                   </AuthorizationProvider>

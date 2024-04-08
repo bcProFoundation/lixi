@@ -253,7 +253,9 @@ const SidebarRanking = () => {
   });
   const { validateMnemonic } = Wallet;
 
-  useEffect(() => dispatch(getLeaderboard()), []);
+  useEffect(() => {
+    dispatch(getLeaderboard());
+  }, []);
 
   const [form] = Form.useForm();
 
@@ -325,9 +327,8 @@ const SidebarRanking = () => {
                   <picture>
                     <img
                       className="animation-top-ranking"
-                      src={`${
-                        currentTheme === 'dark' ? '/images/ico-fire-static.png' : '/images/ico-fire-animation.gif'
-                      }`}
+                      src={`${currentTheme === 'dark' ? '/images/ico-fire-static.png' : '/images/ico-fire-animation.gif'
+                        }`}
                       alt=""
                     />
                   </picture>
@@ -339,7 +340,7 @@ const SidebarRanking = () => {
                     return (
                       <>
                         {index === 0 && (
-                          <h4 className="distance" key={`${item.id}`}>
+                          <h4 className="distance" key={`top-page-${item.id}`}>
                             <ShortcutItemAccess
                               burnValue={item?.dana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
@@ -351,7 +352,7 @@ const SidebarRanking = () => {
                           </h4>
                         )}
                         {index === 1 && (
-                          <h4 className="distance" key={`${item.id}`}>
+                          <h4 className="distance" key={`top-page-${item.id}`}>
                             <ShortcutItemAccess
                               burnValue={item?.dana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
@@ -401,11 +402,10 @@ const SidebarRanking = () => {
                   <picture>
                     <img
                       className="animation-top-ranking"
-                      src={`${
-                        currentTheme === 'dark'
-                          ? '/images/ico-fire-heart-static.png'
-                          : '/images/ico-fire-heart-animation.gif'
-                      }`}
+                      src={`${currentTheme === 'dark'
+                        ? '/images/ico-fire-heart-static.png'
+                        : '/images/ico-fire-heart-animation.gif'
+                        }`}
                       alt=""
                     />
                   </picture>
@@ -417,7 +417,7 @@ const SidebarRanking = () => {
                     return (
                       <>
                         {index === 0 && (
-                          <h4 className="distance" key={`${item.id}-${item.address}`}>
+                          <h4 className="distance" key={`leader-board-${item.id}-${item.address}`}>
                             <ShortcutItemAccess
                               burnValue={item.accountDana.danaGiven}
                               icon={getTopAccountAvatar(item)}
@@ -428,7 +428,7 @@ const SidebarRanking = () => {
                           </h4>
                         )}
                         {index === 1 && (
-                          <h4 className="distance" key={`${item.id}-${item.address}`}>
+                          <h4 className="distance" key={`leader-board-${item.id}-${item.address}`}>
                             <ShortcutItemAccess
                               burnValue={item.accountDana.danaGiven}
                               icon={getTopAccountAvatar(item)}
@@ -485,7 +485,7 @@ const SidebarRanking = () => {
             otherAccounts.map((acc, index) => {
               if (!isSeemore && index <= 2) {
                 return (
-                  <div className="sub-account" key={index}>
+                  <div className="sub-account" key={`sub-account-${index}-${acc.address}`}>
                     <div className="sub-account-info">
                       <p className="name">{acc?.name}</p>
                       <p className="address">{acc?.address.slice(-10)}</p>
@@ -504,7 +504,7 @@ const SidebarRanking = () => {
                 );
               } else if (isSeemore) {
                 return (
-                  <div className="sub-account" key={index}>
+                  <div className="sub-account" key={`sub-account-${index}-${acc.address}`}>
                     <div className="sub-account-info">
                       <p className="name">{acc?.name}</p>
                       <p className="address">{acc?.address.slice(-10)}</p>
