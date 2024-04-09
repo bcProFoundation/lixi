@@ -185,7 +185,7 @@ export class AccountController {
           mnemonicHash: mnemonicHash
         },
         include: {
-          walletPath: true
+          walletPaths: true
         }
       });
 
@@ -221,7 +221,7 @@ export class AccountController {
           accountDana: {
             create: {}
           },
-          walletPath: {
+          walletPaths: {
             create: {
               path: walletPath.XPI,
               address: address,
@@ -261,14 +261,14 @@ export class AccountController {
         const { totalBalanceInSatoshis } = await walletService.getBalances(account.address);
         const accountSecret = await aesGcmDecrypt(account.encryptedSecret, mnemonic);
 
-        //check account connect to walletPath
-        if (!account.walletPath) {
+        //check account connect to walletPaths
+        if (!account.walletPaths) {
           await this.prisma.account.update({
             where: {
               id: account.id
             },
             data: {
-              walletPath: {
+              walletPaths: {
                 create: {
                   path: walletPath.XPI,
                   address: address,
@@ -350,7 +350,7 @@ export class AccountController {
             accountDana: {
               create: {}
             },
-            walletPath: {
+            walletPaths: {
               create: {
                 path: walletPath.XPI,
                 address: address,
