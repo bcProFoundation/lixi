@@ -306,7 +306,7 @@ model Account {
   bookmarks                      Bookmark[]
   imageUploadable                ImageUploadable[]
   PollAnswerOnAccount            PollAnswerOnAccount[]
-  walletPath                     WalletPath[]
+  walletPaths                    WalletPath[]
 
   @@index([mnemonicHash], type: Hash)
   @@map("account")
