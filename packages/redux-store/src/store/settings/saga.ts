@@ -20,7 +20,8 @@ function initLocale(currentAppLocale: any): Promise<boolean> {
       currentLocale: currentAppLocale.locale,
       locales: {
         [currentAppLocale.locale]: currentAppLocale.messages
-      }
+      },
+      debug: true
     })
     .then(() => {
       return true;

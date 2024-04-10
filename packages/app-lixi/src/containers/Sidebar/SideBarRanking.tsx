@@ -39,7 +39,7 @@ export const ShortcutItemAccess = ({
   (<Link onClick={onClickItem} href={href}>
 
     <Space className={`${isPage ? 'avatar-page' : ''} item-access`}>
-      <AvatarUser icon={icon} name={text} isMarginRight={false} />
+      <AvatarUser icon={icon} name={text} isMarginRight={false} key={href} />
       <div>
         {text}
         <span style={{ display: 'block', paddingTop: '4px', fontSize: '12px', color: 'rgba(30, 26, 29, 0.38)' }}>
@@ -340,8 +340,9 @@ const SidebarRanking = () => {
                     return (
                       <>
                         {index === 0 && (
-                          <h4 className="distance" key={`top-page-${item.id}`}>
+                          <h4 className="distance">
                             <ShortcutItemAccess
+                              key={`top-page-${item.id}`}
                               burnValue={item?.dana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
@@ -352,8 +353,9 @@ const SidebarRanking = () => {
                           </h4>
                         )}
                         {index === 1 && (
-                          <h4 className="distance" key={`top-page-${item.id}`}>
+                          <h4 className="distance">
                             <ShortcutItemAccess
+                              key={`top-page-${item.id}`}
                               burnValue={item?.dana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
@@ -364,8 +366,9 @@ const SidebarRanking = () => {
                           </h4>
                         )}
                         {index === 2 && (
-                          <h4 className="distance" key={`${item.id}`}>
+                          <h4 className="distance">
                             <ShortcutItemAccess
+                              key={`top-page-${item.id}`}
                               burnValue={item?.dana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
@@ -376,8 +379,9 @@ const SidebarRanking = () => {
                           </h4>
                         )}
                         {index > 2 && (
-                          <h4 className="distance" key={`${item.id}`}>
+                          <h4 className="distance">
                             <ShortcutItemAccess
+                              key={`top-page-${item.id}`}
                               burnValue={item?.dana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
@@ -417,8 +421,9 @@ const SidebarRanking = () => {
                     return (
                       <>
                         {index === 0 && (
-                          <h4 className="distance" key={`leader-board-${item.id}-${item.address}`}>
+                          <h4 className="distance">
                             <ShortcutItemAccess
+                              key={`leader-board-${item.id}-${item.address}`}
                               burnValue={item.accountDana.danaGiven}
                               icon={getTopAccountAvatar(item)}
                               text={item.name}
@@ -428,8 +433,9 @@ const SidebarRanking = () => {
                           </h4>
                         )}
                         {index === 1 && (
-                          <h4 className="distance" key={`leader-board-${item.id}-${item.address}`}>
+                          <h4 className="distance">
                             <ShortcutItemAccess
+                              key={`leader-board-${item.id}-${item.address}`}
                               burnValue={item.accountDana.danaGiven}
                               icon={getTopAccountAvatar(item)}
                               text={item.name}
@@ -439,8 +445,9 @@ const SidebarRanking = () => {
                           </h4>
                         )}
                         {index === 2 && (
-                          <h4 className="distance" key={`${item.id}-${item.address}`}>
+                          <h4 className="distance">
                             <ShortcutItemAccess
+                              key={`leader-board-${item.id}-${item.address}`}
                               burnValue={item.accountDana.danaGiven}
                               icon={getTopAccountAvatar(item)}
                               text={item.name}
@@ -450,8 +457,9 @@ const SidebarRanking = () => {
                           </h4>
                         )}
                         {index > 2 && (
-                          <h4 className="distance" key={`${item.id}-${item.address}`}>
+                          <h4 className="distance">
                             <ShortcutItemAccess
+                              key={`leader-board-${item.id}-${item.address}`}
                               burnValue={item.accountDana.danaGiven}
                               icon={getTopAccountAvatar(item)}
                               text={item.name}

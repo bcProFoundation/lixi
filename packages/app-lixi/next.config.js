@@ -262,7 +262,8 @@ if (process.env.ANALYZE === 'true') {
 }
 
 const withPWA = require('next-pwa')({
-	dest: 'public'
+	dest: 'public',
+	disable: isProd ? false : true,
 });
 
 config = withPWA(config);
