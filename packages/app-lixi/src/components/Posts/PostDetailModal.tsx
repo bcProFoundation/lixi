@@ -264,12 +264,9 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
   };
 
   const imageRenderer = useCallback(
-    ({ photo }) => <Image
-      src={photo?.src}
-      width={photo?.width}
-      height={photo?.height}
-      key={`photo-${photo?.key || photo?.src}`}
-    />,
+    ({ photo }) => (
+      <Image src={photo?.src} width={photo?.width} height={photo?.height} key={`photo-${photo?.key || photo?.src}`} />
+    ),
     []
   );
 
@@ -343,14 +340,15 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
       <Modal
         transitionName={isMobile ? '' : 'none'}
         width={'50vw'}
-        className={`${classStyle} post-detail-custom-modal ${isMobile
-          ? openPost
-            ? 'animate__animated animate__faster animate__slideInRight'
-            : 'animate__animated animate__faster animate__slideOutRight'
-          : openPost
-            ? 'animate__animated animate__faster animate__zoomIn'
-            : 'animate__animated animate__faster animate__zoomOut'
-          }`}
+        className={`${classStyle} post-detail-custom-modal ${
+          isMobile
+            ? openPost
+              ? 'animate__animated animate__faster animate__slideInRight'
+              : 'animate__animated animate__faster animate__slideOutRight'
+            : openPost
+              ? 'animate__animated animate__faster animate__zoomIn'
+              : 'animate__animated animate__faster animate__zoomOut'
+        }`}
         style={{ top: 30 }}
         open={true}
         onCancel={handleOnCancel}
@@ -439,7 +437,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
                 </Image.PreviewGroup>
               </div>
             )}
-            <ActionPostBar post={post} isSetBorderBottom={true} onClickIconComment={e => { }} />
+            <ActionPostBar post={post} isSetBorderBottom={true} onClickIconComment={e => {}} />
           </PostContentDetail>
 
           <Comment post={post} />
