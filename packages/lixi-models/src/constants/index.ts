@@ -12,3 +12,4 @@ export * from './notification';
 export * from './post';
 export * from './coin';
 export * from './pollType';
+export * from './wallet';
