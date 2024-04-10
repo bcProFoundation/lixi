@@ -37,7 +37,8 @@ import {
   setAccountCover,
   setSecondaryLanguageAccountSuccess,
   changeAccountLocale,
-  removeUploadFromCache
+  removeUploadFromCache,
+  setScrollToCommentId
 } from './actions';
 import { AccountsState } from './state';
 
@@ -63,7 +64,8 @@ const initialState: AccountsState = accountsAdapter.getInitialState({
   recentHashtagAtToken: [],
   accountInfoTemp: null,
   messageUploads: [],
-  commentUpload: null
+  commentUpload: null,
+  scrollToCommentId: null
 });
 
 const numberOfRecentHashtags = 3;
@@ -390,6 +392,10 @@ export const accountReducer = createReducer(initialState, builder => {
     .addCase(changeAccountLocale, (state, action) => {
       const { language, id } = action.payload;
       state.entities[id].language = language;
+    })
+    .addCase(setScrollToCommentId, (state, action) => {
+      const commentId = action.payload;
+      state.scrollToCommentId = commentId;
     })
     .addMatcher(isAnyOf(refreshLixiListSuccess, refreshLixiListSilentSuccess), (state, action) => {
       const { account, lixies } = action.payload;

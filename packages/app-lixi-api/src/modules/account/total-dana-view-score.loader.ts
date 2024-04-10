@@ -40,23 +40,24 @@ export default class TotalDanaViewScoreLoader {
 
           const groupPostsInPage = _.groupBy(postsInPages, item => item.pageId);
 
-          if (!_.isNil(listPageIds) && listPageIds.length > 0) {
-            listPageIds.map(pageId => {
-              const postsInPage = groupPostsInPage[pageId];
-              const postIdsInPage = postsInPage ? postsInPage.map(item => item.id) : [];
+          listPageIds.map(pageId => {
+            const postsInPage = groupPostsInPage[pageId];
+            if (postsInPage) {
+              const postIdsInPage = postsInPage.map(item => item.id);
 
               let totalDanaViewScoreInPage = 0;
               postIdsInPage.map(item => {
                 totalDanaViewScoreInPage += parseFloat(mapDanaViewScore.get(item) ?? '0');
               });
-
               mapItem.set(pageId, totalDanaViewScoreInPage);
-            });
           }
         }
 
 
-
+              mapItem.set(pageId, totalDanaViewScoreInPage);
+            }
+          });
+        }
         if (!_.isNil(listTokenIds) && listTokenIds.length > 0) {
           const postsInTokens = await this.prisma.post.findMany({
             where: { tokenId: { in: listTokenIds } },
@@ -70,19 +71,21 @@ export default class TotalDanaViewScoreLoader {
 
           const groupPostsInToken = _.groupBy(postsInTokens, item => item.tokenId);
 
-          if (!_.isNil(listTokenIds) && listTokenIds.length > 0) {
-            listTokenIds.map(tokenId => {
-              const postsInToken = groupPostsInToken[tokenId];
-              const postIdsInToken = postsInToken ? postsInToken.map(item => item.id) : [];
+          listTokenIds.map(tokenId => {
+            const postsInToken = groupPostsInToken[tokenId];
+            if (postsInToken) {
+              const postIdsInToken = postsInToken.map(item => item.id);
 
               let totalDanaViewScoreInToken = 0;
               postIdsInToken.map(item => {
                 totalDanaViewScoreInToken += parseFloat(mapDanaViewScore.get(item) ?? '0');
               });
+              mapItem.set(tokenId, totalDanaViewScoreInToken);
+          }
 
               mapItem.set(tokenId, totalDanaViewScoreInToken);
-            });
-          }
+            }
+          });
         }
 
 
@@ -101,17 +104,18 @@ export default class TotalDanaViewScoreLoader {
 
           !_.isNil(listAccountIds) && listAccountIds.map(accountId => {
             const postsInAccount = groupPostsInAccount[accountId];
-            const postIdsInAccount = postsInAccount ? postsInAccount.map(item => item.id) : [];
+            if (postsInAccount) {
+              const postIdsInAccount = postsInAccount.map(item => item.id);
 
-            let totalDanaViewScoreInAccount = 0;
-            postIdsInAccount.map(item => {
-              totalDanaViewScoreInAccount += parseFloat(mapDanaViewScore.get(item) ?? '0');
-            });
+              let totalDanaViewScoreInAccount = 0;
+              postIdsInAccount.map(item => {
+                totalDanaViewScoreInAccount += parseFloat(mapDanaViewScore.get(item) ?? '0');
+              });
 
-            mapItem.set(accountId, totalDanaViewScoreInAccount);
+              mapItem.set(accountId, totalDanaViewScoreInAccount);
+            }
           });
         }
-
 
         return followOfType.map(item => {
           const { accountId, pageId, tokenId } = item;

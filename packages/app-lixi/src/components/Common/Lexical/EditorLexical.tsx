@@ -428,7 +428,7 @@ const EditorLexical = (props: EditorLexicalProps) => {
                   style={{ border: 0, backgroundColor: 'transparent' }}
                   onClick={handleClickPoll}
                 >
-                  <img src="images/poll.svg" />
+                  <img src="/images/poll.svg" />
                 </Button>
               </div>
             </div>

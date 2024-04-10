@@ -113,6 +113,12 @@ export class Account {
   @Field(() => Number, { nullable: true })
   totalDanaViewScore?: Nullable<number>;
 
+  @Field(() => Number, { nullable: true })
+  rankNumber?: Nullable<number>;
+
+  @Field(() => Number, { nullable: true })
+  rankScore?: Nullable<number>;
+
   constructor(partial: Partial<Account>) {
     Object.assign(this, partial);
   }

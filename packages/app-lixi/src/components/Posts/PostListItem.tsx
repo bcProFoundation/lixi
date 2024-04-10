@@ -396,14 +396,15 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
     []
   );
 
-  //Height Image post: < 10 dana (1/6 screen), < 50 dana (1/4 screen), < 100 dana (1/3 screen), 100 >= (1/2 screen)
+  //Height Image post: < 1 dana (1/6 screen), < 10 dana (1/5 screen), < 50 dana (1/4 screen), < 100 dana (1/3 screen), 100 >= (1/2 screen)
   const heightImage = () => {
     let maxHeightImage = 15;
     const danaBurnScore = post.dana.danaBurnScore;
 
-    if (danaBurnScore > 100) maxHeightImage = 50;
-    else if (danaBurnScore > 50) maxHeightImage = 35;
-    else if (danaBurnScore > 10) maxHeightImage = 25;
+    if (danaBurnScore >= 100) maxHeightImage = 50;
+    else if (danaBurnScore >= 50) maxHeightImage = 35;
+    else if (danaBurnScore >= 10) maxHeightImage = 25;
+    else if (danaBurnScore >= 1) maxHeightImage = 20;
 
     return maxHeightImage;
   };

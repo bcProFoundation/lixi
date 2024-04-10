@@ -40,4 +40,5 @@ export interface AccountsState extends EntityState<Account, number> {
   | [];
   accountInfoTemp: Account;
   commentUpload: Upload;
+  scrollToCommentId: string;
 }

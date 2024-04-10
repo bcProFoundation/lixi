@@ -31,6 +31,8 @@ export type AllFollowersByFollowingQueryVariables = Types.Exact<{
   followingAccountId?: Types.InputMaybe<Types.Scalars['Int']['input']>;
 }>;
 
+        rankNumber?: number | null;
+        rankScore?: number | null;
 
 export type AllFollowersByFollowingQuery = { __typename?: 'Query', allFollowersByFollowing: { __typename?: 'AccountConnection', totalCount?: number | null, edges?: Array<{ __typename?: 'AccountEdge', cursor: string, node: { __typename?: 'Account', id: number, name: string, address: string, hash160?: string | null, mnemonicHash?: string | null, encryptedMnemonic?: string | null, encryptedSecret?: string | null, publicKey?: string | null, language: string, followersCount?: number | null, followingsCount?: number | null, followingPagesCount?: number | null, totalDanaViewScore?: number | null, website?: string | null, description?: string | null, createCommentFee?: string | null, createdAt: any, updatedAt: any, avatar?: string | null, cover?: string | null, pages?: Array<{ __typename?: 'Page', id: string, name: string }> | null, accountDana?: { __typename?: 'AccountDana', danaGiven?: number | null, danaReceived?: number | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, danaReceivedUp: number, danaReceivedDown: number, danaReceivedScore: number } | null } }> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
 
@@ -44,6 +46,8 @@ export type AllFollowingsByFollowerQueryVariables = Types.Exact<{
   followerAccountId?: Types.InputMaybe<Types.Scalars['Int']['input']>;
 }>;
 
+        rankNumber?: number | null;
+        rankScore?: number | null;
 
 export type AllFollowingsByFollowerQuery = { __typename?: 'Query', allFollowingsByFollower: { __typename?: 'AccountConnection', totalCount?: number | null, edges?: Array<{ __typename?: 'AccountEdge', cursor: string, node: { __typename?: 'Account', id: number, name: string, address: string, hash160?: string | null, mnemonicHash?: string | null, encryptedMnemonic?: string | null, encryptedSecret?: string | null, publicKey?: string | null, language: string, followersCount?: number | null, followingsCount?: number | null, followingPagesCount?: number | null, totalDanaViewScore?: number | null, website?: string | null, description?: string | null, createCommentFee?: string | null, createdAt: any, updatedAt: any, avatar?: string | null, cover?: string | null, pages?: Array<{ __typename?: 'Page', id: string, name: string }> | null, accountDana?: { __typename?: 'AccountDana', danaGiven?: number | null, danaReceived?: number | null, danaBurnUp: number, danaBurnDown: number, danaBurnScore: number, danaReceivedUp: number, danaReceivedDown: number, danaReceivedScore: number } | null } }> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
 

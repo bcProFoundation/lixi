@@ -1,7 +1,5 @@
-import { CopyOutlined, DislikeOutlined, LikeOutlined } from '@ant-design/icons';
-import DownVoteSvg from '@assets/icons/downVote.svg';
+import { CopyOutlined } from '@ant-design/icons';
 import UpDownSvg from '@assets/icons/upDownIcon.svg';
-import UpVoteSvg from '@assets/icons/upVote.svg';
 import { Burn } from '@bcpros/lixi-models';
 import { TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models/constants/translation';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
@@ -55,6 +53,11 @@ const UpDownButton = styled(Button)`
     background: #ba1a1a;
     &:hover {
       color: #fff;
+    }
+
+    .btn-text {
+      display: flex;
+      align-items: flex-start;
     }
   }
 `;
@@ -325,6 +328,10 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
     );
   };
 
+  const upDownArrow = (isUp: boolean, width: number, color: string) => (
+    <img src={`/images/${isUp ? 'up' : 'down'}-arrow.svg`} width={`${width}px`} style={{ filter: `${color}` }} />
+  );
+
   return (
     <Modal
       transitionName=""
@@ -338,13 +345,13 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
           <h3>{intl.get('general.goodOrNot')}</h3>
           <div className="banner-count-burn">
             <div className="banner-item">
-              <DislikeOutlined />
+              {upDownArrow(false, 20, 'var(--filter-svg-red-color)')}
               <div className="count-bar">
                 <p className="title">{getDanaBurnDown(burnForType) + intl.get('general.dana')}</p>
               </div>
             </div>
             <div className="banner-item">
-              <LikeOutlined />
+              {upDownArrow(true, 20, 'var(--filter-svg-blue-color)')}
               <div className="count-bar">
                 <p className="title">{getDanaBurnUp(burnForType) + intl.get('general.dana')}</p>
               </div>
@@ -419,12 +426,14 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
       footer={
         <Button.Group style={{ width: '100%' }}>
           <UpDownButton className="downVote" onClick={() => handleBurn(false)}>
-            <DownVoteSvg />
-            &nbsp; {intl.get('general.demote')}
+            <div className="btn-text">
+              {upDownArrow(false, 20, 'var(--filter-svg-white-color)')} &nbsp; {intl.get('general.demote')}
+            </div>
           </UpDownButton>
           <UpDownButton className="upVote" onClick={() => handleBurn(true)}>
-            <UpVoteSvg />
-            &nbsp; {intl.get('general.promote')}
+            <div className="btn-text">
+              {upDownArrow(true, 20, 'var(--filter-svg-white-color)')} &nbsp; {intl.get('general.promote')}
+            </div>
           </UpDownButton>
         </Button.Group>
       }

@@ -126,3 +126,5 @@ export const setSecondaryLanguageAccount = createAction<SecondaryLanguageAccount
 );
 export const setSecondaryLanguageAccountSuccess = createAction<Account>('account/setSecondaryLanguageAccountSuccess');
 export const setSecondaryLanguageAccountFailure = createAction<string>('account/setSecondaryLanguageAccountFailure');
+
+export const setScrollToCommentId = createAction<string>('account/setScrollToCommentId');

@@ -46,10 +46,12 @@ export type Account = {
   name: Scalars['String']['output'];
   pageMessageSessions?: Maybe<Array<PageMessageSession>>;
   pages?: Maybe<Array<Page>>;
-  publicKey?: Maybe<Scalars['String']['output']>;
-  secondaryLanguage?: Maybe<Scalars['String']['output']>;
-  secret?: Maybe<Scalars['String']['output']>;
-  totalDanaViewScore?: Maybe<Scalars['Int']['output']>;
+  publicKey?: Maybe<Scalars['String']>;
+  rankNumber?: Maybe<Scalars['Int']>;
+  rankScore?: Maybe<Scalars['Int']>;
+  secondaryLanguage?: Maybe<Scalars['String']>;
+  secret?: Maybe<Scalars['String']>;
+  totalDanaViewScore?: Maybe<Scalars['Int']>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime']['output'];
   website?: Maybe<Scalars['String']['output']>;
@@ -1348,6 +1350,7 @@ export type ProductEdge = {
 export type Query = {
   __typename?: 'Query';
   account: Account;
+  allAccounts: AccountBasicConnection;
   allClosedPageMessageSession: PageMessageSessionConnection;
   allFollowersByFollowing: AccountConnection;
   allFollowersByPage: AccountBasicConnection;
@@ -1412,6 +1415,8 @@ export type Query = {
   tokenByTokenId: Token;
   tokenTimeline: TimelineItemConnection;
   tokenTimelineByTime: TimelineItemConnection;
+  topMonthAccountDanaGiven: AccountBasicConnection;
+  topWeekAccountDanaGiven: AccountBasicConnection;
   userHadMessageToPage?: Maybe<PageMessageSession>;
   worship: Worship;
   worshipedPerson: WorshipedPerson;
@@ -1422,6 +1427,14 @@ export type QueryAccountArgs = {
   id: Scalars['Int']['input'];
 };
 
+export type QueryAllAccountsArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']>;
+};
 
 export type QueryAllClosedPageMessageSessionArgs = {
   accountId?: InputMaybe<Scalars['Int']['input']>;
@@ -1995,6 +2008,28 @@ export type QueryTokenTimelineByTimeArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
+
+export type QueryTopMonthAccountDanaGivenArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  month: Scalars['Int'];
+  skip?: InputMaybe<Scalars['Int']>;
+  year: Scalars['Int'];
+};
+
+export type QueryTopWeekAccountDanaGivenArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']>;
+  week: Scalars['Int'];
+  year: Scalars['Int'];
+};
 
 export type QueryUserHadMessageToPageArgs = {
   accountId?: InputMaybe<Scalars['Int']['input']>;

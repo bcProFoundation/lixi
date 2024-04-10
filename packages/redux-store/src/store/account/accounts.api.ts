@@ -25,4 +25,10 @@ export const {
   useUpdateAccountMutation,
   useAllFollowersByPageQuery,
   useLazyAllFollowersByPageQuery
+  useAccountsQuery,
+  useLazyAccountsQuery,
+  useTopWeekAccountsQuery,
+  useLazyTopWeekAccountsQuery,
+  useTopMonthAccountsQuery,
+  useLazyTopMonthAccountsQuery
 } = enhancedApi;

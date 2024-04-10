@@ -15,6 +15,7 @@ import styled from 'styled-components';
 import { match } from 'ts-pattern';
 import useAuthorization from './Authorization/use-authorization.hooks';
 import Counter from './Counter';
+import IconBurnCustomProps from './IconBurn/IconBurnCustom';
 
 const SpaceIconBurnHover = styled(Space)`
   min-height: 38px;
@@ -36,7 +37,7 @@ const SpaceIconBurnHover = styled(Space)`
   }
 `;
 
-const StyledBurnIconHover = styled.img`
+export const StyledBurnIconHover = styled.img`
   transition: all 0.2s ease-in-out;
   width: 24px;
   height: 24px;
@@ -219,19 +220,19 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         arrow={false}
         overlayClassName="popover-custom-hint"
         placement="top"
-        content={contentHoverLike}
+        content={contentHoverHeart}
         trigger="hover"
       >
-        <div className="container-ico-hover">
-          <StyledBurnIconHover
-            src={'/images/heart.svg'}
-            onMouseOver={e => {
-              e.currentTarget.src = '/images/heart-w-burn.svg';
-            }}
-            onMouseOut={e => (e.currentTarget.src = '/images/heart.svg')}
-            onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LOVE, true)}
-          />
-        </div>
+        <IconBurnCustomProps
+          icon="down-arrow.svg"
+          colorBackground="var(--color-danger)"
+          colorFilterIcon="var(--filter-svg-red-color)"
+          burnForType={burnForType}
+          dataItem={dataItem}
+          optionBurnType={OPTION_BURN_TYPE.DISLIKE}
+          isUpBurn={false}
+          hideReact={hideReact}
+        />
       </Popover>
       <Popover
         arrow={false}
@@ -240,34 +241,34 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         content={contentHoverDisLike}
         trigger="hover"
       >
-        <div className="container-ico-hover">
-          <StyledBurnIconHover
-            src={'/images/like.svg'}
-            onMouseOver={e => {
-              e.currentTarget.src = '/images/like-w-burn.svg';
-            }}
-            onMouseOut={e => (e.currentTarget.src = '/images/like.svg')}
-            onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LIKE, true)}
-          />
-        </div>
+        <IconBurnCustomProps
+          icon="up-arrow.svg"
+          colorBackground="#00abe7"
+          colorFilterIcon="var(--filter-svg-blue-color)"
+          burnForType={burnForType}
+          dataItem={dataItem}
+          optionBurnType={OPTION_BURN_TYPE.LIKE}
+          isUpBurn={true}
+          hideReact={hideReact}
+        />
       </Popover>
       <Popover
         arrow={false}
         overlayClassName="popover-custom-hint"
         placement="top"
-        content={contentHoverHeart}
+        content={contentHoverLike}
         trigger="hover"
       >
-        <div className="container-ico-hover">
-          <StyledBurnIconHover
-            src={'/images/dislike.svg'}
-            onMouseOver={e => {
-              e.currentTarget.src = '/images/dislike-w-burn.svg';
-            }}
-            onMouseOut={e => (e.currentTarget.src = '/images/dislike.svg')}
-            onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.DISLIKE, false)}
-          />
-        </div>
+        <IconBurnCustomProps
+          icon="double-up-arrow.svg"
+          colorBackground="#00abe7"
+          colorFilterIcon="var(--filter-svg-blue-color)"
+          burnForType={burnForType}
+          dataItem={dataItem}
+          optionBurnType={OPTION_BURN_TYPE.LOVE}
+          isUpBurn={true}
+          hideReact={hideReact}
+        />
       </Popover>
       <Popover
         arrow={false}
@@ -279,9 +280,6 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         <div className="container-ico-hover">
           <StyledBurnIconHover
             src={'/images/more-horiz.svg'}
-            onMouseOver={e => {
-              e.currentTarget.src = '/images/more-horiz-w-burn.svg';
-            }}
             onMouseOut={e => (e.currentTarget.src = '/images/more-horiz.svg')}
             onClick={e => openBurnModal(e, dataItem)}
           />
@@ -295,41 +293,39 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
       <Popover arrow={false} overlayClassName="popover-custom-hint">
         <div className="container-ico-hover">
           <StyledBurnIconHover
-            src={'/images/heart.svg'}
-            onMouseOver={e => {
-              e.currentTarget.src = '/images/heart-w-burn.svg';
+            src={'/images/down-arrow.svg'}
+            style={{
+              filter: 'var(--filter-svg-red-color)'
             }}
-            onMouseOut={e => (e.currentTarget.src = '/images/heart.svg')}
-            onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LOVE, true)}
+            onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.DISLIKE, false)}
           />
         </div>
-        <HintMobile>+{OPTION_BURN_VALUE.LOVE} </HintMobile>
+        <HintMobile>+{OPTION_BURN_VALUE.DISLIKE}</HintMobile>
       </Popover>
       <Popover arrow={false} overlayClassName="popover-custom-hint">
         <div className="container-ico-hover">
           <StyledBurnIconHover
-            src={'/images/like.svg'}
-            onMouseOver={e => {
-              e.currentTarget.src = '/images/like-w-burn.svg';
+            src={'/images/up-arrow.svg'}
+            style={{
+              filter: 'var(--filter-svg-blue-color)'
             }}
-            onMouseOut={e => (e.currentTarget.src = '/images/like.svg')}
             onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LIKE, true)}
           />
         </div>
         <HintMobile>+{OPTION_BURN_VALUE.LIKE}</HintMobile>
       </Popover>
+
       <Popover arrow={false} overlayClassName="popover-custom-hint">
         <div className="container-ico-hover">
           <StyledBurnIconHover
-            src={'/images/dislike.svg'}
-            onMouseOver={e => {
-              e.currentTarget.src = '/images/dislike-w-burn.svg';
+            src={'/images/double-up-arrow.svg'}
+            style={{
+              filter: 'var(--filter-svg-blue-color)'
             }}
-            onMouseOut={e => (e.currentTarget.src = '/images/dislike.svg')}
-            onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.DISLIKE, false)}
+            onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LOVE, true)}
           />
         </div>
-        <HintMobile>+{OPTION_BURN_VALUE.DISLIKE}</HintMobile>
+        <HintMobile>+{OPTION_BURN_VALUE.LOVE} </HintMobile>
       </Popover>
       <Popover arrow={false} overlayClassName="popover-custom-hint">
         <div className="container-ico-hover">

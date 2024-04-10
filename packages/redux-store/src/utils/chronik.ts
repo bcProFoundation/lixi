@@ -186,7 +186,8 @@ export const sortAndTrimChronikTxHistory = (flatTxHistoryArray: Tx[], txHistoryC
 
 export const returnGetTxHistoryChronikPromise = (
   chronik: ChronikClient,
-  hash160AndAddressObj: Hash160AndAddress
+  hash160AndAddressObj: Hash160AndAddress,
+  pageNumber: number
 ): Promise<TxHistoryPage> => {
   /*
       Chronik thinks in hash160s, but people and wallets think in addresses
@@ -195,7 +196,7 @@ export const returnGetTxHistoryChronikPromise = (
   return new Promise((resolve, reject) => {
     chronik
       .script('p2pkh', hash160AndAddressObj.hash160)
-      .history(/*page=*/ 0, /*page_size=*/ currency.txHistoryCount)
+      .history(/*page=*/ pageNumber ? pageNumber : 0, /*page_size=*/ currency.txHistoryCount)
       .then(
         result => {
           resolve(result);
@@ -449,7 +450,8 @@ export const parseChronikTx = async (
 export const getTxHistoryChronik = async (
   chronik: ChronikClient,
   XPI: BCHJS,
-  wallet: WalletState
+  wallet: WalletState,
+  pageNumber = 0
 ): Promise<{ chronikTxHistory: Array<Tx & { parsed: ParsedChronikTx }> }> => {
   // Create array txHistory with selectedPath
   const walletPathSelected = getSelectedWalletPathFromWalletState(wallet);
@@ -459,7 +461,11 @@ export const getTxHistoryChronik = async (
     hash160: walletPathSelected.hash160
   };
 
-  const txHistoryPromise: Promise<TxHistoryPage> = returnGetTxHistoryChronikPromise(chronik, hash160AndADresssObj);
+  const txHistoryPromise: Promise<TxHistoryPage> = returnGetTxHistoryChronikPromise(
+    chronik,
+    hash160AndADresssObj,
+    pageNumber
+  );
   let txHistoryOfAllAddresses: TxHistoryPage;
   try {
     txHistoryOfAllAddresses = await Promise.resolve(txHistoryPromise);

@@ -339,18 +339,9 @@ export const IconBurn = ({
 
 const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   const dispatch = useAppDispatch();
-  const { control, getValues, setValue, setFocus } = useForm();
   const router = useRouter();
-  const Wallet = React.useContext(WalletContext);
-  const { XPI, chronik } = Wallet;
-  const { createBurnTransaction, sendXpi } = useXPI();
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
   const selectedAccount = useAppSelector(getSelectedAccount);
-  const [isEncryptedOptionalOpReturnMsg, setIsEncryptedOptionalOpReturnMsg] = useState(true);
-  const [open, setOpen] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
-  const accountInfoTemp = useAppSelector(getAccountInfoTemp);
   const isMobileView = useDetectMobileView();
 
   const [repostTrigger, { isLoading: isLoadingRepost, isSuccess: isSuccessRepost, isError: isErrorRepost }] =

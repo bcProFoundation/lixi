@@ -24,6 +24,8 @@ export default {
   'label.comment': 'Bình luận',
   'label.created': 'Khởi tạo',
   'label.action': 'Hành động',
+  'label.avatar': 'Hình đại diện',
+  'label.address': 'Địa chỉ',
   'text.createPage':
     'Trang là không gian nơi mọi người có thể kết nối công khai với doanh nghiệp, thương hiệu cá nhân hoặc tổ chức của bạn. Bạn có thể làm những việc như giới thiệu sản phẩm và dịch vụ, quyên góp.',
   'text.createPageName':
@@ -131,6 +133,8 @@ export default {
   'general.burnUp': 'Ủng hộ',
   'general.burnDown': 'Phản đối',
   'general.wallets': 'Ví',
+  'general.topWeek': 'Xếp hạng tuần',
+  'general.topMonth': 'Xếp hạng tháng',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Bạn cần nhập đúng cụm từ bảo mật',
@@ -205,6 +209,7 @@ export default {
   'account.verificationCodeRequired': 'Vui lòng nhập mã xác thực',
   'account.verificationCodeSent': 'Mã xác thực đã được gửi tới <b>{email}</b>. Vui lòng kiểm tra email của bạn !',
   'account.transactionHistory': 'Lịch sử giao dịch',
+  'account.noTransaction': 'Bạn chưa thực hiện giao dịch nào cả :((',
   'account.loginSuccess': 'Đăng nhập thành công!',
   'account.loginFailed': 'Đăng nhập thất bại',
   'account.registerEmailSuccess': 'Đăng kí qua email thành công!',
