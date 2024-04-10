@@ -252,7 +252,8 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
       let objImg = {
         src: imgUrl,
         width: imgWidth,
-        height: height
+        height: height,
+        key: img.cfImageId
       };
       return objImg;
     });
@@ -392,7 +393,12 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
   };
 
   const imageRenderer = useCallback(
-    ({ photo }) => <Image src={photo?.src} width={photo?.width} height={photo?.height} />,
+    ({ photo }) => <Image
+      src={photo?.src}
+      width={photo?.width}
+      height={photo?.height}
+      key={`photo-${photo?.key || photo?.src}`}
+    />,
     []
   );
 

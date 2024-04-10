@@ -382,7 +382,12 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   };
 
   const imageRenderer = useCallback(
-    ({ photo }) => <Image src={photo?.src} width={photo?.width} height={photo?.height} />,
+    ({ photo }) => <Image
+      src={photo?.src}
+      width={photo?.width}
+      height={photo?.height}
+      key={`photo-${photo?.key || photo?.src}`}
+    />,
     []
   );
 

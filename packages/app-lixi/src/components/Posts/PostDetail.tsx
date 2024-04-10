@@ -370,7 +370,12 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   };
 
   const imageRenderer = useCallback(
-    ({ photo }) => <Image src={photo?.src} width={photo?.width} height={photo?.height} />,
+    ({ photo }) => <Image
+      src={photo?.src}
+      width={photo?.width}
+      height={photo?.height}
+      key={`photo-${photo?.key || photo?.src}`}
+    />,
     []
   );
 
@@ -517,7 +522,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
               </Image.PreviewGroup>
             </div>
           )}
-          <ActionPostBar post={post} onClickIconComment={e => {}} />
+          <ActionPostBar post={post} onClickIconComment={e => { }} />
         </PostContentDetail>
 
         <Comment post={post} />

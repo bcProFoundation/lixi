@@ -267,12 +267,18 @@ const EditorLexical = (props: EditorLexicalProps) => {
       <>
         <div className="item-image-upload">
           <Button
+            key={`button-${photo?.key || photo?.src}`}
             type="text"
             className="no-border-btn"
             icon={<CloseOutlined />}
             onClick={() => handleRemove(photo?.id)}
           />
-          <Image src={photo?.src} width={photo?.width} height={photo?.height} />
+          <Image
+            src={photo?.src}
+            width={photo?.width}
+            height={photo?.height}
+            key={`photo-${photo?.key || photo?.src}`}
+          />
         </div>
       </>
     );
