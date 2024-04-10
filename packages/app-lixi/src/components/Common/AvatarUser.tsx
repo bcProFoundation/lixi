@@ -51,7 +51,7 @@ const AvatarUser = (props: AvatarUserProps) => {
   return (
     <>
       {name && (
-        <StyledAvatar src={icon} style={{ marginRight: `${isMarginRight ? '10px' : '0'}` }}>
+        <StyledAvatar key={name} src={icon} style={{ marginRight: `${isMarginRight ? '10px' : '0'}` }}>
           {transformShortName(name)}
         </StyledAvatar>
       )}
