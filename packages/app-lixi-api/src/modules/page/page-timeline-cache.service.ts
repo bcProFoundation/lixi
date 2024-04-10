@@ -11,7 +11,10 @@ export class PageTimelineCacheService {
   static pageTimelineKey = 'timeline:pages';
   static pageByUserTimelineKeyPrefix = 'timeline:pages:user';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis
+  ) {}
 
   async cachePageTimeline() {
     const key = `${PageTimelineCacheService.pageTimelineKey}`;

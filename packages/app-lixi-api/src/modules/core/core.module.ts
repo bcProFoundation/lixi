@@ -37,9 +37,9 @@ import { WithdrawSubLixiesProcessor } from './lixi/processors/withdraw-sub-lixie
 import { TranslateService } from './translate/translate.service';
 import { UploadFilesController } from './upload/upload.controller';
 import { UploadService } from './upload/upload.serivce';
-const baseCorsConfig: CorsOptions = ({
+const baseCorsConfig: CorsOptions = {
   origin: process.env.BASE_URL ?? ''
-});
+};
 
 @Module({
   imports: [

@@ -11,7 +11,10 @@ export class TokenDanaCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:tokens:dana';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis
+  ) {}
 
   async getTokenDana(id: string) {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id.toString());
@@ -62,12 +65,12 @@ export class TokenDanaCacheService {
     const dbValues =
       uncachedTokenIds.length > 0
         ? await this.prisma.tokenDana.findMany({
-          where: {
-            tokenId: {
-              in: uncachedTokenIds
+            where: {
+              tokenId: {
+                in: uncachedTokenIds
+              }
             }
-          }
-        })
+          })
         : [];
 
     const dbValuesMap = new Map(

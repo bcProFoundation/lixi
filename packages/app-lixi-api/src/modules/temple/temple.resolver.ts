@@ -23,7 +23,11 @@ const pubSub = new PubSub();
 export class TempleResolver {
   private logger: Logger = new Logger(this.constructor.name);
 
-  constructor(private prisma: PrismaService, private meiliService: MeiliService, @I18n() private i18n: I18nService) {}
+  constructor(
+    private prisma: PrismaService,
+    private meiliService: MeiliService,
+    @I18n() private i18n: I18nService
+  ) {}
 
   @Subscription(() => Temple)
   templeCreated() {

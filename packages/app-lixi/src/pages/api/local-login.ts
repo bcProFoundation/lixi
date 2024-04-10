@@ -20,7 +20,6 @@ async function localLoginRoute(req: NextApiRequest, res: NextApiResponse) {
     session.localUser = localUser;
     await session.save();
 
-
     res.send({ ok: true });
   }
 }

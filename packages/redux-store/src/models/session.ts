@@ -1,4 +1,3 @@
-
 import { SessionOptions } from 'iron-session';
 import type { LocalUser } from './localUser';
 

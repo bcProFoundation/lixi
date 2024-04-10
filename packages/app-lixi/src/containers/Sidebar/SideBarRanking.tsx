@@ -36,8 +36,7 @@ export const ShortcutItemAccess = ({
   href?: string;
   onClickItem?: () => void;
 }) => (
-  (<Link onClick={onClickItem} href={href}>
-
+  <Link onClick={onClickItem} href={href}>
     <Space className={`${isPage ? 'avatar-page' : ''} item-access`}>
       <AvatarUser icon={icon} name={text} isMarginRight={false} key={href} />
       <div>
@@ -49,8 +48,7 @@ export const ShortcutItemAccess = ({
       </div>
       {icoRanking && <img className="ranking-img" src={icoRanking} />}
     </Space>
-
-  </Link>)
+  </Link>
 );
 
 const RankingSideBar = styled(Sider)`
@@ -327,8 +325,9 @@ const SidebarRanking = () => {
                   <picture>
                     <img
                       className="animation-top-ranking"
-                      src={`${currentTheme === 'dark' ? '/images/ico-fire-static.png' : '/images/ico-fire-animation.gif'
-                        }`}
+                      src={`${
+                        currentTheme === 'dark' ? '/images/ico-fire-static.png' : '/images/ico-fire-animation.gif'
+                      }`}
                       alt=""
                     />
                   </picture>
@@ -406,10 +405,11 @@ const SidebarRanking = () => {
                   <picture>
                     <img
                       className="animation-top-ranking"
-                      src={`${currentTheme === 'dark'
-                        ? '/images/ico-fire-heart-static.png'
-                        : '/images/ico-fire-heart-animation.gif'
-                        }`}
+                      src={`${
+                        currentTheme === 'dark'
+                          ? '/images/ico-fire-heart-static.png'
+                          : '/images/ico-fire-heart-animation.gif'
+                      }`}
                       alt=""
                     />
                   </picture>

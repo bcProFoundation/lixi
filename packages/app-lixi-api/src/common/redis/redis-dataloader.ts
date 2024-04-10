@@ -107,7 +107,7 @@ export class RedisDataLoader<K, V, C = K> {
           return err
             ? reject(err)
             : // [1] because it's an array where 0 = key, 1 = value.
-            mapPromise(replies as any[], r => this.parse(r[1])).then(resolve);
+              mapPromise(replies as any[], r => this.parse(r[1])).then(resolve);
         });
       });
     } else {

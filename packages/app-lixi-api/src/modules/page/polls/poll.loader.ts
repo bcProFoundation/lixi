@@ -18,7 +18,7 @@ export default class PollLoader {
     private readonly danaViewScoreService: DanaViewScoreService,
     private readonly followCacheService: FollowCacheService,
     private readonly pollCacheService: PollCacheService
-  ) { }
+  ) {}
 
   public readonly batchCheckAccountFollowAllAccount = new DataLoader(
     async (items: readonly { followingAccountId?: number; accountId: number }[]) => {

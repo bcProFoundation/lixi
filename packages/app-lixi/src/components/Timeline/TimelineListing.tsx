@@ -2,10 +2,7 @@ import CreatePostCard from '@components/Common/CreatePostCard';
 import { OrderDirection, PostOrderField } from '@generated/types.generated';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { addRecentHashtagAtHome, setGraphqlRequestDone } from '@store/account/actions';
-import {
-  getGraphqlRequestStatus,
-  getRecentHashtagAtHome
-} from '@store/account/selectors';
+import { getGraphqlRequestStatus, getRecentHashtagAtHome } from '@store/account/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { setNewPostAvailable, setSelectedPost } from '@store/post/actions';
 import { api as postApi } from '@store/post/posts.api';

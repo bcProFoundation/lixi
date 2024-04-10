@@ -55,7 +55,7 @@ export class AccountController {
     @Inject(XPIJS) private XPI: BCHJS,
     private readonly accountCacheService: AccountCacheService,
     private readonly notificationService: NotificationService
-  ) { }
+  ) {}
 
   @Get(':id')
   async getAccount(@Param('id') id: string, @I18n() i18n: I18nContext) {

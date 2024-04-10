@@ -10,7 +10,10 @@ export class TokenTimelineCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   static tokenTimelineKey = 'timeline:tokens';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis
+  ) {}
 
   async cacheTokenTimeline() {
     const key = `${TokenTimelineCacheService.tokenTimelineKey}`;

@@ -16,7 +16,7 @@ const enhancedApi = api.enhanceEndpoints({
               draft.checkIfFollowAccount = true;
             })
           );
-        } catch { }
+        } catch {}
       }
     },
     createFollowPage: {
@@ -29,7 +29,7 @@ const enhancedApi = api.enhanceEndpoints({
               draft.checkIfFollowPage = true;
             })
           );
-        } catch { }
+        } catch {}
       }
     },
     createFollowToken: {
@@ -42,7 +42,7 @@ const enhancedApi = api.enhanceEndpoints({
               draft.checkIfFollowToken = true;
             })
           );
-        } catch { }
+        } catch {}
       }
     },
     deleteFollowAccount: {
@@ -55,7 +55,7 @@ const enhancedApi = api.enhanceEndpoints({
               draft.checkIfFollowAccount = false;
             })
           );
-        } catch { }
+        } catch {}
       }
     },
     deleteFollowPage: {
@@ -68,7 +68,7 @@ const enhancedApi = api.enhanceEndpoints({
               draft.checkIfFollowPage = false;
             })
           );
-        } catch { }
+        } catch {}
       }
     },
     deleteFollowToken: {
@@ -81,7 +81,7 @@ const enhancedApi = api.enhanceEndpoints({
               draft.checkIfFollowToken = false;
             })
           );
-        } catch { }
+        } catch {}
       }
     }
   }

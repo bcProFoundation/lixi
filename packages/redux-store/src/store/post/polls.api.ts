@@ -65,7 +65,7 @@ const enhancedApi = pollApi.enhanceEndpoints({
               })
             );
           }
-        } catch { }
+        } catch {}
       }
     },
     createVote: {
@@ -167,7 +167,7 @@ const enhancedApi = pollApi.enhanceEndpoints({
               })
             );
           }
-        } catch { }
+        } catch {}
       }
     }
   }

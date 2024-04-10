@@ -14,7 +14,10 @@ export class BurnHistoryCacheService {
   static burnTimeline = 'timeline:burn:{{postId}}';
   static KeyBurnItem = 'items:burns:item-data';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis
+  ) {}
 
   async getById(id: string) {
     const buffer = await this.redis.hgetBuffer(BurnHistoryCacheService.KeyBurnItem, id);
@@ -60,10 +63,10 @@ export class BurnHistoryCacheService {
       const dbValues =
         uncachedIds.length > 0
           ? await this.prisma.burn.findMany({
-            where: {
-              id: { in: uncachedIds }
-            }
-          })
+              where: {
+                id: { in: uncachedIds }
+              }
+            })
           : [];
 
       const dbValuesMap = new Map(

@@ -10,7 +10,10 @@ export class PollCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:polls:item-data';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis
+  ) {}
 
   async getById(id: string): Promise<Nullable<Poll>> {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id);
@@ -67,17 +70,17 @@ export class PollCacheService {
     const dbValues =
       uncachedIds.length > 0
         ? await this.prisma.post.findMany({
-          where: {
-            id: { in: uncachedIds }
-          },
-          include: {
-            poll: {
-              include: {
-                options: { include: { pollAnswerOnAccount: true } }
+            where: {
+              id: { in: uncachedIds }
+            },
+            include: {
+              poll: {
+                include: {
+                  options: { include: { pollAnswerOnAccount: true } }
+                }
               }
             }
-          }
-        })
+          })
         : [];
 
     const dbValuesMap = new Map(

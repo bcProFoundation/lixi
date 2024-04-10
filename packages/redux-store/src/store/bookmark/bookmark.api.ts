@@ -3,8 +3,6 @@ import { changeBookmarkActionSheet } from '@store/post/actions';
 import { api as postsApi } from '../post/posts.api';
 import { api } from './bookmark.generated';
 
-
-
 const enhancedApi = api.enhanceEndpoints({
   addTagTypes: ['Bookmark', 'BookmarkTimeline'],
   endpoints: {

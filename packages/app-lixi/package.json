@@ -3,7 +3,7 @@
   "version": "1.1.4",
   "private": true,
   "scripts": {
-    "precommit": "yarn fix && yarn lint",
+    "precommit": "turbo run format",
     "build": "next build",
     "debug": "NODE_OPTIONS='--inspect' next dev",
     "dev": "next dev",
@@ -11,7 +11,7 @@
     "start": "next start",
     "fix": "run-s fix:*",
     "lint:prettier": "prettier \"src/**/*{.ts,.tsx}\" --check --config .prettierrc.js",
-    "fix:prettier": "prettier \"src/**/*{.ts,.tsx}\" --write --config .prettierrc.js"
+    "format": "prettier \"src/**/*{.ts,.tsx}\" --write --config .prettierrc.js"
   },
   "dependencies": {
     "@abcpros/bitcore-lib-xpi": "^8.25.37",

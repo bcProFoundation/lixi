@@ -90,112 +90,114 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ profile, cla
     dispatch(closeModal());
   };
 
-  return <>
-    <Modal
-      transitionName=""
-      width={700}
-      className={`${classStyle} custom-edit-page-modal`}
-      open={true}
-      footer={null}
-      onCancel={handleOnCancel}
-      style={{ top: '0 !important' }}
-    >
-      <CreateForm className="form-parent">
-        <CreateForm
-          className="form-child edit-page"
-          layout="vertical"
-          initialValues={{ disabled: componentDisabled }}
-          onValuesChange={onFormLayoutChange}
-          style={{ textAlign: 'start' }}
-        >
-          <Form.Item
-            name="name"
-            label={intl.get('page.name')}
-            rules={[{ required: true, message: intl.get('page.inputName') }]}
+  return (
+    <>
+      <Modal
+        transitionName=""
+        width={700}
+        className={`${classStyle} custom-edit-page-modal`}
+        open={true}
+        footer={null}
+        onCancel={handleOnCancel}
+        style={{ top: '0 !important' }}
+      >
+        <CreateForm className="form-parent">
+          <CreateForm
+            className="form-child edit-page"
+            layout="vertical"
+            initialValues={{ disabled: componentDisabled }}
+            onValuesChange={onFormLayoutChange}
+            style={{ textAlign: 'start' }}
           >
-            <Controller
+            <Form.Item
               name="name"
-              control={control}
-              rules={{
-                required: {
-                  value: true,
-                  message: intl.get('page.inputName')
-                },
-                pattern: {
-                  value: /.+/,
-                  message: intl.get('page.inputNamePattern')
-                }
-              }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input value={value} onChange={onChange} onBlur={onBlur} />
-              )}
-            />
-            <p style={{ display: errors.name ? 'flex' : 'none', color: 'var(--color-danger)' }}>
-              {errors.name && errors.name.message}
-            </p>
-          </Form.Item>
+              label={intl.get('page.name')}
+              rules={[{ required: true, message: intl.get('page.inputName') }]}
+            >
+              <Controller
+                name="name"
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: intl.get('page.inputName')
+                  },
+                  pattern: {
+                    value: /.+/,
+                    message: intl.get('page.inputNamePattern')
+                  }
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input value={value} onChange={onChange} onBlur={onBlur} />
+                )}
+              />
+              <p style={{ display: errors.name ? 'flex' : 'none', color: 'var(--color-danger)' }}>
+                {errors.name && errors.name.message}
+              </p>
+            </Form.Item>
 
-          <Form.Item label={intl.get('page.description')}>
-            <Controller
-              name="description"
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <TextArea
-                  className="showCount"
-                  maxLength={160}
-                  value={value}
-                  onChange={onChange}
-                  rows={5}
-                  showCount
-                />
-              )}
-            />
-          </Form.Item>
+            <Form.Item label={intl.get('page.description')}>
+              <Controller
+                name="description"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <TextArea
+                    className="showCount"
+                    maxLength={160}
+                    value={value}
+                    onChange={onChange}
+                    rows={5}
+                    showCount
+                  />
+                )}
+              />
+            </Form.Item>
+          </CreateForm>
+
+          <CreateForm className="form-child edit-page" layout="vertical">
+            <Form.Item name="website" label={intl.get('page.website')}>
+              <Controller
+                name="website"
+                control={control}
+                render={({ field: { onChange, value } }) => <Input value={value} onChange={onChange} />}
+              />
+            </Form.Item>
+
+            <Form.Item name="post-comment-fee" label={intl.get('page.createCommentFee')}>
+              <Controller
+                name="createCommentFee"
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: intl.get('page.selectCategory')
+                  }
+                }}
+                render={({ field: { onChange, value }, formState: { isSubmitting } }) => (
+                  <Select
+                    className="select-after edit-page"
+                    value={`${value} ${currency.ticker}`}
+                    onChange={onChange}
+                    placeholder={intl.get('page.state')}
+                    disabled={isSubmitting}
+                    style={{ width: '99%', textAlign: 'end' }}
+                  >
+                    {createCommentFee.map(fee => (
+                      <Option key={fee}>{`${fee} ${currency.ticker}`}</Option>
+                    ))}
+                  </Select>
+                )}
+              />
+            </Form.Item>
+          </CreateForm>
         </CreateForm>
 
-        <CreateForm className="form-child edit-page" layout="vertical">
-          <Form.Item name="website" label={intl.get('page.website')}>
-            <Controller
-              name="website"
-              control={control}
-              render={({ field: { onChange, value } }) => <Input value={value} onChange={onChange} />}
-            />
-          </Form.Item>
-
-          <Form.Item name="post-comment-fee" label={intl.get('page.createCommentFee')}>
-            <Controller
-              name="createCommentFee"
-              control={control}
-              rules={{
-                required: {
-                  value: true,
-                  message: intl.get('page.selectCategory')
-                }
-              }}
-              render={({ field: { onChange, value }, formState: { isSubmitting } }) => (
-                <Select
-                  className="select-after edit-page"
-                  value={`${value} ${currency.ticker}`}
-                  onChange={onChange}
-                  placeholder={intl.get('page.state')}
-                  disabled={isSubmitting}
-                  style={{ width: '99%', textAlign: 'end' }}
-                >
-                  {createCommentFee.map(fee => (
-                    <Option key={fee}>{`${fee} ${currency.ticker}`}</Option>
-                  ))}
-                </Select>
-              )}
-            />
-          </Form.Item>
-        </CreateForm>
-      </CreateForm>
-
-      <div style={{ textAlign: 'end', marginRight: '10px' }}>
-        <Button type="primary" htmlType="submit" onClick={handleSubmit(onSubmit)}>
-          {intl.get('page.editPage')}
-        </Button>
-      </div>
-    </Modal>
-  </>;
+        <div style={{ textAlign: 'end', marginRight: '10px' }}>
+          <Button type="primary" htmlType="submit" onClick={handleSubmit(onSubmit)}>
+            {intl.get('page.editPage')}
+          </Button>
+        </div>
+      </Modal>
+    </>
+  );
 };

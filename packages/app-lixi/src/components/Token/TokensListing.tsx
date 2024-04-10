@@ -262,10 +262,7 @@ const TokensListing = () => {
           textToHighlight={text ? text.toString() : ''}
         />
       ) : (
-        <Link
-          href={'/token/' + token.tokenId}
-          passHref
-          onClick={() => handleNavigateToken(token)}>
+        <Link href={'/token/' + token.tokenId} passHref onClick={() => handleNavigateToken(token)}>
           {text}
         </Link>
       )

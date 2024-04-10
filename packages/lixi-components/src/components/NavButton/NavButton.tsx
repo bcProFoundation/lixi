@@ -46,4 +46,4 @@ export const NavButton: React.FC<INavButtonProps> = styled.button<INavButtonProp
   `}
 `;
 
-export default NavButton;                                            
+export default NavButton;

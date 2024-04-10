@@ -38,11 +38,7 @@ import { openModal } from '@store/modal/actions';
 import { changeFollowActionSheetPost, setSelectedPost } from '@store/post/actions';
 import { getSelectedPostId } from '@store/post/selectors';
 import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
-import {
-  getFilterPostsPage,
-  getIsPostsByTime,
-  getMinimumDanaFilter
-} from '@store/settings/selectors';
+import { getFilterPostsPage, getIsPostsByTime, getMinimumDanaFilter } from '@store/settings/selectors';
 import { useInfinitePageTimelineByScoreQuery, useInfinitePageTimelineByTimeQuery } from '@store/timeline';
 import { getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { Button, Skeleton, Space, Tabs, Tag, Tooltip } from 'antd';

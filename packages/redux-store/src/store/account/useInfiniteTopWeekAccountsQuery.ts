@@ -4,7 +4,7 @@ import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTopWeekAccountsQuery, useLazyTopWeekAccountsQuery } from './accounts.api';
 
-const accountsAdapter = createEntityAdapter<AccountQueryItem>({
+const accountsAdapter = createEntityAdapter<AccountQueryItem, number>({
   selectId: account => account.id
 });
 

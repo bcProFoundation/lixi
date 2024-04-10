@@ -26,14 +26,12 @@ const ShortcutItemAccess = ({
   href?: string;
   onClickItem?: () => void;
 }) => (
-  (<Link href={href} onClick={onClickItem}>
-
+  <Link href={href} onClick={onClickItem}>
     <Space className={'item-access'}>
       <AvatarUser icon={icon} name={name} isMarginRight={false} />
       <div> {name} </div>
     </Space>
-
-  </Link>)
+  </Link>
 );
 
 export type FollowModalProps = {

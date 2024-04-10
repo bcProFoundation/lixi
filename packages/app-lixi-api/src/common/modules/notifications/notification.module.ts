@@ -154,4 +154,4 @@ import { AccountModule } from '../../../modules/account/account.module';
     BullModule
   ]
 })
-export class NotificationModule { }
+export class NotificationModule {}

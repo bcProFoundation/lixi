@@ -5,7 +5,6 @@ import Head from 'next/head';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
-
 import SplashScreen from '@components/Common/SplashScreen';
 import {
   AuthenticationProvider,
@@ -44,7 +43,10 @@ const getSitename = (postAsString): string => {
   return `Posted by ${post.account.name}`;
 };
 
-const LixiApp: NextComponentType<AppContext, AppInitialProps, AppLayoutProps> = ({ Component, ...rest }: AppLayoutProps) => {
+const LixiApp: NextComponentType<AppContext, AppInitialProps, AppLayoutProps> = ({
+  Component,
+  ...rest
+}: AppLayoutProps) => {
   const { store, props } = wrapper.useWrappedStore(rest);
   const [enabledFeatures, setEnabledFeatures] = useState<string[]>([]);
 

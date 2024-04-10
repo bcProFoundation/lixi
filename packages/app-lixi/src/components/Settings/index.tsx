@@ -3,7 +3,7 @@ import Edit from '@assets/icons/edit.svg';
 import Trashcan from '@assets/icons/trashcan.svg';
 import {
   CashLoadingIcon,
-  ThemedQuerstionCircleOutlinedFaded,
+  ThemedQuerstionCircleOutlinedFaded
 } from '@bcpros/lixi-components/components/Common/CustomIcons';
 import {
   Account,

@@ -24,7 +24,7 @@ export default class TimelineableLoader {
     private readonly followCacheService: FollowCacheService,
     private readonly danaViewScoreService: DanaViewScoreService,
     private readonly bookmarkCacheService: BookmarkCacheService
-  ) { }
+  ) {}
 
   public readonly batchPages = new DataLoader(async (keys: readonly string[]) => {
     const pageIds = _.compact(keys);

@@ -25,7 +25,7 @@ import { VError } from 'verror';
 export class NotificationController {
   private logger: Logger = new Logger(NotificationController.name);
 
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)

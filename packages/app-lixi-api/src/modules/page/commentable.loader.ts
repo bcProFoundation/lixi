@@ -9,7 +9,10 @@ import { RedisDataLoader } from '../../common/redis/redis-dataloader';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class CommentableLoader {
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis
+  ) {}
 
   public readonly batchTotalComments = new RedisDataLoader(
     this.redis,

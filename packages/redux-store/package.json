@@ -22,11 +22,11 @@
   "scripts": {
     "build": "run-p build:*",
     "build:main": "tsc -p tsconfig.json",
-    "precommit": "yarn fix && yarn lint",
+    "precommit": "turbo run format",
     "fix": "run-s fix:*",
     "lint": "run-s lint:*",
     "lint:ts": "eslint src --ext .ts",
-    "fix:prettier": "prettier \"src/**/*.ts\" --write --config .prettierrc.js",
+    "format": "prettier \"src/**/*.ts\" --write --config .prettierrc.js",
     "fix:lint": "eslint src --ext .ts --fix",
     "graphql-codegen": "graphql-codegen --config codegen.yml"
   },

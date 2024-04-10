@@ -136,7 +136,7 @@ const ShareSocialButton = (props: ShareSocialProps) => {
         url: shareUrl,
         title: 'Lixi'
       }}
-      onClick={() => { }}
+      onClick={() => {}}
     >
       <ShareButton className="share-social-btn">
         <ShareAltOutlined />

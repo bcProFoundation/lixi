@@ -168,7 +168,7 @@ const LixiClaimed = ({ className, claim, isMobile, lixi }: LixiClaimProps) => {
         url: shareUrl,
         title: 'Lixi'
       }}
-      onClick={() => { }}
+      onClick={() => {}}
     >
       <ClaimButton type="primary" className="no-border-btn">
         <ShareAltOutlined /> Share

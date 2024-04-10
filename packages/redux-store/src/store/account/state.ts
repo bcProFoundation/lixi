@@ -23,21 +23,21 @@ export interface AccountsState extends EntityState<Account, number> {
   recentVisitedPeople: WorshipedPerson[];
   recentHashtagAtHome: string[];
   recentHashtagAtPages:
-  | [
-    {
-      id: string | null;
-      hashtags: string[];
-    }
-  ]
-  | [];
+    | [
+        {
+          id: string | null;
+          hashtags: string[];
+        }
+      ]
+    | [];
   recentHashtagAtToken:
-  | [
-    {
-      id: string | null;
-      hashtags: string[];
-    }
-  ]
-  | [];
+    | [
+        {
+          id: string | null;
+          hashtags: string[];
+        }
+      ]
+    | [];
   accountInfoTemp: Account;
   commentUpload: Upload;
   scrollToCommentId: string;

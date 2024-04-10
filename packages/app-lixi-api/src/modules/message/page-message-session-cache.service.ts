@@ -9,7 +9,10 @@ export class PageMessageSessionCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:pagemessagesession';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis
+  ) {}
 
   async getPageMessageSessionCache(id: string) {
     const keyFields = [`latestMessage:${id}`, `latestMessageId:${id}`];

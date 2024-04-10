@@ -14,7 +14,7 @@ export default class TotalDanaViewScoreLoader {
     private readonly prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis,
     private readonly danaViewScoreService: DanaViewScoreService
-  ) { }
+  ) {}
 
   public readonly batchTotalDanaViewScore = new RedisDataLoader(
     this.redis,
@@ -50,14 +50,10 @@ export default class TotalDanaViewScoreLoader {
                 totalDanaViewScoreInPage += parseFloat(mapDanaViewScore.get(item) ?? '0');
               });
               mapItem.set(pageId, totalDanaViewScoreInPage);
-          }
-        }
-
-
-              mapItem.set(pageId, totalDanaViewScoreInPage);
             }
           });
         }
+
         if (!_.isNil(listTokenIds) && listTokenIds.length > 0) {
           const postsInTokens = await this.prisma.post.findMany({
             where: { tokenId: { in: listTokenIds } },
@@ -81,13 +77,9 @@ export default class TotalDanaViewScoreLoader {
                 totalDanaViewScoreInToken += parseFloat(mapDanaViewScore.get(item) ?? '0');
               });
               mapItem.set(tokenId, totalDanaViewScoreInToken);
-          }
-
-              mapItem.set(tokenId, totalDanaViewScoreInToken);
             }
           });
         }
-
 
         if (!_.isNil(listAccountIds) && listAccountIds.length > 0) {
           const postsInAccounts = await this.prisma.post.findMany({
@@ -102,7 +94,7 @@ export default class TotalDanaViewScoreLoader {
 
           const groupPostsInAccount = _.groupBy(postsInAccounts, item => item.accountId);
 
-          !_.isNil(listAccountIds) && listAccountIds.map(accountId => {
+          listAccountIds.map(accountId => {
             const postsInAccount = groupPostsInAccount[accountId];
             if (postsInAccount) {
               const postIdsInAccount = postsInAccount.map(item => item.id);

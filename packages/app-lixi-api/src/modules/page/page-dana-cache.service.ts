@@ -11,7 +11,10 @@ export class PageDanaCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:pages:dana';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis
+  ) {}
 
   async getPageDana(id: string) {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id);
@@ -61,12 +64,12 @@ export class PageDanaCacheService {
     const dbValues =
       uncachedPageIds.length > 0
         ? await this.prisma.pageDana.findMany({
-          where: {
-            pageId: {
-              in: uncachedPageIds
+            where: {
+              pageId: {
+                in: uncachedPageIds
+              }
             }
-          }
-        })
+          })
         : [];
 
     const dbValuesMap = new Map(

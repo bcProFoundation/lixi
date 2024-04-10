@@ -27,13 +27,15 @@ const useDidMountEffectNotification = (func?) => {
       dispatch(
         showToast('burn', {
           message: intl.get(`toast.burn`),
-          description: burnQueue.map(burn => {
-            return intl.get('account.burningList', {
-              burnForType: getType(burn.burnForType),
-              burnValue: burn.burnValue,
-              coin: 'XPI'
-            });
-          }).join('\n')
+          description: burnQueue
+            .map(burn => {
+              return intl.get('account.burningList', {
+                burnForType: getType(burn.burnForType),
+                burnValue: burn.burnValue,
+                coin: 'XPI'
+              });
+            })
+            .join('\n')
         })
       );
     }

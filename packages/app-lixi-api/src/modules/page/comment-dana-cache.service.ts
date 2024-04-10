@@ -11,7 +11,10 @@ export class CommentDanaCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:commentdana';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis
+  ) {}
 
   async getCommentDana(id: string) {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id);
@@ -61,12 +64,12 @@ export class CommentDanaCacheService {
     const dbValues =
       uncachedCommentIds.length > 0
         ? await this.prisma.commentDana.findMany({
-          where: {
-            commentId: {
-              in: uncachedCommentIds
+            where: {
+              commentId: {
+                in: uncachedCommentIds
+              }
             }
-          }
-        })
+          })
         : [];
 
     const dbValuesMap = new Map(

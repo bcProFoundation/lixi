@@ -71,8 +71,7 @@ export const AppContainer = styled.div`
   }
 `;
 
-export interface EmptyLayoutProps extends PropsWithChildren {
-}
+export interface EmptyLayoutProps extends PropsWithChildren {}
 
 const EmptyLayout = ({ children }) => {
   const [loading, setLoading] = useState(false);

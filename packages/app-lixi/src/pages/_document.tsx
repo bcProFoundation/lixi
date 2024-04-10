@@ -39,12 +39,11 @@ MyDocument.getInitialProps = async (ctx: DocumentContext) => {
   const originalRenderPage = ctx.renderPage;
   ctx.renderPage = () =>
     originalRenderPage({
-      enhanceApp: (App) => (props) =>
-      (
+      enhanceApp: App => props => (
         <StyleProvider cache={cache}>
           <App {...props} />
         </StyleProvider>
-      ),
+      )
     });
 
   const initialProps = await Document.getInitialProps(ctx);
@@ -58,9 +57,8 @@ MyDocument.getInitialProps = async (ctx: DocumentContext) => {
         {/* 1.2 inject css */}
         <style dangerouslySetInnerHTML={{ __html: style }}></style>
       </>
-    ),
+    )
   };
-}
+};
 
 export default MyDocument;
-

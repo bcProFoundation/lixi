@@ -17,50 +17,52 @@ const LoginComponent = () => {
     dispatch(verifyEmail(data));
   };
 
-  return <>
-    <h1>Login</h1>
-    <Form labelCol={{ span: 7 }} wrapperCol={{ span: 24 }} layout="horizontal">
-      <Form.Item name="username" label="Email">
-        <Controller
-          name="username"
-          control={control}
-          rules={{
-            required: {
-              value: true,
-              message: intl.get('account.emailRequired')
-            },
-            pattern: {
-              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: intl.get('account.invalidEmail')
-            }
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input onChange={onChange} onBlur={onBlur} value={value} />
-          )}
-        />
-      </Form.Item>
-      <p>{errors.username && errors.username.message}</p>
-      <Form.Item name="password" label="Password">
-        <Controller
-          name="password"
-          control={control}
-          rules={{
-            required: {
-              value: true,
-              message: intl.get('account.passwordRequired')
-            }
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input type="password" onChange={onChange} onBlur={onBlur} value={value} />
-          )}
-        />
-      </Form.Item>
-      <p>{errors.password && errors.password.message}</p>
-      <Button type="primary" onClick={handleSubmit(onSubmit)}>
-        {intl.get('account.login')}
-      </Button>
-    </Form>
-  </>;
+  return (
+    <>
+      <h1>Login</h1>
+      <Form labelCol={{ span: 7 }} wrapperCol={{ span: 24 }} layout="horizontal">
+        <Form.Item name="username" label="Email">
+          <Controller
+            name="username"
+            control={control}
+            rules={{
+              required: {
+                value: true,
+                message: intl.get('account.emailRequired')
+              },
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: intl.get('account.invalidEmail')
+              }
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input onChange={onChange} onBlur={onBlur} value={value} />
+            )}
+          />
+        </Form.Item>
+        <p>{errors.username && errors.username.message}</p>
+        <Form.Item name="password" label="Password">
+          <Controller
+            name="password"
+            control={control}
+            rules={{
+              required: {
+                value: true,
+                message: intl.get('account.passwordRequired')
+              }
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input type="password" onChange={onChange} onBlur={onBlur} value={value} />
+            )}
+          />
+        </Form.Item>
+        <p>{errors.password && errors.password.message}</p>
+        <Button type="primary" onClick={handleSubmit(onSubmit)}>
+          {intl.get('account.login')}
+        </Button>
+      </Form>
+    </>
+  );
 };
 
 export default LoginComponent;

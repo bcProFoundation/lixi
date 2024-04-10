@@ -31,7 +31,7 @@ import { FollowCacheService } from './follow-cache.service';
 import { basicPaginate, createEdge } from 'src/common/custom-graphql-relay/paginate';
 import TotalDanaViewScoreLoader from './total-dana-view-score.loader';
 import BCHJS from '@bcpros/xpi-js';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import moment from 'moment';
 import { template } from 'src/utils/stringTemplate';

@@ -1,4 +1,4 @@
-import type { ThemeConfig } from "antd";
+import type { ThemeConfig } from 'antd';
 
 const darkTheme: ThemeConfig = {
   token: {
@@ -13,4 +13,4 @@ const darkTheme: ThemeConfig = {
   }
 };
 
-export default darkTheme
+export default darkTheme;

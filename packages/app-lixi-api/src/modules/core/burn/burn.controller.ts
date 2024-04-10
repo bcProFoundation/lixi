@@ -29,7 +29,7 @@ import { TokenDanaCacheService } from '../../token/token-dana-cache.service';
 import { TranslateProvider } from '../translate/translate.constant';
 import { TranslateService } from '../translate/translate.service';
 import { ACCOUNT_DANA_QUEUE, BURN_FANOUT_QUEUE, PAGE_DANA_QUEUE } from './burn.constants';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Redis } from 'ioredis';
 import moment from 'moment';
 import { template } from 'src/utils/stringTemplate';
@@ -478,8 +478,8 @@ export class BurnController {
           notificationTypeId: post.page
             ? NOTIFICATION_TYPES.RECEIVE_BURN_PAGE
             : command.burnForType == BurnForType.Comment
-            ? NOTIFICATION_TYPES.RECEIVE_BURN_COMMENT_ACCOUNT
-            : NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT,
+              ? NOTIFICATION_TYPES.RECEIVE_BURN_COMMENT_ACCOUNT
+              : NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT,
           level: NotificationLevel.INFO,
           url:
             command.burnForType == BurnForType.Comment

@@ -11,7 +11,10 @@ import { NotificationGateway } from './notification.gateway';
 export class NotificationOutboundProcessor extends WorkerHost {
   private logger: Logger = new Logger(NotificationOutboundProcessor.name);
 
-  constructor(private prisma: PrismaService, private notificationGateway: NotificationGateway) {
+  constructor(
+    private prisma: PrismaService,
+    private notificationGateway: NotificationGateway
+  ) {
     super();
   }
 

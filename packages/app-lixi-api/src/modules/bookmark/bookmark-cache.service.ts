@@ -14,7 +14,10 @@ export class BookmarkCacheService {
 
   static keyPrefix = 'timeline:bookmark:{{userId}}';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis
+  ) {}
 
   async getBookmarkPaginatedTimeline(accountId: number, first: number = 20, after?: string) {
     const key = template(`${BookmarkCacheService.keyPrefix}`, { userId: accountId });

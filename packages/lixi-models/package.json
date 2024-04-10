@@ -28,12 +28,12 @@
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p tsconfig.module.json",
     "build:types": "tsc -p tsconfig.types.json",
-    "precommit": "yarn fix && yarn lint",
+    "precommit": "turbo run format",
     "fix": "run-s fix:*",
     "lint": "run-s lint:*",
     "lint:ts": "eslint src --ext .ts",
     "lint:prettier": "prettier \"src/**/*.ts\" --check --config .prettierrc.js",
-    "fix:prettier": "prettier \"src/**/*.ts\" --write --config .prettierrc.js",
+    "format": "prettier \"src/**/*.ts\" --write --config .prettierrc.js",
     "fix:lint": "eslint src --ext .ts --fix"
   },
   "engines": {

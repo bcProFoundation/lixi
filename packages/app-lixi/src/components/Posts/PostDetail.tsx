@@ -517,7 +517,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
               </Image.PreviewGroup>
             </div>
           )}
-          <ActionPostBar post={post} onClickIconComment={e => { }} />
+          <ActionPostBar post={post} onClickIconComment={e => {}} />
         </PostContentDetail>
 
         <Comment post={post} />

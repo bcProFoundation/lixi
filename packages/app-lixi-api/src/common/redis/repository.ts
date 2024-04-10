@@ -12,7 +12,10 @@ export function bufferToItem<T>(buffer: Buffer | null): IItem<T> | null {
 export class ItemRepository<T> implements IItemRepository<T> {
   private readonly keyPrefix: string;
 
-  constructor(public readonly name: string, public readonly redis: Redis | Cluster = new Redis()) {
+  constructor(
+    public readonly name: string,
+    public readonly redis: Redis | Cluster = new Redis()
+  ) {
     this.keyPrefix = `items:${name}:`;
   }
 

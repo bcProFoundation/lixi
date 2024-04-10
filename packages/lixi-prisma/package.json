@@ -20,13 +20,13 @@
     }
   },
   "scripts": {
-    "precommit": "yarn fix && yarn lint",
+    "precommit": "turbo run format",
     "prebuild": "rimraf build && npx prisma generate",
     "fix": "run-s fix:*",
     "lint": "run-s lint:*",
     "lint:prettier": "prettier --write \"src/**/*{.ts,.json}\" --check --config .prettierrc.js",
     "lint:ts": "eslint \"src/**/*.ts\"",
-    "fix:prettier": "prettier --write \"src/**/*{.ts,.json}\" --write --config .prettierrc.js",
+    "format": "prettier --write \"src/**/*{.ts,.json}\" --write --config .prettierrc.js",
     "fix:lint": "eslint \"src/**/*.ts\" --fix",
     "build": "rimraf build && tsc -p tsconfig.build.json",
     "build:watch": "tsc -p tsconfig.build.json -w --preserveWatchOutput",

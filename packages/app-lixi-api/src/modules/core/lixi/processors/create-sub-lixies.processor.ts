@@ -218,10 +218,10 @@ export class CreateSubLixiesProcessor extends WorkerHost {
     mapEncryptedClaimCode[encryptedClaimCode] = password;
     const uploadDetail = command.uploadId
       ? await this.prisma.uploadDetail.findFirst({
-        where: {
-          uploadId: command.uploadId
-        }
-      })
+          where: {
+            uploadId: command.uploadId
+          }
+        })
       : undefined;
 
     // Prepare data to insert into the database

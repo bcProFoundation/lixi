@@ -984,8 +984,9 @@ const PageMessage = () => {
       onClick={() => onClickSeenMessage(data.find(item => item.id === currentPageMessageSession?.id))}
     >
       <StyledSideContainer
-        className={`${currentPageMessageSession ? 'hide-side-message' : 'show-side-message'} ${isMobile ? 'animate__faster animate__animated animate__slideInRight' : ''
-          }`}
+        className={`${currentPageMessageSession ? 'hide-side-message' : 'show-side-message'} ${
+          isMobile ? 'animate__faster animate__animated animate__slideInRight' : ''
+        }`}
       >
         <h2 className="title-chat">
           Chats <span className="badge-total-message">{data.length}</span>
@@ -1042,8 +1043,9 @@ const PageMessage = () => {
 
       <StyledChatContainer
         {...handlersSwip}
-        className={`${currentPageMessageSession ? 'full-content-chat' : 'hide-content-chat'} ${isMobile ? 'animate__faster animate__animated animate__slideInLeft' : ''
-          }`}
+        className={`${currentPageMessageSession ? 'full-content-chat' : 'hide-content-chat'} ${
+          isMobile ? 'animate__faster animate__animated animate__slideInLeft' : ''
+        }`}
       >
         <StyledChatHeader>
           {currentPageMessageSession ? (
@@ -1249,10 +1251,11 @@ const PageMessage = () => {
             )}
             <StyledFooterChat>
               <IconContainer
-                className={`${currentPageMessageSession?.status !== PageMessageSessionStatus.Pending
-                  ? 'enable-upload'
-                  : 'disable-upload'
-                  }`}
+                className={`${
+                  currentPageMessageSession?.status !== PageMessageSessionStatus.Pending
+                    ? 'enable-upload'
+                    : 'disable-upload'
+                }`}
               >
                 <MultiUploader
                   type={UPLOAD_TYPES.MESSAGE}

@@ -45,7 +45,7 @@ export class FollowResolver {
     @I18n() private readonly i18n: I18nService,
     @InjectRedis() private readonly redis: Redis,
     private readonly accountCacheService: AccountCacheService
-  ) { }
+  ) {}
 
   @Query(() => Boolean)
   @UseGuards(GqlJwtAuthGuardByPass)

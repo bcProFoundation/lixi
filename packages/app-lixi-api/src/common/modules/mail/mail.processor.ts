@@ -10,7 +10,10 @@ import { MAIL_QUEUE } from './mail.constants';
 export class MailProcessor extends WorkerHost {
   private readonly logger = new Logger(this.constructor.name);
 
-  constructor(private readonly config: ConfigService, private readonly mailerService: MailerService) {
+  constructor(
+    private readonly config: ConfigService,
+    private readonly mailerService: MailerService
+  ) {
     super();
   }
 

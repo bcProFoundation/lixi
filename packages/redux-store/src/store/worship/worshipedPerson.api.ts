@@ -96,8 +96,6 @@ const enhancedApi = api.enhanceEndpoints({
 
 export { enhancedApi as api };
 
-
-
 export const {
   useWorshipedPeopleQuery,
   useCreateWorshipMutation,

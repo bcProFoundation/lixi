@@ -10,7 +10,10 @@ export class PostCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:posts:item-data';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis
+  ) {}
 
   async getById(id: string): Promise<Nullable<Post>> {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id);
@@ -61,14 +64,14 @@ export class PostCacheService {
     const dbValues =
       uncachedIds.length > 0
         ? await this.prisma.post.findMany({
-          where: {
-            id: { in: uncachedIds }
-          },
-          include: {
-            account: true,
-            translations: true
-          }
-        })
+            where: {
+              id: { in: uncachedIds }
+            },
+            include: {
+              account: true,
+              translations: true
+            }
+          })
         : [];
 
     const dbValuesMap = new Map(

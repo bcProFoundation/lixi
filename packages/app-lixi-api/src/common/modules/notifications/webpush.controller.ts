@@ -12,7 +12,11 @@ import { VError } from 'verror';
 export class WebpushController {
   private logger: Logger = new Logger(WebpushController.name);
 
-  constructor(private prisma: PrismaService, @I18n() private i18n: I18nService, @Inject(XPIJS) private XPI: BCHJS) {}
+  constructor(
+    private prisma: PrismaService,
+    @I18n() private i18n: I18nService,
+    @Inject(XPIJS) private XPI: BCHJS
+  ) {}
 
   @Post('subscribe')
   async subscribe(@Body() command: WebpushSubscribeCommand): Promise<any> {

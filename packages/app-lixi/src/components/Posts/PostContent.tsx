@@ -20,7 +20,7 @@ const PostContent = ({ post, showTranslation, currentLocale }) => {
 
       return post?.translations && post?.translations.length > 0 && showTranslation
         ? post.translations[indexPostTranslate === -1 ? 0 : indexPostTranslate]?.translateContent ||
-        post.translations[Language.en].translateContent //old post dont have vi trans will translate => en
+            post.translations[Language.en].translateContent //old post dont have vi trans will translate => en
         : post.content;
     }
   }, [showTranslation, currentLocale]);

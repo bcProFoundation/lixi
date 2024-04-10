@@ -24,7 +24,7 @@ export const {
   useImportAccountMutation,
   useUpdateAccountMutation,
   useAllFollowersByPageQuery,
-  useLazyAllFollowersByPageQuery
+  useLazyAllFollowersByPageQuery,
   useAccountsQuery,
   useLazyAccountsQuery,
   useTopWeekAccountsQuery,

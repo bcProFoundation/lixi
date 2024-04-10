@@ -245,45 +245,6 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
     }
   };
 
-  return (
-    <>
-      <FullWalletWrapper className="full-wallet">
-        <WalletInfoComponent />
-        <ClaimComponent isClaimFromAccount={true} claimCodeFromURL={claimCode}></ClaimComponent>
-        <TransactionHistory className="transaction-history">
-          <div className="header-transaction">
-            {intl.get('account.transactionHistory')}
-            <SearchOutlined />
-          </div>
-          <div className="content-transaction">
-            {walletHasUpdated ? (
-              Object.keys(walletParsedHistoryGroupByDate).map(index => {
-                return (
-                  <React.Fragment key={index}>
-                    <h3 className="tx-history-header">{index}</h3>
-                    <List>
-                      <VirtualList data={walletParsedHistoryGroupByDate[index]} itemHeight={47} itemKey="email">
-                        {(item: Tx & { parsed: ParsedChronikTx }) => {
-                          let memo = '';
-  return <>
-    <FullWalletWrapper className="full-wallet">
-      <WalletInfoComponent />
-      <ClaimComponent isClaimFromAccount={true} claimCodeFromURL={claimCode}></ClaimComponent>
-      <TransactionHistory className="transaction-history">
-        <div className="header-transaction">
-          {intl.get('account.transactionHistory')}
-          <SearchOutlined />
-        </div>
-        <div className="content-transaction">
-          {walletHasUpdated ? (
-            Object.keys(walletParsedHistoryGroupByDate).map(index => {
-              return (
-                <React.Fragment key={index}>
-                  <h3 className="tx-history-header">{index}</h3>
-                  <List>
-                    <VirtualList data={walletParsedHistoryGroupByDate[index]} itemHeight={47} itemKey="email">
-                      {(item: Tx & { parsed: ParsedChronikTx }) => {
-                        let memo = '';
   const fetchNextDataWalletHistory = async (pageNumber = 0) => {
     const { chronikTxHistory } = await getTxHistoryChronik(chronik, XPI, walletState, pageNumber);
     if (chronikTxHistory.length === 0) {
@@ -336,6 +297,7 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
                                   memo = item.parsed.opReturnMessage ?? '';
                                 } else {
                                   memo = item.parsed.opReturnMessage ?? '';
+                                }
                               }
                               return (
                                 <List.Item key={item.txid}>
@@ -389,29 +351,13 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
                                                 />
                                               )}
                                             </p>
+                                          )}
                                         </div>
                                         {!_.isEmpty(memo) && (
                                           <p className="tx-memo">
                                             <LockOutlined /> {memo}
                                           </p>
                                         )}
-                                      </p>
-                                    ) : item.parsed.incoming ? (
-                                      <p>
-                                        {intl.get('account.from')}:{' '}
-                                        {item.parsed.replyAddress && (
-                                          <FormattedTxAddress address={item.parsed.replyAddress.slice(-trimLength)} />
-                                        )}
-                                      </p>
-                                    ) : (
-                                      <p>
-                                        {intl.get('account.to')}:{' '}
-                                        {item.parsed.destinationAddress && (
-                                          <FormattedTxAddress
-                                            address={item.parsed.destinationAddress.slice(-trimLength)}
-                                          />
-                                        )}
-                                      </p>
                                       </div>
                                     }
                                   />

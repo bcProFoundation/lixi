@@ -3,8 +3,7 @@ import { AuthenticationContext } from '@context/index';
 import SignUp from './SignUp';
 import SignIn from './SignIn';
 
-export interface DeviceProtectableComponentWrapperProps extends PropsWithChildren {
-};
+export interface DeviceProtectableComponentWrapperProps extends PropsWithChildren {}
 
 const DeviceProtectableComponentWrapper: React.FC<DeviceProtectableComponentWrapperProps> = ({ children }) => {
   const authentication = useContext(AuthenticationContext);
@@ -28,6 +27,6 @@ const DeviceProtectableComponentWrapper: React.FC<DeviceProtectableComponentWrap
   }
 
   // authentication = null  => authentication is not supported
-  return (<>{children}</>);
+  return <>{children}</>;
 };
 export default DeviceProtectableComponentWrapper;

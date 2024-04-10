@@ -33,12 +33,12 @@
     "test": "jest",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",
-    "precommit": "yarn fix && yarn lint",
+    "precommit": "turbo run format",
     "fix": "run-s fix:*",
     "lint": "run-s lint:*",
     "lint:ts": "eslint src --ext .ts",
     "lint:prettier": "prettier \"src/**/*.ts\" --check --config .prettierrc.js",
-    "fix:prettier": "prettier \"src/**/*{.ts,.tsx}\" --write --config .prettierrc.js",
+    "format": "prettier \"src/**/*{.ts,.tsx}\" --write --config .prettierrc.js",
     "fix:lint": "eslint src --ext .ts --fix"
   },
   "keywords": [

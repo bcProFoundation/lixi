@@ -13,7 +13,7 @@ export class HashtagService {
     @I18n() private i18n: I18nService,
     @Inject(MEILI_CLIENT) private readonly meiliSearch: MeiliSearch,
     private prisma: PrismaService
-  ) { }
+  ) {}
 
   //TODO: Need better function name
   public async extractAndSave(index: string, content: string, postId: string) {

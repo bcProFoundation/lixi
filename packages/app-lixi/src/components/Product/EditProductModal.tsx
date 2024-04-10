@@ -58,186 +58,188 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ product, dis
     dispatch(closeModal());
   };
 
-  return <>
-    <Modal
-      width={1192}
-      className="custom-edit-page-modal"
-      title={intl.get('page.updatePage')}
-      open={true}
-      onCancel={handleOnCancel}
-      footer={null}
-      style={{ top: '0 !important' }}
-    >
-      <CreateForm className="form-parent">
-        <CreateForm
-          className="form-child edit-page"
-          layout="vertical"
-          initialValues={{ disabled: componentDisabled }}
-          onValuesChange={onFormLayoutChange}
-          style={{ textAlign: 'start' }}
-        >
-          <Form.Item
-            name="name"
-            label={intl.get('page.name')}
-            rules={[{ required: true, message: intl.get('page.inputName') }]}
+  return (
+    <>
+      <Modal
+        width={1192}
+        className="custom-edit-page-modal"
+        title={intl.get('page.updatePage')}
+        open={true}
+        onCancel={handleOnCancel}
+        footer={null}
+        style={{ top: '0 !important' }}
+      >
+        <CreateForm className="form-parent">
+          <CreateForm
+            className="form-child edit-page"
+            layout="vertical"
+            initialValues={{ disabled: componentDisabled }}
+            onValuesChange={onFormLayoutChange}
+            style={{ textAlign: 'start' }}
           >
-            <Controller
+            <Form.Item
               name="name"
-              control={control}
-              rules={{
-                required: {
-                  value: true,
-                  message: intl.get('page.inputName')
-                },
-                pattern: {
-                  value: /.+/,
-                  message: intl.get('page.inputNamePattern')
-                }
-              }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input value={value} onChange={onChange} onBlur={onBlur} />
-              )}
-            />
-            <p style={{ display: errors.name ? 'flex' : 'none', color: 'var(--color-danger)' }}>
-              {errors.name && errors.name.message}
-            </p>
-          </Form.Item>
+              label={intl.get('page.name')}
+              rules={[{ required: true, message: intl.get('page.inputName') }]}
+            >
+              <Controller
+                name="name"
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: intl.get('page.inputName')
+                  },
+                  pattern: {
+                    value: /.+/,
+                    message: intl.get('page.inputNamePattern')
+                  }
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input value={value} onChange={onChange} onBlur={onBlur} />
+                )}
+              />
+              <p style={{ display: errors.name ? 'flex' : 'none', color: 'var(--color-danger)' }}>
+                {errors.name && errors.name.message}
+              </p>
+            </Form.Item>
 
-          <Form.Item
-            name="category"
-            label={intl.get('page.category')}
-            rules={[
-              {
-                required: true,
-                message: intl.get('page.selectCategory')
-              }
-            ]}
-          >
-            <Controller
-              name="categoryId"
-              control={control}
-              rules={{
-                required: {
-                  value: true,
+            <Form.Item
+              name="category"
+              label={intl.get('page.category')}
+              rules={[
+                {
+                  required: true,
                   message: intl.get('page.selectCategory')
                 }
-              }}
-              render={({ field: { onChange, onBlur, value }, formState: { isSubmitting } }) => (
-                <Select
-                  className="select-after edit-page"
-                  showSearch
-                  onChange={onChange}
-                  onBlur={onBlur}
-                  placeholder={intl.get('page.category')}
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    (option!.children as unknown as string).toLocaleLowerCase().includes(input)
+              ]}
+            >
+              <Controller
+                name="categoryId"
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: intl.get('page.selectCategory')
                   }
-                  filterSort={(optionA, optionB) =>
-                    (optionA!.children as unknown as string)
-                      .toLowerCase()
-                      .localeCompare((optionB!.children as unknown as string).toLowerCase())
+                }}
+                render={({ field: { onChange, onBlur, value }, formState: { isSubmitting } }) => (
+                  <Select
+                    className="select-after edit-page"
+                    showSearch
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    placeholder={intl.get('page.category')}
+                    optionFilterProp="children"
+                    filterOption={(input, option) =>
+                      (option!.children as unknown as string).toLocaleLowerCase().includes(input)
+                    }
+                    filterSort={(optionA, optionB) =>
+                      (optionA!.children as unknown as string)
+                        .toLowerCase()
+                        .localeCompare((optionB!.children as unknown as string).toLowerCase())
+                    }
+                    style={{ width: '99%', textAlign: 'start' }}
+                    defaultValue={intl.get(
+                      'category.' +
+                        categories.find(category => category.id === Number(product.categoryId.toString())).name
+                    )}
+                    disabled={isSubmitting}
+                  >
+                    {categories.map(pageCategory => (
+                      <Option key={pageCategory.id} value={pageCategory.id}>
+                        {intl.get('category.' + pageCategory.name)}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
+              />
+              <p style={{ display: errors.categoryId ? 'flex' : 'none', color: 'var(--color-danger)' }}>
+                {errors.categoryId && errors.categoryId.message}
+              </p>
+            </Form.Item>
+            <Form.Item name="price" label="Price" rules={[{ required: true, message: intl.get('page.inputName') }]}>
+              <Controller
+                name="price"
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: intl.get('page.inputName')
+                  },
+                  pattern: {
+                    value: /.+/,
+                    message: intl.get('page.inputNamePattern')
                   }
-                  style={{ width: '99%', textAlign: 'start' }}
-                  defaultValue={intl.get(
-                    'category.' +
-                      categories.find(category => category.id === Number(product.categoryId.toString())).name
-                  )}
-                  disabled={isSubmitting}
-                >
-                  {categories.map(pageCategory => (
-                    <Option key={pageCategory.id} value={pageCategory.id}>
-                      {intl.get('category.' + pageCategory.name)}
-                    </Option>
-                  ))}
-                </Select>
-              )}
-            />
-            <p style={{ display: errors.categoryId ? 'flex' : 'none', color: 'var(--color-danger)' }}>
-              {errors.categoryId && errors.categoryId.message}
-            </p>
-          </Form.Item>
-          <Form.Item name="price" label="Price" rules={[{ required: true, message: intl.get('page.inputName') }]}>
-            <Controller
-              name="price"
-              control={control}
-              rules={{
-                required: {
-                  value: true,
-                  message: intl.get('page.inputName')
-                },
-                pattern: {
-                  value: /.+/,
-                  message: intl.get('page.inputNamePattern')
-                }
-              }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input value={value} onChange={onChange} onBlur={onBlur} />
-              )}
-            />
-            <Controller
-              name="priceUnit"
-              control={control}
-              rules={{
-                required: {
-                  value: true,
-                  message: intl.get('page.inputName')
-                },
-                pattern: {
-                  value: /.+/,
-                  message: intl.get('page.inputNamePattern')
-                }
-              }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input value={value} onChange={onChange} onBlur={onBlur} />
-              )}
-            />
-            <p style={{ display: errors.name ? 'flex' : 'none', color: 'var(--color-danger)' }}>
-              {errors.name && errors.name.message}
-            </p>
-          </Form.Item>
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input value={value} onChange={onChange} onBlur={onBlur} />
+                )}
+              />
+              <Controller
+                name="priceUnit"
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: intl.get('page.inputName')
+                  },
+                  pattern: {
+                    value: /.+/,
+                    message: intl.get('page.inputNamePattern')
+                  }
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input value={value} onChange={onChange} onBlur={onBlur} />
+                )}
+              />
+              <p style={{ display: errors.name ? 'flex' : 'none', color: 'var(--color-danger)' }}>
+                {errors.name && errors.name.message}
+              </p>
+            </Form.Item>
 
-          <Form.Item
-            name="phoneNumber"
-            label="Phone"
-            rules={[{ required: true, message: intl.get('page.inputName') }]}
-          >
-            <Controller
+            <Form.Item
               name="phoneNumber"
-              control={control}
-              rules={{
-                required: {
-                  value: true,
-                  message: intl.get('page.inputName')
-                },
-                pattern: {
-                  value: /.+/,
-                  message: intl.get('page.inputNamePattern')
-                }
-              }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input value={value} onChange={onChange} onBlur={onBlur} />
-              )}
-            />
-            <p style={{ display: errors.name ? 'flex' : 'none', color: 'var(--color-danger)' }}>
-              {errors.name && errors.name.message}
-            </p>
-          </Form.Item>
-          <Form.Item label={intl.get('page.description')}>
-            <Controller
-              name="description"
-              control={control}
-              render={({ field: { onChange, value } }) => <TextArea value={value} onChange={onChange} rows={5} />}
-            />
-          </Form.Item>
+              label="Phone"
+              rules={[{ required: true, message: intl.get('page.inputName') }]}
+            >
+              <Controller
+                name="phoneNumber"
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: intl.get('page.inputName')
+                  },
+                  pattern: {
+                    value: /.+/,
+                    message: intl.get('page.inputNamePattern')
+                  }
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input value={value} onChange={onChange} onBlur={onBlur} />
+                )}
+              />
+              <p style={{ display: errors.name ? 'flex' : 'none', color: 'var(--color-danger)' }}>
+                {errors.name && errors.name.message}
+              </p>
+            </Form.Item>
+            <Form.Item label={intl.get('page.description')}>
+              <Controller
+                name="description"
+                control={control}
+                render={({ field: { onChange, value } }) => <TextArea value={value} onChange={onChange} rows={5} />}
+              />
+            </Form.Item>
+          </CreateForm>
         </CreateForm>
-      </CreateForm>
 
-      <div style={{ textAlign: 'end', marginRight: '10px' }}>
-        <Button type="primary" htmlType="submit" onClick={handleSubmit(onSubmit)}>
-          {intl.get('page.editPage')}
-        </Button>
-      </div>
-    </Modal>
-  </>;
+        <div style={{ textAlign: 'end', marginRight: '10px' }}>
+          <Button type="primary" htmlType="submit" onClick={handleSubmit(onSubmit)}>
+            {intl.get('page.editPage')}
+          </Button>
+        </div>
+      </Modal>
+    </>
+  );
 };

@@ -50,8 +50,6 @@ const FourOhFourPage = () => {
   return <FourOhFourComponent />;
 };
 
-FourOhFourPage.getLayout = (page) => (
-  <EmptyLayout>{page}</EmptyLayout>
-);
+FourOhFourPage.getLayout = page => <EmptyLayout>{page}</EmptyLayout>;
 
 export default FourOhFourPage;

@@ -121,10 +121,8 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   };
 });
 
-PageDetailPage.getLayout = function getLayout(page: ReactElement){ 
-  return (
-    <MainLayout>{page}</MainLayout>
-  )
-}
+PageDetailPage.getLayout = function getLayout(page: ReactElement) {
+  return <MainLayout>{page}</MainLayout>;
+};
 
 export default PageDetailPage;

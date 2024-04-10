@@ -5,9 +5,8 @@ import { ToastType } from './state';
 export type ToastConfig = {
   message: string;
   description?: string;
-  duration?: number
-}
-
+  duration?: number;
+};
 
 export const showToast = createAction('toast/showToast', (type: ToastType, config: ToastConfig) => {
   return {

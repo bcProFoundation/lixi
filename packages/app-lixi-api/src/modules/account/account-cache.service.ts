@@ -86,22 +86,22 @@ export class AccountCacheService {
       const dbValues =
         uncachedIds.length > 0
           ? await this.prisma.account.findMany({
-            where: {
-              id: { in: uncachedIds }
-            },
-            include: {
-              avatar: {
-                include: {
-                  upload: true
-                }
+              where: {
+                id: { in: uncachedIds }
               },
-              cover: {
-                include: {
-                  upload: true
+              include: {
+                avatar: {
+                  include: {
+                    upload: true
+                  }
+                },
+                cover: {
+                  include: {
+                    upload: true
+                  }
                 }
               }
-            }
-          })
+            })
           : [];
 
       const dbValuesMap = new Map(
@@ -191,22 +191,22 @@ export class AccountCacheService {
       const dbValues =
         uncachedAddresses.length > 0
           ? await this.prisma.account.findMany({
-            where: {
-              address: { in: uncachedAddresses }
-            },
-            include: {
-              avatar: {
-                include: {
-                  upload: true
-                }
+              where: {
+                address: { in: uncachedAddresses }
               },
-              cover: {
-                include: {
-                  upload: true
+              include: {
+                avatar: {
+                  include: {
+                    upload: true
+                  }
+                },
+                cover: {
+                  include: {
+                    upload: true
+                  }
                 }
               }
-            }
-          })
+            })
           : [];
 
       const dbValuesMap = new Map(

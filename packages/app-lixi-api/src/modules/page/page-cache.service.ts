@@ -90,26 +90,26 @@ export class PageCacheService {
       const dbValues =
         uncachedIds.length > 0
           ? await this.prisma.page.findMany({
-            where: {
-              id: { in: uncachedIds }
-            },
-            include: {
-              pageAccount: true,
-              category: true,
-              country: true,
-              state: true,
-              avatar: {
-                include: {
-                  upload: true
-                }
+              where: {
+                id: { in: uncachedIds }
               },
-              cover: {
-                include: {
-                  upload: true
+              include: {
+                pageAccount: true,
+                category: true,
+                country: true,
+                state: true,
+                avatar: {
+                  include: {
+                    upload: true
+                  }
+                },
+                cover: {
+                  include: {
+                    upload: true
+                  }
                 }
               }
-            }
-          })
+            })
           : [];
 
       const dbValuesMap = new Map(

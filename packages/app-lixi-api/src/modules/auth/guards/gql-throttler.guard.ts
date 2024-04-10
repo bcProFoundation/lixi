@@ -1,7 +1,14 @@
 import { ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlArgumentsHost, GqlExecutionContext } from '@nestjs/graphql';
-import { ThrottlerGenerateKeyFunction, ThrottlerGetTrackerFunction, ThrottlerGuard, ThrottlerModuleOptions, ThrottlerOptions, ThrottlerStorage } from '@nestjs/throttler';
+import {
+  ThrottlerGenerateKeyFunction,
+  ThrottlerGetTrackerFunction,
+  ThrottlerGuard,
+  ThrottlerModuleOptions,
+  ThrottlerOptions,
+  ThrottlerStorage
+} from '@nestjs/throttler';
 import { ThrottlerLimitDetail } from '@nestjs/throttler/dist/throttler.guard.interface';
 
 @Injectable()
@@ -16,10 +23,16 @@ export class GqlThrottlerGuard extends ThrottlerGuard {
     return req.ips && req.ips.length ? req.ips[0] : req.ip; // individualize IP extraction to meet your own needs
   }
 
-  protected async handleRequest(context: ExecutionContext, limit: number, ttl: number, throttler: ThrottlerOptions, getTracker: ThrottlerGetTrackerFunction, generateKey: ThrottlerGenerateKeyFunction): Promise<boolean> {
+  protected async handleRequest(
+    context: ExecutionContext,
+    limit: number,
+    ttl: number,
+    throttler: ThrottlerOptions,
+    getTracker: ThrottlerGetTrackerFunction,
+    generateKey: ThrottlerGenerateKeyFunction
+  ): Promise<boolean> {
     // Here we start to check the amount of requests being done against the ttl.
     const { req, res } = this.getRequestResponse(context);
-
 
     // Return early if the current user agent should be ignored.
     if (Array.isArray(throttler.ignoreUserAgents)) {
