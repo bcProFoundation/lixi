@@ -1,3 +1,3 @@
 export * from './typeCoinInfo';
-export * from './infoXpi';
-export * from './infoXec';
+export * from './xpi';
+export * from './xec';

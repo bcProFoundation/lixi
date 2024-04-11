@@ -1,4 +1,4 @@
-import { CoinInfo } from './typeCoinInfo';
+import { CoinInfo } from '../typeCoinInfo';
 
 export const infoXpi: CoinInfo = {
   name: 'Lotus',

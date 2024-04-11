@@ -1,2 +1,2 @@
 export * from './coin';
-export * from './coinInfo';
+export * from './coin-info';
