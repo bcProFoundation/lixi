@@ -4,7 +4,7 @@ import { AvatarUser } from '@components/Common/AvatarUser';
 import Counter from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { ShareSocialButton } from '@components/Common/ShareSocialButton';
-import { currency } from '@components/Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { NavBarHeader, PathDirection } from '@components/Layout/MainLayout';
 import { WalletContext } from '@context/walletProvider';
 import { CommentOrderField, CreateCommentInput, OrderDirection, PostQueryItem } from '@generated/index';
@@ -329,7 +329,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
             chronik,
             walletPaths,
             slpBalancesAndUtxos.nonSlpUtxos,
-            currency.defaultFee,
+            coinInfo[COIN.XPI].defaultFee,
             text,
             false, // indicate send mode is one to one
             null,

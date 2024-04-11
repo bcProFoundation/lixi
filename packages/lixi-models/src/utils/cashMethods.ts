@@ -1,15 +1,21 @@
 import BigNumber from 'bignumber.js';
 
-import { currency } from '../constants/ticker';
+import { COIN, coinInfo } from '../constants';
 
-export const fromSmallestDenomination = (amount: number | BigNumber, cashDecimals = currency.cashDecimals): number => {
+export const fromSmallestDenomination = (
+  amount: number | BigNumber,
+  cashDecimals = coinInfo[COIN.XPI].cashDecimals
+): number => {
   const amountBig = BigNumber.isBigNumber(amount) ? amount : new BigNumber(amount);
   const multiplier = new BigNumber(10 ** (-1 * cashDecimals));
   const amountInBaseUnits = amountBig.times(multiplier);
   return amountInBaseUnits.toNumber();
 };
 
-export const toSmallestDenomination = (sendAmount: BigNumber, cashDecimals = currency.cashDecimals): BigNumber => {
+export const toSmallestDenomination = (
+  sendAmount: BigNumber,
+  cashDecimals = coinInfo[COIN.XPI].cashDecimals
+): BigNumber => {
   // Replace the BCH.toSatoshi method with an equivalent function that works for arbitrary decimal places
   // Example, for an 8 decimal place currency like Bitcoin
   // Input: a BigNumber of the amount of Bitcoin to be sent

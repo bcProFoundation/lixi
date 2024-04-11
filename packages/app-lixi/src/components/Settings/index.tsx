@@ -3,8 +3,7 @@ import Edit from '@assets/icons/edit.svg';
 import Trashcan from '@assets/icons/trashcan.svg';
 import {
   CashLoadingIcon,
-  ThemedQuerstionCircleOutlinedFaded,
-  ThemedSettingOutlined
+  ThemedQuerstionCircleOutlinedFaded
 } from '@bcpros/lixi-components/components/Common/CustomIcons';
 import {
   Account,
@@ -27,6 +26,7 @@ import {
   importAccount,
   renameAccount,
   selectAccount,
+  setAccountCoin,
   setSecondaryLanguageAccount
 } from '@store/account/actions';
 import { getAllAccounts, getSelectedAccount } from '@store/account/selectors';
@@ -47,6 +47,7 @@ import PushNotificationSetting from './PushNotificationSetting';
 import { RenameAccountModalProps } from './RenameAccountModal';
 import useThemeDetector from '@local-hooks/useThemeDetector';
 import { showToast } from '@store/toast/actions';
+import { activateWallet } from '@store/wallet';
 
 const { Panel } = Collapse;
 
@@ -281,6 +282,17 @@ const Settings: React.FC = () => {
   const isSystemThemes = useAppSelector(getIsSystemThemes);
   const currentLocale = useAppSelector(getCurrentLocale);
 
+  const keyCoins = Object.keys(COIN);
+  const labelCoin = item => (
+    <div className="label-coin">
+      <img className="img-coin" src={`/images/currencies/${item?.toLowerCase()}.svg`} />
+      <span className="name-coin">{item}</span>
+    </div>
+  );
+  const labelOptionCoins = keyCoins.map(item => {
+    return { label: labelCoin(item), value: item };
+  });
+
   useEffect(() => {
     if (isSystemThemes) {
       dispatch(setCurrentThemes(currentDeviceTheme ? 'dark' : 'light'));
@@ -376,7 +388,11 @@ const Settings: React.FC = () => {
     });
   }
 
-  const handleCodeToLanguage = locale => intl.get(`code.${locale}`);
+  const handleChangeWallet = value => {
+    dispatch(activateWallet({ mnemonic: selectedAccount.mnemonic, coin: value }));
+    dispatch(setAccountCoin({ id: selectedAccount.id, accountCoin: value }));
+  };
+
   return (
     <>
       <WrapperPage className="card setting-page">
@@ -442,7 +458,17 @@ const Settings: React.FC = () => {
                           <h3>{selectedAccount?.name}</h3>
                         </SWName>
                         <SWName>
-                          <h3>{selectedAccount?.coin ? selectedAccount.coin : COIN.XPI}</h3>
+                          <h3>
+                            {
+                              <Select
+                                onChange={handleChangeWallet}
+                                defaultValue={selectedAccount?.coin ?? COIN.XPI}
+                                options={labelOptionCoins}
+                                bordered={null}
+                                style={{ left: '-11px' }}
+                              ></Select>
+                            }
+                          </h3>
                         </SWName>
                         <SWButtonCtn>
                           <span onClick={() => showPopulatedRenameAccountModal(selectedAccount as Account)}>
@@ -465,7 +491,7 @@ const Settings: React.FC = () => {
                               <h3>{acc.name}</h3>
                             </SWName>
                             <SWName>
-                              <h3>{acc.coin ? acc.coin : COIN.XPI}</h3>
+                              <h3>{labelCoin(acc.coin)}</h3>
                             </SWName>
 
                             <SWButtonCtn>

@@ -1,5 +1,4 @@
 import { BurnForType, BurnType } from '@bcpros/lixi-models';
-import { currency } from '@bcpros/lixi-models/constants/ticker';
 import SlpWallet from '@bcpros/minimal-xpi-slp-wallet';
 import BCHJS from '@bcpros/xpi-js';
 import { WalletPathAddressInfo } from '@store/wallet';
@@ -18,6 +17,7 @@ import { generateBurnTxOutput } from '@utils/opReturnBurn';
 import BigNumber from 'bignumber.js';
 import { ChronikClient, Utxo } from 'chronik-client';
 import intl from 'react-intl-universal';
+import { TOKEN_ICON_URL } from '@bcpros/lixi-models';
 
 export default function useXPI() {
   const getRestUrl = (apiIndex = 0) => {
@@ -180,7 +180,7 @@ export default function useXPI() {
         return rawTxHex;
       } else {
         // return the explorer link for the broadcasted tx
-        return `${currency.blockExplorerUrl}/tx/${broadcastResponse.txid}`;
+        return `${TOKEN_ICON_URL}/tx/${broadcastResponse.txid}`;
       }
     } catch (err) {
       if (err.error === 'insufficient priority (code 66)') {

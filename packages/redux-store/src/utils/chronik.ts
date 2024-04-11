@@ -1,5 +1,4 @@
 import BCHJS from '@bcpros/xpi-js';
-import { currency } from '@components/Common/Ticker';
 import { walletAdapter, WalletState } from '@store/wallet';
 import BigNumber from 'bignumber.js';
 import { ChronikClient, Tx, TxHistoryPage, Utxo } from 'chronik-client';
@@ -7,6 +6,7 @@ import { ChronikClient, Tx, TxHistoryPage, Utxo } from 'chronik-client';
 import { Hash160AndAddress } from '@bcpros/lixi-models';
 import { decryptOpReturnMsg, getHashArrayFromWallet, getUtxoWif, parseOpReturn } from './cashMethods';
 import { parseBurnOutput, ParseBurnResult } from './opReturnBurn';
+import { TX_HISTORY_COUNT, coinInfo, COIN } from '@bcpros/lixi-models/constants';
 
 export interface ParsedChronikTx {
   incoming: boolean;
@@ -195,7 +195,7 @@ export const returnGetTxHistoryChronikPromise = (
   return new Promise((resolve, reject) => {
     chronik
       .script('p2pkh', hash160AndAddressObj.hash160)
-      .history(/*page=*/ pageNumber ? pageNumber : 0, /*page_size=*/ currency.txHistoryCount)
+      .history(/*page=*/ pageNumber ? pageNumber : 0, /*page_size=*/ TX_HISTORY_COUNT)
       .then(
         result => {
           resolve(result);
@@ -267,7 +267,8 @@ export const parseChronikTx = async (
   XPI: BCHJS,
   chronik: ChronikClient,
   tx: Tx,
-  wallet: WalletState
+  wallet: WalletState,
+  coin = COIN.XPI
 ): Promise<ParsedChronikTx> => {
   const walletHash160s: string[] = getHashArrayFromWallet(wallet);
   const { inputs, outputs } = tx;
@@ -332,7 +333,7 @@ export const parseChronikTx = async (
 
       const txType = parsedOpReturnArray[0];
 
-      if (txType === currency.opReturn.appPrefixesHex.lotusChat) {
+      if (txType === coinInfo[COIN.XPI].opReturn.appPrefixesHex.lotusChat) {
         // this is a sendlotus message
         try {
           messageHex = parsedOpReturnArray[1];
@@ -343,7 +344,7 @@ export const parseChronikTx = async (
           opReturnMessage = '';
           console.log('useBCH.parsedTxData() error: invalid cashtab msg hex: ' + parsedOpReturnArray[1]);
         }
-      } else if (txType === currency.opReturn.appPrefixesHex.lotusChatEncrypted) {
+      } else if (txType === coinInfo[COIN.XPI].opReturn.appPrefixesHex.lotusChatEncrypted) {
         isLotusMessage = true;
         isEncryptedMessage = true;
         messageHex = parsedOpReturnArray[1];
@@ -389,10 +390,10 @@ export const parseChronikTx = async (
     }
   }
 
-  // Convert from sats to XPI
-  xpiAmount = xpiAmount.shiftedBy(-1 * currency.cashDecimals);
+  // Convert from sats to coin
+  xpiAmount = xpiAmount.shiftedBy(-1 * coinInfo[coin ?? COIN.XPI].cashDecimals);
   if (isBurn) {
-    xpiBurnAmount = xpiBurnAmount.shiftedBy(-1 * currency.cashDecimals);
+    xpiBurnAmount = xpiBurnAmount.shiftedBy(-1 * coinInfo[coin ?? COIN.XPI].cashDecimals);
   }
   // Convert from BigNumber to string
   const xpiAmountString = xpiAmount.toString();
@@ -428,7 +429,6 @@ export const parseChronikTx = async (
       opReturnMessage = 'Error in decrypting message!';
     }
   }
-
   const parsedTx: ParsedChronikTx = {
     incoming,
     xpiAmount: xpiAmountString,
@@ -450,7 +450,8 @@ export const getTxHistoryChronik = async (
   chronik: ChronikClient,
   XPI: BCHJS,
   wallet: WalletState,
-  pageNumber = 0
+  pageNumber = 0,
+  coin = COIN.XPI
 ): Promise<{ chronikTxHistory: Array<Tx & { parsed: ParsedChronikTx }> }> => {
   // Create array txHistory with selectedPath
   const walletPathSelected = getSelectedWalletPathFromWalletState(wallet);
@@ -471,14 +472,14 @@ export const getTxHistoryChronik = async (
   } catch (err) {
     console.log(`Error in Promise.all(txHistoryPromises)`, err);
   }
-  const sortedTxHistoryArray = sortAndTrimChronikTxHistory(txHistoryOfAllAddresses.txs, currency.txHistoryCount);
+  const sortedTxHistoryArray = sortAndTrimChronikTxHistory(txHistoryOfAllAddresses.txs, TX_HISTORY_COUNT);
 
   // Parse txs
   const chronikTxHistory: Array<Tx & { parsed: ParsedChronikTx }> = [];
   for (let i = 0; i < sortedTxHistoryArray.length; i += 1) {
     const sortedTx: any = sortedTxHistoryArray[i];
     // Add token genesis info so parsing function can calculate amount by decimals
-    sortedTx.parsed = await parseChronikTx(XPI, chronik, sortedTx, wallet);
+    sortedTx.parsed = await parseChronikTx(XPI, chronik, sortedTx, wallet, coin);
     chronikTxHistory.push(sortedTx as Tx & { parsed: ParsedChronikTx });
   }
 

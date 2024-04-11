@@ -1,7 +1,6 @@
 import { CloseOutlined, LeftOutlined } from '@ant-design/icons';
 import ActionPostBar from '@components/Common/ActionPostBar';
 import InfoCardUser from '@components/Common/InfoCardUser';
-import { currency } from '@components/Common/Ticker';
 import { LoadingIcon, NavBarHeader } from '@components/Layout/MainLayout';
 import { PostQueryItem } from '@generated/index';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
@@ -22,7 +21,7 @@ import Gallery from 'react-photo-gallery';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import { useSwipeable } from 'react-swipeable';
 import styled from 'styled-components';
-import { removeUpload } from '../../../../redux-store/src/store/account';
+import { removeUpload } from '@store/account';
 import Comment from './Comment';
 import { EditPostModalProps } from './EditPostModalPopup';
 import PostTranslate from './PostTranslate';

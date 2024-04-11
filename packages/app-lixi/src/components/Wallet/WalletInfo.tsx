@@ -1,7 +1,7 @@
 import LockOutlined, { EditOutlined, SendOutlined, SyncOutlined } from '@ant-design/icons';
 import BalanceHeader from '@bcpros/lixi-components/components/Common/BalanceHeader';
 import { FormattedWalletAddress } from '@bcpros/lixi-components/components/Common/QRCode';
-import { currency } from '@bcpros/lixi-components/components/Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import WalletLabel from '@bcpros/lixi-components/components/Common/WalletLabel';
 import { Account, RenameAccountCommand } from '@bcpros/lixi-models';
 import { QRCodeModalType } from '@bcpros/lixi-models/constants';
@@ -204,8 +204,11 @@ const WalletInfoComponent: React.FC = () => {
           <StyledBalanceHeader>
             {walletHasUpdated ? (
               <BalanceHeader
-                balance={fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis ?? 0)}
-                ticker={currency.ticker}
+                balance={fromSmallestDenomination(
+                  walletStatus.balances.totalBalanceInSatoshis ?? 0,
+                  selectedAccount?.coin ?? COIN.XPI
+                )}
+                ticker={coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker}
               />
             ) : (
               <React.Fragment>

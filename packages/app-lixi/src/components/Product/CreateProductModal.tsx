@@ -19,7 +19,7 @@ import React, { useRef, useState } from 'react';
 import intl from 'react-intl-universal';
 import Gallery from 'react-photo-gallery';
 import styled from 'styled-components';
-import { currency } from '../Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -237,7 +237,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
             chronik,
             walletPaths,
             slpBalancesAndUtxos.nonSlpUtxos,
-            currency.defaultFee,
+            coinInfo[COIN.XPI].defaultFee,
             '',
             false, // indicate send mode is one to one
             null,

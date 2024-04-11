@@ -5,7 +5,7 @@ import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import Counter from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import ReactionToken from '@components/Common/ReactionToken';
-import { currency } from '@components/Common/Ticker';
+import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants';
 import { InfoSubCard } from '@components/Lixi';
 import { AuthorizationContext } from '@context/index';
 import { CreateTokenInput, Token, TokenBasicEdge, TokenQueryItem } from '@generated/index';
@@ -289,7 +289,7 @@ const TokensListing = () => {
           alt="tokenIcon"
           width={32}
           height={32}
-          src={`${currency.tokenIconsUrl}/32/${token.tokenId}.png`}
+          src={`${TOKEN_ICON_URL}/32/${token.tokenId}.png`}
           fallback={makeBlockie(token.id)}
           preview={false}
           style={{
@@ -505,7 +505,7 @@ const TokensListing = () => {
                       <InfoCardUser
                         name={token.ticker}
                         title={token.name}
-                        imgUrl={`${currency.tokenIconsUrl}/32/${token.tokenId}.png`}
+                        imgUrl={`${TOKEN_ICON_URL}/32/${token.tokenId}.png`}
                         isDropdown={false}
                       />
                       <div className="detail-token">

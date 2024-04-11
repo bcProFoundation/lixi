@@ -1,7 +1,7 @@
 import { WORSHIP_AMOUNT_TYPES, WORSHIP_TYPES } from '@bcpros/lixi-models/constants';
 import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
 import Counter from '@components/Common/Counter';
-import { currency } from '@components/Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { OrderDirection, WorshipOrderField } from '@generated/types.generated';
 import { addRecentVisitedPerson } from '@store/account/actions';
 import { addBurnQueue, addBurnTransaction, clearFailQueue, getFailQueue } from '@store/burn';
@@ -242,7 +242,7 @@ const PersonDetail = ({ person, isMobile }: PersonDetailProp) => {
       const burnedBy = hash160;
       const burnForId = person.id;
       const burnCommand: BurnQueueCommand = {
-        defaultFee: currency.defaultFee,
+        defaultFee: coinInfo[COIN.XPI].defaultFee,
         burnType,
         burnForType: BurnForType.Worship,
         burnedBy,

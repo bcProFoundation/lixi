@@ -1,11 +1,10 @@
 import { BurnForType, BurnType } from '@bcpros/lixi-models';
-import { currency } from '@bcpros/lixi-models/constants/ticker';
 import SlpWallet from '@bcpros/minimal-xpi-slp-wallet';
 import BCHJS from '@bcpros/xpi-js';
 import { WalletPathAddressInfo } from '@store/wallet';
 import {
   encryptOpReturnMsg,
-  fromXpiToSatoshis,
+  fromCoinToSatoshis,
   generateOpReturnScript,
   generateTxInput,
   generateTxOutput,
@@ -18,6 +17,8 @@ import { generateBurnTxOutput } from '@utils/opReturnBurn';
 import BigNumber from 'bignumber.js';
 import { ChronikClient, Utxo } from 'chronik-client';
 import intl from 'react-intl-universal';
+
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 
 export default function useXPI() {
   const getRestUrl = (apiIndex = 0) => {
@@ -91,7 +92,7 @@ export default function useXPI() {
       // parse the input value of XPIs to send
       const value = parseXpiSendValue(isOneToMany, sendAmount, destinationAddressAndValueArray);
 
-      const satoshisToSend = fromXpiToSatoshis(value);
+      const satoshisToSend = fromCoinToSatoshis(value, coinInfo[COIN.XPI].cashDecimals);
 
       // Throw validation error if fromXecToSatoshis returns false
       if (!satoshisToSend) {
@@ -180,7 +181,7 @@ export default function useXPI() {
         return rawTxHex;
       } else {
         // return the explorer link for the broadcasted tx
-        return `${currency.blockExplorerUrl}/tx/${broadcastResponse.txid}`;
+        return `${coinInfo[COIN.XPI].blockExplorerUrl}/tx/${broadcastResponse.txid}`;
       }
     } catch (err) {
       if (err.error === 'insufficient priority (code 66)') {
@@ -210,7 +211,7 @@ export default function useXPI() {
   ) => {
     let txBuilder = new XPI.TransactionBuilder();
 
-    const satoshisToBurn = fromXpiToSatoshis(new BigNumber(burnAmount));
+    const satoshisToBurn = fromCoinToSatoshis(new BigNumber(burnAmount), coinInfo[COIN.XPI].cashDecimals);
 
     // Throw validation error if fromXecToSatoshis returns false
     if (!satoshisToBurn) {

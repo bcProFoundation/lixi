@@ -2,7 +2,7 @@ import { CopyOutlined } from '@ant-design/icons';
 import { PostListType } from '@bcpros/lixi-models/constants';
 import CreatePostCard from '@components/Common/CreatePostCard';
 import SearchBox from '@components/Common/SearchBox';
-import { currency } from '@components/Common/Ticker';
+import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants';
 import { InfoSubCard } from '@components/Lixi';
 import PostListItem from '@components/Posts/PostListItem';
 import {
@@ -510,7 +510,7 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
             <Image
               width={120}
               height={120}
-              src={`${currency.tokenIconsUrl}/128/${tokenDetailData.tokenId}.png`}
+              src={`${TOKEN_ICON_URL}/128/${tokenDetailData.tokenId}.png`}
               fallback={makeBlockie(tokenDetailData?.tokenId ?? '')}
               preview={false}
             />

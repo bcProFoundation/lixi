@@ -1,16 +1,14 @@
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useAppDispatch } from '@store/hooks';
 import { UpdateAccountInput } from '@generated/types.generated';
-import { Button, DatePicker, Form, Input, Layout, Menu, MenuProps, Modal, Select, Tabs } from 'antd';
+import { Button, Form, Input, Modal, Select } from 'antd';
 import intl from 'react-intl-universal';
 import { closeModal } from '@store/modal/actions';
-import { FileOutlined, IdcardOutlined, UserOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { fromSmallestDenomination } from '@utils/cashMethods';
 import { showToast } from '@store/toast/actions';
-import { currency } from '@components/Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { CreateForm } from '@components/Lixi/CreateLixiFormModal';
-import styled from 'styled-components';
 import { Account } from '@bcpros/lixi-models';
 import { useUpdateAccountMutation } from '@store/account/accounts.api';
 import { setAccount } from '@store/account';
@@ -26,7 +24,7 @@ type EditProfileModalProps = {
 export const EditProfileModal: React.FC<EditProfileModalProps> = ({ profile, classStyle }: EditProfileModalProps) => {
   const dispatch = useAppDispatch();
   // const createRepostFee = [0, 1, 10, 100, 1000];
-  const createCommentFee = [0, fromSmallestDenomination(currency.dustSats)];
+  const createCommentFee = [0, fromSmallestDenomination(coinInfo[COIN.XPI].dustSats)];
 
   const [componentDisabled, setComponentDisabled] = useState<boolean>(true);
   const onFormLayoutChange = ({ disabled }: { disabled: boolean }) => {
@@ -176,14 +174,14 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ profile, cla
                 render={({ field: { onChange, value }, formState: { isSubmitting } }) => (
                   <Select
                     className="select-after edit-page"
-                    value={`${value} ${currency.ticker}`}
+                    value={`${value} ${coinInfo[COIN.XPI].ticker}`}
                     onChange={onChange}
                     placeholder={intl.get('page.state')}
                     disabled={isSubmitting}
                     style={{ width: '99%', textAlign: 'end' }}
                   >
                     {createCommentFee.map(fee => (
-                      <Option key={fee}>{`${fee} ${currency.ticker}`}</Option>
+                      <Option key={fee}>{`${fee} ${coinInfo[COIN.XPI].ticker}`}</Option>
                     ))}
                   </Select>
                 )}

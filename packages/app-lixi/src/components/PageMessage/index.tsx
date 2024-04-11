@@ -35,7 +35,7 @@ import intl from 'react-intl-universal';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { getUtxoWif } from '@utils/cashMethods';
 import useXPI from '@hooks/useXPI';
-import { currency } from '@components/Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { sendXPIFailure, sendXPISuccess } from '@store/send/actions';
 import { fromSmallestDenomination } from '@utils/cashMethods';
 import { useSwipeable } from 'react-swipeable';
@@ -860,7 +860,7 @@ const PageMessage = () => {
         chronik,
         walletPaths,
         slpBalancesAndUtxos.nonSlpUtxos,
-        currency.defaultFee,
+        coinInfo[COIN.XPI].defaultFee,
         '',
         false, // indicate send mode is one to one
         null,

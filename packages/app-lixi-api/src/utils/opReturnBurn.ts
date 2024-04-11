@@ -1,4 +1,5 @@
-import { BurnForType, BurnType, currency } from '@bcpros/lixi-models';
+import { BurnForType, BurnType } from '@bcpros/lixi-models';
+import { coinInfo, COIN } from '@bcpros/lixi-models';
 import BCHJS from '@bcpros/xpi-js';
 import BigNumber from 'bignumber.js';
 
@@ -304,7 +305,7 @@ export const generateBurnTxOutput = (
       });
 
     // if a remainder exists, return to change address as the final output
-    if (remainder.gte(new BigNumber(currency.dustSats))) {
+    if (remainder.gte(new BigNumber(coinInfo[COIN.XPI].dustSats))) {
       txBuilder.addOutput(changeAddress, parseInt(remainder.toString()));
     }
 

@@ -1,5 +1,4 @@
 export * as baseApi from './api/baseApi';
-export * from './components/Common/Ticker';
 export * from './context/index';
 export * from './generated/types.generated';
 export * from './graphql/fragments/page-info-fields.fragment.generated';

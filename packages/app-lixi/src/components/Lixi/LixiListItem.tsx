@@ -14,7 +14,7 @@ import {
   UnarchiveLixiCommand,
   WithdrawLixiCommand
 } from '@bcpros/lixi-models/lib/lixi';
-import { currency } from '@components/Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { getAllSubLixies } from '@store/lixi/selectors';
 import { openModal } from '@store/modal/actions';
 import { fromSmallestDenomination } from '@utils/cashMethods';
@@ -22,15 +22,7 @@ import { Button, Col, Dropdown, Menu, Row, Tag, Typography } from 'antd';
 import intl from 'react-intl-universal';
 import { getSelectedAccount } from '@store/account/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import {
-  archiveLixi,
-  exportSubLixies,
-  refreshLixiSilent,
-  renameLixi,
-  selectLixi,
-  unarchiveLixi,
-  withdrawLixi
-} from '@store/lixi/actions';
+import { archiveLixi, exportSubLixies, renameLixi, selectLixi, unarchiveLixi, withdrawLixi } from '@store/lixi/actions';
 import styled, { DefaultTheme } from 'styled-components';
 import { RenameLixiModalProps } from './RenameLixiModal';
 import { useRouter } from 'next/router';
@@ -126,7 +118,7 @@ export const typeLixi = lixi => {
     case LixiType.Fixed:
       return (
         <>
-          {intl.get('account.fixed')} {lixi.fixedValue} {currency.ticker}
+          {intl.get('account.fixed')} {lixi.fixedValue} {coinInfo[COIN.XPI].ticker}
         </>
       );
     case LixiType.Divided:
@@ -138,13 +130,14 @@ export const typeLixi = lixi => {
     case LixiType.Equal:
       return (
         <>
-          {intl.get('account.equal')} {(lixi.subLixiBalance / lixi.numberOfSubLixi).toFixed(2)} {currency.ticker}
+          {intl.get('account.equal')} {(lixi.subLixiBalance / lixi.numberOfSubLixi).toFixed(2)}{' '}
+          {coinInfo[COIN.XPI].ticker}
         </>
       );
     default:
       return (
         <>
-          {intl.get('account.random')} {lixi?.minValue}-{lixi?.maxValue} {currency.ticker}
+          {intl.get('account.random')} {lixi?.minValue}-{lixi?.maxValue} {coinInfo[COIN.XPI].ticker}
         </>
       );
   }

@@ -1,4 +1,3 @@
-import { currency } from './constants';
 import BCHJS from '@bcpros/xpi-js';
 import {
   encryptOpReturnMsg,
@@ -15,7 +14,7 @@ import { ChronikClient, Utxo } from 'chronik-client';
 import BigNumber from 'bignumber.js';
 import { generateBurnTxOutput } from './opReturnBurn';
 import { BurnForType, BurnType, WalletPathAddressInfo } from '@bcpros/lixi-models';
-import { isNullableType } from 'graphql';
+import { coinInfo, COIN } from '@bcpros/lixi-models';
 
 export default function useXPI() {
   const getRestUrl = (apiIndex = 0) => {
@@ -170,7 +169,7 @@ export default function useXPI() {
         return rawTxHex;
       } else {
         // return the explorer link for the broadcasted tx
-        return `${currency.blockExplorerUrl}/tx/${broadcastResponse.txid}`;
+        return `${coinInfo[COIN.XPI].blockExplorerUrl}/tx/${broadcastResponse.txid}`;
       }
     } catch (err: any) {
       // this.logger.error(err);

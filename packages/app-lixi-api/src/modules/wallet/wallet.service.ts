@@ -1,35 +1,14 @@
-import BigNumber from 'bignumber.js';
 import * as _ from 'lodash';
-import VError from 'verror';
-
-import { WalletPathAddressInfo, currency, fromSmallestDenomination, toSmallestDenomination } from '@bcpros/lixi-models';
+import { WalletPathAddressInfo } from '@bcpros/lixi-models';
+import { coinInfo, COIN } from '@bcpros/lixi-models';
 import BCHJS from '@bcpros/xpi-js';
 import HDNode from '@bcpros/xpi-js/types/hdnode';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ChronikClient, Utxo } from 'chronik-client';
-import { Redis } from 'ioredis';
-import { I18nContext } from 'nestjs-i18n';
+import { ChronikClient } from 'chronik-client';
 import { XPIJS } from './wallet.constants';
 import { Hash160AndAddress } from '@bcpros/lixi-models';
-import {
-  getUtxosChronik,
-  getWalletBalanceFromUtxos,
-  organizeUtxosByType,
-  getRecipientPublicKey
-} from '../../utils/chronik';
-import {
-  calcFee,
-  getChangeAddressFromInputUtxos,
-  parseXpiSendValue,
-  fromXpiToSatoshis,
-  encryptOpReturnMsg,
-  generateOpReturnScript,
-  generateTxInput,
-  generateTxOutput,
-  signAndBuildTx,
-  getUtxoWif
-} from '../../utils/cashMethods';
-import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
+import { getUtxosChronik, getWalletBalanceFromUtxos, organizeUtxosByType } from '../../utils/chronik';
+import { calcFee } from '../../utils/cashMethods';
 
 @Injectable()
 export class WalletService {
@@ -138,11 +117,11 @@ export class WalletService {
     ]);
     const { slpBalancesAndUtxos, balances } = walletStatus;
     const txFeeSats = calcFee(slpBalancesAndUtxos.nonSlpUtxos);
-    const txFeeXpi = txFeeSats / 10 ** currency.cashDecimals;
+    const txFeeXpi = txFeeSats / 10 ** coinInfo[COIN.XPI].cashDecimals;
 
     let value =
       _.toNumber(balances.totalBalance) - txFeeXpi >= 0
-        ? (_.toNumber(balances.totalBalance) - txFeeXpi).toFixed(currency.cashDecimals)
+        ? (_.toNumber(balances.totalBalance) - txFeeXpi).toFixed(coinInfo[COIN.XPI].cashDecimals)
         : 0;
 
     value = value.toString();

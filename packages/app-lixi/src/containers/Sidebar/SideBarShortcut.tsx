@@ -1,7 +1,7 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { NotificationDto } from '@bcpros/lixi-models';
 import { transformShortName } from '@components/Common/AvatarUser';
-import { currency } from '@components/Common/Ticker';
+import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants';
 import { HashtagOrderField, OrderDirection, Post, PostOrderField } from '@generated/types.generated';
 import { addRecentHashtagAtPages, setGraphqlRequestLoading } from '@store/account/actions';
 import { getSelectedAccountId } from '@store/account/selectors';
@@ -11,7 +11,7 @@ import { setSelectedPost } from '@store/post/actions';
 import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
 import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
 import { toggleCollapsedSideNav } from '@store/settings/actions';
-import { getFilterPostsHome, getFilterPostsPage, getLevelFilter, getNavCollapsed } from '@store/settings/selectors';
+import { getFilterPostsPage, getLevelFilter, getNavCollapsed } from '@store/settings/selectors';
 import { api as timelineApi } from '@store/timeline/timeline.api';
 import { useInfiniteHomeTimelineQuery } from '@store/timeline/useInfiniteHomeTimelineQuery';
 import axiosClient from '@utils/axiosClient';
@@ -531,7 +531,7 @@ export const ShortCutItem = ({
   >
     <div className={`avatar-account ${item?.page ? 'avatar-account-page' : ''}`}>
       {item?.page && <img src={item?.page?.avatar || '/images/default-avatar.jpg'} />}
-      {item?.token && <img src={`${currency.tokenIconsUrl}/64/${item?.token?.tokenId}.png`} />}
+      {item?.token && <img src={`${TOKEN_ICON_URL}/64/${item?.token?.tokenId}.png`} />}
       {!item?.page && !item?.token && (
         <Avatar src={item?.account?.avatar ? item?.account?.avatar : ''}>
           {transformShortName(item?.account?.name)}

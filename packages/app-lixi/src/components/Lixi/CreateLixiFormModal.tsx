@@ -32,7 +32,7 @@ import {
   FormItemStaffAddressInput
 } from '@bcpros/lixi-components/components/Common/EnhancedInputs';
 import { StyledCollapse } from '@bcpros/lixi-components/components/Common/StyledCollapse';
-import { currency } from '@bcpros/lixi-components/components/Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { countries, UPLOAD_BUTTON_TYPE, UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
 import { Account } from '@bcpros/lixi-models/lib/account';
 import { ClaimType, GenerateLixiCommand, LixiType, LotteryAddress, NetworkType } from '@bcpros/lixi-models/lib/lixi';
@@ -772,12 +772,12 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
             <Form.Item label={intl.get('account.eachClaim')}>
               <CreateInput
                 type="number"
-                step={1 / 10 ** currency.cashDecimals}
+                step={1 / 10 ** coinInfo[COIN.XPI].cashDecimals}
                 value={newLixiFixedValue}
                 name="fixedValue"
                 onChange={e => handleChangeFixedValue(e)}
                 onWheel={e => e.currentTarget.blur()}
-                suffix={currency.ticker}
+                suffix={coinInfo[COIN.XPI].ticker}
               />
             </Form.Item>
           </>
@@ -791,7 +791,7 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
                 prefix="1 / "
                 suffix={intl.get('account.balance')}
                 type="number"
-                step={1 / 10 ** currency.cashDecimals}
+                step={1 / 10 ** coinInfo[COIN.XPI].cashDecimals}
                 value={newLixiDividedValue}
                 placeholder={intl.get('account.dividedNumber')}
                 name="dividedValue"
@@ -815,11 +815,11 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
                     id="min"
                     onWheel={e => e.currentTarget.blur()}
                     type="number"
-                    step={1 / 10 ** currency.cashDecimals}
+                    step={1 / 10 ** coinInfo[COIN.XPI].cashDecimals}
                     name="minValue"
                     value={newLixiMinValue}
                     onChange={e => handleChangeMinValue(e)}
-                    suffix={currency.ticker}
+                    suffix={coinInfo[COIN.XPI].ticker}
                   ></CreateInput>
                 </Form.Item>
               </Col>
@@ -827,12 +827,12 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
                 <Form.Item label={intl.get('account.max')}>
                   <CreateInput
                     type="number"
-                    step={1 / 10 ** currency.cashDecimals}
+                    step={1 / 10 ** coinInfo[COIN.XPI].cashDecimals}
                     name="maxValue"
                     value={newLixiMaxValue}
                     onChange={e => handleChangeMaxValue(e)}
                     onWheel={e => e.currentTarget.blur()}
-                    suffix={currency.ticker}
+                    suffix={coinInfo[COIN.XPI].ticker}
                   ></CreateInput>
                 </Form.Item>
               </Col>
@@ -919,7 +919,7 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
           <Input
             addonBefore={intl.get('account.minStaking')}
             type="number"
-            step={1 / 10 ** currency.cashDecimals}
+            step={1 / 10 ** coinInfo[COIN.XPI].cashDecimals}
             placeholder={intl.get('account.enterMinStaking')}
             name="MinStaking"
             value={newMinStaking}
@@ -1075,7 +1075,7 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
                 type="number"
                 value={newLixiAmount}
                 onChange={e => handleNewLixiAmountInput(e)}
-                suffix={currency.ticker}
+                suffix={coinInfo[COIN.XPI].ticker}
               />
             </Form.Item>
 

@@ -3,7 +3,7 @@ import UpDownSvg from '@assets/icons/upDownIcon.svg';
 import { Burn } from '@bcpros/lixi-models';
 import { TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models/constants/translation';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
-import { currency } from '@components/Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { CURRENCIES, WalletItem, decimalFormatBalance } from '@components/Wallet/ListWallet';
 import {
   AccountQueryItem,
@@ -479,7 +479,7 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
 
       <p className="fee-burn">
         {intl.get('burn.sendDana', {
-          cost: currency.burnFee * selectedAmount + selectedAmount,
+          cost: coinInfo[selectedAccount?.coin ?? COIN.XPI].burnFee * selectedAmount + selectedAmount,
           coin: 'XPI'
         })}
       </p>
