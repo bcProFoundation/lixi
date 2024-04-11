@@ -467,7 +467,7 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
             />
           )}
 
-          {post.page && (
+          {post.page && post.account.id != selectedAccountId && (
             <ItemActionSheetBottom
               text={
                 isFollowedPage

@@ -76,7 +76,7 @@ const IconBurnCustom = ({
       }}
     >
       <StyledBurnIconHover
-        src={`images/${icon}`}
+        src={`/images/${icon}`}
         style={{
           filter: isHover ? 'var(--filter-svg-white-color)' : colorFilterIcon
         }}
