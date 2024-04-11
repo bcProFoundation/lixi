@@ -8,6 +8,7 @@ export * from './lib/common/notification';
 export * from './lib/webpush';
 export * from './utils/cashMethods';
 export * from './utils/paginationResult';
+export * from './utils/addressUtils';
 export * from './constants';
 export * from './lib/package';
 export * from './lib/distribution';

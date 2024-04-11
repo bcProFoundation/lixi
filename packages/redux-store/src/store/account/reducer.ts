@@ -38,7 +38,8 @@ import {
   setSecondaryLanguageAccountSuccess,
   changeAccountLocale,
   removeUploadFromCache,
-  setScrollToCommentId
+  setScrollToCommentId,
+  setAccountCoin
 } from './actions';
 import { AccountsState } from './state';
 
@@ -396,6 +397,10 @@ export const accountReducer = createReducer(initialState, builder => {
     .addCase(setScrollToCommentId, (state, action) => {
       const commentId = action.payload;
       state.scrollToCommentId = commentId;
+    })
+    .addCase(setAccountCoin, (state, action) => {
+      const { id, accountCoin } = action.payload;
+      state.entities[id].coin = accountCoin;
     })
     .addMatcher(isAnyOf(refreshLixiListSuccess, refreshLixiListSilentSuccess), (state, action) => {
       const { account, lixies } = action.payload;

@@ -1,4 +1,4 @@
-import { currency } from '@bcpros/lixi-components/components/Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import BCHJS from '@bcpros/xpi-js';
 import { WalletPathAddressInfo, WalletState } from '@store/wallet';
 import BigNumber from 'bignumber.js';
@@ -12,23 +12,23 @@ export type TxInputObj = {
   txFee: number;
 };
 
-export const fromLegacyDecimals = (amount, cashDecimals = currency.cashDecimals) => {
+export const fromLegacyDecimals = (amount, cashDecimals = coinInfo[COIN.XPI].cashDecimals) => {
   // Input 0.00000546 BCH
-  // Output 5.46 XEC or 0.00000546 BCH, depending on currency.cashDecimals
+  // Output 5.46 XEC or 0.00000546 BCH, depending on coinInfo[COIN.XPI].cashDecimals
   const amountBig = new BigNumber(amount);
   const conversionFactor = new BigNumber(10 ** (8 - cashDecimals));
   const amountSmallestDenomination = amountBig.times(conversionFactor).toNumber();
   return amountSmallestDenomination;
 };
 
-export const fromSmallestDenomination = (amount, cashDecimals = currency.cashDecimals) => {
+export const fromSmallestDenomination = (amount, cashDecimals = coinInfo[COIN.XPI].cashDecimals) => {
   const amountBig = new BigNumber(amount);
   const multiplier = new BigNumber(10 ** (-1 * cashDecimals));
   const amountInBaseUnits = amountBig.times(multiplier);
   return amountInBaseUnits.toNumber();
 };
 
-export const toSmallestDenomination = (sendAmount: BigNumber, cashDecimals = currency.cashDecimals) => {
+export const toSmallestDenomination = (sendAmount: BigNumber, cashDecimals = coinInfo[COIN.XPI].cashDecimals) => {
   // Replace the BCH.toSatoshi method with an equivalent function that works for arbitrary decimal places
   // Example, for an 8 decimal place currency like Bitcoin
   // Input: a BigNumber of the amount of Bitcoin to be sent
@@ -45,7 +45,10 @@ export const toSmallestDenomination = (sendAmount: BigNumber, cashDecimals = cur
   return sendAmountSmallestDenomination;
 };
 
-export const fromXpiToSatoshis = (sendAmount: BigNumber, cashDecimals = currency.cashDecimals): BigNumber | false => {
+export const fromXpiToSatoshis = (
+  sendAmount: BigNumber,
+  cashDecimals = coinInfo[COIN.XPI].cashDecimals
+): BigNumber | false => {
   const isValidSendAmount = BigNumber.isBigNumber(sendAmount) && sendAmount.dp() <= cashDecimals;
   if (!isValidSendAmount) {
     return false;
@@ -55,7 +58,7 @@ export const fromXpiToSatoshis = (sendAmount: BigNumber, cashDecimals = currency
   return sendAmountSmallestDenomination;
 };
 
-export const fromSatoshisToXpi = (amount, cashDecimals = currency.cashDecimals): BigNumber => {
+export const fromSatoshisToXpi = (amount, cashDecimals = coinInfo[COIN.XPI].cashDecimals): BigNumber => {
   const amountBig = new BigNumber(amount);
   const multiplier = new BigNumber(10 ** (-1 * cashDecimals));
   const amountInBaseUnits = amountBig.times(multiplier);
@@ -92,7 +95,7 @@ export const parseXpiSendValue = (
       value = new BigNumber(singleSendValue);
     }
     // If user is attempting to send an aggregate value that is less than minimum accepted by the backend
-    if (value.lt(new BigNumber(fromSmallestDenomination(currency.dustSats).toString()))) {
+    if (value.lt(new BigNumber(fromSmallestDenomination(coinInfo[COIN.XPI].dustSats).toString()))) {
       // Throw the same error given by the backend attempting to broadcast such a tx
       throw new Error('dust');
     }
@@ -135,7 +138,7 @@ export const getByteCount = (p2pkhInputCount: number, p2pkhOutputCount: number):
 export const calcFee = (
   utxos: Array<Utxo>,
   p2pkhOutputNumber = 2,
-  satoshisPerByte = currency.defaultFee,
+  satoshisPerByte = coinInfo[COIN.XPI].defaultFee,
   opReturnLength = 0
 ) => {
   const byteCount = getByteCount(utxos.length, p2pkhOutputNumber);
@@ -251,7 +254,7 @@ export const generateTxOutput = (
     }
 
     // if a remainder exists, return to change address as the final output
-    if (remainder.gte(new BigNumber(currency.dustSats))) {
+    if (remainder.gte(new BigNumber(coinInfo[COIN.XPI].dustSats))) {
       txBuilder.addOutput(changeAddress, parseInt(remainder.toString()));
     }
   } catch (err) {
@@ -336,14 +339,14 @@ export const generateOpReturnScript = (
       // if the user has opted to encrypt this message
       script = [
         XPI.Script.opcodes.OP_RETURN, // 6a
-        Buffer.from(currency.opReturn.appPrefixesHex.lotusChatEncrypted, 'hex'), // 03030303
+        Buffer.from(coinInfo[COIN.XPI].opReturn.appPrefixesHex.lotusChatEncrypted, 'hex'), // 03030303
         Buffer.from(encryptedEj)
       ];
     } else if (optionalOpReturnMsg) {
       // this is an un-encrypted message
       script = [
         XPI.Script.opcodes.OP_RETURN, // 6a
-        Buffer.from(currency.opReturn.appPrefixesHex.lotusChat, 'hex'), // 02020202
+        Buffer.from(coinInfo[COIN.XPI].opReturn.appPrefixesHex.lotusChat, 'hex'), // 02020202
         Buffer.from(optionalOpReturnMsg)
       ];
     }
@@ -377,7 +380,7 @@ export const getChangeAddressFromInputUtxos = (XPI: BCHJS, inputUtxos: Array<Utx
 };
 
 export const getDustXPI = () => {
-  return (currency.dustSats / 10 ** currency.cashDecimals).toString();
+  return (coinInfo[COIN.XPI].dustSats / 10 ** coinInfo[COIN.XPI].cashDecimals).toString();
 };
 
 export const formatBalance = x => {
@@ -483,7 +486,11 @@ export const isActiveWebsocket = ws => {
  * @returns Array contains transaction type and message's hex
  */
 export function parseOpReturn(hexStr: string): Array<string> | false {
-  if (!hexStr || typeof hexStr !== 'string' || hexStr.substring(0, 2) !== currency.opReturn.opReturnPrefixHex) {
+  if (
+    !hexStr ||
+    typeof hexStr !== 'string' ||
+    hexStr.substring(0, 2) !== coinInfo[COIN.XPI].opReturn.opReturnPrefixHex
+  ) {
     return false;
   }
 
@@ -502,7 +509,7 @@ export function parseOpReturn(hexStr: string): Array<string> | false {
     // part 1: check the preceding byte value for the subsequent message
     let byteValue = hexStr.substring(0, 2);
     let msgByteSize = 0;
-    if (byteValue === currency.opReturn.opPushDataOne) {
+    if (byteValue === coinInfo[COIN.XPI].opReturn.opPushDataOne) {
       // if this byte is 4c then the next byte is the message byte size - retrieve the message byte size only
       msgByteSize = parseInt(hexStr.substring(2, 4), 16); // hex base 16 to decimal base 10
       hexStr = hexStr.slice(4); // strip the 4c + message byte size info
@@ -515,16 +522,16 @@ export function parseOpReturn(hexStr: string): Array<string> | false {
     // part 2: parse the subsequent message based on bytesize
     const msgCharLength = 2 * msgByteSize;
     message = hexStr.substring(0, msgCharLength);
-    if (i === 0 && message === currency.opReturn.appPrefixesHex.eToken) {
+    if (i === 0 && message === coinInfo[COIN.XPI].opReturn.appPrefixesHex.eToken) {
       // add the extracted eToken prefix to array then exit loop
-      resultArray[i] = currency.opReturn.appPrefixesHex.eToken;
+      resultArray[i] = coinInfo[COIN.XPI].opReturn.appPrefixesHex.eToken;
       break;
-    } else if (i === 0 && message === currency.opReturn.appPrefixesHex.lotusChat) {
+    } else if (i === 0 && message === coinInfo[COIN.XPI].opReturn.appPrefixesHex.lotusChat) {
       // add the extracted Sendlotus prefix to array
-      resultArray[i] = currency.opReturn.appPrefixesHex.lotusChat;
-    } else if (i === 0 && message === currency.opReturn.appPrefixesHex.lotusChatEncrypted) {
+      resultArray[i] = coinInfo[COIN.XPI].opReturn.appPrefixesHex.lotusChat;
+    } else if (i === 0 && message === coinInfo[COIN.XPI].opReturn.appPrefixesHex.lotusChatEncrypted) {
       // add the Sendlotus encryption prefix to array
-      resultArray[i] = currency.opReturn.appPrefixesHex.lotusChatEncrypted;
+      resultArray[i] = coinInfo[COIN.XPI].opReturn.appPrefixesHex.lotusChatEncrypted;
     } else {
       // this is either an external message or a subsequent sendlotus message loop to extract the message
       resultArray[i] = message;

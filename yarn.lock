@@ -2421,10 +2421,10 @@
     "@bitgo/blake2b-wasm" "^3.2.3"
     nanoassert "^2.0.0"
 
-"@bitgo/utxo-lib@^9.25.0":
-  version "9.25.0"
-  resolved "https://registry.yarnpkg.com/@bitgo/utxo-lib/-/utxo-lib-9.25.0.tgz#95af56e52e8c429792b2f674d25e3cfe4fe4b445"
-  integrity sha512-+v4+ZUM9fPa6YJXPKG06Ncv2AcWtZc81DGNhPA4UHknmowWSxPIs6vDJ9i5xUOS1OcgSDNxEymQQOSQd3SGZQA==
+"@bitgo/utxo-lib@^9.34.0":
+  version "9.34.0"
+  resolved "https://registry.yarnpkg.com/@bitgo/utxo-lib/-/utxo-lib-9.34.0.tgz#b8feb8a9cdbe1ea269035119508ce4e940ffe479"
+  integrity sha512-ykZ+EJaSxgPTEcHHLbg+ovP+PJWnPXLIkbSgVbT7Jyvgfxsxda/x94ljNn004S4wsZ6DLEto5+1BLXzQP94s9Q==
   dependencies:
     "@bitgo/blake2b" "^3.2.4"
     "@brandonblack/musig" "^0.0.1-alpha.0"

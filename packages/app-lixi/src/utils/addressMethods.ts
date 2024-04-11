@@ -1,4 +1,4 @@
-import { currency } from '@components/Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import BigNumber from 'bignumber.js';
 
 export interface AddressInfo {
@@ -42,7 +42,9 @@ export function parseAddress(XPI: any, addressString: string): AddressInfo {
     if (addrParams.has('amount')) {
       // Amount in satoshis
       try {
-        amount = new BigNumber(parseInt(addrParams.get('amount'))).div(10 ** currency.cashDecimals).toString();
+        amount = new BigNumber(parseInt(addrParams.get('amount')))
+          .div(10 ** coinInfo[COIN.XPI].cashDecimals)
+          .toString();
       } catch (err) {
         amount = null;
       }

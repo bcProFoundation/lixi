@@ -7,7 +7,7 @@ import {
 } from '@bcpros/lixi-components/components/Common/EnhancedInputs';
 import WalletLabel from '@bcpros/lixi-components/components/Common/WalletLabel';
 import PrimaryButton from '@components/Common/PrimaryButton';
-import { currency } from '@components/Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { WrapperPage } from '@components/Settings';
 import { WalletContext } from '@context/index';
 import useXPI from '@hooks/useXPI';
@@ -62,7 +62,7 @@ const SendComponent: React.FC = () => {
   const [queryStringText, setQueryStringText] = useState(null);
   const [sendXpiAddressError, setSendXpiAddressError] = useState('');
   const [sendXpiAmountError, setSendXpiAmountError] = useState('');
-  const [selectedCurrency, setSelectedCurrency] = useState(currency.ticker);
+  const [selectedCurrency, setSelectedCurrency] = useState(coinInfo[COIN.XPI].ticker);
 
   // Support cashtab button from web pages
   const [txInfoFromUrl, setTxInfoFromUrl] = useState(null);
@@ -136,7 +136,7 @@ const SendComponent: React.FC = () => {
         chronik,
         walletPaths,
         slpBalancesAndUtxos.nonSlpUtxos,
-        currency.defaultFee,
+        coinInfo[COIN.XPI].defaultFee,
         opReturnMsg,
         false, // indicate send mode is one to one
         null,
@@ -193,12 +193,12 @@ const SendComponent: React.FC = () => {
     const { address, isValid, queryString, amount } = addressInfo;
 
     // If query string,
-    // Show an alert that only amount and currency.ticker are supported
+    // Show an alert that only amount and coinInfo[COIN.XPI].ticker are supported
     setQueryStringText(queryString);
 
     // Is this valid address?
     if (!isValid) {
-      error = intl.get('claim.invalidAddress', { ticker: currency.ticker });
+      error = intl.get('claim.invalidAddress', { ticker: coinInfo[COIN.XPI].ticker });
     }
     // Is this address same with my address?
     if (currentAddress && address && address === currentAddress) {
@@ -214,7 +214,7 @@ const SendComponent: React.FC = () => {
     // Set amount if it's in the query string
     if (amount !== null) {
       // Set currency to BCHA
-      setSelectedCurrency(currency.ticker);
+      setSelectedCurrency(coinInfo[COIN.XPI].ticker);
 
       // Use this object to mimic user input and get validation for the value
       let amountObj = {
@@ -261,13 +261,13 @@ const SendComponent: React.FC = () => {
     // Clear amt error
     setSendXpiAmountError('');
     // Set currency to XPI
-    setSelectedCurrency(currency.ticker);
+    setSelectedCurrency(coinInfo[COIN.XPI].ticker);
     try {
       const txFeeSats = calcFee(XPI, slpBalancesAndUtxos.nonSlpUtxos);
-      const txFeeBch = txFeeSats / 10 ** currency.cashDecimals;
+      const txFeeBch = txFeeSats / 10 ** coinInfo[COIN.XPI].cashDecimals;
       let value =
         _.toNumber(walletBalances.totalBalance) - txFeeBch >= 0
-          ? (_.toNumber(walletBalances.totalBalance) - txFeeBch).toFixed(currency.cashDecimals)
+          ? (_.toNumber(walletBalances.totalBalance) - txFeeBch).toFixed(coinInfo[COIN.XPI].cashDecimals)
           : 0;
       value = value.toString();
       setFormData({
@@ -302,8 +302,8 @@ const SendComponent: React.FC = () => {
 
   const computeOpReturnMsgMaxByteLength = () => {
     const maxOpReturnLimit = isEncryptedOptionalOpReturnMsg
-      ? currency.opReturn.encryptedMsgByteLimit
-      : currency.opReturn.unencryptedMsgByteLimit;
+      ? coinInfo[COIN.XPI].opReturn.encryptedMsgByteLimit
+      : coinInfo[COIN.XPI].opReturn.unencryptedMsgByteLimit;
 
     return maxOpReturnLimit;
   };
@@ -314,7 +314,7 @@ const SendComponent: React.FC = () => {
         <p>
           {intl.get('send.sendModalTitle', {
             value: formData.value,
-            ticker: currency.ticker,
+            ticker: coinInfo[COIN.XPI].ticker,
             address: formData.address
           })}
         </p>
@@ -322,14 +322,14 @@ const SendComponent: React.FC = () => {
       <WrapperPage className="card send-component">
         {!walletBalances ? (
           <ZeroBalanceHeader>
-            {intl.get('zeroBalanceHeader.noBalance', { ticker: currency.ticker })}
+            {intl.get('zeroBalanceHeader.noBalance', { ticker: coinInfo[COIN.XPI].ticker })}
             <br />
             {intl.get('zeroBalanceHeader.deposit')}
           </ZeroBalanceHeader>
         ) : (
           <>
             <WalletLabel name={wallet?.name ?? ''} />
-            <BalanceHeader balance={walletBalances.totalBalance || 0} ticker={currency.ticker} />
+            <BalanceHeader balance={walletBalances.totalBalance || 0} ticker={coinInfo[COIN.XPI].ticker} />
           </>
         )}
 
@@ -367,7 +367,7 @@ const SendComponent: React.FC = () => {
                   })
                 }
                 inputProps={{
-                  placeholder: `${currency.ticker} Address`,
+                  placeholder: `${coinInfo[COIN.XPI].ticker} Address`,
                   name: 'address',
                   onChange: e => handleAddressChange(e),
                   required: true,
@@ -408,7 +408,7 @@ const SendComponent: React.FC = () => {
                 value={
                   opReturnMsg
                     ? isEncryptedOptionalOpReturnMsg
-                      ? opReturnMsg.substring(0, currency.opReturn.encryptedMsgByteLimit)
+                      ? opReturnMsg.substring(0, coinInfo[COIN.XPI].opReturn.encryptedMsgByteLimit)
                       : opReturnMsg
                     : ''
                 }
@@ -433,7 +433,7 @@ const SendComponent: React.FC = () => {
               </div>
               {queryStringText && (
                 <Alert
-                  message={intl.get('send.queryString', { queryStringText, currency: currency.ticker })}
+                  message={intl.get('send.queryString', { queryStringText, currency: coinInfo[COIN.XPI].ticker })}
                   type="warning"
                 />
               )}

@@ -20,10 +20,10 @@ import {
 } from './actions';
 import claimApi from './api';
 import { callConfig } from '@context/index';
-import { currency } from '@components/Common/Ticker';
 import { take } from 'redux-saga/effects';
 import { setAccount } from '@store/account/actions';
 import { getCurrentAddress, getCurrentClaimCode } from './selectors';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 
 function* postClaimSuccessSaga(action: PayloadAction<Claim>) {
   const claim = action.payload;
@@ -106,7 +106,7 @@ function* checkInformationAndClaimSaga(action: PayloadAction<CreateClaimDto>) {
   const isValidAddress = XPI.Address.isXAddress(cleanAddress);
 
   if (!isValidAddress) {
-    const error = intl.get('claim.titleShared', { ticker: currency.ticker });
+    const error = intl.get('claim.titleShared', { ticker: coinInfo[COIN.XPI].ticker });
     throw new Error(error);
   }
 

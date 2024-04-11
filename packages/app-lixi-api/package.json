@@ -41,7 +41,7 @@
     "@bcpros/lixi-prisma": "^1.1.5",
     "@bcpros/minimal-xpi-slp-wallet": "3.0.10",
     "@bcpros/xpi-js": "4.0.6",
-    "@bitgo/utxo-lib": "^9.25.0",
+    "@bitgo/utxo-lib": "^9.34.0",
     "@devoxa/prisma-relay-cursor-connection": "^2.2.2",
     "@fastify/compress": "^6.2.0",
     "@fastify/cookie": "8.3.0",

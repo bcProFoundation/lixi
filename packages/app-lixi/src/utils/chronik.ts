@@ -1,11 +1,12 @@
 import BCHJS from '@bcpros/xpi-js';
-import { currency } from '@components/Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { walletAdapter, WalletState } from '@store/wallet';
 import BigNumber from 'bignumber.js';
 import { ChronikClient, Tx, TxHistoryPage, Utxo } from 'chronik-client';
 import { decryptOpReturnMsg, getHashArrayFromWallet, getUtxoWif, parseOpReturn } from './cashMethods';
 import { parseBurnOutput, ParseBurnResult } from './opReturnBurn';
 import { Hash160AndAddress } from '@bcpros/lixi-models';
+import { TX_HISTORY_COUNT } from '@bcpros/lixi-models';
 
 export interface ParsedChronikTx {
   incoming: boolean;
@@ -179,7 +180,7 @@ export const returnGetTxHistoryChronikPromise = (
   return new Promise((resolve, reject) => {
     chronik
       .script('p2pkh', hash160AndAddressObj.hash160)
-      .history(/*page=*/ 0, /*page_size=*/ currency.txHistoryCount)
+      .history(/*page=*/ 0, /*page_size=*/ TX_HISTORY_COUNT)
       .then(
         result => {
           resolve(result);
@@ -316,7 +317,7 @@ export const parseChronikTx = async (
 
       let txType = parsedOpReturnArray[0];
 
-      if (txType === currency.opReturn.appPrefixesHex.lotusChat) {
+      if (txType === coinInfo[COIN.XPI].opReturn.appPrefixesHex.lotusChat) {
         // this is a sendlotus message
         try {
           messageHex = parsedOpReturnArray[1];
@@ -327,7 +328,7 @@ export const parseChronikTx = async (
           opReturnMessage = '';
           console.log('useBCH.parsedTxData() error: invalid cashtab msg hex: ' + parsedOpReturnArray[1]);
         }
-      } else if (txType === currency.opReturn.appPrefixesHex.lotusChatEncrypted) {
+      } else if (txType === coinInfo[COIN.XPI].opReturn.appPrefixesHex.lotusChatEncrypted) {
         isLotusMessage = true;
         isEncryptedMessage = true;
         messageHex = parsedOpReturnArray[1];
@@ -374,9 +375,9 @@ export const parseChronikTx = async (
   }
 
   // Convert from sats to XPI
-  xpiAmount = xpiAmount.shiftedBy(-1 * currency.cashDecimals);
+  xpiAmount = xpiAmount.shiftedBy(-1 * coinInfo[COIN.XPI].cashDecimals);
   if (isBurn) {
-    xpiBurnAmount = xpiBurnAmount.shiftedBy(-1 * currency.cashDecimals);
+    xpiBurnAmount = xpiBurnAmount.shiftedBy(-1 * coinInfo[COIN.XPI].cashDecimals);
   }
   // Convert from BigNumber to string
   const xpiAmountString = xpiAmount.toString();
@@ -459,7 +460,7 @@ export const getTxHistoryChronik = async (
     console.log(`Error in Promise.all(txHistoryPromises)`, err);
   }
   const flatTxHistoryArray = flattenChronikTxHistory(txHistoryOfAllAddresses);
-  const sortedTxHistoryArray = sortAndTrimChronikTxHistory(flatTxHistoryArray, currency.txHistoryCount);
+  const sortedTxHistoryArray = sortAndTrimChronikTxHistory(flatTxHistoryArray, TX_HISTORY_COUNT);
 
   // Parse txs
   const chronikTxHistory: Array<Tx & { parsed: ParsedChronikTx }> = [];

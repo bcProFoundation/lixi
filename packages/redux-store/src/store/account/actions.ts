@@ -128,3 +128,4 @@ export const setSecondaryLanguageAccountSuccess = createAction<Account>('account
 export const setSecondaryLanguageAccountFailure = createAction<string>('account/setSecondaryLanguageAccountFailure');
 
 export const setScrollToCommentId = createAction<string>('account/setScrollToCommentId');
+export const setAccountCoin = createAction<{ id: number; accountCoin: COIN }>('account/setAccountCoin');
