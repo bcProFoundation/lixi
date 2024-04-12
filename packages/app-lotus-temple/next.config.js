@@ -115,14 +115,12 @@ const nextConfig = withLess({
 	compiler: {
 		styledComponents: true
 	},
+	output: 'standalone',
 	experimental: {
 		// React 18 related
 		// @link https://nextjs.org/docs/advanced-features/react-18
 		// reactRoot: true,
 
-		// Standalone build
-		// @link https://nextjs.org/docs/advanced-features/output-file-tracing#automatically-copying-traced-files-experimental
-		outputStandalone: true,
 		// @link https://nextjs.org/docs/advanced-features/output-file-tracing#caveats
 		outputFileTracingRoot: path.join(__dirname, '../../'),
 
