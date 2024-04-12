@@ -29,7 +29,7 @@
     "outDir": "dist"
   },
   "include": [
-    "src/*/*.ts",
-    "src/*/*.tsx"
+    "src/**/*.ts",
+    "src/**/*.tsx"
   ]
 }

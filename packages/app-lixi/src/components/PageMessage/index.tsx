@@ -1,8 +1,7 @@
 import { CloseOutlined } from '@ant-design/icons';
 import { ClosePageMessageSessionInput, CreateClaimDto } from '@bcpros/lixi-models';
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import { COIN, UPLOAD_TYPES, coinInfo } from '@bcpros/lixi-models/constants';
 import { transformShortName } from '@components/Common/AvatarUser';
-import { currency } from '@components/Common/Ticker';
 import { MultiUploader } from '@components/Common/Uploader/MultiUploader';
 import { LoadingIcon } from '@components/Layout/MainLayout';
 import { URL_AVATAR_DEFAULT } from '@components/Profile/ProfileDetail';
@@ -42,7 +41,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import { ReactSVG } from 'react-svg';
 import { useSwipeable } from 'react-swipeable';
@@ -985,9 +983,8 @@ const PageMessage = () => {
       onClick={() => onClickSeenMessage(data.find(item => item.id === currentPageMessageSession?.id))}
     >
       <StyledSideContainer
-        className={`${currentPageMessageSession ? 'hide-side-message' : 'show-side-message'} ${
-          isMobile ? 'animate__faster animate__animated animate__slideInRight' : ''
-        }`}
+        className={`${currentPageMessageSession ? 'hide-side-message' : 'show-side-message'} ${isMobile ? 'animate__faster animate__animated animate__slideInRight' : ''
+          }`}
       >
         <h2 className="title-chat">
           Chats <span className="badge-total-message">{data.length}</span>
@@ -1044,9 +1041,8 @@ const PageMessage = () => {
 
       <StyledChatContainer
         {...handlersSwip}
-        className={`${currentPageMessageSession ? 'full-content-chat' : 'hide-content-chat'} ${
-          isMobile ? 'animate__faster animate__animated animate__slideInLeft' : ''
-        }`}
+        className={`${currentPageMessageSession ? 'full-content-chat' : 'hide-content-chat'} ${isMobile ? 'animate__faster animate__animated animate__slideInLeft' : ''
+          }`}
       >
         <StyledChatHeader>
           {currentPageMessageSession ? (
@@ -1252,11 +1248,10 @@ const PageMessage = () => {
             )}
             <StyledFooterChat>
               <IconContainer
-                className={`${
-                  currentPageMessageSession?.status !== PageMessageSessionStatus.Pending
+                className={`${currentPageMessageSession?.status !== PageMessageSessionStatus.Pending
                     ? 'enable-upload'
                     : 'disable-upload'
-                }`}
+                  }`}
               >
                 <MultiUploader
                   type={UPLOAD_TYPES.MESSAGE}

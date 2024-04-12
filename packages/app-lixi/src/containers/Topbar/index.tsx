@@ -1,5 +1,4 @@
 import { CopyOutlined, SendOutlined, SyncOutlined, UserSwitchOutlined } from '@ant-design/icons';
-import { currency } from '@bcpros/lixi-components/components/Common/Ticker';
 import { Account } from '@bcpros/lixi-models';
 import { COIN } from '@bcpros/lixi-models/constants';
 import { FilterType } from '@bcpros/lixi-models/lib/filter';
@@ -37,19 +36,6 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
-import { AuthorizationContext } from '@context/index';
-import useAuthorization from '../../components/Common/Authorization/use-authorization.hooks';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { getModals } from '@store/modal/selectors';
-import { showToast } from '@store/toast/actions';
-import { getSelectedWalletPath, getWalletHasUpdated, getWalletStatus } from '@store/wallet';
-import { ReactSVG } from 'react-svg';
-import { openActionSheet } from '@store/action-sheet/actions';
-import { usePageQuery } from '@store/page/pages.generated';
-import { useGetAccountByAddressQuery } from '@store/account/accounts.generated';
-import { FilterLevel } from '../../components/Common/FilterLevel';
-import useDetectMobileView from '@local-hooks/useDetectMobileView';
-import { parseEcashAddress } from '@utils/addressMethods';
 
 export type TopbarProps = {
   className?: string;

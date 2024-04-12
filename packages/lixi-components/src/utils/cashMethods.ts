@@ -1,4 +1,3 @@
-import { currency } from '../components/Common/Ticker';
 import BigNumber from 'bignumber.js';
 // import cashaddr from 'ecashaddrjs';
 
