@@ -8,7 +8,6 @@ import {
   BurnQueueCommand,
   BurnType
 } from '@bcpros/lixi-models/lib/burn';
-import { currency } from '@components/Common/Ticker';
 import { callConfig } from '@context/shareContext';
 import { BurnForItem } from '@generated/index';
 import {
@@ -36,7 +35,7 @@ import { showToast } from '@store/toast/actions';
 import { api as tokenApi } from '@store/token/tokens.api';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletBalances } from '@store/wallet';
 import { api as worshipApi } from '@store/worship/worshipedPerson.api';
-import { fromSatoshisToXpi, fromSmallestDenomination, fromXpiToSatoshis } from '@utils/cashMethods';
+import { fromSatoshisToCoin, fromSmallestDenomination, fromCoinToSatoshis } from '@utils/cashMethods';
 import BigNumber from 'bignumber.js';
 import * as _ from 'lodash';
 import intl from 'react-intl-universal';
@@ -60,6 +59,7 @@ import {
   returnTxHex
 } from './actions';
 import burnApi from './api';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 
 import { RootState } from '../store';
 
@@ -97,21 +97,30 @@ function* prepareBurnCommandSaga(
         const post = burnForItem as Post;
         tipToAddresses.push({
           address: post.page ? post.page.pageAccount.address : post.account.address,
-          amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
+          amount: fromCoinToSatoshis(
+            new BigNumber(burnValue).multipliedBy(coinInfo[COIN.XPI].burnFee),
+            coinInfo[COIN.XPI].cashDecimals
+          )
+            .valueOf()
+            .toString()
         });
         break;
       case BurnForType.Page:
         const page = burnForItem as Page;
         tipToAddresses.push({
           address: page.pageAccount.address,
-          amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
+          amount: fromCoinToSatoshis(new BigNumber(burnValue).multipliedBy(coinInfo[COIN.XPI].burnFee))
+            .valueOf()
+            .toString()
         });
         break;
       case BurnForType.Account:
         const account = burnForItem as Account;
         tipToAddresses.push({
           address: account.address,
-          amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
+          amount: fromCoinToSatoshis(new BigNumber(burnValue).multipliedBy(coinInfo[COIN.XPI].burnFee))
+            .valueOf()
+            .toString()
         });
         break;
       case BurnForType.Comment:
@@ -126,7 +135,9 @@ function* prepareBurnCommandSaga(
           const postAddress = post.account.address;
           tipToAddresses.push({
             address: pageAddress ?? postAddress,
-            amount: fromXpiToSatoshis(new BigNumber(burnValue).multipliedBy(currency.burnFee)).valueOf().toString()
+            amount: fromCoinToSatoshis(new BigNumber(burnValue).multipliedBy(coinInfo[COIN.XPI].burnFee))
+              .valueOf()
+              .toString()
           });
         }
         break;
@@ -162,7 +173,7 @@ function* prepareBurnCommandSaga(
       .otherwise(() => null);
 
     const burnCommand: BurnQueueCommand = {
-      defaultFee: currency.defaultFee,
+      defaultFee: coinInfo[COIN.XPI].defaultFee,
       burnType,
       burnForType: burnForType,
       burnedBy,
@@ -211,7 +222,7 @@ function* createTxHexSaga(action: PayloadAction<BurnQueueCommand>) {
 
     const payload = {
       rawTxHex: rawTxHex,
-      minerFee: _.toString(fromSatoshisToXpi(minerFee))
+      minerFee: _.toString(fromSatoshisToCoin(minerFee))
     };
 
     yield put({ type: returnTxHex.type, payload });
@@ -300,7 +311,7 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
           message: intl.get(`toast.success`),
           description: intl.get('burn.totalBurn', {
             burnValue: burnValue,
-            totalAmount: burnValue + burnValue * currency.burnFee + Number(minerFee),
+            totalAmount: burnValue + burnValue * coinInfo[COIN.XPI].burnFee + Number(minerFee),
             coin: 'XPI'
           })
         })

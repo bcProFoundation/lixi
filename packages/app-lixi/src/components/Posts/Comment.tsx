@@ -27,9 +27,10 @@ import { CloseOutlined, SendOutlined } from '@ant-design/icons';
 import _ from 'lodash';
 import { sendXPIFailure, sendXPISuccess } from '@store/send/actions';
 import { fromSmallestDenomination, getUtxoWif } from '@utils/cashMethods';
-import { currency } from '@components/Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { WalletContext } from '@context/index';
 import useXPI from '@hooks/useXPI';
+import useXEC from '@hooks/useXEC';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { useCreateCommentMutation, useCreateReplyCommentMutation } from '@store/comment/comments.api';
 import { showToast } from '@store/toast/actions';
@@ -248,6 +249,7 @@ const Comment = ({ post }: CommentProps) => {
   const Wallet = React.useContext(WalletContext);
   const { XPI, chronik } = Wallet;
   const { sendXpi } = useXPI();
+  const { sendXec } = useXEC();
   const [open, setOpen] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const walletStatus = useAppSelector(getWalletStatus);
@@ -318,11 +320,15 @@ const Comment = ({ post }: CommentProps) => {
   const showTextComment = () => {
     if (post.page) {
       return post.page.createCommentFee != '0'
-        ? intl.get('comment.writeCommentXpi', { commentFee: `${post.page.createCommentFee} ${currency.ticker}` })
+        ? intl.get('comment.writeCommentXpi', {
+            commentFee: `${post.page.createCommentFee} ${coinInfo[COIN.XPI].ticker}`
+          })
         : intl.get('comment.writeCommentFree');
     } else if (post.account.createCommentFee && _.isNil(post.page)) {
       return post.account.createCommentFee != '0'
-        ? intl.get('comment.writeCommentXpi', { commentFee: `${post.account.createCommentFee} ${currency.ticker}` })
+        ? intl.get('comment.writeCommentXpi', {
+            commentFee: `${post.account.createCommentFee} ${coinInfo[COIN.XPI].ticker}`
+          })
         : intl.get('comment.writeCommentFree');
     } else {
       return intl.get('comment.writeComment');
@@ -527,7 +533,7 @@ const Comment = ({ post }: CommentProps) => {
         chronik,
         walletPaths,
         slpBalancesAndUtxos.nonSlpUtxos,
-        currency.defaultFee,
+        coinInfo[COIN.XPI].defaultFee,
         '',
         false, // indicate send mode is one to one
         null,
@@ -539,6 +545,21 @@ const Comment = ({ post }: CommentProps) => {
       ).catch(error => {
         throw error;
       });
+
+      //need to config webpack to use bitgo lib
+      // tipHex = await sendXec(
+      //   chronik,
+      //   walletPaths,
+      //   slpBalancesAndUtxos.nonSlpUtxos,
+      //   coinInfo[COIN.XEC].defaultFee,
+      //   undefined,
+      //   false, //indicate send mode is one to one
+      //   null,
+      //   'ecash:qpkl2087vn0pr93h9aaduwlr60agrcfj2cek0ztygv',
+      //   '1'
+      // ).catch(error => {
+      //   throw error;
+      // });
 
       return tipHex;
     } catch (e) {
@@ -560,7 +581,7 @@ const Comment = ({ post }: CommentProps) => {
           chronik,
           walletPaths,
           slpBalancesAndUtxos.nonSlpUtxos,
-          currency.defaultFee,
+          coinInfo[COIN.XPI].defaultFee,
           '',
           false, // indicate send mode is one to one
           null,
@@ -576,7 +597,7 @@ const Comment = ({ post }: CommentProps) => {
           chronik,
           walletPaths,
           slpBalancesAndUtxos.nonSlpUtxos,
-          currency.defaultFee,
+          coinInfo[COIN.XPI].defaultFee,
           '',
           false, // indicate send mode is one to one
           null,

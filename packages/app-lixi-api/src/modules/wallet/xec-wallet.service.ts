@@ -1,19 +1,11 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ChronikClient } from 'chronik-client';
 import Redis from 'ioredis';
-// import { Hash160AndAddress, getUtxosChronik, organizeUtxosByType } from 'src/utils/chronik';
-// import { getUtxoWif, getWalletBalanceFromUtxos, fromXpiToSatoshis } from 'src/utils/cashMethods';
-// import useXPI from 'src/utils/useXPI';
 import { WALLET_SERVICES, XPIJS } from './wallet.constants';
 import BCHJS from '@bcpros/xpi-js';
 import { WalletPathAddressInfo, Hash160AndAddress } from '@bcpros/lixi-models';
-// import { WalletPathAddressInfo } from './wallet.model';
-// import { currency } from 'src/utils/constants';
-// import { BurnCommand, BurnForType, BurnType } from 'src/model';
-// import BigNumber from 'bignumber.js';
-// import { sendXec } from 'src/utils/useXEC';
 import { WalletService } from './wallet.service';
-import { currency } from 'src/utils/constants';
+import { coinInfo, COIN } from '@bcpros/lixi-models';
 import { sendXec } from 'src/utils/useXEC';
 import HDNode from '@bcpros/xpi-js/types/hdnode';
 
@@ -74,7 +66,7 @@ export class XecWalletService extends WalletService {
       this.chronik,
       sendWalletPath,
       slpBalancesAndUtxos.nonSlpUtxos,
-      currency.defaultFee,
+      coinInfo[COIN.XEC].defaultFee,
       undefined,
       false, // indicate send mode is one to many
       null,

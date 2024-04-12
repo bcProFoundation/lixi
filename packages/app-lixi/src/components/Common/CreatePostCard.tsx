@@ -30,8 +30,7 @@ import useAuthorization from './Authorization/use-authorization.hooks';
 import AvatarUser from './AvatarUser';
 import { SocialsEnum } from './Embed';
 import EditorLexical from './Lexical/EditorLexical';
-import { currency } from './Ticker';
-import { POST_TYPE } from '@bcpros/lixi-models/constants';
+import { POST_TYPE, coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { CreatePollInput } from '@bcpros/lixi-models';
 import { useCreatePollMutation } from '@store/post/polls.api';
 
@@ -272,7 +271,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
               chronik,
               walletPaths,
               slpBalancesAndUtxos.nonSlpUtxos,
-              currency.defaultFee,
+              coinInfo[COIN.XPI].defaultFee,
               '',
               false, // indicate send mode is one to one
               null,
@@ -459,7 +458,9 @@ const CreatePostCard = (props: CreatePostCardProp) => {
                 <div className="location-fee">
                   <Button className="btn-select">{getCreatePostLocation()}</Button>
                   {page && page.createPostFee && selectedAccount?.id != page.pageAccountId && (
-                    <p className="post-fee">{`${intl.get('general.fee')} ${page.createPostFee} ${currency.ticker}`}</p>
+                    <p className="post-fee">{`${intl.get('general.fee')} ${page.createPostFee} ${
+                      coinInfo[COIN.XPI].ticker
+                    }`}</p>
                   )}
                 </div>
               </div>

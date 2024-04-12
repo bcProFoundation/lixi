@@ -23,6 +23,7 @@ import { useCommentQuery } from '@store/comment/comments.api';
 import { Skeleton } from 'antd';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { WalletContext } from '@context/index';
+import { COIN } from '@bcpros/lixi-models/constants';
 
 interface UserItem {
   email: string;
@@ -175,6 +176,7 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
 
   const selectedAccount = useAppSelector(getSelectedAccount);
   const currentLocale = useAppSelector(getCurrentLocale);
+  const currentCoin = selectedAccount?.coin ?? COIN.XPI;
   const allTokens = useAppSelector(selectTokens);
 
   const walletHasUpdated = useAppSelector(getWalletHasUpdated);
@@ -232,15 +234,15 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
     const xpiBurnAndGiftAmount = Number(item.parsed.xpiBurnAmount) + Number(item.parsed.xpiAmount);
     if (item.parsed.isBurn) {
       if (item.parsed.incoming) {
-        return '+ ' + item.parsed.xpiAmount + ' XPI';
+        return '+ ' + item.parsed.xpiAmount + ` ${currentCoin}`;
       } else {
-        return '- ' + xpiBurnAndGiftAmount + ' XPI';
+        return '- ' + xpiBurnAndGiftAmount + ` ${currentCoin}`;
       }
     } else {
       if (item.parsed.incoming) {
-        return '+ ' + item.parsed.xpiAmount + ' XPI';
+        return '+ ' + item.parsed.xpiAmount + ` ${currentCoin}`;
       } else {
-        return '- ' + item.parsed.xpiAmount + ' XPI';
+        return '- ' + item.parsed.xpiAmount + ` ${currentCoin}`;
       }
     }
   };

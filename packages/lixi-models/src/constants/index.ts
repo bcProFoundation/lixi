@@ -1,5 +1,4 @@
 export * from './countries';
-export * from './ticker';
 export * from './upload';
 export * from './QRCodeModal';
 export * from './postQueryTag';
@@ -10,5 +9,6 @@ export * from './burn';
 export * from './postListType';
 export * from './notification';
 export * from './post';
-export * from './coin';
+export * from './coins';
 export * from './pollType';
+export * from './wallet';

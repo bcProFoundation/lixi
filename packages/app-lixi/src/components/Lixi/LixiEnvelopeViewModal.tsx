@@ -5,7 +5,7 @@ import { RWebShare } from 'react-web-share';
 import { Image, Modal, Popover, notification, Button, message } from 'antd';
 import { fromSmallestDenomination } from '@utils/cashMethods';
 import BalanceHeader from '@bcpros/lixi-components/components/Common/BalanceHeader';
-import { currency } from '@bcpros/lixi-components/components/Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import intl from 'react-intl-universal';
 import { ShareAltOutlined, SaveOutlined, LinkOutlined } from '@ant-design/icons';
 import {
@@ -168,7 +168,9 @@ const LixiEnvelopeViewModal = ({ lixiClaimed, envelopeUrl, shareUrl }) => {
       footer={null}
       maskClosable={false}
     >
-      {lixiClaimed && <BalanceHeader balance={fromSmallestDenomination(lixiClaimed.amount)} ticker={currency.ticker} />}
+      {lixiClaimed && (
+        <BalanceHeader balance={fromSmallestDenomination(lixiClaimed.amount)} ticker={coinInfo[COIN.XPI].ticker} />
+      )}
       {envelopeUrl && <Image src={envelopeUrl} />}
       {lixiClaimed && lixiClaimed.message && <div>{lixiClaimed.message}</div>}
       <div

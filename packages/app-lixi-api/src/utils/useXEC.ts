@@ -9,10 +9,11 @@ import {
   getChangeAddressFromInputUtxosXec
 } from './cashMethods';
 // import ecies from 'ecies-lite';
-import utxolib from '@bitgo/utxo-lib';
+import * as utxolib from '@bitgo/utxo-lib';
 import BigNumber from 'bignumber.js';
 import { SEND_XEC_ERRORS, appConfig } from './xec.constant';
 import { ChronikClient, Utxo } from 'chronik-client';
+import { COIN, coinInfo } from '@bcpros/lixi-models';
 
 export const getRecipientPublicKey = async (
   chronik: ChronikClient,
@@ -95,7 +96,7 @@ export const sendXec = async (
       : new BigNumber(sendAmount);
 
     // If you have a dust value, throw error here instead of broadcasting the tx and getting it from the node
-    if (value.lt(fromSatoshisToXec(appConfig.dustSats))) {
+    if (value.lt(fromSatoshisToXec(coinInfo[COIN.XEC].etokenSats))) {
       // Throw the same error given by the backend attempting to broadcast such a tx
       throw new Error('dust');
     }
@@ -108,73 +109,7 @@ export const sendXec = async (
       throw error;
     }
 
-    let encryptedEj; // serialized encryption data object
-
-    // if the user has opted to encrypt this message
-    // if (encryptionFlag) {
-    //     try {
-    //         // get the pub key for the recipient address
-    //         let recipientPubKey = await getRecipientPublicKey(
-    //             chronik,
-    //             destinationAddress,
-    //             optionalMockPubKeyResponse,
-    //         );
-
-    //         // if the API can't find a pub key, it is due to the wallet having no outbound tx
-    //         if (recipientPubKey === 'not found') {
-    //             throw new Error(
-    //                 'Cannot send an encrypted message to a wallet with no outgoing transactions',
-    //             );
-    //         }
-
-    //         // encrypt the message
-    //         const pubKeyBuf = Buffer.from(recipientPubKey, 'hex');
-    //         const bufferedFile = Buffer.from(optionalOpReturnMsg);
-    //         const structuredEj = await ecies.encrypt(
-    //             pubKeyBuf,
-    //             bufferedFile,
-    //             { compressEpk: true },
-    //         );
-
-    //         // Serialize the encrypted data object
-    //         encryptedEj = Buffer.concat([
-    //             structuredEj.epk,
-    //             structuredEj.iv,
-    //             structuredEj.ct,
-    //             structuredEj.mac,
-    //         ]);
-    //     } catch (err) {
-    //         console.log(`sendXec() encryption error.`);
-    //         throw err;
-    //     }
-    // }
-
-    // Start of building the OP_RETURN output.
-    // only build the OP_RETURN output if the user supplied it
-    // if (
-    //     (optionalOpReturnMsg &&
-    //         typeof optionalOpReturnMsg !== 'undefined' &&
-    //         optionalOpReturnMsg.trim() !== '') ||
-    //     airdropFlag
-    // ) {
-    //     const opReturnData = generateOpReturnScript(
-    //         optionalOpReturnMsg,
-    //         encryptionFlag,
-    //         airdropFlag,
-    //         airdropTokenId,
-    //         encryptedEj,
-    //     );
-    //     txBuilder.addOutput(opReturnData, 0);
-    // }
-
     let opReturnByteCount;
-    // if (optionalOpReturnMsg) {
-    //     opReturnByteCount = getMessageByteSize(
-    //         optionalOpReturnMsg,
-    //         encryptionFlag,
-    //         encryptedEj,
-    //     );
-    // }
 
     // generate the tx inputs and add to txBuilder instance
     // returns the updated txBuilder, txFee, totalInputUtxoValue and inputUtxos

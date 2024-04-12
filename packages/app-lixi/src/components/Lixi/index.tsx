@@ -1,5 +1,5 @@
 import { WalletContext } from '@context/index';
-import { Button, Descriptions, message, Popover, Progress, Space } from 'antd';
+import { Button, Descriptions, Popover, Progress, Space } from 'antd';
 import { saveAs } from 'file-saver';
 import { toPng } from 'html-to-image';
 import * as _ from 'lodash';
@@ -14,7 +14,6 @@ import {
   fetchMoreSubLixies,
   refreshLixi,
   renameLixi,
-  setLixiBalance,
   unarchiveLixi,
   withdrawLixi
 } from '@store/lixi/actions';
@@ -22,18 +21,9 @@ import { getHasMoreSubLixies, getSelectedLixi, getSelectedLixiId } from '@store/
 import { showToast } from '@store/toast/actions';
 import styled from 'styled-components';
 
-import {
-  CaretRightOutlined,
-  CopyOutlined,
-  EditOutlined,
-  ExclamationCircleOutlined,
-  LoadingOutlined,
-  QuestionCircleOutlined,
-  ReloadOutlined,
-  WarningOutlined
-} from '@ant-design/icons';
+import { CopyOutlined, EditOutlined, ReloadOutlined, WarningOutlined } from '@ant-design/icons';
 import { SmartButton } from '@bcpros/lixi-components/components/Common/PrimaryButton';
-import QRCode, { FormattedWalletAddress } from '@bcpros/lixi-components/components/Common/QRCode';
+import { FormattedWalletAddress } from '@bcpros/lixi-components/components/Common/QRCode';
 import { countries } from '@bcpros/lixi-models/constants/countries';
 import {
   ArchiveLixiCommand,
@@ -43,7 +33,7 @@ import {
   UnarchiveLixiCommand,
   WithdrawLixiCommand
 } from '@bcpros/lixi-models/lib/lixi';
-import { currency } from '@components/Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { getSelectedAccount } from '@store/account/selectors';
 import { getAllSubLixies, getLoadMoreSubLixiesStartId } from '@store/lixi/selectors';
 import { openModal } from '@store/modal/actions';
@@ -402,7 +392,7 @@ const Lixi = props => {
           case LixiType.Fixed:
             return (
               <React.Fragment>
-                {selectedLixi.fixedValue} {currency.ticker}
+                {selectedLixi.fixedValue} {coinInfo[COIN.XPI].ticker}
               </React.Fragment>
             );
           case LixiType.Divided:
@@ -410,7 +400,7 @@ const Lixi = props => {
           case LixiType.Random:
             return (
               <React.Fragment>
-                {selectedLixi?.minValue}-{selectedLixi?.maxValue} {currency.ticker}
+                {selectedLixi?.minValue}-{selectedLixi?.maxValue} {coinInfo[COIN.XPI].ticker}
               </React.Fragment>
             );
         }
@@ -420,13 +410,13 @@ const Lixi = props => {
           case LixiType.Equal:
             return (
               <React.Fragment>
-                {selectedLixi.subLixiBalance / selectedLixi.numberOfSubLixi} {currency.ticker}
+                {selectedLixi.subLixiBalance / selectedLixi.numberOfSubLixi} {coinInfo[COIN.XPI].ticker}
               </React.Fragment>
             );
           case LixiType.Random:
             return (
               <React.Fragment>
-                {selectedLixi?.minValue}-{selectedLixi?.maxValue} {currency.ticker}
+                {selectedLixi?.minValue}-{selectedLixi?.maxValue} {coinInfo[COIN.XPI].ticker}
               </React.Fragment>
             );
         }
@@ -457,7 +447,7 @@ const Lixi = props => {
   const showMinStaking = () => {
     return selectedLixi?.minStaking ? (
       <Descriptions.Item label={intl.get('account.minStaking')} key="desc.minstaking">
-        {selectedLixi.minStaking} {currency.ticker}
+        {selectedLixi.minStaking} {coinInfo[COIN.XPI].ticker}
       </Descriptions.Item>
     ) : (
       ''
@@ -838,7 +828,9 @@ const Lixi = props => {
                   </div>
                   <InfoSubCard
                     typeName={'Balance'}
-                    content={fromSmallestDenomination(selectedLixi?.balance).toFixed(2) + ' ' + currency.ticker}
+                    content={
+                      fromSmallestDenomination(selectedLixi?.balance).toFixed(2) + ' ' + coinInfo[COIN.XPI].ticker
+                    }
                   />
                 </div>
               </div>
@@ -854,7 +846,9 @@ const Lixi = props => {
                   </div>
                   <InfoSubCard
                     typeName={intl.get('lixi.claimed')}
-                    content={fromSmallestDenomination(selectedLixi?.totalClaim).toFixed(2) + ' ' + currency.ticker}
+                    content={
+                      fromSmallestDenomination(selectedLixi?.totalClaim).toFixed(2) + ' ' + coinInfo[COIN.XPI].ticker
+                    }
                   />
                 </div>
               </div>
@@ -880,7 +874,7 @@ const Lixi = props => {
                     &nbsp; {intl.get('lixi.claimed')}
                   </Text>
                   <Text className="claim-amount" style={{ color: '#1E1A1D', paddingBottom: '24px' }}>
-                    {selectedLixi.subLixiTotalClaim.toFixed(2)} {currency.ticker}
+                    {selectedLixi.subLixiTotalClaim.toFixed(2)} {coinInfo[COIN.XPI].ticker}
                   </Text>
                   <Text className="type-claim" style={{ color: 'rgba(30, 26, 29, 0.38)', alignItems: 'baseline' }}>
                     <div
@@ -894,7 +888,8 @@ const Lixi = props => {
                     &nbsp; {intl.get('lixi.remaining')}
                   </Text>
                   <Text className="claim-amount" style={{ color: '#1E1A1D' }}>
-                    {(selectedLixi.subLixiBalance - selectedLixi.subLixiTotalClaim).toFixed(2)} {currency.ticker}
+                    {(selectedLixi.subLixiBalance - selectedLixi.subLixiTotalClaim).toFixed(2)}{' '}
+                    {coinInfo[COIN.XPI].ticker}
                   </Text>
                 </div>
                 <Progress

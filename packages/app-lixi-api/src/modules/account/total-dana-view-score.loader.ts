@@ -53,7 +53,6 @@ export default class TotalDanaViewScoreLoader {
             }
           });
         }
-
         if (!_.isNil(listTokenIds) && listTokenIds.length > 0) {
           const postsInTokens = await this.prisma.post.findMany({
             where: { tokenId: { in: listTokenIds } },
@@ -108,7 +107,6 @@ export default class TotalDanaViewScoreLoader {
             }
           });
         }
-
         return followOfType.map(item => {
           const { accountId, pageId, tokenId } = item;
           if (pageId) return mapItem.get(pageId) ?? 0;

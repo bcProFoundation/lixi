@@ -384,6 +384,174 @@ export type TopMonthAccountsQuery = {
   };
 };
 
+  after?: Types.InputMaybe<Types.Scalars['String']>;
+  first?: Types.InputMaybe<Types.Scalars['Int']>;
+}>;
+
+export type AccountsQuery = {
+  __typename?: 'Query';
+  allAccounts: {
+    __typename?: 'AccountBasicConnection';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'AccountBasicEdge';
+      cursor: string;
+      node: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        hash160?: string | null;
+        mnemonicHash?: string | null;
+        encryptedMnemonic?: string | null;
+        encryptedSecret?: string | null;
+        publicKey?: string | null;
+        language: string;
+        followersCount?: number | null;
+        followingsCount?: number | null;
+        followingPagesCount?: number | null;
+        totalDanaViewScore?: number | null;
+        website?: string | null;
+        description?: string | null;
+        createCommentFee?: string | null;
+        createdAt: any;
+        updatedAt: any;
+        avatar?: string | null;
+        cover?: string | null;
+        rankNumber?: number | null;
+        rankScore?: number | null;
+        pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+        accountDana?: {
+          __typename?: 'AccountDana';
+          danaGiven?: number | null;
+          danaReceived?: number | null;
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+        } | null;
+      };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
+  };
+};
+
+export type TopWeekAccountsQueryVariables = Types.Exact<{
+  after?: Types.InputMaybe<Types.Scalars['String']>;
+  first?: Types.InputMaybe<Types.Scalars['Int']>;
+  week: Types.Scalars['Int'];
+  year: Types.Scalars['Int'];
+}>;
+
+export type TopWeekAccountsQuery = {
+  __typename?: 'Query';
+  topWeekAccountDanaGiven: {
+    __typename?: 'AccountBasicConnection';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'AccountBasicEdge';
+      cursor: string;
+      node: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        hash160?: string | null;
+        mnemonicHash?: string | null;
+        encryptedMnemonic?: string | null;
+        encryptedSecret?: string | null;
+        publicKey?: string | null;
+        language: string;
+        followersCount?: number | null;
+        followingsCount?: number | null;
+        followingPagesCount?: number | null;
+        totalDanaViewScore?: number | null;
+        website?: string | null;
+        description?: string | null;
+        createCommentFee?: string | null;
+        createdAt: any;
+        updatedAt: any;
+        avatar?: string | null;
+        cover?: string | null;
+        rankNumber?: number | null;
+        rankScore?: number | null;
+        pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+        accountDana?: {
+          __typename?: 'AccountDana';
+          danaGiven?: number | null;
+          danaReceived?: number | null;
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+        } | null;
+      };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
+  };
+};
+
+export type TopMonthAccountsQueryVariables = Types.Exact<{
+  after?: Types.InputMaybe<Types.Scalars['String']>;
+  first?: Types.InputMaybe<Types.Scalars['Int']>;
+  month: Types.Scalars['Int'];
+  year: Types.Scalars['Int'];
+}>;
+
+export type TopMonthAccountsQuery = {
+  __typename?: 'Query';
+  topMonthAccountDanaGiven: {
+    __typename?: 'AccountBasicConnection';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'AccountBasicEdge';
+      cursor: string;
+      node: {
+        __typename?: 'Account';
+        id: number;
+        name: string;
+        address: string;
+        hash160?: string | null;
+        mnemonicHash?: string | null;
+        encryptedMnemonic?: string | null;
+        encryptedSecret?: string | null;
+        publicKey?: string | null;
+        language: string;
+        followersCount?: number | null;
+        followingsCount?: number | null;
+        followingPagesCount?: number | null;
+        totalDanaViewScore?: number | null;
+        website?: string | null;
+        description?: string | null;
+        createCommentFee?: string | null;
+        createdAt: any;
+        updatedAt: any;
+        avatar?: string | null;
+        cover?: string | null;
+        rankNumber?: number | null;
+        rankScore?: number | null;
+        pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+        accountDana?: {
+          __typename?: 'AccountDana';
+          danaGiven?: number | null;
+          danaReceived?: number | null;
+          danaBurnUp: number;
+          danaBurnDown: number;
+          danaBurnScore: number;
+          danaReceivedUp: number;
+          danaReceivedDown: number;
+          danaReceivedScore: number;
+        } | null;
+      };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
+  };
+};
+
 export type AccountFieldsFragment = {
   __typename?: 'Account';
   id: number;

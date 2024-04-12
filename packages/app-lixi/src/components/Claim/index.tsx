@@ -9,27 +9,23 @@ import {
   FormItemWithQRCodeAddon
 } from '@bcpros/lixi-components/components/Common/EnhancedInputs';
 import { parseAddress } from '@utils/addressMethods';
-import { currency } from '@bcpros/lixi-components/components/Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import {
   checkInformationAndClaim,
   checkInformationAndClaimNoAccount,
-  postClaim,
   saveClaimAddress,
   saveClaimCode
 } from '@store/claim/actions';
-import { CreateClaimDto } from '@bcpros/lixi-models/lib/claim';
 import { getIsGlobalLoading } from '@store/loading/selectors';
 import { getCurrentAddress, getCurrentClaimCode } from '@store/claim/selectors';
 import { useSelector } from 'react-redux';
 import { getSelectedAccount } from '@store/account/selectors';
 import styled from 'styled-components';
 import { AuthorizationContext, WalletContext } from '@context/index';
-import { openModal } from '@store/modal/actions';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import InApp from '@utils/inapp';
 import { generateAccount } from '@store/account';
-import { COIN } from '@bcpros/lixi-models/constants';
 
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
 
@@ -170,7 +166,7 @@ const ClaimComponent = ({ isClaimFromAccount, claimCodeFromURL }: ClaimProps) =>
 
     // Is this valid address?
     if (!isValid) {
-      error = intl.get('claim.invalidAddress', { ticker: currency.ticker });
+      error = intl.get('claim.invalidAddress', { ticker: coinInfo[COIN.XPI].ticker });
     } else {
       error = false;
     }
@@ -216,7 +212,7 @@ const ClaimComponent = ({ isClaimFromAccount, claimCodeFromURL }: ClaimProps) =>
                     })
                   }
                   inputProps={{
-                    placeholder: intl.get('claim.tickerAddress', { ticker: currency.ticker }),
+                    placeholder: intl.get('claim.tickerAddress', { ticker: coinInfo[COIN.XPI].ticker }),
                     name: 'address',
                     onChange: e => handleAddressChange(e),
                     required: true,

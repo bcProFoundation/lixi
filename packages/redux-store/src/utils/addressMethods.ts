@@ -1,6 +1,6 @@
-import { currency } from '@components/Common/Ticker';
 import BigNumber from 'bignumber.js';
 import cashaddr from 'ecashaddrjs';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 
 export interface AddressInfo {
   address: string;
@@ -43,7 +43,9 @@ export function parseAddress(XPI: any, addressString: string): AddressInfo {
     if (addrParams.has('amount')) {
       // Amount in satoshis
       try {
-        amount = new BigNumber(parseInt(addrParams.get('amount'))).div(10 ** currency.cashDecimals).toString();
+        amount = new BigNumber(parseInt(addrParams.get('amount')))
+          .div(10 ** coinInfo[COIN.XPI].cashDecimals)
+          .toString();
       } catch (err) {
         amount = null;
       }
@@ -53,9 +55,8 @@ export function parseAddress(XPI: any, addressString: string): AddressInfo {
   return addressInfo;
 }
 
-export const parseEcashAddress = (walletPath: any) => {
-  if (walletPath) {
-    const { cashAddress } = walletPath;
+export const parseEcashAddress = (cashAddress: string) => {
+  if (cashAddress) {
     const { type, hash } = cashaddr.decode(cashAddress, true);
     const changeAddress = cashaddr.encode('ecash', type, hash);
 

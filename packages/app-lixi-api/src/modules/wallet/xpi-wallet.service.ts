@@ -6,7 +6,7 @@ import useXPI from 'src/utils/useXPI';
 import { XPIJS } from './wallet.constants';
 import BCHJS from '@bcpros/xpi-js';
 import { WalletPathAddressInfo, Hash160AndAddress } from '@bcpros/lixi-models';
-import { currency } from 'src/utils/constants';
+import { coinInfo, COIN } from '@bcpros/lixi-models';
 import { BurnCommand } from '@bcpros/lixi-models';
 import BigNumber from 'bignumber.js';
 import { WalletService } from './wallet.service';
@@ -86,7 +86,7 @@ export class XpiWalletService extends WalletService {
       this.chronik,
       sendWalletPath,
       slpBalancesAndUtxos.nonSlpUtxos,
-      currency.defaultFee,
+      coinInfo[COIN.XPI].defaultFee,
       undefined,
       false, // indicate send mode is one to one
       null,
@@ -118,7 +118,7 @@ export class XpiWalletService extends WalletService {
       this.chronik,
       sendWalletPath,
       slpBalancesAndUtxos.nonSlpUtxos,
-      currency.defaultFee,
+      coinInfo[COIN.XPI].defaultFee,
       '',
       true, // indicate send mode is one to one
       destinationAddressAndValueArray,
@@ -185,14 +185,14 @@ export class XpiWalletService extends WalletService {
 
       tipToAddresses.push({
         address: recieveAddress,
-        amount: fromXpiToSatoshis(new BigNumber(amount).multipliedBy(currency.burnFee)).valueOf().toString()
+        amount: fromXpiToSatoshis(new BigNumber(amount).multipliedBy(coinInfo[COIN.XPI].burnFee)).valueOf().toString()
       });
 
       const { rawTxHex } = createBurnTransaction(
         this.XPI,
         sendWalletPath,
         slpBalancesAndUtxos.nonSlpUtxos,
-        currency.defaultFee,
+        coinInfo[COIN.XPI].defaultFee,
         burnType,
         burnForType,
         burnedBy,

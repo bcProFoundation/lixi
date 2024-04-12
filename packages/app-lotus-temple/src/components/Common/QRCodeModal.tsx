@@ -2,7 +2,7 @@ import { Button, Descriptions, message, Modal } from 'antd';
 import RawQRCode from 'qrcode.react';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { currency } from './Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { openModal } from '@store/modal/actions';
 import { useAppDispatch } from '@store/hooks';
 import { QRCodeModalProps } from './QRCodeModalPopup';
@@ -50,7 +50,7 @@ export const QRCode = ({ address, size = 210, logoImage, ...otherProps }: QRCode
       includeMargin
       level={'H'}
       imageSettings={{
-        src: logoImage ?? currency.logo,
+        src: logoImage ?? coinInfo[COIN.XPI].logo,
         x: undefined,
         y: undefined,
         height: 24,

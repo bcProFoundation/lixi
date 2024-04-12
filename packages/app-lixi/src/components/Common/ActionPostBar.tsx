@@ -1,5 +1,5 @@
 import { BarChartOutlined, RetweetOutlined } from '@ant-design/icons';
-import { currency } from '@bcpros/lixi-components/components/Common/Ticker';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn';
 import { WalletContext } from '@context/walletProvider';
 import { PostQueryItem, RepostInput } from '@generated/index';
@@ -162,7 +162,7 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
             chronik,
             walletPaths,
             slpBalancesAndUtxos.nonSlpUtxos,
-            currency.defaultFee,
+            coinInfo[COIN.XPI].defaultFee,
             '',
             false, // indicate send mode is one to one
             null,
@@ -226,7 +226,9 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
 
         {/* Currently only apply repost to posts in the page and profile */}
         {(post.page || post.account.id === selectedAccount?.id) && (
-          <Tooltip title={`${intl.get('page.repostFee')}: ${post?.page?.createPostFee ?? 0} ${currency.ticker}`}>
+          <Tooltip
+            title={`${intl.get('page.repostFee')}: ${post?.page?.createPostFee ?? 0} ${coinInfo[COIN.XPI].ticker}`}
+          >
             <Space style={{ padding: '8px' }} className="repost" size={5} onClick={() => handleRepost(post)}>
               <RetweetOutlined />
               <Counter isShowXPI={false} num={post.reposts?.length ?? 0} />

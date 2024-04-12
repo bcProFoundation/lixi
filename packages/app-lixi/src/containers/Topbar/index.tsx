@@ -37,6 +37,19 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
+import { AuthorizationContext } from '@context/index';
+import useAuthorization from '../../components/Common/Authorization/use-authorization.hooks';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { getModals } from '@store/modal/selectors';
+import { showToast } from '@store/toast/actions';
+import { getSelectedWalletPath, getWalletHasUpdated, getWalletStatus } from '@store/wallet';
+import { ReactSVG } from 'react-svg';
+import { openActionSheet } from '@store/action-sheet/actions';
+import { usePageQuery } from '@store/page/pages.generated';
+import { useGetAccountByAddressQuery } from '@store/account/accounts.generated';
+import { FilterLevel } from '../../components/Common/FilterLevel';
+import useDetectMobileView from '@local-hooks/useDetectMobileView';
+import { parseEcashAddress } from '@utils/addressMethods';
 
 export type TopbarProps = {
   className?: string;
@@ -99,6 +112,16 @@ const SpaceStyled = styled(Space)`
       padding-right: 8px;
       .account-info {
         display: none !important;
+      }
+    }
+
+    .avatar-coin {
+      position: relative;
+      .coin-logo {
+        width: 20px;
+        position: absolute;
+        right: -2px;
+        bottom: 1px;
       }
     }
   }
@@ -475,7 +498,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
         setAddress(selectedAccount?.address);
         break;
       case COIN.XEC:
-        setAddress(parseEcashAddress(walletPath));
+        setAddress(parseEcashAddress(walletPath?.cashAddress));
         break;
       default:
         setAddress(selectedAccount?.address);
@@ -560,7 +583,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
       walletStatus.balances.totalBalanceInSatoshis ?? 0,
       selectedAccount?.coin ?? COIN.XPI
     );
-    return `~ ${balanceString.toFixed(2)}`;
+    return `${balanceString.toFixed(2)}`;
   };
 
   const handleOnCopy = () => {
@@ -625,7 +648,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
                   {
                     {
                       [COIN.XPI]: <span>{formatAddress(selectedAccount?.address)}</span>,
-                      [COIN.XEC]: <span>{formatAddress(parseEcashAddress(walletPath))}</span>
+                      [COIN.XEC]: <span>{formatAddress(parseEcashAddress(walletPath?.cashAddress))}</span>
                     }[selectedAccount?.coin ?? COIN.XPI]
                   }
                   <span>
@@ -961,16 +984,27 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
                   else askAuthorization();
                 }}
               >
-                <AvatarUser name={selectedAccount?.name || null} icon={accountInfoTemp?.avatar} isMarginRight={false} />
+                <div className="avatar-coin">
+                  <AvatarUser
+                    name={selectedAccount?.name || null}
+                    icon={accountInfoTemp?.avatar}
+                    isMarginRight={false}
+                  />
+                  <img
+                    className="coin-logo"
+                    src={`/images/currencies/${selectedAccount?.coin ? selectedAccount.coin.toLowerCase() : 'xpi'}.svg`}
+                  />
+                </div>
                 <p className="account-info">
                   <span className="account-name">{selectedAccount?.name || 'Anonymous'}</span>
                   {walletHasUpdated ? (
                     <span className="account-balance">
-                      {balanceAccount(selectedAccount)} <span className="unit">{currency.ticker}</span>
+                      {balanceAccount(selectedAccount)}{' '}
+                      <span className="unit">{selectedAccount?.coin ?? COIN.XPI}</span>
                     </span>
                   ) : (
                     <span>
-                      <SyncOutlined spin /> <span className="unit">{currency.ticker}</span>
+                      <SyncOutlined spin /> <span className="unit">{selectedAccount?.coin ?? COIN.XPI}</span>
                     </span>
                   )}
                 </p>

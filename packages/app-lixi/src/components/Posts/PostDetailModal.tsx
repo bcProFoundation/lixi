@@ -22,7 +22,7 @@ import Gallery from 'react-photo-gallery';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import { useSwipeable } from 'react-swipeable';
 import styled from 'styled-components';
-import { removeUpload } from '../../../../redux-store/src/store/account';
+import { removeUpload } from '@store/account';
 import Comment from './Comment';
 import { EditPostModalProps } from './EditPostModalPopup';
 import PollContent from './PollContent';

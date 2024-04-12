@@ -1,6 +1,7 @@
-import { currency } from '@components/Common/Ticker';
-import { CreateForm } from '@components/Lixi/CreateLixiFormModal';
-import { Page, UpdatePageInput } from '@generated/types.generated';
+import { Button, Col, Form, Input, Modal, Row, Select } from 'antd';
+
+import React, { useEffect, useState } from 'react';
+import intl from 'react-intl-universal';
 import { getSelectedAccount } from '@store/account/selectors';
 import { getAllCategories } from '@store/category/selectors';
 import { getCountries, getStates } from '@store/country/actions';
@@ -15,7 +16,8 @@ import { Button, Col, Form, Input, Modal, Row, Select } from 'antd';
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import intl from 'react-intl-universal';
+import { fromSmallestDenomination } from '@utils/cashMethods';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -41,7 +43,7 @@ export const EditPageModal: React.FC<EditPageModalProps> = ({ page, disabled, cl
   const countries = useAppSelector(getAllCountries);
   const states = useAppSelector(getAllStates);
   const createPostFee = [0, 1, 10, 100, 1000];
-  const createCommentFee = [0, fromSmallestDenomination(currency.dustSats)];
+  const createCommentFee = [0, fromSmallestDenomination(coinInfo[COIN.XPI].dustSats)];
 
   const {
     handleSubmit,
@@ -337,15 +339,15 @@ export const EditPageModal: React.FC<EditPageModalProps> = ({ page, disabled, cl
                     render={({ field: { onChange, value }, formState: { isSubmitting } }) => (
                       <Select
                         className="select-after edit-page"
-                        value={`${value} ${currency.ticker}`}
+                        value={`${value} ${coinInfo[COIN.XPI].ticker}`}
                         onChange={onChange}
                         placeholder={intl.get('page.state')}
-                        defaultValue={`${page.createPostFee} ${currency.ticker}`}
+                        defaultValue={`${page.createPostFee} ${coinInfo[COIN.XPI].ticker}`}
                         disabled={isSubmitting}
                         style={{ width: '99%', textAlign: 'end' }}
                       >
                         {createPostFee.map(fee => (
-                          <Option key={fee}>{`${fee} ${currency.ticker}`}</Option>
+                          <Option key={fee}>{`${fee} ${coinInfo[COIN.XPI].ticker}`}</Option>
                         ))}
                       </Select>
                     )}
@@ -364,15 +366,15 @@ export const EditPageModal: React.FC<EditPageModalProps> = ({ page, disabled, cl
                     render={({ field: { onChange, value }, formState: { isSubmitting } }) => (
                       <Select
                         className="select-after edit-page"
-                        value={`${value} ${currency.ticker}`}
+                        value={`${value} ${coinInfo[COIN.XPI].ticker}`}
                         onChange={onChange}
                         placeholder={intl.get('page.state')}
-                        defaultValue={`${page.createCommentFee} ${currency.ticker}`}
+                        defaultValue={`${page.createCommentFee} ${coinInfo[COIN.XPI].ticker}`}
                         disabled={isSubmitting}
                         style={{ width: '99%', textAlign: 'end' }}
                       >
                         {createCommentFee.map(fee => (
-                          <Option key={fee}>{`${fee} ${currency.ticker}`}</Option>
+                          <Option key={fee}>{`${fee} ${coinInfo[COIN.XPI].ticker}`}</Option>
                         ))}
                       </Select>
                     )}

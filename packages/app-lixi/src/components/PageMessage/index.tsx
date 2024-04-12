@@ -42,6 +42,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import { ReactSVG } from 'react-svg';
 import { useSwipeable } from 'react-swipeable';
@@ -859,7 +860,7 @@ const PageMessage = () => {
         chronik,
         walletPaths,
         slpBalancesAndUtxos.nonSlpUtxos,
-        currency.defaultFee,
+        coinInfo[COIN.XPI].defaultFee,
         '',
         false, // indicate send mode is one to one
         null,

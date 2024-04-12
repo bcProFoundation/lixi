@@ -341,9 +341,22 @@ const useWallet = () => {
         return;
       }
 
+      let currentCoinAddress = undefined;
+      switch (selectedAccount?.coin) {
+        case COIN.XPI:
+          currentCoinAddress = selectedWalletPath?.xAddress;
+          break;
+        case COIN.XEC:
+          currentCoinAddress = selectedWalletPath?.cashAddress;
+          break;
+        default:
+          currentCoinAddress = selectedWalletPath?.xAddress;
+          break;
+      }
+
       const hash160AndAddressObjArray: Hash160AndAddress[] = [selectedWalletPath].map(item => {
         return {
-          address: item.xAddress,
+          address: currentCoinAddress ?? item.xAddress,
           hash160: item.hash160
         };
       });
@@ -364,10 +377,10 @@ const useWallet = () => {
       }
 
       const { nonSlpUtxos } = organizeUtxosByType(chronikUtxos);
-      const { chronikTxHistory } = await getTxHistoryChronik(chronik, XPI, wallet);
+      const { chronikTxHistory } = await getTxHistoryChronik(chronik, XPI, wallet, 0, selectedAccount?.coin);
 
       const newWalletStatus: WalletStatus = {
-        balances: getWalletBalanceFromUtxos(nonSlpUtxos),
+        balances: getWalletBalanceFromUtxos(nonSlpUtxos, selectedAccount?.coin),
         slpBalancesAndUtxos: {
           nonSlpUtxos
         },

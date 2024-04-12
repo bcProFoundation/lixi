@@ -1,8 +1,7 @@
 import { PostQueryItem } from '@generated/index';
 import Icon, { DollarOutlined, GlobalOutlined, ShopOutlined } from '@ant-design/icons';
 import FollowSvg from '@assets/icons/follow.svg';
-import { PostListType } from '@bcpros/lixi-models/constants';
-import { currency } from '@components/Common/Ticker';
+import { PostListType, TOKEN_ICON_URL } from '@bcpros/lixi-models/constants';
 import { AuthorizationContext } from '@context/index';
 import { getSelectedAccount } from '@store/account/selectors';
 import { openActionSheet } from '@store/action-sheet/actions';
@@ -293,7 +292,7 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
                 <div className="page-bar">
                   <img
                     className="image-page"
-                    src={`${currency.tokenIconsUrl}/64/${token.tokenId}.png`}
+                    src={`${TOKEN_ICON_URL}/64/${token.tokenId}.png`}
                     onClick={() => history.push(`/token/${token?.tokenId}`)}
                   />
                   <div onClick={() => history.push(`/profile/${accountAddress}`)}>

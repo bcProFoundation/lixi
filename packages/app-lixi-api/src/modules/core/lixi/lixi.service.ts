@@ -17,7 +17,7 @@ import {
 import { CreateSubLixiesChunkJobData, CreateSubLixiesJobData } from 'src/modules/core/lixi/models/lixi.models';
 import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 import { XpiWalletService } from 'src/modules/wallet/xpi-wallet.service';
-import { currency } from 'src/utils/constants';
+import { coinInfo, COIN } from '@bcpros/lixi-models';
 import { aesGcmDecrypt, aesGcmEncrypt, numberToBase58 } from 'src/utils/encryptionMethods';
 import { template } from 'src/utils/stringTemplate';
 import { VError } from 'verror';
@@ -100,7 +100,7 @@ export class LixiService {
     const accountHash160 = this.XPI.Address.toHash160(account.address);
     const utxos = await getUtxosSingleHashChronik(this.chronik, accountHash160);
     let fee = walletService.calcFee(this.XPI, utxos);
-    const txFeeXpi = fee / 10 ** currency.cashDecimals;
+    const txFeeXpi = fee / 10 ** coinInfo[COIN.XPI].cashDecimals;
 
     // Validate the amount params
     if (isPrefund) {
