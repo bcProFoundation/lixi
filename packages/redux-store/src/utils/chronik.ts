@@ -451,7 +451,6 @@ export const getTxHistoryChronik = async (
   chronik: ChronikClient,
   XPI: BCHJS,
   wallet: WalletState,
-  pageNumber = 0
   pageNumber = 0,
   coin = COIN.XPI
 ): Promise<{ chronikTxHistory: Array<Tx & { parsed: ParsedChronikTx }> }> => {

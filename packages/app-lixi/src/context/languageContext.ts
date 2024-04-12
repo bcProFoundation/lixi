@@ -4,6 +4,7 @@ import { createContext } from 'react';
 // because the intl need to be init before the app rendering
 // and also each app can have their own language files instead of sharing in redux-store
 export const LanguageContext = createContext({
+  initIntlDone: false,
   currentLocale: 'en',
-  handleChangeLocale: () => { },
+  handleChangeLocale: (newLocale: string) => {}
 });

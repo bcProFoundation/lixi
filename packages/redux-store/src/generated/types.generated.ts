@@ -1934,27 +1934,6 @@ export type QueryTopWeekAccountDanaGivenArgs = {
   year: Scalars['Int']['input'];
 };
 
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  month: Scalars['Int'];
-  skip?: InputMaybe<Scalars['Int']>;
-  year: Scalars['Int'];
-};
-
-export type QueryTopWeekAccountDanaGivenArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  skip?: InputMaybe<Scalars['Int']>;
-  week: Scalars['Int'];
-  year: Scalars['Int'];
-};
-
 export type QueryUserHadMessageToPageArgs = {
   accountId?: InputMaybe<Scalars['Int']['input']>;
   pageId?: InputMaybe<Scalars['String']['input']>;

@@ -1,6 +1,7 @@
 import {
   Account,
   AccountDto,
+  COIN,
   CreateAccountCommand,
   DeleteAccountCommand,
   ImportAccountCommand,
@@ -8,9 +9,10 @@ import {
   NotificationDto,
   PatchAccountCommand,
   fromSmallestDenomination,
-  COIN,
   walletPath
 } from '@bcpros/lixi-models';
+import { Account as AccountDb } from '@bcpros/lixi-prisma';
+import BCHJS from '@bcpros/xpi-js';
 import {
   Body,
   Controller,
@@ -27,26 +29,22 @@ import {
   Request,
   UseGuards
 } from '@nestjs/common';
-import { Account as AccountDb } from '@bcpros/lixi-prisma';
-import { FastifyRequest } from 'fastify';
-
-import BCHJS from '@bcpros/xpi-js';
 import { SkipThrottle } from '@nestjs/throttler';
-import * as _ from 'lodash';
-import { toSafeInteger } from 'lodash';
+import cashaddr from 'ecashaddrjs';
+import { FastifyRequest } from 'fastify';
+import _, { toSafeInteger } from 'lodash';
 import { I18n, I18nContext } from 'nestjs-i18n';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { PageAccountEntity } from 'src/decorators';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwtauth.guard';
 import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
+import { XecWalletService } from 'src/modules/wallet/xec-wallet.service';
+import { XpiWalletService } from 'src/modules/wallet/xpi-wallet.service';
 import { VError } from 'verror';
 import { aesGcmDecrypt, aesGcmEncrypt, generateRandomBase58Str, hashMnemonic } from '../../../utils/encryptionMethods';
 import { AccountCacheService } from '../../account/account-cache.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { WalletService } from '../../wallet/wallet.service';
-import { XpiWalletService } from 'src/modules/wallet/xpi-wallet.service';
-import { XecWalletService } from 'src/modules/wallet/xec-wallet.service';
-import cashaddr from 'ecashaddrjs';
 
 @SkipThrottle()
 @Controller('accounts')
@@ -192,7 +190,7 @@ export class AccountController {
       const walletService = this.walletServices['xpi'];
       const { address, publicKey } = await walletService.deriveAddress(mnemonic, 0);
       const cashAddress = this.XPI.Address.toCashAddress(address);
-      const { hash, type } = cashaddr.decode(cashAddress);
+      const { hash, type } = cashaddr.decode(cashAddress, true);
 
       if (!account) {
         // Validate mnemonic
@@ -226,7 +224,7 @@ export class AccountController {
               path: walletPath.XPI,
               address: address,
               hash160: Buffer.from(hash).toString('hex'),
-              type,
+              type: 'P2PKH',
               network: COIN.XPI,
               publicKey
             }
@@ -262,6 +260,7 @@ export class AccountController {
         const accountSecret = await aesGcmDecrypt(account.encryptedSecret, mnemonic);
 
         //check account connect to walletPaths
+        const addressType = _.toUpper(type) == 'P2PKH' ? 'P2PKH' : 'P2SH';
         if (!account.walletPaths) {
           await this.prisma.account.update({
             where: {
@@ -273,7 +272,7 @@ export class AccountController {
                   path: walletPath.XPI,
                   address: address,
                   hash160: Buffer.from(hash).toString('hex'),
-                  type,
+                  type: addressType,
                   network: COIN.XPI,
                   publicKey
                 }
@@ -325,7 +324,7 @@ export class AccountController {
 
         const { address, publicKey } = await walletService.deriveAddress(command.mnemonic, 0);
         const cashAddress = this.XPI.Address.toCashAddress(address);
-        const { hash, type } = cashaddr.decode(cashAddress);
+        const { hash, type } = cashaddr.decode(cashAddress, true);
 
         const name = address.slice(12, 17);
 
@@ -344,6 +343,7 @@ export class AccountController {
           publicKey: publicKey
         };
 
+        const addressType = _.toUpper(type) == 'P2PKH' ? 'P2PKH' : 'P2SH';
         const createdAccount: AccountDb = await this.prisma.account.create({
           data: {
             ...accountToInsert,
@@ -355,7 +355,7 @@ export class AccountController {
                 path: walletPath.XPI,
                 address: address,
                 hash160: Buffer.from(hash).toString('hex'),
-                type,
+                type: addressType,
                 network: COIN.XPI,
                 publicKey
               }

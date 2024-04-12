@@ -116,7 +116,7 @@
     "bitcoinjs-message": "^2.2.0",
     "class-validator": "^0.14.0",
     "connected-next-router": "^5.0.0",
-    "ecashaddrjs": "^1.5.3",
+    "ecashaddrjs": "^1.5.6",
     "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
     "lodash": "^4.17.21",
