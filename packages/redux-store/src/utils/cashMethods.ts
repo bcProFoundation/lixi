@@ -637,10 +637,10 @@ export const isValidXecAddress = (addr: string) => {
   }
 
   // If no prefix, assume it is checksummed for an ecash: prefix
-  const testedXecAddr = isPrefixedXecAddress ? addr : `ecash:${addr}`;
+  const testXecAddr = isPrefixedXecAddress ? addr : `ecash:${addr}`;
 
   try {
-    const decoded = cashaddr.decode(testedXecAddr);
+    const decoded = cashaddr.decode(testXecAddr, false);
     if (decoded.prefix === 'ecash') {
       isValidXecAddress = true;
     }
@@ -653,9 +653,10 @@ export const isValidXecAddress = (addr: string) => {
 export function cashaddrToHash160(addr: string) {
   try {
     // decode address hash
-    const { hash } = cashaddr.decode(addr);
+    const { hash } = cashaddr.decode(addr, false);
     // encode the address hash to legacy format (bitcoin)
-    const legacyAdress = bs58.encode(hash);
+    // becauase chronikReady is false then hash will be UInt8Array
+    const legacyAdress = bs58.encode(hash as Uint8Array);
     // convert legacy to hash160
     const addrHash160 = Buffer.from(bs58.decode(legacyAdress)).toString('hex');
     return addrHash160;
@@ -839,7 +840,7 @@ export const getChangeAddressFromInputUtxosXec = (inputUtxos: any, wallet: any):
   }
 
   // Assume change address is input address of utxo at index 0
-  const { prefix, type, hash } = cashaddr.decode(inputUtxos[0].address);
+  const { type, hash } = cashaddr.decode(inputUtxos[0].address, false);
   const changeAddress = cashaddr.encode('ecash', type, hash);
 
   // Validate address

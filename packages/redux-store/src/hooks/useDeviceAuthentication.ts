@@ -1,11 +1,9 @@
+import { COIN, coinInfo } from '@bcpros/lixi-models/constants';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { saveWebAuthnConfig } from '@store/settings/actions';
 import { getWebAuthnConfig } from '@store/settings/selectors';
 import { convertArrayBufferToBase64, convertBase64ToArrayBuffer } from '@utils/convertArrBuffBase64';
-import localforage from 'localforage';
-import _ from 'lodash';
-import { useEffect, useRef, useState } from 'react';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { useEffect, useState } from 'react';
 
 type AuthenticationConfig = {
   isAuthenticationRequired: boolean;

@@ -3,11 +3,13 @@ import {
   NotificationDto as Notification,
   SocketUser,
 } from '@bcpros/lixi-models';
-import { all, call, fork, put, takeLatest } from '@redux-saga/core/effects';
+import { COIN, coinInfo } from '@bcpros/lixi-models/constants';
+import { callConfig } from '@context/shareContext';
 import { PayloadAction } from '@reduxjs/toolkit';
 import BigNumber from 'bignumber.js';
 import { isMobile } from 'react-device-detect';
 import intl from 'react-intl-universal';
+import { all, call, fork, put, takeLatest } from 'redux-saga/effects';
 import { hideLoading, showLoading } from '../loading/actions';
 import { showToast } from '../toast/actions';
 import {
@@ -29,8 +31,6 @@ import {
   xpiReceivedNotificationWebSocket,
 } from './actions';
 import notificationApi from './api';
-import { callConfig } from '@context/shareContext';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 
 const getDeviceNotificationStyle = () => {
   if (isMobile) {
@@ -200,9 +200,8 @@ function* sendXpiNotificationSaga(action: PayloadAction<string>) {
 
 function* xpiReceivedNotificationWebSocketSaga(action: PayloadAction<string>) {
   const xpiAmount = new BigNumber(action.payload);
-  let description = `${'Lotus received'} ${xpiAmount.toLocaleString()} ${
-    coinInfo[COIN.XPI].ticker
-  }`;
+  let description = `${'Lotus received'} ${xpiAmount.toLocaleString()} ${coinInfo[COIN.XPI].ticker
+    }`;
   yield put(
     showToast('info', {
       message: intl.get('toast.info'),

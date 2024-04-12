@@ -57,7 +57,7 @@ export function parseAddress(XPI: any, addressString: string): AddressInfo {
 
 export const parseEcashAddress = (cashAddress: string) => {
   if (cashAddress) {
-    const { type, hash } = cashaddr.decode(cashAddress, true);
+    const { type, hash } = cashaddr.decode(cashAddress, false);
     const changeAddress = cashaddr.encode('ecash', type, hash);
 
     return changeAddress;

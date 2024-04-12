@@ -11,7 +11,7 @@ import {
   fromSmallestDenomination,
   walletPath
 } from '@bcpros/lixi-models';
-import { Account as AccountDb } from '@bcpros/lixi-prisma';
+import { Account as AccountDb, AddressType } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import {
   Body,
@@ -190,7 +190,7 @@ export class AccountController {
       const walletService = this.walletServices['xpi'];
       const { address, publicKey } = await walletService.deriveAddress(mnemonic, 0);
       const cashAddress = this.XPI.Address.toCashAddress(address);
-      const { hash, type } = cashaddr.decode(cashAddress, true);
+      const { hash, type } = cashaddr.decode(cashAddress, false);
 
       if (!account) {
         // Validate mnemonic
@@ -208,6 +208,7 @@ export class AccountController {
 
         // create account in database
         const name = address.slice(12, 17);
+        const addressType = _.toUpper(type) === 'P2PKH' ? AddressType.P2PKH : AddressType.P2SH;
         const accountToInsert = {
           name: name,
           encryptedMnemonic: encryptedMnemonic,
@@ -224,7 +225,7 @@ export class AccountController {
               path: walletPath.XPI,
               address: address,
               hash160: Buffer.from(hash).toString('hex'),
-              type: 'P2PKH',
+              type: addressType,
               network: COIN.XPI,
               publicKey
             }
@@ -324,7 +325,7 @@ export class AccountController {
 
         const { address, publicKey } = await walletService.deriveAddress(command.mnemonic, 0);
         const cashAddress = this.XPI.Address.toCashAddress(address);
-        const { hash, type } = cashaddr.decode(cashAddress, true);
+        const { hash, type } = cashaddr.decode(cashAddress, false);
 
         const name = address.slice(12, 17);
 

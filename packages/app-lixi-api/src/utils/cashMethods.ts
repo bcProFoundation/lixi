@@ -765,7 +765,7 @@ export const getChangeAddressFromInputUtxosXec = (inputUtxos: any, wallet: any):
   }
 
   // Assume change address is input address of utxo at index 0
-  const { prefix, type, hash } = cashaddr.decode(inputUtxos[0].address, true);
+  const { type, hash } = cashaddr.decode(inputUtxos[0].address, false);
   const changeAddress = cashaddr.encode('ecash', type, hash);
 
   // Validate address
