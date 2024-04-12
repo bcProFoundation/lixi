@@ -1,7 +1,6 @@
-import { Button, Col, Form, Input, Modal, Row, Select } from 'antd';
-
-import React, { useEffect, useState } from 'react';
-import intl from 'react-intl-universal';
+import { COIN, coinInfo } from '@bcpros/lixi-models/constants';
+import { CreateForm } from '@components/Lixi/CreateLixiFormModal';
+import { Page, UpdatePageInput } from '@generated/types.generated';
 import { getSelectedAccount } from '@store/account/selectors';
 import { getAllCategories } from '@store/category/selectors';
 import { getCountries, getStates } from '@store/country/actions';
@@ -16,8 +15,7 @@ import { Button, Col, Form, Input, Modal, Row, Select } from 'antd';
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { fromSmallestDenomination } from '@utils/cashMethods';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import intl from 'react-intl-universal';
 
 const { TextArea } = Input;
 const { Option } = Select;

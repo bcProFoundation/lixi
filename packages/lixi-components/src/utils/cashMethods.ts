@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { currency } from '../components/Common/Ticker';
 // import cashaddr from 'ecashaddrjs';
 
 export const fromLegacyDecimals = (amount, cashDecimals = currency.cashDecimals) => {

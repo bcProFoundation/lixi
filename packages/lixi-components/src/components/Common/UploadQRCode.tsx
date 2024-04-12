@@ -45,9 +45,11 @@ const UploadQRCode = (props: UploadQRCodeProps) => {
     beforeUpload: file => {
       const reader = new FileReader();
 
-      reader.onload = async e => {
-        const imageUrl = e.target.result;
-        scanQrFromImage(imageUrl);
+      reader.onload = async (e: ProgressEvent<FileReader>) => {
+        const imageUrl = e.target?.result;
+        if (imageUrl) {
+          scanQrFromImage(imageUrl);
+        }
       };
       reader.readAsDataURL(file);
 
@@ -65,7 +67,7 @@ const UploadQRCode = (props: UploadQRCodeProps) => {
     }
   };
 
-  const parseAddressContent = content => {
+  const parseAddressContent = (content: string) => {
     let type = 'unknown';
     let values = {};
 
@@ -88,11 +90,11 @@ const UploadQRCode = (props: UploadQRCodeProps) => {
 
   const scanQrFromImage = async imageUrl => {
     const codeReader = new BrowserQRCodeReader();
-    setActiveCodeReader(codeReader);
+    setActiveCodeReader(codeReader as any);
 
     try {
       const content = await codeReader.decodeFromImageUrl(imageUrl);
-      let result = null;
+      let result;
 
       switch (codeType) {
         case 'address':
@@ -115,10 +117,8 @@ const UploadQRCode = (props: UploadQRCodeProps) => {
     } catch (err) {
       console.log(`Error in QR scanner:`);
       console.log(err);
-      console.log(JSON.stringify(err.message));
-      // setMobileErrorMsg(JSON.stringify(err.message));
       message.error(`Couldn't scan QR code from uploaded image`);
-      setError(err);
+      setError(true);
       teardownCodeReader(codeReader);
     }
   };
