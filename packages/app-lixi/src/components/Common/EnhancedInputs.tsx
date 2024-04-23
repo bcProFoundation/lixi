@@ -80,8 +80,7 @@ export const LanguageSelectDropdown = selectProps => {
     const languageMenuOption: LanguageMenuOption = {
       value: lang,
       get label() {
-        return intl.get('settings.' + lang)
-
+        return intl.get('settings.' + lang);
       }
     };
     languageMenuOptions.push(languageMenuOption);
@@ -96,8 +95,7 @@ export const LanguageSelectDropdown = selectProps => {
       options={languageMenuOptions}
       getPopupContainer={trigger => trigger.parentNode}
       {...selectProps}
-    >
-    </Select>
+    ></Select>
   );
 };
 
