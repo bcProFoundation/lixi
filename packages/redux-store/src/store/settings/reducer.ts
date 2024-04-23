@@ -12,7 +12,7 @@ import {
   setInitIntlStatus,
   setIsSystemThemes,
   toggleCollapsedSideNav,
-  updateLocale,
+  updateLanguage,
   changeCurrentLocale,
   setNegativeDanaStatus,
   saveMinimumDanaFilter
@@ -46,7 +46,7 @@ export const settingsReducer = createReducer(initialState, builder => {
     .addCase(toggleCollapsedSideNav, (state, action) => {
       state.navCollapsed = action.payload;
     })
-    .addCase(updateLocale, (state, action) => {
+    .addCase(updateLanguage, (state, action) => {
       state.locale = action.payload;
     })
     .addCase(setInitIntlStatus, (state, action) => {

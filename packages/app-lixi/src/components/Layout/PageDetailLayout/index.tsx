@@ -1,23 +1,22 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Layout, Spin } from 'antd';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
 
 import { LoadingOutlined } from '@ant-design/icons';
 
+import { Footer } from '@bcpros/lixi-components/components';
+import { navBarHeaderList } from '@components/Common/navBarHeaderList';
+import Sidebar from '@containers/Sidebar';
+import SidebarShortcut from '@containers/Sidebar/SideBarShortcut';
+import Topbar from '@containers/Topbar';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { getAllNotifications } from '@store/notification/selectors';
+import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
+import { useRouter } from 'next/router';
+import { injectStore } from 'src/utils/axiosClient';
 import ModalManager from '../../Common/ModalManager';
 import { GlobalStyle } from '../MainLayout/GlobalStyle';
 import { theme } from '../MainLayout/theme';
-import Sidebar from '@containers/Sidebar';
-import Topbar from '@containers/Topbar';
-import { loadLocale } from '@store/settings/actions';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
-import { injectStore } from 'src/utils/axiosClient';
-import SidebarShortcut from '@containers/Sidebar/SideBarShortcut';
-import { useRouter } from 'next/router';
-import { navBarHeaderList } from '@components/Common/navBarHeaderList';
-import { Footer } from '@bcpros/lixi-components/components';
-import { getAllNotifications } from '@store/notification/selectors';
 
 const { Content, Sider, Header } = Layout;
 
@@ -110,10 +109,6 @@ const PageDetailLayout: React.FC<PageDetailsLayoutProps> = (props: PageDetailsLa
   }, []);
 
   injectStore(currentLocale);
-
-  useEffect(() => {
-    dispatch(loadLocale(currentLocale));
-  }, [currentLocale]);
 
   const getNamePathDirection = () => {
     const itemSelect = navBarHeaderList.find(item => selectedKey.includes(item.path)) || null;

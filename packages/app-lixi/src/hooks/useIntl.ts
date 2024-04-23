@@ -1,12 +1,12 @@
+import AppLocale from '@lang/index';
 import { useEffect, useState } from 'react';
-import AppLocale from '../lang';
 import intl from 'react-intl-universal';
 
 export const useIntl = () => {
   const [initIntlDone, setInitIntlDone] = useState(false);
   const [currentLocale, setCurrentLocale] = useState(
     intl.determineLocale({
-      cookieLocaleKey: 'lang'
+      cookieLocaleKey: 'locale'
     })
   );
 

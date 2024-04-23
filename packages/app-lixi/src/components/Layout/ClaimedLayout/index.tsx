@@ -9,7 +9,6 @@ import Sidebar from '@containers/Sidebar';
 import SidebarShortcut from '@containers/Sidebar/SideBarShortcut';
 import Topbar from '@containers/Topbar';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { loadLocale } from '@store/settings/actions';
 import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
 import { useRouter } from 'next/router';
 import intl from 'react-intl-universal';
@@ -100,10 +99,6 @@ const ClaimedLayout: React.FC<ClaimedLayoutProps> = ({ children }) => {
   }, []);
 
   injectStore(currentLocale);
-
-  useEffect(() => {
-    dispatch(loadLocale(currentLocale));
-  }, [currentLocale]);
 
   const getNamePathDirection = () => {
     const itemSelect = navBarHeaderList.find(item => selectedKey.includes(item.path)) || null;

@@ -10,7 +10,7 @@ import moment from 'moment';
 import intl from 'react-intl-universal';
 import AppLocale from '@lang/index';
 
-import { loadLocale, loadLocaleFailure, loadLocaleSuccess, setInitIntlStatus, updateLocale } from './actions';
+import { loadLocale, loadLocaleFailure, loadLocaleSuccess, setInitIntlStatus, updateLanguage } from './actions';
 
 import 'moment/locale/vi';
 
@@ -33,10 +33,11 @@ function initLocale(currentAppLocale: any): Promise<boolean> {
 
 function* loadLocaleSaga(action: PayloadAction<string>) {
   try {
-    const language: string = action.payload ?? 'en';
-    const currentAppLocale = AppLocale[language];
+    const locale: string = action.payload ?? 'en-US';
+    const currentAppLocale = AppLocale[locale];
     const initDone: boolean = yield call(initLocale, currentAppLocale);
 
+    const language = locale.split('-')[0] || 'en';
     moment.locale(language);
 
     if (initDone) {
@@ -49,7 +50,7 @@ function* loadLocaleSaga(action: PayloadAction<string>) {
   }
 }
 
-function* updateLocaleSaga(action: PayloadAction<string>) {
+function* updateLanguageSaga(action: PayloadAction<string>) {
   try {
     const language: string = action.payload ?? 'en';
     const selectedAccount: Account | undefined = yield select(getSelectedAccount);
@@ -61,7 +62,7 @@ function* updateLocaleSaga(action: PayloadAction<string>) {
     };
     yield put(changeAccountLocale(command));
   } catch {
-    yield put(loadLocaleFailure(updateLocale.type));
+    yield put(loadLocaleFailure(updateLanguage.type));
   }
 }
 
@@ -90,8 +91,8 @@ function* watchLoadLocale() {
   yield takeLatest(loadLocale.type, loadLocaleSaga);
 }
 
-function* watchUpdateLocale() {
-  yield takeLatest(updateLocale.type, updateLocaleSaga);
+function* watchupdateLanguage() {
+  yield takeLatest(updateLanguage.type, updateLanguageSaga);
 }
 
 function* watchLoadLocaleSuccess() {
@@ -107,6 +108,6 @@ export default function* lixiSaga() {
     fork(watchLoadLocale),
     fork(watchLoadLocaleSuccess),
     fork(watchLoadLocaleFailuare),
-    fork(watchUpdateLocale)
+    fork(watchupdateLanguage)
   ]);
 }

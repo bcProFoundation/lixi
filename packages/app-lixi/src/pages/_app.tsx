@@ -25,6 +25,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import OutsideCallConsumer from 'react-outside-call';
 import axiosClient from 'src/utils/axiosClient';
 import { stripHtml } from 'string-strip-html';
+import { LanguageProvider } from '@local-context/languageProvider';
 import MainLayout from '../components/Layout/MainLayout';
 
 const PersistGateServer = (props: any) => {
@@ -115,22 +116,24 @@ const LixiApp: NextComponentType<AppContext, AppInitialProps, AppLayoutProps> = 
         <FeatureToggleProvider enabledFeatures={enabledFeatures}>
           <SocketProvider>
             <ServiceWorkerProvider>
-              <WalletProvider>
-                <AuthenticationProvider>
-                  <AuthorizationProvider>
-                    <OutsideCallConsumer config={callConfig}>
-                      {/* <Layout className="lixi-app-layout"> */}
-                      {getLayout(
-                        <ConnectedRouter>
-                          <NextNProgress options={{ showSpinner: false }} height={5} />
-                          <Component {...props.pageProps} />
-                        </ConnectedRouter>
-                      )}
-                      {/* </Layout> */}
-                    </OutsideCallConsumer>
-                  </AuthorizationProvider>
-                </AuthenticationProvider>
-              </WalletProvider>
+              <LanguageProvider>
+                <WalletProvider>
+                  <AuthenticationProvider>
+                    <AuthorizationProvider>
+                      <OutsideCallConsumer config={callConfig}>
+                        {/* <Layout className="lixi-app-layout"> */}
+                        {getLayout(
+                          <ConnectedRouter>
+                            <NextNProgress options={{ showSpinner: false }} height={5} />
+                            <Component {...props.pageProps} />
+                          </ConnectedRouter>
+                        )}
+                        {/* </Layout> */}
+                      </OutsideCallConsumer>
+                    </AuthorizationProvider>
+                  </AuthenticationProvider>
+                </WalletProvider>
+              </LanguageProvider>
             </ServiceWorkerProvider>
           </SocketProvider>
         </FeatureToggleProvider>

@@ -1,21 +1,16 @@
-import React, { PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
-import { Button, Layout, Spin } from 'antd';
-import Link from 'next/link';
+import { Layout, Spin } from 'antd';
+import { PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
 import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
 
-import { LeftOutlined, LoadingOutlined } from '@ant-design/icons';
+import { LoadingOutlined } from '@ant-design/icons';
 
-import { loadLocale } from '@store/settings/actions';
+import { navBarHeaderList } from '@components/Common/navBarHeaderList';
+import { GlobalStyle } from '@components/Layout/MainLayout/GlobalStyle';
+import { theme } from '@components/Layout/MainLayout/theme';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
-import { injectStore } from 'src/utils/axiosClient';
-import SidebarShortcut from '@containers/Sidebar/SideBarShortcut';
-import { navBarHeaderList } from '@components/Common/navBarHeaderList';
 import { useRouter } from 'next/router';
-import intl from 'react-intl-universal';
-import { GlobalStyle } from '@components/Layout/MainLayout/GlobalStyle';
-import ModalManager from '@components/Common/ModalManager';
-import { theme } from '@components/Layout/MainLayout/theme';
+import { injectStore } from 'src/utils/axiosClient';
 const { Content, Sider, Header } = Layout;
 
 export const LoadingIcon = <LoadingOutlined className="loadingIcon" />;
@@ -91,10 +86,6 @@ const EmptyLayout = ({ children }) => {
   }, []);
 
   injectStore(currentLocale);
-
-  useEffect(() => {
-    dispatch(loadLocale(currentLocale));
-  }, [currentLocale]);
 
   const getNamePathDirection = () => {
     const itemSelect = navBarHeaderList.find(item => selectedKey.includes(item.path)) || null;

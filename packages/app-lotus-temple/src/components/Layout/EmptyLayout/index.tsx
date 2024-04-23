@@ -93,10 +93,6 @@ const EmptyLayout: React.FC = (props: EmptyLayoutProps) => {
 
   injectStore(currentLocale);
 
-  useEffect(() => {
-    dispatch(loadLocale(currentLocale));
-  }, [currentLocale]);
-
   const getNamePathDirection = () => {
     const itemSelect = navBarHeaderList.find(item => selectedKey.includes(item.path)) || null;
   };

@@ -12,7 +12,6 @@ import {
   SecondaryLanguageAccountCommand,
   UpdateAccountInput
 } from '@bcpros/lixi-models';
-import Cookies from 'universal-cookie';
 import { COIN } from '@bcpros/lixi-models/constants';
 import { callConfig } from '@context/index';
 import { PayloadAction } from '@reduxjs/toolkit';
@@ -25,15 +24,19 @@ import { push } from 'connected-next-router';
 import intl from 'react-intl-universal';
 import { all, call, fork, put, putResolve, select, takeLatest } from 'redux-saga/effects';
 import { Config, names, uniqueNamesGenerator } from 'unique-names-generator';
+import Cookies from 'universal-cookie';
 import { LocalUser } from '../../models/localUser';
 
+import { api as accountGraphApi } from '@store/account/accounts.api';
+import { saveClaimAddress } from '@store/claim';
+import { removeAllPageMessageSession } from '@store/message';
+import { changeCurrentLocale, loadLocale, setInitIntlStatus } from '@store/settings/actions';
 import { ChangeAccountLocaleCommand } from '../../../../lixi-models/build/module/lib/account/account.dto.d';
 import { PatchAccountCommand } from '../../../../lixi-models/src/lib/account/account.dto';
 import accountApi from '../account/api';
 import lixiApi from '../lixi/api';
 import { hideLoading, showLoading } from '../loading/actions';
 import { showToast } from '../toast/actions';
-import { api as accountGraphApi } from '@store/account/accounts.api';
 import {
   changeAccountLocale,
   changeAccountLocaleFailure,
@@ -65,6 +68,7 @@ import {
   registerViaEmailNoVerified,
   registerViaEmailNoVerifiedFailure,
   registerViaEmailNoVerifiedSuccess,
+  removeUpload,
   renameAccount,
   renameAccountFailure,
   renameAccountSuccess,
@@ -74,21 +78,18 @@ import {
   setAccount,
   setAccountInfoTemp,
   setAccountSuccess,
+  setSecondaryLanguageAccount,
+  setSecondaryLanguageAccountFailure,
+  setSecondaryLanguageAccountSuccess,
   silentLogin,
   silentLoginFailure,
   silentLoginSuccess,
   verifyEmail,
   verifyEmailFailure,
-  verifyEmailSuccess,
-  setSecondaryLanguageAccount,
-  setSecondaryLanguageAccountSuccess,
-  setSecondaryLanguageAccountFailure,
-  removeUpload
+  verifyEmailSuccess
 } from './actions';
 import { getAccountById, getAllAccountsIds, getSelectedAccount, getSelectedAccountId } from './selectors';
-import { saveClaimAddress } from '@store/claim';
-import { changeCurrentLocale, setInitIntlStatus } from '@store/settings/actions';
-import { removeAllPageMessageSession } from '@store/message';
+import { getLocaleByLanguage } from '@utils/languages';
 
 const nameConfigGenerator: Config = {
   dictionaries: [names, names],
@@ -486,8 +487,10 @@ function* changeAccountLocaleSuccessSaga(action: PayloadAction<Account>) {
     mnemonichHash: account.mnemonicHash
   };
   const cookies = new Cookies(null, { path: '/' });
-  cookies.set('lang', account.language);
+  const locale = getLocaleByLanguage(account.language);
+  cookies.set('locacle', locale);
   yield put(fetchNotifications(paramFetchNotification));
+  yield put(loadLocale(locale));
   yield put(hideLoading(changeAccountLocale.type));
   yield put(
     showToast('success', {

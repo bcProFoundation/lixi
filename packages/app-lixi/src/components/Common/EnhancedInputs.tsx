@@ -4,6 +4,7 @@ import styled, { css } from 'styled-components';
 import intl from 'react-intl-universal';
 import AppLocale, { AppLanguageNotAutoTrans } from '@lang/index';
 import _ from 'lodash';
+import { DefaultOptionType } from 'antd/es/select';
 
 export const AntdFormCss = css`
   .ant-input-group-addon {
@@ -116,13 +117,13 @@ export const LanguageNotAutoTransDropdown = selectProps => {
     languageMenuOptions.push(languageMenuOption);
   }
 
-  const languageOptions = languageMenuOptions.map(languageMenuOption => {
-    return (
-      <Option key={languageMenuOption.value} value={languageMenuOption.value}>
-        {languageMenuOption.label}
-      </Option>
-    );
+  const options = languageMenuOptions.map(languageMenuOption => {
+    return {
+      value: languageMenuOption.value,
+      label: languageMenuOption.label
+    };
   });
+
   return (
     <Select
       className=""
@@ -130,18 +131,17 @@ export const LanguageNotAutoTransDropdown = selectProps => {
         width: '100%'
       }}
       showSearch
-      filterSort={(optionA, optionB) =>
-        (optionA!.children as unknown as string)
-          .toLowerCase()
-          .localeCompare((optionB!.children as unknown as string).toLowerCase())
-      }
+      options={options}
+      filterSort={(optionA: DefaultOptionType, optionB: DefaultOptionType) => {
+        if (!optionA?.value) return 1;
+        if (!optionB?.value) return -1;
+        return (optionA.value as string).toLowerCase().localeCompare((optionB.value as string).toLowerCase());
+      }}
       filterOption={(input, option) =>
         (option!.children as unknown as string).toLocaleLowerCase().includes(input.toLowerCase())
       }
       {...selectProps}
-    >
-      {languageOptions}
-    </Select>
+    ></Select>
   );
 };
 

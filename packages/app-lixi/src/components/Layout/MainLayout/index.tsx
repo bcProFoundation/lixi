@@ -16,10 +16,9 @@ import Topbar from '@containers/Topbar';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import useThemeDetector from '@local-hooks/useThemeDetector';
 import { setTransactionReady } from '@store/account/actions';
-import { getIsGlobalLoading } from '@store/loading/selectors';
 import { getCurrentPageMessageSession } from '@store/page/selectors';
 import { setShowCreatePost } from '@store/post/actions';
-import { loadLocale, setCurrentThemes } from '@store/settings/actions';
+import { setCurrentThemes } from '@store/settings/actions';
 import { getCurrentLocale, getCurrentThemes, getIntlInitStatus, getIsSystemThemes } from '@store/settings/selectors';
 import { getSlpBalancesAndUtxos } from '@store/wallet';
 import 'animate.css';
@@ -31,8 +30,6 @@ import ActionSheet from '../../Common/ActionSheet';
 import ModalManager from '../../Common/ModalManager';
 import { GlobalStyle } from './GlobalStyle';
 import { theme } from './theme';
-import intl from 'react-intl-universal';
-import AppLocale from '@bcpros/redux-store/lang';
 
 export const LoadingIcon = <LoadingOutlined className="loadingIcon" />;
 
@@ -261,10 +258,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   }, [graphqlRequestLoading]);
 
   injectStore(currentLocale);
-
-  useEffect(() => {
-    dispatch(loadLocale(currentLocale));
-  }, [currentLocale]);
 
   useEffect(() => {
     setLoading(false);

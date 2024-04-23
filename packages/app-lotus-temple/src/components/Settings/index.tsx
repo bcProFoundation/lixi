@@ -16,7 +16,7 @@ import { getAllAccounts, getSelectedAccount } from '@store/account/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { getIsGlobalLoading } from '@store/loading/selectors';
 import { openModal } from '@store/modal/actions';
-import { setInitIntlStatus, updateLocale } from '@store/settings/actions';
+import { setInitIntlStatus, updateLanguage } from '@store/settings/actions';
 import { getCurrentLocale } from '@store/settings/selectors';
 import { Alert, Collapse, Form, Input, Modal, Spin } from 'antd';
 import axios from 'axios';
@@ -297,9 +297,9 @@ const Settings: React.FC = () => {
     setFormData(p => ({ ...p, [name]: value }));
   };
 
-  function setLocale(locales: any) {
+  function setLanguage(language: string) {
     dispatch(setInitIntlStatus(false));
-    dispatch(updateLocale(locales));
+    dispatch(updateLanguage(language));
   }
 
   async function submit() {
@@ -433,8 +433,8 @@ const Settings: React.FC = () => {
                   <AntdFormWrapper>
                     <LanguageSelectDropdown
                       defaultValue={currentLocale}
-                      onChange={(locale: any) => {
-                        setLocale(locale);
+                      onChange={(language: string) => {
+                        setLanguage(language);
                       }}
                     />
                   </AntdFormWrapper>

@@ -1,19 +1,18 @@
-import React, { useEffect, useState } from 'react';
 import { Layout, Spin } from 'antd';
+import React, { useState } from 'react';
 import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
 
 import { LoadingOutlined } from '@ant-design/icons';
 
-import ModalManager from '../../Common/ModalManager';
-import { GlobalStyle } from '../MainLayout/GlobalStyle';
-import { theme } from '../MainLayout/theme';
+import { Footer } from '@bcpros/lixi-components/components';
 import Sidebar from '@containers/Sidebar';
 import Topbar from '@containers/Topbar';
-import { loadLocale } from '@store/settings/actions';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
 import { injectStore } from 'src/utils/axiosClient';
-import { Footer } from '@bcpros/lixi-components/components';
+import ModalManager from '../../Common/ModalManager';
+import { GlobalStyle } from '../MainLayout/GlobalStyle';
+import { theme } from '../MainLayout/theme';
 
 const { Content, Sider, Header } = Layout;
 
@@ -109,10 +108,6 @@ const PostDetailLayout: React.FC = (props: PostDetailsLayoutProps) => {
   const dispatch = useAppDispatch();
 
   injectStore(currentLocale);
-
-  useEffect(() => {
-    dispatch(loadLocale(currentLocale));
-  }, [currentLocale]);
 
   return (
     <ThemeProvider theme={theme as DefaultTheme}>

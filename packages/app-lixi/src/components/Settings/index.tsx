@@ -32,7 +32,7 @@ import { getAllAccounts, getSelectedAccount } from '@store/account/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { getIsGlobalLoading } from '@store/loading/selectors';
 import { openModal } from '@store/modal/actions';
-import { setCurrentThemes, setInitIntlStatus, setIsSystemThemes, updateLocale } from '@store/settings/actions';
+import { setCurrentThemes, setInitIntlStatus, setIsSystemThemes, updateLanguage } from '@store/settings/actions';
 import { getCurrentLocale, getCurrentThemes, getIsSystemThemes } from '@store/settings/selectors';
 import { Alert, Button, Collapse, Form, Input, Modal, Select, Spin } from 'antd';
 import axios from 'axios';
@@ -359,9 +359,9 @@ const Settings: React.FC = () => {
     selectTheme === 'system' ? dispatch(setIsSystemThemes(true)) : dispatch(setIsSystemThemes(false));
   };
 
-  function setLocale(locales: any) {
+  function setLanguage(language: string) {
     dispatch(setInitIntlStatus(false));
-    dispatch(updateLocale(locales));
+    dispatch(updateLanguage(language));
   }
 
   async function submit() {
@@ -523,8 +523,8 @@ const Settings: React.FC = () => {
             <AntdFormWrapper>
               <LanguageSelectDropdown
                 defaultValue={selectedAccount?.language}
-                onChange={(locale: any) => {
-                  setLocale(locale);
+                onChange={(language: string) => {
+                  setLanguage(language);
                 }}
               />
             </AntdFormWrapper>
