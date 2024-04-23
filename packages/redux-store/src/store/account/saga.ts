@@ -488,7 +488,7 @@ function* changeAccountLocaleSuccessSaga(action: PayloadAction<Account>) {
   };
   const cookies = new Cookies(null, { path: '/' });
   const locale = getLocaleByLanguage(account.language);
-  cookies.set('locacle', locale);
+  cookies.set('locale', locale);
   yield put(fetchNotifications(paramFetchNotification));
   yield put(loadLocale(locale));
   yield put(hideLoading(changeAccountLocale.type));

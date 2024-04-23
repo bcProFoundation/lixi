@@ -9,13 +9,14 @@ import * as _ from 'lodash';
 import moment from 'moment';
 import intl from 'react-intl-universal';
 import AppLocale from '@lang/index';
+import { injectStore as reduxInjectstore } from '@utils/axiosClient';
 
 import { loadLocale, loadLocaleFailure, loadLocaleSuccess, setInitIntlStatus, updateLanguage } from './actions';
 
 import 'moment/locale/vi';
+import { injectStore } from '../../utils';
 
 function initLocale(currentAppLocale: any): Promise<boolean> {
-  console.log('initLocale:', currentAppLocale);
   return intl
     .init({
       currentLocale: currentAppLocale.locale,
@@ -39,6 +40,8 @@ function* loadLocaleSaga(action: PayloadAction<string>) {
     const initDone: boolean = yield call(initLocale, currentAppLocale);
 
     const language = locale.split('-')[0] || 'en';
+    injectStore(language);
+    reduxInjectstore(language);
     moment.locale(language);
 
     if (initDone) {

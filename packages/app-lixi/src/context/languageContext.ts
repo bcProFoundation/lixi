@@ -5,6 +5,5 @@ import { createContext } from 'react';
 // and also each app can have their own language files instead of sharing in redux-store
 export const LanguageContext = createContext({
   initIntlDone: false,
-  currentLocale: 'en',
-  handleChangeLocale: (newLocale: string) => {}
+  currentLocale: 'en-US'
 });
