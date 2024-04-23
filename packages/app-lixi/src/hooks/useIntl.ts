@@ -10,6 +10,10 @@ export const useIntl = () => {
     })
   );
 
+  console.log(currentLocale);
+
+  console.log(AppLocale);
+
   const LOCALES_LIST = Object.keys(AppLocale);
 
   useEffect(() => {
@@ -21,10 +25,10 @@ export const useIntl = () => {
 
       // 2. Load locale data and set currentLocale
       intl.init({
-        // debug: true (optional),
+        debug: true,
         currentLocale,
         locales: {
-          currentLocale: AppLocale[currentLocale]
+          [currentLocale]: AppLocale[currentLocale].messages
         }
       });
       setInitIntlDone(true);

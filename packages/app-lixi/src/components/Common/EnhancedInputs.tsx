@@ -76,30 +76,27 @@ export const LanguageSelectDropdown = selectProps => {
   const languageMenuOptions: LanguageMenuOption[] = [];
 
   for (var key in AppLocale) {
+    const lang = key.split('-')[0];
     const languageMenuOption: LanguageMenuOption = {
-      value: key,
-      label: intl.get('settings.' + key)
+      value: lang,
+      get label() {
+        return intl.get('settings.' + lang)
+
+      }
     };
     languageMenuOptions.push(languageMenuOption);
   }
 
-  const languageOptions = languageMenuOptions.map(languageMenuOption => {
-    return (
-      <Option key={languageMenuOption.value} value={languageMenuOption.value} className="selectedLanguageOption">
-        {languageMenuOption.label}
-      </Option>
-    );
-  });
   return (
     <Select
       className="select-after"
       style={{
         width: '100%'
       }}
+      options={languageMenuOptions}
       getPopupContainer={trigger => trigger.parentNode}
       {...selectProps}
     >
-      {languageOptions}
     </Select>
   );
 };

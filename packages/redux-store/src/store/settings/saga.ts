@@ -15,20 +15,18 @@ import { loadLocale, loadLocaleFailure, loadLocaleSuccess, setInitIntlStatus, up
 import 'moment/locale/vi';
 
 function initLocale(currentAppLocale: any): Promise<boolean> {
-  return intl
-    .init({
-      currentLocale: currentAppLocale.locale,
-      locales: {
-        [currentAppLocale.locale]: currentAppLocale.messages
-      },
-      debug: true
-    })
-    .then(() => {
-      return true;
-    })
-    .catch(err => {
-      return false;
-    });
+  console.log('initLocale:', currentAppLocale);
+  return intl.init({
+    currentLocale: currentAppLocale.locale,
+    locales: {
+      [currentAppLocale.locale]: currentAppLocale.messages
+    },
+    debug: true
+  }).then(() => {
+    return true;
+  }).catch(err => {
+    return false;
+  });
 }
 
 function* loadLocaleSaga(action: PayloadAction<string>) {
