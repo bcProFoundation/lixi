@@ -3,6 +3,7 @@ import AppLocale from '@lang/index';
 import { useEffect, useState } from 'react';
 import intl from 'react-intl-universal';
 import { injectStore } from '../utils/axiosClient';
+import { useInit } from './useInit';
 
 export const useIntl = () => {
   const [initIntlDone, setInitIntlDone] = useState(false);
@@ -35,9 +36,9 @@ export const useIntl = () => {
     setInitIntlDone(true);
   };
 
-  useEffect(() => {
+  useInit(() => {
     initializeIntl();
-  }, []); // Re-run on locale change
+  });
 
   return { initIntlDone, currentLocale };
 };
