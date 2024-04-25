@@ -14,7 +14,7 @@ import { Button, Form, Input, Layout, Modal, Skeleton, Space } from 'antd';
 import * as _ from 'lodash';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 const { Sider } = Layout;
@@ -419,7 +419,7 @@ const SidebarRanking = () => {
                 ) : (
                   leaderboard.map((item, index) => {
                     return (
-                      <>
+                      <Fragment key={`full-item-${item.id}-${index}`}>
                         {index === 0 && (
                           <h4 className="distance">
                             <ShortcutItemAccess
@@ -467,7 +467,7 @@ const SidebarRanking = () => {
                             />
                           </h4>
                         )}
-                      </>
+                      </Fragment>
                     );
                   })
                 )}
