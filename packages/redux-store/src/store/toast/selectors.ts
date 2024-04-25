@@ -6,10 +6,10 @@ import { ToastState } from './state';
 
 export const getToastTypeNotification = createSelector(
   (state: RootState) => state.toast,
-  (state: ToastState) => state.type,
+  (state: ToastState) => state.type
 );
 
 export const getToasConfigtNotification = createSelector(
   (state: RootState) => state.toast,
-  (state: ToastState) => state.config,
+  (state: ToastState) => state.config
 );
