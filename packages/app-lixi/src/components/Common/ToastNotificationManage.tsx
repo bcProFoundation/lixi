@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { notification } from 'antd';
 import { getCurrentThemes } from '@store/settings';
 import _ from 'lodash';
-import { getToastNotification } from '@store/toast/selectors';
+import { getToasConfigtNotification, getToastTypeNotification } from '@store/toast/selectors';
 import { ReactSVG } from 'react-svg';
 import { ToastType } from '@store/toast/state';
 import intl from 'react-intl-universal';
@@ -12,7 +12,8 @@ import { closeToast } from '@store/toast/actions';
 const DURATION_DEFAULT = 1.5;
 
 const ToastNotificationManage = () => {
-  const currentToast = useAppSelector(getToastNotification);
+  const currentToastType = useAppSelector(getToastTypeNotification);
+  const currentToastConfig = useAppSelector(getToasConfigtNotification);
   const currentTheme = useAppSelector(getCurrentThemes);
   const dispatch = useAppDispatch();
 
@@ -66,20 +67,19 @@ const ToastNotificationManage = () => {
   };
 
   useEffect(() => {
-    if (currentToast) {
-      const { type, config } = currentToast;
-      if (config) {
-        const newConfig = _.cloneDeep(config);
+    if (currentToastType) {
+      if (currentToastConfig) {
+        const newConfig = _.cloneDeep(currentToastConfig);
         newConfig.placement = 'top';
         newConfig.className = `custom-toast-notification ${
           currentTheme === 'dark' ? 'custom-toast-notification-dark' : 'custom-toast-notification-light'
         }`;
-        newConfig.icon = getIconToast(type);
-        newConfig.message = newConfig?.message || intl.get(`toast.${type}`);
+        newConfig.icon = getIconToast(currentToastType);
+        newConfig.message = newConfig?.message || intl.get(`toast.${currentToastType}`);
         newConfig.duration = newConfig?.duration || DURATION_DEFAULT;
 
         dispatch(closeToast());
-        switch (type) {
+        switch (currentToastType) {
           case 'success':
             return notification.success(newConfig);
           case 'error':
@@ -98,7 +98,7 @@ const ToastNotificationManage = () => {
         }
       }
     }
-  }, [currentToast]);
+  }, [currentToastType, currentToastConfig]);
 
   return <></>;
 };
