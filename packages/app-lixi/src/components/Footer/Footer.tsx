@@ -157,7 +157,7 @@ const Footer = ({ classList }: { classList?: any }) => {
           text={intl.get('general.installApp')}
           active={null}
           direction="horizontal"
-          key="support"
+          key="install"
           onClickItem={handleClickInstall}
         />
       </div>

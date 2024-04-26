@@ -123,10 +123,10 @@ const PollContent = ({ poll }: PollContentProps) => {
             const checkCalculate = calculatePercentage === 'NaN' ? 0 : calculatePercentage;
 
             return (
-              <Radio className="radio-option" onChange={() => handleOnChangePoll(item)} value={item.id}>
+              <Radio className="radio-option" onChange={() => handleOnChangePoll(item)} value={item.id} key={`poll-option-${item.id}`}>
                 <span className="option-title">{item.option}</span>
                 <div className="option-percentage">{checkCalculate}%</div>
-                <div className="percentage-bar" style={{ width: `${checkCalculate}%` }}></div>
+                {/* <div className="percentage-bar"></div> */}
               </Radio>
             );
           })}

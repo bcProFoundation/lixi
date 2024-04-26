@@ -325,9 +325,8 @@ const SidebarRanking = () => {
                   <picture>
                     <img
                       className="animation-top-ranking"
-                      src={`${
-                        currentTheme === 'dark' ? '/images/ico-fire-static.png' : '/images/ico-fire-animation.gif'
-                      }`}
+                      src={`${currentTheme === 'dark' ? '/images/ico-fire-static.png' : '/images/ico-fire-animation.gif'
+                        }`}
                       alt=""
                     />
                   </picture>
@@ -337,7 +336,7 @@ const SidebarRanking = () => {
                 ) : (
                   topPagesData.slice(0, 5).map((item, index) => {
                     return (
-                      <>
+                      <Fragment key={`external-top-page${item.id}-${index}`}>
                         {index === 0 && (
                           <h4 className="distance">
                             <ShortcutItemAccess
@@ -389,7 +388,7 @@ const SidebarRanking = () => {
                             />
                           </h4>
                         )}
-                      </>
+                      </Fragment>
                     );
                   })
                 )}
@@ -405,11 +404,10 @@ const SidebarRanking = () => {
                   <picture>
                     <img
                       className="animation-top-ranking"
-                      src={`${
-                        currentTheme === 'dark'
+                      src={`${currentTheme === 'dark'
                           ? '/images/ico-fire-heart-static.png'
                           : '/images/ico-fire-heart-animation.gif'
-                      }`}
+                        }`}
                       alt=""
                     />
                   </picture>
