@@ -758,6 +758,7 @@ export default {
   'messenger.openMessage': 'Mở tin nhắn',
   'messenger.chatPage': 'Nhắn tin với tôi',
   'messenger.offerChat': 'Đề nghị {xpi} XPI để trò chuyện với bạn.',
+  'messenger.youOfferChat': 'Bạn đề nghị {xpi} XPI để trò chuyện với bạn.',
 
   /* 24. Code country to language*/
   'code.ab': 'Abkhazian',
@@ -915,5 +916,6 @@ export default {
   'poll.minute': 'Phút',
   'poll.selectType': 'Chọn theo loại',
   'poll.canAdd': 'Người bầu chọn có thể thêm lựa chọn',
-  'poll.vote': 'Bầu chọn'
+  'poll.vote': 'Bầu chọn',
+  'poll.requireDana': 'Cần Dana để bầu chọn'
 };

@@ -5,11 +5,13 @@ import styled from 'styled-components';
 import { Button, Radio } from 'antd';
 import { useCreateVoteMutation } from '@store/post/polls.api';
 import { CreateVoteInput } from '@bcpros/lixi-models';
-import { useAppSelector } from '@store/hooks';
-import { getSelectedAccountId } from '@store/account';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { getSelectedAccount, getSelectedAccountId } from '@store/account';
 import { timeLeft } from '@utils/timeLeft';
 import { PollTime } from '@bcpros/lixi-models/constants';
 import intl from 'react-intl-universal';
+import { showToast } from '@store/toast';
+import { useGetAccountByAddressQuery } from '@store/account/accounts.generated';
 
 const PollWrapper = styled.div`
   border: 1px solid black;
@@ -77,11 +79,19 @@ type PollContentProps = {
 };
 
 const PollContent = ({ poll }: PollContentProps) => {
+  const dispatch = useAppDispatch();
   const selectedAccountId = useAppSelector(getSelectedAccountId);
+  const selectedAccount = useAppSelector(getSelectedAccount);
   const [options, setOptions] = useState(poll.options);
   const [currentOption, setCurrentOption] = useState(null);
   const defaultOptions = poll?.defaultOptions && poll.defaultOptions;
   const deadline = timeLeft(poll.endDate);
+
+  //get account dana
+  const currentAccount = useGetAccountByAddressQuery(
+    { address: selectedAccount.address },
+    { skip: !selectedAccount.address }
+  );
 
   const totalDanaPoll = poll.options?.reduce((accumulate, cur) => accumulate + cur.danaScoreOption, 0) ?? 0;
 
@@ -99,6 +109,17 @@ const PollContent = ({ poll }: PollContentProps) => {
 
   const handleVote = async currentOption => {
     if (!currentOption || deadline === PollTime.closePoll) return;
+
+    if (currentAccount.data.getAccountByAddress.accountDana.danaGiven === 0) {
+      dispatch(
+        showToast('warning', {
+          message: intl.get('toast.warning'),
+          description: intl.get('poll.requireDana'),
+          duration: 5
+        })
+      );
+      return;
+    }
 
     const createVoteInput: CreateVoteInput = {
       accountId: selectedAccountId,

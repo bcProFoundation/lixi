@@ -758,6 +758,7 @@ export default {
   'messenger.openMessage': 'Open message',
   'messenger.chatPage': 'Chat with me',
   'messenger.offerChat': 'Offer you {xpi} XPI for a chat.',
+  'messenger.youOfferChat': 'You offer {xpi} XPI for a chat.',
 
   /* 24. Code country to language*/
   'code.ab': 'Abkhazian',
@@ -915,5 +916,6 @@ export default {
   'poll.minute': 'Minutes',
   'poll.selectType': 'Select-type ',
   'poll.canAdd': 'User can add option',
-  'poll.vote': 'Vote'
+  'poll.vote': 'Vote',
+  'poll.requireDana': 'Required Dana to vote.'
 };
