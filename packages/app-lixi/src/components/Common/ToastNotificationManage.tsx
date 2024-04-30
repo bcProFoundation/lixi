@@ -82,7 +82,7 @@ const ToastNotificationManage = () => {
         dispatch(closeToast());
         switch (type) {
           case 'success':
-            return notification?.success(newConfig);
+            return notification.success(newConfig);
           case 'error':
             return notification.error(newConfig);
           case 'warning':
