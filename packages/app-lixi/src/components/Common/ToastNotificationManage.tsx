@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { notification } from 'antd';
+import { App } from 'antd';
 import { getCurrentThemes } from '@store/settings';
 import _ from 'lodash';
 import { getToastNotification } from '@store/toast/selectors';
@@ -15,6 +15,7 @@ const ToastNotificationManage = () => {
   const currentToast = useAppSelector(getToastNotification);
   const currentTheme = useAppSelector(getCurrentThemes);
   const dispatch = useAppDispatch();
+  const { notification } = App.useApp();
 
   const getIconToast = (typeToast: ToastType) => {
     switch (typeToast) {
@@ -81,7 +82,7 @@ const ToastNotificationManage = () => {
         dispatch(closeToast());
         switch (type) {
           case 'success':
-            return notification.success(newConfig);
+            return notification?.success(newConfig);
           case 'error':
             return notification.error(newConfig);
           case 'warning':
