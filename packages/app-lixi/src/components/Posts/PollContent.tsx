@@ -89,8 +89,8 @@ const PollContent = ({ poll }: PollContentProps) => {
 
   //get account dana
   const currentAccount = useGetAccountByAddressQuery(
-    { address: selectedAccount.address },
-    { skip: !selectedAccount.address }
+    { address: selectedAccount?.address || '' },
+    { skip: !selectedAccount?.address }
   );
 
   const totalDanaPoll = poll.options?.reduce((accumulate, cur) => accumulate + cur.danaScoreOption, 0) ?? 0;
