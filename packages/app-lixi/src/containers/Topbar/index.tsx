@@ -702,7 +702,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
           text={'Messenger'}
           active={currentPathName === '/page-message'}
           direction="horizontal"
-          key="support"
+          key="messenger"
           onClickItem={() => {
             if (authorization.authorized) {
               handleIconClick('/page-message');
@@ -757,7 +757,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
           text={intl.get('general.installApp')}
           active={null}
           direction="horizontal"
-          key="support"
+          key="download"
           onClickItem={handleClickInstall}
         />
       </div>
