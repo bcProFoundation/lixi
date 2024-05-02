@@ -1,7 +1,7 @@
 import { LoadingOutlined } from '@ant-design/icons';
 import { getGraphqlRequestStatus, getSelectedAccount } from '@store/account/selectors';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { ConfigProvider, Layout, Spin } from 'antd';
+import { App, ConfigProvider, Layout, Spin } from 'antd';
 import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
@@ -278,62 +278,64 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   return (
     <ConfigProvider theme={currentTheme === 'dark' ? darkTheme : lightTheme}>
-      <ThemeProvider theme={theme as DefaultTheme}>
-        <GlobalStyle />
-        {intlInitDone && (
-          <Spin spinning={loading} indicator={LoadingIcon}>
-            <LixiApp className={currentTheme === 'dark' ? 'dark' : ''}>
-              <Layout>
-                <AppBody>
-                  <ModalManager />
-                  <AppContainer className="app-container">
-                    <Sidebar className="sidebar-mobile" />
-                    {!hideStatusBar && (
-                      <Topbar
-                        className={`animate__animated animate__faster ${
-                          isMobile && selectedKey === '/'
-                            ? visible
-                              ? 'animate__fadeInDown'
-                              : 'animate__fadeOutUp'
-                            : ''
-                        }`}
-                      />
-                    )}
-                    <div
-                      className="container-content"
-                      style={{ padding: selectedKey === '/page-message' ? '0' : '' }}
-                      id="scrollableDiv"
-                      ref={scrollRef}
-                      onScroll={e => handleScroll(e)}
-                    >
-                      <SidebarShortcut />
-                      <div className="content-child" style={{ paddingTop: isMobile && !hideStatusBar ? 64 : 0 }}>
-                        {children}
-                      </div>
-                      {/* This below is just a dummy sidebar */}
-                      {(selectedKey === '/wallet' || selectedKey === '/') && <SidebarRanking></SidebarRanking>}
-                      <DummySidebar />
+      <App>
+        <ThemeProvider theme={theme as DefaultTheme}>
+          <GlobalStyle />
+          {intlInitDone && (
+            <Spin spinning={loading} indicator={LoadingIcon}>
+              <LixiApp className={currentTheme === 'dark' ? 'dark' : ''}>
+                <Layout>
+                  <AppBody>
+                    <ModalManager />
+                    <AppContainer className="app-container">
+                      <Sidebar className="sidebar-mobile" />
                       {!hideStatusBar && (
-                        <Footer
-                          classList={`animate__animated animate__faster ${
+                        <Topbar
+                          className={`animate__animated animate__faster ${
                             isMobile && selectedKey === '/'
                               ? visible
-                                ? 'animate__fadeInUp'
-                                : 'animate__fadeOutDown'
+                                ? 'animate__fadeInDown'
+                                : 'animate__fadeOutUp'
                               : ''
                           }`}
                         />
                       )}
-                    </div>
-                  </AppContainer>
-                  <ActionSheet />
-                  <ToastNotificationManage />
-                </AppBody>
-              </Layout>
-            </LixiApp>
-          </Spin>
-        )}
-      </ThemeProvider>
+                      <div
+                        className="container-content"
+                        style={{ padding: selectedKey === '/page-message' ? '0' : '' }}
+                        id="scrollableDiv"
+                        ref={scrollRef}
+                        onScroll={e => handleScroll(e)}
+                      >
+                        <SidebarShortcut />
+                        <div className="content-child" style={{ paddingTop: isMobile && !hideStatusBar ? 64 : 0 }}>
+                          {children}
+                        </div>
+                        {/* This below is just a dummy sidebar */}
+                        {(selectedKey === '/wallet' || selectedKey === '/') && <SidebarRanking></SidebarRanking>}
+                        <DummySidebar />
+                        {!hideStatusBar && (
+                          <Footer
+                            classList={`animate__animated animate__faster ${
+                              isMobile && selectedKey === '/'
+                                ? visible
+                                  ? 'animate__fadeInUp'
+                                  : 'animate__fadeOutDown'
+                                : ''
+                            }`}
+                          />
+                        )}
+                      </div>
+                    </AppContainer>
+                    <ActionSheet />
+                    <ToastNotificationManage />
+                  </AppBody>
+                </Layout>
+              </LixiApp>
+            </Spin>
+          )}
+        </ThemeProvider>
+      </App>
     </ConfigProvider>
   );
 };
