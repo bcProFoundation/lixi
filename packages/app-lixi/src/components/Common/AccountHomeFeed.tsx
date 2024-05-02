@@ -302,7 +302,7 @@ const AccountHomeFeed = () => {
           data.length > 0 &&
           data.map((account, index) => {
             return (
-              <ItemTopAccountMobile className="card-item-account">
+              <ItemTopAccountMobile className="card-item-account" key={`account-home-feed-${account.id}-${index}`}>
                 <div className="ranking-infor type-name">
                   <div className="ranking-avatar">
                     <span onClick={() => handleNavigateAccount(account)}>

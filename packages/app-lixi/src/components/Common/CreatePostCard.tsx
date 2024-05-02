@@ -401,7 +401,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
           <div className="avatar">
             <AvatarUser icon={accountInfoTemp?.avatar} name={selectedAccount?.name} isMarginRight={false} />
             <Input
-              variant="outlined"
+              variant="borderless"
               placeholder={
                 hashtags && hashtags.length > 0
                   ? `Write about ${hashtags

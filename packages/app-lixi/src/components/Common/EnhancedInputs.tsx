@@ -102,7 +102,7 @@ export const LanguageSelectDropdown = selectProps => {
 export const LanguageNotAutoTransDropdown = selectProps => {
   const { Option } = Select;
 
-  const languageMenuOptions: LanguageMenuOption[] = [{ value: null, label: ' ' }];
+  const languageMenuOptions: LanguageMenuOption[] = [{ value: '', label: ' ' }];
 
   for (var key in AppLanguageNotAutoTrans) {
     const languageMenuOption: LanguageMenuOption = {

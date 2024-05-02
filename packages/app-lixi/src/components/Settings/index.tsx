@@ -225,7 +225,7 @@ const SettingBar = styled.div`
     }
   }
   .second-language {
-    margin-top: 1rem;
+    margin-top: 2rem;
   }
 `;
 
@@ -392,6 +392,83 @@ const Settings: React.FC = () => {
     dispatch(setAccountCoin({ id: selectedAccount.id, accountCoin: value }));
   };
 
+  const itemRevealPhrase = [
+    {
+      key: '1',
+      label: intl.get('settings.revealPhrase'),
+      children: (
+        <p className="notranslate">{selectedAccount && selectedAccount.mnemonic ? selectedAccount.mnemonic : ''}</p>
+      )
+    }
+  ];
+
+  const itemsSavedAccount = [
+    {
+      key: '2',
+      label: intl.get('settings.savedAccount'),
+      children: (
+        <React.Fragment>
+          <AWRow>
+            <SWName>
+              <h3>{selectedAccount?.name}</h3>
+            </SWName>
+            <SWName>
+              <h3>
+                {
+                  <Select
+                    onChange={handleChangeWallet}
+                    defaultValue={selectedAccount?.coin ?? COIN.XPI}
+                    options={labelOptionCoins}
+                    // bordered={null}
+                    variant="borderless"
+                    style={{ left: '-11px' }}
+                  ></Select>
+                }
+              </h3>
+            </SWName>
+            <SWButtonCtn>
+              <span onClick={() => showPopulatedRenameAccountModal(selectedAccount as Account)}>
+                <Edit />
+              </span>
+              <span onClick={() => showPopulatedDeleteAccountModal(selectedAccount as Account)}>
+                <Trashcan />
+              </span>
+              <Button disabled={true} type="primary" className="no-border-btn">
+                {intl.get('settings.activated')}
+              </Button>
+            </SWButtonCtn>
+          </AWRow>
+
+          <div>
+            {otherAccounts &&
+              otherAccounts.map(acc => (
+                <SWRow key={acc.id}>
+                  <SWName>
+                    <h3>{acc.name}</h3>
+                  </SWName>
+                  <SWName>
+                    <h3>{labelCoin(acc.coin)}</h3>
+                  </SWName>
+
+                  <SWButtonCtn>
+                    <span onClick={() => showPopulatedRenameAccountModal(acc)}>
+                      <Edit />
+                    </span>
+                    <span onClick={() => showPopulatedDeleteAccountModal(acc)}>
+                      <Trashcan />
+                    </span>
+                    <Button type="primary" className="outline-btn" onClick={() => dispatch(selectAccount(acc.id))}>
+                      Activate
+                    </Button>
+                  </SWButtonCtn>
+                </SWRow>
+              ))}
+          </div>
+        </React.Fragment>
+      )
+    }
+  ];
+
   return (
     <>
       <WrapperPage className="card setting-page">
@@ -405,13 +482,7 @@ const Settings: React.FC = () => {
               showIcon
               message
             />
-            <StyledCollapse>
-              <Panel header={intl.get('settings.revealPhrase')} key="1">
-                <p className="notranslate">
-                  {selectedAccount && selectedAccount.mnemonic ? selectedAccount.mnemonic : ''}
-                </p>
-              </Panel>
-            </StyledCollapse>
+            <StyledCollapse items={itemRevealPhrase}></StyledCollapse>
           </SettingBar>
           <SettingBar>
             <h2 style={{ color: 'var(--color-primary)' }}>{intl.get('settings.manageAccounts')}</h2>
@@ -449,70 +520,7 @@ const Settings: React.FC = () => {
 
             {(selectedAccount || (otherAccounts && otherAccounts.length > 0)) && (
               <>
-                <StyledCollapse>
-                  <Panel header={intl.get('settings.savedAccount')} key="2">
-                    {
-                      <AWRow>
-                        <SWName>
-                          <h3>{selectedAccount?.name}</h3>
-                        </SWName>
-                        <SWName>
-                          <h3>
-                            {
-                              <Select
-                                onChange={handleChangeWallet}
-                                defaultValue={selectedAccount?.coin ?? COIN.XPI}
-                                options={labelOptionCoins}
-                                bordered={null}
-                                style={{ left: '-11px' }}
-                              ></Select>
-                            }
-                          </h3>
-                        </SWName>
-                        <SWButtonCtn>
-                          <span onClick={() => showPopulatedRenameAccountModal(selectedAccount as Account)}>
-                            <Edit />
-                          </span>
-                          <span onClick={() => showPopulatedDeleteAccountModal(selectedAccount as Account)}>
-                            <Trashcan />
-                          </span>
-                          <Button disabled={true} type="primary" className="no-border-btn">
-                            {intl.get('settings.activated')}
-                          </Button>
-                        </SWButtonCtn>
-                      </AWRow>
-                    }
-                    <div>
-                      {otherAccounts &&
-                        otherAccounts.map(acc => (
-                          <SWRow key={acc.id}>
-                            <SWName>
-                              <h3>{acc.name}</h3>
-                            </SWName>
-                            <SWName>
-                              <h3>{labelCoin(acc.coin)}</h3>
-                            </SWName>
-
-                            <SWButtonCtn>
-                              <span onClick={() => showPopulatedRenameAccountModal(acc)}>
-                                <Edit />
-                              </span>
-                              <span onClick={() => showPopulatedDeleteAccountModal(acc)}>
-                                <Trashcan />
-                              </span>
-                              <Button
-                                type="primary"
-                                className="outline-btn"
-                                onClick={() => dispatch(selectAccount(acc.id))}
-                              >
-                                Activate
-                              </Button>
-                            </SWButtonCtn>
-                          </SWRow>
-                        ))}
-                    </div>
-                  </Panel>
-                </StyledCollapse>
+                <StyledCollapse items={itemsSavedAccount}></StyledCollapse>
                 {/* TODO: Implement in the future */}
                 {/* <Button href={getOauth2URL()}>Login</Button> */}
               </>

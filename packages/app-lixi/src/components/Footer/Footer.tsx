@@ -102,7 +102,7 @@ const Footer = ({ classList }: { classList?: any }) => {
           text={'Messenger'}
           active={currentPathName === '/page-message'}
           direction="horizontal"
-          key="support"
+          key="messenger"
           onClickItem={() => {
             if (authorization.authorized) {
               handleIconClick('/page-message');
