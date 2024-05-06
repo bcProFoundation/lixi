@@ -18,7 +18,7 @@ import {
   saveMinimumDanaFilter
 } from './actions';
 import { SettingsState } from './state';
-// import { SearchBoxType } from '@bcpros/lixi-models/src/lib/search';
+// import { SearchBoxType } from '@bcpros/lixi-models/lib/search';
 
 const initialState: SettingsState = {
   navCollapsed: true,

@@ -11,7 +11,7 @@ import {
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { getIsGlobalLoading } from '@store/loading/selectors';
 import { getSelectedAccount } from '@store/account/selectors';
-import { Account } from '@bcpros/lixi-models/src/lib/account';
+import { Account } from '@bcpros/lixi-models/lib/account';
 import { registerLixiPack, registerLixiPackFailure } from '@store/lixi/actions';
 import { RegisterLixiPackCommand } from '@bcpros/lixi-models';
 import { WrapperPage } from '@components/Settings';

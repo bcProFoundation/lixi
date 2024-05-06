@@ -1,5 +1,5 @@
-import { FilterBurnCommand } from '@bcpros/lixi-models/src/lib/filter';
-import { SearchBoxCommand } from '@bcpros/lixi-models/src/lib/search';
+import { FilterBurnCommand } from '@bcpros/lixi-models/lib/filter';
+import { SearchBoxCommand } from '@bcpros/lixi-models/lib/search';
 import { createAction } from '@reduxjs/toolkit';
 
 import { WebAuthnConfig, WebPushNotifConfig } from './model';

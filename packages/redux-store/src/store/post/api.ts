@@ -1,5 +1,5 @@
 import { EditPostCommand } from '@bcpros/lixi-models';
-import { CreatePostCommand } from '@bcpros/lixi-models/src';
+import { CreatePostCommand } from '@bcpros/lixi-models';
 import axiosClient from '@utils/axiosClient';
 
 const postApi = {

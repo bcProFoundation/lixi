@@ -1,5 +1,4 @@
-import { AccountDto, EditPageCommand, Page, PageDto } from '@bcpros/lixi-models';
-import { CreatePageCommand } from '@bcpros/lixi-models/src';
+import { AccountDto, EditPageCommand, Page, PageDto, CreatePageCommand } from '@bcpros/lixi-models';
 import { all, fork, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import * as _ from 'lodash';
