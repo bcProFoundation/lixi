@@ -176,7 +176,6 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
   const { children } = props;
   const selectedAccount = useAppSelector(getSelectedAccount);
   const currentLocale = useAppSelector(getCurrentLocale);
-  const intlInitDone = useAppSelector(getIntlInitStatus);
   const dispatch = useAppDispatch();
   const [height, setHeight] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -236,26 +235,24 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
   return (
     <ThemeProvider theme={theme as DefaultTheme}>
       <GlobalStyle />
-      {intlInitDone && (
-        <Spin spinning={loading} indicator={LoadingIcon}>
-          <LixiApp>
-            <Layout>
-              <AppBody>
-                <ModalManager />
-                <AppContainer>
-                  <Sidebar />
-                  <Topbar ref={setRef} />
-                  <div className="container-content" id="scrollableDiv">
-                    <SidebarContent />
-                    <div className="content-child">{children}</div>
-                    <Footer notifications={notifications} />
-                  </div>
-                </AppContainer>
-              </AppBody>
-            </Layout>
-          </LixiApp>
-        </Spin>
-      )}
+      <Spin spinning={loading} indicator={LoadingIcon}>
+        <LixiApp>
+          <Layout>
+            <AppBody>
+              <ModalManager />
+              <AppContainer>
+                <Sidebar />
+                <Topbar ref={setRef} />
+                <div className="container-content" id="scrollableDiv">
+                  <SidebarContent />
+                  <div className="content-child">{children}</div>
+                  <Footer notifications={notifications} />
+                </div>
+              </AppContainer>
+            </AppBody>
+          </Layout>
+        </LixiApp>
+      </Spin>
     </ThemeProvider>
   );
 };

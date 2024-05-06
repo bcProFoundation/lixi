@@ -89,7 +89,6 @@ const PageDetailLayout: React.FC<PageDetailsLayoutProps> = (props: PageDetailsLa
   const { children } = props;
   const [loading, setLoading] = useState(false);
   const currentLocale = useAppSelector(getCurrentLocale);
-  const intlInitDone = useAppSelector(getIntlInitStatus);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [height, setHeight] = useState(0);
@@ -122,31 +121,29 @@ const PageDetailLayout: React.FC<PageDetailsLayoutProps> = (props: PageDetailsLa
   return (
     <ThemeProvider theme={theme as DefaultTheme}>
       <GlobalStyle />
-      {intlInitDone && (
-        <Spin spinning={loading} indicator={LoadingIcon}>
-          <LixiApp>
-            <Layout>
-              <AppBody>
-                <ModalManager />
-                <>
-                  <AppContainer>
-                    <Layout>
-                      <SidebarShortcut></SidebarShortcut>
-                      <Sidebar />
-                      <Layout className="main-section-layout">
-                        <Topbar ref={setRef} />
-                        {/* @ts-ignore */}
-                        <Content className="content-layout">{children}</Content>
-                      </Layout>
+      <Spin spinning={loading} indicator={LoadingIcon}>
+        <LixiApp>
+          <Layout>
+            <AppBody>
+              <ModalManager />
+              <>
+                <AppContainer>
+                  <Layout>
+                    <SidebarShortcut></SidebarShortcut>
+                    <Sidebar />
+                    <Layout className="main-section-layout">
+                      <Topbar ref={setRef} />
+                      {/* @ts-ignore */}
+                      <Content className="content-layout">{children}</Content>
                     </Layout>
-                  </AppContainer>
-                  <Footer notifications={notifications} />
-                </>
-              </AppBody>
-            </Layout>
-          </LixiApp>
-        </Spin>
-      )}
+                  </Layout>
+                </AppContainer>
+                <Footer notifications={notifications} />
+              </>
+            </AppBody>
+          </Layout>
+        </LixiApp>
+      </Spin>
     </ThemeProvider>
   );
 };

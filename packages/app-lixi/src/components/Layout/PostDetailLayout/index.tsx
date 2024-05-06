@@ -104,7 +104,6 @@ const PostDetailLayout: React.FC = (props: PostDetailsLayoutProps) => {
   const { children } = props;
   const [loading, setLoading] = useState(false);
   const currentLocale = useAppSelector(getCurrentLocale);
-  const intlInitDone = useAppSelector(getIntlInitStatus);
   const dispatch = useAppDispatch();
 
   injectStore(currentLocale);
@@ -112,28 +111,26 @@ const PostDetailLayout: React.FC = (props: PostDetailsLayoutProps) => {
   return (
     <ThemeProvider theme={theme as DefaultTheme}>
       <GlobalStyle />
-      {intlInitDone && (
-        <Spin spinning={loading} indicator={LoadingIcon}>
-          <LixiApp>
-            <Layout>
-              <AppBody>
-                <ModalManager />
-                <AppContainer>
+      <Spin spinning={loading} indicator={LoadingIcon}>
+        <LixiApp>
+          <Layout>
+            <AppBody>
+              <ModalManager />
+              <AppContainer>
+                <Layout>
+                  <Sidebar />
                   <Layout>
-                    <Sidebar />
-                    <Layout>
-                      <Topbar />
-                      {/* @ts-ignore */}
-                      <Content>{children}</Content>
-                    </Layout>
+                    <Topbar />
+                    {/* @ts-ignore */}
+                    <Content>{children}</Content>
                   </Layout>
-                </AppContainer>
-                <Footer />
-              </AppBody>
-            </Layout>
-          </LixiApp>
-        </Spin>
-      )}
+                </Layout>
+              </AppContainer>
+              <Footer />
+            </AppBody>
+          </Layout>
+        </LixiApp>
+      </Spin>
     </ThemeProvider>
   );
 };

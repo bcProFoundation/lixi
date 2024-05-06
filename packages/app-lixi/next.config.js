@@ -106,7 +106,7 @@ const nextConfig = withLess({
 		}
 	},
 
-	reactStrictMode: false,
+	reactStrictMode: true,
 	productionBrowserSourceMaps: !disableSourceMaps,
 	optimizeFonts: true,
 	httpAgentOptions: {

@@ -81,7 +81,6 @@ const ClaimedLayout: React.FC<ClaimedLayoutProps> = ({ children }) => {
   const claimId = children[0][''];
   const [loading, setLoading] = useState(false);
   const currentLocale = useAppSelector(getCurrentLocale);
-  const intlInitDone = useAppSelector(getIntlInitStatus);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [height, setHeight] = useState(0);
@@ -111,37 +110,35 @@ const ClaimedLayout: React.FC<ClaimedLayoutProps> = ({ children }) => {
   return (
     <ThemeProvider theme={theme as DefaultTheme}>
       <GlobalStyle />
-      {intlInitDone && (
-        <Spin spinning={loading} indicator={LoadingIcon}>
-          <LixiApp>
-            <Layout>
-              <AppBody>
-                <ModalManager />
-                <>
-                  <AppContainer>
-                    <Layout>
-                      <SidebarShortcut></SidebarShortcut>
-                      <Sidebar />
-                      <Layout className="main-section-layout" style={{ paddingRight: '2rem' }}>
-                        <Topbar ref={setRef} />
-                        {selectedKey !== '/' && (
-                          <NavBarHeader onClick={() => router.back()}>
-                            <LeftOutlined />
-                            <PathDirection>
-                              <h2>{navBarTitle.length > 0 ? intl.get(navBarTitle) : ''}</h2>
-                            </PathDirection>
-                          </NavBarHeader>
-                        )}
-                        <Content className="content-layout">{children}</Content>
-                      </Layout>
+      <Spin spinning={loading} indicator={LoadingIcon}>
+        <LixiApp>
+          <Layout>
+            <AppBody>
+              <ModalManager />
+              <>
+                <AppContainer>
+                  <Layout>
+                    <SidebarShortcut></SidebarShortcut>
+                    <Sidebar />
+                    <Layout className="main-section-layout" style={{ paddingRight: '2rem' }}>
+                      <Topbar ref={setRef} />
+                      {selectedKey !== '/' && (
+                        <NavBarHeader onClick={() => router.back()}>
+                          <LeftOutlined />
+                          <PathDirection>
+                            <h2>{navBarTitle.length > 0 ? intl.get(navBarTitle) : ''}</h2>
+                          </PathDirection>
+                        </NavBarHeader>
+                      )}
+                      <Content className="content-layout">{children}</Content>
                     </Layout>
-                  </AppContainer>
-                </>
-              </AppBody>
-            </Layout>
-          </LixiApp>
-        </Spin>
-      )}
+                  </Layout>
+                </AppContainer>
+              </>
+            </AppBody>
+          </Layout>
+        </LixiApp>
+      </Spin>
     </ThemeProvider>
   );
 };

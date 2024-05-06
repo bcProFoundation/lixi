@@ -77,7 +77,6 @@ const EmptyLayout: React.FC = (props: EmptyLayoutProps) => {
   const { children } = props;
   const [loading, setLoading] = useState(false);
   const currentLocale = useAppSelector(getCurrentLocale);
-  const intlInitDone = useAppSelector(getIntlInitStatus);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [height, setHeight] = useState(0);
@@ -104,24 +103,22 @@ const EmptyLayout: React.FC = (props: EmptyLayoutProps) => {
   return (
     <ThemeProvider theme={theme as DefaultTheme}>
       <GlobalStyle />
-      {intlInitDone && (
-        <Spin spinning={loading} indicator={LoadingIcon}>
-          <LixiApp>
-            <Layout>
-              <AppBody>
-                <AppContainer>
-                  <Layout>
-                    <Layout className="main-section-layout" style={{ paddingRight: '2rem' }}>
-                      {/* @ts-ignore */}
-                      <Content className="content-layout">{children}</Content>
-                    </Layout>
+      <Spin spinning={loading} indicator={LoadingIcon}>
+        <LixiApp>
+          <Layout>
+            <AppBody>
+              <AppContainer>
+                <Layout>
+                  <Layout className="main-section-layout" style={{ paddingRight: '2rem' }}>
+                    {/* @ts-ignore */}
+                    <Content className="content-layout">{children}</Content>
                   </Layout>
-                </AppContainer>
-              </AppBody>
-            </Layout>
-          </LixiApp>
-        </Spin>
-      )}
+                </Layout>
+              </AppContainer>
+            </AppBody>
+          </Layout>
+        </LixiApp>
+      </Spin>
     </ThemeProvider>
   );
 };

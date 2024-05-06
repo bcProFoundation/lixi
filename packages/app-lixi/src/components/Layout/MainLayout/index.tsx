@@ -218,7 +218,6 @@ type MainLayoutProps = React.PropsWithChildren<{}>;
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const selectedAccount = useAppSelector(getSelectedAccount);
   const currentLocale = useAppSelector(getCurrentLocale);
-  const intlInitDone = useAppSelector(getIntlInitStatus);
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -281,59 +280,57 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <App>
         <ThemeProvider theme={theme as DefaultTheme}>
           <GlobalStyle />
-          {intlInitDone && (
-            <Spin spinning={loading} indicator={LoadingIcon}>
-              <LixiApp className={currentTheme === 'dark' ? 'dark' : ''}>
-                <Layout>
-                  <AppBody>
-                    <ModalManager />
-                    <AppContainer className="app-container">
-                      <Sidebar className="sidebar-mobile" />
+          <Spin spinning={loading} indicator={LoadingIcon}>
+            <LixiApp className={currentTheme === 'dark' ? 'dark' : ''}>
+              <Layout>
+                <AppBody>
+                  <ModalManager />
+                  <AppContainer className="app-container">
+                    <Sidebar className="sidebar-mobile" />
+                    {!hideStatusBar && (
+                      <Topbar
+                        className={`animate__animated animate__faster ${
+                          isMobile && selectedKey === '/'
+                            ? visible
+                              ? 'animate__fadeInDown'
+                              : 'animate__fadeOutUp'
+                            : ''
+                        }`}
+                      />
+                    )}
+                    <div
+                      className="container-content"
+                      style={{ padding: selectedKey === '/page-message' ? '0' : '' }}
+                      id="scrollableDiv"
+                      ref={scrollRef}
+                      onScroll={e => handleScroll(e)}
+                    >
+                      <SidebarShortcut />
+                      <div className="content-child" style={{ paddingTop: isMobile && !hideStatusBar ? 64 : 0 }}>
+                        {children}
+                      </div>
+                      {/* This below is just a dummy sidebar */}
+                      {(selectedKey === '/wallet' || selectedKey === '/') && <SidebarRanking></SidebarRanking>}
+                      <DummySidebar />
                       {!hideStatusBar && (
-                        <Topbar
-                          className={`animate__animated animate__faster ${
+                        <Footer
+                          classList={`animate__animated animate__faster ${
                             isMobile && selectedKey === '/'
                               ? visible
-                                ? 'animate__fadeInDown'
-                                : 'animate__fadeOutUp'
+                                ? 'animate__fadeInUp'
+                                : 'animate__fadeOutDown'
                               : ''
                           }`}
                         />
                       )}
-                      <div
-                        className="container-content"
-                        style={{ padding: selectedKey === '/page-message' ? '0' : '' }}
-                        id="scrollableDiv"
-                        ref={scrollRef}
-                        onScroll={e => handleScroll(e)}
-                      >
-                        <SidebarShortcut />
-                        <div className="content-child" style={{ paddingTop: isMobile && !hideStatusBar ? 64 : 0 }}>
-                          {children}
-                        </div>
-                        {/* This below is just a dummy sidebar */}
-                        {(selectedKey === '/wallet' || selectedKey === '/') && <SidebarRanking></SidebarRanking>}
-                        <DummySidebar />
-                        {!hideStatusBar && (
-                          <Footer
-                            classList={`animate__animated animate__faster ${
-                              isMobile && selectedKey === '/'
-                                ? visible
-                                  ? 'animate__fadeInUp'
-                                  : 'animate__fadeOutDown'
-                                : ''
-                            }`}
-                          />
-                        )}
-                      </div>
-                    </AppContainer>
-                    <ActionSheet />
-                    <ToastNotificationManage />
-                  </AppBody>
-                </Layout>
-              </LixiApp>
-            </Spin>
-          )}
+                    </div>
+                  </AppContainer>
+                  <ActionSheet />
+                  <ToastNotificationManage />
+                </AppBody>
+              </Layout>
+            </LixiApp>
+          </Spin>
         </ThemeProvider>
       </App>
     </ConfigProvider>
