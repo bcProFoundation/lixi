@@ -457,7 +457,7 @@ const Settings: React.FC = () => {
                         <SWName>
                           <h3>{selectedAccount?.name}</h3>
                         </SWName>
-                        <SWName>
+                        {/* <SWName>
                           <h3>
                             {
                               <Select
@@ -469,7 +469,7 @@ const Settings: React.FC = () => {
                               ></Select>
                             }
                           </h3>
-                        </SWName>
+                        </SWName> */}
                         <SWButtonCtn>
                           <span onClick={() => showPopulatedRenameAccountModal(selectedAccount as Account)}>
                             <Edit />
@@ -490,9 +490,9 @@ const Settings: React.FC = () => {
                             <SWName>
                               <h3>{acc.name}</h3>
                             </SWName>
-                            <SWName>
+                            {/* <SWName>
                               <h3>{labelCoin(acc.coin)}</h3>
-                            </SWName>
+                            </SWName> */}
 
                             <SWButtonCtn>
                               <span onClick={() => showPopulatedRenameAccountModal(acc)}>
