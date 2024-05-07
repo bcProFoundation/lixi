@@ -5,6 +5,6 @@ const FeedPage = () => {
   return <PageHomeFeed />;
 };
 
-FeedPage.getLayout = ({ children }) => <MainLayout>{children}</MainLayout>;
+FeedPage.getLayout = children => <MainLayout>{children}</MainLayout>;
 
 export default FeedPage;

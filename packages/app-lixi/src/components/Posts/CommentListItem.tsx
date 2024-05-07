@@ -18,6 +18,7 @@ import intl from 'react-intl-universal';
 import { PostQueryItem, CommentQueryItem } from '@generated/index';
 import styled from 'styled-components';
 import IconBurnComment from './IconBurnComment';
+import { Parser as HtmlToReactParser } from 'html-to-react';
 
 const SpaceCustom = styled(Space)`
   gap: 5px !important;
@@ -115,6 +116,14 @@ const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFo
     }
   };
 
+  const elementParsedComment = () => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parsedContent = item.commentText.replace(urlRegex, url => `<a href=${url}>${url}</a>`);
+
+    const htmlToReactParser = HtmlToReactParser();
+    return htmlToReactParser.parse(parsedContent);
+  };
+
   return (
     <>
       <AntdComment
@@ -134,7 +143,8 @@ const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFo
                 <p className="reply-comment-jump-content hide-content">{item.parent.commentText}</p>
               </div>
             )}
-            <p>{item.commentText}</p>
+
+            {elementParsedComment()}
             <ImageComment>
               {image && (
                 <picture>
