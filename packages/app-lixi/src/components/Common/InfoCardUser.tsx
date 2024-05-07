@@ -33,6 +33,7 @@ type InfoCardProps = {
   followedToken?: boolean;
   post?: PostQueryItem;
   postListType?: PostListType;
+  displayDotAfterName?: boolean;
 };
 
 const CardUser = styled.div`
@@ -160,7 +161,8 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
     followedPage,
     followedToken,
     post,
-    postListType
+    postListType,
+    displayDotAfterName = true
   } = props;
   const selectedAccount = useAppSelector(getSelectedAccount);
   const history = useRouter();
@@ -214,7 +216,7 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
           {name}
         </span>
         <p className="title">
-          {title} ·
+          {title} {displayDotAfterName && '·'}
           <span
             style={{ marginLeft: '4px', fontSize: '10px', display: 'inline-flex', alignItems: 'center', gap: '1px' }}
           >

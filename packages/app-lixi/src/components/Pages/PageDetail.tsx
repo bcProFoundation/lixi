@@ -110,6 +110,12 @@ const ProfileCardHeader = styled.div`
         height: 200px;
       }
     }
+    .btn-upload-cover {
+      display: none;
+      border-radius: 50%;
+      padding: 10px;
+      border: none;
+    }
     button {
       display: block;
       position: absolute;
@@ -119,6 +125,12 @@ const ProfileCardHeader = styled.div`
     @media (max-width: 960px) {
       button {
         display: none;
+      }
+    }
+    @media (max-width: 768px) {
+      .btn-upload-cover {
+        display: flex;
+        align-items: center;
       }
     }
   }
@@ -184,6 +196,9 @@ const ProfileCardHeader = styled.div`
       .btn-edit-cover {
         display: none;
       }
+      .follow-page-mobile {
+        display: none;
+      }
       @media (max-width: 960px) {
         text-align: center;
         button {
@@ -191,6 +206,14 @@ const ProfileCardHeader = styled.div`
         }
         .btn-edit-cover {
           display: block;
+        }
+      }
+      @media (max-width: 768px) {
+        .follow-page-mobile {
+          display: block;
+        }
+        .btn-edit-cover {
+          display: none;
         }
       }
       button {
@@ -250,6 +273,7 @@ const ProfileCardHeader = styled.div`
       }
     }
     @media (max-width: 768px) {
+      display:none;
       margin-left: 0;
       text-align: center;
       padding-left: 0;
@@ -896,6 +920,9 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                 {intl.get('page.editCoverPhoto')}
               </Button>
             )}
+            <Button className="btn-upload-cover" onClick={() => uploadModal(false)}>
+              <CameraOutlined />
+            </Button>
           </div>
           <div className="info-profile">
             <div className="wrapper-avatar">
@@ -930,6 +957,16 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                   <CameraOutlined />
                   {intl.get('page.editCoverPhoto')}
                 </Button>
+                <div className="follow-page-mobile">
+                  <Button
+                    type="primary"
+                    className="outline-btn"
+                    style={{ alignItems: 'center' }}
+                    onClick={() => openFollowModal(Follow.Followers)}
+                  >
+                    {page.followersCount} {intl.get('general.followers')}
+                  </Button>
+                </div>
               </div>
             )}
             {/* Follow */}
@@ -981,9 +1018,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                 style={{ alignItems: 'center' }}
                 onClick={() => openFollowModal(Follow.Followers)}
               >
-                {page.followersCount}
-                <br />
-                {intl.get('general.followers')}
+                {page.followersCount} {intl.get('general.followers')}
               </Button>
             </div>
           )}
@@ -1007,7 +1042,18 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
             {pageDetailData.website && (
               <p className="infor-page">
                 <CompassOutlined />
-                {<a href={pageDetailData.website}> {pageDetailData.website}</a>}
+                {
+                  <a
+                    href={
+                      pageDetailData.website.includes('http')
+                        ? pageDetailData.website
+                        : 'https://' + pageDetailData.website
+                    }
+                  >
+                    {' '}
+                    {pageDetailData.website}
+                  </a>
+                }
               </p>
             )}
 

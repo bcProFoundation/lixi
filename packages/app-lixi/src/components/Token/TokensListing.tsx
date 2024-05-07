@@ -507,6 +507,7 @@ const TokensListing = () => {
                         title={token.name}
                         imgUrl={`${TOKEN_ICON_URL}/32/${token.tokenId}.png`}
                         isDropdown={false}
+                        displayDotAfterName={false}
                       />
                       <div className="detail-token">
                         <InfoSubCard
