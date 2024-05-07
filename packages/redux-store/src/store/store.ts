@@ -69,13 +69,13 @@ const makeStore = (context: Context) => {
         process.env.NODE_ENV === 'production'
           ? false
           : {
-              actionsDenylist: [
-                'wallet/writeWalletStatus',
-                'posts/setShowCreatePost',
-                'analyticEvent/batchEvents',
-                'analyticEvent/analyticEvent'
-              ]
-            },
+            actionsDenylist: [
+              'wallet/writeWalletStatus',
+              'posts/setShowCreatePost',
+              'analyticEvent/batchEvents',
+              'analyticEvent/analyticEvent'
+            ]
+          },
       preloadedState: initialState
     });
     setupListeners(store.dispatch);
@@ -93,4 +93,4 @@ export type AppDispatch = AppStore['dispatch'];
 export type AppThunkDispatch = ThunkDispatch<RootState, void, UnknownAction>;
 export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, Action>;
 
-export const wrapper = createWrapper<AppStore>(makeStore, { debug: true });
+export const wrapper: any = createWrapper<AppStore>(makeStore, { debug: true });
