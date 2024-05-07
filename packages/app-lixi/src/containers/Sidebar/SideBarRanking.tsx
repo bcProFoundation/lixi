@@ -321,7 +321,9 @@ const SidebarRanking = () => {
             <div className="container-right-bar your-shortcuts card">
               <div className="content">
                 <div className="header">
-                  <h3 className="title-card">{intl.get('general.topPages')}</h3>
+                  <a href="/page/feed">
+                    <h3 className="title-card">{intl.get('general.topPages')}</h3>
+                  </a>
                   <picture>
                     <img
                       className="animation-top-ranking"
@@ -401,7 +403,9 @@ const SidebarRanking = () => {
             <div className="container-right-bar your-shortcuts card">
               <div className="content">
                 <div className="header">
-                  <h3 className="title-card">{intl.get('general.topAccounts')}</h3>
+                  <a href="account/feed">
+                    <h3 className="title-card">{intl.get('general.topAccounts')}</h3>
+                  </a>
                   <picture>
                     <img
                       className="animation-top-ranking"

@@ -559,7 +559,7 @@ export const PageGroupItem = ({
                         ) : (
                           <p className="content">
                             {' '}
-                            {intl.get('messenger.offerChat', {
+                            {intl.get('messenger.youOfferChat', {
                               xpi: Math.round(Number(item?.lixi.amount))
                             })}
                           </p>
