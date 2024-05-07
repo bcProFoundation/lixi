@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
-import { Fragment } from 'react';
-import { PollQueryItem } from '@generated/types';
-import styled from 'styled-components';
-import { Button, Radio } from 'antd';
-import { useCreateVoteMutation } from '@store/post/polls.api';
 import { CreateVoteInput } from '@bcpros/lixi-models';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { getSelectedAccount, getSelectedAccountId } from '@store/account';
-import { timeLeft } from '@utils/timeLeft';
 import { PollTime } from '@bcpros/lixi-models/constants';
-import intl from 'react-intl-universal';
+import { PollQueryItem } from '@generated/types';
+import { getSelectedAccount, getSelectedAccountId } from '@store/account';
+import { useGetAccountByAddressQuery } from '@store/account/accounts.api';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useCreateVoteMutation } from '@store/post/polls.api';
 import { showToast } from '@store/toast';
-import { useGetAccountByAddressQuery } from '@store/account/accounts.generated';
+import { timeLeft } from '@utils/timeLeft';
+import { Button, Radio } from 'antd';
+import React, { Fragment, useState } from 'react';
+import intl from 'react-intl-universal';
+import styled from 'styled-components';
 
 const PollWrapper = styled.div`
   border: 1px solid black;
