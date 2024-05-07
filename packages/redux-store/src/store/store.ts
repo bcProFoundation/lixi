@@ -69,13 +69,13 @@ const makeStore = (context: Context) => {
         process.env.NODE_ENV === 'production'
           ? false
           : {
-            actionsDenylist: [
-              'wallet/writeWalletStatus',
-              'posts/setShowCreatePost',
-              'analyticEvent/batchEvents',
-              'analyticEvent/analyticEvent'
-            ]
-          },
+              actionsDenylist: [
+                'wallet/writeWalletStatus',
+                'posts/setShowCreatePost',
+                'analyticEvent/batchEvents',
+                'analyticEvent/analyticEvent'
+              ]
+            },
       preloadedState: initialState
     });
     setupListeners(store.dispatch);

@@ -119,6 +119,9 @@ importers:
       html-to-image:
         specifier: ^1.11.11
         version: 1.11.11
+      html-to-react:
+        specifier: ^1.7.0
+        version: 1.7.0(react@18.2.0)
       iron-session:
         specifier: ^8.0.1
         version: 8.0.1
@@ -8038,6 +8041,11 @@ packages:
 
   html-to-image@1.11.11:
     resolution: {integrity: sha512-9gux8QhvjRO/erSnDPv28noDZcPZmYE7e1vFsBLKLlRlKDSqNJYebj6Qz1TGd5lsRV+X+xYyjCKjuZdABinWjA==}
+
+  html-to-react@1.7.0:
+    resolution: {integrity: sha512-b5HTNaTGyOj5GGIMiWVr1k57egAZ/vGy0GGefnCQ1VW5hu9+eku8AXHtf2/DeD95cj/FKBKYa1J7SWBOX41yUQ==}
+    peerDependencies:
+      react: ^0.13.0 || ^0.14.0 || >=15
 
   html-to-text@9.0.5:
     resolution: {integrity: sha512-qY60FjREgVZL03vJU6IfMV4GDjGBIoOyvuFdpBDIX9yTlDw0TjxVBQp+P8NvpdIXNJvfWBTNul7fsAQJq2FNpg==}
@@ -22321,6 +22329,13 @@ snapshots:
   html-tags@3.3.1: {}
 
   html-to-image@1.11.11: {}
+
+  html-to-react@1.7.0(react@18.2.0):
+    dependencies:
+      domhandler: 5.0.3
+      htmlparser2: 9.1.0
+      lodash.camelcase: 4.3.0
+      react: 18.2.0
 
   html-to-text@9.0.5:
     dependencies:
