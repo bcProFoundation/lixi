@@ -14,7 +14,7 @@ import { SkipThrottle } from '@nestjs/throttler';
 import { ChronikClient } from 'chronik-client';
 import moment from 'moment';
 import { I18n, I18nContext, I18nService } from 'nestjs-i18n';
-import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
+import { InjectChronikClient } from 'nestjs-chronik';
 import { AccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from 'src/modules/auth/guards/gql-jwtauth.guard';
@@ -40,7 +40,7 @@ export class TokenResolver {
     private readonly totalDanaViewScoreLoader: TotalDanaViewScoreLoader,
     @I18n() private readonly i18n: I18nService,
     @InjectChronikClient('xec') private chronik: ChronikClient
-  ) {}
+  ) { }
 
   @Query(() => Token)
   @UseGuards(GqlJwtAuthGuardByPass)

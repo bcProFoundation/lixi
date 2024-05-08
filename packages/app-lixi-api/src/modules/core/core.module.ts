@@ -5,7 +5,6 @@ import cors, { CorsOptions } from 'cors';
 import IORedis from 'ioredis';
 import _ from 'lodash';
 import { NotificationModule } from 'src/common/modules/notifications/notification.module';
-import { ChronikModule } from '../../common/modules/chronik/chronik.module';
 import { CloudflareModule } from '../../common/modules/cloudflare/cloudflare.module';
 import { AccountModule } from '../account/account.module';
 import { AuthModule } from '../auth/auth.module';
@@ -37,22 +36,13 @@ import { WithdrawSubLixiesProcessor } from './lixi/processors/withdraw-sub-lixie
 import { TranslateService } from './translate/translate.service';
 import { UploadFilesController } from './upload/upload.controller';
 import { UploadService } from './upload/upload.serivce';
+import { ChronikModule } from 'nestjs-chronik';
 const baseCorsConfig: CorsOptions = {
   origin: process.env.BASE_URL ?? ''
 };
 
 @Module({
   imports: [
-    ChronikModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        const chronikUrl = config.get<string>('CHRONIK_URL') || 'https://chronik01.abcpay.cash';
-        return {
-          host: chronikUrl,
-          networks: ['xec', 'xpi']
-        };
-      }
-    }),
     BullModule.registerQueueAsync({
       name: ACCOUNT_DANA_QUEUE,
       inject: [ConfigService],

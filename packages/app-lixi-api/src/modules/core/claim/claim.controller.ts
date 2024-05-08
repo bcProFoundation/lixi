@@ -24,7 +24,7 @@ import geoip from 'geoip-country';
 import * as _ from 'lodash';
 import moment from 'moment';
 import { I18n, I18nContext } from 'nestjs-i18n';
-import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
+import { InjectChronikClient } from 'nestjs-chronik';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { ReqSocket } from 'src/decorators/req.socket.decorator';
 import { LixiService } from 'src/modules/core/lixi/lixi.service';
@@ -51,7 +51,7 @@ export class ClaimController {
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     private readonly config: ConfigService,
     private notificationGateway: NotificationGateway
-  ) {}
+  ) { }
 
   @Get(':id')
   async getClaim(@Param('id') id: string, @I18n() i18n: I18nContext): Promise<ViewClaimDto> {
@@ -415,21 +415,21 @@ export class ClaimController {
         // registrant
         !_.isNil(lixi.package?.registrant)
           ? outputs.push(
-              {
-                address: claimApi.claimAddress,
-                amountSat: amountSats
-              },
-              {
-                address: lixi.package?.registrant as unknown as string,
-                amountSat: amountSats
-              }
-            )
+            {
+              address: claimApi.claimAddress,
+              amountSat: amountSats
+            },
+            {
+              address: lixi.package?.registrant as unknown as string,
+              amountSat: amountSats
+            }
+          )
           : (outputs = [
-              {
-                address: claimApi.claimAddress,
-                amountSat: amountSats
-              }
-            ]);
+            {
+              address: claimApi.claimAddress,
+              amountSat: amountSats
+            }
+          ]);
 
         // distributions
         if (parentLixi && parentLixi.claimType == ClaimType.OneTime && parentLixi?.distributions) {

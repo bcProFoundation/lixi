@@ -13,7 +13,7 @@ import { ProductCacheService } from './product-cache.service';
 import { CommentType, ImageUploadableType, PostType } from '@bcpros/lixi-prisma';
 import { FollowCacheService } from '../../account/follow-cache.service';
 import { NotificationService } from '../../../common/modules/notifications/notification.service';
-import { InjectChronikClient } from '../../../common/modules/chronik/chronik.decorators';
+import { InjectChronikClient } from 'nestjs-chronik';
 import { ChronikClient } from 'chronik-client';
 import { AccountCacheService } from '../../account/account-cache.service';
 import { NOTIFICATION_TYPES } from '../../../common/modules/notifications/notification.constants';
@@ -34,7 +34,7 @@ export class ProductResolver {
     private readonly productCacheService: ProductCacheService,
     private readonly timelineableLoader: TimelineableLoader,
     @I18n() private i18n: I18nService
-  ) {}
+  ) { }
 
   @Query(() => Product)
   async product(@Args('id', { type: () => String }) id: string) {

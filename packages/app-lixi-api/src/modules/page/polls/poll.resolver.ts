@@ -8,7 +8,7 @@ import { SkipThrottle } from '@nestjs/throttler';
 import { Queue } from 'bullmq';
 import { ChronikClient } from 'chronik-client';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
+import { InjectChronikClient } from 'nestjs-chronik';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { AccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
@@ -47,7 +47,7 @@ export class PollResolver {
     private readonly accountCacheService: AccountCacheService,
     private readonly accountDanaCacheService: AccountDanaCacheService,
     private readonly pollLoader: PollLoader
-  ) {}
+  ) { }
 
   @SkipThrottle()
   @Query(() => Poll)

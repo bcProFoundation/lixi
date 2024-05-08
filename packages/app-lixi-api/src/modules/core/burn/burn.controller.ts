@@ -17,7 +17,7 @@ import { Queue } from 'bullmq';
 import { ChronikClient } from 'chronik-client';
 import _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
+import { InjectChronikClient } from 'nestjs-chronik';
 import { NOTIFICATION_TYPES } from 'src/common/modules/notifications/notification.constants';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
@@ -55,7 +55,7 @@ export class BurnController {
     private readonly postDanaCacheService: PostDanaCacheService,
     private readonly tokenDanaCacheService: TokenDanaCacheService,
     @InjectRedis() private readonly redis: Redis
-  ) {}
+  ) { }
 
   private convertBurnedByToAddress(burnedBy: string): string {
     const legacyAddress = this.XPI.Address.hash160ToLegacy(burnedBy);

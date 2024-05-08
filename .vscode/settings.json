@@ -13,5 +13,8 @@
         }
     ],
     "editor.formatOnSave": true,
-    "codeium.enableSearch": true
+    "codeium.enableSearch": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    }
 }

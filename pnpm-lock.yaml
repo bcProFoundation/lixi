@@ -505,8 +505,8 @@ importers:
         specifier: ^2.0.2
         version: 2.0.2
       chronik-client:
-        specifier: ^0.26.0
-        version: 0.26.0
+        specifier: ^0.26.2
+        version: 0.26.2
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
@@ -582,6 +582,9 @@ importers:
       nest-winston:
         specifier: ^1.8.0
         version: 1.9.4(@nestjs/common@10.3.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(winston@3.12.0)
+      nestjs-chronik:
+        specifier: 0.1.0
+        version: 0.1.0(@nestjs/common@10.3.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(chronik-client@0.26.2)
       nestjs-i18n:
         specifier: ^10.2.6
         version: 10.4.5(@nestjs/common@10.3.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.4(@nestjs/common@10.3.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/websockets@10.3.4)(reflect-metadata@0.1.14)(rxjs@7.8.1))(class-validator@0.14.1)(rxjs@7.8.1)
@@ -6229,6 +6232,9 @@ packages:
   chronik-client@0.26.0:
     resolution: {integrity: sha512-FHFABcQI0NspZO3sr4yyucnbd+61GXeVtqnfrVdv+dGBzzciPRsEHNapCgNqmpziec37tnXToM5azzP9ZdcO3g==}
 
+  chronik-client@0.26.2:
+    resolution: {integrity: sha512-mGuJVWEhMvJ2ZROGIunmoGaa660ODlrxQet5wypQYPYAUjwb/PFbBjao+66vVe6qhkpLBsQf5qp7Ro6Cqn5JEg==}
+
   ci-info@2.0.0:
     resolution: {integrity: sha512-5tK7EtrZ0N+OLFMthtqOj4fI2Jeb88C4CAZPu25LDVUgXJ0A3Js4PMGqrn0JU1W0Mh1/Z8wZzYPxqUrXeBboCQ==}
 
@@ -9709,6 +9715,13 @@ packages:
     peerDependencies:
       '@nestjs/common': ^5.0.0 || ^6.6.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
       winston: ^3.0.0
+
+  nestjs-chronik@0.1.0:
+    resolution: {integrity: sha512-wMiQcYThnTGo1skUo9JVQzv1fjeRAJ5gjnG7y/LLWeYun/xJ3gNAkSxt3/vuy2oVKCXIqm8KoeaUlzxRi2Y1ig==}
+    engines: {node: '>=16.6.0', pnpm: '>=7'}
+    peerDependencies:
+      '@nestjs/common': ^8.0.0 || ^9.3.9 || ^10.1.3
+      chronik-client: ~0.25.2
 
   nestjs-i18n@10.4.5:
     resolution: {integrity: sha512-OamX+Bf7yGtbKnfMLQNaVZL89YmFfcYCf0Y+R282D3rExpXDvHNNVrSbJoOXPK2fBq7/lnhlVYwEHiniqOiqXw==}
@@ -19974,6 +19987,19 @@ snapshots:
       - debug
       - utf-8-validate
 
+  chronik-client@0.26.2:
+    dependencies:
+      '@types/ws': 8.5.10
+      axios: 1.6.8
+      ecashaddrjs: 1.5.6
+      isomorphic-ws: 4.0.1(ws@8.16.0)
+      protobufjs: 6.11.4
+      ws: 8.16.0
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - utf-8-validate
+
   ci-info@2.0.0: {}
 
   ci-info@3.9.0: {}
@@ -24665,6 +24691,11 @@ snapshots:
       '@nestjs/common': 10.3.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.1.14)(rxjs@7.8.1)
       fast-safe-stringify: 2.1.1
       winston: 3.12.0
+
+  nestjs-chronik@0.1.0(@nestjs/common@10.3.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(chronik-client@0.26.2):
+    dependencies:
+      '@nestjs/common': 10.3.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.1.14)(rxjs@7.8.1)
+      chronik-client: 0.26.2
 
   nestjs-i18n@10.4.5(@nestjs/common@10.3.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.4(@nestjs/common@10.3.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/websockets@10.3.4)(reflect-metadata@0.1.14)(rxjs@7.8.1))(class-validator@0.14.1)(rxjs@7.8.1):
     dependencies:

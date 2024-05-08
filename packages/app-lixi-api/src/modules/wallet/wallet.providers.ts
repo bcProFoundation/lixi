@@ -10,7 +10,7 @@ import {
   WalletServices
 } from './wallet.interface';
 import { WalletService } from './wallet.service';
-import { ChronikClients } from '../../common/modules/chronik/chronik.interfaces';
+import { ChronikClients } from 'nestjs-chronik';
 import { XecWalletService } from './xec-wallet.service';
 import { XpiWalletService } from './xpi-wallet.service';
 

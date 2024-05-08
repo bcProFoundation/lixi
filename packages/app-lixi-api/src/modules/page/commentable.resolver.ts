@@ -7,7 +7,7 @@ import { ChronikClient } from 'chronik-client';
 import { PubSub } from 'graphql-subscriptions';
 import _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
+import { InjectChronikClient } from 'nestjs-chronik';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { AccountCacheService } from '../account/account-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -29,7 +29,7 @@ export class CommentableResolver {
     private readonly notificationService: NotificationService,
     private readonly accountCacheService: AccountCacheService,
     private readonly commentCacheService: CommentCacheService
-  ) {}
+  ) { }
 
   // @Subscription(() => Comment)
   // commentCreated() {

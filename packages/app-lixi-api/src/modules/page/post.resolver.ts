@@ -38,7 +38,7 @@ import { PubSub } from 'graphql-subscriptions';
 import { Redis } from 'ioredis';
 import * as _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
+import { InjectChronikClient } from 'nestjs-chronik';
 import { NOTIFICATION_TYPES } from 'src/common/modules/notifications/notification.constants';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { AccountEntity } from 'src/decorators';
@@ -89,7 +89,7 @@ export class PostResolver {
     private readonly imageUploadableLoader: ImageUploadableLoader,
     private readonly timelineableLoader: TimelineableLoader,
     private readonly bookmarkLoader: BookmarkLoader
-  ) {}
+  ) { }
 
   @SkipThrottle()
   @Query(() => Post)
