@@ -43,7 +43,7 @@ export class EventResolver {
     private readonly timelineableLoader: TimelineableLoader,
     private readonly notificationService: NotificationService,
     private readonly accountCacheService: AccountCacheService
-  ) { }
+  ) {}
 
   @SkipThrottle()
   @Query(() => Event)

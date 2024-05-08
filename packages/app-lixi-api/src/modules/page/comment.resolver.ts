@@ -55,7 +55,7 @@ export class CommentResolver {
     private readonly accountCacheService: AccountCacheService,
     private readonly commentCacheService: CommentCacheService,
     private readonly imageUploadableLoader: ImageUploadableLoader
-  ) { }
+  ) {}
 
   @Query(() => Comment)
   async comment(@Args('id', { type: () => String }) id: string) {
@@ -92,17 +92,17 @@ export class CommentResolver {
         },
         ...(account && account.id
           ? [
-            {
-              AND: [
-                { commentableId: id },
-                {
-                  commentAccount: {
-                    id: account.id
+              {
+                AND: [
+                  { commentableId: id },
+                  {
+                    commentAccount: {
+                      id: account.id
+                    }
                   }
-                }
-              ]
-            }
-          ]
+                ]
+              }
+            ]
           : [])
       ]
     };
@@ -179,13 +179,13 @@ export class CommentResolver {
       const post =
         commentable.type === CommentType.POST
           ? await this.prisma.post.findFirst({
-            where: {
-              commentableId: commentableId
-            },
-            include: {
-              account: true
-            }
-          })
+              where: {
+                commentableId: commentableId
+              },
+              include: {
+                account: true
+              }
+            })
           : null;
 
       const createFee = post?.account?.createCommentFee ? parseFloat(post?.account?.createCommentFee) : 0;
@@ -352,13 +352,13 @@ export class CommentResolver {
       const post =
         commentable.type === CommentType.POST
           ? await this.prisma.post.findFirst({
-            where: {
-              commentableId: commentableId
-            },
-            include: {
-              account: true
-            }
-          })
+              where: {
+                commentableId: commentableId
+              },
+              include: {
+                account: true
+              }
+            })
           : null;
 
       const replyComment = await this.prisma.comment.findFirst({

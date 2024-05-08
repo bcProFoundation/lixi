@@ -55,7 +55,7 @@ export class BurnController {
     private readonly postDanaCacheService: PostDanaCacheService,
     private readonly tokenDanaCacheService: TokenDanaCacheService,
     @InjectRedis() private readonly redis: Redis
-  ) { }
+  ) {}
 
   private convertBurnedByToAddress(burnedBy: string): string {
     const legacyAddress = this.XPI.Address.hash160ToLegacy(burnedBy);

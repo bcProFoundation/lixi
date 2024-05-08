@@ -34,7 +34,7 @@ export class ProductResolver {
     private readonly productCacheService: ProductCacheService,
     private readonly timelineableLoader: TimelineableLoader,
     @I18n() private i18n: I18nService
-  ) { }
+  ) {}
 
   @Query(() => Product)
   async product(@Args('id', { type: () => String }) id: string) {

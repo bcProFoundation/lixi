@@ -40,7 +40,7 @@ export class TokenResolver {
     private readonly totalDanaViewScoreLoader: TotalDanaViewScoreLoader,
     @I18n() private readonly i18n: I18nService,
     @InjectChronikClient('xec') private chronik: ChronikClient
-  ) { }
+  ) {}
 
   @Query(() => Token)
   @UseGuards(GqlJwtAuthGuardByPass)

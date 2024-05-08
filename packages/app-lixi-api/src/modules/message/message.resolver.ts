@@ -51,7 +51,7 @@ export class MessageResolver {
     @InjectChronikClient('xpi') private chronik: ChronikClient,
     private readonly notificationService: NotificationService,
     private readonly pageMessageSessionCacheService: PageMessageSessionCacheService
-  ) { }
+  ) {}
 
   @Subscription(() => Message)
   messageCreated() {
@@ -232,17 +232,17 @@ export class MessageResolver {
           const { txid } = broadcastResponse;
           const determineAddress = isPageOwner
             ? {
-              fromAddress: pageMessageSession.page.pageAccount.address,
-              fromAccountId: pageMessageSession.page.pageAccount.id,
-              toAddress: pageMessageSession.account.address,
-              toAccountId: pageMessageSession.account.id
-            }
+                fromAddress: pageMessageSession.page.pageAccount.address,
+                fromAccountId: pageMessageSession.page.pageAccount.id,
+                toAddress: pageMessageSession.account.address,
+                toAccountId: pageMessageSession.account.id
+              }
             : {
-              fromAddress: pageMessageSession.account.address,
-              fromAccountId: pageMessageSession.account.id,
-              toAddress: pageMessageSession.page.pageAccount.address,
-              toAccountId: pageMessageSession.page.pageAccount.id
-            };
+                fromAddress: pageMessageSession.account.address,
+                fromAccountId: pageMessageSession.account.id,
+                toAddress: pageMessageSession.page.pageAccount.address,
+                toAccountId: pageMessageSession.page.pageAccount.id
+              };
 
           const transactionTip = {
             txid,

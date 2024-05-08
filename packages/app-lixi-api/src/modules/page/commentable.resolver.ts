@@ -29,7 +29,7 @@ export class CommentableResolver {
     private readonly notificationService: NotificationService,
     private readonly accountCacheService: AccountCacheService,
     private readonly commentCacheService: CommentCacheService
-  ) { }
+  ) {}
 
   // @Subscription(() => Comment)
   // commentCreated() {

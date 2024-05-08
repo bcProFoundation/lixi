@@ -47,7 +47,7 @@ export class PollResolver {
     private readonly accountCacheService: AccountCacheService,
     private readonly accountDanaCacheService: AccountDanaCacheService,
     private readonly pollLoader: PollLoader
-  ) { }
+  ) {}
 
   @SkipThrottle()
   @Query(() => Poll)
