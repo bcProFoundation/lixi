@@ -12,6 +12,7 @@
     "dev:api": "turbo run dev --filter=@bcpros/app-lixi-api",
     "build": "turbo run build",
     "build:api": "turbo run build --filter=@bcpros/app-lixi-api",
+    "build:app": "turbo run build --filter=@bcpros/app-lixi",
     "db:deploy": "turbo run db:deploy --filter=@bcpros/lixi-prisma",
     "format": "turbo run format"
   },
