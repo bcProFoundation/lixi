@@ -638,7 +638,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
 
   useEffect(() => {
     const pageId = page.id;
-    const topHashtags = _.map(hashtagData, 'content');
+    const topHashtags = _.map(hashtagData, 'normalizedContent').filter((item, index) => index < 3);
     const pageRecentHashtag = recentTagAtPages.find((page: any) => page.id === pageId);
     const recentHashtags: string[] = pageRecentHashtag?.hashtags || [];
 
@@ -1145,10 +1145,10 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                 </div>
                 <CreatePostCard page={page} hashtags={hashtags} query={query} />
                 <TagContainer>
-                  {hashtagData &&
-                    hashtagData.map(tag => (
+                  {suggestedHashtag &&
+                    suggestedHashtag.map(tag => (
                       <StyledTag key={tag.id} color="green" onClick={onTopHashtagClick}>
-                        {`#${tag.normalizedContent}`}
+                        {`#${tag}`}
                       </StyledTag>
                     ))}
                 </TagContainer>

@@ -5,6 +5,6 @@ const FeedAccount = () => {
   return <AccountHomeFeed />;
 };
 
-FeedAccount.Layout = ({ children }) => <MainLayout children={children} />;
+FeedAccount.getLayout = children => <MainLayout children={children} />;
 
 export default FeedAccount;
