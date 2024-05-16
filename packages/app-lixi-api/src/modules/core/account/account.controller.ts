@@ -216,6 +216,7 @@ export class AccountController {
           mnemonicHash: mnemonicHash,
           id: undefined,
           address: address,
+          hash160: Buffer.from(this.XPI.Address.toHash160(address), 'hex'),
           publicKey: publicKey,
           accountDana: {
             create: {}
@@ -262,7 +263,7 @@ export class AccountController {
 
         //check account connect to walletPaths
         const addressType = _.toUpper(type) == 'P2PKH' ? 'P2PKH' : 'P2SH';
-        if (!account.walletPaths) {
+        if (account.walletPaths.length === 0) {
           await this.prisma.account.update({
             where: {
               id: account.id
@@ -345,6 +346,8 @@ export class AccountController {
         };
 
         const addressType = _.toUpper(type) == 'P2PKH' ? 'P2PKH' : 'P2SH';
+        const path = command.coin === COIN.XPI ? walletPath.XPI : walletPath.XEC;
+
         const createdAccount: AccountDb = await this.prisma.account.create({
           data: {
             ...accountToInsert,
@@ -353,11 +356,11 @@ export class AccountController {
             },
             walletPaths: {
               create: {
-                path: walletPath.XPI,
-                address: address,
+                path: path,
+                address: cashAddress,
                 hash160: Buffer.from(hash).toString('hex'),
                 type: addressType,
-                network: COIN.XPI,
+                network: command.coin ?? COIN.XPI,
                 publicKey
               }
             }
