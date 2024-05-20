@@ -920,9 +920,11 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                 {intl.get('page.editCoverPhoto')}
               </Button>
             )}
-            <Button className="btn-upload-cover" onClick={() => uploadModal(false)}>
-              <CameraOutlined />
-            </Button>
+            {selectedAccountId == pageDetailData?.pageAccountId && (
+              <Button className="btn-upload-cover" onClick={() => uploadModal(false)}>
+                <CameraOutlined />
+              </Button>
+            )}
           </div>
           <div className="info-profile">
             <div className="wrapper-avatar">
