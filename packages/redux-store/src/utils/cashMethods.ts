@@ -442,21 +442,6 @@ export const isValidStoredWallet = walletStateFromStorage => {
   );
 };
 
-export const getWalletState = wallet => {
-  if (!wallet) {
-    return {
-      balance: 0,
-      parsedTxHistory: [],
-      utxos: []
-    };
-  }
-
-  return {
-    ...wallet,
-    balance: fromSmallestDenomination(wallet?.balance || 0)
-  };
-};
-
 export const getUtxoWif = (utxo: Utxo & { address: string }, walltPaths: Array<WalletPathAddressInfo>) => {
   if (!walltPaths) {
     throw new Error('Invalid wallet parameter');

@@ -74,17 +74,3 @@ export const isValidStoredWallet = walletStateFromStorage => {
   );
 };
 
-export const getWalletState = wallet => {
-  if (!wallet || !wallet.state) {
-    return {
-      balances: { totalBalance: 0, totalBalanceInSatoshis: 0 },
-      hydratedUtxoDetails: {},
-      tokens: [],
-      slpBalancesAndUtxos: {},
-      parsedTxHistory: [],
-      utxos: []
-    };
-  }
-
-  return wallet.state;
-};

@@ -15,7 +15,7 @@ import {
   WalletProvider,
   callConfig
 } from '@context/index';
-import { wrapper } from '@store/store';
+import { wrapper } from 'src/store/store';
 import { ConnectedRouter } from 'connected-next-router';
 import { NextComponentType } from 'next';
 import { NextSeo } from 'next-seo';
