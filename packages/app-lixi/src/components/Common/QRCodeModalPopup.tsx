@@ -32,6 +32,9 @@ export const QRCodeModalPopup: React.FC<QRCodeModalProps> = (props: QRCodeModalP
       padding: 0px 24px;
       border-right: none;
     }
+    .ant-descriptions-item-label {
+      padding: 0 !important;
+    }
   `;
   const StyledButton = styled(Button)`
     min-width: 90px;

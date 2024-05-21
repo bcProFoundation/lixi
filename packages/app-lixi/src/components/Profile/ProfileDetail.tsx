@@ -742,7 +742,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
             {user.website && (
               <p className="infor-profile">
                 <CompassOutlined />
-                {<a href={user.website}> {user.website}</a>}
+                {<a href={user.website.includes('http') ? user.website : 'https://' + user.website}> {user.website}</a>}
               </p>
             )}
 

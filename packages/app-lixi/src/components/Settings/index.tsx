@@ -520,7 +520,70 @@ const Settings: React.FC = () => {
 
             {(selectedAccount || (otherAccounts && otherAccounts.length > 0)) && (
               <>
-                <StyledCollapse items={itemsSavedAccount}></StyledCollapse>
+                <StyledCollapse>
+                  <Panel header={intl.get('settings.savedAccount')} key="2">
+                    {
+                      <AWRow>
+                        <SWName>
+                          <h3>{selectedAccount?.name}</h3>
+                        </SWName>
+                        {/* <SWName>
+                          <h3>
+                            {
+                              <Select
+                                onChange={handleChangeWallet}
+                                defaultValue={selectedAccount?.coin ?? COIN.XPI}
+                                options={labelOptionCoins}
+                                bordered={null}
+                                style={{ left: '-11px' }}
+                              ></Select>
+                            }
+                          </h3>
+                        </SWName> */}
+                        <SWButtonCtn>
+                          <span onClick={() => showPopulatedRenameAccountModal(selectedAccount as Account)}>
+                            <Edit />
+                          </span>
+                          <span onClick={() => showPopulatedDeleteAccountModal(selectedAccount as Account)}>
+                            <Trashcan />
+                          </span>
+                          <Button disabled={true} type="primary" className="no-border-btn">
+                            {intl.get('settings.activated')}
+                          </Button>
+                        </SWButtonCtn>
+                      </AWRow>
+                    }
+                    <div>
+                      {otherAccounts &&
+                        otherAccounts.map(acc => (
+                          <SWRow key={acc.id}>
+                            <SWName>
+                              <h3>{acc.name}</h3>
+                            </SWName>
+                            {/* <SWName>
+                              <h3>{labelCoin(acc.coin)}</h3>
+                            </SWName> */}
+
+                            <SWButtonCtn>
+                              <span onClick={() => showPopulatedRenameAccountModal(acc)}>
+                                <Edit />
+                              </span>
+                              <span onClick={() => showPopulatedDeleteAccountModal(acc)}>
+                                <Trashcan />
+                              </span>
+                              <Button
+                                type="primary"
+                                className="outline-btn"
+                                onClick={() => dispatch(selectAccount(acc.id))}
+                              >
+                                Activate
+                              </Button>
+                            </SWButtonCtn>
+                          </SWRow>
+                        ))}
+                    </div>
+                  </Panel>
+                </StyledCollapse>
                 {/* TODO: Implement in the future */}
                 {/* <Button href={getOauth2URL()}>Login</Button> */}
               </>

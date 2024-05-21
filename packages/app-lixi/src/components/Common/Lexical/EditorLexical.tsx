@@ -95,6 +95,15 @@ const StyledEditorLexical = styled.div`
     align-items: center;
     justify-content: start;
 
+    @media screen and (max-width: 448px) {
+      .ant-btn {
+        padding: 4px 5px;
+      }
+      .clear-btn {
+        padding: 0 0 0 5px;
+      }
+    }
+
     .ant-btn-icon {
       .anticon-twitter {
         font-size: 26px;

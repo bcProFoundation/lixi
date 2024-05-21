@@ -50,6 +50,10 @@ const Container = styled.div`
     text-align: left;
     color: rgb(176, 179, 184) !important;
     font-weight: 500;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
   }
 
   .ant-list-item-extra {
