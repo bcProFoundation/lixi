@@ -88,7 +88,6 @@ const configureLocalStore = () => {
   });
 };
 
-
 export let useSliceSelector: TypedUseSelectorHook<LixiStoreStateInterface> = useSelector;
 
 type SliceDispatch = ReturnType<typeof configureLocalStore>['dispatch'];

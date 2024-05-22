@@ -327,8 +327,9 @@ const SidebarRanking = () => {
                   <picture>
                     <img
                       className="animation-top-ranking"
-                      src={`${currentTheme === 'dark' ? '/images/ico-fire-static.png' : '/images/ico-fire-animation.gif'
-                        }`}
+                      src={`${
+                        currentTheme === 'dark' ? '/images/ico-fire-static.png' : '/images/ico-fire-animation.gif'
+                      }`}
                       alt=""
                     />
                   </picture>
@@ -408,10 +409,11 @@ const SidebarRanking = () => {
                   <picture>
                     <img
                       className="animation-top-ranking"
-                      src={`${currentTheme === 'dark'
-                        ? '/images/ico-fire-heart-static.png'
-                        : '/images/ico-fire-heart-animation.gif'
-                        }`}
+                      src={`${
+                        currentTheme === 'dark'
+                          ? '/images/ico-fire-heart-static.png'
+                          : '/images/ico-fire-heart-animation.gif'
+                      }`}
                       alt=""
                     />
                   </picture>

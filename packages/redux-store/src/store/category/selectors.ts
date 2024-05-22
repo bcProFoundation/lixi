@@ -15,4 +15,7 @@ const { selectAll, selectEntities, selectIds, selectTotal } = categoriesAdapter.
 
 export const getAllCategories = createSelector((state: LixiStoreStateInterface) => state.categories, selectAll);
 
-export const getAllCategoriesEntities = createSelector((state: LixiStoreStateInterface) => state.categories, selectEntities);
+export const getAllCategoriesEntities = createSelector(
+  (state: LixiStoreStateInterface) => state.categories,
+  selectEntities
+);

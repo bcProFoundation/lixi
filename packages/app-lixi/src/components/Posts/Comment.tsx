@@ -321,14 +321,14 @@ const Comment = ({ post }: CommentProps) => {
     if (post.page) {
       return post.page.createCommentFee != '0'
         ? intl.get('comment.writeCommentXpi', {
-          commentFee: `${post.page.createCommentFee} ${coinInfo[COIN.XPI].ticker}`
-        })
+            commentFee: `${post.page.createCommentFee} ${coinInfo[COIN.XPI].ticker}`
+          })
         : intl.get('comment.writeCommentFree');
     } else if (post.account.createCommentFee && _.isNil(post.page)) {
       return post.account.createCommentFee != '0'
         ? intl.get('comment.writeCommentXpi', {
-          commentFee: `${post.account.createCommentFee} ${coinInfo[COIN.XPI].ticker}`
-        })
+            commentFee: `${post.account.createCommentFee} ${coinInfo[COIN.XPI].ticker}`
+          })
         : intl.get('comment.writeCommentFree');
     } else {
       return intl.get('comment.writeComment');
@@ -769,11 +769,11 @@ const Comment = ({ post }: CommentProps) => {
                 onClick={async () => {
                   isReplyComment
                     ? await processComment(
-                      getValues('comment'),
-                      true,
-                      replyCommentData.id,
-                      replyCommentData.commentAccount.address
-                    )
+                        getValues('comment'),
+                        true,
+                        replyCommentData.id,
+                        replyCommentData.commentAccount.address
+                      )
                     : await processComment(getValues('comment'));
                 }}
                 icon={

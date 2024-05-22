@@ -9,7 +9,10 @@ const { selectAll, selectEntities, selectIds, selectTotal } = notificationsAdapt
 
 export const getAllNotifications = createSelector((state: LixiStoreStateInterface) => state.notifications, selectAll);
 
-export const getAllNotificationsEntities = createSelector((state: LixiStoreStateInterface) => state.notifications, selectEntities);
+export const getAllNotificationsEntities = createSelector(
+  (state: LixiStoreStateInterface) => state.notifications,
+  selectEntities
+);
 
 export const getIsServerStatusOn = createSelector(
   (state: LixiStoreStateInterface) => state.notifications,

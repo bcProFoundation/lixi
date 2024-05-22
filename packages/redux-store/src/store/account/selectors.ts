@@ -9,7 +9,10 @@ const { selectAll, selectEntities, selectIds, selectTotal } = accountsAdapter.ge
 
 export const getAllAccounts = createSelector((state: LixiStoreStateInterface) => state.accounts, selectAll);
 
-export const getAllAccountsEntities = createSelector((state: LixiStoreStateInterface) => state.accounts, selectEntities);
+export const getAllAccountsEntities = createSelector(
+  (state: LixiStoreStateInterface) => state.accounts,
+  selectEntities
+);
 
 export const getAllAccountsIds = createSelector((state: LixiStoreStateInterface) => state.accounts, selectIds);
 

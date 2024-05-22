@@ -655,8 +655,8 @@ export const ShortCutTopicItem = ({
                     type="text"
                     icon={<RightOutlined />}
                     onClick={() => onClickIcon(topicName, true)}
-                  // TODO: can change in future
-                  // () => setShowMore(!showMore)
+                    // TODO: can change in future
+                    // () => setShowMore(!showMore)
                   ></Button>
                 </div>
               </div>

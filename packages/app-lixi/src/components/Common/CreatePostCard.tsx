@@ -405,10 +405,10 @@ const CreatePostCard = (props: CreatePostCardProp) => {
               placeholder={
                 hashtags && hashtags.length > 0
                   ? `Write about ${hashtags
-                    .map(hashtag => {
-                      return `${hashtag}`;
-                    })
-                    .join(' ')}`
+                      .map(hashtag => {
+                        return `${hashtag}`;
+                      })
+                      .join(' ')}`
                   : `What's on your mind?`
               }
               value=""
@@ -430,8 +430,9 @@ const CreatePostCard = (props: CreatePostCardProp) => {
       </DesktopCreatePost>
       <MobileCreatePost
         hidden={!showCreatePostMobile}
-        className={`animate__animated ${showCreatePostMobile ? 'animate__fadeIn' : 'animate__fadeOut'
-          } create-post-card-container`}
+        className={`animate__animated ${
+          showCreatePostMobile ? 'animate__fadeIn' : 'animate__fadeOut'
+        } create-post-card-container`}
         onClick={handleNewPostClick}
       >
         <div className="fab-btn">
@@ -457,8 +458,9 @@ const CreatePostCard = (props: CreatePostCardProp) => {
                 <div className="location-fee">
                   <Button className="btn-select">{getCreatePostLocation()}</Button>
                   {page && page.createPostFee && selectedAccount?.id != page.pageAccountId && (
-                    <p className="post-fee">{`${intl.get('general.fee')} ${page.createPostFee} ${coinInfo[COIN.XPI].ticker
-                      }`}</p>
+                    <p className="post-fee">{`${intl.get('general.fee')} ${page.createPostFee} ${
+                      coinInfo[COIN.XPI].ticker
+                    }`}</p>
                   )}
                 </div>
               </div>

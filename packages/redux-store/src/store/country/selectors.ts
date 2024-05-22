@@ -9,7 +9,7 @@ import { CountriesState, StatesState } from './state';
 
 export const getCountriesState = createSelector(
   (state: LixiStoreStateInterface) => state.countries,
-  (countries: CountriesState) => countries,
+  (countries: CountriesState) => countries
 );
 
 // Country
@@ -17,7 +17,10 @@ const { selectAll, selectEntities, selectIds, selectTotal } = countriesAdapter.g
 
 export const getAllCountries = createSelector((state: LixiStoreStateInterface) => state.countries, selectAll);
 
-export const getAllCountriesEntities = createSelector((state: LixiStoreStateInterface) => state.countries, selectEntities);
+export const getAllCountriesEntities = createSelector(
+  (state: LixiStoreStateInterface) => state.countries,
+  selectEntities
+);
 
 // State
 const selectCountry = (state: LixiStoreStateInterface) => state.countries;
@@ -31,4 +34,3 @@ const {
 } = statesAdapter.getSelectors();
 
 export const getAllStates = createSelector((state: LixiStoreStateInterface) => state.states, selectAllStates);
-

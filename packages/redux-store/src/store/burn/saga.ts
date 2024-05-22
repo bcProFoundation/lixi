@@ -307,14 +307,14 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
     yield put(removeBurnQueue());
     yield put(
       burnForUpDownVoteSuccess(data) &&
-      showToast('success', {
-        message: intl.get(`toast.success`),
-        description: intl.get('burn.totalBurn', {
-          burnValue: burnValue,
-          totalAmount: burnValue + burnValue * coinInfo[COIN.XPI].burnFee + Number(minerFee),
-          coin: 'XPI'
+        showToast('success', {
+          message: intl.get(`toast.success`),
+          description: intl.get('burn.totalBurn', {
+            burnValue: burnValue,
+            totalAmount: burnValue + burnValue * coinInfo[COIN.XPI].burnFee + Number(minerFee),
+            coin: 'XPI'
+          })
         })
-      })
     );
   } catch (err) {
     console.log(err);

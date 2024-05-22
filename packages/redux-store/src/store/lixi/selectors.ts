@@ -45,7 +45,10 @@ export const getSelectedLixi = createSelector(
   (lixies: Lixi[], selectedLixiId: number) => lixies.find(lixi => !_.isNil(lixi) && lixi.id === selectedLixiId)
 );
 
-export const getAllSubLixies = createSelector((state: LixiStoreStateInterface) => state.lixies.subLixies, selectAllSubLixies);
+export const getAllSubLixies = createSelector(
+  (state: LixiStoreStateInterface) => state.lixies.subLixies,
+  selectAllSubLixies
+);
 
 export const getHasMoreSubLixies = createSelector(getLixiesState, (lixies: LixiesState) => lixies.hasMoreSubLixies);
 

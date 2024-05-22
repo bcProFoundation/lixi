@@ -7,7 +7,10 @@ import { LocalUserAccountsState } from './state';
 
 const { selectAll, selectEntities, selectIds, selectTotal } = localAccountsAdapter.getSelectors();
 
-export const getAllLocalUserAccounts = createSelector((state: LixiStoreStateInterface) => state.localAccounts, selectAll);
+export const getAllLocalUserAccounts = createSelector(
+  (state: LixiStoreStateInterface) => state.localAccounts,
+  selectAll
+);
 
 export const getAllLocalUserAccountsEntities = createSelector(
   (state: LixiStoreStateInterface) => state.localAccounts,

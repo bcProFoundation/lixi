@@ -45,7 +45,7 @@ const makeStore = (context: Context) => {
       reducer: serverReducer,
       middleware: getDefaultMiddleware => getDefaultMiddleware().concat(sagaMiddleware),
       devTools: false
-    })
+    });
   } else {
     store = configureStore({
       reducer: rootReducer,
@@ -69,13 +69,13 @@ const makeStore = (context: Context) => {
         process.env.NODE_ENV === 'production'
           ? false
           : {
-            actionsDenylist: [
-              'wallet/writeWalletStatus',
-              'posts/setShowCreatePost',
-              'analyticEvent/batchEvents',
-              'analyticEvent/analyticEvent'
-            ]
-          },
+              actionsDenylist: [
+                'wallet/writeWalletStatus',
+                'posts/setShowCreatePost',
+                'analyticEvent/batchEvents',
+                'analyticEvent/analyticEvent'
+              ]
+            },
       preloadedState: initialState
     });
     setupListeners(store.dispatch);

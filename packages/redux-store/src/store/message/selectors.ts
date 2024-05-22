@@ -13,7 +13,10 @@ export const getPageMessageSessionState = createSelector(
 
 const { selectAll, selectEntities, selectIds, selectTotal } = pageMessageSessionAdapter.getSelectors();
 
-export const getAllPageMessageSession = createSelector((state: LixiStoreStateInterface) => state.pageMessage, selectAll);
+export const getAllPageMessageSession = createSelector(
+  (state: LixiStoreStateInterface) => state.pageMessage,
+  selectAll
+);
 
 export const getAllPageMessageSessionEntities = createSelector((state: LixiStoreStateInterface) => {
   if (state.pageMessage) {

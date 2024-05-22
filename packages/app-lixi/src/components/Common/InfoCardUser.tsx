@@ -191,16 +191,16 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
   const postActionSheet = (postContent, page?, token?) => {
     authorization.authorized
       ? dispatch(
-        openActionSheet('PostActionSheet', {
-          isEditPost: selectedAccount.address === accountAddress && post.dana.danaReceivedScore === 0,
-          post: postContent,
-          page: page,
-          token: token,
-          followPostOwner,
-          followedPage,
-          followedToken
-        })
-      )
+          openActionSheet('PostActionSheet', {
+            isEditPost: selectedAccount.address === accountAddress && post.dana.danaReceivedScore === 0,
+            post: postContent,
+            page: page,
+            token: token,
+            followPostOwner,
+            followedPage,
+            followedToken
+          })
+        )
       : askAuthorization();
   };
 

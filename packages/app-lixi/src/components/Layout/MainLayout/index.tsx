@@ -289,12 +289,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     <Sidebar className="sidebar-mobile" />
                     {!hideStatusBar && (
                       <Topbar
-                        className={`animate__animated animate__faster ${isMobile && selectedKey === '/'
-                          ? visible
-                            ? 'animate__fadeInDown'
-                            : 'animate__fadeOutUp'
-                          : ''
-                          }`}
+                        className={`animate__animated animate__faster ${
+                          isMobile && selectedKey === '/'
+                            ? visible
+                              ? 'animate__fadeInDown'
+                              : 'animate__fadeOutUp'
+                            : ''
+                        }`}
                       />
                     )}
                     <div
@@ -313,12 +314,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       <DummySidebar />
                       {!hideStatusBar && (
                         <Footer
-                          classList={`animate__animated animate__faster ${isMobile && selectedKey === '/'
-                            ? visible
-                              ? 'animate__fadeInUp'
-                              : 'animate__fadeOutDown'
-                            : ''
-                            }`}
+                          classList={`animate__animated animate__faster ${
+                            isMobile && selectedKey === '/'
+                              ? visible
+                                ? 'animate__fadeInUp'
+                                : 'animate__fadeOutDown'
+                              : ''
+                          }`}
                         />
                       )}
                     </div>

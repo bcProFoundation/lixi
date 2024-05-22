@@ -185,8 +185,8 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
 
       await repostTrigger({ input: repostInput })
         .unwrap()
-        .then(
-          () => dispatch(
+        .then(() =>
+          dispatch(
             showToast('success', {
               message: 'Success',
               description: intl.get('post.repostSuccessful'),

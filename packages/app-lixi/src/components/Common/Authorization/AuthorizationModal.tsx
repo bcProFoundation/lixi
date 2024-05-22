@@ -99,7 +99,7 @@ export const AuthorizationModal = ({ classStyle }: AuthorizationModalProps) => {
         dispatch(generateAccount({ coin: COIN.XPI }));
         dispatch(closeModal());
       },
-      onCancel() { }
+      onCancel() {}
     });
   }
 

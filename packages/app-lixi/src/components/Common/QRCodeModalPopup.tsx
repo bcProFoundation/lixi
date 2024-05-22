@@ -42,7 +42,7 @@ export const QRCodeModalPopup: React.FC<QRCodeModalProps> = (props: QRCodeModalP
 
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const handleOk = () => { };
+  const handleOk = () => {};
   const handleCancel = () => {
     dispatch(closeModal());
   };

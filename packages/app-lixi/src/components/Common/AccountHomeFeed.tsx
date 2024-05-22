@@ -287,9 +287,9 @@ const AccountHomeFeed = () => {
           pagination={
             displayPagination
               ? {
-                total: totalCount,
-                pageSize: 20
-              }
+                  total: totalCount,
+                  pageSize: 20
+                }
               : false
           }
           rowKey={account => {
