@@ -89,7 +89,7 @@ const configureLocalStore = () => {
       action: actionReducer
     }
   });
-}
+};
 
 type LixiStoreInterface = ReturnType<typeof configureLocalStore>['getState'];
 
@@ -105,6 +105,4 @@ export const initializeSlicePackage = (
 ) => {
   useSliceDispatch = useAppDispatch;
   useSliceSelector = useAppSelector;
-}
-
-
+};

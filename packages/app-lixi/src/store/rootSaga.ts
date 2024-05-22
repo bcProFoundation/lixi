@@ -21,7 +21,6 @@ import walletSaga from '@store/wallet/saga';
 import webpushSaga from '@store/webpush/saga';
 import { all } from 'redux-saga/effects';
 
-
 export default function* rootSaga() {
   yield all([
     walletSaga(),

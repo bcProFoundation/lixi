@@ -8,7 +8,6 @@ export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 export const useAppStore = useStore.withTypes<AppStore>();
 
-
 export type ReduxEffect = (action: UnknownAction) => void;
 
 export function useReduxEffect(effect: ReduxEffect, type: string | string[], deps: DependencyList = []): void {

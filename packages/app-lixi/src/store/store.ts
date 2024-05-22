@@ -1,4 +1,3 @@
-
 import useXPI from '@hooks/useXPI';
 import { Action, Store, configureStore } from '@reduxjs/toolkit';
 import { UnknownAction } from 'redux';
@@ -15,68 +14,68 @@ import rootSaga from './rootSaga';
 import { setupListeners } from '@reduxjs/toolkit/query';
 
 export interface SagaStore extends Store {
-    __sagaTask: Task;
+  __sagaTask: Task;
 }
 
 const makeStore = (context: Context) => {
-    const isServer = typeof window === 'undefined';
+  const isServer = typeof window === 'undefined';
 
-    const sagaMiddleware = createSagaMiddleware({
-        onError: (error: Error, { sagaStack: string }) => {
-            console.log(error);
-        },
-        context: {
-            useXPI: useXPI
-        }
-    });
-
-    const routerMiddleware = createRouterMiddleware();
-    const { asPath } = (context as any).ctx || (Router as any).router || {};
-    let initialState;
-    if (asPath) {
-        initialState = {
-            router: initialRouterState(asPath)
-        };
+  const sagaMiddleware = createSagaMiddleware({
+    onError: (error: Error, { sagaStack: string }) => {
+      console.log(error);
+    },
+    context: {
+      useXPI: useXPI
     }
+  });
 
-    let store;
+  const routerMiddleware = createRouterMiddleware();
+  const { asPath } = (context as any).ctx || (Router as any).router || {};
+  let initialState;
+  if (asPath) {
+    initialState = {
+      router: initialRouterState(asPath)
+    };
+  }
 
-    store = configureStore({
-        reducer: rootReducer,
-        middleware: getDefaultMiddleware => {
-            return (
-                getDefaultMiddleware({
-                    serializableCheck: {
-                        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
-                    }
-                })
-                    // We only need one middleware for rtk query here
-                    // because all apis are splitted, but actually be enhanced from only 1 baseApi
-                    // If we concat multiple middleware here, each time there's an internal rtk query action
-                    // multiple instances of same action will be dispatched, caused onQueryStarted run multiple times.
-                    .concat(api.middleware)
-                    .concat(sagaMiddleware)
-                    .concat(routerMiddleware)
-            );
-        },
-        devTools:
-            process.env.NODE_ENV === 'production'
-                ? false
-                : {
-                    actionsDenylist: [
-                        'wallet/writeWalletStatus',
-                        'posts/setShowCreatePost',
-                        'analyticEvent/batchEvents',
-                        'analyticEvent/analyticEvent'
-                    ]
-                },
-        preloadedState: initialState
-    });
-    setupListeners(store.dispatch);
+  let store;
 
-    (store as any).__persistor = persistStore(store);
-    (store as SagaStore).__sagaTask = sagaMiddleware.run(rootSaga);
-    return store;
+  store = configureStore({
+    reducer: rootReducer,
+    middleware: getDefaultMiddleware => {
+      return (
+        getDefaultMiddleware({
+          serializableCheck: {
+            ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
+          }
+        })
+          // We only need one middleware for rtk query here
+          // because all apis are splitted, but actually be enhanced from only 1 baseApi
+          // If we concat multiple middleware here, each time there's an internal rtk query action
+          // multiple instances of same action will be dispatched, caused onQueryStarted run multiple times.
+          .concat(api.middleware)
+          .concat(sagaMiddleware)
+          .concat(routerMiddleware)
+      );
+    },
+    devTools:
+      process.env.NODE_ENV === 'production'
+        ? false
+        : {
+            actionsDenylist: [
+              'wallet/writeWalletStatus',
+              'posts/setShowCreatePost',
+              'analyticEvent/batchEvents',
+              'analyticEvent/analyticEvent'
+            ]
+          },
+    preloadedState: initialState
+  });
+  setupListeners(store.dispatch);
+
+  (store as any).__persistor = persistStore(store);
+  (store as SagaStore).__sagaTask = sagaMiddleware.run(rootSaga);
+  return store;
 };
 
 // Define utilities types for redux toolkit

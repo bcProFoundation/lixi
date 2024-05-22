@@ -73,4 +73,3 @@ export const isValidStoredWallet = walletStateFromStorage => {
     'tokens' in walletStateFromStorage.state
   );
 };
-
