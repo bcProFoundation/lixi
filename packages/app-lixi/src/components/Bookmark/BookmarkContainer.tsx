@@ -3,7 +3,7 @@ import AvatarUser from '@components/Common/AvatarUser';
 import { getSelectedAccountId } from '@store/account';
 import { useInfiniteBookmarkTimelineQuery } from '@store/bookmark';
 import { useRemoveBookmarkMutation } from '@store/bookmark/bookmark.api';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { showToast } from '@store/toast';
 import { Button, List } from 'antd';
 import router from 'next/router';
@@ -71,8 +71,8 @@ const Container = styled.div`
 `;
 
 function BookmarkContainer() {
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
-  const dispatch = useAppDispatch();
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
+  const dispatch = useSliceDispatch();
 
   const [removeBookmarkTrigger] = useRemoveBookmarkMutation();
 

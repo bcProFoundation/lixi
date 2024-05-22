@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useCreateBookmarkMutation, useRemoveBookmarkMutation } from '@store/bookmark/bookmark.api';
 import intl from 'react-intl-universal';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getSelectedAccountId } from '@store/account';
 import { showToast } from '@store/toast/actions';
 import { RemoveBookmarkInput, CreateBookmarkInput, BookmarkType } from '@generated/types.generated';
@@ -12,9 +12,9 @@ type BookmarkProps = {
 
 const BookmarkIcon = (props: BookmarkProps) => {
   const { post } = props;
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const [isBookmarked, setIsBookmarked] = useState<boolean>(post?.isBookmarked);
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
 
   const [createBookmarkTrigger] = useCreateBookmarkMutation();
   const [removeBookmarkTrigger] = useRemoveBookmarkMutation();

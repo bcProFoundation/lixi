@@ -1,10 +1,10 @@
 import React from 'react';
 import LixiList from '@components/Lixi/LixiList';
 import { getLixiesBySelectedAccount } from '@store/lixi/selectors';
-import { useAppSelector } from '@store/hooks';
+import { useSliceSelector } from '@store/index';
 
 const LixiesPage = () => {
-  const lixies = useAppSelector(getLixiesBySelectedAccount);
+  const lixies = useSliceSelector(getLixiesBySelectedAccount);
   return <LixiList lixies={lixies} />;
 };
 

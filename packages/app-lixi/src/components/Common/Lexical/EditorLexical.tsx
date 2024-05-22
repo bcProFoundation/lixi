@@ -25,7 +25,7 @@ import LinkPlugin from './plugins/LinkPlugin';
 import ButtonLinkPlugin from './plugins/ButtonLinkPlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 import { Image, Button, Progress } from 'antd';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getPostCoverUploads } from '@store/account/selectors';
 import Gallery from 'react-photo-gallery';
 import intl from 'react-intl-universal';
@@ -194,9 +194,9 @@ const StyledEditorLexical = styled.div`
 const EditorLexical = (props: EditorLexicalProps) => {
   const { initialContent, onSubmit, isEditMode, loading, hashtags } = props;
   const [floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const isMobile = useDetectMobileView();
-  const postCoverUploads = useAppSelector(getPostCoverUploads);
+  const postCoverUploads = useSliceSelector(getPostCoverUploads);
   const inputText = useRef(null);
   const multiUploader = useRef(null);
   const imagesList = useMemo(() => {

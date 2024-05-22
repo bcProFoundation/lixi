@@ -2,7 +2,7 @@ import { GlobalOutlined } from '@ant-design/icons';
 import EditorLexical from '@components/Common/Lexical/EditorLexical';
 import { UpdatePostInput } from '@generated/types.generated';
 import { getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { useUpdatePostMutation } from '@store/post/posts.api';
 import { getFilterPostsHome } from '@store/settings/selectors';
@@ -61,9 +61,9 @@ export type EditPostModalProps = {
 };
 
 export const EditPostModalPopup: React.FC<EditPostModalProps> = props => {
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const filterValue = useAppSelector(getFilterPostsHome);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const filterValue = useSliceSelector(getFilterPostsHome);
 
   const [
     updatePostTrigger,

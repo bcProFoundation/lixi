@@ -1,4 +1,4 @@
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { App } from 'antd';
 import { getCurrentThemes } from '@store/settings';
@@ -12,9 +12,9 @@ import { closeToast } from '@store/toast/actions';
 const DURATION_DEFAULT = 1.5;
 
 const ToastNotificationManage = () => {
-  const currentToast = useAppSelector(getToastNotification);
-  const currentTheme = useAppSelector(getCurrentThemes);
-  const dispatch = useAppDispatch();
+  const currentToast = useSliceSelector(getToastNotification);
+  const currentTheme = useSliceSelector(getCurrentThemes);
+  const dispatch = useSliceDispatch();
   const { notification } = App.useApp();
 
   const getIconToast = (typeToast: ToastType) => {
@@ -22,25 +22,22 @@ const ToastNotificationManage = () => {
       case 'success':
         return (
           <ReactSVG
-            src={`${
-              currentTheme === 'dark' ? '/images/ico-toast-success-dark.svg' : '/images/ico-toast-success-light.svg'
-            }`}
+            src={`${currentTheme === 'dark' ? '/images/ico-toast-success-dark.svg' : '/images/ico-toast-success-light.svg'
+              }`}
           />
         );
       case 'error':
         return (
           <ReactSVG
-            src={`${
-              currentTheme === 'dark' ? '/images/ico-toast-error-dark.svg' : '/images/ico-toast-error-light.svg'
-            }`}
+            src={`${currentTheme === 'dark' ? '/images/ico-toast-error-dark.svg' : '/images/ico-toast-error-light.svg'
+              }`}
           />
         );
       case 'warning':
         return (
           <ReactSVG
-            src={`${
-              currentTheme === 'dark' ? '/images/ico-toast-warning-dark.svg' : '/images/ico-toast-warning-light.svg'
-            }`}
+            src={`${currentTheme === 'dark' ? '/images/ico-toast-warning-dark.svg' : '/images/ico-toast-warning-light.svg'
+              }`}
           />
         );
       case 'open':
@@ -72,9 +69,8 @@ const ToastNotificationManage = () => {
       if (config) {
         const newConfig = _.cloneDeep(config);
         newConfig.placement = 'top';
-        newConfig.className = `custom-toast-notification ${
-          currentTheme === 'dark' ? 'custom-toast-notification-dark' : 'custom-toast-notification-light'
-        }`;
+        newConfig.className = `custom-toast-notification ${currentTheme === 'dark' ? 'custom-toast-notification-dark' : 'custom-toast-notification-light'
+          }`;
         newConfig.icon = getIconToast(type);
         newConfig.message = newConfig?.message || intl.get(`toast.${type}`);
         newConfig.duration = newConfig?.duration || DURATION_DEFAULT;

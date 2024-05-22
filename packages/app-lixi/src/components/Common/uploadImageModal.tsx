@@ -5,7 +5,7 @@ import {
   getPageAvatarUpload,
   getPageCoverUpload
 } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { UpdatePageInput, Page, Account, UpdateAccountInput } from '@generated/types.generated';
 import Image from 'next/image';
 import { StyledUploader } from './Uploader/Uploader';
@@ -29,7 +29,7 @@ export interface UploadAvatarCoverProps {
 
 export const UploadAvatarCoverModal: React.FC<UploadAvatarCoverProps> = (props: UploadAvatarCoverProps) => {
   const { profile, page, isAvatar, classStyle } = props;
-  const accountInfoTemp = useAppSelector(getAccountInfoTemp);
+  const accountInfoTemp = useSliceSelector(getAccountInfoTemp);
 
   const [
     updatePageTrigger,
@@ -46,9 +46,9 @@ export const UploadAvatarCoverModal: React.FC<UploadAvatarCoverProps> = (props: 
     }
   ] = useUpdateAccountMutation();
 
-  const dispatch = useAppDispatch();
-  const avatar = profile ? useAppSelector(getAccountAvatarUpload) : useAppSelector(getPageAvatarUpload);
-  const cover = profile ? useAppSelector(getAccountCoverUpload) : useAppSelector(getPageCoverUpload);
+  const dispatch = useSliceDispatch();
+  const avatar = profile ? useSliceSelector(getAccountAvatarUpload) : useSliceSelector(getPageAvatarUpload);
+  const cover = profile ? useSliceSelector(getAccountCoverUpload) : useSliceSelector(getPageCoverUpload);
   const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
 
   const normFile = (e: any) => {

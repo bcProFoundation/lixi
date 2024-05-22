@@ -7,7 +7,7 @@ import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { deleteEditorTextFromCache, removeAllUpload } from '@store/account/actions';
 import { getAccountInfoTemp, getEditorCache, getPostCoverUploads, getSelectedAccount } from '@store/account/selectors';
 import { closeActionSheet } from '@store/action-sheet/actions';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { useCreatePostMutation } from '@store/post/posts.api';
 import { getShowCreatePost } from '@store/post/selectors';
 import { getLevelFilter } from '@store/settings';
@@ -206,28 +206,28 @@ const IconWImage = ({
 );
 
 const CreatePostCard = (props: CreatePostCardProp) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const pathname = router.pathname ?? '';
   const [enableEditor, setEnableEditor] = useState(false);
-  const postCoverUploads = useAppSelector(getPostCoverUploads);
+  const postCoverUploads = useSliceSelector(getPostCoverUploads);
   const { page, tokenPrimaryId, hashtagId, hashtags, query, autoEnable } = props;
   const pageId = page ? page.id : undefined;
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const editorCache = useAppSelector(getEditorCache);
-  const filterHome = useAppSelector(getFilterPostsHome);
-  const filterPage = useAppSelector(getFilterPostsPage);
-  const filterToken = useAppSelector(getFilterPostsToken);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const editorCache = useSliceSelector(getEditorCache);
+  const filterHome = useSliceSelector(getFilterPostsHome);
+  const filterPage = useSliceSelector(getFilterPostsPage);
+  const filterToken = useSliceSelector(getFilterPostsToken);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
   const Wallet = React.useContext(WalletContext);
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const currentTheme = useSliceSelector(getCurrentThemes);
   const { XPI, chronik } = Wallet;
   const { sendXpi } = useXPI();
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
-  const showCreatePostMobile = useAppSelector(getShowCreatePost);
-  const accountInfoTemp = useAppSelector(getAccountInfoTemp);
-  const level = useAppSelector(getLevelFilter);
+  const showCreatePostMobile = useSliceSelector(getShowCreatePost);
+  const accountInfoTemp = useSliceSelector(getAccountInfoTemp);
+  const level = useSliceSelector(getLevelFilter);
 
   const [
     createPostTrigger,
@@ -405,10 +405,10 @@ const CreatePostCard = (props: CreatePostCardProp) => {
               placeholder={
                 hashtags && hashtags.length > 0
                   ? `Write about ${hashtags
-                      .map(hashtag => {
-                        return `${hashtag}`;
-                      })
-                      .join(' ')}`
+                    .map(hashtag => {
+                      return `${hashtag}`;
+                    })
+                    .join(' ')}`
                   : `What's on your mind?`
               }
               value=""
@@ -430,9 +430,8 @@ const CreatePostCard = (props: CreatePostCardProp) => {
       </DesktopCreatePost>
       <MobileCreatePost
         hidden={!showCreatePostMobile}
-        className={`animate__animated ${
-          showCreatePostMobile ? 'animate__fadeIn' : 'animate__fadeOut'
-        } create-post-card-container`}
+        className={`animate__animated ${showCreatePostMobile ? 'animate__fadeIn' : 'animate__fadeOut'
+          } create-post-card-container`}
         onClick={handleNewPostClick}
       >
         <div className="fab-btn">
@@ -458,9 +457,8 @@ const CreatePostCard = (props: CreatePostCardProp) => {
                 <div className="location-fee">
                   <Button className="btn-select">{getCreatePostLocation()}</Button>
                   {page && page.createPostFee && selectedAccount?.id != page.pageAccountId && (
-                    <p className="post-fee">{`${intl.get('general.fee')} ${page.createPostFee} ${
-                      coinInfo[COIN.XPI].ticker
-                    }`}</p>
+                    <p className="post-fee">{`${intl.get('general.fee')} ${page.createPostFee} ${coinInfo[COIN.XPI].ticker
+                      }`}</p>
                   )}
                 </div>
               </div>

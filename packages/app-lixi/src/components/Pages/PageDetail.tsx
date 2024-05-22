@@ -29,7 +29,7 @@ import { addRecentHashtagAtPages, setTransactionReady } from '@store/account/act
 import { getRecentHashtagAtPages, getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';
 import { useCreateFollowPageMutation, useDeleteFollowPageMutation } from '@store/follow/follows.api';
 import { useInfiniteHashtagByPageQuery } from '@store/hashtag/useInfiniteHashtagByPageQuery';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import {
   useCreatePageMessageSessionMutation,
   useUserHadMessageToPageQuery
@@ -505,25 +505,25 @@ const SubAbout = ({
 );
 
 const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const router = useRouter();
   const pageDetailData = page;
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletStatus = useAppSelector(getWalletStatus);
-  const filterValue = useAppSelector(getFilterPostsPage);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
+  const walletStatus = useSliceSelector(getWalletStatus);
+  const filterValue = useSliceSelector(getFilterPostsPage);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
-  const recentTagAtPages = useAppSelector(getRecentHashtagAtPages);
+  const recentTagAtPages = useSliceSelector(getRecentHashtagAtPages);
   const [suggestedHashtag, setSuggestedTags] = useState([]);
   const [query, setQuery] = useState<any>('');
   const [hashtags, setHashtags] = useState<any>([]);
-  const postIdSelected = useAppSelector(getSelectedPostId);
+  const postIdSelected = useSliceSelector(getSelectedPostId);
   const refs = useRef([]);
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
-  const isPostsByTime = useAppSelector(getIsPostsByTime);
-  const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
+  const isPostsByTime = useSliceSelector(getIsPostsByTime);
+  const minimumDanaFilter = useSliceSelector(getMinimumDanaFilter);
   const keyInfinite = `${page.id}:${minimumDanaFilter}`;
   const totalDanaViewScore = page.totalDanaViewScore ?? 0;
 

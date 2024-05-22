@@ -5,7 +5,7 @@ import { GlobalOutlined, DollarOutlined, ShopOutlined } from '@ant-design/icons'
 import { Avatar, Dropdown, Menu } from 'antd';
 import { AvatarUser } from './AvatarUser';
 import intl from 'react-intl-universal';
-import { useAppSelector } from '@store/hooks';
+import { useSliceSelector } from '@store/index';
 import { getSelectedAccount } from '@store/account/selectors';
 import type { MenuProps } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
@@ -96,7 +96,7 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
     postEdited,
     isDropdown
   } = props;
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const history = useRouter();
 
   useEffect(() => {

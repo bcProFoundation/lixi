@@ -23,6 +23,7 @@ import { burnReducer } from './burn';
 import { messageReducer } from './message';
 import { actionReducer } from './action';
 import { api } from '../api/baseApi';
+import { LixiStoreStateInterface } from './state';
 
 export * from './account';
 export * from './burn';
@@ -44,14 +45,10 @@ export * from './persistor';
 export * from './post';
 export * from './send';
 export * from './settings';
-export * from './store';
 export * from './toast';
 export * from './token';
 export * from './websocket';
 export * from './wallet';
-export * from './hooks';
-export * from './rootReducer';
-export * from './rootSaga';
 export * from './message';
 export * as worship from './worship';
 export * as temple from './temple';
@@ -91,9 +88,8 @@ const configureLocalStore = () => {
   });
 };
 
-type LixiStoreInterface = ReturnType<typeof configureLocalStore>['getState'];
 
-export let useSliceSelector: TypedUseSelectorHook<LixiStoreInterface> = useSelector;
+export let useSliceSelector: TypedUseSelectorHook<LixiStoreStateInterface> = useSelector;
 
 type SliceDispatch = ReturnType<typeof configureLocalStore>['dispatch'];
 

@@ -1,6 +1,6 @@
 import BCHJS from '@bcpros/xpi-js';
 import { WalletContextValue } from '@context/index';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { xpiReceivedNotificationWebSocket } from '@store/notification/actions';
 import {
   WalletPathAddressInfo,
@@ -46,16 +46,16 @@ const useWallet = () => {
   const { getXPI } = useXPI();
   const [XPI, setXPI] = useState<BCHJS>(getXPI());
 
-  const accounts = useAppSelector(getAllAccounts);
-  const walletState = useAppSelector(getWalletState);
-  const walletRefreshInterval = useAppSelector(getWaletRefreshInterval);
-  const walletHasUpdated = useAppSelector(getWalletHasUpdated);
-  const allWalletPaths = useAppSelector(getAllWalletPaths);
-  const selectedWalletPath = useAppSelector(getSelectedWalletPath);
-  const walletUtxos = useAppSelector(getWalletUtxos);
-  const dispatch = useAppDispatch();
-  const walletStatus = useAppSelector(getWalletStatus);
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const accounts = useSliceSelector(getAllAccounts);
+  const walletState = useSliceSelector(getWalletState);
+  const walletRefreshInterval = useSliceSelector(getWaletRefreshInterval);
+  const walletHasUpdated = useSliceSelector(getWalletHasUpdated);
+  const allWalletPaths = useSliceSelector(getAllWalletPaths);
+  const selectedWalletPath = useSliceSelector(getSelectedWalletPath);
+  const walletUtxos = useSliceSelector(getWalletUtxos);
+  const dispatch = useSliceDispatch();
+  const walletStatus = useSliceSelector(getWalletStatus);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
 
   useEffect(() => {
     if (!selectedAccount) return;

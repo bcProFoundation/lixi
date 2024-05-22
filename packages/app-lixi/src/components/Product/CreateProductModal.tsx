@@ -6,7 +6,7 @@ import { CreateProductInput } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
 import { getProductImageUploads, getSelectedAccount } from '@store/account/selectors';
 import { getAllCategories } from '@store/category/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { useCreateProductMutation } from '@store/product/products.api';
 import { showToast } from '@store/toast/actions';
@@ -112,15 +112,15 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   pageId,
   disabled
 }: CreateProductModalProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const pathname = router.pathname ?? '';
-  const walletPaths = useAppSelector(getAllWalletPaths);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
   const Wallet = React.useContext(WalletContext);
   const { XPI, chronik } = Wallet;
   const { sendXpi } = useXPI();
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const postCoverUploads = useAppSelector(getProductImageUploads);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const postCoverUploads = useSliceSelector(getProductImageUploads);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
 
   const multiUploader = useRef(null);
   const imagesList = postCoverUploads.map(img => {
@@ -140,7 +140,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   ] = useCreateProductMutation();
 
   const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
-  const categories = useAppSelector(getAllCategories);
+  const categories = useSliceSelector(getAllCategories);
   const unitPrices = ['VND', 'USD'];
   // New product name
   const [newProductName, setNewProductName] = useState('');

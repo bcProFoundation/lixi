@@ -15,7 +15,7 @@ import {
 } from '@generated/index';
 import { getSelectedAccount } from '@store/account/selectors';
 import { prepareBurnCommand } from '@store/burn';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { showToast } from '@store/toast/actions';
 import { Button, Form, Modal, Radio } from 'antd';
@@ -114,8 +114,8 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
     formState: { errors },
     control
   } = useForm<Burn>();
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const [selectedAmount, setSelectedAmount] = useState(1);
   const [openSelectCurrencies, setOpenSelectCurrencies] = useState(false);
   const [selectCurrencies, setSelectCurrencies] = useState(null);

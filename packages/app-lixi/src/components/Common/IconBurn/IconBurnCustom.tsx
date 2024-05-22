@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import { StyledBurnIconHover } from '../Reaction';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants';
 import { BurnForItem } from '@generated/types';
 import { prepareBurnCommand } from '@store/burn';
@@ -29,7 +29,7 @@ const IconBurnCustom = ({
   isUpBurn,
   hideReact
 }: IconBurnCustomProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
   const authentication = useContext(AuthenticationContext);

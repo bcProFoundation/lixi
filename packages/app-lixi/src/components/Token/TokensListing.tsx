@@ -13,7 +13,7 @@ import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotific
 import { getSelectedAccountId } from '@store/account';
 import { setTransactionReady } from '@store/account/actions';
 import { useCreateFollowTokenMutation, useDeleteFollowTokenMutation } from '@store/follow/follows.api';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
 import { getCurrentThemes } from '@store/settings';
 import { showToast } from '@store/toast/actions';
@@ -143,16 +143,16 @@ interface NewTokenInputTypes {
 }
 
 const TokensListing = () => {
-  const dispatch = useAppDispatch();
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
+  const dispatch = useSliceDispatch();
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
   const router = useRouter();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef<InputRef>(null);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const currentTheme = useSliceSelector(getCurrentThemes);
   const [hasFollowed, setHasFollowed] = useState([]);
 
   const authorization = useContext(AuthorizationContext);

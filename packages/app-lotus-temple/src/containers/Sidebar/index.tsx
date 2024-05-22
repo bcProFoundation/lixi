@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Drawer } from 'antd';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { toggleCollapsedSideNav } from '@store/settings/actions';
 import { getNavCollapsed } from '@store/settings/selectors';
 import SidebarShortcut from './SideBarShortcut';
@@ -23,9 +23,9 @@ const StyledDrawer = styled(Drawer)`
 `;
 
 const Sidebar = ({ className }: SidebarProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const navCollapsed = useAppSelector(getNavCollapsed);
+  const navCollapsed = useSliceSelector(getNavCollapsed);
 
   const onToggleCollapsedNav = () => {
     dispatch(toggleCollapsedSideNav(!navCollapsed));

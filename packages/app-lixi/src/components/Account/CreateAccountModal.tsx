@@ -1,4 +1,4 @@
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { Modal } from 'antd';
 import { useState } from 'react';
@@ -35,7 +35,7 @@ const StyledModal = styled(Modal)`
 `;
 
 const CreateAccountModal = () => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const {
     handleSubmit,
     formState: { errors }

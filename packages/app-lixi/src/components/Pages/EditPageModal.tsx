@@ -5,7 +5,7 @@ import { getSelectedAccount } from '@store/account/selectors';
 import { getAllCategories } from '@store/category/selectors';
 import { getCountries, getStates } from '@store/country/actions';
 import { getAllCountries, getAllStates } from '@store/country/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { setPage } from '@store/page/action';
 import { useUpdatePageMutation } from '@store/page/pages.api';
@@ -26,8 +26,8 @@ type EditPageModalProps = {
 } & React.HTMLProps<HTMLElement>;
 
 export const EditPageModal: React.FC<EditPageModalProps> = ({ page, disabled, classStyle }: EditPageModalProps) => {
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
 
   const [
     updatePageTrigger,
@@ -37,9 +37,9 @@ export const EditPageModal: React.FC<EditPageModalProps> = ({ page, disabled, cl
   useEffect(() => {
     dispatch(getCountries());
   }, []);
-  const categories = useAppSelector(getAllCategories);
-  const countries = useAppSelector(getAllCountries);
-  const states = useAppSelector(getAllStates);
+  const categories = useSliceSelector(getAllCategories);
+  const countries = useSliceSelector(getAllCountries);
+  const states = useSliceSelector(getAllStates);
   const createPostFee = [0, 1, 10, 100, 1000];
   const createCommentFee = [0, fromSmallestDenomination(coinInfo[COIN.XPI].dustSats)];
 

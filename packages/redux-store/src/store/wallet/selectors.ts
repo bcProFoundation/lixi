@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 
-import { RootState } from '../store';
+import { LixiStoreStateInterface } from '../state';
 
 import { WalletStatus } from './models';
 import { walletAdapter } from './reducer';
@@ -8,7 +8,7 @@ import { WalletState } from './state';
 
 const { selectAll, selectEntities, selectIds, selectTotal } = walletAdapter.getSelectors();
 
-export const getWalletState = (state: RootState): WalletState => state.wallet;
+export const getWalletState = (state: LixiStoreStateInterface): WalletState => state.wallet;
 
 export const getAllWalletPaths = createSelector(getWalletState, selectAll);
 

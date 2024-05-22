@@ -3,7 +3,7 @@ import { AuthorizationContext } from '@context/index';
 import { getSelectedAccountId } from '@store/account/selectors';
 import { getCategories } from '@store/category/actions';
 import { getAllCategories } from '@store/category/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
 import { usePagesByUserIdQuery } from '@store/page/pages.api';
 import { useInfinitePagesByFollowerIdQuery } from '@store/page/useInfinitePagesByFollowerIdQuery';
@@ -260,9 +260,9 @@ const CardPageItem = ({ item, onClickItem }: { item?: CardPageItem; onClickItem?
 );
 
 const PageHome = () => {
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
-  const dispatch = useAppDispatch();
-  const categories = useAppSelector(getAllCategories);
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
+  const dispatch = useSliceDispatch();
+  const categories = useSliceSelector(getAllCategories);
   const refPagesListing = useRef<HTMLDivElement | null>(null);
   const currentUserPages = usePagesByUserIdQuery({ id: selectedAccountId }).currentData;
   const authorization = useContext(AuthorizationContext);

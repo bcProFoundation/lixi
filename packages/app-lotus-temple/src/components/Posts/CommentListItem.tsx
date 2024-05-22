@@ -5,7 +5,7 @@ import { AvatarUser } from '@components/Common/AvatarUser';
 import Counter from '@components/Common/Counter';
 import { CommentQueryItem, PostQueryItem } from '@generated/index';
 import { prepareBurnCommand } from '@store/burn';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { formatBalance } from '@utils/cashMethods';
 import { Space, Tooltip } from 'antd';
 import _ from 'lodash';
@@ -20,7 +20,7 @@ type CommentListItemProps = {
 };
 
 const CommentListItem = ({ item, post }: CommentListItemProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const history = useRouter();
 
   const upVoteComment = (dataItem: CommentQueryItem) => {

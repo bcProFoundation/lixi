@@ -2,7 +2,7 @@ import { Form, Input, Modal } from 'antd';
 import intl from 'react-intl-universal';
 import * as _ from 'lodash';
 import React, { useState } from 'react';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 
 import { Account } from '@bcpros/lixi-models';
@@ -18,7 +18,7 @@ export type RenameAccountModalProps = {
 export const RenameAccountModal: React.FC<RenameAccountModalProps> = (props: RenameAccountModalProps) => {
   const [newAccountName, setNewAccountName] = useState('');
   const [newAccountNameIsValid, setNewAccountNameIsValid] = useState<boolean | null>(null);
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const { account } = props;
 
   const handleOnOk = () => {

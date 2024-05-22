@@ -4,9 +4,9 @@ import MainLayout from '@components/Layout/MainLayout';
 import PostDetail from '@components/Posts/PostDetail';
 import { PostQueryItem } from '@generated/index';
 import { analyticEvent } from '@store/analytic-event';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { usePostQuery } from '@store/post/posts.api';
-import { SagaStore, wrapper } from '@store/store';
+import { SagaStore, wrapper } from 'src/store/store';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
 import React, { useEffect, useState } from 'react';
@@ -16,7 +16,7 @@ import { END } from 'redux-saga';
 import { stripHtml } from 'string-strip-html';
 
 const PostDetailPage = props => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const { postId, isMobile, postAsString } = props;
   const initialPost = JSON.parse(postAsString);
   const canonicalUrl = process.env.NEXT_PUBLIC_LIXI_URL + `post/${postId}`;

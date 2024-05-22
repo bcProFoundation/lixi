@@ -9,7 +9,7 @@ import MainLayout from '@components/Layout/MainLayout';
 
 import SplashScreen from '@components/Common/SplashScreen';
 import { AuthenticationProvider, AuthorizationProvider, WalletProvider, callConfig } from '@context/index';
-import { wrapper } from '@store/store';
+import { wrapper } from 'src/store/store';
 import { ConfigProvider } from 'antd';
 import { ConnectedRouter } from 'connected-next-router';
 import OutsideCallConsumer from 'react-outside-call';

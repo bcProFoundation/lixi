@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import Image from 'next/image';
 import type { UploadFile } from 'antd/lib/upload/interface';
 import { isMobile } from 'react-device-detect';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { setUpload, removeUpload } from '@store/account/actions';
 import axiosClient from '@utils/axiosClient';
 import { UPLOAD_API_S3 } from '@bcpros/lixi-models/constants';
@@ -82,7 +82,7 @@ export const Uploader = ({
   const [previewImage, setPreviewImage] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
   const [previewVisible, setPreviewVisible] = useState(false);
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   const uploadButton = (
     <StyledButton

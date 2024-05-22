@@ -5,7 +5,7 @@ import { PostListType, TOKEN_ICON_URL } from '@bcpros/lixi-models/constants';
 import { AuthorizationContext } from '@context/index';
 import { getSelectedAccount } from '@store/account/selectors';
 import { openActionSheet } from '@store/action-sheet/actions';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import type { MenuProps } from 'antd';
 import { Avatar } from 'antd';
 import { useRouter } from 'next/router';
@@ -164,9 +164,9 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
     postListType,
     displayDotAfterName = true
   } = props;
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const history = useRouter();
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
 
@@ -191,16 +191,16 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
   const postActionSheet = (postContent, page?, token?) => {
     authorization.authorized
       ? dispatch(
-          openActionSheet('PostActionSheet', {
-            isEditPost: selectedAccount.address === accountAddress && post.dana.danaReceivedScore === 0,
-            post: postContent,
-            page: page,
-            token: token,
-            followPostOwner,
-            followedPage,
-            followedToken
-          })
-        )
+        openActionSheet('PostActionSheet', {
+          isEditPost: selectedAccount.address === accountAddress && post.dana.danaReceivedScore === 0,
+          post: postContent,
+          page: page,
+          token: token,
+          followPostOwner,
+          followedPage,
+          followedToken
+        })
+      )
       : askAuthorization();
   };
 

@@ -9,7 +9,7 @@ import { PostQueryItem } from '@generated/index';
 import useWindowDimensions from '@hooks/useWindowDimensions';
 import { getSelectedAccount } from '@store/account';
 import { analyticEvent } from '@store/analytic-event';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
 import { getCurrentLocale } from '@store/settings/selectors';
 import { formatRelativeTime } from '@utils/formatting';
@@ -232,16 +232,16 @@ type PostListItemProps = {
 
 const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemProps) => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const post = item;
   const [showMoreImage, setShowMoreImage] = useState(true);
   const [imagesList, setImagesList] = useState([]);
   const [showTranslation, setShowTranslation] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
   const { width } = useWindowDimensions();
-  const currentLocale = useAppSelector(getCurrentLocale);
+  const currentLocale = useSliceSelector(getCurrentLocale);
   const [showFeatureTrans, setShowFeatureTrans] = useState(true);
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
 
   // @todo: should move out of useEffect
   useEffect(() => {

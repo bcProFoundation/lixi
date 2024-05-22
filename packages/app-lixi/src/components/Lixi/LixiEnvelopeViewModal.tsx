@@ -22,7 +22,7 @@ import {
 } from 'react-share';
 import * as CopyToClipboard from 'react-copy-to-clipboard';
 import { showToast } from '@store/toast/actions';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { closeModal } from '@store/modal';
 
 const imageBrowserDownload = imageUri => {
@@ -58,7 +58,7 @@ const ClaimButton = styled.button`
 `;
 
 const SocialSharePanel = ({ shareUrl }) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   const title = 'Lixi Program sent you a small gift!';
   return (
@@ -126,7 +126,7 @@ const popOverContent = shareUrl => {
 };
 
 const LixiEnvelopeViewModal = ({ lixiClaimed, envelopeUrl, shareUrl }) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   const ShareSocialButton = (
     <RWebShare

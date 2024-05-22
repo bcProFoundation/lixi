@@ -4,7 +4,7 @@ import type { MenuProps, TabsProps, SegmentedProps } from 'antd';
 import style from 'styled-components';
 import WorshipedPersonCard from '@components/Common/WorshipedPersonCard';
 import { startChannel, stopChannel } from '@store/worship/actions';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { useAllWorshipQuery, useWorshipedPeopleSpecialDateQuery } from '@store/worship/worshipedPerson.generated';
 import { OrderDirection, WorshipOrderField, WorshipedPersonOrderField } from '@generated/types.generated';
 import { useInfiniteWorship } from '@store/worship/useInfiniteWorship';
@@ -200,7 +200,7 @@ const Home = () => {
   const specialDayRef = useRef(null);
   const trendingRef = useRef(null);
   const liveBurnRef = useRef(null);
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const worshipedPersonSpecialDate = useWorshipedPeopleSpecialDateQuery().currentData;
   const [searchPersonValue, setSearchPersonValue] = useState<string | null>(null);
   const [searchTempleValue, setSearchTempleValue] = useState<string | null>(null);

@@ -1,6 +1,6 @@
 import React from 'react';
 import { closeModal } from '@store/modal/actions';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { Button, Modal } from 'antd';
 import styled from 'styled-components';
 import EditorLexical from '@components/Common/Lexical/EditorLexical';
@@ -63,9 +63,9 @@ export type EditPostModalProps = {
 };
 
 export const EditPostModalPopup: React.FC<EditPostModalProps> = props => {
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const level = useAppSelector(getLevelFilter);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const level = useSliceSelector(getLevelFilter);
 
   const [
     updatePostTrigger,

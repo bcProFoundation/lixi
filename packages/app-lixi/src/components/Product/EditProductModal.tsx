@@ -3,7 +3,7 @@ import { CreateForm } from '@components/Lixi/CreateLixiFormModal';
 import { getSelectedAccount } from '@store/account/selectors';
 import { getAllCategories } from '@store/category/selectors';
 import { getCountries } from '@store/country/actions';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { Button, Form, Input, Modal, Select } from 'antd';
 import React, { useEffect, useState } from 'react';
@@ -18,13 +18,13 @@ type EditProductModalProps = {
 } & React.HTMLProps<HTMLElement>;
 
 export const EditProductModal: React.FC<EditProductModalProps> = ({ product, disabled }: EditProductModalProps) => {
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
 
   useEffect(() => {
     dispatch(getCountries());
   }, []);
-  const categories = useAppSelector(getAllCategories);
+  const categories = useSliceSelector(getAllCategories);
 
   const {
     handleSubmit,
@@ -51,7 +51,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ product, dis
   const onSubmit: SubmitHandler<any> = async data => {
     try {
       dispatch(closeModal());
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const handleOnCancel = () => {
@@ -142,7 +142,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({ product, dis
                     style={{ width: '99%', textAlign: 'start' }}
                     defaultValue={intl.get(
                       'category.' +
-                        categories.find(category => category.id === Number(product.categoryId.toString())).name
+                      categories.find(category => category.id === Number(product.categoryId.toString())).name
                     )}
                     disabled={isSubmitting}
                   >

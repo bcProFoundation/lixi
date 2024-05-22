@@ -1,7 +1,6 @@
 import { PaginationArgs } from '@bcpros/lixi-models';
 import { PostQueryItem, PostOrder } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { useAppDispatch } from '@store/hooks';
 import {
   useLazyPostsBySearchWithHashtagAtTokenQuery,
   usePostsBySearchWithHashtagAtTokenQuery
@@ -26,7 +25,6 @@ export function useInfinitePostsBySearchQueryWithHashtagAtToken(
   params: PostListParams,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const dispatch = useAppDispatch();
   const baseResult = usePostsBySearchWithHashtagAtTokenQuery(params, {
     skip: params.query === null && params.hashtags.length === 0
   });

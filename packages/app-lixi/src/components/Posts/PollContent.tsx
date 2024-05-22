@@ -3,7 +3,7 @@ import { PollTime } from '@bcpros/lixi-models/constants';
 import { PollQueryItem } from '@generated/types';
 import { getSelectedAccount, getSelectedAccountId } from '@store/account';
 import { useGetAccountByAddressQuery } from '@store/account/accounts.api';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { useCreateVoteMutation } from '@store/post/polls.api';
 import { showToast } from '@store/toast';
 import { timeLeft } from '@utils/timeLeft';
@@ -79,9 +79,9 @@ type PollContentProps = {
 };
 
 const PollContent = ({ poll }: PollContentProps) => {
-  const dispatch = useAppDispatch();
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const [options, setOptions] = useState(poll.options);
   const [currentOption, setCurrentOption] = useState(null);
   const defaultOptions = poll?.defaultOptions && poll.defaultOptions;

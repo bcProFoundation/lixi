@@ -84,26 +84,8 @@
     "LICENSE",
     "README.md"
   ],
-  "ava": {
-    "failFast": true,
-    "timeout": "60s",
-    "typescript": {
-      "rewritePaths": {
-        "src/": "build/main/"
-      }
-    },
-    "files": [
-      "!build/module/**"
-    ]
-  },
   "prettier": {
     "singleQuote": true
-  },
-  "nyc": {
-    "extends": "@istanbuljs/nyc-config-typescript",
-    "exclude": [
-      "**/*.spec.js"
-    ]
   },
   "dependencies": {
     "@bcpros/lixi-models": "workspace:1.1.7",

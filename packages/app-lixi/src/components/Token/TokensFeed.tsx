@@ -18,7 +18,7 @@ import { getSelectedAccountId } from '@store/account/selectors';
 import { getFailQueue } from '@store/burn';
 import { useCreateFollowTokenMutation, useDeleteFollowTokenMutation } from '@store/follow/follows.api';
 import { useInfiniteHashtagByTokenQuery } from '@store/hashtag/useInfiniteHashtagByTokenQuery';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { useInfinitePostsBySearchQueryWithHashtagAtToken } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtToken';
 import { getFilterPostsToken, getIsPostsByTime, getMinimumDanaFilter } from '@store/settings/selectors';
 import { showToast } from '@store/toast/actions';
@@ -210,20 +210,20 @@ type TokenProps = {
 };
 
 const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const router = useRouter();
   const [tokenDetailData, setTokenDetailData] = useState<any>(token);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
-  const walletStatus = useAppSelector(getWalletStatus);
-  const failQueue = useAppSelector(getFailQueue);
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
-  const filterValue = useAppSelector(getFilterPostsToken);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
+  const walletStatus = useSliceSelector(getWalletStatus);
+  const failQueue = useSliceSelector(getFailQueue);
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
+  const filterValue = useSliceSelector(getFilterPostsToken);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
   const [query, setQuery] = useState<any>('');
   const [hashtags, setHashtags] = useState<any>([]);
-  const isPostsByTime = useAppSelector(getIsPostsByTime);
-  const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
+  const isPostsByTime = useSliceSelector(getIsPostsByTime);
+  const minimumDanaFilter = useSliceSelector(getMinimumDanaFilter);
   const keyInfinite = `${token.id}:${minimumDanaFilter}`;
 
   let options = ['Withdraw', 'Rename', 'Export'];

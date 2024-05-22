@@ -2,7 +2,7 @@ import { Account } from '@bcpros/lixi-models/lib/account';
 import { GenerateLixiCommand } from '@bcpros/lixi-models/lib/lixi';
 import { WalletContext } from '@context/walletProvider';
 import { PageQueryItem } from '@generated/index';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { generateLixi } from '@store/lixi/actions';
 import { closeModal } from '@store/modal/actions';
 import { WalletStatus } from '@store/wallet';
@@ -45,7 +45,7 @@ const StyledModal = styled(Modal)`
 `;
 
 const PageMessageLixiModal = ({ account, page, wallet, classStyle }: PageMessageLixiModalProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const {
     control,
     getValues,
@@ -128,7 +128,7 @@ const PageMessageLixiModal = ({ account, page, wallet, classStyle }: PageMessage
                 checkEnoughXPI: value => {
                   return (
                     fromSmallestDenomination(wallet.balances.totalBalanceInSatoshis) >=
-                      parseFloat(value) + fromSmallestDenomination(txFee) || 'Not enough XPI'
+                    parseFloat(value) + fromSmallestDenomination(txFee) || 'Not enough XPI'
                   );
                 }
                 // can add more validate below here

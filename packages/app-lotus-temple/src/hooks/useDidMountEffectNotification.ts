@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { getBurnQueue, getFailQueue } from '@store/burn';
-import { useAppSelector } from '@store/hooks';
+import { useSliceSelector } from '@store/index';
 import { showBurnNotification } from '@components/Common/showBurnNotification';
 
 const useDidMountEffectNotification = (func?) => {
   const didMount = useRef(false);
-  const burnQueue = useAppSelector(getBurnQueue);
-  const failQueue = useAppSelector(getFailQueue);
+  const burnQueue = useSliceSelector(getBurnQueue);
+  const failQueue = useSliceSelector(getFailQueue);
 
   const showNotification = () => {
     if (burnQueue.length > 0) {

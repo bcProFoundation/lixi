@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import WalletInfoComponent from './WalletInfo';
 import intl from 'react-intl-universal';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getSelectedAccount } from '@store/account/selectors';
 import { getWalletHasUpdated, getWalletParsedTxHistory, getWalletState } from '@store/wallet';
 import { ParsedChronikTx, getTxHistoryChronik } from '@utils/chronik';
@@ -172,16 +172,16 @@ type WalletProps = {
 
 const FullWalletComponent = ({ claimCode }: WalletProps) => {
   const trimLength = 8;
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const currentLocale = useAppSelector(getCurrentLocale);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const currentLocale = useSliceSelector(getCurrentLocale);
   const currentCoin = selectedAccount?.coin ?? COIN.XPI;
-  const allTokens = useAppSelector(selectTokens);
+  const allTokens = useSliceSelector(selectTokens);
 
-  const walletHasUpdated = useAppSelector(getWalletHasUpdated);
-  const walletParsedHistory = useAppSelector(getWalletParsedTxHistory);
-  const walletState = useAppSelector(getWalletState);
+  const walletHasUpdated = useSliceSelector(getWalletHasUpdated);
+  const walletParsedHistory = useSliceSelector(getWalletParsedTxHistory);
+  const walletState = useSliceSelector(getWalletState);
   const Wallet = React.useContext(WalletContext);
 
   const { XPI, chronik } = Wallet;

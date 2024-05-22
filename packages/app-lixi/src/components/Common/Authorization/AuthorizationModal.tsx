@@ -10,7 +10,7 @@ import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
 import PrimaryButton, { SecondaryButton, SmartButton } from '@components/Common/PrimaryButton';
 import { WalletContext } from '@context/index';
 import { generateAccount, importAccount } from '@store/account/actions';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { Button, Form, Input, Modal } from 'antd';
 import React, { useState } from 'react';
@@ -69,7 +69,7 @@ export const AuthorizationModal = ({ classStyle }: AuthorizationModalProps) => {
   });
   const [seedInput, openSeedInput] = useState(false);
   const [isValidMnemonic, setIsValidMnemonic] = useState(false);
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   const { confirm } = Modal;
 
@@ -99,7 +99,7 @@ export const AuthorizationModal = ({ classStyle }: AuthorizationModalProps) => {
         dispatch(generateAccount({ coin: COIN.XPI }));
         dispatch(closeModal());
       },
-      onCancel() {}
+      onCancel() { }
     });
   }
 

@@ -6,7 +6,7 @@ import React from 'react';
 import styled from 'styled-components';
 import WalletInfoComponent from './WalletInfo';
 import intl from 'react-intl-universal';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getSelectedAccount } from '@store/account/selectors';
 import { getWalletParsedTxHistory } from '@store/wallet';
 import { ParsedChronikTx } from '@utils/chronik';
@@ -174,14 +174,14 @@ export const decimalFormatBalance = (balanceWallet: any, coin?: string) => {
 
 const ListWallet = () => {
   const trimLength = 8;
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const currentLocale = useAppSelector(getCurrentLocale);
-  const allTokens = useAppSelector(selectTokens);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const currentLocale = useSliceSelector(getCurrentLocale);
+  const allTokens = useSliceSelector(selectTokens);
   const router = useRouter();
 
-  const walletParsedHistory = useAppSelector(getWalletParsedTxHistory);
+  const walletParsedHistory = useSliceSelector(getWalletParsedTxHistory);
   const orderedWalletParsedHistory = _.orderBy(walletParsedHistory, x => x.timeFirstSeen, 'desc');
   const walletParsedHistoryGroupByDate = _.groupBy(orderedWalletParsedHistory, item => {
     const currentMonth = new Date().getMonth();

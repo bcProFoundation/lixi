@@ -1,7 +1,7 @@
 import { Select } from 'antd';
 import { useEffect, useState } from 'react';
 import { FilterType } from '@bcpros/lixi-models/lib/filter';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { saveBurnFilter } from '@store/settings/actions';
 import styled from 'styled-components';
 import intl from 'react-intl-universal';
@@ -38,16 +38,16 @@ type FilterBurntProps = {
 };
 
 export const FilterBurnt = (props: FilterBurntProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const { filterForType } = props;
 
   let valueForType;
   if (filterForType == FilterType.PostsHome) {
-    valueForType = useAppSelector(getFilterPostsHome);
+    valueForType = useSliceSelector(getFilterPostsHome);
   } else if (filterForType == FilterType.PostsPage) {
-    valueForType = useAppSelector(getFilterPostsPage);
+    valueForType = useSliceSelector(getFilterPostsPage);
   } else {
-    valueForType = useAppSelector(getFilterPostsToken);
+    valueForType = useSliceSelector(getFilterPostsToken);
   }
 
   const filterValueArr = [0, 1, 10, 100];

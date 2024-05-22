@@ -1,7 +1,7 @@
 import { CopyOutlined } from '@ant-design/icons';
 import { AvatarUser } from '@components/Common/AvatarUser';
 import { getRecentVisitedPeople, getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { toggleCollapsedSideNav } from '@store/settings/actions';
 import { getNavCollapsed } from '@store/settings/selectors';
 import { getWalletStatus } from '@store/wallet';
@@ -118,13 +118,13 @@ const StyledCopyOutlined = styled(CopyOutlined)`
 `;
 
 const SidebarShortcut = ({ className }: SidebarContentProps) => {
-  const dispatch = useAppDispatch();
-  const navCollapsed = useAppSelector(getNavCollapsed);
+  const dispatch = useSliceDispatch();
+  const navCollapsed = useSliceSelector(getNavCollapsed);
   const history = useRouter();
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const walletStatus = useAppSelector(getWalletStatus);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const walletStatus = useSliceSelector(getWalletStatus);
   const worshipedPeople = useWorshipedPeopleByUserIdQuery();
-  const recentVisitedPeople = useAppSelector(getRecentVisitedPeople);
+  const recentVisitedPeople = useSliceSelector(getRecentVisitedPeople);
 
   const handleOnClick = () => {
     dispatch(toggleCollapsedSideNav(!navCollapsed));

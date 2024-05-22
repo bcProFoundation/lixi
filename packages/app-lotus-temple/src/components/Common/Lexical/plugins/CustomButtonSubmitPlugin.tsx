@@ -4,7 +4,7 @@ import { $generateHtmlFromNodes } from '@lexical/html';
 import { Button } from 'antd';
 import React, { useEffect } from 'react';
 import intl from 'react-intl-universal';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { saveEditorTextToCache } from '@store/account/actions';
 
 // Lexical React plugins are React components, which makes them
@@ -13,7 +13,7 @@ import { saveEditorTextToCache } from '@store/account/actions';
 // actually use them.
 const CustomButtonSubmitPlugin = props => {
   const [editor] = useLexicalComposerContext();
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   useEffect(() => {
     // Focus the editor when the effect fires!

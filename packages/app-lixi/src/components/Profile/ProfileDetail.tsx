@@ -11,7 +11,7 @@ import { setTransactionReady } from '@store/account/actions';
 import { getAccountInfoTemp, getSelectedAccountId } from '@store/account/selectors';
 import { getFailQueue } from '@store/burn';
 import { useCreateFollowAccountMutation, useDeleteFollowAccountMutation } from '@store/follow/follows.api';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
 
 import {
@@ -472,20 +472,20 @@ const SubAbout = ({
 );
 
 const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => {
-  const dispatch = useAppDispatch();
-  const walletPaths = useAppSelector(getAllWalletPaths);
-  const walletStatus = useAppSelector(getWalletStatus);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
+  const dispatch = useSliceDispatch();
+  const walletPaths = useSliceSelector(getAllWalletPaths);
+  const walletStatus = useSliceSelector(getWalletStatus);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
-  const failQueue = useAppSelector(getFailQueue);
-  const filterValue = useAppSelector(getFilterPostsProfile);
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
-  const accountInfoTemp = useAppSelector(getAccountInfoTemp);
-  const level = useAppSelector(getLevelFilter);
+  const failQueue = useSliceSelector(getFailQueue);
+  const filterValue = useSliceSelector(getFilterPostsProfile);
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
+  const accountInfoTemp = useSliceSelector(getAccountInfoTemp);
+  const level = useSliceSelector(getLevelFilter);
   const [query, setQuery] = useState('');
   const [hashtags, setHashtags] = useState([]);
-  const isPostsByTime = useAppSelector(getIsPostsByTime);
-  const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
+  const isPostsByTime = useSliceSelector(getIsPostsByTime);
+  const minimumDanaFilter = useSliceSelector(getMinimumDanaFilter);
   const keyInfinite = `${user.id}:${minimumDanaFilter}`;
   const totalDanaViewScore = user.totalDanaViewScore ?? 0;
 

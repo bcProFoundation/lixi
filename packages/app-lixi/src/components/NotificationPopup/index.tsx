@@ -2,7 +2,7 @@ import { Comment } from '@ant-design/compatible';
 import { Account, NotificationDto as Notification } from '@bcpros/lixi-models';
 import AvatarUser from '@components/Common/AvatarUser';
 import { getSelectedAccountId } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { downloadExportedLixi } from '@store/lixi/actions';
 import {
   deleteNotification,
@@ -198,9 +198,9 @@ const BlankNotification = styled.p`
 `;
 
 const NotificationPopup = (notifications: Notification[], account: Account, isPopover?: boolean) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const router = useRouter();
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
 
   const handleDelete = (account: Account, notificationId: string) => {
     dispatch(deleteNotification({ mnemonichHash: account.mnemonicHash, notificationId }));

@@ -8,7 +8,7 @@ import {
 } from '@ant-design/icons';
 import { GeneralSettingsItem } from '@components/Common/Atoms/GeneralSettingsItem';
 import { ServiceWorkerContext } from '@context/index';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getWebPushNotifConfig } from '@store/settings/selectors';
 import { getAllWalletPaths } from '@store/wallet';
 import { subscribeSelectedAccount, unsubscribeAll } from '@store/webpush/actions';
@@ -53,11 +53,11 @@ const helpInfoIcon = (
 );
 
 const PushNotificationSetting = () => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const { registration, turnOnWebPushNotification, turnOffWebPushNotification } =
     React.useContext(ServiceWorkerContext);
   const [permission, setPermission] = useState<NotificationPermission>(() => getPlatformPermissionState());
-  const webPushNotifConfig = useAppSelector(getWebPushNotifConfig);
+  const webPushNotifConfig = useSliceSelector(getWebPushNotifConfig);
 
   const showModal = () => {
     Modal.confirm({

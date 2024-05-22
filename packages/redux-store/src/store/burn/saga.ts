@@ -61,7 +61,7 @@ import {
 import burnApi from './api';
 import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 
-import { RootState } from '../store';
+import { LixiStoreStateInterface } from '../state';
 
 function* prepareBurnCommandSaga(
   action: PayloadAction<{
@@ -307,14 +307,14 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
     yield put(removeBurnQueue());
     yield put(
       burnForUpDownVoteSuccess(data) &&
-        showToast('success', {
-          message: intl.get(`toast.success`),
-          description: intl.get('burn.totalBurn', {
-            burnValue: burnValue,
-            totalAmount: burnValue + burnValue * coinInfo[COIN.XPI].burnFee + Number(minerFee),
-            coin: 'XPI'
-          })
+      showToast('success', {
+        message: intl.get(`toast.success`),
+        description: intl.get('burn.totalBurn', {
+          burnValue: burnValue,
+          totalAmount: burnValue + burnValue * coinInfo[COIN.XPI].burnFee + Number(minerFee),
+          coin: 'XPI'
         })
+      })
     );
   } catch (err) {
     console.log(err);
@@ -362,7 +362,7 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
 
   const account = yield select(getSelectedAccount);
 
-  const rootState: RootState = yield select();
+  const rootState: LixiStoreStateInterface = yield select();
 
   // Update timeline
   const timelineInvalidatedBy = yield call(timelineApi.util.selectInvalidatedBy, rootState, ['Timeline']);
@@ -588,7 +588,7 @@ function* updatePageBurnValue(action: PayloadAction<BurnQueueCommand>) {
 
   const account = yield select(getSelectedAccount);
 
-  const rootState: RootState = yield select();
+  const rootState: LixiStoreStateInterface = yield select();
   const pagesInvalidatedBy = yield call(pagesApi.util.selectInvalidatedBy, rootState, ['Pages']);
 
   for (const invalidatedBy of pagesInvalidatedBy) {
@@ -630,7 +630,7 @@ function* updateCommentBurnValue(action: PayloadAction<BurnQueueCommand>) {
 
   const account = yield select(getSelectedAccount);
 
-  const rootState: RootState = yield select();
+  const rootState: LixiStoreStateInterface = yield select();
   const commentsInvalidatedBy = yield call(commentsApi.util.selectInvalidatedBy, rootState, ['Comments']);
 
   for (const invalidatedBy of commentsInvalidatedBy) {
@@ -674,7 +674,7 @@ function* updateTokenBurnValue(action: PayloadAction<BurnQueueCommand>) {
   const id = burnForId;
   let burnValue = _.toNumber(burnValueAsString);
 
-  const rootState: RootState = yield select();
+  const rootState: LixiStoreStateInterface = yield select();
   const tokensInvalidatedBy = yield call(tokenApi.util.selectInvalidatedBy, rootState, ['Tokens']);
   for (const invalidatedBy of tokensInvalidatedBy) {
     const { originalArgs } = invalidatedBy;

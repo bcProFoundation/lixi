@@ -1,6 +1,6 @@
 import { Account } from '@bcpros/lixi-models';
 import { getAllAccounts, getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getAllNotifications } from '@store/notification/selectors';
 import axiosClient from '@utils/axiosClient';
 import { Layout, Space, message } from 'antd';
@@ -156,14 +156,14 @@ const UserControl = styled.div`
 //This is just a dummy sidebar. Can be deleted
 const DummySidebar = () => {
   const refSidebarShortcut = useRef<HTMLDivElement | null>(null);
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const savedAccounts: Account[] = useAppSelector(getAllAccounts);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const savedAccounts: Account[] = useSliceSelector(getAllAccounts);
   const [isCollapse, setIsCollapse] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const router = useRouter();
   const currentPathName = router.pathname ?? '';
-  const notifications = useAppSelector(getAllNotifications);
+  const notifications = useSliceSelector(getAllNotifications);
   let pastScan;
 
   const onScan = async (result: string) => {

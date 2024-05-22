@@ -20,7 +20,7 @@ import moment from 'moment';
 import React, { useState } from 'react';
 import intl from 'react-intl-universal';
 import { getAllEnvelopes } from '@store/envelope/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { generateLixi } from '@store/lixi/actions';
 import { closeModal, openModal } from '@store/modal/actions';
 import { showToast } from '@store/toast/actions';
@@ -237,9 +237,9 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
   disabled,
   classStyle
 }: CreateLixiFormModalProps) => {
-  const dispatch = useAppDispatch();
-  const envelopes = useAppSelector(getAllEnvelopes);
-  const envelopeUpload = useAppSelector(getEnvelopeUpload);
+  const dispatch = useSliceDispatch();
+  const envelopes = useSliceSelector(getAllEnvelopes);
+  const envelopeUpload = useSliceSelector(getEnvelopeUpload);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const Wallet = React.useContext(WalletContext);
@@ -416,7 +416,7 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
       (claimType == ClaimType.OneTime &&
         Number(value) > 0 &&
         fromSmallestDenomination(account.balance) >=
-          Number(value) + fromSmallestDenomination(txFee) * Number(newNumberOfSubLixi))
+        Number(value) + fromSmallestDenomination(txFee) * Number(newNumberOfSubLixi))
     ) {
       setNewLixiAmountValueIsValid(true);
     } else {
@@ -1185,10 +1185,10 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
                         !newEnvelopeId && !envelopeUpload
                           ? '/images/lotus_logo.png'
                           : (newEnvelopeId &&
-                              !envelopeUpload &&
-                              baseUrl + 'api/' + envelopes.find(item => item.id === newEnvelopeId).thumbnail) ||
-                            (envelopeUpload &&
-                              `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${envelopeUpload.cfImageId}/small`)
+                            !envelopeUpload &&
+                            baseUrl + 'api/' + envelopes.find(item => item.id === newEnvelopeId).thumbnail) ||
+                          (envelopeUpload &&
+                            `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${envelopeUpload.cfImageId}/small`)
                       }
                       style={{
                         position: 'absolute',

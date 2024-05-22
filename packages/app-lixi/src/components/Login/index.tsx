@@ -2,7 +2,7 @@ import React from 'react';
 import { Form, Input, Button } from 'antd';
 import intl from 'react-intl-universal';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { verifyEmail } from '@store/account/actions';
 import { LoginViaEmailCommand } from '@bcpros/lixi-models';
 
@@ -12,7 +12,7 @@ const LoginComponent = () => {
     formState: { errors },
     control
   } = useForm<LoginViaEmailCommand>();
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const onSubmit: SubmitHandler<LoginViaEmailCommand> = data => {
     dispatch(verifyEmail(data));
   };

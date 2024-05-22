@@ -1,5 +1,5 @@
 import OnboardingComponent from '@components/Onboarding/Onboarding';
-import { SagaStore, wrapper } from '@store/store';
+import { SagaStore, wrapper } from 'src/store/store';
 import { IronSessionData, getIronSession } from 'iron-session';
 import { getSelectorsByUserAgent } from 'react-device-detect';
 import { END } from 'redux-saga';

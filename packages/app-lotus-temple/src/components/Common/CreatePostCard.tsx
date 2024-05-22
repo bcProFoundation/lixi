@@ -4,7 +4,7 @@ import { CreatePostInput, OrderDirection, PostOrderField } from '@generated/type
 import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { deleteEditorTextFromCache, removeAllUpload } from '@store/account/actions';
 import { getEditorCache, getPostCoverUploads, getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { api as postApi, useCreatePostMutation } from '@store/post/posts.api';
 import { CreatePostMutation } from '@store/post/posts.generated';
 import { getFilterPostsHome } from '@store/settings/selectors';
@@ -129,13 +129,13 @@ type CreatePostCardProp = {
 };
 
 const CreatePostCard = (props: CreatePostCardProp) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const [enableEditor, setEnableEditor] = useState(false);
-  const postCoverUploads = useAppSelector(getPostCoverUploads);
+  const postCoverUploads = useSliceSelector(getPostCoverUploads);
   const { pageId, tokenPrimaryId } = props;
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const editorCache = useAppSelector(getEditorCache);
-  const filterValue = useAppSelector(getFilterPostsHome);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const editorCache = useSliceSelector(getEditorCache);
+  const filterValue = useSliceSelector(getFilterPostsHome);
 
   const [
     createPostTrigger,

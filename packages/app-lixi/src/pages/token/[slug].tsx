@@ -3,8 +3,8 @@ import MainLayout from '@components/Layout/MainLayout';
 import TokensFeed from '@components/Token/TokensFeed';
 import { getSelectedAccount } from '@store/account';
 import { useCheckIfFollowTokenQuery } from '@store/follow/follows.api';
-import { useAppSelector } from '@store/hooks';
-import { AppThunkDispatch, SagaStore, wrapper } from '@store/store';
+import { useSliceSelector } from '@store/index';
+import { AppThunkDispatch, SagaStore, wrapper } from 'src/store/store';
 import { useTokenQuery } from '@store/token/tokens.api';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
@@ -16,7 +16,7 @@ const TokenDetailPage = props => {
   const token = JSON.parse(tokenAsString);
   const { id, tokenId } = token;
   const canonicalUrl = process.env.NEXT_PUBLIC_LIXI_URL + `token/${tokenId}`;
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
 
   const { currentData: currentDataTokenQuery } = useTokenQuery({ id: id }, { skip: !selectedAccount || !token });
 

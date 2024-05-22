@@ -1,6 +1,6 @@
 import { Button, Checkbox, Col, Dropdown, Input, Menu, Modal, Row, Space, Spin, Table, Tag, Typography } from 'antd';
 import { Lixi } from '@bcpros/lixi-models/lib/lixi';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getIsGlobalLoading } from '@store/loading/selectors';
 import { CashLoadingIcon } from '@bcpros/lixi-components/components/Common/CustomIcons';
 import LixiListItem, { MoreIcon, typeLixi } from './LixiListItem';
@@ -164,10 +164,10 @@ interface LixiType {
 }
 
 const LixiList = ({ lixies }: LixiListProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const router = useRouter();
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const isLoading = useAppSelector(getIsGlobalLoading);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const isLoading = useSliceSelector(getIsGlobalLoading);
   const [isModalVisible, setModalVisible] = useState(false);
   const [isChecked, setChecked] = useState(false);
   const [queryLixi, setQueryLixi] = useState('');

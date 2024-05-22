@@ -3,7 +3,7 @@ import { OrderDirection, PostOrderField } from '@generated/types.generated';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { addRecentHashtagAtHome, setGraphqlRequestDone } from '@store/account/actions';
 import { getGraphqlRequestStatus, getRecentHashtagAtHome } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { setNewPostAvailable, setSelectedPost } from '@store/post/actions';
 import { api as postApi } from '@store/post/posts.api';
 import { getNewPostAvailable, getSelectedPostId } from '@store/post/selectors';
@@ -112,20 +112,20 @@ const StyledInfiniteScroll = styled(InfiniteScroll)`
 
 const TimelineListing: React.FC<TimelineListingProps> = ({ className }: TimelineListingProps) => {
   const [count, setCount] = useState(0);
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const router = useRouter();
   const refPostsListing = useRef<HTMLDivElement | null>(null);
   const [tab, setTab] = useState<any>('all');
   const [showNewPost, setShowNewPost] = useState<boolean>(false);
-  const filterValue = useAppSelector(getFilterPostsHome);
-  const graphqlRequestLoading = useAppSelector(getGraphqlRequestStatus);
-  const recentTagAtHome = useAppSelector(getRecentHashtagAtHome);
-  const postIdSelected = useAppSelector(getSelectedPostId);
-  const newPostAvailable = useAppSelector(getNewPostAvailable);
+  const filterValue = useSliceSelector(getFilterPostsHome);
+  const graphqlRequestLoading = useSliceSelector(getGraphqlRequestStatus);
+  const recentTagAtHome = useSliceSelector(getRecentHashtagAtHome);
+  const postIdSelected = useSliceSelector(getSelectedPostId);
+  const newPostAvailable = useSliceSelector(getNewPostAvailable);
   const [suggestedHashtag, setSuggestedTags] = useState<string[]>([]);
   const [query, setQuery] = useState<string | null>(null);
   const [hashtags, setHashtags] = useState<string[]>([]);
-  const level = useAppSelector(getLevelFilter);
+  const level = useSliceSelector(getLevelFilter);
 
   useEffect(() => {
     if (router.query.hashtags) {

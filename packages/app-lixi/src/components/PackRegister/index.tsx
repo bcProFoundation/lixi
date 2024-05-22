@@ -8,7 +8,7 @@ import {
   FormItemClaimCodeXpiInput,
   FormItemRegistrantAddressInput
 } from '@bcpros/lixi-components/components/Common/EnhancedInputs';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getIsGlobalLoading } from '@store/loading/selectors';
 import { getSelectedAccount } from '@store/account/selectors';
 import { Account } from '@bcpros/lixi-models/lib/account';
@@ -17,9 +17,9 @@ import { RegisterLixiPackCommand } from '@bcpros/lixi-models';
 import { WrapperPage } from '@components/Settings';
 
 const RegisterComponent: React.FC = () => {
-  const selectedAccount: Account | undefined = useAppSelector(getSelectedAccount);
-  const isLoading = useAppSelector(getIsGlobalLoading);
-  const dispatch = useAppDispatch();
+  const selectedAccount: Account | undefined = useSliceSelector(getSelectedAccount);
+  const isLoading = useSliceSelector(getIsGlobalLoading);
+  const dispatch = useSliceDispatch();
 
   const [currentClaimCode, setCurrentClaimCode] = useState('');
   const [newRegistrantAddress, setNewRegistrantAddress] = useState('');

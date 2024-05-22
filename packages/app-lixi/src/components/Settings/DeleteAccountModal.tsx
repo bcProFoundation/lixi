@@ -2,7 +2,7 @@ import { Form, Input, Modal } from 'antd';
 import intl from 'react-intl-universal';
 import * as _ from 'lodash';
 import React, { useState } from 'react';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 
 import { Account } from '@bcpros/lixi-models';
@@ -20,7 +20,7 @@ export type DeleteAccountModalProps = {
 export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = (props: DeleteAccountModalProps) => {
   const [accountDeleteValid, setAccountDeleteValid] = useState<boolean | null>(null);
   const [confirmationOfAccountToBeDeleted, setConfirmationOfAccountToBeDeleted] = useState('');
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const { account } = props;
 
   const handleOnOk = () => {

@@ -4,7 +4,7 @@ import { Descriptions, Modal } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import { LixiParamLabel } from '@bcpros/lixi-components/components/Common/Atoms';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { countries } from '@bcpros/lixi-models/constants';
 import { LixiType, ClaimType, LotteryAddress } from '@bcpros/lixi-models/lib/lixi';
@@ -41,7 +41,7 @@ export type CreateLixiConfirmationModalProps = {
 export const CreateLixiConfirmationModal: React.FC<CreateLixiConfirmationModalProps> = (
   props: CreateLixiConfirmationModalProps
 ) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   const {
     newAccountName,

@@ -1,5 +1,5 @@
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { saveLevelFilter } from '@store/settings/actions';
 import { getLevelFilter } from '@store/settings/selectors';
 import 'animate.css';
@@ -58,8 +58,8 @@ const FilterStyle = styled.div`
 const FilterContainer = styled.div``;
 
 export const FilterLevel = () => {
-  const dispatch = useAppDispatch();
-  const level = useAppSelector(getLevelFilter);
+  const dispatch = useSliceDispatch();
+  const level = useSliceSelector(getLevelFilter);
 
   let levelDescription = intl.get('general.levelBalanced');
   if (level === 1) {

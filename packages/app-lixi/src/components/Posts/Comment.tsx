@@ -14,7 +14,7 @@ import {
   PostQueryItem
 } from '@generated/index';
 import { useRouter } from 'next/router';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import {
   getAccountInfoTemp,
   getCommentUpload,
@@ -245,22 +245,22 @@ const commentCommand = [
 
 const Comment = ({ post }: CommentProps) => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const Wallet = React.useContext(WalletContext);
   const { XPI, chronik } = Wallet;
   const { sendXpi } = useXPI();
   const { sendXec } = useXEC();
   const [open, setOpen] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const walletStatus = useAppSelector(getWalletStatus);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
+  const walletStatus = useSliceSelector(getWalletStatus);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
   const { control, getValues, setValue, setFocus, resetField } = useForm();
-  const accountInfoTemp = useAppSelector(getAccountInfoTemp);
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const accountInfoTemp = useSliceSelector(getAccountInfoTemp);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const [isSendingXPI, setIsSendingXPI] = useState<boolean>(false);
-  const commentUpload = useAppSelector(getCommentUpload);
+  const commentUpload = useSliceSelector(getCommentUpload);
   const inputText = useRef(null);
   const multiUploader = useRef(null);
   const txFee = Math.ceil(Wallet.XPI.BitcoinCash.getByteCount({ P2PKH: 1 }, { P2PKH: 1 }) * 2.01); //satoshi
@@ -301,7 +301,7 @@ const Comment = ({ post }: CommentProps) => {
       inputText.current?.removeEventListener('paste', handlePasteImage);
     };
   }, []);
-  const scrollToCommentId = useAppSelector(getScrollToCommentId);
+  const scrollToCommentId = useSliceSelector(getScrollToCommentId);
 
   useEffect(() => {
     if (scrollToCommentId) {
@@ -321,14 +321,14 @@ const Comment = ({ post }: CommentProps) => {
     if (post.page) {
       return post.page.createCommentFee != '0'
         ? intl.get('comment.writeCommentXpi', {
-            commentFee: `${post.page.createCommentFee} ${coinInfo[COIN.XPI].ticker}`
-          })
+          commentFee: `${post.page.createCommentFee} ${coinInfo[COIN.XPI].ticker}`
+        })
         : intl.get('comment.writeCommentFree');
     } else if (post.account.createCommentFee && _.isNil(post.page)) {
       return post.account.createCommentFee != '0'
         ? intl.get('comment.writeCommentXpi', {
-            commentFee: `${post.account.createCommentFee} ${coinInfo[COIN.XPI].ticker}`
-          })
+          commentFee: `${post.account.createCommentFee} ${coinInfo[COIN.XPI].ticker}`
+        })
         : intl.get('comment.writeCommentFree');
     } else {
       return intl.get('comment.writeComment');
@@ -769,11 +769,11 @@ const Comment = ({ post }: CommentProps) => {
                 onClick={async () => {
                   isReplyComment
                     ? await processComment(
-                        getValues('comment'),
-                        true,
-                        replyCommentData.id,
-                        replyCommentData.commentAccount.address
-                      )
+                      getValues('comment'),
+                      true,
+                      replyCommentData.id,
+                      replyCommentData.commentAccount.address
+                    )
                     : await processComment(getValues('comment'));
                 }}
                 icon={

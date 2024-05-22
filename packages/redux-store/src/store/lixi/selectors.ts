@@ -2,17 +2,17 @@ import { Lixi } from '@bcpros/lixi-models';
 import _ from 'lodash';
 import { createSelector } from 'reselect';
 
-import { RootState } from '../store';
+import { LixiStoreStateInterface } from '../state';
 
 import { childrenLixiesAdapter, lixiesAdapter } from './reducer';
 import { LixiesState } from './state';
 
-const selectAccounts = (state: RootState) => state.accounts;
+const selectAccounts = (state: LixiStoreStateInterface) => state.accounts;
 
 const selectSelectedAccount = createSelector(selectAccounts, state => state.selectedId);
 
 export const getLixiesState = createSelector(
-  (state: RootState) => state.lixies,
+  (state: LixiStoreStateInterface) => state.lixies,
   (lixies: LixiesState) => lixies
 );
 
@@ -25,12 +25,12 @@ const {
   selectTotal: selectTotalSubLixies
 } = childrenLixiesAdapter.getSelectors();
 
-export const getAllLixies = createSelector((state: RootState) => state.lixies, selectAll);
+export const getAllLixies = createSelector((state: LixiStoreStateInterface) => state.lixies, selectAll);
 
-export const getAllLixiesEntities = createSelector((state: RootState) => state.lixies, selectEntities);
+export const getAllLixiesEntities = createSelector((state: LixiStoreStateInterface) => state.lixies, selectEntities);
 
 export const getSelectedLixiId = createSelector(
-  (state: RootState) => state.lixies,
+  (state: LixiStoreStateInterface) => state.lixies,
   (lixies: LixiesState) => lixies.selectedId as number
 );
 
@@ -45,7 +45,7 @@ export const getSelectedLixi = createSelector(
   (lixies: Lixi[], selectedLixiId: number) => lixies.find(lixi => !_.isNil(lixi) && lixi.id === selectedLixiId)
 );
 
-export const getAllSubLixies = createSelector((state: RootState) => state.lixies.subLixies, selectAllSubLixies);
+export const getAllSubLixies = createSelector((state: LixiStoreStateInterface) => state.lixies.subLixies, selectAllSubLixies);
 
 export const getHasMoreSubLixies = createSelector(getLixiesState, (lixies: LixiesState) => lixies.hasMoreSubLixies);
 

@@ -9,7 +9,7 @@ import { navBarHeaderList } from '@components/Common/navBarHeaderList';
 import Sidebar from '@containers/Sidebar';
 import SidebarShortcut from '@containers/Sidebar/SideBarShortcut';
 import Topbar from '@containers/Topbar';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getAllNotifications } from '@store/notification/selectors';
 import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
 import { useRouter } from 'next/router';
@@ -88,14 +88,14 @@ type PageDetailsLayoutProps = React.PropsWithChildren<{}>;
 const PageDetailLayout: React.FC<PageDetailsLayoutProps> = (props: PageDetailsLayoutProps) => {
   const { children } = props;
   const [loading, setLoading] = useState(false);
-  const currentLocale = useAppSelector(getCurrentLocale);
-  const dispatch = useAppDispatch();
+  const currentLocale = useSliceSelector(getCurrentLocale);
+  const dispatch = useSliceDispatch();
   const router = useRouter();
   const [height, setHeight] = useState(0);
   const selectedKey = router.pathname ?? '';
   const [navBarTitle, setNavBarTitle] = useState('');
   const ref = useRef(null);
-  const notifications = useAppSelector(getAllNotifications);
+  const notifications = useSliceSelector(getAllNotifications);
 
   const setRef = useCallback(node => {
     if (node && node.clientHeight) {

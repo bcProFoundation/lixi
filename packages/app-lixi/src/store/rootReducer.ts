@@ -152,7 +152,34 @@ const pageMessagePersistConfig: PersistConfig<PageMessageSessionState> = {
   storage: storage('lixi-indexeddb')
 };
 
-export const rootReducer = combineReducers({
+export const serverReducer = combineReducers({
+  router: routerReducer,
+  wallet: walletStateReducer,
+  accounts: accountReducer,
+  localAccounts: localUserAccountReducer,
+  posts: postReducer,
+  lixies: lixiReducer,
+  claims: claimReducer,
+  settings: settingsReducer,
+  pages: pageReducer,
+  tokens: tokenReducer,
+  notifications: notificationReducer,
+  envelopes: envelopeReducer,
+  loading: loadingReducer,
+  modal: modalReducer,
+  actionSheet: actionSheetReducer,
+  toast: toastReducer,
+  error: errorReducer,
+  countries: countryReducer,
+  states: stateReducer,
+  categories: categoryReducer,
+  burn: burnReducer,
+  pageMessage: messageReducer,
+  [api.reducerPath]: api.reducer,
+  action: actionReducer
+});
+
+export const clientReducer = combineReducers({
   router: routerReducer,
   wallet: persistReducer(walletPersistConfig, walletStateReducer),
   accounts: persistReducer(accountPersistConfig, accountReducer),
@@ -193,7 +220,7 @@ const reducer = (state, action: UnknownAction) => {
     }
     return nextState;
   } else {
-    return rootReducer(state, action);
+    return clientReducer(state, action);
   }
 };
 

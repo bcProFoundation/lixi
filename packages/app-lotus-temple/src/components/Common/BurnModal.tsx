@@ -10,7 +10,7 @@ import { CommentOrderField, OrderDirection } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
 import { getSelectedAccount } from '@store/account/selectors';
 import { clearFailQueue, getBurnQueue, getFailQueue } from '@store/burn';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
@@ -101,17 +101,17 @@ export const BurnModal = ({ data, burnForType }: BurnModalProps) => {
     formState: { errors },
     control
   } = useForm<Burn>();
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const Wallet = React.useContext(WalletContext);
   const { XPI, chronik } = Wallet;
   const { createBurnTransaction } = useXPI();
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
   const [selectedAmount, setSelectedAmount] = useState(1);
-  const burnQueue = useAppSelector(getBurnQueue);
-  const failQueue = useAppSelector(getFailQueue);
-  const walletStatus = useAppSelector(getWalletStatus);
+  const burnQueue = useSliceSelector(getBurnQueue);
+  const failQueue = useSliceSelector(getFailQueue);
+  const walletStatus = useSliceSelector(getWalletStatus);
 
   const handleBurn = async (isUpVote: boolean, data: BurnForItem) => {
     try {

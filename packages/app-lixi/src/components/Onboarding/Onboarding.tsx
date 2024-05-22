@@ -5,7 +5,7 @@ import { generateAccount, importAccount } from '@store/account/actions';
 import { Form, Input, Modal } from 'antd';
 import React, { useState } from 'react';
 import intl from 'react-intl-universal';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { WalletContext } from '@context/index';
 import styled from 'styled-components';
 import { COIN } from '@bcpros/lixi-models/constants';
@@ -55,7 +55,7 @@ const OnboardingComponent: React.FC = () => {
   const [isValidMnemonic, setIsValidMnemonic] = useState(false);
   const { confirm } = Modal;
 
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   async function showBackupConfirmModal() {
     confirm({

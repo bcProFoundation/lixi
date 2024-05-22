@@ -3,13 +3,13 @@ import { WrapperPage } from '@components/Settings';
 import NotificationPopup from '@components/NotificationPopup';
 import { getAllNotifications } from '@store/notification/selectors';
 import { fetchNotifications } from '@store/notification/actions';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getSelectedAccount } from '@store/account/selectors';
 
 const NotificationComponent = () => {
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const notifications = useAppSelector(getAllNotifications);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const notifications = useSliceSelector(getAllNotifications);
 
   return <WrapperPage className="card">{NotificationPopup(notifications, selectedAccount)}</WrapperPage>;
 };

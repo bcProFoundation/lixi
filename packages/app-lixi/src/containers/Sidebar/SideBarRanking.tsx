@@ -7,7 +7,7 @@ import { SmartButton } from '@components/Common/PrimaryButton';
 import { WalletContext } from '@context/index';
 import { generateAccount, getLeaderboard, importAccount, selectAccount } from '@store/account/actions';
 import { getAllAccounts, getLeaderBoard, getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { useInfinitePagesQuery } from '@store/page/useInfinitePagesQuery';
 import { getCurrentThemes } from '@store/settings';
 import { Button, Form, Input, Layout, Modal, Skeleton, Space } from 'antd';
@@ -236,13 +236,13 @@ const StyledModal = styled(Modal)`
 
 const SidebarRanking = () => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const Wallet = React.useContext(WalletContext);
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const [isSeemore, setIsSeemore] = useState<boolean>(false);
-  const savedAccounts: Account[] = useAppSelector(getAllAccounts);
-  const leaderboard = useAppSelector(getLeaderBoard);
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const savedAccounts: Account[] = useSliceSelector(getAllAccounts);
+  const leaderboard = useSliceSelector(getLeaderBoard);
+  const currentTheme = useSliceSelector(getCurrentThemes);
   const [open, setOpen] = useState(false);
   const [isValidMnemonic, setIsValidMnemonic] = useState<boolean | null>(null);
   const [formData, setFormData] = useState({
@@ -327,9 +327,8 @@ const SidebarRanking = () => {
                   <picture>
                     <img
                       className="animation-top-ranking"
-                      src={`${
-                        currentTheme === 'dark' ? '/images/ico-fire-static.png' : '/images/ico-fire-animation.gif'
-                      }`}
+                      src={`${currentTheme === 'dark' ? '/images/ico-fire-static.png' : '/images/ico-fire-animation.gif'
+                        }`}
                       alt=""
                     />
                   </picture>
@@ -409,11 +408,10 @@ const SidebarRanking = () => {
                   <picture>
                     <img
                       className="animation-top-ranking"
-                      src={`${
-                        currentTheme === 'dark'
-                          ? '/images/ico-fire-heart-static.png'
-                          : '/images/ico-fire-heart-animation.gif'
-                      }`}
+                      src={`${currentTheme === 'dark'
+                        ? '/images/ico-fire-heart-static.png'
+                        : '/images/ico-fire-heart-animation.gif'
+                        }`}
                       alt=""
                     />
                   </picture>

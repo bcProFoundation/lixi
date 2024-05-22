@@ -13,7 +13,7 @@ import { StyledCollapse } from '@components/Common/StyledCollapse';
 import { WalletContext } from '@context/index';
 import { deleteAccount, generateAccount, importAccount, renameAccount, selectAccount } from '@store/account/actions';
 import { getAllAccounts, getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getIsGlobalLoading } from '@store/loading/selectors';
 import { openModal } from '@store/modal/actions';
 import { setInitIntlStatus, updateLanguage } from '@store/settings/actions';
@@ -229,7 +229,7 @@ const helpInfoIcon = (
 const Settings: React.FC = () => {
   const Wallet = React.useContext(WalletContext);
 
-  const isLoading = useAppSelector(getIsGlobalLoading);
+  const isLoading = useSliceSelector(getIsGlobalLoading);
   const [seedInput, openSeedInput] = useState(false);
   const [isValidMnemonic, setIsValidMnemonic] = useState<boolean | null>(null);
   const [formData, setFormData] = useState({
@@ -240,9 +240,9 @@ const Settings: React.FC = () => {
   const [form] = Form.useForm();
   const [otherAccounts, setOtherAccounts] = useState<Account[]>([]);
 
-  const dispatch = useAppDispatch();
-  const savedAccounts: Account[] = useAppSelector(getAllAccounts);
-  const selectedAccount: Account | undefined = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const savedAccounts: Account[] = useSliceSelector(getAllAccounts);
+  const selectedAccount: Account | undefined = useSliceSelector(getSelectedAccount);
 
   useEffect(() => {
     setOtherAccounts(_.filter(savedAccounts, acc => acc.id !== selectedAccount?.id));
@@ -259,7 +259,7 @@ const Settings: React.FC = () => {
     await axios.post(url);
   };
 
-  const currentLocale = useAppSelector(getCurrentLocale);
+  const currentLocale = useSliceSelector(getCurrentLocale);
 
   const showPopulatedRenameAccountModal = (account: Account) => {
     const command: RenameAccountCommand = {

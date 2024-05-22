@@ -1,7 +1,7 @@
 import { CreatePageInput } from '@generated/types.generated';
 import { getSelectedAccount } from '@store/account/selectors';
 import { getAllCategories } from '@store/category/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { setPage } from '@store/page/action';
 import { useCreatePageMutation } from '@store/page/pages.api';
@@ -41,8 +41,8 @@ export const CreatePageModal: React.FC<CreatePageModalProps> = ({
   disabled,
   classStyle
 }: CreatePageModalProps) => {
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
 
   const router = useRouter();
 
@@ -51,7 +51,7 @@ export const CreatePageModal: React.FC<CreatePageModalProps> = ({
     { isLoading: isLoadingCreatePage, isSuccess: isSuccessCreatePage, isError: isErrorCreatePage, error: errorOnCreate }
   ] = useCreatePageMutation();
 
-  const categories = useAppSelector(getAllCategories);
+  const categories = useSliceSelector(getAllCategories);
 
   // New page name
   const [newPageName, setNewPageName] = useState('');

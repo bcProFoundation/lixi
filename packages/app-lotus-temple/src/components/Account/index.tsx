@@ -11,7 +11,7 @@ import Link from 'next/link';
 import React, { useEffect } from 'react';
 import intl from 'react-intl-universal';
 import { getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getLixiesBySelectedAccount } from '@store/lixi/selectors';
 import styled from 'styled-components';
 
@@ -40,10 +40,10 @@ const StyledTabs = styled(Tabs)`
 `;
 
 const Account: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const lixies = useAppSelector(getLixiesBySelectedAccount);
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const selectedPage = useAppSelector(getPageBySelectedAccount);
+  const dispatch = useSliceDispatch();
+  const lixies = useSliceSelector(getLixiesBySelectedAccount);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const selectedPage = useSliceSelector(getPageBySelectedAccount);
 
   useEffect(() => {
     if (selectedAccount) {

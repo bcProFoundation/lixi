@@ -23,7 +23,7 @@ import {
 import { RWebShare } from 'react-web-share';
 import styled from 'styled-components';
 import moment from 'moment';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { showToast } from '@store/toast/actions';
 
 const imageBrowserDownload = imageUri => {
@@ -45,7 +45,7 @@ type SocialSharePanelProps = {
 };
 
 const SocialSharePanel = ({ className, shareUrl }: SocialSharePanelProps): JSX.Element => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const title = intl.get('claim.titleShared');
   return (
     <div className={className}>
@@ -168,7 +168,7 @@ const LixiClaimed = ({ className, claim, isMobile, lixi }: LixiClaimProps) => {
         url: shareUrl,
         title: 'Lixi'
       }}
-      onClick={() => {}}
+      onClick={() => { }}
     >
       <ClaimButton type="primary" className="no-border-btn">
         <ShareAltOutlined /> Share

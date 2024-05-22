@@ -7,7 +7,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 import { Footer } from '@bcpros/lixi-components/components';
 import Sidebar from '@containers/Sidebar';
 import Topbar from '@containers/Topbar';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
 import { injectStore } from 'src/utils/axiosClient';
 import ModalManager from '../../Common/ModalManager';
@@ -103,8 +103,8 @@ type PostDetailsLayoutProps = React.PropsWithChildren<{}>;
 const PostDetailLayout: React.FC = (props: PostDetailsLayoutProps) => {
   const { children } = props;
   const [loading, setLoading] = useState(false);
-  const currentLocale = useAppSelector(getCurrentLocale);
-  const dispatch = useAppDispatch();
+  const currentLocale = useSliceSelector(getCurrentLocale);
+  const dispatch = useSliceDispatch();
 
   injectStore(currentLocale);
 

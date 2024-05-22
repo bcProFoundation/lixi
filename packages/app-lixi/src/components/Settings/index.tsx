@@ -29,7 +29,7 @@ import {
   setSecondaryLanguageAccount
 } from '@store/account/actions';
 import { getAllAccounts, getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getIsGlobalLoading } from '@store/loading/selectors';
 import { openModal } from '@store/modal/actions';
 import { setCurrentThemes, setInitIntlStatus, setIsSystemThemes, updateLanguage } from '@store/settings/actions';
@@ -262,7 +262,7 @@ const helpInfoIcon = (
 const Settings: React.FC = () => {
   const Wallet = React.useContext(WalletContext);
 
-  const isLoading = useAppSelector(getIsGlobalLoading);
+  const isLoading = useSliceSelector(getIsGlobalLoading);
   const [seedInput, openSeedInput] = useState(false);
   const [isValidMnemonic, setIsValidMnemonic] = useState<boolean | null>(null);
   const [formData, setFormData] = useState({
@@ -273,13 +273,13 @@ const Settings: React.FC = () => {
   const [form] = Form.useForm();
   const [otherAccounts, setOtherAccounts] = useState<Account[]>([]);
 
-  const dispatch = useAppDispatch();
-  const savedAccounts: Account[] = useAppSelector(getAllAccounts);
-  const selectedAccount: Account | undefined = useAppSelector(getSelectedAccount);
-  const currentThemes = useAppSelector(getCurrentThemes);
+  const dispatch = useSliceDispatch();
+  const savedAccounts: Account[] = useSliceSelector(getAllAccounts);
+  const selectedAccount: Account | undefined = useSliceSelector(getSelectedAccount);
+  const currentThemes = useSliceSelector(getCurrentThemes);
   const currentDeviceTheme = useThemeDetector();
-  const isSystemThemes = useAppSelector(getIsSystemThemes);
-  const currentLocale = useAppSelector(getCurrentLocale);
+  const isSystemThemes = useSliceSelector(getIsSystemThemes);
+  const currentLocale = useSliceSelector(getCurrentLocale);
 
   const keyCoins = Object.keys(COIN);
   const labelCoin = item => (

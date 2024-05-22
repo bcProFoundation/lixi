@@ -1,4 +1,4 @@
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { UpdateAccountInput } from '@generated/types.generated';
 import { Button, Form, Input, Modal, Select } from 'antd';
 import intl from 'react-intl-universal';
@@ -22,7 +22,7 @@ type EditProfileModalProps = {
 } & React.HTMLProps<HTMLElement>;
 
 export const EditProfileModal: React.FC<EditProfileModalProps> = ({ profile, classStyle }: EditProfileModalProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   // const createRepostFee = [0, 1, 10, 100, 1000];
   const createCommentFee = [0, fromSmallestDenomination(coinInfo[COIN.XPI].dustSats)];
 

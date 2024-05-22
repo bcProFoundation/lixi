@@ -1,14 +1,10 @@
-import { getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { getIsBootstrapped } from '@store/persistor/selectors';
-import { SagaStore, wrapper } from '@store/store';
 import axios from 'axios';
 import { IronSessionData, getIronSession } from 'iron-session';
-import { useRouter } from 'next/router';
 import { getSelectorsByUserAgent } from 'react-device-detect';
 import { END } from 'redux-saga';
 import { LocalUser } from 'src/shared/models/localUser';
 import { sessionOptions } from 'src/shared/models/session';
+import { SagaStore, wrapper } from 'src/store/store';
 import TimelineListing from '../components/Timeline/TimelineListing';
 
 type HomePageProps = {

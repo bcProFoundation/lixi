@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { connectWebSocket } from '@store/websocket/websocketUtils'; // Implement this function
 import { io, Socket } from 'socket.io-client';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { connectToChannels } from '@store/websocket';
 import { getSelectedAccount } from '@store/account';
 import { userSubcribeToAddressChannel, userSubcribeToMultiPageMessageSession } from '@store/message/actions';
@@ -16,8 +16,8 @@ export const useSocket = () => {
 
 export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const previousSelectedAccount: Account = usePrevious(selectedAccount);
 
   useEffect(() => {

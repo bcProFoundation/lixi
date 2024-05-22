@@ -6,7 +6,7 @@ import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
 import { LeftOutlined, LoadingOutlined } from '@ant-design/icons';
 
 import { loadLocale } from '@store/settings/actions';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
 import { injectStore } from 'src/utils/axiosClient';
 import SidebarShortcut from '@containers/Sidebar/SidebarContent';
@@ -76,8 +76,8 @@ type EmptyLayoutProps = React.PropsWithChildren<{}>;
 const EmptyLayout: React.FC = (props: EmptyLayoutProps) => {
   const { children } = props;
   const [loading, setLoading] = useState(false);
-  const currentLocale = useAppSelector(getCurrentLocale);
-  const dispatch = useAppDispatch();
+  const currentLocale = useSliceSelector(getCurrentLocale);
+  const dispatch = useSliceDispatch();
   const router = useRouter();
   const [height, setHeight] = useState(0);
   const selectedKey = router.pathname ?? '';

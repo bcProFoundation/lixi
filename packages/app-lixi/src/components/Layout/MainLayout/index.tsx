@@ -1,6 +1,6 @@
 import { LoadingOutlined } from '@ant-design/icons';
 import { getGraphqlRequestStatus, getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { App, ConfigProvider, Layout, Spin } from 'antd';
 import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -216,23 +216,23 @@ export const LixiTextLogo = styled.img`
 type MainLayoutProps = React.PropsWithChildren<{}>;
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const currentLocale = useAppSelector(getCurrentLocale);
-  const dispatch = useAppDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const currentLocale = useSliceSelector(getCurrentLocale);
+  const dispatch = useSliceDispatch();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const selectedKey = router.pathname ?? '';
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
   const scrollRef = useRef(null);
-  const graphqlRequestLoading = useAppSelector(getGraphqlRequestStatus);
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const graphqlRequestLoading = useSliceSelector(getGraphqlRequestStatus);
+  const currentTheme = useSliceSelector(getCurrentThemes);
   const isMobile = useDetectMobileView();
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [visible, setVisible] = useState(true);
   const currentDeviceTheme = useThemeDetector();
-  const isSystemThemes = useAppSelector(getIsSystemThemes);
-  const currentPageMessageSession = useAppSelector(getCurrentPageMessageSession);
+  const isSystemThemes = useSliceSelector(getIsSystemThemes);
+  const currentPageMessageSession = useSliceSelector(getCurrentPageMessageSession);
 
   useEffect(() => {
     if (isSystemThemes) {
@@ -289,13 +289,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     <Sidebar className="sidebar-mobile" />
                     {!hideStatusBar && (
                       <Topbar
-                        className={`animate__animated animate__faster ${
-                          isMobile && selectedKey === '/'
-                            ? visible
-                              ? 'animate__fadeInDown'
-                              : 'animate__fadeOutUp'
-                            : ''
-                        }`}
+                        className={`animate__animated animate__faster ${isMobile && selectedKey === '/'
+                          ? visible
+                            ? 'animate__fadeInDown'
+                            : 'animate__fadeOutUp'
+                          : ''
+                          }`}
                       />
                     )}
                     <div
@@ -314,13 +313,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                       <DummySidebar />
                       {!hideStatusBar && (
                         <Footer
-                          classList={`animate__animated animate__faster ${
-                            isMobile && selectedKey === '/'
-                              ? visible
-                                ? 'animate__fadeInUp'
-                                : 'animate__fadeOutDown'
-                              : ''
-                          }`}
+                          classList={`animate__animated animate__faster ${isMobile && selectedKey === '/'
+                            ? visible
+                              ? 'animate__fadeInUp'
+                              : 'animate__fadeOutDown'
+                            : ''
+                            }`}
                         />
                       )}
                     </div>

@@ -12,7 +12,7 @@ import { WrapperPage } from '@components/Settings';
 import { WalletContext } from '@context/index';
 import useXPI from '@hooks/useXPI';
 import { getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { sendXpiNotification } from '@store/notification/actions';
 import { sendXPIFailure } from '@store/send/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletBalances } from '@store/wallet';
@@ -47,10 +47,10 @@ const StyledCheckbox = styled(Checkbox)`
 `;
 // Note jestBCH is only used for unit tests; BCHJS must be mocked for jest
 const SendComponent: React.FC = () => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const Wallet = React.useContext(WalletContext);
   const { XPI, chronik } = Wallet;
-  const wallet = useAppSelector(getSelectedAccount);
+  const wallet = useSliceSelector(getSelectedAccount);
   const currentAddress = wallet?.address;
 
   const [formData, setFormData] = useState({
@@ -76,9 +76,9 @@ const SendComponent: React.FC = () => {
   const [recipientPubKeyWarning, setRecipientPubKeyWarning] = useState('');
   const [recipientPubKeyHex, setRecipientPubKeyHex] = useState('');
 
-  const walletBalances = useAppSelector(getWalletBalances);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
+  const walletBalances = useSliceSelector(getWalletBalances);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
 
   useEffect(() => {
     const search = window.location.search;

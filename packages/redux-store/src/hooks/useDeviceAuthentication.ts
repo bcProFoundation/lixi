@@ -1,5 +1,5 @@
 import { COIN, coinInfo } from '@bcpros/lixi-models/constants';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { saveWebAuthnConfig } from '@store/settings/actions';
 import { getWebAuthnConfig } from '@store/settings/selectors';
 import { convertArrayBufferToBase64, convertBase64ToArrayBuffer } from '@utils/convertArrBuffBase64';
@@ -37,8 +37,8 @@ const useDeviceAuthentication = () => {
   const [userId, setUserId] = useState<string>(Date.now().toString(16));
   const [loading, setLoading] = useState<boolean>(true);
 
-  const dispatch = useAppDispatch();
-  const webAuthnConfig = useAppSelector(getWebAuthnConfig);
+  const dispatch = useSliceDispatch();
+  const webAuthnConfig = useSliceSelector(getWebAuthnConfig);
 
   const saveAuthenticationConfigToLocalStorage = () => {
     try {
@@ -109,60 +109,60 @@ const useDeviceAuthentication = () => {
   const publicKeyCredentialCreationOptions: PublicKeyCredentialCreationOptions =
     typeof window !== 'undefined'
       ? {
-          // hardcode for now
-          // consider generating random string and then verifying it against the reponse from authenticator
-          challenge: Uint8Array.from('lixilotus-wallet-for-lotus', c => c.charCodeAt(0)),
-          rp: {
-            name: coinInfo[COIN.XPI].name,
-            id: document.domain
-          },
-          user: {
-            id: Uint8Array.from(userId, c => c.charCodeAt(0)),
-            name: `Local User`,
-            displayName: 'Local User'
-          },
-          pubKeyCredParams: [
-            { alg: -7, type: 'public-key' },
-            { alg: -35, type: 'public-key' },
-            { alg: -36, type: 'public-key' },
-            { alg: -257, type: 'public-key' },
-            { alg: -258, type: 'public-key' },
-            { alg: -259, type: 'public-key' },
-            { alg: -37, type: 'public-key' },
-            { alg: -38, type: 'public-key' },
-            { alg: -39, type: 'public-key' },
-            { alg: -8, type: 'public-key' }
-          ],
-          authenticatorSelection: {
-            userVerification: 'required',
-            authenticatorAttachment: 'platform',
-            requireResidentKey: false
-          },
-          timeout: 60000,
-          attestation: 'none',
-          excludeCredentials: [],
-          extensions: {}
-        }
+        // hardcode for now
+        // consider generating random string and then verifying it against the reponse from authenticator
+        challenge: Uint8Array.from('lixilotus-wallet-for-lotus', c => c.charCodeAt(0)),
+        rp: {
+          name: coinInfo[COIN.XPI].name,
+          id: document.domain
+        },
+        user: {
+          id: Uint8Array.from(userId, c => c.charCodeAt(0)),
+          name: `Local User`,
+          displayName: 'Local User'
+        },
+        pubKeyCredParams: [
+          { alg: -7, type: 'public-key' },
+          { alg: -35, type: 'public-key' },
+          { alg: -36, type: 'public-key' },
+          { alg: -257, type: 'public-key' },
+          { alg: -258, type: 'public-key' },
+          { alg: -259, type: 'public-key' },
+          { alg: -37, type: 'public-key' },
+          { alg: -38, type: 'public-key' },
+          { alg: -39, type: 'public-key' },
+          { alg: -8, type: 'public-key' }
+        ],
+        authenticatorSelection: {
+          userVerification: 'required',
+          authenticatorAttachment: 'platform',
+          requireResidentKey: false
+        },
+        timeout: 60000,
+        attestation: 'none',
+        excludeCredentials: [],
+        extensions: {}
+      }
       : null;
 
   const publickKeyRequestOptions: PublicKeyCredentialRequestOptions =
     typeof window !== 'undefined'
       ? {
-          challenge: Uint8Array.from('lixilotus-wallet-for-lotus', c => c.charCodeAt(0)),
-          timeout: 60000,
-          // rpId: document.domain,
-          allowCredentials: [
-            {
-              type: 'public-key',
-              // the credentialId is stored as base64
-              // need to convert it to ArrayBuffer
-              id: convertBase64ToArrayBuffer(credentialId),
-              transports: ['internal']
-            }
-          ],
-          userVerification: 'required',
-          extensions: {}
-        }
+        challenge: Uint8Array.from('lixilotus-wallet-for-lotus', c => c.charCodeAt(0)),
+        timeout: 60000,
+        // rpId: document.domain,
+        allowCredentials: [
+          {
+            type: 'public-key',
+            // the credentialId is stored as base64
+            // need to convert it to ArrayBuffer
+            id: convertBase64ToArrayBuffer(credentialId),
+            transports: ['internal']
+          }
+        ],
+        userVerification: 'required',
+        extensions: {}
+      }
       : null;
 
   const authentication = {

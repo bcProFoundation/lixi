@@ -15,7 +15,7 @@ import { useGetAccountByAddressQuery } from '@store/account/accounts.api';
 import { selectAccount, setGraphqlRequestLoading } from '@store/account/actions';
 import { getAccountInfoTemp, getAllAccounts, getSelectedAccount } from '@store/account/selectors';
 import { openActionSheet } from '@store/action-sheet/actions';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getModals } from '@store/modal/selectors';
 import { getAllNotifications } from '@store/notification/selectors';
 import { usePageQuery } from '@store/page/pages.api';
@@ -454,28 +454,28 @@ export const ButtonTopbar = styled(Button)`
 `;
 
 const Topbar: React.FC<any> = ({ className }: { className: string }) => {
-  const dispatch = useAppDispatch();
-  const navCollapsed = useAppSelector(getNavCollapsed);
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const accountInfoTemp = useAppSelector(getAccountInfoTemp);
+  const dispatch = useSliceDispatch();
+  const navCollapsed = useSliceSelector(getNavCollapsed);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const accountInfoTemp = useSliceSelector(getAccountInfoTemp);
   const router = useRouter();
   const currentPathName = router.pathname ?? '';
   const currentAbsolutePathName = router.asPath ?? '';
   const pathDirection = currentPathName.split('/', 2);
-  const notifications = useAppSelector(getAllNotifications);
+  const notifications = useSliceSelector(getAllNotifications);
   const [openMoreOption, setOpenMoreOption] = useState(false);
   const [openProfileOption, setOpenProfileOption] = useState(false);
-  const savedAccounts: Account[] = useAppSelector(getAllAccounts);
-  const isPostsByTime = useAppSelector(getIsPostsByTime);
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const savedAccounts: Account[] = useSliceSelector(getAllAccounts);
+  const isPostsByTime = useSliceSelector(getIsPostsByTime);
+  const currentTheme = useSliceSelector(getCurrentThemes);
   const isMobile = useDetectMobileView();
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
-  const currentModal = useAppSelector(getModals);
-  const walletStatus = useAppSelector(getWalletStatus);
-  const walletHasUpdated = useAppSelector(getWalletHasUpdated);
+  const currentModal = useSliceSelector(getModals);
+  const walletStatus = useSliceSelector(getWalletStatus);
+  const walletHasUpdated = useSliceSelector(getWalletHasUpdated);
   const [filterType, setFilterType] = useState<FilterType>();
-  const walletPath = useAppSelector(getSelectedWalletPath);
+  const walletPath = useSliceSelector(getSelectedWalletPath);
   const [address, setAddress] = useState('');
 
   useEffect(() => {

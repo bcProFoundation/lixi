@@ -7,7 +7,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 import { navBarHeaderList } from '@components/Common/navBarHeaderList';
 import { GlobalStyle } from '@components/Layout/MainLayout/GlobalStyle';
 import { theme } from '@components/Layout/MainLayout/theme';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
 import { useRouter } from 'next/router';
 import { injectStore } from 'src/utils/axiosClient';
@@ -66,12 +66,12 @@ export const AppContainer = styled.div`
   }
 `;
 
-export interface EmptyLayoutProps extends PropsWithChildren {}
+export interface EmptyLayoutProps extends PropsWithChildren { }
 
 const EmptyLayout = ({ children }) => {
   const [loading, setLoading] = useState(false);
-  const currentLocale = useAppSelector(getCurrentLocale);
-  const dispatch = useAppDispatch();
+  const currentLocale = useSliceSelector(getCurrentLocale);
+  const dispatch = useSliceDispatch();
   const router = useRouter();
   const [height, setHeight] = useState(0);
   const selectedKey = router.pathname ?? '';

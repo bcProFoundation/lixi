@@ -1,7 +1,7 @@
 import { PrismaClient } from '@bcpros/lixi-prisma';
 import MainLayout from '@components/Layout/MainLayout';
 import FullWalletComponent from '@components/Wallet/FullWallet';
-import { SagaStore, wrapper } from '@store/store';
+import { SagaStore, wrapper } from 'src/store/store';
 import _ from 'lodash';
 import { getSelectorsByUserAgent } from 'react-device-detect';
 import { END } from 'redux-saga';

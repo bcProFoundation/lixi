@@ -7,7 +7,7 @@ import Counter from '@components/Common/Counter';
 import { AuthorizationContext } from '@context/index';
 import { Comment, Post } from '@generated/types.generated';
 import { prepareBurnCommand } from '@store/burn';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { formatBalance } from '@utils/cashMethods';
 import { Space, Tooltip } from 'antd';
 import _ from 'lodash';
@@ -48,7 +48,7 @@ type CommentListItemProps = {
 };
 
 const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFocusComment }: CommentListItemProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const router = useRouter();
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();

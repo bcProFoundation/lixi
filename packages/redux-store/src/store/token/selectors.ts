@@ -1,22 +1,22 @@
 import { Token } from '@bcpros/lixi-models';
 import { createSelector } from 'reselect';
 
-import { RootState } from '../store';
+import { LixiStoreStateInterface } from '../state';
 
 import { tokenAdapter } from './reducer';
 import { TokenState } from './state';
 
-const selectAccounts = (state: RootState) => state.accounts;
+const selectAccounts = (state: LixiStoreStateInterface) => state.accounts;
 const selectSelectedAccount = createSelector(selectAccounts, state => state.selectedId);
 
 const { selectAll, selectEntities, selectIds, selectTotal } = tokenAdapter.getSelectors();
 
-export const selectTokens = createSelector((state: RootState) => state.tokens, selectAll);
+export const selectTokens = createSelector((state: LixiStoreStateInterface) => state.tokens, selectAll);
 
-export const getAllTokensEntities = createSelector((state: RootState) => state.tokens, selectEntities);
+export const getAllTokensEntities = createSelector((state: LixiStoreStateInterface) => state.tokens, selectEntities);
 
 export const getSelectedToken = createSelector(
-  (state: RootState) => state.tokens,
+  (state: LixiStoreStateInterface) => state.tokens,
   (state: TokenState) => state.selectedTokenId as Token
 );
 

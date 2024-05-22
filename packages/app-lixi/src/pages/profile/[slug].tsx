@@ -3,7 +3,7 @@ import { PrismaClient } from '@bcpros/lixi-prisma';
 import MainLayout from '@components/Layout/MainLayout';
 import ProfileDetail from '@components/Profile/ProfileDetail';
 import { useCheckIfFollowAccountQuery } from '@store/follow/follows.api';
-import { SagaStore, wrapper } from '@store/store';
+import { SagaStore, wrapper } from 'src/store/store';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
 import { getSelectorsByUserAgent } from 'react-device-detect';

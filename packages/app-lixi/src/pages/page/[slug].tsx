@@ -3,9 +3,9 @@ import MainLayout from '@components/Layout/MainLayout';
 import PageDetail from '@components/Pages/PageDetail';
 import { getSelectedAccount } from '@store/account';
 import { useCheckIfFollowPageQuery } from '@store/follow/follows.api';
-import { useAppSelector } from '@store/hooks';
+import { useSliceSelector } from '@store/index';
 import { usePageQuery } from '@store/page/pages.api';
-import { SagaStore, wrapper } from '@store/store';
+import { SagaStore, wrapper } from 'src/store/store';
 import { toImageUrl } from '@utils/index';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
@@ -17,7 +17,7 @@ const PageDetailPage = props => {
   const { pageAsString, isMobile } = props;
   const page = JSON.parse(pageAsString);
   const canonicalUrl = process.env.NEXT_PUBLIC_LIXI_URL + `page/${page.id}`;
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
 
   const { currentData: currentDataPageQuery } = usePageQuery({ id: page.id }, { skip: !page });
 

@@ -18,7 +18,7 @@ import useXPI from '@hooks/useXPI';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import { getMessageUploads, getSelectedAccount, removeAllMessageUpload, removeUpload } from '@store/account';
 import { postClaim } from '@store/claim/actions';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { removePageMessageSession, upsertPageMessageSession } from '@store/message/actions';
 import { useCreateMessageMutation } from '@store/message/message.api';
 import {
@@ -446,8 +446,8 @@ export const PageGroupItem = ({
   onClickIcon?: (e: any) => void;
 }) => {
   const [collapse, setCollapse] = useState(true);
-  const pageMessageSessionEntities = useAppSelector(getAllPageMessageSessionEntities);
-  const dispatch = useAppDispatch();
+  const pageMessageSessionEntities = useSliceSelector(getAllPageMessageSessionEntities);
+  const dispatch = useSliceDispatch();
 
   const triggerCheckIsPageOwner = () => {
     let isPageOwner = false;
@@ -625,10 +625,10 @@ export const PageGroupItem = ({
 };
 
 const PageMessage = () => {
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const dispatch = useAppDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
   const [isPageOwner, setIsPageOwner] = useState<boolean>(false);
-  const currentPageMessageSession = useAppSelector(getCurrentPageMessageSession);
+  const currentPageMessageSession = useSliceSelector(getCurrentPageMessageSession);
   const { control, getValues, resetField, setFocus } = useForm();
   const [open, setOpen] = useState(false);
   const Wallet = React.useContext(WalletContext);
@@ -636,14 +636,14 @@ const PageMessage = () => {
   const isMobile = useDetectMobileView();
   const router = useRouter();
   const [isSendingXPI, setIsSendingXPI] = useState<boolean>(false);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
   const { sendXpi } = useXPI();
-  const walletStatus = useAppSelector(getWalletStatus);
+  const walletStatus = useSliceSelector(getWalletStatus);
   const txFee = Math.ceil(Wallet.XPI.BitcoinCash.getByteCount({ P2PKH: 1 }, { P2PKH: 1 }) * 2.01); //satoshi
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const messageUploads = useAppSelector(getMessageUploads);
+  const messageUploads = useSliceSelector(getMessageUploads);
 
   useEffect(() => {
     if (slpBalancesAndUtxos === slpBalancesAndUtxosRef.current) return;
@@ -983,9 +983,8 @@ const PageMessage = () => {
       onClick={() => onClickSeenMessage(data.find(item => item.id === currentPageMessageSession?.id))}
     >
       <StyledSideContainer
-        className={`${currentPageMessageSession ? 'hide-side-message' : 'show-side-message'} ${
-          isMobile ? 'animate__faster animate__animated animate__slideInRight' : ''
-        }`}
+        className={`${currentPageMessageSession ? 'hide-side-message' : 'show-side-message'} ${isMobile ? 'animate__faster animate__animated animate__slideInRight' : ''
+          }`}
       >
         <h2 className="title-chat">
           Chats <span className="badge-total-message">{data.length}</span>
@@ -1042,9 +1041,8 @@ const PageMessage = () => {
 
       <StyledChatContainer
         {...handlersSwip}
-        className={`${currentPageMessageSession ? 'full-content-chat' : 'hide-content-chat'} ${
-          isMobile ? 'animate__faster animate__animated animate__slideInLeft' : ''
-        }`}
+        className={`${currentPageMessageSession ? 'full-content-chat' : 'hide-content-chat'} ${isMobile ? 'animate__faster animate__animated animate__slideInLeft' : ''
+          }`}
       >
         <StyledChatHeader>
           {currentPageMessageSession ? (
@@ -1250,11 +1248,10 @@ const PageMessage = () => {
             )}
             <StyledFooterChat>
               <IconContainer
-                className={`${
-                  currentPageMessageSession?.status !== PageMessageSessionStatus.Pending
-                    ? 'enable-upload'
-                    : 'disable-upload'
-                }`}
+                className={`${currentPageMessageSession?.status !== PageMessageSessionStatus.Pending
+                  ? 'enable-upload'
+                  : 'disable-upload'
+                  }`}
               >
                 <MultiUploader
                   type={UPLOAD_TYPES.MESSAGE}

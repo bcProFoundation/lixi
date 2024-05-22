@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import usePrevious from './usePrevious';
 import { getSelectedAccount } from '@store/account';
 import { getIsServerStatusOn, userOffline, userOnline } from '@store/notification';
@@ -11,11 +11,11 @@ import { useSocket } from '@context/socketContext';
  * Tracking user status
  */
 const useUserStatus = () => {
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const previousSelectedAccount: Account = usePrevious(selectedAccount);
-  const isServerStatusOn = useAppSelector(getIsServerStatusOn);
-  const deviceId = useAppSelector(getDeviceId);
+  const isServerStatusOn = useSliceSelector(getIsServerStatusOn);
+  const deviceId = useSliceSelector(getDeviceId);
   const socket = useSocket();
 
   useEffect(() => {

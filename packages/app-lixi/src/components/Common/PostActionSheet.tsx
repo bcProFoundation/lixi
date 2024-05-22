@@ -2,7 +2,7 @@ import { Drawer } from 'antd';
 import React, { useState, useEffect } from 'react';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeActionSheet } from '@store/action-sheet/actions';
 import { EditPostModalProps } from '@components/Posts/EditPostModalPopup';
 import { openModal } from '@store/modal/actions';
@@ -128,16 +128,16 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
   followPostOwner,
   followedToken
 }: PostActionSheetProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const router = useRouter();
   const [open, setOpen] = useState(true);
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
   const [isFollowedPage, setIsFollowedPage] = useState<boolean>(followedPage);
   const [isFollowedToken, setIsFollowedToken] = useState<boolean>(followedToken);
   const [isFollowedAccount, setIsFollowedAccount] = useState<boolean>(followPostOwner);
   const [openCreatePost, setOpenCreatePost] = useState<boolean>(false);
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const walletStatus = useAppSelector(getWalletStatus);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const walletStatus = useSliceSelector(getWalletStatus);
 
   //bookmark
   const [isBookmarked, setIsBookmarked] = useState<boolean>(post?.isBookmarked);
@@ -430,16 +430,15 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
           {post.page && isSuccessPageQuery && (
             <>
               <ItemActionSheetBottom
-                text={`${
-                  post.page.createPostFee == 0
-                    ? intl.get('page.createFreePostOn', {
-                        pageName: currentDataPageQuery?.page?.name
-                      })
-                    : intl.get('page.createPostOnPage', {
-                        pageName: currentDataPageQuery?.page?.name,
-                        fee: parseInt(post.page.createPostFee)
-                      })
-                }`}
+                text={`${post.page.createPostFee == 0
+                  ? intl.get('page.createFreePostOn', {
+                    pageName: currentDataPageQuery?.page?.name
+                  })
+                  : intl.get('page.createPostOnPage', {
+                    pageName: currentDataPageQuery?.page?.name,
+                    fee: parseInt(post.page.createPostFee)
+                  })
+                  }`}
                 icon="/images/ico-create-post.svg"
                 onClickItem={openCreatePostPage}
               />

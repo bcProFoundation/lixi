@@ -9,7 +9,7 @@ import useXPI from '@hooks/useXPI';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { getAccountInfoTemp, getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
 import { useRepostMutation } from '@store/post/posts.api';
 import { showToast } from '@store/toast/actions';
@@ -338,9 +338,9 @@ export const IconBurn = ({
 );
 
 const PostDetail = ({ post, isMobile }: PostDetailProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const router = useRouter();
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const [showTranslation, setShowTranslation] = useState(false);
   const isMobileView = useDetectMobileView();
 
@@ -519,7 +519,7 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
               </Image.PreviewGroup>
             </div>
           )}
-          <ActionPostBar post={post} onClickIconComment={e => {}} />
+          <ActionPostBar post={post} onClickIconComment={e => { }} />
         </PostContentDetail>
 
         <Comment post={post} />

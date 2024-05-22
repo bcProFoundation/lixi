@@ -8,7 +8,7 @@ import { PlusCircleOutlined } from '@ant-design/icons';
 import { push } from 'connected-next-router';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import styled from 'styled-components';
 import Gallery from 'react-photo-gallery';
 
@@ -161,7 +161,7 @@ const CountBar = styled.div`
 `;
 
 const PageListItem = ({ index, item }) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   const [isCollapseComment, setIsCollapseComment] = useState(false);
   const [comments, setComments] = useState<CommentItem[]>([]);
@@ -333,7 +333,7 @@ const PageListItem = ({ index, item }) => {
               text={Math.floor(Math.random() * 10).toString()}
               key={`list-vertical-share-o-${item.id}`}
               dataItem={item}
-              onClickIcon={() => {}}
+              onClickIcon={() => { }}
             />
           </CountBar>
           <div className="line"></div>

@@ -1,9 +1,9 @@
 import { PersistState } from 'redux-persist';
 import { createSelector } from 'reselect';
 
-import { RootState } from '../store';
+import { LixiStoreStateInterface } from '../state';
 
 export const getIsBootstrapped = createSelector(
-  (state: RootState) => state._persist,
+  (state: LixiStoreStateInterface) => state._persist,
   (state: PersistState) => (state && state.rehydrated ? state.rehydrated : false)
 );

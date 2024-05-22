@@ -1,7 +1,7 @@
 import { ViewClaimDto } from '@bcpros/lixi-models';
 import LixiClaimed from '@components/Claim/LixiClaimed';
 import claimApi from '@store/claim/api';
-import { SagaStore, wrapper } from '@store/store';
+import { SagaStore, wrapper } from 'src/store/store';
 import { base58ToNumber, numberToBase58 } from '@utils/encryptionMethods';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';

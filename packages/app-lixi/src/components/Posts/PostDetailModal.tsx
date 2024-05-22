@@ -6,7 +6,7 @@ import { LoadingIcon, NavBarHeader } from '@components/Layout/MainLayout';
 import { PostQueryItem } from '@generated/index';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import { getCommentUpload } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeModal, openModal } from '@store/modal/actions';
 import { usePostQuery } from '@store/post/posts.api';
 import { getCurrentLocale } from '@store/settings';
@@ -224,14 +224,14 @@ const StyledTranslate = styled.div`
 
 export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classStyle }: PostDetailProps) => {
   const [post, setPost] = useState(initialPost);
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const router = useRouter();
   const [showTranslation, setShowTranslation] = useState(false);
   const [openPost, setOpenPost] = useState(true);
   const isMobile = useDetectMobileView();
   const [borderColorHeader, setBorderColorHeader] = useState(false);
-  const commentUpload = useAppSelector(getCommentUpload);
-  const currentLocale = useAppSelector(getCurrentLocale);
+  const commentUpload = useSliceSelector(getCommentUpload);
+  const currentLocale = useSliceSelector(getCurrentLocale);
 
   const { isLoading, currentData, isError } = usePostQuery({ id: post.id });
 
@@ -340,15 +340,14 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
       <Modal
         transitionName={isMobile ? '' : 'none'}
         width={'50vw'}
-        className={`${classStyle} post-detail-custom-modal ${
-          isMobile
-            ? openPost
-              ? 'animate__animated animate__faster animate__slideInRight'
-              : 'animate__animated animate__faster animate__slideOutRight'
-            : openPost
-              ? 'animate__animated animate__faster animate__zoomIn'
-              : 'animate__animated animate__faster animate__zoomOut'
-        }`}
+        className={`${classStyle} post-detail-custom-modal ${isMobile
+          ? openPost
+            ? 'animate__animated animate__faster animate__slideInRight'
+            : 'animate__animated animate__faster animate__slideOutRight'
+          : openPost
+            ? 'animate__animated animate__faster animate__zoomIn'
+            : 'animate__animated animate__faster animate__zoomOut'
+          }`}
         style={{ top: 30 }}
         open={true}
         onCancel={handleOnCancel}
@@ -437,7 +436,7 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
                 </Image.PreviewGroup>
               </div>
             )}
-            <ActionPostBar post={post} isSetBorderBottom={true} onClickIconComment={e => {}} />
+            <ActionPostBar post={post} isSetBorderBottom={true} onClickIconComment={e => { }} />
           </PostContentDetail>
 
           <Comment post={post} />

@@ -12,7 +12,7 @@ import { RenameAccountModalProps } from '@components/Settings/RenameAccountModal
 import { WalletContext } from '@context/index';
 import { importAccount, renameAccount } from '@store/account/actions';
 import { getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
 import { getSelectedWalletPath, getWalletStatus } from '@store/wallet';
 import { fromSmallestDenomination } from '@utils/cashMethods';
@@ -139,10 +139,10 @@ const WalletInfoComponent: React.FC = () => {
   });
   const [isValidMnemonic, setIsValidMnemonic] = useState(false);
   const [seedInput, openSeedInput] = useState(false);
-  const dispatch = useAppDispatch();
-  const walletStatus = useAppSelector(getWalletStatus);
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const selectedWalletPath = useAppSelector(getSelectedWalletPath);
+  const dispatch = useSliceDispatch();
+  const walletStatus = useSliceSelector(getWalletStatus);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const selectedWalletPath = useSliceSelector(getSelectedWalletPath);
 
   const decimalFormatBalance = balance => {
     if (Number(balance) < 10) {

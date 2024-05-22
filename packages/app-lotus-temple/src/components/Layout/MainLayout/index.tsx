@@ -1,5 +1,5 @@
 import { getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { Layout, Spin } from 'antd';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -174,9 +174,9 @@ type MainLayoutProps = React.PropsWithChildren<{}>;
 
 const MainLayout: React.FC = (props: MainLayoutProps) => {
   const { children } = props;
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const currentLocale = useAppSelector(getCurrentLocale);
-  const dispatch = useAppDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const currentLocale = useSliceSelector(getCurrentLocale);
+  const dispatch = useSliceDispatch();
   const [height, setHeight] = useState(0);
   const [loading, setLoading] = useState(true);
   const [navBarTitle, setNavBarTitle] = useState('');
@@ -184,8 +184,8 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
   const selectedKey = router.pathname ?? '';
   const disableSideBarRanking = ['lixi', 'profile'];
   const ref = useRef(null);
-  const notifications = useAppSelector(getAllNotifications);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
+  const notifications = useSliceSelector(getAllNotifications);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
 
   useEffect(() => {
@@ -217,7 +217,7 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
   }, []);
 
   injectStore(currentLocale);
-  const isLoading = useAppSelector(getIsGlobalLoading);
+  const isLoading = useSliceSelector(getIsGlobalLoading);
 
   const getNamePathDirection = () => {
     const itemSelect = navBarHeaderList.find(item => item.path === selectedKey) || null;

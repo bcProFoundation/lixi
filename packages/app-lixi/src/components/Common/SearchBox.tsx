@@ -15,7 +15,7 @@ import {
   removeRecentHashtagAtPages,
   removeRecentHashtagAtToken
 } from '@store/account';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getCurrentThemes, getIsPostsByTime, savePostsByTimeFilter } from '@store/settings';
 import { Input, Popover, Switch, Tag } from 'antd';
 import { useRouter } from 'next/router';
@@ -162,17 +162,17 @@ const RecentContainer = styled.div`
 const SearchBox = () => {
   const [tags, setTags] = useState([]);
   const [recentTags, setRecentTags] = useState<string[]>();
-  const recentTagAtHome = useAppSelector(getRecentHashtagAtHome);
-  const recentTagAtPages = useAppSelector(getRecentHashtagAtPages);
-  const recentTagAtToken = useAppSelector(getRecentHashtagAtToken);
+  const recentTagAtHome = useSliceSelector(getRecentHashtagAtHome);
+  const recentTagAtPages = useSliceSelector(getRecentHashtagAtPages);
+  const recentTagAtToken = useSliceSelector(getRecentHashtagAtToken);
   const [query, setQuery] = useState<any>('');
   const router = useRouter();
   const numberOfTags = 3;
-  const dispatch = useAppDispatch();
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const dispatch = useSliceDispatch();
+  const currentTheme = useSliceSelector(getCurrentThemes);
   const currentPathName = router.pathname ?? '';
   const pathDirection = currentPathName.split('/', 2);
-  const isPostsByTime = useAppSelector(getIsPostsByTime);
+  const isPostsByTime = useSliceSelector(getIsPostsByTime);
   const [filterType, setFilterType] = useState<FilterType>();
 
   const { control, getValues, setValue } = useForm({

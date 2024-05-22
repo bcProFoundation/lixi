@@ -5,7 +5,7 @@ import { AccountQueryItem, CommentQueryItem, PageQueryItem, PostQueryItem, Token
 import { BurnForItem } from '@generated/types';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import { prepareBurnCommand } from '@store/burn';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
 import { getCurrentThemes } from '@store/settings';
 import { Popover, Space } from 'antd';
@@ -127,11 +127,11 @@ type ReactionProps = {
 };
 
 const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const isMobile = useDetectMobileView();
   const [clicked, setClicked] = useState(false);
   const [hovered, setHovered] = useState(false);
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const currentTheme = useSliceSelector(getCurrentThemes);
   const authentication = useContext(AuthenticationContext);
 
   const burnValue: number = match(burnForType)

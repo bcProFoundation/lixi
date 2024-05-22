@@ -1,7 +1,7 @@
 import Hashtag from '@components/Hashtag';
 import MainLayout from '@components/Layout/MainLayout';
 import { useHashtagQuery } from '@store/hashtag/hashtag.api';
-import { SagaStore, wrapper } from '@store/store';
+import { SagaStore, wrapper } from 'src/store/store';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
 import React from 'react';

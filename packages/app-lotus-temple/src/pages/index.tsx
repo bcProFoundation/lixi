@@ -2,10 +2,10 @@ import { LocalUserAccount } from '@bcpros/lixi-models';
 import Home from '@components/Home';
 import { generateAccount, silentLogin } from '@store/account/actions';
 import { getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { setLocalUserAccount } from '@store/localAccount';
 import { getIsBootstrapped } from '@store/persistor/selectors';
-import { SagaStore, wrapper } from '@store/store';
+import { SagaStore, wrapper } from 'src/store/store';
 import axios from 'axios';
 import { withIronSessionSsr } from 'iron-session/next';
 import { useRouter } from 'next/router';
@@ -22,9 +22,9 @@ type HomePageProps = {
 
 const HomePage = ({ isMobile, localUser }: HomePageProps) => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const isHydrated = useAppSelector(getIsBootstrapped);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const isHydrated = useSliceSelector(getIsBootstrapped);
 
   const localLogout = async () => {
     const url = '/_api/local-logout';

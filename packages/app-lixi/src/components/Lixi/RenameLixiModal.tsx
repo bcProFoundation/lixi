@@ -2,7 +2,7 @@ import { Form, Input, Modal } from 'antd';
 import intl from 'react-intl-universal';
 import * as _ from 'lodash';
 import React, { useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { refreshLixiList } from '@store/account/actions';
 import { Lixi } from '@bcpros/lixi-models';
@@ -20,8 +20,8 @@ export type RenameLixiModalProps = {
 export const RenameLixiModal: React.FC<RenameLixiModalProps> = (props: RenameLixiModalProps) => {
   const [newLixiName, setNewLixiName] = useState('');
   const [newLixiNameIsValid, setNewLixiNameIsValid] = useState<boolean | null>(null);
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const dispatch = useAppDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
   const { lixi } = props;
 
   const handleOnOk = () => {

@@ -10,7 +10,7 @@ import {
 } from '@bcpros/lixi-components/components/Common/EnhancedInputs';
 import { parseAddress } from '@utils/addressMethods';
 import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import {
   checkInformationAndClaim,
   checkInformationAndClaimNoAccount,
@@ -19,7 +19,6 @@ import {
 } from '@store/claim/actions';
 import { getIsGlobalLoading } from '@store/loading/selectors';
 import { getCurrentAddress, getCurrentClaimCode } from '@store/claim/selectors';
-import { useSelector } from 'react-redux';
 import { getSelectedAccount } from '@store/account/selectors';
 import styled from 'styled-components';
 import { AuthorizationContext, WalletContext } from '@context/index';
@@ -78,20 +77,21 @@ type ClaimProps = {
 };
 
 const ClaimComponent = ({ isClaimFromAccount, claimCodeFromURL }: ClaimProps) => {
-  const isLoading = useAppSelector(getIsGlobalLoading);
+  const isLoading = useSliceSelector(getIsGlobalLoading);
 
   const Wallet = React.useContext(WalletContext);
   const { XPI } = Wallet;
 
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   // const { width } = useWindowDimensions();
   // Load with QR code open if device is mobile and NOT iOS + anything but safari
   const scannerSupported = false; // width < 769 && isMobile && !(isIOS && !isSafari);
 
-  const currentAddress = useAppSelector(getCurrentAddress);
-  const currentClaimCode = claimCodeFromURL ?? useAppSelector(getCurrentClaimCode);
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const currentAddress = useSliceSelector(getCurrentAddress);
+  let currentClaimCode = useSliceSelector(getCurrentClaimCode);
+  currentClaimCode = claimCodeFromURL ?? currentClaimCode;
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const askAuthorization = useAuthorization();
   const authorization = useContext(AuthorizationContext);
 

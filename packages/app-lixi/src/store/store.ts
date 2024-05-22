@@ -9,7 +9,7 @@ import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE, persistStore } from 
 import { ThunkAction, ThunkDispatch } from 'redux-thunk';
 
 import { api } from '@bcpros/redux-store/api/baseApi';
-import rootReducer from './rootReducer';
+import rootReducer, { serverReducer } from './rootReducer';
 import rootSaga from './rootSaga';
 import { setupListeners } from '@reduxjs/toolkit/query';
 
@@ -40,28 +40,35 @@ const makeStore = (context: Context) => {
 
   let store;
 
-  store = configureStore({
-    reducer: rootReducer,
-    middleware: getDefaultMiddleware => {
-      return (
-        getDefaultMiddleware({
-          serializableCheck: {
-            ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
-          }
-        })
-          // We only need one middleware for rtk query here
-          // because all apis are splitted, but actually be enhanced from only 1 baseApi
-          // If we concat multiple middleware here, each time there's an internal rtk query action
-          // multiple instances of same action will be dispatched, caused onQueryStarted run multiple times.
-          .concat(api.middleware)
-          .concat(sagaMiddleware)
-          .concat(routerMiddleware)
-      );
-    },
-    devTools:
-      process.env.NODE_ENV === 'production'
-        ? false
-        : {
+  if (isServer) {
+    store = configureStore({
+      reducer: serverReducer,
+      middleware: getDefaultMiddleware => getDefaultMiddleware().concat(sagaMiddleware),
+      devTools: false
+    })
+  } else {
+    store = configureStore({
+      reducer: rootReducer,
+      middleware: getDefaultMiddleware => {
+        return (
+          getDefaultMiddleware({
+            serializableCheck: {
+              ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
+            }
+          })
+            // We only need one middleware for rtk query here
+            // because all apis are splitted, but actually be enhanced from only 1 baseApi
+            // If we concat multiple middleware here, each time there's an internal rtk query action
+            // multiple instances of same action will be dispatched, caused onQueryStarted run multiple times.
+            .concat(api.middleware)
+            .concat(sagaMiddleware)
+            .concat(routerMiddleware)
+        );
+      },
+      devTools:
+        process.env.NODE_ENV === 'production'
+          ? false
+          : {
             actionsDenylist: [
               'wallet/writeWalletStatus',
               'posts/setShowCreatePost',
@@ -69,11 +76,13 @@ const makeStore = (context: Context) => {
               'analyticEvent/analyticEvent'
             ]
           },
-    preloadedState: initialState
-  });
-  setupListeners(store.dispatch);
+      preloadedState: initialState
+    });
+    setupListeners(store.dispatch);
 
-  (store as any).__persistor = persistStore(store);
+    (store as any).__persistor = persistStore(store);
+  }
+
   (store as SagaStore).__sagaTask = sagaMiddleware.run(rootSaga);
   return store;
 };

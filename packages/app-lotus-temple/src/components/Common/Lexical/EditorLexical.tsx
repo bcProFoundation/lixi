@@ -26,7 +26,7 @@ import LinkPlugin from './plugins/LinkPlugin';
 import ButtonLinkPlugin from './plugins/ButtonLinkPlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 import { Image } from 'antd';
-import { useAppSelector } from '@store/hooks';
+import { useSliceSelector } from '@store/index';
 import { getPostCoverUploads } from '@store/account/selectors';
 import Gallery from 'react-photo-gallery';
 
@@ -102,7 +102,7 @@ const StyledEditorLexical = styled.div`
 const EditorLexical = (props: EditorLexicalProps) => {
   const { initialContent, onSubmit, isEditMode, loading } = props;
   const [floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
-  const postCoverUploads = useAppSelector(getPostCoverUploads);
+  const postCoverUploads = useSliceSelector(getPostCoverUploads);
   const imagesList = postCoverUploads.images.map(img => {
     const imgUrl = `${process.env.NEXT_PUBLIC_AWS_ENDPOINT}/${img.bucket}/${img.sha}`;
     let width = img?.width || 4;

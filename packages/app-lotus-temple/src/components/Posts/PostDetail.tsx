@@ -16,7 +16,7 @@ import { prepareBurnCommand } from '@store/burn/actions';
 import { createCommentFailure, createCommentSuccess } from '@store/comment';
 import { useCreateCommentMutation } from '@store/comment/comments.api';
 import { useInfiniteCommentsToCommentableIdQuery } from '@store/comment/useInfiniteCommentsToCommentableIdQuery';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
 import { sendXPIFailure } from '@store/send/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
@@ -236,15 +236,15 @@ const StyledContainerPostDetail = styled.div`
 `;
 
 const PostDetail = ({ post, isMobile }: PostDetailProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const { control, getValues, setValue, setFocus } = useForm();
   const router = useRouter();
   const Wallet = React.useContext(WalletContext);
   const { XPI, chronik } = Wallet;
   const { sendXpi } = useXPI();
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const [imagesList, setImagesList] = useState([]);
   const [isEncryptedOptionalOpReturnMsg, setIsEncryptedOptionalOpReturnMsg] = useState(true);
   const [open, setOpen] = useState(false);
