@@ -36,13 +36,13 @@ importers:
         specifier: workspace:*
         version: link:../lixi-components
       '@bcpros/lixi-models':
-        specifier: workspace:1.1.7
+        specifier: workspace:*
         version: link:../lixi-models
       '@bcpros/lixi-prisma':
-        specifier: workspace:1.1.7
+        specifier: workspace:*
         version: link:../lixi-prisma
       '@bcpros/redux-store':
-        specifier: workspace:1.1.7
+        specifier: workspace:*
         version: link:../redux-store
       '@bcpros/xpi-js':
         specifier: 4.0.6
@@ -1137,9 +1137,6 @@ importers:
       '@prisma/client':
         specifier: '>=5.8.1'
         version: 5.8.1(prisma@5.12.1)
-      '@songkeys/nestjs-redis':
-        specifier: ^10.0.0
-        version: 10.0.0(@nestjs/common@10.3.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.4(@nestjs/common@10.3.4(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/websockets@10.3.4)(reflect-metadata@0.1.14)(rxjs@7.8.1))(ioredis@5.3.2)
       bignumber.js:
         specifier: ^9.0.0
         version: 9.1.2
@@ -1248,7 +1245,7 @@ importers:
         specifier: '>=8.25.37'
         version: 8.25.43
       '@bcpros/lixi-models':
-        specifier: workspace:1.1.7
+        specifier: workspace:*
         version: link:../lixi-models
       '@bcpros/minimal-xpi-slp-wallet':
         specifier: 3.0.10
@@ -1265,18 +1262,12 @@ importers:
       '@prisma/client':
         specifier: '>=5.8.1'
         version: 5.8.1(prisma@5.12.1)
-      '@reduxjs/toolkit':
-        specifier: ^2.2.1
-        version: 2.2.1(react-redux@9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0)
       '@shoooe/derive':
         specifier: ^0.2.7
         version: 0.2.7
       '@socket.io/component-emitter':
         specifier: 3.1.0
         version: 3.1.0
-      antd:
-        specifier: '>=5.15.3'
-        version: 5.15.3(luxon@3.4.4)(moment@2.30.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       axios:
         specifier: '>=1.4.0'
         version: 1.6.8
@@ -1297,7 +1288,7 @@ importers:
         version: 0.14.1
       connected-next-router:
         specifier: ^5.0.0
-        version: 5.0.0(next@14.1.4(@babel/core@7.24.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-redux@9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0)(redux@5.0.1)
+        version: 5.0.0(next@14.1.4(@babel/core@7.24.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-redux@9.1.2(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0)(redux@5.0.1)
       ecashaddrjs:
         specifier: ^1.5.6
         version: 1.5.6
@@ -1310,21 +1301,12 @@ importers:
       graphql-request:
         specifier: ^6.1.0
         version: 6.1.0(graphql@16.8.1)
-      iron-session:
-        specifier: '>=8.0.1'
-        version: 8.0.1
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
       moment:
-        specifier: '>=2.30.1'
+        specifier: ^2.30.1
         version: 2.30.1
-      next:
-        specifier: '>=12.3.1'
-        version: 14.1.4(@babel/core@7.24.3)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      next-redux-wrapper:
-        specifier: '>=8.1.0'
-        version: 8.1.0(next@14.1.4(@babel/core@7.24.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-redux@9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0)
       node-forge:
         specifier: ^1.3.1
         version: 1.3.1
@@ -1332,34 +1314,22 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0(@prisma/client@5.8.1(prisma@5.12.1))(graphql@16.8.1)
       react:
-        specifier: '>=17.0.0'
+        specifier: ^18
         version: 18.2.0
-      react-device-detect:
-        specifier: ^2.2.2
-        version: 2.2.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react-intl-universal:
-        specifier: '>=2.11.1'
+        specifier: ^2.11.1
         version: 2.11.1(react@18.2.0)
       react-outside-call:
-        specifier: '>=0.2.0'
+        specifier: ^0.2.0
         version: 0.2.0
       react-redux:
-        specifier: '>=9.1.0'
-        version: 9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1)
+        specifier: ^9.1.2
+        version: 9.1.2(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1)
       redux:
-        specifier: '>=5.0.1'
+        specifier: ^5.0.1
         version: 5.0.1
-      redux-persist:
-        specifier: ^6.0.0
-        version: 6.0.0(react@18.2.0)(redux@5.0.1)
-      redux-persist-indexeddb-storage:
-        specifier: ^1.0.4
-        version: 1.0.4
-      redux-saga:
-        specifier: ^1.3.0
-        version: 1.3.0
       redux-thunk:
-        specifier: '>=3.1.0'
+        specifier: ^3.1.0
         version: 3.1.0(redux@5.0.1)
       reselect:
         specifier: ^5.1.0
@@ -1397,13 +1367,16 @@ importers:
         version: 4.2.0(graphql@16.8.1)
       '@graphql-codegen/typescript-rtk-query':
         specifier: ^3.1.1
-        version: 3.1.1(@reduxjs/toolkit@2.2.1(react-redux@9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0))(graphql-request@6.1.0(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1)
+        version: 3.1.1(@reduxjs/toolkit@2.2.1(react-redux@9.1.2(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0))(graphql-request@6.1.0(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1)
       '@graphql-typed-document-node/core':
         specifier: ^3.1.1
         version: 3.2.0(graphql@16.8.1)
+      '@reduxjs/toolkit':
+        specifier: ^2.2.1
+        version: 2.2.1(react-redux@9.1.2(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0)
       '@rtk-query/graphql-request-base-query':
         specifier: ^2.2.0
-        version: 2.3.1(@reduxjs/toolkit@2.2.1(react-redux@9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0))(graphql@16.8.1)
+        version: 2.3.1(@reduxjs/toolkit@2.2.1(react-redux@9.1.2(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0))(graphql@16.8.1)
       '@types/node':
         specifier: ^20.11.29
         version: 20.11.30
@@ -1434,12 +1407,27 @@ importers:
       eslint-plugin-import:
         specifier: ^2.27.5
         version: 2.29.1(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.4.2))(eslint@8.57.0)
+      iron-session:
+        specifier: '>=8.0.1'
+        version: 8.0.1
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
       prettier:
         specifier: ^3.2.5
         version: 3.2.5
+      react-device-detect:
+        specifier: ^2.2.2
+        version: 2.2.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      redux-persist:
+        specifier: ^6.0.0
+        version: 6.0.0(react@18.2.0)(redux@5.0.1)
+      redux-persist-indexeddb-storage:
+        specifier: ^1.0.4
+        version: 1.0.4
+      redux-saga:
+        specifier: ^1.3.0
+        version: 1.3.0
       ts-node:
         specifier: ^10.9.1
         version: 10.9.2(@types/node@20.11.30)(typescript@5.4.2)
@@ -9247,6 +9235,7 @@ packages:
 
   loose-envify@1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
+    hasBin: true
 
   lower-case-first@2.0.2:
     resolution: {integrity: sha512-EVm/rR94FJTZi3zefZ82fLWab+GX14LJN4HrWBcuo6Evmsl9hEfnqxgcHCKb9q+mNf6EVdsjx/qucYFIIB84pg==}
@@ -10922,6 +10911,18 @@ packages:
       '@types/react':
         optional: true
       react-native:
+        optional: true
+      redux:
+        optional: true
+
+  react-redux@9.1.2:
+    resolution: {integrity: sha512-0OA4dhM1W48l3uzmv6B7TXPCGmokUU4p1M44DGN2/D9a1FjVPukVjER1PcPX97jIg6aUeLq1XJo1IpfbgULn0w==}
+    peerDependencies:
+      '@types/react': ^18.2.25
+      react: ^18.0
+      redux: ^5.0.0
+    peerDependenciesMeta:
+      '@types/react':
         optional: true
       redux:
         optional: true
@@ -15295,11 +15296,11 @@ snapshots:
       - encoding
       - supports-color
 
-  '@graphql-codegen/typescript-rtk-query@3.1.1(@reduxjs/toolkit@2.2.1(react-redux@9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0))(graphql-request@6.1.0(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1)':
+  '@graphql-codegen/typescript-rtk-query@3.1.1(@reduxjs/toolkit@2.2.1(react-redux@9.1.2(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0))(graphql-request@6.1.0(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 3.1.2(graphql@16.8.1)
       '@graphql-codegen/visitor-plugin-common': 2.13.1(graphql@16.8.1)
-      '@reduxjs/toolkit': 2.2.1(react-redux@9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0)
+      '@reduxjs/toolkit': 2.2.1(react-redux@9.1.2(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0)
       auto-bind: 4.0.0
       change-case-all: 1.0.15
       graphql: 16.8.1
@@ -16920,6 +16921,16 @@ snapshots:
       react: 18.2.0
       react-redux: 9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1)
 
+  '@reduxjs/toolkit@2.2.1(react-redux@9.1.2(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0)':
+    dependencies:
+      immer: 10.0.4
+      redux: 5.0.1
+      redux-thunk: 3.1.0(redux@5.0.1)
+      reselect: 5.1.0
+    optionalDependencies:
+      react: 18.2.0
+      react-redux: 9.1.2(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1)
+
   '@repeaterjs/repeater@3.0.5': {}
 
   '@rollup/plugin-babel@5.3.1(@babel/core@7.24.3)(@types/babel__core@7.20.5)(rollup@2.79.1)':
@@ -16954,9 +16965,9 @@ snapshots:
       picomatch: 2.3.1
       rollup: 2.79.1
 
-  '@rtk-query/graphql-request-base-query@2.3.1(@reduxjs/toolkit@2.2.1(react-redux@9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0))(graphql@16.8.1)':
+  '@rtk-query/graphql-request-base-query@2.3.1(@reduxjs/toolkit@2.2.1(react-redux@9.1.2(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0))(graphql@16.8.1)':
     dependencies:
-      '@reduxjs/toolkit': 2.2.1(react-redux@9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0)
+      '@reduxjs/toolkit': 2.2.1(react-redux@9.1.2(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0)
       graphql: 16.8.1
       graphql-request: 6.1.0(graphql@16.8.1)
     transitivePeerDependencies:
@@ -20202,11 +20213,11 @@ snapshots:
       react-redux: 9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1)
       redux: 5.0.1
 
-  connected-next-router@5.0.0(next@14.1.4(@babel/core@7.24.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-redux@9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0)(redux@5.0.1):
+  connected-next-router@5.0.0(next@14.1.4(@babel/core@7.24.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-redux@9.1.2(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0)(redux@5.0.1):
     dependencies:
       next: 14.1.4(@babel/core@7.24.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react: 18.2.0
-      react-redux: 9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1)
+      react-redux: 9.1.2(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1)
       redux: 5.0.1
 
   consola@2.15.3: {}
@@ -24771,12 +24782,6 @@ snapshots:
       react: 18.2.0
       react-redux: 9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1)
 
-  next-redux-wrapper@8.1.0(next@14.1.4(@babel/core@7.24.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-redux@9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0):
-    dependencies:
-      next: 14.1.4(@babel/core@7.24.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      react: 18.2.0
-      react-redux: 9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1)
-
   next-seo@6.5.0(next@14.1.4(@babel/core@7.24.3)(babel-plugin-macros@3.1.0)(react-dom@17.0.2(react@17.0.2))(react@17.0.2))(react-dom@17.0.2(react@17.0.2))(react@17.0.2):
     dependencies:
       next: 14.1.4(@babel/core@7.24.3)(babel-plugin-macros@3.1.0)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
@@ -26572,6 +26577,15 @@ snapshots:
       redux: 5.0.1
 
   react-redux@9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1):
+    dependencies:
+      '@types/use-sync-external-store': 0.0.3
+      react: 18.2.0
+      use-sync-external-store: 1.2.0(react@18.2.0)
+    optionalDependencies:
+      '@types/react': 18.2.67
+      redux: 5.0.1
+
+  react-redux@9.1.2(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1):
     dependencies:
       '@types/use-sync-external-store': 0.0.3
       react: 18.2.0
