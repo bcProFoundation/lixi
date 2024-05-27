@@ -1,5 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional } from 'class-validator';
+import { COIN } from '../../../constants';
 @InputType()
 export class CreateCommentInput {
   @Field(() => String)
@@ -27,4 +28,7 @@ export class CreateCommentInput {
   @IsOptional()
   @Field(() => String, { nullable: true })
   uploadId?: Nullable<string>;
+
+  @Field(() => COIN, { nullable: true })
+  coinGive?: Nullable<COIN>;
 }

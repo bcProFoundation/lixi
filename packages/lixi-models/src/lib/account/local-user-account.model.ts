@@ -7,7 +7,8 @@ export class LocalUserAccount {
   balance?: number;
   createdAt: Date;
   updatedAt: Date;
-  coin?: COIN;
+  rootCoin?: COIN;
+  currentCoin?: COIN;
 }
 
 export class RenameLocalUserAccountCommand {

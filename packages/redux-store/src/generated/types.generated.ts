@@ -24,11 +24,11 @@ export type Account = {
   address: Scalars['String']['output'];
   avatar?: Maybe<Scalars['String']['output']>;
   balance: Scalars['Int']['output'];
-  coin?: Maybe<Coin>;
   cover?: Maybe<Scalars['String']['output']>;
   createCommentFee?: Maybe<Scalars['String']['output']>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime']['output'];
+  currentCoin?: Maybe<Coin>;
   dayOfBirth?: Maybe<Scalars['Int']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   encryptedMnemonic?: Maybe<Scalars['String']['output']>;
@@ -49,6 +49,7 @@ export type Account = {
   publicKey?: Maybe<Scalars['String']['output']>;
   rankNumber?: Maybe<Scalars['Int']['output']>;
   rankScore?: Maybe<Scalars['Int']['output']>;
+  rootCoin?: Maybe<Coin>;
   secondaryLanguage?: Maybe<Scalars['String']['output']>;
   secret?: Maybe<Scalars['String']['output']>;
   totalDanaViewScore?: Maybe<Scalars['Int']['output']>;
@@ -315,6 +316,7 @@ export type CreateBookmarkInput = {
 };
 
 export type CreateCommentInput = {
+  coinGive?: InputMaybe<Coin>;
   commentByPublicKey?: InputMaybe<Scalars['String']['input']>;
   commentText: Scalars['String']['input'];
   commentableId: Scalars['String']['input'];

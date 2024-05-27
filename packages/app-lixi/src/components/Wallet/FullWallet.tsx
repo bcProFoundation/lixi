@@ -176,7 +176,7 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
 
   const selectedAccount = useSliceSelector(getSelectedAccount);
   const currentLocale = useSliceSelector(getCurrentLocale);
-  const currentCoin = selectedAccount?.coin ?? COIN.XPI;
+  const currentCoin = selectedAccount?.currentCoin ?? COIN.XPI;
   const allTokens = useSliceSelector(selectTokens);
 
   const walletHasUpdated = useSliceSelector(getWalletHasUpdated);

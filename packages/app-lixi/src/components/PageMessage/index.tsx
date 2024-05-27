@@ -31,7 +31,7 @@ import { useInfiniteMessageByPageMessageSessionId } from '@store/message/useInfi
 import { useInfinitePageMessageSessionByAccountId } from '@store/message/useInfinitePageMessageSessionByAccountId';
 import { setPageMessageSession } from '@store/page/action';
 import { getCurrentPageMessageSession } from '@store/page/selectors';
-import { sendXPIFailure, sendXPISuccess } from '@store/send/actions';
+import { sendCoinFailure, sendCoinSuccess } from '@store/send/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { fromSmallestDenomination, getUtxoWif } from '@utils/cashMethods';
 import { Avatar, Button, Input, Popover, Skeleton, Spin } from 'antd';
@@ -806,10 +806,10 @@ const PageMessage = () => {
           };
 
           await createMessageTrigger({ input }).unwrap();
-          dispatch(sendXPISuccess(parseFloat(amount).toFixed(2)));
+          dispatch(sendCoinSuccess(parseFloat(amount).toFixed(2)));
           resetField('message');
         } else {
-          dispatch(sendXPIFailure(intl.get('send.notEnoughtFund')));
+          dispatch(sendCoinFailure(intl.get('send.notEnoughtFund')));
         }
       } else {
         const input: CreateMessageInput = {
@@ -876,7 +876,7 @@ const PageMessage = () => {
       const message = e.message || e.error || JSON.stringify(e);
       setIsSendingXPI(false);
 
-      dispatch(sendXPIFailure(message));
+      dispatch(sendCoinFailure(message));
     }
   };
 

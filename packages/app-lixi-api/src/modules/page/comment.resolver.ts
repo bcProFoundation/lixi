@@ -8,7 +8,8 @@ import {
   PaginationArgs,
   UploadDetail,
   ImageUploadable as ImageUploadableModel,
-  IImageUploadableTo
+  IImageUploadableTo,
+  COIN
 } from '@bcpros/lixi-models';
 import {
   CommentType,
@@ -47,7 +48,8 @@ export class CommentResolver {
   constructor(
     private prisma: PrismaService,
     @I18n() private i18n: I18nService,
-    @InjectChronikClient('xpi') private chronik: ChronikClient,
+    @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
+    @InjectChronikClient('xec') private chronikXEC: ChronikClient,
     @Inject(XPIJS) private XPI: BCHJS,
     private readonly commentLoader: CommentLoader,
     private readonly commentableLoader: CommentableLoader,
@@ -141,12 +143,17 @@ export class CommentResolver {
         throw new Error(couldNotFindAccount);
       }
 
-      const { commentText, commentableId, tipHex, createFeeHex, uploadId } = data;
+      const { commentText, commentableId, tipHex, createFeeHex, uploadId, coinGive } = data;
       let imageUploadable: ImageUploadable | null = null;
 
-      const arrayStringComment = commentText.toLowerCase().split(' ');
-      const indexOfGiveString = arrayStringComment.findIndex(item => item === '/give');
-      const tipValue = parseFloat(arrayStringComment[indexOfGiveString + 1]);
+      const arrayStringComment = commentText.toUpperCase().split(' ');
+      const indexOfGiveString = arrayStringComment.findIndex(
+        item => item.startsWith('/') && Object.values(COIN).includes(item.substring(1, item.length) as COIN)
+      );
+      const tipValue =
+        indexOfGiveString !== -1 && indexOfGiveString !== arrayStringComment.length - 1
+          ? parseFloat(arrayStringComment[indexOfGiveString + 1])
+          : 0;
 
       //find existing imageUploadable
       if (uploadId) {
@@ -190,75 +197,81 @@ export class CommentResolver {
 
       const createFee = post?.account?.createCommentFee ? parseFloat(post?.account?.createCommentFee) : 0;
 
-      const savedComment = await this.prisma.$transaction(async prisma => {
-        let txid: string = '';
-        if (createFeeHex) {
-          const broadcastResponse = await this.chronik.broadcastTx(createFeeHex);
-          if (!broadcastResponse) {
-            throw new Error('Empty chronik broadcast response');
+      const savedComment = await this.prisma.$transaction(
+        async prisma => {
+          let txid: string = '';
+          let broadcastResponse;
+          if (createFeeHex || tipHex) {
+            switch (coinGive) {
+              case COIN.XPI:
+                broadcastResponse = await this.chronikXPI.broadcastTx(createFeeHex ?? tipHex ?? '');
+                break;
+              case COIN.XEC:
+                broadcastResponse = await this.chronikXEC.broadcastTx(createFeeHex ?? tipHex ?? '');
+                break;
+              default:
+                broadcastResponse = await this.chronikXPI.broadcastTx(createFeeHex ?? tipHex ?? '');
+                break;
+            }
+            if (!broadcastResponse) {
+              throw new Error('Empty chronik broadcast response');
+            }
+
+            txid = broadcastResponse.txid;
           }
-          txid = broadcastResponse.txid;
-        }
 
-        if (tipHex) {
-          const broadcastResponse = await this.chronik.broadcastTx(tipHex);
-          if (!broadcastResponse) {
-            throw new Error('Empty chronik broadcast response');
-          }
-
-          txid = broadcastResponse.txid;
-        }
-
-        const createdComment = await prisma.comment.create({
-          data: {
-            commentText: commentText,
-            commentAccount: { connect: { id: account.id } },
-            commentable: { connect: { id: commentableId || undefined } },
-            txid: txid,
-            createFee: tipHex ? 0 : createFee,
-            commentDana: {
-              create: {}
-            },
-            imageUploadable: {
-              connect: imageUploadable ? { id: imageUploadable.id } : undefined
-            },
-            commentToId: ''
-          }
-        });
-
-        if (imageUploadable) {
-          await prisma.imageUploadable.update({
-            where: {
-              id: imageUploadable?.id
-            },
+          const createdComment = await prisma.comment.create({
             data: {
-              type: ImageUploadableType.COMMENT
+              commentText: commentText,
+              commentAccount: { connect: { id: account.id } },
+              commentable: { connect: { id: commentableId || undefined } },
+              txid: txid,
+              createFee: tipHex ? 0 : createFee,
+              commentDana: {
+                create: {}
+              },
+              imageUploadable: {
+                connect: imageUploadable ? { id: imageUploadable.id } : undefined
+              },
+              commentToId: ''
             }
           });
-        }
 
-        //Check if tipHex then create tip transaction
-        if (tipHex && post) {
-          const transactionTip = {
-            txid,
-            fromAddress: account.address,
-            fromAccountId: account.id,
-            toAddress: post?.account.address as string,
-            toAccountId: post?.account.id as number,
-            tipValue: tipValue,
-            commentId: createdComment.id
-          };
-          await prisma.giveTip.create({ data: transactionTip });
-        }
+          if (imageUploadable) {
+            await prisma.imageUploadable.update({
+              where: {
+                id: imageUploadable?.id
+              },
+              data: {
+                type: ImageUploadableType.COMMENT
+              }
+            });
+          }
 
-        // Clear the cache from relevant loaders
-        await this.commentableLoader.batchTotalComments.clear({
-          id: post?.id ?? '',
-          commentableId
-        });
+          //Check if tipHex then create tip transaction
+          if (tipHex && post) {
+            const transactionTip = {
+              txid,
+              fromAddress: account.address,
+              fromAccountId: account.id,
+              toAddress: post?.account.address as string,
+              toAccountId: post?.account.id as number,
+              tipValue: tipValue,
+              commentId: createdComment.id
+            };
+            await prisma.giveTip.create({ data: transactionTip });
+          }
 
-        return createdComment;
-      });
+          // Clear the cache from relevant loaders
+          await this.commentableLoader.batchTotalComments.clear({
+            id: post?.id ?? '',
+            commentableId
+          });
+
+          return createdComment;
+        },
+        { timeout: 10000 }
+      );
 
       if (savedComment && post) {
         const recipient = await this.accountCacheService.getById(_.toSafeInteger(post?.accountId));
@@ -300,6 +313,7 @@ export class CommentResolver {
 
       return new Comment({ ...savedComment });
     } catch (err) {
+      console.log('err: ', err);
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
       }
@@ -315,11 +329,17 @@ export class CommentResolver {
         throw new Error(couldNotFindAccount);
       }
 
-      const { commentText, commentableId, tipHex, createFeeHex, uploadId, replyToCommentId } = data;
+      const { commentText, commentableId, tipHex, createFeeHex, uploadId, replyToCommentId, coinGive } = data;
       let imageUploadable: ImageUploadable | null = null;
-      const arrayStringComment = commentText.toLowerCase().split(' ');
-      const indexOfGiveString = arrayStringComment.findIndex(item => item === '/give');
-      const tipValue = parseFloat(arrayStringComment[indexOfGiveString + 1]);
+
+      const arrayStringComment = commentText.toUpperCase().split(' ');
+      const indexOfGiveString = arrayStringComment.findIndex(
+        item => item.startsWith('/') && Object.values(COIN).includes(item.substring(1, item.length) as COIN)
+      );
+      const tipValue =
+        indexOfGiveString !== -1 && indexOfGiveString !== arrayStringComment.length - 1
+          ? parseFloat(arrayStringComment[indexOfGiveString + 1])
+          : 0;
 
       //find existing imageUploadable
       if (uploadId) {
@@ -369,77 +389,83 @@ export class CommentResolver {
 
       const createFee = post?.account?.createCommentFee ? parseFloat(post?.account?.createCommentFee) : 0;
 
-      const savedComment = await this.prisma.$transaction(async prisma => {
-        let txid: string = '';
-        if (createFeeHex) {
-          const broadcastResponse = await this.chronik.broadcastTx(createFeeHex);
-          if (!broadcastResponse) {
-            throw new Error('Empty chronik broadcast response');
+      const savedComment = await this.prisma.$transaction(
+        async prisma => {
+          let txid: string = '';
+          let broadcastResponse;
+          if (createFeeHex || tipHex) {
+            switch (coinGive) {
+              case COIN.XPI:
+                broadcastResponse = await this.chronikXPI.broadcastTx(createFeeHex ?? tipHex ?? '');
+                break;
+              case COIN.XEC:
+                broadcastResponse = await this.chronikXEC.broadcastTx(createFeeHex ?? tipHex ?? '');
+                break;
+              default:
+                broadcastResponse = await this.chronikXPI.broadcastTx(createFeeHex ?? tipHex ?? '');
+                break;
+            }
+            if (!broadcastResponse) {
+              throw new Error('Empty chronik broadcast response');
+            }
+
+            txid = broadcastResponse.txid;
           }
-          txid = broadcastResponse.txid;
-        }
 
-        if (tipHex) {
-          const broadcastResponse = await this.chronik.broadcastTx(tipHex);
-          if (!broadcastResponse) {
-            throw new Error('Empty chronik broadcast response');
-          }
-
-          txid = broadcastResponse.txid;
-        }
-
-        const createdComment = await prisma.comment.create({
-          data: {
-            commentText: commentText,
-            commentAccount: { connect: { id: account.id } },
-            commentable: { connect: { id: commentableId || undefined } },
-            txid: txid,
-            createFee: tipHex ? 0 : createFee,
-            commentDana: {
-              create: {}
-            },
-            imageUploadable: {
-              connect: imageUploadable ? { id: imageUploadable.id } : undefined
-            },
-            commentToId: '',
-            parent: { connect: { id: replyToCommentId ?? '' } },
-            rootId: replyComment.rootId ? replyComment.rootId : replyComment.id
-          }
-        });
-
-        if (imageUploadable) {
-          await prisma.imageUploadable.update({
-            where: {
-              id: imageUploadable?.id
-            },
+          const createdComment = await prisma.comment.create({
             data: {
-              type: ImageUploadableType.COMMENT
+              commentText: commentText,
+              commentAccount: { connect: { id: account.id } },
+              commentable: { connect: { id: commentableId || undefined } },
+              txid: txid,
+              createFee: tipHex ? 0 : createFee,
+              commentDana: {
+                create: {}
+              },
+              imageUploadable: {
+                connect: imageUploadable ? { id: imageUploadable.id } : undefined
+              },
+              commentToId: '',
+              parent: { connect: { id: replyToCommentId ?? '' } },
+              rootId: replyComment.rootId ? replyComment.rootId : replyComment.id
             }
           });
-        }
 
-        //Check if tipHex then create tip transaction
-        if (tipHex && post) {
-          const transactionTip = {
-            txid,
-            fromAddress: account.address,
-            fromAccountId: account.id,
-            toAddress: replyComment?.commentAccount?.address as string,
-            toAccountId: replyComment?.commentAccountId as number,
-            tipValue: tipValue,
-            commentId: createdComment.id
-          };
-          await prisma.giveTip.create({ data: transactionTip });
-        }
+          if (imageUploadable) {
+            await prisma.imageUploadable.update({
+              where: {
+                id: imageUploadable?.id
+              },
+              data: {
+                type: ImageUploadableType.COMMENT
+              }
+            });
+          }
 
-        // Clear the cache from relevant loaders
-        await this.commentableLoader.batchTotalComments.clear({
-          id: post?.id ?? '',
-          commentableId
-        });
+          //Check if tipHex then create tip transaction
+          if (tipHex && post) {
+            const transactionTip = {
+              txid,
+              fromAddress: account.address,
+              fromAccountId: account.id,
+              toAddress: replyComment?.commentAccount?.address as string,
+              toAccountId: replyComment?.commentAccountId as number,
+              tipValue: tipValue,
+              commentId: createdComment.id
+            };
+            await prisma.giveTip.create({ data: transactionTip });
+          }
 
-        return createdComment;
-      });
+          // Clear the cache from relevant loaders
+          await this.commentableLoader.batchTotalComments.clear({
+            id: post?.id ?? '',
+            commentableId
+          });
+
+          return createdComment;
+        },
+        { timeout: 10000 }
+      );
 
       if (savedComment && post) {
         //notification to reply-comment-account

@@ -101,6 +101,9 @@ importers:
       cookies-next:
         specifier: ^4.1.1
         version: 4.1.1
+      ecash-lib:
+        specifier: 0.1.0-rc3
+        version: 0.1.0-rc3
       emoji-picker-react:
         specifier: ^4.4.7
         version: 4.9.2(react@18.2.0)
@@ -525,6 +528,9 @@ importers:
       dataloader:
         specifier: ^2.2.2
         version: 2.2.2
+      ecash-lib:
+        specifier: 0.1.0-rc3
+        version: 0.1.0-rc3
       ecashaddrjs:
         specifier: ^1.5.6
         version: 1.5.6
@@ -1298,6 +1304,9 @@ importers:
       connected-next-router:
         specifier: ^5.0.0
         version: 5.0.0(next@14.1.4(@babel/core@7.24.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-redux@9.1.0(@types/react@18.2.67)(react@18.2.0)(redux@5.0.1))(react@18.2.0)(redux@5.0.1)
+      ecash-lib:
+        specifier: 0.1.0-rc3
+        version: 0.1.0-rc3
       ecashaddrjs:
         specifier: ^1.5.6
         version: 1.5.6
@@ -6935,6 +6944,9 @@ packages:
 
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
+
+  ecash-lib@0.1.0-rc3:
+    resolution: {integrity: sha512-YAZbWRCSHsvpPDoJZ0jjmMFTpDsTalvApEbVNgtpvlDql3b+kDFnIPAnH4Lbj0tjhcICgoWtYvYmO7rD9yeo0Q==}
 
   ecashaddrjs@1.5.6:
     resolution: {integrity: sha512-U3vF3pMkMTlgfwYEzWV2+MIItlTqHbOebRmV553DuKPjj6IFNWhqcOnAk8eyPGUJ83xG7VRXS6mv4BGZGMB0Kg==}
@@ -20771,6 +20783,8 @@ snapshots:
       stream-shift: 1.0.3
 
   eastasianwidth@0.2.0: {}
+
+  ecash-lib@0.1.0-rc3: {}
 
   ecashaddrjs@1.5.6:
     dependencies:

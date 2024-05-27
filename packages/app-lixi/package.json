@@ -96,7 +96,8 @@
     "ts-pattern": "^4.3.0",
     "ua-parser-js": "^1.0.33",
     "universal-cookie": "^7.1.4",
-    "wif": "^4.0.0"
+    "wif": "^4.0.0",
+    "ecash-lib": "0.1.0-rc3"
   },
   "devDependencies": {
     "@babel/core": "^7.24.3",

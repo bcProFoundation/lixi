@@ -442,11 +442,41 @@ export const isValidStoredWallet = walletStateFromStorage => {
   );
 };
 
-export const getUtxoWif = (utxo: Utxo & { address: string }, walltPaths: Array<WalletPathAddressInfo>) => {
-  if (!walltPaths) {
+export const getWalletStateMethod = wallet => {
+  if (!wallet) {
+    return {
+      balance: 0,
+      parsedTxHistory: [],
+      utxos: []
+    };
+  }
+
+  return {
+    ...wallet,
+    balance: fromSmallestDenomination(wallet?.balance || 0)
+  };
+};
+
+export const getUtxoWif = (
+  utxo: Utxo & { address: string },
+  walletPaths: Array<WalletPathAddressInfo>,
+  selectedCoin = COIN.XPI
+) => {
+  if (!walletPaths) {
     throw new Error('Invalid wallet parameter');
   }
-  const wif = walltPaths.filter(acc => acc.xAddress === utxo.address).pop().fundingWif;
+  let wif = '';
+  switch (selectedCoin) {
+    case COIN.XEC:
+      wif = walletPaths.filter(acc => acc.cashAddress === utxo.address).pop().fundingWif;
+      break;
+    case COIN.XPI:
+      wif = walletPaths.filter(acc => acc.xAddress === utxo.address).pop().fundingWif;
+      break;
+    default:
+      wif = walletPaths.filter(acc => acc.xAddress === utxo.address).pop().fundingWif;
+      break;
+  }
   return wif;
 };
 

@@ -6,7 +6,7 @@ export interface CreateAccountCommand {
   encryptedMnemonic: string;
   mnemonicHash: string;
   language?: string;
-  coin?: COIN;
+  rootCoin?: COIN;
 }
 
 export interface ImportAccountCommand {

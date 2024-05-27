@@ -7,12 +7,12 @@ type Account {
   address: String!
   avatar: String
   balance: Int!
-  coin: Coin
   cover: String
   createCommentFee: String
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
+  currentCoin: Coin
   dayOfBirth: Int
   description: String
   encryptedMnemonic: String
@@ -33,6 +33,7 @@ type Account {
   publicKey: String
   rankNumber: Int
   rankScore: Int
+  rootCoin: Coin
   secondaryLanguage: String
   secret: String
   totalDanaViewScore: Int
@@ -287,6 +288,7 @@ input CreateBookmarkInput {
 }
 
 input CreateCommentInput {
+  coinGive: Coin
   commentByPublicKey: String
   commentText: String!
   commentableId: String!

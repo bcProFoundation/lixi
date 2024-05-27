@@ -600,4 +600,9 @@ export class AccountResolver {
 
     return this.totalDanaViewScoreLoader.batchTotalDanaViewScore.load(followOfType);
   }
+
+  @ResolveField('hash160', () => String)
+  async hash160(@Parent() account: Account) {
+    return this.accountLoader.batchAccountHash160s.load(account.id);
+  }
 }

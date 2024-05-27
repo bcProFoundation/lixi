@@ -479,7 +479,7 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
 
       <p className="fee-burn">
         {intl.get('burn.sendDana', {
-          cost: coinInfo[selectedAccount?.coin ?? COIN.XPI].burnFee * selectedAmount + selectedAmount,
+          cost: coinInfo[selectedAccount?.currentCoin ?? COIN.XPI].burnFee * selectedAmount + selectedAmount,
           coin: 'XPI'
         })}
       </p>

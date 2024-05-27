@@ -62,7 +62,7 @@ const useWallet = () => {
 
     let accountCoin: string;
 
-    switch (selectedAccount.coin) {
+    switch (selectedAccount?.currentCoin) {
       case COIN.XPI:
         accountCoin = 'xpi';
         break;
@@ -155,7 +155,7 @@ const useWallet = () => {
       const derivedWalletPathsPromises: Array<Promise<WalletPathAddressInfo[]>> = _.map(
         accountsNotInWallets,
         account => {
-          switch (account.coin) {
+          switch (account?.currentCoin) {
             case 'XPI':
               return getWalletPathDetails(account.mnemonic, ["m/44'/10605'/0'/0/0"]);
             case 'XEC':
@@ -341,27 +341,7 @@ const useWallet = () => {
         return;
       }
 
-      let currentCoinAddress = undefined;
-      switch (selectedAccount?.coin) {
-        case COIN.XPI:
-          currentCoinAddress = selectedWalletPath?.xAddress;
-          break;
-        case COIN.XEC:
-          currentCoinAddress = selectedWalletPath?.cashAddress;
-          break;
-        default:
-          currentCoinAddress = selectedWalletPath?.xAddress;
-          break;
-      }
-
-      const hash160AndAddressObjArray: Hash160AndAddress[] = [selectedWalletPath].map(item => {
-        return {
-          address: currentCoinAddress ?? item.xAddress,
-          hash160: item.hash160
-        };
-      });
-
-      const chronikUtxos = await getUtxosChronik(chronik, hash160AndAddressObjArray);
+      const { chronikUtxos, nonSlpUtxos } = await getUtxosByCoin(selectedAccount?.currentCoin ?? COIN.XPI);
 
       // Need to call wToUpdateith wallet as a parameter rather than trusting it is in state, otherwise can sometimes get wallet=false from haveUtxosChanged
       const utxosHaveChanged = haveUtxosChanged(chronikUtxos, walletUtxos);
@@ -376,11 +356,10 @@ const useWallet = () => {
         return;
       }
 
-      const { nonSlpUtxos } = organizeUtxosByType(chronikUtxos);
-      const { chronikTxHistory } = await getTxHistoryChronik(chronik, XPI, wallet, 0, selectedAccount?.coin);
+      const { chronikTxHistory } = await getTxHistoryChronik(chronik, XPI, wallet, 0, selectedAccount?.currentCoin);
 
       const newWalletStatus: WalletStatus = {
-        balances: getWalletBalanceFromUtxos(nonSlpUtxos, selectedAccount?.coin),
+        balances: getWalletBalanceFromUtxos(nonSlpUtxos, selectedAccount?.currentCoin),
         slpBalancesAndUtxos: {
           nonSlpUtxos
         },
@@ -402,6 +381,38 @@ const useWallet = () => {
       // Try another endpoint
       console.log(`Trying next API...`);
     }
+  };
+
+  const getUtxosByCoin = async (coin: COIN) => {
+    const chronikByCoin: ChronikClient = new ChronikClient(`https://chronik.be.cash/${coin.toLowerCase()}`);
+
+    let currentCoinAddress = undefined;
+    switch (coin) {
+      case COIN.XPI:
+        currentCoinAddress = selectedWalletPath?.xAddress;
+        break;
+      case COIN.XEC:
+        currentCoinAddress = selectedWalletPath?.cashAddress;
+        break;
+      default:
+        currentCoinAddress = selectedWalletPath?.xAddress;
+        break;
+    }
+
+    const hash160AndAddressObjArray: Hash160AndAddress[] = [selectedWalletPath].map(item => {
+      return {
+        address: currentCoinAddress ?? item.xAddress,
+        hash160: item.hash160
+      };
+    });
+    const chronikUtxos = await getUtxosChronik(
+      selectedAccount?.currentCoin == coin ? chronik : chronikByCoin,
+      hash160AndAddressObjArray
+    );
+
+    const { nonSlpUtxos } = organizeUtxosByType(chronikUtxos);
+
+    return { chronikUtxos, nonSlpUtxos };
   };
 
   // Update wallet according to defined interval
@@ -435,7 +446,8 @@ const useWallet = () => {
     chronik,
     deriveAccount,
     getWalletPathDetails,
-    validateMnemonic
+    validateMnemonic,
+    getUtxosByCoin
   } as WalletContextValue;
 };
 

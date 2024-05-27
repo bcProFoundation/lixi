@@ -311,7 +311,7 @@ export class AccountController {
     if (command) {
       try {
         let walletService;
-        switch (command.coin) {
+        switch (command.rootCoin) {
           case COIN.XPI:
             walletService = this.walletServices['xpi'] as XpiWalletService;
             break;

@@ -6,7 +6,7 @@ export const infoXec: CoinInfo = {
   logo: '/images/currencies/xec.svg',
   legacyPrefix: 'bitcoincash',
   coingeckoId: 'ecash',
-  defaultFee: 2.01,
+  defaultFee: 1.01,
   dustSats: 550,
   etokenSats: 546,
   cashDecimals: 2,

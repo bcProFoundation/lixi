@@ -14,7 +14,7 @@ import useXPI from '@hooks/useXPI';
 import { getSelectedAccount } from '@store/account/selectors';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { sendXpiNotification } from '@store/notification/actions';
-import { sendXPIFailure } from '@store/send/actions';
+import { sendCoinFailure } from '@store/send/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletBalances } from '@store/wallet';
 import { parseAddress } from '@utils/addressMethods';
 import { getDustXPI, getUtxoWif } from '@utils/cashMethods';
@@ -160,7 +160,7 @@ const SendComponent: React.FC = () => {
       } else {
         message = e.message || e.error || JSON.stringify(e);
       }
-      dispatch(sendXPIFailure(message));
+      dispatch(sendCoinFailure(message));
     }
   }
 

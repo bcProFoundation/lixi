@@ -206,9 +206,9 @@ const WalletInfoComponent: React.FC = () => {
               <BalanceHeader
                 balance={fromSmallestDenomination(
                   walletStatus.balances.totalBalanceInSatoshis ?? 0,
-                  selectedAccount?.coin ?? COIN.XPI
+                  selectedAccount?.currentCoin ?? COIN.XPI
                 )}
-                ticker={coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker}
+                ticker={coinInfo[selectedAccount?.currentCoin ?? COIN.XPI].ticker}
               />
             ) : (
               <React.Fragment>

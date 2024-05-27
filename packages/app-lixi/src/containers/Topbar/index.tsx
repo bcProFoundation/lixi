@@ -479,7 +479,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
   const [address, setAddress] = useState('');
 
   useEffect(() => {
-    switch (selectedAccount?.coin) {
+    switch (selectedAccount?.currentCoin) {
       case COIN.XPI:
         setAddress(selectedAccount?.address);
         break;
@@ -567,7 +567,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
   const balanceAccount = (acc?: any) => {
     const balanceString = fromSmallestDenomination(
       walletStatus.balances.totalBalanceInSatoshis ?? 0,
-      selectedAccount?.coin ?? COIN.XPI
+      selectedAccount?.currentCoin ?? COIN.XPI
     );
     return `${balanceString.toFixed(2)}`;
   };
@@ -635,7 +635,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
                     {
                       [COIN.XPI]: <span>{formatAddress(selectedAccount?.address)}</span>,
                       [COIN.XEC]: <span>{formatAddress(parseEcashAddress(walletPath?.cashAddress))}</span>
-                    }[selectedAccount?.coin ?? COIN.XPI]
+                    }[selectedAccount?.currentCoin ?? COIN.XPI]
                   }
                   <span>
                     <CopyOutlined />
@@ -647,11 +647,11 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
             <div className="profile-feature">
               {walletHasUpdated ? (
                 <span>
-                  {balanceAccount(selectedAccount)} {selectedAccount.coin ? selectedAccount.coin : COIN.XPI}
+                  {balanceAccount(selectedAccount)} {selectedAccount?.currentCoin ?? COIN.XPI}
                 </span>
               ) : (
                 <div>
-                  <SyncOutlined spin /> {selectedAccount.coin ? selectedAccount.coin : COIN.XPI}
+                  <SyncOutlined spin /> {selectedAccount?.currentCoin ?? COIN.XPI}
                 </div>
               )}
 
@@ -675,7 +675,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
                     <AvatarUser name={acc?.name || null} icon={acc?.avatar} isMarginRight={false} />
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <span className="name">{acc?.name}</span>
-                      <p className="name">{acc?.coin ?? COIN.XPI}</p>
+                      <p className="name">{acc?.currentCoin ?? COIN.XPI}</p>
                     </div>
                   </div>
                   <Button
@@ -978,7 +978,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
                   />
                   <img
                     className="coin-logo"
-                    src={`/images/currencies/${selectedAccount?.coin ? selectedAccount.coin.toLowerCase() : 'xpi'}.svg`}
+                    src={`/images/currencies/${selectedAccount?.currentCoin ? selectedAccount.currentCoin.toLowerCase() : 'xpi'}.svg`}
                   />
                 </div>
                 <p className="account-info">
@@ -986,11 +986,11 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
                   {walletHasUpdated ? (
                     <span className="account-balance">
                       {balanceAccount(selectedAccount)}{' '}
-                      <span className="unit">{selectedAccount?.coin ?? COIN.XPI}</span>
+                      <span className="unit">{selectedAccount?.currentCoin ?? COIN.XPI}</span>
                     </span>
                   ) : (
                     <span>
-                      <SyncOutlined spin /> <span className="unit">{selectedAccount?.coin ?? COIN.XPI}</span>
+                      <SyncOutlined spin /> <span className="unit">{selectedAccount?.currentCoin ?? COIN.XPI}</span>
                     </span>
                   )}
                 </p>
