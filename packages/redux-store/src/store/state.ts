@@ -1,4 +1,3 @@
-import { RouterState } from 'connected-next-router';
 import { WalletState } from './wallet';
 import { AccountsState } from './account';
 import { LocalUserAccountsState } from './localAccount';
@@ -25,7 +24,6 @@ import { ActionState } from './action';
 import { PersistState } from 'redux-persist';
 
 export type LixiStoreStateInterface = {
-  router: RouterState;
   wallet: WalletState;
   accounts: AccountsState;
   localAccounts: LocalUserAccountsState;

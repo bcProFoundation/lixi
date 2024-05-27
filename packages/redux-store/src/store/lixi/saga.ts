@@ -25,7 +25,6 @@ import { removeUploadFromCache } from '@store/account/actions';
 import { getAccountById } from '@store/account/selectors';
 import { api as pageMessageApi } from '@store/message/pageMessageSession.api';
 import { generateRandomBase58Str } from '@utils/encryptionMethods';
-import { push } from 'connected-next-router';
 import { saveAs } from 'file-saver';
 import * as _ from 'lodash';
 import moment from 'moment';
@@ -397,7 +396,7 @@ function* refreshLixiSilentSaga(action: PayloadAction<number>) {
 
 function* setLixiSaga(action: PayloadAction<Lixi>) {
   const lixi: any = action.payload;
-  yield put(push(`/lixi/${lixi.id}`));
+  // yield put(push(`/lixi/${lixi.id}`));
   yield put(refreshLixiSilent(lixi.id));
 }
 
@@ -422,7 +421,6 @@ function* selectLixiSuccessSaga(action: PayloadAction<any>) {
   const { lixi } = action.payload;
   yield put(refreshLixiSilent(lixi.id));
   yield put(hideLoading(selectLixi.type));
-  // yield put(push(`/lixi/${lixi.id}`)); Dont need to push here
 }
 
 function* selectLixiFailureSaga(action: PayloadAction<string>) {

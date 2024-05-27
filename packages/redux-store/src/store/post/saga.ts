@@ -174,8 +174,6 @@ function* editPostFailureSaga(action: PayloadAction<string>) {
 
 function* setPostSaga(action: PayloadAction<any>) {
   const post: any = action.payload;
-  // yield put(push('/post/lixi'));
-  // yield put(refreshLixiSilent(lixi.id));
 }
 
 function* getPostsByAccountIdSaga(action: PayloadAction<number>) {
