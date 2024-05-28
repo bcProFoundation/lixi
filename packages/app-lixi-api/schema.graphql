@@ -330,6 +330,7 @@ input CreateFollowTokenInput {
 input CreateMessageInput {
   authorId: Int!
   body: String
+  coinGive: Coin
   isPageOwner: Boolean
   pageMessageSessionId: String
   tipHex: String

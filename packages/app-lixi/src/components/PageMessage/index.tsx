@@ -8,6 +8,7 @@ import { URL_AVATAR_DEFAULT } from '@components/Profile/ProfileDetail';
 import { SpaceShorcutItem, transformCreatedAt } from '@containers/Sidebar/SideBarShortcut';
 import { WalletContext } from '@context/walletProvider';
 import {
+  Coin,
   CreateMessageInput,
   MessageOrderField,
   OpenPageMessageSessionInput,
@@ -15,6 +16,7 @@ import {
   PageMessageSessionStatus
 } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
+import useXEC from '@hooks/useXEC';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import { getMessageUploads, getSelectedAccount, removeAllMessageUpload, removeUpload } from '@store/account';
 import { postClaim } from '@store/claim/actions';
@@ -33,11 +35,11 @@ import { setPageMessageSession } from '@store/page/action';
 import { getCurrentPageMessageSession } from '@store/page/selectors';
 import { sendCoinFailure, sendCoinSuccess } from '@store/send/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
-import { fromSmallestDenomination, getUtxoWif } from '@utils/cashMethods';
+import { fromSmallestDenomination, getUtxoWif, validateCoinAmount } from '@utils/cashMethods';
 import { Avatar, Button, Input, Popover, Skeleton, Spin } from 'antd';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
@@ -46,6 +48,7 @@ import { ReactSVG } from 'react-svg';
 import { useSwipeable } from 'react-swipeable';
 import styled from 'styled-components';
 import Message from './Message';
+import { Utxo } from 'chronik-client';
 
 type PageMessageSessionItem = PageMessageSessionQuery['pageMessageSession'];
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
@@ -632,7 +635,7 @@ const PageMessage = () => {
   const { control, getValues, resetField, setFocus } = useForm();
   const [open, setOpen] = useState(false);
   const Wallet = React.useContext(WalletContext);
-  const { XPI, chronik } = Wallet;
+  const { XPI, chronik, getUtxosByCoin } = Wallet;
   const isMobile = useDetectMobileView();
   const router = useRouter();
   const [isSendingXPI, setIsSendingXPI] = useState<boolean>(false);
@@ -640,6 +643,7 @@ const PageMessage = () => {
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
   const walletPaths = useSliceSelector(getAllWalletPaths);
   const { sendXpi } = useXPI();
+  const { sendXec } = useXEC();
   const walletStatus = useSliceSelector(getWalletStatus);
   const txFee = Math.ceil(Wallet.XPI.BitcoinCash.getByteCount({ P2PKH: 1 }, { P2PKH: 1 }) * 2.01); //satoshi
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -787,13 +791,24 @@ const PageMessage = () => {
       }
 
       //Check if message is tip
-      if (trimMessage.toLowerCase().split(' ')[0] === '/give') {
-        const amount: string = trimMessage.toLowerCase().split(' ')[1];
+      const arrayStringComment = trimMessage.toUpperCase().split(' ');
+      const indexOfGiveString = arrayStringComment.findIndex(
+        item => item.startsWith('/') && Object.values(COIN).includes(item.substring(1, item.length) as COIN)
+      );
+      //find and it't not last element
+      if (indexOfGiveString !== -1 && indexOfGiveString !== arrayStringComment.length - 1) {
         let tipHex = undefined;
+        const amount: string = arrayStringComment[indexOfGiveString + 1];
+        const textGive = arrayStringComment[indexOfGiveString];
+        const coinGive = textGive.substring(1, textGive.length) as COIN;
+
+        const { nonSlpUtxos } = await getUtxosByCoin(coinGive);
+        const utxos = selectedAccount?.currentCoin === coinGive ? slpBalancesAndUtxos.nonSlpUtxos : nonSlpUtxos;
+        const balances = utxos.reduce((accu, currentValue) => accu + parseFloat(currentValue.value), 0);
 
         //check if amount is valid
-        if (validateXPIAmount(amount)) {
-          tipHex = await giveXPI(trimMessage, amount).then(result => {
+        if (validateCoinAmount(amount, balances, coinGive)) {
+          tipHex = await giveXPI(trimMessage, amount, coinGive, utxos).then(result => {
             return result;
           });
           const input: CreateMessageInput = {
@@ -802,11 +817,15 @@ const PageMessage = () => {
             pageMessageSessionId: currentPageMessageSession?.id,
             isPageOwner: isPageOwner,
             uploadIds: messageUploads.map(upload => upload.id),
-            tipHex: tipHex
+            tipHex: tipHex,
+            coinGive: coinGive as unknown as Coin
           };
 
-          await createMessageTrigger({ input }).unwrap();
-          dispatch(sendCoinSuccess(parseFloat(amount).toFixed(2)));
+          if (tipHex) {
+            await createMessageTrigger({ input }).unwrap();
+            dispatch(sendCoinSuccess({ amount: parseFloat(amount), coin: coinGive }));
+          }
+          setIsSendingXPI(false);
           resetField('message');
         } else {
           dispatch(sendCoinFailure(intl.get('send.notEnoughtFund')));
@@ -849,27 +868,61 @@ const PageMessage = () => {
   };
 
   //return promise of tipHex and createFeeHex
-  const giveXPI = async (text: string, amount: string): Promise<string> => {
+  const giveXPI = async (
+    text: string,
+    amount: string,
+    coin = COIN.XPI,
+    nonSlpUtxos: (Utxo & { address: string })[]
+  ): Promise<string> => {
     setIsSendingXPI(true);
     try {
-      const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-      const tipHex = await sendXpi(
-        XPI,
-        chronik,
-        walletPaths,
-        slpBalancesAndUtxos.nonSlpUtxos,
-        coinInfo[COIN.XPI].defaultFee,
-        '',
-        false, // indicate send mode is one to one
-        null,
-        isPageOwner
-          ? currentPageMessageSession?.account?.address
-          : currentPageMessageSession?.page?.pageAccount?.address,
-        amount,
-        true,
-        fundingWif,
-        true
-      );
+      let tipHex;
+      const fundingWif = getUtxoWif(nonSlpUtxos[0], walletPaths, coin);
+
+      switch (coin) {
+        case COIN.XPI:
+          const recipientAddress = isPageOwner
+            ? currentPageMessageSession?.account?.address
+            : currentPageMessageSession?.page?.pageAccount?.address;
+          tipHex = await sendXpi(
+            XPI,
+            chronik,
+            walletPaths,
+            nonSlpUtxos,
+            coinInfo[COIN.XPI].defaultFee,
+            '',
+            false, // indicate send mode is one to one
+            null,
+            recipientAddress,
+            amount,
+            true,
+            fundingWif,
+            true
+          ).catch(error => {
+            throw error;
+          });
+          break;
+        case COIN.XEC:
+          const recipientHash = isPageOwner
+            ? currentPageMessageSession?.account?.hash160
+            : currentPageMessageSession?.page?.pageAccount?.hash160;
+          tipHex = await sendXec(
+            chronik,
+            fundingWif,
+            nonSlpUtxos,
+            coinInfo[COIN.XEC].defaultFee,
+            undefined,
+            false, //indicate send mode is one to one
+            null,
+            recipientHash,
+            Number.parseFloat(amount),
+            coinInfo[COIN.XEC].etokenSats,
+            true // return hex
+          ).catch(error => {
+            throw error;
+          });
+          break;
+      }
 
       return tipHex;
     } catch (e) {
@@ -878,25 +931,6 @@ const PageMessage = () => {
 
       dispatch(sendCoinFailure(message));
     }
-  };
-
-  const validateXPIAmount = (value: string): boolean => {
-    if (!value) return false;
-
-    //check if value is number;
-    if (isNaN(parseFloat(value))) return false;
-
-    //check if value is positive number
-    if (parseFloat(value) <= 0) return false;
-
-    //check if balance is smaller than value + txFee
-    if (
-      fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis) <=
-      parseFloat(value) + fromSmallestDenomination(txFee)
-    )
-      return false;
-
-    return true;
   };
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

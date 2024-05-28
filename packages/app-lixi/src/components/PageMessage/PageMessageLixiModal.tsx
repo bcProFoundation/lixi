@@ -1,8 +1,9 @@
+import { COIN, coinInfo } from '@bcpros/lixi-models/constants';
 import { Account } from '@bcpros/lixi-models/lib/account';
 import { GenerateLixiCommand } from '@bcpros/lixi-models/lib/lixi';
 import { WalletContext } from '@context/walletProvider';
 import { PageQueryItem } from '@generated/index';
-import { useSliceDispatch } from '@store/index';
+import { getSelectedAccount, useSliceDispatch, useSliceSelector } from '@store/index';
 import { generateLixi } from '@store/lixi/actions';
 import { closeModal } from '@store/modal/actions';
 import { WalletStatus } from '@store/wallet';
@@ -30,6 +31,9 @@ const StyledModal = styled(Modal)`
 
   .ant-descriptions-row {
     border-bottom: 0 !important;
+    .ant-descriptions-item {
+      padding-bottom: 5px;
+    }
     .ant-descriptions-item-content {
       input {
         border-color: var(--border-color-dark-base);
@@ -42,10 +46,14 @@ const StyledModal = styled(Modal)`
     padding: 0px 24px;
     border-right: none;
   }
+  .error-message-valid-value {
+    color: red;
+  }
 `;
 
 const PageMessageLixiModal = ({ account, page, wallet, classStyle }: PageMessageLixiModalProps) => {
   const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const {
     control,
     getValues,
@@ -116,7 +124,7 @@ const PageMessageLixiModal = ({ account, page, wallet, classStyle }: PageMessage
       closable={false}
       title={<div className="custom-burn-header">Create lixi to chat with {page.name}</div>}
     >
-      <Descriptions bordered column={1}>
+      <Descriptions column={1}>
         <Descriptions.Item>
           <Controller
             name="amount"
@@ -125,10 +133,21 @@ const PageMessageLixiModal = ({ account, page, wallet, classStyle }: PageMessage
               required: true,
               pattern: /^[0-9]*$/,
               validate: {
-                checkEnoughXPI: value => {
+                checkEnoughCoin: value => {
                   return (
-                    fromSmallestDenomination(wallet.balances.totalBalanceInSatoshis) >=
-                      parseFloat(value) + fromSmallestDenomination(txFee) || 'Not enough XPI'
+                    fromSmallestDenomination(
+                      wallet.balances.totalBalanceInSatoshis,
+                      selectedAccount?.currentCoin ?? COIN.XPI
+                    ) >= parseFloat(value) || `Not enough ${selectedAccount?.currentCoin ?? COIN.XPI}`
+                  );
+                },
+                checkGreaterDust: value => {
+                  return (
+                    parseFloat(value) >=
+                      fromSmallestDenomination(
+                        coinInfo[selectedAccount?.currentCoin ?? COIN.XPI].etokenSats,
+                        selectedAccount?.currentCoin ?? COIN.XPI
+                      ) || `Must greater than dust`
                   );
                 }
                 // can add more validate below here
@@ -147,7 +166,11 @@ const PageMessageLixiModal = ({ account, page, wallet, classStyle }: PageMessage
             )}
           />
         </Descriptions.Item>
-        {errors.amount && <Descriptions.Item>errors.amount?.message</Descriptions.Item>}
+        {errors.amount && (
+          <Descriptions.Item>
+            <p className="error-message-valid-value">{errors?.amount?.message.toString()}</p>
+          </Descriptions.Item>
+        )}
       </Descriptions>
     </StyledModal>
   );

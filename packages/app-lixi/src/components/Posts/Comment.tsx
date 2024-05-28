@@ -27,7 +27,7 @@ import intl from 'react-intl-universal';
 import { CloseOutlined, SendOutlined } from '@ant-design/icons';
 import _ from 'lodash';
 import { sendCoinFailure, sendCoinSuccess } from '@store/send/actions';
-import { fromSmallestDenomination, getUtxoWif } from '@utils/cashMethods';
+import { getUtxoWif, validateCoinAmount } from '@utils/cashMethods';
 import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { WalletContext } from '@context/index';
 import useXPI from '@hooks/useXPI';
@@ -529,21 +529,6 @@ const Comment = ({ post }: CommentProps) => {
         await createComment(createCommentInput, isReplyComment);
       }
     }
-  };
-
-  const validateCoinAmount = (value: string, balances: number, coin: COIN): boolean => {
-    if (!value) return false;
-
-    //check if value is number;
-    if (isNaN(parseFloat(value))) return false;
-
-    //check if value is positive number
-    if (parseFloat(value) <= 0) return false;
-
-    //check if balance is smaller than value
-    if (fromSmallestDenomination(balances, coin) <= parseFloat(value)) return false;
-
-    return true;
   };
 
   const giveCoinAsTip = async (

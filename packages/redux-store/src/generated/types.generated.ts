@@ -358,6 +358,7 @@ export type CreateFollowTokenInput = {
 export type CreateMessageInput = {
   authorId: Scalars['Int']['input'];
   body?: InputMaybe<Scalars['String']['input']>;
+  coinGive?: InputMaybe<Coin>;
   isPageOwner?: InputMaybe<Scalars['Boolean']['input']>;
   pageMessageSessionId?: InputMaybe<Scalars['String']['input']>;
   tipHex?: InputMaybe<Scalars['String']['input']>;

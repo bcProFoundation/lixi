@@ -870,3 +870,18 @@ export const getChangeAddressFromInputUtxosXec = (inputUtxos: any, wallet: any):
   }
   return changeAddress;
 };
+
+export const validateCoinAmount = (value: string, balances: number, coin: COIN): boolean => {
+  if (!value) return false;
+
+  //check if value is number;
+  if (isNaN(parseFloat(value))) return false;
+
+  //check if value is positive number
+  if (parseFloat(value) <= 0) return false;
+
+  //check if balance is smaller than value
+  if (fromSmallestDenomination(balances, coin) <= parseFloat(value)) return false;
+
+  return true;
+};
