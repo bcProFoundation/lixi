@@ -1,5 +1,7 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
+import { Nullable } from '../nullable';
+
 import { PollAnswerOnAccount } from './poll-answer-on-account.model';
 
 @ObjectType()

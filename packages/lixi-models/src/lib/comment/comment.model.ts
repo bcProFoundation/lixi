@@ -4,6 +4,7 @@ import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Account } from '../account';
 import { ImageUploadable } from '../imageUploadable';
+import { Nullable } from '../nullable';
 
 import { CommentDana } from './comment-dana.model';
 import { Commentable } from './commentable.model';

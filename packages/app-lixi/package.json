@@ -32,6 +32,7 @@
     "@lexical/selection": "^0.14.2",
     "@lexical/utils": "^0.14.2",
     "@reduxjs/toolkit": "^2.2.1",
+    "@rtk-query/graphql-request-base-query": "^2.2.0",
     "@zxing/browser": "^0.1.1",
     "animate.css": "^4.1.1",
     "antd": "^5.15.3",

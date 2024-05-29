@@ -2,6 +2,8 @@ import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
+import { Nullable } from '../nullable';
+
 import { HashtagDana } from './hashtag-dana.model';
 import { PostHashtag } from './postHashtag.model';
 

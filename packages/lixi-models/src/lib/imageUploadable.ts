@@ -5,6 +5,7 @@ import { Comment } from './comment';
 import { Event } from './event';
 import { LixiModel } from './lixi/lixi.model';
 import { Message } from './message';
+import { Nullable } from './nullable';
 import { Page } from './page';
 import { Poll } from './poll';
 import { Post } from './post';

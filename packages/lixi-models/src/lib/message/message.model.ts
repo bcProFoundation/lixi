@@ -3,6 +3,7 @@ import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Account } from '../account';
 import { ImageUploadable } from '../imageUploadable';
+import { Nullable } from '../nullable';
 
 import { PageMessageSession } from './pageMessageSession.model';
 

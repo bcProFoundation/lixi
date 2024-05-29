@@ -6,6 +6,7 @@ import { Account } from '../account';
 import { ICommentableTo } from '../comment';
 import { PostHashtag } from '../hashtag/postHashtag.model';
 import { ImageUploadable } from '../imageUploadable';
+import { Nullable } from '../nullable';
 import { Page } from '../page';
 import { Poll } from '../poll';
 import { ITimelineable } from '../timeline';
