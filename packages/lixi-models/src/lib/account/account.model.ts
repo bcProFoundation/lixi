@@ -4,6 +4,7 @@ import { GraphQLDateTime } from 'graphql-scalars';
 
 import { COIN } from '../../constants';
 import { Message, PageMessageSession } from '../message';
+import { Nullable } from '../nullable';
 import { Page } from '../page';
 
 import { AccountDana } from './account-dana.model';

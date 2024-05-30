@@ -9,6 +9,7 @@
   "scripts": {
     "prepare": "husky install",
     "precommit": "turbo run format",
+    "dev": "turbo run dev --filter=@bcpros/app-lixi",
     "dev:api": "turbo run dev --filter=@bcpros/app-lixi-api",
     "build": "turbo run build",
     "build:api": "turbo run build --filter=@bcpros/app-lixi-api",

@@ -1,6 +1,7 @@
 import { createUnionType, Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 
 import { Event } from '../event';
+import { Nullable } from '../nullable';
 import { Poll } from '../poll';
 import { Post } from '../post';
 import { Product } from '../product';

@@ -1,6 +1,8 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty } from 'class-validator';
 
+import { Nullable } from '../../nullable';
+
 @InputType()
 export class RepostInput {
   @Field(() => Number)

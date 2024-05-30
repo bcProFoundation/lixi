@@ -5,6 +5,7 @@ import { GraphQLDateTime } from 'graphql-scalars';
 import { Account } from '../account';
 import { ICommentableTo } from '../comment';
 import { ImageUploadable } from '../imageUploadable';
+import { Nullable } from '../nullable';
 import { Page } from '../page';
 import { ITimelineable } from '../timeline';
 import { Token } from '../token';

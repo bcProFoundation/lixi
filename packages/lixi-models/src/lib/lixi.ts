@@ -2,6 +2,7 @@ import { Account, PageMessageSession } from '../';
 
 import { Distribution } from './distribution';
 import { Envelope } from './envelope';
+import { Nullable } from './nullable';
 import { Upload } from './upload';
 
 export interface GenerateLixiCommand {

@@ -2,6 +2,8 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
+import { Nullable } from '../nullable';
+
 import { TokenDana } from './token-dana.model';
 
 @ObjectType()

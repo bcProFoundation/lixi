@@ -1,4 +1,5 @@
 import { COIN } from '../../constants';
+import { Nullable } from '../nullable';
 import { Page } from '../page';
 
 export interface CreateAccountCommand {
