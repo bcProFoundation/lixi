@@ -31,3 +31,4 @@ export * from './product';
 export * from './imageUploadable';
 export * from './burn-item.model';
 export * from './burn-connection.model';
+export * from './escrow';

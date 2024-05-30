@@ -1,12 +1,12 @@
 import { Logger, Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
-import { OrderController } from './order.controller';
-import { OfferController } from './offer.controller';
+import { DisputeResolver } from './dispute.resolver';
+import { EscrowOrderResolver } from './escrow-order.resolver';
+import { OfferResolver } from './offer.resolver';
 
 @Module({
   imports: [AuthModule],
-  controllers: [OrderController, OfferController],
-  providers: [Logger],
-  exports: [Logger]
+  providers: [DisputeResolver, EscrowOrderResolver, OfferResolver],
+  exports: [DisputeResolver, EscrowOrderResolver, OfferResolver]
 })
 export class EscrowModule {}

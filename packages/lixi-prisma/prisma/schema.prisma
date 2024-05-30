@@ -1206,35 +1206,34 @@ model WalletPath {
   @@map("wallet_path")
 }
 
-model Order {
-  id                  String        @id @default(cuid())
-  sellerPublicKey     String        @map("seller_public_key")
-  buyerPublicKey      String        @map("buyer_public_key")
-  arbitratorPublicKey String        @map("arbitrator_public_key")
-  escrowAddress       String?       @map("escrow_address")
-  escrowDeposited     Boolean       @default(false)
-  paymentMethod       PaymentMethod @relation(fields: [paymentMethodId], references: [id])
-  paymentMethodId     String        @map("payment_method_id")
+model EscrowOrder {
+  id                  String            @id @default(cuid())
+  sellerPublicKey     String            @map("seller_public_key")
+  buyerPublicKey      String            @map("buyer_public_key")
+  arbitratorPublicKey String            @map("arbitrator_public_key")
+  escrowAddress       String?           @map("escrow_address")
+  paymentMethod       PaymentMethod     @relation(fields: [paymentMethodId], references: [id])
+  paymentMethodId     String            @map("payment_method_id")
   message             String?
-  price               Float         @default(0.0) @map("price")
-  amount              Float         @default(0.0) @map("amount")
-  offer               Offer         @relation(fields: [offerId], references: [id])
-  offerId             String        @map("offer_id")
-  status              OrderStatus   @default(ACTIVE)
+  price               Float             @default(0.0) @map("price")
+  amount              Float             @default(0.0) @map("amount")
+  offer               Offer             @relation(fields: [offerId], references: [id])
+  offerId             String            @map("offer_id")
+  status              EscrowOrderStatus @default(ACTIVE)
   dispute             Dispute?
-  createdAt           DateTime      @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt           DateTime      @default(now()) @map("updated_at") @db.Timestamptz
+  createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime          @default(now()) @map("updated_at") @db.Timestamptz
 }
 
 model Dispute {
-  id        String        @id @default(cuid())
-  order     Order         @relation(fields: [orderId], references: [id])
-  orderId   String        @unique @map("order_id")
-  createdBy String        @map("created_by")
-  reason    String?
-  status    DisputeStatus @default(ACTIVE)
-  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime      @default(now()) @map("updated_at") @db.Timestamptz
+  id            String        @id @default(cuid())
+  escrowOrder   EscrowOrder   @relation(fields: [escrowOrderId], references: [id])
+  escrowOrderId String        @unique @map("escrow_order_id")
+  createdBy     String        @map("created_by")
+  reason        String?
+  status        DisputeStatus @default(ACTIVE)
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime      @default(now()) @map("updated_at") @db.Timestamptz
 }
 
 model Offer {
@@ -1251,7 +1250,7 @@ model Offer {
   paymentMethods OfferPaymentMethod[]
   status         OfferStatus          @default(ACTIVE)
   location       String?
-  orders         Order[]
+  escrowOrders   EscrowOrder[]
   createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz
   updatedAt      DateTime             @default(now()) @map("updated_at") @db.Timestamptz
 }
@@ -1271,7 +1270,7 @@ model PaymentMethod {
   name                String
   message             String?
   offerPaymentMethods OfferPaymentMethod[]
-  orders              Order[]
+  escrowOrders        EscrowOrder[]
   createdAt           DateTime             @default(now()) @map("created_at") @db.Timestamptz
   updatedAt           DateTime             @default(now()) @map("updated_at") @db.Timestamptz
 }
@@ -1291,7 +1290,7 @@ enum DisputeStatus {
   RESOLVED
 }
 
-enum OrderStatus {
+enum EscrowOrderStatus {
   ACTIVE
   ESCROW
   COMPLETE
