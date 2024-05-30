@@ -1,4 +1,3 @@
-import { Page } from '@bcpros/lixi-models';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { decode, encode } from '@msgpack/msgpack';
 import { Logger } from '@nestjs/common';
@@ -8,6 +7,7 @@ import _ from 'lodash';
 import { CloudflareConfig } from '../../config/config.interface';
 import { PrismaService } from '../prisma/prisma.service';
 import { toImageUrl } from './page.utils';
+import { Page } from '@bcpros/lixi-models';
 
 export class PageCacheService {
   private logger: Logger = new Logger(this.constructor.name);

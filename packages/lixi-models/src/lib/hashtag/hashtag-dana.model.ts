@@ -1,6 +1,8 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 
+import { Nullable } from '../nullable';
+
 import { Hashtag } from './hashtag.model';
 
 @ObjectType()

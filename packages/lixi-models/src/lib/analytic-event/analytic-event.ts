@@ -1,3 +1,5 @@
+import { Nullable } from '../nullable';
+
 export class AnalyticEvent {
   accountId?: Nullable<number>;
   timestamp?: Nullable<Date>;

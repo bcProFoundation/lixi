@@ -1,6 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 import { COIN } from '../../../constants';
+import { Nullable } from '../../nullable';
 
 @InputType()
 export class CreateMessageInput {

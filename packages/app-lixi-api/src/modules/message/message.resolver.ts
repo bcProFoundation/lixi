@@ -235,18 +235,18 @@ export class MessageResolver {
               : 0;
           let broadcastResponse;
 
-              switch (coinGive) {
-                case COIN.XPI:
-                  broadcastResponse = await this.chronikXPI.broadcastTx(tipHex);
-                  break;
-                case COIN.XEC:
-                  broadcastResponse = await this.chronikXEC.broadcastTx(tipHex);
-                  break;
-                default:
-                  broadcastResponse = await this.chronikXPI.broadcastTx(tipHex);
-                  break;
-              }
-    
+          switch (coinGive) {
+            case COIN.XPI:
+              broadcastResponse = await this.chronikXPI.broadcastTx(tipHex);
+              break;
+            case COIN.XEC:
+              broadcastResponse = await this.chronikXEC.broadcastTx(tipHex);
+              break;
+            default:
+              broadcastResponse = await this.chronikXPI.broadcastTx(tipHex);
+              break;
+          }
+
           if (!broadcastResponse) {
             throw new Error('Empty chronik broadcast response');
           }

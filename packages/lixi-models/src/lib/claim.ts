@@ -1,3 +1,5 @@
+import { Nullable } from './nullable';
+
 export interface CreateClaimDto {
   claimAddress: string;
   claimCode: string;

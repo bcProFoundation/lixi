@@ -1,6 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { GraphQLDateTime } from 'graphql-scalars';
 
+import { Nullable } from '../nullable';
+
 import { PollOption } from './poll-option.model';
 
 @ObjectType()

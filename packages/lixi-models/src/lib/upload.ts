@@ -1,6 +1,7 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 import { Account } from './account';
+import { Nullable } from './nullable';
 
 @ObjectType()
 export class UploadDetail {

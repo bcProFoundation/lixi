@@ -5,6 +5,7 @@ import { GraphQLDateTime } from 'graphql-scalars';
 import { Account } from '../account';
 import { Category } from '../category/';
 import { PageMessageSession } from '../message';
+import { Nullable } from '../nullable';
 
 import { PageDana } from './page-dana.model';
 

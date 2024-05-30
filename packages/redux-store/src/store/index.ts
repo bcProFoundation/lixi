@@ -1,6 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
-import { routerReducer } from 'connected-next-router';
 import { walletStateReducer } from './wallet';
 import { accountReducer } from './account';
 import { localUserAccountReducer } from './localAccount';
@@ -58,7 +57,6 @@ export * as bookmark from './bookmark';
 const configureLocalStore = () => {
   return configureStore({
     reducer: {
-      router: routerReducer,
       wallet: walletStateReducer,
       accounts: accountReducer,
       localAccounts: localUserAccountReducer,
@@ -80,9 +78,9 @@ const configureLocalStore = () => {
       categories: categoryReducer,
       burn: burnReducer,
       pageMessage: messageReducer,
+      [api.reducerPath]: api.reducer,
       // This is use for useReduxEffect
       // Should be always at the end
-      [api.reducerPath]: api.reducer,
       action: actionReducer
     }
   });

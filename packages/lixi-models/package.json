@@ -1,6 +1,6 @@
 {
   "name": "@bcpros/lixi-models",
-  "version": "1.1.7",
+  "version": "1.1.9",
   "description": "Models library for lixi application",
   "main": "build/main/index.js",
   "types": "build/main/index.d.ts",
@@ -91,7 +91,6 @@
   },
   "dependencies": {
     "@nestjs/mapped-types": "^2.0.5",
-    "@songkeys/nestjs-redis": "^10.0.0",
     "bignumber.js": "^9.0.0",
     "class-validator": "^0.14.0",
     "graphql-scalars": "^1.22.1",

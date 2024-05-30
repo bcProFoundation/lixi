@@ -2,6 +2,8 @@ import { Field, InputType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
+import { Nullable } from '../../nullable';
+
 @InputType()
 export class PollOptionInput {
   @Field(() => String, { nullable: true })

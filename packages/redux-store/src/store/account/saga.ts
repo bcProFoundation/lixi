@@ -20,7 +20,6 @@ import { fetchNotifications, removeAllNotifications } from '@store/notification/
 import { getCurrentLocale } from '@store/settings/selectors';
 import { removeAllWallets, removeWalletPaths } from '@store/wallet';
 import { aesGcmDecrypt, aesGcmEncrypt, numberToBase58 } from '@utils/encryptionMethods';
-import { push } from 'connected-next-router';
 import intl from 'react-intl-universal';
 import { all, call, fork, put, putResolve, select, takeLatest } from 'redux-saga/effects';
 import { Config, names, uniqueNamesGenerator } from 'unique-names-generator';
@@ -647,7 +646,6 @@ function* loginViaEmailSaga(action: PayloadAction<LoginViaEmailCommand>) {
 
 function* loginViaEmailSuccessSaga(action: PayloadAction<any>) {
   yield put(hideLoading(loginViaEmail.type));
-  yield put(push(`${action.payload.path}`));
 }
 
 function* loginViaEmailFailureSaga(action: PayloadAction<any>) {

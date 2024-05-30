@@ -1,6 +1,8 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
+import { Nullable } from '../../nullable';
+
 import { PostOrder } from './post-order.input';
 
 @InputType()

@@ -1,3 +1,5 @@
+import { Nullable } from '../nullable';
+
 export interface ITimelineable {
   id: string;
   accountId: number;

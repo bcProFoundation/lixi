@@ -1,5 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql';
 
+import { Nullable } from '../../nullable';
+
 @InputType()
 export class CreateVoteInput {
   @Field(() => String)
