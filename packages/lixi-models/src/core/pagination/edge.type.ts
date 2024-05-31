@@ -1,4 +1,4 @@
-import { Type } from '@nestjs/common';
+import { Type } from './type';
 import { Field, ObjectType } from '@nestjs/graphql';
 
 import { IEdge } from './paginated.interface';

@@ -1,8 +1,8 @@
-import { Type } from '@nestjs/common';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 
 import { Edge } from './edge.type';
 import { IRelayPageInfo, IRelayPaginated } from './paginated.interface';
+import { Type } from './type';
 
 @ObjectType('RelayPageInfo')
 abstract class PageInfoType implements IRelayPageInfo {
