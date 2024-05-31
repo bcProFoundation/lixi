@@ -1,4 +1,4 @@
-import { COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models';
 import { createAction } from '@reduxjs/toolkit';
 
 import { WalletPathAddressInfo, WalletStatus } from './models';

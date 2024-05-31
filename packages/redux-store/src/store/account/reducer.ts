@@ -1,5 +1,5 @@
 import { Account } from '@bcpros/lixi-models';
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models';
 import { createEntityAdapter, createReducer, isAnyOf, Update } from '@reduxjs/toolkit';
 import _ from 'lodash';
 

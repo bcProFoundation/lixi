@@ -1,4 +1,4 @@
-import { COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models';
 import { callConfig } from '@context/index';
 import { all, call, fork, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';

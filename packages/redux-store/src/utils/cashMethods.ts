@@ -6,7 +6,7 @@ import * as cashaddr from 'ecashaddrjs';
 import bs58 from 'bs58';
 import * as utxolib from '@bitgo/utxo-lib';
 import { createSharedKey, decrypt, encrypt } from './encryption';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { coinInfo, COIN } from '@bcpros/lixi-models';
 
 export type TxInputObj = {
   txBuilder: any;

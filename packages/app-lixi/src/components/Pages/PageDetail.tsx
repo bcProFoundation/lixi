@@ -6,7 +6,7 @@ import {
   HomeOutlined,
   InfoCircleOutlined
 } from '@ant-design/icons';
-import { ParamPostFollowCommand } from '@bcpros/lixi-models/build/module/lib/post';
+import { ParamPostFollowCommand } from '@bcpros/lixi-models';
 import { PostListType } from '@bcpros/lixi-models/constants';
 import { Follow, FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';

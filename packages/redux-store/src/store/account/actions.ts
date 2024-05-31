@@ -10,7 +10,7 @@ import {
   SecondaryLanguageAccountCommand,
   Upload
 } from '@bcpros/lixi-models';
-import { COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models';
 import { createAction } from '@reduxjs/toolkit';
 import { WorshipedPersonFieldsFragment as WorshipedPerson } from '@store/worship/worshipedPerson.generated';
 

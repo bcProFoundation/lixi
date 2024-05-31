@@ -35,7 +35,7 @@
       "src/types"
     ],
     "jsx": "preserve",
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "isolatedModules": true,
     "noErrorTruncation": true
   },

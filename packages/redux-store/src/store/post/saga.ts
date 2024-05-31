@@ -1,5 +1,5 @@
 import { CreatePostCommand, EditPostCommand, ParamPostFollowCommand } from '@bcpros/lixi-models';
-import { POST_TYPE } from '@bcpros/lixi-models/constants';
+import { POST_TYPE } from '@bcpros/lixi-models';
 import { PayloadAction } from '@reduxjs/toolkit';
 import * as _ from 'lodash';
 import intl from 'react-intl-universal';
@@ -334,9 +334,9 @@ function* changeBookmarkActionSheetSaga(action: PayloadAction<string>) {
   }
 }
 
-function* fetchAllPostsSuccessSaga(action: any) {}
+function* fetchAllPostsSuccessSaga(action: any) { }
 
-function* fetchAllPostsFailureSaga(action: any) {}
+function* fetchAllPostsFailureSaga(action: any) { }
 
 function* watchPostPost() {
   yield takeLatest(postPost.type, postPostSaga);

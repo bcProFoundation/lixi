@@ -34,7 +34,7 @@ import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import { useInfiniteTokenTimelineByScoreQuery, useInfiniteTokenTimelineByTimeQuery } from '@store/timeline';
 import { FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
-import { ParamPostFollowCommand } from '@bcpros/lixi-models/build/module/lib/post';
+import { ParamPostFollowCommand } from '@bcpros/lixi-models';
 import { changeFollowActionSheetPost } from '@store/post/actions';
 
 const StyledTokensFeed = styled.div`

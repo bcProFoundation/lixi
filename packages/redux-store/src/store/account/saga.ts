@@ -12,7 +12,7 @@ import {
   SecondaryLanguageAccountCommand,
   UpdateAccountInput
 } from '@bcpros/lixi-models';
-import { COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models';
 import { callConfig } from '@context/index';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { setLocalUserAccount, silentLocalLogin } from '@store/localAccount';
@@ -595,7 +595,7 @@ function* refreshLixiListSilentSaga(action: PayloadAction<number>) {
     const lixiesData = yield call(lixiApi.getByAccountId, accountId);
     const lixies = (lixiesData ?? []) as Lixi[];
     yield put(refreshLixiListSilentSuccess({ account: account, lixies: lixies }));
-  } catch (err) {}
+  } catch (err) { }
 }
 
 function* registerViaEmailNoVerifiedSaga(action: PayloadAction<RegisterViaEmailNoVerifiedCommand>) {
@@ -727,16 +727,16 @@ function* setSecondaryLanguageAccountSuccessSaga(action: PayloadAction<Account>)
   yield put(
     secondaryLanguage != null
       ? showToast('success', {
-          message: intl.get('toast.success'),
-          description: intl.get('settings.selectLanguageNotTransSuccess', {
-            language: intl.get(`code.${secondaryLanguage}`)
-          })
+        message: intl.get('toast.success'),
+        description: intl.get('settings.selectLanguageNotTransSuccess', {
+          language: intl.get(`code.${secondaryLanguage}`)
         })
+      })
       : showToast('success', {
-          message: intl.get('toast.success'),
-          description: intl.get('settings.removeLanguageNotTrans'),
-          duration: 5
-        })
+        message: intl.get('toast.success'),
+        description: intl.get('settings.removeLanguageNotTrans'),
+        duration: 5
+      })
   );
 }
 

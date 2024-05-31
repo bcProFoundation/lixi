@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import cashaddr from 'ecashaddrjs';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { coinInfo, COIN } from '@bcpros/lixi-models';
 
 export interface AddressInfo {
   address: string;

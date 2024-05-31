@@ -33,7 +33,7 @@ import { useInfiniteProfileTimelineByScoreQuery } from '@store/timeline';
 import { useInfiniteProfileTimelineByTimeQuery } from '@store/timeline';
 import SearchBox from '@components/Common/SearchBox';
 import Counter from '@components/Common/Counter';
-import { ParamPostFollowCommand } from '@bcpros/lixi-models/build/module/lib/post';
+import { ParamPostFollowCommand } from '@bcpros/lixi-models';
 import { changeFollowActionSheetPost } from '@store/post/actions';
 
 export const URL_AVATAR_DEFAULT = '/images/default-avatar.jpg';

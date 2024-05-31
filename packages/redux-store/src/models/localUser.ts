@@ -1,4 +1,4 @@
-import { COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models';
 
 export type LocalUser = {
   id: string;

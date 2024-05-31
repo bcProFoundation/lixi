@@ -6,7 +6,7 @@ import { ChronikClient, Tx, TxHistoryPage, Utxo } from 'chronik-client';
 import { Hash160AndAddress } from '@bcpros/lixi-models';
 import { decryptOpReturnMsg, getHashArrayFromWallet, getUtxoWif, parseOpReturn } from './cashMethods';
 import { parseBurnOutput, ParseBurnResult } from './opReturnBurn';
-import { TX_HISTORY_COUNT, coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { TX_HISTORY_COUNT, coinInfo, COIN } from '@bcpros/lixi-models';
 
 export interface ParsedChronikTx {
   incoming: boolean;
@@ -387,7 +387,7 @@ export const parseChronikTx = async (
           const legacyDestinationAddress = XPI.Address.fromOutputScript(Buffer.from(thisOutput.outputScript, 'hex'));
           destinationAddress = XPI.Address.toXAddress(legacyDestinationAddress);
         }
-      } catch (err) {}
+      } catch (err) { }
     }
   }
 
@@ -405,7 +405,7 @@ export const parseChronikTx = async (
   let otherPublicKey;
   try {
     otherPublicKey = await getRecipientPublicKey(XPI, chronik, theOtherAddress);
-  } catch (err) {}
+  } catch (err) { }
 
   if (
     isLotusMessage &&

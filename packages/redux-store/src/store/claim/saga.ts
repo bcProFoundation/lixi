@@ -23,7 +23,7 @@ import { callConfig } from '@context/index';
 import { take } from 'redux-saga/effects';
 import { setAccount } from '@store/account/actions';
 import { getCurrentAddress, getCurrentClaimCode } from './selectors';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { coinInfo, COIN } from '@bcpros/lixi-models';
 
 function* postClaimSuccessSaga(action: PayloadAction<Claim>) {
   const claim = action.payload;

@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations */
-import { POST_TYPE, PostsQueryTag, WORSHIP_TYPES } from '@bcpros/lixi-models/constants';
+import { POST_TYPE, PostsQueryTag, WORSHIP_TYPES } from '@bcpros/lixi-models';
 import {
   Burn,
   BurnCommand,
@@ -59,7 +59,7 @@ import {
   returnTxHex
 } from './actions';
 import burnApi from './api';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { coinInfo, COIN } from '@bcpros/lixi-models/constants/coins';
 
 import { LixiStoreStateInterface } from '../state';
 
@@ -307,14 +307,14 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
     yield put(removeBurnQueue());
     yield put(
       burnForUpDownVoteSuccess(data) &&
-        showToast('success', {
-          message: intl.get(`toast.success`),
-          description: intl.get('burn.totalBurn', {
-            burnValue: burnValue,
-            totalAmount: burnValue + burnValue * coinInfo[COIN.XPI].burnFee + Number(minerFee),
-            coin: 'XPI'
-          })
+      showToast('success', {
+        message: intl.get(`toast.success`),
+        description: intl.get('burn.totalBurn', {
+          burnValue: burnValue,
+          totalAmount: burnValue + burnValue * coinInfo[COIN.XPI].burnFee + Number(minerFee),
+          coin: 'XPI'
         })
+      })
     );
   } catch (err) {
     console.log(err);

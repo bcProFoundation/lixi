@@ -1,5 +1,5 @@
 import { AccountDto, NotificationDto as Notification } from '@bcpros/lixi-models';
-import { NOTIFICATION_TYPES } from '@bcpros/lixi-models/constants';
+import { NOTIFICATION_TYPES } from '@bcpros/lixi-models';
 import { SessionAction, SessionActionEnum } from '@bcpros/lixi-models/lib/sessionAction';
 import { callConfig } from '@context/shareContext';
 import { PageMessageSession } from '@generated/types.generated';

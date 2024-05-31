@@ -26,7 +26,7 @@ import _ from 'lodash';
 import { useEffect, useState } from 'react';
 // @ts-ignore
 import { Account, Hash160AndAddress } from '@bcpros/lixi-models';
-import { COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models';
 import { getAllAccounts, getSelectedAccount } from '@store/account';
 import useInterval from './useInterval';
 import useXPI from './useXPI';

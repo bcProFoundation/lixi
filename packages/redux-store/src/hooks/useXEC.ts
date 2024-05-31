@@ -12,7 +12,7 @@ import * as utxolib from '@bitgo/utxo-lib';
 import BigNumber from 'bignumber.js';
 import { ChronikClient, Utxo } from 'chronik-client';
 import intl from 'react-intl-universal';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { coinInfo, COIN } from '@bcpros/lixi-models';
 
 export default function useXEC() {
   const sendXec = async (
