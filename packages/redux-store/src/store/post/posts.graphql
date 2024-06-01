@@ -312,6 +312,7 @@ fragment PostFields on Post {
       id
       name
       address
+      hash160
     }
   }
   pageId
@@ -378,6 +379,7 @@ fragment PostMeiliFields on Post {
   content
   account {
     address
+    hash160
     id
     name
     avatar
@@ -393,6 +395,7 @@ fragment PostMeiliFields on Post {
       id
       name
       address
+      hash160
     }
   }
   token {

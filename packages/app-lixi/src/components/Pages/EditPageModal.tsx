@@ -41,7 +41,7 @@ export const EditPageModal: React.FC<EditPageModalProps> = ({ page, disabled, cl
   const countries = useSliceSelector(getAllCountries);
   const states = useSliceSelector(getAllStates);
   const createPostFee = [0, 1, 10, 100, 1000];
-  const createCommentFee = [0, fromSmallestDenomination(coinInfo[COIN.XPI].dustSats)];
+  const createCommentFee = ['0', 'Dust'];
 
   const {
     handleSubmit,
@@ -364,15 +364,15 @@ export const EditPageModal: React.FC<EditPageModalProps> = ({ page, disabled, cl
                     render={({ field: { onChange, value }, formState: { isSubmitting } }) => (
                       <Select
                         className="select-after edit-page"
-                        value={`${value} ${coinInfo[COIN.XPI].ticker}`}
+                        value={`${value}`}
                         onChange={onChange}
                         placeholder={intl.get('page.state')}
-                        defaultValue={`${page.createCommentFee} ${coinInfo[COIN.XPI].ticker}`}
+                        defaultValue={`${page.createCommentFee}`}
                         disabled={isSubmitting}
                         style={{ width: '99%', textAlign: 'end' }}
                       >
                         {createCommentFee.map(fee => (
-                          <Option key={fee}>{`${fee} ${coinInfo[COIN.XPI].ticker}`}</Option>
+                          <Option key={fee}>{`${fee}`}</Option>
                         ))}
                       </Select>
                     )}

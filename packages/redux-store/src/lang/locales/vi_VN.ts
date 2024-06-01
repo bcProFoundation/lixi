@@ -652,7 +652,7 @@ export default {
   'comment.unableToBurn': 'Không thể đốt cho bình luận',
   'comment.writeComment': 'Viết bình luận...',
   'comment.writeCommentFree': 'Viết bình luận miễn phí trên bài viết này...',
-  'comment.writeCommentXpi': '{commentFee} để bình luận',
+  'comment.writeCommentCoin': '{commentFee} để bình luận',
   'comment.failAndResend': 'Bình luận thất bại, bạn có muốn gửi lại?',
   'comment.resend': 'Gửi lại',
   'comment.reply': 'Trả lời',

@@ -653,7 +653,7 @@ export default {
   'comment.unableToBurn': 'Unable to burn for the comment',
   'comment.writeComment': 'Write a comment...',
   'comment.writeCommentFree': 'Write a free comment on this post...',
-  'comment.writeCommentXpi': '{commentFee} to reply',
+  'comment.writeCommentCoin': '{commentFee} to reply',
   'comment.failAndResend': 'Comment fail, you want to resend?',
   'comment.resend': 'Resend',
   'comment.reply': 'Reply',

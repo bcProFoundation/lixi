@@ -27,7 +27,7 @@ import intl from 'react-intl-universal';
 import { CloseOutlined, SendOutlined } from '@ant-design/icons';
 import _ from 'lodash';
 import { sendCoinFailure, sendCoinSuccess } from '@store/send/actions';
-import { getUtxoWif, validateCoinAmount } from '@utils/cashMethods';
+import { fromSmallestDenomination, getUtxoWif, validateCoinAmount } from '@utils/cashMethods';
 import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { WalletContext } from '@context/index';
 import useXPI from '@hooks/useXPI';
@@ -326,14 +326,14 @@ const Comment = ({ post }: CommentProps) => {
   const showTextComment = () => {
     if (post.page) {
       return post.page.createCommentFee != '0'
-        ? intl.get('comment.writeCommentXpi', {
-            commentFee: `${post.page.createCommentFee} ${coinInfo[COIN.XPI].ticker}`
+        ? intl.get('comment.writeCommentCoin', {
+            commentFee: `${post.page.createCommentFee}`
           })
         : intl.get('comment.writeCommentFree');
     } else if (post.account.createCommentFee && _.isNil(post.page)) {
       return post.account.createCommentFee != '0'
-        ? intl.get('comment.writeCommentXpi', {
-            commentFee: `${post.account.createCommentFee} ${coinInfo[COIN.XPI].ticker}`
+        ? intl.get('comment.writeCommentCoin', {
+            commentFee: `${post.account.createCommentFee}`
           })
         : intl.get('comment.writeCommentFree');
     } else {
@@ -455,14 +455,14 @@ const Comment = ({ post }: CommentProps) => {
         }
       } else if (
         //Check if post owner self comment
-        (post.page &&
-          post?.page?.createCommentFee !== '0' &&
+        (post?.page &&
+          post.page?.createCommentFee !== '0' &&
           selectedAccount.address !== post?.page?.pageAccount.address) ||
         (post?.account?.createCommentFee !== '0' && selectedAccount.address !== post?.account?.address)
       ) {
         try {
           let createFeeHex = undefined;
-          createFeeHex = await giveXPIAsFee(post);
+          createFeeHex = await giveCoinAsFee(post);
 
           if (createFeeHex) {
             const createCommentInput: CreateCommentInput = {
@@ -470,10 +470,12 @@ const Comment = ({ post }: CommentProps) => {
               commentableId: post.commentableId,
               createFeeHex: createFeeHex,
               uploadId: commentUpload?.id || undefined,
-              replyToCommentId: isReplyComment ? replyToCommentId : ''
+              replyToCommentId: isReplyComment ? replyToCommentId : '',
+              coinGive: (selectedAccount?.currentCoin ?? COIN.XPI) as unknown as Coin
             };
 
             await createComment(createCommentInput, isReplyComment);
+            setIsSendingCoin(false);
           } else {
             throw new Error(intl.get('account.insufficientFunds'));
           }
@@ -493,14 +495,14 @@ const Comment = ({ post }: CommentProps) => {
     } else if (commentUpload) {
       if (
         //Check if post owner self comment
-        (post.page &&
-          post?.page?.createCommentFee !== '0' &&
+        (post?.page &&
+          post.page?.createCommentFee !== '0' &&
           selectedAccount.address !== post?.page?.pageAccount.address) ||
         (post?.account?.createCommentFee !== '0' && selectedAccount.address !== post?.account?.address)
       ) {
         try {
           let createFeeHex = undefined;
-          createFeeHex = await giveXPIAsFee(post);
+          createFeeHex = await giveCoinAsFee(post);
 
           if (createFeeHex) {
             const createCommentInput: CreateCommentInput = {
@@ -508,10 +510,12 @@ const Comment = ({ post }: CommentProps) => {
               commentableId: post.commentableId,
               createFeeHex: createFeeHex,
               uploadId: commentUpload?.id || undefined,
-              replyToCommentId: isReplyComment ? replyToCommentId : ''
+              replyToCommentId: isReplyComment ? replyToCommentId : '',
+              coinGive: (selectedAccount?.currentCoin ?? COIN.XPI) as unknown as Coin
             };
 
             await createComment(createCommentInput, isReplyComment);
+            setIsSendingCoin(false);
           } else {
             throw new Error(intl.get('account.insufficientFunds'));
           }
@@ -594,43 +598,70 @@ const Comment = ({ post }: CommentProps) => {
     }
   };
 
-  const giveXPIAsFee = async (post: PostQueryItem): Promise<string> => {
+  const giveCoinAsFee = async (post: PostQueryItem): Promise<string> => {
     setIsSendingCoin(true);
     try {
       let createFeeHex = undefined;
-      const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-      if (post.page && post.page.createCommentFee !== '0') {
-        createFeeHex = await sendXpi(
-          XPI,
-          chronik,
-          walletPaths,
-          slpBalancesAndUtxos.nonSlpUtxos,
-          coinInfo[COIN.XPI].defaultFee,
-          '',
-          false, // indicate send mode is one to one
-          null,
-          post.page.pageAccount.address,
-          post.page.createCommentFee,
-          true,
-          fundingWif,
-          true
-        );
-      } else if (post.account.createCommentFee !== '0') {
-        createFeeHex = await sendXpi(
-          XPI,
-          chronik,
-          walletPaths,
-          slpBalancesAndUtxos.nonSlpUtxos,
-          coinInfo[COIN.XPI].defaultFee,
-          '',
-          false, // indicate send mode is one to one
-          null,
-          post.account.address,
-          post.account.createCommentFee,
-          true,
-          fundingWif,
-          true
-        );
+      const fundingWif = getUtxoWif(
+        slpBalancesAndUtxos.nonSlpUtxos[0],
+        walletPaths,
+        selectedAccount?.currentCoin ?? COIN.XPI
+      );
+
+      const havePageFee = post?.page && post.page.createCommentFee !== '0';
+      const haveAccountFee = !post?.page && post.account.createCommentFee !== '0';
+
+      if (havePageFee || haveAccountFee) {
+        switch (selectedAccount?.currentCoin) {
+          case COIN.XPI:
+            createFeeHex = await sendXpi(
+              XPI,
+              chronik,
+              walletPaths,
+              slpBalancesAndUtxos.nonSlpUtxos,
+              coinInfo[COIN.XPI].defaultFee,
+              '',
+              false, // indicate send mode is one to one
+              null,
+              post?.page ? post.page.pageAccount.address : post.account.address,
+              fromSmallestDenomination(coinInfo[COIN.XPI].dustSats).toString(),
+              true,
+              fundingWif,
+              true
+            );
+            break;
+          case COIN.XEC:
+            createFeeHex = await sendXec(
+              chronik,
+              fundingWif,
+              slpBalancesAndUtxos.nonSlpUtxos,
+              coinInfo[COIN.XEC].defaultFee,
+              undefined,
+              false, //indicate send mode is one to one
+              null,
+              post?.page ? post.page.pageAccount.hash160 : post.account.hash160,
+              fromSmallestDenomination(coinInfo[COIN.XEC].etokenSats, COIN.XEC), //amount
+              coinInfo[COIN.XEC].etokenSats,
+              true
+            ); // return hex
+            break;
+          default:
+            createFeeHex = await sendXpi(
+              XPI,
+              chronik,
+              walletPaths,
+              slpBalancesAndUtxos.nonSlpUtxos,
+              coinInfo[COIN.XPI].defaultFee,
+              '',
+              false, // indicate send mode is one to one
+              null,
+              post?.page ? post.page.pageAccount.address : post.account.address,
+              fromSmallestDenomination(coinInfo[COIN.XPI].dustSats).toString(),
+              true,
+              fundingWif,
+              true
+            );
+        }
       }
 
       return createFeeHex;
