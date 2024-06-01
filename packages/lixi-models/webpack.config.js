@@ -1,7 +1,10 @@
 const path = require('path');
+
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
-module.exports = [
+const env = process.env.NODE_ENV;
+
+const configs = [
   // CommonJS configuration
   {
     entry: './src/index.ts',
@@ -15,9 +18,6 @@ module.exports = [
       ],
     },
     plugins: [
-      new BundleAnalyzerPlugin({
-        analyzerPort: 8897
-      })
     ],
     resolve: {
       extensions: ['.tsx', '.ts', '.js'],
@@ -62,9 +62,6 @@ module.exports = [
       ],
     },
     plugins: [
-      new BundleAnalyzerPlugin({
-        analyzerPort: 8898
-      })
     ],
     resolve: {
       extensions: ['.tsx', '.ts', '.js'],
@@ -98,3 +95,10 @@ module.exports = [
     experiments: { outputModule: true }
   },
 ];
+if (env === 'analyse') {
+  for (let config of configs) {
+    config.plugins.push(new BundleAnalyzerPlugin());
+  }
+}
+
+module.exports = configs;

@@ -6,7 +6,7 @@ import { connectToChannels } from '@store/websocket';
 import { getSelectedAccount } from '@store/account';
 import { userSubcribeToAddressChannel, userSubcribeToMultiPageMessageSession } from '@store/message/actions';
 import usePrevious from '@hooks/usePrevious';
-import { Account } from '@bcpros/lixi-models';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 
 export const SocketContext = createContext(null);
 

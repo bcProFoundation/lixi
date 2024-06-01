@@ -1,15 +1,14 @@
-import { Account, ChangeAccountLocaleCommand } from '@bcpros/lixi-models';
-import { FilterBurnCommand } from '@bcpros/lixi-models/lib/filter';
-import { all, call, fork, put, select, takeLatest } from 'redux-saga/effects';
+import { ChangeAccountLocaleCommand } from '@bcpros/lixi-models/lib/account/account.dto';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import AppLocale from '@lang/index';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { changeAccountLocale } from '@store/account/actions';
 import { getSelectedAccount } from '@store/account/selectors';
 import { showToast } from '@store/toast/actions';
-import * as _ from 'lodash';
+import { injectStore as reduxInjectstore } from '@utils/axiosClient';
 import moment from 'moment';
 import intl from 'react-intl-universal';
-import AppLocale from '@lang/index';
-import { injectStore as reduxInjectstore } from '@utils/axiosClient';
+import { all, call, fork, put, select, takeLatest } from 'redux-saga/effects';
 
 import { loadLocale, loadLocaleFailure, loadLocaleSuccess, setInitIntlStatus, updateLanguage } from './actions';
 

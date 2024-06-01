@@ -42,7 +42,6 @@ const TopAccount = styled.div`
     }
     @media (max-width: 768px) {
       display: none;
-
     }
   }
 `;
@@ -288,9 +287,9 @@ const AccountHomeFeed = () => {
           pagination={
             displayPagination
               ? {
-                total: totalCount,
-                pageSize: 20
-              }
+                  total: totalCount,
+                  pageSize: 20
+                }
               : false
           }
           rowKey={account => {

@@ -1,8 +1,8 @@
 // import { CashReceivedNotificationIcon } from '@bcpros/lixi-components/components/Common/CustomIcons';
 import {
   NotificationDto as Notification,
-  SocketUser,
-} from '@bcpros/lixi-models';
+} from '@bcpros/lixi-models/lib/common/notification';
+import { SocketUser } from '@bcpros/lixi-models/lib/common/notification';
 import { COIN, coinInfo } from '@bcpros/lixi-models/constants';
 import { callConfig } from '@context/shareContext';
 import { PayloadAction } from '@reduxjs/toolkit';

@@ -1,4 +1,8 @@
-import { CreatePostCommand, EditPostCommand, ParamPostFollowCommand } from '@bcpros/lixi-models';
+import {
+  CreatePostCommand,
+  EditPostCommand,
+  ParamPostFollowCommand
+} from '@bcpros/lixi-models/lib/post/create-post.command';
 import { createAction } from '@reduxjs/toolkit';
 import { Post } from '@generated/types.generated';
 

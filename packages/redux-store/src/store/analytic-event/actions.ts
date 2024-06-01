@@ -1,4 +1,4 @@
-import { AnalyticEvent } from '@bcpros/lixi-models';
+import { AnalyticEvent } from '@bcpros/lixi-models/lib/analytic-event';
 import { createAction } from '@reduxjs/toolkit';
 
 export const analyticEvent = createAction<AnalyticEvent>('analyticEvent/analyticEvent');

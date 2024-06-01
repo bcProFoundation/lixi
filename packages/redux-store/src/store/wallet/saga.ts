@@ -1,10 +1,10 @@
-import { COIN } from '@bcpros/lixi-models';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { callConfig } from '@context/index';
 import { all, call, fork, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 
 import { activateWallet, activateWalletFailure, activateWalletSuccess, setWalletHasUpdated } from './actions';
-import { WalletPathAddressInfo } from '@bcpros/lixi-models';
+import { WalletPathAddressInfo } from '@bcpros/lixi-models/lib/wallet/wallet.model';
 
 function* activateWalletSaga(action: PayloadAction<{ mnemonic: string; coin: COIN }>) {
   try {

@@ -1,4 +1,4 @@
-import { PaginationArgs } from '@bcpros/lixi-models';
+import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
 import { WorshipOrder, WorshipQueryItem } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useAllWorshipedByTempleIdQuery, useLazyAllWorshipedByTempleIdQuery } from '@store/worship/worshipedPerson.api';

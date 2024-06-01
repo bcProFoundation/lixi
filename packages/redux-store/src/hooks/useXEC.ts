@@ -1,18 +1,18 @@
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import * as utxolib from '@bitgo/utxo-lib';
 import {
   fromCoinToSatoshis,
-  cashaddrToHash160,
   fromSatoshisToCoin,
-  sumOneToManyXec,
   generateXecTxInput,
   generateXecTxOutput,
+  getChangeAddressFromInputUtxosXec,
   signAndBuildXecTx,
-  getChangeAddressFromInputUtxosXec
+  sumOneToManyXec
 } from '@utils/cashMethods';
-import * as utxolib from '@bitgo/utxo-lib';
 import BigNumber from 'bignumber.js';
 import { ChronikClient, Utxo } from 'chronik-client';
 import intl from 'react-intl-universal';
-import { coinInfo, COIN } from '@bcpros/lixi-models';
 
 export default function useXEC() {
   const sendXec = async (

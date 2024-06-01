@@ -1,4 +1,4 @@
-import { NotificationDto } from '@bcpros/lixi-models';
+import { NotificationDto } from '@bcpros/lixi-models/lib/common/notification';
 import axiosClient from '@utils/axiosClient';
 
 const notificationApi = {

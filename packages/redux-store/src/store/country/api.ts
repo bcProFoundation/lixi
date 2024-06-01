@@ -1,4 +1,5 @@
-import { Country, State } from '@bcpros/lixi-models';
+import { Country } from '@bcpros/lixi-models/lib/geo-location/country.model';
+import { State } from '@bcpros/lixi-models/lib/geo-location/state.model';
 import axiosClient from '@utils/axiosClient';
 
 const countryApi = {

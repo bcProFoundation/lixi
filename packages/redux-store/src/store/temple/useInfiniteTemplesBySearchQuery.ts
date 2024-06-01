@@ -1,4 +1,4 @@
-import { PaginationArgs } from '@bcpros/lixi-models';
+import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
 import { useLazyTempleBySearchQuery, useTempleBySearchQuery } from '@store/temple/temple.api';
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { TempleOrder } from '@generated/types.generated';

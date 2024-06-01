@@ -1,4 +1,4 @@
-import { PaginationArgs } from '@bcpros/lixi-models';
+import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
 import { PageQueryItem } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useLazyPagesQuery, usePagesQuery } from '@store/page/pages.api';

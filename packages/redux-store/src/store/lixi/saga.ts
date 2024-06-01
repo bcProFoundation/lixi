@@ -1,24 +1,22 @@
-import {
-  Account,
-  AccountDto,
-  Claim,
-  ExportLixiCommand,
-  IPaginationResult,
-  PostLixiResponseDto,
-  RegisterLixiPackCommand
-} from '@bcpros/lixi-models';
-import { UPLOAD_TYPES } from '@bcpros/lixi-models';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
+import { AccountDto } from '@bcpros/lixi-models/lib/account/account.dto';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { Claim } from '@bcpros/lixi-models/lib/claim';
 import {
   ArchiveLixiCommand,
   CreateLixiCommand,
   DownloadExportedLixiCommand,
+  ExportLixiCommand,
   GenerateLixiCommand,
   Lixi,
   LixiDto,
+  PostLixiResponseDto,
+  RegisterLixiPackCommand,
   RenameLixiCommand,
   UnarchiveLixiCommand,
   WithdrawLixiCommand
 } from '@bcpros/lixi-models/lib/lixi';
+import { IPaginationResult } from '@bcpros/lixi-models/utils/paginationResult';
 import { CreatePageMessageInput } from '@generated/types.generated';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { removeUploadFromCache } from '@store/account/actions';
@@ -169,7 +167,7 @@ function* fetchInitialSubLixiesSaga(action: PayloadAction<number>) {
   }
 }
 
-function* fetchInitialSubLixiesSuccessSaga(action: PayloadAction<Lixi[]>) { }
+function* fetchInitialSubLixiesSuccessSaga(action: PayloadAction<Lixi[]>) {}
 
 function* fetchInitialSubLixiesFailureSaga(action: PayloadAction<string>) {
   const message = action.payload ?? intl.get('lixi.unableGetChildLixi');
@@ -195,7 +193,7 @@ function* fetchMoreSubLixiesSaga(action: PayloadAction<{ parentId: number; start
   }
 }
 
-function* fetchMoreSubLixiesSuccessSaga(action: PayloadAction<Lixi[]>) { }
+function* fetchMoreSubLixiesSuccessSaga(action: PayloadAction<Lixi[]>) {}
 
 function* fetchMoreSubLixiesFailureSaga(action: PayloadAction<string>) {
   const message = action.payload ?? intl.get('lixi.unableCreateChildLixi');

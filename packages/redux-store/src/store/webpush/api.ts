@@ -1,4 +1,4 @@
-import { WebpushSubscribeCommand, WebpushUnsubscribeCommand } from '@bcpros/lixi-models';
+import { WebpushSubscribeCommand, WebpushUnsubscribeCommand } from '@bcpros/lixi-models/lib/webpush/webpush.command';
 import axiosClient from '@utils/axiosClient';
 
 const webpushApi = {

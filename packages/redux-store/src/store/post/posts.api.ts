@@ -1,7 +1,7 @@
 import { PageInfo, Post } from '@generated/types.generated';
 import { EntityState } from '@reduxjs/toolkit';
 
-import { POST_TYPE } from '@bcpros/lixi-models';
+import { POST_TYPE } from '@bcpros/lixi-models/constants/post';
 import { api as timelineApi } from '@store/timeline/timeline.api';
 import { api } from './posts.generated';
 
@@ -194,7 +194,7 @@ const enhancedApi = api.enhanceEndpoints({
               })
             );
           }
-        } catch { }
+        } catch {}
       }
     },
     updatePost: {
@@ -203,7 +203,7 @@ const enhancedApi = api.enhanceEndpoints({
         const { minBurnFilter } = extraArguments;
         try {
           const { data: result } = await queryFulfilled;
-        } catch { }
+        } catch {}
       }
     },
     repost: {},
@@ -245,7 +245,7 @@ const enhancedApi = api.enhanceEndpoints({
               })
             );
           }
-        } catch { }
+        } catch {}
       }
     }
   }

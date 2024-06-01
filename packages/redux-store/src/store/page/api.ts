@@ -1,4 +1,5 @@
-import { EditPageCommand, PageDto, CreatePageCommand } from '@bcpros/lixi-models';
+import { CreatePageCommand, EditPageCommand } from '@bcpros/lixi-models/lib/page/create-page.command';
+import { PageDto } from '@bcpros/lixi-models/lib/page/page.dto';
 import axiosClient from '@utils/axiosClient';
 
 const pageApi = {
