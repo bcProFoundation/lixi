@@ -1,5 +1,5 @@
 import { Spin } from 'antd';
-import { Account } from '@bcpros/lixi-models';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { useSliceSelector } from '@store/index';
 import { getIsGlobalLoading } from '@store/loading/selectors';
 import { CashLoadingIcon } from '@bcpros/lixi-components/components/Common/CustomIcons';

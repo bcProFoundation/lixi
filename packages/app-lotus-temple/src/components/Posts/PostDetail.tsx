@@ -1,10 +1,11 @@
 import { DashOutlined, LeftOutlined } from '@ant-design/icons';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { AvatarUser } from '@components/Common/AvatarUser';
 import Counter from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { ShareSocialButton } from '@components/Common/ShareSocialButton';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { NavBarHeader, PathDirection } from '@components/Layout/MainLayout';
 import { WalletContext } from '@context/walletProvider';
 import { CommentOrderField, CreateCommentInput, OrderDirection, PostQueryItem } from '@generated/index';

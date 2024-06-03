@@ -1,8 +1,8 @@
 import { CopyOutlined } from '@ant-design/icons';
-import { PostListType } from '@bcpros/lixi-models/constants';
+import { PostListType } from '@bcpros/lixi-models/constants/postListType';
 import CreatePostCard from '@components/Common/CreatePostCard';
 import SearchBox from '@components/Common/SearchBox';
-import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants';
+import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants/coins/coin';
 import { InfoSubCard } from '@components/Lixi';
 import PostListItem from '@components/Posts/PostListItem';
 import {

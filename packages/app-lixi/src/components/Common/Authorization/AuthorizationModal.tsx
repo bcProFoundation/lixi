@@ -1,11 +1,5 @@
-import {
-  CloseCircleOutlined,
-  ExclamationCircleOutlined,
-  ImportOutlined,
-  LockOutlined,
-  LoginOutlined,
-  PlusSquareOutlined
-} from '@ant-design/icons';
+import { ExclamationCircleOutlined, ImportOutlined, LockOutlined, PlusSquareOutlined } from '@ant-design/icons';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
 import PrimaryButton, { SecondaryButton, SmartButton } from '@components/Common/PrimaryButton';
 import { WalletContext } from '@context/index';
@@ -17,7 +11,6 @@ import React, { useState } from 'react';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import { AuthorizationOptions } from './Authorization.interface';
-import { COIN } from '@bcpros/lixi-models/constants';
 
 export const MaybeLaterLink = styled.a`
   width: 100%;

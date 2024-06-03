@@ -1,6 +1,6 @@
 import { Field, InputType, registerEnumType } from '@nestjs/graphql';
 
-import { Order } from '../../../core';
+import { Order } from '../../../core/order/order';
 
 export enum PageMessageSessionOrderField {
   id = 'id',

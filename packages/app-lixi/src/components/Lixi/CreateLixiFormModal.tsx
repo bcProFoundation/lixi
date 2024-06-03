@@ -32,9 +32,9 @@ import {
   FormItemStaffAddressInput
 } from '@bcpros/lixi-components/components/Common/EnhancedInputs';
 import { StyledCollapse } from '@bcpros/lixi-components/components/Common/StyledCollapse';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
-import { countries, UPLOAD_BUTTON_TYPE, UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
-import { Account } from '@bcpros/lixi-models/lib/account';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { UPLOAD_BUTTON_TYPE, UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
 import { ClaimType, GenerateLixiCommand, LixiType, LotteryAddress, NetworkType } from '@bcpros/lixi-models/lib/lixi';
 import CountrySelectDropdown from '@components/Common/CountrySelectDropdown';
 import EnvelopeCarousel from '@components/Common/EnvelopeCarousel';
@@ -44,6 +44,8 @@ import { getEnvelopeUpload } from '@store/account/selectors';
 import { isValidAmountInput } from '@utils/validation';
 import { CreateLixiConfirmationModalProps } from './CreateLixiConfirmationModal';
 import { fromSmallestDenomination } from '@utils/cashMethods';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { countries } from '@bcpros/lixi-models/constants/countries';
 
 const { Panel } = Collapse;
 const { Option } = Select;

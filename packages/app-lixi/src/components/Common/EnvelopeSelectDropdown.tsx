@@ -1,7 +1,7 @@
 import { Select } from 'antd';
 import intl from 'react-intl-universal';
 
-import { Envelope } from '@bcpros/lixi-models';
+import { Envelope } from '@bcpros/lixi-models/lib/envelope';
 
 const { Option } = Select;
 

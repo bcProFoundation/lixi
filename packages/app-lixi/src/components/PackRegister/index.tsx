@@ -1,20 +1,19 @@
-import _ from 'lodash';
-import intl from 'react-intl-universal';
-import React, { useState } from 'react';
-import { Row, Col, Form, Spin } from 'antd';
-import PrimaryButton from '@bcpros/lixi-components/components/Common/PrimaryButton';
 import { CashLoadingIcon } from '@bcpros/lixi-components/components/Common/CustomIcons';
 import {
   FormItemClaimCodeXpiInput,
   FormItemRegistrantAddressInput
 } from '@bcpros/lixi-components/components/Common/EnhancedInputs';
-import { useSliceDispatch, useSliceSelector } from '@store/index';
-import { getIsGlobalLoading } from '@store/loading/selectors';
-import { getSelectedAccount } from '@store/account/selectors';
-import { Account } from '@bcpros/lixi-models/lib/account';
-import { registerLixiPack, registerLixiPackFailure } from '@store/lixi/actions';
-import { RegisterLixiPackCommand } from '@bcpros/lixi-models';
+import PrimaryButton from '@bcpros/lixi-components/components/Common/PrimaryButton';
+import { Account, RegisterLixiPackCommand } from '@bcpros/lixi-models';
 import { WrapperPage } from '@components/Settings';
+import { getSelectedAccount } from '@store/account/selectors';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { registerLixiPack } from '@store/lixi/actions';
+import { getIsGlobalLoading } from '@store/loading/selectors';
+import { Col, Form, Row, Spin } from 'antd';
+import _ from 'lodash';
+import React, { useState } from 'react';
+import intl from 'react-intl-universal';
 
 const RegisterComponent: React.FC = () => {
   const selectedAccount: Account | undefined = useSliceSelector(getSelectedAccount);

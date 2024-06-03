@@ -1,6 +1,6 @@
 import { BarChartOutlined, CameraOutlined, CompassOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import { Account } from '@bcpros/lixi-models';
-import { PostListType } from '@bcpros/lixi-models/constants';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { PostListType } from '@bcpros/lixi-models/constants/postListType';
 import { Follow, FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
 import { transformShortName } from '@components/Common/AvatarUser';
 import PostListItem from '@components/Posts/PostListItem';

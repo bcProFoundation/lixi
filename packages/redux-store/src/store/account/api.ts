@@ -1,10 +1,10 @@
-import { PatchAccountCommand } from '@bcpros/lixi-models/lib/account';
 import {
   AccountDto,
   CreateAccountCommand,
   DeleteAccountCommand,
   ImportAccountCommand,
   LoginViaEmailCommand,
+  PatchAccountCommand,
   RegisterViaEmailNoVerifiedCommand
 } from '@bcpros/lixi-models/lib/account/account.dto';
 import axiosClient from '@utils/axiosClient';

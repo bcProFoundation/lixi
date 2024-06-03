@@ -1,4 +1,6 @@
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
 import { MultiUploader } from '@components/Common/Uploader/MultiUploader';
 import { WalletContext } from '@context/walletProvider';
 import { PageQueryItem } from '@generated/index';
@@ -19,7 +21,6 @@ import React, { useRef, useState } from 'react';
 import intl from 'react-intl-universal';
 import Gallery from 'react-photo-gallery';
 import styled from 'styled-components';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 const { TextArea } = Input;
 const { Option } = Select;
 

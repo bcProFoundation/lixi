@@ -1,5 +1,5 @@
 import { CloseOutlined, LeftOutlined } from '@ant-design/icons';
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
 import ActionPostBar from '@components/Common/ActionPostBar';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { LoadingIcon, NavBarHeader } from '@components/Layout/MainLayout';

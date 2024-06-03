@@ -1,10 +1,10 @@
-import { Button, Descriptions, message, Modal } from 'antd';
-import RawQRCode from 'qrcode.react';
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
-import { openModal } from '@store/modal/actions';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { useSliceDispatch } from '@store/index';
+import { openModal } from '@store/modal/actions';
+import RawQRCode from 'qrcode.react';
+import React from 'react';
+import styled from 'styled-components';
 import { QRCodeModalProps } from './QRCodeModalPopup';
 
 type StyledRawQRCodeProps = {

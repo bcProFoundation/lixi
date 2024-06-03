@@ -1,16 +1,11 @@
 /* eslint-disable no-case-declarations */
-import { COIN, coinInfo } from '@bcpros/lixi-models/constants/coins';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { POST_TYPE } from '@bcpros/lixi-models/constants/post';
 import { PostsQueryTag } from '@bcpros/lixi-models/constants/postQueryTag';
 import { WORSHIP_TYPES } from '@bcpros/lixi-models/constants/worship';
-import {
-  Burn,
-  BurnCommand,
-  BurnExtraArguments,
-  BurnForType,
-  BurnQueueCommand,
-  BurnType
-} from '@bcpros/lixi-models/lib/burn';
+import { BurnCommand, BurnExtraArguments, BurnQueueCommand } from '@bcpros/lixi-models/lib/burn/burn.command';
+import { Burn, BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { callConfig } from '@context/shareContext';
 import { BurnForItem } from '@generated/index';
 import {
@@ -24,7 +19,6 @@ import {
   WorshipOrderField
 } from '@generated/types.generated';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { setTransactionNotReady, setTransactionReady } from '@store/account/actions';
 import { getSelectedAccount, getTransactionStatus } from '@store/account/selectors';
 import { getFailQueue } from '@store/burn';
@@ -62,6 +56,7 @@ import {
 } from './actions';
 import burnApi from './api';
 
+import { PatchCollection } from 'node_modules/@reduxjs/toolkit/dist/query/core/buildThunks';
 import { LixiStoreStateInterface } from '../state';
 
 function* prepareBurnCommandSaga(

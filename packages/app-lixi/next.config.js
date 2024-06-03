@@ -187,7 +187,7 @@ const nextConfig = withLess({
 			'@hooks': path.resolve(__dirname, 'src/hooks/'),
 			'@store': path.resolve(__dirname, '../redux-store/src/store/'),
 			'@context': path.resolve(__dirname, 'src/context/'),
-			'@bcpros/lixi-components': path.resolve(__dirname, '../lixi-components/src')
+			'@bcpros/lixi-components': path.resolve(__dirname, '../lixi-components/src'),
 		};
 
 		if (isServer) {

@@ -30,7 +30,9 @@ import useAuthorization from './Authorization/use-authorization.hooks';
 import AvatarUser from './AvatarUser';
 import { SocialsEnum } from './Embed';
 import EditorLexical from './Lexical/EditorLexical';
-import { POST_TYPE, coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { POST_TYPE } from '@bcpros/lixi-models/constants/post';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { CreatePollInput } from '@bcpros/lixi-models';
 import { useCreatePollMutation } from '@store/post/polls.api';
 

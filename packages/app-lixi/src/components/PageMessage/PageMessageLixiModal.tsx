@@ -1,4 +1,4 @@
-import { Account } from '@bcpros/lixi-models/lib/account';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { GenerateLixiCommand } from '@bcpros/lixi-models/lib/lixi';
 import { WalletContext } from '@context/walletProvider';
 import { PageQueryItem } from '@generated/index';

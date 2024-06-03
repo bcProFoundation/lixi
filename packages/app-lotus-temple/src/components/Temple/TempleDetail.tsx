@@ -1,7 +1,8 @@
-import { WORSHIP_AMOUNT_TYPES, WORSHIP_TYPES } from '@bcpros/lixi-models/constants';
+import { WORSHIP_AMOUNT_TYPES, WORSHIP_TYPES } from '@bcpros/lixi-models';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
 import Counter from '@components/Common/Counter';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { OrderDirection, WorshipOrderField } from '@generated/types.generated';
 import { addBurnQueue, addBurnTransaction, clearFailQueue, getFailQueue } from '@store/burn';
 import { useSliceDispatch, useSliceSelector } from '@store/index';

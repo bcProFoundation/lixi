@@ -10,7 +10,7 @@ import { isMobile } from 'react-device-detect';
 import { useSliceDispatch } from '@store/index';
 import { setUpload, removeUpload } from '@store/account/actions';
 import axiosClient from '@utils/axiosClient';
-import { UPLOAD_API_S3_MULTIPLE } from '@bcpros/lixi-models/constants';
+import { UPLOAD_API_S3_MULTIPLE } from '@bcpros/lixi-models';
 import _ from 'lodash';
 import { ButtonType } from 'antd/lib/button';
 

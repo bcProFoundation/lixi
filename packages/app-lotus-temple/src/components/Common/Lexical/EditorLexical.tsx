@@ -20,7 +20,7 @@ import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
 import { MultiUploader } from '../Uploader/MultiUploader';
 import { PictureOutlined } from '@ant-design/icons';
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
 import styled from 'styled-components';
 import LinkPlugin from './plugins/LinkPlugin';
 import ButtonLinkPlugin from './plugins/ButtonLinkPlugin';

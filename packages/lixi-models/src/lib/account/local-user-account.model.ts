@@ -1,4 +1,5 @@
-import { COIN } from '../../constants';
+import { COIN } from '../../constants/coins/coin';
+
 export class LocalUserAccount {
   name: string;
   address: string;

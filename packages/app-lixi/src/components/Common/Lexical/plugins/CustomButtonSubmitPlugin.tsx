@@ -4,7 +4,7 @@ import { Button } from 'antd';
 import React, { useEffect } from 'react';
 import intl from 'react-intl-universal';
 import _ from 'lodash';
-import { POST_TYPE } from '@bcpros/lixi-models/constants';
+import { POST_TYPE } from '@bcpros/lixi-models/constants/post';
 
 // Lexical React plugins are React components, which makes them
 // highly composable. Furthermore, you can lazy load plugins if

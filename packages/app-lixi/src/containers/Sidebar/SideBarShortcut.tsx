@@ -1,7 +1,7 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { NotificationDto } from '@bcpros/lixi-models';
 import { transformShortName } from '@components/Common/AvatarUser';
-import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants';
+import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants/coins/coin';
 import { HashtagOrderField, OrderDirection, Post, PostOrderField } from '@generated/types.generated';
 import { addRecentHashtagAtPages, setGraphqlRequestLoading } from '@store/account/actions';
 import { getSelectedAccountId } from '@store/account/selectors';

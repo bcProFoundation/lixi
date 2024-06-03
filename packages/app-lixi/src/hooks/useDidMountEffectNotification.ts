@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { getBurnQueue, getFailQueue } from '@store/burn';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { showToast } from '@store/toast/actions';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import intl from 'react-intl-universal';
 
 const useDidMountEffectNotification = (func?) => {

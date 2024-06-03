@@ -1,6 +1,6 @@
 import { createUnionType, Field, ID, ObjectType } from '@nestjs/graphql';
 
-import { Post } from '../post';
+import { Post } from '../post/post.model';
 
 export const TimelineItemData = createUnionType({
   name: 'TimelineItemData',

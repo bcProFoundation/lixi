@@ -5,7 +5,7 @@ import React from 'react';
 import { useSliceDispatch } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { Controller, useForm } from 'react-hook-form';
-import { Account } from '@bcpros/lixi-models';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { ProfileFilled } from '@ant-design/icons';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
 import { UnknownAction } from '@reduxjs/toolkit';

@@ -1,5 +1,7 @@
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import BigNumber from 'bignumber.js';
+
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 
 export interface AddressInfo {
   address: string;

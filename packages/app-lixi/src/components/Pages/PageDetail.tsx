@@ -7,7 +7,7 @@ import {
   InfoCircleOutlined
 } from '@ant-design/icons';
 import { ParamPostFollowCommand } from '@bcpros/lixi-models';
-import { PostListType } from '@bcpros/lixi-models/constants';
+import { PostListType } from '@bcpros/lixi-models/constants/postListType';
 import { Follow, FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import Counter from '@components/Common/Counter';

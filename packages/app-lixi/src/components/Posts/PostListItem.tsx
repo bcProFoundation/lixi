@@ -1,6 +1,6 @@
 import { RetweetOutlined } from '@ant-design/icons';
 import { AnalyticEvent } from '@bcpros/lixi-models';
-import { PostListType } from '@bcpros/lixi-models/constants';
+import { PostListType } from '@bcpros/lixi-models/constants/postListType';
 import ActionPostBar from '@components/Common/ActionPostBar';
 import CommentComponent, { CommentItem } from '@components/Common/Comment';
 import InfoCardUser from '@components/Common/InfoCardUser';

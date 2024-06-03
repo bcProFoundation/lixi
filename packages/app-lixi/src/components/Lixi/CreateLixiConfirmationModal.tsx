@@ -6,7 +6,7 @@ import moment from 'moment';
 import { LixiParamLabel } from '@bcpros/lixi-components/components/Common/Atoms';
 import { useSliceDispatch } from '@store/index';
 import { closeModal } from '@store/modal/actions';
-import { countries } from '@bcpros/lixi-models/constants';
+import { countries } from '@bcpros/lixi-models/constants/countries';
 import { LixiType, ClaimType, LotteryAddress } from '@bcpros/lixi-models/lib/lixi';
 import { InfoCircleOutlined } from '@ant-design/icons';
 

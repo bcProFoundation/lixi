@@ -1,7 +1,7 @@
-import { Type } from './type';
 import { Field, ObjectType } from '@nestjs/graphql';
 
 import { IEdge } from './paginated.interface';
+import { Type } from './type';
 
 export function Edge<T>(classRef: Type<T>): Type<IEdge<T>> {
   @ObjectType({ isAbstract: true })

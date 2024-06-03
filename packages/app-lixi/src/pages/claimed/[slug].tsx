@@ -10,7 +10,7 @@ import { END } from 'redux-saga';
 import { getSelectorsByUserAgent } from 'react-device-detect';
 import ClaimedLayout from '@components/Layout/ClaimedLayout';
 import lixiApi from '@store/lixi/api';
-import { LixiDto } from '@bcpros/lixi-models';
+import { LixiDto } from '@bcpros/lixi-models/lib/lixi';
 
 const ClaimPage = props => {
   const { claim, isMobile, lixi } = props;

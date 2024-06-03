@@ -1,11 +1,11 @@
 import Icon, { CopyOutlined, FilterOutlined, RightOutlined, SearchOutlined, SyncOutlined } from '@ant-design/icons';
 import FollowSvg from '@assets/icons/follow.svg';
 import { CreateFollowTokenInput, DeleteFollowTokenInput } from '@bcpros/lixi-models';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import Counter from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import ReactionToken from '@components/Common/ReactionToken';
-import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants';
+import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants/coins/coin';
 import { InfoSubCard } from '@components/Lixi';
 import { AuthorizationContext } from '@context/index';
 import { CreateTokenInput, Token, TokenBasicEdge, TokenQueryItem } from '@generated/index';

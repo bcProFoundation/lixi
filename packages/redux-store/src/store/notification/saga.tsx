@@ -3,7 +3,8 @@ import {
   NotificationDto as Notification,
 } from '@bcpros/lixi-models/lib/common/notification';
 import { SocketUser } from '@bcpros/lixi-models/lib/common/notification';
-import { COIN, coinInfo } from '@bcpros/lixi-models/constants';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { callConfig } from '@context/shareContext';
 import { PayloadAction } from '@reduxjs/toolkit';
 import BigNumber from 'bignumber.js';

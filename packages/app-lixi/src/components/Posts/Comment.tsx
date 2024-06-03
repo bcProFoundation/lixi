@@ -27,7 +27,8 @@ import { CloseOutlined, SendOutlined } from '@ant-design/icons';
 import _ from 'lodash';
 import { sendXPIFailure, sendXPISuccess } from '@store/send/actions';
 import { fromSmallestDenomination, getUtxoWif } from '@utils/cashMethods';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { WalletContext } from '@context/index';
 import useXPI from '@hooks/useXPI';
 import useXEC from '@hooks/useXEC';
@@ -35,7 +36,7 @@ import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@sto
 import { useCreateCommentMutation, useCreateReplyCommentMutation } from '@store/comment/comments.api';
 import { showToast } from '@store/toast/actions';
 import { MultiUploader } from '@components/Common/Uploader/MultiUploader';
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
 import { createCommentSuccess } from '@store/comment';
 import { AuthorizationContext } from '@context/index';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
