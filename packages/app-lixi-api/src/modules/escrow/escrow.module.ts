@@ -6,7 +6,7 @@ import { OfferResolver } from './offer.resolver';
 
 @Module({
   imports: [AuthModule],
-  providers: [DisputeResolver, EscrowOrderResolver, OfferResolver],
-  exports: [DisputeResolver, EscrowOrderResolver, OfferResolver]
+  providers: [DisputeResolver, EscrowOrderResolver, OfferResolver, Logger],
+  exports: [DisputeResolver, EscrowOrderResolver, OfferResolver, Logger]
 })
 export class EscrowModule {}

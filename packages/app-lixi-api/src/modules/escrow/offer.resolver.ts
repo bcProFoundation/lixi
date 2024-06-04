@@ -40,7 +40,6 @@ export class OfferResolver {
   constructor(
     private logger: Logger,
     private prisma: PrismaService,
-    private meiliService: MeiliService,
     @I18n() private i18n: I18nService
   ) {}
 
