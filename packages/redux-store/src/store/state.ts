@@ -15,7 +15,7 @@ import { NotificationsState } from './notification';
 import { PageState } from './page';
 import { TokenState } from './token';
 import { CountriesState, StatesState } from './country';
-import { PageCategory } from '@bcpros/lixi-models';
+import { PageCategory } from '@bcpros/lixi-models/lib/pageCategory';
 import { EntityState } from '@reduxjs/toolkit';
 import { BurnState } from './burn';
 import { PageMessageSessionState } from './message';

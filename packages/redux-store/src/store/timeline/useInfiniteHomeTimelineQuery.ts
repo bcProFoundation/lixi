@@ -1,4 +1,4 @@
-import { PaginationArgs } from '@bcpros/lixi-models';
+import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useLazyHomeTimelineQuery } from '@store/timeline/timeline.api';
 import { useEffect, useMemo, useRef, useState } from 'react';

@@ -1,29 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { saveAs } from 'file-saver';
-import { RWebShare } from 'react-web-share';
-import { Image, Modal, Popover, notification, Button, message } from 'antd';
-import { fromSmallestDenomination } from '@utils/cashMethods';
+import { LinkOutlined, SaveOutlined, ShareAltOutlined } from '@ant-design/icons';
 import BalanceHeader from '@bcpros/lixi-components/components/Common/BalanceHeader';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
-import intl from 'react-intl-universal';
-import { ShareAltOutlined, SaveOutlined, LinkOutlined } from '@ant-design/icons';
-import {
-  FacebookShareButton,
-  FacebookIcon,
-  FacebookMessengerShareButton,
-  FacebookMessengerIcon,
-  TwitterShareButton,
-  TwitterIcon,
-  TelegramShareButton,
-  TelegramIcon,
-  WhatsappShareButton,
-  WhatsappIcon
-} from 'react-share';
-import * as CopyToClipboard from 'react-copy-to-clipboard';
-import { showToast } from '@store/toast/actions';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { useSliceDispatch } from '@store/index';
 import { closeModal } from '@store/modal';
+import { showToast } from '@store/toast/actions';
+import { fromSmallestDenomination } from '@utils/cashMethods';
+import { Button, Image, Modal, Popover, message } from 'antd';
+import { saveAs } from 'file-saver';
+import intl from 'react-intl-universal';
+import {
+  FacebookIcon,
+  FacebookMessengerIcon,
+  FacebookMessengerShareButton,
+  FacebookShareButton,
+  TelegramIcon,
+  TelegramShareButton,
+  TwitterIcon,
+  TwitterShareButton,
+  WhatsappIcon,
+  WhatsappShareButton
+} from 'react-share';
+import { RWebShare } from 'react-web-share';
+import styled from 'styled-components';
 
 const imageBrowserDownload = imageUri => {
   const filename = 'claim' + Date.now() + '.png';

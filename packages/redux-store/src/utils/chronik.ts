@@ -3,10 +3,11 @@ import { walletAdapter, WalletState } from '@store/wallet';
 import BigNumber from 'bignumber.js';
 import { ChronikClient, Tx, TxHistoryPage, Utxo } from 'chronik-client';
 
-import { Hash160AndAddress } from '@bcpros/lixi-models';
+import { Hash160AndAddress } from '@bcpros/lixi-models/lib/wallet/wallet.model';
 import { decryptOpReturnMsg, getHashArrayFromWallet, getUtxoWif, parseOpReturn } from './cashMethods';
 import { parseBurnOutput, ParseBurnResult } from './opReturnBurn';
-import { TX_HISTORY_COUNT, coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { TX_HISTORY_COUNT, COIN } from '@bcpros/lixi-models/constants/coins/coin';
 
 export interface ParsedChronikTx {
   incoming: boolean;

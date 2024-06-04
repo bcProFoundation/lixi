@@ -1,4 +1,4 @@
-import { CreatePageCommand, EditPageCommand } from '@bcpros/lixi-models';
+import { CreatePageCommand, EditPageCommand } from '@bcpros/lixi-models/lib/page/create-page.command';
 import { createAction } from '@reduxjs/toolkit';
 import { Page } from '@generated/types.generated';
 import { PageMessageSessionQuery } from '@store/message/pageMessageSession.generated';

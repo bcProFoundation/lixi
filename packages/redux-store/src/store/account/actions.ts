@@ -1,16 +1,16 @@
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import {
-  Account,
   ChangeAccountLocaleCommand,
   CreateAccountCommand,
   DeleteAccountCommand,
-  Lixi,
   LoginViaEmailCommand,
   RegisterViaEmailNoVerifiedCommand,
   RenameAccountCommand,
-  SecondaryLanguageAccountCommand,
-  Upload
-} from '@bcpros/lixi-models';
-import { COIN } from '@bcpros/lixi-models/constants';
+  SecondaryLanguageAccountCommand
+} from '@bcpros/lixi-models/lib/account/account.dto';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { Lixi } from '@bcpros/lixi-models/lib/lixi';
+import { Upload } from '@bcpros/lixi-models/lib/upload';
 import { createAction } from '@reduxjs/toolkit';
 import { WorshipedPersonFieldsFragment as WorshipedPerson } from '@store/worship/worshipedPerson.generated';
 

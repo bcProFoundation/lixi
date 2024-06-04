@@ -1,4 +1,3 @@
-import { BurnType } from '@bcpros/lixi-models';
 import { createAction } from '@reduxjs/toolkit';
 
 export const fetchAllTokens = createAction('tokens/fetchAllToken');

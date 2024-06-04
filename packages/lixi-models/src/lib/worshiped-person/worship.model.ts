@@ -1,12 +1,11 @@
 import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
-import { Decimal } from '@prisma/client/runtime/binary';
 import { Transform, Type } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 import { GraphQLDecimal, transformToDecimal } from 'prisma-graphql-type-decimal';
 
-import { Account } from '../account';
-import { Temple } from '../temple';
+import { Account } from '../account/account.model';
+import { Temple } from '../temple/temple.model';
 
 import { WorshipedPerson } from './worshipedPerson.model';
 
@@ -37,13 +36,13 @@ export class Worship {
   @IsOptional()
   @Type(() => Object)
   @Transform(transformToDecimal)
-  latitude?: Decimal;
+  latitude?: number;
 
   @Field(() => GraphQLDecimal, { nullable: true })
   @Type(() => Object)
   @IsOptional()
   @Transform(transformToDecimal)
-  longitude?: Decimal;
+  longitude?: number;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.'

@@ -1,5 +1,6 @@
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
-import { BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import BCHJS from '@bcpros/xpi-js';
 import BigNumber from 'bignumber.js';
 
@@ -124,10 +125,10 @@ export const parseBurnOutput = (scriptpubkey: Buffer | string): ParseBurnResult 
       PARSE_CHECK(lokadIdStr.length !== 5, 'lokad id wrong size');
       PARSE_CHECK(
         lokadIdStr[0] !== 'L'.charCodeAt(0) ||
-          lokadIdStr[1] !== 'I'.charCodeAt(0) ||
-          lokadIdStr[2] !== 'X'.charCodeAt(0) ||
-          lokadIdStr[3] !== 'I'.charCodeAt(0) ||
-          lokadIdStr[4] !== 0x00,
+        lokadIdStr[1] !== 'I'.charCodeAt(0) ||
+        lokadIdStr[2] !== 'X'.charCodeAt(0) ||
+        lokadIdStr[3] !== 'I'.charCodeAt(0) ||
+        lokadIdStr[4] !== 0x00,
         'LIXI not in first chunk'
       );
     }

@@ -1,3 +1,7 @@
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
+import { Account, Page, UpdateAccountInput, UpdatePageInput } from '@generated/types.generated';
+import { setAccountAvatar, setAccountCover, setAccountInfoTemp } from '@store/account';
+import { useUpdateAccountMutation } from '@store/account/accounts.api';
 import {
   getAccountAvatarUpload,
   getAccountCoverUpload,
@@ -6,19 +10,14 @@ import {
   getPageCoverUpload
 } from '@store/account/selectors';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
-import { UpdatePageInput, Page, Account, UpdateAccountInput } from '@generated/types.generated';
-import Image from 'next/image';
-import { StyledUploader } from './Uploader/Uploader';
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
-import { Button, Form, Modal } from 'antd';
+import { closeModal } from '@store/modal/actions';
 import { setPage } from '@store/page/action';
 import { useUpdatePageMutation } from '@store/page/pages.api';
 import { showToast } from '@store/toast/actions';
-import intl from 'react-intl-universal';
-import { closeModal } from '@store/modal/actions';
+import { Button, Form, Modal } from 'antd';
 import { useState } from 'react';
-import { setAccount, setAccountAvatar, setAccountCover, setAccountInfoTemp } from '@store/account';
-import { useUpdateAccountMutation } from '@store/account/accounts.api';
+import intl from 'react-intl-universal';
+import { StyledUploader } from './Uploader/Uploader';
 
 export interface UploadAvatarCoverProps {
   profile?: Account;

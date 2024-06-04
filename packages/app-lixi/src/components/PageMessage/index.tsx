@@ -1,6 +1,8 @@
 import { CloseOutlined } from '@ant-design/icons';
 import { ClosePageMessageSessionInput, CreateClaimDto } from '@bcpros/lixi-models';
-import { COIN, UPLOAD_TYPES, coinInfo } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
 import { transformShortName } from '@components/Common/AvatarUser';
 import { MultiUploader } from '@components/Common/Uploader/MultiUploader';
 import { LoadingIcon } from '@components/Layout/MainLayout';

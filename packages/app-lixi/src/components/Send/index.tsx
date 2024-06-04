@@ -7,7 +7,8 @@ import {
 } from '@bcpros/lixi-components/components/Common/EnhancedInputs';
 import WalletLabel from '@bcpros/lixi-components/components/Common/WalletLabel';
 import PrimaryButton from '@components/Common/PrimaryButton';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { WrapperPage } from '@components/Settings';
 import { WalletContext } from '@context/index';
 import useXPI from '@hooks/useXPI';

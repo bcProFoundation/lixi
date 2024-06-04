@@ -1,6 +1,6 @@
 import { ObjectType } from '@nestjs/graphql';
 
-import { BasicPaginated } from '../core';
+import { BasicPaginated } from '../core/pagination/basic.paginated.type';
 
 import { BurnItem } from './burn-item.model';
 

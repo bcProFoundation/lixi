@@ -1,13 +1,16 @@
-import { SaveOutlined, ShareAltOutlined, LinkOutlined } from '@ant-design/icons';
-import intl from 'react-intl-universal';
+import { LinkOutlined, SaveOutlined, ShareAltOutlined } from '@ant-design/icons';
 import BalanceHeader from '@bcpros/lixi-components/components/Common/BalanceHeader';
 import WalletLabel from '@bcpros/lixi-components/components/Common/WalletLabel';
-import { ViewClaimDto, LixiDto } from '@bcpros/lixi-models';
+import { ViewClaimDto } from '@bcpros/lixi-models/lib/claim';
+import { LixiDto } from '@bcpros/lixi-models/lib/lixi';
+import { useSliceDispatch } from '@store/index';
+import { showToast } from '@store/toast/actions';
 import { fromSmallestDenomination } from '@utils/cashMethods';
 import { numberToBase58 } from '@utils/encryptionMethods';
-import { Image, Popover, Button, message } from 'antd';
+import { Button, Image, Popover } from 'antd';
 import { saveAs } from 'file-saver';
-import React from 'react';
+import moment from 'moment';
+import intl from 'react-intl-universal';
 import {
   FacebookIcon,
   FacebookMessengerIcon,
@@ -22,9 +25,6 @@ import {
 } from 'react-share';
 import { RWebShare } from 'react-web-share';
 import styled from 'styled-components';
-import moment from 'moment';
-import { useSliceDispatch } from '@store/index';
-import { showToast } from '@store/toast/actions';
 
 const imageBrowserDownload = imageUri => {
   const filename = 'claim' + Date.now() + '.png';

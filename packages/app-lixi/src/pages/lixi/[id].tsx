@@ -1,4 +1,4 @@
-import { LixiDto } from '@bcpros/lixi-models';
+import { LixiDto } from '@bcpros/lixi-models/lib/lixi';
 import { PrismaClient } from '@bcpros/lixi-prisma';
 import Lixi from '@components/Lixi';
 import _ from 'lodash';

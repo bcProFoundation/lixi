@@ -1,6 +1,6 @@
 import styled, { DefaultTheme } from 'styled-components';
 import { UserOutlined, WalletOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Account } from '@bcpros/lixi-models/lib/account';
+import { Account } from '@bcpros/lixi-models';
 import { useSliceDispatch } from '@store/index';
 import { selectAccount } from '@store/account/actions';
 

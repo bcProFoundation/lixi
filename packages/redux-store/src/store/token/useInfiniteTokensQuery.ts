@@ -1,4 +1,4 @@
-import { BasicPaginationArgs } from '@bcpros/lixi-models';
+import { BasicPaginationArgs } from '@bcpros/lixi-models/core/pagination/basic.pagination.args';
 import { TokenQueryItem } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useLazyTokensQuery, useTokensQuery } from '@store/token/tokens.api';

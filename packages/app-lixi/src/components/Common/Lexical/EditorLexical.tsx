@@ -1,41 +1,37 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { CloseOutlined } from '@ant-design/icons';
+import { LIMIT_CONTENT_POST, WARNING_NUMBER } from '@bcpros/lixi-models/constants/post';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
-import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
-import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
-import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
-import MyCustomAutoFocusPlugin from './plugins/MyCustomAutoFocusPlugin';
+import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin';
+import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
+import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
+import useDetectMobileView from '@local-hooks/useDetectMobileView';
+import { removeUpload } from '@store/account';
+import { getPostCoverUploads } from '@store/account/selectors';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { Button, Image, Progress } from 'antd';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import intl from 'react-intl-universal';
+import Gallery from 'react-photo-gallery';
+import styled from 'styled-components';
+import CreatePoll from '../CreatePoll';
+import { MultiUploader } from '../Uploader/MultiUploader';
 import editorConfig from './editorConfig';
+import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
+import AutoLinkPlugin from './plugins/AutoLinkPlugin';
+import ButtonLinkPlugin from './plugins/ButtonLinkPlugin';
 import CustomButtonSubmitPlugin from './plugins/CustomButtonSubmitPlugin';
 import EmojisPlugin from './plugins/EmojisPlugin';
-import TwitterPlugin from './plugins/TwitterPlugin';
-import AutoLinkPlugin from './plugins/AutoLinkPlugin';
-import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
-import { MultiUploader } from '../Uploader/MultiUploader';
-import { PictureOutlined, CloseOutlined } from '@ant-design/icons';
-import {
-  LIMIT_CONTENT_POST,
-  UPLOAD_API_S3_MULTIPLE,
-  UPLOAD_TYPES,
-  WARNING_NUMBER
-} from '@bcpros/lixi-models/constants';
-import styled from 'styled-components';
-import LinkPlugin from './plugins/LinkPlugin';
-import ButtonLinkPlugin from './plugins/ButtonLinkPlugin';
-import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
-import { Image, Button, Progress } from 'antd';
-import { useSliceDispatch, useSliceSelector } from '@store/index';
-import { getPostCoverUploads } from '@store/account/selectors';
-import Gallery from 'react-photo-gallery';
-import intl from 'react-intl-universal';
-import { removeUpload } from '@store/account';
-import YouTubePlugin from './plugins/YouTubePlugin';
 import FigmaPlugin from './plugins/FigmaPlugin';
-import useDetectMobileView from '@local-hooks/useDetectMobileView';
-import MyOnChangePlugin from './plugins/MyOnChangePlugin';
+import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
+import LinkPlugin from './plugins/LinkPlugin';
 import MaxLengthPlugin from './plugins/MaxLengthPlugin';
-import CreatePoll from '../CreatePoll';
+import MyCustomAutoFocusPlugin from './plugins/MyCustomAutoFocusPlugin';
+import MyOnChangePlugin from './plugins/MyOnChangePlugin';
+import TwitterPlugin from './plugins/TwitterPlugin';
+import YouTubePlugin from './plugins/YouTubePlugin';
 
 export type EditorLexicalProps = {
   initialContent?: string;

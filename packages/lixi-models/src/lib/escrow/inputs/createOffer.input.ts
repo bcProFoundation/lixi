@@ -1,7 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
-import { COIN } from '../../../constants';
+import { COIN } from '../../../constants/coins/coin';
 import { OfferType } from '../offer.model';
 
 @InputType()

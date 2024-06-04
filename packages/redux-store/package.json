@@ -4,7 +4,6 @@
   "description": "Models library for lixi application",
   "main": "build/main/index.js",
   "types": "build/main/index.d.ts",
-  "typings": "build/main/index.d.ts",
   "module": "build/module/index.mjs",
   "repository": "https://github.com/bcProFoundation/lixilotus/tree/master/packages/redux-store",
   "license": "MIT",
@@ -21,7 +20,7 @@
   },
   "scripts": {
     "build": "run-p build:*",
-    "build:main": "node build.js",
+    "build:main": "tsc -p tsconfig.json",
     "precommit": "turbo run format",
     "fix": "run-s fix:*",
     "lint": "run-s lint:*",

@@ -1,4 +1,4 @@
-import { Token } from '@bcpros/lixi-models';
+import { Token } from '@bcpros/lixi-models/lib/token/token.model';
 import { createEntityAdapter, createReducer } from '@reduxjs/toolkit';
 
 import { fetchAllTokensSuccess, getTokenSuccess, postTokenSuccess, selectToken } from './action';

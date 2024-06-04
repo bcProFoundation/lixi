@@ -1,4 +1,4 @@
-import { BurnCommand } from '@bcpros/lixi-models';
+import { BurnCommand } from '@bcpros/lixi-models/lib/burn/burn.command';
 import axiosClient from '@utils/axiosClient';
 
 const burnApi = {

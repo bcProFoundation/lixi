@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import styled from 'styled-components';
 import type { RadioChangeEvent } from 'antd';
 import { Radio } from 'antd';
-import { COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { generateAccount } from '@store/account';
 import intl from 'react-intl-universal';
 

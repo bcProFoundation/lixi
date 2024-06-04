@@ -2,7 +2,7 @@ import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
-import { COIN } from '../../constants';
+import { COIN } from '../../constants/coins/coin';
 
 import { EscrowOrder } from './escrow-order.model';
 import { OfferPaymentMethod } from './offer-payment-method.model';

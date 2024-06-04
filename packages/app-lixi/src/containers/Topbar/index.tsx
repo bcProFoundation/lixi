@@ -1,6 +1,6 @@
 import { CopyOutlined, SendOutlined, SyncOutlined, UserSwitchOutlined } from '@ant-design/icons';
-import { Account } from '@bcpros/lixi-models';
-import { COIN } from '@bcpros/lixi-models/constants';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { FilterType } from '@bcpros/lixi-models/lib/filter';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import AvatarUser from '@components/Common/AvatarUser';

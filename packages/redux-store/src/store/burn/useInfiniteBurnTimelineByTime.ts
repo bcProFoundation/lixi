@@ -1,4 +1,4 @@
-import { PaginationArgs } from '@bcpros/lixi-models';
+import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import _ from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';

@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js';
 
-import { COIN, coinInfo } from '../constants';
+import { COIN } from '../constants/coins/coin';
+import { coinInfo } from '../constants/coins/coin-info';
 
 export const fromSmallestDenomination = (
   amount: number | BigNumber,

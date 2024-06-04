@@ -1,4 +1,4 @@
-import { Account } from '@bcpros/lixi-models';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { getSelectedAccount } from '@store/account';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { saveAllowPushNotification, saveWebPushNotifConfig } from '@store/settings/actions';

@@ -1,5 +1,5 @@
-import { LocalUserAccount } from '@bcpros/lixi-models';
-import { COIN } from '@bcpros/lixi-models/constants';
+import { LocalUserAccount } from '@bcpros/lixi-models/lib/account/local-user-account.model';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { activateWallet } from '@store/wallet';
 import { all, call, fork, put, takeLatest } from 'redux-saga/effects';

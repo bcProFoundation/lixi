@@ -4,9 +4,9 @@ import {
   DeleteAccountCommand,
   ImportAccountCommand,
   LoginViaEmailCommand,
+  PatchAccountCommand,
   RegisterViaEmailNoVerifiedCommand
-} from '@bcpros/lixi-models';
-import { PatchAccountCommand } from '@bcpros/lixi-models/lib/account';
+} from '@bcpros/lixi-models/lib/account/account.dto';
 import axiosClient from '@utils/axiosClient';
 import getOauth2URL from '@utils/oauth2';
 

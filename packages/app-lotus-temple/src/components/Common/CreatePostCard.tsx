@@ -1,5 +1,5 @@
 import { GlobalOutlined, PlusCircleOutlined } from '@ant-design/icons';
-import { PostsQueryTag } from '@bcpros/lixi-models/constants';
+import { PostsQueryTag } from '@bcpros/lixi-models';
 import { CreatePostInput, OrderDirection, PostOrderField } from '@generated/types.generated';
 import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { deleteEditorTextFromCache, removeAllUpload } from '@store/account/actions';

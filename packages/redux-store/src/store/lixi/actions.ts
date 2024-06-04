@@ -1,4 +1,6 @@
-import { Account, ExportLixiCommand, LixiDto, IPaginationResult, RegisterLixiPackCommand } from '@bcpros/lixi-models';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { ExportLixiCommand, RegisterLixiPackCommand } from '@bcpros/lixi-models/lib/lixi';
+import { IPaginationResult } from '@bcpros/lixi-models/utils/paginationResult';
 import { Claim } from '@bcpros/lixi-models/lib/claim';
 import {
   ArchiveLixiCommand,

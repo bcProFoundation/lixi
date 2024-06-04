@@ -2,8 +2,9 @@ import { CopyOutlined } from '@ant-design/icons';
 import UpDownSvg from '@assets/icons/upDownIcon.svg';
 import { Burn } from '@bcpros/lixi-models';
 import { TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models/constants/translation';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { CURRENCIES, WalletItem, decimalFormatBalance } from '@components/Wallet/ListWallet';
 import {
   AccountQueryItem,

@@ -1,4 +1,5 @@
-import { COIN, coinInfo } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { CreateForm } from '@components/Lixi/CreateLixiFormModal';
 import { Page, UpdatePageInput } from '@generated/types.generated';
 import { getSelectedAccount } from '@store/account/selectors';

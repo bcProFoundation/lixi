@@ -1,4 +1,4 @@
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { createReducer } from '@reduxjs/toolkit';
 
 import {

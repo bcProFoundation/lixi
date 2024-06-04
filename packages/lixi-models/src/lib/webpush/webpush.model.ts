@@ -1,7 +1,7 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { GraphQLDateTime } from 'graphql-scalars';
 
-import { Account } from '../account';
+import { Account } from '../account/account.model';
 
 export interface WebpushSubscription {
   endpoint: string;

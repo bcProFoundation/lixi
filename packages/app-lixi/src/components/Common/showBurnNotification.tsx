@@ -1,7 +1,7 @@
 import { Spin, Collapse, notification, Space } from 'antd';
 import styled from 'styled-components';
 import { FireTwoTone, LoadingOutlined } from '@ant-design/icons';
-import { BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn';
+import { BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import intl from 'react-intl-universal';
 
 const { Panel } = Collapse;

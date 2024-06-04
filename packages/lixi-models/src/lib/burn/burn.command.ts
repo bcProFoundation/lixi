@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 
-import { WORSHIP_TYPES } from '../../constants';
+import { WORSHIP_TYPES } from '../../constants/worship';
 
 import { BurnForType, BurnType } from './burn.model';
 

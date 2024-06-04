@@ -1,9 +1,10 @@
 // import { CashReceivedNotificationIcon } from '@bcpros/lixi-components/components/Common/CustomIcons';
 import {
   NotificationDto as Notification,
-  SocketUser,
-} from '@bcpros/lixi-models';
-import { COIN, coinInfo } from '@bcpros/lixi-models/constants';
+} from '@bcpros/lixi-models/lib/common/notification';
+import { SocketUser } from '@bcpros/lixi-models/lib/common/notification';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { callConfig } from '@context/shareContext';
 import { PayloadAction } from '@reduxjs/toolkit';
 import BigNumber from 'bignumber.js';

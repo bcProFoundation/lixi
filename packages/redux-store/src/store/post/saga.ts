@@ -1,5 +1,9 @@
-import { CreatePostCommand, EditPostCommand, ParamPostFollowCommand } from '@bcpros/lixi-models';
-import { POST_TYPE } from '@bcpros/lixi-models/constants';
+import { POST_TYPE } from '@bcpros/lixi-models/constants/post';
+import {
+  CreatePostCommand,
+  EditPostCommand,
+  ParamPostFollowCommand
+} from '@bcpros/lixi-models/lib/post/create-post.command';
 import { PayloadAction } from '@reduxjs/toolkit';
 import * as _ from 'lodash';
 import intl from 'react-intl-universal';

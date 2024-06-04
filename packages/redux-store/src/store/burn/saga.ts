@@ -1,13 +1,11 @@
 /* eslint-disable no-case-declarations */
-import { POST_TYPE, PostsQueryTag, WORSHIP_TYPES } from '@bcpros/lixi-models/constants';
-import {
-  Burn,
-  BurnCommand,
-  BurnExtraArguments,
-  BurnForType,
-  BurnQueueCommand,
-  BurnType
-} from '@bcpros/lixi-models/lib/burn';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { POST_TYPE } from '@bcpros/lixi-models/constants/post';
+import { PostsQueryTag } from '@bcpros/lixi-models/constants/postQueryTag';
+import { WORSHIP_TYPES } from '@bcpros/lixi-models/constants/worship';
+import { BurnCommand, BurnExtraArguments, BurnQueueCommand } from '@bcpros/lixi-models/lib/burn/burn.command';
+import { Burn, BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { callConfig } from '@context/shareContext';
 import { BurnForItem } from '@generated/index';
 import {
@@ -20,9 +18,7 @@ import {
   Post,
   WorshipOrderField
 } from '@generated/types.generated';
-import { all, call, fork, take, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { setTransactionNotReady, setTransactionReady } from '@store/account/actions';
 import { getSelectedAccount, getTransactionStatus } from '@store/account/selectors';
 import { getFailQueue } from '@store/burn';
@@ -35,12 +31,12 @@ import { showToast } from '@store/toast/actions';
 import { api as tokenApi } from '@store/token/tokens.api';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletBalances } from '@store/wallet';
 import { api as worshipApi } from '@store/worship/worshipedPerson.api';
-import { fromSatoshisToCoin, fromSmallestDenomination, fromCoinToSatoshis } from '@utils/cashMethods';
+import { fromCoinToSatoshis, fromSatoshisToCoin, fromSmallestDenomination } from '@utils/cashMethods';
 import BigNumber from 'bignumber.js';
 import * as _ from 'lodash';
 import intl from 'react-intl-universal';
 import { buffers } from 'redux-saga';
-import { actionChannel, flush, getContext, put, select } from 'redux-saga/effects';
+import { actionChannel, all, call, flush, fork, getContext, put, select, take, takeLatest } from 'redux-saga/effects';
 import { match } from 'ts-pattern';
 import { hideLoading } from '../loading/actions';
 import { getFilterPostsHome, getLevelFilter } from '../settings';
@@ -59,8 +55,8 @@ import {
   returnTxHex
 } from './actions';
 import burnApi from './api';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 
+import { PatchCollection } from 'node_modules/@reduxjs/toolkit/dist/query/core/buildThunks';
 import { LixiStoreStateInterface } from '../state';
 
 function* prepareBurnCommandSaga(

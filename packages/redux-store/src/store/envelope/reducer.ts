@@ -1,4 +1,4 @@
-import { Envelope } from '@bcpros/lixi-models';
+import { Envelope } from '@bcpros/lixi-models/lib/envelope';
 import { createEntityAdapter, createReducer, Update } from '@reduxjs/toolkit';
 
 import { importAccountSuccess, selectAccountSuccess } from '../account/actions';

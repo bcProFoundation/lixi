@@ -33,7 +33,7 @@
     "experimentalDecorators": true /* Enables experimental support for ES7 decorators. */,
     // "emitDecoratorMetadata": true /* Enables experimental support for emitting type metadata for decorators. */,
     "lib": [
-      "ES2021"
+      "ES2015"
     ],
     "types": [
       "node"
@@ -44,7 +44,8 @@
     ]
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "../app-lixi-api/src/middlewares/hybrid-filter.ts"
   ],
   "exclude": [
     "node_modules/**"

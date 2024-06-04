@@ -1,4 +1,4 @@
-import { PollTime } from '@bcpros/lixi-models/constants';
+import { PollTime } from '@bcpros/lixi-models/constants/pollType';
 
 export const timeLeft = (endDate: string) => {
   const now = Date.now();

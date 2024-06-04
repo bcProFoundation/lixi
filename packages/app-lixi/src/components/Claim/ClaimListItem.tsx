@@ -1,6 +1,6 @@
 import styled, { DefaultTheme } from 'styled-components';
 import intl from 'react-intl-universal';
-import { Claim } from '@bcpros/lixi-models';
+import { Claim } from '@bcpros/lixi-models/lib/claim';
 import { fromSmallestDenomination } from '@utils/cashMethods';
 import GrayLotus from '@assets/images/gray_lotus.svg';
 

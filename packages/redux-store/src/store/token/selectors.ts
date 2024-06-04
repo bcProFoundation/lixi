@@ -1,4 +1,4 @@
-import { Token } from '@bcpros/lixi-models';
+import { Token } from '@bcpros/lixi-models/lib/token/token.model';
 import { createSelector } from 'reselect';
 
 import { LixiStoreStateInterface } from '../state';

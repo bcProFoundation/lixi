@@ -1,30 +1,31 @@
-import _ from 'lodash';
-import intl from 'react-intl-universal';
-import React, { useContext, useEffect, useState } from 'react';
-import { Row, Col, Form, Spin } from 'antd';
-import PrimaryButton from '@bcpros/lixi-components/components/Common/PrimaryButton';
 import { CashLoadingIcon } from '@bcpros/lixi-components/components/Common/CustomIcons';
 import {
   FormItemClaimCodeXpiInput,
   FormItemWithQRCodeAddon
 } from '@bcpros/lixi-components/components/Common/EnhancedInputs';
-import { parseAddress } from '@utils/addressMethods';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
-import { useSliceDispatch, useSliceSelector } from '@store/index';
+import PrimaryButton from '@bcpros/lixi-components/components/Common/PrimaryButton';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
+import { AuthorizationContext, WalletContext } from '@context/index';
+import { generateAccount } from '@store/account';
+import { getSelectedAccount } from '@store/account/selectors';
 import {
   checkInformationAndClaim,
   checkInformationAndClaimNoAccount,
   saveClaimAddress,
   saveClaimCode
 } from '@store/claim/actions';
-import { getIsGlobalLoading } from '@store/loading/selectors';
 import { getCurrentAddress, getCurrentClaimCode } from '@store/claim/selectors';
-import { getSelectedAccount } from '@store/account/selectors';
-import styled from 'styled-components';
-import { AuthorizationContext, WalletContext } from '@context/index';
-import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { getIsGlobalLoading } from '@store/loading/selectors';
+import { parseAddress } from '@utils/addressMethods';
 import InApp from '@utils/inapp';
-import { generateAccount } from '@store/account';
+import { Col, Form, Row, Spin } from 'antd';
+import _ from 'lodash';
+import React, { useContext, useEffect, useState } from 'react';
+import intl from 'react-intl-universal';
+import styled from 'styled-components';
 
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
 

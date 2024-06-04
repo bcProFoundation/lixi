@@ -1,9 +1,9 @@
 import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLDateTime } from 'graphql-scalars';
 
-import { Account } from '../account';
+import { Account } from '../account/account.model';
 import { LixiModel } from '../lixi/lixi.model';
-import { Page } from '../page';
+import { Page } from '../page/page.model';
 
 import { Message } from './message.model';
 

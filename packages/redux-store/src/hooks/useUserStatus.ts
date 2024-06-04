@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
-import { useSliceDispatch, useSliceSelector } from '@store/index';
-import usePrevious from './usePrevious';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { SocketUser } from '@bcpros/lixi-models/lib/common/notification';
+import { useSocket } from '@context/socketContext';
 import { getSelectedAccount } from '@store/account';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getIsServerStatusOn, userOffline, userOnline } from '@store/notification';
 import { getDeviceId } from '@store/settings';
-import { Account, SocketUser } from '@bcpros/lixi-models';
-import { useSocket } from '@context/socketContext';
+import { useEffect } from 'react';
+import usePrevious from './usePrevious';
 
 /**
  * Tracking user status

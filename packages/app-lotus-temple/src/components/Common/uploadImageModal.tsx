@@ -1,4 +1,4 @@
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
 import { Page, UpdatePageInput } from '@generated/types.generated';
 import { getPageAvatarUpload, getPageCoverUpload } from '@store/account/selectors';
 import { useSliceDispatch, useSliceSelector } from '@store/index';

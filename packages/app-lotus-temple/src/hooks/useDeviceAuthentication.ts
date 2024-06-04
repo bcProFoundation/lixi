@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { convertBase64ToArrayBuffer, convertArrayBufferToBase64 } from '@utils/convertArrBuffBase64';
 import _ from 'lodash';
 import { useSliceDispatch, useSliceSelector } from '@store/index';

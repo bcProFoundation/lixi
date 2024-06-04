@@ -1,5 +1,5 @@
-import { OPTION_BURN_TYPE, OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import { OPTION_BURN_TYPE, OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants/burn';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { TokenQueryItem } from '@generated/index';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import { prepareBurnCommand } from '@store/burn';

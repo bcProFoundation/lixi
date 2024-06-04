@@ -11,7 +11,7 @@ import {
   RenameAccountCommand,
   SecondaryLanguageAccountCommand
 } from '@bcpros/lixi-models';
-import { COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import {
   AntdFormWrapper,
   LanguageNotAutoTransDropdown,

@@ -1,10 +1,11 @@
 import LockOutlined, { EditOutlined, SendOutlined } from '@ant-design/icons';
 import BalanceHeader from '@bcpros/lixi-components/components/Common/BalanceHeader';
 import { FormattedWalletAddress } from '@bcpros/lixi-components/components/Common/QRCode';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import WalletLabel from '@bcpros/lixi-components/components/Common/WalletLabel';
 import { Account, RenameAccountCommand } from '@bcpros/lixi-models';
-import { QRCodeModalType } from '@bcpros/lixi-models/constants';
+import { QRCodeModalType } from '@bcpros/lixi-models/constants/QRCodeModal';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
 import { SmartButton } from '@components/Common/PrimaryButton';
 import { QRCodeModal } from '@components/Common/QRCodeModal';

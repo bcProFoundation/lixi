@@ -7,9 +7,10 @@ import { useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { fromSmallestDenomination } from '@utils/cashMethods';
 import { showToast } from '@store/toast/actions';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { CreateForm } from '@components/Lixi/CreateLixiFormModal';
-import { Account } from '@bcpros/lixi-models';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { useUpdateAccountMutation } from '@store/account/accounts.api';
 import { setAccount } from '@store/account';
 

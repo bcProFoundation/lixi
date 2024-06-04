@@ -33,7 +33,8 @@ import {
   UnarchiveLixiCommand,
   WithdrawLixiCommand
 } from '@bcpros/lixi-models/lib/lixi';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { getSelectedAccount } from '@store/account/selectors';
 import { getAllSubLixies, getLoadMoreSubLixiesStartId } from '@store/lixi/selectors';
 import { openModal } from '@store/modal/actions';
@@ -45,7 +46,7 @@ import SubLixiList from './SubLixiList';
 import LixiClaimedList from './LixiClaimedList';
 import useWindowDimensions from '@hooks/useWindowDimensions';
 import { QRCodeModal } from '@components/Common/QRCodeModal';
-import { QRCodeModalType } from '@bcpros/lixi-models/constants';
+import { QRCodeModalType } from '@bcpros/lixi-models/constants/QRCodeModal';
 import { PageMessageSessionStatus } from '@generated/types.generated';
 
 type CopiedProps = {

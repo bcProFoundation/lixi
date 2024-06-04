@@ -1,6 +1,6 @@
 import { Comment as AntdComment } from '@ant-design/compatible';
 import { DislikeFilled, DislikeOutlined, DownOutlined, LikeFilled, LikeOutlined, UpOutlined } from '@ant-design/icons';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import AvatarUser from '@components/Common/AvatarUser';
 import Counter from '@components/Common/Counter';

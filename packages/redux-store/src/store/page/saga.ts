@@ -1,9 +1,10 @@
-import { AccountDto, EditPageCommand, Page, PageDto, CreatePageCommand } from '@bcpros/lixi-models';
-import { all, fork, put, takeLatest } from 'redux-saga/effects';
+import { CreatePageCommand, EditPageCommand } from '@bcpros/lixi-models/lib/page/create-page.command';
+import { PageDto } from '@bcpros/lixi-models/lib/page/page.dto';
 import { PayloadAction } from '@reduxjs/toolkit';
 import * as _ from 'lodash';
 import intl from 'react-intl-universal';
 import * as Effects from 'redux-saga/effects';
+import { all, fork, put, takeLatest } from 'redux-saga/effects';
 
 import { hideLoading, showLoading } from '../loading/actions';
 import { showToast } from '../toast/actions';

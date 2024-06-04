@@ -1,4 +1,4 @@
-import { PageCategory } from '@bcpros/lixi-models';
+import { PageCategory } from '@bcpros/lixi-models/lib/pageCategory';
 import { createAction } from '@reduxjs/toolkit';
 
 export const getCategories = createAction('data/getCategories');
