@@ -1223,6 +1223,8 @@ model EscrowOrder {
   dispute             Dispute?
   createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz
   updatedAt           DateTime          @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("escrow_order")
 }
 
 model Dispute {
@@ -1234,6 +1236,8 @@ model Dispute {
   status        DisputeStatus @default(ACTIVE)
   createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz
   updatedAt     DateTime      @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("dispute")
 }
 
 model Offer {
@@ -1253,6 +1257,8 @@ model Offer {
   escrowOrders   EscrowOrder[]
   createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz
   updatedAt      DateTime             @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("offer")
 }
 
 model OfferPaymentMethod {
@@ -1263,6 +1269,8 @@ model OfferPaymentMethod {
   paymentMethodId String        @map("payment_method_id")
   createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime      @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("offer_payment_method")
 }
 
 model PaymentMethod {
@@ -1273,6 +1281,8 @@ model PaymentMethod {
   escrowOrders        EscrowOrder[]
   createdAt           DateTime             @default(now()) @map("created_at") @db.Timestamptz
   updatedAt           DateTime             @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("payment_method")
 }
 
 enum OfferType {
