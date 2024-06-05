@@ -14,6 +14,30 @@
       "require": "./build/main/index.js",
       "import": "./build/module/index.js",
       "default": "./build/main/index.js"
+    },
+    "./constants/coins/*": {
+      "types": "./build/main/constants/coins/*.d.ts",
+      "require": "./build/main/constants/coins/*.js",
+      "import": "./build/module/constants/coins/*.js",
+      "default": "./build/main/constants/coins/*.js"
+    },
+    "./constants/*": {
+      "types": "./build/main/constants/*.d.ts",
+      "require": "./build/main/constants/*.js",
+      "import": "./build/module/constants/*.js",
+      "default": "./build/main/constants/*.js"
+    },
+    "./lib/*": {
+      "types": "./build/main/lib/*.d.ts",
+      "require": "./build/main/lib/*.js",
+      "import": "./build/module/lib/*.js",
+      "default": "./build/main/lib/*.js"
+    },
+    "./lib/burn/*": {
+      "types": "./build/main/lib/burn/*.d.ts",
+      "require": "./build/main/lib/burn/*.js",
+      "import": "./build/module/lib/burn/*.js",
+      "default": "./build/main/lib/burn/*.js"
     }
   },
   "scripts": {
@@ -85,7 +109,7 @@
     "@nestjs/mapped-types": "^2.0.5",
     "bignumber.js": "^9.0.0",
     "class-validator": "^0.14.0",
-    "graphql-scalars": "^1.22.1",
+    "graphql-scalars": "^1.23.0",
     "moment": "^2.30.1",
     "os-browserify": "^0.3.0",
     "prisma-graphql-type-decimal": "3.0.0"

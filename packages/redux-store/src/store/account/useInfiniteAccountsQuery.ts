@@ -1,8 +1,8 @@
 import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
-import { AccountQueryItem } from '@generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAccountsQuery, useLazyAccountsQuery } from './accounts.api';
+import { AccountQueryItem } from 'src/generated';
 
 const accountsAdapter = createEntityAdapter<AccountQueryItem, number>({
   selectId: account => account.id

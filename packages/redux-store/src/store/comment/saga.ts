@@ -1,4 +1,4 @@
-import { CommentType } from '@generated/index';
+import { CommentType } from 'src/generated/index';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { api as commentsApi } from '@store/comment/comments.api';
 import { api as postsApi } from '@store/post/posts.api';

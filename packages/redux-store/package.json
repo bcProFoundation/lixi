@@ -13,6 +13,10 @@
       "require": "./build/main/index.js",
       "import": "./dist/module/index.mjs"
     },
+    "./generated/*": {
+      "require": "./build/main/generated/*.js",
+      "import": "./build/module/generated/*.mjs"
+    },
     "./*": {
       "require": "./build/main/*.js",
       "import": "./build/module/*.mjs"

@@ -1,5 +1,5 @@
 import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
-import { TimelineQueryItem } from '@generated/index';
+import { TimelineQueryItem } from 'src/generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useBookmarkTimelineQuery, useLazyBookmarkTimelineQuery } from './bookmark.api';

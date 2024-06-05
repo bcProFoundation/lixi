@@ -20,9 +20,6 @@
       "@containers/*": [
         "src/containers/*"
       ],
-      "@generated/*": [
-        "src/generated/*"
-      ],
       "@hooks/*": [
         "src/hooks/*"
       ],

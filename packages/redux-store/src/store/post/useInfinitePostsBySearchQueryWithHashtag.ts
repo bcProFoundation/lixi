@@ -1,5 +1,5 @@
 import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
-import { PostOrder, PostQueryItem } from '@generated/index';
+import { PostOrder, PostQueryItem } from 'src/generated/index';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useLazyPostsBySearchWithHashtagQuery, usePostsBySearchWithHashtagQuery } from '@store/post/posts.api';
 import { useEffect, useMemo, useRef, useState } from 'react';

@@ -1,4 +1,4 @@
-import { Comment, PageInfo } from '@generated/types.generated';
+import { Comment, PageInfo } from 'src/generated/types.generated';
 import { EntityState } from '@reduxjs/toolkit';
 
 import { api } from './comments.generated';

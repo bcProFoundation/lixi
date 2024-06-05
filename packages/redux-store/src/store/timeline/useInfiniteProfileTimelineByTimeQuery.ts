@@ -2,7 +2,7 @@ import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.a
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { TimelineQueryItem } from '@generated/index';
+import { TimelineQueryItem } from 'src/generated/index';
 import { useLazyProfileTimelineByTimeQuery, useProfileTimelineByTimeQuery } from './timeline.api';
 
 const profileTimelineAdapter = createEntityAdapter<TimelineQueryItem, string>({

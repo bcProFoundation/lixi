@@ -44,5 +44,11 @@
   "typeRoots": [
     "./src/@types",
     "./node_modules/@types"
-  ]
+  ],
+  "ts-node": {
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  }
 }

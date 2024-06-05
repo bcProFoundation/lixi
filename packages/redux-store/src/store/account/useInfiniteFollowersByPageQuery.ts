@@ -3,7 +3,7 @@ import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useAllFollowersByPageQuery, useLazyAllFollowersByPageQuery } from '@store/account/accounts.api';
 import _ from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AccountQueryItem } from '@generated/types';
+import { AccountQueryItem } from 'src/generated/types';
 
 const accountsAdapter = createEntityAdapter<AccountQueryItem, number>({
   selectId: account => account.id,
