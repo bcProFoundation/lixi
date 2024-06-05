@@ -1,5 +1,6 @@
 import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
-import { Comment, CommentOrder, CommentQueryItem } from 'src/generated/index';
+import { CommentOrder, Comment } from '../../generated/types.generated';
+import { CommentQueryItem } from '../../generated/types';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useCommentsToCommentableIdQuery, useLazyCommentsToCommentableIdQuery } from '@store/comment/comments.api';
 import { useEffect, useMemo, useRef, useState } from 'react';

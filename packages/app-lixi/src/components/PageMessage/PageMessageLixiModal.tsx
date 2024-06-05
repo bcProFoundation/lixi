@@ -1,7 +1,7 @@
 import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { GenerateLixiCommand } from '@bcpros/lixi-models/lib/lixi';
 import { WalletContext } from '@context/walletProvider';
-import { PageQueryItem } from '@generated/index';
+import { PageQueryItem } from '@generated/types';
 import { useSliceDispatch } from '@store/index';
 import { generateLixi } from '@store/lixi/actions';
 import { closeModal } from '@store/modal/actions';

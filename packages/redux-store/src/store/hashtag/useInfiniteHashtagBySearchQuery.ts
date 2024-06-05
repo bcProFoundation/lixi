@@ -1,7 +1,7 @@
 import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
 import { useLazyHashtagBySearchQuery, useHashtagBySearchQuery } from '@store/hashtag/hashtag.api';
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { HashtagOrder } from 'src/generated/types.generated';
+import { HashtagOrder } from '../../generated/types.generated';
 import _ from 'lodash';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { HashtagQuery } from './hashtag.generated';

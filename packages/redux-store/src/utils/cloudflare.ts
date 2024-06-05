@@ -1,4 +1,4 @@
-import { Upload } from 'src/generated/types.generated';
+import { Upload } from '../generated/types.generated';
 
 export const toImageUrl = (deliveryUrl: string, cfAccountHash: string, upload?: Upload) => {
   if (!upload) return '';

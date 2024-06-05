@@ -4,7 +4,7 @@ const config: CodegenConfig = {
   overwrite: true,
   schema: '../app-lixi-api/schema.graphql',
   generates: {
-    'src/generated/types.generated.ts': {
+    '../../generated/types.generated.ts': {
       plugins: ['typescript'],
     },
     'src': {

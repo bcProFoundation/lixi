@@ -8,7 +8,7 @@ import ReactionToken from '@components/Common/ReactionToken';
 import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants/coins/coin';
 import { InfoSubCard } from '@components/Lixi';
 import { AuthorizationContext } from '@context/index';
-import { CreateTokenInput, Token, TokenBasicEdge, TokenQueryItem } from '@generated/index';
+import { CreateTokenInput, Token, TokenBasicEdge } from '@generated/types.generated';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { getSelectedAccountId } from '@store/account';
 import { setTransactionReady } from '@store/account/actions';
@@ -37,6 +37,7 @@ import { Controller, useForm } from 'react-hook-form';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import useAuthorization from '../Common/Authorization/use-authorization.hooks';
+import { TokenQueryItem } from '@generated/types';
 
 const StyledTokensListing = styled.div`
   .table-tokens {
@@ -145,7 +146,6 @@ interface NewTokenInputTypes {
 const TokensListing = () => {
   const dispatch = useSliceDispatch();
   const selectedAccountId = useSliceSelector(getSelectedAccountId);
-  const router = useRouter();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');

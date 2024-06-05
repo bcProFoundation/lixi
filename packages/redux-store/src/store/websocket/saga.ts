@@ -3,7 +3,7 @@ import { AccountDto } from '@bcpros/lixi-models/lib/account/account.dto';
 import { NotificationDto as Notification } from '@bcpros/lixi-models/lib/common/notification';
 import { SessionAction, SessionActionEnum } from '@bcpros/lixi-models/lib/sessionAction';
 import { callConfig } from '@context/shareContext';
-import { PageMessageSession } from 'src/generated/types.generated';
+import { PageMessageSession } from '../../generated/types.generated';
 import { getAccountById, getSelectedAccount } from '@store/account/selectors';
 import { setPageMessageSession } from '@store/page/action';
 import { setNewPostAvailable } from '@store/post/actions';

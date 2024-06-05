@@ -4,7 +4,7 @@ import {
   usePageMessageSessionByAccountIdQuery
 } from '@store/message/pageMessageSession.api';
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { PageMessageSessionOrder } from 'src/generated/types.generated';
+import { PageMessageSessionOrder } from '../../generated/types.generated';
 import _ from 'lodash';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { PageMessageSessionQuery } from './pageMessageSession.generated';

@@ -9,7 +9,6 @@ import { Burn, BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn/burn.m
 import { callConfig } from '@context/shareContext';
 import {
   Account,
-  BurnForItem,
   Comment,
   CommentType,
   CreateWorshipInput,
@@ -17,7 +16,7 @@ import {
   Page,
   Post,
   WorshipOrderField
-} from '@bcpros/redux-store/generatec';
+} from '../../generated/types.generated';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { setTransactionNotReady, setTransactionReady } from '@store/account/actions';
 import { getSelectedAccount, getTransactionStatus } from '@store/account/selectors';
@@ -58,6 +57,7 @@ import burnApi from './api';
 
 import { PatchCollection } from 'node_modules/@reduxjs/toolkit/dist/query/core/buildThunks';
 import { LixiStoreStateInterface } from '../state';
+import { BurnForItem } from '../../generated/types';
 
 function* prepareBurnCommandSaga(
   action: PayloadAction<{

@@ -3,7 +3,7 @@ import FollowSvg from '@assets/icons/follow.svg';
 import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants/coins/coin';
 import { PostListType } from '@bcpros/lixi-models/constants/postListType';
 import { AuthorizationContext } from '@context/index';
-import { PostQueryItem } from '@generated/index';
+import { PostQueryItem } from '@generated/types';
 import { getSelectedAccount } from '@store/account/selectors';
 import { openActionSheet } from '@store/action-sheet/actions';
 import { useSliceDispatch, useSliceSelector } from '@store/index';

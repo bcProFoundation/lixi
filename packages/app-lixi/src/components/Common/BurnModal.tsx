@@ -13,7 +13,7 @@ import {
   PageQueryItem,
   PostQueryItem,
   TokenQueryItem
-} from '@generated/index';
+} from '@generated/types';
 import { getSelectedAccount } from '@store/account/selectors';
 import { prepareBurnCommand } from '@store/burn';
 import { useSliceDispatch, useSliceSelector } from '@store/index';

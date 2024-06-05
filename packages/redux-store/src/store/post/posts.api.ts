@@ -1,4 +1,4 @@
-import { PageInfo, Post } from 'src/generated/types.generated';
+import { PageInfo, Post } from '../../generated/types.generated';
 import { EntityState } from '@reduxjs/toolkit';
 
 import { POST_TYPE } from '@bcpros/lixi-models/constants/post';

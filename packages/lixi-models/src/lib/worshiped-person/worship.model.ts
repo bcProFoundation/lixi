@@ -1,6 +1,5 @@
 import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
 import { Decimal } from '@prisma/client/runtime/library.js';
-// import { Decimal } from '@prisma/client/runtime/index.js';
 import { Transform, Type } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';

@@ -21,9 +21,9 @@ import {
   HashtagOrderField,
   OrderDirection,
   PageMessageSessionStatus,
-  PageQueryItem,
   PostOrderField
-} from '@generated/index';
+} from '@generated/types.generated';
+import { PageQueryItem } from '@generated/types';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { addRecentHashtagAtPages, setTransactionReady } from '@store/account/actions';
 import { getRecentHashtagAtPages, getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';

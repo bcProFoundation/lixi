@@ -1,5 +1,5 @@
 import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
-import { AccountQueryItem } from 'src/generated/index';
+import { AccountQueryItem } from '../../generated/types';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTopWeekAccountsQuery, useLazyTopWeekAccountsQuery } from './accounts.api';

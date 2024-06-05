@@ -1,7 +1,8 @@
 import { DollarOutlined, GlobalOutlined, PlusCircleOutlined, ShopOutlined } from '@ant-design/icons';
 import { AuthorizationContext } from '@context/index';
 import { WalletContext } from '@context/walletProvider';
-import { CreatePostInput, OrderDirection, PageQueryItem, PostOrderField } from '@generated/index';
+import { CreatePostInput, OrderDirection, PostOrderField } from '@generated/types.generated';
+import { PageQueryItem } from '@generated/types';
 import useXPI from '@hooks/useXPI';
 import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { deleteEditorTextFromCache, removeAllUpload } from '@store/account/actions';

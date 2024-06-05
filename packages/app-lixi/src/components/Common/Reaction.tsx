@@ -1,8 +1,14 @@
 import { OPTION_BURN_TYPE, OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants/burn';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { AuthenticationContext, AuthorizationContext } from '@context/index';
-import { AccountQueryItem, CommentQueryItem, PageQueryItem, PostQueryItem, TokenQueryItem } from '@generated/index';
-import { BurnForItem } from '@generated/types';
+import {
+  AccountQueryItem,
+  CommentQueryItem,
+  PageQueryItem,
+  PostQueryItem,
+  TokenQueryItem,
+  BurnForItem
+} from '@generated/types';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import { prepareBurnCommand } from '@store/burn';
 import { useSliceDispatch, useSliceSelector } from '@store/index';

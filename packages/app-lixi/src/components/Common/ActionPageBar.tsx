@@ -1,5 +1,5 @@
 import { BurnForType } from '@bcpros/lixi-models';
-import { PageQueryItem } from '@generated/index';
+import { PageQueryItem } from '@generated/types';
 import { Space } from 'antd';
 import React from 'react';
 import styled from 'styled-components';

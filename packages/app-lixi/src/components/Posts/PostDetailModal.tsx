@@ -3,7 +3,7 @@ import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
 import ActionPostBar from '@components/Common/ActionPostBar';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { LoadingIcon, NavBarHeader } from '@components/Layout/MainLayout';
-import { PostQueryItem } from '@generated/index';
+import { PostQueryItem } from '@generated/types';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import { getCommentUpload } from '@store/account/selectors';
 import { useSliceDispatch, useSliceSelector } from '@store/index';

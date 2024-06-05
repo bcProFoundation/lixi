@@ -2,7 +2,7 @@ import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.a
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import _ from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { BurnQueryItem } from 'src/generated/types';
+import { BurnQueryItem } from '../../generated/types';
 import { useLazyPostBurnHistoryQuery, usePostBurnHistoryQuery } from './burn.api';
 
 const burnsAdapter = createEntityAdapter<BurnQueryItem, string>({

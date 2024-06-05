@@ -1,7 +1,7 @@
 import { BurnCommand, BurnQueueCommand } from '@bcpros/lixi-models/lib/burn/burn.command';
 import { createAction } from '@reduxjs/toolkit';
-import { BurnForItem } from '../../generated';
 import { Burn, BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
+import { BurnForItem } from '../../generated/types';
 
 export const burnForUpDownVote = createAction<BurnCommand>('burn/burnForUpDownVote');
 export const burnForUpDownVoteSuccess = createAction<Burn>('burn/burnForUpDownVoteSuccess');

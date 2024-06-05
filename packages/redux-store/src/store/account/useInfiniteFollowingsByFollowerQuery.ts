@@ -1,5 +1,6 @@
 import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
-import { AccountOrder, AccountQueryItem } from 'src/generated/index';
+import { AccountOrder } from '../../generated/types.generated';
+import { AccountQueryItem } from '../../generated/types';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useAllFollowingsByFollowerQuery, useLazyAllFollowingsByFollowerQuery } from '@store/follow/follows.api';
 import { useEffect, useMemo, useRef, useState } from 'react';

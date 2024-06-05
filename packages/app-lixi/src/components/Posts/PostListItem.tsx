@@ -5,7 +5,7 @@ import ActionPostBar from '@components/Common/ActionPostBar';
 import CommentComponent, { CommentItem } from '@components/Common/Comment';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { LoadingIcon } from '@components/Layout/MainLayout';
-import { PostQueryItem } from '@generated/index';
+import { PostQueryItem } from '@generated/types';
 import useWindowDimensions from '@hooks/useWindowDimensions';
 import { getSelectedAccount } from '@store/account';
 import { analyticEvent } from '@store/analytic-event';

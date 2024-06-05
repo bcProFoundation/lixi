@@ -6,13 +6,8 @@ import CommentListItem from './CommentListItem';
 import AvatarUser from '@components/Common/AvatarUser';
 import { Controller, useForm } from 'react-hook-form';
 import { useInfiniteCommentsToCommentableIdQuery } from '@store/comment/useInfiniteCommentsToCommentableIdQuery';
-import {
-  CommentOrderField,
-  CommentQueryItem,
-  CreateCommentInput,
-  OrderDirection,
-  PostQueryItem
-} from '@generated/index';
+import { CommentOrderField, CreateCommentInput, OrderDirection } from '@generated/types.generated';
+import { CommentQueryItem, PostQueryItem } from '@generated/types';
 import { useRouter } from 'next/router';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import {

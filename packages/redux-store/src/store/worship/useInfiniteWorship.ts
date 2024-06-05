@@ -1,6 +1,6 @@
 import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
-import { WorshipQueryItem } from 'src/generated/index';
-import { WorshipOrder } from 'src/generated/types.generated';
+import { WorshipOrder } from '../../generated/types.generated';
+import { WorshipQueryItem } from '../../generated/types';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useAllWorshipQuery, useLazyAllWorshipQuery } from '@store/worship/worshipedPerson.api';
 import { useEffect, useMemo, useRef, useState } from 'react';

@@ -3,7 +3,7 @@ import Counter from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { LoadingIcon, NavBarHeader } from '@components/Layout/MainLayout';
 import { WalletContext } from '@context/walletProvider';
-import { PostQueryItem } from '@generated/index';
+import { PostQueryItem } from '@generated/types';
 import { RepostInput } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';

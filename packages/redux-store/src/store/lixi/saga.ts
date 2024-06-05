@@ -17,7 +17,7 @@ import {
   WithdrawLixiCommand
 } from '@bcpros/lixi-models/lib/lixi';
 import { IPaginationResult } from '@bcpros/lixi-models/utils/paginationResult';
-import { CreatePageMessageInput } from 'src/generated/types.generated';
+import { CreatePageMessageInput } from '../../generated/types.generated';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { removeUploadFromCache } from '@store/account/actions';
 import { getAccountById } from '@store/account/selectors';

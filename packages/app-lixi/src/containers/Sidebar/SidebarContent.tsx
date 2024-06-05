@@ -1,5 +1,5 @@
 import { LeftOutlined } from '@ant-design/icons';
-import { HashtagOrderField, OrderDirection, PostOrderField, PostQueryItem } from '@generated/index';
+import { HashtagOrderField, OrderDirection, PostOrderField } from '@generated/types.generated';
 import { addRecentHashtagAtPages, setGraphqlRequestLoading } from '@store/account';
 import { getSelectedAccountId } from '@store/account/selectors';
 import { useInfiniteHashtagByPageQuery } from '@store/hashtag/useInfiniteHashtagByPageQuery';
@@ -26,6 +26,7 @@ import {
   ShortCutTopicItem,
   typeFilterPageQuery
 } from './SideBarShortcut';
+import { PostQueryItem } from '@generated/types';
 
 type SidebarContentProps = {
   className?: string;
