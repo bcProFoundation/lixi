@@ -4,6 +4,7 @@ export const infoXpi: CoinInfo = {
   name: 'Lotus',
   ticker: 'XPI',
   logo: '/images/currencies/xpi.svg',
+  background: '/images/currencies/bg-xpi.svg',
   prefixes: ['lotus'],
   legacyPrefix: 'bitcoincash',
   coingeckoId: 'lotus',
@@ -16,6 +17,7 @@ export const infoXpi: CoinInfo = {
   tokenTicker: 'lToken',
   tokenPrefixes: ['ltoken'],
   blockExplorerUrl: 'https://explorer.givelotus.org',
+  blockTime: 120,
   opReturn: {
     opReturnPrefixHex: '6a',
     opReturnAppPrefixLengthHex: '04',

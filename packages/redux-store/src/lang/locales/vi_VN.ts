@@ -135,6 +135,8 @@ export default {
   'general.wallets': 'Ví',
   'general.topWeek': 'Xếp hạng tuần',
   'general.topMonth': 'Xếp hạng tháng',
+  'general.otherWallet': 'Ví khác',
+  'general.baseWallet': 'Ví cho đốt',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Bạn cần nhập đúng cụm từ bảo mật',

@@ -136,6 +136,9 @@ export default {
   'general.wallets': 'Wallets',
   'general.topWeek': 'Top week',
   'general.topMonth': 'Top month',
+  'general.primaryWallet': 'Primary wallet',
+  'general.otherWallet': 'Other wallet',
+  'general.baseWallet': 'Base wallet (For burn)',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Valid mnemonic seed phrase required',

@@ -30,6 +30,7 @@ import ActionSheet from '../../Common/ActionSheet';
 import ModalManager from '../../Common/ModalManager';
 import { GlobalStyle } from './GlobalStyle';
 import { theme } from './theme';
+import ClaimComponent from '@components/Claim';
 
 export const LoadingIcon = <LoadingOutlined className="loadingIcon" />;
 
@@ -169,6 +170,15 @@ export const AppContainer = styled.div`
   @media (max-width: 960px) {
     height: auto;
     min-height: auto;
+  }
+
+  .wrap-claim-component {
+    width: 250px;
+    margin-top: 3.1rem;
+
+    @media (max-width: 960px) {
+      display: none;
+    }
   }
 `;
 
@@ -310,7 +320,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                         {children}
                       </div>
                       {/* This below is just a dummy sidebar */}
-                      {(selectedKey === '/wallet' || selectedKey === '/') && <SidebarRanking></SidebarRanking>}
+                      {(selectedKey === '/wallet' || selectedKey === '/') && (
+                        <div>
+                          <div className="wrap-claim-component">
+                            <ClaimComponent isClaimFromAccount={true} claimCodeFromURL={''}></ClaimComponent>{' '}
+                          </div>
+                          <SidebarRanking></SidebarRanking>
+                        </div>
+                      )}
                       <DummySidebar />
                       {!hideStatusBar && (
                         <Footer

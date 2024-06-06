@@ -2,6 +2,7 @@ export type CoinInfo = {
   name: string;
   ticker: string;
   logo: string;
+  background: string;
   prefixes: string[];
   legacyPrefix: string;
   coingeckoId: string;
@@ -14,5 +15,6 @@ export type CoinInfo = {
   tokenTicker: string;
   tokenPrefixes: string[];
   blockExplorerUrl: string;
+  blockTime: number;
   opReturn?: any;
 };

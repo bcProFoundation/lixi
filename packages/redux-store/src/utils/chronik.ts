@@ -4,7 +4,13 @@ import BigNumber from 'bignumber.js';
 import { ChronikClient, Tx, TxHistoryPage, Utxo } from 'chronik-client';
 
 import { Hash160AndAddress } from '@bcpros/lixi-models';
-import { decryptOpReturnMsg, getHashArrayFromWallet, getUtxoWif, parseOpReturn } from './cashMethods';
+import {
+  decryptOpReturnMsg,
+  getHashArrayFromWallet,
+  getHashFromWallet,
+  getUtxoWif,
+  parseOpReturn
+} from './cashMethods';
 import { parseBurnOutput, ParseBurnResult } from './opReturnBurn';
 import { TX_HISTORY_COUNT, coinInfo, COIN } from '@bcpros/lixi-models/constants';
 
@@ -271,7 +277,7 @@ export const parseChronikTx = async (
   wallet: WalletState,
   coin = COIN.XPI
 ): Promise<ParsedChronikTx> => {
-  const walletHash160s: string[] = getHashArrayFromWallet(wallet);
+  const walletHash160: string = getHashFromWallet(wallet);
   const { inputs, outputs } = tx;
   // Assign defaults
   let incoming = true;
@@ -307,14 +313,9 @@ export const parseChronikTx = async (
     }
 
     // Incoming transaction means that all inputs are not from current addresses
-    for (let j = 0; j < walletHash160s.length; j += 1) {
-      const thisWalletHash160 = walletHash160s[j];
-      if (thisInputSendingHash160.includes(thisWalletHash160)) {
-        // Then this is an outgoing tx
-        incoming = false;
-        // Break out of this for loop once you know this is an outgoing tx
-        break;
-      }
+    if (thisInputSendingHash160.includes(walletHash160)) {
+      // Then this is an outgoing tx
+      incoming = false;
     }
   }
 
@@ -368,14 +369,11 @@ export const parseChronikTx = async (
       parseBurnResult = parseBurnOutput(thisOutputReceivedAtHash160);
     }
     // Find amounts at your wallet's addresses
-    for (let j = 0; j < walletHash160s.length; j += 1) {
-      const thisWalletHash160 = walletHash160s[j];
-      if (thisOutputReceivedAtHash160.includes(thisWalletHash160)) {
-        // If incoming tx, this is amount received by the user's wallet
-        // if outgoing tx (incoming === false), then this is a change amount
-        const thisOutputAmount = new BigNumber(thisOutput.value);
-        xpiAmount = incoming ? xpiAmount.plus(thisOutputAmount) : xpiAmount.minus(thisOutputAmount);
-      }
+    if (thisOutputReceivedAtHash160.includes(walletHash160)) {
+      // If incoming tx, this is amount received by the user's wallet
+      // if outgoing tx (incoming === false), then this is a change amount
+      const thisOutputAmount = new BigNumber(thisOutput.value);
+      xpiAmount = incoming ? xpiAmount.plus(thisOutputAmount) : xpiAmount.minus(thisOutputAmount);
     }
     // Output amounts not at your wallet are sent amounts if !incoming
     if (!incoming) {
