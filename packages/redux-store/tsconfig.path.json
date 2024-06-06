@@ -26,9 +26,6 @@
       "@store/*": [
         "src/store/*"
       ],
-      "@lang/*": [
-        "src/lang/*"
-      ],
       "@context/*": [
         "src/context/*"
       ],

@@ -1,6 +1,5 @@
 import { ChangeAccountLocaleCommand } from '@bcpros/lixi-models/lib/account/account.dto';
 import { Account } from '@bcpros/lixi-models/lib/account/account.model';
-import AppLocale from '@lang/index';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { changeAccountLocale } from '@store/account/actions';
 import { getSelectedAccount } from '@store/account/selectors';
@@ -14,6 +13,7 @@ import { loadLocale, loadLocaleFailure, loadLocaleSuccess, setInitIntlStatus, up
 
 import 'moment/locale/vi';
 import { injectStore } from '../../utils';
+import AppLocale from '../../lang';
 
 function initLocale(currentAppLocale: any): Promise<boolean> {
   return intl
