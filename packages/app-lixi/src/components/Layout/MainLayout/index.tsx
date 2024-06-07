@@ -171,15 +171,6 @@ export const AppContainer = styled.div`
     height: auto;
     min-height: auto;
   }
-
-  .wrap-claim-component {
-    width: 250px;
-    margin-top: 3.1rem;
-
-    @media (max-width: 960px) {
-      display: none;
-    }
-  }
 `;
 
 export const HeaderContainer = styled.div`
@@ -320,14 +311,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                         {children}
                       </div>
                       {/* This below is just a dummy sidebar */}
-                      {(selectedKey === '/wallet' || selectedKey === '/') && (
-                        <div>
-                          <div className="wrap-claim-component">
-                            <ClaimComponent isClaimFromAccount={true} claimCodeFromURL={''}></ClaimComponent>{' '}
-                          </div>
-                          <SidebarRanking></SidebarRanking>
-                        </div>
-                      )}
+                      {(selectedKey.includes('/wallet') || selectedKey === '/') && <SidebarRanking></SidebarRanking>}
                       <DummySidebar />
                       {!hideStatusBar && (
                         <Footer

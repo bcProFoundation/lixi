@@ -147,7 +147,7 @@ const WalletInfoComponent: React.FC = () => {
   const selectedWalletPath = useSliceSelector(getSelectedWalletPath);
   const walletHasUpdated = useSliceSelector(getWalletHasUpdated);
 
-  const [currentAddress, setCurrentAddress] = useState<string>(selectedWalletPath.xAddress);
+  const [currentAddress, setCurrentAddress] = useState<string>(selectedWalletPath?.xAddress);
 
   useEffect(() => {
     switch (selectedAccount?.currentCoin) {
