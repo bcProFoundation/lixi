@@ -4,7 +4,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { changeAccountLocale } from '@store/account/actions';
 import { getSelectedAccount } from '@store/account/selectors';
 import { showToast } from '@store/toast/actions';
-import { injectStore as reduxInjectstore } from '@utils/axiosClient';
+import { injectStore as reduxInjectstore } from '../../utils/axiosClient';
 import moment from 'moment';
 import intl from 'react-intl-universal';
 import { all, call, fork, put, select, takeLatest } from 'redux-saga/effects';

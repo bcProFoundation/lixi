@@ -1,4 +1,4 @@
-import { fromSmallestDenomination } from '@utils/cashMethods';
+import { fromSmallestDenomination } from './cashMethods';
 import BigNumber from 'bignumber.js';
 
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
@@ -21,16 +21,14 @@ export const shouldRejectAmountInput = (cashAmount, totalCashBalance) => {
   } else if (testedAmount.lte(0)) {
     error = 'Amount must be greater than 0';
   } else if (testedAmount.lt(fromSmallestDenomination(coinInfo[COIN.XPI].dustSats).toString())) {
-    error = `Send amount must be at least ${fromSmallestDenomination(coinInfo[COIN.XPI].dustSats).toString()} ${
-      coinInfo[COIN.XPI].ticker
-    }`;
+    error = `Send amount must be at least ${fromSmallestDenomination(coinInfo[COIN.XPI].dustSats).toString()} ${coinInfo[COIN.XPI].ticker
+      }`;
   } else if (testedAmount.gt(totalCashBalance)) {
     error = `Amount cannot exceed your ${coinInfo[COIN.XPI].ticker} balance`;
   } else if (!isNaN(testedAmount.toNumber()) && testedAmount.toString().includes('.')) {
     if (testedAmount.toString().split('.')[1].length > coinInfo[COIN.XPI].cashDecimals) {
-      error = `${coinInfo[COIN.XPI].ticker} transactions do not support more than ${
-        coinInfo[COIN.XPI].cashDecimals
-      } decimal places`;
+      error = `${coinInfo[COIN.XPI].ticker} transactions do not support more than ${coinInfo[COIN.XPI].cashDecimals
+        } decimal places`;
     }
   }
   // return false if no error, or string error msg if error

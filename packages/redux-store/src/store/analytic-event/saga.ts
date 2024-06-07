@@ -2,7 +2,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { take, takeEvery, put, select, fork, delay, race, all } from 'redux-saga/effects';
 import { analyticEvent, batchEvents, cancelBatch } from './actions';
 import { AnalyticEvent } from '@bcpros/lixi-models/lib/analytic-event/analytic-event';
-import { callConfig } from '@context/shareContext';
+import { callConfig } from '../../context/shareContext';
 
 function* batchEventsSaga(action: PayloadAction<AnalyticEvent[]>) {
   const socket = callConfig.call.socketContext;

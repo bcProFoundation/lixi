@@ -3,7 +3,7 @@ import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { saveWebAuthnConfig } from '@store/settings/actions';
 import { getWebAuthnConfig } from '@store/settings/selectors';
-import { convertArrayBufferToBase64, convertBase64ToArrayBuffer } from '@utils/convertArrBuffBase64';
+import { convertArrayBufferToBase64, convertBase64ToArrayBuffer } from '../utils/convertArrBuffBase64';
 import { useEffect, useState } from 'react';
 
 type AuthenticationConfig = {

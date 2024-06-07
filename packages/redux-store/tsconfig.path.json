@@ -11,9 +11,6 @@
       "@icons/*": [
         "src/assets/icons/*"
       ],
-      "@utils/*": [
-        "src/utils/*"
-      ],
       "@components/*": [
         "src/components/*"
       ],
@@ -25,9 +22,6 @@
       ],
       "@store/*": [
         "src/store/*"
-      ],
-      "@context/*": [
-        "src/context/*"
       ],
       "@bcpros/redux-store/api/*": [
         "src/api/*"

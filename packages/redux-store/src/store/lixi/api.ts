@@ -11,7 +11,7 @@ import {
   WithdrawLixiCommand
 } from '@bcpros/lixi-models/lib/lixi';
 import { IPaginationResult } from '@bcpros/lixi-models/utils/paginationResult';
-import axiosClient from '@utils/axiosClient';
+import axiosClient from '../../utils/axiosClient';
 
 const lixiApi = {
   getById(id: number, accountSecret?: string): Promise<LixiDto> {
@@ -19,11 +19,11 @@ const lixiApi = {
 
     const config = accountSecret
       ? {
-          headers: {
-            'Account-Secret': accountSecret
-          },
-          withCredentials: true
-        }
+        headers: {
+          'Account-Secret': accountSecret
+        },
+        withCredentials: true
+      }
       : {};
 
     return axiosClient
@@ -39,11 +39,11 @@ const lixiApi = {
   getSubLixies(parentId: number, accountSecret?: string, startId?: number): Promise<IPaginationResult<LixiDto>> {
     const config = accountSecret
       ? {
-          headers: {
-            'Account-Secret': accountSecret
-          },
-          withCredentials: true
-        }
+        headers: {
+          'Account-Secret': accountSecret
+        },
+        withCredentials: true
+      }
       : {};
 
     const url = startId ? `/api/lixies/${parentId}/children?startId=${startId}` : `/api/lixies/${parentId}/children`;
@@ -148,11 +148,11 @@ const lixiApi = {
   exportSubLixies(id: number, command: ExportLixiCommand, accountSecret?: string) {
     const config = accountSecret
       ? {
-          headers: {
-            'Account-Secret': accountSecret
-          },
-          withCredentials: true
-        }
+        headers: {
+          'Account-Secret': accountSecret
+        },
+        withCredentials: true
+      }
       : {};
 
     const url = `/api/lixies/${id}/export`;
@@ -170,11 +170,11 @@ const lixiApi = {
   downloadExportedLixi(command: DownloadExportedLixiCommand) {
     const config = command.mnemonicHash
       ? {
-          headers: {
-            // 'mnemonic-hash': command.mnemonicHash
-          },
-          withCredentials: true
-        }
+        headers: {
+          // 'mnemonic-hash': command.mnemonicHash
+        },
+        withCredentials: true
+      }
       : {};
 
     const url = `/api/lixies/${command.lixiId}/download?file=${command.fileName}`;

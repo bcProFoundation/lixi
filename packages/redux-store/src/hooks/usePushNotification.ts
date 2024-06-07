@@ -4,7 +4,7 @@ import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { saveAllowPushNotification, saveWebPushNotifConfig } from '@store/settings/actions';
 import { getDeviceId, getWebPushNotifConfig } from '@store/settings/selectors';
 import { subscribeSelectedAccount, unsubscribeByAddresses } from '@store/webpush';
-import { getPlatformPermissionState } from '@utils/pushNotification';
+import { getPlatformPermissionState } from '../utils/pushNotification';
 import * as _ from 'lodash';
 import { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';

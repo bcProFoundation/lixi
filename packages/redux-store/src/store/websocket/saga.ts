@@ -2,7 +2,7 @@ import { NOTIFICATION_TYPES } from '@bcpros/lixi-models/constants/notification';
 import { AccountDto } from '@bcpros/lixi-models/lib/account/account.dto';
 import { NotificationDto as Notification } from '@bcpros/lixi-models/lib/common/notification';
 import { SessionAction, SessionActionEnum } from '@bcpros/lixi-models/lib/sessionAction';
-import { callConfig } from '@context/shareContext';
+import { callConfig } from '../../context/shareContext';
 import { PageMessageSession } from '../../generated/types.generated';
 import { getAccountById, getSelectedAccount } from '@store/account/selectors';
 import { setPageMessageSession } from '@store/page/action';

@@ -5,7 +5,7 @@ import {
   userSubcribeToMultiPageMessageSession
 } from './actions';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { callConfig } from '@context/shareContext';
+import { callConfig } from '../../context/shareContext';
 
 function* userSubcribeToPageMessageSessionSaga(action: PayloadAction<string>) {
   const { payload } = action;

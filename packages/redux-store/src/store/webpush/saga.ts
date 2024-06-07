@@ -1,11 +1,11 @@
 import { WebpushSubscribeCommand, WebpushUnsubscribeCommand } from '@bcpros/lixi-models/lib/webpush/webpush.command';
-import { callConfig } from '@context/shareContext';
+import { callConfig } from '../../context/shareContext';
 import { all, call, fork, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { getSelectedAccount } from '@store/account';
 import { getWebPushNotifConfig } from '@store/settings/selectors';
 import { getAllWalletPaths } from '@store/wallet';
-import { buildSubscribeCommand, buildUnsubscribeCommand } from '@utils/pushNotification';
+import { buildSubscribeCommand, buildUnsubscribeCommand } from '../../utils/pushNotification';
 import intl from 'react-intl-universal';
 import { select } from 'redux-saga/effects';
 import { hideLoading, showLoading } from '../loading/actions';

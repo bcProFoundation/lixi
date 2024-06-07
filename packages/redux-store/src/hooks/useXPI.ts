@@ -11,9 +11,9 @@ import {
   getChangeAddressFromInputUtxos,
   parseXpiSendValue,
   signAndBuildTx
-} from '@utils/cashMethods';
-import { getRecipientPublicKey } from '@utils/chronik';
-import { generateBurnTxOutput } from '@utils/opReturnBurn';
+} from '../utils/cashMethods';
+import { getRecipientPublicKey } from '../utils/chronik';
+import { generateBurnTxOutput } from '../utils/opReturnBurn';
 import BigNumber from 'bignumber.js';
 import { ChronikClient, Utxo } from 'chronik-client';
 import intl from 'react-intl-universal';

@@ -9,7 +9,7 @@ import {
   getChangeAddressFromInputUtxosXec,
   signAndBuildXecTx,
   sumOneToManyXec
-} from '@utils/cashMethods';
+} from '../utils/cashMethods';
 import BigNumber from 'bignumber.js';
 import { ChronikClient, Utxo } from 'chronik-client';
 import intl from 'react-intl-universal';

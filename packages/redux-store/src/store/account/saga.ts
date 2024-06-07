@@ -13,13 +13,13 @@ import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { UpdateAccountInput } from '@bcpros/lixi-models/lib/account/inputs/updateAccount.input';
 import { LocalUserAccount } from '@bcpros/lixi-models/lib/account/local-user-account.model';
 import { Lixi } from '@bcpros/lixi-models/lib/lixi';
-import { callConfig } from '@context/index';
+import { callConfig } from '../../context/shareContext';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { setLocalUserAccount, silentLocalLogin } from '@store/localAccount';
 import { fetchNotifications, removeAllNotifications } from '@store/notification/actions';
 import { getCurrentLocale } from '@store/settings/selectors';
 import { removeAllWallets, removeWalletPaths } from '@store/wallet';
-import { aesGcmDecrypt, aesGcmEncrypt, numberToBase58 } from '@utils/encryptionMethods';
+import { aesGcmDecrypt, aesGcmEncrypt, numberToBase58 } from '../../utils/encryptionMethods';
 import intl from 'react-intl-universal';
 import { all, call, fork, put, putResolve, select, takeLatest } from 'redux-saga/effects';
 import { Config, names, uniqueNamesGenerator } from 'unique-names-generator';
@@ -31,7 +31,7 @@ import { api as accountGraphApi } from '@store/account/accounts.api';
 import { saveClaimAddress } from '@store/claim';
 import { removeAllPageMessageSession } from '@store/message';
 import { changeCurrentLocale, loadLocale, setInitIntlStatus } from '@store/settings/actions';
-import { getLocaleByLanguage } from '@utils/languages';
+import { getLocaleByLanguage } from '../../utils/languages';
 import accountApi from '../account/api';
 import lixiApi from '../lixi/api';
 import { hideLoading, showLoading } from '../loading/actions';
@@ -595,7 +595,7 @@ function* refreshLixiListSilentSaga(action: PayloadAction<number>) {
     const lixiesData = yield call(lixiApi.getByAccountId, accountId);
     const lixies = (lixiesData ?? []) as Lixi[];
     yield put(refreshLixiListSilentSuccess({ account: account, lixies: lixies }));
-  } catch (err) {}
+  } catch (err) { }
 }
 
 function* registerViaEmailNoVerifiedSaga(action: PayloadAction<RegisterViaEmailNoVerifiedCommand>) {
@@ -727,16 +727,16 @@ function* setSecondaryLanguageAccountSuccessSaga(action: PayloadAction<Account>)
   yield put(
     secondaryLanguage != null
       ? showToast('success', {
-          message: intl.get('toast.success'),
-          description: intl.get('settings.selectLanguageNotTransSuccess', {
-            language: intl.get(`code.${secondaryLanguage}`)
-          })
+        message: intl.get('toast.success'),
+        description: intl.get('settings.selectLanguageNotTransSuccess', {
+          language: intl.get(`code.${secondaryLanguage}`)
         })
+      })
       : showToast('success', {
-          message: intl.get('toast.success'),
-          description: intl.get('settings.removeLanguageNotTrans'),
-          duration: 5
-        })
+        message: intl.get('toast.success'),
+        description: intl.get('settings.removeLanguageNotTrans'),
+        duration: 5
+      })
   );
 }
 

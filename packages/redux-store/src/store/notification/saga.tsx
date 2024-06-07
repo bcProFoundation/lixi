@@ -5,7 +5,7 @@ import {
 import { SocketUser } from '@bcpros/lixi-models/lib/common/notification';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
-import { callConfig } from '@context/shareContext';
+import { callConfig } from '../../context/shareContext';
 import { PayloadAction } from '@reduxjs/toolkit';
 import BigNumber from 'bignumber.js';
 import { isMobile } from 'react-device-detect';
