@@ -1,8 +1,10 @@
 import { BarChartOutlined, RetweetOutlined } from '@ant-design/icons';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { WalletContext } from '@context/walletProvider';
-import { PostQueryItem, RepostInput } from '@generated/index';
+import { PostQueryItem } from '@generated/types';
+import { RepostInput } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
 import { getSelectedAccount } from '@store/account';
 import { useSliceDispatch, useSliceSelector } from '@store/index';

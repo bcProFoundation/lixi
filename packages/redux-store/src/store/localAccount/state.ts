@@ -1,4 +1,4 @@
-import { LocalUserAccount } from '@bcpros/lixi-models/lib/account';
+import { LocalUserAccount } from '@bcpros/lixi-models/lib/account/local-user-account.model';
 import { EntityState } from '@reduxjs/toolkit';
 
 export interface LocalUserAccountsState extends EntityState<LocalUserAccount, string> {

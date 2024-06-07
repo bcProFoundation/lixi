@@ -5,6 +5,8 @@ import {
   MoreOutlined,
   WalletOutlined
 } from '@ant-design/icons';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import {
   ArchiveLixiCommand,
   ClaimType,
@@ -14,18 +16,17 @@ import {
   UnarchiveLixiCommand,
   WithdrawLixiCommand
 } from '@bcpros/lixi-models/lib/lixi';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { getSelectedAccount } from '@store/account/selectors';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { archiveLixi, exportSubLixies, renameLixi, selectLixi, unarchiveLixi, withdrawLixi } from '@store/lixi/actions';
 import { getAllSubLixies } from '@store/lixi/selectors';
 import { openModal } from '@store/modal/actions';
 import { fromSmallestDenomination } from '@utils/cashMethods';
 import { Button, Col, Dropdown, Menu, Row, Tag, Typography } from 'antd';
+import { useRouter } from 'next/router';
 import intl from 'react-intl-universal';
-import { getSelectedAccount } from '@store/account/selectors';
-import { useSliceDispatch, useSliceSelector } from '@store/index';
-import { archiveLixi, exportSubLixies, renameLixi, selectLixi, unarchiveLixi, withdrawLixi } from '@store/lixi/actions';
 import styled, { DefaultTheme } from 'styled-components';
 import { RenameLixiModalProps } from './RenameLixiModal';
-import { useRouter } from 'next/router';
 
 const { Text } = Typography;
 

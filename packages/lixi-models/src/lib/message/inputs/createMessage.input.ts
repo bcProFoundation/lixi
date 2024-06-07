@@ -1,6 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional } from 'class-validator';
-import { COIN } from '../../../constants';
+import { COIN } from '../../../constants/coins/coin';
 import { Nullable } from '../../nullable';
 
 @InputType()

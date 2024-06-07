@@ -1,7 +1,7 @@
 import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLDateTime } from 'graphql-scalars';
 
-import { Nullable } from './nullable';
+import type { Nullable } from './nullable';
 
 export enum BurnForTypeItem {
   Page = 0x5f01,

@@ -2,9 +2,9 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
-import { Account } from '../account';
-import { Page } from '../page';
-import { Token } from '../token';
+import { Account } from '../account/account.model';
+import { Page } from '../page/page.model';
+import { Token } from '../token/token.model';
 
 @ObjectType()
 export class FollowPage {

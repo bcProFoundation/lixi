@@ -1,4 +1,3 @@
-import { NotificationDto } from '@bcpros/lixi-models';
 import { createAction } from '@reduxjs/toolkit';
 
 export const startChannel = createAction('worship/startChannel');

@@ -2,7 +2,7 @@ import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
-import { Account } from '../account';
+import { Account } from '../account/account.model';
 import { ImageUploadable } from '../imageUploadable';
 import { Nullable } from '../nullable';
 

@@ -1,7 +1,8 @@
 import { fromSmallestDenomination } from '@utils/cashMethods';
 import BigNumber from 'bignumber.js';
 
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 
 // Validate cash amount
 export const shouldRejectAmountInput = (cashAmount, totalCashBalance) => {

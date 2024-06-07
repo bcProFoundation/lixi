@@ -1,6 +1,6 @@
 import { createEntityAdapter, createReducer, Update } from '@reduxjs/toolkit';
 
-import { Post } from '@generated/index';
+import { Post } from '../../generated/types.generated';
 import {
   editPostSuccess,
   fetchAllPostsSuccess,

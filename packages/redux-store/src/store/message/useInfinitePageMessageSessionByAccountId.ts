@@ -1,10 +1,10 @@
-import { PaginationArgs } from '@bcpros/lixi-models';
+import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
 import {
   useLazyPageMessageSessionByAccountIdQuery,
   usePageMessageSessionByAccountIdQuery
 } from '@store/message/pageMessageSession.api';
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { PageMessageSessionOrder } from '@generated/types.generated';
+import { PageMessageSessionOrder } from '../../generated/types.generated';
 import _ from 'lodash';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { PageMessageSessionQuery } from './pageMessageSession.generated';

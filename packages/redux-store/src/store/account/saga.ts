@@ -1,18 +1,18 @@
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import {
-  Account,
   AccountDto,
   CreateAccountCommand,
   DeleteAccountCommand,
   ImportAccountCommand,
-  Lixi,
-  LocalUserAccount,
   LoginViaEmailCommand,
   RegisterViaEmailNoVerifiedCommand,
   RenameAccountCommand,
-  SecondaryLanguageAccountCommand,
-  UpdateAccountInput
-} from '@bcpros/lixi-models';
-import { COIN } from '@bcpros/lixi-models/constants';
+  SecondaryLanguageAccountCommand
+} from '@bcpros/lixi-models/lib/account/account.dto';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { UpdateAccountInput } from '@bcpros/lixi-models/lib/account/inputs/updateAccount.input';
+import { LocalUserAccount } from '@bcpros/lixi-models/lib/account/local-user-account.model';
+import { Lixi } from '@bcpros/lixi-models/lib/lixi';
 import { callConfig } from '@context/index';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { setLocalUserAccount, silentLocalLogin } from '@store/localAccount';
@@ -26,11 +26,12 @@ import { Config, names, uniqueNamesGenerator } from 'unique-names-generator';
 import Cookies from 'universal-cookie';
 import { LocalUser } from '../../models/localUser';
 
+import { ChangeAccountLocaleCommand, PatchAccountCommand } from '@bcpros/lixi-models/lib/account/account.dto';
 import { api as accountGraphApi } from '@store/account/accounts.api';
 import { saveClaimAddress } from '@store/claim';
 import { removeAllPageMessageSession } from '@store/message';
 import { changeCurrentLocale, loadLocale, setInitIntlStatus } from '@store/settings/actions';
-import { PatchAccountCommand, ChangeAccountLocaleCommand } from '@bcpros/lixi-models/lib/account/account.dto';
+import { getLocaleByLanguage } from '@utils/languages';
 import accountApi from '../account/api';
 import lixiApi from '../lixi/api';
 import { hideLoading, showLoading } from '../loading/actions';
@@ -87,7 +88,6 @@ import {
   verifyEmailSuccess
 } from './actions';
 import { getAccountById, getAllAccountsIds, getSelectedAccount, getSelectedAccountId } from './selectors';
-import { getLocaleByLanguage } from '@utils/languages';
 
 const nameConfigGenerator: Config = {
   dictionaries: [names, names],

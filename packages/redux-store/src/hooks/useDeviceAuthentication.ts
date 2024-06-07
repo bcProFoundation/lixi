@@ -1,4 +1,5 @@
-import { COIN, coinInfo } from '@bcpros/lixi-models/constants';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { saveWebAuthnConfig } from '@store/settings/actions';
 import { getWebAuthnConfig } from '@store/settings/selectors';

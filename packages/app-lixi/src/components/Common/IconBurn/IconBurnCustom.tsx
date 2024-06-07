@@ -1,10 +1,10 @@
 import { useContext, useState } from 'react';
 import { StyledBurnIconHover } from '../Reaction';
 import { useSliceDispatch } from '@store/index';
-import { OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants';
+import { OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants/burn';
 import { BurnForItem } from '@generated/types';
 import { prepareBurnCommand } from '@store/burn';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { AuthenticationContext, AuthorizationContext } from '@context/index';
 import useAuthorization from '../Authorization/use-authorization.hooks';
 

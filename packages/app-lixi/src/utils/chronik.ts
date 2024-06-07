@@ -1,5 +1,6 @@
 import BCHJS from '@bcpros/xpi-js';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { walletAdapter, WalletState } from '@store/wallet';
 import BigNumber from 'bignumber.js';
 import { ChronikClient, Tx, TxHistoryPage, Utxo } from 'chronik-client';

@@ -1,9 +1,9 @@
 import {
-  Account,
   WebpushSubscribeCommand,
   WebpushSubscriberCommand,
   WebpushUnsubscribeCommand
-} from '@bcpros/lixi-models';
+} from '@bcpros/lixi-models/lib/webpush/webpush.command';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { WalletPathAddressInfo } from '@store/wallet';
 import messageLib from 'bitcoinjs-message';
 import * as _ from 'lodash';

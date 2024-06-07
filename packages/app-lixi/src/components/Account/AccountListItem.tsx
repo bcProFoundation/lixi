@@ -1,8 +1,8 @@
-import styled, { DefaultTheme } from 'styled-components';
-import { UserOutlined, WalletOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Account } from '@bcpros/lixi-models/lib/account';
-import { useSliceDispatch } from '@store/index';
+import { DeleteOutlined, UserOutlined } from '@ant-design/icons';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { selectAccount } from '@store/account/actions';
+import { useSliceDispatch } from '@store/index';
+import styled, { DefaultTheme } from 'styled-components';
 
 const AccountIcon = styled.div`
   height: 32px;

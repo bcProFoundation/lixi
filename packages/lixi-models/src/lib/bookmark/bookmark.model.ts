@@ -1,7 +1,7 @@
 import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLDateTime } from 'graphql-scalars';
 
-import { Account } from '../account';
+import { Account } from '../account/account.model';
 
 @ObjectType()
 export class Bookmark {

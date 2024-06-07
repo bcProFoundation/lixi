@@ -1,8 +1,9 @@
-import { COIN, coinInfo } from '@bcpros/lixi-models/constants';
-import { Account } from '@bcpros/lixi-models/lib/account';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { GenerateLixiCommand } from '@bcpros/lixi-models/lib/lixi';
 import { WalletContext } from '@context/walletProvider';
-import { PageQueryItem } from '@generated/index';
+import { PageQueryItem } from '@generated/types';
 import { getSelectedAccount, useSliceDispatch, useSliceSelector } from '@store/index';
 import { generateLixi } from '@store/lixi/actions';
 import { closeModal } from '@store/modal/actions';

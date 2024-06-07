@@ -1,4 +1,4 @@
-import { Lixi } from '@bcpros/lixi-models';
+import { Lixi } from '@bcpros/lixi-models/lib/lixi';
 import _ from 'lodash';
 import { createSelector } from 'reselect';
 

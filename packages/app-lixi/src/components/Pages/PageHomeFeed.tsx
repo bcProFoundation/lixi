@@ -16,7 +16,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import useAuthorization from '../Common/Authorization/use-authorization.hooks';
-import { PageQueryItem } from '@generated/index';
+import { PageQueryItem } from '@generated/types';
 
 const StyledPageFeed = styled.div`
   margin: 1rem auto;

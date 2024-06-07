@@ -1,4 +1,4 @@
-import { BurnFieldsFragment } from '@store/burn/burn.generated';
+import { BurnFieldsFragment } from '../store/burn/burn.generated';
 import { AccountQuery } from '../store/account/accounts.generated';
 import { CommentQuery } from '../store/comment/comments.generated';
 import { HashtagQuery } from '../store/hashtag';

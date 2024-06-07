@@ -1,6 +1,10 @@
-import { CreatePostCommand, EditPostCommand, ParamPostFollowCommand } from '@bcpros/lixi-models';
+import {
+  CreatePostCommand,
+  EditPostCommand,
+  ParamPostFollowCommand
+} from '@bcpros/lixi-models/lib/post/create-post.command';
 import { createAction } from '@reduxjs/toolkit';
-import { Post } from '@generated/types.generated';
+import { Post } from '../../generated/types.generated';
 
 export const fetchAllPosts = createAction('posts/fetchAllPosts');
 export const fetchAllPostsSuccess = createAction<any>('posts/fetchAllPostsSuccess');

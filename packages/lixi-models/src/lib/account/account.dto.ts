@@ -1,6 +1,6 @@
-import { COIN } from '../../constants';
+import { COIN } from '../../constants/coins/coin';
 import { Nullable } from '../nullable';
-import { Page } from '../page';
+import { Page } from '../page/page.model';
 
 export interface CreateAccountCommand {
   mnemonic: string;

@@ -1,4 +1,4 @@
-import { Account } from '@bcpros/lixi-models/lib/account';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { Upload } from '@bcpros/lixi-models/lib/upload';
 import { EntityState } from '@reduxjs/toolkit';
 import { WorshipedPersonFieldsFragment as WorshipedPerson } from '@store/worship/worshipedPerson.generated';

@@ -1,6 +1,6 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
-import { Account } from './account';
+import { Account } from './account/account.model';
 import { Nullable } from './nullable';
 
 @ObjectType()

@@ -1,4 +1,4 @@
-import { BurnForType, BurnType } from '@bcpros/lixi-models';
+import { BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import SlpWallet from '@bcpros/minimal-xpi-slp-wallet';
 import BCHJS from '@bcpros/xpi-js';
 import { WalletPathAddressInfo } from '@store/wallet';
@@ -18,7 +18,8 @@ import BigNumber from 'bignumber.js';
 import { ChronikClient, Utxo } from 'chronik-client';
 import intl from 'react-intl-universal';
 
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 
 export default function useXPI() {
   const getRestUrl = (apiIndex = 0) => {

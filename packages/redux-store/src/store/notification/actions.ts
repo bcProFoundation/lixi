@@ -1,4 +1,5 @@
-import { NotificationDto, SocketUser } from '@bcpros/lixi-models';
+import { NotificationDto } from '@bcpros/lixi-models/lib/common/notification';
+import { SocketUser } from '@bcpros/lixi-models/lib/common/notification';
 import { createAction } from '@reduxjs/toolkit';
 
 export const fetchNotifications = createAction<{

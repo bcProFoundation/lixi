@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 
-import { FollowForType } from '../follow';
+import { FollowForType } from '../follow/follow.model';
 
 export class CreatePostCommand {
   @IsNotEmpty()

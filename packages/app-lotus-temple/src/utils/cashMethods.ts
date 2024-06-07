@@ -1,8 +1,9 @@
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import BCHJS from '@bcpros/xpi-js';
 import { WalletPathAddressInfo, WalletState } from '@store/wallet';
 import BigNumber from 'bignumber.js';
 import { Utxo } from 'chronik-client';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { createSharedKey, decrypt, encrypt } from './encryption';
 
 export type TxInputObj = {

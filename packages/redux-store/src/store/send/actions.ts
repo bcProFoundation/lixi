@@ -1,4 +1,4 @@
-import { COIN } from '@bcpros/lixi-models';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { createAction } from '@reduxjs/toolkit';
 
 export const sendCoinSuccess = createAction<{ amount: number; coin: COIN }>('send/sendCoinSuccess');

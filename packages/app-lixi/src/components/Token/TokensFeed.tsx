@@ -1,8 +1,8 @@
 import { CopyOutlined } from '@ant-design/icons';
-import { PostListType } from '@bcpros/lixi-models/constants';
+import { PostListType } from '@bcpros/lixi-models/constants/postListType';
 import CreatePostCard from '@components/Common/CreatePostCard';
 import SearchBox from '@components/Common/SearchBox';
-import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants';
+import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants/coins/coin';
 import { InfoSubCard } from '@components/Lixi';
 import PostListItem from '@components/Posts/PostListItem';
 import {
@@ -34,7 +34,7 @@ import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import { useInfiniteTokenTimelineByScoreQuery, useInfiniteTokenTimelineByTimeQuery } from '@store/timeline';
 import { FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
-import { ParamPostFollowCommand } from '@bcpros/lixi-models/build/module/lib/post';
+import { ParamPostFollowCommand } from '@bcpros/lixi-models';
 import { changeFollowActionSheetPost } from '@store/post/actions';
 
 const StyledTokensFeed = styled.div`

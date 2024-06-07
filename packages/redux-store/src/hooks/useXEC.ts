@@ -1,7 +1,8 @@
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { fromCoinToSatoshis, fromSmallestDenomination } from '@utils/cashMethods';
 import BigNumber from 'bignumber.js';
 import { ChronikClient, Utxo } from 'chronik-client';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 
 const wif = require('wif');
 

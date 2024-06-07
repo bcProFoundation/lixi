@@ -1,4 +1,4 @@
-import { POST_TYPE } from '@bcpros/lixi-models/constants';
+import { POST_TYPE } from '@bcpros/lixi-models/constants/post';
 import { changeBookmarkActionSheet } from '@store/post/actions';
 import { api as postsApi } from '../post/posts.api';
 import { api } from './bookmark.generated';

@@ -6,14 +6,8 @@ import CommentListItem from './CommentListItem';
 import AvatarUser from '@components/Common/AvatarUser';
 import { Controller, useForm } from 'react-hook-form';
 import { useInfiniteCommentsToCommentableIdQuery } from '@store/comment/useInfiniteCommentsToCommentableIdQuery';
-import {
-  Coin,
-  CommentOrderField,
-  CommentQueryItem,
-  CreateCommentInput,
-  OrderDirection,
-  PostQueryItem
-} from '@generated/index';
+import { Coin, CommentOrderField, CreateCommentInput, OrderDirection } from '@generated/types.generated';
+import { PostQueryItem, CommentQueryItem } from '@generated/types';
 import { useRouter } from 'next/router';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import {
@@ -28,7 +22,8 @@ import { CloseOutlined, SendOutlined } from '@ant-design/icons';
 import _ from 'lodash';
 import { sendCoinFailure, sendCoinSuccess } from '@store/send/actions';
 import { fromSmallestDenomination, getUtxoWif, validateCoinAmount } from '@utils/cashMethods';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { WalletContext } from '@context/index';
 import useXPI from '@hooks/useXPI';
 import useXEC from '@hooks/useXEC';
@@ -36,7 +31,7 @@ import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@sto
 import { useCreateCommentMutation, useCreateReplyCommentMutation } from '@store/comment/comments.api';
 import { showToast } from '@store/toast/actions';
 import { MultiUploader } from '@components/Common/Uploader/MultiUploader';
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
 import { createCommentSuccess } from '@store/comment';
 import { AuthorizationContext } from '@context/index';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';

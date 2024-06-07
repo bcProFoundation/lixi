@@ -1,6 +1,6 @@
 import { Comment as AntdComment } from '@ant-design/compatible';
 import { DislikeFilled, DislikeOutlined, DownOutlined, LikeFilled, LikeOutlined, UpOutlined } from '@ant-design/icons';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import AvatarUser from '@components/Common/AvatarUser';
 import Counter from '@components/Common/Counter';
@@ -15,7 +15,7 @@ import moment from 'moment';
 import { useRouter } from 'next/router';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import intl from 'react-intl-universal';
-import { PostQueryItem, CommentQueryItem } from '@generated/index';
+import { PostQueryItem, CommentQueryItem } from '@generated/types';
 import styled from 'styled-components';
 import IconBurnComment from './IconBurnComment';
 import { Parser as HtmlToReactParser } from 'html-to-react';

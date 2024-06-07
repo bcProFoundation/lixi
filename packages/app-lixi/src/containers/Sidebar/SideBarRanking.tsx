@@ -1,6 +1,6 @@
 import { LockOutlined } from '@ant-design/icons';
-import { Account } from '@bcpros/lixi-models';
-import { COIN } from '@bcpros/lixi-models/constants';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import AvatarUser from '@components/Common/AvatarUser';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
 import { SmartButton } from '@components/Common/PrimaryButton';

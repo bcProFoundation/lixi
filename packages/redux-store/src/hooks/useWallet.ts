@@ -25,8 +25,9 @@ import { ChronikClient, SubscribeMsg, Tx, Utxo } from 'chronik-client';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 // @ts-ignore
-import { Account, Hash160AndAddress } from '@bcpros/lixi-models';
-import { COIN } from '@bcpros/lixi-models/constants';
+import { Hash160AndAddress } from '@bcpros/lixi-models/lib/wallet/wallet.model';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { getAllAccounts, getSelectedAccount } from '@store/account';
 import useInterval from './useInterval';
 import useXPI from './useXPI';

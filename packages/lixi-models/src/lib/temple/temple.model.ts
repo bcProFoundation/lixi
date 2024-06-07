@@ -2,7 +2,7 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
-import { Account } from '../account';
+import { Account } from '../account/account.model';
 import { City } from '../geo-location/city.model';
 import { Country } from '../geo-location/country.model';
 import { State } from '../geo-location/state.model';

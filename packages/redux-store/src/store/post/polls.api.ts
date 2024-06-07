@@ -1,6 +1,6 @@
-import { PageInfo, Post } from '@generated/types.generated';
+import { PageInfo, Post } from '../../generated/types.generated';
 import { EntityState } from '@reduxjs/toolkit';
-import { POST_TYPE } from '@bcpros/lixi-models/constants';
+import { POST_TYPE } from '@bcpros/lixi-models/constants/post';
 import { api as timelineApi } from '@store/timeline/timeline.api';
 import { api as pollApi } from './poll.generated';
 import { api as postApi } from './posts.api';

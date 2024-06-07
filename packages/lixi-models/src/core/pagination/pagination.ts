@@ -1,7 +1,7 @@
-import { Type } from '@nestjs/common';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 
 import { PageInfo } from './page-info.model';
+import { Type } from './type';
 
 interface IEdgeType<TItem> {
   cursor: string;

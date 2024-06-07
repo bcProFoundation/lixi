@@ -4,7 +4,7 @@ import intl from 'react-intl-universal';
 import { all, fork, put, takeLatest } from 'redux-saga/effects';
 
 import { sendCoinFailure, sendCoinSuccess } from './actions';
-import { COIN } from '@bcpros/lixi-models';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 
 function* sendCoinSuccessSaga(action: PayloadAction<{ amount: number; coin: COIN }>) {
   const { amount, coin } = action.payload;

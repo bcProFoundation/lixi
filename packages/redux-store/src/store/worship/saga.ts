@@ -1,5 +1,5 @@
-import { AccountDto as Account } from '@bcpros/lixi-models';
-import { OrderDirection, WorshipOrderField } from '@generated/types.generated';
+import { AccountDto as Account } from '@bcpros/lixi-models/lib/account/account.dto';
+import { OrderDirection, WorshipOrderField } from '../../generated/types.generated';
 import { getSelectedAccount } from '@store/account/selectors';
 import { isMobile } from 'react-device-detect';
 import { eventChannel } from 'redux-saga';

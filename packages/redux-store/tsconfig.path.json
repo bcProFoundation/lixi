@@ -20,17 +20,11 @@
       "@containers/*": [
         "src/containers/*"
       ],
-      "@generated/*": [
-        "src/generated/*"
-      ],
       "@hooks/*": [
         "src/hooks/*"
       ],
       "@store/*": [
         "src/store/*"
-      ],
-      "@lang/*": [
-        "src/lang/*"
       ],
       "@context/*": [
         "src/context/*"
@@ -38,18 +32,9 @@
       "@bcpros/redux-store/api/*": [
         "src/api/*"
       ],
-      "@bcpros/lixi-components/*": [
-        "../../packages/lixi-components/src/*"
-      ],
       "@bcpros/lixi-models/*": [
         "../../packages/lixi-models/src/*"
       ],
-      "@bcpros/app-lixi/*": [
-        "../../packages/app-lixi/src/*"
-      ],
-      "@bcpros/app-lotus-temple/*": [
-        "../../packages/app-lotus-temple/src/*"
-      ]
     }
   }
 }

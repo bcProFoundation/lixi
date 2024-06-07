@@ -6,8 +6,8 @@ import {
   HomeOutlined,
   InfoCircleOutlined
 } from '@ant-design/icons';
-import { ParamPostFollowCommand } from '@bcpros/lixi-models/build/module/lib/post';
-import { PostListType } from '@bcpros/lixi-models/constants';
+import { ParamPostFollowCommand } from '@bcpros/lixi-models';
+import { PostListType } from '@bcpros/lixi-models/constants/postListType';
 import { Follow, FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import Counter from '@components/Common/Counter';
@@ -21,9 +21,9 @@ import {
   HashtagOrderField,
   OrderDirection,
   PageMessageSessionStatus,
-  PageQueryItem,
   PostOrderField
-} from '@generated/index';
+} from '@generated/types.generated';
+import { PageQueryItem } from '@generated/types';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { addRecentHashtagAtPages, setTransactionReady } from '@store/account/actions';
 import { getRecentHashtagAtPages, getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';

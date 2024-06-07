@@ -1,4 +1,4 @@
-import { Claim, ViewClaimDto } from '@bcpros/lixi-models';
+import { Claim, ViewClaimDto } from '@bcpros/lixi-models/lib/claim';
 import { EntityState } from '@reduxjs/toolkit';
 
 export interface ClaimsState extends EntityState<Claim, number> {

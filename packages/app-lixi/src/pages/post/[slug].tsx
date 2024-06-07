@@ -2,7 +2,7 @@ import { AnalyticEvent } from '@bcpros/lixi-models';
 import { PrismaClient } from '@bcpros/lixi-prisma';
 import MainLayout from '@components/Layout/MainLayout';
 import PostDetail from '@components/Posts/PostDetail';
-import { PostQueryItem } from '@generated/index';
+import { PostQueryItem } from '@generated/types';
 import { analyticEvent } from '@store/analytic-event';
 import { useSliceDispatch } from '@store/index';
 import { usePostQuery } from '@store/post/posts.api';

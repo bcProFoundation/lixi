@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { fromSmallestDenomination } from '@utils/cashMethods';
 
 // Validate cash amount

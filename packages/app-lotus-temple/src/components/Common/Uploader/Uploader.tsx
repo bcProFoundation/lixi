@@ -1,18 +1,18 @@
-import { useState } from 'react';
-import intl from 'react-intl-universal';
-import { message, Upload, Button, Modal } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-import { RcFile, UploadChangeParam } from 'antd/lib/upload';
-import styled from 'styled-components';
-import Image from 'next/image';
-import type { UploadFile } from 'antd/lib/upload/interface';
-import { isMobile } from 'react-device-detect';
+import { UPLOAD_API_S3 } from '@bcpros/lixi-models/constants/upload';
+import { removeUpload, setUpload } from '@store/account/actions';
 import { useSliceDispatch } from '@store/index';
-import { setUpload, removeUpload } from '@store/account/actions';
 import axiosClient from '@utils/axiosClient';
-import { UPLOAD_API_S3 } from '@bcpros/lixi-models/constants';
-import _ from 'lodash';
+import { Button, Modal, Upload, message } from 'antd';
 import { ButtonType } from 'antd/lib/button';
+import { RcFile, UploadChangeParam } from 'antd/lib/upload';
+import type { UploadFile } from 'antd/lib/upload/interface';
+import _ from 'lodash';
+import Image from 'next/image';
+import { useState } from 'react';
+import { isMobile } from 'react-device-detect';
+import intl from 'react-intl-universal';
+import styled from 'styled-components';
 
 const getBase64 = (file: RcFile): Promise<string> =>
   new Promise((resolve, reject) => {

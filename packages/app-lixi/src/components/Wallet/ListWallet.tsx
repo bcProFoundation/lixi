@@ -17,7 +17,7 @@ import { getCurrentLocale } from '@store/settings/selectors';
 import { FormattedTxAddress } from '@components/Common/FormattedWalletAddress';
 import Link from 'next/link';
 import Reply from '@assets/icons/reply.svg';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { selectTokens } from '@store/token';
 import { useCommentQuery } from '@store/comment/comments.api';
 import { QRCodeModal } from '@components/Common/QRCodeModal';

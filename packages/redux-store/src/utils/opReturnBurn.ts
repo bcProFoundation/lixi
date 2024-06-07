@@ -1,8 +1,8 @@
-import { BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn';
+import { BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import BCHJS from '@bcpros/xpi-js';
 import BigNumber from 'bignumber.js';
-
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 
 const OP_0 = 0x00;
 const OP_16 = 0x60;

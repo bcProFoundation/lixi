@@ -1,7 +1,7 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { GraphQLDateTime } from 'graphql-scalars';
 
-import { PageMessageSession } from '../message';
+import { PageMessageSession } from '../message/pageMessageSession.model';
 
 @ObjectType()
 export class LixiModel {

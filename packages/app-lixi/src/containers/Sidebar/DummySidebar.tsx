@@ -1,4 +1,4 @@
-import { Account } from '@bcpros/lixi-models';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { getAllAccounts, getSelectedAccount } from '@store/account/selectors';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getAllNotifications } from '@store/notification/selectors';

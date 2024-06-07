@@ -1,5 +1,5 @@
 import { EntityState } from '@reduxjs/toolkit';
-import { PageInfo } from '@generated/types.generated';
+import { PageInfo } from '../../generated/types.generated';
 import { api, MessageQuery } from './message.generated';
 
 export interface MessageApiState extends EntityState<MessageQuery['message'], string> {

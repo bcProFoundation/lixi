@@ -1,12 +1,12 @@
 import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
-import { Decimal } from '@prisma/client/runtime/binary';
+import { Decimal } from '@prisma/client/runtime/library.js';
 import { Transform, Type } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 import { GraphQLDecimal, transformToDecimal } from 'prisma-graphql-type-decimal';
 
-import { Account } from '../account';
-import { Temple } from '../temple';
+import { Account } from '../account/account.model';
+import { Temple } from '../temple/temple.model';
 
 import { WorshipedPerson } from './worshipedPerson.model';
 

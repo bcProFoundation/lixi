@@ -1,4 +1,4 @@
-import { WebpushSubscribeCommand, WebpushUnsubscribeCommand } from '@bcpros/lixi-models';
+import { WebpushSubscribeCommand, WebpushUnsubscribeCommand } from '@bcpros/lixi-models/lib/webpush/webpush.command';
 import { callConfig } from '@context/shareContext';
 import { all, call, fork, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';

@@ -1,5 +1,5 @@
 import { CreateVoteInput } from '@bcpros/lixi-models';
-import { PollTime } from '@bcpros/lixi-models/constants';
+import { PollTime } from '@bcpros/lixi-models/constants/pollType';
 import { PollQueryItem } from '@generated/types';
 import { getSelectedAccount, getSelectedAccountId } from '@store/account';
 import { useGetAccountByAddressQuery } from '@store/account/accounts.api';
