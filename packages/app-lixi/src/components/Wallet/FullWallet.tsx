@@ -219,6 +219,7 @@ const OtherWalletStyled = styled.div<{ $coin: COIN }>`
     .btn-show {
       padding: 0;
       top: 3px;
+      background: none;
     }
   }
 
