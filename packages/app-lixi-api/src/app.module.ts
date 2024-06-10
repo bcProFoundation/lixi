@@ -39,6 +39,7 @@ import { EventsAnalyticModule } from './modules/events-analytic/events-analytic.
 import { BookmarkModule } from './modules/bookmark/bookmark.module';
 import { BurnHistoryModule } from './modules/burn-history/burn-history.module';
 import { ChronikModule } from 'nestjs-chronik';
+import { DanaModule } from './modules/dana/dana.module';
 
 //enabled serving multiple static for fastify
 type FastifyServeStaticModuleOptions = ServeStaticModuleOptions & {
@@ -196,7 +197,8 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
       http: process.env.NODE_ENV !== 'production'
     }),
     BookmarkModule,
-    BurnHistoryModule
+    BurnHistoryModule,
+    DanaModule
   ],
   controllers: [],
   providers: [

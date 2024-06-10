@@ -6,6 +6,7 @@ export * from './constants/coins/coin-info';
 export * from './constants/coins/typeCoinInfo';
 export * from './constants/coins/xec';
 export * from './constants/coins/xpi';
+export * from './constants/dana';
 export * from './constants/countries';
 export * from './constants/notification';
 export * from './constants/pollType';
