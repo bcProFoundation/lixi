@@ -5,7 +5,8 @@ export const issuanceXEC = 3125000;
 export const averageDanaToXPI = 130;
 export const averageDanaToXEC = 15;
 
-export type DataRate = {
+export type DanaRate = {
+  blockHeight: number;
   difficulty: number;
   GHPerSecond: number;
   GHPerBlockTime: number;

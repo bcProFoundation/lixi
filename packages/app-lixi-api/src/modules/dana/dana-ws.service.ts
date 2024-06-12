@@ -1,10 +1,11 @@
-import { COIN, coinInfo, DataRate, GHPerDana, issuanceXEC, ratioHash256 } from '@bcpros/lixi-models';
+import { COIN, coinInfo, DanaRate, GHPerDana, issuanceXEC, ratioHash256 } from '@bcpros/lixi-models';
 import { decode, encode } from '@msgpack/msgpack';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { ChronikClient, SubscribeMsg } from 'chronik-client';
 import { Redis } from 'ioredis';
 import { InjectChronikClient } from 'nestjs-chronik';
+import { KeyCurrentHeight } from 'src/utils/constants';
 import { template } from 'src/utils/stringTemplate';
 
 @Injectable()
@@ -12,7 +13,10 @@ export class DanaWsService implements OnModuleInit {
   private logger: Logger = new Logger(DanaWsService.name);
   private keyInfoBlockPrefix = 'items:blocks:{{coin}}:item-data';
   private keyInfoConvertPrefix = 'items:convert-dana:{{coin}}:item-data';
-  private keyAdjustDana = 'items:danaRate-adjust';
+
+  private keyHighestBlockData = 'items:block-highest:{{coin}}';
+  private keyHighestConvertData = 'items:convert-dana-highest:{{coin}}';
+  private keyAdjustDana = 'items:dana-rate-adjust';
 
   constructor(
     @InjectChronikClient('xec') private chronikXEC: ChronikClient,
@@ -68,7 +72,7 @@ export class DanaWsService implements OnModuleInit {
     this.logger.log(`The module has been initialized.`);
   }
 
-  async handleNewBlock(blockHash: string, coin = COIN.XPI, issuancePar = 0) {
+  async handleNewBlock(blockHash: string | number, coin = COIN.XPI, issuancePar = 0) {
     let newBlockInfo;
     switch (coin) {
       case COIN.XPI:
@@ -81,7 +85,10 @@ export class DanaWsService implements OnModuleInit {
 
     //write into redis
     const keyInfoBlockCoin = template(this.keyInfoBlockPrefix, { coin });
+    const keyInfoHighestBlock = template(this.keyHighestBlockData, { coin });
+
     this.redis.hset(keyInfoBlockCoin, newBlockInfo.blockInfo.height, Buffer.from(encode(newBlockInfo)));
+    this.redis.hset(keyInfoHighestBlock, KeyCurrentHeight, Buffer.from(encode(newBlockInfo)));
 
     //calculate difficulty from nbits:
     const nBitsHex = newBlockInfo.blockInfo.nBits.toString(16);
@@ -119,7 +126,10 @@ export class DanaWsService implements OnModuleInit {
 
     //write result into redis
     const keyInfoConvertDana = template(this.keyInfoConvertPrefix, { coin });
-    const savedConvertedRate: DataRate = {
+    const keyInfoHighestConvertDana = template(this.keyHighestConvertData, { coin });
+
+    const savedConvertedRate: DanaRate = {
+      blockHeight: newBlockInfo.blockInfo.height,
       difficulty,
       GHPerSecond: GHashratePerSecond,
       GHPerBlockTime: GHashratePerBlockTime,
@@ -127,6 +137,8 @@ export class DanaWsService implements OnModuleInit {
       GHPerDana: adjustGHPerDanaByCoin,
       coinPerDana
     };
+
     this.redis.hset(keyInfoConvertDana, newBlockInfo.blockInfo.height, Buffer.from(encode(savedConvertedRate)));
+    this.redis.hset(keyInfoHighestConvertDana, KeyCurrentHeight, Buffer.from(encode(savedConvertedRate)));
   }
 }
