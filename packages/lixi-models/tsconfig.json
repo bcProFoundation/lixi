@@ -44,11 +44,13 @@
     ]
   },
   "include": [
-    "src/**/*.ts",
-    "../app-lixi-api/src/middlewares/hybrid-filter.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
-    "node_modules/**"
+    "node_modules/**",
+    "build",
+    "dist",
+    "**/*.test.ts"
   ],
   "compileOnSave": false
 }

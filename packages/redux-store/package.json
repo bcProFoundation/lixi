@@ -10,21 +10,28 @@
   "keywords": [],
   "exports": {
     ".": {
+      "types": "./build/main/index.d.ts",
       "require": "./build/main/index.js",
-      "import": "./dist/module/index.mjs"
+      "import": "./dist/module/index.js",
+      "default": "./build/main/index.js"
     },
     "./generated/*": {
+      "types": "./build/main/generated/*.d.ts",
       "require": "./build/main/generated/*.js",
-      "import": "./build/module/generated/*.mjs"
+      "import": "./build/module/generated/*.js",
+      "default": "./build/main/generated/*.js"
     },
     "./*": {
+      "types": "./build/main/*.d.ts",
       "require": "./build/main/*.js",
-      "import": "./build/module/*.mjs"
+      "import": "./build/module/*.js",
+      "default": "./build/main/*.js"
     }
   },
   "scripts": {
-    "build": "run-p build:*",
+    "build": "run-p build:main",
     "build:main": "tsc -p tsconfig.json",
+    "build:module": "tsc -p tsconfig.module.json",
     "precommit": "turbo run format",
     "fix": "run-s fix:*",
     "lint": "run-s lint:*",
