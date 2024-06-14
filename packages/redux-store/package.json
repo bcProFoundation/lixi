@@ -29,7 +29,7 @@
     }
   },
   "scripts": {
-    "build": "run-p build:main",
+    "build": "run-p build:*",
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p tsconfig.module.json",
     "precommit": "turbo run format",
@@ -39,9 +39,6 @@
     "format": "prettier \"src/**/*.ts\" --write --config .prettierrc.js",
     "fix:lint": "eslint src --ext .ts --fix",
     "graphql-codegen": "graphql-codegen --config codegen.yml"
-  },
-  "engines": {
-    "node": ">=10"
   },
   "peerDependencies": {
     "@abcpros/bitcore-lib-xpi": ">=8.25.37",

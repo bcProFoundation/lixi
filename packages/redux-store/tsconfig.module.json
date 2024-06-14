@@ -4,6 +4,14 @@
     "outDir": "build/module",
     "module": "esnext",
     "moduleResolution": "node",
-    "resolveJsonModule": true
-  }
+    "resolveJsonModule": true,
+  },
+  "references": [
+    {
+      "path": "../lixi-models"
+    }
+  ],
+  "include": [
+    "src/**/*",
+  ]
 }
