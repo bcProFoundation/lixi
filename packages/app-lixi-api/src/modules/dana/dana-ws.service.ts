@@ -2,11 +2,11 @@ import { COIN, coinInfo, DanaRate, GHPerDana, issuanceXEC, ratioHash256 } from '
 import { decode, encode } from '@msgpack/msgpack';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { ChronikClient, SubscribeMsg } from 'chronik-client';
+import { BlockInfo, ChronikClient, SubscribeMsg } from 'chronik-client';
 import { Redis } from 'ioredis';
 import { InjectChronikClient } from 'nestjs-chronik';
-import { KeyCurrentHeight } from 'src/utils/constants';
 import { template } from 'src/utils/stringTemplate';
+import { KeyCurrentHeight } from './dana.constants';
 
 @Injectable()
 export class DanaWsService implements OnModuleInit {
@@ -17,6 +17,8 @@ export class DanaWsService implements OnModuleInit {
   private keyHighestBlockData = 'items:block-highest:{{coin}}';
   private keyHighestConvertData = 'items:convert-dana-highest:{{coin}}';
   private keyAdjustDana = 'items:dana-rate-adjust';
+
+  private keyIndexHighestBlockData = 'items:index-block-highest:{{coin}}';
 
   constructor(
     @InjectChronikClient('xec') private chronikXEC: ChronikClient,
@@ -30,7 +32,14 @@ export class DanaWsService implements OnModuleInit {
       onMessage: async (msg: SubscribeMsg) => {
         const { type } = msg;
         if (type === 'BlockConnected') {
-          this.handleNewBlock(msg.blockHash, COIN.XPI, 0);
+          const keyHighestBlockCoin = template(this.keyIndexHighestBlockData, { coin: COIN.XPI });
+          const highestXPI = (await this.chronikXPI.blockchainInfo()).tipHeight;
+          const currentIndexHighest = Number((await this.redis.get(keyHighestBlockCoin)) ?? '1');
+
+          if (highestXPI === currentIndexHighest + 1) {
+            this.handleNewBlock(msg.blockHash, COIN.XPI);
+            this.redis.set(keyHighestBlockCoin, highestXPI);
+          }
         }
       },
       onReconnect: e => {
@@ -49,10 +58,17 @@ export class DanaWsService implements OnModuleInit {
 
     //ws for xec
     const wsXEC = this.chronikXEC.ws({
-      onMessage: (msg: SubscribeMsg) => {
+      onMessage: async (msg: SubscribeMsg) => {
         const { type } = msg;
         if (type === 'BlockConnected') {
-          this.handleNewBlock(msg.blockHash, COIN.XEC, issuanceXEC);
+          const keyHighestBlockCoin = template(this.keyIndexHighestBlockData, { coin: COIN.XEC });
+          const highestXEC = (await this.chronikXPI.blockchainInfo()).tipHeight;
+          const currentIndexHighest = Number((await this.redis.get(keyHighestBlockCoin)) ?? '0');
+
+          if (highestXEC === currentIndexHighest + 1) {
+            this.handleNewBlock(msg.blockHash, COIN.XEC);
+            this.redis.set(keyHighestBlockCoin, highestXEC);
+          }
         }
       },
       onReconnect: e => {
@@ -72,14 +88,14 @@ export class DanaWsService implements OnModuleInit {
     this.logger.log(`The module has been initialized.`);
   }
 
-  async handleNewBlock(blockHash: string | number, coin = COIN.XPI, issuancePar = 0) {
+  async handleNewBlock(blockHash: string | number, coin = COIN.XPI) {
     let newBlockInfo;
     switch (coin) {
       case COIN.XPI:
-        newBlockInfo = await this.chronikXPI.block(blockHash);
+        newBlockInfo = (await this.chronikXPI.block(blockHash)).blockInfo;
         break;
       case COIN.XEC:
-        newBlockInfo = await this.chronikXEC.block(blockHash);
+        newBlockInfo = (await this.chronikXEC.block(blockHash)).blockInfo;
         break;
     }
 
@@ -87,11 +103,11 @@ export class DanaWsService implements OnModuleInit {
     const keyInfoBlockCoin = template(this.keyInfoBlockPrefix, { coin });
     const keyInfoHighestBlock = template(this.keyHighestBlockData, { coin });
 
-    this.redis.hset(keyInfoBlockCoin, newBlockInfo.blockInfo.height, Buffer.from(encode(newBlockInfo)));
+    this.redis.hset(keyInfoBlockCoin, newBlockInfo.height, Buffer.from(encode(newBlockInfo)));
     this.redis.hset(keyInfoHighestBlock, KeyCurrentHeight, Buffer.from(encode(newBlockInfo)));
 
     //calculate difficulty from nbits:
-    const nBitsHex = newBlockInfo.blockInfo.nBits.toString(16);
+    const nBitsHex = newBlockInfo.nBits.toString(16);
 
     // split value to exponent (1 byte) and coefficient (3 byte)
     const exponent = parseInt(nBitsHex.slice(0, 2), 16);
@@ -111,7 +127,8 @@ export class DanaWsService implements OnModuleInit {
     //calculate insurance
     //xpi: 260 * (log2(difficulty / 16) + 1)
     //xec,... have fix issuance
-    const issuance = issuancePar !== 0 ? issuancePar : 260 * (Math.log2(difficulty / 16) + 1);
+    const issuance =
+      coin === COIN.XPI ? 260 * (Math.log2(difficulty / 16) + 1) : Number(newBlockInfo.sumCoinbaseOutputSats);
 
     //calculate GH/coin (hash / issuance)
     const GHPerCoin = GHashratePerBlockTime / issuance;
@@ -129,7 +146,7 @@ export class DanaWsService implements OnModuleInit {
     const keyInfoHighestConvertDana = template(this.keyHighestConvertData, { coin });
 
     const savedConvertedRate: DanaRate = {
-      blockHeight: newBlockInfo.blockInfo.height,
+      blockHeight: newBlockInfo.height,
       difficulty,
       GHPerSecond: GHashratePerSecond,
       GHPerBlockTime: GHashratePerBlockTime,
@@ -138,7 +155,85 @@ export class DanaWsService implements OnModuleInit {
       coinPerDana
     };
 
-    this.redis.hset(keyInfoConvertDana, newBlockInfo.blockInfo.height, Buffer.from(encode(savedConvertedRate)));
+    this.redis.hset(keyInfoConvertDana, newBlockInfo.height, Buffer.from(encode(savedConvertedRate)));
     this.redis.hset(keyInfoHighestConvertDana, KeyCurrentHeight, Buffer.from(encode(savedConvertedRate)));
+  }
+
+  async handleMutipleBlock(startBlock: number, endBlock: number, coin = COIN.XPI) {
+    let newBlockInfos: BlockInfo[];
+    switch (coin) {
+      case COIN.XPI:
+        newBlockInfos = await this.chronikXPI.blocks(startBlock, endBlock);
+        break;
+      case COIN.XEC:
+        newBlockInfos = await this.chronikXEC.blocks(startBlock, endBlock);
+        break;
+    }
+    const blockMap = new Map();
+    const hashRateMap = new Map();
+
+    for (let i = 0; i < newBlockInfos.length; i++) {
+      const currentBlock = newBlockInfos[i];
+      //calculate difficulty from nbits:
+      const nBitsHex = currentBlock.nBits.toString(16);
+
+      // split value to exponent (1 byte) and coefficient (3 byte)
+      const exponent = parseInt(nBitsHex.slice(0, 2), 16);
+      const coefficient = parseInt(nBitsHex.slice(2), 16);
+
+      // cal target (coefficient * 256^(exponent - 3))
+      const target = coefficient * Math.pow(256, exponent - 3);
+      const targetMax = 0xffff * Math.pow(256, 0x1d - 3);
+
+      const difficulty = targetMax / target;
+
+      // cal hashrate (diff * 2^32 / blockTime)
+      const hashrate = (difficulty * Math.pow(2, 32)) / coinInfo[coin].blockTime;
+      const GHashratePerSecond = hashrate * Math.pow(10, -9);
+      const GHashratePerBlockTime = GHashratePerSecond * coinInfo[coin].blockTime;
+
+      //calculate insurance
+      //xpi: 260 * (log2(difficulty / 16) + 1)
+      //xec,... have fix issuance
+      const issuance =
+        coin === COIN.XPI ? 260 * (Math.log2(difficulty / 16) + 1) : Number(currentBlock.sumCoinbaseOutputSats);
+
+      //calculate GH/coin (hash / issuance)
+      const GHPerCoin = GHashratePerBlockTime / issuance;
+
+      //convert dana to coin (xpi, xec,...)
+      const date = new Date();
+      const today = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+      const adjustGHPerDana = await this.redis.hget(this.keyAdjustDana, today);
+      const convertAdjustGHPerDana = adjustGHPerDana ? Number(adjustGHPerDana) : GHPerDana;
+      const adjustGHPerDanaByCoin = coin === COIN.XPI ? convertAdjustGHPerDana : convertAdjustGHPerDana * ratioHash256;
+      const coinPerDana = adjustGHPerDanaByCoin / GHPerCoin;
+
+      const savedConvertedRate: DanaRate = {
+        blockHeight: currentBlock.height,
+        difficulty,
+        GHPerSecond: GHashratePerSecond,
+        GHPerBlockTime: GHashratePerBlockTime,
+        issuance: issuance,
+        GHPerDana: adjustGHPerDanaByCoin,
+        coinPerDana
+      };
+
+      blockMap.set(currentBlock.height, Buffer.from(encode(currentBlock)));
+      hashRateMap.set(currentBlock.height, Buffer.from(encode(savedConvertedRate)));
+    }
+
+    //write result into redis
+    const keyInfoBlockCoin = template(this.keyInfoBlockPrefix, { coin });
+    const keyInfoHighestBlock = template(this.keyHighestBlockData, { coin });
+    const keyInfoConvertDana = template(this.keyInfoConvertPrefix, { coin });
+    const keyInfoHighestConvertDana = template(this.keyHighestConvertData, { coin });
+
+    Promise.all([
+      this.redis.hmset(keyInfoBlockCoin, blockMap),
+      this.redis.hset(keyInfoHighestBlock, KeyCurrentHeight, blockMap.get(endBlock)),
+      this.redis.hmset(keyInfoConvertDana, hashRateMap),
+      this.redis.hset(keyInfoHighestConvertDana, KeyCurrentHeight, hashRateMap.get(endBlock))
+    ]);
   }
 }

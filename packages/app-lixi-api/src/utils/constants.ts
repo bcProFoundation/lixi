@@ -81,6 +81,3 @@ export const TRANSACTION = {
   /** Minimum output amount for any Give/Withdraw */
   MIN_OUTPUT_AMOUNT: 1000
 };
-
-export const KeyCurrentHeight = 'CurrentHeight';
-export const KeyIndexCurrentHeight = 'IndexCurrentHeight';
