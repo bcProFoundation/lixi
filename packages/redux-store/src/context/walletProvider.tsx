@@ -1,5 +1,5 @@
 import BCHJS from '@bcpros/xpi-js';
-import useWallet from '@hooks/useWallet';
+import useWallet from '../hooks/useWallet';
 import { WalletPathAddressInfo } from '@store/wallet';
 import { ChronikClient } from 'chronik-client';
 import { createContext } from 'react';

@@ -32,9 +32,9 @@ import {
   toastReducer,
   tokenReducer,
   walletStateReducer,
-  actionReducer
+  actionReducer,
+  api
 } from '@store/index';
-import { api } from '@bcpros/redux-store/api/baseApi';
 import { routerReducer } from 'connected-next-router';
 import { HYDRATE } from 'next-redux-wrapper';
 import { UnknownAction, combineReducers } from 'redux';

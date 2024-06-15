@@ -21,6 +21,12 @@
       "import": "./build/module/generated/*.js",
       "default": "./build/main/generated/*.js"
     },
+    "./api/*": {
+      "types": "./build/main/api/*.d.ts",
+      "require": "./build/main/api/*.js",
+      "import": "./build/module/api/*.js",
+      "default": "./build/main/api/*.js"
+    },
     "./*": {
       "types": "./build/main/*.d.ts",
       "require": "./build/main/*.js",

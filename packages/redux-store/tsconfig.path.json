@@ -17,9 +17,6 @@
       "@containers/*": [
         "src/containers/*"
       ],
-      "@hooks/*": [
-        "src/hooks/*"
-      ],
       "@store/*": [
         "src/store/*"
       ],

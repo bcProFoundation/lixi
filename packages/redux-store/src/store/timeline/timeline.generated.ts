@@ -13,7 +13,7 @@ import * as Types from '../../generated/types.generated';
 
 import { PostFieldsFragmentDoc } from '../post/posts.generated';
 import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
-import { api } from '@bcpros/redux-store/api/baseApi';
+import { api } from '@store/baseApi';
 export type TimelineQueryVariables = Types.Exact<{
   id: Types.Scalars['String']['input'];
 }>;

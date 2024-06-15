@@ -16,7 +16,7 @@ import {
   PageInfoFieldsFragmentDoc,
   PostMeiliPageInfoFieldsFragmentDoc
 } from '../../graphql/fragments/page-info-fields.fragment.generated';
-import { api } from '@bcpros/redux-store/api/baseApi';
+import { api } from '@store/baseApi';
 export type CheckIfFollowAccountQueryVariables = Types.Exact<{
   followingAccountId: Types.Scalars['Int']['input'];
 }>;
