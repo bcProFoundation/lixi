@@ -292,7 +292,8 @@ export class CommentResolver {
             senderName: account.name,
             senderAddress: account.address,
             senderAvatar: account.avatar,
-            xpiGive: tipValue
+            xpiGive: tipValue,
+            coin: coinGive
           };
         }
 
@@ -487,7 +488,8 @@ export class CommentResolver {
             senderName: account.name,
             senderAddress: account.address,
             senderAvatar: account.avatar,
-            xpiGive: tipValue
+            xpiGive: tipValue,
+            coin: coinGive
           };
         }
 

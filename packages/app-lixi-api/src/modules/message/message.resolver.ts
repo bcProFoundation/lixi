@@ -317,7 +317,8 @@ export class MessageResolver {
           senderName: isPageOwner ? pageMessageSession.page.name : pageMessageSession.account.name,
           senderAddress: account.address,
           senderAvatar: account.avatar,
-          xpiGive: tipValue
+          xpiGive: tipValue,
+          coin: COIN.XPI
         };
         const createNotif = {
           senderId: account.id,

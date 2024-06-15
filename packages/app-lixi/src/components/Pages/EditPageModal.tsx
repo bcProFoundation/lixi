@@ -338,15 +338,15 @@ export const EditPageModal: React.FC<EditPageModalProps> = ({ page, disabled, cl
                     render={({ field: { onChange, value }, formState: { isSubmitting } }) => (
                       <Select
                         className="select-after edit-page"
-                        value={`${value} ${coinInfo[COIN.XPI].ticker}`}
+                        value={`${value} ${intl.get('general.dana')}`}
                         onChange={onChange}
                         placeholder={intl.get('page.state')}
-                        defaultValue={`${page.createPostFee} ${coinInfo[COIN.XPI].ticker}`}
+                        defaultValue={`${page.createPostFee} ${intl.get('general.dana')}`}
                         disabled={isSubmitting}
                         style={{ width: '99%', textAlign: 'end' }}
                       >
                         {createPostFee.map(fee => (
-                          <Option key={fee}>{`${fee} ${coinInfo[COIN.XPI].ticker}`}</Option>
+                          <Option key={fee}>{`${fee} ${intl.get('general.dana')}`}</Option>
                         ))}
                       </Select>
                     )}

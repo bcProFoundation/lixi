@@ -144,7 +144,8 @@ const SendComponent: React.FC = () => {
         cleanAddress,
         value,
         isEncryptedOptionalOpReturnMsg,
-        fundingWif
+        fundingWif,
+        false
       );
       dispatch(sendXpiNotification(link));
     } catch (e) {
