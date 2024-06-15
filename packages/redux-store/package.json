@@ -1,6 +1,6 @@
 {
   "name": "@bcpros/redux-store",
-  "version": "1.1.10",
+  "version": "1.1.11",
   "description": "Models library for lixi application",
   "main": "build/main/index.js",
   "types": "build/main/index.d.ts",
@@ -20,12 +20,6 @@
       "require": "./build/main/generated/*.js",
       "import": "./build/module/generated/*.js",
       "default": "./build/main/generated/*.js"
-    },
-    "./api/*": {
-      "types": "./build/main/api/*.d.ts",
-      "require": "./build/main/api/*.js",
-      "import": "./build/module/api/*.js",
-      "default": "./build/main/api/*.js"
     },
     "./*": {
       "types": "./build/main/*.d.ts",
