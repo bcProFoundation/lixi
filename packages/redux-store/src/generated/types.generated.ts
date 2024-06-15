@@ -293,6 +293,11 @@ export type Commentable = {
   type: CommentType;
 };
 
+export type ConvertDana = {
+  convertToCoin: Coin;
+  quantity: Scalars['Int']['input'];
+};
+
 export type Country = {
   __typename?: 'Country';
   capital: Scalars['String']['output'];
@@ -380,6 +385,7 @@ export type CreatePageMessageInput = {
 
 export type CreatePollInput = {
   canAddOption: Scalars['Boolean']['input'];
+  coinFee?: InputMaybe<Coin>;
   createFeeHex?: InputMaybe<Scalars['String']['input']>;
   endDate: Scalars['DateTime']['input'];
   options: Array<PollOptionInput>;
@@ -391,6 +397,7 @@ export type CreatePollInput = {
 };
 
 export type CreatePostInput = {
+  coinFee?: InputMaybe<Coin>;
   createFeeHex?: InputMaybe<Scalars['String']['input']>;
   extraArguments?: InputMaybe<ExtraArguments>;
   htmlContent: Scalars['String']['input'];
@@ -1364,6 +1371,7 @@ export type Query = {
   checkIfFollowToken: Scalars['Boolean']['output'];
   comment: Comment;
   commentsToCommentableId: CommentConnection;
+  convertDanaToCoin: Scalars['Int']['output'];
   getAccountByAddress: Account;
   getBalances: Balances;
   hashtag: Hashtag;
@@ -1796,6 +1804,10 @@ export type QueryCommentsToCommentableIdArgs = {
   minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<CommentOrder>;
   skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryConvertDanaToCoinArgs = {
+  ConvertDanaInput: ConvertDana;
 };
 
 export type QueryGetAccountByAddressArgs = {

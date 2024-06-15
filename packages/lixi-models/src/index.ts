@@ -163,6 +163,7 @@ export * from './lib/worshiped-person/pagination/worship-connection.model';
 export * from './lib/worshiped-person/pagination/worshipedPerson-connection.model';
 export * from './lib/worshiped-person/worship.model';
 export * from './lib/worshiped-person/worshipedPerson.model';
+export * from './lib/dana/inputs/convert-dana.input';
 export * from './utils/addressUtils';
 export * from './utils/cashMethods';
 export * from './utils/paginationResult';

@@ -266,6 +266,11 @@ type Commentable {
   type: CommentType!
 }
 
+input ConvertDana {
+  convertToCoin: Coin!
+  quantity: Int!
+}
+
 type Country {
   capital: String!
   city: [City!]!
@@ -352,6 +357,7 @@ input CreatePageMessageInput {
 
 input CreatePollInput {
   canAddOption: Boolean!
+  coinFee: Coin
   createFeeHex: String
   endDate: DateTime!
   options: [PollOptionInput!]!
@@ -363,6 +369,7 @@ input CreatePollInput {
 }
 
 input CreatePostInput {
+  coinFee: Coin
   createFeeHex: String
   extraArguments: ExtraArguments
   htmlContent: String!
@@ -1290,6 +1297,7 @@ type Query {
   checkIfFollowToken(tokenId: String): Boolean!
   comment(id: String!): Comment!
   commentsToCommentableId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: CommentOrder, skip: Int): CommentConnection!
+  convertDanaToCoin(ConvertDanaInput: ConvertDana!): Int!
   getAccountByAddress(address: String!): Account!
   getBalances(address: String!): Balances!
   hashtag(content: String!): Hashtag!

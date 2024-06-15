@@ -37,7 +37,7 @@ export class DanaWsService implements OnModuleInit {
           const highestXPI = (await this.chronikXPI.blockchainInfo()).tipHeight;
           const currentIndexHighest = Number((await this.redis.get(keyHighestBlockCoin)) ?? '1');
 
-          if (highestXPI === currentIndexHighest + 1) {
+          if (highestXPI < currentIndexHighest + 10) {
             this.handleNewBlock(msg.blockHash, COIN.XPI);
             this.redis.set(keyHighestBlockCoin, highestXPI);
           }
@@ -66,7 +66,7 @@ export class DanaWsService implements OnModuleInit {
           const highestXEC = (await this.chronikXPI.blockchainInfo()).tipHeight;
           const currentIndexHighest = Number((await this.redis.get(keyHighestBlockCoin)) ?? '0');
 
-          if (highestXEC === currentIndexHighest + 1) {
+          if (highestXEC < currentIndexHighest + 10) {
             this.handleNewBlock(msg.blockHash, COIN.XEC);
             this.redis.set(keyHighestBlockCoin, highestXEC);
           }
