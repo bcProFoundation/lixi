@@ -1,14 +1,11 @@
-import { COIN, issuanceXEC } from '@bcpros/lixi-models';
-import { decode, encode } from '@msgpack/msgpack';
-import { Injectable, Logger, OnModuleInit, Scope } from '@nestjs/common';
+import { COIN } from '@bcpros/lixi-models';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { Block, ChronikClient } from 'chronik-client';
+import { ChronikClient } from 'chronik-client';
 import { Redis } from 'ioredis';
 import { InjectChronikClient } from 'nestjs-chronik';
-import { template } from 'src/utils/stringTemplate';
-import { DanaWsService } from './dana-ws.service';
 import { InjectQueue } from '@nestjs/bullmq';
-import { INDEX_BLOCK_QUEUE, KeyCurrentHeight } from './dana.constants';
+import { INDEX_BLOCK_QUEUE } from './dana.constants';
 import { Queue } from 'bullmq';
 
 @Injectable()

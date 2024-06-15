@@ -1,7 +1,7 @@
 import BCHJS from '@bcpros/xpi-js';
 import {
   encryptOpReturnMsg,
-  fromXpiToSatoshis,
+  fromCoinToSatoshis,
   generateOpReturnScript,
   generateTxInput,
   generateTxOutput,
@@ -79,7 +79,7 @@ export default function useXPI() {
       // parse the input value of XPIs to send
       const value = parseXpiSendValue(isOneToMany, sendAmount, destinationAddressAndValueArray);
 
-      const satoshisToSend = fromXpiToSatoshis(value);
+      const satoshisToSend = fromCoinToSatoshis(value);
 
       // Throw validation error if fromXecToSatoshis returns false
       if (!satoshisToSend) {
@@ -191,7 +191,7 @@ export default function useXPI() {
   ) => {
     let txBuilder = new XPI.TransactionBuilder();
 
-    const satoshisToBurn = fromXpiToSatoshis(new BigNumber(burnAmount));
+    const satoshisToBurn = fromCoinToSatoshis(new BigNumber(burnAmount));
 
     // Throw validation error if fromXecToSatoshis returns false
     if (!satoshisToBurn) {

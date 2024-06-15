@@ -7,6 +7,7 @@ import { Redis } from 'ioredis';
 import { InjectChronikClient } from 'nestjs-chronik';
 import { template } from 'src/utils/stringTemplate';
 import { KeyCurrentHeight } from './dana.constants';
+import { fromSatoshisToCoin } from 'src/utils/cashMethods';
 
 @Injectable()
 export class DanaWsService implements OnModuleInit {
@@ -196,7 +197,11 @@ export class DanaWsService implements OnModuleInit {
       //xpi: 260 * (log2(difficulty / 16) + 1)
       //xec,... have fix issuance
       const issuance =
-        coin === COIN.XPI ? 260 * (Math.log2(difficulty / 16) + 1) : Number(currentBlock.sumCoinbaseOutputSats);
+        coin === COIN.XPI
+          ? 260 * (Math.log2(difficulty / 16) + 1)
+          : parseInt(
+              fromSatoshisToCoin(currentBlock.sumCoinbaseOutputSats, coinInfo[COIN.XEC].cashDecimals).toString()
+            );
 
       //calculate GH/coin (hash / issuance)
       const GHPerCoin = GHashratePerBlockTime / issuance;
