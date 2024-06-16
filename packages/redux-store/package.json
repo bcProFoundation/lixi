@@ -21,10 +21,6 @@
       "import": "./build/module/generated/*.js",
       "default": "./build/main/generated/*.js"
     },
-    "./generated/*": {
-      "require": "./build/main/generated/*.js",
-      "import": "./build/module/generated/*.mjs"
-    },
     "./*": {
       "types": "./build/main/*.d.ts",
       "require": "./build/main/*.js",
