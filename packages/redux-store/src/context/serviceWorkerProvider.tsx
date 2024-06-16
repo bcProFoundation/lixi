@@ -1,5 +1,5 @@
-import usePushNotification from '@hooks/usePushNotification';
-import useUserStatus from '@hooks/useUserStatus';
+import usePushNotification from '../hooks/usePushNotification';
+import useUserStatus from '../hooks/useUserStatus';
 import { useSliceDispatch } from '@store/index';
 import { subscribeSelectedAccount } from '@store/webpush';
 import { createContext, useEffect, useState } from 'react';

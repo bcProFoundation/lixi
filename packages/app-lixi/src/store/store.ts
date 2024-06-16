@@ -8,7 +8,7 @@ import { Router } from 'next/router';
 import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE, persistStore } from 'redux-persist';
 import { ThunkAction, ThunkDispatch } from 'redux-thunk';
 
-import { api } from '@bcpros/redux-store/api/baseApi';
+import { api } from '@store/index';
 import rootReducer, { serverReducer } from './rootReducer';
 import rootSaga from './rootSaga';
 import { setupListeners } from '@reduxjs/toolkit/query';

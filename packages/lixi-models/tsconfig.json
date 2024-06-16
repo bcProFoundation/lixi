@@ -48,7 +48,10 @@
     "../app-lixi-api/src/middlewares/hybrid-filter.ts"
   ],
   "exclude": [
-    "node_modules/**"
+    "node_modules/**",
+    "build",
+    "dist",
+    "**/*.test.ts"
   ],
   "compileOnSave": false
 }

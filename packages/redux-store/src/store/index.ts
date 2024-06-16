@@ -21,7 +21,7 @@ import { categoryReducer } from './category';
 import { burnReducer } from './burn';
 import { messageReducer } from './message';
 import { actionReducer } from './action';
-import { api } from '../api/baseApi';
+import { api } from './baseApi';
 import { LixiStoreStateInterface } from './state';
 
 export * from './account';
@@ -49,6 +49,7 @@ export * from './token';
 export * from './websocket';
 export * from './wallet';
 export * from './message';
+export * from './baseApi';
 export * as worship from './worship';
 export * as temple from './temple';
 export * as hashtag from './hashtag';

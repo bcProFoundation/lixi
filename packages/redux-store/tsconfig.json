@@ -41,16 +41,7 @@
   },
   "references": [
     {
-      "path": "../lixi-models/tsconfig.json"
-    },
-    {
-      "path": "../app-lixi/tsconfig.json"
-    },
-    {
-      "path": "../lixi-components/tsconfig.json"
-    },
-    {
-      "path": "../app-lotus-temple/tsconfig.json"
+      "path": "../lixi-models"
     }
   ],
   "include": [

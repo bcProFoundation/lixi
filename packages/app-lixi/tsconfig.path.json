@@ -49,6 +49,9 @@
       ],
       "@bcpros/redux-store/*": [
         "../../packages/redux-store/src/*"
+      ],
+      "@bcpros/redux-store/api/*": [
+        "../../packages/redux-store/src/api/*"
       ]
     }
   }

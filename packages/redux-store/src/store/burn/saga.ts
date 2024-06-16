@@ -6,7 +6,7 @@ import { PostsQueryTag } from '@bcpros/lixi-models/constants/postQueryTag';
 import { WORSHIP_TYPES } from '@bcpros/lixi-models/constants/worship';
 import { BurnCommand, BurnExtraArguments, BurnQueueCommand } from '@bcpros/lixi-models/lib/burn/burn.command';
 import { Burn, BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn/burn.model';
-import { callConfig } from '@context/shareContext';
+import { callConfig } from '../../context/shareContext';
 import {
   Account,
   Comment,
@@ -30,7 +30,7 @@ import { showToast } from '@store/toast/actions';
 import { api as tokenApi } from '@store/token/tokens.api';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletBalances } from '@store/wallet';
 import { api as worshipApi } from '@store/worship/worshipedPerson.api';
-import { fromCoinToSatoshis, fromSatoshisToCoin, fromSmallestDenomination } from '@utils/cashMethods';
+import { fromCoinToSatoshis, fromSatoshisToCoin, fromSmallestDenomination } from '../../utils/cashMethods';
 import BigNumber from 'bignumber.js';
 import * as _ from 'lodash';
 import intl from 'react-intl-universal';

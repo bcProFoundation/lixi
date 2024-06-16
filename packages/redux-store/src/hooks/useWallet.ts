@@ -1,5 +1,5 @@
 import BCHJS from '@bcpros/xpi-js';
-import { WalletContextValue } from '@context/index';
+import { WalletContextValue } from '../context/index';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { xpiReceivedNotificationWebSocket } from '@store/notification/actions';
 import {
@@ -18,9 +18,9 @@ import {
   setWalletRefreshInterval,
   writeWalletStatus
 } from '@store/wallet';
-import { getHashArrayFromWallet, getWalletBalanceFromUtxos } from '@utils/cashMethods';
-import { getTxHistoryChronik, getUtxosChronik, organizeUtxosByType, parseChronikTx } from '@utils/chronik';
-import isEqualIgnoreUndefined from '@utils/comparision';
+import { getHashArrayFromWallet, getWalletBalanceFromUtxos } from '../utils/cashMethods';
+import { getTxHistoryChronik, getUtxosChronik, organizeUtxosByType, parseChronikTx } from '../utils/chronik';
+import isEqualIgnoreUndefined from '../utils/comparision';
 import { ChronikClient, SubscribeMsg, Tx, Utxo } from 'chronik-client';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';

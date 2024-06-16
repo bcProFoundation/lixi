@@ -2,7 +2,6 @@ import type {} from 'graphql';
 import type {} from 'socket.io-client';
 import type {} from '@reduxjs/toolkit';
 import type {} from 'types';
-export * as baseApi from './api/baseApi';
 export * from './context/index';
 export * from './generated/types.generated';
 export * from './graphql/fragments/page-info-fields.fragment.generated';

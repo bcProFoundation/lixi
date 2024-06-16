@@ -8,7 +8,7 @@ import { showToast } from '../toast/actions';
 
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
-import { callConfig } from '@context/index';
+import { callConfig } from '../../context/index';
 import { setAccount } from '@store/account/actions';
 import { take } from 'redux-saga/effects';
 import {

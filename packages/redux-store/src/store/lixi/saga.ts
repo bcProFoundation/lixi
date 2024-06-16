@@ -22,7 +22,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { removeUploadFromCache } from '@store/account/actions';
 import { getAccountById } from '@store/account/selectors';
 import { api as pageMessageApi } from '@store/message/pageMessageSession.api';
-import { generateRandomBase58Str } from '@utils/encryptionMethods';
+import { generateRandomBase58Str } from '../../utils/encryptionMethods';
 import { saveAs } from 'file-saver';
 import * as _ from 'lodash';
 import moment from 'moment';

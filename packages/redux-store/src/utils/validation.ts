@@ -1,4 +1,4 @@
-import { fromSmallestDenomination } from '@utils/cashMethods';
+import { fromSmallestDenomination } from './cashMethods';
 import BigNumber from 'bignumber.js';
 
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';

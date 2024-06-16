@@ -7,8 +7,8 @@ import {
   PatchAccountCommand,
   RegisterViaEmailNoVerifiedCommand
 } from '@bcpros/lixi-models/lib/account/account.dto';
-import axiosClient from '@utils/axiosClient';
-import getOauth2URL from '@utils/oauth2';
+import axiosClient from '../../utils/axiosClient';
+import getOauth2URL from '../../utils/oauth2';
 
 const accountApi = {
   getById(id: number): Promise<AccountDto> {

@@ -1,6 +1,6 @@
 {
   "name": "@bcpros/redux-store",
-  "version": "1.1.9",
+  "version": "1.1.11",
   "description": "Models library for lixi application",
   "main": "build/main/index.js",
   "types": "build/main/index.d.ts",
@@ -10,21 +10,32 @@
   "keywords": [],
   "exports": {
     ".": {
+      "types": "./build/main/index.d.ts",
       "require": "./build/main/index.js",
-      "import": "./dist/module/index.mjs"
+      "import": "./dist/module/index.js",
+      "default": "./build/main/index.js"
+    },
+    "./generated/*": {
+      "types": "./build/main/generated/*.d.ts",
+      "require": "./build/main/generated/*.js",
+      "import": "./build/module/generated/*.js",
+      "default": "./build/main/generated/*.js"
     },
     "./generated/*": {
       "require": "./build/main/generated/*.js",
       "import": "./build/module/generated/*.mjs"
     },
     "./*": {
+      "types": "./build/main/*.d.ts",
       "require": "./build/main/*.js",
-      "import": "./build/module/*.mjs"
+      "import": "./build/module/*.js",
+      "default": "./build/main/*.js"
     }
   },
   "scripts": {
     "build": "run-p build:*",
     "build:main": "tsc -p tsconfig.json",
+    "build:module": "tsc -p tsconfig.module.json",
     "precommit": "turbo run format",
     "fix": "run-s fix:*",
     "lint": "run-s lint:*",
@@ -32,9 +43,6 @@
     "format": "prettier \"src/**/*.ts\" --write --config .prettierrc.js",
     "fix:lint": "eslint src --ext .ts --fix",
     "graphql-codegen": "graphql-codegen --config codegen.yml"
-  },
-  "engines": {
-    "node": ">=10"
   },
   "peerDependencies": {
     "@abcpros/bitcore-lib-xpi": ">=8.25.37",

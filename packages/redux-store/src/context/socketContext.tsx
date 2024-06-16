@@ -1,11 +1,20 @@
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from 'react';
 import { connectWebSocket } from '@store/websocket/websocketUtils'; // Implement this function
 import { io, Socket } from 'socket.io-client';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { connectToChannels } from '@store/websocket';
 import { getSelectedAccount } from '@store/account';
-import { userSubcribeToAddressChannel, userSubcribeToMultiPageMessageSession } from '@store/message/actions';
-import usePrevious from '@hooks/usePrevious';
+import {
+  userSubcribeToAddressChannel,
+  userSubcribeToMultiPageMessageSession,
+} from '@store/message/actions';
+import usePrevious from '../hooks/usePrevious';
 import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 
 export const SocketContext = createContext(null);
@@ -50,7 +59,10 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     //if change account, disconnect socket and reconnect
-    if (previousSelectedAccount && selectedAccount?.address !== previousSelectedAccount?.address) {
+    if (
+      previousSelectedAccount &&
+      selectedAccount?.address !== previousSelectedAccount?.address
+    ) {
       if (socket) socket.disconnect();
 
       const setupSocket = async () => {
@@ -62,5 +74,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     }
   }, [selectedAccount]);
 
-  return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
+  return (
+    <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
+  );
 }

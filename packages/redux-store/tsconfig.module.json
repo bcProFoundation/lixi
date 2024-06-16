@@ -1,10 +1,17 @@
 {
   "extends": "./tsconfig",
   "compilerOptions": {
-    "target": "ES2017",
     "outDir": "build/module",
     "module": "esnext",
     "moduleResolution": "node",
-    "resolveJsonModule": true
-  }
+    "resolveJsonModule": true,
+  },
+  "references": [
+    {
+      "path": "../lixi-models"
+    }
+  ],
+  "include": [
+    "src/**/*",
+  ]
 }

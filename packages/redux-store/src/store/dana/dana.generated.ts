@@ -11,7 +11,7 @@
 
 import * as Types from '../../generated/types.generated';
 
-import { api } from '@bcpros/redux-store/api/baseApi';
+import { api } from '@store/baseApi';
 export type ConvertDanaToCoinQueryVariables = Types.Exact<{
   ConvertDanaInput: Types.ConvertDana;
 }>;

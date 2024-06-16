@@ -1,6 +1,6 @@
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import BCHJS from '@bcpros/xpi-js';
-import useWallet from '@hooks/useWallet';
+import useWallet from '../hooks/useWallet';
 import { WalletPathAddressInfo } from '@store/wallet';
 import { ChronikClient, Utxo } from 'chronik-client';
 import { createContext } from 'react';

@@ -1,3 +1,4 @@
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { createAction } from '@reduxjs/toolkit';
 
 export const subscribeSelectedAccount = createAction<{
