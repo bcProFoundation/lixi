@@ -34,6 +34,7 @@
     "update:uploadable": "ts-node scripts/upload/index.ts",
     "update:account": "ts-node scripts/account/index.ts",
     "update:postBitMap": "ts-node scripts/post-bitMap/index.ts",
+    "update:accountWalletPaths": "ts-node scripts/account/wallet-paths/index.ts",
     "update:createCommentFee": "ts-node scripts/comment-fee/index.ts",
     "update:notificationTemplate": "ts-node scripts/notification/index.ts"
   },
