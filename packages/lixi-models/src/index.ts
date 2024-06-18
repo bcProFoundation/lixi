@@ -166,3 +166,4 @@ export * from './lib/worshiped-person/worshipedPerson.model';
 export * from './utils/addressUtils';
 export * from './utils/cashMethods';
 export * from './utils/paginationResult';
+export * from './lib/escrow';
