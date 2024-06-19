@@ -295,7 +295,7 @@ export type Commentable = {
 
 export type ConvertDana = {
   convertToCoin: Coin;
-  quantity: Scalars['Int']['input'];
+  quantity: Array<Scalars['Int']['input']>;
 };
 
 export type Country = {
@@ -1371,7 +1371,7 @@ export type Query = {
   checkIfFollowToken: Scalars['Boolean']['output'];
   comment: Comment;
   commentsToCommentableId: CommentConnection;
-  convertDanaToCoin: Scalars['Int']['output'];
+  convertDanaToCoin: Array<Scalars['Int']['output']>;
   getAccountByAddress: Account;
   getBalances: Balances;
   hashtag: Hashtag;

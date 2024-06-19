@@ -21,7 +21,7 @@ export class ConvertDanaResolver {
 
   constructor(@InjectRedis() private readonly redis: Redis) {}
 
-  @Query(() => Number)
+  @Query(() => [Number])
   @UseGuards(GqlJwtAuthGuardByPass)
   async convertDanaToCoin(
     @AccountEntity() account: Account,
@@ -37,6 +37,11 @@ export class ConvertDanaResolver {
     const danaRateBuff = await this.redis.hgetBuffer(keyHighestConvertRate, KeyCurrentHeight);
     const danaRate = decode(danaRateBuff ?? '') as DanaRate;
     const coinPerDana = Math.round(danaRate?.coinPerDana ?? 0);
-    return coinPerDana * quantity;
+
+    const arrayCoin = [];
+    for (let i = 0; i < quantity.length; i++) {
+      arrayCoin.push(quantity[i] * coinPerDana);
+    }
+    return arrayCoin;
   }
 }

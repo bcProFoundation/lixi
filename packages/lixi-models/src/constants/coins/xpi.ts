@@ -18,6 +18,7 @@ export const infoXpi: CoinInfo = {
   tokenPrefixes: ['ltoken'],
   blockExplorerUrl: 'https://explorer.givelotus.org',
   blockTime: 120,
+  totalBlockInDay: 720,
   opReturn: {
     opReturnPrefixHex: '6a',
     opReturnAppPrefixLengthHex: '04',

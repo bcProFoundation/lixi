@@ -16,7 +16,7 @@ export type ConvertDanaToCoinQueryVariables = Types.Exact<{
   ConvertDanaInput: Types.ConvertDana;
 }>;
 
-export type ConvertDanaToCoinQuery = { __typename?: 'Query'; convertDanaToCoin: number };
+export type ConvertDanaToCoinQuery = { __typename?: 'Query'; convertDanaToCoin: Array<number> };
 
 export const ConvertDanaToCoinDocument = `
     query ConvertDanaToCoin($ConvertDanaInput: ConvertDana!) {

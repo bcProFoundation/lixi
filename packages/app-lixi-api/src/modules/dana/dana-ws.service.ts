@@ -1,4 +1,4 @@
-import { COIN, coinInfo, DanaRate, GHPerDana, issuanceXEC, ratioHash256 } from '@bcpros/lixi-models';
+import { adjustRate, COIN, coinInfo, DanaRate, GHPerDana, ratioHash256 } from '@bcpros/lixi-models';
 import { decode, encode } from '@msgpack/msgpack';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -6,7 +6,7 @@ import { BlockInfo, ChronikClient, SubscribeMsg } from 'chronik-client';
 import { Redis } from 'ioredis';
 import { InjectChronikClient } from 'nestjs-chronik';
 import { template } from 'src/utils/stringTemplate';
-import { KeyCurrentHeight } from './dana.constants';
+import { KeyCurrentAdjust, KeyCurrentHeight } from './dana.constants';
 import { fromSatoshisToCoin } from 'src/utils/cashMethods';
 
 @Injectable()
@@ -14,11 +14,11 @@ export class DanaWsService implements OnModuleInit {
   private logger: Logger = new Logger(DanaWsService.name);
   private keyInfoBlockPrefix = 'items:blocks:{{coin}}:item-data';
   private keyInfoConvertPrefix = 'items:convert-dana:{{coin}}:item-data';
+  private keyAdjustDana = 'items:dana-rate-adjust:{{coin}}';
 
   private keyHighestBlockData = 'items:block-highest:{{coin}}';
   private keyHighestConvertData = 'items:convert-dana-highest:{{coin}}';
-  private keyAdjustDana = 'items:dana-rate-adjust';
-
+  private keyCurrentAdjustDana = 'items:dana-rate-adjust-current:{{coin}}';
   private keyIndexHighestBlockData = 'items:index-block-highest:{{coin}}';
 
   constructor(
@@ -33,13 +33,35 @@ export class DanaWsService implements OnModuleInit {
       onMessage: async (msg: SubscribeMsg) => {
         const { type } = msg;
         if (type === 'BlockConnected') {
+          //add new block
           const keyHighestBlockCoin = template(this.keyIndexHighestBlockData, { coin: COIN.XPI });
-          const highestXPI = (await this.chronikXPI.blockchainInfo()).tipHeight;
+          const blockHighestInfo = (await this.chronikXPI.block(msg.blockHash)).blockInfo;
           const currentIndexHighest = Number((await this.redis.get(keyHighestBlockCoin)) ?? '1');
 
-          if (highestXPI < currentIndexHighest + 10) {
+          if (blockHighestInfo.height < currentIndexHighest + 10) {
             this.handleNewBlock(msg.blockHash, COIN.XPI);
-            this.redis.set(keyHighestBlockCoin, highestXPI);
+            this.redis.set(keyHighestBlockCoin, blockHighestInfo.height);
+          }
+
+          //adjust dana by blockTime
+          const keyAdjustDanaByXPI = template(this.keyAdjustDana, { coin: COIN.XPI });
+          const keyCurrentAdjustDanaByXPI = template(this.keyCurrentAdjustDana, { coin: COIN.XPI });
+          //if (Number.isInteger(blockHighestInfo.height / coinInfo[COIN.XPI].totalBlockInDay)) {
+          if (true) {
+            const currentAdjust = await this.redis.hget(keyCurrentAdjustDanaByXPI, KeyCurrentAdjust);
+            if (!currentAdjust) {
+              //set default: 100GH
+              Promise.all([
+                this.redis.hset(keyAdjustDanaByXPI, blockHighestInfo.height, GHPerDana),
+                this.redis.hset(keyCurrentAdjustDanaByXPI, KeyCurrentAdjust, GHPerDana)
+              ]);
+            } else {
+              const currentAdjustRateDana = Number(currentAdjust) / adjustRate;
+              Promise.all([
+                this.redis.hset(keyAdjustDanaByXPI, blockHighestInfo.height, currentAdjustRateDana),
+                this.redis.hset(keyCurrentAdjustDanaByXPI, KeyCurrentAdjust, currentAdjustRateDana)
+              ]);
+            }
           }
         }
       },
@@ -62,13 +84,35 @@ export class DanaWsService implements OnModuleInit {
       onMessage: async (msg: SubscribeMsg) => {
         const { type } = msg;
         if (type === 'BlockConnected') {
+          //add new block
           const keyHighestBlockCoin = template(this.keyIndexHighestBlockData, { coin: COIN.XEC });
-          const highestXEC = (await this.chronikXPI.blockchainInfo()).tipHeight;
+          const blockHighestInfo = (await this.chronikXEC.block(msg.blockHash)).blockInfo;
           const currentIndexHighest = Number((await this.redis.get(keyHighestBlockCoin)) ?? '0');
 
-          if (highestXEC < currentIndexHighest + 10) {
+          if (blockHighestInfo.height < currentIndexHighest + 10) {
             this.handleNewBlock(msg.blockHash, COIN.XEC);
-            this.redis.set(keyHighestBlockCoin, highestXEC);
+            this.redis.set(keyHighestBlockCoin, blockHighestInfo.height);
+          }
+
+          //adjust dana by blockTime
+          const keyAdjustDanaByXEC = template(this.keyAdjustDana, { coin: COIN.XEC });
+          const keyCurrentAdjustDanaByXEC = template(this.keyCurrentAdjustDana, { coin: COIN.XEC });
+          // if (Number.isInteger(blockHighestInfo.height / coinInfo[COIN.XEC].totalBlockInDay)) {
+          if (true) {
+            const currentAdjust = await this.redis.hget(keyCurrentAdjustDanaByXEC, KeyCurrentAdjust);
+            if (!currentAdjust) {
+              //set default: 100GH
+              Promise.all([
+                this.redis.hset(keyAdjustDanaByXEC, blockHighestInfo.height, GHPerDana),
+                this.redis.hset(keyCurrentAdjustDanaByXEC, KeyCurrentAdjust, GHPerDana)
+              ]);
+            } else {
+              const currentAdjustRateDana = Number(currentAdjust) / adjustRate;
+              Promise.all([
+                this.redis.hset(keyAdjustDanaByXEC, blockHighestInfo.height, currentAdjustRateDana),
+                this.redis.hset(keyCurrentAdjustDanaByXEC, KeyCurrentAdjust, currentAdjustRateDana)
+              ]);
+            }
           }
         }
       },
@@ -129,15 +173,17 @@ export class DanaWsService implements OnModuleInit {
     //xpi: 260 * (log2(difficulty / 16) + 1)
     //xec,... have fix issuance
     const issuance =
-      coin === COIN.XPI ? 260 * (Math.log2(difficulty / 16) + 1) : Number(newBlockInfo.sumCoinbaseOutputSats);
+      coin === COIN.XPI
+        ? 260 * (Math.log2(difficulty / 16) + 1)
+        : parseInt(fromSatoshisToCoin(newBlockInfo.sumCoinbaseOutputSats, coinInfo[COIN.XEC].cashDecimals).toString());
 
     //calculate GH/coin (hash / issuance)
     const GHPerCoin = GHashratePerBlockTime / issuance;
 
     //convert dana to coin (xpi, xec,...)
-    const date = new Date();
-    const today = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-    const adjustGHPerDana = await this.redis.hget(this.keyAdjustDana, today);
+    const keyCurrentAdjustDanaByCoin = template(this.keyCurrentAdjustDana, { coin });
+    const adjustGHPerDana = await this.redis.hget(keyCurrentAdjustDanaByCoin, KeyCurrentAdjust);
+
     const convertAdjustGHPerDana = adjustGHPerDana ? Number(adjustGHPerDana) : GHPerDana;
     const adjustGHPerDanaByCoin = coin === COIN.XPI ? convertAdjustGHPerDana : convertAdjustGHPerDana * ratioHash256;
     const coinPerDana = adjustGHPerDanaByCoin / GHPerCoin;
@@ -207,9 +253,9 @@ export class DanaWsService implements OnModuleInit {
       const GHPerCoin = GHashratePerBlockTime / issuance;
 
       //convert dana to coin (xpi, xec,...)
-      const date = new Date();
-      const today = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-      const adjustGHPerDana = await this.redis.hget(this.keyAdjustDana, today);
+      const keyCurrentAdjustDanaByCoin = template(this.keyCurrentAdjustDana, { coin });
+      const adjustGHPerDana = await this.redis.hget(keyCurrentAdjustDanaByCoin, KeyCurrentAdjust);
+
       const convertAdjustGHPerDana = adjustGHPerDana ? Number(adjustGHPerDana) : GHPerDana;
       const adjustGHPerDanaByCoin = coin === COIN.XPI ? convertAdjustGHPerDana : convertAdjustGHPerDana * ratioHash256;
       const coinPerDana = adjustGHPerDanaByCoin / GHPerCoin;

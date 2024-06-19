@@ -4,9 +4,9 @@ import { COIN } from '../../../constants/coins/coin';
 
 @InputType('ConvertDana')
 export class ConvertDanaInput {
-  @Field(() => Number)
+  @Field(() => [Number])
   @IsNotEmpty()
-  quantity: number;
+  quantity: [number];
 
   @Field(() => COIN)
   @IsNotEmpty()

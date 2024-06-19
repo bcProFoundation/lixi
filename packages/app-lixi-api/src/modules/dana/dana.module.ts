@@ -1,6 +1,5 @@
 import { Logger, Module } from '@nestjs/common';
 import { DanaWsService } from './dana-ws.service';
-import { DanaAdjustService } from './dana-adjust.service';
 import { ConvertDanaResolver } from './convert-dana.resolver';
 import { AuthModule } from '../auth/auth.module';
 import { DanaIndexXPIService } from './index-block-xpi.service';
@@ -36,7 +35,6 @@ import { IndexBlockProcessor } from './index-block.process';
   providers: [
     Logger,
     DanaWsService,
-    DanaAdjustService,
     ConvertDanaResolver,
     IndexBlockProcessor,
     DanaIndexXECService,

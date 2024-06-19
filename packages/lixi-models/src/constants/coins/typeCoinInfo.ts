@@ -16,5 +16,6 @@ export type CoinInfo = {
   tokenPrefixes: string[];
   blockExplorerUrl: string;
   blockTime: number;
+  totalBlockInDay: number;
   opReturn?: any;
 };

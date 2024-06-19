@@ -268,7 +268,7 @@ type Commentable {
 
 input ConvertDana {
   convertToCoin: Coin!
-  quantity: Int!
+  quantity: [Int!]!
 }
 
 type Country {
@@ -1297,7 +1297,7 @@ type Query {
   checkIfFollowToken(tokenId: String): Boolean!
   comment(id: String!): Comment!
   commentsToCommentableId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: CommentOrder, skip: Int): CommentConnection!
-  convertDanaToCoin(ConvertDanaInput: ConvertDana!): Int!
+  convertDanaToCoin(ConvertDanaInput: ConvertDana!): [Int!]!
   getAccountByAddress(address: String!): Account!
   getBalances(address: String!): Balances!
   hashtag(content: String!): Hashtag!

@@ -17,5 +17,6 @@ export const infoXec: CoinInfo = {
   prefixes: ['ecash'],
   tokenPrefixes: ['etoken'],
   blockExplorerUrl: 'https://explorer.e.cash',
-  blockTime: 600
+  blockTime: 600,
+  totalBlockInDay: 144
 };

@@ -347,7 +347,7 @@ export class AccountController {
 
         const addressType = _.toUpper(type) == 'P2PKH' ? 'P2PKH' : 'P2SH';
         const path = command.rootCoin === COIN.XPI ? walletPath.XPI : walletPath.XEC;
-        const addressCoin = command.rootCoin === COIN.XPI ? address : cashAddress
+        const addressCoin = command.rootCoin === COIN.XPI ? address : cashAddress;
 
         const createdAccount: AccountDb = await this.prisma.account.create({
           data: {
