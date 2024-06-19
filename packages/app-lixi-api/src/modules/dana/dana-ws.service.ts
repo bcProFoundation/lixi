@@ -46,8 +46,7 @@ export class DanaWsService implements OnModuleInit {
           //adjust dana by blockTime
           const keyAdjustDanaByXPI = template(this.keyAdjustDana, { coin: COIN.XPI });
           const keyCurrentAdjustDanaByXPI = template(this.keyCurrentAdjustDana, { coin: COIN.XPI });
-          //if (Number.isInteger(blockHighestInfo.height / coinInfo[COIN.XPI].totalBlockInDay)) {
-          if (true) {
+          if (Number.isInteger(blockHighestInfo.height / coinInfo[COIN.XPI].totalBlockInDay)) {
             const currentAdjust = await this.redis.hget(keyCurrentAdjustDanaByXPI, KeyCurrentAdjust);
             if (!currentAdjust) {
               //set default: 100GH
@@ -97,8 +96,7 @@ export class DanaWsService implements OnModuleInit {
           //adjust dana by blockTime
           const keyAdjustDanaByXEC = template(this.keyAdjustDana, { coin: COIN.XEC });
           const keyCurrentAdjustDanaByXEC = template(this.keyCurrentAdjustDana, { coin: COIN.XEC });
-          // if (Number.isInteger(blockHighestInfo.height / coinInfo[COIN.XEC].totalBlockInDay)) {
-          if (true) {
+          if (Number.isInteger(blockHighestInfo.height / coinInfo[COIN.XEC].totalBlockInDay)) {
             const currentAdjust = await this.redis.hget(keyCurrentAdjustDanaByXEC, KeyCurrentAdjust);
             if (!currentAdjust) {
               //set default: 100GH
