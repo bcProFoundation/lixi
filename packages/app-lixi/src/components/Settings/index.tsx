@@ -417,7 +417,7 @@ const Settings: React.FC = () => {
                 {
                   <Select
                     onChange={handleChangeWallet}
-                    defaultValue={selectedAccount?.currentCoin ?? COIN.XPI}
+                    defaultValue={selectedAccount?.coin ?? COIN.XPI}
                     options={labelOptionCoins}
                     // bordered={null}
                     variant="borderless"
@@ -447,7 +447,7 @@ const Settings: React.FC = () => {
                     <h3>{acc.name}</h3>
                   </SWName>
                   <SWName>
-                    <h3>{labelCoin(acc.currentCoin)}</h3>
+                    <h3>{labelCoin(acc.coin)}</h3>
                   </SWName>
 
                   <SWButtonCtn>

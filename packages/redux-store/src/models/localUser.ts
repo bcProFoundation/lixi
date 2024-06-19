@@ -6,5 +6,5 @@ export type LocalUser = {
   name: string;
   isLocalLoggedIn?: boolean;
   rootCoin: COIN;
-  currentCoin: COIN;
+  coin: COIN;
 };

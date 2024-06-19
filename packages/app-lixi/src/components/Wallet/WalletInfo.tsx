@@ -150,7 +150,7 @@ const WalletInfoComponent: React.FC = () => {
   const [currentAddress, setCurrentAddress] = useState<string>(selectedWalletPath?.xAddress);
 
   useEffect(() => {
-    switch (selectedAccount?.currentCoin) {
+    switch (selectedAccount?.coin) {
       case COIN.XPI:
         setCurrentAddress(selectedWalletPath?.xAddress);
         break;
@@ -221,14 +221,14 @@ const WalletInfoComponent: React.FC = () => {
   return (
     <>
       <CardContainer
-        $bgCoin={`/images/currencies/bg-${(selectedAccount?.currentCoin ?? COIN.XPI).toLowerCase()}.svg`}
+        $bgCoin={`/images/currencies/bg-${(selectedAccount?.coin ?? COIN.XPI).toLowerCase()}.svg`}
         className="card-container"
       >
         <WalletCard>
           <div className="wallet-name">
             <img
               width={40}
-              src={`/images/currencies/${(selectedAccount?.currentCoin ?? COIN.XPI).toLowerCase()}.svg`}
+              src={`/images/currencies/${(selectedAccount?.coin ?? COIN.XPI).toLowerCase()}.svg`}
               alt=""
             />
             <WalletLabel name={selectedAccount?.name ?? ''} />
@@ -242,9 +242,9 @@ const WalletInfoComponent: React.FC = () => {
               <BalanceHeader
                 balance={fromSmallestDenomination(
                   walletStatus.balances.totalBalanceInSatoshis ?? 0,
-                  selectedAccount?.currentCoin ?? COIN.XPI
+                  selectedAccount?.coin ?? COIN.XPI
                 )}
-                ticker={coinInfo[selectedAccount?.currentCoin ?? COIN.XPI].ticker}
+                ticker={coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker}
               />
             ) : (
               <React.Fragment>
@@ -256,7 +256,7 @@ const WalletInfoComponent: React.FC = () => {
         {!isServer() && currentAddress && (
           <StyledQRCode>
             <QRCodeModal
-              logoImage={coinInfo[selectedAccount?.currentCoin ?? COIN.XPI].logo}
+              logoImage={coinInfo[selectedAccount?.coin ?? COIN.XPI].logo}
               address={currentAddress}
               type={QRCodeModalType.address}
             />

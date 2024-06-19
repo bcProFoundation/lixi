@@ -135,22 +135,22 @@ const PageMessageLixiModal = ({ account, page, wallet, classStyle }: PageMessage
               pattern: /^[0-9]*$/,
               validate: {
                 checkIsXPI: value => {
-                  return selectedAccount?.currentCoin === COIN.XPI || 'Must be XPI wallet';
+                  return selectedAccount?.coin === COIN.XPI || 'Must be XPI wallet';
                 },
                 checkEnoughCoin: value => {
                   return (
                     fromSmallestDenomination(
                       wallet.balances.totalBalanceInSatoshis,
-                      selectedAccount?.currentCoin ?? COIN.XPI
-                    ) >= parseFloat(value) || `Not enough ${selectedAccount?.currentCoin ?? COIN.XPI}`
+                      selectedAccount?.coin ?? COIN.XPI
+                    ) >= parseFloat(value) || `Not enough ${selectedAccount?.coin ?? COIN.XPI}`
                   );
                 },
                 checkGreaterDust: value => {
                   return (
                     parseFloat(value) >=
                       fromSmallestDenomination(
-                        coinInfo[selectedAccount?.currentCoin ?? COIN.XPI].etokenSats,
-                        selectedAccount?.currentCoin ?? COIN.XPI
+                        coinInfo[selectedAccount?.coin ?? COIN.XPI].etokenSats,
+                        selectedAccount?.coin ?? COIN.XPI
                       ) || `Must greater than dust`
                   );
                 }

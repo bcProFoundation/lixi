@@ -238,7 +238,7 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
 
   const selectedAccount = useSliceSelector(getSelectedAccount);
   const currentLocale = useSliceSelector(getCurrentLocale);
-  const currentCoin = selectedAccount?.currentCoin ?? COIN.XPI;
+  const currentCoin = selectedAccount?.coin ?? COIN.XPI;
   const allTokens = useSliceSelector(selectTokens);
 
   const walletHasUpdated = useSliceSelector(getWalletHasUpdated);
@@ -325,7 +325,7 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
       XPI,
       walletState,
       pageNumber,
-      selectedAccount?.currentCoin ?? COIN.XPI
+      selectedAccount?.coin ?? COIN.XPI
     );
     if (chronikTxHistory.length === 0) {
       setHasMoreTxHistory(pre => !pre);
@@ -405,7 +405,7 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
           <ClaimComponent isClaimFromAccount={true} claimCodeFromURL={claimCode}></ClaimComponent>
         </div>
 
-        {selectedAccount?.currentCoin !== COIN.XPI && (
+        {selectedAccount?.coin !== COIN.XPI && (
           <div>
             <p className="text-base-wallet">{intl.get('general.baseWallet')}</p>
             {UIWallet(COIN.XPI)}
@@ -414,7 +414,7 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
 
         <p className="text-other-wallet">{intl.get('general.otherWallet')}</p>
         {Object.keys(COIN).map(coin => {
-          if (coin === selectedAccount?.currentCoin) return '';
+          if (coin === selectedAccount?.coin) return '';
           else return UIWallet(coin);
         })}
 

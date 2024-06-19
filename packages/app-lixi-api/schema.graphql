@@ -7,12 +7,12 @@ type Account {
   address: String!
   avatar: String
   balance: Int!
+  coin: Coin
   cover: String
   createCommentFee: String
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
-  currentCoin: Coin
   dayOfBirth: Int
   description: String
   encryptedMnemonic: String

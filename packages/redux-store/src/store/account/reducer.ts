@@ -400,7 +400,7 @@ export const accountReducer = createReducer(initialState, builder => {
     })
     .addCase(setAccountCoin, (state, action) => {
       const { id, accountCoin } = action.payload;
-      state.entities[id].currentCoin = accountCoin;
+      state.entities[id].coin = accountCoin;
     })
     .addMatcher(isAnyOf(refreshLixiListSuccess, refreshLixiListSilentSuccess), (state, action) => {
       const { account, lixies } = action.payload;

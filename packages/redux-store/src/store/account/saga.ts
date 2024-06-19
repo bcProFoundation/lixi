@@ -194,7 +194,7 @@ function* postAccountSaga(action: PayloadAction<CreateAccountCommand>) {
       ...command,
       ...data,
       rootCoin: command.rootCoin,
-      currentCoin: command.rootCoin
+      coin: command.rootCoin
     } as Account;
 
     yield put(postAccountSuccess(result));
@@ -372,7 +372,7 @@ function* selectAccountSuccessSaga(
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,
     rootCoin: account.rootCoin ? account.rootCoin : COIN.XPI,
-    currentCoin: account.currentCoin ? account.currentCoin : COIN.XPI
+    coin: account.coin ? account.coin : COIN.XPI
   };
   yield put(setLocalUserAccount(localAccount));
   yield putResolve(silentLogin(account.mnemonic));
@@ -405,7 +405,7 @@ function* setAccountSuccessSaga(action: PayloadAction<Account>) {
     balance: account.balance,
     name: account.name,
     rootCoin: account.rootCoin ? account.rootCoin : COIN.XPI,
-    currentCoin: account.currentCoin ? account.currentCoin : COIN.XPI,
+    coin: account.coin ? account.coin : COIN.XPI,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt
   };
@@ -924,7 +924,7 @@ function* silentLoginSuccessSaga(action: PayloadAction) {
     address: account.address,
     name: account.name,
     rootCoin: account.rootCoin ? account.rootCoin : COIN.XPI,
-    currentCoin: account.currentCoin ? account.currentCoin : COIN.XPI
+    coin: account.coin ? account.coin : COIN.XPI
   };
   // yield put(activateWallet(account.mnemonic));
   yield put(silentLocalLogin(localUser));

@@ -236,7 +236,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
   const [postFee, setPostFee] = useState([0]);
   const { data: dataFee } = useConvertDanaToCoinQuery({
     ConvertDanaInput: {
-      convertToCoin: (selectedAccount?.currentCoin ?? COIN.XPI) as unknown as Coin,
+      convertToCoin: (selectedAccount?.coin ?? COIN.XPI) as unknown as Coin,
       quantity: [Number(page?.createPostFee ?? 0)]
     }
   });
@@ -284,9 +284,9 @@ const CreatePostCard = (props: CreatePostCardProp) => {
             const fundingWif = getUtxoWif(
               slpBalancesAndUtxos.nonSlpUtxos[0],
               walletPaths,
-              selectedAccount?.currentCoin ?? COIN.XPI
+              selectedAccount?.coin ?? COIN.XPI
             );
-            switch (selectedAccount?.currentCoin) {
+            switch (selectedAccount?.coin) {
               case COIN.XPI:
                 createFeeHex = await sendXpi(
                   XPI,
@@ -364,7 +364,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
                 field: PostOrderField.UpdatedAt
               }
             },
-            coinFee: (selectedAccount?.currentCoin ?? COIN.XPI) as unknown as Coin
+            coinFee: (selectedAccount?.coin ?? COIN.XPI) as unknown as Coin
           };
 
           await createPostTrigger({ input: createPostInput });
@@ -380,7 +380,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
             endDate,
             canAddOption,
             singleSelect,
-            coinFee: (selectedAccount?.currentCoin ?? COIN.XPI) as unknown as Coin
+            coinFee: (selectedAccount?.coin ?? COIN.XPI) as unknown as Coin
           };
 
           await createPollTrigger({ input: createPollInput });
@@ -517,7 +517,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
                   <Button className="btn-select">{getCreatePostLocation()}</Button>
                   {page && page.createPostFee && selectedAccount?.id != page.pageAccountId && (
                     <p className="post-fee">{`${intl.get('general.fee')} ${postFee} ${
-                      coinInfo[selectedAccount?.currentCoin ?? COIN.XPI].ticker
+                      coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker
                     }`}</p>
                   )}
                 </div>

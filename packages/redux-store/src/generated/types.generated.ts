@@ -24,11 +24,11 @@ export type Account = {
   address: Scalars['String']['output'];
   avatar?: Maybe<Scalars['String']['output']>;
   balance: Scalars['Int']['output'];
+  coin?: Maybe<Coin>;
   cover?: Maybe<Scalars['String']['output']>;
   createCommentFee?: Maybe<Scalars['String']['output']>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime']['output'];
-  currentCoin?: Maybe<Coin>;
   dayOfBirth?: Maybe<Scalars['Int']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   encryptedMnemonic?: Maybe<Scalars['String']['output']>;

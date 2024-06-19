@@ -39,7 +39,7 @@ export class IndexBlockProcessor extends WorkerHost {
           const { tipHeight: highestXPI } = await this.chronikXPI.blockchainInfo();
           //Index new block generated when we index from first
           if (highestXPI != startIndex) {
-            await this.danaWsService.handleMutipleBlock(startIndex, highestXPI, coin);
+            await this.danaWsService.handleMultipleBlock(startIndex, highestXPI, coin);
             await this.redis.set(keyHighestBlockCoin, highestXPI);
           }
           break;
@@ -47,13 +47,13 @@ export class IndexBlockProcessor extends WorkerHost {
           const { tipHeight: highestXEC } = await this.chronikXEC.blockchainInfo();
           //Index new block generated when we index from first
           if (highestXEC != startIndex) {
-            await this.danaWsService.handleMutipleBlock(startIndex, highestXEC, coin);
+            await this.danaWsService.handleMultipleBlock(startIndex, highestXEC, coin);
             await this.redis.set(keyHighestBlockCoin, highestXEC);
           }
           break;
       }
     } else {
-      await this.danaWsService.handleMutipleBlock(startIndex, endIndex, coin);
+      await this.danaWsService.handleMultipleBlock(startIndex, endIndex, coin);
       await this.redis.set(keyHighestBlockCoin, endIndex);
     }
 

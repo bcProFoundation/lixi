@@ -414,7 +414,7 @@ const Comment = ({ post }: CommentProps) => {
         const coinGive = textGive.substring(1, textGive.length) as COIN;
 
         const { nonSlpUtxos } = await getUtxosByCoin(coinGive);
-        const utxos = selectedAccount?.currentCoin === coinGive ? slpBalancesAndUtxos.nonSlpUtxos : nonSlpUtxos;
+        const utxos = selectedAccount?.coin === coinGive ? slpBalancesAndUtxos.nonSlpUtxos : nonSlpUtxos;
         const balances = utxos.reduce((accu, currentValue) => accu + parseFloat(currentValue.value), 0);
 
         //check if amount is valid
@@ -466,7 +466,7 @@ const Comment = ({ post }: CommentProps) => {
               createFeeHex: createFeeHex,
               uploadId: commentUpload?.id || undefined,
               replyToCommentId: isReplyComment ? replyToCommentId : '',
-              coinGive: (selectedAccount?.currentCoin ?? COIN.XPI) as unknown as Coin
+              coinGive: (selectedAccount?.coin ?? COIN.XPI) as unknown as Coin
             };
 
             await createComment(createCommentInput, isReplyComment);
@@ -506,7 +506,7 @@ const Comment = ({ post }: CommentProps) => {
               createFeeHex: createFeeHex,
               uploadId: commentUpload?.id || undefined,
               replyToCommentId: isReplyComment ? replyToCommentId : '',
-              coinGive: (selectedAccount?.currentCoin ?? COIN.XPI) as unknown as Coin
+              coinGive: (selectedAccount?.coin ?? COIN.XPI) as unknown as Coin
             };
 
             await createComment(createCommentInput, isReplyComment);
@@ -597,17 +597,13 @@ const Comment = ({ post }: CommentProps) => {
     setIsSendingCoin(true);
     try {
       let createFeeHex = undefined;
-      const fundingWif = getUtxoWif(
-        slpBalancesAndUtxos.nonSlpUtxos[0],
-        walletPaths,
-        selectedAccount?.currentCoin ?? COIN.XPI
-      );
+      const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths, selectedAccount?.coin ?? COIN.XPI);
 
       const havePageFee = post?.page && post.page.createCommentFee !== '0';
       const haveAccountFee = !post?.page && post.account.createCommentFee !== '0';
 
       if (havePageFee || haveAccountFee) {
-        switch (selectedAccount?.currentCoin) {
+        switch (selectedAccount?.coin) {
           case COIN.XPI:
             createFeeHex = await sendXpi(
               XPI,

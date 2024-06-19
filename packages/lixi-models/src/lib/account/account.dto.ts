@@ -62,6 +62,7 @@ export interface AccountDto {
   language?: string;
   secondaryLanguage?: Nullable<string>;
   page?: Nullable<Page[]>;
+  rootCoin?: COIN;
 }
 
 export interface RegisterViaEmailNoVerifiedCommand {

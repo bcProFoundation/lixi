@@ -9,7 +9,7 @@ export class LocalUserAccount {
   createdAt: Date;
   updatedAt: Date;
   rootCoin?: COIN;
-  currentCoin?: COIN;
+  coin?: COIN;
 }
 
 export class RenameLocalUserAccountCommand {

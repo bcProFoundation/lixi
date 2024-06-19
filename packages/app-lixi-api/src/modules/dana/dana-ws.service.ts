@@ -204,7 +204,7 @@ export class DanaWsService implements OnModuleInit {
     this.redis.hset(keyInfoHighestConvertDana, KeyCurrentHeight, Buffer.from(encode(savedConvertedRate)));
   }
 
-  async handleMutipleBlock(startBlock: number, endBlock: number, coin = COIN.XPI) {
+  async handleMultipleBlock(startBlock: number, endBlock: number, coin = COIN.XPI) {
     let newBlockInfos: BlockInfo[];
     switch (coin) {
       case COIN.XPI:
