@@ -15,13 +15,16 @@ import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
 import { getCurrentThemes } from '@store/settings';
 import { Popover, Space } from 'antd';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { formatBalance } from 'src/utils/cashMethods';
 import styled from 'styled-components';
 import { match } from 'ts-pattern';
 import useAuthorization from './Authorization/use-authorization.hooks';
 import Counter from './Counter';
 import IconBurnCustomProps from './IconBurn/IconBurnCustom';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { Coin } from '@generated/types.generated';
+import { useConvertDanaToCoinQuery } from '@store/dana/dana.api';
 
 const SpaceIconBurnHover = styled(Space)`
   min-height: 38px;
@@ -140,6 +143,17 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
   const currentTheme = useSliceSelector(getCurrentThemes);
   const authentication = useContext(AuthenticationContext);
 
+  const [burnAmountPerCoin, setBurnAmountPerCoin] = useState(0);
+  const { data: dataBurn } = useConvertDanaToCoinQuery({
+    ConvertDanaInput: {
+      convertToCoin: COIN.XPI as unknown as Coin
+    }
+  });
+
+  useEffect(() => {
+    setBurnAmountPerCoin(dataBurn?.convertDanaToCoin ?? 0);
+  }, [dataBurn]);
+
   const burnValue: number = match(burnForType)
     .with(BurnForType.Post, () => (dataItem as PostQueryItem)?.dana?.danaReceivedScore)
     .with(BurnForType.Page, () => (dataItem as PageQueryItem)?.dana?.danaReceivedScore)
@@ -177,7 +191,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           isUpVote,
           burnForItem: dataItem,
           burnForType,
-          burnValue
+          burnValue: calBurnAmount(Number(burnValue)).toString()
         })
       );
     } else {
@@ -220,6 +234,9 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
     hideReact();
   };
 
+  const calBurnAmount = (value: number) => {
+    return value * burnAmountPerCoin;
+  };
   const contentBurn = (
     <SpaceContentBurn>
       <Popover
@@ -235,7 +252,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           colorFilterIcon="var(--filter-svg-red-color)"
           burnForType={burnForType}
           dataItem={dataItem}
-          optionBurnType={OPTION_BURN_TYPE.DISLIKE}
+          burnValue={calBurnAmount(Number(OPTION_BURN_VALUE.DISLIKE))}
           isUpBurn={false}
           hideReact={hideReact}
         />
@@ -253,7 +270,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           colorFilterIcon="var(--filter-svg-blue-color)"
           burnForType={burnForType}
           dataItem={dataItem}
-          optionBurnType={OPTION_BURN_TYPE.LIKE}
+          burnValue={calBurnAmount(Number(OPTION_BURN_VALUE.LIKE))}
           isUpBurn={true}
           hideReact={hideReact}
         />
@@ -271,7 +288,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           colorFilterIcon="var(--filter-svg-blue-color)"
           burnForType={burnForType}
           dataItem={dataItem}
-          optionBurnType={OPTION_BURN_TYPE.LOVE}
+          burnValue={calBurnAmount(Number(OPTION_BURN_VALUE.LOVE))}
           isUpBurn={true}
           hideReact={hideReact}
         />
@@ -306,7 +323,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
             onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.DISLIKE, false)}
           />
         </div>
-        <HintMobile>+{OPTION_BURN_VALUE.DISLIKE}</HintMobile>
+        <HintMobile>{calBurnAmount(Number(OPTION_BURN_VALUE.DISLIKE))}</HintMobile>
       </Popover>
       <Popover arrow={false} overlayClassName="popover-custom-hint">
         <div className="container-ico-hover">
@@ -318,7 +335,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
             onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LIKE, true)}
           />
         </div>
-        <HintMobile>+{OPTION_BURN_VALUE.LIKE}</HintMobile>
+        <HintMobile>{calBurnAmount(Number(OPTION_BURN_VALUE.LIKE))}</HintMobile>
       </Popover>
 
       <Popover arrow={false} overlayClassName="popover-custom-hint">
@@ -331,7 +348,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
             onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LOVE, true)}
           />
         </div>
-        <HintMobile>+{OPTION_BURN_VALUE.LOVE} </HintMobile>
+        <HintMobile>{calBurnAmount(Number(OPTION_BURN_VALUE.LOVE))} </HintMobile>
       </Popover>
       <Popover arrow={false} overlayClassName="popover-custom-hint">
         <div className="container-ico-hover">

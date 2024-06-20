@@ -233,16 +233,15 @@ const CreatePostCard = (props: CreatePostCardProp) => {
   const showCreatePostMobile = useSliceSelector(getShowCreatePost);
   const accountInfoTemp = useSliceSelector(getAccountInfoTemp);
   const level = useSliceSelector(getLevelFilter);
-  const [postFee, setPostFee] = useState([0]);
+  const [postFee, setPostFee] = useState(0);
   const { data: dataFee } = useConvertDanaToCoinQuery({
     ConvertDanaInput: {
-      convertToCoin: (selectedAccount?.coin ?? COIN.XPI) as unknown as Coin,
-      quantity: [Number(page?.createPostFee ?? 0)]
+      convertToCoin: (selectedAccount?.coin ?? COIN.XPI) as unknown as Coin
     }
   });
 
   useEffect(() => {
-    setPostFee(dataFee?.convertDanaToCoin ?? [0]);
+    setPostFee((dataFee?.convertDanaToCoin ?? 0) * Number(page?.createPostFee ?? 0));
   }, [dataFee]);
 
   const [
@@ -314,7 +313,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
                   false, //indicate send mode is one to one
                   null,
                   page.pageAccount.hash160,
-                  postFee[0], //amount
+                  postFee, //amount
                   coinInfo[COIN.XEC].etokenSats,
                   true
                 ); // return hex

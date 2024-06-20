@@ -21,7 +21,7 @@ export class ConvertDanaResolver {
 
   constructor(@InjectRedis() private readonly redis: Redis) {}
 
-  @Query(() => [Number])
+  @Query(() => Number)
   @UseGuards(GqlJwtAuthGuardByPass)
   async convertDanaToCoin(
     @AccountEntity() account: Account,
@@ -30,7 +30,7 @@ export class ConvertDanaResolver {
     if (!account) {
       return 0;
     }
-    const { convertToCoin, quantity } = data;
+    const { convertToCoin } = data;
     const keyHighestConvertRate = template(this.keyHighestConvertData, { coin: convertToCoin });
 
     //call highest info
@@ -38,10 +38,6 @@ export class ConvertDanaResolver {
     const danaRate = decode(danaRateBuff ?? '') as DanaRate;
     const coinPerDana = Math.round(danaRate?.coinPerDana ?? 0);
 
-    const arrayCoin = [];
-    for (let i = 0; i < quantity.length; i++) {
-      arrayCoin.push(quantity[i] * coinPerDana);
-    }
-    return arrayCoin;
+    return coinPerDana;
   }
 }

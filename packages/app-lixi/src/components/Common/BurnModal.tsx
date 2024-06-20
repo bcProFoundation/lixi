@@ -120,6 +120,7 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
   const dispatch = useSliceDispatch();
   const selectedAccount = useSliceSelector(getSelectedAccount);
   const [selectedAmount, setSelectedAmount] = useState(1);
+  const [burnAmount, setBurnAmount] = useState(1);
   const [openSelectCurrencies, setOpenSelectCurrencies] = useState(false);
   const [selectCurrencies, setSelectCurrencies] = useState(null);
   const defaultSelected = {
@@ -132,16 +133,18 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
   };
   const authentication = useContext(AuthenticationContext);
 
-  const [burnAmount, setBurnAmount] = useState([0]);
+  const [burnAmountPerCoin, setBurnAmountPerCoin] = useState(0);
   const { data: dataBurn } = useConvertDanaToCoinQuery({
     ConvertDanaInput: {
-      convertToCoin: COIN.XPI as unknown as Coin,
-      quantity: DefaultXpiBurnValues
+      convertToCoin: COIN.XPI as unknown as Coin
     }
   });
 
   useEffect(() => {
-    setBurnAmount(dataBurn?.convertDanaToCoin ?? [0]);
+    setBurnAmountPerCoin(dataBurn?.convertDanaToCoin ?? 0);
+    setBurnAmount(
+      (coinInfo[selectedAccount?.coin ?? COIN.XPI].burnFee + 1) * dataBurn?.convertDanaToCoin * selectedAmount
+    );
   }, [dataBurn]);
 
   const handleBurn = async (isUpVote: boolean) => {
@@ -480,7 +483,9 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
               optionType="button"
               buttonStyle="solid"
               onChange={value => {
-                setSelectedAmount(value?.target?.value);
+                const amount = Number(value?.target?.value);
+                setSelectedAmount(amount);
+                setBurnAmount((coinInfo[selectedAccount?.coin ?? COIN.XPI].burnFee + 1) * burnAmountPerCoin * amount);
                 onChange(value);
               }}
             />
@@ -494,9 +499,7 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
 
       <p className="fee-burn">
         {intl.get('burn.sendDana', {
-          cost:
-            (coinInfo[selectedAccount?.coin ?? COIN.XPI].burnFee + 1) *
-            burnAmount[DefaultXpiBurnValues.findIndex(item => item === selectedAmount) ?? 0],
+          cost: Number.isInteger(burnAmount) ? burnAmount : burnAmount.toFixed(2),
           coin: 'XPI'
         })}
       </p>
