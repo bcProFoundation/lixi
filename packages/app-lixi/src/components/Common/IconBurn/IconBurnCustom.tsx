@@ -7,6 +7,8 @@ import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { AuthenticationContext, AuthorizationContext } from '@context/index';
 import useAuthorization from '../Authorization/use-authorization.hooks';
 import { Tooltip } from 'antd';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 
 type IconBurnCustomProps = {
   icon: string;
@@ -70,7 +72,7 @@ const IconBurnCustom = ({
         setIsHover(false);
       }}
     >
-      <Tooltip title={burnValue}>
+      <Tooltip title={`${burnValue} ${coinInfo[COIN.XPI].ticker}`}>
         <StyledBurnIconHover
           src={`/images/${icon}`}
           style={{

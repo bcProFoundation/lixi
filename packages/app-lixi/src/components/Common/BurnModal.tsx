@@ -498,7 +498,7 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
       <p className="amount-burn">{intl.get('burn.youOffering') + selectedAmount + intl.get('general.dana')}.</p>
 
       <p className="fee-burn">
-        {intl.get('burn.sendDana', {
+        {intl.getHTML('burn.sendDana', {
           cost: Number.isInteger(burnAmount) ? burnAmount : burnAmount.toFixed(2),
           coin: 'XPI'
         })}

@@ -25,6 +25,7 @@ import IconBurnCustomProps from './IconBurn/IconBurnCustom';
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { Coin } from '@generated/types.generated';
 import { useConvertDanaToCoinQuery } from '@store/dana/dana.api';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 
 const SpaceIconBurnHover = styled(Space)`
   min-height: 38px;
@@ -84,6 +85,8 @@ const Hint = styled.span`
 
 const HintMobile = styled.span`
   display: flex;
+  align-items: center;
+  flex-direction: column;
   justify-content: center;
   font-size: 9px;
   font-weight: 500;
@@ -235,7 +238,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
   };
 
   const calBurnAmount = (value: number) => {
-    return value * burnAmountPerCoin;
+    return Math.ceil(value * burnAmountPerCoin * (coinInfo[COIN.XPI].burnFee + 1));
   };
   const contentBurn = (
     <SpaceContentBurn>
@@ -323,7 +326,10 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
             onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.DISLIKE, false)}
           />
         </div>
-        <HintMobile>{calBurnAmount(Number(OPTION_BURN_VALUE.DISLIKE))}</HintMobile>
+        <HintMobile>
+          {calBurnAmount(Number(OPTION_BURN_VALUE.DISLIKE))}
+          <span>{coinInfo[COIN.XPI].ticker}</span>
+        </HintMobile>
       </Popover>
       <Popover arrow={false} overlayClassName="popover-custom-hint">
         <div className="container-ico-hover">
@@ -335,7 +341,9 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
             onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LIKE, true)}
           />
         </div>
-        <HintMobile>{calBurnAmount(Number(OPTION_BURN_VALUE.LIKE))}</HintMobile>
+        <HintMobile>
+          {calBurnAmount(Number(OPTION_BURN_VALUE.LIKE))} <span>{coinInfo[COIN.XPI].ticker}</span>
+        </HintMobile>
       </Popover>
 
       <Popover arrow={false} overlayClassName="popover-custom-hint">
@@ -348,7 +356,9 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
             onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LOVE, true)}
           />
         </div>
-        <HintMobile>{calBurnAmount(Number(OPTION_BURN_VALUE.LOVE))} </HintMobile>
+        <HintMobile>
+          {calBurnAmount(Number(OPTION_BURN_VALUE.LOVE))} <span>{coinInfo[COIN.XPI].ticker}</span>
+        </HintMobile>
       </Popover>
       <Popover arrow={false} overlayClassName="popover-custom-hint">
         <div className="container-ico-hover">
@@ -361,7 +371,11 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
             onClick={e => openBurnModal(e, dataItem)}
           />
         </div>
-        {isMobile && <HintMobile>Custom</HintMobile>}
+        {isMobile && (
+          <HintMobile>
+            Custom <span>Burn</span>
+          </HintMobile>
+        )}
       </Popover>
     </SpaceContentBurn>
   );
@@ -374,7 +388,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         overlayInnerStyle={{
           display: 'flex',
           gap: '4px',
-          padding: isMobile ? '16px 8px 8px 8px' : '0 8px 8px 8px',
+          padding: isMobile ? '30px 8px 8px 8px' : '0 8px 8px 8px',
           background: '#d7e3ff',
           boxShadow: '0px 0px 12px rgba(0, 0, 0, 0.12)',
           borderRadius: '16px',
