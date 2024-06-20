@@ -161,7 +161,7 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
           isUpVote,
           burnForItem,
           burnForType,
-          burnValue
+          burnValue: (Number(burnValue) * burnAmountPerCoin).toString()
         })
       );
       dispatch(closeModal());
