@@ -40,6 +40,7 @@ import { BookmarkModule } from './modules/bookmark/bookmark.module';
 import { BurnHistoryModule } from './modules/burn-history/burn-history.module';
 import { ChronikModule } from 'nestjs-chronik';
 import { DanaModule } from './modules/dana/dana.module';
+import { EscrowModule } from './modules/escrow/escrow.module';
 
 //enabled serving multiple static for fastify
 type FastifyServeStaticModuleOptions = ServeStaticModuleOptions & {
@@ -198,7 +199,8 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
     }),
     BookmarkModule,
     BurnHistoryModule,
-    DanaModule
+    DanaModule,
+    EscrowModule
   ],
   controllers: [],
   providers: [

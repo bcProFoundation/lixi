@@ -167,3 +167,4 @@ export * from './lib/dana/inputs/convert-dana.input';
 export * from './utils/addressUtils';
 export * from './utils/cashMethods';
 export * from './utils/paginationResult';
+export * from './lib/escrow';

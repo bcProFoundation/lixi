@@ -302,6 +302,24 @@ input CreateCommentInput {
   uploadId: String
 }
 
+input CreateDisputeInput {
+  createdBy: String!
+  escrowOrderId: String!
+  reason: String!
+}
+
+input CreateEscrowOrderInput {
+  amount: Int!
+  arbitratorPublicKey: String!
+  buyerPublicKey: String!
+  escrowAddress: String
+  message: String
+  offerId: String!
+  paymentMethodId: String!
+  price: Int!
+  sellerPublicKey: String!
+}
+
 input CreateEventInput {
   createFeeHex: String
   endDate: DateTime!
@@ -339,6 +357,20 @@ input CreateMessageInput {
   pageMessageSessionId: String
   tipHex: String
   uploadIds: [String!]
+}
+
+input CreateOfferInput {
+  amount: Int!
+  coin: Coin!
+  description: String
+  location: String
+  orderLimitMax: Int
+  orderLimitMin: Int
+  paymentMethodIds: [String!]!
+  price: Int!
+  publicKey: String!
+  title: String!
+  type: OfferType!
 }
 
 input CreatePageInput {
@@ -468,6 +500,49 @@ input DeleteFollowTokenInput {
   tokenId: String!
 }
 
+type Dispute {
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  createdBy: String!
+  escrowOrder: EscrowOrder!
+  escrowOrderId: String!
+  id: ID!
+  reason: String
+  status: DisputeStatus!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+}
+
+type DisputeConnection {
+  edges: [DisputeEdge!]
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type DisputeEdge {
+  cursor: String!
+  node: Dispute!
+}
+
+input DisputeOrder {
+  direction: OrderDirection!
+  field: DisputeOrderField!
+}
+
+"""Properties by which offer connections can be ordered."""
+enum DisputeOrderField {
+  createdAt
+  id
+  updatedAt
+}
+
+"""The status of dispute."""
+enum DisputeStatus {
+  ACTIVE
+  RESOLVED
+}
+
 type DistributionModel {
   address: String!
   distributionType: String!
@@ -487,6 +562,61 @@ type EnvelopeModel {
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime
+}
+
+type EscrowOrder {
+  amount: Int!
+  arbitratorPublicKey: String!
+  buyerPublicKey: String!
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  dispute: Dispute
+  escrowAddress: String
+  id: ID!
+  message: String
+  offer: Offer!
+  offerId: String!
+  paymentMethod: PaymentMethod!
+  paymentMethodId: String!
+  price: Int!
+  sellerPublicKey: String!
+  status: EscrowOrderStatus!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+}
+
+type EscrowOrderConnection {
+  edges: [EscrowOrderEdge!]
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type EscrowOrderEdge {
+  cursor: String!
+  node: EscrowOrder!
+}
+
+input EscrowOrderOrder {
+  direction: OrderDirection!
+  field: EscrowOrderOrderField!
+}
+
+"""Properties by which escrow order connections can be ordered."""
+enum EscrowOrderOrderField {
+  amount
+  createdAt
+  id
+  price
+  updatedAt
+}
+
+"""The status of escrow order."""
+enum EscrowOrderStatus {
+  ACTIVE
+  COMPLETE
+  ESCROW
 }
 
 type Event {
@@ -810,10 +940,13 @@ type Mutation {
   createAccount(data: CreateAccountInput!): Account!
   createBookmark(data: CreateBookmarkInput!): Bookmark!
   createComment(data: CreateCommentInput!): Comment!
+  createDispute(data: CreateDisputeInput!): Dispute!
+  createEscrowOrder(data: CreateEscrowOrderInput!): EscrowOrder!
   createFollowAccount(data: CreateFollowAccountInput!): FollowAccount!
   createFollowPage(data: CreateFollowPageInput!): FollowPage!
   createFollowToken(data: CreateFollowTokenInput!): FollowPage!
   createMessage(data: CreateMessageInput!): Message!
+  createOffer(data: CreateOfferInput!): Offer!
   createPage(data: CreatePageInput!): Page!
   createPageMessageSession(data: CreatePageMessageInput!): PageMessageSession!
   createPoll(data: CreatePollInput!): Post!
@@ -837,6 +970,81 @@ type Mutation {
   updateAccount(data: UpdateAccountInput!): Account!
   updatePage(data: UpdatePageInput!): Page!
   updatePost(data: UpdatePostInput!): Post!
+}
+
+type Offer {
+  amount: Int!
+  coin: Coin!
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  description: String
+  escrowOrders: [EscrowOrder!]
+  id: ID!
+  location: String
+  orderLimitMax: Int
+  orderLimitMin: Int
+  paymentMethods: [OfferPaymentMethod!]!
+  price: Int!
+  publicKey: String!
+  status: OfferStatus!
+  title: String!
+  type: OfferType!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+}
+
+type OfferConnection {
+  edges: [OfferEdge!]
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type OfferEdge {
+  cursor: String!
+  node: Offer!
+}
+
+input OfferOrder {
+  direction: OrderDirection!
+  field: OfferOrderField!
+}
+
+"""Properties by which offer connections can be ordered."""
+enum OfferOrderField {
+  amount
+  createdAt
+  id
+  orderLimitMax
+  orderLimitMin
+  price
+  updatedAt
+}
+
+type OfferPaymentMethod {
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  id: ID!
+  offer: Offer!
+  offerId: String!
+  paymentMethod: PaymentMethod!
+  paymentMethodId: String!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+}
+
+"""The status of offer."""
+enum OfferStatus {
+  ACTIVE
+  ARCHIVE
+}
+
+"""The type of offer."""
+enum OfferType {
+  BUY
+  SELL
 }
 
 input OpenPageMessageSessionInput {
@@ -984,6 +1192,19 @@ enum PageMessageSessionStatus {
   CLOSE
   OPEN
   PENDING
+}
+
+type PaymentMethod {
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  escrowOrders: [EscrowOrder!]
+  id: ID!
+  message: String
+  name: String!
+  offerPaymentMethods: [OfferPaymentMethod!]
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
 }
 
 type Poll {
@@ -1168,6 +1389,9 @@ type Query {
   account(id: Int!): Account!
   allAccounts(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): AccountBasicConnection!
   allClosedPageMessageSession(accountId: Int, after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, pageId: String, skip: Int): PageMessageSessionConnection!
+  allDispute(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: DisputeOrder, skip: Int): DisputeConnection!
+  allDisputeByPublicKey(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: DisputeOrder, publicKey: String!, skip: Int): DisputeConnection!
+  allEscrowOrderByOfferId(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, offerId: String!, orderBy: EscrowOrderOrder, skip: Int): EscrowOrderConnection!
   allFollowersByFollowing(after: String, before: String, first: Int, followingAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
   allFollowersByPage(after: String, first: Int, id: String, skip: Int): AccountBasicConnection!
   allFollowersByToken(after: String, first: Int, id: String, skip: Int): AccountBasicConnection!
@@ -1190,6 +1414,8 @@ type Query {
   ): HashtagConnection!
   allHashtagByToken(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: HashtagOrder, skip: Int): HashtagConnection!
   allMessageByPageMessageSessionId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: MessageOrder, skip: Int): MessageConnection!
+  allOffer(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: OfferOrder, skip: Int): OfferConnection!
+  allOfferByPublicKey(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: OfferOrder, publicKey: String!, skip: Int): OfferConnection!
   allOpenPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allOpenPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
@@ -1297,11 +1523,14 @@ type Query {
   comment(id: String!): Comment!
   commentsToCommentableId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: CommentOrder, skip: Int): CommentConnection!
   convertDanaToCoin(ConvertDanaInput: ConvertDana!): Int!
+  dispute(id: String!): Dispute!
+  escrowOrder(id: String!): EscrowOrder!
   getAccountByAddress(address: String!): Account!
   getBalances(address: String!): Balances!
   hashtag(content: String!): Hashtag!
   homeTimeline(after: String, first: Int, level: Int, skip: Int): TimelineItemConnection!
   message(id: String!): Message!
+  offer(id: String!): Offer!
   page(id: String!): Page!
   pageMessageSession(id: String!): PageMessageSession!
   pageTimeline(after: String, first: Int, id: String!, skip: Int): TimelineItemConnection!
@@ -1365,8 +1594,11 @@ type State {
 
 type Subscription {
   bookmarkCreated: Bookmark!
+  disputeCreated: Dispute!
+  escrowOrderCreated: EscrowOrder!
   hashtagCreated: Hashtag!
   messageCreated: Message!
+  offerCreated: Offer!
   pageMessageSessionCreated: PageMessageSession!
   templeCreated: Temple!
   worshipedPersonCreated: WorshipedPerson!
