@@ -61,6 +61,8 @@ export class BurnQueueCommand {
   @IsNotEmpty()
   amountDana: number;
 
+  utxos?: any;
+
   defaultFee: number;
 
   tipToAddresses?: { address: string; amount: string }[];

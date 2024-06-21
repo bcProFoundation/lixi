@@ -79,7 +79,17 @@ function* prepareBurnCommandSaga(
     const balances = yield select(getWalletBalances);
     const filterValue = yield select(getFilterPostsHome);
     const level = yield select(getLevelFilter);
-    const fundingFirstUtxo = slpBalancesAndUtxos.nonSlpUtxos[0];
+
+    const { getUtxosByCoin } = callConfig.call.walletContext;
+
+    let utxos = slpBalancesAndUtxos.nonSlpUtxos;
+    let totalBalalanceInSats = balances.totalBalanceInSatoshis;
+    if ((selectedAccount?.coin ?? COIN.XPI) !== COIN.XPI) {
+      const xpiUtxos = yield getUtxosByCoin(COIN.XPI);
+      utxos = xpiUtxos.nonSlpUtxos;
+      totalBalalanceInSats = utxos.reduce((accumulate, currentValue) => accumulate + Number(currentValue.value), 0);
+    }
+    const fundingFirstUtxo = utxos[0];
     const currentWalletPath = walletPaths.filter(acc => acc.xAddress === fundingFirstUtxo.address).pop();
     const { hash160 } = currentWalletPath;
 
@@ -144,10 +154,7 @@ function* prepareBurnCommandSaga(
     const totalTip = fromSmallestDenomination(
       tipToAddresses.reduce((total, item) => total + parseFloat(item.amount), 0)
     );
-    if (
-      slpBalancesAndUtxos.nonSlpUtxos.length == 0 ||
-      fromSmallestDenomination(balances.totalBalanceInSatoshis) < parseInt(burnValue) + totalTip
-    ) {
+    if (utxos.length == 0 || fromSmallestDenomination(totalBalalanceInSats) < parseInt(burnValue) + totalTip) {
       throw new Error(intl.get('account.insufficientFunds'));
     }
 
@@ -178,6 +185,7 @@ function* prepareBurnCommandSaga(
       burnValue,
       tipToAddresses: tipToAddresses,
       amountDana,
+      utxos,
       extraArguments
     };
 
@@ -199,7 +207,6 @@ function* createTxHexSaga(action: PayloadAction<BurnQueueCommand>) {
   const { XPI } = callConfig.call.walletContext;
   const xpiContext = yield getContext('useXPI');
   const walletPaths = yield select(getAllWalletPaths);
-  const slpBalancesAndUtxos = yield select(getSlpBalancesAndUtxos);
   const { createBurnTransaction } = xpiContext();
   const burnForId = data.burnForId;
   const tipToAddresses = data.tipToAddresses ? data.tipToAddresses : null;
@@ -208,7 +215,7 @@ function* createTxHexSaga(action: PayloadAction<BurnQueueCommand>) {
     const { rawTxHex, minerFee } = createBurnTransaction(
       XPI,
       walletPaths,
-      slpBalancesAndUtxos.nonSlpUtxos,
+      data.utxos,
       data.defaultFee,
       data.burnType,
       data.burnForType,
