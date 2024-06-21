@@ -11,7 +11,7 @@ import {
   fromSmallestDenomination,
   walletPath
 } from '@bcpros/lixi-models';
-import { Account as AccountDb, AddressType } from '@bcpros/lixi-prisma';
+import { Account as AccountDb, AddressType, Coin } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import {
   Body,
@@ -244,7 +244,8 @@ export class AccountController {
             name: createdAccount.name,
             address: createdAccount.address,
             balance: Number(totalBalanceInSatoshis),
-            secret: accountSecret
+            secret: accountSecret,
+            rootCoin: COIN.XPI //import account not exist, set default coin is XPI
           } as AccountDto,
           ['mnemonic', 'encryptedMnemonic']
         );
@@ -289,7 +290,8 @@ export class AccountController {
             name: account.name,
             address: account.address,
             balance: Number(totalBalanceInSatoshis),
-            secret: accountSecret
+            secret: accountSecret,
+            rootCoin: account.walletPaths[0]?.network ?? COIN.XPI
           } as AccountDto,
           ['mnemonic', 'encryptedMnemonic']
         );
@@ -312,7 +314,7 @@ export class AccountController {
     if (command) {
       try {
         let walletService;
-        switch (command.coin) {
+        switch (command.rootCoin) {
           case COIN.XPI:
             walletService = this.walletServices['xpi'] as XpiWalletService;
             break;
@@ -346,7 +348,8 @@ export class AccountController {
         };
 
         const addressType = _.toUpper(type) == 'P2PKH' ? 'P2PKH' : 'P2SH';
-        const path = command.coin === COIN.XPI ? walletPath.XPI : walletPath.XEC;
+        const path = command.rootCoin === COIN.XPI ? walletPath.XPI : walletPath.XEC;
+        const addressCoin = command.rootCoin === COIN.XPI ? address : cashAddress;
 
         const createdAccount: AccountDb = await this.prisma.account.create({
           data: {
@@ -357,10 +360,10 @@ export class AccountController {
             walletPaths: {
               create: {
                 path: path,
-                address: cashAddress,
+                address: addressCoin,
                 hash160: Buffer.from(hash).toString('hex'),
                 type: addressType,
-                network: command.coin ?? COIN.XPI,
+                network: command.rootCoin ?? COIN.XPI,
                 publicKey
               }
             }

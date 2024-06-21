@@ -3,6 +3,7 @@ import {
   BurnCommand,
   BurnForType,
   BurnType,
+  COIN,
   CommentType,
   PostDana,
   TRANSLATION_REQUIRE_AMOUNT,
@@ -493,7 +494,8 @@ export class BurnController {
             burnType: command.burnType == BurnType.Up ? 'upvoted' : 'downvoted',
             burnForType: burnForTypeString.toLowerCase(),
             xpiBurn: command.burnValue,
-            xpiFee: fee
+            xpiFee: fee,
+            coin: COIN.XPI
           }
         };
 

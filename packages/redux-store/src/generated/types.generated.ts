@@ -49,6 +49,7 @@ export type Account = {
   publicKey?: Maybe<Scalars['String']['output']>;
   rankNumber?: Maybe<Scalars['Int']['output']>;
   rankScore?: Maybe<Scalars['Int']['output']>;
+  rootCoin?: Maybe<Coin>;
   secondaryLanguage?: Maybe<Scalars['String']['output']>;
   secret?: Maybe<Scalars['String']['output']>;
   totalDanaViewScore?: Maybe<Scalars['Int']['output']>;
@@ -292,6 +293,10 @@ export type Commentable = {
   type: CommentType;
 };
 
+export type ConvertDana = {
+  convertToCoin: Coin;
+};
+
 export type Country = {
   __typename?: 'Country';
   capital: Scalars['String']['output'];
@@ -315,6 +320,7 @@ export type CreateBookmarkInput = {
 };
 
 export type CreateCommentInput = {
+  coinGive?: InputMaybe<Coin>;
   commentByPublicKey?: InputMaybe<Scalars['String']['input']>;
   commentText: Scalars['String']['input'];
   commentableId: Scalars['String']['input'];
@@ -322,6 +328,24 @@ export type CreateCommentInput = {
   replyToCommentId?: InputMaybe<Scalars['String']['input']>;
   tipHex?: InputMaybe<Scalars['String']['input']>;
   uploadId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CreateDisputeInput = {
+  createdBy: Scalars['String']['input'];
+  escrowOrderId: Scalars['String']['input'];
+  reason: Scalars['String']['input'];
+};
+
+export type CreateEscrowOrderInput = {
+  amount: Scalars['Int']['input'];
+  arbitratorPublicKey: Scalars['String']['input'];
+  buyerPublicKey: Scalars['String']['input'];
+  escrowAddress?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  offerId: Scalars['String']['input'];
+  paymentMethodId: Scalars['String']['input'];
+  price: Scalars['Int']['input'];
+  sellerPublicKey: Scalars['String']['input'];
 };
 
 export type CreateEventInput = {
@@ -356,10 +380,25 @@ export type CreateFollowTokenInput = {
 export type CreateMessageInput = {
   authorId: Scalars['Int']['input'];
   body?: InputMaybe<Scalars['String']['input']>;
+  coinGive?: InputMaybe<Coin>;
   isPageOwner?: InputMaybe<Scalars['Boolean']['input']>;
   pageMessageSessionId?: InputMaybe<Scalars['String']['input']>;
   tipHex?: InputMaybe<Scalars['String']['input']>;
   uploadIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type CreateOfferInput = {
+  amount: Scalars['Int']['input'];
+  coin: Coin;
+  description?: InputMaybe<Scalars['String']['input']>;
+  location?: InputMaybe<Scalars['String']['input']>;
+  orderLimitMax?: InputMaybe<Scalars['Int']['input']>;
+  orderLimitMin?: InputMaybe<Scalars['Int']['input']>;
+  paymentMethodIds: Array<Scalars['String']['input']>;
+  price: Scalars['Int']['input'];
+  publicKey: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  type: OfferType;
 };
 
 export type CreatePageInput = {
@@ -377,6 +416,7 @@ export type CreatePageMessageInput = {
 
 export type CreatePollInput = {
   canAddOption: Scalars['Boolean']['input'];
+  coinFee?: InputMaybe<Coin>;
   createFeeHex?: InputMaybe<Scalars['String']['input']>;
   endDate: Scalars['DateTime']['input'];
   options: Array<PollOptionInput>;
@@ -388,6 +428,7 @@ export type CreatePollInput = {
 };
 
 export type CreatePostInput = {
+  coinFee?: InputMaybe<Coin>;
   createFeeHex?: InputMaybe<Scalars['String']['input']>;
   extraArguments?: InputMaybe<ExtraArguments>;
   htmlContent: Scalars['String']['input'];
@@ -479,6 +520,51 @@ export type DeleteFollowTokenInput = {
   tokenId: Scalars['String']['input'];
 };
 
+export type Dispute = {
+  __typename?: 'Dispute';
+  /** Identifies the date and time when the object was created. */
+  createdAt: Scalars['DateTime']['output'];
+  createdBy: Scalars['String']['output'];
+  escrowOrder: EscrowOrder;
+  escrowOrderId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  reason?: Maybe<Scalars['String']['output']>;
+  status: DisputeStatus;
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type DisputeConnection = {
+  __typename?: 'DisputeConnection';
+  edges?: Maybe<Array<DisputeEdge>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type DisputeEdge = {
+  __typename?: 'DisputeEdge';
+  cursor: Scalars['String']['output'];
+  node: Dispute;
+};
+
+export type DisputeOrder = {
+  direction: OrderDirection;
+  field: DisputeOrderField;
+};
+
+/** Properties by which offer connections can be ordered. */
+export enum DisputeOrderField {
+  CreatedAt = 'createdAt',
+  Id = 'id',
+  UpdatedAt = 'updatedAt'
+}
+
+/** The status of dispute. */
+export enum DisputeStatus {
+  Active = 'ACTIVE',
+  Resolved = 'RESOLVED'
+}
+
 export type DistributionModel = {
   __typename?: 'DistributionModel';
   address: Scalars['String']['output'];
@@ -500,6 +586,62 @@ export type EnvelopeModel = {
   /** Identifies the date and time when the object was last updated. */
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
+
+export type EscrowOrder = {
+  __typename?: 'EscrowOrder';
+  amount: Scalars['Int']['output'];
+  arbitratorPublicKey: Scalars['String']['output'];
+  buyerPublicKey: Scalars['String']['output'];
+  /** Identifies the date and time when the object was created. */
+  createdAt: Scalars['DateTime']['output'];
+  dispute?: Maybe<Dispute>;
+  escrowAddress?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  message?: Maybe<Scalars['String']['output']>;
+  offer: Offer;
+  offerId: Scalars['String']['output'];
+  paymentMethod: PaymentMethod;
+  paymentMethodId: Scalars['String']['output'];
+  price: Scalars['Int']['output'];
+  sellerPublicKey: Scalars['String']['output'];
+  status: EscrowOrderStatus;
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type EscrowOrderConnection = {
+  __typename?: 'EscrowOrderConnection';
+  edges?: Maybe<Array<EscrowOrderEdge>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type EscrowOrderEdge = {
+  __typename?: 'EscrowOrderEdge';
+  cursor: Scalars['String']['output'];
+  node: EscrowOrder;
+};
+
+export type EscrowOrderOrder = {
+  direction: OrderDirection;
+  field: EscrowOrderOrderField;
+};
+
+/** Properties by which escrow order connections can be ordered. */
+export enum EscrowOrderOrderField {
+  Amount = 'amount',
+  CreatedAt = 'createdAt',
+  Id = 'id',
+  Price = 'price',
+  UpdatedAt = 'updatedAt'
+}
+
+/** The status of escrow order. */
+export enum EscrowOrderStatus {
+  Active = 'ACTIVE',
+  Complete = 'COMPLETE',
+  Escrow = 'ESCROW'
+}
 
 export type Event = {
   __typename?: 'Event';
@@ -827,10 +969,13 @@ export type Mutation = {
   createAccount: Account;
   createBookmark: Bookmark;
   createComment: Comment;
+  createDispute: Dispute;
+  createEscrowOrder: EscrowOrder;
   createFollowAccount: FollowAccount;
   createFollowPage: FollowPage;
   createFollowToken: FollowPage;
   createMessage: Message;
+  createOffer: Offer;
   createPage: Page;
   createPageMessageSession: PageMessageSession;
   createPoll: Post;
@@ -876,6 +1021,14 @@ export type MutationCreateCommentArgs = {
   data: CreateCommentInput;
 };
 
+export type MutationCreateDisputeArgs = {
+  data: CreateDisputeInput;
+};
+
+export type MutationCreateEscrowOrderArgs = {
+  data: CreateEscrowOrderInput;
+};
+
 export type MutationCreateFollowAccountArgs = {
   data: CreateFollowAccountInput;
 };
@@ -890,6 +1043,10 @@ export type MutationCreateFollowTokenArgs = {
 
 export type MutationCreateMessageArgs = {
   data: CreateMessageInput;
+};
+
+export type MutationCreateOfferArgs = {
+  data: CreateOfferInput;
 };
 
 export type MutationCreatePageArgs = {
@@ -983,6 +1140,82 @@ export type MutationUpdatePageArgs = {
 export type MutationUpdatePostArgs = {
   data: UpdatePostInput;
 };
+
+export type Offer = {
+  __typename?: 'Offer';
+  amount: Scalars['Int']['output'];
+  coin: Coin;
+  /** Identifies the date and time when the object was created. */
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  escrowOrders?: Maybe<Array<EscrowOrder>>;
+  id: Scalars['ID']['output'];
+  location?: Maybe<Scalars['String']['output']>;
+  orderLimitMax?: Maybe<Scalars['Int']['output']>;
+  orderLimitMin?: Maybe<Scalars['Int']['output']>;
+  paymentMethods: Array<OfferPaymentMethod>;
+  price: Scalars['Int']['output'];
+  publicKey: Scalars['String']['output'];
+  status: OfferStatus;
+  title: Scalars['String']['output'];
+  type: OfferType;
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type OfferConnection = {
+  __typename?: 'OfferConnection';
+  edges?: Maybe<Array<OfferEdge>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type OfferEdge = {
+  __typename?: 'OfferEdge';
+  cursor: Scalars['String']['output'];
+  node: Offer;
+};
+
+export type OfferOrder = {
+  direction: OrderDirection;
+  field: OfferOrderField;
+};
+
+/** Properties by which offer connections can be ordered. */
+export enum OfferOrderField {
+  Amount = 'amount',
+  CreatedAt = 'createdAt',
+  Id = 'id',
+  OrderLimitMax = 'orderLimitMax',
+  OrderLimitMin = 'orderLimitMin',
+  Price = 'price',
+  UpdatedAt = 'updatedAt'
+}
+
+export type OfferPaymentMethod = {
+  __typename?: 'OfferPaymentMethod';
+  /** Identifies the date and time when the object was created. */
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  offer: Offer;
+  offerId: Scalars['String']['output'];
+  paymentMethod: PaymentMethod;
+  paymentMethodId: Scalars['String']['output'];
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** The status of offer. */
+export enum OfferStatus {
+  Active = 'ACTIVE',
+  Archive = 'ARCHIVE'
+}
+
+/** The type of offer. */
+export enum OfferType {
+  Buy = 'BUY',
+  Sell = 'SELL'
+}
 
 export type OpenPageMessageSessionInput = {
   pageMessageSessionId: Scalars['String']['input'];
@@ -1130,6 +1363,19 @@ export enum PageMessageSessionStatus {
   Open = 'OPEN',
   Pending = 'PENDING'
 }
+
+export type PaymentMethod = {
+  __typename?: 'PaymentMethod';
+  /** Identifies the date and time when the object was created. */
+  createdAt: Scalars['DateTime']['output'];
+  escrowOrders?: Maybe<Array<EscrowOrder>>;
+  id: Scalars['ID']['output'];
+  message?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  offerPaymentMethods?: Maybe<Array<OfferPaymentMethod>>;
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt: Scalars['DateTime']['output'];
+};
 
 export type Poll = {
   __typename?: 'Poll';
@@ -1320,6 +1566,9 @@ export type Query = {
   account: Account;
   allAccounts: AccountBasicConnection;
   allClosedPageMessageSession: PageMessageSessionConnection;
+  allDispute: DisputeConnection;
+  allDisputeByPublicKey: DisputeConnection;
+  allEscrowOrderByOfferId: EscrowOrderConnection;
   allFollowersByFollowing: AccountConnection;
   allFollowersByPage: AccountBasicConnection;
   allFollowersByToken: AccountBasicConnection;
@@ -1329,6 +1578,8 @@ export type Query = {
   allHashtagBySearch: HashtagConnection;
   allHashtagByToken: HashtagConnection;
   allMessageByPageMessageSessionId: MessageConnection;
+  allOffer: OfferConnection;
+  allOfferByPublicKey: OfferConnection;
   allOpenPageMessageSessionByAccountId: PageMessageSessionConnection;
   allOpenPageMessageSessionByPageId: PageMessageSessionConnection;
   allPageMessageSessionByAccountId: PageMessageSessionConnection;
@@ -1361,11 +1612,15 @@ export type Query = {
   checkIfFollowToken: Scalars['Boolean']['output'];
   comment: Comment;
   commentsToCommentableId: CommentConnection;
+  convertDanaToCoin: Scalars['Int']['output'];
+  dispute: Dispute;
+  escrowOrder: EscrowOrder;
   getAccountByAddress: Account;
   getBalances: Balances;
   hashtag: Hashtag;
   homeTimeline: TimelineItemConnection;
   message: Message;
+  offer: Offer;
   page: Page;
   pageMessageSession: PageMessageSession;
   pageTimeline: TimelineItemConnection;
@@ -1412,6 +1667,38 @@ export type QueryAllClosedPageMessageSessionArgs = {
   minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<PageMessageSessionOrder>;
   pageId?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryAllDisputeArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<DisputeOrder>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryAllDisputeByPublicKeyArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<DisputeOrder>;
+  publicKey: Scalars['String']['input'];
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryAllEscrowOrderByOfferIdArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
+  offerId: Scalars['String']['input'];
+  orderBy?: InputMaybe<EscrowOrderOrder>;
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -1499,6 +1786,27 @@ export type QueryAllMessageByPageMessageSessionIdArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<MessageOrder>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryAllOfferArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<OfferOrder>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryAllOfferByPublicKeyArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<OfferOrder>;
+  publicKey: Scalars['String']['input'];
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -1795,6 +2103,18 @@ export type QueryCommentsToCommentableIdArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type QueryConvertDanaToCoinArgs = {
+  ConvertDanaInput: ConvertDana;
+};
+
+export type QueryDisputeArgs = {
+  id: Scalars['String']['input'];
+};
+
+export type QueryEscrowOrderArgs = {
+  id: Scalars['String']['input'];
+};
+
 export type QueryGetAccountByAddressArgs = {
   address: Scalars['String']['input'];
 };
@@ -1815,6 +2135,10 @@ export type QueryHomeTimelineArgs = {
 };
 
 export type QueryMessageArgs = {
+  id: Scalars['String']['input'];
+};
+
+export type QueryOfferArgs = {
   id: Scalars['String']['input'];
 };
 
@@ -1987,8 +2311,11 @@ export type State = {
 export type Subscription = {
   __typename?: 'Subscription';
   bookmarkCreated: Bookmark;
+  disputeCreated: Dispute;
+  escrowOrderCreated: EscrowOrder;
   hashtagCreated: Hashtag;
   messageCreated: Message;
+  offerCreated: Offer;
   pageMessageSessionCreated: PageMessageSession;
   templeCreated: Temple;
   worshipedPersonCreated: WorshipedPerson;

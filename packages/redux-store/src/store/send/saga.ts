@@ -3,20 +3,21 @@ import { showToast } from '@store/toast/actions';
 import intl from 'react-intl-universal';
 import { all, fork, put, takeLatest } from 'redux-saga/effects';
 
-import { sendXPIFailure, sendXPISuccess } from './actions';
+import { sendCoinFailure, sendCoinSuccess } from './actions';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 
-function* sendXPISuccessSaga(action: PayloadAction<number>) {
-  const amount: number = action.payload;
+function* sendCoinSuccessSaga(action: PayloadAction<{ amount: number; coin: COIN }>) {
+  const { amount, coin } = action.payload;
   yield put(
     showToast('success', {
       message: 'Success',
-      description: `Send ${amount} XPI successfully`,
+      description: `Send ${amount.toFixed(2)} ${coin} successfully`,
       duration: 5
     })
   );
 }
 
-function* sendXPIFailureSaga(action: PayloadAction<string>) {
+function* sendCoinFailureSaga(action: PayloadAction<string>) {
   const message = action.payload ?? intl.get('send.unableToSend');
   yield put(
     showToast('error', {
@@ -27,14 +28,14 @@ function* sendXPIFailureSaga(action: PayloadAction<string>) {
   );
 }
 
-function* watchSendXPISuccessSaga() {
-  yield takeLatest(sendXPISuccess.type, sendXPISuccessSaga);
+function* watchSendCoinSuccessSaga() {
+  yield takeLatest(sendCoinSuccess.type, sendCoinSuccessSaga);
 }
 
-function* watchSendXPIFailureSaga() {
-  yield takeLatest(sendXPIFailure.type, sendXPIFailureSaga);
+function* watchSendCoinFailureSaga() {
+  yield takeLatest(sendCoinFailure.type, sendCoinFailureSaga);
 }
 
 export default function* sendSaga() {
-  yield all([fork(watchSendXPISuccessSaga), fork(watchSendXPIFailureSaga)]);
+  yield all([fork(watchSendCoinSuccessSaga), fork(watchSendCoinFailureSaga)]);
 }

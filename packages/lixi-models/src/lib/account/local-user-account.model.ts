@@ -8,6 +8,7 @@ export class LocalUserAccount {
   balance?: number;
   createdAt: Date;
   updatedAt: Date;
+  rootCoin?: COIN;
   coin?: COIN;
 }
 

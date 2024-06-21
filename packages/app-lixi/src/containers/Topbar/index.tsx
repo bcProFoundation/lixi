@@ -498,7 +498,9 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
     {
       address: slug
     },
-    { skip: !slug || router.pathname.includes('/page/') || router.pathname.includes('/post/') }
+    {
+      skip: !slug || router.pathname.includes('/page/') || router.pathname.includes('/post/') || slug.includes('lixi')
+    }
   );
 
   const handlePathDirection = useMemo(() => {
@@ -647,11 +649,11 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
             <div className="profile-feature">
               {walletHasUpdated ? (
                 <span>
-                  {balanceAccount(selectedAccount)} {selectedAccount.coin ? selectedAccount.coin : COIN.XPI}
+                  {balanceAccount(selectedAccount)} {selectedAccount?.coin ?? COIN.XPI}
                 </span>
               ) : (
                 <div>
-                  <SyncOutlined spin /> {selectedAccount.coin ? selectedAccount.coin : COIN.XPI}
+                  <SyncOutlined spin /> {selectedAccount?.coin ?? COIN.XPI}
                 </div>
               )}
 

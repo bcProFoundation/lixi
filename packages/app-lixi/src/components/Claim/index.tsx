@@ -38,6 +38,7 @@ type ClaimFormData = {
 const RedeemCodeBox = styled.div`
   background: #fff;
   padding: 1rem;
+  border-radius: 0.313rem;
   @media (max-width: 768px) {
     padding: 2rem 0 3rem 0;
   }

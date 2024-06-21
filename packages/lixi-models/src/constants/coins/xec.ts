@@ -4,9 +4,10 @@ export const infoXec: CoinInfo = {
   name: 'eCash',
   ticker: 'XEC',
   logo: '/images/currencies/xec.svg',
+  background: '/images/currencies/bg-xec.svg',
   legacyPrefix: 'bitcoincash',
   coingeckoId: 'ecash',
-  defaultFee: 2.01,
+  defaultFee: 1.01,
   dustSats: 550,
   etokenSats: 546,
   cashDecimals: 2,
@@ -15,5 +16,7 @@ export const infoXec: CoinInfo = {
   tokenTicker: 'eToken',
   prefixes: ['ecash'],
   tokenPrefixes: ['etoken'],
-  blockExplorerUrl: 'https://explorer.e.cash'
+  blockExplorerUrl: 'https://explorer.e.cash',
+  blockTime: 600,
+  totalBlockInDay: 144
 };

@@ -118,7 +118,7 @@ function* generateAccountSaga(action: PayloadAction<{ coin: COIN }>) {
     encryptedMnemonic,
     mnemonicHash,
     language: locale,
-    coin: coin ? coin : COIN.XPI
+    rootCoin: coin ? coin : COIN.XPI
   };
 
   yield put(postAccount(account));
@@ -193,7 +193,8 @@ function* postAccountSaga(action: PayloadAction<CreateAccountCommand>) {
     const result = {
       ...command,
       ...data,
-      coin: command.coin
+      rootCoin: command.rootCoin,
+      coin: command.rootCoin
     } as Account;
 
     yield put(postAccountSuccess(result));
@@ -370,6 +371,7 @@ function* selectAccountSuccessSaga(
     name: account.name,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,
+    rootCoin: account.rootCoin ? account.rootCoin : COIN.XPI,
     coin: account.coin ? account.coin : COIN.XPI
   };
   yield put(setLocalUserAccount(localAccount));
@@ -402,6 +404,7 @@ function* setAccountSuccessSaga(action: PayloadAction<Account>) {
     address: account.address,
     balance: account.balance,
     name: account.name,
+    rootCoin: account.rootCoin ? account.rootCoin : COIN.XPI,
     coin: account.coin ? account.coin : COIN.XPI,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt
@@ -920,6 +923,7 @@ function* silentLoginSuccessSaga(action: PayloadAction) {
     id: account.address,
     address: account.address,
     name: account.name,
+    rootCoin: account.rootCoin ? account.rootCoin : COIN.XPI,
     coin: account.coin ? account.coin : COIN.XPI
   };
   // yield put(activateWallet(account.mnemonic));

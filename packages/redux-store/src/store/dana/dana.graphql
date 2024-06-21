@@ -1,0 +1,5 @@
+# import Coin from '/packages/app-lixi-api/schema.graphql'
+
+query ConvertDanaToCoin($ConvertDanaInput: ConvertDana!) {
+  convertDanaToCoin(ConvertDanaInput: $ConvertDanaInput)
+}

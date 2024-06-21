@@ -59,7 +59,7 @@ export type TimelineQuery = {
         id: string;
         createPostFee: string;
         createCommentFee: string;
-        pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+        pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
       } | null;
       token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
       reposts?: Array<{
@@ -177,7 +177,7 @@ export type HomeTimelineQuery = {
             id: string;
             createPostFee: string;
             createCommentFee: string;
-            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
           } | null;
           token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
           reposts?: Array<{
@@ -298,7 +298,7 @@ export type ProfileTimelineQuery = {
             id: string;
             createPostFee: string;
             createCommentFee: string;
-            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
           } | null;
           token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
           reposts?: Array<{
@@ -420,7 +420,7 @@ export type ProfileTimelineByTimeQuery = {
             id: string;
             createPostFee: string;
             createCommentFee: string;
-            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
           } | null;
           token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
           reposts?: Array<{
@@ -541,7 +541,7 @@ export type PageTimelineQuery = {
             id: string;
             createPostFee: string;
             createCommentFee: string;
-            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
           } | null;
           token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
           reposts?: Array<{
@@ -663,7 +663,7 @@ export type PageTimelineByTimeQuery = {
             id: string;
             createPostFee: string;
             createCommentFee: string;
-            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
           } | null;
           token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
           reposts?: Array<{
@@ -784,7 +784,7 @@ export type TokenTimelineQuery = {
             id: string;
             createPostFee: string;
             createCommentFee: string;
-            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
           } | null;
           token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
           reposts?: Array<{
@@ -906,7 +906,7 @@ export type TokenTimelineByTimeQuery = {
             id: string;
             createPostFee: string;
             createCommentFee: string;
-            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
           } | null;
           token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
           reposts?: Array<{

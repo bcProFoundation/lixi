@@ -67,7 +67,8 @@ export const QRCodeModal = ({ logoImage, address, type, onClick = () => null }: 
   const showBigModal = () => {
     const qRCodeModalProps: QRCodeModalProps = {
       address: address,
-      type: type
+      type: type,
+      logoImage
     };
     dispatch(openModal('QRCodeModalPopup', qRCodeModalProps));
   };

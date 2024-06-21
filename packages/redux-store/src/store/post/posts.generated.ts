@@ -58,7 +58,7 @@ export type PostQuery = {
       id: string;
       createPostFee: string;
       createCommentFee: string;
-      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
     } | null;
     token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
     reposts?: Array<{
@@ -178,7 +178,7 @@ export type PostsByPageIdQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
@@ -306,7 +306,7 @@ export type PostsByUserIdQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
@@ -434,7 +434,7 @@ export type PostsByHashtagIdQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
@@ -562,7 +562,7 @@ export type PostsByTokenIdQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
@@ -669,6 +669,7 @@ export type PostsBySearchQuery = {
         account: {
           __typename?: 'Account';
           address: string;
+          hash160?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
@@ -681,7 +682,7 @@ export type PostsBySearchQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
@@ -790,6 +791,7 @@ export type PostsBySearchWithHashtagQuery = {
         account: {
           __typename?: 'Account';
           address: string;
+          hash160?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
@@ -802,7 +804,7 @@ export type PostsBySearchWithHashtagQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
@@ -912,6 +914,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
         account: {
           __typename?: 'Account';
           address: string;
+          hash160?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
@@ -924,7 +927,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
@@ -1034,6 +1037,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
         account: {
           __typename?: 'Account';
           address: string;
+          hash160?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
@@ -1046,7 +1050,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
           id: string;
           createPostFee: string;
           createCommentFee: string;
-          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+          pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
         } | null;
         token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
         reposts?: Array<{
@@ -1179,7 +1183,7 @@ export type PostFieldsFragment = {
     id: string;
     createPostFee: string;
     createCommentFee: string;
-    pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+    pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
   } | null;
   token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
   reposts?: Array<{
@@ -1260,6 +1264,7 @@ export type PostMeiliFieldsFragment = {
   account: {
     __typename?: 'Account';
     address: string;
+    hash160?: string | null;
     id: number;
     name: string;
     avatar?: string | null;
@@ -1272,7 +1277,7 @@ export type PostMeiliFieldsFragment = {
     id: string;
     createPostFee: string;
     createCommentFee: string;
-    pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+    pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
   } | null;
   token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
   reposts?: Array<{
@@ -1377,7 +1382,7 @@ export type CreatePostMutation = {
       id: string;
       createPostFee: string;
       createCommentFee: string;
-      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
     } | null;
     token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
     reposts?: Array<{
@@ -1483,7 +1488,7 @@ export type UpdatePostMutation = {
       id: string;
       createPostFee: string;
       createCommentFee: string;
-      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
     } | null;
     token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
     reposts?: Array<{
@@ -1595,7 +1600,7 @@ export type RemovePostMutation = {
       id: string;
       createPostFee: string;
       createCommentFee: string;
-      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
     } | null;
     token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
     reposts?: Array<{
@@ -1704,6 +1709,7 @@ export const PostFieldsFragmentDoc = `
       id
       name
       address
+      hash160
     }
   }
   pageId
@@ -1771,6 +1777,7 @@ export const PostMeiliFieldsFragmentDoc = `
   content
   account {
     address
+    hash160
     id
     name
     avatar
@@ -1786,6 +1793,7 @@ export const PostMeiliFieldsFragmentDoc = `
       id
       name
       address
+      hash160
     }
   }
   token {

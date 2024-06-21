@@ -5,5 +5,6 @@ export type LocalUser = {
   address: string;
   name: string;
   isLocalLoggedIn?: boolean;
+  rootCoin: COIN;
   coin: COIN;
 };

@@ -43,7 +43,7 @@ export default {
   'burn.page': 'trang',
   'burn.account': 'tài khoản',
   'burn.doneBurning': 'Đốt thành công!',
-  'burn.sendDana': 'Bạn sẽ trả {cost} {coin} (Chưa tính phí của thợ đào).',
+  'burn.sendDana': 'Bạn sẽ trả <b>{cost} {coin}</b> (Chưa tính phí của thợ đào).',
   'burn.owner': ' tới chủ {name} ',
   'burn.feeMiner': 'Chưa tính phí thợ đào',
   'burn.trans': 'Bài viết với {amount} Dana trở lên sẽ được dịch.',
@@ -135,6 +135,8 @@ export default {
   'general.wallets': 'Ví',
   'general.topWeek': 'Xếp hạng tuần',
   'general.topMonth': 'Xếp hạng tháng',
+  'general.otherWallet': 'Ví khác',
+  'general.baseWallet': 'Ví cho đốt',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Bạn cần nhập đúng cụm từ bảo mật',
@@ -652,7 +654,7 @@ export default {
   'comment.unableToBurn': 'Không thể đốt cho bình luận',
   'comment.writeComment': 'Viết bình luận...',
   'comment.writeCommentFree': 'Viết bình luận miễn phí trên bài viết này...',
-  'comment.writeCommentXpi': '{commentFee} để bình luận',
+  'comment.writeCommentCoin': '{commentFee} để bình luận',
   'comment.failAndResend': 'Bình luận thất bại, bạn có muốn gửi lại?',
   'comment.resend': 'Gửi lại',
   'comment.reply': 'Trả lời',

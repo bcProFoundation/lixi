@@ -41,7 +41,7 @@ export const toSmallestDenomination = (sendAmount: BigNumber, cashDecimals = coi
   return sendAmountSmallestDenomination;
 };
 
-export const fromXpiToSatoshis = (
+export const fromCoinToSatoshis = (
   sendAmount: BigNumber,
   cashDecimals = coinInfo[COIN.XPI].cashDecimals
 ): BigNumber | false => {
@@ -54,9 +54,16 @@ export const fromXpiToSatoshis = (
   return sendAmountSmallestDenomination;
 };
 
-export const fromSmallestDenomination = (amount: any, cashDecimals = coinInfo[COIN.XPI].cashDecimals) => {
+export const fromSatoshisToCoin = (amount: any, cashDecimals = coinInfo[COIN.XPI].cashDecimals) => {
   const amountBig = new BigNumber(amount);
   const multiplier = new BigNumber(10 ** (-1 * cashDecimals));
+  const amountInBaseUnits = amountBig.times(multiplier);
+  return amountInBaseUnits;
+};
+
+export const fromSmallestDenomination = (amount: any, coin?: COIN) => {
+  const amountBig = new BigNumber(amount);
+  const multiplier = new BigNumber(10 ** (-1 * coinInfo[coin ?? COIN.XPI].cashDecimals));
   const amountInBaseUnits = amountBig.times(multiplier);
   return amountInBaseUnits.toNumber();
 };
@@ -248,11 +255,11 @@ export const generateTxOutput = (
         // add each send tx from the array as an output
         const outputAddress = destinationAddressAndValueArray[i].split(',')[0];
         const outputValue = new BigNumber(destinationAddressAndValueArray[i].split(',')[1]);
-        txBuilder.addOutput(outputAddress, parseInt(fromXpiToSatoshis(outputValue).toString()));
+        txBuilder.addOutput(outputAddress, parseInt(fromCoinToSatoshis(outputValue).toString()));
       }
     } else if (singleSendValue) {
       // for one to one mode, add output w/ single address and amount to send
-      txBuilder.addOutput(destinationAddress, parseInt(fromXpiToSatoshis(singleSendValue).toString()));
+      txBuilder.addOutput(destinationAddress, parseInt(fromCoinToSatoshis(singleSendValue).toString()));
     }
 
     // if a remainder exists, return to change address as the final output
@@ -389,15 +396,27 @@ export const getDustXPI = () => {
   return (coinInfo[COIN.XPI].dustSats / 10 ** coinInfo[COIN.XPI].cashDecimals).toString();
 };
 
-export const getUtxoWif = (utxo: Utxo & { address: string }, walltPaths: Array<WalletPathAddressInfo>) => {
-  if (!walltPaths) {
+export const getUtxoWif = (
+  utxo: Utxo & { address: string },
+  walletPaths: Array<WalletPathAddressInfo>,
+  selectedCoin = COIN.XPI
+) => {
+  if (!walletPaths) {
     throw new Error('Invalid wallet parameter');
   }
-  const wif = walltPaths.find(acc => acc.xAddress === utxo.address)?.fundingWif;
-  if (!wif) {
-    throw new Error('Invalid WIF parameter');
+  let wif: string | undefined = '';
+  switch (selectedCoin) {
+    case COIN.XEC:
+      wif = walletPaths?.filter(acc => acc?.cashAddress === utxo.address)?.pop()?.fundingWif;
+      break;
+    case COIN.XPI:
+      wif = walletPaths?.filter(acc => acc?.xAddress === utxo.address)?.pop()?.fundingWif;
+      break;
+    default:
+      wif = walletPaths?.filter(acc => acc?.xAddress === utxo.address)?.pop()?.fundingWif;
+      break;
   }
-  return wif;
+  return wif ?? '';
 };
 
 export const getHashArrayFromWallet = (wallet: any): string[] => {

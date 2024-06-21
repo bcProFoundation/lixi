@@ -7,7 +7,7 @@ export interface CreateAccountCommand {
   encryptedMnemonic: string;
   mnemonicHash: string;
   language?: string;
-  coin?: COIN;
+  rootCoin?: COIN;
 }
 
 export interface ImportAccountCommand {
@@ -62,6 +62,7 @@ export interface AccountDto {
   language?: string;
   secondaryLanguage?: Nullable<string>;
   page?: Nullable<Page[]>;
+  rootCoin?: COIN;
 }
 
 export interface RegisterViaEmailNoVerifiedCommand {

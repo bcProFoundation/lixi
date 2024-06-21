@@ -92,7 +92,7 @@ export type BookmarkTimelineQuery = {
             id: string;
             createPostFee: string;
             createCommentFee: string;
-            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string };
+            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
           } | null;
           token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
           reposts?: Array<{

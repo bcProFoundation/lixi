@@ -33,6 +33,7 @@ type Account {
   publicKey: String
   rankNumber: Int
   rankScore: Int
+  rootCoin: Coin
   secondaryLanguage: String
   secret: String
   totalDanaViewScore: Int
@@ -265,6 +266,10 @@ type Commentable {
   type: CommentType!
 }
 
+input ConvertDana {
+  convertToCoin: Coin!
+}
+
 type Country {
   capital: String!
   city: [City!]!
@@ -287,6 +292,7 @@ input CreateBookmarkInput {
 }
 
 input CreateCommentInput {
+  coinGive: Coin
   commentByPublicKey: String
   commentText: String!
   commentableId: String!
@@ -346,6 +352,7 @@ input CreateFollowTokenInput {
 input CreateMessageInput {
   authorId: Int!
   body: String
+  coinGive: Coin
   isPageOwner: Boolean
   pageMessageSessionId: String
   tipHex: String
@@ -381,6 +388,7 @@ input CreatePageMessageInput {
 
 input CreatePollInput {
   canAddOption: Boolean!
+  coinFee: Coin
   createFeeHex: String
   endDate: DateTime!
   options: [PollOptionInput!]!
@@ -392,6 +400,7 @@ input CreatePollInput {
 }
 
 input CreatePostInput {
+  coinFee: Coin
   createFeeHex: String
   extraArguments: ExtraArguments
   htmlContent: String!
@@ -1513,6 +1522,7 @@ type Query {
   checkIfFollowToken(tokenId: String): Boolean!
   comment(id: String!): Comment!
   commentsToCommentableId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: CommentOrder, skip: Int): CommentConnection!
+  convertDanaToCoin(ConvertDanaInput: ConvertDana!): Int!
   dispute(id: String!): Dispute!
   escrowOrder(id: String!): EscrowOrder!
   getAccountByAddress(address: String!): Account!

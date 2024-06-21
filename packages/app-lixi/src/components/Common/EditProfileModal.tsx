@@ -25,7 +25,7 @@ type EditProfileModalProps = {
 export const EditProfileModal: React.FC<EditProfileModalProps> = ({ profile, classStyle }: EditProfileModalProps) => {
   const dispatch = useSliceDispatch();
   // const createRepostFee = [0, 1, 10, 100, 1000];
-  const createCommentFee = [0, fromSmallestDenomination(coinInfo[COIN.XPI].dustSats)];
+  const createCommentFee = ['0', 'Dust'];
 
   const [componentDisabled, setComponentDisabled] = useState<boolean>(true);
   const onFormLayoutChange = ({ disabled }: { disabled: boolean }) => {
@@ -175,14 +175,14 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ profile, cla
                 render={({ field: { onChange, value }, formState: { isSubmitting } }) => (
                   <Select
                     className="select-after edit-page"
-                    value={`${value} ${coinInfo[COIN.XPI].ticker}`}
+                    value={`${value}`}
                     onChange={onChange}
                     placeholder={intl.get('page.state')}
                     disabled={isSubmitting}
                     style={{ width: '99%', textAlign: 'end' }}
                   >
                     {createCommentFee.map(fee => (
-                      <Option key={fee}>{`${fee} ${coinInfo[COIN.XPI].ticker}`}</Option>
+                      <Option key={fee}>{`${fee}`}</Option>
                     ))}
                   </Select>
                 )}

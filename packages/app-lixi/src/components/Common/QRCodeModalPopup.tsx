@@ -69,7 +69,7 @@ export const QRCodeModalPopup: React.FC<QRCodeModalProps> = (props: QRCodeModalP
           footer={null}
         >
           <Descriptions bordered>
-            <Descriptions.Item label={<QRCode address={props.address} size={300} />}>
+            <Descriptions.Item label={<QRCode logoImage={props.logoImage} address={props.address} size={300} />}>
               {/* <Button type='primary' onClick={handleCopy}> */}
               <StyledButton type="primary">
                 <CopyToClipboard text={props.address} onCopy={handleOnCopy}>

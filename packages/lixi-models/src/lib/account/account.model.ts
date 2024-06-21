@@ -112,6 +112,9 @@ export class Account {
   @Field(() => COIN, { nullable: true })
   coin?: Nullable<COIN>;
 
+  @Field(() => COIN, { nullable: true })
+  rootCoin?: Nullable<COIN>;
+
   @Field(() => Number, { nullable: true })
   totalDanaViewScore?: Nullable<number>;
 

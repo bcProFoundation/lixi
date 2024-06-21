@@ -20,15 +20,16 @@ import { getSelectedWalletPath, getWalletHasUpdated, getWalletStatus } from '@st
 import { fromSmallestDenomination } from '@utils/cashMethods';
 import { Form, Input } from 'antd';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
+import { parseEcashAddress } from '@utils/addressMethods';
 
-const CardContainer = styled.div`
+const CardContainer = styled.div<{ $bgCoin: string }>`
   position: relative;
   display: flex;
-  background: url(../images/bg-xpi.svg) no-repeat;
+  background: url(${props => props.$bgCoin}) no-repeat;
   background-size: cover !important;
   background-position: center;
   border-radius: var(--border-radius-primary);
@@ -146,6 +147,21 @@ const WalletInfoComponent: React.FC = () => {
   const selectedWalletPath = useSliceSelector(getSelectedWalletPath);
   const walletHasUpdated = useSliceSelector(getWalletHasUpdated);
 
+  const [currentAddress, setCurrentAddress] = useState<string>(selectedWalletPath?.xAddress);
+
+  useEffect(() => {
+    switch (selectedAccount?.coin) {
+      case COIN.XPI:
+        setCurrentAddress(selectedWalletPath?.xAddress);
+        break;
+      case COIN.XEC:
+        setCurrentAddress(parseEcashAddress(selectedWalletPath?.cashAddress));
+        break;
+      default:
+        setCurrentAddress(selectedWalletPath?.xAddress);
+    }
+  }, [selectedAccount]);
+
   const showPopulatedRenameAccountModal = (account: Account) => {
     const command: RenameAccountCommand = {
       id: account.id,
@@ -190,12 +206,31 @@ const WalletInfoComponent: React.FC = () => {
     );
   };
 
+  const addressForMutipleCoin = () => {
+    return (
+      <React.Fragment>
+        <CopyToClipboard text={currentAddress} onCopy={handleOnCopy}>
+          <span>
+            <FormattedWalletAddress address={currentAddress} isAccountPage={true}></FormattedWalletAddress>
+          </span>
+        </CopyToClipboard>
+      </React.Fragment>
+    );
+  };
+
   return (
     <>
-      <CardContainer className="card-container">
+      <CardContainer
+        $bgCoin={`/images/currencies/bg-${(selectedAccount?.coin ?? COIN.XPI).toLowerCase()}.svg`}
+        className="card-container"
+      >
         <WalletCard>
           <div className="wallet-name">
-            <img src="../images/xpi.svg" alt="" />
+            <img
+              width={40}
+              src={`/images/currencies/${(selectedAccount?.coin ?? COIN.XPI).toLowerCase()}.svg`}
+              alt=""
+            />
             <WalletLabel name={selectedAccount?.name ?? ''} />
             <EditOutlined
               className="edit-ico"
@@ -218,9 +253,13 @@ const WalletInfoComponent: React.FC = () => {
             )}
           </StyledBalanceHeader>
         </WalletCard>
-        {!isServer() && selectedWalletPath && selectedWalletPath?.xAddress && (
+        {!isServer() && currentAddress && (
           <StyledQRCode>
-            <QRCodeModal address={selectedWalletPath?.xAddress} type={QRCodeModalType.address} />
+            <QRCodeModal
+              logoImage={coinInfo[selectedAccount?.coin ?? COIN.XPI].logo}
+              address={currentAddress}
+              type={QRCodeModalType.address}
+            />
             {/* <QRCode address={selectedWalletPath?.xAddress} isAccountPage={true} /> */}
           </StyledQRCode>
         )}
@@ -229,14 +268,7 @@ const WalletInfoComponent: React.FC = () => {
             <SendOutlined />
             {intl.get('general.send')}
           </ButtonSend>
-          <CopyToClipboard text={selectedAccount ? selectedAccount.address : ''} onCopy={handleOnCopy}>
-            <span>
-              <FormattedWalletAddress
-                address={selectedWalletPath?.xAddress}
-                isAccountPage={true}
-              ></FormattedWalletAddress>
-            </span>
-          </CopyToClipboard>
+          {addressForMutipleCoin()}
         </AddressWalletBar>
       </CardContainer>
 

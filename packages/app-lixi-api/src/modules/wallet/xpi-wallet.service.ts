@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ChronikClient } from 'chronik-client';
 import Redis from 'ioredis';
-import { getUtxoWif, fromXpiToSatoshis } from 'src/utils/cashMethods';
+import { getUtxoWif, fromCoinToSatoshis } from 'src/utils/cashMethods';
 import useXPI from 'src/utils/useXPI';
 import { XPIJS } from './wallet.constants';
 import BCHJS from '@bcpros/xpi-js';
@@ -185,7 +185,7 @@ export class XpiWalletService extends WalletService {
 
       tipToAddresses.push({
         address: recieveAddress,
-        amount: fromXpiToSatoshis(new BigNumber(amount).multipliedBy(coinInfo[COIN.XPI].burnFee)).valueOf().toString()
+        amount: fromCoinToSatoshis(new BigNumber(amount).multipliedBy(coinInfo[COIN.XPI].burnFee)).valueOf().toString()
       });
 
       const { rawTxHex } = createBurnTransaction(

@@ -443,11 +443,41 @@ export const isValidStoredWallet = walletStateFromStorage => {
   );
 };
 
-export const getUtxoWif = (utxo: Utxo & { address: string }, walltPaths: Array<WalletPathAddressInfo>) => {
-  if (!walltPaths) {
+export const getWalletStateMethod = wallet => {
+  if (!wallet) {
+    return {
+      balance: 0,
+      parsedTxHistory: [],
+      utxos: []
+    };
+  }
+
+  return {
+    ...wallet,
+    balance: fromSmallestDenomination(wallet?.balance || 0)
+  };
+};
+
+export const getUtxoWif = (
+  utxo: Utxo & { address: string },
+  walletPaths: Array<WalletPathAddressInfo>,
+  selectedCoin = COIN.XPI
+) => {
+  if (!walletPaths) {
     throw new Error('Invalid wallet parameter');
   }
-  const wif = walltPaths.filter(acc => acc.xAddress === utxo.address).pop().fundingWif;
+  let wif = '';
+  switch (selectedCoin) {
+    case COIN.XEC:
+      wif = walletPaths.filter(acc => acc.cashAddress === utxo.address).pop().fundingWif;
+      break;
+    case COIN.XPI:
+      wif = walletPaths.filter(acc => acc.xAddress === utxo.address).pop().fundingWif;
+      break;
+    default:
+      wif = walletPaths.filter(acc => acc.xAddress === utxo.address).pop().fundingWif;
+      break;
+  }
   return wif;
 };
 
@@ -459,6 +489,18 @@ export const getHashArrayFromWallet = (wallet: WalletState): string[] => {
     return (value as WalletPathAddressInfo).hash160;
   });
   return hash160Array;
+};
+
+export const getHashFromWallet = (wallet: WalletState): string => {
+  if (!wallet || !wallet?.entities) {
+    return '';
+  }
+
+  let selectedHash160 = '';
+  Object.entries(wallet.entities).map(([key, value]) => {
+    if (key === wallet.selectedWalletPath) selectedHash160 = value.hash160;
+  });
+  return selectedHash160;
 };
 
 export const isActiveWebsocket = ws => {
@@ -840,4 +882,19 @@ export const getChangeAddressFromInputUtxosXec = (inputUtxos: any, wallet: any):
     throw new Error('Invalid input utxo');
   }
   return changeAddress;
+};
+
+export const validateCoinAmount = (value: string, balances: number, coin: COIN): boolean => {
+  if (!value) return false;
+
+  //check if value is number;
+  if (isNaN(parseFloat(value))) return false;
+
+  //check if value is positive number
+  if (parseFloat(value) <= 0) return false;
+
+  //check if balance is smaller than value
+  if (fromSmallestDenomination(balances, coin) <= parseFloat(value)) return false;
+
+  return true;
 };

@@ -1,12 +1,14 @@
 import { useContext, useState } from 'react';
 import { StyledBurnIconHover } from '../Reaction';
 import { useSliceDispatch } from '@store/index';
-import { OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants/burn';
 import { BurnForItem } from '@generated/types';
 import { prepareBurnCommand } from '@store/burn';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { AuthenticationContext, AuthorizationContext } from '@context/index';
 import useAuthorization from '../Authorization/use-authorization.hooks';
+import { Tooltip } from 'antd';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 
 type IconBurnCustomProps = {
   icon: string;
@@ -14,7 +16,7 @@ type IconBurnCustomProps = {
   colorFilterIcon: string;
   burnForType: BurnForType;
   dataItem: BurnForItem;
-  optionBurnType: string;
+  burnValue: number;
   isUpBurn: boolean;
   hideReact: () => void;
 };
@@ -25,7 +27,7 @@ const IconBurnCustom = ({
   colorFilterIcon,
   burnForType,
   dataItem,
-  optionBurnType,
+  burnValue,
   isUpBurn,
   hideReact
 }: IconBurnCustomProps) => {
@@ -36,25 +38,20 @@ const IconBurnCustom = ({
 
   const [isHover, setIsHover] = useState<boolean>(false);
 
-  const handleBurnOption = async (
-    e: React.MouseEvent<HTMLElement>,
-    dataItem: BurnForItem,
-    optionBurn: string,
-    isUpVote: boolean
-  ) => {
+  const handleBurnOption = async (e: React.MouseEvent<HTMLElement>, dataItem: BurnForItem, isUpVote: boolean) => {
     e.preventDefault();
     e.stopPropagation();
     if (authorization.authorized) {
       if (authentication && authentication.isAuthenticationRequired && !authentication.isSignedIn) {
         await authentication.signIn();
       }
-      const burnValue = optionBurn ? OPTION_BURN_VALUE[optionBurn] : '1';
+
       dispatch(
         prepareBurnCommand({
           isUpVote,
           burnForItem: dataItem,
           burnForType,
-          burnValue
+          burnValue: burnValue.toString()
         })
       );
     } else {
@@ -75,13 +72,15 @@ const IconBurnCustom = ({
         setIsHover(false);
       }}
     >
-      <StyledBurnIconHover
-        src={`/images/${icon}`}
-        style={{
-          filter: isHover ? 'var(--filter-svg-white-color)' : colorFilterIcon
-        }}
-        onClick={e => handleBurnOption(e, dataItem, optionBurnType, isUpBurn)}
-      />
+      <Tooltip title={`${burnValue} ${coinInfo[COIN.XPI].ticker}`}>
+        <StyledBurnIconHover
+          src={`/images/${icon}`}
+          style={{
+            filter: isHover ? 'var(--filter-svg-white-color)' : colorFilterIcon
+          }}
+          onClick={e => handleBurnOption(e, dataItem, isUpBurn)}
+        />
+      </Tooltip>
     </div>
   );
 };

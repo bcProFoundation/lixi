@@ -34,7 +34,9 @@
     "update:uploadable": "ts-node scripts/upload/index.ts",
     "update:account": "ts-node scripts/account/index.ts",
     "update:postBitMap": "ts-node scripts/post-bitMap/index.ts",
-    "update:accountWalletPaths": "ts-node scripts/account/wallet-paths/index.ts"
+    "update:accountWalletPaths": "ts-node scripts/account/wallet-paths/index.ts",
+    "update:createCommentFee": "ts-node scripts/comment-fee/index.ts",
+    "update:notificationTemplate": "ts-node scripts/notification/index.ts"
   },
   "dependencies": {
     "@abcpros/bitcore-lib-xpi": "^8.25.37",
@@ -86,13 +88,13 @@
     "bullmq": "^5.4.3",
     "cache-manager-ioredis-yet": "^2.0.2",
     "chronik-client": "^0.26.2",
-    "nestjs-chronik": "0.1.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "config": "^3.3.9",
     "cors": "^2.8.5",
     "cron": "^3.1.6",
     "dataloader": "^2.2.2",
+    "ecash-lib": "0.1.0-rc3",
     "ecashaddrjs": "^1.5.6",
     "fastify": "4.18.0",
     "fastify-multer": "^2.0.3",
@@ -112,6 +114,7 @@
     "mercurius": "^13.4.0",
     "moment": "^2.30.1",
     "nest-winston": "^1.8.0",
+    "nestjs-chronik": "0.1.0",
     "nestjs-i18n": "^10.2.6",
     "nestjs-meilisearch": "^2.1.5",
     "nestjs-s3": "^2.0.1",

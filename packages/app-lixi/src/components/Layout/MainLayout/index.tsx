@@ -30,6 +30,7 @@ import ActionSheet from '../../Common/ActionSheet';
 import ModalManager from '../../Common/ModalManager';
 import { GlobalStyle } from './GlobalStyle';
 import { theme } from './theme';
+import ClaimComponent from '@components/Claim';
 
 export const LoadingIcon = <LoadingOutlined className="loadingIcon" />;
 
@@ -310,7 +311,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                         {children}
                       </div>
                       {/* This below is just a dummy sidebar */}
-                      {(selectedKey === '/wallet' || selectedKey === '/') && <SidebarRanking></SidebarRanking>}
+                      {(selectedKey.includes('/wallet') || selectedKey === '/') && <SidebarRanking></SidebarRanking>}
                       <DummySidebar />
                       {!hideStatusBar && (
                         <Footer

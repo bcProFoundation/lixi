@@ -3,6 +3,7 @@ import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Nullable } from '../../nullable';
+import { COIN } from '../../../constants/coins/coin';
 
 @InputType()
 export class PollOptionInput {
@@ -41,6 +42,10 @@ export class CreatePollInput {
   @IsOptional()
   @Field(() => String, { nullable: true })
   createFeeHex?: Nullable<string>;
+
+  @IsOptional()
+  @Field(() => COIN, { nullable: true })
+  coinFee?: Nullable<COIN>;
 
   @Field(() => [PollOptionInput])
   options: PollOptionInput[];
