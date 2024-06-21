@@ -35,6 +35,7 @@ export class ConvertDanaResolver {
 
     //call highest info
     const danaRateBuff = await this.redis.hgetBuffer(keyHighestConvertRate, KeyCurrentHeight);
+    if (!danaRateBuff) return 0;
     const danaRate = decode(danaRateBuff ?? '') as DanaRate;
     const coinPerDana = Math.round(danaRate?.coinPerDana ?? 0);
 
