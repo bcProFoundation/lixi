@@ -69,6 +69,7 @@ export class BurnController {
   @Post()
   async burn(@Body() command: BurnCommand): Promise<Burn> {
     try {
+      const { amountDana } = command;
       const value = parseFloat(command.burnValue);
       const savedBurn = await this.prisma.$transaction(async prisma => {
         const broadcastResponse = await this.chronik.broadcastTx(command.txHex).catch(async err => {
@@ -126,14 +127,13 @@ export class BurnController {
           let danaBurnDown = post?.dana?.danaBurnDown ?? 0;
           let danaReceivedUp = post?.dana?.danaReceivedUp ?? 0;
           let danaReceivedDown = post?.dana?.danaReceivedDown ?? 0;
-          const xpiValue = value;
 
           if (command.burnType == BurnType.Up) {
-            danaBurnUp = danaBurnUp + xpiValue;
-            danaReceivedUp = danaReceivedUp + xpiValue;
+            danaBurnUp = danaBurnUp + amountDana;
+            danaReceivedUp = danaReceivedUp + amountDana;
           } else {
-            danaBurnDown = danaBurnDown + xpiValue;
-            danaReceivedDown = danaReceivedDown + xpiValue;
+            danaBurnDown = danaBurnDown + amountDana;
+            danaReceivedDown = danaReceivedDown + amountDana;
           }
           const danaBurnScore = danaBurnUp - danaBurnDown;
           const danaReceivedScore = danaReceivedUp - danaReceivedDown;
@@ -177,7 +177,7 @@ export class BurnController {
             this.accountDanaQueue.add(ACCOUNT_DANA_QUEUE, {
               command: command,
               txid: savedBurn.txid,
-              amount: xpiValue,
+              amount: amountDana,
               givenDanaAddress: burnByAddress,
               receivedDanaAddress: post?.account?.address
             });
@@ -195,9 +195,9 @@ export class BurnController {
               let totalPostsBurnDown = post?.page?.totalPostsBurnDown ?? 0;
 
               if (command.burnType == BurnType.Up) {
-                totalPostsBurnUp = totalPostsBurnUp + xpiValue;
+                totalPostsBurnUp = totalPostsBurnUp + amountDana;
               } else {
-                totalPostsBurnDown = totalPostsBurnDown + xpiValue;
+                totalPostsBurnDown = totalPostsBurnDown + amountDana;
               }
               const totalPostsBurnScore = totalPostsBurnUp - totalPostsBurnDown;
 
@@ -214,14 +214,14 @@ export class BurnController {
 
               this.pageDanaQueue.add(PAGE_DANA_QUEUE, {
                 command: command,
-                amount: xpiValue,
+                amount: amountDana,
                 pageId: post.pageId
               });
             });
           }
 
           if (postHashtags.length > 0) {
-            const hashtagBurnValue = xpiValue / postHashtags.length;
+            const hashtagBurnValue = amountDana / postHashtags.length;
             await this.prisma.$transaction(
               postHashtags.map(postHashtag => {
                 let hashtagDanaBurnUp = postHashtag.hashtag.danaBurnUp ?? 0;
@@ -256,11 +256,11 @@ export class BurnController {
             burn: { ...savedBurn },
             post: post,
             latestDanaBurnScore: danaBurnScore,
-            burnAccountId: burnAccount?.id
+            burnAccountId: burnAccount?.id,
+            amountDana: amountDana
           });
         } else if (command.burnForType === BurnForType.Token) {
           const burnByAddress = this.convertBurnedByToAddress(command.burnedBy);
-          const xpiValue = value;
 
           const accountDana = await this.prisma.accountDana.findFirst({
             where: {
@@ -285,9 +285,9 @@ export class BurnController {
           let danaReceivedDown = token?.dana?.danaReceivedDown ?? 0;
 
           if (command.burnType == BurnType.Up) {
-            danaBurnUp = danaBurnUp + xpiValue;
+            danaBurnUp = danaBurnUp + amountDana;
           } else {
-            danaBurnDown = danaBurnDown + xpiValue;
+            danaBurnDown = danaBurnDown + amountDana;
           }
           const danaBurnScore = danaBurnUp - danaBurnDown;
           const danaReceivedScore = danaReceivedUp - danaReceivedDown;
@@ -298,10 +298,10 @@ export class BurnController {
 
             switch (command.burnType) {
               case BurnType.Up:
-                givenUpValue = xpiValue;
+                givenUpValue = amountDana;
                 break;
               case BurnType.Down:
-                givenDownValue = xpiValue;
+                givenDownValue = amountDana;
                 break;
             }
 
@@ -338,7 +338,7 @@ export class BurnController {
             this.accountDanaQueue.add(ACCOUNT_DANA_QUEUE, {
               command: command,
               txid: savedBurn.txid,
-              amount: xpiValue,
+              amount: amountDana,
               givenDanaAddress: burnByAddress
             });
           });
@@ -354,12 +354,11 @@ export class BurnController {
 
           let danaBurnUp = comment?.danaBurnUp ?? 0;
           let danaBurnDown = comment?.danaBurnDown ?? 0;
-          const xpiValue = value;
 
           if (command.burnType == BurnType.Up) {
-            danaBurnUp = danaBurnUp + xpiValue;
+            danaBurnUp = danaBurnUp + amountDana;
           } else {
-            danaBurnDown = danaBurnDown + xpiValue;
+            danaBurnDown = danaBurnDown + amountDana;
           }
           const danaBurnScore = danaBurnUp - danaBurnDown;
 
@@ -379,7 +378,7 @@ export class BurnController {
           this.accountDanaQueue.add(ACCOUNT_DANA_QUEUE, {
             command: command,
             txid: savedBurn.txid,
-            amount: xpiValue,
+            amount: amountDana,
             givenDanaAddress: burnByAddress,
             receivedDanaAddress: comment?.commentAccount?.address
           });
@@ -493,7 +492,7 @@ export class BurnController {
             pageName: post.page && post.page.name,
             burnType: command.burnType == BurnType.Up ? 'upvoted' : 'downvoted',
             burnForType: burnForTypeString.toLowerCase(),
-            xpiBurn: command.burnValue,
+            xpiBurn: amountDana,
             xpiFee: fee,
             coin: COIN.XPI
           }
@@ -519,8 +518,8 @@ export class BurnController {
         year: numberYear
       });
 
-      await this.redis.zincrby(weekKey, value, sender.id);
-      await this.redis.zincrby(monthKey, value, sender.id);
+      await this.redis.zincrby(weekKey, amountDana, sender.id);
+      await this.redis.zincrby(monthKey, amountDana, sender.id);
 
       const result: Burn = {
         ...savedBurn,

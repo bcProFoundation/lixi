@@ -4,7 +4,6 @@ import { CreateFollowTokenInput, DeleteFollowTokenInput } from '@bcpros/lixi-mod
 import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import Counter from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
-import ReactionToken from '@components/Common/ReactionToken';
 import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants/coins/coin';
 import { InfoSubCard } from '@components/Lixi';
 import { AuthorizationContext } from '@context/index';
@@ -38,6 +37,7 @@ import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import useAuthorization from '../Common/Authorization/use-authorization.hooks';
 import { TokenQueryItem } from '@generated/types';
+import Reaction from '@components/Common/Reaction';
 
 const StyledTokensListing = styled.div`
   .table-tokens {
@@ -363,7 +363,7 @@ const TokensListing = () => {
       // fixed: 'right',
       render: (_, token) => (
         <Space size="middle">
-          <ReactionToken token={token} />
+          <Reaction burnForType={BurnForType.Token} dataItem={token} />
 
           <Tooltip title={intl.get('general.follow')}>
             <Button type="text" className="follow-btn">

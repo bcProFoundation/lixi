@@ -24,25 +24,25 @@ const CommentListItem = ({ item, post }: CommentListItemProps) => {
   const history = useRouter();
 
   const upVoteComment = (dataItem: CommentQueryItem) => {
-    dispatch(
-      prepareBurnCommand({
-        isUpVote: true,
-        burnForItem: dataItem,
-        burnForType: BurnForType.Comment,
-        burnValue: '1'
-      })
-    );
+    // dispatch(
+    //   prepareBurnCommand({
+    //     isUpVote: true,
+    //     burnForItem: dataItem,
+    //     burnForType: BurnForType.Comment,
+    //     burnValue: '1'
+    //   })
+    // );
   };
 
   const downVoteComment = (dataItem: CommentQueryItem) => {
-    dispatch(
-      prepareBurnCommand({
-        isUpVote: false,
-        burnForItem: dataItem,
-        burnForType: BurnForType.Comment,
-        burnValue: '1'
-      })
-    );
+    // dispatch(
+    //   prepareBurnCommand({
+    //     isUpVote: false,
+    //     burnForItem: dataItem,
+    //     burnForType: BurnForType.Comment,
+    //     burnValue: '1'
+    //   })
+    // );
   };
 
   const showUsername = () => {

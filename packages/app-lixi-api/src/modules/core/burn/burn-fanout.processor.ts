@@ -51,20 +51,22 @@ export class BurnFanoutProcessor extends WorkerHost {
   }
 
   public async process(
-    job: Job<{ burn: Burn; post: Post; burnAccountId: number; latestDanaBurnScore: number }, boolean, string>
+    job: Job<
+      { burn: Burn; post: Post; burnAccountId: number; latestDanaBurnScore: number; amountDana: number },
+      boolean,
+      string
+    >
   ): Promise<boolean> {
     try {
       // This is only for post
       // @todo: Need to more organize for multiple types
-      const { burn, post, latestDanaBurnScore, burnAccountId } = job.data;
+      const { burn, post, latestDanaBurnScore, burnAccountId, amountDana } = job.data;
       const id = post.id;
 
       // Invalidate the cache
       const epoch = '2023-01-01 00:00:00';
       const diffHour = moment.duration(moment(burn.createdAt).diff(moment(epoch))).asHours();
-      const score = burn.burnType
-        ? burn.burnedValue * Math.pow(2, diffHour / 12)
-        : -burn.burnedValue * Math.pow(2, diffHour / 12);
+      const score = burn.burnType ? amountDana * Math.pow(2, diffHour / 12) : -amountDana * Math.pow(2, diffHour / 12);
 
       const accountId = post.accountId;
       const pageAccountId = post?.pageId;

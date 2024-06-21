@@ -23,6 +23,9 @@ export class BurnCommand {
   @IsNotEmpty()
   burnValue: string;
 
+  @IsNotEmpty()
+  amountDana: number;
+
   postQueryTags?: string;
 
   pageId?: string;
@@ -54,6 +57,9 @@ export class BurnQueueCommand {
 
   @IsNotEmpty()
   burnValue: string;
+
+  @IsNotEmpty()
+  amountDana: number;
 
   defaultFee: number;
 

@@ -16,7 +16,9 @@ type IconBurnCustomProps = {
   colorFilterIcon: string;
   burnForType: BurnForType;
   dataItem: BurnForItem;
-  burnValue: number;
+  burnValueWithFee: number;
+  burnValueWithoutFee: number;
+  amountDana: number;
   isUpBurn: boolean;
   hideReact: () => void;
 };
@@ -27,7 +29,9 @@ const IconBurnCustom = ({
   colorFilterIcon,
   burnForType,
   dataItem,
-  burnValue,
+  burnValueWithFee,
+  burnValueWithoutFee,
+  amountDana,
   isUpBurn,
   hideReact
 }: IconBurnCustomProps) => {
@@ -51,7 +55,8 @@ const IconBurnCustom = ({
           isUpVote,
           burnForItem: dataItem,
           burnForType,
-          burnValue: burnValue.toString()
+          burnValue: burnValueWithoutFee.toString(),
+          amountDana: amountDana
         })
       );
     } else {
@@ -72,7 +77,7 @@ const IconBurnCustom = ({
         setIsHover(false);
       }}
     >
-      <Tooltip title={`${burnValue} ${coinInfo[COIN.XPI].ticker}`}>
+      <Tooltip title={`${burnValueWithFee} ${coinInfo[COIN.XPI].ticker}`}>
         <StyledBurnIconHover
           src={`/images/${icon}`}
           style={{

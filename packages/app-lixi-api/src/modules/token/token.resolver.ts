@@ -88,7 +88,7 @@ export class TokenResolver {
           tokenType: tokenInfo?.slpTxData?.slpMeta?.tokenType,
           tokenDocumentUrl: tokenInfo?.slpTxData?.genesisInfo?.tokenDocumentUrl,
           totalBurned: tokenInfo?.tokenStats?.totalBurned,
-          totalMinted: tokenInfo?.tokenStats?.totalMinted,
+          totalMinteded: tokenInfo?.tokenStats?.totalMinted,
           createdDate: moment(tokenInfo?.block?.timestamp, 'X').toDate(),
           comments: moment().toDate()
         };

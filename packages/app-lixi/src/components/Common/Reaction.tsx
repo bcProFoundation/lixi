@@ -26,6 +26,7 @@ import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { Coin } from '@generated/types.generated';
 import { useConvertDanaToCoinQuery } from '@store/dana/dana.api';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { calBurnAmountWithFee, calBurnAmountWithoutFee } from 'src/utils/burnValueWithFee';
 
 const SpaceIconBurnHover = styled(Space)`
   min-height: 38px;
@@ -194,7 +195,8 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           isUpVote,
           burnForItem: dataItem,
           burnForType,
-          burnValue: calBurnAmount(Number(burnValue)).toString()
+          burnValue: (Number(burnValue) * burnAmountPerCoin).toString(),
+          amountDana: Number(burnValue)
         })
       );
     } else {
@@ -237,9 +239,6 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
     hideReact();
   };
 
-  const calBurnAmount = (value: number) => {
-    return Math.ceil(value * burnAmountPerCoin * (coinInfo[COIN.XPI].burnFee + 1));
-  };
   const contentBurn = (
     <SpaceContentBurn>
       <Popover
@@ -255,7 +254,9 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           colorFilterIcon="var(--filter-svg-red-color)"
           burnForType={burnForType}
           dataItem={dataItem}
-          burnValue={calBurnAmount(Number(OPTION_BURN_VALUE.DISLIKE))}
+          burnValueWithFee={calBurnAmountWithFee(Number(OPTION_BURN_VALUE.DISLIKE), burnAmountPerCoin, true)}
+          burnValueWithoutFee={calBurnAmountWithoutFee(Number(OPTION_BURN_VALUE.DISLIKE), burnAmountPerCoin, true)}
+          amountDana={Number(OPTION_BURN_VALUE.DISLIKE)}
           isUpBurn={false}
           hideReact={hideReact}
         />
@@ -273,7 +274,9 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           colorFilterIcon="var(--filter-svg-blue-color)"
           burnForType={burnForType}
           dataItem={dataItem}
-          burnValue={calBurnAmount(Number(OPTION_BURN_VALUE.LIKE))}
+          burnValueWithFee={calBurnAmountWithFee(Number(OPTION_BURN_VALUE.LIKE), burnAmountPerCoin, true)}
+          burnValueWithoutFee={calBurnAmountWithoutFee(Number(OPTION_BURN_VALUE.LIKE), burnAmountPerCoin, true)}
+          amountDana={Number(OPTION_BURN_VALUE.LIKE)}
           isUpBurn={true}
           hideReact={hideReact}
         />
@@ -291,7 +294,9 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           colorFilterIcon="var(--filter-svg-blue-color)"
           burnForType={burnForType}
           dataItem={dataItem}
-          burnValue={calBurnAmount(Number(OPTION_BURN_VALUE.LOVE))}
+          burnValueWithFee={calBurnAmountWithFee(Number(OPTION_BURN_VALUE.LOVE), burnAmountPerCoin, true)}
+          burnValueWithoutFee={calBurnAmountWithoutFee(Number(OPTION_BURN_VALUE.LOVE), burnAmountPerCoin, true)}
+          amountDana={Number(OPTION_BURN_VALUE.LOVE)}
           isUpBurn={true}
           hideReact={hideReact}
         />
@@ -327,7 +332,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           />
         </div>
         <HintMobile>
-          {calBurnAmount(Number(OPTION_BURN_VALUE.DISLIKE))}
+          {Number(calBurnAmountWithFee(Number(OPTION_BURN_VALUE.DISLIKE), burnAmountPerCoin, true))}
           <span>{coinInfo[COIN.XPI].ticker}</span>
         </HintMobile>
       </Popover>
@@ -342,7 +347,8 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           />
         </div>
         <HintMobile>
-          {calBurnAmount(Number(OPTION_BURN_VALUE.LIKE))} <span>{coinInfo[COIN.XPI].ticker}</span>
+          {Number(calBurnAmountWithFee(Number(OPTION_BURN_VALUE.LIKE), burnAmountPerCoin, true))}{' '}
+          <span>{coinInfo[COIN.XPI].ticker}</span>
         </HintMobile>
       </Popover>
 
@@ -357,7 +363,8 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           />
         </div>
         <HintMobile>
-          {calBurnAmount(Number(OPTION_BURN_VALUE.LOVE))} <span>{coinInfo[COIN.XPI].ticker}</span>
+          {Number(calBurnAmountWithFee(Number(OPTION_BURN_VALUE.LOVE), burnAmountPerCoin, true))}{' '}
+          <span>{coinInfo[COIN.XPI].ticker}</span>
         </HintMobile>
       </Popover>
       <Popover arrow={false} overlayClassName="popover-custom-hint">
@@ -403,7 +410,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           <img className={classStyle} alt="burnIcon" src={'/images/ico-burn-up.svg'} />
         </picture>
 
-        {burnValue && <Counter isShowXPI={true} num={burnValue ?? 0} />}
+        {burnForType === BurnForType.Post && burnValue && <Counter isShowXPI={true} num={burnValue ?? 0} />}
       </Popover>
     </SpaceIconBurnHover>
   );

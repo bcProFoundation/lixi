@@ -65,10 +65,11 @@ function* prepareBurnCommandSaga(
     burnForItem: BurnForItem;
     burnForType: BurnForType;
     burnValue: string;
+    amountDana: number;
   }>
 ) {
   try {
-    const { isUpVote, burnForItem, burnForType, burnValue } = action.payload;
+    const { isUpVote, burnForItem, burnForType, burnValue, amountDana } = action.payload;
 
     const failQueue = yield select(getFailQueue);
     if (failQueue.length > 0) yield put(clearFailQueue());
@@ -176,6 +177,7 @@ function* prepareBurnCommandSaga(
       burnForId: _.toString(burnForId),
       burnValue,
       tipToAddresses: tipToAddresses,
+      amountDana,
       extraArguments
     };
 
@@ -232,7 +234,7 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
   let patches, patch: PatchCollection;
   const command = action.payload;
 
-  const { burnForId: postId, extraArguments } = command;
+  const { burnForId: postId, extraArguments, amountDana } = command;
   let burnValue = _.toNumber(command.burnValue);
   yield put(createTxHex(command));
   const { payload } = yield take(returnTxHex.type);
@@ -267,7 +269,7 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
           case WORSHIP_TYPES.PERSON:
             createWorshipInput = {
               worshipedPersonId: command.burnForId,
-              worshipedAmount: burnValue
+              worshipedAmount: amountDana
             };
             promise = yield put(
               worshipApi.endpoints.createWorship.initiate({
@@ -281,7 +283,7 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
           case WORSHIP_TYPES.TEMPLE:
             createWorshipInput = {
               templeId: command.burnForId,
-              worshipedAmount: burnValue
+              worshipedAmount: amountDana
             };
             promise = yield put(
               worshipApi.endpoints.CreateWorshipTemple.initiate({
@@ -306,7 +308,7 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
         showToast('success', {
           message: intl.get(`toast.success`),
           description: intl.get('burn.totalBurn', {
-            burnValue: burnValue,
+            burnValue: amountDana,
             totalAmount: burnValue + burnValue * coinInfo[COIN.XPI].burnFee + Number(minerFee),
             coin: 'XPI'
           })
@@ -351,10 +353,8 @@ function* burnForUpDownVoteFailureSaga(action: PayloadAction<string>) {
 }
 
 function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
-  const { extraArguments, burnValue: burnValueAsString, burnType, burnForId } = action.payload;
+  const { extraArguments, burnValue: burnValueAsString, burnType, burnForId, amountDana } = action.payload;
   const { hashtagId, hashtags, minBurnFilter, pageId, query, tokenId, userId, postQueryTags, level } = extraArguments;
-
-  let burnValue = _.toNumber(burnValueAsString);
 
   const account = yield select(getSelectedAccount);
 
@@ -379,11 +379,11 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
             let danaReceivedUp = timelineItemToUpdate?.node?.data?.dana?.danaReceivedUp ?? 0;
             let danaReceivedDown = timelineItemToUpdate?.node?.data?.dana?.danaReceivedDown ?? 0;
             if (burnType == BurnType.Up) {
-              danaBurnUp = danaBurnUp + burnValue;
-              danaReceivedUp = danaReceivedUp + burnValue;
+              danaBurnUp = danaBurnUp + amountDana;
+              danaReceivedUp = danaReceivedUp + amountDana;
             } else {
-              danaBurnDown = danaBurnDown + burnValue;
-              danaReceivedDown = danaReceivedDown + burnValue;
+              danaBurnDown = danaBurnDown + amountDana;
+              danaReceivedDown = danaReceivedDown + amountDana;
             }
             const danaBurnScore = danaBurnUp - danaBurnDown;
             const danaReceivedScore = danaReceivedUp - danaReceivedDown;
@@ -423,11 +423,11 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
             let danaReceivedUp = postToUpdate?.node?.dana?.danaReceivedUp ?? 0;
             let danaReceivedDown = postToUpdate?.node?.dana?.danaReceivedDown ?? 0;
             if (burnType == BurnType.Up) {
-              danaBurnUp = danaBurnUp + burnValue;
-              danaReceivedUp = danaReceivedUp + burnValue;
+              danaBurnUp = danaBurnUp + amountDana;
+              danaReceivedUp = danaReceivedUp + amountDana;
             } else {
-              danaBurnDown = danaBurnDown + burnValue;
-              danaReceivedDown = danaReceivedDown + burnValue;
+              danaBurnDown = danaBurnDown + amountDana;
+              danaReceivedDown = danaReceivedDown + amountDana;
             }
             const danaBurnScore = danaBurnUp - danaBurnDown;
             const danaReceivedScore = danaReceivedUp - danaReceivedDown;
@@ -458,11 +458,11 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
         let danaReceivedUp = draft?.post?.dana?.danaReceivedUp ?? 0;
         let danaReceivedDown = draft?.post?.dana?.danaReceivedDown ?? 0;
         if (burnType == BurnType.Up) {
-          danaBurnUp = danaBurnUp + burnValue;
-          danaReceivedUp = danaReceivedUp + burnValue;
+          danaBurnUp = danaBurnUp + amountDana;
+          danaReceivedUp = danaReceivedUp + amountDana;
         } else {
-          danaBurnDown = danaBurnDown + burnValue;
-          danaReceivedDown = danaReceivedDown + burnValue;
+          danaBurnDown = danaBurnDown + amountDana;
+          danaReceivedDown = danaReceivedDown + amountDana;
         }
         const danaBurnScore = danaBurnUp - danaBurnDown;
         const danaReceivedScore = danaReceivedUp - danaReceivedDown;
@@ -489,9 +489,9 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
         let danaReceivedUp = pageDana?.danaReceivedUp ?? 0;
         let danaReceivedDown = pageDana?.danaReceivedDown ?? 0;
         if (burnType == BurnType.Up) {
-          danaReceivedUp = danaReceivedUp + burnValue;
+          danaReceivedUp = danaReceivedUp + amountDana;
         } else {
-          danaReceivedDown = danaReceivedDown + burnValue;
+          danaReceivedDown = danaReceivedDown + amountDana;
         }
         const danaReceivedScore = danaReceivedUp - danaReceivedDown;
         draft.page.dana.danaReceivedUp = danaReceivedUp;
@@ -516,9 +516,9 @@ function* updatePostBurnValue(action: PayloadAction<BurnQueueCommand>) {
             let danaReceivedUp = pageToUpdate?.node?.dana.danaReceivedUp ?? 0;
             let danaReceivedDown = pageToUpdate?.node?.dana.danaReceivedDown ?? 0;
             if (burnType == BurnType.Up) {
-              danaReceivedUp = danaReceivedUp + burnValue;
+              danaReceivedUp = danaReceivedUp + amountDana;
             } else {
-              danaReceivedDown = danaReceivedDown + burnValue;
+              danaReceivedDown = danaReceivedDown + amountDana;
             }
             const danaReceivedScore = danaReceivedUp - danaReceivedDown;
             draft[field].edges[pageToUpdateIndex].node.dana.danaReceivedUp = danaReceivedUp;
@@ -579,8 +579,7 @@ function* updateWorshipBurnValue(data) {
 }
 
 function* updatePageBurnValue(action: PayloadAction<BurnQueueCommand>) {
-  const { burnValue: burnValueAsString, burnType, burnForId } = action.payload;
-  const burnValue = _.toNumber(burnValueAsString);
+  const { burnValue: burnValueAsString, burnType, burnForId, amountDana } = action.payload;
 
   const account = yield select(getSelectedAccount);
 
@@ -600,9 +599,9 @@ function* updatePageBurnValue(action: PayloadAction<BurnQueueCommand>) {
             let danaBurnUp = commentToUpdate?.node?.danaBurnUp ?? 0;
             let danaBurnDown = commentToUpdate?.node?.danaBurnDown ?? 0;
             if (burnType == BurnType.Up) {
-              danaBurnUp = danaBurnUp + burnValue;
+              danaBurnUp = danaBurnUp + amountDana;
             } else {
-              danaBurnDown = danaBurnDown + burnValue;
+              danaBurnDown = danaBurnDown + amountDana;
             }
             const danaBurnScore = danaBurnUp - danaBurnDown;
             draft[field].edges[pageToUpdateIndex].node.danaBurnUp = danaBurnUp;
@@ -621,8 +620,7 @@ function* updatePageBurnValue(action: PayloadAction<BurnQueueCommand>) {
 }
 
 function* updateCommentBurnValue(action: PayloadAction<BurnQueueCommand>) {
-  const { burnValue: burnValueAsString, burnType, burnForId } = action.payload;
-  const burnValue = _.toNumber(burnValueAsString);
+  const { burnValue: burnValueAsString, burnType, burnForId, amountDana } = action.payload;
 
   const account = yield select(getSelectedAccount);
 
@@ -642,9 +640,9 @@ function* updateCommentBurnValue(action: PayloadAction<BurnQueueCommand>) {
             let danaBurnUp = commentToUpdate?.node?.danaBurnUp ?? 0;
             let danaBurnDown = commentToUpdate?.node?.danaBurnDown ?? 0;
             if (burnType == BurnType.Up) {
-              danaBurnUp = danaBurnUp + burnValue;
+              danaBurnUp = danaBurnUp + amountDana;
             } else {
-              danaBurnDown = danaBurnDown + burnValue;
+              danaBurnDown = danaBurnDown + amountDana;
             }
             const danaBurnScore = danaBurnUp - danaBurnDown;
             draft[field].edges[commentToUpdateIndex].node.danaBurnUp = danaBurnUp;
@@ -666,9 +664,8 @@ function* updateCommentBurnValue(action: PayloadAction<BurnQueueCommand>) {
 }
 
 function* updateTokenBurnValue(action: PayloadAction<BurnQueueCommand>) {
-  const { burnValue: burnValueAsString, burnType, burnForId } = action.payload;
+  const { burnValue: burnValueAsString, burnType, burnForId, amountDana } = action.payload;
   const id = burnForId;
-  let burnValue = _.toNumber(burnValueAsString);
 
   const rootState: LixiStoreStateInterface = yield select();
   const tokensInvalidatedBy = yield call(tokenApi.util.selectInvalidatedBy, rootState, ['Tokens']);
@@ -684,9 +681,9 @@ function* updateTokenBurnValue(action: PayloadAction<BurnQueueCommand>) {
           let danaBurnUp = tokenBurnValue?.node?.dana?.danaBurnUp ?? 0;
           let danaBurnDown = tokenBurnValue?.node?.dana?.danaBurnDown ?? 0;
           if (burnType == BurnType.Up) {
-            danaBurnUp = danaBurnUp + burnValue;
+            danaBurnUp = danaBurnUp + amountDana;
           } else {
-            danaBurnDown = danaBurnDown + burnValue;
+            danaBurnDown = danaBurnDown + amountDana;
           }
           const danaBurnScore = danaBurnUp - danaBurnDown;
           draft[field].edges[tokenBurnValueIndex].node.dana.danaBurnUp = danaBurnUp;
@@ -707,9 +704,9 @@ function* updateTokenBurnValue(action: PayloadAction<BurnQueueCommand>) {
           let danaBurnUp = draft[field].danaBurnUp ?? 0;
           let danaBurnDown = draft[field].danaBurnDown ?? 0;
           if (burnType == BurnType.Up) {
-            danaBurnUp = danaBurnUp + burnValue;
+            danaBurnUp = danaBurnUp + amountDana;
           } else {
-            danaBurnDown = danaBurnDown + burnValue;
+            danaBurnDown = danaBurnDown + amountDana;
           }
           const danaBurnScore = danaBurnUp - danaBurnDown;
           draft[field].danaBurnUp = danaBurnUp;
