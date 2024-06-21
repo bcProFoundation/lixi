@@ -101,4 +101,3 @@ export const initializeSlicePackage = (
   useSliceDispatch = useAppDispatch;
   useSliceSelector = useAppSelector;
 };
-
