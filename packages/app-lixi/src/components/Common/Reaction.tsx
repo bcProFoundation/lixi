@@ -161,7 +161,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
   const burnValue: number = match(burnForType)
     .with(BurnForType.Post, () => (dataItem as PostQueryItem)?.dana?.danaReceivedScore)
     .with(BurnForType.Page, () => (dataItem as PageQueryItem)?.dana?.danaReceivedScore)
-    .with(BurnForType.Account, () => (dataItem as AccountQueryItem).accountDana.danaGiven)
+    .with(BurnForType.Account, () => (dataItem as AccountQueryItem).accountDana?.danaGiven)
     .with(BurnForType.Comment, () => (dataItem as CommentQueryItem).danaBurnScore)
     .with(BurnForType.Token, () => (dataItem as TokenQueryItem)?.dana?.danaBurnScore)
     .otherwise(() => 0);

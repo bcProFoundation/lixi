@@ -124,6 +124,8 @@ export default {
   'general.open': 'Open',
   'general.postFilter': 'Followed Posts: ',
   'general.dana': ' Dana',
+  'general.danaGiven': ' Dana Given',
+  'general.danaReceived': ' Dana Reiceived',
   'general.support': 'Support',
   'general.all': 'All',
   'general.installApp': 'Install App',

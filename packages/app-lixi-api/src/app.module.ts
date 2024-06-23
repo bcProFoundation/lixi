@@ -95,7 +95,7 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
       useFactory: (config: ConfigService) => ({
         networks: {
           xec: {
-            clientUrls: [`${config.get<string>('CHRONIK_URL')}/xec` || 'https://chronik.be.cash/xec'],
+            clientUrls: ['https://chronik.pay2stay.com/xec' || 'https://chronik.be.cash/xec'],
             nodeUrls: ['https://chronik.pay2stay.com/xec']
           },
           xpi: {

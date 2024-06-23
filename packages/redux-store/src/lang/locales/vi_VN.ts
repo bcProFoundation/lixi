@@ -123,6 +123,8 @@ export default {
   'general.open': 'Mở',
   'general.postFilter': 'Bài Theo Dõi: ',
   'general.dana': ' Dana',
+  'general.danaGiven': ' Dana Given',
+  'general.danaReceived': ' Dana Reiceived',
   'general.support': 'Hỗ trợ',
   'general.all': 'Tất cả',
   'general.installApp': 'Cài đặt ứng dụng',

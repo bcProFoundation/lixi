@@ -382,6 +382,34 @@ export class BurnController {
             givenDanaAddress: burnByAddress,
             receivedDanaAddress: comment?.commentAccount?.address
           });
+        } else if (command.burnForType === BurnForType.Page) {
+          const burnByAddress = this.convertBurnedByToAddress(command.burnedBy);
+            const updatePageDana = this.pageDanaQueue.add(PAGE_DANA_QUEUE, {
+              command: command,
+              amount: amountDana,
+              pageId: command.burnForId
+            });
+
+            const updateAccountDana = this.accountDanaQueue.add(ACCOUNT_DANA_QUEUE, {
+              command: command,
+              txid: savedBurn.txid,
+              amount: amountDana,
+              givenDanaAddress: burnByAddress,
+              receivedDanaAddress: null
+            });
+
+            Promise.all([updatePageDana, updateAccountDana])
+        } else if (command.burnForType === BurnForType.Account) {
+          const burnByAddress = this.convertBurnedByToAddress(command.burnedBy);
+          const burnToAddress = this.convertBurnedByToAddress(command.burnForId);
+
+            await this.accountDanaQueue.add(ACCOUNT_DANA_QUEUE, {
+              command: command,
+              txid: savedBurn.txid,
+              amount: amountDana,
+              givenDanaAddress: burnByAddress,
+              receivedDanaAddress: burnToAddress
+            });
         }
       }
 
@@ -407,7 +435,12 @@ export class BurnController {
 
       //Need to remove BurnForType.Worship becasue we dont have notification YET on lotus-temple
       //TODO: Remove line below to handle BurnForType.Worship notification
-      if (command.burnForType !== BurnForType.Token && command.burnForType !== BurnForType.Worship) {
+      if (
+        command.burnForType !== BurnForType.Token &&
+        command.burnForType !== BurnForType.Worship &&
+        command.burnForType !== BurnForType.Page &&
+        command.burnForType !== BurnForType.Account
+      ) {
         // prepare data recipient
         let commentAccountId;
         let commentPostId;
@@ -529,6 +562,7 @@ export class BurnController {
 
       return result;
     } catch (err: any) {
+      console.log('err: ', err);
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
       } else {

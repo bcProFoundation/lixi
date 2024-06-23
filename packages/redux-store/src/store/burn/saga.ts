@@ -23,6 +23,7 @@ import { getSelectedAccount, getTransactionStatus } from '@store/account/selecto
 import { getFailQueue } from '@store/burn';
 import { api as commentsApi } from '@store/comment/comments.api';
 import { api as pagesApi } from '@store/page/pages.api';
+import { api as accountApi } from '@store/account/accounts.api';
 import { api as postsApi } from '@store/post/posts.api';
 import { api as templeApi } from '@store/temple/temple.api';
 import { api as timelineApi } from '@store/timeline/timeline.api';
@@ -95,7 +96,7 @@ function* prepareBurnCommandSaga(
 
     const burnType = isUpVote ? BurnType.Up : BurnType.Down;
     const burnedBy = hash160;
-    const burnForId = burnForItem.id.toString();
+    let burnForId = burnForItem.id.toString();
 
     let tipToAddresses: { address: string; amount: string }[] = [];
 
@@ -129,6 +130,7 @@ function* prepareBurnCommandSaga(
             .valueOf()
             .toString()
         });
+        burnForId = account?.hash160 ?? ''
         break;
       case BurnForType.Comment:
         const comment = burnForItem as Comment;
@@ -267,6 +269,9 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
         break;
       case BurnForType.Page:
         yield updatePageBurnValue(action);
+        break;
+        case BurnForType.Account:
+        yield updateAccountBurnValue(action);
         break;
       case BurnForType.Worship:
         let promise;
@@ -619,6 +624,71 @@ function* updatePageBurnValue(action: PayloadAction<BurnQueueCommand>) {
               draft[field].edges.splice(pageToUpdateIndex, 1);
               draft[field].totalCount = draft[field].totalCount - 1;
             }
+          }
+        }
+      })
+    );
+  }
+
+  //update single page
+  const pageInvalidatedBy = yield call(pagesApi.util.selectInvalidatedBy, rootState, ['Page']);
+  for (const invalidatedBy of pageInvalidatedBy) {
+    const { endpointName, originalArgs } = invalidatedBy;
+    yield put(
+      pagesApi.util.updateQueryData(endpointName, originalArgs, draft => {
+        const fields = Object.keys(draft);
+        for (const field of fields) {
+          if (!draft[field]) continue;
+          let danaReceived = draft[field]?.dana?.danaReceivedScore;
+
+          if (burnType == BurnType.Up) {
+            danaReceived = danaReceived + amountDana;
+          } else {
+            danaReceived = danaReceived - amountDana;
+          }
+
+          draft[field].dana.danaReceivedScore! = danaReceived;
+        }
+      })
+    );
+  }
+}
+
+function* updateAccountBurnValue(action: PayloadAction<BurnQueueCommand>) {
+  const { burnValue: burnValueAsString, burnType, burnForId, amountDana, burnedBy } = action.payload;
+
+  const rootState: LixiStoreStateInterface = yield select();
+  const pagesInvalidatedBy = yield call(accountApi.util.selectInvalidatedBy, rootState, ['Account']);
+
+  for (const invalidatedBy of pagesInvalidatedBy) {
+    const { endpointName, originalArgs } = invalidatedBy;
+    yield put(
+      pagesApi.util.updateQueryData(endpointName, originalArgs, draft => {
+        const fields = Object.keys(draft);
+        for (const field of fields) {
+          if (!draft[field]) continue;
+
+          let danaReceived = 0;
+          let danaGiven = amountDana
+
+          if (burnType == BurnType.Up) {
+            danaReceived = amountDana;
+          } else {
+            danaReceived = -amountDana;
+          }
+
+          //received account (not update if self burn)
+          if (draft[field].hash160 === burnForId && draft[field].hash160 !== burnedBy) {
+            danaReceived += draft[field]?.accountDana?.danaReceived;
+  
+            draft[field].accountDana.danaReceived! = danaReceived;
+          }
+
+          //givenAccount 
+          if (draft[field].hash160 === burnedBy) {
+            danaGiven += draft[field]?.accountDana?.danaGiven;
+  
+            draft[field].accountDana.danaGiven! = danaGiven;
           }
         }
       })
