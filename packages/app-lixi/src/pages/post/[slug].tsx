@@ -142,6 +142,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   };
 });
 
-PostDetailPage.getLayout = ({ children }) => <MainLayout>{children}</MainLayout>;
+PostDetailPage.getLayout = children => <MainLayout>{children}</MainLayout>;
 
 export default PostDetailPage;

@@ -130,7 +130,7 @@ function* prepareBurnCommandSaga(
             .valueOf()
             .toString()
         });
-        burnForId = account?.hash160 ?? ''
+        burnForId = account?.hash160 ?? '';
         break;
       case BurnForType.Comment:
         const comment = burnForItem as Comment;
@@ -270,7 +270,7 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
       case BurnForType.Page:
         yield updatePageBurnValue(action);
         break;
-        case BurnForType.Account:
+      case BurnForType.Account:
         yield updateAccountBurnValue(action);
         break;
       case BurnForType.Worship:
@@ -669,7 +669,7 @@ function* updateAccountBurnValue(action: PayloadAction<BurnQueueCommand>) {
           if (!draft[field]) continue;
 
           let danaReceived = 0;
-          let danaGiven = amountDana
+          let danaGiven = amountDana;
 
           if (burnType == BurnType.Up) {
             danaReceived = amountDana;
@@ -680,14 +680,14 @@ function* updateAccountBurnValue(action: PayloadAction<BurnQueueCommand>) {
           //received account (not update if self burn)
           if (draft[field].hash160 === burnForId && draft[field].hash160 !== burnedBy) {
             danaReceived += draft[field]?.accountDana?.danaReceived;
-  
+
             draft[field].accountDana.danaReceived! = danaReceived;
           }
 
-          //givenAccount 
+          //givenAccount
           if (draft[field].hash160 === burnedBy) {
             danaGiven += draft[field]?.accountDana?.danaGiven;
-  
+
             draft[field].accountDana.danaGiven! = danaGiven;
           }
         }

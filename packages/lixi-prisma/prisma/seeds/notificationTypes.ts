@@ -88,5 +88,15 @@ export const notificationTypes = [
     id: 18,
     name: 'reply-comment',
     description: 'Notification to reply comment'
+  },
+  {
+    id: 19,
+    name: 'receive-burn-fee-account-page',
+    description: 'Notification for get fee when burn account or page'
+  },
+  {
+    id: 20,
+    name: 'receive-burn-without-fee',
+    description: 'Notification for get burn without fee'
   }
 ];

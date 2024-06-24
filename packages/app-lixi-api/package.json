@@ -36,7 +36,6 @@
     "update:postBitMap": "ts-node scripts/post-bitMap/index.ts",
     "update:accountWalletPaths": "ts-node scripts/account/wallet-paths/index.ts",
     "update:createCommentFee": "ts-node scripts/comment-fee/index.ts",
-    "update:notificationTemplate": "ts-node scripts/notification/index.ts",
     "update:resetDana": "ts-node scripts/dana/reset-dana/index.ts"
   },
   "dependencies": {
