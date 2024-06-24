@@ -100,17 +100,17 @@ export class BurnController {
         });
         return createdBurn;
       });
-      
+
       let createNotifBurnAndTip = null;
       let createNotifBurnWithoutTip = null;
-       // prepare data sender
-       const accountAddress = this.convertBurnedByToAddress(command.burnedBy);
-       const sender = await this.prisma.account.findFirst({
-         where: {
-           address: accountAddress
-         },
-         include: {
-           accountAvatarImageUploadable: {
+      // prepare data sender
+      const accountAddress = this.convertBurnedByToAddress(command.burnedBy);
+      const sender = await this.prisma.account.findFirst({
+        where: {
+          address: accountAddress
+        },
+        include: {
+          accountAvatarImageUploadable: {
             include: {
               uploads: {
                 select: {
@@ -119,15 +119,15 @@ export class BurnController {
                 }
               }
             }
-           }
-         }
-       });
+          }
+        }
+      });
 
-       if (!sender) {
-         const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
-         throw new VError(accountNotExistMessage);
-       }
-       
+      if (!sender) {
+        const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
+        throw new VError(accountNotExistMessage);
+      }
+
       if (savedBurn) {
         //get avatar
         let avatarUrl;
@@ -306,7 +306,7 @@ export class BurnController {
             amountDana: amountDana
           });
 
-          //prepare notification 
+          //prepare notification
           //If have page => Notif for postAccount withoutFee, notif for pageAccount withFee.
           const additionalData = {
             senderName: sender.name,
@@ -318,7 +318,7 @@ export class BurnController {
             xpiBurn: amountDana,
             xpiFee: fee,
             coin: COIN.XPI
-          }
+          };
           if (post.page) {
             createNotifBurnAndTip = {
               senderId: sender.id,
@@ -335,8 +335,9 @@ export class BurnController {
               level: NotificationLevel.INFO,
               url: '/post/' + post?.id,
               additionalData
-            }
-          } else { //Otherwise notif for postAccount withFee
+            };
+          } else {
+            //Otherwise notif for postAccount withFee
             createNotifBurnAndTip = {
               senderId: sender.id,
               recipientId: post.accountId,
@@ -436,7 +437,7 @@ export class BurnController {
             },
             include: {
               commentAccount: true,
-              commentable:  {
+              commentable: {
                 include: {
                   post: {
                     include: {
@@ -484,22 +485,22 @@ export class BurnController {
 
           //prepare notification
           if (comment?.commentable?.post) {
-            const postComment = comment.commentable.post
+            const postComment = comment.commentable.post;
             const pagePost = postComment?.page;
-            
-              //If have page => Notif for commentAccount withoutFee, notif for pageAccount withFee.            
-              const additionalData = {
-                senderName: sender.name,
-                senderAddress: sender.address,
-                senderAvatar: avatarUrl,
-                pageName: pagePost && pagePost.name,
-                burnType: command.burnType == BurnType.Up ? 'upvoted' : 'downvoted',
-                burnForType: burnForTypeString.toLowerCase(),
-                xpiBurn: amountDana,
-                xpiFee: fee,
-                coin: COIN.XPI
-              }
-              if (pagePost) {
+
+            //If have page => Notif for commentAccount withoutFee, notif for pageAccount withFee.
+            const additionalData = {
+              senderName: sender.name,
+              senderAddress: sender.address,
+              senderAvatar: avatarUrl,
+              pageName: pagePost && pagePost.name,
+              burnType: command.burnType == BurnType.Up ? 'upvoted' : 'downvoted',
+              burnForType: burnForTypeString.toLowerCase(),
+              xpiBurn: amountDana,
+              xpiFee: fee,
+              coin: COIN.XPI
+            };
+            if (pagePost) {
               createNotifBurnAndTip = {
                 senderId: sender.id,
                 recipientId: pagePost?.pageAccountId,
@@ -515,8 +516,9 @@ export class BurnController {
                 level: NotificationLevel.INFO,
                 url: '/post/' + postComment.id,
                 additionalData
-              }
-            } else { //Otherwise notif for postAccount withFee
+              };
+            } else {
+              //Otherwise notif for postAccount withFee
               createNotifBurnAndTip = {
                 senderId: sender.id,
                 recipientId: postComment.accountId,
@@ -545,11 +547,11 @@ export class BurnController {
 
           Promise.all([updatePageDana, updateAccountDana]);
 
-           //prepare notification 
-           //notif for pageAccount
-           const page = await this.prisma.page.findFirst({
-            where: {id: command.burnForId},
-           })
+          //prepare notification
+          //notif for pageAccount
+          const page = await this.prisma.page.findFirst({
+            where: { id: command.burnForId }
+          });
           const additionalData = {
             senderName: sender.name,
             senderAddress: sender.address,
@@ -560,16 +562,15 @@ export class BurnController {
             xpiBurn: amountDana,
             xpiFee: fee,
             coin: COIN.XPI
-          }
-            createNotifBurnAndTip = {
-              senderId: sender.id,
-              recipientId: page?.pageAccountId,
-              notificationTypeId: NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT_OR_PAGE,
-              level: NotificationLevel.INFO,
-              url: '/page/' + page?.id,
-              additionalData
-            };
-          
+          };
+          createNotifBurnAndTip = {
+            senderId: sender.id,
+            recipientId: page?.pageAccountId,
+            notificationTypeId: NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT_OR_PAGE,
+            level: NotificationLevel.INFO,
+            url: '/page/' + page?.id,
+            additionalData
+          };
         } else if (command.burnForType === BurnForType.Account) {
           const burnByAddress = this.convertBurnedByToAddress(command.burnedBy);
           const burnToAddress = this.convertBurnedByToAddress(command.burnForId);
@@ -582,9 +583,9 @@ export class BurnController {
             receivedDanaAddress: burnToAddress
           });
 
-           //prepare notification 
-           //notif for account
-           const recipientAccount = await this.accountCacheService.getByAddress(burnToAddress)
+          //prepare notification
+          //notif for account
+          const recipientAccount = await this.accountCacheService.getByAddress(burnToAddress);
           const additionalData = {
             senderName: sender.name,
             senderAddress: sender.address,
@@ -594,25 +595,26 @@ export class BurnController {
             xpiBurn: amountDana,
             xpiFee: fee,
             coin: COIN.XPI
-          }
-            createNotifBurnAndTip = {
-              senderId: sender.id,
-              recipientId: recipientAccount?.id,
-              notificationTypeId: NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT_OR_PAGE,
-              level: NotificationLevel.INFO,
-              url: '/profile/' + recipientAccount?.address,
-              additionalData
-            };
+          };
+          createNotifBurnAndTip = {
+            senderId: sender.id,
+            recipientId: recipientAccount?.id,
+            notificationTypeId: NOTIFICATION_TYPES.RECEIVE_BURN_ACCOUNT_OR_PAGE,
+            level: NotificationLevel.INFO,
+            url: '/profile/' + recipientAccount?.address,
+            additionalData
+          };
         }
       }
 
       //make notification
-      createNotifBurnAndTip !== null && createNotifBurnAndTip.senderId !== createNotifBurnAndTip.recipientId &&
+      createNotifBurnAndTip !== null &&
+        createNotifBurnAndTip.senderId !== createNotifBurnAndTip.recipientId &&
         (await this.notificationService.saveAndDispatchNotification(createNotifBurnAndTip));
 
-      createNotifBurnWithoutTip !== null && createNotifBurnWithoutTip.senderId !== createNotifBurnWithoutTip.recipientId &&
+      createNotifBurnWithoutTip !== null &&
+        createNotifBurnWithoutTip.senderId !== createNotifBurnWithoutTip.recipientId &&
         (await this.notificationService.saveAndDispatchNotification(createNotifBurnWithoutTip));
-
 
       //make top account dana weekly and monthly
       //just dana giving for now
