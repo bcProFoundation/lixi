@@ -13,6 +13,7 @@ import ReBloom from '../../common/redis/redis-bloom';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { CONTENT_FANOUT_QUEUE } from './constants';
 import { PostCacheService } from './post-cache.service';
+import { epoch } from '@bcpros/lixi-models';
 
 @Injectable()
 @Processor(CONTENT_FANOUT_QUEUE, { concurrency: 50 })
@@ -53,7 +54,6 @@ export class PostFanoutProcessor extends WorkerHost {
       const id = `${post.id}`;
 
       // Invalidate the cache
-      const epoch = '2023-01-01 00:00:00';
       const diffHour = moment.duration(moment(post.createdAt).diff(moment(epoch))).asHours();
       const score = 1 * Math.pow(2, diffHour / 12);
 

@@ -11,6 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import SortedSet from 'redis-sorted-set';
 import { basicInMemorySortedSetPagination, basicSortedSetPagination } from '../../common/custom-graphql-relay/paginate';
 import { template } from '../../utils/stringTemplate';
+import { epoch } from '@bcpros/lixi-models';
 
 @Injectable()
 export class TimelineService {
@@ -71,7 +72,6 @@ export class TimelineService {
         take: 500
       });
 
-      const epoch = '2023-01-01 00:00:00';
       const pipeline = this.redis.pipeline();
       for (const post of posts) {
         const id = `${post.type}:${post.id}`;
@@ -89,7 +89,6 @@ export class TimelineService {
   async cacheInNetworkByScore(accountId: number) {
     const key = `${TimelineService.inNetworkSourceKey}:${accountId}`;
     const postBurnType = BurnForType.Post;
-    const epoch = '2023-01-01 00:00:00';
     const halfLife = '12 hours';
     try {
       let accountFollowings = (await this.followCacheService.getAccountFollowings(accountId)).map(item =>
@@ -165,7 +164,6 @@ export class TimelineService {
   async cacheOutNetwork() {
     const key = TimelineService.outNetworkSourceKey;
     const postBurnType = BurnForType.Post;
-    const epoch = '2023-01-01 00:00:00';
     const halfLife = '12 hours';
     try {
       const posts = await this.prisma.$queryRaw<{ id: string; score: number; type: string }[]>(
@@ -803,7 +801,6 @@ export class TimelineService {
   private async cachePageTimelineByScore(pageId: string, limit: number = 0, offset: number = 0) {
     const key = template(`${TimelineService.pageTimelineKey}`, { pageId: pageId });
     const postBurnType = BurnForType.Post;
-    const epoch = '2023-01-01 00:00:00';
     const halfLife = '12 hours';
     const query = limit
       ? Prisma.sql`
@@ -871,7 +868,6 @@ export class TimelineService {
   private async cacheTokenTimelineByScore(tokenId: string, limit: number = 0, offset: number = 0) {
     const key = template(`${TimelineService.tokenTimelineKey}`, { tokenId: tokenId });
     const postBurnType = BurnForType.Post;
-    const epoch = '2023-01-01 00:00:00';
     const halfLife = '12 hours';
     const query = limit
       ? Prisma.sql`
@@ -939,7 +935,6 @@ export class TimelineService {
   private async cacheProfileTimelineByScore(profileId: number, limit: number = 0, offset: number = 0) {
     const key = template(`${TimelineService.profileTimelineKey}`, { profileId: profileId });
     const postBurnType = BurnForType.Post;
-    const epoch = '2023-01-01 00:00:00';
     const halfLife = '12 hours';
     const query = limit
       ? Prisma.sql`

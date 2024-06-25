@@ -5,6 +5,7 @@ import { Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { basicSortedSetPagination } from '../../common/custom-graphql-relay/paginate';
 import { PrismaService } from '../prisma/prisma.service';
+import { epoch } from '@bcpros/lixi-models';
 
 export class TokenTimelineCacheService {
   private logger: Logger = new Logger(this.constructor.name);
@@ -19,7 +20,6 @@ export class TokenTimelineCacheService {
     const key = `${TokenTimelineCacheService.tokenTimelineKey}`;
     const tokenBurnType = BurnForType.Token;
     const postBurnType = BurnForType.Post;
-    const epoch = '2023-01-01 00:00:00';
     const halfLife = '6 months';
     try {
       const tokens = await this.prisma.$queryRaw<{ id: string; score: number }[]>(

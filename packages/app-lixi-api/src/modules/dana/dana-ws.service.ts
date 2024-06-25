@@ -97,12 +97,15 @@ export class DanaWsService implements OnModuleInit {
           const blockHighestInfo = (await this.chronikXRG.block(msg.blockHash)).blockInfo;
 
           //adjust dana by blockTime
-          if (Number.isInteger(blockHighestInfo.height / 144)) { 
-          const currentAdjustRateDana = this.calGHPerDanaByErgon(blockHighestInfo.nBits, Number(blockHighestInfo.sumCoinbaseOutputSats))
-          Promise.all([
-            this.redis.hset(this.keyAdjustDana, blockHighestInfo.height, currentAdjustRateDana),
-            this.redis.hset(this.keyCurrentAdjustDana, KeyCurrentAdjust, currentAdjustRateDana)
-          ]);
+          if (Number.isInteger(blockHighestInfo.height / 144)) {
+            const currentAdjustRateDana = this.calGHPerDanaByErgon(
+              blockHighestInfo.nBits,
+              Number(blockHighestInfo.sumCoinbaseOutputSats)
+            );
+            Promise.all([
+              this.redis.hset(this.keyAdjustDana, blockHighestInfo.height, currentAdjustRateDana),
+              this.redis.hset(this.keyCurrentAdjustDana, KeyCurrentAdjust, currentAdjustRateDana)
+            ]);
           }
         }
       },
@@ -119,7 +122,7 @@ export class DanaWsService implements OnModuleInit {
     });
     await wsXRG.waitForOpen();
     wsXRG.subscribe('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
-    
+
     this.logger.log(`The module has been initialized.`);
   }
 
@@ -149,7 +152,9 @@ export class DanaWsService implements OnModuleInit {
     const GHashratePerSecond = hashrate * Math.pow(10, -9);
     const GHashratePerBlockTime = GHashratePerSecond * coinInfo[coin].blockTime;
 
-    const issuance = parseInt(fromSatoshisToCoin(newBlockInfo.sumCoinbaseOutputSats, coinInfo[coin].cashDecimals).toString());
+    const issuance = parseInt(
+      fromSatoshisToCoin(newBlockInfo.sumCoinbaseOutputSats, coinInfo[coin].cashDecimals).toString()
+    );
 
     //calculate GH/coin (hash / issuance)
     const GHPerCoin = GHashratePerBlockTime / issuance;
@@ -212,7 +217,9 @@ export class DanaWsService implements OnModuleInit {
       const GHashratePerSecond = hashrate * Math.pow(10, -9);
       const GHashratePerBlockTime = GHashratePerSecond * coinInfo[coin].blockTime;
 
-      const issuance = parseInt(fromSatoshisToCoin(currentBlock.sumCoinbaseOutputSats, coinInfo[COIN.XEC].cashDecimals).toString());
+      const issuance = parseInt(
+        fromSatoshisToCoin(currentBlock.sumCoinbaseOutputSats, coinInfo[coin].cashDecimals).toString()
+      );
 
       //calculate GH/coin (hash / issuance)
       const GHPerCoin = GHashratePerBlockTime / issuance;
@@ -277,7 +284,7 @@ export class DanaWsService implements OnModuleInit {
     const GHPerCoin = GHashratePerBlockTime / issuance;
 
     const hash256PerDana = GHPerCoin * Math.pow(10, -7); //1 Dana = 0.1mE. 1E = 1 000 000 mE
-    const hashLotusPerDana = hash256PerDana / ratioHash256
+    const hashLotusPerDana = hash256PerDana / ratioHash256;
 
     return hashLotusPerDana;
   }

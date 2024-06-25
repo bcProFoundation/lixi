@@ -11,6 +11,7 @@ import { FollowCacheService } from '../../account/follow-cache.service';
 import { PostCacheService } from '../../page/post-cache.service';
 import { template } from 'src/utils/stringTemplate';
 import { POST_FLAG } from '@bcpros/lixi-models';
+import { epoch } from '@bcpros/lixi-models';
 
 @Injectable()
 @Processor(BURN_FANOUT_QUEUE, { concurrency: 50 })
@@ -64,7 +65,6 @@ export class BurnFanoutProcessor extends WorkerHost {
       const id = post.id;
 
       // Invalidate the cache
-      const epoch = '2023-01-01 00:00:00';
       const diffHour = moment.duration(moment(burn.createdAt).diff(moment(epoch))).asHours();
       const score = burn.burnType ? amountDana * Math.pow(2, diffHour / 12) : -amountDana * Math.pow(2, diffHour / 12);
 
