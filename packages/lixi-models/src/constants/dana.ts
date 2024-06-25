@@ -1,5 +1,4 @@
-export const GHPerDana = 100;
-export const adjustRate = 0.99918;
+export const GHPerDanaStart = 110;
 export const ratioHash256 = 2857;
 
 export type DanaRate = {
