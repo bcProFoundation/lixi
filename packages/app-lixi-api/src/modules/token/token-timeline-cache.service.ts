@@ -5,8 +5,7 @@ import { Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { basicSortedSetPagination } from '../../common/custom-graphql-relay/paginate';
 import { PrismaService } from '../prisma/prisma.service';
-import { epoch } from '@bcpros/lixi-models';
-
+import { epoch } from 'src/utils/constants';
 export class TokenTimelineCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   static tokenTimelineKey = 'timeline:tokens';

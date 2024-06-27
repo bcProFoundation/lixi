@@ -23,27 +23,9 @@ const CommentListItem = ({ item, post }: CommentListItemProps) => {
   const dispatch = useSliceDispatch();
   const history = useRouter();
 
-  const upVoteComment = (dataItem: CommentQueryItem) => {
-    // dispatch(
-    //   prepareBurnCommand({
-    //     isUpVote: true,
-    //     burnForItem: dataItem,
-    //     burnForType: BurnForType.Comment,
-    //     burnValue: '1'
-    //   })
-    // );
-  };
+  const upVoteComment = (dataItem: CommentQueryItem) => {};
 
-  const downVoteComment = (dataItem: CommentQueryItem) => {
-    // dispatch(
-    //   prepareBurnCommand({
-    //     isUpVote: false,
-    //     burnForItem: dataItem,
-    //     burnForType: BurnForType.Comment,
-    //     burnValue: '1'
-    //   })
-    // );
-  };
+  const downVoteComment = (dataItem: CommentQueryItem) => {};
 
   const showUsername = () => {
     if (_.isNil(item?.commentAccount)) {

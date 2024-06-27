@@ -1,6 +1,5 @@
-export const GHPerDanaStart = 110;
 export const ratioHash256 = 2857;
-export const epoch = '2024-06-01 00:00:00';
+export const GHPerDanaStart = ratioHash256 * 110;
 
 export type DanaRate = {
   blockHeight: number;

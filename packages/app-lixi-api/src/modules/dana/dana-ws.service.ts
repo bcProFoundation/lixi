@@ -8,6 +8,7 @@ import { InjectChronikClient } from 'nestjs-chronik';
 import { template } from 'src/utils/stringTemplate';
 import { KeyCurrentAdjust, KeyCurrentHeight } from './dana.constants';
 import { fromSatoshisToCoin } from 'src/utils/cashMethods';
+import BigNumber from 'bignumber.js';
 
 @Injectable()
 export class DanaWsService implements OnModuleInit {
@@ -57,6 +58,7 @@ export class DanaWsService implements OnModuleInit {
       }
     });
     await ws.waitForOpen();
+    //we need to subscribe address to listen new block
     ws.subscribe('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
 
     //ws for xec
@@ -87,6 +89,7 @@ export class DanaWsService implements OnModuleInit {
       }
     });
     await wsXEC.waitForOpen();
+    //we need to subscribe address to listen new block
     wsXEC.subscribe('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
 
     //ws for ergon
@@ -121,6 +124,7 @@ export class DanaWsService implements OnModuleInit {
       }
     });
     await wsXRG.waitForOpen();
+    //we need to subscribe address to listen new block
     wsXRG.subscribe('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
 
     this.logger.log(`The module has been initialized.`);
@@ -142,29 +146,29 @@ export class DanaWsService implements OnModuleInit {
     const coefficient = parseInt(nBitsHex.slice(2), 16);
 
     // cal target (coefficient * 256^(exponent - 3))
-    const target = coefficient * Math.pow(256, exponent - 3);
-    const targetMax = 0xffff * Math.pow(256, 0x1d - 3);
+    const target = new BigNumber(coefficient * Math.pow(256, exponent - 3));
+    const targetMax = new BigNumber(0xffff * Math.pow(256, 0x1d - 3));
 
-    const difficulty = targetMax / target;
+    const difficulty = targetMax.div(target);
 
     // cal hashrate (diff * 2^32 / blockTime)
-    const hashrate = (difficulty * Math.pow(2, 32)) / coinInfo[coin].blockTime;
-    const GHashratePerSecond = hashrate * Math.pow(10, -9);
-    const GHashratePerBlockTime = GHashratePerSecond * coinInfo[coin].blockTime;
+    const hashrate = difficulty.times(Math.pow(2, 32)).div(coinInfo[coin].blockTime);
+    const GHashratePerSecond = hashrate.times(Math.pow(10, -9));
+    const GHashratePerBlockTime = GHashratePerSecond.times(coinInfo[coin].blockTime);
 
     const issuance = parseInt(
       fromSatoshisToCoin(newBlockInfo.sumCoinbaseOutputSats, coinInfo[coin].cashDecimals).toString()
     );
 
     //calculate GH/coin (hash / issuance)
-    const GHPerCoin = GHashratePerBlockTime / issuance;
+    const GHPerCoin = GHashratePerBlockTime.div(issuance);
 
     //convert dana to coin (xpi, xec,...)
     const adjustGHPerDana = await this.redis.hget(this.keyCurrentAdjustDana, KeyCurrentAdjust);
 
     const convertAdjustGHPerDana = adjustGHPerDana ? Number(adjustGHPerDana) : GHPerDanaStart;
-    const adjustGHPerDanaByCoin = coin === COIN.XPI ? convertAdjustGHPerDana : convertAdjustGHPerDana * ratioHash256;
-    const coinPerDana = adjustGHPerDanaByCoin / GHPerCoin;
+    const adjustGHPerDanaByCoin = coin === COIN.XPI ? convertAdjustGHPerDana / ratioHash256 : convertAdjustGHPerDana;
+    const coinPerDana = new BigNumber(adjustGHPerDanaByCoin).div(GHPerCoin);
 
     //write result into redis
     const keyInfoConvertDana = template(this.keyInfoConvertPrefix, { coin });
@@ -172,12 +176,12 @@ export class DanaWsService implements OnModuleInit {
 
     const savedConvertedRate: DanaRate = {
       blockHeight: newBlockInfo.height,
-      difficulty,
-      GHPerSecond: GHashratePerSecond,
-      GHPerBlockTime: GHashratePerBlockTime,
+      difficulty: parseFloat(difficulty.toString()),
+      GHPerSecond: parseFloat(GHashratePerSecond.toString()),
+      GHPerBlockTime: parseFloat(GHashratePerBlockTime.toString()),
       issuance: issuance,
       GHPerDana: adjustGHPerDanaByCoin,
-      coinPerDana
+      coinPerDana: parseFloat(coinPerDana.toString())
     };
 
     this.redis.hset(keyInfoConvertDana, newBlockInfo.height, Buffer.from(encode(savedConvertedRate)));
@@ -207,38 +211,38 @@ export class DanaWsService implements OnModuleInit {
       const coefficient = parseInt(nBitsHex.slice(2), 16);
 
       // cal target (coefficient * 256^(exponent - 3))
-      const target = coefficient * Math.pow(256, exponent - 3);
-      const targetMax = 0xffff * Math.pow(256, 0x1d - 3);
+      const target = new BigNumber(coefficient * Math.pow(256, exponent - 3));
+      const targetMax = new BigNumber(0xffff * Math.pow(256, 0x1d - 3));
 
-      const difficulty = targetMax / target;
+      const difficulty = targetMax.div(target);
 
       // cal hashrate (diff * 2^32 / blockTime)
-      const hashrate = (difficulty * Math.pow(2, 32)) / coinInfo[coin].blockTime;
-      const GHashratePerSecond = hashrate * Math.pow(10, -9);
-      const GHashratePerBlockTime = GHashratePerSecond * coinInfo[coin].blockTime;
+      const hashrate = difficulty.times(Math.pow(2, 32)).div(coinInfo[coin].blockTime);
+      const GHashratePerSecond = hashrate.times(Math.pow(10, -9));
+      const GHashratePerBlockTime = GHashratePerSecond.times(coinInfo[coin].blockTime);
 
       const issuance = parseInt(
         fromSatoshisToCoin(currentBlock.sumCoinbaseOutputSats, coinInfo[coin].cashDecimals).toString()
       );
 
       //calculate GH/coin (hash / issuance)
-      const GHPerCoin = GHashratePerBlockTime / issuance;
+      const GHPerCoin = GHashratePerBlockTime.div(issuance);
 
       //convert dana to coin (xpi, xec,...)
       const adjustGHPerDana = await this.redis.hget(this.keyCurrentAdjustDana, KeyCurrentAdjust);
 
       const convertAdjustGHPerDana = adjustGHPerDana ? Number(adjustGHPerDana) : GHPerDanaStart;
-      const adjustGHPerDanaByCoin = coin === COIN.XPI ? convertAdjustGHPerDana : convertAdjustGHPerDana * ratioHash256;
-      const coinPerDana = adjustGHPerDanaByCoin / GHPerCoin;
+      const adjustGHPerDanaByCoin = coin === COIN.XPI ? convertAdjustGHPerDana / ratioHash256 : convertAdjustGHPerDana;
+      const coinPerDana = new BigNumber(adjustGHPerDanaByCoin).div(GHPerCoin);
 
       const savedConvertedRate: DanaRate = {
         blockHeight: currentBlock.height,
-        difficulty,
-        GHPerSecond: GHashratePerSecond,
-        GHPerBlockTime: GHashratePerBlockTime,
+        difficulty: parseFloat(difficulty.toString()),
+        GHPerSecond: parseFloat(GHashratePerSecond.toString()),
+        GHPerBlockTime: parseFloat(GHashratePerBlockTime.toString()),
         issuance: issuance,
         GHPerDana: adjustGHPerDanaByCoin,
-        coinPerDana
+        coinPerDana: parseFloat(coinPerDana.toString())
       };
 
       blockMap.set(currentBlock.height, Buffer.from(encode(currentBlock)));
@@ -259,7 +263,7 @@ export class DanaWsService implements OnModuleInit {
     ]);
   }
 
-  private calGHPerDanaByErgon(nBits: number, issuanceSats: number) {
+  private calGHPerDanaByErgon(nBits: number, issuanceSats: number): number {
     //calculate difficulty from nbits:
     const nBitsHex = nBits.toString(16);
 
@@ -268,24 +272,24 @@ export class DanaWsService implements OnModuleInit {
     const coefficient = parseInt(nBitsHex.slice(2), 16);
 
     // cal target (coefficient * 256^(exponent - 3))
-    const target = coefficient * Math.pow(256, exponent - 3);
-    const targetMax = 0xffff * Math.pow(256, 0x1d - 3);
+    const target = new BigNumber(coefficient * Math.pow(256, exponent - 3));
+    const targetMax = new BigNumber(0xffff * Math.pow(256, 0x1d - 3));
 
-    const difficulty = targetMax / target;
+    const difficulty = targetMax.div(target);
 
     // cal hashrate (diff * 2^32 / blockTime)
-    const hashrate = (difficulty * Math.pow(2, 32)) / 600;
-    const GHashratePerSecond = hashrate * Math.pow(10, -9);
-    const GHashratePerBlockTime = GHashratePerSecond * 600;
+    const hashrate = difficulty.times(Math.pow(2, 32)).div(600); //block time of ergon is 600
+    const GHashratePerSecond = hashrate.times(Math.pow(10, -9));
+    const GHashratePerBlockTime = GHashratePerSecond.times(600);
 
-    //calculate insurance
+    //calculate issuance
     const issuance = parseFloat(fromSatoshisToCoin(issuanceSats, 8).toString()); //cashDecimal in Ergon is 8
+
     //calculate GH/coin (hash / issuance)
-    const GHPerCoin = GHashratePerBlockTime / issuance;
+    const GHPerCoin = GHashratePerBlockTime.div(issuance);
 
-    const hash256PerDana = GHPerCoin * Math.pow(10, -7); //1 Dana = 0.1mE. 1E = 1 000 000 mE
-    const hashLotusPerDana = hash256PerDana / ratioHash256;
+    const hash256PerDana = GHPerCoin.times(Math.pow(10, -7)); //1 Dana = 0.1mE. 1E = 1 000 000 mE
 
-    return hashLotusPerDana;
+    return parseFloat(hash256PerDana.toString());
   }
 }

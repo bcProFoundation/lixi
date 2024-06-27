@@ -1,8 +1,5 @@
-import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
-import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
-
 export const calBurnAmountWithFee = (value: number, burnAmountPerCoin: number, rounded: boolean) => {
-  const totalBurn = value * burnAmountPerCoin * (coinInfo[COIN.XPI].burnFee + 1);
+  const totalBurn = value * burnAmountPerCoin * 1.04;
   return rounded ? Math.ceil(totalBurn) : totalBurn;
 };
 

@@ -13,7 +13,7 @@ import ReBloom from '../../common/redis/redis-bloom';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { CONTENT_FANOUT_QUEUE } from './constants';
 import { PostCacheService } from './post-cache.service';
-import { epoch } from '@bcpros/lixi-models';
+import { epoch } from 'src/utils/constants';
 
 @Injectable()
 @Processor(CONTENT_FANOUT_QUEUE, { concurrency: 50 })

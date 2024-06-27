@@ -761,7 +761,7 @@ export default {
   'messenger.pendingMessage': 'Đang chờ tin nhắn',
   'messenger.openMessage': 'Mở tin nhắn',
   'messenger.chatPage': 'Nhắn tin với tôi',
-  'messenger.offerChat': 'Đẫ đề nghị {xpi} XPI để trò chuyện với bạn.',
+  'messenger.offerChat': 'Đã đề nghị {xpi} XPI để trò chuyện với bạn.',
   'messenger.youOfferChat': 'Bạn đề nghị {xpi} XPI để trò chuyện.',
 
   /* 24. Code country to language*/

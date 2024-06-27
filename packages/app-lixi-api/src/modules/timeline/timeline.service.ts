@@ -11,7 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import SortedSet from 'redis-sorted-set';
 import { basicInMemorySortedSetPagination, basicSortedSetPagination } from '../../common/custom-graphql-relay/paginate';
 import { template } from '../../utils/stringTemplate';
-import { epoch } from '@bcpros/lixi-models';
+import { epoch } from 'src/utils/constants';
 
 @Injectable()
 export class TimelineService {

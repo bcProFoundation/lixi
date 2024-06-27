@@ -11,7 +11,7 @@ import { FollowCacheService } from '../../account/follow-cache.service';
 import { PostCacheService } from '../../page/post-cache.service';
 import { template } from 'src/utils/stringTemplate';
 import { POST_FLAG } from '@bcpros/lixi-models';
-import { epoch } from '@bcpros/lixi-models';
+import { epoch } from 'src/utils/constants';
 
 @Injectable()
 @Processor(BURN_FANOUT_QUEUE, { concurrency: 50 })
