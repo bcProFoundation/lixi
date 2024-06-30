@@ -30,7 +30,7 @@ import ActionSheet from '../../Common/ActionSheet';
 import ModalManager from '../../Common/ModalManager';
 import { GlobalStyle } from './GlobalStyle';
 import { theme } from './theme';
-import ClaimComponent from '@components/Claim';
+import useWindowDimensions from '@hooks/useWindowDimensions';
 
 export const LoadingIcon = <LoadingOutlined className="loadingIcon" />;
 
@@ -99,7 +99,6 @@ export const AppContainer = styled.div`
     justify-content: space-between;
   }
   .container-content {
-    height: 100vh;
     scroll-behavior: smooth;
     overflow-y: auto;
     flex-grow: 1;
@@ -135,7 +134,6 @@ export const AppContainer = styled.div`
       width: 100%;
       margin: 0 auto;
       height: fit-content;
-      margin-bottom: 4rem;
       @media (max-width: 968px) {
         margin-bottom: 0;
         height: 100vh;
@@ -229,6 +227,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const graphqlRequestLoading = useSliceSelector(getGraphqlRequestStatus);
   const currentTheme = useSliceSelector(getCurrentThemes);
   const isMobile = useDetectMobileView();
+  const { width } = useWindowDimensions();
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [visible, setVisible] = useState(true);
   const currentDeviceTheme = useThemeDetector();
@@ -273,7 +272,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   };
 
   const hideStatusBar = useMemo(() => {
-    return selectedKey === '/page-message' && currentPageMessageSession && isMobile;
+    return selectedKey === '/page-message' && currentPageMessageSession && isMobile && width <= 526;
   }, [selectedKey, currentPageMessageSession]);
 
   return (
@@ -301,15 +300,16 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     )}
                     <div
                       className="container-content"
-                      style={{ padding: selectedKey === '/page-message' ? '0' : '' }}
+                      style={{
+                        paddingTop: selectedKey === '/page-message' && width <= 526 ? 0 : 64,
+                        height: selectedKey === '/page-message' ? '' : '100vh'
+                      }}
                       id="scrollableDiv"
                       ref={scrollRef}
                       onScroll={e => handleScroll(e)}
                     >
                       <SidebarShortcut />
-                      <div className="content-child" style={{ paddingTop: isMobile && !hideStatusBar ? 64 : 0 }}>
-                        {children}
-                      </div>
+                      <div className="content-child">{children}</div>
                       {/* This below is just a dummy sidebar */}
                       {(selectedKey.includes('/wallet') || selectedKey === '/') && <SidebarRanking></SidebarRanking>}
                       <DummySidebar />

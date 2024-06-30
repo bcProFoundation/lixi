@@ -380,6 +380,10 @@ const BadgeStyled = styled(Badge)`
 
 const StyledHeader = styled(Header)`
   background: #fff;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
   display: grid;
   padding: 0;
   grid-template-columns: auto auto auto;
@@ -414,10 +418,6 @@ const StyledHeader = styled(Header)`
     }
   }
   @media (max-width: 960px) {
-    position: fixed;
-    top: 0;
-    z-index: 9;
-    width: 100%;
     height: 64px;
     grid-template-columns: 1fr auto;
     .action-bar-header {

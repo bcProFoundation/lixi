@@ -30,8 +30,12 @@ const PostDetailPage = props => {
     paragraphText = postQuery.data.post.poll.question;
   } else {
     const document = new DOMParser().parseFromString(post.content, 'text/html');
-    const paragraphElement = document.querySelector('.EditorLexical_paragraph');
-    paragraphText = paragraphElement?.textContent;
+    const paragraphElement = document.querySelectorAll('.EditorLexical_paragraph');
+
+    for (let i = 0; i < paragraphElement.length; i++) {
+      paragraphText = paragraphElement[i]?.textContent;
+      if (paragraphText) break;
+    }
   }
 
   useEffect(() => {

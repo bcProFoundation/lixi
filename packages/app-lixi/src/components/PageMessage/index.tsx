@@ -135,8 +135,8 @@ const StyledSideContainer = styled.div`
           &.pending {
             background: var(--dark-error-background);
           }
-          &.open {
-            background: var(--dark-sucess-background);
+          &.not-seen {
+            background: var(--color-info-dark);
           }
           &.close {
             background: var(--color-danger-dark);
@@ -468,16 +468,6 @@ export const PageGroupItem = ({
     //find pageMessageSession in entities
     const pageMessageSession = pageMessageSessionEntities?.[item?.id];
 
-    if (!pageMessageSession) {
-      dispatch(
-        upsertPageMessageSession({
-          latestMessageId: item?.latestMessage?.id,
-          pageMessageSessionId: item?.id,
-          senderAddress: item?.latestMessage?.author?.address
-        })
-      );
-    }
-
     if (pageMessageSession?.latestMessageId >= item?.latestMessage?.id) {
       return true;
     }
@@ -572,7 +562,9 @@ export const PageGroupItem = ({
                       </div>
                       <div className="time-score" onClick={() => onClickIcon(item)}>
                         <p className="create-date">{transformCreatedAt(item?.updatedAt)}</p>
-                        <div className={`${item?.status.toLowerCase()} content-score`}>
+                        <div
+                          className={`${item?.status.toLowerCase()} ${hasSeenSession(item) ? 'seen' : 'not-seen'} content-score`}
+                        >
                           <p className="lotus-burn-score"></p>
                         </div>
                       </div>
@@ -617,7 +609,9 @@ export const PageGroupItem = ({
                 </div>
                 <div className="time-score">
                   <p className="create-date">{transformCreatedAt(item?.updatedAt)}</p>
-                  <div className={`${item?.status.toLowerCase()} content-score`}>
+                  <div
+                    className={`${item?.status.toLowerCase()}  ${hasSeenSession(item) ? 'seen' : 'not-seen'} content-score`}
+                  >
                     <p className="lotus-burn-score"></p>
                   </div>
                 </div>

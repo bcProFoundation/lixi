@@ -77,6 +77,7 @@ const Content = styled.div`
     }
     iframe {
       width: 100% !important;
+      max-height: 100vh;
       &#reddit-embed {
         height: 500px !important;
         @media (max-width: 960px) {

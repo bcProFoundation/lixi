@@ -55,7 +55,7 @@ const PostContentDetail = styled.div`
     iframe {
       max-width: 100%;
       @media (max-width: 960px) {
-        height: 35vh;
+        max-height: 100vh;
       }
     }
     .hashtag-link {

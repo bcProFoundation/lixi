@@ -207,7 +207,7 @@ const NotificationPopup = (notifications: Notification[], account: Account, isPo
   };
 
   const handleRead = (account: Account, notification: Notification) => {
-    notification.url && dispatch(push(`${notification.url}`));
+    notification.url && dispatch(push(`/${notification.url}`));
 
     const stringComment = 'comment=';
     const haveCommentInNotification = notification.url.indexOf(stringComment);
