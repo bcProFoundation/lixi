@@ -39,9 +39,9 @@ const PageDetailPage = props => {
           canonical={canonicalUrl}
           openGraph={{
             url: canonicalUrl,
-            title: 'Lixi',
+            title: page.name,
             description: page.description || 'Your Attention Your Money!',
-            images: [{ url: '' }],
+            images: [{ url: pageToRender?.avatar ? pageToRender.avatar : pageToRender?.cover }],
             site_name: 'Lixi'
           }}
           twitter={{

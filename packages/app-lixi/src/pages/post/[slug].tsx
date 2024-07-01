@@ -55,6 +55,9 @@ const PostDetailPage = props => {
       setPost(data.post);
     }
   }, [data]);
+  const imageLink = data?.post?.imageUploadable?.uploads[0]?.cfImageId
+    ? `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${data?.post?.imageUploadable?.uploads[0]?.cfImageId}/public`
+    : '';
 
   return (
     <React.Fragment>
@@ -70,7 +73,7 @@ const PostDetailPage = props => {
             : 'Your Attention Your Money!',
           images: [
             {
-              url: `${process.env.NEXT_PUBLIC_LIXI_URL}images/lixilotus-logo.svg`,
+              url: `${imageLink}`,
               width: 800,
               height: 600,
               alt: 'Lotus Logo',
@@ -146,6 +149,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   };
 });
 
-PostDetailPage.getLayout = ({ children }) => <MainLayout>{children}</MainLayout>;
+PostDetailPage.getLayout = children => <MainLayout>{children}</MainLayout>;
 
 export default PostDetailPage;

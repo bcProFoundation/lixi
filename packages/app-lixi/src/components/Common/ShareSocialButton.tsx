@@ -24,17 +24,18 @@ import React from 'react';
 type SocialSharePanelProps = {
   className?: string;
   shareUrl: string;
+  title?: string;
 };
 
 type ShareSocialProps = {
   slug: any;
   content?: string;
   accountName?: string;
+  shareForType: string;
 };
 
-const SocialSharePanel = ({ className, shareUrl }: SocialSharePanelProps): JSX.Element => {
+const SocialSharePanel = ({ className, shareUrl, title }: SocialSharePanelProps): JSX.Element => {
   const dispatch = useSliceDispatch();
-  const title = intl.get('post.titleShared');
   return (
     <div className={className}>
       <div className="socialshare-network">
@@ -116,13 +117,15 @@ const ShareButton = styled.span`
 `;
 
 const ShareSocialButton = (props: ShareSocialProps) => {
-  const { slug, content, accountName } = props;
+  const { slug, content, accountName, shareForType } = props;
   const baseUrl = process.env.NEXT_PUBLIC_LIXI_URL;
-  const shareUrl = `${baseUrl}post/${slug}`;
+  const shareUrl = `${baseUrl}${shareForType}/${slug}`;
   const isMobile = useDetectMobileView();
 
+  const titleShare = content ? `${accountName} at Lixi: "${stripHtml(content).result.substring(0, 50)}..."` : '';
+
   const ShareSocialDropdown = (
-    <Popover content={() => popOverContent(shareUrl)}>
+    <Popover content={() => popOverContent(shareUrl, titleShare)}>
       <ShareButton>
         <ShareAltOutlined />
       </ShareButton>
@@ -132,7 +135,7 @@ const ShareSocialButton = (props: ShareSocialProps) => {
   const ShareSocialButton = (
     <RWebShare
       data={{
-        text: content ? `${accountName} at Lixi: "${stripHtml(content).result.substring(0, 50)}..."` : '',
+        text: titleShare,
         url: shareUrl,
         title: 'Lixi'
       }}
@@ -144,8 +147,8 @@ const ShareSocialButton = (props: ShareSocialProps) => {
     </RWebShare>
   );
 
-  const popOverContent = shareUrl => {
-    return <StyledSocialSharePanel shareUrl={shareUrl} />;
+  const popOverContent = (shareUrl: string, title: string) => {
+    return <StyledSocialSharePanel shareUrl={shareUrl} title={title} />;
   };
 
   return <>{!isMobile ? ShareSocialButton : ShareSocialDropdown}</>;

@@ -23,6 +23,7 @@ import Counter from './Counter';
 import BaseReaction from './Reaction';
 import ShareSocialButton from './ShareSocialButton';
 import _ from 'lodash';
+import { ShareForType } from '@bcpros/lixi-models/constants/share';
 
 export const GroupIconText = styled.div`
   align-items: center;
@@ -245,7 +246,12 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
         </Tooltip>
       </GroupIconText>
 
-      <ShareSocialButton slug={post.id} content={post.content} accountName={post.account.name} />
+      <ShareSocialButton
+        slug={post.id}
+        content={post.content}
+        accountName={post.account.name}
+        shareForType={ShareForType.POST}
+      />
     </ActionBar>
   );
 };

@@ -17,6 +17,7 @@ export * from './constants/translation';
 export * from './constants/upload';
 export * from './constants/wallet';
 export * from './constants/worship';
+export * from './constants/share';
 export * from './core/order/order';
 export * from './core/order/order-direction';
 export * from './core/pagination/basic.paginated.type';
