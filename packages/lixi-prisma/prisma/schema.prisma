@@ -12,14 +12,10 @@ generator client {
 
 // The handle for page or user account
 model Handle {
-  id           String @id @default(cuid())
-  handle       String @map("handle") @db.VarChar(150)
-  handleNumber Int    @map("handle_number") @db.Oid
+  id      String @id @default(cuid())
+  network Coin   @default(XPI)
+  handle  String @map("handle") @db.VarChar(150)
 
-  // User User[]
-  // Page Page[]
-
-  @@unique([handle, handleNumber])
   @@map("handle")
 }
 

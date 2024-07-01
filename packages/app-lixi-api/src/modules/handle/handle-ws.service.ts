@@ -1,3 +1,4 @@
+
 import { adjustRate, COIN, coinInfo, DanaRate, GHPerDana, ratioHash256 } from '@bcpros/lixi-models';
 import { decode, encode } from '@msgpack/msgpack';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -10,8 +11,8 @@ import { KeyCurrentAdjust, KeyCurrentHeight } from './dana.constants';
 import { fromSatoshisToCoin } from 'src/utils/cashMethods';
 
 @Injectable()
-export class DanaWsService implements OnModuleInit {
-  private logger: Logger = new Logger(DanaWsService.name);
+export class HandleWsService implements OnModuleInit {
+  private logger: Logger = new Logger(HandleWsService.name);
   private keyInfoBlockPrefix = 'items:blocks:{{coin}}:item-data';
   private keyInfoConvertPrefix = 'items:convert-dana:{{coin}}:item-data';
   private keyAdjustDana = 'items:dana-rate-adjust:{{coin}}';
@@ -22,7 +23,6 @@ export class DanaWsService implements OnModuleInit {
   private keyIndexHighestBlockData = 'items:index-block-highest:{{coin}}';
 
   constructor(
-    @InjectChronikClient('xec') private chronikXEC: ChronikClient,
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
     @InjectRedis() private readonly redis: Redis
   ) { }
