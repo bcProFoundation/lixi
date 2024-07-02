@@ -30,6 +30,15 @@ const PageDetailPage = props => {
 
   const pageToRender = currentDataPageQuery?.page ?? page;
 
+  let linkShare;
+  if (pageToRender?.cover) {
+    linkShare = pageToRender.cover;
+  } else if (pageToRender?.avatar) {
+    linkShare = pageToRender.avatar;
+  } else {
+    linkShare = process.env.NEXT_PUBLIC_LIXI_URL + 'images/default-avatar.jpg';
+  }
+
   return (
     <React.Fragment>
       <React.Fragment>
@@ -41,7 +50,7 @@ const PageDetailPage = props => {
             url: canonicalUrl,
             title: page.name,
             description: page.description || 'Your Attention Your Money!',
-            images: [{ url: pageToRender?.avatar ? pageToRender.avatar : pageToRender?.cover }],
+            images: [{ url: linkShare }],
             site_name: 'Lixi'
           }}
           twitter={{
