@@ -270,14 +270,14 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   ] = useCreateCommentMutation();
 
   const upVotePost = (dataItem: PostQueryItem) => {
-    dispatch(
-      prepareBurnCommand({
-        isUpVote: true,
-        burnForItem: dataItem,
-        burnForType: BurnForType.Post,
-        burnValue: '1'
-      })
-    );
+    // dispatch(
+    //   prepareBurnCommand({
+    //     isUpVote: true,
+    //     burnForItem: dataItem,
+    //     burnForType: BurnForType.Post,
+    //     burnValue: '1'
+    //   })
+    // );
   };
 
   const downVotePost = (dataItem: PostQueryItem) => {
@@ -383,12 +383,9 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   };
 
   const imageRenderer = useCallback(
-    ({ photo }) => <Image
-      src={photo?.src}
-      width={photo?.width}
-      height={photo?.height}
-      key={`photo-${photo?.key || photo?.src}`}
-    />,
+    ({ photo }) => (
+      <Image src={photo?.src} width={photo?.width} height={photo?.height} key={`photo-${photo?.key || photo?.src}`} />
+    ),
     []
   );
 

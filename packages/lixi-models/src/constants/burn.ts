@@ -12,5 +12,7 @@ export const OPTION_BURN_TYPE = {
 
 export const BurnForTypeString = {
   post: 'post',
-  comment: 'comment'
+  comment: 'comment',
+  account: 'account',
+  page: 'page'
 };

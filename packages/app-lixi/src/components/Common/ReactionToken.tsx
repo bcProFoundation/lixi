@@ -146,14 +146,14 @@ const ReactionToken = ({ token }: ReactionTokenProps) => {
 
     const burnValue = optionBurn ? OPTION_BURN_VALUE[optionBurn] : '1';
 
-    dispatch(
-      prepareBurnCommand({
-        isUpVote,
-        burnForItem: dataItem,
-        burnForType: BurnForType.Token,
-        burnValue
-      })
-    );
+    // dispatch(
+    //   prepareBurnCommand({
+    //     isUpVote,
+    //     burnForItem: dataItem,
+    //     burnForType: BurnForType.Token,
+    //     burnValue
+    //   })
+    // );
 
     hideReact();
   };

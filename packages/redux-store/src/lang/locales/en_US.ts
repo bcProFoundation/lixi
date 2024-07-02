@@ -124,6 +124,8 @@ export default {
   'general.open': 'Open',
   'general.postFilter': 'Followed Posts: ',
   'general.dana': ' Dana',
+  'general.danaGiven': ' Dana Given',
+  'general.danaReceived': ' Dana Reiceived',
   'general.support': 'Support',
   'general.all': 'All',
   'general.installApp': 'Install App',
@@ -760,8 +762,8 @@ export default {
   'messenger.pendingMessage': 'Pending message',
   'messenger.openMessage': 'Open message',
   'messenger.chatPage': 'Chat with me',
-  'messenger.offerChat': 'Offer you {xpi} XPI for a chat.',
-  'messenger.youOfferChat': 'You offer {xpi} XPI for a chat.',
+  'messenger.offerChat': 'Offered you {xpi} XPI for a chat.',
+  'messenger.youOfferChat': 'You offered {xpi} XPI for a chat.',
 
   /* 24. Code country to language*/
   'code.ab': 'Abkhazian',

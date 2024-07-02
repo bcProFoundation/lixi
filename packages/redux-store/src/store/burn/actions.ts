@@ -14,6 +14,7 @@ export const prepareBurnCommand = createAction<{
   burnForItem: BurnForItem;
   burnForType: BurnForType;
   burnValue: string;
+  amountDana: number;
 }>('burn/prepareBurnCommand');
 export const addBurnQueue = createAction<any>('burn/addBurnQueue');
 export const removeBurnQueue = createAction('burn/removeBurnQueue');

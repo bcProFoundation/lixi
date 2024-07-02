@@ -4,6 +4,8 @@
     "updatingWalletFund": "Please wait! Updating wallet funds on blockchain!",
     "burningCanceled": "Burning canceled!",
     "post": "post",
-    "comment": "comment"
+    "comment": "comment",
+    "account": "account",
+    "page": "page"
   }
 }
