@@ -51,6 +51,8 @@ import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
 import Reaction from '@components/Common/Reaction';
+import ShareSocialButton from '@components/Common/ShareSocialButton';
+import { ShareForType } from '@bcpros/lixi-models/constants/share';
 
 type PageDetailProps = {
   page: PageQueryItem;
@@ -184,6 +186,11 @@ const ProfileCardHeader = styled.div`
       h2 {
         font-weight: 600;
         margin-bottom: 0;
+      }
+
+      .name-share {
+        display: flex;
+        align-items: center;
       }
     }
     .action-profile {
@@ -945,7 +952,15 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
               )}
             </div>
             <div className="title-profile">
-              <h2>{pageDetailData.name}</h2>
+              <div className="name-share">
+                <h2>{pageDetailData?.name}</h2>
+                <ShareSocialButton
+                  slug={pageDetailData?.id}
+                  content={pageDetailData?.description}
+                  accountName={pageDetailData?.name}
+                  shareForType={ShareForType.PAGE}
+                />
+              </div>
               <p>{intl.get('category.' + pageDetailData.category.name)}</p>
             </div>
             {/* TODO: implement in the future */}
