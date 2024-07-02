@@ -37,6 +37,8 @@ import { ParamPostFollowCommand } from '@bcpros/lixi-models';
 import { changeFollowActionSheetPost } from '@store/post/actions';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import Reaction from '@components/Common/Reaction';
+import ShareSocialButton from '@components/Common/ShareSocialButton';
+import { ShareForType } from '@bcpros/lixi-models/constants/share';
 
 export const URL_AVATAR_DEFAULT = '/images/default-avatar.jpg';
 export const URL_COVER_DEFAULT = '/images/default-cover.jpg';
@@ -163,6 +165,11 @@ const ProfileCardHeader = styled.div`
         font-weight: 600;
         margin-bottom: 0;
         text-transform: capitalize;
+      }
+
+      .name-share {
+        display: flex;
+        align-items: center;
       }
     }
     .action-profile {
@@ -669,7 +676,15 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
             </div>
             <div className="title-profile">
               <div>
-                <h2>{user?.name}</h2>
+                <div className="name-share">
+                  <h2>{user?.name}</h2>
+                  <ShareSocialButton
+                    slug={user?.address}
+                    content={user?.description}
+                    accountName={user?.name}
+                    shareForType={ShareForType.ACCOUNT}
+                  />
+                </div>
                 <p className="add">{user?.address.slice(6, 11) + '...' + user?.address.slice(-5)}</p>
               </div>
             </div>
