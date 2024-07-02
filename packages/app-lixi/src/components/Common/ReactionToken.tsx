@@ -1,9 +1,9 @@
-import { OPTION_BURN_TYPE, OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
-import { TokenQueryItem } from '@generated/index';
+import { OPTION_BURN_TYPE, OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants/burn';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
+import { TokenQueryItem } from '@generated/types';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import { prepareBurnCommand } from '@store/burn';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
 import { getCurrentThemes } from '@store/settings';
 import { Popover, Space } from 'antd';
@@ -121,11 +121,11 @@ type ReactionTokenProps = {
 };
 
 const ReactionToken = ({ token }: ReactionTokenProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const isMobile = useDetectMobileView();
   const [clicked, setClicked] = useState(false);
   const [hovered, setHovered] = useState(false);
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const currentTheme = useSliceSelector(getCurrentThemes);
 
   const contentHoverLike = <Hint>+{OPTION_BURN_VALUE.LOVE} </Hint>;
 
@@ -146,14 +146,14 @@ const ReactionToken = ({ token }: ReactionTokenProps) => {
 
     const burnValue = optionBurn ? OPTION_BURN_VALUE[optionBurn] : '1';
 
-    dispatch(
-      prepareBurnCommand({
-        isUpVote,
-        burnForItem: dataItem,
-        burnForType: BurnForType.Token,
-        burnValue
-      })
-    );
+    // dispatch(
+    //   prepareBurnCommand({
+    //     isUpVote,
+    //     burnForItem: dataItem,
+    //     burnForType: BurnForType.Token,
+    //     burnValue
+    //   })
+    // );
 
     hideReact();
   };

@@ -1,16 +1,16 @@
-import React, { useEffect } from 'react';
-import { Button, Checkbox, Input } from 'antd';
-import { FilterType } from '@bcpros/lixi-models/lib/filter';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { saveMinimumDanaFilter, setNegativeDanaStatus } from '@store/settings/actions';
-import styled from 'styled-components';
-import intl from 'react-intl-universal';
-import { getMinimumDanaFilter, getNegativeDanaStatus } from '@store/settings/selectors';
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
+import { FilterType } from '@bcpros/lixi-models/lib/filter';
+import { getAccountInfoTemp } from '@store/account';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { saveMinimumDanaFilter, setNegativeDanaStatus } from '@store/settings/actions';
+import { getMinimumDanaFilter, getNegativeDanaStatus } from '@store/settings/selectors';
 import 'animate.css';
-import { CheckboxChangeEvent } from 'antd/es/checkbox';
-import { getAccountInfoTemp, getSelectedAccount } from '@store/account';
+import { Button, Input } from 'antd';
+import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import _ from 'lodash';
+import React, { useEffect } from 'react';
+import intl from 'react-intl-universal';
+import styled from 'styled-components';
 
 const FilterStyle = styled.div`
   display: flex;
@@ -65,10 +65,10 @@ type FilterBurntProps = {
 };
 
 export const FilterBurnt = ({ filterType }: FilterBurntProps) => {
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getAccountInfoTemp);
-  const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
-  const negativeDanaStatus = useAppSelector(getNegativeDanaStatus);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getAccountInfoTemp);
+  const minimumDanaFilter = useSliceSelector(getMinimumDanaFilter);
+  const negativeDanaStatus = useSliceSelector(getNegativeDanaStatus);
   const filterLevel = [-1, 0, 1, 10, 100, 1000];
 
   const handleChangeAmount = (isIncrement: boolean) => {

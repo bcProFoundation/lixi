@@ -1,8 +1,8 @@
 import { EntityState } from '@reduxjs/toolkit';
-import { PageInfo } from '@generated/types.generated';
+import { PageInfo } from '../../generated/types.generated';
 import { api, HashtagQuery } from './hashtag.generated';
 
-export interface TempleApiState extends EntityState<HashtagQuery['hashtag']> {
+export interface TempleApiState extends EntityState<HashtagQuery['hashtag'], string> {
   pageInfo: PageInfo;
   totalCount: number;
 }

@@ -1,5 +1,5 @@
 import { createEntityAdapter, createReducer, Update } from '@reduxjs/toolkit';
-import { Page } from '@generated/types.generated';
+import { Page } from '../../generated/types.generated';
 
 import {
   editPageSuccess,
@@ -31,7 +31,7 @@ export const pageReducer = createReducer(initialState, builder => {
     .addCase(getPageSuccess, (state, action) => {
       const page = action.payload;
       state.selectedId = page.id;
-      const updatePage: Update<Page> = {
+      const updatePage: Update<Page, string> = {
         id: page.id,
         changes: {
           ...page
@@ -54,7 +54,7 @@ export const pageReducer = createReducer(initialState, builder => {
     })
     .addCase(editPageSuccess, (state, action) => {
       const page = action.payload;
-      const updatePage: Update<Page> = {
+      const updatePage: Update<Page, string> = {
         id: page.id,
         changes: {
           ...page

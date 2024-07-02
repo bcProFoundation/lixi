@@ -1,8 +1,8 @@
-import styled, { DefaultTheme } from 'styled-components';
-import { UserOutlined, WalletOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Account } from '@bcpros/lixi-models/lib/account';
-import { useAppDispatch } from '@store/hooks';
+import { DeleteOutlined, UserOutlined } from '@ant-design/icons';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { selectAccount } from '@store/account/actions';
+import { useSliceDispatch } from '@store/index';
+import styled, { DefaultTheme } from 'styled-components';
 
 const AccountIcon = styled.div`
   height: 32px;
@@ -44,7 +44,7 @@ type AccountListItemProps = {
 } & React.HTMLProps<HTMLDivElement>;
 
 const LixiListItem: React.FC<AccountListItemProps> = (props: AccountListItemProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   const handleSelectAccount = (account: Account) => {
     dispatch(selectAccount(account.id));

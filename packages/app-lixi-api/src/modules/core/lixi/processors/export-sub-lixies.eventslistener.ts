@@ -9,7 +9,10 @@ import { LixiService } from 'src/modules/core/lixi/lixi.service';
 @Injectable()
 @QueueEventsListener(EXPORT_SUB_LIXIES_QUEUE)
 export class ExportSubLixiesEventsListener extends QueueEventsHost {
-  constructor(private readonly lixiService: LixiService, private readonly notificationService: NotificationService) {
+  constructor(
+    private readonly lixiService: LixiService,
+    private readonly notificationService: NotificationService
+  ) {
     super();
   }
 

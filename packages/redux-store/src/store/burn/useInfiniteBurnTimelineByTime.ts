@@ -1,11 +1,11 @@
-import { PaginationArgs } from '@bcpros/lixi-models';
+import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import _ from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { BurnQueryItem } from '@generated/types';
+import { BurnQueryItem } from '../../generated/types';
 import { useLazyPostBurnHistoryQuery, usePostBurnHistoryQuery } from './burn.api';
 
-const burnsAdapter = createEntityAdapter<BurnQueryItem>({
+const burnsAdapter = createEntityAdapter<BurnQueryItem, string>({
   selectId: burn => burn.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });

@@ -1,14 +1,12 @@
-import { useAppSelector } from '@store/hooks';
 import { getActionSheet } from '@store/action-sheet/selectors';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ConfigProvider, Drawer } from 'antd';
-import lightTheme from 'src/styles/themes/lightTheme';
+import { useSliceSelector } from '@store/index';
 import { getCurrentThemes } from '@store/settings';
-import darkTheme from 'src/styles/themes/darkTheme';
-import styled from 'styled-components';
-import { PostActionSheet } from './PostActionSheet';
-import { InstallPwaGuide } from './InstallPwaGuide';
+import { ConfigProvider } from 'antd';
 import _ from 'lodash';
+import darkTheme from 'src/styles/themes/darkTheme';
+import lightTheme from 'src/styles/themes/lightTheme';
+import { InstallPwaGuide } from './InstallPwaGuide';
+import { PostActionSheet } from './PostActionSheet';
 
 const actionSheetComponentLookupTable = {
   PostActionSheet,
@@ -16,8 +14,8 @@ const actionSheetComponentLookupTable = {
 };
 
 const ActionSheet = () => {
-  const currentActionSheet = useAppSelector(getActionSheet);
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const currentActionSheet = useSliceSelector(getActionSheet);
+  const currentTheme = useSliceSelector(getCurrentThemes);
 
   const renderedActionSheet = currentActionSheet.map((actionSheetDescription, index) => {
     const { actionSheetType, actionSheetProps = {} } = actionSheetDescription;
@@ -27,7 +25,7 @@ const ActionSheet = () => {
     const DrawerComponent = actionSheetComponentLookupTable[actionSheetType];
 
     return (
-      <ConfigProvider theme={currentTheme === 'dark' ? darkTheme : lightTheme}>
+      <ConfigProvider theme={currentTheme === 'dark' ? darkTheme : lightTheme} key={`theme-${currentTheme}`}>
         <DrawerComponent {...newActionSheetProps} key={actionSheetType + index} />
       </ConfigProvider>
     );

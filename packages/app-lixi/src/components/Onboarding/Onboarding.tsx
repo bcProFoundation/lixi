@@ -1,14 +1,14 @@
 import { ExclamationCircleOutlined, ImportOutlined, LockOutlined, PlusSquareOutlined } from '@ant-design/icons';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
 import PrimaryButton, { SecondaryButton, SmartButton } from '@components/Common/PrimaryButton';
+import { WalletContext } from '@context/index';
 import { generateAccount, importAccount } from '@store/account/actions';
+import { useSliceDispatch } from '@store/index';
 import { Form, Input, Modal } from 'antd';
 import React, { useState } from 'react';
 import intl from 'react-intl-universal';
-import { useAppDispatch } from '@store/hooks';
-import { WalletContext } from '@context/index';
 import styled from 'styled-components';
-import { COIN } from '@bcpros/lixi-models/constants';
 
 export const LotusLogo = styled.img`
   width: 70px;
@@ -55,7 +55,7 @@ const OnboardingComponent: React.FC = () => {
   const [isValidMnemonic, setIsValidMnemonic] = useState(false);
   const { confirm } = Modal;
 
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   async function showBackupConfirmModal() {
     confirm({

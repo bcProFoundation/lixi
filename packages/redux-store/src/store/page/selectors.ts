@@ -1,27 +1,26 @@
-import { Page } from '@bcpros/lixi-models';
 import { createSelector } from 'reselect';
 
-import { RootState } from '../store';
+import { LixiStoreStateInterface } from '../state';
 
 import { pageAdapter } from './reducer';
 import { PageState } from './state';
 
-const selectAccounts = (state: RootState) => state.accounts;
+const selectAccounts = (state: LixiStoreStateInterface) => state.accounts;
 const selectSelectedAccount = createSelector(selectAccounts, state => state.selectedId);
 
 const { selectAll, selectEntities, selectIds, selectTotal } = pageAdapter.getSelectors();
 
-export const getAllPages = createSelector((state: RootState) => state.pages, selectAll);
+export const getAllPages = createSelector((state: LixiStoreStateInterface) => state.pages, selectAll);
 
-export const getAllPagesEntities = createSelector((state: RootState) => state.pages, selectEntities);
+export const getAllPagesEntities = createSelector((state: LixiStoreStateInterface) => state.pages, selectEntities);
 
 export const getSelectedPageId = createSelector(
-  (state: RootState) => state.pages,
+  (state: LixiStoreStateInterface) => state.pages,
   (state: PageState) => state.selectedId as string
 );
 
 export const pagesByAccountId = createSelector(
-  (state: RootState) => state.pages,
+  (state: LixiStoreStateInterface) => state.pages,
   (state: PageState) => state.pagesByAccountId
 );
 
@@ -32,6 +31,6 @@ export const getPageBySelectedAccount = createSelector([selectSelectedAccount, g
 );
 
 export const getCurrentPageMessageSession = createSelector(
-  (state: RootState) => state.pages,
+  (state: LixiStoreStateInterface) => state.pages,
   (state: PageState) => state.currentPageMessageSession
 );

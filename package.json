@@ -1,56 +1,25 @@
 {
-  "name": "@bcrpos/lixilotus",
+  "name": "@bcrpos/lixi",
   "version": "0.0.9",
   "private": true,
   "devDependencies": {
-    "@graphql-codegen/cli": "^2.16.5",
-    "@graphql-codegen/near-operation-file-preset": "^2.5.0",
-    "@graphql-codegen/typescript": "^2.8.8",
-    "@graphql-codegen/typescript-operations": "^2.5.13",
-    "@graphql-codegen/typescript-rtk-query": "^2.3.7",
-    "@graphql-typed-document-node/core": "^3.1.1",
-    "@rtk-query/graphql-request-base-query": "^2.2.0",
-    "@typescript-eslint/eslint-plugin": "^5.50.0",
-    "@typescript-eslint/parser": "^5.50.0",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^8.33.0",
-    "eslint-config-prettier": "^8.6.0",
-    "eslint-config-react-app": "^7.0.1",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-react": "^7.32.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "husky": "^8.0.3",
-    "lerna": "^6.4.1",
-    "prettier": "^2.8.3"
+    "husky": "^9.0.11",
+    "turbo": "1.13.0 "
   },
   "scripts": {
-    "postinstall": "lerna bootstrap",
-    "dev": "lerna exec --scope @bcpros/app-lixi -- yarn dev",
-    "start": "lerna exec --scope @bcpros/app-lixi -- yarn start",
-    "start:api": "lerna exec --scope @bcpros/app-lixi-api -- yarn start",
-    "start:dev:api": "NODE_ENV=development lerna exec --scope @bcpros/app-lixi-api -- yarn start",
-    "start:lixi-components": "lerna exec --scope @bcpros/lixi-components -- yarn start",
     "prepare": "husky install",
-    "build": "lerna run build --stream --ignore @bcpros/app-lotus-temple",
-    "precommit": "lerna run --stream precommit"
-  },
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ],
-    "nohoist": [
-      "packages/**/webpack-dev-server",
-      "**/babel-loader",
-      "**/babel-jest"
-    ]
+    "precommit": "turbo run format",
+    "dev": "turbo run dev --filter=@bcpros/app-lixi",
+    "dev:api": "turbo run dev --filter=@bcpros/app-lixi-api",
+    "build": "turbo run build",
+    "build:api": "turbo run build --filter=@bcpros/app-lixi-api",
+    "build:app": "turbo run build --filter=@bcpros/app-lixi",
+    "db:deploy": "turbo run db:deploy --filter=@bcpros/lixi-prisma",
+    "format": "turbo run format"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn precommit"
+      "pre-commit": "pnpm precommit"
     }
-  },
-  "resolutions": {
-    "@types/react": "<18.0.0",
-    "@types/react-dom": "<18.0.0"
   }
 }

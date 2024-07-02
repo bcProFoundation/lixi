@@ -1,7 +1,7 @@
 import { ViewClaimDto } from '@bcpros/lixi-models';
 import LixiClaimed from '@components/Claim/LixiClaimed';
 import claimApi from '@store/claim/api';
-import { SagaStore, wrapper } from '@store/store';
+import { SagaStore, wrapper } from 'src/store/store';
 import { base58ToNumber, numberToBase58 } from '@utils/encryptionMethods';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
@@ -10,7 +10,7 @@ import { END } from 'redux-saga';
 import { getSelectorsByUserAgent } from 'react-device-detect';
 import ClaimedLayout from '@components/Layout/ClaimedLayout';
 import lixiApi from '@store/lixi/api';
-import { LixiDto } from '@bcpros/lixi-models';
+import { LixiDto } from '@bcpros/lixi-models/lib/lixi';
 
 const ClaimPage = props => {
   const { claim, isMobile, lixi } = props;
@@ -67,6 +67,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   };
 });
 
-ClaimPage.Layout = ({ children }) => <ClaimedLayout children={children} />;
+ClaimPage.getLayout = ({ children }) => <ClaimedLayout>{children}</ClaimedLayout>;
 
 export default ClaimPage;

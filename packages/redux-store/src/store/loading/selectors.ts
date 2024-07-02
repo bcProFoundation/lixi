@@ -1,10 +1,10 @@
 import { createSelector } from 'reselect';
 
-import { RootState } from '../store';
+import { LixiStoreStateInterface } from '../state';
 
 import { LoadingState } from './state';
 
 export const getIsGlobalLoading = createSelector(
-  (state: RootState) => state.loading,
+  (state: LixiStoreStateInterface) => state.loading,
   (state: LoadingState) => state.global
 );

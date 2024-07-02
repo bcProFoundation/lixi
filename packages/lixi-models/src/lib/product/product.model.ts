@@ -2,13 +2,15 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
-import { Account } from '../account';
-import { ICommentableTo } from '../comment';
-import { Country, State } from '../geo-location';
+import { Account } from '../account/account.model';
+import { ICommentableTo } from '../comment/commentable.model';
+import { Country } from '../geo-location/country.model';
+import { State } from '../geo-location/state.model';
 import { ImageUploadable } from '../imageUploadable';
-import { Page } from '../page';
-import { ITimelineable } from '../timeline';
-import { Token } from '../token';
+import { Nullable } from '../nullable';
+import { Page } from '../page/page.model';
+import { ITimelineable } from '../timeline/timeline.model';
+import { Token } from '../token/token.model';
 
 import { ProductDana } from './product-dana.model';
 

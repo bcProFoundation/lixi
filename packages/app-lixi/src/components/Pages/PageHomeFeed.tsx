@@ -3,9 +3,9 @@ import { AuthorizationContext } from '@context/index';
 import { getSelectedAccountId } from '@store/account/selectors';
 import { getCategories } from '@store/category/actions';
 import { getAllCategories } from '@store/category/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
-import { usePagesByUserIdQuery } from '@store/page/pages.generated';
+import { usePagesByUserIdQuery } from '@store/page/pages.api';
 import { useInfinitePagesByFollowerIdQuery } from '@store/page/useInfinitePagesByFollowerIdQuery';
 import { useInfinitePagesByUserIdQuery } from '@store/page/useInfinitePagesByUserIdQuery';
 import { useInfinitePagesQuery } from '@store/page/useInfinitePagesQuery';
@@ -16,7 +16,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import useAuthorization from '../Common/Authorization/use-authorization.hooks';
-import { PageQueryItem } from '@generated/index';
+import { PageQueryItem } from '@generated/types';
 
 const StyledPageFeed = styled.div`
   margin: 1rem auto;
@@ -260,9 +260,9 @@ const CardPageItem = ({ item, onClickItem }: { item?: CardPageItem; onClickItem?
 );
 
 const PageHome = () => {
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
-  const dispatch = useAppDispatch();
-  const categories = useAppSelector(getAllCategories);
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
+  const dispatch = useSliceDispatch();
+  const categories = useSliceSelector(getAllCategories);
   const refPagesListing = useRef<HTMLDivElement | null>(null);
   const currentUserPages = usePagesByUserIdQuery({ id: selectedAccountId }).currentData;
   const authorization = useContext(AuthorizationContext);

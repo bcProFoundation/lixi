@@ -1,42 +1,37 @@
-import {
-  Account,
-  AccountDto,
-  Claim,
-  ExportLixiCommand,
-  IPaginationResult,
-  PostLixiResponseDto,
-  RegisterLixiPackCommand
-} from '@bcpros/lixi-models';
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
+import { AccountDto } from '@bcpros/lixi-models/lib/account/account.dto';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { Claim } from '@bcpros/lixi-models/lib/claim';
 import {
   ArchiveLixiCommand,
   CreateLixiCommand,
   DownloadExportedLixiCommand,
+  ExportLixiCommand,
   GenerateLixiCommand,
   Lixi,
   LixiDto,
+  PostLixiResponseDto,
+  RegisterLixiPackCommand,
   RenameLixiCommand,
   UnarchiveLixiCommand,
   WithdrawLixiCommand
 } from '@bcpros/lixi-models/lib/lixi';
-import { all, fork, put, takeLatest } from '@redux-saga/core/effects';
+import { IPaginationResult } from '@bcpros/lixi-models/utils/paginationResult';
+import { CreatePageMessageInput } from '../../generated/types.generated';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { removeUpload, removeUploadFromCache } from '@store/account/actions';
+import { removeUploadFromCache } from '@store/account/actions';
 import { getAccountById } from '@store/account/selectors';
-import { generateRandomBase58Str } from '@utils/encryptionMethods';
-import { Modal } from 'antd';
-import { push } from 'connected-next-router';
+import { api as pageMessageApi } from '@store/message/pageMessageSession.api';
+import { generateRandomBase58Str } from '../../utils/encryptionMethods';
 import { saveAs } from 'file-saver';
 import * as _ from 'lodash';
 import moment from 'moment';
 import intl from 'react-intl-universal';
 import * as Effects from 'redux-saga/effects';
-import { select } from 'redux-saga/effects';
-import { put as putEffect } from 'redux-saga/effects';
+import { all, fork, put, put as putEffect, select, takeLatest } from 'redux-saga/effects';
 import claimApi from '../claim/api';
 import { hideLoading, showLoading } from '../loading/actions';
 import { showToast } from '../toast/actions';
-import { api as pageMessageApi } from '@store/message/pageMessageSession.api';
 import {
   archiveLixi,
   archiveLixiFailure,
@@ -85,7 +80,6 @@ import {
 } from './actions';
 import lixiApi from './api';
 import { getLixiById } from './selectors';
-import { CreatePageMessageInput } from '@generated/types.generated';
 
 const call: any = Effects.call;
 /**
@@ -288,9 +282,14 @@ function* registerLixiPackSaga(action: PayloadAction<any>) {
 }
 
 function* registerLixiPackSuccessSaga(action: PayloadAction<Account>) {
-  Modal.success({
-    content: intl.get('lixi.registerSuccess')
-  });
+  const message = intl.get('lixi.registerSuccess');
+  yield put(
+    showToast('success', {
+      message: 'Success',
+      description: message,
+      duration: 5
+    })
+  );
   yield put(hideLoading(registerLixiPack.type));
 }
 
@@ -395,7 +394,7 @@ function* refreshLixiSilentSaga(action: PayloadAction<number>) {
 
 function* setLixiSaga(action: PayloadAction<Lixi>) {
   const lixi: any = action.payload;
-  yield put(push(`/lixi/${lixi.id}`));
+  // yield put(push(`/lixi/${lixi.id}`));
   yield put(refreshLixiSilent(lixi.id));
 }
 
@@ -420,7 +419,6 @@ function* selectLixiSuccessSaga(action: PayloadAction<any>) {
   const { lixi } = action.payload;
   yield put(refreshLixiSilent(lixi.id));
   yield put(hideLoading(selectLixi.type));
-  // yield put(push(`/lixi/${lixi.id}`)); Dont need to push here
 }
 
 function* selectLixiFailureSaga(action: PayloadAction<string>) {
@@ -585,15 +583,25 @@ function* renameLixiSaga(action: PayloadAction<RenameLixiCommand>) {
 function* renameLixiSuccessSaga(action: PayloadAction<Lixi>) {
   const lixi = action.payload;
   yield put(hideLoading(renameLixi.type));
-  Modal.success({
-    content: intl.get('lixi.renameSuccess', { lixiName: lixi.name })
-  });
+  const message = intl.get('lixi.renameSuccess', { lixiName: lixi.name });
+  yield put(
+    showToast('success', {
+      message: 'Success',
+      description: message,
+      duration: 5
+    })
+  );
 }
 
 function* renameLixiFailureSaga(action: PayloadAction<string>) {
-  Modal.error({
-    content: intl.get('lixi.renameFailed')
-  });
+  const message = intl.get('lixi.renameFailed');
+  yield put(
+    showToast('error', {
+      message: 'Error',
+      description: message,
+      duration: 5
+    })
+  );
   yield put(hideLoading(renameLixi.type));
 }
 

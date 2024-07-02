@@ -1,15 +1,15 @@
-import { PaginationArgs } from '@bcpros/lixi-models';
+import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
 import {
   useMessageByPageMessageSessionIdQuery,
   useLazyMessageByPageMessageSessionIdQuery
 } from '@store/message/message.api';
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { MessageOrder } from '@generated/types.generated';
+import { MessageOrder } from '../../generated/types.generated';
 import _ from 'lodash';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { MessageQuery } from './message.generated';
 
-const messageAdapter = createEntityAdapter<MessageQuery['message']>({
+const messageAdapter = createEntityAdapter<MessageQuery['message'], string>({
   selectId: pageMessageSession => pageMessageSession.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });

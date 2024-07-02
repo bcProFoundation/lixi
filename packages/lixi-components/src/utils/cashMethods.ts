@@ -1,5 +1,5 @@
-import { currency } from '../components/Common/Ticker';
 import BigNumber from 'bignumber.js';
+import { currency } from '../components/Common/Ticker';
 // import cashaddr from 'ecashaddrjs';
 
 export const fromLegacyDecimals = (amount, cashDecimals = currency.cashDecimals) => {
@@ -72,19 +72,4 @@ export const isValidStoredWallet = walletStateFromStorage => {
     'slpBalancesAndUtxos' in walletStateFromStorage.state &&
     'tokens' in walletStateFromStorage.state
   );
-};
-
-export const getWalletState = wallet => {
-  if (!wallet || !wallet.state) {
-    return {
-      balances: { totalBalance: 0, totalBalanceInSatoshis: 0 },
-      hydratedUtxoDetails: {},
-      tokens: [],
-      slpBalancesAndUtxos: {},
-      parsedTxHistory: [],
-      utxos: []
-    };
-  }
-
-  return wallet.state;
 };

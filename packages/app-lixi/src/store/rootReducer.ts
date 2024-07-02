@@ -1,0 +1,227 @@
+import {
+  AccountsState,
+  CategoriesState,
+  ClaimsState,
+  CountriesState,
+  LixiesState,
+  LocalUserAccountsState,
+  PageMessageSessionState,
+  PageState,
+  PostState,
+  SettingsState,
+  StatesState,
+  WalletState,
+  accountReducer,
+  actionSheetReducer,
+  burnReducer,
+  categoryReducer,
+  claimReducer,
+  countryReducer,
+  envelopeReducer,
+  errorReducer,
+  lixiReducer,
+  loadingReducer,
+  localUserAccountReducer,
+  messageReducer,
+  modalReducer,
+  notificationReducer,
+  pageReducer,
+  postReducer,
+  settingsReducer,
+  stateReducer,
+  toastReducer,
+  tokenReducer,
+  walletStateReducer,
+  actionReducer,
+  api
+} from '@store/index';
+import { routerReducer } from 'connected-next-router';
+import { HYDRATE } from 'next-redux-wrapper';
+import { UnknownAction, combineReducers } from 'redux';
+import { persistReducer } from 'redux-persist';
+import { createMigrate, PersistConfig } from 'redux-persist';
+import storage from 'redux-persist-indexeddb-storage';
+
+const migration = {
+  0: state => {
+    return {
+      ...state,
+      burn: {
+        ...state.burn,
+        burnQueue: [],
+        failQueue: []
+      }
+    };
+  }
+};
+
+const persistConfig = {
+  timeout: 1000,
+  key: 'root',
+  version: 0,
+  storage: storage('lixi-indexeddb'),
+  blacklist: [
+    'accounts',
+    'router',
+    'modal',
+    'action-sheet',
+    'toast',
+    'wallet',
+    'api',
+    'root',
+    'posts',
+    'pages',
+    'burn',
+    'loading',
+    'notifications'
+  ],
+  migrate: createMigrate(migration, { debug: false })
+};
+
+const walletPersistConfig: PersistConfig<WalletState> = {
+  key: 'wallet',
+  storage: storage('lixi-indexeddb')
+};
+
+const localAccountPersistConfig: PersistConfig<LocalUserAccountsState> = {
+  key: 'localAccounts',
+  storage: storage('lixi-indexeddb')
+};
+
+const accountPersistConfig: PersistConfig<AccountsState> = {
+  key: 'accounts',
+  storage: storage('lixi-indexeddb'),
+  blacklist: [
+    `envelopeUpload`,
+    'pageCoverUpload',
+    'pageAvatarUpload',
+    'postCoverUploads',
+    'messageUploads',
+    'leaderBoard',
+    'graphqlRequestLoading',
+    'productImageUploads',
+    'accountInfoTemp',
+    'commentUpload'
+  ],
+  timeout: 0
+};
+const postPersistConfig: PersistConfig<PostState> = {
+  key: 'posts',
+  storage: storage('lixi-indexeddb'),
+  blacklist: ['selectedId']
+};
+const lixiPersistConfig: PersistConfig<LixiesState> = {
+  key: 'lixies',
+  storage: storage('lixi-indexeddb')
+};
+
+const claimsPersistConfig: PersistConfig<ClaimsState> = {
+  key: 'claims',
+  storage: storage('lixi-indexeddb')
+};
+
+const shopPersistConfig: PersistConfig<PageState> = {
+  key: 'pages',
+  storage: storage('lixi-indexeddb'),
+  blacklist: ['currentPageMessageSession']
+};
+
+const settingsPersistConfig: PersistConfig<SettingsState> = {
+  key: 'settings',
+  storage: storage('lixi-indexeddb'),
+  whitelist: ['locale']
+};
+
+const countryPersistConfig: PersistConfig<CountriesState> = {
+  key: 'countries',
+  storage: storage('lixi-indexeddb')
+};
+
+const statePersistConfig: PersistConfig<StatesState> = {
+  key: 'states',
+  storage: storage('lixi-indexeddb')
+};
+
+const categoryPersistConfig: PersistConfig<CategoriesState> = {
+  key: 'categories',
+  storage: storage('lixi-indexeddb')
+};
+
+const pageMessagePersistConfig: PersistConfig<PageMessageSessionState> = {
+  key: 'pageMessage',
+  storage: storage('lixi-indexeddb')
+};
+
+export const serverReducer = combineReducers({
+  router: routerReducer,
+  wallet: walletStateReducer,
+  accounts: accountReducer,
+  localAccounts: localUserAccountReducer,
+  posts: postReducer,
+  lixies: lixiReducer,
+  claims: claimReducer,
+  settings: settingsReducer,
+  pages: pageReducer,
+  tokens: tokenReducer,
+  notifications: notificationReducer,
+  envelopes: envelopeReducer,
+  loading: loadingReducer,
+  modal: modalReducer,
+  actionSheet: actionSheetReducer,
+  toast: toastReducer,
+  error: errorReducer,
+  countries: countryReducer,
+  states: stateReducer,
+  categories: categoryReducer,
+  burn: burnReducer,
+  pageMessage: messageReducer,
+  [api.reducerPath]: api.reducer,
+  action: actionReducer
+});
+
+export const clientReducer = combineReducers({
+  router: routerReducer,
+  wallet: persistReducer(walletPersistConfig, walletStateReducer),
+  accounts: persistReducer(accountPersistConfig, accountReducer),
+  localAccounts: persistReducer(localAccountPersistConfig, localUserAccountReducer),
+  posts: persistReducer(postPersistConfig, postReducer),
+  lixies: persistReducer(lixiPersistConfig, lixiReducer),
+  claims: persistReducer(claimsPersistConfig, claimReducer),
+  settings: persistReducer(settingsPersistConfig, settingsReducer),
+  pages: persistReducer(shopPersistConfig, pageReducer),
+  tokens: tokenReducer,
+  notifications: notificationReducer,
+  envelopes: envelopeReducer,
+  loading: loadingReducer,
+  modal: modalReducer,
+  actionSheet: actionSheetReducer,
+  toast: toastReducer,
+  error: errorReducer,
+  countries: persistReducer(countryPersistConfig, countryReducer),
+  states: persistReducer(statePersistConfig, stateReducer),
+  categories: persistReducer(categoryPersistConfig, categoryReducer),
+  burn: burnReducer,
+  pageMessage: persistReducer(pageMessagePersistConfig, messageReducer),
+  [api.reducerPath]: api.reducer,
+  action: actionReducer
+});
+
+const reducer = (state, action: UnknownAction) => {
+  if (action.type === HYDRATE) {
+    // const { api: _ignore_and_let_RTK_handle_this, router, ...hydrate } = action.payload;
+    const nextState = {
+      ...state // use previous state
+      // ...action.payload, // apply delta from hydration
+      // ...hydrate
+    };
+    if (typeof window !== 'undefined' && state?.router) {
+      // preserve router value on client side navigation
+      nextState.router = state.router;
+    }
+    return nextState;
+  } else {
+    return clientReducer(state, action);
+  }
+};
+
+export default persistReducer(persistConfig, reducer);

@@ -2,7 +2,7 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { Redis } from 'ioredis';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { ACCOUNT_DANA_QUEUE } from './burn.constants';
 import { AccountDanaHistoryType, BurnType as BurnTypePrisma } from '@bcpros/lixi-prisma';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
@@ -102,15 +102,6 @@ export class AccountDanaProcessor extends WorkerHost {
           }
         });
 
-        //update received account
-        const receivedAccountDana = await this.prisma.accountDana.findFirst({
-          where: {
-            account: {
-              address: receivedDanaAddress
-            }
-          }
-        });
-
         await this.prisma.$transaction(async prisma => {
           let givenUpValue = 0.0;
           let givenDownValue = 0.0;
@@ -162,53 +153,68 @@ export class AccountDanaProcessor extends WorkerHost {
             }
           });
 
-          const danaReceived =
-            command.burnType === BurnType.Up
-              ? receivedAccountDana?.danaReceived! + amount
-              : receivedAccountDana?.danaReceived! - amount;
-
-          const updatedRecivedAccountDana = await prisma.accountDana.update({
-            where: {
-              id: receivedAccountDana?.id,
-              version: receivedAccountDana?.version
-            },
-            data: {
-              danaReceived: danaReceived,
-              version: {
-                increment: 1
-              }
-            }
-          });
-
-          if (receivedAccountDana && !updatedRecivedAccountDana) throw new Error('Unable to update account dana');
-
-          await prisma.accountDanaHistory.create({
-            data: {
-              txid: txid,
-              burnType: command.burnType ? BurnTypePrisma.UPVOTE : BurnTypePrisma.DOWNVOTE,
-              accountDana: {
-                connect: {
-                  id: updatedRecivedAccountDana?.id
-                }
-              },
-              burnForId: command.burnForId,
-              burnForType: command.burnForType,
-              type: AccountDanaHistoryType.RECEIVED,
-              receivedUpValue: receivedUpValue,
-              receivedDownValue: receivedDownValue
-            }
-          });
-
           const givenAccDana = new AccountDana({
             ...updatedGivenAccountDana
           });
-          const receivedAccDana = new AccountDana({
-            ...updatedRecivedAccountDana
-          });
-          await Promise.all([
-            this.accountDanaCacheService.setAccountDana(givenAccDana.accountId, givenAccDana),
-            this.accountDanaCacheService.setAccountDana(receivedAccDana.accountId, receivedAccDana)
-          ]);
+
+          if (receivedDanaAddress !== null) {
+            //update received account
+            const receivedAccountDana = await this.prisma.accountDana.findFirst({
+              where: {
+                account: {
+                  address: receivedDanaAddress
+                }
+              }
+            });
+
+            const danaReceived =
+              command.burnType === BurnType.Up
+                ? receivedAccountDana?.danaReceived! + amount
+                : receivedAccountDana?.danaReceived! - amount;
+
+            const updatedRecivedAccountDana = await prisma.accountDana.update({
+              where: {
+                id: receivedAccountDana?.id,
+                version: receivedAccountDana?.version
+              },
+              data: {
+                danaReceived: danaReceived,
+                version: {
+                  increment: 1
+                }
+              }
+            });
+
+            if (receivedAccountDana && !updatedRecivedAccountDana) throw new Error('Unable to update account dana');
+
+            await prisma.accountDanaHistory.create({
+              data: {
+                txid: txid,
+                burnType: command.burnType ? BurnTypePrisma.UPVOTE : BurnTypePrisma.DOWNVOTE,
+                accountDana: {
+                  connect: {
+                    id: updatedRecivedAccountDana?.id
+                  }
+                },
+                burnForId: command.burnForId,
+                burnForType: command.burnForType,
+                type: AccountDanaHistoryType.RECEIVED,
+                receivedUpValue: receivedUpValue,
+                receivedDownValue: receivedDownValue
+              }
+            });
+
+            const receivedAccDana = new AccountDana({
+              ...updatedRecivedAccountDana
+            });
+            await Promise.all([
+              this.accountDanaCacheService.setAccountDana(givenAccDana.accountId, givenAccDana),
+              this.accountDanaCacheService.setAccountDana(receivedAccDana.accountId, receivedAccDana)
+            ]);
+          } else {
+            //don't have received account
+            await this.accountDanaCacheService.setAccountDana(givenAccDana.accountId, givenAccDana);
+          }
         });
       }
     } catch (error) {

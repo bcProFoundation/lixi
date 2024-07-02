@@ -1,11 +1,11 @@
 import { Comment as AntdComment } from '@ant-design/compatible';
 import { DislikeFilled, DislikeOutlined, LikeFilled, LikeOutlined } from '@ant-design/icons';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { AvatarUser } from '@components/Common/AvatarUser';
 import Counter from '@components/Common/Counter';
 import { CommentQueryItem, PostQueryItem } from '@generated/index';
 import { prepareBurnCommand } from '@store/burn';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { formatBalance } from '@utils/cashMethods';
 import { Space, Tooltip } from 'antd';
 import _ from 'lodash';
@@ -20,30 +20,12 @@ type CommentListItemProps = {
 };
 
 const CommentListItem = ({ item, post }: CommentListItemProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const history = useRouter();
 
-  const upVoteComment = (dataItem: CommentQueryItem) => {
-    dispatch(
-      prepareBurnCommand({
-        isUpVote: true,
-        burnForItem: dataItem,
-        burnForType: BurnForType.Comment,
-        burnValue: '1'
-      })
-    );
-  };
+  const upVoteComment = (dataItem: CommentQueryItem) => {};
 
-  const downVoteComment = (dataItem: CommentQueryItem) => {
-    dispatch(
-      prepareBurnCommand({
-        isUpVote: false,
-        burnForItem: dataItem,
-        burnForType: BurnForType.Comment,
-        burnValue: '1'
-      })
-    );
-  };
+  const downVoteComment = (dataItem: CommentQueryItem) => {};
 
   const showUsername = () => {
     if (_.isNil(item?.commentAccount)) {

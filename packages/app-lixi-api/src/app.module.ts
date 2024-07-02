@@ -1,4 +1,4 @@
-import { RedisClientOptions, RedisModule } from '@liaoliaots/nestjs-redis';
+import { RedisClientOptions, RedisModule } from '@songkeys/nestjs-redis';
 import { BullModule } from '@nestjs/bullmq';
 import { CacheModule } from '@nestjs/cache-manager';
 import { HttpException, Logger, Module, OnApplicationShutdown } from '@nestjs/common';
@@ -38,6 +38,9 @@ import { DevtoolsModule } from '@nestjs/devtools-integration';
 import { EventsAnalyticModule } from './modules/events-analytic/events-analytic.module';
 import { BookmarkModule } from './modules/bookmark/bookmark.module';
 import { BurnHistoryModule } from './modules/burn-history/burn-history.module';
+import { ChronikModule } from 'nestjs-chronik';
+import { DanaModule } from './modules/dana/dana.module';
+import { EscrowModule } from './modules/escrow/escrow.module';
 
 //enabled serving multiple static for fastify
 type FastifyServeStaticModuleOptions = ServeStaticModuleOptions & {
@@ -87,6 +90,25 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
     }),
     PrismaModule,
     ServeStaticModule.forRoot(serveStaticModule_images),
+    ChronikModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        networks: {
+          xec: {
+            clientUrls: [`${config.get<string>('CHRONIK_URL')}/xec` || 'https://chronik.be.cash/xec'],
+            nodeUrls: ['https://chronik.pay2stay.com/xec']
+          },
+          xpi: {
+            clientUrls: [`${config.get<string>('CHRONIK_URL')}/xpi` || 'https://chronik.be.cash/xpi'],
+            nodeUrls: ['https://chronik.pay2stay.com/xpi']
+          },
+          xrg: {
+            clientUrls: [`${config.get<string>('CHRONIK_URL')}/xrg` || 'https://chronik.be.cash/xrg'],
+            nodeUrls: ['https://chronik.pay2stay.com/xrg']
+          }
+        }
+      })
+    }),
     GraphQLModule.forRootAsync<MercuriusDriverConfig>({
       driver: MercuriusDriver,
       useFactory: async (configService: ConfigService) => {
@@ -180,7 +202,9 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
       http: process.env.NODE_ENV !== 'production'
     }),
     BookmarkModule,
-    BurnHistoryModule
+    BurnHistoryModule,
+    DanaModule,
+    EscrowModule
   ],
   controllers: [],
   providers: [

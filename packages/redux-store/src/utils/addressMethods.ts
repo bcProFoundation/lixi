@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js';
 import cashaddr from 'ecashaddrjs';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 
 export interface AddressInfo {
   address: string;
@@ -57,7 +58,7 @@ export function parseAddress(XPI: any, addressString: string): AddressInfo {
 
 export const parseEcashAddress = (cashAddress: string) => {
   if (cashAddress) {
-    const { type, hash } = cashaddr.decode(cashAddress);
+    const { type, hash } = cashaddr.decode(cashAddress, false);
     const changeAddress = cashaddr.encode('ecash', type, hash);
 
     return changeAddress;

@@ -1,8 +1,8 @@
 import { getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { createContext, useCallback } from 'react';
 import { shallowEqual } from 'react-redux';
 import { openModal } from '@store/modal/actions';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => { };
@@ -23,8 +23,8 @@ const defaultAuthorizationValue: AuthorizationValue = {
 export const AuthorizationContext = createContext<AuthorizationValue>(defaultAuthorizationValue);
 
 export const AuthorizationProvider = ({ children }) => {
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount, shallowEqual);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount, shallowEqual);
   const authorized = selectedAccount ? true : false;
   const anonymous = !authorized;
   const userAccountId = selectedAccount && selectedAccount.id ? selectedAccount.id : undefined;

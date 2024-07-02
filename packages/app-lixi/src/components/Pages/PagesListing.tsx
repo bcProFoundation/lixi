@@ -9,7 +9,7 @@ import { Menu, MenuProps, Modal } from 'antd';
 import _ from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import PageListItem from './PageListItem';
 
 type PagesListingProps = {
@@ -19,8 +19,8 @@ type PagesListingProps = {
 const PagesListing: React.FC<PagesListingProps> = ({ className }: PagesListingProps) => {
   const Wallet = React.useContext(WalletContext);
   const { XPI } = Wallet;
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const [isShowQrCode, setIsShowQrCode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);

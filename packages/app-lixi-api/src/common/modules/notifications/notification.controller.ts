@@ -13,7 +13,7 @@ import {
   Request,
   UseGuards
 } from '@nestjs/common';
-import { Account } from '@prisma/client';
+import { Account } from '@bcpros/lixi-prisma';
 import { FastifyRequest } from 'fastify';
 import { I18n, I18nContext } from 'nestjs-i18n';
 import { PageAccountEntity } from 'src/decorators';

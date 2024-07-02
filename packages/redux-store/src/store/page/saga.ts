@@ -1,10 +1,10 @@
-import { AccountDto, EditPageCommand, Page, PageDto } from '@bcpros/lixi-models';
-import { CreatePageCommand } from '@bcpros/lixi-models/src';
-import { all, fork, put, takeLatest } from '@redux-saga/core/effects';
+import { CreatePageCommand, EditPageCommand } from '@bcpros/lixi-models/lib/page/create-page.command';
+import { PageDto } from '@bcpros/lixi-models/lib/page/page.dto';
 import { PayloadAction } from '@reduxjs/toolkit';
 import * as _ from 'lodash';
 import intl from 'react-intl-universal';
 import * as Effects from 'redux-saga/effects';
+import { all, fork, put, takeLatest } from 'redux-saga/effects';
 
 import { hideLoading, showLoading } from '../loading/actions';
 import { showToast } from '../toast/actions';
@@ -170,8 +170,6 @@ function* editPageFailureSaga(action: PayloadAction<string>) {
 
 function* setPageSaga(action: PayloadAction<any>) {
   const page: any = action.payload;
-  // yield put(push('/page/lixi'));
-  // yield put(refreshLixiSilent(lixi.id));
 }
 
 function* getPagesByAccountIdSaga(action: PayloadAction<number>) {

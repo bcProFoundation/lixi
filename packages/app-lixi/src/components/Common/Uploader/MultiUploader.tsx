@@ -5,10 +5,10 @@ import { UploadOutlined } from '@ant-design/icons';
 import { RcFile, UploadChangeParam } from 'antd/lib/upload';
 import styled from 'styled-components';
 import type { UploadFile } from 'antd/es/upload/interface';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { setUpload } from '@store/account/actions';
 import axiosClient from '@utils/axiosClient';
-import { UPLOAD_API_S3_MULTIPLE } from '@bcpros/lixi-models/constants';
+import { UPLOAD_API_S3_MULTIPLE } from '@bcpros/lixi-models/constants/upload';
 import _ from 'lodash';
 import { ButtonType } from 'antd/lib/button';
 import { showToast } from '@store/toast/actions';
@@ -95,8 +95,8 @@ export const MultiUploader = React.forwardRef(
     const countFile = useRef(0);
     const lastLengthUpload = useRef(0);
     const formData = new FormData();
-    const dispatch = useAppDispatch();
-    const postCoverUploads = useAppSelector(getPostCoverUploads);
+    const dispatch = useSliceDispatch();
+    const postCoverUploads = useSliceSelector(getPostCoverUploads);
     const { imageUploadableId } = postCoverUploads;
 
     useImperativeHandle(ref, () => ({

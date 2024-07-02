@@ -11,7 +11,7 @@ import {
   RenameAccountCommand,
   SecondaryLanguageAccountCommand
 } from '@bcpros/lixi-models';
-import { COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import {
   AntdFormWrapper,
   LanguageNotAutoTransDropdown,
@@ -22,7 +22,6 @@ import { StyledCollapse } from '@components/Common/StyledCollapse';
 import { WalletContext } from '@context/index';
 import {
   deleteAccount,
-  generateAccount,
   importAccount,
   renameAccount,
   selectAccount,
@@ -30,10 +29,10 @@ import {
   setSecondaryLanguageAccount
 } from '@store/account/actions';
 import { getAllAccounts, getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getIsGlobalLoading } from '@store/loading/selectors';
 import { openModal } from '@store/modal/actions';
-import { setCurrentThemes, setInitIntlStatus, setIsSystemThemes, updateLocale } from '@store/settings/actions';
+import { setCurrentThemes, setInitIntlStatus, setIsSystemThemes, updateLanguage } from '@store/settings/actions';
 import { getCurrentLocale, getCurrentThemes, getIsSystemThemes } from '@store/settings/selectors';
 import { Alert, Button, Collapse, Form, Input, Modal, Select, Spin } from 'antd';
 import axios from 'axios';
@@ -226,7 +225,7 @@ const SettingBar = styled.div`
     }
   }
   .second-language {
-    margin-top: 1rem;
+    margin-top: 2rem;
   }
 `;
 
@@ -263,7 +262,7 @@ const helpInfoIcon = (
 const Settings: React.FC = () => {
   const Wallet = React.useContext(WalletContext);
 
-  const isLoading = useAppSelector(getIsGlobalLoading);
+  const isLoading = useSliceSelector(getIsGlobalLoading);
   const [seedInput, openSeedInput] = useState(false);
   const [isValidMnemonic, setIsValidMnemonic] = useState<boolean | null>(null);
   const [formData, setFormData] = useState({
@@ -274,13 +273,13 @@ const Settings: React.FC = () => {
   const [form] = Form.useForm();
   const [otherAccounts, setOtherAccounts] = useState<Account[]>([]);
 
-  const dispatch = useAppDispatch();
-  const savedAccounts: Account[] = useAppSelector(getAllAccounts);
-  const selectedAccount: Account | undefined = useAppSelector(getSelectedAccount);
-  const currentThemes = useAppSelector(getCurrentThemes);
+  const dispatch = useSliceDispatch();
+  const savedAccounts: Account[] = useSliceSelector(getAllAccounts);
+  const selectedAccount: Account | undefined = useSliceSelector(getSelectedAccount);
+  const currentThemes = useSliceSelector(getCurrentThemes);
   const currentDeviceTheme = useThemeDetector();
-  const isSystemThemes = useAppSelector(getIsSystemThemes);
-  const currentLocale = useAppSelector(getCurrentLocale);
+  const isSystemThemes = useSliceSelector(getIsSystemThemes);
+  const currentLocale = useSliceSelector(getCurrentLocale);
 
   const keyCoins = Object.keys(COIN);
   const labelCoin = item => (
@@ -360,9 +359,9 @@ const Settings: React.FC = () => {
     selectTheme === 'system' ? dispatch(setIsSystemThemes(true)) : dispatch(setIsSystemThemes(false));
   };
 
-  function setLocale(locales: any) {
+  function setLanguage(language: string) {
     dispatch(setInitIntlStatus(false));
-    dispatch(updateLocale(locales));
+    dispatch(updateLanguage(language));
   }
 
   async function submit() {
@@ -393,6 +392,83 @@ const Settings: React.FC = () => {
     dispatch(setAccountCoin({ id: selectedAccount.id, accountCoin: value }));
   };
 
+  const itemRevealPhrase = [
+    {
+      key: '1',
+      label: intl.get('settings.revealPhrase'),
+      children: (
+        <p className="notranslate">{selectedAccount && selectedAccount.mnemonic ? selectedAccount.mnemonic : ''}</p>
+      )
+    }
+  ];
+
+  const itemsSavedAccount = [
+    {
+      key: '2',
+      label: intl.get('settings.savedAccount'),
+      children: (
+        <React.Fragment>
+          <AWRow>
+            <SWName>
+              <h3>{selectedAccount?.name}</h3>
+            </SWName>
+            <SWName>
+              <h3>
+                {
+                  <Select
+                    onChange={handleChangeWallet}
+                    defaultValue={selectedAccount?.coin ?? COIN.XPI}
+                    options={labelOptionCoins}
+                    // bordered={null}
+                    variant="borderless"
+                    style={{ left: '-11px' }}
+                  ></Select>
+                }
+              </h3>
+            </SWName>
+            <SWButtonCtn>
+              <span onClick={() => showPopulatedRenameAccountModal(selectedAccount as Account)}>
+                <Edit />
+              </span>
+              <span onClick={() => showPopulatedDeleteAccountModal(selectedAccount as Account)}>
+                <Trashcan />
+              </span>
+              <Button disabled={true} type="primary" className="no-border-btn">
+                {intl.get('settings.activated')}
+              </Button>
+            </SWButtonCtn>
+          </AWRow>
+
+          <div>
+            {otherAccounts &&
+              otherAccounts.map(acc => (
+                <SWRow key={acc.id}>
+                  <SWName>
+                    <h3>{acc.name}</h3>
+                  </SWName>
+                  <SWName>
+                    <h3>{labelCoin(acc.coin)}</h3>
+                  </SWName>
+
+                  <SWButtonCtn>
+                    <span onClick={() => showPopulatedRenameAccountModal(acc)}>
+                      <Edit />
+                    </span>
+                    <span onClick={() => showPopulatedDeleteAccountModal(acc)}>
+                      <Trashcan />
+                    </span>
+                    <Button type="primary" className="outline-btn" onClick={() => dispatch(selectAccount(acc.id))}>
+                      Activate
+                    </Button>
+                  </SWButtonCtn>
+                </SWRow>
+              ))}
+          </div>
+        </React.Fragment>
+      )
+    }
+  ];
+
   return (
     <>
       <WrapperPage className="card setting-page">
@@ -406,13 +482,7 @@ const Settings: React.FC = () => {
               showIcon
               message
             />
-            <StyledCollapse>
-              <Panel header={intl.get('settings.revealPhrase')} key="1">
-                <p className="notranslate">
-                  {selectedAccount && selectedAccount.mnemonic ? selectedAccount.mnemonic : ''}
-                </p>
-              </Panel>
-            </StyledCollapse>
+            <StyledCollapse items={itemRevealPhrase}></StyledCollapse>
           </SettingBar>
           <SettingBar>
             <h2 style={{ color: 'var(--color-primary)' }}>{intl.get('settings.manageAccounts')}</h2>
@@ -524,8 +594,8 @@ const Settings: React.FC = () => {
             <AntdFormWrapper>
               <LanguageSelectDropdown
                 defaultValue={selectedAccount?.language}
-                onChange={(locale: any) => {
-                  setLocale(locale);
+                onChange={(language: string) => {
+                  setLanguage(language);
                 }}
               />
             </AntdFormWrapper>

@@ -1,18 +1,19 @@
-import { Account, ChangeAccountLocaleCommand } from '@bcpros/lixi-models';
-import { FilterBurnCommand } from '@bcpros/lixi-models/lib/filter';
-import { all, call, fork, put, select, takeLatest } from '@redux-saga/core/effects';
+import { ChangeAccountLocaleCommand } from '@bcpros/lixi-models/lib/account/account.dto';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { changeAccountLocale } from '@store/account/actions';
 import { getSelectedAccount } from '@store/account/selectors';
 import { showToast } from '@store/toast/actions';
-import * as _ from 'lodash';
+import { injectStore as reduxInjectstore } from '../../utils/axiosClient';
 import moment from 'moment';
 import intl from 'react-intl-universal';
-import AppLocale from '@lang/index';
+import { all, call, fork, put, select, takeLatest } from 'redux-saga/effects';
 
-import { loadLocale, loadLocaleFailure, loadLocaleSuccess, setInitIntlStatus, updateLocale } from './actions';
+import { loadLocale, loadLocaleFailure, loadLocaleSuccess, setInitIntlStatus, updateLanguage } from './actions';
 
 import 'moment/locale/vi';
+import { injectStore } from '../../utils';
+import AppLocale from '../../lang';
 
 function initLocale(currentAppLocale: any): Promise<boolean> {
   return intl
@@ -20,7 +21,8 @@ function initLocale(currentAppLocale: any): Promise<boolean> {
       currentLocale: currentAppLocale.locale,
       locales: {
         [currentAppLocale.locale]: currentAppLocale.messages
-      }
+      },
+      debug: true
     })
     .then(() => {
       return true;
@@ -32,11 +34,13 @@ function initLocale(currentAppLocale: any): Promise<boolean> {
 
 function* loadLocaleSaga(action: PayloadAction<string>) {
   try {
-    const language: string = action.payload ?? 'en';
-    const currentAppLocale = AppLocale[language];
+    const locale: string = action.payload ?? 'en-US';
+    const currentAppLocale = AppLocale[locale];
     const initDone: boolean = yield call(initLocale, currentAppLocale);
-    const selectedAccount: Account | undefined = yield select(getSelectedAccount);
 
+    const language = locale.split('-')[0] || 'en';
+    injectStore(language);
+    reduxInjectstore(language);
     moment.locale(language);
 
     if (initDone) {
@@ -49,7 +53,7 @@ function* loadLocaleSaga(action: PayloadAction<string>) {
   }
 }
 
-function* updateLocaleSaga(action: PayloadAction<string>) {
+function* updateLanguageSaga(action: PayloadAction<string>) {
   try {
     const language: string = action.payload ?? 'en';
     const selectedAccount: Account | undefined = yield select(getSelectedAccount);
@@ -61,7 +65,7 @@ function* updateLocaleSaga(action: PayloadAction<string>) {
     };
     yield put(changeAccountLocale(command));
   } catch {
-    yield put(loadLocaleFailure(updateLocale.type));
+    yield put(loadLocaleFailure(updateLanguage.type));
   }
 }
 
@@ -90,8 +94,8 @@ function* watchLoadLocale() {
   yield takeLatest(loadLocale.type, loadLocaleSaga);
 }
 
-function* watchUpdateLocale() {
-  yield takeLatest(updateLocale.type, updateLocaleSaga);
+function* watchupdateLanguage() {
+  yield takeLatest(updateLanguage.type, updateLanguageSaga);
 }
 
 function* watchLoadLocaleSuccess() {
@@ -107,6 +111,6 @@ export default function* lixiSaga() {
     fork(watchLoadLocale),
     fork(watchLoadLocaleSuccess),
     fork(watchLoadLocaleFailuare),
-    fork(watchUpdateLocale)
+    fork(watchupdateLanguage)
   ]);
 }

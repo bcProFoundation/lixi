@@ -1,6 +1,6 @@
 import OnboardingComponent from '@components/Onboarding/Onboarding';
-import { SagaStore, wrapper } from '@store/store';
-import { withIronSessionSsr } from 'iron-session/next';
+import { SagaStore, wrapper } from 'src/store/store';
+import { IronSessionData, getIronSession } from 'iron-session';
 import { getSelectorsByUserAgent } from 'react-device-detect';
 import { END } from 'redux-saga';
 import { LocalUser } from 'src/shared/models/localUser';
@@ -15,29 +15,32 @@ const OnboardingPage = ({ isMobile, localUser }: OnboardingProps) => {
   return <OnboardingComponent />;
 };
 
-export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) =>
-  withIronSessionSsr(async function getServerSideProps(context) {
-    const { req } = context;
-    const { headers } = req;
+export const getServerSideProps = wrapper.getServerSideProps(
+  (store: SagaStore) =>
+    async function getServerSideProps(context) {
+      const { req } = context;
+      const { headers } = req;
 
-    store.dispatch(END);
-    await (store as SagaStore).__sagaTask.toPromise();
+      const session = await getIronSession<IronSessionData>(context.req, context.res, sessionOptions);
 
-    let isMobile = false;
-    if (typeof window === 'undefined' && headers['user-agent']) {
-      const userAgent = req ? req.headers['user-agent'] : '';
-      isMobile = getSelectorsByUserAgent(userAgent).isMobile;
-    }
+      store.dispatch(END);
+      await (store as SagaStore).__sagaTask.toPromise();
 
-    const localUser = req.session.localUser;
-
-    return {
-      props: {
-        isMobile,
-        localUser: localUser ?? null
+      let isMobile = false;
+      if (typeof window === 'undefined' && headers['user-agent']) {
+        const userAgent = req ? req.headers['user-agent'] : '';
+        isMobile = getSelectorsByUserAgent(userAgent).isMobile;
       }
-    };
-  }, sessionOptions)
+
+      const localUser = session.localUser;
+
+      return {
+        props: {
+          isMobile,
+          localUser: localUser ?? null
+        }
+      };
+    }
 );
 
 export default OnboardingPage;

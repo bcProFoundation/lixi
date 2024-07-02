@@ -1,16 +1,17 @@
 import { CloseOutlined, LeftOutlined } from '@ant-design/icons';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
 import ActionPostBar from '@components/Common/ActionPostBar';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { LoadingIcon, NavBarHeader } from '@components/Layout/MainLayout';
-import { PostQueryItem } from '@generated/index';
+import { PostQueryItem } from '@generated/types';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import { getCommentUpload } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeModal, openModal } from '@store/modal/actions';
-import { usePostQuery } from '@store/post/posts.generated';
+import { usePostQuery } from '@store/post/posts.api';
+import { getCurrentLocale } from '@store/settings';
 import { Image, Modal, Spin } from 'antd';
 import parse from 'html-react-parser';
-import _ from 'lodash';
 import moment from 'moment';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -24,10 +25,8 @@ import styled from 'styled-components';
 import { removeUpload } from '@store/account';
 import Comment from './Comment';
 import { EditPostModalProps } from './EditPostModalPopup';
-import PostTranslate from './PostTranslate';
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
-import { getCurrentLocale } from '@store/settings';
 import PollContent from './PollContent';
+import PostTranslate from './PostTranslate';
 
 type PostDetailProps = {
   initialPost: PostQueryItem;
@@ -56,7 +55,7 @@ const PostContentDetail = styled.div`
     iframe {
       max-width: 100%;
       @media (max-width: 960px) {
-        height: 35vh;
+        max-height: 100vh;
       }
     }
     .hashtag-link {
@@ -225,14 +224,14 @@ const StyledTranslate = styled.div`
 
 export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classStyle }: PostDetailProps) => {
   const [post, setPost] = useState(initialPost);
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const router = useRouter();
   const [showTranslation, setShowTranslation] = useState(false);
   const [openPost, setOpenPost] = useState(true);
   const isMobile = useDetectMobileView();
   const [borderColorHeader, setBorderColorHeader] = useState(false);
-  const commentUpload = useAppSelector(getCommentUpload);
-  const currentLocale = useAppSelector(getCurrentLocale);
+  const commentUpload = useSliceSelector(getCommentUpload);
+  const currentLocale = useSliceSelector(getCurrentLocale);
 
   const { isLoading, currentData, isError } = usePostQuery({ id: post.id });
 
@@ -265,7 +264,9 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
   };
 
   const imageRenderer = useCallback(
-    ({ photo }) => <Image src={photo?.src} width={photo?.width} height={photo?.height} />,
+    ({ photo }) => (
+      <Image src={photo?.src} width={photo?.width} height={photo?.height} key={`photo-${photo?.key || photo?.src}`} />
+    ),
     []
   );
 
@@ -345,8 +346,8 @@ export const PostDetailModal: React.FC<PostDetailProps> = ({ initialPost, classS
               ? 'animate__animated animate__faster animate__slideInRight'
               : 'animate__animated animate__faster animate__slideOutRight'
             : openPost
-            ? 'animate__animated animate__faster animate__zoomIn'
-            : 'animate__animated animate__faster animate__zoomOut'
+              ? 'animate__animated animate__faster animate__zoomIn'
+              : 'animate__animated animate__faster animate__zoomOut'
         }`}
         style={{ top: 30 }}
         open={true}

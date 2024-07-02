@@ -1,37 +1,36 @@
+import { LoadingOutlined } from '@ant-design/icons';
 import { getGraphqlRequestStatus, getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { ConfigProvider, Layout, Spin } from 'antd';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { App, ConfigProvider, Layout, Spin } from 'antd';
 import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
-import { LoadingOutlined } from '@ant-design/icons';
 
-import { navBarHeaderList } from '@components/Common/navBarHeaderList';
+import ToastNotificationManage from '@components/Common/ToastNotificationManage';
+import Footer from '@components/Footer/Footer';
 import Sidebar from '@containers/Sidebar';
 import DummySidebar from '@containers/Sidebar/DummySidebar';
 import SidebarRanking from '@containers/Sidebar/SideBarRanking';
 import SidebarShortcut from '@containers/Sidebar/SideBarShortcut';
 import Topbar from '@containers/Topbar';
+import useDetectMobileView from '@local-hooks/useDetectMobileView';
+import useThemeDetector from '@local-hooks/useThemeDetector';
 import { setTransactionReady } from '@store/account/actions';
-import { getIsGlobalLoading } from '@store/loading/selectors';
-import { loadLocale, setCurrentThemes } from '@store/settings/actions';
+import { getCurrentPageMessageSession } from '@store/page/selectors';
+import { setShowCreatePost } from '@store/post/actions';
+import { setCurrentThemes } from '@store/settings/actions';
 import { getCurrentLocale, getCurrentThemes, getIntlInitStatus, getIsSystemThemes } from '@store/settings/selectors';
 import { getSlpBalancesAndUtxos } from '@store/wallet';
+import 'animate.css';
 import { Header } from 'antd/lib/layout/layout';
+import darkTheme from 'src/styles/themes/darkTheme';
+import lightTheme from 'src/styles/themes/lightTheme';
 import { injectStore } from 'src/utils/axiosClient';
-import ModalManager from '../../Common/ModalManager';
 import ActionSheet from '../../Common/ActionSheet';
+import ModalManager from '../../Common/ModalManager';
 import { GlobalStyle } from './GlobalStyle';
 import { theme } from './theme';
-import 'animate.css';
-import useThemeDetector from '@local-hooks/useThemeDetector';
-import { setShowCreatePost } from '@store/post/actions';
-import ToastNotificationManage from '@components/Common/ToastNotificationManage';
-import lightTheme from 'src/styles/themes/lightTheme';
-import darkTheme from 'src/styles/themes/darkTheme';
-import { getCurrentPageMessageSession } from '@store/page/selectors';
-import Footer from '@components/Footer/Footer';
-import useDetectMobileView from '@local-hooks/useDetectMobileView';
+import useWindowDimensions from '@hooks/useWindowDimensions';
 
 export const LoadingIcon = <LoadingOutlined className="loadingIcon" />;
 
@@ -100,7 +99,6 @@ export const AppContainer = styled.div`
     justify-content: space-between;
   }
   .container-content {
-    height: 100vh;
     scroll-behavior: smooth;
     overflow-y: auto;
     flex-grow: 1;
@@ -136,7 +134,6 @@ export const AppContainer = styled.div`
       width: 100%;
       margin: 0 auto;
       height: fit-content;
-      margin-bottom: 4rem;
       @media (max-width: 968px) {
         margin-bottom: 0;
         height: 100vh;
@@ -217,26 +214,25 @@ export const LixiTextLogo = styled.img`
 
 type MainLayoutProps = React.PropsWithChildren<{}>;
 
-const MainLayout: React.FC = (props: MainLayoutProps) => {
-  const { children } = props;
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const currentLocale = useAppSelector(getCurrentLocale);
-  const intlInitDone = useAppSelector(getIntlInitStatus);
-  const dispatch = useAppDispatch();
+const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const currentLocale = useSliceSelector(getCurrentLocale);
+  const dispatch = useSliceDispatch();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const selectedKey = router.pathname ?? '';
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
   const scrollRef = useRef(null);
-  const graphqlRequestLoading = useAppSelector(getGraphqlRequestStatus);
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const graphqlRequestLoading = useSliceSelector(getGraphqlRequestStatus);
+  const currentTheme = useSliceSelector(getCurrentThemes);
   const isMobile = useDetectMobileView();
+  const { width } = useWindowDimensions();
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [visible, setVisible] = useState(true);
   const currentDeviceTheme = useThemeDetector();
-  const isSystemThemes = useAppSelector(getIsSystemThemes);
-  const currentPageMessageSession = useAppSelector(getCurrentPageMessageSession);
+  const isSystemThemes = useSliceSelector(getIsSystemThemes);
+  const currentPageMessageSession = useSliceSelector(getCurrentPageMessageSession);
 
   useEffect(() => {
     if (isSystemThemes) {
@@ -261,11 +257,6 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
   }, [graphqlRequestLoading]);
 
   injectStore(currentLocale);
-  const isLoading = useAppSelector(getIsGlobalLoading);
-
-  useEffect(() => {
-    dispatch(loadLocale(currentLocale));
-  }, [currentLocale]);
 
   useEffect(() => {
     setLoading(false);
@@ -281,14 +272,14 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
   };
 
   const hideStatusBar = useMemo(() => {
-    return selectedKey === '/page-message' && currentPageMessageSession && isMobile;
+    return selectedKey === '/page-message' && currentPageMessageSession && isMobile && width <= 526;
   }, [selectedKey, currentPageMessageSession]);
 
   return (
     <ConfigProvider theme={currentTheme === 'dark' ? darkTheme : lightTheme}>
-      <ThemeProvider theme={theme as DefaultTheme}>
-        <GlobalStyle />
-        {intlInitDone && (
+      <App>
+        <ThemeProvider theme={theme as DefaultTheme}>
+          <GlobalStyle />
           <Spin spinning={loading} indicator={LoadingIcon}>
             <LixiApp className={currentTheme === 'dark' ? 'dark' : ''}>
               <Layout>
@@ -309,17 +300,18 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
                     )}
                     <div
                       className="container-content"
-                      style={{ padding: selectedKey === '/page-message' ? '0' : '' }}
+                      style={{
+                        paddingTop: selectedKey === '/page-message' && width <= 526 ? 0 : 64,
+                        height: selectedKey === '/page-message' ? '' : '100vh'
+                      }}
                       id="scrollableDiv"
                       ref={scrollRef}
                       onScroll={e => handleScroll(e)}
                     >
                       <SidebarShortcut />
-                      <div className="content-child" style={{ paddingTop: isMobile && !hideStatusBar ? 64 : 0 }}>
-                        {children}
-                      </div>
+                      <div className="content-child">{children}</div>
                       {/* This below is just a dummy sidebar */}
-                      {(selectedKey === '/wallet' || selectedKey === '/') && <SidebarRanking></SidebarRanking>}
+                      {(selectedKey.includes('/wallet') || selectedKey === '/') && <SidebarRanking></SidebarRanking>}
                       <DummySidebar />
                       {!hideStatusBar && (
                         <Footer
@@ -340,8 +332,8 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
               </Layout>
             </LixiApp>
           </Spin>
-        )}
-      </ThemeProvider>
+        </ThemeProvider>
+      </App>
     </ConfigProvider>
   );
 };

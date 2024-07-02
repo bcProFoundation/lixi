@@ -1,3 +1,5 @@
+import { Nullable } from '../nullable';
+
 export class PageDto {
   id: string;
   pageAccountId: number;

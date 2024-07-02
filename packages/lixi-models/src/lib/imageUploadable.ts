@@ -1,15 +1,16 @@
 import { createUnionType, Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 
-import { Account } from './account';
-import { Comment } from './comment';
-import { Event } from './event';
+import { Account } from './account/account.model';
+import { Comment } from './comment/comment.model';
+import { Event } from './event/event.model';
 import { LixiModel } from './lixi/lixi.model';
-import { Message } from './message';
-import { Page } from './page';
-import { Poll } from './poll';
-import { Post } from './post';
-import { Product } from './product';
-import { Temple } from './temple';
+import { Message } from './message/message.model';
+import { Nullable } from './nullable';
+import { Page } from './page/page.model';
+import { Poll } from './poll/poll.model';
+import { Post } from './post/post.model';
+import { Product } from './product/product.model';
+import { Temple } from './temple/temple.model';
 import { Upload } from './upload';
 
 export const ImageUploadableTo = createUnionType({

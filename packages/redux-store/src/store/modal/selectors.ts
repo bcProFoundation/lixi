@@ -1,10 +1,10 @@
 import { createSelector } from 'reselect';
 
-import { RootState } from '../store';
+import { LixiStoreStateInterface } from '../state';
 
 import { ModalState } from './state';
 
 export const getModals = createSelector(
-  (state: RootState) => state.modal,
+  (state: LixiStoreStateInterface) => state.modal,
   (state: ModalState) => state.modals
 );

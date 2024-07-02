@@ -1,5 +1,5 @@
 import BCHJS from '@bcpros/xpi-js';
-import { RedisService } from '@liaoliaots/nestjs-redis';
+import { RedisService } from '@songkeys/nestjs-redis';
 import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import _ from 'lodash';
@@ -7,8 +7,7 @@ import { WALLET_MODULE_OPTIONS, WALLET_SERVICES, WALLET_SUPPORT_CURRENCIES, XPIJ
 import { WalletModuleAsyncOptions, WalletModuleOptions, WalletServices } from './wallet.interface';
 import { createAsyncProviders, createFactory } from './wallet.providers';
 import { WalletResolver } from './wallet.resolver';
-import { CHRONIK_CLIENTS } from '../../common/modules/chronik/chronik.constants';
-import { ChronikClients } from '../../common/modules/chronik/chronik.interfaces';
+import { ChronikClients, CHRONIK_CLIENTS } from 'nestjs-chronik';
 
 @Global()
 @Module({})

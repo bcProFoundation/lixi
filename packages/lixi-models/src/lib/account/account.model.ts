@@ -2,9 +2,11 @@ import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
-import { COIN } from '../../constants';
-import { Message, PageMessageSession } from '../message';
-import { Page } from '../page';
+import { COIN } from '../../constants/coins/coin';
+import { Message } from '../message/message.model';
+import { PageMessageSession } from '../message/pageMessageSession.model';
+import { Nullable } from '../nullable';
+import { Page } from '../page/page.model';
 
 import { AccountDana } from './account-dana.model';
 
@@ -109,6 +111,9 @@ export class Account {
 
   @Field(() => COIN, { nullable: true })
   coin?: Nullable<COIN>;
+
+  @Field(() => COIN, { nullable: true })
+  rootCoin?: Nullable<COIN>;
 
   @Field(() => Number, { nullable: true })
   totalDanaViewScore?: Nullable<number>;

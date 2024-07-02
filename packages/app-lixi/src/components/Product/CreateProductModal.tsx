@@ -1,14 +1,16 @@
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
 import { MultiUploader } from '@components/Common/Uploader/MultiUploader';
 import { WalletContext } from '@context/walletProvider';
-import { PageQueryItem } from '@generated/index';
+import { PageQueryItem } from '@generated/types';
 import { CreateProductInput } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
 import { getProductImageUploads, getSelectedAccount } from '@store/account/selectors';
 import { getAllCategories } from '@store/category/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeModal } from '@store/modal/actions';
-import { useCreateProductMutation } from '@store/product/products.generated';
+import { useCreateProductMutation } from '@store/product/products.api';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
 import { getUtxoWif } from '@utils/cashMethods';
@@ -19,7 +21,6 @@ import React, { useRef, useState } from 'react';
 import intl from 'react-intl-universal';
 import Gallery from 'react-photo-gallery';
 import styled from 'styled-components';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -112,15 +113,15 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   pageId,
   disabled
 }: CreateProductModalProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const pathname = router.pathname ?? '';
-  const walletPaths = useAppSelector(getAllWalletPaths);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
   const Wallet = React.useContext(WalletContext);
   const { XPI, chronik } = Wallet;
   const { sendXpi } = useXPI();
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const postCoverUploads = useAppSelector(getProductImageUploads);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const postCoverUploads = useSliceSelector(getProductImageUploads);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
 
   const multiUploader = useRef(null);
   const imagesList = postCoverUploads.map(img => {
@@ -140,7 +141,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   ] = useCreateProductMutation();
 
   const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
-  const categories = useAppSelector(getAllCategories);
+  const categories = useSliceSelector(getAllCategories);
   const unitPrices = ['VND', 'USD'];
   // New product name
   const [newProductName, setNewProductName] = useState('');

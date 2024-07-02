@@ -3,7 +3,7 @@ import { Form, Input, Button } from 'antd';
 import intl from 'react-intl-universal';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { RegisterViaEmailNoVerifiedCommand } from '@bcpros/lixi-models';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { registerViaEmailNoVerified } from '@store/account/actions';
 
 const RegisterComponent = () => {
@@ -13,7 +13,7 @@ const RegisterComponent = () => {
     formState: { errors },
     control
   } = useForm<RegisterViaEmailNoVerifiedCommand>();
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   const onSubmit: SubmitHandler<RegisterViaEmailNoVerifiedCommand> = data => {
     dispatch(registerViaEmailNoVerified(data));

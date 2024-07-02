@@ -4,11 +4,11 @@ import {
   DeleteAccountCommand,
   ImportAccountCommand,
   LoginViaEmailCommand,
+  PatchAccountCommand,
   RegisterViaEmailNoVerifiedCommand
-} from '@bcpros/lixi-models';
-import { PatchAccountCommand } from '@bcpros/lixi-models/src/lib/account';
-import axiosClient from '@utils/axiosClient';
-import getOauth2URL from '@utils/oauth2';
+} from '@bcpros/lixi-models/lib/account/account.dto';
+import axiosClient from '../../utils/axiosClient';
+import getOauth2URL from '../../utils/oauth2';
 
 const accountApi = {
   getById(id: number): Promise<AccountDto> {

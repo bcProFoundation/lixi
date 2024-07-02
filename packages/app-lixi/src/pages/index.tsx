@@ -1,14 +1,10 @@
-import { getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { getIsBootstrapped } from '@store/persistor/selectors';
-import { SagaStore, wrapper } from '@store/store';
 import axios from 'axios';
-import { withIronSessionSsr } from 'iron-session/next';
-import { useRouter } from 'next/router';
+import { IronSessionData, getIronSession } from 'iron-session';
 import { getSelectorsByUserAgent } from 'react-device-detect';
 import { END } from 'redux-saga';
 import { LocalUser } from 'src/shared/models/localUser';
 import { sessionOptions } from 'src/shared/models/session';
+import { SagaStore, wrapper } from 'src/store/store';
 import TimelineListing from '../components/Timeline/TimelineListing';
 
 type HomePageProps = {
@@ -17,11 +13,6 @@ type HomePageProps = {
 };
 
 const HomePage = ({ isMobile, localUser }: HomePageProps) => {
-  const router = useRouter();
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const isHydrated = useAppSelector(getIsBootstrapped);
-
   const localLogout = async () => {
     const url = '/_api/local-logout';
     await axios.post(url);
@@ -30,29 +21,32 @@ const HomePage = ({ isMobile, localUser }: HomePageProps) => {
   return <TimelineListing />;
 };
 
-export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) =>
-  withIronSessionSsr(async function getServerSideProps(context) {
-    const { req } = context;
-    const { headers } = req;
+export const getServerSideProps = wrapper.getServerSideProps(
+  (store: SagaStore) =>
+    async function getServerSideProps(context) {
+      const { req } = context;
+      const { headers } = req;
 
-    store.dispatch(END);
-    await (store as SagaStore).__sagaTask.toPromise();
+      const session = await getIronSession<IronSessionData>(context.req, context.res, sessionOptions);
 
-    let isMobile = false;
-    if (typeof window === 'undefined' && headers['user-agent']) {
-      const userAgent = req ? req.headers['user-agent'] : '';
-      isMobile = getSelectorsByUserAgent(userAgent).isMobile;
-    }
+      store.dispatch(END);
+      await (store as SagaStore).__sagaTask.toPromise();
 
-    const localUser = req.session.localUser;
-
-    return {
-      props: {
-        isMobile,
-        localUser: localUser ?? null
+      let isMobile = false;
+      if (typeof window === 'undefined' && headers['user-agent']) {
+        const userAgent = req ? req.headers['user-agent'] : '';
+        isMobile = getSelectorsByUserAgent(userAgent).isMobile;
       }
-    };
-  }, sessionOptions)
+
+      const localUser = session.localUser;
+
+      return {
+        props: {
+          isMobile,
+          localUser: localUser ?? null
+        }
+      };
+    }
 );
 
 export default HomePage;

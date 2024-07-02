@@ -1,22 +1,24 @@
 import { BurnForType, Token } from '@bcpros/lixi-models';
 import { Prisma } from '@bcpros/lixi-prisma';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { basicSortedSetPagination } from '../../common/custom-graphql-relay/paginate';
 import { PrismaService } from '../prisma/prisma.service';
-
+import { epoch } from 'src/utils/constants';
 export class TokenTimelineCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   static tokenTimelineKey = 'timeline:tokens';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis
+  ) {}
 
   async cacheTokenTimeline() {
     const key = `${TokenTimelineCacheService.tokenTimelineKey}`;
     const tokenBurnType = BurnForType.Token;
     const postBurnType = BurnForType.Post;
-    const epoch = '2023-01-01 00:00:00';
     const halfLife = '6 months';
     try {
       const tokens = await this.prisma.$queryRaw<{ id: string; score: number }[]>(

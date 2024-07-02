@@ -2,35 +2,37 @@ import { Form, Input, Modal } from 'antd';
 import intl from 'react-intl-universal';
 import * as _ from 'lodash';
 import React, { useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { refreshLixiList } from '@store/account/actions';
 import { Lixi } from '@bcpros/lixi-models';
 import { ProfileFilled } from '@ant-design/icons';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
-import { AnyAction } from '@reduxjs/toolkit';
+import { UnknownAction } from '@reduxjs/toolkit';
 import { getSelectedAccount } from '@store/account/selectors';
 
 export type RenameLixiModalProps = {
   lixi: Lixi;
-  onOkAction?: AnyAction;
+  onOkAction?: UnknownAction;
   classStyle?: string;
 };
 
 export const RenameLixiModal: React.FC<RenameLixiModalProps> = (props: RenameLixiModalProps) => {
   const [newLixiName, setNewLixiName] = useState('');
   const [newLixiNameIsValid, setNewLixiNameIsValid] = useState<boolean | null>(null);
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const dispatch = useAppDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
   const { lixi } = props;
 
   const handleOnOk = () => {
     if (props.onOkAction) {
       // There's an action should be dispatch on ok
       // Set selected name to the clone action and dispatch
-      const newAction = _.cloneDeep(props.onOkAction);
-      newAction.payload.name = newLixiName;
-      dispatch(newAction);
+      let newAction = _.cloneDeep(props.onOkAction);
+      if (newAction && newAction.payload) {
+        (newAction.payload as any).name = newLixiName;
+        dispatch(newAction);
+      }
     }
     dispatch(closeModal());
   };

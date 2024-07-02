@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@bcpros/lixi-prisma';
 
 export interface Config {
   nest: NestConfig;

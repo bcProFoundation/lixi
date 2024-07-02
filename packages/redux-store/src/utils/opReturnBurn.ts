@@ -1,8 +1,8 @@
-import { BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn';
+import { BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import BCHJS from '@bcpros/xpi-js';
 import BigNumber from 'bignumber.js';
-
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 
 const OP_0 = 0x00;
 const OP_16 = 0x60;
@@ -122,14 +122,19 @@ export const parseBurnOutput = (scriptpubkey: Buffer | string): ParseBurnResult 
 
     if (chunks.length === 1) {
       const lokadIdStr = chunks[0];
-      PARSE_CHECK(lokadIdStr.length !== 5, 'lokad id wrong size');
+      const lengthlokadIdStr = lokadIdStr.length;
+      PARSE_CHECK(lengthlokadIdStr !== 4 && lengthlokadIdStr !== 5, 'lokad id wrong size');
       PARSE_CHECK(
-        lokadIdStr[0] !== 'L'.charCodeAt(0) ||
-          lokadIdStr[1] !== 'I'.charCodeAt(0) ||
-          lokadIdStr[2] !== 'X'.charCodeAt(0) ||
-          lokadIdStr[3] !== 'I'.charCodeAt(0) ||
-          lokadIdStr[4] !== 0x00,
-        'LIXI not in first chunk'
+        (lokadIdStr[0] !== 'D'.charCodeAt(0) ||
+          lokadIdStr[1] !== 'A'.charCodeAt(0) ||
+          lokadIdStr[2] !== 'N'.charCodeAt(0) ||
+          lokadIdStr[3] !== 'A'.charCodeAt(0)) &&
+          (lokadIdStr[0] !== 'L'.charCodeAt(0) ||
+            lokadIdStr[1] !== 'I'.charCodeAt(0) ||
+            lokadIdStr[2] !== 'X'.charCodeAt(0) ||
+            lokadIdStr[3] !== 'I'.charCodeAt(0) ||
+            lokadIdStr[4] !== 0x00),
+        'DANA OR LIXI not in first chunk'
       );
     }
   }
@@ -240,7 +245,7 @@ export const generateBurnOpReturnScript = (
 
   const buf = Buffer.concat([
     Buffer.from([0x6a]), // OP_RETURN
-    pushdata(Buffer.from('LIXI\0')),
+    pushdata(Buffer.from('DANA')),
     pushdata(Buffer.from([version])), // versionType
     pushdata(Buffer.from('BURN')),
     pushdata(Buffer.from([burnType ? 1 : 0])),

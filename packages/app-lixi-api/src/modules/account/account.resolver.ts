@@ -11,15 +11,20 @@ import {
   UpdateAccountInput
 } from '@bcpros/lixi-models';
 import { ImageUploadableType } from '@bcpros/lixi-prisma';
+import BCHJS from '@bcpros/xpi-js';
 import { HttpException, HttpStatus, Inject, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Int, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { PubSub } from 'graphql-subscriptions';
+import Redis from 'ioredis';
 import _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
+import { basicPaginate, createEdge } from 'src/common/custom-graphql-relay/paginate';
 import { AccountEntity, PageAccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { aesGcmDecrypt, aesGcmEncrypt, generateRandomBase58Str, hashMnemonic } from 'src/utils/encryptionMethods';
+import { template } from 'src/utils/stringTemplate';
 import VError from 'verror';
 import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
 import { PrismaService } from '../prisma/prisma.service';
@@ -28,13 +33,7 @@ import { WalletService } from '../wallet/wallet.service';
 import { AccountCacheService } from './account-cache.service';
 import AccountLoader from './account.loader';
 import { FollowCacheService } from './follow-cache.service';
-import { basicPaginate, createEdge } from 'src/common/custom-graphql-relay/paginate';
 import TotalDanaViewScoreLoader from './total-dana-view-score.loader';
-import BCHJS from '@bcpros/xpi-js';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import Redis from 'ioredis';
-import moment from 'moment';
-import { template } from 'src/utils/stringTemplate';
 
 const pubSub = new PubSub();
 
@@ -599,5 +598,10 @@ export class AccountResolver {
     };
 
     return this.totalDanaViewScoreLoader.batchTotalDanaViewScore.load(followOfType);
+  }
+
+  @ResolveField('hash160', () => String)
+  async hash160(@Parent() account: Account) {
+    return this.accountLoader.batchAccountHash160s.load(account.id);
   }
 }

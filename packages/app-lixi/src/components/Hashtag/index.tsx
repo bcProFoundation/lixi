@@ -5,7 +5,7 @@ import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotific
 import { getSelectedAccount } from '@store/account';
 import { getFailQueue } from '@store/burn';
 import { HashtagQuery } from '@store/hashtag/hashtag.generated';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { useInfinitePostsByHashtagIdQuery } from '@store/post/useInfinitePostsByHashtagIdQuery';
 import { getFilterPostsHome, getLevelFilter } from '@store/settings';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
@@ -35,15 +35,15 @@ const StyledContainer = styled.div`
 `;
 
 const Hashtag = ({ hashtag, isMobile }: HashtagProps) => {
-  const dispatch = useAppDispatch();
-  const walletPaths = useAppSelector(getAllWalletPaths);
-  const walletStatus = useAppSelector(getWalletStatus);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const failQueue = useAppSelector(getFailQueue);
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const filterValue = useAppSelector(getFilterPostsHome);
+  const dispatch = useSliceDispatch();
+  const walletPaths = useSliceSelector(getAllWalletPaths);
+  const walletStatus = useSliceSelector(getWalletStatus);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
+  const failQueue = useSliceSelector(getFailQueue);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const filterValue = useSliceSelector(getFilterPostsHome);
   const hashtags: string[] = [`#${hashtag.content}`];
-  const level = useAppSelector(getLevelFilter);
+  const level = useSliceSelector(getLevelFilter);
 
   const { data, totalCount, fetchNext, hasNext, isFetching, isFetchingNext, refetch } =
     useInfinitePostsByHashtagIdQuery(

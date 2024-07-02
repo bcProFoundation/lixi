@@ -1,10 +1,10 @@
 import { createSelector } from 'reselect';
 
-import { RootState } from '../store';
+import { LixiStoreStateInterface } from '../state';
 
 import { ActionSheetState } from './state';
 
 export const getActionSheet = createSelector(
-  (state: RootState) => state.actionSheet,
+  (state: LixiStoreStateInterface) => state.actionSheet,
   (state: ActionSheetState) => state.actionSheets
 );

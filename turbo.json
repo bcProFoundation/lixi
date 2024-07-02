@@ -1,0 +1,42 @@
+{
+  "pipeline": {
+    "dev": {
+      "dependsOn": [
+        "^db:generate"
+      ],
+      "cache": false
+    },
+    "type-check": {
+      "outputs": []
+    },
+    "format": {
+      "cache": false
+    },
+    "lint": {
+      "cache": false
+    },
+    "build": {
+      "cache": false,
+      "dependsOn": [
+        "^db:generate",
+        "^build"
+      ],
+      "outputs": [
+        "dist/**",
+        "build/**"
+      ]
+    },
+    "db:generate": {
+      "cache": false
+    },
+    "db:push": {
+      "cache": false
+    },
+    "db:deploy": {
+      "cache": false
+    },
+    "db:seeds": {
+      "cache": false
+    }
+  }
+}

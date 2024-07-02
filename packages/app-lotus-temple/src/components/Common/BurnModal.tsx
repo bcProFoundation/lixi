@@ -2,15 +2,15 @@ import { DislikeOutlined, LikeOutlined } from '@ant-design/icons';
 import DownVoteSvg from '@assets/icons/downVote.svg';
 import UpDownSvg from '@assets/icons/upDownIcon.svg';
 import UpVoteSvg from '@assets/icons/upVote.svg';
-import { Burn } from '@bcpros/lixi-models';
-import { PostsQueryTag } from '@bcpros/lixi-models/constants';
-import { BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn';
+import { Burn, PostsQueryTag } from '@bcpros/lixi-models';
+import { BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { WalletContext } from '@context/walletProvider';
+import { BurnForItem, CommentQueryItem, PostQueryItem } from '@generated/index';
 import { CommentOrderField, OrderDirection } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
 import { getSelectedAccount } from '@store/account/selectors';
 import { clearFailQueue, getBurnQueue, getFailQueue } from '@store/burn';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
@@ -22,7 +22,6 @@ import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
-import { BurnForItem, CommentQueryItem, PostQueryItem } from '@generated/index';
 
 const UpDownButton = styled(Button)`
   background: rgb(158, 42, 156);
@@ -101,17 +100,17 @@ export const BurnModal = ({ data, burnForType }: BurnModalProps) => {
     formState: { errors },
     control
   } = useForm<Burn>();
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const Wallet = React.useContext(WalletContext);
   const { XPI, chronik } = Wallet;
   const { createBurnTransaction } = useXPI();
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
   const [selectedAmount, setSelectedAmount] = useState(1);
-  const burnQueue = useAppSelector(getBurnQueue);
-  const failQueue = useAppSelector(getFailQueue);
-  const walletStatus = useAppSelector(getWalletStatus);
+  const burnQueue = useSliceSelector(getBurnQueue);
+  const failQueue = useSliceSelector(getFailQueue);
+  const walletStatus = useSliceSelector(getWalletStatus);
 
   const handleBurn = async (isUpVote: boolean, data: BurnForItem) => {
     try {

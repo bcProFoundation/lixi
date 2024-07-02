@@ -1,5 +1,6 @@
-import { PaginationArgs } from '@bcpros/lixi-models';
-import { Comment, CommentOrder, CommentQueryItem } from '@generated/index';
+import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
+import { CommentOrder, Comment } from '../../generated/types.generated';
+import { CommentQueryItem } from '../../generated/types';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useCommentsToCommentableIdQuery, useLazyCommentsToCommentableIdQuery } from '@store/comment/comments.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -9,7 +10,7 @@ export interface CommentsByCommentableIdParams extends PaginationArgs {
   id: string;
 }
 
-const commentsAdapter = createEntityAdapter<CommentQueryItem>({
+const commentsAdapter = createEntityAdapter<CommentQueryItem, string>({
   selectId: comment => comment.id,
   sortComparer: (a: Comment, b: Comment) => {
     const dateA = new Date(a.createdAt);

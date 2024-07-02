@@ -1,4 +1,4 @@
-import { ParsedChronikTx } from '@utils/chronik';
+import { ParsedChronikTx } from '../../utils/chronik';
 import { Tx, Utxo } from 'chronik-client';
 
 export interface WalletPathAddressInfo {

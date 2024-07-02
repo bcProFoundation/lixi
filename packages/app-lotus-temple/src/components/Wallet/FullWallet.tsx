@@ -5,7 +5,7 @@ import React from 'react';
 import styled from 'styled-components';
 import WalletInfoComponent from './WalletInfo';
 import intl from 'react-intl-universal';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getSelectedAccount } from '@store/account/selectors';
 import { getWalletParsedTxHistory } from '@store/wallet';
 import { ParsedChronikTx } from '@utils/chronik';
@@ -16,9 +16,9 @@ import { getCurrentLocale } from '@store/settings/selectors';
 import { FormattedTxAddress } from '@components/Common/FormattedWalletAddress';
 import Link from 'next/link';
 import Reply from '@assets/icons/reply.svg';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { selectTokens } from '@store/token';
-import { useCommentQuery } from '@store/comment/comments.generated';
+import { useCommentQuery } from '@store/comment/comments.api';
 
 interface UserItem {
   email: string;
@@ -143,13 +143,13 @@ const FullWalletWrapper = styled.div`
 `;
 const FullWalletComponent: React.FC = () => {
   const trimLength = 8;
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const currentLocale = useAppSelector(getCurrentLocale);
-  const allTokens = useAppSelector(selectTokens);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const currentLocale = useSliceSelector(getCurrentLocale);
+  const allTokens = useSliceSelector(selectTokens);
 
-  const walletParsedHistory = useAppSelector(getWalletParsedTxHistory);
+  const walletParsedHistory = useSliceSelector(getWalletParsedTxHistory);
   const orderedWalletParsedHistory = _.orderBy(walletParsedHistory, x => x.timeFirstSeen, 'desc');
   const walletParsedHistoryGroupByDate = _.groupBy(orderedWalletParsedHistory, item => {
     const currentMonth = new Date().getMonth();

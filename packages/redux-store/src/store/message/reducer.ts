@@ -2,7 +2,7 @@ import { createEntityAdapter, createReducer, Update } from '@reduxjs/toolkit';
 import { removePageMessageSession, upsertPageMessageSession, removeAllPageMessageSession } from './actions';
 import { IPageMessageSessionState, PageMessageSessionState } from './state';
 
-export const pageMessageSessionAdapter = createEntityAdapter<IPageMessageSessionState>({
+export const pageMessageSessionAdapter = createEntityAdapter<IPageMessageSessionState, string>({
   selectId: pageMessageSession => pageMessageSession.pageMessageSessionId
 });
 

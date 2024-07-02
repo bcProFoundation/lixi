@@ -44,7 +44,7 @@ export default {
   'burn.page': 'page',
   'burn.account': 'account',
   'burn.doneBurning': 'Burning completed!',
-  'burn.sendDana': "You will pay {cost} {coin} (Excluding miner's fees).",
+  'burn.sendDana': "You will pay <b>{cost} {coin}</b> (Excluding miner's fees).",
   'burn.owner': ' to {name} owner',
   'burn.feeMiner': "Miners' fees excluded",
   'burn.trans': 'Translation is enabled with {amount} Dana or more.',
@@ -124,6 +124,8 @@ export default {
   'general.open': 'Open',
   'general.postFilter': 'Followed Posts: ',
   'general.dana': ' Dana',
+  'general.danaGiven': ' Dana Given',
+  'general.danaReceived': ' Dana Reiceived',
   'general.support': 'Support',
   'general.all': 'All',
   'general.installApp': 'Install App',
@@ -136,6 +138,9 @@ export default {
   'general.wallets': 'Wallets',
   'general.topWeek': 'Top week',
   'general.topMonth': 'Top month',
+  'general.primaryWallet': 'Primary wallet',
+  'general.otherWallet': 'Other wallet',
+  'general.baseWallet': 'Base wallet (For burn)',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Valid mnemonic seed phrase required',
@@ -653,7 +658,7 @@ export default {
   'comment.unableToBurn': 'Unable to burn for the comment',
   'comment.writeComment': 'Write a comment...',
   'comment.writeCommentFree': 'Write a free comment on this post...',
-  'comment.writeCommentXpi': '{commentFee} to reply',
+  'comment.writeCommentCoin': '{commentFee} to reply',
   'comment.failAndResend': 'Comment fail, you want to resend?',
   'comment.resend': 'Resend',
   'comment.reply': 'Reply',
@@ -757,8 +762,8 @@ export default {
   'messenger.pendingMessage': 'Pending message',
   'messenger.openMessage': 'Open message',
   'messenger.chatPage': 'Chat with me',
-  'messenger.offerChat': 'Offer you {xpi} XPI for a chat.',
-  'messenger.youOfferChat': 'You offer {xpi} XPI for a chat.',
+  'messenger.offerChat': 'Offered you {xpi} XPI for a chat.',
+  'messenger.youOfferChat': 'You offered {xpi} XPI for a chat.',
 
   /* 24. Code country to language*/
   'code.ab': 'Abkhazian',

@@ -1,4 +1,5 @@
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import BCHJS from '@bcpros/xpi-js';
 import { WalletPathAddressInfo, WalletState } from '@store/wallet';
 import BigNumber from 'bignumber.js';
@@ -431,21 +432,6 @@ export const isValidStoredWallet = walletStateFromStorage => {
     'slpBalancesAndUtxos' in walletStateFromStorage.state &&
     'tokens' in walletStateFromStorage.state
   );
-};
-
-export const getWalletState = wallet => {
-  if (!wallet) {
-    return {
-      balance: 0,
-      parsedTxHistory: [],
-      utxos: []
-    };
-  }
-
-  return {
-    ...wallet,
-    balance: fromSmallestDenomination(wallet?.balance || 0)
-  };
 };
 
 export const getUtxoWif = (utxo: Utxo & { address: string }, walltPaths: Array<WalletPathAddressInfo>) => {

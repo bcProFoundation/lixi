@@ -1,21 +1,22 @@
-import React, { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import usePrevious from './usePrevious';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { SocketUser } from '@bcpros/lixi-models/lib/common/notification';
 import { getSelectedAccount } from '@store/account';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getIsServerStatusOn, userOffline, userOnline } from '@store/notification';
 import { getDeviceId } from '@store/settings';
-import { Account, SocketUser } from '@bcpros/lixi-models';
-import { useSocket } from '@context/socketContext';
+import { useEffect } from 'react';
+import usePrevious from './usePrevious';
+import { useSocket } from '../context/socketContext';
 
 /**
  * Tracking user status
  */
 const useUserStatus = () => {
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const previousSelectedAccount: Account = usePrevious(selectedAccount);
-  const isServerStatusOn = useAppSelector(getIsServerStatusOn);
-  const deviceId = useAppSelector(getDeviceId);
+  const isServerStatusOn = useSliceSelector(getIsServerStatusOn);
+  const deviceId = useSliceSelector(getDeviceId);
   const socket = useSocket();
 
   useEffect(() => {

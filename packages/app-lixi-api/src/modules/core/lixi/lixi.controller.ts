@@ -38,7 +38,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
-import { Claim as ClaimDb, Lixi, PageMessageSessionStatus } from '@prisma/client';
+import { Claim as ClaimDb, Lixi, PageMessageSessionStatus } from '@bcpros/lixi-prisma';
 import { Queue } from 'bullmq';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { createReadStream } from 'fs';

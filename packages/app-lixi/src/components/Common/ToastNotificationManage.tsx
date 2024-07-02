@@ -1,6 +1,6 @@
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { notification } from 'antd';
+import { App } from 'antd';
 import { getCurrentThemes } from '@store/settings';
 import _ from 'lodash';
 import { getToastNotification } from '@store/toast/selectors';
@@ -12,9 +12,10 @@ import { closeToast } from '@store/toast/actions';
 const DURATION_DEFAULT = 1.5;
 
 const ToastNotificationManage = () => {
-  const currentToast = useAppSelector(getToastNotification);
-  const currentTheme = useAppSelector(getCurrentThemes);
-  const dispatch = useAppDispatch();
+  const currentToast = useSliceSelector(getToastNotification);
+  const currentTheme = useSliceSelector(getCurrentThemes);
+  const dispatch = useSliceDispatch();
+  const { notification } = App.useApp();
 
   const getIconToast = (typeToast: ToastType) => {
     switch (typeToast) {

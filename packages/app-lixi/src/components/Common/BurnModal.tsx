@@ -2,8 +2,9 @@ import { CopyOutlined } from '@ant-design/icons';
 import UpDownSvg from '@assets/icons/upDownIcon.svg';
 import { Burn } from '@bcpros/lixi-models';
 import { TRANSLATION_REQUIRE_AMOUNT } from '@bcpros/lixi-models/constants/translation';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { CURRENCIES, WalletItem, decimalFormatBalance } from '@components/Wallet/ListWallet';
 import {
   AccountQueryItem,
@@ -12,16 +13,17 @@ import {
   PageQueryItem,
   PostQueryItem,
   TokenQueryItem
-} from '@generated/index';
+} from '@generated/types';
+import { Coin } from '@generated/types.generated';
 import { getSelectedAccount } from '@store/account/selectors';
 import { prepareBurnCommand } from '@store/burn';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { showToast } from '@store/toast/actions';
 import { Button, Form, Modal, Radio } from 'antd';
 import _ from 'lodash';
 import router from 'next/router';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Controller, useForm } from 'react-hook-form';
 import intl from 'react-intl-universal';
@@ -29,6 +31,8 @@ import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
 import { QRCodeModal } from './QRCodeModal';
 import { AuthenticationContext } from '@context/index';
+import { useConvertDanaToCoinQuery } from '@store/dana/dana.api';
+import { calBurnAmountWithFee, calBurnAmountWithoutFee } from 'src/utils/burnValueWithFee';
 
 const UpDownButton = styled(Button)`
   background: rgb(158, 42, 156);
@@ -114,9 +118,10 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
     formState: { errors },
     control
   } = useForm<Burn>();
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const [selectedAmount, setSelectedAmount] = useState(1);
+  const [burnAmount, setBurnAmount] = useState(1);
   const [openSelectCurrencies, setOpenSelectCurrencies] = useState(false);
   const [selectCurrencies, setSelectCurrencies] = useState(null);
   const defaultSelected = {
@@ -128,6 +133,20 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
     address: selectedAccount?.address
   };
   const authentication = useContext(AuthenticationContext);
+
+  const [burnAmountPerCoin, setBurnAmountPerCoin] = useState(0);
+  const { data: dataBurn } = useConvertDanaToCoinQuery({
+    ConvertDanaInput: {
+      convertToCoin: COIN.XPI as unknown as Coin
+    }
+  });
+
+  useEffect(() => {
+    setBurnAmountPerCoin(dataBurn?.convertDanaToCoin ?? 0);
+    setBurnAmount(
+      (coinInfo[selectedAccount?.coin ?? COIN.XPI].burnFee + 1) * dataBurn?.convertDanaToCoin * selectedAmount
+    );
+  }, [dataBurn]);
 
   const handleBurn = async (isUpVote: boolean) => {
     try {
@@ -143,7 +162,8 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
           isUpVote,
           burnForItem,
           burnForType,
-          burnValue
+          burnValue: calBurnAmountWithoutFee(Number(burnValue), burnAmountPerCoin, true).toString(),
+          amountDana: Number(burnValue)
         })
       );
       dispatch(closeModal());
@@ -465,7 +485,9 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
               optionType="button"
               buttonStyle="solid"
               onChange={value => {
-                setSelectedAmount(value?.target?.value);
+                const amount = Number(value?.target?.value);
+                setSelectedAmount(amount);
+                setBurnAmount(calBurnAmountWithFee(amount, burnAmountPerCoin, false));
                 onChange(value);
               }}
             />
@@ -478,8 +500,8 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
       <p className="amount-burn">{intl.get('burn.youOffering') + selectedAmount + intl.get('general.dana')}.</p>
 
       <p className="fee-burn">
-        {intl.get('burn.sendDana', {
-          cost: coinInfo[selectedAccount?.coin ?? COIN.XPI].burnFee * selectedAmount + selectedAmount,
+        {intl.getHTML('burn.sendDana', {
+          cost: Number.isInteger(burnAmount) ? burnAmount : burnAmount.toFixed(2),
           coin: 'XPI'
         })}
       </p>

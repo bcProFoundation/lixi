@@ -1,3 +1,5 @@
+import { Nullable } from '../nullable';
+
 export enum NotificationLevel {
   DEBUG,
   INFO,

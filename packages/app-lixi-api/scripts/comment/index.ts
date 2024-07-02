@@ -1,4 +1,4 @@
-import { PrismaClient, CommentType } from '@prisma/client';
+import { PrismaClient, CommentType } from '@bcpros/lixi-prisma';
 
 require('dotenv').config();
 

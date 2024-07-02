@@ -1,10 +1,10 @@
-import { PaginationArgs } from '@bcpros/lixi-models';
-import { PageQueryItem } from '@generated/index';
+import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
+import { PageQueryItem } from '../../generated/types';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { useLazyPagesByUserIdQuery, usePagesByUserIdQuery } from '@store/page/pages.generated';
+import { useLazyPagesByUserIdQuery, usePagesByUserIdQuery } from '@store/page/pages.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-const pagesAdapter = createEntityAdapter<PageQueryItem>({
+const pagesAdapter = createEntityAdapter<PageQueryItem, string>({
   selectId: post => post.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });

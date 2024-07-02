@@ -1,5 +1,5 @@
-import { Envelope } from '@bcpros/lixi-models';
-import { Carousel, Slider } from 'antd';
+import { Envelope } from '@bcpros/lixi-models/lib/envelope';
+import { Carousel } from 'antd';
 import { useState } from 'react';
 
 const baseUrl = process.env.NEXT_PUBLIC_LIXI_API;

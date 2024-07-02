@@ -2,7 +2,7 @@ import { Comment } from '@ant-design/compatible';
 import NotificationPopup from '@components/NotificationPopup';
 import { WrapperPage } from '@components/Settings';
 import { getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { fetchNotifications } from '@store/notification/actions';
 import { getAllNotifications } from '@store/notification/selectors';
 import { useEffect } from 'react';
@@ -52,9 +52,9 @@ const StyledSwipeToDelete = styled(SwipeToDelete)`
 `;
 
 const NotificationComponent = () => {
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const notifications = useAppSelector(getAllNotifications);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const notifications = useSliceSelector(getAllNotifications);
 
   useEffect(() => {
     if (selectedAccount) {

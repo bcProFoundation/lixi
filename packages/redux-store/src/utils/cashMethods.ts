@@ -1,12 +1,13 @@
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import BCHJS from '@bcpros/xpi-js';
+import * as utxolib from '@bitgo/utxo-lib';
 import { WalletPathAddressInfo, WalletState } from '@store/wallet';
 import BigNumber from 'bignumber.js';
+import bs58 from 'bs58';
 import { Utxo } from 'chronik-client';
 import * as cashaddr from 'ecashaddrjs';
-import bs58 from 'bs58';
-import * as utxolib from '@bitgo/utxo-lib';
 import { createSharedKey, decrypt, encrypt } from './encryption';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 
 export type TxInputObj = {
   txBuilder: any;
@@ -442,7 +443,7 @@ export const isValidStoredWallet = walletStateFromStorage => {
   );
 };
 
-export const getWalletState = wallet => {
+export const getWalletStateMethod = wallet => {
   if (!wallet) {
     return {
       balance: 0,
@@ -457,11 +458,26 @@ export const getWalletState = wallet => {
   };
 };
 
-export const getUtxoWif = (utxo: Utxo & { address: string }, walltPaths: Array<WalletPathAddressInfo>) => {
-  if (!walltPaths) {
+export const getUtxoWif = (
+  utxo: Utxo & { address: string },
+  walletPaths: Array<WalletPathAddressInfo>,
+  selectedCoin = COIN.XPI
+) => {
+  if (!walletPaths) {
     throw new Error('Invalid wallet parameter');
   }
-  const wif = walltPaths.filter(acc => acc.xAddress === utxo.address).pop().fundingWif;
+  let wif = '';
+  switch (selectedCoin) {
+    case COIN.XEC:
+      wif = walletPaths.filter(acc => acc.cashAddress === utxo.address).pop().fundingWif;
+      break;
+    case COIN.XPI:
+      wif = walletPaths.filter(acc => acc.xAddress === utxo.address).pop().fundingWif;
+      break;
+    default:
+      wif = walletPaths.filter(acc => acc.xAddress === utxo.address).pop().fundingWif;
+      break;
+  }
   return wif;
 };
 
@@ -470,9 +486,21 @@ export const getHashArrayFromWallet = (wallet: WalletState): string[] => {
     return [];
   }
   const hash160Array = Object.entries(wallet.entities).map(([key, value]) => {
-    return value.hash160;
+    return (value as WalletPathAddressInfo).hash160;
   });
   return hash160Array;
+};
+
+export const getHashFromWallet = (wallet: WalletState): string => {
+  if (!wallet || !wallet?.entities) {
+    return '';
+  }
+
+  let selectedHash160 = '';
+  Object.entries(wallet.entities).map(([key, value]) => {
+    if (key === wallet.selectedWalletPath) selectedHash160 = value.hash160;
+  });
+  return selectedHash160;
 };
 
 export const isActiveWebsocket = ws => {
@@ -637,10 +665,10 @@ export const isValidXecAddress = (addr: string) => {
   }
 
   // If no prefix, assume it is checksummed for an ecash: prefix
-  const testedXecAddr = isPrefixedXecAddress ? addr : `ecash:${addr}`;
+  const testXecAddr = isPrefixedXecAddress ? addr : `ecash:${addr}`;
 
   try {
-    const decoded = cashaddr.decode(testedXecAddr);
+    const decoded = cashaddr.decode(testXecAddr, false);
     if (decoded.prefix === 'ecash') {
       isValidXecAddress = true;
     }
@@ -653,9 +681,10 @@ export const isValidXecAddress = (addr: string) => {
 export function cashaddrToHash160(addr: string) {
   try {
     // decode address hash
-    const { hash } = cashaddr.decode(addr);
+    const { hash } = cashaddr.decode(addr, false);
     // encode the address hash to legacy format (bitcoin)
-    const legacyAdress = bs58.encode(hash);
+    // becauase chronikReady is false then hash will be UInt8Array
+    const legacyAdress = bs58.encode(hash as Uint8Array);
     // convert legacy to hash160
     const addrHash160 = Buffer.from(bs58.decode(legacyAdress)).toString('hex');
     return addrHash160;
@@ -839,7 +868,7 @@ export const getChangeAddressFromInputUtxosXec = (inputUtxos: any, wallet: any):
   }
 
   // Assume change address is input address of utxo at index 0
-  const { prefix, type, hash } = cashaddr.decode(inputUtxos[0].address);
+  const { type, hash } = cashaddr.decode(inputUtxos[0].address, false);
   const changeAddress = cashaddr.encode('ecash', type, hash);
 
   // Validate address
@@ -853,4 +882,19 @@ export const getChangeAddressFromInputUtxosXec = (inputUtxos: any, wallet: any):
     throw new Error('Invalid input utxo');
   }
   return changeAddress;
+};
+
+export const validateCoinAmount = (value: string, balances: number, coin: COIN): boolean => {
+  if (!value) return false;
+
+  //check if value is number;
+  if (isNaN(parseFloat(value))) return false;
+
+  //check if value is positive number
+  if (parseFloat(value) <= 0) return false;
+
+  //check if balance is smaller than value
+  if (fromSmallestDenomination(balances, coin) <= parseFloat(value)) return false;
+
+  return true;
 };

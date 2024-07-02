@@ -23,6 +23,8 @@ export const {
   useCreateAccountMutation,
   useImportAccountMutation,
   useUpdateAccountMutation,
+  useAllFollowersByPageQuery,
+  useLazyAllFollowersByPageQuery,
   useAccountsQuery,
   useLazyAccountsQuery,
   useTopWeekAccountsQuery,

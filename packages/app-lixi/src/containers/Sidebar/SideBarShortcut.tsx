@@ -1,12 +1,12 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { NotificationDto } from '@bcpros/lixi-models';
 import { transformShortName } from '@components/Common/AvatarUser';
-import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants';
+import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants/coins/coin';
 import { HashtagOrderField, OrderDirection, Post, PostOrderField } from '@generated/types.generated';
 import { addRecentHashtagAtPages, setGraphqlRequestLoading } from '@store/account/actions';
 import { getSelectedAccountId } from '@store/account/selectors';
 import { useInfiniteHashtagByPageQuery } from '@store/hashtag/useInfiniteHashtagByPageQuery';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { setSelectedPost } from '@store/post/actions';
 import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
 import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
@@ -607,7 +607,7 @@ export const ShortCutTopicItem = ({
   onClickIcon?: (e: any, isFilter?: boolean) => void;
 }) => {
   const [showMore, setShowMore] = useState<boolean>(false);
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   const calculateTotalBurnTopic = useMemo(() => {
     let burnScore = 0;
@@ -720,19 +720,19 @@ export const ShortCutPageItem = ({
 
 const SidebarShortcut = () => {
   const refSidebarShortcut = useRef<HTMLDivElement | null>(null);
-  const dispatch = useAppDispatch();
-  const navCollapsed = useAppSelector(getNavCollapsed);
+  const dispatch = useSliceDispatch();
+  const navCollapsed = useSliceSelector(getNavCollapsed);
   const router = useRouter();
   const currentPathName = router.pathname ?? '';
-  const filterValue = useAppSelector(getFilterPostsPage);
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
+  const filterValue = useSliceSelector(getFilterPostsPage);
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
   const [filterPage, setFilterPage] = useState({});
   const [filterPageQuery, setFilterPageQuery] = useState<typeFilterPageQuery>({});
   const [query, setQuery] = useState<any>('');
   const [hashtags, setHashtags] = useState<any>([]);
   const pageId = router.pathname.includes('page') && (router.query?.slug as string);
   const [cachePostIdGeneral, setCachePostIdGeneral] = useState(0);
-  const level = useAppSelector(getLevelFilter);
+  const level = useSliceSelector(getLevelFilter);
 
   let pastScan;
 

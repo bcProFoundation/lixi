@@ -1,11 +1,13 @@
-import { WORSHIP_AMOUNT_TYPES, WORSHIP_TYPES } from '@bcpros/lixi-models/constants';
-import { BurnForType, BurnQueueCommand, BurnType } from '@bcpros/lixi-models/lib/burn';
+import { WORSHIP_AMOUNT_TYPES, WORSHIP_TYPES } from '@bcpros/lixi-models';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn/burn.model';
+import { BurnQueueCommand } from '@bcpros/lixi-models/lib/burn/burn.command';
 import Counter from '@components/Common/Counter';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 import { OrderDirection, WorshipOrderField } from '@generated/types.generated';
 import { addRecentVisitedPerson } from '@store/account/actions';
 import { addBurnQueue, addBurnTransaction, clearFailQueue, getFailQueue } from '@store/burn';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { useInfiniteWorshipByPersonIdQuery } from '@store/worship/useInfiniteWorshipByPersonIdQuery';
@@ -157,11 +159,11 @@ const StyledActionIcon = style.img`
 `;
 
 const PersonDetail = ({ person, isMobile }: PersonDetailProp) => {
-  const dispatch = useAppDispatch();
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletStatus = useAppSelector(getWalletStatus);
-  const failQueue = useAppSelector(getFailQueue);
-  const walletPaths = useAppSelector(getAllWalletPaths);
+  const dispatch = useSliceDispatch();
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
+  const walletStatus = useSliceSelector(getWalletStatus);
+  const failQueue = useSliceSelector(getFailQueue);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
 
   useEffect(() => {

@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const AddressHighlightTrim = styled.span`
@@ -12,8 +11,11 @@ const AddressHighlightTrim = styled.span`
     font-size: 10px;
   }
 `;
+export interface FormattedWalletAddressProps {
+  address: string;
+}
 
-const FormattedWalletAddress = ({ address }) => {
+const FormattedWalletAddress: React.FC<FormattedWalletAddressProps> = ({ address }) => {
   const prefixLength = 11;
   const trimLength = 8;
 
@@ -27,21 +29,17 @@ const FormattedWalletAddress = ({ address }) => {
   );
 };
 
-FormattedWalletAddress.propTypes = {
-  address: PropTypes.string
-};
+export interface FormattedTxAddressProps {
+  address: string;
+}
 
-export const FormattedTxAddress = ({ address }) => {
+export const FormattedTxAddress: React.FC<FormattedTxAddressProps> = ({ address }) => {
   return (
     <>
       <span style={{ fontWeight: 'normal' }}>{address.slice(0, -4)}</span>
       <span style={{ fontWeight: 'bold' }}>{address.slice(-4)}</span>
     </>
   );
-};
-
-FormattedTxAddress.propTypes = {
-  address: PropTypes.string
 };
 
 export default FormattedWalletAddress;

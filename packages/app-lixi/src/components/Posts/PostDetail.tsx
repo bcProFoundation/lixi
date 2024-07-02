@@ -3,15 +3,15 @@ import Counter from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { LoadingIcon, NavBarHeader } from '@components/Layout/MainLayout';
 import { WalletContext } from '@context/walletProvider';
-import { PostQueryItem } from '@generated/index';
+import { PostQueryItem } from '@generated/types';
 import { RepostInput } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { getAccountInfoTemp, getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
-import { useRepostMutation } from '@store/post/posts.generated';
+import { useRepostMutation } from '@store/post/posts.api';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
 import { Image, Input, Space, Spin } from 'antd';
@@ -168,7 +168,7 @@ const PostContentDetail = styled.div`
     iframe {
       max-width: 100%;
       @media (max-width: 960px) {
-        height: 35vh;
+        max-height: 100vh;
       }
     }
     .hashtag-link {
@@ -338,9 +338,9 @@ export const IconBurn = ({
 );
 
 const PostDetail = ({ post, isMobile }: PostDetailProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const router = useRouter();
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const [showTranslation, setShowTranslation] = useState(false);
   const isMobileView = useDetectMobileView();
 
@@ -370,7 +370,9 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   };
 
   const imageRenderer = useCallback(
-    ({ photo }) => <Image src={photo?.src} width={photo?.width} height={photo?.height} />,
+    ({ photo }) => (
+      <Image src={photo?.src} width={photo?.width} height={photo?.height} key={`photo-${photo?.key || photo?.src}`} />
+    ),
     []
   );
 

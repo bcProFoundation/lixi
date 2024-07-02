@@ -4,7 +4,7 @@ import InfoCardUser from '@components/Common/InfoCardUser';
 import { ShareSocialButton } from '@components/Common/ShareSocialButton';
 import { PostQueryItem } from '@generated/index';
 import useWindowDimensions from '@hooks/useWindowDimensions';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { openModal } from '@store/modal/actions';
 import { formatBalance } from '@utils/cashMethods';
 import { Button, List } from 'antd';
@@ -193,7 +193,7 @@ type PostListItemProps = {
 
 const PostListItem = ({ index, item, searchValue }: PostListItemProps) => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const post: PostQueryItem = item;
   const [isCollapseComment, setIsCollapseComment] = useState(false);
   const [comments, setComments] = useState<CommentItem[]>([]);

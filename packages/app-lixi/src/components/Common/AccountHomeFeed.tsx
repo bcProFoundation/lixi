@@ -8,7 +8,7 @@ import { Table, Button, Input, Space, InputRef } from 'antd';
 import { ColumnType, ColumnsType } from 'antd/es/table';
 import intl from 'react-intl-universal';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { showToast } from '@store/toast';
 import { CopyOutlined, FilterOutlined, SearchOutlined, SyncOutlined } from '@ant-design/icons';
 import { push } from 'connected-next-router';
@@ -42,8 +42,8 @@ const TopAccount = styled.div`
     }
     @media (max-width: 768px) {
       display: none;
-      
     }
+  }
 `;
 
 const TopAccountMobile = styled.div`
@@ -99,7 +99,7 @@ const ItemTopAccountMobile = styled.div`
 `;
 
 const AccountHomeFeed = () => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const [getFullAccount, setGetFullAccount] = useState(true);
   const [getTopAccountWeek, setGetTopAccountWeek] = useState(false);
   const [getTopAccountMonth, setGetTopAccountMonth] = useState(false);
@@ -302,7 +302,7 @@ const AccountHomeFeed = () => {
           data.length > 0 &&
           data.map((account, index) => {
             return (
-              <ItemTopAccountMobile className="card-item-account">
+              <ItemTopAccountMobile className="card-item-account" key={`account-home-feed-${account.id}-${index}`}>
                 <div className="ranking-infor type-name">
                   <div className="ranking-avatar">
                     <span onClick={() => handleNavigateAccount(account)}>

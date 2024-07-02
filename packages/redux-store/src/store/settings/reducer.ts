@@ -12,13 +12,13 @@ import {
   setInitIntlStatus,
   setIsSystemThemes,
   toggleCollapsedSideNav,
-  updateLocale,
+  updateLanguage,
   changeCurrentLocale,
   setNegativeDanaStatus,
   saveMinimumDanaFilter
 } from './actions';
 import { SettingsState } from './state';
-// import { SearchBoxType } from '@bcpros/lixi-models/src/lib/search';
+// import { SearchBoxType } from '@bcpros/lixi-models/lib/search';
 
 const initialState: SettingsState = {
   navCollapsed: true,
@@ -46,7 +46,7 @@ export const settingsReducer = createReducer(initialState, builder => {
     .addCase(toggleCollapsedSideNav, (state, action) => {
       state.navCollapsed = action.payload;
     })
-    .addCase(updateLocale, (state, action) => {
+    .addCase(updateLanguage, (state, action) => {
       state.locale = action.payload;
     })
     .addCase(setInitIntlStatus, (state, action) => {

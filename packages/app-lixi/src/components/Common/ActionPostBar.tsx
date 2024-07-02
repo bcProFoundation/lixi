@@ -1,11 +1,13 @@
 import { BarChartOutlined, RetweetOutlined } from '@ant-design/icons';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { WalletContext } from '@context/walletProvider';
-import { PostQueryItem, RepostInput } from '@generated/index';
+import { PostQueryItem } from '@generated/types';
+import { RepostInput } from '@generated/types.generated';
 import useXPI from '@hooks/useXPI';
 import { getSelectedAccount } from '@store/account';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { useRepostMutation } from '@store/post/posts.api';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
@@ -126,10 +128,10 @@ const AuthorizeIconNoneHover = WithAuthorizeAction(IconNoneHover);
 const AuthorizeReaction = WithAuthorizeAction(BaseReaction);
 
 const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPostBarProps) => {
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
   const Wallet = React.useContext(WalletContext);
   const router = useRouter();
   const selectedKey = router.pathname ?? '';
@@ -185,7 +187,7 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
 
       await repostTrigger({ input: repostInput })
         .unwrap()
-        .then(
+        .then(() =>
           dispatch(
             showToast('success', {
               message: 'Success',

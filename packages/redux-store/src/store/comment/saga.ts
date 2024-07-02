@@ -1,4 +1,4 @@
-import { CommentType } from '@generated/index';
+import { CommentType } from '../../generated/types.generated';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { api as commentsApi } from '@store/comment/comments.api';
 import { api as postsApi } from '@store/post/posts.api';
@@ -6,7 +6,7 @@ import { api as timelineApi } from '@store/timeline/timeline.api';
 import * as _ from 'lodash';
 import intl from 'react-intl-universal';
 import { all, call, fork, put, select, takeLatest } from 'redux-saga/effects';
-import { RootState } from '../store';
+import { LixiStoreStateInterface } from '../state';
 import { showToast } from '../toast';
 import { createCommentFailure, createCommentSuccess } from './action';
 import { CreateCommentMutation, CreateReplyCommentMutation } from './comments.generated';
@@ -19,7 +19,7 @@ function* createCommentSuccessSaga(
   }>
 ) {
   const { dataCreateComment, dataCreateReplyComment, isReplyComment } = action.payload;
-  const rootState: RootState = yield select();
+  const rootState: LixiStoreStateInterface = yield select();
 
   const commentToId = isReplyComment
     ? dataCreateReplyComment.createReplyComment.commentable.commentToId

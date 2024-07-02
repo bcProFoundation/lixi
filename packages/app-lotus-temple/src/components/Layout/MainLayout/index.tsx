@@ -1,31 +1,29 @@
+import { getSelectedAccount } from '@store/account/selectors';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { Layout, Spin } from 'antd';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
 import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
 
 import { LoadingOutlined } from '@ant-design/icons';
 
 import { navBarHeaderList } from '@components/Common/navBarHeaderList';
-import intl from 'react-intl-universal';
+import Footer from '@containers/Footer';
 import Sidebar from '@containers/Sidebar';
 import SidebarContent from '@containers/Sidebar/SidebarContent';
 import Topbar from '@containers/Topbar';
-import { loadLocale } from '@store/settings/actions';
-import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
-import { Header } from 'antd/lib/layout/layout';
+import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
+import { setTransactionReady } from '@store/account/actions';
 import { getIsGlobalLoading } from '@store/loading/selectors';
+import { fetchNotifications } from '@store/notification/actions';
+import { getAllNotifications } from '@store/notification/selectors';
+import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
+import { getSlpBalancesAndUtxos } from '@store/wallet';
+import { Header } from 'antd/lib/layout/layout';
 import { injectStore } from 'src/utils/axiosClient';
 import ModalManager from '../../Common/ModalManager';
 import { GlobalStyle } from './GlobalStyle';
 import { theme } from './theme';
-import Footer from '@containers/Footer';
-import { getAllNotifications } from '@store/notification/selectors';
-import { fetchNotifications } from '@store/notification/actions';
-import { setTransactionReady } from '@store/account/actions';
-import { getSlpBalancesAndUtxos } from '@store/wallet';
-import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 
 export const LoadingIcon = <LoadingOutlined className="loadingIcon" />;
 
@@ -176,10 +174,9 @@ type MainLayoutProps = React.PropsWithChildren<{}>;
 
 const MainLayout: React.FC = (props: MainLayoutProps) => {
   const { children } = props;
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const currentLocale = useAppSelector(getCurrentLocale);
-  const intlInitDone = useAppSelector(getIntlInitStatus);
-  const dispatch = useAppDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const currentLocale = useSliceSelector(getCurrentLocale);
+  const dispatch = useSliceDispatch();
   const [height, setHeight] = useState(0);
   const [loading, setLoading] = useState(true);
   const [navBarTitle, setNavBarTitle] = useState('');
@@ -187,8 +184,8 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
   const selectedKey = router.pathname ?? '';
   const disableSideBarRanking = ['lixi', 'profile'];
   const ref = useRef(null);
-  const notifications = useAppSelector(getAllNotifications);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
+  const notifications = useSliceSelector(getAllNotifications);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
 
   useEffect(() => {
@@ -220,7 +217,7 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
   }, []);
 
   injectStore(currentLocale);
-  const isLoading = useAppSelector(getIsGlobalLoading);
+  const isLoading = useSliceSelector(getIsGlobalLoading);
 
   const getNamePathDirection = () => {
     const itemSelect = navBarHeaderList.find(item => item.path === selectedKey) || null;
@@ -232,36 +229,30 @@ const MainLayout: React.FC = (props: MainLayoutProps) => {
   }, [selectedKey]);
 
   useEffect(() => {
-    dispatch(loadLocale(currentLocale));
-  }, [currentLocale]);
-
-  useEffect(() => {
     setLoading(false);
   }, [selectedAccount]);
 
   return (
     <ThemeProvider theme={theme as DefaultTheme}>
       <GlobalStyle />
-      {intlInitDone && (
-        <Spin spinning={loading} indicator={LoadingIcon}>
-          <LixiApp>
-            <Layout>
-              <AppBody>
-                <ModalManager />
-                <AppContainer>
-                  <Sidebar />
-                  <Topbar ref={setRef} />
-                  <div className="container-content" id="scrollableDiv">
-                    <SidebarContent />
-                    <div className="content-child">{children}</div>
-                    <Footer notifications={notifications} />
-                  </div>
-                </AppContainer>
-              </AppBody>
-            </Layout>
-          </LixiApp>
-        </Spin>
-      )}
+      <Spin spinning={loading} indicator={LoadingIcon}>
+        <LixiApp>
+          <Layout>
+            <AppBody>
+              <ModalManager />
+              <AppContainer>
+                <Sidebar />
+                <Topbar ref={setRef} />
+                <div className="container-content" id="scrollableDiv">
+                  <SidebarContent />
+                  <div className="content-child">{children}</div>
+                  <Footer notifications={notifications} />
+                </div>
+              </AppContainer>
+            </AppBody>
+          </Layout>
+        </LixiApp>
+      </Spin>
     </ThemeProvider>
   );
 };

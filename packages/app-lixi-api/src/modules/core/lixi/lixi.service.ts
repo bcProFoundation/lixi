@@ -2,13 +2,13 @@ import { CreateLixiCommand, fromSmallestDenomination, Lixi, LixiDto, Notificatio
 import BCHJS from '@bcpros/xpi-js';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Account as AccountDb, ImageUploadableType, Prisma } from '@prisma/client';
+import { Account as AccountDb, ImageUploadableType, Prisma } from '@bcpros/lixi-prisma';
 import { FlowJob, FlowProducer, Queue } from 'bullmq';
 import { ChronikClient } from 'chronik-client';
 import IORedis from 'ioredis';
 import * as _ from 'lodash';
 import { I18n, I18nContext, I18nService } from 'nestjs-i18n';
-import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
+import { InjectChronikClient } from 'nestjs-chronik';
 import {
   CREATE_SUB_LIXIES_QUEUE,
   defaultLixiChunkSize,

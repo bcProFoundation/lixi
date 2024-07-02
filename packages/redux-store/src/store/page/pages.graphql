@@ -72,6 +72,7 @@ fragment PageFields on Page {
     id
     name
     address
+    hash160
   }
   name
   title

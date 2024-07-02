@@ -32,7 +32,7 @@ model Token {
   decimals             Int          @map("decimals")
   tokenDocumentUrl     String       @default("") @map("token_document_url") @db.VarChar(1000)
   totalBurned          String       @default("") @map("total_burned")
-  totalMinteded        String       @default("") @map("total_minted")
+  totalMinted          String       @default("") @map("total_minted")
   initialTokenQuantity String       @default("") @map("initial_token_quantity")
   comments             DateTime?    @default(now()) @map("comments") @db.Timestamptz
   createdAt            DateTime     @default(now()) @map("created_at") @db.Timestamptz
@@ -1204,6 +1204,106 @@ model WalletPath {
   network   Coin
 
   @@map("wallet_path")
+}
+
+model EscrowOrder {
+  id                  String            @id @default(cuid())
+  sellerPublicKey     String            @map("seller_public_key")
+  buyerPublicKey      String            @map("buyer_public_key")
+  arbitratorPublicKey String            @map("arbitrator_public_key")
+  escrowAddress       String?           @map("escrow_address")
+  paymentMethod       PaymentMethod     @relation(fields: [paymentMethodId], references: [id])
+  paymentMethodId     String            @map("payment_method_id")
+  message             String?
+  price               Float             @default(0.0) @map("price")
+  amount              Float             @default(0.0) @map("amount")
+  offer               Offer             @relation(fields: [offerId], references: [id])
+  offerId             String            @map("offer_id")
+  status              EscrowOrderStatus @default(ACTIVE)
+  dispute             Dispute?
+  createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime          @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("escrow_order")
+}
+
+model Dispute {
+  id            String        @id @default(cuid())
+  escrowOrder   EscrowOrder   @relation(fields: [escrowOrderId], references: [id])
+  escrowOrderId String        @unique @map("escrow_order_id")
+  createdBy     String        @map("created_by")
+  reason        String?
+  status        DisputeStatus @default(ACTIVE)
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime      @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("dispute")
+}
+
+model Offer {
+  id             String               @id @default(cuid())
+  publicKey      String               @map("public_key")
+  title          String
+  description    String?
+  price          Float                @default(0.0) @map("price")
+  amount         Float                @default(0.0) @map("amount")
+  coin           Coin
+  orderLimitMin  Float?               @default(0.0) @map("order_limit_min")
+  orderLimitMax  Float?               @default(0.0) @map("order_limit_max")
+  type           OfferType
+  paymentMethods OfferPaymentMethod[]
+  status         OfferStatus          @default(ACTIVE)
+  location       String?
+  escrowOrders   EscrowOrder[]
+  createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime             @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("offer")
+}
+
+model OfferPaymentMethod {
+  id              String        @id @default(cuid())
+  offer           Offer         @relation(fields: [offerId], references: [id])
+  offerId         String        @map("offer_id")
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+  paymentMethodId String        @map("payment_method_id")
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime      @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("offer_payment_method")
+}
+
+model PaymentMethod {
+  id                  String               @id @default(cuid())
+  name                String
+  message             String?
+  offerPaymentMethods OfferPaymentMethod[]
+  escrowOrders        EscrowOrder[]
+  createdAt           DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime             @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("payment_method")
+}
+
+enum OfferType {
+  BUY
+  SELL
+}
+
+enum OfferStatus {
+  ACTIVE
+  ARCHIVE
+}
+
+enum DisputeStatus {
+  ACTIVE
+  RESOLVED
+}
+
+enum EscrowOrderStatus {
+  ACTIVE
+  ESCROW
+  COMPLETE
 }
 
 enum AddressType {

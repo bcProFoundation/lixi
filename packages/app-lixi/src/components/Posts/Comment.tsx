@@ -6,15 +6,10 @@ import CommentListItem from './CommentListItem';
 import AvatarUser from '@components/Common/AvatarUser';
 import { Controller, useForm } from 'react-hook-form';
 import { useInfiniteCommentsToCommentableIdQuery } from '@store/comment/useInfiniteCommentsToCommentableIdQuery';
-import {
-  CommentOrderField,
-  CommentQueryItem,
-  CreateCommentInput,
-  OrderDirection,
-  PostQueryItem
-} from '@generated/index';
+import { Coin, CommentOrderField, CreateCommentInput, OrderDirection } from '@generated/types.generated';
+import { PostQueryItem, CommentQueryItem } from '@generated/types';
 import { useRouter } from 'next/router';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import {
   getAccountInfoTemp,
   getCommentUpload,
@@ -25,9 +20,10 @@ import {
 import intl from 'react-intl-universal';
 import { CloseOutlined, SendOutlined } from '@ant-design/icons';
 import _ from 'lodash';
-import { sendXPIFailure, sendXPISuccess } from '@store/send/actions';
-import { fromSmallestDenomination, getUtxoWif } from '@utils/cashMethods';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { sendCoinFailure, sendCoinSuccess } from '@store/send/actions';
+import { fromSmallestDenomination, getUtxoWif, validateCoinAmount } from '@utils/cashMethods';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { WalletContext } from '@context/index';
 import useXPI from '@hooks/useXPI';
 import useXEC from '@hooks/useXEC';
@@ -35,11 +31,12 @@ import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@sto
 import { useCreateCommentMutation, useCreateReplyCommentMutation } from '@store/comment/comments.api';
 import { showToast } from '@store/toast/actions';
 import { MultiUploader } from '@components/Common/Uploader/MultiUploader';
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
 import { createCommentSuccess } from '@store/comment';
 import { AuthorizationContext } from '@context/index';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import { getScrollToCommentId, setScrollToCommentId } from '@store/account';
+import { Utxo } from 'chronik-client';
 
 const { Search, TextArea } = Input;
 type CommentProps = {
@@ -238,29 +235,33 @@ const ModalResend = styled(Modal)`
 
 const commentCommand = [
   {
-    label: '/give',
-    value: '/give'
+    label: '/xpi',
+    value: '/xpi'
+  },
+  {
+    label: '/xec',
+    value: '/xec'
   }
 ];
 
 const Comment = ({ post }: CommentProps) => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const Wallet = React.useContext(WalletContext);
-  const { XPI, chronik } = Wallet;
+  const { XPI, chronik, getUtxosByCoin } = Wallet;
   const { sendXpi } = useXPI();
   const { sendXec } = useXEC();
   const [open, setOpen] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const walletStatus = useAppSelector(getWalletStatus);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
+  const walletStatus = useSliceSelector(getWalletStatus);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
   const { control, getValues, setValue, setFocus, resetField } = useForm();
-  const accountInfoTemp = useAppSelector(getAccountInfoTemp);
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const [isSendingXPI, setIsSendingXPI] = useState<boolean>(false);
-  const commentUpload = useAppSelector(getCommentUpload);
+  const accountInfoTemp = useSliceSelector(getAccountInfoTemp);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const [isSendingCoin, setIsSendingCoin] = useState<boolean>(false);
+  const commentUpload = useSliceSelector(getCommentUpload);
   const inputText = useRef(null);
   const multiUploader = useRef(null);
   const txFee = Math.ceil(Wallet.XPI.BitcoinCash.getByteCount({ P2PKH: 1 }, { P2PKH: 1 }) * 2.01); //satoshi
@@ -269,7 +270,7 @@ const Comment = ({ post }: CommentProps) => {
   const [openModalResend, setOpenModalResend] = useState(false);
   const [isReplyComment, setIsReplyComment] = useState(false);
   const [replyCommentData, setReplyCommentData] = useState<CommentQueryItem>(null);
-  const previousComment = useRef({ text: '', commentId: '', commentAddress: '' });
+  const previousComment = useRef({ text: '', commentId: '', commentAddress: '', commentHash160: '' });
   const refsComment = useRef({});
   const currentPathName = router.pathname ?? '';
 
@@ -301,7 +302,7 @@ const Comment = ({ post }: CommentProps) => {
       inputText.current?.removeEventListener('paste', handlePasteImage);
     };
   }, []);
-  const scrollToCommentId = useAppSelector(getScrollToCommentId);
+  const scrollToCommentId = useSliceSelector(getScrollToCommentId);
 
   useEffect(() => {
     if (scrollToCommentId) {
@@ -320,14 +321,14 @@ const Comment = ({ post }: CommentProps) => {
   const showTextComment = () => {
     if (post.page) {
       return post.page.createCommentFee != '0'
-        ? intl.get('comment.writeCommentXpi', {
-            commentFee: `${post.page.createCommentFee} ${coinInfo[COIN.XPI].ticker}`
+        ? intl.get('comment.writeCommentCoin', {
+            commentFee: `${post.page.createCommentFee}`
           })
         : intl.get('comment.writeCommentFree');
     } else if (post.account.createCommentFee && _.isNil(post.page)) {
       return post.account.createCommentFee != '0'
-        ? intl.get('comment.writeCommentXpi', {
-            commentFee: `${post.account.createCommentFee} ${coinInfo[COIN.XPI].ticker}`
+        ? intl.get('comment.writeCommentCoin', {
+            commentFee: `${post.account.createCommentFee}`
           })
         : intl.get('comment.writeCommentFree');
     } else {
@@ -348,10 +349,16 @@ const Comment = ({ post }: CommentProps) => {
       e.preventDefault(); // Prevent the default behavior of adding a new line
       //don't allow create comment when previous comment not loading yet
       if (isReplyComment) {
-        if (isLoadingCreateReplyComment || isSendingXPI || isUploadingImage) return;
-        await processComment(e.currentTarget.value, true, replyCommentData.id, replyCommentData.commentAccount.address); // Call your function to post the comment
+        if (isLoadingCreateReplyComment || isSendingCoin || isUploadingImage) return;
+        await processComment(
+          e.currentTarget.value,
+          true,
+          replyCommentData.id,
+          replyCommentData.commentAccount.address,
+          replyCommentData.commentAccount.hash160
+        ); // Call your function to post the comment
       } else {
-        if (isLoadingCreateComment || isSendingXPI || isUploadingImage) return;
+        if (isLoadingCreateComment || isSendingCoin || isUploadingImage) return;
         await processComment(e.currentTarget.value); // Call your function to post the comment
       }
     }
@@ -363,7 +370,7 @@ const Comment = ({ post }: CommentProps) => {
 
   useEffect(() => {
     if (slpBalancesAndUtxos === slpBalancesAndUtxosRef.current) return;
-    setIsSendingXPI(false);
+    setIsSendingCoin(false);
   }, [slpBalancesAndUtxos.nonSlpUtxos]);
 
   const handleRemoveCommentUpload = imgId => {
@@ -376,9 +383,15 @@ const Comment = ({ post }: CommentProps) => {
     comment: string,
     isReplyComment = false,
     replyToCommentId: string = '',
-    replyCommentAdress: string = ''
+    replyCommentAdress: string = '',
+    commentHash160: string = ''
   ) => {
-    previousComment.current = { text: comment, commentId: replyToCommentId, commentAddress: replyCommentAdress };
+    previousComment.current = {
+      text: comment,
+      commentId: replyToCommentId,
+      commentAddress: replyCommentAdress,
+      commentHash160: commentHash160
+    };
     resetField('comment');
 
     //Check if the message is not empty
@@ -390,47 +403,61 @@ const Comment = ({ post }: CommentProps) => {
       }
 
       //Check if comment is tip
-      const arrayStringComment = trimComment.toLowerCase().split(' ');
-      const indexOfGiveString = arrayStringComment.findIndex(item => item === '/give');
-
+      const arrayStringComment = trimComment.toUpperCase().split(' ');
+      const indexOfGiveString = arrayStringComment.findIndex(
+        item => item.startsWith('/') && Object.values(COIN).includes(item.substring(1, item.length) as COIN)
+      );
+      //find and it't not last element
       if (indexOfGiveString !== -1 && indexOfGiveString !== arrayStringComment.length - 1) {
         const amount: string = arrayStringComment[indexOfGiveString + 1];
+        const textGive = arrayStringComment[indexOfGiveString];
+        const coinGive = textGive.substring(1, textGive.length) as COIN;
+
+        const { nonSlpUtxos } = await getUtxosByCoin(coinGive);
+        const utxos = selectedAccount?.coin === coinGive ? slpBalancesAndUtxos.nonSlpUtxos : nonSlpUtxos;
+        const balances = utxos.reduce((accu, currentValue) => accu + parseFloat(currentValue.value), 0);
 
         //check if amount is valid
-        if (validateXPIAmount(amount)) {
+        if (validateCoinAmount(amount, balances, coinGive)) {
           let tipHex = undefined;
-          tipHex = await giveXPIAsTip(trimComment, amount, isReplyComment, replyCommentAdress).then(result => {
+          tipHex = await giveCoinAsTip(
+            trimComment,
+            amount,
+            isReplyComment,
+            replyCommentAdress,
+            commentHash160,
+            coinGive,
+            utxos
+          ).then(result => {
             return result;
           });
 
           if (tipHex) {
-            dispatch(sendXPISuccess(parseFloat(amount).toFixed(2)));
-
             const createCommentInput: CreateCommentInput = {
               commentText: trimComment,
               commentableId: post.commentableId,
               tipHex: tipHex,
               uploadId: commentUpload?.id || undefined,
-              replyToCommentId: isReplyComment ? replyToCommentId : ''
+              replyToCommentId: isReplyComment ? replyToCommentId : '',
+              coinGive: coinGive as unknown as Coin
             };
 
             await createComment(createCommentInput, isReplyComment);
-          } else {
-            dispatch(sendXPIFailure(intl.get('send.notEnoughtFund')));
+            dispatch(sendCoinSuccess({ amount: parseFloat(amount), coin: coinGive }));
           }
         } else {
-          dispatch(sendXPIFailure(intl.get('send.notEnoughtFund')));
+          dispatch(sendCoinFailure(intl.get('send.notEnoughtFund')));
         }
       } else if (
         //Check if post owner self comment
-        (post.page &&
-          post?.page?.createCommentFee !== '0' &&
+        (post?.page &&
+          post.page?.createCommentFee !== '0' &&
           selectedAccount.address !== post?.page?.pageAccount.address) ||
         (post?.account?.createCommentFee !== '0' && selectedAccount.address !== post?.account?.address)
       ) {
         try {
           let createFeeHex = undefined;
-          createFeeHex = await giveXPIAsFee(post);
+          createFeeHex = await giveCoinAsFee(post);
 
           if (createFeeHex) {
             const createCommentInput: CreateCommentInput = {
@@ -438,15 +465,17 @@ const Comment = ({ post }: CommentProps) => {
               commentableId: post.commentableId,
               createFeeHex: createFeeHex,
               uploadId: commentUpload?.id || undefined,
-              replyToCommentId: isReplyComment ? replyToCommentId : ''
+              replyToCommentId: isReplyComment ? replyToCommentId : '',
+              coinGive: (selectedAccount?.coin ?? COIN.XPI) as unknown as Coin
             };
 
             await createComment(createCommentInput, isReplyComment);
+            setIsSendingCoin(false);
           } else {
             throw new Error(intl.get('account.insufficientFunds'));
           }
         } catch (e: any) {
-          dispatch(sendXPIFailure(e.message));
+          dispatch(sendCoinFailure(e.message));
         }
       } else {
         const createCommentInput: CreateCommentInput = {
@@ -461,14 +490,14 @@ const Comment = ({ post }: CommentProps) => {
     } else if (commentUpload) {
       if (
         //Check if post owner self comment
-        (post.page &&
-          post?.page?.createCommentFee !== '0' &&
+        (post?.page &&
+          post.page?.createCommentFee !== '0' &&
           selectedAccount.address !== post?.page?.pageAccount.address) ||
         (post?.account?.createCommentFee !== '0' && selectedAccount.address !== post?.account?.address)
       ) {
         try {
           let createFeeHex = undefined;
-          createFeeHex = await giveXPIAsFee(post);
+          createFeeHex = await giveCoinAsFee(post);
 
           if (createFeeHex) {
             const createCommentInput: CreateCommentInput = {
@@ -476,15 +505,17 @@ const Comment = ({ post }: CommentProps) => {
               commentableId: post.commentableId,
               createFeeHex: createFeeHex,
               uploadId: commentUpload?.id || undefined,
-              replyToCommentId: isReplyComment ? replyToCommentId : ''
+              replyToCommentId: isReplyComment ? replyToCommentId : '',
+              coinGive: (selectedAccount?.coin ?? COIN.XPI) as unknown as Coin
             };
 
             await createComment(createCommentInput, isReplyComment);
+            setIsSendingCoin(false);
           } else {
             throw new Error(intl.get('account.insufficientFunds'));
           }
         } catch (e: any) {
-          dispatch(sendXPIFailure(e.message));
+          dispatch(sendCoinFailure(e.message));
         }
       } else {
         const createCommentInput: CreateCommentInput = {
@@ -499,119 +530,134 @@ const Comment = ({ post }: CommentProps) => {
     }
   };
 
-  const validateXPIAmount = (value: string): boolean => {
-    if (!value) return false;
-
-    //check if value is number;
-    if (isNaN(parseFloat(value))) return false;
-
-    //check if value is positive number
-    if (parseFloat(value) <= 0) return false;
-
-    //check if balance is smaller than value + txFee
-    if (
-      fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis) <=
-      parseFloat(value) + fromSmallestDenomination(txFee)
-    )
-      return false;
-
-    return true;
-  };
-
-  const giveXPIAsTip = async (
+  const giveCoinAsTip = async (
     text: string,
     amount: string,
     isReplyComment: boolean,
-    replyCommentAdress: string
+    replyCommentAdress: string,
+    recipientHash160: string,
+    coin = COIN.XPI,
+    nonSlpUtxos: (Utxo & { address: string })[]
   ): Promise<string> => {
-    setIsSendingXPI(true);
+    setIsSendingCoin(true);
     try {
       let tipHex;
-      const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-      tipHex = await sendXpi(
-        XPI,
-        chronik,
-        walletPaths,
-        slpBalancesAndUtxos.nonSlpUtxos,
-        coinInfo[COIN.XPI].defaultFee,
-        '',
-        false, // indicate send mode is one to one
-        null,
-        isReplyComment ? replyCommentAdress : post.account.address,
-        amount,
-        true,
-        fundingWif,
-        true
-      ).catch(error => {
-        throw error;
-      });
+      const fundingWif = getUtxoWif(nonSlpUtxos[0], walletPaths, coin);
 
-      //need to config webpack to use bitgo lib
-      // tipHex = await sendXec(
-      //   chronik,
-      //   walletPaths,
-      //   slpBalancesAndUtxos.nonSlpUtxos,
-      //   coinInfo[COIN.XEC].defaultFee,
-      //   undefined,
-      //   false, //indicate send mode is one to one
-      //   null,
-      //   'ecash:qpkl2087vn0pr93h9aaduwlr60agrcfj2cek0ztygv',
-      //   '1'
-      // ).catch(error => {
-      //   throw error;
-      // });
-
+      switch (coin) {
+        case COIN.XPI:
+          const recipientAddress = isReplyComment ? replyCommentAdress : post.account.address;
+          tipHex = await sendXpi(
+            XPI,
+            chronik,
+            walletPaths,
+            nonSlpUtxos,
+            coinInfo[COIN.XPI].defaultFee,
+            '',
+            false, // indicate send mode is one to one
+            null,
+            recipientAddress,
+            amount,
+            true,
+            fundingWif,
+            true
+          ).catch(error => {
+            throw error;
+          });
+          break;
+        case COIN.XEC:
+          const recipientHash = isReplyComment ? recipientHash160 : post.account.hash160;
+          tipHex = await sendXec(
+            chronik,
+            fundingWif,
+            nonSlpUtxos,
+            coinInfo[COIN.XEC].defaultFee,
+            undefined,
+            false, //indicate send mode is one to one
+            null,
+            recipientHash,
+            Number.parseFloat(amount),
+            coinInfo[COIN.XEC].etokenSats,
+            true // return hex
+          ).catch(error => {
+            throw error;
+          });
+          break;
+      }
       return tipHex;
     } catch (e) {
       const message = e.message || e.error || JSON.stringify(e);
-      setIsSendingXPI(false);
+      setIsSendingCoin(false);
 
-      dispatch(sendXPIFailure(message));
+      dispatch(sendCoinFailure(message));
     }
   };
 
-  const giveXPIAsFee = async (post: PostQueryItem): Promise<string> => {
-    setIsSendingXPI(true);
+  const giveCoinAsFee = async (post: PostQueryItem): Promise<string> => {
+    setIsSendingCoin(true);
     try {
       let createFeeHex = undefined;
-      const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-      if (post.page && post.page.createCommentFee !== '0') {
-        createFeeHex = await sendXpi(
-          XPI,
-          chronik,
-          walletPaths,
-          slpBalancesAndUtxos.nonSlpUtxos,
-          coinInfo[COIN.XPI].defaultFee,
-          '',
-          false, // indicate send mode is one to one
-          null,
-          post.page.pageAccount.address,
-          post.page.createCommentFee,
-          true,
-          fundingWif,
-          true
-        );
-      } else if (post.account.createCommentFee !== '0') {
-        createFeeHex = await sendXpi(
-          XPI,
-          chronik,
-          walletPaths,
-          slpBalancesAndUtxos.nonSlpUtxos,
-          coinInfo[COIN.XPI].defaultFee,
-          '',
-          false, // indicate send mode is one to one
-          null,
-          post.account.address,
-          post.account.createCommentFee,
-          true,
-          fundingWif,
-          true
-        );
+      const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths, selectedAccount?.coin ?? COIN.XPI);
+
+      const havePageFee = post?.page && post.page.createCommentFee !== '0';
+      const haveAccountFee = !post?.page && post.account.createCommentFee !== '0';
+
+      if (havePageFee || haveAccountFee) {
+        switch (selectedAccount?.coin) {
+          case COIN.XPI:
+            createFeeHex = await sendXpi(
+              XPI,
+              chronik,
+              walletPaths,
+              slpBalancesAndUtxos.nonSlpUtxos,
+              coinInfo[COIN.XPI].defaultFee,
+              '',
+              false, // indicate send mode is one to one
+              null,
+              post?.page ? post.page.pageAccount.address : post.account.address,
+              fromSmallestDenomination(coinInfo[COIN.XPI].dustSats).toString(),
+              true,
+              fundingWif,
+              true
+            );
+            break;
+          case COIN.XEC:
+            createFeeHex = await sendXec(
+              chronik,
+              fundingWif,
+              slpBalancesAndUtxos.nonSlpUtxos,
+              coinInfo[COIN.XEC].defaultFee,
+              undefined,
+              false, //indicate send mode is one to one
+              null,
+              post?.page ? post.page.pageAccount.hash160 : post.account.hash160,
+              fromSmallestDenomination(coinInfo[COIN.XEC].etokenSats, COIN.XEC), //amount
+              coinInfo[COIN.XEC].etokenSats,
+              true
+            ); // return hex
+            break;
+          default:
+            createFeeHex = await sendXpi(
+              XPI,
+              chronik,
+              walletPaths,
+              slpBalancesAndUtxos.nonSlpUtxos,
+              coinInfo[COIN.XPI].defaultFee,
+              '',
+              false, // indicate send mode is one to one
+              null,
+              post?.page ? post.page.pageAccount.address : post.account.address,
+              fromSmallestDenomination(coinInfo[COIN.XPI].dustSats).toString(),
+              true,
+              fundingWif,
+              true
+            );
+        }
       }
 
       return createFeeHex;
     } catch (e) {
-      setIsSendingXPI(false);
+      setIsSendingCoin(false);
     }
   };
 
@@ -642,6 +688,7 @@ const Comment = ({ post }: CommentProps) => {
       //reset reply comment
       setIsReplyComment(false);
       setReplyCommentData(null);
+      setIsSendingCoin(false);
     } catch (error) {
       const message = intl.get('comment.unableCreateComment');
       dispatch(
@@ -651,7 +698,7 @@ const Comment = ({ post }: CommentProps) => {
           duration: 3
         })
       );
-      setIsSendingXPI(false);
+      setIsSendingCoin(false);
       setOpenModalResend(true);
     }
   };
@@ -764,7 +811,7 @@ const Comment = ({ post }: CommentProps) => {
             <StyledIconContainer>
               <Button
                 type="text"
-                disabled={isLoadingCreateComment || isSendingXPI || isUploadingImage || !authorization.authorized}
+                disabled={isLoadingCreateComment || isSendingCoin || isUploadingImage || !authorization.authorized}
                 style={{ borderColor: 'transparent !important' }}
                 onClick={async () => {
                   isReplyComment
@@ -772,14 +819,15 @@ const Comment = ({ post }: CommentProps) => {
                         getValues('comment'),
                         true,
                         replyCommentData.id,
-                        replyCommentData.commentAccount.address
+                        replyCommentData.commentAccount.address,
+                        replyCommentData.commentAccount.hash160
                       )
                     : await processComment(getValues('comment'));
                 }}
                 icon={
                   <SendOutlined
                     style={{ fontSize: '20px' }}
-                    disabled={isLoadingCreateComment || isSendingXPI || isUploadingImage || !authorization.authorized}
+                    disabled={isLoadingCreateComment || isSendingCoin || isUploadingImage || !authorization.authorized}
                   />
                 }
               />
@@ -794,7 +842,7 @@ const Comment = ({ post }: CommentProps) => {
                 loading={isUploadingImage}
                 setUploadingImage={setUploadingImage}
                 multiple={false}
-                disabled={isLoadingCreateComment || isSendingXPI || isUploadingImage || !authorization.authorized}
+                disabled={isLoadingCreateComment || isSendingCoin || isUploadingImage || !authorization.authorized}
               />
             </StyledIconContainer>
           </StyledCommentContainer>
@@ -874,8 +922,8 @@ const Comment = ({ post }: CommentProps) => {
         onCancel={() => setOpenModalResend(false)}
         onOk={async () => {
           setOpenModalResend(false);
-          const { text, commentId, commentAddress } = previousComment.current;
-          await processComment(text, isReplyComment, commentId, commentAddress);
+          const { text, commentId, commentAddress, commentHash160 } = previousComment.current;
+          await processComment(text, isReplyComment, commentId, commentAddress, commentHash160);
         }}
         okText={<span>{intl.get('comment.resend')}</span>}
       >

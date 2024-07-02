@@ -1,21 +1,32 @@
-import { OPTION_BURN_TYPE, OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import { OPTION_BURN_TYPE, OPTION_BURN_VALUE } from '@bcpros/lixi-models/constants/burn';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { AuthenticationContext, AuthorizationContext } from '@context/index';
-import { AccountQueryItem, CommentQueryItem, PageQueryItem, PostQueryItem, TokenQueryItem } from '@generated/index';
-import { BurnForItem } from '@generated/types';
+import {
+  AccountQueryItem,
+  CommentQueryItem,
+  PageQueryItem,
+  PostQueryItem,
+  TokenQueryItem,
+  BurnForItem
+} from '@generated/types';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import { prepareBurnCommand } from '@store/burn';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
 import { getCurrentThemes } from '@store/settings';
 import { Popover, Space } from 'antd';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { formatBalance } from 'src/utils/cashMethods';
 import styled from 'styled-components';
 import { match } from 'ts-pattern';
 import useAuthorization from './Authorization/use-authorization.hooks';
 import Counter from './Counter';
 import IconBurnCustomProps from './IconBurn/IconBurnCustom';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { Coin } from '@generated/types.generated';
+import { useConvertDanaToCoinQuery } from '@store/dana/dana.api';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { calBurnAmountWithFee, calBurnAmountWithoutFee } from 'src/utils/burnValueWithFee';
 
 const SpaceIconBurnHover = styled(Space)`
   min-height: 38px;
@@ -75,6 +86,8 @@ const Hint = styled.span`
 
 const HintMobile = styled.span`
   display: flex;
+  align-items: center;
+  flex-direction: column;
   justify-content: center;
   font-size: 9px;
   font-weight: 500;
@@ -127,17 +140,28 @@ type ReactionProps = {
 };
 
 const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const isMobile = useDetectMobileView();
   const [clicked, setClicked] = useState(false);
   const [hovered, setHovered] = useState(false);
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const currentTheme = useSliceSelector(getCurrentThemes);
   const authentication = useContext(AuthenticationContext);
+
+  const [burnAmountPerCoin, setBurnAmountPerCoin] = useState(0);
+  const { data: dataBurn } = useConvertDanaToCoinQuery({
+    ConvertDanaInput: {
+      convertToCoin: COIN.XPI as unknown as Coin
+    }
+  });
+
+  useEffect(() => {
+    setBurnAmountPerCoin(dataBurn?.convertDanaToCoin ?? 0);
+  }, [dataBurn]);
 
   const burnValue: number = match(burnForType)
     .with(BurnForType.Post, () => (dataItem as PostQueryItem)?.dana?.danaReceivedScore)
     .with(BurnForType.Page, () => (dataItem as PageQueryItem)?.dana?.danaReceivedScore)
-    .with(BurnForType.Account, () => (dataItem as AccountQueryItem).accountDana.danaGiven)
+    .with(BurnForType.Account, () => (dataItem as AccountQueryItem).accountDana?.danaGiven)
     .with(BurnForType.Comment, () => (dataItem as CommentQueryItem).danaBurnScore)
     .with(BurnForType.Token, () => (dataItem as TokenQueryItem)?.dana?.danaBurnScore)
     .otherwise(() => 0);
@@ -171,7 +195,8 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           isUpVote,
           burnForItem: dataItem,
           burnForType,
-          burnValue
+          burnValue: (Number(burnValue) * burnAmountPerCoin).toString(),
+          amountDana: Number(burnValue)
         })
       );
     } else {
@@ -229,7 +254,9 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           colorFilterIcon="var(--filter-svg-red-color)"
           burnForType={burnForType}
           dataItem={dataItem}
-          optionBurnType={OPTION_BURN_TYPE.DISLIKE}
+          burnValueWithFee={calBurnAmountWithFee(Number(OPTION_BURN_VALUE.DISLIKE), burnAmountPerCoin, true)}
+          burnValueWithoutFee={calBurnAmountWithoutFee(Number(OPTION_BURN_VALUE.DISLIKE), burnAmountPerCoin, true)}
+          amountDana={Number(OPTION_BURN_VALUE.DISLIKE)}
           isUpBurn={false}
           hideReact={hideReact}
         />
@@ -247,7 +274,9 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           colorFilterIcon="var(--filter-svg-blue-color)"
           burnForType={burnForType}
           dataItem={dataItem}
-          optionBurnType={OPTION_BURN_TYPE.LIKE}
+          burnValueWithFee={calBurnAmountWithFee(Number(OPTION_BURN_VALUE.LIKE), burnAmountPerCoin, true)}
+          burnValueWithoutFee={calBurnAmountWithoutFee(Number(OPTION_BURN_VALUE.LIKE), burnAmountPerCoin, true)}
+          amountDana={Number(OPTION_BURN_VALUE.LIKE)}
           isUpBurn={true}
           hideReact={hideReact}
         />
@@ -265,7 +294,9 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           colorFilterIcon="var(--filter-svg-blue-color)"
           burnForType={burnForType}
           dataItem={dataItem}
-          optionBurnType={OPTION_BURN_TYPE.LOVE}
+          burnValueWithFee={calBurnAmountWithFee(Number(OPTION_BURN_VALUE.LOVE), burnAmountPerCoin, true)}
+          burnValueWithoutFee={calBurnAmountWithoutFee(Number(OPTION_BURN_VALUE.LOVE), burnAmountPerCoin, true)}
+          amountDana={Number(OPTION_BURN_VALUE.LOVE)}
           isUpBurn={true}
           hideReact={hideReact}
         />
@@ -300,7 +331,10 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
             onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.DISLIKE, false)}
           />
         </div>
-        <HintMobile>+{OPTION_BURN_VALUE.DISLIKE}</HintMobile>
+        <HintMobile>
+          {Number(calBurnAmountWithFee(Number(OPTION_BURN_VALUE.DISLIKE), burnAmountPerCoin, true))}
+          <span>{coinInfo[COIN.XPI].ticker}</span>
+        </HintMobile>
       </Popover>
       <Popover arrow={false} overlayClassName="popover-custom-hint">
         <div className="container-ico-hover">
@@ -312,7 +346,10 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
             onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LIKE, true)}
           />
         </div>
-        <HintMobile>+{OPTION_BURN_VALUE.LIKE}</HintMobile>
+        <HintMobile>
+          {Number(calBurnAmountWithFee(Number(OPTION_BURN_VALUE.LIKE), burnAmountPerCoin, true))}{' '}
+          <span>{coinInfo[COIN.XPI].ticker}</span>
+        </HintMobile>
       </Popover>
 
       <Popover arrow={false} overlayClassName="popover-custom-hint">
@@ -325,7 +362,10 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
             onClick={e => handleBurnOption(e, dataItem, OPTION_BURN_TYPE.LOVE, true)}
           />
         </div>
-        <HintMobile>+{OPTION_BURN_VALUE.LOVE} </HintMobile>
+        <HintMobile>
+          {Number(calBurnAmountWithFee(Number(OPTION_BURN_VALUE.LOVE), burnAmountPerCoin, true))}{' '}
+          <span>{coinInfo[COIN.XPI].ticker}</span>
+        </HintMobile>
       </Popover>
       <Popover arrow={false} overlayClassName="popover-custom-hint">
         <div className="container-ico-hover">
@@ -338,7 +378,11 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
             onClick={e => openBurnModal(e, dataItem)}
           />
         </div>
-        {isMobile && <HintMobile>Custom</HintMobile>}
+        {isMobile && (
+          <HintMobile>
+            Custom <span>Burn</span>
+          </HintMobile>
+        )}
       </Popover>
     </SpaceContentBurn>
   );
@@ -351,7 +395,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         overlayInnerStyle={{
           display: 'flex',
           gap: '4px',
-          padding: isMobile ? '16px 8px 8px 8px' : '0 8px 8px 8px',
+          padding: isMobile ? '30px 8px 8px 8px' : '0 8px 8px 8px',
           background: '#d7e3ff',
           boxShadow: '0px 0px 12px rgba(0, 0, 0, 0.12)',
           borderRadius: '16px',
@@ -366,7 +410,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           <img className={classStyle} alt="burnIcon" src={'/images/ico-burn-up.svg'} />
         </picture>
 
-        {burnValue && <Counter isShowXPI={true} num={burnValue ?? 0} />}
+        {burnForType === BurnForType.Post && burnValue && <Counter isShowXPI={true} num={burnValue ?? 0} />}
       </Popover>
     </SpaceIconBurnHover>
   );

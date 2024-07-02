@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { Badge, Popover } from 'antd';
 import React, { useContext, useState } from 'react';
 import _ from 'lodash';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { PopoverStyled } from '@containers/Topbar';
 import { ItemAccess } from '@containers/Sidebar/SideBarShortcut';
 import { getCurrentThemes } from '@store/settings';
@@ -73,15 +73,15 @@ const StyledFooter = styled.div`
 
 const Footer = ({ classList }: { classList?: any }) => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const currentPathName = router.pathname ?? '';
   const currentAbsolutePathName = router.asPath ?? '';
   const [openMoreOption, setOpenMoreOption] = useState(false);
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const currentTheme = useSliceSelector(getCurrentThemes);
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
-  const currentModal = useAppSelector(getModals);
-  const notifications = useAppSelector(getAllNotifications);
+  const currentModal = useSliceSelector(getModals);
+  const notifications = useSliceSelector(getAllNotifications);
 
   const handleIconClick = (newPath?: string) => {
     dispatch(push(newPath));
@@ -102,7 +102,7 @@ const Footer = ({ classList }: { classList?: any }) => {
           text={'Messenger'}
           active={currentPathName === '/page-message'}
           direction="horizontal"
-          key="support"
+          key="messenger"
           onClickItem={() => {
             if (authorization.authorized) {
               handleIconClick('/page-message');
@@ -157,7 +157,7 @@ const Footer = ({ classList }: { classList?: any }) => {
           text={intl.get('general.installApp')}
           active={null}
           direction="horizontal"
-          key="support"
+          key="install"
           onClickItem={handleClickInstall}
         />
       </div>

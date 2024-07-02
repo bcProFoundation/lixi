@@ -1,19 +1,18 @@
-import React, { useEffect, useState } from 'react';
 import { Layout, Spin } from 'antd';
+import React, { useState } from 'react';
 import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
 
 import { LoadingOutlined } from '@ant-design/icons';
 
+import { Footer } from '@bcpros/lixi-components/components';
+import Sidebar from '@containers/Sidebar';
+import Topbar from '@containers/Topbar';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
+import { injectStore } from 'src/utils/axiosClient';
 import ModalManager from '../../Common/ModalManager';
 import { GlobalStyle } from '../MainLayout/GlobalStyle';
 import { theme } from '../MainLayout/theme';
-import Sidebar from '@containers/Sidebar';
-import Topbar from '@containers/Topbar';
-import { loadLocale } from '@store/settings/actions';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
-import { injectStore } from 'src/utils/axiosClient';
-import { Footer } from '@bcpros/lixi-components/components';
 
 const { Content, Sider, Header } = Layout;
 
@@ -104,41 +103,34 @@ type PostDetailsLayoutProps = React.PropsWithChildren<{}>;
 const PostDetailLayout: React.FC = (props: PostDetailsLayoutProps) => {
   const { children } = props;
   const [loading, setLoading] = useState(false);
-  const currentLocale = useAppSelector(getCurrentLocale);
-  const intlInitDone = useAppSelector(getIntlInitStatus);
-  const dispatch = useAppDispatch();
+  const currentLocale = useSliceSelector(getCurrentLocale);
+  const dispatch = useSliceDispatch();
 
   injectStore(currentLocale);
-
-  useEffect(() => {
-    dispatch(loadLocale(currentLocale));
-  }, [currentLocale]);
 
   return (
     <ThemeProvider theme={theme as DefaultTheme}>
       <GlobalStyle />
-      {intlInitDone && (
-        <Spin spinning={loading} indicator={LoadingIcon}>
-          <LixiApp>
-            <Layout>
-              <AppBody>
-                <ModalManager />
-                <AppContainer>
+      <Spin spinning={loading} indicator={LoadingIcon}>
+        <LixiApp>
+          <Layout>
+            <AppBody>
+              <ModalManager />
+              <AppContainer>
+                <Layout>
+                  <Sidebar />
                   <Layout>
-                    <Sidebar />
-                    <Layout>
-                      <Topbar />
-                      {/* @ts-ignore */}
-                      <Content>{children}</Content>
-                    </Layout>
+                    <Topbar />
+                    {/* @ts-ignore */}
+                    <Content>{children}</Content>
                   </Layout>
-                </AppContainer>
-                <Footer />
-              </AppBody>
-            </Layout>
-          </LixiApp>
-        </Spin>
-      )}
+                </Layout>
+              </AppContainer>
+              <Footer />
+            </AppBody>
+          </Layout>
+        </LixiApp>
+      </Spin>
     </ThemeProvider>
   );
 };

@@ -1,13 +1,15 @@
 import { DollarOutlined, GlobalOutlined, PlusCircleOutlined, ShopOutlined } from '@ant-design/icons';
 import { AuthorizationContext } from '@context/index';
 import { WalletContext } from '@context/walletProvider';
-import { CreatePostInput, OrderDirection, PageQueryItem, PostOrderField } from '@generated/index';
+import { Coin, CreatePostInput, OrderDirection, PostOrderField, CreatePollInput } from '@generated/types.generated';
+import { PageQueryItem } from '@generated/types';
 import useXPI from '@hooks/useXPI';
+import useXEC from '@hooks/useXEC';
 import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { deleteEditorTextFromCache, removeAllUpload } from '@store/account/actions';
 import { getAccountInfoTemp, getEditorCache, getPostCoverUploads, getSelectedAccount } from '@store/account/selectors';
 import { closeActionSheet } from '@store/action-sheet/actions';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { useCreatePostMutation } from '@store/post/posts.api';
 import { getShowCreatePost } from '@store/post/selectors';
 import { getLevelFilter } from '@store/settings';
@@ -20,7 +22,7 @@ import {
 import { api as timelineApi } from '@store/timeline/timeline.generated';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
-import { getUtxoWif } from '@utils/cashMethods';
+import { fromSmallestDenomination, getUtxoWif } from '@utils/cashMethods';
 import { Button, Input, Modal, Space } from 'antd';
 import router from 'next/router';
 import React, { useContext, useEffect, useState } from 'react';
@@ -30,9 +32,11 @@ import useAuthorization from './Authorization/use-authorization.hooks';
 import AvatarUser from './AvatarUser';
 import { SocialsEnum } from './Embed';
 import EditorLexical from './Lexical/EditorLexical';
-import { POST_TYPE, coinInfo, COIN } from '@bcpros/lixi-models/constants';
-import { CreatePollInput } from '@bcpros/lixi-models';
+import { POST_TYPE } from '@bcpros/lixi-models/constants/post';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { useCreatePollMutation } from '@store/post/polls.api';
+import { useConvertDanaToCoinQuery } from '@store/dana/dana.api';
 
 type ErrorType = 'unsupported' | 'invalid';
 
@@ -206,28 +210,39 @@ const IconWImage = ({
 );
 
 const CreatePostCard = (props: CreatePostCardProp) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const pathname = router.pathname ?? '';
   const [enableEditor, setEnableEditor] = useState(false);
-  const postCoverUploads = useAppSelector(getPostCoverUploads);
+  const postCoverUploads = useSliceSelector(getPostCoverUploads);
   const { page, tokenPrimaryId, hashtagId, hashtags, query, autoEnable } = props;
   const pageId = page ? page.id : undefined;
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const editorCache = useAppSelector(getEditorCache);
-  const filterHome = useAppSelector(getFilterPostsHome);
-  const filterPage = useAppSelector(getFilterPostsPage);
-  const filterToken = useAppSelector(getFilterPostsToken);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const editorCache = useSliceSelector(getEditorCache);
+  const filterHome = useSliceSelector(getFilterPostsHome);
+  const filterPage = useSliceSelector(getFilterPostsPage);
+  const filterToken = useSliceSelector(getFilterPostsToken);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
   const Wallet = React.useContext(WalletContext);
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const currentTheme = useSliceSelector(getCurrentThemes);
   const { XPI, chronik } = Wallet;
   const { sendXpi } = useXPI();
+  const { sendXec } = useXEC();
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
-  const showCreatePostMobile = useAppSelector(getShowCreatePost);
-  const accountInfoTemp = useAppSelector(getAccountInfoTemp);
-  const level = useAppSelector(getLevelFilter);
+  const showCreatePostMobile = useSliceSelector(getShowCreatePost);
+  const accountInfoTemp = useSliceSelector(getAccountInfoTemp);
+  const level = useSliceSelector(getLevelFilter);
+  const [postFee, setPostFee] = useState(0);
+  const { data: dataFee } = useConvertDanaToCoinQuery({
+    ConvertDanaInput: {
+      convertToCoin: (selectedAccount?.coin ?? COIN.XPI) as unknown as Coin
+    }
+  });
+
+  useEffect(() => {
+    setPostFee((dataFee?.convertDanaToCoin ?? 0) * Number(page?.createPostFee ?? 0));
+  }, [dataFee]);
 
   const [
     createPostTrigger,
@@ -265,24 +280,64 @@ const CreatePostCard = (props: CreatePostCardProp) => {
 
         try {
           if (selectedAccount.id != page.pageAccountId && parseFloat(page.createPostFee) != 0) {
-            const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-            createFeeHex = await sendXpi(
-              XPI,
-              chronik,
+            const fundingWif = getUtxoWif(
+              slpBalancesAndUtxos.nonSlpUtxos[0],
               walletPaths,
-              slpBalancesAndUtxos.nonSlpUtxos,
-              coinInfo[COIN.XPI].defaultFee,
-              '',
-              false, // indicate send mode is one to one
-              null,
-              page.pageAccount.address,
-              page.createPostFee,
-              true,
-              fundingWif,
-              true
+              selectedAccount?.coin ?? COIN.XPI
             );
+            switch (selectedAccount?.coin) {
+              case COIN.XPI:
+                createFeeHex = await sendXpi(
+                  XPI,
+                  chronik,
+                  walletPaths,
+                  slpBalancesAndUtxos.nonSlpUtxos,
+                  coinInfo[COIN.XPI].defaultFee,
+                  '',
+                  false, // indicate send mode is one to one
+                  null,
+                  page.pageAccount.address,
+                  postFee.toString(),
+                  true,
+                  fundingWif,
+                  true
+                );
+                break;
+              case COIN.XEC:
+                createFeeHex = await sendXec(
+                  chronik,
+                  fundingWif,
+                  slpBalancesAndUtxos.nonSlpUtxos,
+                  coinInfo[COIN.XEC].defaultFee,
+                  undefined,
+                  false, //indicate send mode is one to one
+                  null,
+                  page.pageAccount.hash160,
+                  postFee, //amount
+                  coinInfo[COIN.XEC].etokenSats,
+                  true
+                ); // return hex
+                break;
+              default:
+                createFeeHex = await sendXpi(
+                  XPI,
+                  chronik,
+                  walletPaths,
+                  slpBalancesAndUtxos.nonSlpUtxos,
+                  coinInfo[COIN.XPI].defaultFee,
+                  '',
+                  false, // indicate send mode is one to one
+                  null,
+                  page.pageAccount.address,
+                  postFee.toString(),
+                  true,
+                  fundingWif,
+                  true
+                );
+            }
           }
         } catch (error) {
+          console.log('error', error);
           throw new Error(intl.get('account.insufficientFunds'));
         }
       } else {
@@ -307,7 +362,8 @@ const CreatePostCard = (props: CreatePostCardProp) => {
                 direction: OrderDirection.Desc,
                 field: PostOrderField.UpdatedAt
               }
-            }
+            },
+            coinFee: (selectedAccount?.coin ?? COIN.XPI) as unknown as Coin
           };
 
           await createPostTrigger({ input: createPostInput });
@@ -322,7 +378,8 @@ const CreatePostCard = (props: CreatePostCardProp) => {
             startDate: new Date(),
             endDate,
             canAddOption,
-            singleSelect
+            singleSelect,
+            coinFee: (selectedAccount?.coin ?? COIN.XPI) as unknown as Coin
           };
 
           await createPollTrigger({ input: createPollInput });
@@ -401,7 +458,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
           <div className="avatar">
             <AvatarUser icon={accountInfoTemp?.avatar} name={selectedAccount?.name} isMarginRight={false} />
             <Input
-              bordered={false}
+              variant="borderless"
               placeholder={
                 hashtags && hashtags.length > 0
                   ? `Write about ${hashtags
@@ -458,8 +515,8 @@ const CreatePostCard = (props: CreatePostCardProp) => {
                 <div className="location-fee">
                   <Button className="btn-select">{getCreatePostLocation()}</Button>
                   {page && page.createPostFee && selectedAccount?.id != page.pageAccountId && (
-                    <p className="post-fee">{`${intl.get('general.fee')} ${page.createPostFee} ${
-                      coinInfo[COIN.XPI].ticker
+                    <p className="post-fee">{`${intl.get('general.fee')} ${postFee} ${
+                      coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker
                     }`}</p>
                   )}
                 </div>

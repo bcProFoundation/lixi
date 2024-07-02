@@ -2,22 +2,22 @@ import { Form, Input, Modal } from 'antd';
 import intl from 'react-intl-universal';
 import * as _ from 'lodash';
 import React from 'react';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { Controller, useForm } from 'react-hook-form';
-import { Account } from '@bcpros/lixi-models';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { ProfileFilled } from '@ant-design/icons';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
-import { AnyAction } from '@reduxjs/toolkit';
+import { UnknownAction } from '@reduxjs/toolkit';
 
 export type RenameAccountModalProps = {
   account: Account;
-  onOkAction?: AnyAction;
+  onOkAction?: UnknownAction;
   classStyle?: string;
 };
 
 export const RenameAccountModal: React.FC<RenameAccountModalProps> = (props: RenameAccountModalProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const { account } = props;
   const {
     formState: { errors },
@@ -29,8 +29,8 @@ export const RenameAccountModal: React.FC<RenameAccountModalProps> = (props: Ren
     if (props.onOkAction) {
       // There's an action should be dispatch on ok
       // Set selected name to the clone action and dispatch
-      const newAction = _.cloneDeep(props.onOkAction);
-      newAction.payload.name = name.trim();
+      let newAction = _.cloneDeep(props.onOkAction);
+      (newAction.payload as any).name = name.trim();
       dispatch(newAction);
     }
     dispatch(closeModal());
@@ -52,7 +52,7 @@ export const RenameAccountModal: React.FC<RenameAccountModalProps> = (props: Ren
       >
         <AntdFormWrapper>
           <Form style={{ width: 'auto' }}>
-            <Form.Item validateStatus={!errors.name ? '' : 'error'} help={!errors.name ? '' : errors.name.message}>
+            <Form.Item validateStatus={!errors.name ? '' : 'error'} help={errors.name ? `${errors.name.message}` : ''}>
               <Controller
                 name="name"
                 control={control}

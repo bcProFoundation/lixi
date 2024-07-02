@@ -43,7 +43,7 @@ export default {
   'burn.page': 'trang',
   'burn.account': 'tài khoản',
   'burn.doneBurning': 'Đốt thành công!',
-  'burn.sendDana': 'Bạn sẽ trả {cost} {coin} (Chưa tính phí của thợ đào).',
+  'burn.sendDana': 'Bạn sẽ trả <b>{cost} {coin}</b> (Chưa tính phí của thợ đào).',
   'burn.owner': ' tới chủ {name} ',
   'burn.feeMiner': 'Chưa tính phí thợ đào',
   'burn.trans': 'Bài viết với {amount} Dana trở lên sẽ được dịch.',
@@ -123,6 +123,8 @@ export default {
   'general.open': 'Mở',
   'general.postFilter': 'Bài Theo Dõi: ',
   'general.dana': ' Dana',
+  'general.danaGiven': ' Dana Given',
+  'general.danaReceived': ' Dana Reiceived',
   'general.support': 'Hỗ trợ',
   'general.all': 'Tất cả',
   'general.installApp': 'Cài đặt ứng dụng',
@@ -135,6 +137,8 @@ export default {
   'general.wallets': 'Ví',
   'general.topWeek': 'Xếp hạng tuần',
   'general.topMonth': 'Xếp hạng tháng',
+  'general.otherWallet': 'Ví khác',
+  'general.baseWallet': 'Ví cho đốt',
 
   /* 02.Account */
   'account.mnemonicRequired': 'Bạn cần nhập đúng cụm từ bảo mật',
@@ -652,7 +656,7 @@ export default {
   'comment.unableToBurn': 'Không thể đốt cho bình luận',
   'comment.writeComment': 'Viết bình luận...',
   'comment.writeCommentFree': 'Viết bình luận miễn phí trên bài viết này...',
-  'comment.writeCommentXpi': '{commentFee} để bình luận',
+  'comment.writeCommentCoin': '{commentFee} để bình luận',
   'comment.failAndResend': 'Bình luận thất bại, bạn có muốn gửi lại?',
   'comment.resend': 'Gửi lại',
   'comment.reply': 'Trả lời',
@@ -757,8 +761,8 @@ export default {
   'messenger.pendingMessage': 'Đang chờ tin nhắn',
   'messenger.openMessage': 'Mở tin nhắn',
   'messenger.chatPage': 'Nhắn tin với tôi',
-  'messenger.offerChat': 'Đề nghị {xpi} XPI để trò chuyện với bạn.',
-  'messenger.youOfferChat': 'Bạn đề nghị {xpi} XPI để trò chuyện với bạn.',
+  'messenger.offerChat': 'Đã đề nghị {xpi} XPI để trò chuyện với bạn.',
+  'messenger.youOfferChat': 'Bạn đề nghị {xpi} XPI để trò chuyện.',
 
   /* 24. Code country to language*/
   'code.ab': 'Abkhazian',

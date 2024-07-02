@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { decode, encode } from '@msgpack/msgpack';
 import { Injectable, Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
@@ -11,7 +11,10 @@ export class PageDanaCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:pages:dana';
 
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis
+  ) {}
 
   async getPageDana(id: string) {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id);

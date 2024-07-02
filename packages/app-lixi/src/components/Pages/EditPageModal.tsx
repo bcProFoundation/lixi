@@ -1,22 +1,22 @@
-import { Button, Col, Form, Input, Modal, Row, Select } from 'antd';
-
-import React, { useEffect, useState } from 'react';
-import intl from 'react-intl-universal';
-import { getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { getAllCountries, getAllStates } from '@store/country/selectors';
-import { setPage } from '@store/page/action';
-import { showToast } from '@store/toast/actions';
-import { getCountries, getStates } from '@store/country/actions';
-import _ from 'lodash';
-import { UpdatePageInput, Page } from '@generated/types.generated';
-import { useUpdatePageMutation } from '@store/page/pages.generated';
-import { closeModal } from '@store/modal/actions';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { CreateForm } from '@components/Lixi/CreateLixiFormModal';
+import { Page, UpdatePageInput } from '@generated/types.generated';
+import { getSelectedAccount } from '@store/account/selectors';
 import { getAllCategories } from '@store/category/selectors';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { getCountries, getStates } from '@store/country/actions';
+import { getAllCountries, getAllStates } from '@store/country/selectors';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { closeModal } from '@store/modal/actions';
+import { setPage } from '@store/page/action';
+import { useUpdatePageMutation } from '@store/page/pages.api';
+import { showToast } from '@store/toast/actions';
 import { fromSmallestDenomination } from '@utils/cashMethods';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { Button, Col, Form, Input, Modal, Row, Select } from 'antd';
+import _ from 'lodash';
+import React, { useEffect, useState } from 'react';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import intl from 'react-intl-universal';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -27,8 +27,8 @@ type EditPageModalProps = {
 } & React.HTMLProps<HTMLElement>;
 
 export const EditPageModal: React.FC<EditPageModalProps> = ({ page, disabled, classStyle }: EditPageModalProps) => {
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
 
   const [
     updatePageTrigger,
@@ -38,11 +38,11 @@ export const EditPageModal: React.FC<EditPageModalProps> = ({ page, disabled, cl
   useEffect(() => {
     dispatch(getCountries());
   }, []);
-  const categories = useAppSelector(getAllCategories);
-  const countries = useAppSelector(getAllCountries);
-  const states = useAppSelector(getAllStates);
+  const categories = useSliceSelector(getAllCategories);
+  const countries = useSliceSelector(getAllCountries);
+  const states = useSliceSelector(getAllStates);
   const createPostFee = [0, 1, 10, 100, 1000];
-  const createCommentFee = [0, fromSmallestDenomination(coinInfo[COIN.XPI].dustSats)];
+  const createCommentFee = ['0', 'Dust'];
 
   const {
     handleSubmit,
@@ -219,8 +219,8 @@ export const EditPageModal: React.FC<EditPageModalProps> = ({ page, disabled, cl
             </Form.Item>
 
             {/* <Form.Item name="title" label={intl.get('page.title')}>
-              <Input defaultValue={page.title} onChange={e => handleNewPageTitleInput(e)} />
-            </Form.Item> */}
+            <Input defaultValue={page.title} onChange={e => handleNewPageTitleInput(e)} />
+          </Form.Item> */}
 
             <Form.Item label={intl.get('page.description')}>
               <Controller
@@ -338,15 +338,15 @@ export const EditPageModal: React.FC<EditPageModalProps> = ({ page, disabled, cl
                     render={({ field: { onChange, value }, formState: { isSubmitting } }) => (
                       <Select
                         className="select-after edit-page"
-                        value={`${value} ${coinInfo[COIN.XPI].ticker}`}
+                        value={`${value} ${intl.get('general.dana')}`}
                         onChange={onChange}
                         placeholder={intl.get('page.state')}
-                        defaultValue={`${page.createPostFee} ${coinInfo[COIN.XPI].ticker}`}
+                        defaultValue={`${page.createPostFee} ${intl.get('general.dana')}`}
                         disabled={isSubmitting}
                         style={{ width: '99%', textAlign: 'end' }}
                       >
                         {createPostFee.map(fee => (
-                          <Option key={fee}>{`${fee} ${coinInfo[COIN.XPI].ticker}`}</Option>
+                          <Option key={fee}>{`${fee} ${intl.get('general.dana')}`}</Option>
                         ))}
                       </Select>
                     )}
@@ -365,15 +365,15 @@ export const EditPageModal: React.FC<EditPageModalProps> = ({ page, disabled, cl
                     render={({ field: { onChange, value }, formState: { isSubmitting } }) => (
                       <Select
                         className="select-after edit-page"
-                        value={`${value} ${coinInfo[COIN.XPI].ticker}`}
+                        value={`${value}`}
                         onChange={onChange}
                         placeholder={intl.get('page.state')}
-                        defaultValue={`${page.createCommentFee} ${coinInfo[COIN.XPI].ticker}`}
+                        defaultValue={`${page.createCommentFee}`}
                         disabled={isSubmitting}
                         style={{ width: '99%', textAlign: 'end' }}
                       >
                         {createCommentFee.map(fee => (
-                          <Option key={fee}>{`${fee} ${coinInfo[COIN.XPI].ticker}`}</Option>
+                          <Option key={fee}>{`${fee}`}</Option>
                         ))}
                       </Select>
                     )}

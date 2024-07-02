@@ -1,5 +1,6 @@
 import {
   Account,
+  COIN,
   CreatePostInput,
   ICommentableTo,
   IImageUploadableTo,
@@ -27,7 +28,7 @@ import {
 } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { HttpException, HttpStatus, Inject, Injectable, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Int, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
@@ -38,7 +39,7 @@ import { PubSub } from 'graphql-subscriptions';
 import { Redis } from 'ioredis';
 import * as _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
+import { InjectChronikClient } from 'nestjs-chronik';
 import { NOTIFICATION_TYPES } from 'src/common/modules/notifications/notification.constants';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { AccountEntity } from 'src/decorators';
@@ -81,7 +82,8 @@ export class PostResolver {
     @InjectQueue(CONTENT_FANOUT_QUEUE) private postFanoutQueue: Queue,
     @InjectQueue(REMOVE_POST_FANOUT_QUEUE) private removePostFanoutQueue: Queue,
     @Inject(XPIJS) private XPI: BCHJS,
-    @InjectChronikClient('xpi') private chronik: ChronikClient,
+    @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
+    @InjectChronikClient('xec') private chronikXEC: ChronikClient,
     @I18n() private i18n: I18nService,
     private readonly accountCacheService: AccountCacheService,
     private readonly postLoader: PostLoader,
@@ -751,7 +753,7 @@ export class PostResolver {
       throw new Error(couldNotFindAccount);
     }
 
-    const { uploads, pageId, htmlContent, tokenPrimaryId, pureContent } = data;
+    const { uploads, pageId, htmlContent, tokenPrimaryId, pureContent, coinFee, createFeeHex } = data;
     let imageUploadable: ImageUploadable | null = null;
 
     //find existing imageUploadable
@@ -792,70 +794,84 @@ export class PostResolver {
 
     let createFee: any;
 
-    const savedPost = await this.prisma.$transaction(async prisma => {
-      let txid: string | undefined;
-      if (data.createFeeHex) {
-        const broadcastResponse = await this.chronik.broadcastTx(data.createFeeHex);
-        if (!broadcastResponse) {
-          throw new Error('Empty chronik broadcast response');
-        }
-        txid = broadcastResponse.txid;
-      }
-
-      const createdPost = await prisma.post.create({
-        data: {
-          ...postToSave,
-          commentable: {
-            create: {
-              type: CommentType.POST
-            }
-          },
-          txid: txid,
-          createFee: createFee,
-          dana: {
-            create: {}
-          },
-          taggable: {
-            create: {}
+    const savedPost = await this.prisma.$transaction(
+      async prisma => {
+        let txid: string | undefined;
+        let broadcastResponse;
+        if (createFeeHex) {
+          switch (coinFee) {
+            case COIN.XPI:
+              broadcastResponse = await this.chronikXPI.broadcastTx(createFeeHex);
+              break;
+            case COIN.XEC:
+              broadcastResponse = await this.chronikXEC.broadcastTx(createFeeHex);
+              break;
+            default:
+              broadcastResponse = await this.chronikXPI.broadcastTx(createFeeHex);
+              break;
           }
-        },
-        include: {
-          page: {
-            select: {
-              id: true,
-              address: true,
-              name: true
-            }
-          },
-          token: {
-            select: {
-              id: true,
-              name: true
-            }
-          },
-          account: {
-            select: {
-              id: true,
-              name: true,
-              address: true
-            }
+          if (!broadcastResponse) {
+            throw new Error('Empty chronik broadcast response');
           }
+          txid = broadcastResponse.txid;
         }
-      });
 
-      if (imageUploadable) {
-        await prisma.imageUploadable.update({
-          where: {
-            id: imageUploadable?.id
-          },
+        const createdPost = await prisma.post.create({
           data: {
-            type: ImageUploadableType.POST
+            ...postToSave,
+            commentable: {
+              create: {
+                type: CommentType.POST
+              }
+            },
+            txid: txid,
+            createFee: createFee,
+            dana: {
+              create: {}
+            },
+            taggable: {
+              create: {}
+            }
+          },
+          include: {
+            page: {
+              select: {
+                id: true,
+                address: true,
+                name: true
+              }
+            },
+            token: {
+              select: {
+                id: true,
+                name: true
+              }
+            },
+            account: {
+              select: {
+                id: true,
+                name: true,
+                address: true
+              }
+            }
           }
         });
-      }
 
-      return createdPost;
-    });
+        if (imageUploadable) {
+          await prisma.imageUploadable.update({
+            where: {
+              id: imageUploadable?.id
+            },
+            data: {
+              type: ImageUploadableType.POST
+            }
+          });
+        }
+
+        return createdPost;
+      },
+      { timeout: 10000 }
+    );
 
     //Hashtag
     const hashtags = await this.hashtagService.extractAndSave(
@@ -1049,7 +1065,7 @@ export class PostResolver {
     const reposted = await this.prisma.$transaction(async prisma => {
       let txid = null;
       if (data.txHex) {
-        const broadcastResponse = await this.chronik.broadcastTx(data.txHex).catch(async err => {
+        const broadcastResponse = await this.chronikXPI.broadcastTx(data.txHex).catch(async err => {
           throw new Error('Empty chronik broadcast response');
         });
         txid = broadcastResponse.txid;

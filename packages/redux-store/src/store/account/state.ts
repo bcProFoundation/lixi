@@ -1,9 +1,9 @@
-import { Account } from '@bcpros/lixi-models/lib/account';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { Upload } from '@bcpros/lixi-models/lib/upload';
 import { EntityState } from '@reduxjs/toolkit';
 import { WorshipedPersonFieldsFragment as WorshipedPerson } from '@store/worship/worshipedPerson.generated';
 
-export interface AccountsState extends EntityState<Account> {
+export interface AccountsState extends EntityState<Account, number> {
   selectedId: Nullable<number> | undefined;
   lixiIdsById: {
     [key: number]: Array<number>;

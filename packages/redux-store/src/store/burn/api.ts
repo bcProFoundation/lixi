@@ -1,5 +1,5 @@
-import { BurnCommand } from '@bcpros/lixi-models';
-import axiosClient from '@utils/axiosClient';
+import { BurnCommand } from '@bcpros/lixi-models/lib/burn/burn.command';
+import axiosClient from '../../utils/axiosClient';
 
 const burnApi = {
   post(data: BurnCommand): Promise<any> {

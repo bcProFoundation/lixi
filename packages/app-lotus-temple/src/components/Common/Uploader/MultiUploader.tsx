@@ -7,10 +7,10 @@ import styled from 'styled-components';
 import Image from 'next/image';
 import type { UploadFile } from 'antd/es/upload/interface';
 import { isMobile } from 'react-device-detect';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { setUpload, removeUpload } from '@store/account/actions';
 import axiosClient from '@utils/axiosClient';
-import { UPLOAD_API_S3_MULTIPLE } from '@bcpros/lixi-models/constants';
+import { UPLOAD_API_S3_MULTIPLE } from '@bcpros/lixi-models';
 import _ from 'lodash';
 import { ButtonType } from 'antd/lib/button';
 
@@ -71,7 +71,7 @@ export const MultiUploader = ({ type, buttonName, buttonType, isIcon, showUpload
   const [previewImage, setPreviewImage] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
   const [previewVisible, setPreviewVisible] = useState(false);
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   const uploadButton = (
     <StyledButton

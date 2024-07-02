@@ -51,7 +51,7 @@ export const lixiReducer = createReducer(initialState, builder => {
       const { lixi, claims } = action.payload;
       const id = lixi.id;
       state.selectedId = id;
-      const updateLixi: Update<Lixi> = {
+      const updateLixi: Update<Lixi, number> = {
         id: lixi.id,
         changes: {
           ...lixi
@@ -84,7 +84,7 @@ export const lixiReducer = createReducer(initialState, builder => {
     })
     .addCase(archiveLixiSuccess, (state, action) => {
       const lixi = action.payload;
-      const updateLixi: Update<Lixi> = {
+      const updateLixi: Update<Lixi, number> = {
         id: lixi.id,
         changes: {
           status: lixi.status
@@ -94,7 +94,7 @@ export const lixiReducer = createReducer(initialState, builder => {
     })
     .addCase(unarchiveLixiSuccess, (state, action) => {
       const lixi = action.payload;
-      const updateLixi: Update<Lixi> = {
+      const updateLixi: Update<Lixi, number> = {
         id: lixi.id,
         changes: {
           status: lixi.status
@@ -105,7 +105,7 @@ export const lixiReducer = createReducer(initialState, builder => {
     .addCase(setLixiBalance, (state, action) => {
       const selectedId = state.selectedId;
       if (selectedId) {
-        const updateLixi: Update<Lixi> = {
+        const updateLixi: Update<Lixi, number> = {
           id: selectedId,
           changes: {
             balance: action.payload
@@ -116,7 +116,7 @@ export const lixiReducer = createReducer(initialState, builder => {
     })
     .addCase(renameLixiSuccess, (state, action) => {
       const lixi = action.payload;
-      const updateLixi: Update<Lixi> = {
+      const updateLixi: Update<Lixi, number> = {
         id: lixi.id,
         changes: {
           name: lixi.name
@@ -151,7 +151,7 @@ export const lixiReducer = createReducer(initialState, builder => {
     })
     .addMatcher(isAnyOf(refreshLixiSuccess, refreshLixiSilentSuccess), (state, action) => {
       const { lixi, claims } = action.payload;
-      const updateLixi: Update<Lixi> = {
+      const updateLixi: Update<Lixi, number> = {
         id: lixi.id,
         changes: {
           ...lixi

@@ -1,123 +1,129 @@
-import {
-  fromCoinToSatoshis,
-  cashaddrToHash160,
-  fromSatoshisToCoin,
-  sumOneToManyXec,
-  generateXecTxInput,
-  generateXecTxOutput,
-  signAndBuildXecTx,
-  getChangeAddressFromInputUtxosXec
-} from '@utils/cashMethods';
-import * as utxolib from '@bitgo/utxo-lib';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { fromCoinToSatoshis, fromSmallestDenomination } from '../utils/cashMethods';
 import BigNumber from 'bignumber.js';
 import { ChronikClient, Utxo } from 'chronik-client';
 import intl from 'react-intl-universal';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+
+const wif = require('wif');
+
+import {
+  ALL_BIP143,
+  Ecc,
+  P2PKHSignatory,
+  Script,
+  TxBuilder,
+  TxBuilderOutput,
+  fromHex,
+  initWasm,
+  shaRmd160,
+  toHex
+} from 'ecash-lib';
 
 export default function useXEC() {
   const sendXec = async (
     chronik: ChronikClient,
-    wallet: any,
+    fundingWif: string,
     utxos: Array<Utxo & { address: string }>,
     feeInSatsPerByte: number,
     optionalOpReturnMsg: string | undefined,
     isOneToMany: boolean,
-    destinationAddressAndValueArray: Array<string> | null,
-    destinationAddress: string,
-    sendAmount: string
+    destinationHashAndValueArray: Array<string> | null,
+    destinationHash: string,
+    sendSingleAmount: number,
+    dustFee: number,
+    returnHex?: boolean
   ) => {
     try {
-      // Validation for missing sendAmount in one to one tx
-      // TODO clean this up and have separate functions for one-to-one and one-to-many sends
-      if (!isOneToMany && sendAmount === null) {
-        throw new Error('Invalid singleSendValue');
+      if (
+        !chronik ||
+        (isOneToMany && !destinationHashAndValueArray) ||
+        (!isOneToMany && !destinationHash && !sendSingleAmount) ||
+        !fundingWif ||
+        !utxos ||
+        !feeInSatsPerByte ||
+        !dustFee
+      ) {
+        throw new Error('Invalid tx send xec');
       }
 
-      let txBuilder = utxolib.bitgo.createTransactionBuilderForNetwork(utxolib.networks.ecash);
-
-      // parse the input value of XEC to send
-      // TODO deprecate BigNumber from the rest of the functions here and in Cashtab
-      const value = isOneToMany
-        ? new BigNumber(sumOneToManyXec(destinationAddressAndValueArray))
-        : new BigNumber(sendAmount);
-
-      // If you have a dust value, throw error here instead of broadcasting the tx and getting it from the node
-      if (value.lt(fromSatoshisToCoin(coinInfo[COIN.XEC].etokenSats), coinInfo[COIN.XEC].cashDecimals)) {
-        // Throw the same error given by the backend attempting to broadcast such a tx
-        throw new Error('dust');
-      }
-
-      const satoshisToSend = fromCoinToSatoshis(value, coinInfo[COIN.XEC].cashDecimals);
-
-      // Throw validation error if fromXecToSatoshis returns false
-      if (!satoshisToSend) {
-        const error = new Error(`Invalid decimal places for send amount`);
-        throw error;
-      }
-
-      let opReturnByteCount;
-
-      // generate the tx inputs and add to txBuilder instance
-      // returns the updated txBuilder, txFee, totalInputUtxoValue and inputUtxos
-      let txInputObj = generateXecTxInput(
-        isOneToMany,
-        utxos,
-        txBuilder,
-        destinationAddressAndValueArray,
-        satoshisToSend,
-        feeInSatsPerByte,
-        opReturnByteCount
-      );
-
-      const changeAddress = getChangeAddressFromInputUtxosXec(txInputObj.inputUtxos, wallet);
-      txBuilder = txInputObj.txBuilder; // update the local txBuilder with the generated tx inputs
-
-      // generate the tx outputs and add to txBuilder instance
-      // returns the updated txBuilder
-      const txOutputObj = generateXecTxOutput(
-        isOneToMany,
-        value,
-        satoshisToSend,
-        txInputObj.totalInputUtxoValue,
-        destinationAddress,
-        destinationAddressAndValueArray,
-        changeAddress,
-        txInputObj.txFee,
-        txBuilder
-      );
-      txBuilder = txOutputObj; // update the local txBuilder with the generated tx outputs
-
-      // sign the collated inputUtxos and build the raw tx hex
-      // returns the raw tx hex string
-      const rawTxHex = signAndBuildXecTx(txInputObj.inputUtxos, txBuilder, wallet);
-
-      // Broadcast transaction to the network via the chronik client
-      // sample chronik.broadcastTx() response:
-      //    {"txid":"0075130c9ecb342b5162bb1a8a870e69c935ea0c9b2353a967cda404401acf19"}
-      let broadcastResponse;
-      try {
-        broadcastResponse = await chronik.broadcastTx(rawTxHex);
-        if (!broadcastResponse) {
-          throw new Error('Empty chronik broadcast response');
+      const amountToSend = fromCoinToSatoshis(BigNumber(sendSingleAmount), coinInfo[COIN.XEC].cashDecimals);
+      //check amount greater dust
+      if (!isOneToMany) {
+        if (!amountToSend) throw new Error('Invalid value');
+        if (sendSingleAmount < fromSmallestDenomination(coinInfo[COIN.XEC].etokenSats, COIN.XEC)) {
+          // Throw the same error given by the backend attempting to broadcast such a tx
+          throw new Error('dust');
         }
-      } catch (err) {
-        console.log('Error broadcasting tx to chronik client');
-        throw err;
       }
 
-      // return rawTxHex;
-      return rawTxHex;
-    } catch (err: any) {
-      if (err.error === 'insufficient priority (code 66)') {
-        err = new Error(intl.get('send.insufficientPriority'));
-      } else if (err.error === 'txn-mempool-conflict (code 18)') {
-        err = new Error('txn-mempool-conflict');
-      } else if (err.error === 'Network Error') {
-        err = new Error(intl.get('send.networkError'));
-      } else if (err.error === 'too-long-mempool-chain, too many unconfirmed ancestors [limit: 25] (code 64)') {
-        err = new Error(intl.get('send.longMempoolChain'));
+      await initWasm();
+      // Build a signature context for elliptic curve cryptography (ECC)
+      const ecc = new Ecc();
+
+      //get private key from wif
+      const decodedWif = wif.decode(fundingWif);
+      const { privateKey } = decodedWif;
+      const sk = Buffer.from(privateKey).toString('hex');
+
+      const walletSk = fromHex(sk);
+      const walletPk = ecc.derivePubkey(walletSk);
+      const walletPkh = shaRmd160(walletPk);
+      const walletP2pkh = Script.p2pkh(walletPkh);
+
+      const recipientP2pkh = Script.p2pkh(fromHex(destinationHash));
+      // TxId with unspent funds for the above wallet
+
+      let outputsToMany = [];
+      if (isOneToMany) {
+        outputsToMany = destinationHashAndValueArray.map(hashValue => {
+          const value = hashValue.split(',')[1];
+          const hash = hashValue.split(',')[0];
+          return {
+            value: value,
+            script: Script.p2pkh(fromHex(hash))
+          };
+        });
+        outputsToMany.push(walletP2pkh);
       }
-      throw err;
+
+      const outputs: TxBuilderOutput[] = isOneToMany
+        ? outputsToMany
+        : [
+            {
+              value: Number.parseFloat(amountToSend.toString()),
+              script: recipientP2pkh
+            },
+            walletP2pkh
+          ];
+
+      // Tx builder
+      const txBuild = new TxBuilder({
+        inputs: utxos.map(utxo => ({
+          input: {
+            prevOut: utxo.outpoint,
+            signData: {
+              value: Number(utxo.value),
+              outputScript: walletP2pkh
+            }
+          },
+          signatory: P2PKHSignatory(walletSk, walletPk, ALL_BIP143)
+        })),
+        outputs: outputs
+      });
+
+      const feeInSatsPerKByte = feeInSatsPerByte * 1000;
+      const tx = txBuild.sign(ecc, feeInSatsPerKByte, dustFee);
+      const rawTx = tx.ser();
+
+      if (returnHex) {
+        return toHex(rawTx);
+      } else {
+        console.log((await chronik.broadcastTx(rawTx)).txid);
+        return;
+      }
+    } catch (err) {
+      throw new Error(err);
     }
   };
 

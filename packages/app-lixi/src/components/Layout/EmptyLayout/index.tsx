@@ -1,21 +1,16 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Button, Layout, Spin } from 'antd';
-import Link from 'next/link';
+import { Layout, Spin } from 'antd';
+import { PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
 import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
 
-import { LeftOutlined, LoadingOutlined } from '@ant-design/icons';
+import { LoadingOutlined } from '@ant-design/icons';
 
-import { loadLocale } from '@store/settings/actions';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
-import { injectStore } from 'src/utils/axiosClient';
-import SidebarShortcut from '@containers/Sidebar/SideBarShortcut';
 import { navBarHeaderList } from '@components/Common/navBarHeaderList';
-import { useRouter } from 'next/router';
-import intl from 'react-intl-universal';
 import { GlobalStyle } from '@components/Layout/MainLayout/GlobalStyle';
-import ModalManager from '@components/Common/ModalManager';
 import { theme } from '@components/Layout/MainLayout/theme';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
+import { useRouter } from 'next/router';
+import { injectStore } from 'src/utils/axiosClient';
 const { Content, Sider, Header } = Layout;
 
 export const LoadingIcon = <LoadingOutlined className="loadingIcon" />;
@@ -71,14 +66,12 @@ export const AppContainer = styled.div`
   }
 `;
 
-type EmptyLayoutProps = React.PropsWithChildren<{}>;
+export interface EmptyLayoutProps extends PropsWithChildren {}
 
-const EmptyLayout: React.FC = (props: EmptyLayoutProps) => {
-  const { children } = props;
+const EmptyLayout = ({ children }) => {
   const [loading, setLoading] = useState(false);
-  const currentLocale = useAppSelector(getCurrentLocale);
-  const intlInitDone = useAppSelector(getIntlInitStatus);
-  const dispatch = useAppDispatch();
+  const currentLocale = useSliceSelector(getCurrentLocale);
+  const dispatch = useSliceDispatch();
   const router = useRouter();
   const [height, setHeight] = useState(0);
   const selectedKey = router.pathname ?? '';
@@ -93,10 +86,6 @@ const EmptyLayout: React.FC = (props: EmptyLayoutProps) => {
 
   injectStore(currentLocale);
 
-  useEffect(() => {
-    dispatch(loadLocale(currentLocale));
-  }, [currentLocale]);
-
   const getNamePathDirection = () => {
     const itemSelect = navBarHeaderList.find(item => selectedKey.includes(item.path)) || null;
   };
@@ -108,24 +97,22 @@ const EmptyLayout: React.FC = (props: EmptyLayoutProps) => {
   return (
     <ThemeProvider theme={theme as DefaultTheme}>
       <GlobalStyle />
-      {intlInitDone && (
-        <Spin spinning={loading} indicator={LoadingIcon}>
-          <LixiApp>
-            <Layout>
-              <AppBody>
-                <AppContainer>
-                  <Layout>
-                    <Layout className="main-section-layout" style={{ paddingRight: '2rem' }}>
-                      {/* @ts-ignore */}
-                      <Content className="content-layout">{children}</Content>
-                    </Layout>
+      <Spin spinning={loading} indicator={LoadingIcon}>
+        <LixiApp>
+          <Layout>
+            <AppBody>
+              <AppContainer>
+                <Layout>
+                  <Layout className="main-section-layout" style={{ paddingRight: '2rem' }}>
+                    {/* @ts-ignore */}
+                    <Content className="content-layout">{children}</Content>
                   </Layout>
-                </AppContainer>
-              </AppBody>
-            </Layout>
-          </LixiApp>
-        </Spin>
-      )}
+                </Layout>
+              </AppContainer>
+            </AppBody>
+          </Layout>
+        </LixiApp>
+      </Spin>
     </ThemeProvider>
   );
 };

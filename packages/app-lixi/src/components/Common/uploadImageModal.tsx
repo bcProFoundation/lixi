@@ -1,3 +1,7 @@
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
+import { Account, Page, UpdateAccountInput, UpdatePageInput } from '@generated/types.generated';
+import { setAccountAvatar, setAccountCover, setAccountInfoTemp } from '@store/account';
+import { useUpdateAccountMutation } from '@store/account/accounts.api';
 import {
   getAccountAvatarUpload,
   getAccountCoverUpload,
@@ -5,20 +9,15 @@ import {
   getPageAvatarUpload,
   getPageCoverUpload
 } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { UpdatePageInput, Page, Account, UpdateAccountInput } from '@generated/types.generated';
-import Image from 'next/image';
-import { StyledUploader } from './Uploader/Uploader';
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
-import { Button, Form, Modal } from 'antd';
-import { setPage } from '@store/page/action';
-import { useUpdatePageMutation } from '@store/page/pages.generated';
-import { showToast } from '@store/toast/actions';
-import intl from 'react-intl-universal';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeModal } from '@store/modal/actions';
+import { setPage } from '@store/page/action';
+import { useUpdatePageMutation } from '@store/page/pages.api';
+import { showToast } from '@store/toast/actions';
+import { Button, Form, Modal } from 'antd';
 import { useState } from 'react';
-import { setAccount, setAccountAvatar, setAccountCover, setAccountInfoTemp } from '@store/account';
-import { useUpdateAccountMutation } from '@store/account/accounts.generated';
+import intl from 'react-intl-universal';
+import { StyledUploader } from './Uploader/Uploader';
 
 export interface UploadAvatarCoverProps {
   profile?: Account;
@@ -29,7 +28,7 @@ export interface UploadAvatarCoverProps {
 
 export const UploadAvatarCoverModal: React.FC<UploadAvatarCoverProps> = (props: UploadAvatarCoverProps) => {
   const { profile, page, isAvatar, classStyle } = props;
-  const accountInfoTemp = useAppSelector(getAccountInfoTemp);
+  const accountInfoTemp = useSliceSelector(getAccountInfoTemp);
 
   const [
     updatePageTrigger,
@@ -46,9 +45,9 @@ export const UploadAvatarCoverModal: React.FC<UploadAvatarCoverProps> = (props: 
     }
   ] = useUpdateAccountMutation();
 
-  const dispatch = useAppDispatch();
-  const avatar = profile ? useAppSelector(getAccountAvatarUpload) : useAppSelector(getPageAvatarUpload);
-  const cover = profile ? useAppSelector(getAccountCoverUpload) : useAppSelector(getPageCoverUpload);
+  const dispatch = useSliceDispatch();
+  const avatar = profile ? useSliceSelector(getAccountAvatarUpload) : useSliceSelector(getPageAvatarUpload);
+  const cover = profile ? useSliceSelector(getAccountCoverUpload) : useSliceSelector(getPageCoverUpload);
   const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
 
   const normFile = (e: any) => {

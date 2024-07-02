@@ -28,8 +28,8 @@ function checkPagingSanity(args: ConnectionArgs): PagingMeta {
   return isForwardPaging
     ? { pagingType: 'forward', after, first }
     : isBackwardPaging
-    ? { pagingType: 'backward', before, last }
-    : { pagingType: 'none' };
+      ? { pagingType: 'backward', before, last }
+      : { pagingType: 'none' };
 }
 
 const getId = (cursor: ConnectionCursor) => parseInt(fromGlobalId(cursor).id, 10);

@@ -1,5 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional } from 'class-validator';
+import { COIN } from '../../../constants/coins/coin';
+import { Nullable } from '../../nullable';
 
 @InputType()
 export class CreateMessageInput {
@@ -25,4 +27,8 @@ export class CreateMessageInput {
   @IsOptional()
   @Field(() => [String], { nullable: true })
   uploadIds?: [string];
+
+  @IsOptional()
+  @Field(() => COIN, { nullable: true })
+  coinGive?: Nullable<COIN>;
 }

@@ -5,7 +5,8 @@ module.exports = api => {
             '@babel/preset-typescript',
         ],
         plugins: [
-            "babel-plugin-styled-components"
+            "babel-plugin-styled-components",
+            "@babel/plugin-transform-modules-commonjs"
         ]
     };
 };

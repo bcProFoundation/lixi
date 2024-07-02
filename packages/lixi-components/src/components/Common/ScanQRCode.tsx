@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { BrowserQRCodeReader } from '@zxing/browser';
+import { Alert, Modal } from 'antd';
+import { useEffect, useState } from 'react';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
-import { Alert, Modal } from 'antd';
-import { BrowserQRCodeReader } from '@zxing/browser';
 import { ThemedQrcodeOutlined } from './CustomIcons';
 
-import { isValidLotusPrefix } from './Ticker';
-import { Result } from '@zxing/library';
 import _ from 'lodash';
+import { isValidLotusPrefix } from './Ticker';
 
 const StyledScanQRCode = styled.span`
   display: block;

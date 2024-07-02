@@ -1,31 +1,31 @@
-import _ from 'lodash';
-import intl from 'react-intl-universal';
-import React, { useContext, useEffect, useState } from 'react';
-import { Row, Col, Form, Spin } from 'antd';
-import PrimaryButton from '@bcpros/lixi-components/components/Common/PrimaryButton';
 import { CashLoadingIcon } from '@bcpros/lixi-components/components/Common/CustomIcons';
 import {
   FormItemClaimCodeXpiInput,
   FormItemWithQRCodeAddon
 } from '@bcpros/lixi-components/components/Common/EnhancedInputs';
-import { parseAddress } from '@utils/addressMethods';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import PrimaryButton from '@bcpros/lixi-components/components/Common/PrimaryButton';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
+import { AuthorizationContext, WalletContext } from '@context/index';
+import { generateAccount } from '@store/account';
+import { getSelectedAccount } from '@store/account/selectors';
 import {
   checkInformationAndClaim,
   checkInformationAndClaimNoAccount,
   saveClaimAddress,
   saveClaimCode
 } from '@store/claim/actions';
-import { getIsGlobalLoading } from '@store/loading/selectors';
 import { getCurrentAddress, getCurrentClaimCode } from '@store/claim/selectors';
-import { useSelector } from 'react-redux';
-import { getSelectedAccount } from '@store/account/selectors';
-import styled from 'styled-components';
-import { AuthorizationContext, WalletContext } from '@context/index';
-import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { getIsGlobalLoading } from '@store/loading/selectors';
+import { parseAddress } from '@utils/addressMethods';
 import InApp from '@utils/inapp';
-import { generateAccount } from '@store/account';
+import { Col, Form, Row, Spin } from 'antd';
+import _ from 'lodash';
+import React, { useContext, useEffect, useState } from 'react';
+import intl from 'react-intl-universal';
+import styled from 'styled-components';
 
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
 
@@ -38,6 +38,7 @@ type ClaimFormData = {
 const RedeemCodeBox = styled.div`
   background: #fff;
   padding: 1rem;
+  border-radius: 0.313rem;
   @media (max-width: 768px) {
     padding: 2rem 0 3rem 0;
   }
@@ -78,20 +79,21 @@ type ClaimProps = {
 };
 
 const ClaimComponent = ({ isClaimFromAccount, claimCodeFromURL }: ClaimProps) => {
-  const isLoading = useAppSelector(getIsGlobalLoading);
+  const isLoading = useSliceSelector(getIsGlobalLoading);
 
   const Wallet = React.useContext(WalletContext);
   const { XPI } = Wallet;
 
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   // const { width } = useWindowDimensions();
   // Load with QR code open if device is mobile and NOT iOS + anything but safari
   const scannerSupported = false; // width < 769 && isMobile && !(isIOS && !isSafari);
 
-  const currentAddress = useAppSelector(getCurrentAddress);
-  const currentClaimCode = claimCodeFromURL ?? useSelector(getCurrentClaimCode);
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const currentAddress = useSliceSelector(getCurrentAddress);
+  let currentClaimCode = useSliceSelector(getCurrentClaimCode);
+  currentClaimCode = claimCodeFromURL ?? currentClaimCode;
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const askAuthorization = useAuthorization();
   const authorization = useContext(AuthorizationContext);
 

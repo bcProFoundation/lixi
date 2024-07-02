@@ -1,10 +1,10 @@
-import { Account } from '@bcpros/lixi-models';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { getSelectedAccount } from '@store/account';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { saveAllowPushNotification, saveWebPushNotifConfig } from '@store/settings/actions';
 import { getDeviceId, getWebPushNotifConfig } from '@store/settings/selectors';
 import { subscribeSelectedAccount, unsubscribeByAddresses } from '@store/webpush';
-import { getPlatformPermissionState } from '@utils/pushNotification';
+import { getPlatformPermissionState } from '../utils/pushNotification';
 import * as _ from 'lodash';
 import { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -12,11 +12,11 @@ import usePrevious from './usePrevious';
 
 const usePushNotification = (props: { registration: ServiceWorkerRegistration }) => {
   const { registration } = props;
-  const dispatch = useAppDispatch();
-  const webPushNotifConfig = useAppSelector(getWebPushNotifConfig);
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const webPushNotifConfig = useSliceSelector(getWebPushNotifConfig);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const previousSelectedAccount: Account = usePrevious(selectedAccount);
-  const deviceId = useAppSelector(getDeviceId);
+  const deviceId = useSliceSelector(getDeviceId);
 
   // run only once
   useEffect(() => {

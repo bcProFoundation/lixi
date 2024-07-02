@@ -1,11 +1,11 @@
-import { PaginationArgs } from '@bcpros/lixi-models';
-import { PostQueryItem, PostOrder } from '@generated/index';
+import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
+import { PostOrder } from '../../generated/types.generated';
+import { PostQueryItem } from '../../generated/types';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { useAppDispatch } from '@store/hooks';
-import { useLazyPostsByTokenIdQuery, usePostsByTokenIdQuery } from '@store/post/posts.generated';
+import { useLazyPostsByTokenIdQuery, usePostsByTokenIdQuery } from '@store/post/posts.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-const postsAdapter = createEntityAdapter<PostQueryItem>({
+const postsAdapter = createEntityAdapter<PostQueryItem, string>({
   selectId: post => post.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });
@@ -22,7 +22,6 @@ export function useInfinitePostsByTokenIdQuery(
   params: PostListByIdParams,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const dispatch = useAppDispatch();
   const baseResult = usePostsByTokenIdQuery(params);
 
   const [trigger, nextResult, lastPromiseInfo] = useLazyPostsByTokenIdQuery();

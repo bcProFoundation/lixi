@@ -1,20 +1,17 @@
 import {
+  ArchiveLixiCommand,
+  CreateLixiCommand,
   DownloadExportedLixiCommand,
   ExportLixiCommand,
   LixiDto,
-  IPaginationResult,
-  RegisterLixiPackCommand
-} from '@bcpros/lixi-models';
-import {
-  ArchiveLixiCommand,
-  CreateLixiCommand,
-  Lixi,
   PostLixiResponseDto,
+  RegisterLixiPackCommand,
   RenameLixiCommand,
   UnarchiveLixiCommand,
   WithdrawLixiCommand
 } from '@bcpros/lixi-models/lib/lixi';
-import axiosClient from '@utils/axiosClient';
+import { IPaginationResult } from '@bcpros/lixi-models/utils/paginationResult';
+import axiosClient from '../../utils/axiosClient';
 
 const lixiApi = {
   getById(id: number, accountSecret?: string): Promise<LixiDto> {

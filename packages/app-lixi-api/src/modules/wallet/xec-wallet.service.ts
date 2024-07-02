@@ -8,6 +8,7 @@ import { WalletService } from './wallet.service';
 import { coinInfo, COIN } from '@bcpros/lixi-models';
 import { sendXec } from 'src/utils/useXEC';
 import HDNode from '@bcpros/xpi-js/types/hdnode';
+import { getUtxoWif } from 'src/utils/cashMethods';
 
 @Injectable()
 export class XecWalletService extends WalletService {
@@ -62,16 +63,20 @@ export class XecWalletService extends WalletService {
     });
     const walletStatus = await super.getWalletStatus(hash160AndAddressObjArray);
     const { slpBalancesAndUtxos } = walletStatus;
+    const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], sendWalletPath, COIN.XEC);
+
     const hex = await sendXec(
       this.chronik,
-      sendWalletPath,
+      fundingWif,
       slpBalancesAndUtxos.nonSlpUtxos,
       coinInfo[COIN.XEC].defaultFee,
       undefined,
-      false, // indicate send mode is one to many
+      false, //indicate send mode is one to one
       null,
-      recieveAddress,
-      amount.toString()
+      sendWalletPath[0].hash160,
+      amount,
+      coinInfo[COIN.XEC].etokenSats,
+      true // return hex
     );
     return hex;
   }

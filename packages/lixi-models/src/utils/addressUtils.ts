@@ -1,4 +1,5 @@
-import { COIN, coinInfo } from '../constants';
+import { COIN } from '../constants/coins/coin';
+import { coinInfo } from '../constants/coins/coin-info';
 
 export function isValidLotusPrefix(addressString: string, coin: COIN) {
   // Note that this function validates prefix only

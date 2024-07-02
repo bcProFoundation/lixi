@@ -1,6 +1,6 @@
 import { Account } from '@bcpros/lixi-models';
 import { getAllAccounts, getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { Layout, message, Space, Modal, Popover, Button, Badge } from 'antd';
 import classNames from 'classnames';
 import Link from 'next/link';
@@ -216,11 +216,11 @@ const StyledCopyOutlined = styled(CopyOutlined)`
 `;
 const SidebarContent = () => {
   const refSidebarShortcut = useRef<HTMLDivElement | null>(null);
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const walletStatus = useAppSelector(getWalletStatus);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const walletStatus = useSliceSelector(getWalletStatus);
   const worshipedPeople = useWorshipedPeopleByUserIdQuery();
-  const recentVisitedPeople = useAppSelector(getRecentVisitedPeople);
+  const recentVisitedPeople = useSliceSelector(getRecentVisitedPeople);
   const history = useRouter();
 
   const triggerSrollbar = e => {

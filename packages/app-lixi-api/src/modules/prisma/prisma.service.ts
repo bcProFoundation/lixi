@@ -6,7 +6,10 @@ import prismaCacheMiddleware from 'prisma-cache-middleware';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
-  constructor(private logger: Logger, private readonly config: ConfigService) {
+  constructor(
+    private logger: Logger,
+    private readonly config: ConfigService
+  ) {
     super();
     // super({
     //   log: [

@@ -1,23 +1,22 @@
+import { PrismaClient } from '@bcpros/lixi-prisma';
 import MainLayout from '@components/Layout/MainLayout';
 import TokensFeed from '@components/Token/TokensFeed';
-import { AppThunkDispatch, SagaStore, wrapper } from '@store/store';
-import { useTokenQuery } from '@store/token/tokens.generated';
+import { getSelectedAccount } from '@store/account';
+import { useCheckIfFollowTokenQuery } from '@store/follow/follows.api';
+import { useSliceSelector } from '@store/index';
+import { AppThunkDispatch, SagaStore, wrapper } from 'src/store/store';
+import { useTokenQuery } from '@store/token/tokens.api';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
 import { getSelectorsByUserAgent } from 'react-device-detect';
 import { END } from 'redux-saga';
-import { useCheckIfFollowTokenQuery } from '@store/follow/follows.api';
-import { getSelectedAccount } from '@store/account';
-import { useAppSelector } from '@store/hooks';
-import { PrismaClient } from '@bcpros/lixi-prisma';
-import { api as tokenApi } from '@store/token/tokens.api';
 
 const TokenDetailPage = props => {
   const { tokenAsString, isMobile } = props;
   const token = JSON.parse(tokenAsString);
   const { id, tokenId } = token;
   const canonicalUrl = process.env.NEXT_PUBLIC_LIXI_URL + `token/${tokenId}`;
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
 
   const { currentData: currentDataTokenQuery } = useTokenQuery({ id: id }, { skip: !selectedAccount || !token });
 
@@ -94,6 +93,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   };
 });
 
-TokenDetailPage.Layout = ({ children }) => <MainLayout children={children} />;
+TokenDetailPage.getLayout = children => <MainLayout>{children}</MainLayout>;
 
 export default TokenDetailPage;

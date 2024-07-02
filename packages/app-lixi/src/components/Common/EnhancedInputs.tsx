@@ -4,6 +4,7 @@ import styled, { css } from 'styled-components';
 import intl from 'react-intl-universal';
 import AppLocale, { AppLanguageNotAutoTrans } from '@lang/index';
 import _ from 'lodash';
+import { DefaultOptionType } from 'antd/es/select';
 
 export const AntdFormCss = css`
   .ant-input-group-addon {
@@ -75,38 +76,33 @@ export const LanguageSelectDropdown = selectProps => {
   const languageMenuOptions: LanguageMenuOption[] = [];
 
   for (var key in AppLocale) {
+    const lang = key.split('-')[0];
     const languageMenuOption: LanguageMenuOption = {
-      value: key,
-      label: intl.get('settings.' + key)
+      value: lang,
+      get label() {
+        return intl.get('settings.' + lang);
+      }
     };
     languageMenuOptions.push(languageMenuOption);
   }
 
-  const languageOptions = languageMenuOptions.map(languageMenuOption => {
-    return (
-      <Option key={languageMenuOption.value} value={languageMenuOption.value} className="selectedLanguageOption">
-        {languageMenuOption.label}
-      </Option>
-    );
-  });
   return (
     <Select
       className="select-after"
       style={{
         width: '100%'
       }}
+      options={languageMenuOptions}
       getPopupContainer={trigger => trigger.parentNode}
       {...selectProps}
-    >
-      {languageOptions}
-    </Select>
+    ></Select>
   );
 };
 
 export const LanguageNotAutoTransDropdown = selectProps => {
   const { Option } = Select;
 
-  const languageMenuOptions: LanguageMenuOption[] = [{ value: null, label: ' ' }];
+  const languageMenuOptions: LanguageMenuOption[] = [{ value: '', label: ' ' }];
 
   for (var key in AppLanguageNotAutoTrans) {
     const languageMenuOption: LanguageMenuOption = {
@@ -116,13 +112,13 @@ export const LanguageNotAutoTransDropdown = selectProps => {
     languageMenuOptions.push(languageMenuOption);
   }
 
-  const languageOptions = languageMenuOptions.map(languageMenuOption => {
-    return (
-      <Option key={languageMenuOption.value} value={languageMenuOption.value}>
-        {languageMenuOption.label}
-      </Option>
-    );
+  const options = languageMenuOptions.map(languageMenuOption => {
+    return {
+      value: languageMenuOption.value,
+      label: languageMenuOption.label
+    };
   });
+
   return (
     <Select
       className=""
@@ -130,18 +126,17 @@ export const LanguageNotAutoTransDropdown = selectProps => {
         width: '100%'
       }}
       showSearch
-      filterSort={(optionA, optionB) =>
-        (optionA!.children as unknown as string)
-          .toLowerCase()
-          .localeCompare((optionB!.children as unknown as string).toLowerCase())
-      }
+      options={options}
+      filterSort={(optionA: DefaultOptionType, optionB: DefaultOptionType) => {
+        if (!optionA?.value) return 1;
+        if (!optionB?.value) return -1;
+        return (optionA.value as string).toLowerCase().localeCompare((optionB.value as string).toLowerCase());
+      }}
       filterOption={(input, option) =>
         (option!.children as unknown as string).toLocaleLowerCase().includes(input.toLowerCase())
       }
       {...selectProps}
-    >
-      {languageOptions}
-    </Select>
+    ></Select>
   );
 };
 

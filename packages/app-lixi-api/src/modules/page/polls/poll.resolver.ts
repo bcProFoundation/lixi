@@ -1,5 +1,5 @@
-import { Account, CommentType, CreatePollInput, Poll, Post } from '@bcpros/lixi-models';
-import { PostType } from '@bcpros/lixi-prisma';
+import { Account, COIN, CommentType, CreatePollInput, Poll, Post } from '@bcpros/lixi-models';
+import { NotificationLevel, PostType } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Inject, Injectable, UseFilters, UseGuards } from '@nestjs/common';
@@ -8,7 +8,7 @@ import { SkipThrottle } from '@nestjs/throttler';
 import { Queue } from 'bullmq';
 import { ChronikClient } from 'chronik-client';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
+import { InjectChronikClient } from 'nestjs-chronik';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { AccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
@@ -39,7 +39,8 @@ export class PollResolver {
     private readonly meiliService: MeiliService,
     @InjectQueue(CONTENT_FANOUT_QUEUE) private postFanoutQueue: Queue,
     @Inject(XPIJS) private XPI: BCHJS,
-    @InjectChronikClient('xpi') private chronik: ChronikClient,
+    @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
+    @InjectChronikClient('xec') private chronikXEC: ChronikClient,
     @I18n() private i18n: I18nService,
     private readonly hashtagService: HashtagService,
     private readonly pollCacheService: PollCacheService,
@@ -64,80 +65,94 @@ export class PollResolver {
       throw new Error(couldNotFindAccount);
     }
 
-    const { startDate, endDate, tokenId, pageId, options, createFeeHex, question } = data;
+    const { startDate, endDate, tokenId, pageId, options, createFeeHex, question, coinFee } = data;
     let createFee: any;
 
-    const savedPoll = await this.prisma.$transaction(async prisma => {
-      let txid: string | undefined;
-      if (createFeeHex) {
-        const broadcastResponse = await this.chronik.broadcastTx(createFeeHex);
-        if (!broadcastResponse) {
-          throw new Error('Empty chronik broadcast response');
+    const savedPoll = await this.prisma.$transaction(
+      async prisma => {
+        let txid: string | undefined;
+        let broadcastResponse;
+        if (createFeeHex) {
+          switch (coinFee) {
+            case COIN.XPI:
+              broadcastResponse = await this.chronikXPI.broadcastTx(createFeeHex);
+              break;
+            case COIN.XEC:
+              broadcastResponse = await this.chronikXEC.broadcastTx(createFeeHex);
+              break;
+            default:
+              broadcastResponse = await this.chronikXPI.broadcastTx(createFeeHex);
+              break;
+          }
+          if (!broadcastResponse) {
+            throw new Error('Empty chronik broadcast response');
+          }
+          txid = broadcastResponse.txid;
         }
-        txid = broadcastResponse.txid;
-      }
 
-      const createdPoll = await prisma.post.create({
-        data: {
-          content: '',
-          account: { connect: { id: account.id } },
-          page: {
-            connect: pageId ? { id: pageId } : undefined
-          },
-          token: {
-            connect: tokenId ? { id: tokenId } : undefined
-          },
-          commentable: {
-            create: {
-              type: CommentType.POLL
+        const createdPoll = await prisma.post.create({
+          data: {
+            content: '',
+            account: { connect: { id: account.id } },
+            page: {
+              connect: pageId ? { id: pageId } : undefined
+            },
+            token: {
+              connect: tokenId ? { id: tokenId } : undefined
+            },
+            commentable: {
+              create: {
+                type: CommentType.POLL
+              }
+            },
+            type: PostType.POLL,
+            txid: txid,
+            createFee: createFee,
+            dana: {
+              create: {}
+            },
+            taggable: {
+              create: {}
+            },
+            poll: {
+              create: {
+                startDate,
+                endDate,
+                options: {
+                  create: options
+                },
+                question
+              }
             }
           },
-          type: PostType.POLL,
-          txid: txid,
-          createFee: createFee,
-          dana: {
-            create: {}
-          },
-          taggable: {
-            create: {}
-          },
-          poll: {
-            create: {
-              startDate,
-              endDate,
-              options: {
-                create: options
-              },
-              question
+          include: {
+            page: {
+              select: {
+                id: true,
+                address: true,
+                name: true
+              }
+            },
+            token: {
+              select: {
+                id: true,
+                name: true
+              }
+            },
+            account: {
+              select: {
+                id: true,
+                name: true,
+                address: true
+              }
             }
           }
-        },
-        include: {
-          page: {
-            select: {
-              id: true,
-              address: true,
-              name: true
-            }
-          },
-          token: {
-            select: {
-              id: true,
-              name: true
-            }
-          },
-          account: {
-            select: {
-              id: true,
-              name: true,
-              address: true
-            }
-          }
-        }
-      });
+        });
 
-      return createdPoll;
-    });
+        return createdPoll;
+      },
+      { timeout: 10000 }
+    );
 
     //Hashtag
     // const hashtags = await this.hashtagService.extractAndSave(
@@ -186,6 +201,7 @@ export class PollResolver {
         senderId: account.id,
         recipientId: Number(page?.pageAccountId),
         notificationTypeId: NOTIFICATION_TYPES.POST_ON_PAGE,
+        level: NotificationLevel.INFO,
         url: `/post/${savedPoll.id}`,
         additionalData: {
           senderName: account.name,

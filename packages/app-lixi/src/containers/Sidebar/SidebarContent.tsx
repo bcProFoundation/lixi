@@ -1,9 +1,9 @@
 import { LeftOutlined } from '@ant-design/icons';
-import { HashtagOrderField, OrderDirection, PostOrderField, PostQueryItem } from '@generated/index';
+import { HashtagOrderField, OrderDirection, PostOrderField } from '@generated/types.generated';
 import { addRecentHashtagAtPages, setGraphqlRequestLoading } from '@store/account';
 import { getSelectedAccountId } from '@store/account/selectors';
 import { useInfiniteHashtagByPageQuery } from '@store/hashtag/useInfiniteHashtagByPageQuery';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { setSelectedPost } from '@store/post/actions';
 import { useInfinitePostsByPageIdQuery } from '@store/post/useInfinitePostsByPageIdQuery';
 import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
@@ -26,6 +26,7 @@ import {
   ShortCutTopicItem,
   typeFilterPageQuery
 } from './SideBarShortcut';
+import { PostQueryItem } from '@generated/types';
 
 type SidebarContentProps = {
   className?: string;
@@ -96,18 +97,18 @@ const ContainerSideBarContent = styled.div`
 `;
 
 const SidebarContent = ({ className }: SidebarContentProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const router = useRouter();
-  const navCollapsed = useAppSelector(getNavCollapsed);
-  const filterValue = useAppSelector(getFilterPostsPage);
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
+  const navCollapsed = useSliceSelector(getNavCollapsed);
+  const filterValue = useSliceSelector(getFilterPostsPage);
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
   const [filterPage, setFilterPage] = useState({});
   const [filterPageQuery, setFilterPageQuery] = useState<typeFilterPageQuery>({});
   const [query, setQuery] = useState<any>('');
   const [hashtags, setHashtags] = useState<any>([]);
   const pageId = router.pathname.includes('page') && (router.query?.slug as string);
   const [cachePostIdGeneral, setCachePostIdGeneral] = useState(0);
-  const level = useAppSelector(getLevelFilter);
+  const level = useSliceSelector(getLevelFilter);
   const currentPathName = router.pathname ?? '';
 
   let { data: timelineData, refetch } = useInfiniteHomeTimelineQuery(

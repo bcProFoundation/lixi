@@ -1,11 +1,12 @@
-import { PostQueryItem } from '@generated/index';
 import Icon, { DollarOutlined, GlobalOutlined, ShopOutlined } from '@ant-design/icons';
 import FollowSvg from '@assets/icons/follow.svg';
-import { PostListType, TOKEN_ICON_URL } from '@bcpros/lixi-models/constants';
+import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants/coins/coin';
+import { PostListType } from '@bcpros/lixi-models/constants/postListType';
 import { AuthorizationContext } from '@context/index';
+import { PostQueryItem } from '@generated/types';
 import { getSelectedAccount } from '@store/account/selectors';
 import { openActionSheet } from '@store/action-sheet/actions';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import type { MenuProps } from 'antd';
 import { Avatar } from 'antd';
 import { useRouter } from 'next/router';
@@ -164,9 +165,9 @@ const InfoCardUser: React.FC<InfoCardProps> = props => {
     postListType,
     displayDotAfterName = true
   } = props;
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const history = useRouter();
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
 

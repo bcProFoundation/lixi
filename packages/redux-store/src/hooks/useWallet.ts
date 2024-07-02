@@ -1,6 +1,6 @@
 import BCHJS from '@bcpros/xpi-js';
-import { WalletContextValue } from '@context/index';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { WalletContextValue } from '../context/index';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { xpiReceivedNotificationWebSocket } from '@store/notification/actions';
 import {
   WalletPathAddressInfo,
@@ -18,15 +18,16 @@ import {
   setWalletRefreshInterval,
   writeWalletStatus
 } from '@store/wallet';
-import { getHashArrayFromWallet, getWalletBalanceFromUtxos } from '@utils/cashMethods';
-import { getTxHistoryChronik, getUtxosChronik, organizeUtxosByType, parseChronikTx } from '@utils/chronik';
-import isEqualIgnoreUndefined from '@utils/comparision';
+import { getHashArrayFromWallet, getWalletBalanceFromUtxos } from '../utils/cashMethods';
+import { getTxHistoryChronik, getUtxosChronik, organizeUtxosByType, parseChronikTx } from '../utils/chronik';
+import isEqualIgnoreUndefined from '../utils/comparision';
 import { ChronikClient, SubscribeMsg, Tx, Utxo } from 'chronik-client';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 // @ts-ignore
-import { Account, Hash160AndAddress } from '@bcpros/lixi-models';
-import { COIN } from '@bcpros/lixi-models/constants';
+import { Hash160AndAddress } from '@bcpros/lixi-models/lib/wallet/wallet.model';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { getAllAccounts, getSelectedAccount } from '@store/account';
 import useInterval from './useInterval';
 import useXPI from './useXPI';
@@ -46,23 +47,23 @@ const useWallet = () => {
   const { getXPI } = useXPI();
   const [XPI, setXPI] = useState<BCHJS>(getXPI());
 
-  const accounts = useAppSelector(getAllAccounts);
-  const walletState = useAppSelector(getWalletState);
-  const walletRefreshInterval = useAppSelector(getWaletRefreshInterval);
-  const walletHasUpdated = useAppSelector(getWalletHasUpdated);
-  const allWalletPaths = useAppSelector(getAllWalletPaths);
-  const selectedWalletPath = useAppSelector(getSelectedWalletPath);
-  const walletUtxos = useAppSelector(getWalletUtxos);
-  const dispatch = useAppDispatch();
-  const walletStatus = useAppSelector(getWalletStatus);
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const accounts = useSliceSelector(getAllAccounts);
+  const walletState = useSliceSelector(getWalletState);
+  const walletRefreshInterval = useSliceSelector(getWaletRefreshInterval);
+  const walletHasUpdated = useSliceSelector(getWalletHasUpdated);
+  const allWalletPaths = useSliceSelector(getAllWalletPaths);
+  const selectedWalletPath = useSliceSelector(getSelectedWalletPath);
+  const walletUtxos = useSliceSelector(getWalletUtxos);
+  const dispatch = useSliceDispatch();
+  const walletStatus = useSliceSelector(getWalletStatus);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
 
   useEffect(() => {
     if (!selectedAccount) return;
 
     let accountCoin: string;
 
-    switch (selectedAccount.coin) {
+    switch (selectedAccount?.coin) {
       case COIN.XPI:
         accountCoin = 'xpi';
         break;
@@ -143,7 +144,7 @@ const useWallet = () => {
         return walletPath.xAddress === account.address;
       });
     });
-    const walletsAlreadySync = _.filter(walletPaths, (walletPath: WalletPathAddressInfo) => {
+    const walletsAlreadySync: WalletPathAddressInfo[] = _.filter(walletPaths, (walletPath: WalletPathAddressInfo) => {
       return _.some(accounts, (account: Account) => {
         return walletPath.xAddress === account.address;
       });
@@ -155,7 +156,7 @@ const useWallet = () => {
       const derivedWalletPathsPromises: Array<Promise<WalletPathAddressInfo[]>> = _.map(
         accountsNotInWallets,
         account => {
-          switch (account.coin) {
+          switch (account?.coin) {
             case 'XPI':
               return getWalletPathDetails(account.mnemonic, ["m/44'/10605'/0'/0/0"]);
             case 'XEC':
@@ -164,9 +165,9 @@ const useWallet = () => {
         }
       );
       // Calculate the wallet not synced yet
-      const walletsPathToSync = (await Promise.all(derivedWalletPathsPromises)).flat();
-
-      dispatch(setWalletPaths([...walletsAlreadySync, ...walletsPathToSync]));
+      const walletsPathToSync: WalletPathAddressInfo[] = (await Promise.all(derivedWalletPathsPromises)).flat();
+      const walletPaths: WalletPathAddressInfo[] = [...walletsAlreadySync, ...walletsPathToSync];
+      dispatch(setWalletPaths(walletPaths));
     }
   };
 
@@ -290,8 +291,9 @@ const useWallet = () => {
     let activeSubscriptionsMatchActiveWallet = true;
 
     const previousWebsocketSubscriptions = ws._subs;
+
     // If there are no previous subscriptions, then activeSubscriptionsMatchActiveWallet is certainly false
-    if (previousWebsocketSubscriptions.length === 0) {
+    if (!previousWebsocketSubscriptions || previousWebsocketSubscriptions.length === 0) {
       activeSubscriptionsMatchActiveWallet = false;
     } else {
       const subscribedHash160Array = previousWebsocketSubscriptions.map(function (subscription) {
@@ -313,7 +315,7 @@ const useWallet = () => {
     }
 
     // Unsubscribe to any active subscriptions
-    if (previousWebsocketSubscriptions.length > 0) {
+    if (previousWebsocketSubscriptions && previousWebsocketSubscriptions.length > 0) {
       for (let i = 0; i < previousWebsocketSubscriptions.length; i += 1) {
         const unsubHash160 = previousWebsocketSubscriptions[i].scriptPayload;
         ws.unsubscribe('p2pkh', unsubHash160);
@@ -340,27 +342,7 @@ const useWallet = () => {
         return;
       }
 
-      let currentCoinAddress = undefined;
-      switch (selectedAccount?.coin) {
-        case COIN.XPI:
-          currentCoinAddress = selectedWalletPath?.xAddress;
-          break;
-        case COIN.XEC:
-          currentCoinAddress = selectedWalletPath?.cashAddress;
-          break;
-        default:
-          currentCoinAddress = selectedWalletPath?.xAddress;
-          break;
-      }
-
-      const hash160AndAddressObjArray: Hash160AndAddress[] = [selectedWalletPath].map(item => {
-        return {
-          address: currentCoinAddress ?? item.xAddress,
-          hash160: item.hash160
-        };
-      });
-
-      const chronikUtxos = await getUtxosChronik(chronik, hash160AndAddressObjArray);
+      const { chronikUtxos, nonSlpUtxos } = await getUtxosByCoin(selectedAccount?.coin ?? COIN.XPI);
 
       // Need to call wToUpdateith wallet as a parameter rather than trusting it is in state, otherwise can sometimes get wallet=false from haveUtxosChanged
       const utxosHaveChanged = haveUtxosChanged(chronikUtxos, walletUtxos);
@@ -375,7 +357,6 @@ const useWallet = () => {
         return;
       }
 
-      const { nonSlpUtxos } = organizeUtxosByType(chronikUtxos);
       const { chronikTxHistory } = await getTxHistoryChronik(chronik, XPI, wallet, 0, selectedAccount?.coin);
 
       const newWalletStatus: WalletStatus = {
@@ -401,6 +382,38 @@ const useWallet = () => {
       // Try another endpoint
       console.log(`Trying next API...`);
     }
+  };
+
+  const getUtxosByCoin = async (coin: COIN) => {
+    const chronikByCoin: ChronikClient = new ChronikClient(`https://chronik.be.cash/${coin.toLowerCase()}`);
+
+    let currentCoinAddress = undefined;
+    switch (coin) {
+      case COIN.XPI:
+        currentCoinAddress = selectedWalletPath?.xAddress;
+        break;
+      case COIN.XEC:
+        currentCoinAddress = selectedWalletPath?.cashAddress;
+        break;
+      default:
+        currentCoinAddress = selectedWalletPath?.xAddress;
+        break;
+    }
+
+    const hash160AndAddressObjArray: Hash160AndAddress[] = [selectedWalletPath].map(item => {
+      return {
+        address: currentCoinAddress ?? item.xAddress,
+        hash160: item.hash160
+      };
+    });
+    const chronikUtxos = await getUtxosChronik(
+      selectedAccount?.coin == coin ? chronik : chronikByCoin,
+      hash160AndAddressObjArray
+    );
+
+    const { nonSlpUtxos } = organizeUtxosByType(chronikUtxos);
+
+    return { chronikUtxos, nonSlpUtxos };
   };
 
   // Update wallet according to defined interval
@@ -434,7 +447,8 @@ const useWallet = () => {
     chronik,
     deriveAccount,
     getWalletPathDetails,
-    validateMnemonic
+    validateMnemonic,
+    getUtxosByCoin
   } as WalletContextValue;
 };
 

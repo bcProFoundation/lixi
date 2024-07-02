@@ -1,65 +1,64 @@
-import React, { useRef } from 'react';
-import Document, { Html, Head, Main, NextScript, DocumentContext, DocumentInitialProps } from 'next/document';
-import { ServerStyleSheet } from 'styled-components';
+import { StyleProvider, createCache, extractStyle } from '@ant-design/cssinjs';
+import Document, { DocumentContext, Head, Html, Main, NextScript } from 'next/document';
 
-export default class MyDocument extends Document {
-  static async getInitialProps(ctx: DocumentContext): Promise<DocumentInitialProps> {
-    const sheet = new ServerStyleSheet();
-    const originalRenderPage = ctx.renderPage;
+const MyDocument = () => (
+  <Html lang="en">
+    <Head>
+      <meta charSet="utf-8" />
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, interactive-widget=resizes-content"
+      />
+      <meta name="application-name" content="Lixi" />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-title" content="Lixi" />
+      <meta name="description" content="Give out lotus to others" />
+      <meta name="format-detection" content="telephone=no" />
+      <meta name="mobile-web-app-capable" content="yes" />
+      <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fff" />
+      <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e1e1e" />
+      <meta name="msapplication-navbutton-color" content="#fff" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="#fff" />
 
-    try {
-      ctx.renderPage = () =>
-        originalRenderPage({
-          enhanceApp: App => props => sheet.collectStyles(<App {...props} />)
-        });
+      <link rel="manifest" href="/manifest.json" />
+      <link rel="shortcut icon" href="/favicon.ico" />
+      <link rel="apple-touch-icon" href="/logo192.png" />
+      <link rel="shortcut icon" type="image/x-icon" sizes="512x512" href="/logo512.png" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" />
+      <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
+    </Head>
+    <body>
+      <Main />
+      <NextScript />
+    </body>
+  </Html>
+);
 
-      const initialProps = await Document.getInitialProps(ctx);
-      return {
-        ...initialProps,
-        styles: (
-          <>
-            {initialProps.styles}
-            {sheet.getStyleElement()}
-          </>
-        )
-      };
-    } finally {
-      sheet.seal();
-    }
-  }
+MyDocument.getInitialProps = async (ctx: DocumentContext) => {
+  const cache = createCache();
+  const originalRenderPage = ctx.renderPage;
+  ctx.renderPage = () =>
+    originalRenderPage({
+      enhanceApp: App => props => (
+        <StyleProvider cache={cache}>
+          <App {...props} />
+        </StyleProvider>
+      )
+    });
 
-  render(): JSX.Element {
-    return (
-      <Html lang="en">
-        <Head>
-          <meta charSet="utf-8" />
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, interactive-widget=resizes-content"
-          />
-          <meta name="application-name" content="Lixi" />
-          <meta name="apple-mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-title" content="Lixi" />
-          <meta name="description" content="Give out lotus to others" />
-          <meta name="format-detection" content="telephone=no" />
-          <meta name="mobile-web-app-capable" content="yes" />
-          <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fff" />
-          <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e1e1e" />
-          <meta name="msapplication-navbutton-color" content="#fff" />
-          <meta name="apple-mobile-web-app-status-bar-style" content="#fff" />
+  const initialProps = await Document.getInitialProps(ctx);
+  // 1.1 extract style which had been used
+  const style = extractStyle(cache, true);
+  return {
+    ...initialProps,
+    styles: (
+      <>
+        {initialProps.styles}
+        {/* 1.2 inject css */}
+        <style dangerouslySetInnerHTML={{ __html: style }}></style>
+      </>
+    )
+  };
+};
 
-          <link rel="manifest" href="/manifest.json" />
-          <link rel="shortcut icon" href="/favicon.ico" />
-          <link rel="apple-touch-icon" href="/logo192.png" />
-          <link rel="shortcut icon" type="image/x-icon" sizes="512x512" href="/logo512.png" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" />
-          <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
-        </Head>
-        <body>
-          <Main />
-          <NextScript />
-        </body>
-      </Html>
-    );
-  }
-}
+export default MyDocument;

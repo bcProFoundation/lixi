@@ -1,4 +1,4 @@
-import { PrismaClient, BurnType as BurnTypePrisma, AccountDanaHistoryType } from '@prisma/client';
+import { PrismaClient, BurnType as BurnTypePrisma, AccountDanaHistoryType } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 
 require('dotenv').config();

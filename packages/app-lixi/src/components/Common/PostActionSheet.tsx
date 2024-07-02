@@ -2,7 +2,7 @@ import { Drawer } from 'antd';
 import React, { useState, useEffect } from 'react';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeActionSheet } from '@store/action-sheet/actions';
 import { EditPostModalProps } from '@components/Posts/EditPostModalPopup';
 import { openModal } from '@store/modal/actions';
@@ -16,7 +16,6 @@ import {
   RemovePostInput
 } from '@bcpros/lixi-models';
 import { getSelectedAccount, getSelectedAccountId } from '@store/account';
-import { usePageQuery } from '@store/page/pages.generated';
 import {
   useCreateFollowAccountMutation,
   useCreateFollowPageMutation,
@@ -34,7 +33,7 @@ import {
 } from '@generated/types.generated';
 import { getWalletStatus } from '@store/wallet';
 import { useSwipeable } from 'react-swipeable';
-import { useUserHadMessageToPageQuery } from '@store/message/pageMessageSession.generated';
+import { useUserHadMessageToPageQuery } from '@store/message/pageMessageSession.api';
 import CreatePostCard from './CreatePostCard';
 import { changeFollowActionSheetPost } from '@store/post/actions';
 import { FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
@@ -42,6 +41,7 @@ import { useRouter } from 'next/router';
 import { useCreateBookmarkMutation, useRemoveBookmarkMutation } from '@store/bookmark/bookmark.api';
 import { showToast } from '@store/toast';
 import { useRemovePostMutation } from '@store/post/posts.api';
+import { usePageQuery } from '@store/page/pages.api';
 
 interface PostActionSheetProps {
   id?: string;
@@ -128,16 +128,16 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
   followPostOwner,
   followedToken
 }: PostActionSheetProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const router = useRouter();
   const [open, setOpen] = useState(true);
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
   const [isFollowedPage, setIsFollowedPage] = useState<boolean>(followedPage);
   const [isFollowedToken, setIsFollowedToken] = useState<boolean>(followedToken);
   const [isFollowedAccount, setIsFollowedAccount] = useState<boolean>(followPostOwner);
   const [openCreatePost, setOpenCreatePost] = useState<boolean>(false);
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const walletStatus = useAppSelector(getWalletStatus);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const walletStatus = useSliceSelector(getWalletStatus);
 
   //bookmark
   const [isBookmarked, setIsBookmarked] = useState<boolean>(post?.isBookmarked);

@@ -1,10 +1,11 @@
 import { DashOutlined, LeftOutlined } from '@ant-design/icons';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { AvatarUser } from '@components/Common/AvatarUser';
 import Counter from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { ShareSocialButton } from '@components/Common/ShareSocialButton';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { NavBarHeader, PathDirection } from '@components/Layout/MainLayout';
 import { WalletContext } from '@context/walletProvider';
 import { CommentOrderField, CreateCommentInput, OrderDirection, PostQueryItem } from '@generated/index';
@@ -16,7 +17,7 @@ import { prepareBurnCommand } from '@store/burn/actions';
 import { createCommentFailure, createCommentSuccess } from '@store/comment';
 import { useCreateCommentMutation } from '@store/comment/comments.api';
 import { useInfiniteCommentsToCommentableIdQuery } from '@store/comment/useInfiniteCommentsToCommentableIdQuery';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
 import { sendXPIFailure } from '@store/send/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
@@ -236,15 +237,15 @@ const StyledContainerPostDetail = styled.div`
 `;
 
 const PostDetail = ({ post, isMobile }: PostDetailProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const { control, getValues, setValue, setFocus } = useForm();
   const router = useRouter();
   const Wallet = React.useContext(WalletContext);
   const { XPI, chronik } = Wallet;
   const { sendXpi } = useXPI();
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const [imagesList, setImagesList] = useState([]);
   const [isEncryptedOptionalOpReturnMsg, setIsEncryptedOptionalOpReturnMsg] = useState(true);
   const [open, setOpen] = useState(false);
@@ -269,14 +270,14 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   ] = useCreateCommentMutation();
 
   const upVotePost = (dataItem: PostQueryItem) => {
-    dispatch(
-      prepareBurnCommand({
-        isUpVote: true,
-        burnForItem: dataItem,
-        burnForType: BurnForType.Post,
-        burnValue: '1'
-      })
-    );
+    // dispatch(
+    //   prepareBurnCommand({
+    //     isUpVote: true,
+    //     burnForItem: dataItem,
+    //     burnForType: BurnForType.Post,
+    //     burnValue: '1'
+    //   })
+    // );
   };
 
   const downVotePost = (dataItem: PostQueryItem) => {
@@ -382,7 +383,9 @@ const PostDetail = ({ post, isMobile }: PostDetailProps) => {
   };
 
   const imageRenderer = useCallback(
-    ({ photo }) => <Image src={photo?.src} width={photo?.width} height={photo?.height} />,
+    ({ photo }) => (
+      <Image src={photo?.src} width={photo?.width} height={photo?.height} key={`photo-${photo?.key || photo?.src}`} />
+    ),
     []
   );
 

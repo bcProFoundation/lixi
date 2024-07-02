@@ -2,23 +2,23 @@ import { Form, Input, Modal } from 'antd';
 import intl from 'react-intl-universal';
 import * as _ from 'lodash';
 import React, { useState } from 'react';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 
 import { Account } from '@bcpros/lixi-models';
 import { ProfileFilled } from '@ant-design/icons';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
-import { AnyAction } from '@reduxjs/toolkit';
+import { UnknownAction } from '@reduxjs/toolkit';
 
 export type RenameAccountModalProps = {
   account: Account;
-  onOkAction?: AnyAction;
+  onOkAction?: UnknownAction;
 };
 
 export const RenameAccountModal: React.FC<RenameAccountModalProps> = (props: RenameAccountModalProps) => {
   const [newAccountName, setNewAccountName] = useState('');
   const [newAccountNameIsValid, setNewAccountNameIsValid] = useState<boolean | null>(null);
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const { account } = props;
 
   const handleOnOk = () => {

@@ -7,7 +7,7 @@ import { CloseCircleOutlined, CopyOutlined } from '@ant-design/icons';
 import { QRCode } from './QRCodeModal';
 import { AntdFormWrapper } from './EnhancedInputs';
 import { closeModal } from '@store/modal/actions';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 
 export type QRCodeModalProps = {
   address: string;
@@ -16,7 +16,7 @@ export type QRCodeModalProps = {
 };
 
 export const QRCodeModalPopup: React.FC<QRCodeModalProps> = (props: QRCodeModalProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const StyledModel = styled(Modal)`
     .ant-descriptions-bordered .ant-descriptions-view {
       border: none;
@@ -37,7 +37,7 @@ export const QRCodeModalPopup: React.FC<QRCodeModalProps> = (props: QRCodeModalP
 
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const handleOk = () => {};
+  const handleOk = () => { };
   const handleCancel = () => {
     dispatch(closeModal());
   };

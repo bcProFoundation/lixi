@@ -1,6 +1,6 @@
 import { BurnForType, IPaginatedType } from '@bcpros/lixi-models';
 import { Prisma } from '@bcpros/lixi-prisma';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
@@ -11,6 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import SortedSet from 'redis-sorted-set';
 import { basicInMemorySortedSetPagination, basicSortedSetPagination } from '../../common/custom-graphql-relay/paginate';
 import { template } from '../../utils/stringTemplate';
+import { epoch } from 'src/utils/constants';
 
 @Injectable()
 export class TimelineService {
@@ -71,7 +72,6 @@ export class TimelineService {
         take: 500
       });
 
-      const epoch = '2023-01-01 00:00:00';
       const pipeline = this.redis.pipeline();
       for (const post of posts) {
         const id = `${post.type}:${post.id}`;
@@ -89,7 +89,6 @@ export class TimelineService {
   async cacheInNetworkByScore(accountId: number) {
     const key = `${TimelineService.inNetworkSourceKey}:${accountId}`;
     const postBurnType = BurnForType.Post;
-    const epoch = '2023-01-01 00:00:00';
     const halfLife = '12 hours';
     try {
       let accountFollowings = (await this.followCacheService.getAccountFollowings(accountId)).map(item =>
@@ -124,7 +123,7 @@ export class TimelineService {
               burn.burn_for_type = ${postBurnType} 
               AND burn.burned_value > 0 
               AND (
-                (post.account_id IN (${accountFollowingsCondition}) ) OR
+                (post.account_id = ANY(ARRAY[${Prisma.join(accountFollowings)}]::int[])) OR
                 (post.page_id IN (${pageFollowingsCondition} ))
               )
             GROUP BY
@@ -134,6 +133,8 @@ export class TimelineService {
             LIMIT 500;
           `
       );
+      // Note that the workaround for account_id = ANY instead of IN
+      // https://github.com/prisma/prisma/issues/14978
 
       const pipeline = this.redis.pipeline();
       for (const post of posts) {
@@ -163,7 +164,6 @@ export class TimelineService {
   async cacheOutNetwork() {
     const key = TimelineService.outNetworkSourceKey;
     const postBurnType = BurnForType.Post;
-    const epoch = '2023-01-01 00:00:00';
     const halfLife = '12 hours';
     try {
       const posts = await this.prisma.$queryRaw<{ id: string; score: number; type: string }[]>(
@@ -801,7 +801,6 @@ export class TimelineService {
   private async cachePageTimelineByScore(pageId: string, limit: number = 0, offset: number = 0) {
     const key = template(`${TimelineService.pageTimelineKey}`, { pageId: pageId });
     const postBurnType = BurnForType.Post;
-    const epoch = '2023-01-01 00:00:00';
     const halfLife = '12 hours';
     const query = limit
       ? Prisma.sql`
@@ -869,7 +868,6 @@ export class TimelineService {
   private async cacheTokenTimelineByScore(tokenId: string, limit: number = 0, offset: number = 0) {
     const key = template(`${TimelineService.tokenTimelineKey}`, { tokenId: tokenId });
     const postBurnType = BurnForType.Post;
-    const epoch = '2023-01-01 00:00:00';
     const halfLife = '12 hours';
     const query = limit
       ? Prisma.sql`
@@ -937,7 +935,6 @@ export class TimelineService {
   private async cacheProfileTimelineByScore(profileId: number, limit: number = 0, offset: number = 0) {
     const key = template(`${TimelineService.profileTimelineKey}`, { profileId: profileId });
     const postBurnType = BurnForType.Post;
-    const epoch = '2023-01-01 00:00:00';
     const halfLife = '12 hours';
     const query = limit
       ? Prisma.sql`

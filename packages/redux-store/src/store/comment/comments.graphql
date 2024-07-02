@@ -43,6 +43,7 @@ fragment CommentFields on Comment {
   commentText
   commentAccount {
     address
+    hash160
     id
     name
     avatar

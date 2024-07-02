@@ -2,14 +2,15 @@ import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
-import { Account } from '../account';
-import { ICommentableTo } from '../comment';
+import { Account } from '../account/account.model';
+import { ICommentableTo } from '../comment/commentable.model';
 import { PostHashtag } from '../hashtag/postHashtag.model';
 import { ImageUploadable } from '../imageUploadable';
-import { Page } from '../page';
-import { Poll } from '../poll';
-import { ITimelineable } from '../timeline';
-import { Token } from '../token';
+import { Nullable } from '../nullable';
+import { Page } from '../page/page.model';
+import { Poll } from '../poll/poll.model';
+import { ITimelineable } from '../timeline/timeline.model';
+import { Token } from '../token/token.model';
 
 import { PostDana } from './post-dana.model';
 import { Repost } from './repost.model';

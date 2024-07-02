@@ -1,6 +1,6 @@
 import { useInfiniteFollowersByFollowingQuery } from '@store/account/useInfiniteFollowersByFollowingQuery';
 import { useInfiniteFollowingsByFollowerQuery } from '@store/account/useInfiniteFollowingsByFollowerQuery';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { useInfinitePagesByFollowerIdQuery } from '@store/page/useInfinitePagesByFollowerIdQuery';
 import { Modal, Skeleton, Space, Tabs } from 'antd';
@@ -26,13 +26,11 @@ const ShortcutItemAccess = ({
   href?: string;
   onClickItem?: () => void;
 }) => (
-  <Link href={href}>
-    <a onClick={onClickItem}>
-      <Space className={'item-access'}>
-        <AvatarUser icon={icon} name={name} isMarginRight={false} />
-        <div> {name} </div>
-      </Space>
-    </a>
+  <Link href={href} onClick={onClickItem}>
+    <Space className={'item-access'}>
+      <AvatarUser icon={icon} name={name} isMarginRight={false} />
+      <div> {name} </div>
+    </Space>
   </Link>
 );
 
@@ -44,7 +42,7 @@ export type FollowModalProps = {
 };
 
 export const FollowModal: React.FC<FollowModalProps> = (props: FollowModalProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const StyledModel = styled(Modal)`
     .ant-descriptions-bordered .ant-descriptions-view {
       border: none;

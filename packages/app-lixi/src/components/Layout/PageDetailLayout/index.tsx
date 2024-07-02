@@ -1,23 +1,22 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Layout, Spin } from 'antd';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
 
 import { LoadingOutlined } from '@ant-design/icons';
 
+import { Footer } from '@bcpros/lixi-components/components';
+import { navBarHeaderList } from '@components/Common/navBarHeaderList';
+import Sidebar from '@containers/Sidebar';
+import SidebarShortcut from '@containers/Sidebar/SideBarShortcut';
+import Topbar from '@containers/Topbar';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { getAllNotifications } from '@store/notification/selectors';
+import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
+import { useRouter } from 'next/router';
+import { injectStore } from 'src/utils/axiosClient';
 import ModalManager from '../../Common/ModalManager';
 import { GlobalStyle } from '../MainLayout/GlobalStyle';
 import { theme } from '../MainLayout/theme';
-import Sidebar from '@containers/Sidebar';
-import Topbar from '@containers/Topbar';
-import { loadLocale } from '@store/settings/actions';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
-import { injectStore } from 'src/utils/axiosClient';
-import SidebarShortcut from '@containers/Sidebar/SideBarShortcut';
-import { useRouter } from 'next/router';
-import { navBarHeaderList } from '@components/Common/navBarHeaderList';
-import { Footer } from '@bcpros/lixi-components/components';
-import { getAllNotifications } from '@store/notification/selectors';
 
 const { Content, Sider, Header } = Layout;
 
@@ -86,18 +85,17 @@ export const AppContainer = styled.div`
 
 type PageDetailsLayoutProps = React.PropsWithChildren<{}>;
 
-const PageDetailLayout: React.FC = (props: PageDetailsLayoutProps) => {
+const PageDetailLayout: React.FC<PageDetailsLayoutProps> = (props: PageDetailsLayoutProps) => {
   const { children } = props;
   const [loading, setLoading] = useState(false);
-  const currentLocale = useAppSelector(getCurrentLocale);
-  const intlInitDone = useAppSelector(getIntlInitStatus);
-  const dispatch = useAppDispatch();
+  const currentLocale = useSliceSelector(getCurrentLocale);
+  const dispatch = useSliceDispatch();
   const router = useRouter();
   const [height, setHeight] = useState(0);
   const selectedKey = router.pathname ?? '';
   const [navBarTitle, setNavBarTitle] = useState('');
   const ref = useRef(null);
-  const notifications = useAppSelector(getAllNotifications);
+  const notifications = useSliceSelector(getAllNotifications);
 
   const setRef = useCallback(node => {
     if (node && node.clientHeight) {
@@ -111,10 +109,6 @@ const PageDetailLayout: React.FC = (props: PageDetailsLayoutProps) => {
 
   injectStore(currentLocale);
 
-  useEffect(() => {
-    dispatch(loadLocale(currentLocale));
-  }, [currentLocale]);
-
   const getNamePathDirection = () => {
     const itemSelect = navBarHeaderList.find(item => selectedKey.includes(item.path)) || null;
     setNavBarTitle(itemSelect?.name || '');
@@ -127,31 +121,29 @@ const PageDetailLayout: React.FC = (props: PageDetailsLayoutProps) => {
   return (
     <ThemeProvider theme={theme as DefaultTheme}>
       <GlobalStyle />
-      {intlInitDone && (
-        <Spin spinning={loading} indicator={LoadingIcon}>
-          <LixiApp>
-            <Layout>
-              <AppBody>
-                <ModalManager />
-                <>
-                  <AppContainer>
-                    <Layout>
-                      <SidebarShortcut></SidebarShortcut>
-                      <Sidebar />
-                      <Layout className="main-section-layout">
-                        <Topbar ref={setRef} />
-                        {/* @ts-ignore */}
-                        <Content className="content-layout">{children}</Content>
-                      </Layout>
+      <Spin spinning={loading} indicator={LoadingIcon}>
+        <LixiApp>
+          <Layout>
+            <AppBody>
+              <ModalManager />
+              <>
+                <AppContainer>
+                  <Layout>
+                    <SidebarShortcut></SidebarShortcut>
+                    <Sidebar />
+                    <Layout className="main-section-layout">
+                      <Topbar ref={setRef} />
+                      {/* @ts-ignore */}
+                      <Content className="content-layout">{children}</Content>
                     </Layout>
-                  </AppContainer>
-                  <Footer notifications={notifications} />
-                </>
-              </AppBody>
-            </Layout>
-          </LixiApp>
-        </Spin>
-      )}
+                  </Layout>
+                </AppContainer>
+                <Footer notifications={notifications} />
+              </>
+            </AppBody>
+          </Layout>
+        </LixiApp>
+      </Spin>
     </ThemeProvider>
   );
 };

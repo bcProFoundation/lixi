@@ -2,7 +2,7 @@ import React from 'react';
 import { CloseCircleOutlined } from '@ant-design/icons';
 import { Space, Popover, Menu } from 'antd';
 import { Comment } from '@ant-design/compatible';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import styled from 'styled-components';
 import { Account, NotificationDto as Notification } from '@bcpros/lixi-models';
 import SwipeToDelete from 'react-swipe-to-delete-ios';
@@ -178,7 +178,7 @@ const StyledReadAll = styled.div`
 `;
 
 const NotificationPopup = (notifications: Notification[], account: Account) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const router = useRouter();
 
   const handleDelete = (account: Account, notificationId: string) => {

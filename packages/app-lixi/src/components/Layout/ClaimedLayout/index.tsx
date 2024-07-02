@@ -8,8 +8,7 @@ import { navBarHeaderList } from '@components/Common/navBarHeaderList';
 import Sidebar from '@containers/Sidebar';
 import SidebarShortcut from '@containers/Sidebar/SideBarShortcut';
 import Topbar from '@containers/Topbar';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { loadLocale } from '@store/settings/actions';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
 import { useRouter } from 'next/router';
 import intl from 'react-intl-universal';
@@ -78,13 +77,11 @@ export const AppContainer = styled.div`
 
 type ClaimedLayoutProps = React.PropsWithChildren<{}>;
 
-const ClaimedLayout: React.FC = (props: ClaimedLayoutProps) => {
-  const { children } = props;
+const ClaimedLayout: React.FC<ClaimedLayoutProps> = ({ children }) => {
   const claimId = children[0][''];
   const [loading, setLoading] = useState(false);
-  const currentLocale = useAppSelector(getCurrentLocale);
-  const intlInitDone = useAppSelector(getIntlInitStatus);
-  const dispatch = useAppDispatch();
+  const currentLocale = useSliceSelector(getCurrentLocale);
+  const dispatch = useSliceDispatch();
   const router = useRouter();
   const [height, setHeight] = useState(0);
   const selectedKey = router.pathname ?? '';
@@ -102,10 +99,6 @@ const ClaimedLayout: React.FC = (props: ClaimedLayoutProps) => {
 
   injectStore(currentLocale);
 
-  useEffect(() => {
-    dispatch(loadLocale(currentLocale));
-  }, [currentLocale]);
-
   const getNamePathDirection = () => {
     const itemSelect = navBarHeaderList.find(item => selectedKey.includes(item.path)) || null;
   };
@@ -117,37 +110,35 @@ const ClaimedLayout: React.FC = (props: ClaimedLayoutProps) => {
   return (
     <ThemeProvider theme={theme as DefaultTheme}>
       <GlobalStyle />
-      {intlInitDone && (
-        <Spin spinning={loading} indicator={LoadingIcon}>
-          <LixiApp>
-            <Layout>
-              <AppBody>
-                <ModalManager />
-                <>
-                  <AppContainer>
-                    <Layout>
-                      <SidebarShortcut></SidebarShortcut>
-                      <Sidebar />
-                      <Layout className="main-section-layout" style={{ paddingRight: '2rem' }}>
-                        <Topbar ref={setRef} />
-                        {selectedKey !== '/' && (
-                          <NavBarHeader onClick={() => router.back()}>
-                            <LeftOutlined />
-                            <PathDirection>
-                              <h2>{navBarTitle.length > 0 ? intl.get(navBarTitle) : ''}</h2>
-                            </PathDirection>
-                          </NavBarHeader>
-                        )}
-                        <Content className="content-layout">{children}</Content>
-                      </Layout>
+      <Spin spinning={loading} indicator={LoadingIcon}>
+        <LixiApp>
+          <Layout>
+            <AppBody>
+              <ModalManager />
+              <>
+                <AppContainer>
+                  <Layout>
+                    <SidebarShortcut></SidebarShortcut>
+                    <Sidebar />
+                    <Layout className="main-section-layout" style={{ paddingRight: '2rem' }}>
+                      <Topbar ref={setRef} />
+                      {selectedKey !== '/' && (
+                        <NavBarHeader onClick={() => router.back()}>
+                          <LeftOutlined />
+                          <PathDirection>
+                            <h2>{navBarTitle.length > 0 ? intl.get(navBarTitle) : ''}</h2>
+                          </PathDirection>
+                        </NavBarHeader>
+                      )}
+                      <Content className="content-layout">{children}</Content>
                     </Layout>
-                  </AppContainer>
-                </>
-              </AppBody>
-            </Layout>
-          </LixiApp>
-        </Spin>
-      )}
+                  </Layout>
+                </AppContainer>
+              </>
+            </AppBody>
+          </Layout>
+        </LixiApp>
+      </Spin>
     </ThemeProvider>
   );
 };

@@ -2,7 +2,7 @@ import { CreateLixiCommand, LixiType, fromSmallestDenomination } from '@bcpros/l
 import BCHJS from '@bcpros/xpi-js';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Lixi as LixiDb } from '@prisma/client';
+import { Lixi as LixiDb } from '@bcpros/lixi-prisma';
 import { Job } from 'bullmq';
 import * as _ from 'lodash';
 import { CREATE_SUB_LIXIES_QUEUE, LIXI_JOB_NAMES } from 'src/modules/core/lixi/constants/lixi.constants';

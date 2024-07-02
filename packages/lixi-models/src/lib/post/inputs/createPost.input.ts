@@ -1,7 +1,10 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
+import { Nullable } from '../../nullable';
+
 import { PostOrder } from './post-order.input';
+import { COIN } from '../../../constants/coins/coin';
 
 @InputType()
 export class CreatePostInput {
@@ -31,6 +34,10 @@ export class CreatePostInput {
   @IsOptional()
   @Field(() => String, { nullable: true })
   createFeeHex?: Nullable<string>;
+
+  @IsOptional()
+  @Field(() => COIN, { nullable: true })
+  coinFee?: Nullable<COIN>;
 
   @IsOptional()
   @Field(() => ExtraArguments, { nullable: true })

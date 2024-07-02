@@ -1,22 +1,23 @@
 import { LockOutlined } from '@ant-design/icons';
-import { Account } from '@bcpros/lixi-models';
-import { COIN } from '@bcpros/lixi-models/constants';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import AvatarUser from '@components/Common/AvatarUser';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
 import { SmartButton } from '@components/Common/PrimaryButton';
 import { WalletContext } from '@context/index';
 import { generateAccount, getLeaderboard, importAccount, selectAccount } from '@store/account/actions';
 import { getAllAccounts, getLeaderBoard, getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { useInfinitePagesQuery } from '@store/page/useInfinitePagesQuery';
 import { getCurrentThemes } from '@store/settings';
 import { Button, Form, Input, Layout, Modal, Skeleton, Space } from 'antd';
 import * as _ from 'lodash';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
+import ClaimComponent from '@components/Claim';
 const { Sider } = Layout;
 
 export const ShortcutItemAccess = ({
@@ -37,19 +38,17 @@ export const ShortcutItemAccess = ({
   onClickItem?: () => void;
 }) => (
   <Link onClick={onClickItem} href={href}>
-    <a>
-      <Space className={`${isPage ? 'avatar-page' : ''} item-access`}>
-        <AvatarUser icon={icon} name={text} isMarginRight={false} />
-        <div>
-          {text}
-          <span style={{ display: 'block', paddingTop: '4px', fontSize: '12px', color: 'rgba(30, 26, 29, 0.38)' }}>
-            {burnValue}
-            {intl.get('general.dana')}
-          </span>
-        </div>
-        {icoRanking && <img className="ranking-img" src={icoRanking} />}
-      </Space>
-    </a>
+    <Space className={`${isPage ? 'avatar-page' : ''} item-access`}>
+      <AvatarUser icon={icon} name={text} isMarginRight={false} key={href} />
+      <div>
+        {text}
+        <span style={{ display: 'block', paddingTop: '4px', fontSize: '12px', color: 'rgba(30, 26, 29, 0.38)' }}>
+          {burnValue}
+          {intl.get('general.dana')}
+        </span>
+      </div>
+      {icoRanking && <img className="ranking-img" src={icoRanking} />}
+    </Space>
   </Link>
 );
 
@@ -138,6 +137,10 @@ const RankingSideBar = styled(Sider)`
         }
       }
     }
+  }
+
+  .wrap-claim-component {
+    margin: 2.1rem 0 1rem;
   }
 `;
 
@@ -238,22 +241,25 @@ const StyledModal = styled(Modal)`
 
 const SidebarRanking = () => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const Wallet = React.useContext(WalletContext);
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const [isSeemore, setIsSeemore] = useState<boolean>(false);
-  const savedAccounts: Account[] = useAppSelector(getAllAccounts);
-  const leaderboard = useAppSelector(getLeaderBoard);
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const savedAccounts: Account[] = useSliceSelector(getAllAccounts);
+  const leaderboard = useSliceSelector(getLeaderBoard);
+  const currentTheme = useSliceSelector(getCurrentThemes);
   const [open, setOpen] = useState(false);
   const [isValidMnemonic, setIsValidMnemonic] = useState<boolean | null>(null);
+  const slug: string = _.isArray(router?.query?.slug) ? router?.query?.slug[0] : router?.query?.slug;
   const [formData, setFormData] = useState({
     dirty: true,
     mnemonic: ''
   });
   const { validateMnemonic } = Wallet;
 
-  useEffect(() => dispatch(getLeaderboard()), []);
+  useEffect(() => {
+    dispatch(getLeaderboard());
+  }, []);
 
   const [form] = Form.useForm();
 
@@ -339,10 +345,11 @@ const SidebarRanking = () => {
                 ) : (
                   topPagesData.slice(0, 5).map((item, index) => {
                     return (
-                      <>
+                      <Fragment key={`external-top-page${item.id}-${index}`}>
                         {index === 0 && (
-                          <h4 className="distance" key={`${item.id}`}>
+                          <h4 className="distance">
                             <ShortcutItemAccess
+                              key={`top-page-${item.id}`}
                               burnValue={item?.dana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
@@ -353,8 +360,9 @@ const SidebarRanking = () => {
                           </h4>
                         )}
                         {index === 1 && (
-                          <h4 className="distance" key={`${item.id}`}>
+                          <h4 className="distance">
                             <ShortcutItemAccess
+                              key={`top-page-${item.id}`}
                               burnValue={item?.dana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
@@ -365,8 +373,9 @@ const SidebarRanking = () => {
                           </h4>
                         )}
                         {index === 2 && (
-                          <h4 className="distance" key={`${item.id}`}>
+                          <h4 className="distance">
                             <ShortcutItemAccess
+                              key={`top-page-${item.id}`}
                               burnValue={item?.dana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
@@ -377,8 +386,9 @@ const SidebarRanking = () => {
                           </h4>
                         )}
                         {index > 2 && (
-                          <h4 className="distance" key={`${item.id}`}>
+                          <h4 className="distance">
                             <ShortcutItemAccess
+                              key={`top-page-${item.id}`}
                               burnValue={item?.dana?.danaReceivedScore}
                               icon={item.avatar ? item.avatar : item.name}
                               text={item.name}
@@ -387,7 +397,7 @@ const SidebarRanking = () => {
                             />
                           </h4>
                         )}
-                      </>
+                      </Fragment>
                     );
                   })
                 )}
@@ -419,10 +429,11 @@ const SidebarRanking = () => {
                 ) : (
                   leaderboard.map((item, index) => {
                     return (
-                      <>
+                      <Fragment key={`full-item-${item.id}-${index}`}>
                         {index === 0 && (
-                          <h4 className="distance" key={`${item.id}-${item.address}`}>
+                          <h4 className="distance">
                             <ShortcutItemAccess
+                              key={`leader-board-${item.id}-${item.address}`}
                               burnValue={item.accountDana.danaGiven}
                               icon={getTopAccountAvatar(item)}
                               text={item.name}
@@ -432,8 +443,9 @@ const SidebarRanking = () => {
                           </h4>
                         )}
                         {index === 1 && (
-                          <h4 className="distance" key={`${item.id}-${item.address}`}>
+                          <h4 className="distance">
                             <ShortcutItemAccess
+                              key={`leader-board-${item.id}-${item.address}`}
                               burnValue={item.accountDana.danaGiven}
                               icon={getTopAccountAvatar(item)}
                               text={item.name}
@@ -443,8 +455,9 @@ const SidebarRanking = () => {
                           </h4>
                         )}
                         {index === 2 && (
-                          <h4 className="distance" key={`${item.id}-${item.address}`}>
+                          <h4 className="distance">
                             <ShortcutItemAccess
+                              key={`leader-board-${item.id}-${item.address}`}
                               burnValue={item.accountDana.danaGiven}
                               icon={getTopAccountAvatar(item)}
                               text={item.name}
@@ -454,8 +467,9 @@ const SidebarRanking = () => {
                           </h4>
                         )}
                         {index > 2 && (
-                          <h4 className="distance" key={`${item.id}-${item.address}`}>
+                          <h4 className="distance">
                             <ShortcutItemAccess
+                              key={`leader-board-${item.id}-${item.address}`}
                               burnValue={item.accountDana.danaGiven}
                               icon={getTopAccountAvatar(item)}
                               text={item.name}
@@ -463,7 +477,7 @@ const SidebarRanking = () => {
                             />
                           </h4>
                         )}
-                      </>
+                      </Fragment>
                     );
                   })
                 )}
@@ -473,88 +487,98 @@ const SidebarRanking = () => {
         </>
       )}
 
-      {router?.pathname === '/wallet' && (
-        <ManageAccounts className="card">
-          <h3 className="title-card">Manage accounts</h3>
-          <div className="sub-account">
-            <div className="sub-account-info">
-              <p className="name">{selectedAccount?.name}</p>
-              <p className="address">{selectedAccount?.address.slice(-10)}</p>
-            </div>
-            <Button type="primary" className="no-border-btn">
-              Activated
-            </Button>
+      {router?.pathname?.includes('/wallet') && (
+        <div>
+          <div className="wrap-claim-component">
+            <ClaimComponent
+              isClaimFromAccount={true}
+              claimCodeFromURL={slug?.startsWith('lixi') ? slug : ''}
+            ></ClaimComponent>
           </div>
-          {otherAccounts &&
-            otherAccounts.map((acc, index) => {
-              if (!isSeemore && index <= 2) {
-                return (
-                  <div className="sub-account" key={index}>
-                    <div className="sub-account-info">
-                      <p className="name">{acc?.name}</p>
-                      <p className="address">{acc?.address.slice(-10)}</p>
-                    </div>
-                    <Button
-                      type="primary"
-                      className="outline-btn"
-                      style={{ color: '#000' }}
-                      onClick={() => {
-                        dispatch(selectAccount(acc.id));
-                      }}
-                    >
-                      Activate
-                    </Button>
-                  </div>
-                );
-              } else if (isSeemore) {
-                return (
-                  <div className="sub-account" key={index}>
-                    <div className="sub-account-info">
-                      <p className="name">{acc?.name}</p>
-                      <p className="address">{acc?.address.slice(-10)}</p>
-                    </div>
-                    <Button
-                      type="primary"
-                      className="outline-btn"
-                      style={{ color: '#000' }}
-                      onClick={() => {
-                        dispatch(selectAccount(acc.id));
-                      }}
-                    >
-                      Activate
-                    </Button>
-                  </div>
-                );
-              }
-            })}
-          {otherAccounts && otherAccounts.length > 2 && (
-            <div style={{ marginTop: '1rem' }}>
-              {isSeemore && (
-                <Button type="primary" className="no-border-btn" onClick={() => setIsSeemore(!isSeemore)}>
-                  See less
+          {router?.pathname === '/wallet' && (
+            <ManageAccounts className="card">
+              <h3 className="title-card">Manage accounts</h3>
+              <div className="sub-account">
+                <div className="sub-account-info">
+                  <p className="name">{selectedAccount?.name}</p>
+                  <p className="address">{selectedAccount?.address.slice(-10)}</p>
+                </div>
+                <Button type="primary" className="no-border-btn">
+                  Activated
                 </Button>
+              </div>
+              {otherAccounts &&
+                otherAccounts.map((acc, index) => {
+                  if (!isSeemore && index <= 2) {
+                    return (
+                      <div className="sub-account" key={`sub-account-${index}-${acc.address}`}>
+                        <div className="sub-account-info">
+                          <p className="name">{acc?.name}</p>
+                          <p className="address">{acc?.address.slice(-10)}</p>
+                        </div>
+                        <Button
+                          type="primary"
+                          className="outline-btn"
+                          style={{ color: '#000' }}
+                          onClick={() => {
+                            dispatch(selectAccount(acc.id));
+                          }}
+                        >
+                          Activate
+                        </Button>
+                      </div>
+                    );
+                  } else if (isSeemore) {
+                    return (
+                      <div className="sub-account" key={`sub-account-${index}-${acc.address}`}>
+                        <div className="sub-account-info">
+                          <p className="name">{acc?.name}</p>
+                          <p className="address">{acc?.address.slice(-10)}</p>
+                        </div>
+                        <Button
+                          type="primary"
+                          className="outline-btn"
+                          style={{ color: '#000' }}
+                          onClick={() => {
+                            dispatch(selectAccount(acc.id));
+                          }}
+                        >
+                          Activate
+                        </Button>
+                      </div>
+                    );
+                  }
+                })}
+              {otherAccounts && otherAccounts.length > 2 && (
+                <div style={{ marginTop: '1rem' }}>
+                  {isSeemore && (
+                    <Button type="primary" className="no-border-btn" onClick={() => setIsSeemore(!isSeemore)}>
+                      See less
+                    </Button>
+                  )}
+                  {!isSeemore && (
+                    <Button type="primary" className="no-border-btn" onClick={() => setIsSeemore(!isSeemore)}>
+                      See more
+                    </Button>
+                  )}
+                </div>
               )}
-              {!isSeemore && (
-                <Button type="primary" className="no-border-btn" onClick={() => setIsSeemore(!isSeemore)}>
-                  See more
+              <div className="action-manage-accounts">
+                <Button
+                  type="primary"
+                  className="outline-btn"
+                  style={{ margin: '1rem 0' }}
+                  onClick={() => dispatch(generateAccount({ coin: COIN.XPI }))}
+                >
+                  New account
                 </Button>
-              )}
-            </div>
+                <Button type="primary" className="outline-btn" onClick={showModal}>
+                  Import account
+                </Button>
+              </div>
+            </ManageAccounts>
           )}
-          <div className="action-manage-accounts">
-            <Button
-              type="primary"
-              className="outline-btn"
-              style={{ margin: '1rem 0' }}
-              onClick={() => dispatch(generateAccount({ coin: COIN.XPI }))}
-            >
-              New account
-            </Button>
-            <Button type="primary" className="outline-btn" onClick={showModal}>
-              Import account
-            </Button>
-          </div>
-        </ManageAccounts>
+        </div>
       )}
 
       <StyledModal

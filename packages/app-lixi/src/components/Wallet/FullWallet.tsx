@@ -1,28 +1,29 @@
 import { LockOutlined, SearchOutlined } from '@ant-design/icons';
-import ClaimComponent from '@components/Claim';
-import { Button, List } from 'antd';
-import VirtualList from 'rc-virtual-list';
-import React, { useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
-import WalletInfoComponent from './WalletInfo';
-import intl from 'react-intl-universal';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { getSelectedAccount } from '@store/account/selectors';
-import { getWalletHasUpdated, getWalletParsedTxHistory, getWalletState } from '@store/wallet';
-import { ParsedChronikTx, getTxHistoryChronik } from '@utils/chronik';
-import { Tx } from 'chronik-client';
-import { formatDate } from '@utils/formatting';
-import _ from 'lodash';
-import { getCurrentLocale } from '@store/settings/selectors';
-import { FormattedTxAddress } from '@components/Common/FormattedWalletAddress';
-import Link from 'next/link';
 import Reply from '@assets/icons/reply.svg';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
-import { selectTokens } from '@store/token';
-import { Skeleton } from 'antd';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
+import ClaimComponent from '@components/Claim';
+import { FormattedTxAddress } from '@components/Common/FormattedWalletAddress';
 import { WalletContext } from '@context/index';
-import { COIN } from '@bcpros/lixi-models/constants';
+import { getSelectedAccount } from '@store/account/selectors';
+import { setAccountCoin, useSliceDispatch, useSliceSelector } from '@store/index';
+import { getCurrentLocale } from '@store/settings/selectors';
+import { selectTokens } from '@store/token';
+import { getWalletHasUpdated, getWalletParsedTxHistory, getWalletState, setWalletHasUpdated } from '@store/wallet';
+import { ParsedChronikTx, getTxHistoryChronik } from '@utils/chronik';
+import { formatDate } from '@utils/formatting';
+import { Button, List, Skeleton } from 'antd';
+import { Tx } from 'chronik-client';
+import _ from 'lodash';
+import Link from 'next/link';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { formatBalance, getWalletBalanceFromUtxos } from '@utils/cashMethods';
+import styled from 'styled-components';
+import React, { useState, useEffect } from 'react';
+import intl from 'react-intl-universal';
+import WalletInfoComponent from './WalletInfo';
+import VirtualList from 'rc-virtual-list';
 
 interface UserItem {
   email: string;
@@ -42,7 +43,7 @@ interface UserItem {
 
 const TransactionHistory = styled.div`
   background: #fff;
-  padding: 0 2rem;
+  padding: 1rem 2rem;
   border-bottom-left-radius: 24px;
   border-bottom-right-radius: 24px;
   .header-transaction {
@@ -154,6 +155,29 @@ const FullWalletWrapper = styled.div`
       padding: 0.5rem;
     }
   }
+  .text-primary-wallet,
+  .text-other-wallet,
+  .text-base-wallet {
+    font-size: 1.3rem;
+    margin-bottom: 0.1rem;
+    color: var(--color-primary);
+    text-align: left;
+    padding-left: 5px;
+    font-weight: 550;
+  }
+
+  .text-other-wallet,
+  .text-base-wallet {
+    margin-top: 0.5rem;
+  }
+
+  .claim-component {
+    margin-top: 1rem;
+
+    @media (min-width: 960px) {
+      display: none;
+    }
+  }
 `;
 
 const SkeletonStyled = styled(Skeleton)`
@@ -165,25 +189,74 @@ const SkeletonStyled = styled(Skeleton)`
   }
 `;
 
+const OtherWalletStyled = styled.div<{ $coin: COIN }>`
+  height: 65px;
+  background: url(${props => coinInfo[props.$coin].background}) no-repeat;
+  background-position: center;
+  background-size: cover;
+  border-radius: var(--border-radius-primary);
+  margin-bottom: 1rem;
+  padding: 10px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  .balance-info {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+
+    .balance-string {
+      font-size: 1rem;
+      color: #fff;
+
+      .balance-name {
+        color: rgba(237, 239, 240, 0.8);
+        font-size: 0.75rem;
+      }
+    }
+
+    .btn-show {
+      padding: 0;
+      top: 3px;
+      background: none;
+    }
+  }
+
+  .btn-switch {
+    cursor: pointer;
+  }
+`;
+
 type WalletProps = {
   claimCode?: string;
 };
 
 const FullWalletComponent = ({ claimCode }: WalletProps) => {
   const trimLength = 8;
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const currentLocale = useAppSelector(getCurrentLocale);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const currentLocale = useSliceSelector(getCurrentLocale);
   const currentCoin = selectedAccount?.coin ?? COIN.XPI;
-  const allTokens = useAppSelector(selectTokens);
+  const allTokens = useSliceSelector(selectTokens);
 
-  const walletHasUpdated = useAppSelector(getWalletHasUpdated);
-  const walletParsedHistory = useAppSelector(getWalletParsedTxHistory);
-  const walletState = useAppSelector(getWalletState);
+  const walletHasUpdated = useSliceSelector(getWalletHasUpdated);
+  const walletParsedHistory = useSliceSelector(getWalletParsedTxHistory);
+  const walletState = useSliceSelector(getWalletState);
   const Wallet = React.useContext(WalletContext);
 
-  const { XPI, chronik } = Wallet;
+  const { XPI, chronik, getUtxosByCoin } = Wallet;
+
+  const [showBalanceCoin, setShowBalanceCoin] = useState({
+    XPI: false,
+    XEC: false
+  });
+
+  const [balanceCoin, setBalanceCoin] = useState({
+    XPI: '0',
+    XEC: '0'
+  });
 
   const [pageNumber, setPageNumber] = useState<number>(1); //start pagination at page 1 (already have data at page 0)
   const [hasMoreTxHistory, setHasMoreTxHistory] = useState<boolean>(true);
@@ -247,7 +320,13 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
   };
 
   const fetchNextDataWalletHistory = async (pageNumber = 0) => {
-    const { chronikTxHistory } = await getTxHistoryChronik(chronik, XPI, walletState, pageNumber);
+    const { chronikTxHistory } = await getTxHistoryChronik(
+      chronik,
+      XPI,
+      walletState,
+      pageNumber,
+      selectedAccount?.coin ?? COIN.XPI
+    );
     if (chronikTxHistory.length === 0) {
       setHasMoreTxHistory(pre => !pre);
     }
@@ -264,11 +343,81 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
     setDataWalletParsedHistory(walletParsedHistory);
   }, [walletParsedHistory]);
 
+  const getBalance = async (coin: COIN) => {
+    const utxos = await getUtxosByCoin(coin);
+    const balances = getWalletBalanceFromUtxos(utxos.nonSlpUtxos, coin);
+    setBalanceCoin(pre => {
+      return {
+        ...pre,
+        [coin]: balances.totalBalance
+      };
+    });
+  };
+
+  const handleShowBalance = (coin: COIN) => {
+    setShowBalanceCoin(pre => {
+      return {
+        ...pre,
+        [coin]: !pre[coin]
+      };
+    });
+    // don't call api if hide balance
+    if (showBalanceCoin[coin]) return;
+    getBalance(coin);
+  };
+
+  const handleChangeWallet = value => {
+    dispatch(setAccountCoin({ id: selectedAccount.id, accountCoin: value }));
+    dispatch(setWalletHasUpdated(false));
+  };
+
+  const UIWallet = coin => {
+    return (
+      <OtherWalletStyled $coin={coin as COIN}>
+        <div className="balance-info">
+          <img width={40} src={coinInfo[coin ?? COIN.XPI].logo} />
+          <span className="balance-string">
+            {showBalanceCoin[coin] && (
+              <span>
+                {formatBalance(balanceCoin[coin])} <span className="balance-name"> {coin}</span>
+              </span>
+            )}{' '}
+            {!showBalanceCoin[coin] && '*******'}
+          </span>
+          <Button className="btn-show" type="text" onClick={() => handleShowBalance(coin as COIN)}>
+            <img src="/images/eye.svg" />
+          </Button>
+        </div>
+        <div onClick={() => handleChangeWallet(coin)} className="btn-switch">
+          <img src="/images/switch-coin.svg" />
+        </div>
+      </OtherWalletStyled>
+    );
+  };
+
   return (
     <>
       <FullWalletWrapper className="full-wallet">
+        <p className="text-primary-wallet">{intl.get('general.primaryWallet')}</p>
         <WalletInfoComponent />
-        <ClaimComponent isClaimFromAccount={true} claimCodeFromURL={claimCode}></ClaimComponent>
+
+        <div className="claim-component">
+          <ClaimComponent isClaimFromAccount={true} claimCodeFromURL={claimCode}></ClaimComponent>
+        </div>
+
+        {(selectedAccount?.coin ?? COIN.XPI) !== COIN.XPI && (
+          <div>
+            <p className="text-base-wallet">{intl.get('general.baseWallet')}</p>
+            {UIWallet(COIN.XPI)}
+          </div>
+        )}
+
+        <p className="text-other-wallet">{intl.get('general.otherWallet')}</p>
+        {Object.keys(COIN).map(coin => {
+          if (coin === (selectedAccount?.coin ?? COIN.XPI)) return '';
+          else return UIWallet(coin);
+        })}
+
         <TransactionHistory className="transaction-history">
           <div className="header-transaction">
             {intl.get('account.transactionHistory')}

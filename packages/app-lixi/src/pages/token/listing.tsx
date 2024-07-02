@@ -11,6 +11,6 @@ const TokensListingPage = () => {
   );
 };
 
-TokensListingPage.Layout = ({ children }) => <MainLayout children={children} />;
+TokensListingPage.getLayout = children => <MainLayout>{children}</MainLayout>;
 
 export default TokensListingPage;

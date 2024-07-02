@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Inject, Injectable, Logger, OnModuleInit, forwardRef } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { TokenSigner, TokenVerifier, decodeToken } from 'jsontokens';
@@ -72,7 +72,7 @@ export class AuthService implements OnModuleInit {
       id: account.id
     };
     const wifDecoded = wif.decode(wifKey);
-    const privateKey = wifDecoded.privateKey.toString('hex');
+    const privateKey = wifDecoded.privateKey;
 
     const payload = JSON.stringify(dataToSign);
     const token = await new TokenSigner('ES256K', privateKey).signAsync(payload);

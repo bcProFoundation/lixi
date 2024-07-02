@@ -1,4 +1,4 @@
-import { Envelope } from '@bcpros/lixi-models';
+import { Envelope } from '@bcpros/lixi-models/lib/envelope';
 import { createAction } from '@reduxjs/toolkit';
 
 export const getEnvelope = createAction<number>('envelope/getEnvelope');

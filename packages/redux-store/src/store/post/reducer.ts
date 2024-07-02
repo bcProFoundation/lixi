@@ -1,6 +1,6 @@
 import { createEntityAdapter, createReducer, Update } from '@reduxjs/toolkit';
 
-import { Post } from '@generated/index';
+import { Post } from '../../generated/types.generated';
 import {
   editPostSuccess,
   fetchAllPostsSuccess,
@@ -14,7 +14,7 @@ import {
 } from './actions';
 import { PostState } from './state';
 
-export const postAdapter = createEntityAdapter<Post>({
+export const postAdapter = createEntityAdapter<Post, string>({
   selectId: post => post.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });
@@ -35,7 +35,7 @@ export const postReducer = createReducer(initialState, builder => {
     .addCase(getPostSuccess, (state, action) => {
       const post = action.payload;
       state.selectedId = post.id;
-      const updatePost: Update<Post> = {
+      const updatePost: Update<Post, string> = {
         id: post.id,
         changes: {
           ...post
@@ -58,7 +58,7 @@ export const postReducer = createReducer(initialState, builder => {
     })
     .addCase(editPostSuccess, (state, action) => {
       const post = action.payload;
-      const updatePost: Update<Post> = {
+      const updatePost: Update<Post, string> = {
         id: post.id,
         changes: {
           ...post

@@ -1,5 +1,5 @@
 import BCHJS from '@bcpros/xpi-js';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@bcpros/lixi-prisma';
 
 const prismaClient = new PrismaClient();
 const XPI = new BCHJS({});

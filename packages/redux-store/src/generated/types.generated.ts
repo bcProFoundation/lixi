@@ -3,69 +3,72 @@ export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: string;
-  String: string;
-  Boolean: boolean;
-  Int: number;
-  Float: number;
+  ID: { input: string; output: string };
+  String: { input: string; output: string };
+  Boolean: { input: boolean; output: boolean };
+  Int: { input: number; output: number };
+  Float: { input: number; output: number };
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
-  DateTime: any;
+  DateTime: { input: any; output: any };
   /** An arbitrary-precision Decimal type */
-  Decimal: any;
+  Decimal: { input: any; output: any };
 };
 
 export type Account = {
   __typename?: 'Account';
   accountDana?: Maybe<AccountDana>;
-  address: Scalars['String'];
-  avatar?: Maybe<Scalars['String']>;
-  balance: Scalars['Int'];
+  address: Scalars['String']['output'];
+  avatar?: Maybe<Scalars['String']['output']>;
+  balance: Scalars['Int']['output'];
   coin?: Maybe<Coin>;
-  cover?: Maybe<Scalars['String']>;
-  createCommentFee?: Maybe<Scalars['String']>;
+  cover?: Maybe<Scalars['String']['output']>;
+  createCommentFee?: Maybe<Scalars['String']['output']>;
   /** Identifies the date and time when the object was created. */
-  createdAt: Scalars['DateTime'];
-  dayOfBirth?: Maybe<Scalars['Int']>;
-  description?: Maybe<Scalars['String']>;
-  encryptedMnemonic?: Maybe<Scalars['String']>;
-  encryptedSecret?: Maybe<Scalars['String']>;
-  followersCount?: Maybe<Scalars['Int']>;
-  followingPagesCount?: Maybe<Scalars['Int']>;
-  followingsCount?: Maybe<Scalars['Int']>;
-  hash160?: Maybe<Scalars['String']>;
-  id: Scalars['Int'];
-  language: Scalars['String'];
+  createdAt: Scalars['DateTime']['output'];
+  dayOfBirth?: Maybe<Scalars['Int']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  encryptedMnemonic?: Maybe<Scalars['String']['output']>;
+  encryptedSecret?: Maybe<Scalars['String']['output']>;
+  followersCount?: Maybe<Scalars['Int']['output']>;
+  followingPagesCount?: Maybe<Scalars['Int']['output']>;
+  followingsCount?: Maybe<Scalars['Int']['output']>;
+  hash160?: Maybe<Scalars['String']['output']>;
+  id: Scalars['Int']['output'];
+  language: Scalars['String']['output'];
   messages?: Maybe<Array<Message>>;
-  mnemonic?: Maybe<Scalars['String']>;
-  mnemonicHash?: Maybe<Scalars['String']>;
-  monthOfBirth?: Maybe<Scalars['Int']>;
-  name: Scalars['String'];
+  mnemonic?: Maybe<Scalars['String']['output']>;
+  mnemonicHash?: Maybe<Scalars['String']['output']>;
+  monthOfBirth?: Maybe<Scalars['Int']['output']>;
+  name: Scalars['String']['output'];
   pageMessageSessions?: Maybe<Array<PageMessageSession>>;
   pages?: Maybe<Array<Page>>;
-  publicKey?: Maybe<Scalars['String']>;
-  rankNumber?: Maybe<Scalars['Int']>;
-  rankScore?: Maybe<Scalars['Int']>;
-  secondaryLanguage?: Maybe<Scalars['String']>;
-  secret?: Maybe<Scalars['String']>;
-  totalDanaViewScore?: Maybe<Scalars['Int']>;
+  publicKey?: Maybe<Scalars['String']['output']>;
+  rankNumber?: Maybe<Scalars['Int']['output']>;
+  rankScore?: Maybe<Scalars['Int']['output']>;
+  rootCoin?: Maybe<Coin>;
+  secondaryLanguage?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Scalars['String']['output']>;
+  totalDanaViewScore?: Maybe<Scalars['Int']['output']>;
   /** Identifies the date and time when the object was last updated. */
-  updatedAt: Scalars['DateTime'];
-  website?: Maybe<Scalars['String']>;
-  yearOfBirth?: Maybe<Scalars['Int']>;
+  updatedAt: Scalars['DateTime']['output'];
+  website?: Maybe<Scalars['String']['output']>;
+  yearOfBirth?: Maybe<Scalars['Int']['output']>;
 };
 
 export type AccountBasicConnection = {
   __typename?: 'AccountBasicConnection';
   edges: Array<AccountBasicEdge>;
   pageInfo: BasicPageInfo;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type AccountBasicEdge = {
   __typename?: 'AccountBasicEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Account;
 };
 
@@ -73,34 +76,34 @@ export type AccountConnection = {
   __typename?: 'AccountConnection';
   edges?: Maybe<Array<AccountEdge>>;
   pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type AccountDana = {
   __typename?: 'AccountDana';
   account: Account;
   accountDanaHistory?: Maybe<Array<AccountDanaHistory>>;
-  accountId: Scalars['Int'];
-  danaBurnDown: Scalars['Float'];
-  danaBurnScore: Scalars['Float'];
-  danaBurnUp: Scalars['Float'];
-  danaGiven?: Maybe<Scalars['Float']>;
-  danaReceived?: Maybe<Scalars['Float']>;
-  danaReceivedDown: Scalars['Float'];
-  danaReceivedScore: Scalars['Float'];
-  danaReceivedUp: Scalars['Float'];
-  id: Scalars['ID'];
-  version: Scalars['Int'];
+  accountId: Scalars['Int']['output'];
+  danaBurnDown: Scalars['Float']['output'];
+  danaBurnScore: Scalars['Float']['output'];
+  danaBurnUp: Scalars['Float']['output'];
+  danaGiven?: Maybe<Scalars['Float']['output']>;
+  danaReceived?: Maybe<Scalars['Float']['output']>;
+  danaReceivedDown: Scalars['Float']['output'];
+  danaReceivedScore: Scalars['Float']['output'];
+  danaReceivedUp: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  version: Scalars['Int']['output'];
 };
 
 export type AccountDanaHistory = {
   __typename?: 'AccountDanaHistory';
-  id: Scalars['ID'];
+  id: Scalars['ID']['output'];
 };
 
 export type AccountEdge = {
   __typename?: 'AccountEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Account;
 };
 
@@ -120,26 +123,26 @@ export enum AccountOrderField {
 
 export type Balances = {
   __typename?: 'Balances';
-  totalBalance: Scalars['String'];
-  totalBalanceInSatoshis: Scalars['String'];
+  totalBalance: Scalars['String']['output'];
+  totalBalanceInSatoshis: Scalars['String']['output'];
 };
 
 export type BasicPageInfo = {
   __typename?: 'BasicPageInfo';
-  endCursor: Scalars['String'];
-  hasNextPage: Scalars['Boolean'];
+  endCursor: Scalars['String']['output'];
+  hasNextPage: Scalars['Boolean']['output'];
 };
 
 export type Bookmark = {
   __typename?: 'Bookmark';
   account: Account;
-  accountId: Scalars['Int'];
-  bookmarkableId: Scalars['String'];
+  accountId: Scalars['Int']['output'];
+  bookmarkableId: Scalars['String']['output'];
   /** Identifies the date and time when the object was created. */
-  createdAt?: Maybe<Scalars['DateTime']>;
-  id: Scalars['ID'];
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
   /** Identifies the date and time when the object was last updated. */
-  updatedAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
 /** The type of bookmark. */
@@ -155,7 +158,7 @@ export type BurnBasicConnection = {
   __typename?: 'BurnBasicConnection';
   edges: Array<BurnItemBasicEdge>;
   pageInfo: BasicPageInfo;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export enum BurnForTypeItem {
@@ -169,45 +172,45 @@ export enum BurnForTypeItem {
 
 export type BurnItem = {
   __typename?: 'BurnItem';
-  burnForId: Scalars['String'];
+  burnForId: Scalars['String']['output'];
   burnForType: BurnForTypeItem;
-  burnType: Scalars['Boolean'];
+  burnType: Scalars['Boolean']['output'];
   burnedBy: Account;
-  burnedValue: Scalars['Int'];
+  burnedValue: Scalars['Int']['output'];
   /** Identifies the date and time when the object was created. */
-  createdAt?: Maybe<Scalars['DateTime']>;
-  id: Scalars['ID'];
-  txid: Scalars['String'];
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  txid: Scalars['String']['output'];
   /** Identifies the date and time when the object was last updated. */
-  updatedAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
 export type BurnItemBasicEdge = {
   __typename?: 'BurnItemBasicEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: BurnItem;
 };
 
 export type Category = {
   __typename?: 'Category';
   /** Identifies the date and time when the object was created. */
-  createdAt: Scalars['DateTime'];
-  id: Scalars['ID'];
-  name: Scalars['String'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
   /** Identifies the date and time when the object was last updated. */
-  updatedAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type City = {
   __typename?: 'City';
   country: Country;
-  id: Scalars['ID'];
-  name: Scalars['String'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
   state: State;
 };
 
 export type ClosePageMessageSessionInput = {
-  pageMessageSessionId: Scalars['String'];
+  pageMessageSessionId: Scalars['String']['input'];
 };
 
 /** The type of coin. */
@@ -219,46 +222,46 @@ export enum Coin {
 export type Comment = {
   __typename?: 'Comment';
   commentAccount: Account;
-  commentAccountId?: Maybe<Scalars['Int']>;
-  commentByPublicKey?: Maybe<Scalars['String']>;
+  commentAccountId?: Maybe<Scalars['Int']['output']>;
+  commentByPublicKey?: Maybe<Scalars['String']['output']>;
   commentDana?: Maybe<CommentDana>;
-  commentText: Scalars['String'];
+  commentText: Scalars['String']['output'];
   commentable?: Maybe<Commentable>;
-  commentableId?: Maybe<Scalars['String']>;
-  content: Scalars['String'];
+  commentableId?: Maybe<Scalars['String']['output']>;
+  content: Scalars['String']['output'];
   /** Identifies the date and time when the object was created. */
-  createdAt: Scalars['DateTime'];
-  danaBurnDown: Scalars['Float'];
-  danaBurnScore: Scalars['Float'];
-  danaBurnUp: Scalars['Float'];
-  id: Scalars['ID'];
+  createdAt: Scalars['DateTime']['output'];
+  danaBurnDown: Scalars['Float']['output'];
+  danaBurnScore: Scalars['Float']['output'];
+  danaBurnUp: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
   imageUploadable?: Maybe<ImageUploadable>;
   parent?: Maybe<Comment>;
-  parentId?: Maybe<Scalars['String']>;
+  parentId?: Maybe<Scalars['String']['output']>;
   /** Identifies the date and time when the object was last updated. */
-  updatedAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type CommentConnection = {
   __typename?: 'CommentConnection';
   edges?: Maybe<Array<CommentEdge>>;
   pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type CommentDana = {
   __typename?: 'CommentDana';
   comment: Comment;
-  commentId: Scalars['String'];
-  danaBurnDown: Scalars['Float'];
-  danaBurnScore: Scalars['Float'];
-  danaBurnUp: Scalars['Float'];
-  version: Scalars['Int'];
+  commentId: Scalars['String']['output'];
+  danaBurnDown: Scalars['Float']['output'];
+  danaBurnScore: Scalars['Float']['output'];
+  danaBurnUp: Scalars['Float']['output'];
+  version: Scalars['Int']['output'];
 };
 
 export type CommentEdge = {
   __typename?: 'CommentEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Comment;
 };
 
@@ -285,257 +288,398 @@ export enum CommentType {
 
 export type Commentable = {
   __typename?: 'Commentable';
-  commentToId: Scalars['String'];
-  id: Scalars['ID'];
+  commentToId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
   type: CommentType;
+};
+
+export type ConvertDana = {
+  convertToCoin: Coin;
 };
 
 export type Country = {
   __typename?: 'Country';
-  capital: Scalars['String'];
+  capital: Scalars['String']['output'];
   city: Array<City>;
-  id: Scalars['ID'];
-  name: Scalars['String'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
   state: Array<State>;
 };
 
 export type CreateAccountInput = {
-  encryptedMnemonic: Scalars['String'];
-  language: Scalars['String'];
-  mnemonic: Scalars['String'];
-  mnemonicHash: Scalars['String'];
+  encryptedMnemonic: Scalars['String']['input'];
+  language: Scalars['String']['input'];
+  mnemonic: Scalars['String']['input'];
+  mnemonicHash: Scalars['String']['input'];
 };
 
 export type CreateBookmarkInput = {
-  accountId: Scalars['Int'];
-  bookmarkForId: Scalars['String'];
+  accountId: Scalars['Int']['input'];
+  bookmarkForId: Scalars['String']['input'];
   bookmarkType: BookmarkType;
 };
 
 export type CreateCommentInput = {
-  commentByPublicKey?: InputMaybe<Scalars['String']>;
-  commentText: Scalars['String'];
-  commentableId: Scalars['String'];
-  createFeeHex?: InputMaybe<Scalars['String']>;
-  replyToCommentId?: InputMaybe<Scalars['String']>;
-  tipHex?: InputMaybe<Scalars['String']>;
-  uploadId?: InputMaybe<Scalars['String']>;
+  coinGive?: InputMaybe<Coin>;
+  commentByPublicKey?: InputMaybe<Scalars['String']['input']>;
+  commentText: Scalars['String']['input'];
+  commentableId: Scalars['String']['input'];
+  createFeeHex?: InputMaybe<Scalars['String']['input']>;
+  replyToCommentId?: InputMaybe<Scalars['String']['input']>;
+  tipHex?: InputMaybe<Scalars['String']['input']>;
+  uploadId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CreateDisputeInput = {
+  createdBy: Scalars['String']['input'];
+  escrowOrderId: Scalars['String']['input'];
+  reason: Scalars['String']['input'];
+};
+
+export type CreateEscrowOrderInput = {
+  amount: Scalars['Int']['input'];
+  arbitratorPublicKey: Scalars['String']['input'];
+  buyerPublicKey: Scalars['String']['input'];
+  escrowAddress?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  offerId: Scalars['String']['input'];
+  paymentMethodId: Scalars['String']['input'];
+  price: Scalars['Int']['input'];
+  sellerPublicKey: Scalars['String']['input'];
 };
 
 export type CreateEventInput = {
-  createFeeHex?: InputMaybe<Scalars['String']>;
-  endDate: Scalars['DateTime'];
+  createFeeHex?: InputMaybe<Scalars['String']['input']>;
+  endDate: Scalars['DateTime']['input'];
   eventType: EventType;
-  htmlContent: Scalars['String'];
-  location?: InputMaybe<Scalars['String']>;
-  name: Scalars['String'];
-  pageId?: InputMaybe<Scalars['String']>;
-  pureContent: Scalars['String'];
-  startDate: Scalars['DateTime'];
-  tokenId?: InputMaybe<Scalars['String']>;
-  uploads?: InputMaybe<Array<Scalars['String']>>;
+  htmlContent: Scalars['String']['input'];
+  location?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  pageId?: InputMaybe<Scalars['String']['input']>;
+  pureContent: Scalars['String']['input'];
+  startDate: Scalars['DateTime']['input'];
+  tokenId?: InputMaybe<Scalars['String']['input']>;
+  uploads?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type CreateFollowAccountInput = {
-  followerAccountId: Scalars['Int'];
-  followingAccountId: Scalars['Int'];
+  followerAccountId: Scalars['Int']['input'];
+  followingAccountId: Scalars['Int']['input'];
 };
 
 export type CreateFollowPageInput = {
-  accountId: Scalars['Int'];
-  pageId: Scalars['String'];
+  accountId: Scalars['Int']['input'];
+  pageId: Scalars['String']['input'];
 };
 
 export type CreateFollowTokenInput = {
-  accountId: Scalars['Int'];
-  tokenId: Scalars['String'];
+  accountId: Scalars['Int']['input'];
+  tokenId: Scalars['String']['input'];
 };
 
 export type CreateMessageInput = {
-  authorId: Scalars['Int'];
-  body?: InputMaybe<Scalars['String']>;
-  isPageOwner?: InputMaybe<Scalars['Boolean']>;
-  pageMessageSessionId?: InputMaybe<Scalars['String']>;
-  tipHex?: InputMaybe<Scalars['String']>;
-  uploadIds?: InputMaybe<Array<Scalars['String']>>;
+  authorId: Scalars['Int']['input'];
+  body?: InputMaybe<Scalars['String']['input']>;
+  coinGive?: InputMaybe<Coin>;
+  isPageOwner?: InputMaybe<Scalars['Boolean']['input']>;
+  pageMessageSessionId?: InputMaybe<Scalars['String']['input']>;
+  tipHex?: InputMaybe<Scalars['String']['input']>;
+  uploadIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type CreateOfferInput = {
+  amount: Scalars['Int']['input'];
+  coin: Coin;
+  description?: InputMaybe<Scalars['String']['input']>;
+  location?: InputMaybe<Scalars['String']['input']>;
+  orderLimitMax?: InputMaybe<Scalars['Int']['input']>;
+  orderLimitMin?: InputMaybe<Scalars['Int']['input']>;
+  paymentMethodIds: Array<Scalars['String']['input']>;
+  price: Scalars['Int']['input'];
+  publicKey: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  type: OfferType;
 };
 
 export type CreatePageInput = {
-  categoryId?: InputMaybe<Scalars['String']>;
-  description: Scalars['String'];
-  name: Scalars['String'];
+  categoryId?: InputMaybe<Scalars['String']['input']>;
+  description: Scalars['String']['input'];
+  name: Scalars['String']['input'];
 };
 
 export type CreatePageMessageInput = {
-  accountId: Scalars['Int'];
-  accountSecret?: InputMaybe<Scalars['String']>;
-  lixiId?: InputMaybe<Scalars['Int']>;
-  pageId: Scalars['String'];
+  accountId: Scalars['Int']['input'];
+  accountSecret?: InputMaybe<Scalars['String']['input']>;
+  lixiId?: InputMaybe<Scalars['Int']['input']>;
+  pageId: Scalars['String']['input'];
 };
 
 export type CreatePollInput = {
-  canAddOption: Scalars['Boolean'];
-  createFeeHex?: InputMaybe<Scalars['String']>;
-  endDate: Scalars['DateTime'];
+  canAddOption: Scalars['Boolean']['input'];
+  coinFee?: InputMaybe<Coin>;
+  createFeeHex?: InputMaybe<Scalars['String']['input']>;
+  endDate: Scalars['DateTime']['input'];
   options: Array<PollOptionInput>;
-  pageId?: InputMaybe<Scalars['String']>;
-  question: Scalars['String'];
-  singleSelect: Scalars['Boolean'];
-  startDate: Scalars['DateTime'];
-  tokenId?: InputMaybe<Scalars['String']>;
+  pageId?: InputMaybe<Scalars['String']['input']>;
+  question: Scalars['String']['input'];
+  singleSelect: Scalars['Boolean']['input'];
+  startDate: Scalars['DateTime']['input'];
+  tokenId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreatePostInput = {
-  createFeeHex?: InputMaybe<Scalars['String']>;
+  coinFee?: InputMaybe<Coin>;
+  createFeeHex?: InputMaybe<Scalars['String']['input']>;
   extraArguments?: InputMaybe<ExtraArguments>;
-  htmlContent: Scalars['String'];
-  pageAccountId?: InputMaybe<Scalars['Int']>;
-  pageId?: InputMaybe<Scalars['String']>;
-  pureContent: Scalars['String'];
-  tokenPrimaryId?: InputMaybe<Scalars['String']>;
-  uploads?: InputMaybe<Array<Scalars['String']>>;
+  htmlContent: Scalars['String']['input'];
+  pageAccountId?: InputMaybe<Scalars['Int']['input']>;
+  pageId?: InputMaybe<Scalars['String']['input']>;
+  pureContent: Scalars['String']['input'];
+  tokenPrimaryId?: InputMaybe<Scalars['String']['input']>;
+  uploads?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type CreateProductInput = {
-  categoryId?: InputMaybe<Scalars['Int']>;
-  createFeeHex?: InputMaybe<Scalars['String']>;
-  description?: InputMaybe<Scalars['String']>;
-  htmlContent: Scalars['String'];
-  name?: InputMaybe<Scalars['String']>;
-  pageId?: InputMaybe<Scalars['String']>;
-  phoneNumber?: InputMaybe<Scalars['String']>;
-  price: Scalars['Int'];
-  priceUnit: Scalars['String'];
-  pureContent: Scalars['String'];
-  title?: InputMaybe<Scalars['String']>;
-  uploads?: InputMaybe<Array<Scalars['String']>>;
+  categoryId?: InputMaybe<Scalars['Int']['input']>;
+  createFeeHex?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  htmlContent: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  pageId?: InputMaybe<Scalars['String']['input']>;
+  phoneNumber?: InputMaybe<Scalars['String']['input']>;
+  price: Scalars['Int']['input'];
+  priceUnit: Scalars['String']['input'];
+  pureContent: Scalars['String']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
+  uploads?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type CreateTempleInput = {
-  achievement?: InputMaybe<Scalars['String']>;
-  address?: InputMaybe<Scalars['String']>;
-  alias?: InputMaybe<Scalars['String']>;
-  avatar?: InputMaybe<Scalars['String']>;
-  cityId?: InputMaybe<Scalars['String']>;
-  countryId?: InputMaybe<Scalars['String']>;
-  cover?: InputMaybe<Scalars['String']>;
-  dateOfCompleted?: InputMaybe<Scalars['DateTime']>;
-  description?: InputMaybe<Scalars['String']>;
-  name: Scalars['String'];
-  president?: InputMaybe<Scalars['String']>;
-  religion?: InputMaybe<Scalars['String']>;
-  stateId?: InputMaybe<Scalars['String']>;
-  website?: InputMaybe<Scalars['String']>;
+  achievement?: InputMaybe<Scalars['String']['input']>;
+  address?: InputMaybe<Scalars['String']['input']>;
+  alias?: InputMaybe<Scalars['String']['input']>;
+  avatar?: InputMaybe<Scalars['String']['input']>;
+  cityId?: InputMaybe<Scalars['String']['input']>;
+  countryId?: InputMaybe<Scalars['String']['input']>;
+  cover?: InputMaybe<Scalars['String']['input']>;
+  dateOfCompleted?: InputMaybe<Scalars['DateTime']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  president?: InputMaybe<Scalars['String']['input']>;
+  religion?: InputMaybe<Scalars['String']['input']>;
+  stateId?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreateTokenInput = {
-  tokenId: Scalars['String'];
+  tokenId: Scalars['String']['input'];
 };
 
 export type CreateVoteInput = {
-  accountId: Scalars['Int'];
-  optionId: Scalars['String'];
-  pollId: Scalars['String'];
-  previousOptionIds?: InputMaybe<Array<Scalars['String']>>;
-  singleSelect: Scalars['Boolean'];
+  accountId: Scalars['Int']['input'];
+  optionId: Scalars['String']['input'];
+  pollId: Scalars['String']['input'];
+  previousOptionIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  singleSelect: Scalars['Boolean']['input'];
 };
 
 export type CreateWorshipInput = {
-  latitude?: InputMaybe<Scalars['Decimal']>;
-  location?: InputMaybe<Scalars['String']>;
-  longitude?: InputMaybe<Scalars['Decimal']>;
-  templeId?: InputMaybe<Scalars['String']>;
-  worshipedAmount: Scalars['Float'];
-  worshipedPersonId?: InputMaybe<Scalars['String']>;
+  latitude?: InputMaybe<Scalars['Decimal']['input']>;
+  location?: InputMaybe<Scalars['String']['input']>;
+  longitude?: InputMaybe<Scalars['Decimal']['input']>;
+  templeId?: InputMaybe<Scalars['String']['input']>;
+  worshipedAmount: Scalars['Float']['input'];
+  worshipedPersonId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreateWorshipedPersonInput = {
-  avatar?: InputMaybe<Scalars['String']>;
-  bio?: InputMaybe<Scalars['String']>;
-  cityId?: InputMaybe<Scalars['String']>;
-  countryId?: InputMaybe<Scalars['String']>;
-  dateOfBirth?: InputMaybe<Scalars['String']>;
-  dateOfDeath?: InputMaybe<Scalars['String']>;
-  name: Scalars['String'];
-  quote?: InputMaybe<Scalars['String']>;
-  stateId?: InputMaybe<Scalars['String']>;
-  wikiDataId?: InputMaybe<Scalars['String']>;
+  avatar?: InputMaybe<Scalars['String']['input']>;
+  bio?: InputMaybe<Scalars['String']['input']>;
+  cityId?: InputMaybe<Scalars['String']['input']>;
+  countryId?: InputMaybe<Scalars['String']['input']>;
+  dateOfBirth?: InputMaybe<Scalars['String']['input']>;
+  dateOfDeath?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  quote?: InputMaybe<Scalars['String']['input']>;
+  stateId?: InputMaybe<Scalars['String']['input']>;
+  wikiDataId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type DeleteFollowAccountInput = {
-  followerAccountId: Scalars['Int'];
-  followingAccountId: Scalars['Int'];
+  followerAccountId: Scalars['Int']['input'];
+  followingAccountId: Scalars['Int']['input'];
 };
 
 export type DeleteFollowPageInput = {
-  accountId: Scalars['Int'];
-  pageId: Scalars['String'];
+  accountId: Scalars['Int']['input'];
+  pageId: Scalars['String']['input'];
 };
 
 export type DeleteFollowTokenInput = {
-  accountId: Scalars['Int'];
-  tokenId: Scalars['String'];
+  accountId: Scalars['Int']['input'];
+  tokenId: Scalars['String']['input'];
 };
+
+export type Dispute = {
+  __typename?: 'Dispute';
+  /** Identifies the date and time when the object was created. */
+  createdAt: Scalars['DateTime']['output'];
+  createdBy: Scalars['String']['output'];
+  escrowOrder: EscrowOrder;
+  escrowOrderId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  reason?: Maybe<Scalars['String']['output']>;
+  status: DisputeStatus;
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type DisputeConnection = {
+  __typename?: 'DisputeConnection';
+  edges?: Maybe<Array<DisputeEdge>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type DisputeEdge = {
+  __typename?: 'DisputeEdge';
+  cursor: Scalars['String']['output'];
+  node: Dispute;
+};
+
+export type DisputeOrder = {
+  direction: OrderDirection;
+  field: DisputeOrderField;
+};
+
+/** Properties by which offer connections can be ordered. */
+export enum DisputeOrderField {
+  CreatedAt = 'createdAt',
+  Id = 'id',
+  UpdatedAt = 'updatedAt'
+}
+
+/** The status of dispute. */
+export enum DisputeStatus {
+  Active = 'ACTIVE',
+  Resolved = 'RESOLVED'
+}
 
 export type DistributionModel = {
   __typename?: 'DistributionModel';
-  address: Scalars['String'];
-  distributionType: Scalars['String'];
-  id: Scalars['ID'];
-  lixiId: Scalars['Int'];
+  address: Scalars['String']['output'];
+  distributionType: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  lixiId: Scalars['Int']['output'];
 };
 
 export type EnvelopeModel = {
   __typename?: 'EnvelopeModel';
   /** Identifies the date and time when the object was created. */
-  createdAt?: Maybe<Scalars['DateTime']>;
-  description: Scalars['String'];
-  id: Scalars['ID'];
-  image: Scalars['String'];
-  name: Scalars['String'];
-  slug: Scalars['String'];
-  thumbnail: Scalars['String'];
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  image: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+  thumbnail: Scalars['String']['output'];
   /** Identifies the date and time when the object was last updated. */
-  updatedAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
+
+export type EscrowOrder = {
+  __typename?: 'EscrowOrder';
+  amount: Scalars['Int']['output'];
+  arbitratorPublicKey: Scalars['String']['output'];
+  buyerPublicKey: Scalars['String']['output'];
+  /** Identifies the date and time when the object was created. */
+  createdAt: Scalars['DateTime']['output'];
+  dispute?: Maybe<Dispute>;
+  escrowAddress?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  message?: Maybe<Scalars['String']['output']>;
+  offer: Offer;
+  offerId: Scalars['String']['output'];
+  paymentMethod: PaymentMethod;
+  paymentMethodId: Scalars['String']['output'];
+  price: Scalars['Int']['output'];
+  sellerPublicKey: Scalars['String']['output'];
+  status: EscrowOrderStatus;
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type EscrowOrderConnection = {
+  __typename?: 'EscrowOrderConnection';
+  edges?: Maybe<Array<EscrowOrderEdge>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type EscrowOrderEdge = {
+  __typename?: 'EscrowOrderEdge';
+  cursor: Scalars['String']['output'];
+  node: EscrowOrder;
+};
+
+export type EscrowOrderOrder = {
+  direction: OrderDirection;
+  field: EscrowOrderOrderField;
+};
+
+/** Properties by which escrow order connections can be ordered. */
+export enum EscrowOrderOrderField {
+  Amount = 'amount',
+  CreatedAt = 'createdAt',
+  Id = 'id',
+  Price = 'price',
+  UpdatedAt = 'updatedAt'
+}
+
+/** The status of escrow order. */
+export enum EscrowOrderStatus {
+  Active = 'ACTIVE',
+  Complete = 'COMPLETE',
+  Escrow = 'ESCROW'
+}
 
 export type Event = {
   __typename?: 'Event';
   account: Account;
-  accountId: Scalars['Int'];
+  accountId: Scalars['Int']['output'];
   /** Identifies the date and time when the object was created. */
-  createdAt: Scalars['DateTime'];
+  createdAt: Scalars['DateTime']['output'];
   dana: EventDana;
-  danaViewScore?: Maybe<Scalars['Float']>;
-  description: Scalars['String'];
-  endDate: Scalars['DateTime'];
-  eventType: Scalars['String'];
-  id: Scalars['ID'];
+  danaViewScore?: Maybe<Scalars['Float']['output']>;
+  description: Scalars['String']['output'];
+  endDate: Scalars['DateTime']['output'];
+  eventType: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
   imageUploadable?: Maybe<ImageUploadable>;
-  imageUploadableId?: Maybe<Scalars['String']>;
-  location?: Maybe<Scalars['String']>;
-  name: Scalars['String'];
+  imageUploadableId?: Maybe<Scalars['String']['output']>;
+  location?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
   page?: Maybe<Page>;
-  pageId?: Maybe<Scalars['String']>;
-  startDate: Scalars['DateTime'];
+  pageId?: Maybe<Scalars['String']['output']>;
+  startDate: Scalars['DateTime']['output'];
   token?: Maybe<Token>;
-  tokenId?: Maybe<Scalars['String']>;
-  totalComments?: Maybe<Scalars['Int']>;
+  tokenId?: Maybe<Scalars['String']['output']>;
+  totalComments?: Maybe<Scalars['Int']['output']>;
   /** Identifies the date and time when the object was last updated. */
-  updatedAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type EventDana = {
   __typename?: 'EventDana';
-  danaBurnDown: Scalars['Float'];
-  danaBurnScore: Scalars['Float'];
-  danaBurnUp: Scalars['Float'];
-  danaReceivedDown: Scalars['Float'];
-  danaReceivedScore: Scalars['Float'];
-  danaReceivedUp: Scalars['Float'];
+  danaBurnDown: Scalars['Float']['output'];
+  danaBurnScore: Scalars['Float']['output'];
+  danaBurnUp: Scalars['Float']['output'];
+  danaReceivedDown: Scalars['Float']['output'];
+  danaReceivedScore: Scalars['Float']['output'];
+  danaReceivedUp: Scalars['Float']['output'];
   event: Event;
-  eventId: Scalars['String'];
-  version: Scalars['Int'];
+  eventId: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
 };
 
 /** The type of event. */
@@ -545,95 +689,95 @@ export enum EventType {
 }
 
 export type ExtraArguments = {
-  hashtagId?: InputMaybe<Scalars['String']>;
-  hashtags?: InputMaybe<Array<Scalars['String']>>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  hashtagId?: InputMaybe<Scalars['String']['input']>;
+  hashtags?: InputMaybe<Array<Scalars['String']['input']>>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<PostOrder>;
-  query?: InputMaybe<Scalars['String']>;
+  query?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type FollowAccount = {
   __typename?: 'FollowAccount';
-  avatar: Scalars['String'];
+  avatar: Scalars['String']['output'];
   /** Identifies the date and time when the object was created. */
-  createdAt: Scalars['DateTime'];
+  createdAt: Scalars['DateTime']['output'];
   followerAccount?: Maybe<Account>;
-  followerAccountId?: Maybe<Scalars['Int']>;
+  followerAccountId?: Maybe<Scalars['Int']['output']>;
   followingAccount?: Maybe<Account>;
-  followingAccountId?: Maybe<Scalars['Int']>;
-  id?: Maybe<Scalars['ID']>;
-  isFollowed?: Maybe<Scalars['Boolean']>;
+  followingAccountId?: Maybe<Scalars['Int']['output']>;
+  id?: Maybe<Scalars['ID']['output']>;
+  isFollowed?: Maybe<Scalars['Boolean']['output']>;
   /** Identifies the date and time when the object was last updated. */
-  updatedAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type FollowAccountEdge = {
   __typename?: 'FollowAccountEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: FollowAccount;
 };
 
 export type FollowPage = {
   __typename?: 'FollowPage';
   account?: Maybe<Account>;
-  accountId?: Maybe<Scalars['Int']>;
+  accountId?: Maybe<Scalars['Int']['output']>;
   /** Identifies the date and time when the object was created. */
-  createdAt: Scalars['DateTime'];
-  id?: Maybe<Scalars['ID']>;
-  isFollowed?: Maybe<Scalars['Boolean']>;
+  createdAt: Scalars['DateTime']['output'];
+  id?: Maybe<Scalars['ID']['output']>;
+  isFollowed?: Maybe<Scalars['Boolean']['output']>;
   page?: Maybe<Page>;
-  pageId?: Maybe<Scalars['String']>;
+  pageId?: Maybe<Scalars['String']['output']>;
   token?: Maybe<Token>;
-  tokenId?: Maybe<Scalars['String']>;
+  tokenId?: Maybe<Scalars['String']['output']>;
   /** Identifies the date and time when the object was last updated. */
-  updatedAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type FollowPageEdge = {
   __typename?: 'FollowPageEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: FollowPage;
 };
 
 export type Hashtag = {
   __typename?: 'Hashtag';
-  content: Scalars['String'];
+  content: Scalars['String']['output'];
   /** Identifies the date and time when the object was created. */
-  createdAt?: Maybe<Scalars['DateTime']>;
-  danaBurnDown: Scalars['Float'];
-  danaBurnScore: Scalars['Float'];
-  danaBurnUp: Scalars['Float'];
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  danaBurnDown: Scalars['Float']['output'];
+  danaBurnScore: Scalars['Float']['output'];
+  danaBurnUp: Scalars['Float']['output'];
   hashtagDana?: Maybe<HashtagDana>;
-  id: Scalars['ID'];
-  normalizedContent: Scalars['String'];
+  id: Scalars['ID']['output'];
+  normalizedContent: Scalars['String']['output'];
   postHashtags?: Maybe<Array<PostHashtag>>;
   /** Identifies the date and time when the object was last updated. */
-  updatedAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
 export type HashtagConnection = {
   __typename?: 'HashtagConnection';
   edges?: Maybe<Array<HashtagEdge>>;
   pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type HashtagDana = {
   __typename?: 'HashtagDana';
-  danaBurnDown: Scalars['Float'];
-  danaBurnScore: Scalars['Float'];
-  danaBurnUp: Scalars['Float'];
-  danaReceivedDown: Scalars['Float'];
-  danaReceivedScore: Scalars['Float'];
-  danaReceivedUp: Scalars['Float'];
+  danaBurnDown: Scalars['Float']['output'];
+  danaBurnScore: Scalars['Float']['output'];
+  danaBurnUp: Scalars['Float']['output'];
+  danaReceivedDown: Scalars['Float']['output'];
+  danaReceivedScore: Scalars['Float']['output'];
+  danaReceivedUp: Scalars['Float']['output'];
   hashtag?: Maybe<Hashtag>;
-  hashtagId?: Maybe<Scalars['String']>;
-  version: Scalars['Int'];
+  hashtagId?: Maybe<Scalars['String']['output']>;
+  version: Scalars['Int']['output'];
 };
 
 export type HashtagEdge = {
   __typename?: 'HashtagEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Hashtag;
 };
 
@@ -657,7 +801,7 @@ export type ImageUploadable = {
   accountCover?: Maybe<Account>;
   comment?: Maybe<Comment>;
   event?: Maybe<Event>;
-  id: Scalars['ID'];
+  id: Scalars['ID']['output'];
   imageUploadableTo?: Maybe<ImageUploadableTo>;
   lixi?: Maybe<LixiModel>;
   message?: Maybe<Message>;
@@ -692,97 +836,97 @@ export enum ImageUploadableType {
 }
 
 export type ImportAccountInput = {
-  language?: InputMaybe<Scalars['String']>;
-  mnemonic: Scalars['String'];
-  mnemonicHash?: InputMaybe<Scalars['String']>;
+  language?: InputMaybe<Scalars['String']['input']>;
+  mnemonic: Scalars['String']['input'];
+  mnemonicHash?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type LatestMessage = {
   __typename?: 'LatestMessage';
   author?: Maybe<LatestMessageAuthor>;
-  body?: Maybe<Scalars['String']>;
-  id?: Maybe<Scalars['ID']>;
+  body?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['ID']['output']>;
 };
 
 export type LatestMessageAuthor = {
   __typename?: 'LatestMessageAuthor';
-  address?: Maybe<Scalars['String']>;
-  id?: Maybe<Scalars['Int']>;
+  address?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['Int']['output']>;
 };
 
 export type LixiModel = {
   __typename?: 'LixiModel';
-  accountId: Scalars['Int'];
+  accountId: Scalars['Int']['output'];
   /** Identifies the date and time when the object was activated. */
-  activationAt?: Maybe<Scalars['DateTime']>;
-  address: Scalars['String'];
-  amount: Scalars['String'];
-  balance?: Maybe<Scalars['Int']>;
-  claimCode?: Maybe<Scalars['String']>;
-  claimType: Scalars['Int'];
-  claimedNum: Scalars['Int'];
-  country?: Maybe<Scalars['String']>;
+  activationAt?: Maybe<Scalars['DateTime']['output']>;
+  address: Scalars['String']['output'];
+  amount: Scalars['String']['output'];
+  balance?: Maybe<Scalars['Int']['output']>;
+  claimCode?: Maybe<Scalars['String']['output']>;
+  claimType: Scalars['Int']['output'];
+  claimedNum: Scalars['Int']['output'];
+  country?: Maybe<Scalars['String']['output']>;
   /** Identifies the date and time when the object was created. */
-  createdAt?: Maybe<Scalars['DateTime']>;
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
   distributions?: Maybe<Array<DistributionModel>>;
-  dividedValue: Scalars['Int'];
-  encryptedClaimCode: Scalars['String'];
+  dividedValue: Scalars['Int']['output'];
+  encryptedClaimCode: Scalars['String']['output'];
   envelope?: Maybe<EnvelopeModel>;
-  envelopeId?: Maybe<Scalars['Int']>;
-  envelopeMessage?: Maybe<Scalars['String']>;
+  envelopeId?: Maybe<Scalars['Int']['output']>;
+  envelopeMessage?: Maybe<Scalars['String']['output']>;
   /** Identifies the date and time when the object was expired. */
-  expiryAt?: Maybe<Scalars['DateTime']>;
-  fixedValue: Scalars['Int'];
-  id: Scalars['ID'];
-  inventoryStatus: Scalars['String'];
-  isClaimed?: Maybe<Scalars['Boolean']>;
-  isFamilyFriendly: Scalars['Boolean'];
-  isNFTEnabled: Scalars['Boolean'];
-  joinLotteryProgram: Scalars['Boolean'];
-  lixiType: Scalars['Int'];
-  maxClaim: Scalars['Int'];
-  maxValue: Scalars['Int'];
-  minStaking: Scalars['Int'];
-  minValue: Scalars['Int'];
-  name: Scalars['String'];
-  networkType?: Maybe<Scalars['String']>;
-  numberLixiPerPackage?: Maybe<Scalars['Int']>;
-  numberOfSubLixi?: Maybe<Scalars['Int']>;
-  packageId?: Maybe<Scalars['Int']>;
+  expiryAt?: Maybe<Scalars['DateTime']['output']>;
+  fixedValue: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  inventoryStatus: Scalars['String']['output'];
+  isClaimed?: Maybe<Scalars['Boolean']['output']>;
+  isFamilyFriendly: Scalars['Boolean']['output'];
+  isNFTEnabled: Scalars['Boolean']['output'];
+  joinLotteryProgram: Scalars['Boolean']['output'];
+  lixiType: Scalars['Int']['output'];
+  maxClaim: Scalars['Int']['output'];
+  maxValue: Scalars['Int']['output'];
+  minStaking: Scalars['Int']['output'];
+  minValue: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  networkType?: Maybe<Scalars['String']['output']>;
+  numberLixiPerPackage?: Maybe<Scalars['Int']['output']>;
+  numberOfSubLixi?: Maybe<Scalars['Int']['output']>;
+  packageId?: Maybe<Scalars['Int']['output']>;
   pageMessageSession?: Maybe<PageMessageSession>;
-  parentId?: Maybe<Scalars['Int']>;
-  status: Scalars['String'];
-  subLixiBalance?: Maybe<Scalars['Int']>;
-  subLixiTotalClaim?: Maybe<Scalars['Int']>;
-  totalClaim: Scalars['Int'];
+  parentId?: Maybe<Scalars['Int']['output']>;
+  status: Scalars['String']['output'];
+  subLixiBalance?: Maybe<Scalars['Int']['output']>;
+  subLixiTotalClaim?: Maybe<Scalars['Int']['output']>;
+  totalClaim: Scalars['Int']['output'];
   /** Identifies the date and time when the object was last updated. */
-  updatedAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
 export type Message = {
   __typename?: 'Message';
   author: Account;
-  body?: Maybe<Scalars['String']>;
+  body?: Maybe<Scalars['String']['output']>;
   /** Identifies the date and time when the object was created. */
-  createdAt?: Maybe<Scalars['DateTime']>;
-  id: Scalars['ID'];
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
   imageUploadable?: Maybe<ImageUploadable>;
-  isPageOwner?: Maybe<Scalars['Boolean']>;
+  isPageOwner?: Maybe<Scalars['Boolean']['output']>;
   pageMessageSession?: Maybe<PageMessageSession>;
   /** Identifies the date and time when the object was last updated. */
-  updatedAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
 export type MessageConnection = {
   __typename?: 'MessageConnection';
   edges?: Maybe<Array<MessageEdge>>;
   pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type MessageEdge = {
   __typename?: 'MessageEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Message;
 };
 
@@ -801,20 +945,20 @@ export enum MessageOrderField {
 export type MessageSession = {
   __typename?: 'MessageSession';
   /** Identifies the date and time when the object was created. */
-  createdAt?: Maybe<Scalars['DateTime']>;
-  id: Scalars['ID'];
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
   lixi?: Maybe<LixiModel>;
-  lixiAmount?: Maybe<Scalars['Int']>;
+  lixiAmount?: Maybe<Scalars['Int']['output']>;
   messages: Array<Message>;
   pageMessageSession?: Maybe<PageMessageSession>;
-  sessionOpen?: Maybe<Scalars['Boolean']>;
+  sessionOpen?: Maybe<Scalars['Boolean']['output']>;
   /** Identifies the date and time when the object was last updated. */
-  updatedAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
 export type MessageSessionEdge = {
   __typename?: 'MessageSessionEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: MessageSession;
 };
 
@@ -825,10 +969,13 @@ export type Mutation = {
   createAccount: Account;
   createBookmark: Bookmark;
   createComment: Comment;
+  createDispute: Dispute;
+  createEscrowOrder: EscrowOrder;
   createFollowAccount: FollowAccount;
   createFollowPage: FollowPage;
   createFollowToken: FollowPage;
   createMessage: Message;
+  createOffer: Offer;
   createPage: Page;
   createPageMessageSession: PageMessageSession;
   createPoll: Post;
@@ -841,14 +988,14 @@ export type Mutation = {
   createWorship: Worship;
   createWorshipTemple: Worship;
   createWorshipedPerson: WorshipedPerson;
-  deleteFollowAccount: Scalars['Boolean'];
-  deleteFollowPage: Scalars['Boolean'];
-  deleteFollowToken: Scalars['Boolean'];
+  deleteFollowAccount: Scalars['Boolean']['output'];
+  deleteFollowPage: Scalars['Boolean']['output'];
+  deleteFollowToken: Scalars['Boolean']['output'];
   importAccount: Account;
   openPageMessageSession: PageMessageSession;
   removeBookmark: Bookmark;
   removePost: Post;
-  repost: Scalars['Boolean'];
+  repost: Scalars['Boolean']['output'];
   updateAccount: Account;
   updatePage: Page;
   updatePost: Post;
@@ -874,6 +1021,14 @@ export type MutationCreateCommentArgs = {
   data: CreateCommentInput;
 };
 
+export type MutationCreateDisputeArgs = {
+  data: CreateDisputeInput;
+};
+
+export type MutationCreateEscrowOrderArgs = {
+  data: CreateEscrowOrderInput;
+};
+
 export type MutationCreateFollowAccountArgs = {
   data: CreateFollowAccountInput;
 };
@@ -888,6 +1043,10 @@ export type MutationCreateFollowTokenArgs = {
 
 export type MutationCreateMessageArgs = {
   data: CreateMessageInput;
+};
+
+export type MutationCreateOfferArgs = {
+  data: CreateOfferInput;
 };
 
 export type MutationCreatePageArgs = {
@@ -982,8 +1141,84 @@ export type MutationUpdatePostArgs = {
   data: UpdatePostInput;
 };
 
+export type Offer = {
+  __typename?: 'Offer';
+  amount: Scalars['Int']['output'];
+  coin: Coin;
+  /** Identifies the date and time when the object was created. */
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  escrowOrders?: Maybe<Array<EscrowOrder>>;
+  id: Scalars['ID']['output'];
+  location?: Maybe<Scalars['String']['output']>;
+  orderLimitMax?: Maybe<Scalars['Int']['output']>;
+  orderLimitMin?: Maybe<Scalars['Int']['output']>;
+  paymentMethods: Array<OfferPaymentMethod>;
+  price: Scalars['Int']['output'];
+  publicKey: Scalars['String']['output'];
+  status: OfferStatus;
+  title: Scalars['String']['output'];
+  type: OfferType;
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type OfferConnection = {
+  __typename?: 'OfferConnection';
+  edges?: Maybe<Array<OfferEdge>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type OfferEdge = {
+  __typename?: 'OfferEdge';
+  cursor: Scalars['String']['output'];
+  node: Offer;
+};
+
+export type OfferOrder = {
+  direction: OrderDirection;
+  field: OfferOrderField;
+};
+
+/** Properties by which offer connections can be ordered. */
+export enum OfferOrderField {
+  Amount = 'amount',
+  CreatedAt = 'createdAt',
+  Id = 'id',
+  OrderLimitMax = 'orderLimitMax',
+  OrderLimitMin = 'orderLimitMin',
+  Price = 'price',
+  UpdatedAt = 'updatedAt'
+}
+
+export type OfferPaymentMethod = {
+  __typename?: 'OfferPaymentMethod';
+  /** Identifies the date and time when the object was created. */
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  offer: Offer;
+  offerId: Scalars['String']['output'];
+  paymentMethod: PaymentMethod;
+  paymentMethodId: Scalars['String']['output'];
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** The status of offer. */
+export enum OfferStatus {
+  Active = 'ACTIVE',
+  Archive = 'ARCHIVE'
+}
+
+/** The type of offer. */
+export enum OfferType {
+  Buy = 'BUY',
+  Sell = 'SELL'
+}
+
 export type OpenPageMessageSessionInput = {
-  pageMessageSessionId: Scalars['String'];
+  pageMessageSessionId: Scalars['String']['input'];
 };
 
 /** Possible directions in which to order a list of items when provided an `orderBy` argument. */
@@ -994,118 +1229,118 @@ export enum OrderDirection {
 
 export type Page = {
   __typename?: 'Page';
-  accessMessageFee?: Maybe<Scalars['Float']>;
-  address?: Maybe<Scalars['String']>;
-  avatar?: Maybe<Scalars['String']>;
-  avatarImageUplodableId?: Maybe<Scalars['String']>;
+  accessMessageFee?: Maybe<Scalars['Float']['output']>;
+  address?: Maybe<Scalars['String']['output']>;
+  avatar?: Maybe<Scalars['String']['output']>;
+  avatarImageUplodableId?: Maybe<Scalars['String']['output']>;
   category?: Maybe<Category>;
-  categoryId?: Maybe<Scalars['Int']>;
-  countryId?: Maybe<Scalars['Int']>;
-  countryName?: Maybe<Scalars['String']>;
-  cover?: Maybe<Scalars['String']>;
-  coverImageUplodableId?: Maybe<Scalars['String']>;
-  createCommentFee: Scalars['String'];
-  createPostFee: Scalars['String'];
+  categoryId?: Maybe<Scalars['Int']['output']>;
+  countryId?: Maybe<Scalars['Int']['output']>;
+  countryName?: Maybe<Scalars['String']['output']>;
+  cover?: Maybe<Scalars['String']['output']>;
+  coverImageUplodableId?: Maybe<Scalars['String']['output']>;
+  createCommentFee: Scalars['String']['output'];
+  createPostFee: Scalars['String']['output'];
   /** Identifies the date and time when the object was created. */
-  createdAt: Scalars['DateTime'];
+  createdAt: Scalars['DateTime']['output'];
   dana?: Maybe<PageDana>;
-  description: Scalars['String'];
-  encryptedMnemonic?: Maybe<Scalars['String']>;
-  followerFreeMessage?: Maybe<Scalars['Boolean']>;
-  followersCount?: Maybe<Scalars['Int']>;
-  id: Scalars['ID'];
-  minDanaForMessage?: Maybe<Scalars['Float']>;
-  name: Scalars['String'];
+  description: Scalars['String']['output'];
+  encryptedMnemonic?: Maybe<Scalars['String']['output']>;
+  followerFreeMessage?: Maybe<Scalars['Boolean']['output']>;
+  followersCount?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['ID']['output'];
+  minDanaForMessage?: Maybe<Scalars['Float']['output']>;
+  name: Scalars['String']['output'];
   pageAccount: Account;
-  pageAccountId: Scalars['Int'];
+  pageAccountId: Scalars['Int']['output'];
   pageMessageSessions?: Maybe<Array<PageMessageSession>>;
   parent?: Maybe<Page>;
-  parentId?: Maybe<Scalars['String']>;
-  salt?: Maybe<Scalars['String']>;
-  stateId?: Maybe<Scalars['Int']>;
-  stateName?: Maybe<Scalars['String']>;
-  title?: Maybe<Scalars['String']>;
+  parentId?: Maybe<Scalars['String']['output']>;
+  salt?: Maybe<Scalars['String']['output']>;
+  stateId?: Maybe<Scalars['Int']['output']>;
+  stateName?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
   /** The sum of burn amount for every post on page */
-  totalBurnForPage?: Maybe<Scalars['Float']>;
-  totalDanaViewScore?: Maybe<Scalars['Int']>;
-  totalPostsBurnDown: Scalars['Float'];
-  totalPostsBurnScore: Scalars['Float'];
-  totalPostsBurnUp: Scalars['Float'];
+  totalBurnForPage?: Maybe<Scalars['Float']['output']>;
+  totalDanaViewScore?: Maybe<Scalars['Int']['output']>;
+  totalPostsBurnDown: Scalars['Float']['output'];
+  totalPostsBurnScore: Scalars['Float']['output'];
+  totalPostsBurnUp: Scalars['Float']['output'];
   /** Identifies the date and time when the object was last updated. */
-  updatedAt: Scalars['DateTime'];
-  website?: Maybe<Scalars['String']>;
+  updatedAt: Scalars['DateTime']['output'];
+  website?: Maybe<Scalars['String']['output']>;
 };
 
 export type PageBasicConnection = {
   __typename?: 'PageBasicConnection';
   edges: Array<PageBasicEdge>;
   pageInfo: BasicPageInfo;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type PageBasicEdge = {
   __typename?: 'PageBasicEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Page;
 };
 
 export type PageDana = {
   __typename?: 'PageDana';
-  danaBurnDown: Scalars['Float'];
-  danaBurnScore: Scalars['Float'];
-  danaBurnUp: Scalars['Float'];
-  danaReceivedDown: Scalars['Float'];
-  danaReceivedScore: Scalars['Float'];
-  danaReceivedUp: Scalars['Float'];
+  danaBurnDown: Scalars['Float']['output'];
+  danaBurnScore: Scalars['Float']['output'];
+  danaBurnUp: Scalars['Float']['output'];
+  danaReceivedDown: Scalars['Float']['output'];
+  danaReceivedScore: Scalars['Float']['output'];
+  danaReceivedUp: Scalars['Float']['output'];
   page: Page;
-  pageId: Scalars['String'];
-  version: Scalars['Int'];
+  pageId: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
 };
 
 export type PageEdge = {
   __typename?: 'PageEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Page;
 };
 
 export type PageInfo = {
   __typename?: 'PageInfo';
-  endCursor?: Maybe<Scalars['String']>;
-  hasNextPage: Scalars['Boolean'];
-  hasPreviousPage: Scalars['Boolean'];
-  startCursor?: Maybe<Scalars['String']>;
+  endCursor?: Maybe<Scalars['String']['output']>;
+  hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
+  startCursor?: Maybe<Scalars['String']['output']>;
 };
 
 export type PageMessageSession = {
   __typename?: 'PageMessageSession';
   account: Account;
   /** Identifies the date and time when the object was created. */
-  createdAt?: Maybe<Scalars['DateTime']>;
-  id: Scalars['ID'];
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
   latestMessage?: Maybe<LatestMessage>;
   lixi?: Maybe<LixiModel>;
-  lixiClaimCode?: Maybe<Scalars['String']>;
+  lixiClaimCode?: Maybe<Scalars['String']['output']>;
   messages?: Maybe<Array<Message>>;
   page: Page;
   /** Identifies the date and time when the session was closed. */
-  sessionClosedAt?: Maybe<Scalars['DateTime']>;
+  sessionClosedAt?: Maybe<Scalars['DateTime']['output']>;
   /** Identifies the date and time when the session was opened. */
-  sessionOpenedAt?: Maybe<Scalars['DateTime']>;
+  sessionOpenedAt?: Maybe<Scalars['DateTime']['output']>;
   status: PageMessageSessionStatus;
   /** Identifies the date and time when the object was last updated. */
-  updatedAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
 export type PageMessageSessionConnection = {
   __typename?: 'PageMessageSessionConnection';
   edges?: Maybe<Array<PageMessageSessionEdge>>;
   pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type PageMessageSessionEdge = {
   __typename?: 'PageMessageSessionEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: PageMessageSession;
 };
 
@@ -1129,112 +1364,125 @@ export enum PageMessageSessionStatus {
   Pending = 'PENDING'
 }
 
+export type PaymentMethod = {
+  __typename?: 'PaymentMethod';
+  /** Identifies the date and time when the object was created. */
+  createdAt: Scalars['DateTime']['output'];
+  escrowOrders?: Maybe<Array<EscrowOrder>>;
+  id: Scalars['ID']['output'];
+  message?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  offerPaymentMethods?: Maybe<Array<OfferPaymentMethod>>;
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type Poll = {
   __typename?: 'Poll';
-  canAddOption: Scalars['Boolean'];
-  defaultOptions?: Maybe<Array<Scalars['String']>>;
-  endDate: Scalars['DateTime'];
+  canAddOption: Scalars['Boolean']['output'];
+  defaultOptions?: Maybe<Array<Scalars['String']['output']>>;
+  endDate: Scalars['DateTime']['output'];
   options: Array<PollOption>;
-  postId: Scalars['String'];
-  question: Scalars['String'];
-  singleSelect: Scalars['Boolean'];
-  startDate: Scalars['DateTime'];
-  totalVote?: Maybe<Scalars['Int']>;
+  postId: Scalars['String']['output'];
+  question: Scalars['String']['output'];
+  singleSelect: Scalars['Boolean']['output'];
+  startDate: Scalars['DateTime']['output'];
+  totalVote?: Maybe<Scalars['Int']['output']>;
 };
 
 export type PollAnswerOnAccount = {
   __typename?: 'PollAnswerOnAccount';
   account?: Maybe<Account>;
-  accountId: Scalars['Int'];
-  pollDanaScore: Scalars['Float'];
+  accountId: Scalars['Int']['output'];
+  pollDanaScore: Scalars['Float']['output'];
 };
 
 export type PollOption = {
   __typename?: 'PollOption';
-  danaScoreOption?: Maybe<Scalars['Int']>;
-  id: Scalars['ID'];
-  option: Scalars['String'];
+  danaScoreOption?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['ID']['output'];
+  option: Scalars['String']['output'];
   pollAnswerOnAccount?: Maybe<Array<PollAnswerOnAccount>>;
-  pollId: Scalars['String'];
+  pollId: Scalars['String']['output'];
 };
 
 export type PollOptionInput = {
-  option: Scalars['String'];
-  pollId?: InputMaybe<Scalars['String']>;
+  option: Scalars['String']['input'];
+  pollId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Post = {
   __typename?: 'Post';
   account: Account;
-  accountId: Scalars['Int'];
-  bookmarkableId?: Maybe<Scalars['String']>;
-  burnedByOthers?: Maybe<Scalars['Boolean']>;
-  commentableId?: Maybe<Scalars['String']>;
-  content: Scalars['String'];
+  accountId: Scalars['Int']['output'];
+  bookmarkableId?: Maybe<Scalars['String']['output']>;
+  burnedByOthers?: Maybe<Scalars['Boolean']['output']>;
+  commentableId?: Maybe<Scalars['String']['output']>;
+  content: Scalars['String']['output'];
   /** Identifies the date and time when the object was created. */
-  createdAt: Scalars['DateTime'];
+  createdAt: Scalars['DateTime']['output'];
   dana?: Maybe<PostDana>;
-  danaViewScore?: Maybe<Scalars['Float']>;
-  followPostOwner?: Maybe<Scalars['Boolean']>;
-  followedPage?: Maybe<Scalars['Boolean']>;
-  followedToken?: Maybe<Scalars['Boolean']>;
-  id: Scalars['ID'];
+  danaViewScore?: Maybe<Scalars['Float']['output']>;
+  followPostOwner?: Maybe<Scalars['Boolean']['output']>;
+  followedPage?: Maybe<Scalars['Boolean']['output']>;
+  followedToken?: Maybe<Scalars['Boolean']['output']>;
+  id: Scalars['ID']['output'];
   imageUploadable?: Maybe<ImageUploadable>;
-  isBookmarked?: Maybe<Scalars['Boolean']>;
-  originalLanguage?: Maybe<Scalars['String']>;
+  isBookmarked?: Maybe<Scalars['Boolean']['output']>;
+  originalLanguage?: Maybe<Scalars['String']['output']>;
   page?: Maybe<Page>;
-  pageId?: Maybe<Scalars['String']>;
+  pageId?: Maybe<Scalars['String']['output']>;
   poll?: Maybe<Poll>;
   postHashtags?: Maybe<Array<PostHashtag>>;
-  repostCount: Scalars['Int'];
+  repostCount: Scalars['Int']['output'];
   reposts?: Maybe<Array<Repost>>;
-  taggableId?: Maybe<Scalars['String']>;
+  taggableId?: Maybe<Scalars['String']['output']>;
   token?: Maybe<Token>;
-  tokenId?: Maybe<Scalars['String']>;
-  totalComments: Scalars['Int'];
+  tokenId?: Maybe<Scalars['String']['output']>;
+  totalComments: Scalars['Int']['output'];
   translations?: Maybe<Array<PostTranslation>>;
-  type: Scalars['String'];
+  type: Scalars['String']['output'];
   /** Identifies the date and time when the object was last updated. */
-  updatedAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type PostConnection = {
   __typename?: 'PostConnection';
   edges?: Maybe<Array<PostEdge>>;
   pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type PostDana = {
   __typename?: 'PostDana';
-  danaBurnDown: Scalars['Float'];
-  danaBurnScore: Scalars['Float'];
-  danaBurnUp: Scalars['Float'];
-  danaReceivedDown: Scalars['Float'];
-  danaReceivedScore: Scalars['Float'];
-  danaReceivedUp: Scalars['Float'];
+  danaBurnDown: Scalars['Float']['output'];
+  danaBurnScore: Scalars['Float']['output'];
+  danaBurnUp: Scalars['Float']['output'];
+  danaReceivedDown: Scalars['Float']['output'];
+  danaReceivedScore: Scalars['Float']['output'];
+  danaReceivedUp: Scalars['Float']['output'];
   post: Post;
-  postId: Scalars['String'];
-  version: Scalars['Int'];
+  postId: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
 };
 
 export type PostEdge = {
   __typename?: 'PostEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Post;
 };
 
 export type PostHashtag = {
   __typename?: 'PostHashtag';
   /** Identifies the date and time when the object was created. */
-  createdAt?: Maybe<Scalars['DateTime']>;
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
   hashtag: Hashtag;
-  hashtagId: Scalars['String'];
-  id: Scalars['ID'];
+  hashtagId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
   post?: Maybe<Post>;
-  postId?: Maybe<Scalars['String']>;
+  postId?: Maybe<Scalars['String']['output']>;
   /** Identifies the date and time when the object was last updated. */
-  updatedAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
 export type PostOrder = {
@@ -1255,61 +1503,61 @@ export enum PostOrderField {
 export type PostTranslation = {
   __typename?: 'PostTranslation';
   /** Identifies the date and time when the object was created. */
-  createdAt: Scalars['DateTime'];
-  id: Scalars['ID'];
-  translateContent?: Maybe<Scalars['String']>;
-  translateLanguage?: Maybe<Scalars['String']>;
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  translateContent?: Maybe<Scalars['String']['output']>;
+  translateLanguage?: Maybe<Scalars['String']['output']>;
   /** Identifies the date and time when the object was last updated. */
-  updatedAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type Product = {
   __typename?: 'Product';
   account: Account;
-  accountId: Scalars['Int'];
-  address?: Maybe<Scalars['String']>;
-  categoryId?: Maybe<Scalars['Int']>;
+  accountId: Scalars['Int']['output'];
+  address?: Maybe<Scalars['String']['output']>;
+  categoryId?: Maybe<Scalars['Int']['output']>;
   country?: Maybe<Country>;
   /** Identifies the date and time when the object was created. */
-  createdAt: Scalars['DateTime'];
+  createdAt: Scalars['DateTime']['output'];
   dana?: Maybe<ProductDana>;
-  danaViewScore: Scalars['Int'];
-  description: Scalars['String'];
-  followOwner: Scalars['Boolean'];
-  followedPage: Scalars['Boolean'];
-  id: Scalars['ID'];
+  danaViewScore: Scalars['Int']['output'];
+  description: Scalars['String']['output'];
+  followOwner: Scalars['Boolean']['output'];
+  followedPage: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
   imageUploadable?: Maybe<ImageUploadable>;
-  imageUploadableId?: Maybe<Scalars['String']>;
-  name: Scalars['String'];
+  imageUploadableId?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
   page?: Maybe<Page>;
-  pageId?: Maybe<Scalars['String']>;
-  phoneNumber: Scalars['String'];
-  price: Scalars['Int'];
-  priceUnit: Scalars['String'];
+  pageId?: Maybe<Scalars['String']['output']>;
+  phoneNumber: Scalars['String']['output'];
+  price: Scalars['Int']['output'];
+  priceUnit: Scalars['String']['output'];
   state?: Maybe<State>;
-  title: Scalars['String'];
+  title: Scalars['String']['output'];
   token?: Maybe<Token>;
-  tokenId?: Maybe<Scalars['String']>;
+  tokenId?: Maybe<Scalars['String']['output']>;
   /** Identifies the date and time when the object was last updated. */
-  updatedAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type ProductDana = {
   __typename?: 'ProductDana';
-  danaBurnDown: Scalars['Float'];
-  danaBurnScore: Scalars['Float'];
-  danaBurnUp: Scalars['Float'];
-  danaReceivedDown: Scalars['Float'];
-  danaReceivedScore: Scalars['Float'];
-  danaReceivedUp: Scalars['Float'];
+  danaBurnDown: Scalars['Float']['output'];
+  danaBurnScore: Scalars['Float']['output'];
+  danaBurnUp: Scalars['Float']['output'];
+  danaReceivedDown: Scalars['Float']['output'];
+  danaReceivedScore: Scalars['Float']['output'];
+  danaReceivedUp: Scalars['Float']['output'];
   product: Product;
-  productId: Scalars['String'];
-  version: Scalars['Int'];
+  productId: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
 };
 
 export type ProductEdge = {
   __typename?: 'ProductEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Product;
 };
 
@@ -1318,6 +1566,9 @@ export type Query = {
   account: Account;
   allAccounts: AccountBasicConnection;
   allClosedPageMessageSession: PageMessageSessionConnection;
+  allDispute: DisputeConnection;
+  allDisputeByPublicKey: DisputeConnection;
+  allEscrowOrderByOfferId: EscrowOrderConnection;
   allFollowersByFollowing: AccountConnection;
   allFollowersByPage: AccountBasicConnection;
   allFollowersByToken: AccountBasicConnection;
@@ -1327,6 +1578,8 @@ export type Query = {
   allHashtagBySearch: HashtagConnection;
   allHashtagByToken: HashtagConnection;
   allMessageByPageMessageSessionId: MessageConnection;
+  allOffer: OfferConnection;
+  allOfferByPublicKey: OfferConnection;
   allOpenPageMessageSessionByAccountId: PageMessageSessionConnection;
   allOpenPageMessageSessionByPageId: PageMessageSessionConnection;
   allPageMessageSessionByAccountId: PageMessageSessionConnection;
@@ -1354,16 +1607,20 @@ export type Query = {
   allWorshipedPersonSpecialDate: WorshipedPersonConnection;
   bookmark: Bookmark;
   bookmarkTimeline: TimelineItemConnection;
-  checkIfFollowAccount: Scalars['Boolean'];
-  checkIfFollowPage: Scalars['Boolean'];
-  checkIfFollowToken: Scalars['Boolean'];
+  checkIfFollowAccount: Scalars['Boolean']['output'];
+  checkIfFollowPage: Scalars['Boolean']['output'];
+  checkIfFollowToken: Scalars['Boolean']['output'];
   comment: Comment;
   commentsToCommentableId: CommentConnection;
+  convertDanaToCoin: Scalars['Int']['output'];
+  dispute: Dispute;
+  escrowOrder: EscrowOrder;
   getAccountByAddress: Account;
   getBalances: Balances;
   hashtag: Hashtag;
   homeTimeline: TimelineItemConnection;
   message: Message;
+  offer: Offer;
   page: Page;
   pageMessageSession: PageMessageSession;
   pageTimeline: TimelineItemConnection;
@@ -1389,604 +1646,676 @@ export type Query = {
 };
 
 export type QueryAccountArgs = {
-  id: Scalars['Int'];
+  id: Scalars['Int']['input'];
 };
 
 export type QueryAllAccountsArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  skip?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllClosedPageMessageSessionArgs = {
-  accountId?: InputMaybe<Scalars['Int']>;
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  accountId?: InputMaybe<Scalars['Int']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<PageMessageSessionOrder>;
-  pageId?: InputMaybe<Scalars['String']>;
-  skip?: InputMaybe<Scalars['Int']>;
+  pageId?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryAllDisputeArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<DisputeOrder>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryAllDisputeByPublicKeyArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<DisputeOrder>;
+  publicKey: Scalars['String']['input'];
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryAllEscrowOrderByOfferIdArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
+  offerId: Scalars['String']['input'];
+  orderBy?: InputMaybe<EscrowOrderOrder>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllFollowersByFollowingArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  followingAccountId?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  followingAccountId?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<AccountOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllFollowersByPageArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['String']>;
-  skip?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllFollowersByTokenArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['String']>;
-  skip?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllFollowingsByFollowerArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  followerAccountId?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  followerAccountId?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<AccountOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllHashtagArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<HashtagOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllHashtagByPageArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<HashtagOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllHashtagBySearchArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  query?: InputMaybe<Scalars['String']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  query?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type QueryAllHashtagByTokenArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<HashtagOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllMessageByPageMessageSessionIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<MessageOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryAllOfferArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<OfferOrder>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryAllOfferByPublicKeyArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<OfferOrder>;
+  publicKey: Scalars['String']['input'];
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllOpenPageMessageSessionByAccountIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<PageMessageSessionOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllOpenPageMessageSessionByPageIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<PageMessageSessionOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllPageMessageSessionByAccountIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<PageMessageSessionOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllPagesArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  skip?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllPagesByUserIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['Int']>;
-  skip?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllPendingPageMessageSessionByAccountIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<PageMessageSessionOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllPendingPageMessageSessionByPageIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<PageMessageSessionOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllPostsByHashtagIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<PostOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllPostsByPageIdArgs = {
-  accountId?: InputMaybe<Scalars['Int']>;
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  accountId?: InputMaybe<Scalars['Int']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<PostOrder>>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllPostsBySearchArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  query?: InputMaybe<Scalars['String']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
+  query?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type QueryAllPostsBySearchWithHashtagArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  hashtags?: InputMaybe<Array<Scalars['String']>>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  hashtags?: InputMaybe<Array<Scalars['String']['input']>>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<PostOrder>;
-  query?: InputMaybe<Scalars['String']>;
-  skip?: InputMaybe<Scalars['Int']>;
+  query?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllPostsBySearchWithHashtagAtPageArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  hashtags?: InputMaybe<Array<Scalars['String']>>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  hashtags?: InputMaybe<Array<Scalars['String']['input']>>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<PostOrder>;
-  pageId?: InputMaybe<Scalars['String']>;
-  query?: InputMaybe<Scalars['String']>;
+  pageId?: InputMaybe<Scalars['String']['input']>;
+  query?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type QueryAllPostsBySearchWithHashtagAtTokenArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  hashtags?: InputMaybe<Array<Scalars['String']>>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  hashtags?: InputMaybe<Array<Scalars['String']['input']>>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<PostOrder>;
-  query?: InputMaybe<Scalars['String']>;
-  tokenId?: InputMaybe<Scalars['String']>;
+  query?: InputMaybe<Scalars['String']['input']>;
+  tokenId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type QueryAllPostsByTokenIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<PostOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllPostsByUserIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<PostOrder>>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllTempleArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<TempleOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllTempleBySearchArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  query?: InputMaybe<Scalars['String']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  query?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type QueryAllTokensArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  skip?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllWorshipArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<WorshipOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllWorshipedByPersonIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<WorshipOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllWorshipedByTempleIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<WorshipOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllWorshipedPersonArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<WorshipedPersonOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllWorshipedPersonBySearchArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  query?: InputMaybe<Scalars['String']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  query?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type QueryAllWorshipedPersonByUserIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<WorshipedPersonOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllWorshipedPersonSpecialDateArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<WorshipedPersonOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryBookmarkArgs = {
-  id: Scalars['String'];
+  id: Scalars['String']['input'];
 };
 
 export type QueryBookmarkTimelineArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id: Scalars['Int'];
-  skip?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['Int']['input'];
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryCheckIfFollowAccountArgs = {
-  followingAccountId: Scalars['Int'];
+  followingAccountId: Scalars['Int']['input'];
 };
 
 export type QueryCheckIfFollowPageArgs = {
-  pageId?: InputMaybe<Scalars['String']>;
+  pageId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type QueryCheckIfFollowTokenArgs = {
-  tokenId?: InputMaybe<Scalars['String']>;
+  tokenId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type QueryCommentArgs = {
-  id: Scalars['String'];
+  id: Scalars['String']['input'];
 };
 
 export type QueryCommentsToCommentableIdArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<CommentOrder>;
-  skip?: InputMaybe<Scalars['Int']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryConvertDanaToCoinArgs = {
+  ConvertDanaInput: ConvertDana;
+};
+
+export type QueryDisputeArgs = {
+  id: Scalars['String']['input'];
+};
+
+export type QueryEscrowOrderArgs = {
+  id: Scalars['String']['input'];
 };
 
 export type QueryGetAccountByAddressArgs = {
-  address: Scalars['String'];
+  address: Scalars['String']['input'];
 };
 
 export type QueryGetBalancesArgs = {
-  address: Scalars['String'];
+  address: Scalars['String']['input'];
 };
 
 export type QueryHashtagArgs = {
-  content: Scalars['String'];
+  content: Scalars['String']['input'];
 };
 
 export type QueryHomeTimelineArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  level?: InputMaybe<Scalars['Int']>;
-  skip?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  level?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryMessageArgs = {
-  id: Scalars['String'];
+  id: Scalars['String']['input'];
+};
+
+export type QueryOfferArgs = {
+  id: Scalars['String']['input'];
 };
 
 export type QueryPageArgs = {
-  id: Scalars['String'];
+  id: Scalars['String']['input'];
 };
 
 export type QueryPageMessageSessionArgs = {
-  id: Scalars['String'];
+  id: Scalars['String']['input'];
 };
 
 export type QueryPageTimelineArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id: Scalars['String'];
-  skip?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['String']['input'];
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryPageTimelineByTimeArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id: Scalars['String'];
-  minimumDanaFilter: Scalars['Int'];
-  skip?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['String']['input'];
+  minimumDanaFilter: Scalars['Int']['input'];
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryPagesByFollowerArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  skip?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryPollArgs = {
-  id: Scalars['String'];
+  id: Scalars['String']['input'];
 };
 
 export type QueryPostArgs = {
-  id: Scalars['String'];
+  id: Scalars['String']['input'];
 };
 
 export type QueryPostBurnHistoryArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id: Scalars['String'];
-  skip?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['String']['input'];
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryProductArgs = {
-  id: Scalars['String'];
+  id: Scalars['String']['input'];
 };
 
 export type QueryProfileTimelineArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id: Scalars['Int'];
-  skip?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['Int']['input'];
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryProfileTimelineByTimeArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id: Scalars['Int'];
-  minimumDanaFilter: Scalars['Int'];
-  skip?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['Int']['input'];
+  minimumDanaFilter: Scalars['Int']['input'];
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryTempleArgs = {
-  id: Scalars['String'];
+  id: Scalars['String']['input'];
 };
 
 export type QueryTimelineArgs = {
-  id: Scalars['String'];
+  id: Scalars['String']['input'];
 };
 
 export type QueryTokenArgs = {
-  id: Scalars['String'];
+  id: Scalars['String']['input'];
 };
 
 export type QueryTokenByTokenIdArgs = {
-  tokenId: Scalars['String'];
+  tokenId: Scalars['String']['input'];
 };
 
 export type QueryTokenTimelineArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id: Scalars['String'];
-  skip?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['String']['input'];
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryTokenTimelineByTimeArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  id: Scalars['String'];
-  minimumDanaFilter: Scalars['Int'];
-  skip?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['String']['input'];
+  minimumDanaFilter: Scalars['Int']['input'];
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryTopMonthAccountDanaGivenArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  month: Scalars['Int'];
-  skip?: InputMaybe<Scalars['Int']>;
-  year: Scalars['Int'];
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
+  month: Scalars['Int']['input'];
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  year: Scalars['Int']['input'];
 };
 
 export type QueryTopWeekAccountDanaGivenArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  before?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']>;
-  skip?: InputMaybe<Scalars['Int']>;
-  week: Scalars['Int'];
-  year: Scalars['Int'];
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  week: Scalars['Int']['input'];
+  year: Scalars['Int']['input'];
 };
 
 export type QueryUserHadMessageToPageArgs = {
-  accountId?: InputMaybe<Scalars['Int']>;
-  pageId?: InputMaybe<Scalars['String']>;
+  accountId?: InputMaybe<Scalars['Int']['input']>;
+  pageId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type QueryWorshipArgs = {
-  id: Scalars['String'];
+  id: Scalars['String']['input'];
 };
 
 export type QueryWorshipedPersonArgs = {
-  id: Scalars['String'];
+  id: Scalars['String']['input'];
 };
 
 export type RemoveBookmarkInput = {
-  accountId: Scalars['Int'];
-  bookmarkForId: Scalars['String'];
+  accountId: Scalars['Int']['input'];
+  bookmarkForId: Scalars['String']['input'];
 };
 
 export type RemovePostInput = {
-  accountId: Scalars['Int'];
-  postId: Scalars['String'];
+  accountId: Scalars['Int']['input'];
+  postId: Scalars['String']['input'];
 };
 
 export type Repost = {
   __typename?: 'Repost';
   account?: Maybe<Account>;
-  accountId?: Maybe<Scalars['Int']>;
+  accountId?: Maybe<Scalars['Int']['output']>;
   /** Identifies the date and time when the object was created. */
-  createdAt: Scalars['DateTime'];
-  id?: Maybe<Scalars['ID']>;
+  createdAt: Scalars['DateTime']['output'];
+  id?: Maybe<Scalars['ID']['output']>;
   post?: Maybe<Post>;
-  postId?: Maybe<Scalars['String']>;
+  postId?: Maybe<Scalars['String']['output']>;
   /** Identifies the date and time when the object was last updated. */
-  updatedAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type RepostInput = {
-  accountId: Scalars['Int'];
-  postId: Scalars['String'];
-  txHex?: InputMaybe<Scalars['String']>;
+  accountId: Scalars['Int']['input'];
+  postId: Scalars['String']['input'];
+  txHex?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type State = {
   __typename?: 'State';
   city: Array<City>;
   country: City;
-  id: Scalars['ID'];
-  name: Scalars['String'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type Subscription = {
   __typename?: 'Subscription';
   bookmarkCreated: Bookmark;
+  disputeCreated: Dispute;
+  escrowOrderCreated: EscrowOrder;
   hashtagCreated: Hashtag;
   messageCreated: Message;
+  offerCreated: Offer;
   pageMessageSessionCreated: PageMessageSession;
   templeCreated: Temple;
   worshipedPersonCreated: WorshipedPerson;
@@ -1995,39 +2324,39 @@ export type Subscription = {
 export type Temple = {
   __typename?: 'Temple';
   account: Account;
-  achievement?: Maybe<Scalars['String']>;
-  address?: Maybe<Scalars['String']>;
-  alias?: Maybe<Scalars['String']>;
+  achievement?: Maybe<Scalars['String']['output']>;
+  address?: Maybe<Scalars['String']['output']>;
+  alias?: Maybe<Scalars['String']['output']>;
   avatar?: Maybe<UploadDetail>;
   city?: Maybe<City>;
   country?: Maybe<Country>;
   cover?: Maybe<UploadDetail>;
   /** Identifies the date and time when the object was created. */
-  createdAt?: Maybe<Scalars['DateTime']>;
-  dateOfCompleted?: Maybe<Scalars['DateTime']>;
-  description?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  president?: Maybe<Scalars['String']>;
-  religion?: Maybe<Scalars['String']>;
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  dateOfCompleted?: Maybe<Scalars['DateTime']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  president?: Maybe<Scalars['String']['output']>;
+  religion?: Maybe<Scalars['String']['output']>;
   state?: Maybe<State>;
-  totalWorshipAmount?: Maybe<Scalars['Int']>;
+  totalWorshipAmount?: Maybe<Scalars['Int']['output']>;
   /** Identifies the date and time when the object was last updated. */
-  updatedAt?: Maybe<Scalars['DateTime']>;
-  verified: Scalars['Boolean'];
-  website?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+  verified: Scalars['Boolean']['output'];
+  website?: Maybe<Scalars['String']['output']>;
 };
 
 export type TempleConnection = {
   __typename?: 'TempleConnection';
   edges?: Maybe<Array<TempleEdge>>;
   pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type TempleEdge = {
   __typename?: 'TempleEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Temple;
 };
 
@@ -2047,12 +2376,12 @@ export enum TempleOrderField {
 export type TimelineItem = {
   __typename?: 'TimelineItem';
   data: TimelineItemData;
-  id: Scalars['ID'];
+  id: Scalars['ID']['output'];
 };
 
 export type TimelineItemBasicEdge = {
   __typename?: 'TimelineItemBasicEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: TimelineItem;
 };
 
@@ -2060,7 +2389,7 @@ export type TimelineItemConnection = {
   __typename?: 'TimelineItemConnection';
   edges: Array<TimelineItemBasicEdge>;
   pageInfo: BasicPageInfo;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type TimelineItemData = Post;
@@ -2068,29 +2397,29 @@ export type TimelineItemData = Post;
 export type Token = {
   __typename?: 'Token';
   /** Identifies the date and time when the object was last comments. */
-  comments?: Maybe<Scalars['DateTime']>;
+  comments?: Maybe<Scalars['DateTime']['output']>;
   /** Identifies the date and time when the object was created. */
-  createdDate: Scalars['DateTime'];
+  createdDate: Scalars['DateTime']['output'];
   dana?: Maybe<TokenDana>;
-  decimals: Scalars['Int'];
-  followersCount?: Maybe<Scalars['Int']>;
-  id: Scalars['ID'];
-  initialTokenQuantity?: Maybe<Scalars['String']>;
-  isFollowed?: Maybe<Scalars['Boolean']>;
-  name: Scalars['String'];
-  rank?: Maybe<Scalars['Int']>;
-  ticker: Scalars['String'];
-  tokenDocumentUrl?: Maybe<Scalars['String']>;
-  tokenId: Scalars['String'];
-  tokenType: Scalars['String'];
-  totalBurned?: Maybe<Scalars['String']>;
-  totalDanaViewScore?: Maybe<Scalars['Int']>;
-  totalMinted?: Maybe<Scalars['String']>;
+  decimals: Scalars['Int']['output'];
+  followersCount?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['ID']['output'];
+  initialTokenQuantity?: Maybe<Scalars['String']['output']>;
+  isFollowed?: Maybe<Scalars['Boolean']['output']>;
+  name: Scalars['String']['output'];
+  rank?: Maybe<Scalars['Int']['output']>;
+  ticker: Scalars['String']['output'];
+  tokenDocumentUrl?: Maybe<Scalars['String']['output']>;
+  tokenId: Scalars['String']['output'];
+  tokenType: Scalars['String']['output'];
+  totalBurned?: Maybe<Scalars['String']['output']>;
+  totalDanaViewScore?: Maybe<Scalars['Int']['output']>;
+  totalMinted?: Maybe<Scalars['String']['output']>;
 };
 
 export type TokenBasicEdge = {
   __typename?: 'TokenBasicEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Token;
 };
 
@@ -2098,80 +2427,80 @@ export type TokenConnection = {
   __typename?: 'TokenConnection';
   edges: Array<TokenBasicEdge>;
   pageInfo: BasicPageInfo;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type TokenDana = {
   __typename?: 'TokenDana';
-  danaBurnDown: Scalars['Float'];
-  danaBurnScore: Scalars['Float'];
-  danaBurnUp: Scalars['Float'];
-  danaReceivedDown: Scalars['Float'];
-  danaReceivedScore: Scalars['Float'];
-  danaReceivedUp: Scalars['Float'];
+  danaBurnDown: Scalars['Float']['output'];
+  danaBurnScore: Scalars['Float']['output'];
+  danaBurnUp: Scalars['Float']['output'];
+  danaReceivedDown: Scalars['Float']['output'];
+  danaReceivedScore: Scalars['Float']['output'];
+  danaReceivedUp: Scalars['Float']['output'];
   token: Token;
-  tokenId: Scalars['String'];
-  version: Scalars['Int'];
+  tokenId: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
 };
 
 export type UpdateAccountInput = {
-  avatar?: InputMaybe<Scalars['String']>;
-  birthday?: InputMaybe<Scalars['DateTime']>;
-  cover?: InputMaybe<Scalars['String']>;
-  createCommentFee?: InputMaybe<Scalars['String']>;
-  description?: InputMaybe<Scalars['String']>;
-  id: Scalars['Int'];
-  language?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
-  website?: InputMaybe<Scalars['String']>;
+  avatar?: InputMaybe<Scalars['String']['input']>;
+  birthday?: InputMaybe<Scalars['DateTime']['input']>;
+  cover?: InputMaybe<Scalars['String']['input']>;
+  createCommentFee?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['Int']['input'];
+  language?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdatePageInput = {
-  address?: InputMaybe<Scalars['String']>;
-  avatar?: InputMaybe<Scalars['String']>;
-  categoryId?: InputMaybe<Scalars['String']>;
-  countryId?: InputMaybe<Scalars['String']>;
-  cover?: InputMaybe<Scalars['String']>;
-  createCommentFee?: InputMaybe<Scalars['String']>;
-  createPostFee?: InputMaybe<Scalars['String']>;
-  description?: InputMaybe<Scalars['String']>;
-  id: Scalars['ID'];
-  name?: InputMaybe<Scalars['String']>;
-  parentId?: InputMaybe<Scalars['String']>;
-  stateId?: InputMaybe<Scalars['String']>;
-  title?: InputMaybe<Scalars['String']>;
-  website?: InputMaybe<Scalars['String']>;
+  address?: InputMaybe<Scalars['String']['input']>;
+  avatar?: InputMaybe<Scalars['String']['input']>;
+  categoryId?: InputMaybe<Scalars['String']['input']>;
+  countryId?: InputMaybe<Scalars['String']['input']>;
+  cover?: InputMaybe<Scalars['String']['input']>;
+  createCommentFee?: InputMaybe<Scalars['String']['input']>;
+  createPostFee?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  parentId?: InputMaybe<Scalars['String']['input']>;
+  stateId?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdatePostInput = {
   extraArguments?: InputMaybe<ExtraArguments>;
-  htmlContent: Scalars['String'];
-  id: Scalars['ID'];
-  pureContent: Scalars['String'];
+  htmlContent: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+  pureContent: Scalars['String']['input'];
 };
 
 export type Upload = {
   __typename?: 'Upload';
-  bucket?: Maybe<Scalars['String']>;
-  cfImageFilename?: Maybe<Scalars['String']>;
-  cfImageId?: Maybe<Scalars['String']>;
-  commentId?: Maybe<Scalars['String']>;
-  extension?: Maybe<Scalars['String']>;
-  height?: Maybe<Scalars['Int']>;
-  id: Scalars['ID'];
-  sha: Scalars['String'];
-  thumbnailHeight?: Maybe<Scalars['Int']>;
-  thumbnailWidth?: Maybe<Scalars['Int']>;
-  type?: Maybe<Scalars['String']>;
-  width?: Maybe<Scalars['Int']>;
+  bucket?: Maybe<Scalars['String']['output']>;
+  cfImageFilename?: Maybe<Scalars['String']['output']>;
+  cfImageId?: Maybe<Scalars['String']['output']>;
+  commentId?: Maybe<Scalars['String']['output']>;
+  extension?: Maybe<Scalars['String']['output']>;
+  height?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['ID']['output'];
+  sha: Scalars['String']['output'];
+  thumbnailHeight?: Maybe<Scalars['Int']['output']>;
+  thumbnailWidth?: Maybe<Scalars['Int']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
+  width?: Maybe<Scalars['Int']['output']>;
 };
 
 export type UploadDetail = {
   __typename?: 'UploadDetail';
   account?: Maybe<Account>;
-  accountId?: Maybe<Scalars['Int']>;
-  id: Scalars['ID'];
-  postId?: Maybe<Scalars['String']>;
+  accountId?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['ID']['output'];
+  postId?: Maybe<Scalars['String']['output']>;
   upload: Upload;
 };
 
@@ -2179,15 +2508,15 @@ export type Worship = {
   __typename?: 'Worship';
   account: Account;
   /** Identifies the date and time when the object was created. */
-  createdAt: Scalars['DateTime'];
-  id: Scalars['ID'];
-  latitude?: Maybe<Scalars['Decimal']>;
-  location?: Maybe<Scalars['String']>;
-  longitude?: Maybe<Scalars['Decimal']>;
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  latitude?: Maybe<Scalars['Decimal']['output']>;
+  location?: Maybe<Scalars['String']['output']>;
+  longitude?: Maybe<Scalars['Decimal']['output']>;
   temple?: Maybe<Temple>;
   /** Identifies the date and time when the object was last updated. */
-  updatedAt: Scalars['DateTime'];
-  worshipedAmount: Scalars['Float'];
+  updatedAt: Scalars['DateTime']['output'];
+  worshipedAmount: Scalars['Float']['output'];
   worshipedPerson?: Maybe<WorshipedPerson>;
 };
 
@@ -2195,12 +2524,12 @@ export type WorshipConnection = {
   __typename?: 'WorshipConnection';
   edges?: Maybe<Array<WorshipEdge>>;
   pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type WorshipEdge = {
   __typename?: 'WorshipEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: Worship;
 };
 
@@ -2219,42 +2548,42 @@ export enum WorshipOrderField {
 
 export type WorshipedPerson = {
   __typename?: 'WorshipedPerson';
-  achievement?: Maybe<Scalars['String']>;
-  alias?: Maybe<Scalars['String']>;
+  achievement?: Maybe<Scalars['String']['output']>;
+  alias?: Maybe<Scalars['String']['output']>;
   avatar?: Maybe<UploadDetail>;
-  bio?: Maybe<Scalars['String']>;
+  bio?: Maybe<Scalars['String']['output']>;
   city?: Maybe<City>;
   country?: Maybe<Country>;
-  countryOfCitizenship?: Maybe<Scalars['String']>;
+  countryOfCitizenship?: Maybe<Scalars['String']['output']>;
   /** Identifies the date and time when the object was created. */
-  createdAt?: Maybe<Scalars['DateTime']>;
-  dateOfBirth?: Maybe<Scalars['DateTime']>;
-  dateOfDeath?: Maybe<Scalars['DateTime']>;
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  placeOfBirth?: Maybe<Scalars['String']>;
-  placeOfBurial?: Maybe<Scalars['String']>;
-  placeOfDeath?: Maybe<Scalars['String']>;
-  quote?: Maybe<Scalars['String']>;
-  religion?: Maybe<Scalars['String']>;
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  dateOfBirth?: Maybe<Scalars['DateTime']['output']>;
+  dateOfDeath?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  placeOfBirth?: Maybe<Scalars['String']['output']>;
+  placeOfBurial?: Maybe<Scalars['String']['output']>;
+  placeOfDeath?: Maybe<Scalars['String']['output']>;
+  quote?: Maybe<Scalars['String']['output']>;
+  religion?: Maybe<Scalars['String']['output']>;
   state?: Maybe<State>;
-  totalWorshipAmount?: Maybe<Scalars['Int']>;
+  totalWorshipAmount?: Maybe<Scalars['Int']['output']>;
   /** Identifies the date and time when the object was last updated. */
-  updatedAt?: Maybe<Scalars['DateTime']>;
-  wikiAvatar?: Maybe<Scalars['String']>;
-  wikiDataId?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+  wikiAvatar?: Maybe<Scalars['String']['output']>;
+  wikiDataId?: Maybe<Scalars['String']['output']>;
 };
 
 export type WorshipedPersonConnection = {
   __typename?: 'WorshipedPersonConnection';
   edges?: Maybe<Array<WorshipedPersonEdge>>;
   pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type WorshipedPersonEdge = {
   __typename?: 'WorshipedPersonEdge';
-  cursor: Scalars['String'];
+  cursor: Scalars['String']['output'];
   node: WorshipedPerson;
 };
 

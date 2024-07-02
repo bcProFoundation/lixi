@@ -1,12 +1,16 @@
-import { Claim, ClaimDto, CreateClaimDto, ViewClaimDto } from '@bcpros/lixi-models';
-import { all, call, fork, put, select, takeLatest } from '@redux-saga/core/effects';
+import { Claim, ClaimDto, CreateClaimDto, ViewClaimDto } from '@bcpros/lixi-models/lib/claim';
 import { PayloadAction } from '@reduxjs/toolkit';
 import intl from 'react-intl-universal';
+import { all, call, fork, put, select, takeLatest } from 'redux-saga/effects';
 
-import { fromSmallestDenomination } from '../../utils/cashMethods';
 import { hideLoading, showLoading } from '../loading/actions';
 import { showToast } from '../toast/actions';
 
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { callConfig } from '../../context/index';
+import { setAccount } from '@store/account/actions';
+import { take } from 'redux-saga/effects';
 import {
   checkInformationAndClaim,
   checkInformationAndClaimNoAccount,
@@ -19,11 +23,7 @@ import {
   viewClaimSuccess
 } from './actions';
 import claimApi from './api';
-import { callConfig } from '@context/index';
-import { take } from 'redux-saga/effects';
-import { setAccount } from '@store/account/actions';
 import { getCurrentAddress, getCurrentClaimCode } from './selectors';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
 
 function* postClaimSuccessSaga(action: PayloadAction<Claim>) {
   const claim = action.payload;

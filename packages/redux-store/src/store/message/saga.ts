@@ -1,11 +1,11 @@
-import { all, fork, takeLatest } from '@redux-saga/core/effects';
+import { all, fork, takeLatest } from 'redux-saga/effects';
 import {
   userSubcribeToAddressChannel,
   userSubcribeToPageMessageSession,
   userSubcribeToMultiPageMessageSession
 } from './actions';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { callConfig } from '@context/shareContext';
+import { callConfig } from '../../context/shareContext';
 
 function* userSubcribeToPageMessageSessionSaga(action: PayloadAction<string>) {
   const { payload } = action;

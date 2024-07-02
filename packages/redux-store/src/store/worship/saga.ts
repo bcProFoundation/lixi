@@ -1,14 +1,12 @@
-import { AccountDto as Account } from '@bcpros/lixi-models';
-import { all, call, cancelled, fork, put, select, take } from '@redux-saga/core/effects';
+import { AccountDto as Account } from '@bcpros/lixi-models/lib/account/account.dto';
+import { OrderDirection, WorshipOrderField } from '../../generated/types.generated';
 import { getSelectedAccount } from '@store/account/selectors';
 import { isMobile } from 'react-device-detect';
 import { eventChannel } from 'redux-saga';
-import { delay, race } from 'redux-saga/effects';
+import { all, call, cancelled, delay, fork, put, put as putAction, race, select, take } from 'redux-saga/effects';
 import io, { Socket } from 'socket.io-client';
 import { channelOff, channelOn, serverOff, serverOn, startChannel, stopChannel } from './actions';
 import { api as worshipApi } from './worshipedPerson.api';
-import { OrderDirection, WorshipOrderField } from '@generated/types.generated';
-import { put as putAction } from 'redux-saga/effects';
 
 const getDeviceNotificationStyle = () => {
   if (isMobile) {

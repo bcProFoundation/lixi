@@ -1,23 +1,16 @@
-import {
-  CloseCircleOutlined,
-  ExclamationCircleOutlined,
-  ImportOutlined,
-  LockOutlined,
-  LoginOutlined,
-  PlusSquareOutlined
-} from '@ant-design/icons';
+import { ExclamationCircleOutlined, ImportOutlined, LockOutlined, PlusSquareOutlined } from '@ant-design/icons';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
 import PrimaryButton, { SecondaryButton, SmartButton } from '@components/Common/PrimaryButton';
 import { WalletContext } from '@context/index';
 import { generateAccount, importAccount } from '@store/account/actions';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { Button, Form, Input, Modal } from 'antd';
 import React, { useState } from 'react';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import { AuthorizationOptions } from './Authorization.interface';
-import { COIN } from '@bcpros/lixi-models/constants';
 
 export const MaybeLaterLink = styled.a`
   width: 100%;
@@ -69,7 +62,7 @@ export const AuthorizationModal = ({ classStyle }: AuthorizationModalProps) => {
   });
   const [seedInput, openSeedInput] = useState(false);
   const [isValidMnemonic, setIsValidMnemonic] = useState(false);
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   const { confirm } = Modal;
 

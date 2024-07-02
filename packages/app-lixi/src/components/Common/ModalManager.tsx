@@ -1,4 +1,4 @@
-import { useAppSelector } from '@store/hooks';
+import { useSliceSelector } from '@store/index';
 import { getModals } from '@store/modal/selectors';
 
 import { RenameAccountModal } from '../Settings/RenameAccountModal';
@@ -52,8 +52,8 @@ const modalComponentLookupTable = {
 };
 
 const ModalManager = () => {
-  const currentModals = useAppSelector(getModals);
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const currentModals = useSliceSelector(getModals);
+  const currentTheme = useSliceSelector(getCurrentThemes);
   const renderedModals = currentModals.map((modalDescription, index) => {
     const { modalType, modalProps = {} } = modalDescription;
     let newModalProps = { ...modalProps };

@@ -1,4 +1,4 @@
-import { Burn } from '@bcpros/lixi-models';
+import { Burn } from '@bcpros/lixi-models/lib/burn/burn.model';
 
 export interface BurnState {
   burnQueue: Array<any>;

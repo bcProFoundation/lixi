@@ -1,19 +1,17 @@
-import React from 'react';
-import { closeModal } from '@store/modal/actions';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { Button, Modal } from 'antd';
-import styled from 'styled-components';
-import EditorLexical from '@components/Common/Lexical/EditorLexical';
 import { GlobalOutlined } from '@ant-design/icons';
+import EditorLexical from '@components/Common/Lexical/EditorLexical';
+import { UpdatePostInput } from '@generated/types.generated';
 import { getSelectedAccount } from '@store/account/selectors';
-import intl from 'react-intl-universal';
-import _ from 'lodash';
-import { useUpdatePostMutation, api as postApi } from '@store/post/posts.generated';
-import { UpdatePostInput, OrderDirection, PostOrderField } from '@generated/types.generated';
-import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
-import { UpdatePostMutation } from '@store/post/posts.generated';
-import { showToast } from '@store/toast/actions';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { closeModal } from '@store/modal/actions';
+import { useUpdatePostMutation } from '@store/post/posts.api';
 import { getFilterPostsHome } from '@store/settings/selectors';
+import { showToast } from '@store/toast/actions';
+import { Button, Modal } from 'antd';
+import _ from 'lodash';
+import React from 'react';
+import intl from 'react-intl-universal';
+import styled from 'styled-components';
 
 const UserCreate = styled.div`
   .user-create-post {
@@ -63,9 +61,9 @@ export type EditPostModalProps = {
 };
 
 export const EditPostModalPopup: React.FC<EditPostModalProps> = props => {
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const filterValue = useAppSelector(getFilterPostsHome);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const filterValue = useSliceSelector(getFilterPostsHome);
 
   const [
     updatePostTrigger,

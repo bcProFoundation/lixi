@@ -3,13 +3,16 @@ import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import _ from 'lodash';
 import { Redis } from 'ioredis';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisDataLoader } from '../../common/redis/redis-dataloader';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class CommentableLoader {
-  constructor(private readonly prisma: PrismaService, @InjectRedis() private readonly redis: Redis) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis
+  ) {}
 
   public readonly batchTotalComments = new RedisDataLoader(
     this.redis,

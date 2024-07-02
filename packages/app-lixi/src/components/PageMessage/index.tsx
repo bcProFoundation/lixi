@@ -1,53 +1,56 @@
-import { Avatar, Button, Input, Popover, Skeleton, Spin } from 'antd';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import styled from 'styled-components';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { getMessageUploads, getSelectedAccount, removeAllMessageUpload, removeUpload } from '@store/account';
+import { CloseOutlined } from '@ant-design/icons';
 import { ClosePageMessageSessionInput, CreateClaimDto } from '@bcpros/lixi-models';
-import _ from 'lodash';
-import { useInfinitePageMessageSessionByAccountId } from '@store/message/useInfinitePageMessageSessionByAccountId';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { getCurrentPageMessageSession } from '@store/page/selectors';
-import { setPageMessageSession } from '@store/page/action';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
+import { transformShortName } from '@components/Common/AvatarUser';
+import { MultiUploader } from '@components/Common/Uploader/MultiUploader';
+import { LoadingIcon } from '@components/Layout/MainLayout';
+import { URL_AVATAR_DEFAULT } from '@components/Profile/ProfileDetail';
+import { SpaceShorcutItem, transformCreatedAt } from '@containers/Sidebar/SideBarShortcut';
+import { WalletContext } from '@context/walletProvider';
 import {
-  PageMessageSessionQuery,
-  useClosePageMessageSessionMutation,
-  useOpenPageMessageSessionMutation
-} from '@store/message/pageMessageSession.generated';
-import Message from './Message';
-import {
+  Coin,
   CreateMessageInput,
   MessageOrderField,
   OpenPageMessageSessionInput,
   OrderDirection,
   PageMessageSessionStatus
 } from '@generated/types.generated';
-import { useInfiniteMessageByPageMessageSessionId } from '@store/message/useInfiniteMessageByPageMessageSessionId';
-import { useForm, Controller } from 'react-hook-form';
-import { useCreateMessageMutation } from '@store/message/message.generated';
-import { postClaim } from '@store/claim/actions';
-import { WalletContext } from '@context/walletProvider';
-import { SpaceShorcutItem, transformCreatedAt } from '@containers/Sidebar/SideBarShortcut';
-import { transformShortName } from '@components/Common/AvatarUser';
-import { ReactSVG } from 'react-svg';
-import { useRouter } from 'next/router';
-import intl from 'react-intl-universal';
-import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
-import { getUtxoWif } from '@utils/cashMethods';
 import useXPI from '@hooks/useXPI';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
-import { sendXPIFailure, sendXPISuccess } from '@store/send/actions';
-import { fromSmallestDenomination } from '@utils/cashMethods';
-import { useSwipeable } from 'react-swipeable';
-import { MultiUploader } from '@components/Common/Uploader/MultiUploader';
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
-import { URL_AVATAR_DEFAULT } from '@components/Profile/ProfileDetail';
-import { PhotoProvider, PhotoView } from 'react-photo-view';
-import { LoadingIcon } from '@components/Layout/MainLayout';
-import { CloseOutlined } from '@ant-design/icons';
+import useXEC from '@hooks/useXEC';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
+import { getMessageUploads, getSelectedAccount, removeAllMessageUpload, removeUpload } from '@store/account';
+import { postClaim } from '@store/claim/actions';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { removePageMessageSession, upsertPageMessageSession } from '@store/message/actions';
-import { getAllPageMessageSessionEntities, getPageMessageSessionById } from '@store/message/selectors';
+import { useCreateMessageMutation } from '@store/message/message.api';
+import {
+  useClosePageMessageSessionMutation,
+  useOpenPageMessageSessionMutation
+} from '@store/message/pageMessageSession.api';
+import { PageMessageSessionQuery } from '@store/message/pageMessageSession.generated';
+import { getAllPageMessageSessionEntities } from '@store/message/selectors';
+import { useInfiniteMessageByPageMessageSessionId } from '@store/message/useInfiniteMessageByPageMessageSessionId';
+import { useInfinitePageMessageSessionByAccountId } from '@store/message/useInfinitePageMessageSessionByAccountId';
+import { setPageMessageSession } from '@store/page/action';
+import { getCurrentPageMessageSession } from '@store/page/selectors';
+import { sendCoinFailure, sendCoinSuccess } from '@store/send/actions';
+import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
+import { fromSmallestDenomination, getUtxoWif, validateCoinAmount } from '@utils/cashMethods';
+import { Avatar, Button, Input, Popover, Skeleton, Spin } from 'antd';
+import _ from 'lodash';
+import { useRouter } from 'next/router';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import intl from 'react-intl-universal';
+import { PhotoProvider, PhotoView } from 'react-photo-view';
+import { ReactSVG } from 'react-svg';
+import { useSwipeable } from 'react-swipeable';
+import styled from 'styled-components';
+import Message from './Message';
+import { Utxo } from 'chronik-client';
 
 type PageMessageSessionItem = PageMessageSessionQuery['pageMessageSession'];
 const SITE_KEY = '6Lc1rGwdAAAAABrD2AxMVIj4p_7ZlFKdE5xCFOrb';
@@ -132,8 +135,8 @@ const StyledSideContainer = styled.div`
           &.pending {
             background: var(--dark-error-background);
           }
-          &.open {
-            background: var(--dark-sucess-background);
+          &.not-seen {
+            background: var(--color-info-dark);
           }
           &.close {
             background: var(--color-danger-dark);
@@ -448,8 +451,8 @@ export const PageGroupItem = ({
   onClickIcon?: (e: any) => void;
 }) => {
   const [collapse, setCollapse] = useState(true);
-  const pageMessageSessionEntities = useAppSelector(getAllPageMessageSessionEntities);
-  const dispatch = useAppDispatch();
+  const pageMessageSessionEntities = useSliceSelector(getAllPageMessageSessionEntities);
+  const dispatch = useSliceDispatch();
 
   const triggerCheckIsPageOwner = () => {
     let isPageOwner = false;
@@ -464,16 +467,6 @@ export const PageGroupItem = ({
   const hasSeenSession = (item: PageMessageSessionItem) => {
     //find pageMessageSession in entities
     const pageMessageSession = pageMessageSessionEntities?.[item?.id];
-
-    if (!pageMessageSession) {
-      dispatch(
-        upsertPageMessageSession({
-          latestMessageId: item?.latestMessage?.id,
-          pageMessageSessionId: item?.id,
-          senderAddress: item?.latestMessage?.author?.address
-        })
-      );
-    }
 
     if (pageMessageSession?.latestMessageId >= item?.latestMessage?.id) {
       return true;
@@ -569,7 +562,9 @@ export const PageGroupItem = ({
                       </div>
                       <div className="time-score" onClick={() => onClickIcon(item)}>
                         <p className="create-date">{transformCreatedAt(item?.updatedAt)}</p>
-                        <div className={`${item?.status.toLowerCase()} content-score`}>
+                        <div
+                          className={`${item?.status.toLowerCase()} ${hasSeenSession(item) ? 'seen' : 'not-seen'} content-score`}
+                        >
                           <p className="lotus-burn-score"></p>
                         </div>
                       </div>
@@ -614,7 +609,9 @@ export const PageGroupItem = ({
                 </div>
                 <div className="time-score">
                   <p className="create-date">{transformCreatedAt(item?.updatedAt)}</p>
-                  <div className={`${item?.status.toLowerCase()} content-score`}>
+                  <div
+                    className={`${item?.status.toLowerCase()}  ${hasSeenSession(item) ? 'seen' : 'not-seen'} content-score`}
+                  >
                     <p className="lotus-burn-score"></p>
                   </div>
                 </div>
@@ -627,25 +624,26 @@ export const PageGroupItem = ({
 };
 
 const PageMessage = () => {
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const dispatch = useAppDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
   const [isPageOwner, setIsPageOwner] = useState<boolean>(false);
-  const currentPageMessageSession = useAppSelector(getCurrentPageMessageSession);
+  const currentPageMessageSession = useSliceSelector(getCurrentPageMessageSession);
   const { control, getValues, resetField, setFocus } = useForm();
   const [open, setOpen] = useState(false);
   const Wallet = React.useContext(WalletContext);
-  const { XPI, chronik } = Wallet;
+  const { XPI, chronik, getUtxosByCoin } = Wallet;
   const isMobile = useDetectMobileView();
   const router = useRouter();
   const [isSendingXPI, setIsSendingXPI] = useState<boolean>(false);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
   const { sendXpi } = useXPI();
-  const walletStatus = useAppSelector(getWalletStatus);
+  const { sendXec } = useXEC();
+  const walletStatus = useSliceSelector(getWalletStatus);
   const txFee = Math.ceil(Wallet.XPI.BitcoinCash.getByteCount({ P2PKH: 1 }, { P2PKH: 1 }) * 2.01); //satoshi
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const messageUploads = useAppSelector(getMessageUploads);
+  const messageUploads = useSliceSelector(getMessageUploads);
 
   useEffect(() => {
     if (slpBalancesAndUtxos === slpBalancesAndUtxosRef.current) return;
@@ -789,13 +787,24 @@ const PageMessage = () => {
       }
 
       //Check if message is tip
-      if (trimMessage.toLowerCase().split(' ')[0] === '/give') {
-        const amount: string = trimMessage.toLowerCase().split(' ')[1];
+      const arrayStringComment = trimMessage.toUpperCase().split(' ');
+      const indexOfGiveString = arrayStringComment.findIndex(
+        item => item.startsWith('/') && Object.values(COIN).includes(item.substring(1, item.length) as COIN)
+      );
+      //find and it't not last element
+      if (indexOfGiveString !== -1 && indexOfGiveString !== arrayStringComment.length - 1) {
         let tipHex = undefined;
+        const amount: string = arrayStringComment[indexOfGiveString + 1];
+        const textGive = arrayStringComment[indexOfGiveString];
+        const coinGive = textGive.substring(1, textGive.length) as COIN;
+
+        const { nonSlpUtxos } = await getUtxosByCoin(coinGive);
+        const utxos = selectedAccount?.coin === coinGive ? slpBalancesAndUtxos.nonSlpUtxos : nonSlpUtxos;
+        const balances = utxos.reduce((accu, currentValue) => accu + parseFloat(currentValue.value), 0);
 
         //check if amount is valid
-        if (validateXPIAmount(amount)) {
-          tipHex = await giveXPI(trimMessage, amount).then(result => {
+        if (validateCoinAmount(amount, balances, coinGive)) {
+          tipHex = await giveXPI(trimMessage, amount, coinGive, utxos).then(result => {
             return result;
           });
           const input: CreateMessageInput = {
@@ -804,14 +813,18 @@ const PageMessage = () => {
             pageMessageSessionId: currentPageMessageSession?.id,
             isPageOwner: isPageOwner,
             uploadIds: messageUploads.map(upload => upload.id),
-            tipHex: tipHex
+            tipHex: tipHex,
+            coinGive: coinGive as unknown as Coin
           };
 
-          await createMessageTrigger({ input }).unwrap();
-          dispatch(sendXPISuccess(parseFloat(amount).toFixed(2)));
+          if (tipHex) {
+            await createMessageTrigger({ input }).unwrap();
+            dispatch(sendCoinSuccess({ amount: parseFloat(amount), coin: coinGive }));
+          }
+          setIsSendingXPI(false);
           resetField('message');
         } else {
-          dispatch(sendXPIFailure(intl.get('send.notEnoughtFund')));
+          dispatch(sendCoinFailure(intl.get('send.notEnoughtFund')));
         }
       } else {
         const input: CreateMessageInput = {
@@ -851,54 +864,69 @@ const PageMessage = () => {
   };
 
   //return promise of tipHex and createFeeHex
-  const giveXPI = async (text: string, amount: string): Promise<string> => {
+  const giveXPI = async (
+    text: string,
+    amount: string,
+    coin = COIN.XPI,
+    nonSlpUtxos: (Utxo & { address: string })[]
+  ): Promise<string> => {
     setIsSendingXPI(true);
     try {
-      const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-      const tipHex = await sendXpi(
-        XPI,
-        chronik,
-        walletPaths,
-        slpBalancesAndUtxos.nonSlpUtxos,
-        coinInfo[COIN.XPI].defaultFee,
-        '',
-        false, // indicate send mode is one to one
-        null,
-        isPageOwner
-          ? currentPageMessageSession?.account?.address
-          : currentPageMessageSession?.page?.pageAccount?.address,
-        amount,
-        true,
-        fundingWif,
-        true
-      );
+      let tipHex;
+      const fundingWif = getUtxoWif(nonSlpUtxos[0], walletPaths, coin);
+
+      switch (coin) {
+        case COIN.XPI:
+          const recipientAddress = isPageOwner
+            ? currentPageMessageSession?.account?.address
+            : currentPageMessageSession?.page?.pageAccount?.address;
+          tipHex = await sendXpi(
+            XPI,
+            chronik,
+            walletPaths,
+            nonSlpUtxos,
+            coinInfo[COIN.XPI].defaultFee,
+            '',
+            false, // indicate send mode is one to one
+            null,
+            recipientAddress,
+            amount,
+            true,
+            fundingWif,
+            true
+          ).catch(error => {
+            throw error;
+          });
+          break;
+        case COIN.XEC:
+          const recipientHash = isPageOwner
+            ? currentPageMessageSession?.account?.hash160
+            : currentPageMessageSession?.page?.pageAccount?.hash160;
+          tipHex = await sendXec(
+            chronik,
+            fundingWif,
+            nonSlpUtxos,
+            coinInfo[COIN.XEC].defaultFee,
+            undefined,
+            false, //indicate send mode is one to one
+            null,
+            recipientHash,
+            Number.parseFloat(amount),
+            coinInfo[COIN.XEC].etokenSats,
+            true // return hex
+          ).catch(error => {
+            throw error;
+          });
+          break;
+      }
 
       return tipHex;
     } catch (e) {
       const message = e.message || e.error || JSON.stringify(e);
       setIsSendingXPI(false);
 
-      dispatch(sendXPIFailure(message));
+      dispatch(sendCoinFailure(message));
     }
-  };
-
-  const validateXPIAmount = (value: string): boolean => {
-    if (!value) return false;
-
-    //check if value is number;
-    if (isNaN(parseFloat(value))) return false;
-
-    //check if value is positive number
-    if (parseFloat(value) <= 0) return false;
-
-    //check if balance is smaller than value + txFee
-    if (
-      fromSmallestDenomination(walletStatus.balances.totalBalanceInSatoshis) <=
-      parseFloat(value) + fromSmallestDenomination(txFee)
-    )
-      return false;
-
-    return true;
   };
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -1291,8 +1319,8 @@ const PageMessage = () => {
                         currentPageMessageSession.status === PageMessageSessionStatus.Open
                           ? 'Aa'
                           : currentPageMessageSession.status === PageMessageSessionStatus.Pending
-                          ? `${intl.get('messenger.acceptToChat')}`
-                          : `${intl.get('messenger.sessionClose')}`
+                            ? `${intl.get('messenger.acceptToChat')}`
+                            : `${intl.get('messenger.sessionClose')}`
                       }
                       disabled={
                         isLoadingCreateMessage ||

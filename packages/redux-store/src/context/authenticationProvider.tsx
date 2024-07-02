@@ -1,5 +1,5 @@
 import { getSelectedAccount, silentLogin } from '@store/account';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { createContext, useEffect } from 'react';
 import useWebAuthentication, { DeviceAuthenticationValue } from '../hooks/useDeviceAuthentication';
 import { shallowEqual } from 'react-redux';
@@ -9,8 +9,8 @@ export const AuthenticationContext = createContext<DeviceAuthenticationValue | u
 export const AuthenticationProvider = ({ children }) => {
   // useWebAuthentication returns null if Web Authn is not supported
   const authentication = useWebAuthentication();
-  const selectedAccount = useAppSelector(getSelectedAccount, shallowEqual);
-  const dispatch = useAppDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount, shallowEqual);
+  const dispatch = useSliceDispatch();
 
   useEffect(() => {
     if (selectedAccount) {

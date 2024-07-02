@@ -1,5 +1,5 @@
 import PostDetail from '@components/Posts/PostDetail';
-import { SagaStore, wrapper } from '@store/store';
+import { SagaStore, wrapper } from 'src/store/store';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
 import React from 'react';
@@ -63,6 +63,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   };
 });
 
-PersonDetailPage.Layout = ({ children }) => <MainLayout children={children} />;
+PersonDetailPage.getLayout = ({ children }) => <MainLayout>{children}</MainLayout>;
 
 export default PersonDetailPage;

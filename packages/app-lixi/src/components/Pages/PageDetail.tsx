@@ -6,8 +6,12 @@ import {
   HomeOutlined,
   InfoCircleOutlined
 } from '@ant-design/icons';
-import { PostListType } from '@bcpros/lixi-models/constants';
+import { ParamPostFollowCommand } from '@bcpros/lixi-models';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
+import { PostListType } from '@bcpros/lixi-models/constants/postListType';
+import { Follow, FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
+import Counter from '@components/Common/Counter';
 import CreatePostCard from '@components/Common/CreatePostCard';
 import SearchBox from '@components/Common/SearchBox';
 import PostListItem from '@components/Posts/PostListItem';
@@ -18,29 +22,25 @@ import {
   HashtagOrderField,
   OrderDirection,
   PageMessageSessionStatus,
-  PageQueryItem,
   PostOrderField
-} from '@generated/index';
+} from '@generated/types.generated';
+import { PageQueryItem } from '@generated/types';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { addRecentHashtagAtPages, setTransactionReady } from '@store/account/actions';
 import { getRecentHashtagAtPages, getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';
 import { useCreateFollowPageMutation, useDeleteFollowPageMutation } from '@store/follow/follows.api';
 import { useInfiniteHashtagByPageQuery } from '@store/hashtag/useInfiniteHashtagByPageQuery';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import {
   useCreatePageMessageSessionMutation,
   useUserHadMessageToPageQuery
-} from '@store/message/pageMessageSession.generated';
+} from '@store/message/pageMessageSession.api';
 import { openModal } from '@store/modal/actions';
 import { changeFollowActionSheetPost, setSelectedPost } from '@store/post/actions';
 import { getSelectedPostId } from '@store/post/selectors';
 import { useInfinitePostsBySearchQueryWithHashtagAtPage } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtPage';
-import {
-  getFilterPostsPage,
-  getIsPostsByTime,
-  getMinimumDanaFilter,
-  getNegativeDanaStatus
-} from '@store/settings/selectors';
+import { getFilterPostsPage, getIsPostsByTime, getMinimumDanaFilter } from '@store/settings/selectors';
+import { useInfinitePageTimelineByScoreQuery, useInfinitePageTimelineByTimeQuery } from '@store/timeline';
 import { getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { Button, Skeleton, Space, Tabs, Tag, Tooltip } from 'antd';
 import _ from 'lodash';
@@ -50,10 +50,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
-import { useInfinitePageTimelineByScoreQuery, useInfinitePageTimelineByTimeQuery } from '@store/timeline';
-import { Follow, FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
-import Counter from '@components/Common/Counter';
-import { ParamPostFollowCommand } from '@bcpros/lixi-models/build/module/lib/post';
+import Reaction from '@components/Common/Reaction';
 
 type PageDetailProps = {
   page: PageQueryItem;
@@ -243,6 +240,15 @@ const ProfileCardHeader = styled.div`
     @media (max-width: 768px) {
       margin-left: 0;
       text-align: center;
+    }
+    .burn-page {
+      margin-left: -10px;
+      margin-bottom: 0;
+      text-align: left;
+      
+      .icon-burn {
+        cursor: pointer;
+      }
     }
     .infor-page {
       display: flex;
@@ -510,25 +516,25 @@ const SubAbout = ({
 );
 
 const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const router = useRouter();
   const pageDetailData = page;
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletStatus = useAppSelector(getWalletStatus);
-  const filterValue = useAppSelector(getFilterPostsPage);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
+  const walletStatus = useSliceSelector(getWalletStatus);
+  const filterValue = useSliceSelector(getFilterPostsPage);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
-  const recentTagAtPages = useAppSelector(getRecentHashtagAtPages);
+  const recentTagAtPages = useSliceSelector(getRecentHashtagAtPages);
   const [suggestedHashtag, setSuggestedTags] = useState([]);
   const [query, setQuery] = useState<any>('');
   const [hashtags, setHashtags] = useState<any>([]);
-  const postIdSelected = useAppSelector(getSelectedPostId);
+  const postIdSelected = useSliceSelector(getSelectedPostId);
   const refs = useRef([]);
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
-  const isPostsByTime = useAppSelector(getIsPostsByTime);
-  const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
+  const isPostsByTime = useSliceSelector(getIsPostsByTime);
+  const minimumDanaFilter = useSliceSelector(getMinimumDanaFilter);
   const keyInfinite = `${page.id}:${minimumDanaFilter}`;
   const totalDanaViewScore = page.totalDanaViewScore ?? 0;
 
@@ -667,7 +673,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
 
   useEffect(() => {
     const pageId = page.id;
-    const topHashtags = _.map(hashtagData, 'content');
+    const topHashtags = _.map(hashtagData, 'normalizedContent').filter((item, index) => index < 3);
     const pageRecentHashtag = recentTagAtPages.find((page: any) => page.id === pageId);
     const recentHashtags: string[] = pageRecentHashtag?.hashtags || [];
 
@@ -1026,6 +1032,14 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
           )}
 
           <div className="description-page">
+            {/*Dana of page */}
+            <p className="burn-page">
+              <span className="icon-burn">
+                <Reaction burnForType={BurnForType.Page} dataItem={pageDetailData} />
+              </span>
+              {pageDetailData?.dana?.danaReceivedScore || 0} {intl.get('general.dana')}
+            </p>
+
             {pageDetailData.description && (
               <p className="infor-page">
                 <InfoCircleOutlined /> {pageDetailData.description}
@@ -1058,11 +1072,6 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                 }
               </p>
             )}
-
-            <p className="infor-page">
-              {' '}
-              <FireOutlined /> {pageDetailData?.dana?.danaReceivedScore || 0 + intl.get('general.dana')}
-            </p>
 
             {totalDanaViewScore != 0 && (
               <Tooltip
@@ -1198,10 +1207,10 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                 </div>
                 <CreatePostCard page={page} hashtags={hashtags} query={query} />
                 <TagContainer>
-                  {hashtagData &&
-                    hashtagData.map(tag => (
+                  {suggestedHashtag &&
+                    suggestedHashtag.map(tag => (
                       <StyledTag key={tag.id} color="green" onClick={onTopHashtagClick}>
-                        {`#${tag.normalizedContent}`}
+                        {`#${tag}`}
                       </StyledTag>
                     ))}
                 </TagContainer>

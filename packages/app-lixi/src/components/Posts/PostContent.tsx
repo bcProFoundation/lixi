@@ -28,7 +28,9 @@ const PostContent = ({ post, showTranslation, currentLocale }) => {
   const content: any = useMemo(() => {
     return parse(postContent, {
       replace: (domNode: any) => {
-        if (domNode?.attribs && domNode?.attribs?.class === 'EditorLexical_hashtag') {
+        if (domNode.name === 'iframe') {
+          delete domNode.attribs.allowtransparency;
+        } else if (domNode?.attribs && domNode?.attribs?.class === 'EditorLexical_hashtag') {
           const hashtag: string = domNode?.children[0]?.data;
           return (
             <span

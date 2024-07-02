@@ -1,14 +1,7 @@
-import { EntityState } from '@reduxjs/toolkit';
-import { PageInfo } from '@generated/types.generated';
-import { api, BookmarkQuery } from './bookmark.generated';
-import { api as postsApi } from '../post/posts.api';
+import { POST_TYPE } from '@bcpros/lixi-models/constants/post';
 import { changeBookmarkActionSheet } from '@store/post/actions';
-import { POST_TYPE } from '@bcpros/lixi-models/constants';
-
-export interface BookmarkApiState extends EntityState<BookmarkQuery['bookmark']> {
-  pageInfo: PageInfo;
-  totalCount: number;
-}
+import { api as postsApi } from '../post/posts.api';
+import { api } from './bookmark.generated';
 
 const enhancedApi = api.enhanceEndpoints({
   addTagTypes: ['Bookmark', 'BookmarkTimeline'],

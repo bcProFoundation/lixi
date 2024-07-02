@@ -2,10 +2,11 @@ import { Field, Float, ID, Int, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
-import { Account } from '../account';
-import { Category } from '../category/';
-import { PageMessageSession } from '../message';
+import { Nullable } from '../nullable';
 
+import { Account } from '../account/account.model';
+import { Category } from '../category/category.model';
+import { PageMessageSession } from '../message/pageMessageSession.model';
 import { PageDana } from './page-dana.model';
 
 @ObjectType()

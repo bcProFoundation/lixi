@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@bcpros/lixi-prisma';
 import { MeiliSearch } from 'meilisearch';
 import { stripHtml } from "string-strip-html";
 require('dotenv').config();

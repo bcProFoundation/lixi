@@ -1,5 +1,5 @@
 import { Modal, Skeleton } from 'antd';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { closeModal } from '@store/modal';
 import { useInfiniteBurnTimelineByTime } from '@store/burn';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -80,7 +80,7 @@ const BurnHistoryItem = styled.div`
 `;
 
 const BurnHistoryModal = ({ postId, classStyle }: BurnHistoryProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const history = useRouter();
 
   const {

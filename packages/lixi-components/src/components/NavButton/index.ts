@@ -1,1 +1,3 @@
-export * from './NavButton';
+import NavButton from './NavButton';
+
+export default NavButton;

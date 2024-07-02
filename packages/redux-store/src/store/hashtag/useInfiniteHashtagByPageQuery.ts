@@ -1,12 +1,12 @@
-import { PaginationArgs } from '@bcpros/lixi-models';
+import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
 import { useLazyHashtagsByPageQuery, useHashtagsByPageQuery } from '@store/hashtag/hashtag.api';
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { HashtagOrder } from '@generated/types.generated';
+import { HashtagOrder } from '../../generated/types.generated';
 import _ from 'lodash';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { HashtagQuery } from './hashtag.generated';
 
-const hashtagAdapter = createEntityAdapter<HashtagQuery['hashtag']>({
+const hashtagAdapter = createEntityAdapter<HashtagQuery['hashtag'], string>({
   selectId: hashtag => hashtag.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });

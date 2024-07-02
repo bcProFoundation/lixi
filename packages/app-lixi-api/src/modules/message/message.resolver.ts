@@ -1,5 +1,6 @@
 import {
   Account,
+  COIN,
   CreateMessageInput,
   ImageUploadable as ImageUploadableModel,
   Message,
@@ -23,7 +24,7 @@ import { SkipThrottle } from '@nestjs/throttler';
 import { ChronikClient } from 'chronik-client';
 import { PubSub } from 'graphql-subscriptions';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
+import { InjectChronikClient } from 'nestjs-chronik';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { AccountEntity } from 'src/decorators';
@@ -48,7 +49,8 @@ export class MessageResolver {
     @I18n() private i18n: I18nService,
     private notificationGateway: NotificationGateway,
     @Inject(XPIJS) private XPI: BCHJS,
-    @InjectChronikClient('xpi') private chronik: ChronikClient,
+    @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
+    @InjectChronikClient('xec') private chronikXEC: ChronikClient,
     private readonly notificationService: NotificationService,
     private readonly pageMessageSessionCacheService: PageMessageSessionCacheService
   ) {}
@@ -107,7 +109,7 @@ export class MessageResolver {
       throw new Error(couldNotFindAccount);
     }
 
-    const { authorId, body, isPageOwner, pageMessageSessionId, tipHex, uploadIds } = data;
+    const { authorId, body, isPageOwner, pageMessageSessionId, tipHex, uploadIds, coinGive } = data;
     let tipValue;
 
     if (account.id !== authorId) {
@@ -223,8 +225,28 @@ export class MessageResolver {
 
         //Give Tip
         if (tipHex && body) {
-          tipValue = parseFloat(body.toLowerCase().split(' ')[1]);
-          const broadcastResponse = await this.chronik.broadcastTx(tipHex);
+          const arrayStringComment = body.toUpperCase().split(' ');
+          const indexOfGiveString = arrayStringComment.findIndex(
+            item => item.startsWith('/') && Object.values(COIN).includes(item.substring(1, item.length) as COIN)
+          );
+          tipValue =
+            indexOfGiveString !== -1 && indexOfGiveString !== arrayStringComment.length - 1
+              ? parseFloat(arrayStringComment[indexOfGiveString + 1])
+              : 0;
+          let broadcastResponse;
+
+          switch (coinGive) {
+            case COIN.XPI:
+              broadcastResponse = await this.chronikXPI.broadcastTx(tipHex);
+              break;
+            case COIN.XEC:
+              broadcastResponse = await this.chronikXEC.broadcastTx(tipHex);
+              break;
+            default:
+              broadcastResponse = await this.chronikXPI.broadcastTx(tipHex);
+              break;
+          }
+
           if (!broadcastResponse) {
             throw new Error('Empty chronik broadcast response');
           }
@@ -295,7 +317,8 @@ export class MessageResolver {
           senderName: isPageOwner ? pageMessageSession.page.name : pageMessageSession.account.name,
           senderAddress: account.address,
           senderAvatar: account.avatar,
-          xpiGive: tipValue
+          xpiGive: tipValue,
+          coin: COIN.XPI
         };
         const createNotif = {
           senderId: account.id,

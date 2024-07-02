@@ -1,6 +1,7 @@
 import { ObjectType } from '@nestjs/graphql';
 
-import { BasicPaginated, Paginated } from '../../../core';
+import { BasicPaginated } from '../../../core/pagination/basic.paginated.type';
+import { Paginated } from '../../../core/pagination/pagination';
 import { Page } from '../page.model';
 
 @ObjectType()

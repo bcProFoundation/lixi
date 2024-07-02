@@ -1,15 +1,12 @@
-import PostDetail from '@components/Posts/PostDetail';
-import { SagaStore, wrapper } from '@store/store';
+import Hashtag from '@components/Hashtag';
+import MainLayout from '@components/Layout/MainLayout';
+import { useHashtagQuery } from '@store/hashtag/hashtag.api';
+import { SagaStore, wrapper } from 'src/store/store';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
 import React from 'react';
-import { END } from 'redux-saga';
 import { getSelectorsByUserAgent } from 'react-device-detect';
-import { useHashtagQuery } from '@store/hashtag/hashtag.generated';
-import MainLayout from '@components/Layout/MainLayout';
-import { PrismaClient } from '@bcpros/lixi-prisma';
-import { stripHtml } from 'string-strip-html';
-import Hashtag from '@components/Hashtag';
+import { END } from 'redux-saga';
 import FourOhFourPage from '../404';
 
 const HashtagPage = props => {
@@ -72,6 +69,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   };
 });
 
-HashtagPage.Layout = ({ children }) => <MainLayout children={children} />;
+HashtagPage.getLayout = ({ children }) => <MainLayout>{children}</MainLayout>;
 
 export default HashtagPage;

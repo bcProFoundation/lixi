@@ -7,7 +7,11 @@ export class SortedItemRepository<T> implements ISortedItemRepository<T> {
   private readonly keyPrefix: string;
   private readonly hashPrefix: string;
 
-  constructor(keyPrefix: string, hashPrefix: string, public readonly redis: Redis | Cluster = new Redis()) {
+  constructor(
+    keyPrefix: string,
+    hashPrefix: string,
+    public readonly redis: Redis | Cluster = new Redis()
+  ) {
     this.keyPrefix = keyPrefix;
     this.hashPrefix = hashPrefix;
   }

@@ -1,19 +1,18 @@
 import Icon, { CopyOutlined, FilterOutlined, RightOutlined, SearchOutlined, SyncOutlined } from '@ant-design/icons';
 import FollowSvg from '@assets/icons/follow.svg';
 import { CreateFollowTokenInput, DeleteFollowTokenInput } from '@bcpros/lixi-models';
-import { BurnForType } from '@bcpros/lixi-models/lib/burn';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import Counter from '@components/Common/Counter';
 import InfoCardUser from '@components/Common/InfoCardUser';
-import ReactionToken from '@components/Common/ReactionToken';
-import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants';
+import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants/coins/coin';
 import { InfoSubCard } from '@components/Lixi';
 import { AuthorizationContext } from '@context/index';
-import { CreateTokenInput, Token, TokenBasicEdge, TokenQueryItem } from '@generated/index';
+import { CreateTokenInput, Token, TokenBasicEdge } from '@generated/types.generated';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { getSelectedAccountId } from '@store/account';
 import { setTransactionReady } from '@store/account/actions';
 import { useCreateFollowTokenMutation, useDeleteFollowTokenMutation } from '@store/follow/follows.api';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
 import { getCurrentThemes } from '@store/settings';
 import { showToast } from '@store/toast/actions';
@@ -22,7 +21,7 @@ import { useInfiniteTokensQuery } from '@store/token/useInfiniteTokensQuery';
 import { getSlpBalancesAndUtxos } from '@store/wallet';
 import { formatBalance } from '@utils/cashMethods';
 import { Button, Form, Image, Input, InputRef, Modal, Space, Table, Tooltip } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType } from 'antd/lib/table';
 import { ColumnType } from 'antd/lib/table';
 import { FilterConfirmProps } from 'antd/lib/table/interface';
 import { push } from 'connected-next-router';
@@ -37,6 +36,8 @@ import { Controller, useForm } from 'react-hook-form';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import useAuthorization from '../Common/Authorization/use-authorization.hooks';
+import { TokenQueryItem } from '@generated/types';
+import Reaction from '@components/Common/Reaction';
 
 const StyledTokensListing = styled.div`
   .table-tokens {
@@ -138,17 +139,20 @@ const StyledNavBarHeader = styled.div`
   }
 `;
 
+interface NewTokenInputTypes {
+  tokenId: string;
+}
+
 const TokensListing = () => {
-  const dispatch = useAppDispatch();
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
-  const router = useRouter();
+  const dispatch = useSliceDispatch();
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef<InputRef>(null);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const currentTheme = useSliceSelector(getCurrentThemes);
   const [hasFollowed, setHasFollowed] = useState([]);
 
   const authorization = useContext(AuthorizationContext);
@@ -197,7 +201,7 @@ const TokensListing = () => {
     handleSubmit,
     formState: { errors },
     control
-  } = useForm();
+  } = useForm<NewTokenInputTypes>();
 
   const getColumnSearchProps = (dataIndex: any): ColumnType<any> => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
@@ -258,8 +262,8 @@ const TokensListing = () => {
           textToHighlight={text ? text.toString() : ''}
         />
       ) : (
-        <Link href={'/token/' + token.tokenId} passHref>
-          <a onClick={() => handleNavigateToken(token)}>{text}</a>
+        <Link href={'/token/' + token.tokenId} passHref onClick={() => handleNavigateToken(token)}>
+          {text}
         </Link>
       )
   });
@@ -359,7 +363,7 @@ const TokensListing = () => {
       // fixed: 'right',
       render: (_, token) => (
         <Space size="middle">
-          <ReactionToken token={token} />
+          <Reaction burnForType={BurnForType.Token} dataItem={token} />
 
           <Tooltip title={intl.get('general.follow')}>
             <Button type="text" className="follow-btn">

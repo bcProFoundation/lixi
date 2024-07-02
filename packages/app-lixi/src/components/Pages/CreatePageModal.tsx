@@ -1,19 +1,17 @@
+import { CreatePageInput } from '@generated/types.generated';
+import { getSelectedAccount } from '@store/account/selectors';
+import { getAllCategories } from '@store/category/selectors';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { closeModal } from '@store/modal/actions';
+import { setPage } from '@store/page/action';
+import { useCreatePageMutation } from '@store/page/pages.api';
+import { showToast } from '@store/toast/actions';
 import { Button, Form, Input, Modal, Select } from 'antd';
 import isEmpty from 'lodash.isempty';
-import React, { useEffect, useState } from 'react';
-import intl from 'react-intl-universal';
-import { getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { setPage } from '@store/page/action';
-import { showToast } from '@store/toast/actions';
-import { getCountries, getStates } from '@store/country/actions';
-import { CreatePageInput } from '@generated/types.generated';
-import { useCreatePageMutation } from '@store/page/pages.generated';
 import { useRouter } from 'next/router';
+import React, { useState } from 'react';
+import intl from 'react-intl-universal';
 import styled from 'styled-components';
-import { closeModal } from '@store/modal/actions';
-import { getAllCategories } from '@store/category/selectors';
-import { getCategories } from '@store/category/actions';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -43,8 +41,8 @@ export const CreatePageModal: React.FC<CreatePageModalProps> = ({
   disabled,
   classStyle
 }: CreatePageModalProps) => {
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
 
   const router = useRouter();
 
@@ -53,7 +51,7 @@ export const CreatePageModal: React.FC<CreatePageModalProps> = ({
     { isLoading: isLoadingCreatePage, isSuccess: isSuccessCreatePage, isError: isErrorCreatePage, error: errorOnCreate }
   ] = useCreatePageMutation();
 
-  const categories = useAppSelector(getAllCategories);
+  const categories = useSliceSelector(getAllCategories);
 
   // New page name
   const [newPageName, setNewPageName] = useState('');

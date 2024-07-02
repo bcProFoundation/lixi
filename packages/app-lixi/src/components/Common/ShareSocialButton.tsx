@@ -16,7 +16,7 @@ import { Button, Popover } from 'antd';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import { stripHtml } from 'string-strip-html';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { showToast } from '@store/toast/actions';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import React from 'react';
@@ -33,12 +33,12 @@ type ShareSocialProps = {
 };
 
 const SocialSharePanel = ({ className, shareUrl }: SocialSharePanelProps): JSX.Element => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const title = intl.get('post.titleShared');
   return (
     <div className={className}>
       <div className="socialshare-network">
-        <FacebookShareButton url={shareUrl} quote={title} className="socialshare-button">
+        <FacebookShareButton url={shareUrl} className="socialshare-button">
           <FacebookIcon size={32} round />
         </FacebookShareButton>
       </div>

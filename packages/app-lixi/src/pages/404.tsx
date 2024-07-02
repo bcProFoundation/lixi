@@ -1,8 +1,6 @@
-import React from 'react';
-import { Button } from 'antd';
-import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
-import intl from 'react-intl-universal';
 import EmptyLayout from '@components/Layout/EmptyLayout';
+import { Button } from 'antd';
+import styled from 'styled-components';
 
 const FourOhFourComponent = () => {
   const FourOhFour = styled.div`
@@ -52,6 +50,6 @@ const FourOhFourPage = () => {
   return <FourOhFourComponent />;
 };
 
-FourOhFourPage.Layout = ({ children }) => <EmptyLayout children={children} />;
+FourOhFourPage.getLayout = page => <EmptyLayout>{page}</EmptyLayout>;
 
 export default FourOhFourPage;

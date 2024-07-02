@@ -1,38 +1,41 @@
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import {
-  Account,
   AccountDto,
   CreateAccountCommand,
   DeleteAccountCommand,
   ImportAccountCommand,
-  Lixi,
-  LocalUserAccount,
   LoginViaEmailCommand,
   RegisterViaEmailNoVerifiedCommand,
   RenameAccountCommand,
-  SecondaryLanguageAccountCommand,
-  UpdateAccountInput
-} from '@bcpros/lixi-models';
-import { COIN } from '@bcpros/lixi-models/constants';
-import { callConfig } from '@context/index';
+  SecondaryLanguageAccountCommand
+} from '@bcpros/lixi-models/lib/account/account.dto';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { UpdateAccountInput } from '@bcpros/lixi-models/lib/account/inputs/updateAccount.input';
+import { LocalUserAccount } from '@bcpros/lixi-models/lib/account/local-user-account.model';
+import { Lixi } from '@bcpros/lixi-models/lib/lixi';
+import { callConfig } from '../../context/shareContext';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { setLocalUserAccount, silentLocalLogin } from '@store/localAccount';
 import { fetchNotifications, removeAllNotifications } from '@store/notification/actions';
 import { getCurrentLocale } from '@store/settings/selectors';
 import { removeAllWallets, removeWalletPaths } from '@store/wallet';
-import { aesGcmDecrypt, aesGcmEncrypt, numberToBase58 } from '@utils/encryptionMethods';
-import { push } from 'connected-next-router';
+import { aesGcmDecrypt, aesGcmEncrypt, numberToBase58 } from '../../utils/encryptionMethods';
 import intl from 'react-intl-universal';
 import { all, call, fork, put, putResolve, select, takeLatest } from 'redux-saga/effects';
 import { Config, names, uniqueNamesGenerator } from 'unique-names-generator';
+import Cookies from 'universal-cookie';
 import { LocalUser } from '../../models/localUser';
 
-import { ChangeAccountLocaleCommand } from '../../../../lixi-models/build/module/lib/account/account.dto.d';
-import { PatchAccountCommand } from '../../../../lixi-models/src/lib/account/account.dto';
+import { ChangeAccountLocaleCommand, PatchAccountCommand } from '@bcpros/lixi-models/lib/account/account.dto';
+import { api as accountGraphApi } from '@store/account/accounts.api';
+import { saveClaimAddress } from '@store/claim';
+import { removeAllPageMessageSession } from '@store/message';
+import { changeCurrentLocale, loadLocale, setInitIntlStatus } from '@store/settings/actions';
+import { getLocaleByLanguage } from '../../utils/languages';
 import accountApi from '../account/api';
 import lixiApi from '../lixi/api';
 import { hideLoading, showLoading } from '../loading/actions';
 import { showToast } from '../toast/actions';
-import { api as accountGraphApi } from '@store/account/accounts.api';
 import {
   changeAccountLocale,
   changeAccountLocaleFailure,
@@ -64,6 +67,7 @@ import {
   registerViaEmailNoVerified,
   registerViaEmailNoVerifiedFailure,
   registerViaEmailNoVerifiedSuccess,
+  removeUpload,
   renameAccount,
   renameAccountFailure,
   renameAccountSuccess,
@@ -73,21 +77,17 @@ import {
   setAccount,
   setAccountInfoTemp,
   setAccountSuccess,
+  setSecondaryLanguageAccount,
+  setSecondaryLanguageAccountFailure,
+  setSecondaryLanguageAccountSuccess,
   silentLogin,
   silentLoginFailure,
   silentLoginSuccess,
   verifyEmail,
   verifyEmailFailure,
-  verifyEmailSuccess,
-  setSecondaryLanguageAccount,
-  setSecondaryLanguageAccountSuccess,
-  setSecondaryLanguageAccountFailure,
-  removeUpload
+  verifyEmailSuccess
 } from './actions';
 import { getAccountById, getAllAccountsIds, getSelectedAccount, getSelectedAccountId } from './selectors';
-import { saveClaimAddress } from '@store/claim';
-import { changeCurrentLocale, setInitIntlStatus } from '@store/settings/actions';
-import { removeAllPageMessageSession } from '@store/message';
 
 const nameConfigGenerator: Config = {
   dictionaries: [names, names],
@@ -118,7 +118,7 @@ function* generateAccountSaga(action: PayloadAction<{ coin: COIN }>) {
     encryptedMnemonic,
     mnemonicHash,
     language: locale,
-    coin: coin ? coin : COIN.XPI
+    rootCoin: coin ? coin : COIN.XPI
   };
 
   yield put(postAccount(account));
@@ -193,7 +193,8 @@ function* postAccountSaga(action: PayloadAction<CreateAccountCommand>) {
     const result = {
       ...command,
       ...data,
-      coin: command.coin
+      rootCoin: command.rootCoin,
+      coin: command.rootCoin
     } as Account;
 
     yield put(postAccountSuccess(result));
@@ -370,6 +371,7 @@ function* selectAccountSuccessSaga(
     name: account.name,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,
+    rootCoin: account.rootCoin ? account.rootCoin : COIN.XPI,
     coin: account.coin ? account.coin : COIN.XPI
   };
   yield put(setLocalUserAccount(localAccount));
@@ -402,6 +404,7 @@ function* setAccountSuccessSaga(action: PayloadAction<Account>) {
     address: account.address,
     balance: account.balance,
     name: account.name,
+    rootCoin: account.rootCoin ? account.rootCoin : COIN.XPI,
     coin: account.coin ? account.coin : COIN.XPI,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt
@@ -484,7 +487,11 @@ function* changeAccountLocaleSuccessSaga(action: PayloadAction<Account>) {
     accountId: account.id,
     mnemonichHash: account.mnemonicHash
   };
+  const cookies = new Cookies(null, { path: '/' });
+  const locale = getLocaleByLanguage(account.language);
+  cookies.set('locale', locale);
   yield put(fetchNotifications(paramFetchNotification));
+  yield put(loadLocale(locale));
   yield put(hideLoading(changeAccountLocale.type));
   yield put(
     showToast('success', {
@@ -572,7 +579,7 @@ function* refreshLixiListSuccessSaga(action: PayloadAction<{ account: Account; l
   yield put(hideLoading(refreshLixiList.type));
 }
 function* refreshLixiListFailureSaga(action: PayloadAction<number>) {
-  const message = action.payload ?? intl.get('account.unableToRefresh');
+  const message = action.payload ? intl.get('account.unableToRefresh') : '';
   yield put(
     showToast('error', {
       message: 'Error',
@@ -639,7 +646,6 @@ function* loginViaEmailSaga(action: PayloadAction<LoginViaEmailCommand>) {
 
 function* loginViaEmailSuccessSaga(action: PayloadAction<any>) {
   yield put(hideLoading(loginViaEmail.type));
-  yield put(push(`${action.payload.path}`));
 }
 
 function* loginViaEmailFailureSaga(action: PayloadAction<any>) {
@@ -917,6 +923,7 @@ function* silentLoginSuccessSaga(action: PayloadAction) {
     id: account.address,
     address: account.address,
     name: account.name,
+    rootCoin: account.rootCoin ? account.rootCoin : COIN.XPI,
     coin: account.coin ? account.coin : COIN.XPI
   };
   // yield put(activateWallet(account.mnemonic));

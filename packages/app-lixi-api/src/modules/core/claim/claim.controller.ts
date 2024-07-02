@@ -24,7 +24,7 @@ import geoip from 'geoip-country';
 import * as _ from 'lodash';
 import moment from 'moment';
 import { I18n, I18nContext } from 'nestjs-i18n';
-import { InjectChronikClient } from 'src/common/modules/chronik/chronik.decorators';
+import { InjectChronikClient } from 'nestjs-chronik';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { ReqSocket } from 'src/decorators/req.socket.decorator';
 import { LixiService } from 'src/modules/core/lixi/lixi.service';

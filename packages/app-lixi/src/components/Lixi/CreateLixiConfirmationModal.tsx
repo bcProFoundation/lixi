@@ -1,12 +1,12 @@
-import { AnyAction } from 'redux';
+import { UnknownAction } from 'redux';
 import intl from 'react-intl-universal';
 import { Descriptions, Modal } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import { LixiParamLabel } from '@bcpros/lixi-components/components/Common/Atoms';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { closeModal } from '@store/modal/actions';
-import { countries } from '@bcpros/lixi-models/constants';
+import { countries } from '@bcpros/lixi-models/constants/countries';
 import { LixiType, ClaimType, LotteryAddress } from '@bcpros/lixi-models/lib/lixi';
 import { InfoCircleOutlined } from '@ant-design/icons';
 
@@ -35,13 +35,13 @@ export type CreateLixiConfirmationModalProps = {
   newCharityAddress: string | null;
   joinLotteryProgram: boolean;
   networkType: string;
-  onOkAction?: AnyAction;
+  onOkAction?: UnknownAction;
 };
 
 export const CreateLixiConfirmationModal: React.FC<CreateLixiConfirmationModalProps> = (
   props: CreateLixiConfirmationModalProps
 ) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   const {
     newAccountName,

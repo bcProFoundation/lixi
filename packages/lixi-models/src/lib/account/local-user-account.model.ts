@@ -1,4 +1,5 @@
-import { COIN } from '../../constants';
+import { COIN } from '../../constants/coins/coin';
+
 export class LocalUserAccount {
   name: string;
   address: string;
@@ -7,6 +8,7 @@ export class LocalUserAccount {
   balance?: number;
   createdAt: Date;
   updatedAt: Date;
+  rootCoin?: COIN;
   coin?: COIN;
 }
 

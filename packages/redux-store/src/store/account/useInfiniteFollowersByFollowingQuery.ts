@@ -1,17 +1,11 @@
-import { PaginationArgs } from '@bcpros/lixi-models';
+import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import {
-  useAllFollowersByFollowingQuery,
-  useAllFollowingsByFollowerQuery,
-  useLazyAllFollowersByFollowingQuery,
-  useLazyAllFollowingsByFollowerQuery
-} from '@store/follow/follows.generated';
-import _ from 'lodash';
+import { useAllFollowersByFollowingQuery, useLazyAllFollowersByFollowingQuery } from '@store/follow/follows.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AccountOrder } from '@generated/types.generated';
 import { GetAccountByAddressQuery } from './accounts.generated';
+import { AccountOrder } from '../../generated/types.generated';
 
-const accountsAdapter = createEntityAdapter<GetAccountByAddressQuery['getAccountByAddress']>({
+const accountsAdapter = createEntityAdapter<GetAccountByAddressQuery['getAccountByAddress'], number>({
   selectId: account => account.id,
   sortComparer: (a, b) => b.createdAt - a.createdAt
 });

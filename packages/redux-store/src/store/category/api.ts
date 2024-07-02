@@ -1,5 +1,5 @@
-import { PageCategory } from '@bcpros/lixi-models';
-import axiosClient from '@utils/axiosClient';
+import { PageCategory } from '@bcpros/lixi-models/lib/pageCategory';
+import axiosClient from '../../utils/axiosClient';
 
 const categoryApi = {
   getCategories(): Promise<PageCategory> {

@@ -1,5 +1,5 @@
-import { Account } from '@bcpros/lixi-models';
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
 import { createEntityAdapter, createReducer, isAnyOf, Update } from '@reduxjs/toolkit';
 import _ from 'lodash';
 
@@ -115,7 +115,7 @@ export const accountReducer = createReducer(initialState, builder => {
     })
     .addCase(renameAccountSuccess, (state, action) => {
       const account = action.payload;
-      const updateAccount: Update<Account> = {
+      const updateAccount: Update<Account, number> = {
         id: account.id,
         changes: {
           ...account

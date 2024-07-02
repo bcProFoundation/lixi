@@ -1,11 +1,9 @@
-import Link from 'next/link';
-import styled from 'styled-components';
-import intl from 'react-intl-universal';
-import { NavButton } from '../NavButton';
-import { useRouter } from 'next/router';
 import { Badge } from 'antd';
-import { useEffect } from 'react';
 import _ from 'lodash';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import styled from 'styled-components';
+import NavButton from '../NavButton';
 
 const StyledFooter = styled.div`
   position: fixed;

@@ -7,7 +7,7 @@ import { CloseCircleOutlined, CopyOutlined } from '@ant-design/icons';
 import { QRCode } from './QRCodeModal';
 import { AntdFormWrapper } from './EnhancedInputs';
 import { closeModal } from '@store/modal/actions';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { showToast } from '@store/toast/actions';
 
 export type QRCodeModalProps = {
@@ -18,7 +18,7 @@ export type QRCodeModalProps = {
 };
 
 export const QRCodeModalPopup: React.FC<QRCodeModalProps> = (props: QRCodeModalProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const StyledModel = styled(Modal)`
     .ant-descriptions-bordered .ant-descriptions-view {
       border: none;
@@ -69,7 +69,7 @@ export const QRCodeModalPopup: React.FC<QRCodeModalProps> = (props: QRCodeModalP
           footer={null}
         >
           <Descriptions bordered>
-            <Descriptions.Item label={<QRCode address={props.address} size={300} />}>
+            <Descriptions.Item label={<QRCode logoImage={props.logoImage} address={props.address} size={300} />}>
               {/* <Button type='primary' onClick={handleCopy}> */}
               <StyledButton type="primary">
                 <CopyToClipboard text={props.address} onCopy={handleOnCopy}>

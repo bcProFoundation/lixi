@@ -1,11 +1,11 @@
-import { FilterBurnCommand } from '@bcpros/lixi-models/src/lib/filter';
-import { SearchBoxCommand } from '@bcpros/lixi-models/src/lib/search';
+import { FilterBurnCommand } from '@bcpros/lixi-models/lib/filter';
+import { SearchBoxCommand } from '@bcpros/lixi-models/lib/search';
 import { createAction } from '@reduxjs/toolkit';
 
 import { WebAuthnConfig, WebPushNotifConfig } from './model';
 
 export const toggleCollapsedSideNav = createAction<boolean>('settings/toggleCollapsedSideNav');
-export const updateLocale = createAction<string>('settings/updateLocale');
+export const updateLanguage = createAction<string>('settings/updateLanguage');
 export const setInitIntlStatus = createAction<boolean>('settings/setInitIntlStatus');
 export const setCurrentThemes = createAction<string>('settings/setCurrentThemes');
 

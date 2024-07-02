@@ -3,7 +3,7 @@ import intl from 'react-intl-universal';
 import * as _ from 'lodash';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import styled from 'styled-components';
 import { getSelectedAccount } from '@store/account/selectors';
 import SmartButton from '@components/Common/PrimaryButton';
@@ -141,7 +141,7 @@ const Denominations: Object[] = [
 ];
 
 const SwapMobileCard: React.FC = () => {
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const [selectedMobileNetwork, setMobileNetwork] = useState('');
   const [selectedDenomination, setDenomination] = useState('');
 
@@ -164,7 +164,7 @@ const SwapMobileCard: React.FC = () => {
                   <Image src={Checkmark} alt="checkmark" />
                 </ImageContainer>
               )}
-              <Image src={item.src} />
+              <Image src={item.src} alt="mobile-cart" />
             </StyledMNButton>
           );
         })}

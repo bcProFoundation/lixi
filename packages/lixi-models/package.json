@@ -1,54 +1,84 @@
 {
   "name": "@bcpros/lixi-models",
-  "version": "1.1.6",
+  "version": "1.1.11",
   "description": "Models library for lixi application",
   "main": "build/main/index.js",
   "types": "build/main/index.d.ts",
-  "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
   "repository": "https://github.com/bcProFoundation/lixilotus/tree/master/packages/lixi-models",
   "license": "MIT",
   "keywords": [],
   "exports": {
     ".": {
+      "types": "./build/main/index.d.ts",
       "require": "./build/main/index.js",
-      "import": "./dist/module/index.mjs"
+      "import": "./build/module/index.js",
+      "default": "./build/main/index.js"
     },
-    "./*": {
-      "require": "./build/main/*.js",
-      "import": "./build/module/*.mjs"
+    "./constants/coins/*": {
+      "types": "./build/main/constants/coins/*.d.ts",
+      "require": "./build/main/constants/coins/*.js",
+      "import": "./build/module/constants/coins/*.js",
+      "default": "./build/main/constants/coins/*.js"
+    },
+    "./constants/*": {
+      "types": "./build/main/constants/*.d.ts",
+      "require": "./build/main/constants/*.js",
+      "import": "./build/module/constants/*.js",
+      "default": "./build/main/constants/*.js"
+    },
+    "./lib/*": {
+      "types": "./build/main/lib/*.d.ts",
+      "require": "./build/main/lib/*.js",
+      "import": "./build/module/lib/*.js",
+      "default": "./build/main/lib/*.js"
+    },
+    "./lib/burn/*": {
+      "types": "./build/main/lib/burn/*.d.ts",
+      "require": "./build/main/lib/burn/*.js",
+      "import": "./build/module/lib/burn/*.js",
+      "default": "./build/main/lib/burn/*.js"
     }
   },
   "scripts": {
-    "build": "run-p build:*",
+    "build": "rimraf build && run-p build:*",
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p tsconfig.module.json",
-    "precommit": "yarn fix && yarn lint",
+    "precommit": "turbo run format",
     "fix": "run-s fix:*",
     "lint": "run-s lint:*",
     "lint:ts": "eslint src --ext .ts",
     "lint:prettier": "prettier \"src/**/*.ts\" --check --config .prettierrc.js",
-    "fix:prettier": "prettier \"src/**/*.ts\" --write --config .prettierrc.js",
+    "format": "prettier \"src/**/*.ts\" --write --config .prettierrc.js",
     "fix:lint": "eslint src --ext .ts --fix"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=16"
   },
   "peerDependencies": {
-    "@prisma/client": ">=4.13.0",
-    "graphql": ">=16"
+    "@prisma/client": ">=5",
+    "class-transformer": "^0.5.1"
   },
   "devDependencies": {
+    "@nestjs/common": "^10.3.3",
+    "@nestjs/graphql": "^12.1.1",
+    "@types/node": "^20.11.29",
     "@typescript-eslint/eslint-plugin": "^5.50.0",
     "@typescript-eslint/parser": "^5.50.0",
+    "@prisma/client": "5.12.1",
     "eslint": "^8.33.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-import": "^2.27.5",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.8.3",
+    "prettier": "^3.2.5",
+    "rimraf": "^5.0.5",
+    "ts-loader": "^9.5.1",
+    "ts-morph": "^22.0.0",
     "ts-node": "^10.9.1",
-    "typescript": "4.9.5"
+    "typescript": "5.4.2",
+    "webpack": "^5.91.0",
+    "webpack-bundle-analyzer": "^4.10.1"
   },
   "files": [
     "build/main",
@@ -71,14 +101,6 @@
       "!build/module/**"
     ]
   },
-  "config": {
-    "commitizen": {
-      "path": "cz-conventional-changelog"
-    }
-  },
-  "prettier": {
-    "singleQuote": true
-  },
   "nyc": {
     "extends": "@istanbuljs/nyc-config-typescript",
     "exclude": [
@@ -86,12 +108,12 @@
     ]
   },
   "dependencies": {
-    "@liaoliaots/nestjs-redis": "^9.0.5",
-    "@nestjs/mapped-types": "^1.2.0",
+    "@nestjs/mapped-types": "^2.0.5",
+    "bignumber.js": "^9.0.0",
     "class-validator": "^0.14.0",
-    "graphql-scalars": "^1.22.1",
-    "moment": "^2.29.4",
-    "prisma-graphql-type-decimal": "3.0.0",
-    "ts-morph": "^17.0.1"
+    "graphql-scalars": "^1.23.0",
+    "moment": "^2.30.1",
+    "os-browserify": "^0.3.0",
+    "prisma-graphql-type-decimal": "3.0.0"
   }
 }

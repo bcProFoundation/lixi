@@ -1,41 +1,41 @@
-import Icon, { UserSwitchOutlined, SendOutlined, CopyOutlined, SyncOutlined } from '@ant-design/icons';
-import { Account } from '@bcpros/lixi-models';
-import { COIN } from '@bcpros/lixi-models/constants';
+import { CopyOutlined, SendOutlined, SyncOutlined, UserSwitchOutlined } from '@ant-design/icons';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { FilterType } from '@bcpros/lixi-models/lib/filter';
+import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import AvatarUser from '@components/Common/AvatarUser';
 import { FilterBurnt } from '@components/Common/FilterBurn';
+import { FilterLevel } from '@components/Common/FilterLevel';
 import SearchBox from '@components/Common/SearchBox';
 import NotificationPopup from '@components/NotificationPopup';
 import { ItemAccess } from '@containers/Sidebar/SideBarShortcut';
+import { AuthorizationContext } from '@context/index';
+import useDetectMobileView from '@local-hooks/useDetectMobileView';
+import { useGetAccountByAddressQuery } from '@store/account/accounts.api';
 import { selectAccount, setGraphqlRequestLoading } from '@store/account/actions';
-import { getAccountInfoTemp, getAllAccounts, getSelectedAccount, getSelectedAccountId } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { getAccountInfoTemp, getAllAccounts, getSelectedAccount } from '@store/account/selectors';
+import { openActionSheet } from '@store/action-sheet/actions';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { getModals } from '@store/modal/selectors';
 import { getAllNotifications } from '@store/notification/selectors';
+import { usePageQuery } from '@store/page/pages.api';
 import { api as postApi } from '@store/post/posts.api';
 import { savePostsByTimeFilter, toggleCollapsedSideNav } from '@store/settings/actions';
 import { getCurrentThemes, getIsPostsByTime, getNavCollapsed } from '@store/settings/selectors';
+import { showToast } from '@store/toast/actions';
+import { getSelectedWalletPath, getWalletHasUpdated, getWalletStatus } from '@store/wallet';
+import { parseEcashAddress } from '@utils/addressMethods';
+import { fromSmallestDenomination } from '@utils/cashMethods';
 import { Badge, Button, Popover, Space, Switch } from 'antd';
 import { Header } from 'antd/lib/layout/layout';
 import { push } from 'connected-next-router';
 import * as _ from 'lodash';
 import { useRouter } from 'next/router';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import intl from 'react-intl-universal';
-import { fromSmallestDenomination } from '@utils/cashMethods';
-import styled from 'styled-components';
-import { AuthorizationContext } from '@context/index';
-import useAuthorization from '../../components/Common/Authorization/use-authorization.hooks';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { getModals } from '@store/modal/selectors';
-import { showToast } from '@store/toast/actions';
-import { getSelectedWalletPath, getWalletHasUpdated, getWalletStatus } from '@store/wallet';
+import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
-import { openActionSheet } from '@store/action-sheet/actions';
-import { usePageQuery } from '@store/page/pages.generated';
-import { useGetAccountByAddressQuery } from '@store/account/accounts.generated';
-import { FilterLevel } from '../../components/Common/FilterLevel';
-import useDetectMobileView from '@local-hooks/useDetectMobileView';
-import { parseEcashAddress } from '@utils/addressMethods';
+import styled from 'styled-components';
 
 export type TopbarProps = {
   className?: string;
@@ -380,6 +380,10 @@ const BadgeStyled = styled(Badge)`
 
 const StyledHeader = styled(Header)`
   background: #fff;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
   display: grid;
   padding: 0;
   grid-template-columns: auto auto auto;
@@ -414,10 +418,6 @@ const StyledHeader = styled(Header)`
     }
   }
   @media (max-width: 960px) {
-    position: fixed;
-    top: 0;
-    z-index: 9;
-    width: 100%;
     height: 64px;
     grid-template-columns: 1fr auto;
     .action-bar-header {
@@ -454,28 +454,28 @@ export const ButtonTopbar = styled(Button)`
 `;
 
 const Topbar: React.FC<any> = ({ className }: { className: string }) => {
-  const dispatch = useAppDispatch();
-  const navCollapsed = useAppSelector(getNavCollapsed);
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const accountInfoTemp = useAppSelector(getAccountInfoTemp);
+  const dispatch = useSliceDispatch();
+  const navCollapsed = useSliceSelector(getNavCollapsed);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const accountInfoTemp = useSliceSelector(getAccountInfoTemp);
   const router = useRouter();
   const currentPathName = router.pathname ?? '';
   const currentAbsolutePathName = router.asPath ?? '';
   const pathDirection = currentPathName.split('/', 2);
-  const notifications = useAppSelector(getAllNotifications);
+  const notifications = useSliceSelector(getAllNotifications);
   const [openMoreOption, setOpenMoreOption] = useState(false);
   const [openProfileOption, setOpenProfileOption] = useState(false);
-  const savedAccounts: Account[] = useAppSelector(getAllAccounts);
-  const isPostsByTime = useAppSelector(getIsPostsByTime);
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const savedAccounts: Account[] = useSliceSelector(getAllAccounts);
+  const isPostsByTime = useSliceSelector(getIsPostsByTime);
+  const currentTheme = useSliceSelector(getCurrentThemes);
   const isMobile = useDetectMobileView();
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
-  const currentModal = useAppSelector(getModals);
-  const walletStatus = useAppSelector(getWalletStatus);
-  const walletHasUpdated = useAppSelector(getWalletHasUpdated);
+  const currentModal = useSliceSelector(getModals);
+  const walletStatus = useSliceSelector(getWalletStatus);
+  const walletHasUpdated = useSliceSelector(getWalletHasUpdated);
   const [filterType, setFilterType] = useState<FilterType>();
-  const walletPath = useAppSelector(getSelectedWalletPath);
+  const walletPath = useSliceSelector(getSelectedWalletPath);
   const [address, setAddress] = useState('');
 
   useEffect(() => {
@@ -498,7 +498,9 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
     {
       address: slug
     },
-    { skip: !slug || router.pathname.includes('/page/') || router.pathname.includes('/post/') }
+    {
+      skip: !slug || !router.pathname.includes('/lotus_') || slug.includes('lixi')
+    }
   );
 
   const handlePathDirection = useMemo(() => {
@@ -647,11 +649,11 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
             <div className="profile-feature">
               {walletHasUpdated ? (
                 <span>
-                  {balanceAccount(selectedAccount)} {selectedAccount.coin ? selectedAccount.coin : COIN.XPI}
+                  {balanceAccount(selectedAccount)} {selectedAccount?.coin ?? COIN.XPI}
                 </span>
               ) : (
                 <div>
-                  <SyncOutlined spin /> {selectedAccount.coin ? selectedAccount.coin : COIN.XPI}
+                  <SyncOutlined spin /> {selectedAccount?.coin ?? COIN.XPI}
                 </div>
               )}
 
@@ -702,7 +704,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
           text={'Messenger'}
           active={currentPathName === '/page-message'}
           direction="horizontal"
-          key="support"
+          key="messenger"
           onClickItem={() => {
             if (authorization.authorized) {
               handleIconClick('/page-message');
@@ -757,7 +759,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
           text={intl.get('general.installApp')}
           active={null}
           direction="horizontal"
-          key="support"
+          key="download"
           onClickItem={handleClickInstall}
         />
       </div>

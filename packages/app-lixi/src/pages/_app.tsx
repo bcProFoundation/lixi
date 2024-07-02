@@ -5,28 +5,28 @@ import Head from 'next/head';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
-import MainLayout from '@components/Layout/MainLayout';
-
 import SplashScreen from '@components/Common/SplashScreen';
 import {
   AuthenticationProvider,
   AuthorizationProvider,
+  FeatureToggleProvider,
   ServiceWorkerProvider,
-  WalletProvider,
-  callConfig,
   SocketProvider,
-  FeatureToggleProvider
+  WalletProvider,
+  callConfig
 } from '@context/index';
-import { wrapper } from '@store/store';
-import { ConfigProvider } from 'antd';
+import { wrapper } from 'src/store/store';
 import { ConnectedRouter } from 'connected-next-router';
+import { NextComponentType } from 'next';
 import { NextSeo } from 'next-seo';
-import OutsideCallConsumer from 'react-outside-call';
-import lightTheme from 'src/styles/themes/lightTheme';
-import { stripHtml } from 'string-strip-html';
-import { useEffect, useState } from 'react';
-import axiosClient from 'src/utils/axiosClient';
+import { AppContext, AppInitialProps, AppLayoutProps } from 'next/app';
 import NextNProgress from 'nextjs-progressbar';
+import { ReactNode, useEffect, useState } from 'react';
+import OutsideCallConsumer from 'react-outside-call';
+import axiosClient from 'src/utils/axiosClient';
+import { stripHtml } from 'string-strip-html';
+import { LanguageProvider } from '@local-context/languageProvider';
+import MainLayout from '../components/Layout/MainLayout';
 
 const PersistGateServer = (props: any) => {
   return props.children;
@@ -44,11 +44,15 @@ const getSitename = (postAsString): string => {
   return `Posted by ${post.account.name}`;
 };
 
-const LixiApp = ({ Component, ...rest }) => {
+const LixiApp: NextComponentType<AppContext, AppInitialProps, AppLayoutProps> = ({
+  Component,
+  ...rest
+}: AppLayoutProps) => {
   const { store, props } = wrapper.useWrappedStore(rest);
   const [enabledFeatures, setEnabledFeatures] = useState<string[]>([]);
 
-  const Layout = Component.Layout || MainLayout;
+  // const Layout = Component.Layout || MainLayout;
+  const getLayout = Component.getLayout || ((page: ReactNode) => <MainLayout>{page}</MainLayout>);
   const defaultImage = `${process.env.NEXT_PUBLIC_LIXI_URL}images/lixilotus-logo.svg`;
   const { pageProps } = props;
   const { postId, isMobile, postAsString } = pageProps;
@@ -77,6 +81,7 @@ const LixiApp = ({ Component, ...rest }) => {
         <title>Lixi</title>
         {/*This is for sharing on telegram. If didnt work remove next commit*/}
         <meta name="twitter:image:src" content={defaultImage} />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
       </Head>
       <NextSeo
         title="Lixi"
@@ -111,20 +116,24 @@ const LixiApp = ({ Component, ...rest }) => {
         <FeatureToggleProvider enabledFeatures={enabledFeatures}>
           <SocketProvider>
             <ServiceWorkerProvider>
-              <WalletProvider>
-                <AuthenticationProvider>
-                  <AuthorizationProvider>
-                    <OutsideCallConsumer config={callConfig}>
-                      <Layout className="lixi-app-layout">
-                        <ConnectedRouter>
-                          <NextNProgress options={{ showSpinner: false }} height={5} />
-                          <Component {...props.pageProps} />
-                        </ConnectedRouter>
-                      </Layout>
-                    </OutsideCallConsumer>
-                  </AuthorizationProvider>
-                </AuthenticationProvider>
-              </WalletProvider>
+              <LanguageProvider>
+                <WalletProvider>
+                  <AuthenticationProvider>
+                    <AuthorizationProvider>
+                      <OutsideCallConsumer config={callConfig}>
+                        {/* <Layout className="lixi-app-layout"> */}
+                        {getLayout(
+                          <ConnectedRouter>
+                            <NextNProgress options={{ showSpinner: false }} height={5} />
+                            <Component {...props.pageProps} />
+                          </ConnectedRouter>
+                        )}
+                        {/* </Layout> */}
+                      </OutsideCallConsumer>
+                    </AuthorizationProvider>
+                  </AuthenticationProvider>
+                </WalletProvider>
+              </LanguageProvider>
             </ServiceWorkerProvider>
           </SocketProvider>
         </FeatureToggleProvider>

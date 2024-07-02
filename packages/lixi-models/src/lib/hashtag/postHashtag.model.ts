@@ -1,7 +1,7 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { GraphQLDateTime } from 'graphql-scalars';
 
-import { Post } from '../post';
+import { Post } from '../post/post.model';
 
 import { Hashtag } from './hashtag.model';
 

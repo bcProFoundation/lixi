@@ -7,14 +7,15 @@ import {
 } from '@bcpros/lixi-components/components/Common/EnhancedInputs';
 import WalletLabel from '@bcpros/lixi-components/components/Common/WalletLabel';
 import PrimaryButton from '@components/Common/PrimaryButton';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { WrapperPage } from '@components/Settings';
 import { WalletContext } from '@context/index';
 import useXPI from '@hooks/useXPI';
 import { getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { sendXpiNotification } from '@store/notification/actions';
-import { sendXPIFailure } from '@store/send/actions';
+import { sendCoinFailure } from '@store/send/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletBalances } from '@store/wallet';
 import { parseAddress } from '@utils/addressMethods';
 import { getDustXPI, getUtxoWif } from '@utils/cashMethods';
@@ -47,10 +48,10 @@ const StyledCheckbox = styled(Checkbox)`
 `;
 // Note jestBCH is only used for unit tests; BCHJS must be mocked for jest
 const SendComponent: React.FC = () => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const Wallet = React.useContext(WalletContext);
   const { XPI, chronik } = Wallet;
-  const wallet = useAppSelector(getSelectedAccount);
+  const wallet = useSliceSelector(getSelectedAccount);
   const currentAddress = wallet?.address;
 
   const [formData, setFormData] = useState({
@@ -76,9 +77,9 @@ const SendComponent: React.FC = () => {
   const [recipientPubKeyWarning, setRecipientPubKeyWarning] = useState('');
   const [recipientPubKeyHex, setRecipientPubKeyHex] = useState('');
 
-  const walletBalances = useAppSelector(getWalletBalances);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
+  const walletBalances = useSliceSelector(getWalletBalances);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
 
   useEffect(() => {
     const search = window.location.search;
@@ -143,7 +144,8 @@ const SendComponent: React.FC = () => {
         cleanAddress,
         value,
         isEncryptedOptionalOpReturnMsg,
-        fundingWif
+        fundingWif,
+        false
       );
       dispatch(sendXpiNotification(link));
     } catch (e) {
@@ -160,7 +162,7 @@ const SendComponent: React.FC = () => {
       } else {
         message = e.message || e.error || JSON.stringify(e);
       }
-      dispatch(sendXPIFailure(message));
+      dispatch(sendCoinFailure(message));
     }
   }
 

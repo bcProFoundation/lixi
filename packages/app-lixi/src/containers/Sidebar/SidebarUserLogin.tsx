@@ -22,7 +22,7 @@ const LoggedAsAccount = styled.div``;
 const SidebarUserLogin: React.FC = () => {
   return (
     <ContainerUserLogin>
-      <Link href={'/wallet'}>
+      <Link href={'/wallet'} legacyBehavior>
         <LoggedAsAnonymous>
           <ShortcutItemAccess icon="/images/anonymous-ava.svg" text="You're anonymous" href={'/'} />
         </LoggedAsAnonymous>

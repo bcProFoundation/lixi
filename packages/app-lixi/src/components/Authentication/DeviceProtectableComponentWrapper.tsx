@@ -1,9 +1,11 @@
-import React, { useContext } from 'react';
+import React, { PropsWithChildren, useContext } from 'react';
 import { AuthenticationContext } from '@context/index';
 import SignUp from './SignUp';
 import SignIn from './SignIn';
 
-const DeviceProtectableComponentWrapper: React.FC = ({ children }) => {
+export interface DeviceProtectableComponentWrapperProps extends PropsWithChildren {}
+
+const DeviceProtectableComponentWrapper: React.FC<DeviceProtectableComponentWrapperProps> = ({ children }) => {
   const authentication = useContext(AuthenticationContext);
 
   if (authentication) {

@@ -7,7 +7,6 @@
     "rootDir": "src",
     // "moduleResolution": "node",
     "module": "commonjs",
-    "declaration": true,
     "inlineSourceMap": true,
     "composite": true,
     "noImplicitAny": false,
@@ -42,26 +41,31 @@
   },
   "references": [
     {
-      "path": "../lixi-models/tsconfig.json"
-    },
-    {
-      "path": "../app-lixi/tsconfig.json"
-    },
-    {
-      "path": "../lixi-components/tsconfig.json"
-    },
-    {
-      "path": "../app-lotus-temple/tsconfig.json"
+      "path": "../lixi-models"
     }
   ],
   "include": [
-    "src/**/*"
+    "src/**/*",
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "build",
+    "dist",
+    "**/*.test.ts"
   ],
   "typeRoots": [
     "./src/@types",
     "./node_modules/@types"
+  ],
+  "plugins": [
+    // Transform paths in output .js files
+    {
+      "transform": "typescript-transform-paths"
+    },
+    // Transform paths in output .d.ts files (Include this line if you output declarations files)
+    {
+      "transform": "typescript-transform-paths",
+      "afterDeclarations": true
+    }
   ]
 }

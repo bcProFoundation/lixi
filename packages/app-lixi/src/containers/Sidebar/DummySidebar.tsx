@@ -1,19 +1,15 @@
-import { Account } from '@bcpros/lixi-models';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { getAllAccounts, getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { Layout, message, Space, Modal, Popover, Button, Badge } from 'antd';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { getAllNotifications } from '@store/notification/selectors';
+import axiosClient from '@utils/axiosClient';
+import { Layout, Space, message } from 'antd';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
-import { Logged } from './SideBarRanking';
-import axiosClient from '@utils/axiosClient';
+import React, { useRef, useState } from 'react';
 import intl from 'react-intl-universal';
-import { getAllNotifications } from '@store/notification/selectors';
-import NotificationPopup from '@components/NotificationPopup';
-import { fetchNotifications } from '@store/notification/actions';
-import AvatarUser from '@components/Common/AvatarUser';
+import styled from 'styled-components';
 
 const { Sider } = Layout;
 
@@ -33,14 +29,12 @@ export const ItemAccess = ({
   onClickItem?: () => void;
 }) => (
   <Link onClick={onClickItem} href={href}>
-    <a>
-      <Space direction={direction === 'horizontal' ? 'horizontal' : 'vertical'} className={'item-access'}>
-        <div className={classNames('icon-item', { 'active-item-access': active })}>
-          <img src={icon} />
-        </div>
-        <span className="text-item">{text}</span>
-      </Space>
-    </a>
+    <Space direction={direction === 'horizontal' ? 'horizontal' : 'vertical'} className={'item-access'}>
+      <div className={classNames('icon-item', { 'active-item-access': active })}>
+        <img src={icon} />
+      </div>
+      <span className="text-item">{text}</span>
+    </Space>
   </Link>
 );
 
@@ -54,12 +48,10 @@ export const ItemAccessBarcode = ({
   active: boolean;
 }) => (
   <Link href="">
-    <a>
-      <Space direction="vertical" className={'item-access'}>
-        <div className={classNames('icon-item', { 'active-item-access': active })}>{React.createElement(icon)}</div>
-        <span className="text-item">{component}</span>
-      </Space>
-    </a>
+    <Space direction="vertical" className={'item-access'}>
+      <div className={classNames('icon-item', { 'active-item-access': active })}>{React.createElement(icon)}</div>
+      <span className="text-item">{component}</span>
+    </Space>
   </Link>
 );
 
@@ -164,14 +156,14 @@ const UserControl = styled.div`
 //This is just a dummy sidebar. Can be deleted
 const DummySidebar = () => {
   const refSidebarShortcut = useRef<HTMLDivElement | null>(null);
-  const dispatch = useAppDispatch();
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const savedAccounts: Account[] = useAppSelector(getAllAccounts);
+  const dispatch = useSliceDispatch();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const savedAccounts: Account[] = useSliceSelector(getAllAccounts);
   const [isCollapse, setIsCollapse] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const router = useRouter();
   const currentPathName = router.pathname ?? '';
-  const notifications = useAppSelector(getAllNotifications);
+  const notifications = useSliceSelector(getAllNotifications);
   let pastScan;
 
   const onScan = async (result: string) => {

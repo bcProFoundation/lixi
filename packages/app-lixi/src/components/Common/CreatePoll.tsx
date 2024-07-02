@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { Button, Col, Form, Input, Radio, Row, Select } from 'antd';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { PollTypeSelect, PollTypeAdd, POST_TYPE } from '@bcpros/lixi-models/constants';
-import styled from 'styled-components';
-import intl from 'react-intl-universal';
+import { POST_TYPE } from '@bcpros/lixi-models/constants/post';
+import { Button, Col, Form, Input, Row, Select } from 'antd';
 import moment from 'moment';
+import { useState } from 'react';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import intl from 'react-intl-universal';
+import styled from 'styled-components';
 
 const CreatePollContent = styled.div`
   .btn-post {

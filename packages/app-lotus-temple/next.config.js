@@ -115,21 +115,19 @@ const nextConfig = withLess({
 	compiler: {
 		styledComponents: true
 	},
+	output: 'standalone',
 	experimental: {
 		// React 18 related
 		// @link https://nextjs.org/docs/advanced-features/react-18
 		// reactRoot: true,
 
-		// Standalone build
-		// @link https://nextjs.org/docs/advanced-features/output-file-tracing#automatically-copying-traced-files-experimental
-		outputStandalone: true,
 		// @link https://nextjs.org/docs/advanced-features/output-file-tracing#caveats
 		outputFileTracingRoot: path.join(__dirname, '../../'),
 
 		// Prefer loading of ES Modules over CommonJS
 		// @link {https://nextjs.org/blog/next-11-1#es-modules-support|Blog 11.1.0}
 		// @link {https://github.com/vercel/next.js/discussions/27876|Discussion}
-		esmExternals: true,
+		esmExternals: 'loose',
 		// Experimental monorepo support
 		// @link {https://github.com/vercel/next.js/pull/22867|Original PR}
 		// @link {https://github.com/vercel/next.js/discussions/26420|Discussion}
@@ -269,6 +267,7 @@ if (process.env.ANALYZE === 'true') {
 
 const withPWA = require('next-pwa')({
 	dest: 'public',
+	disable: isProd ? false : true,
 	register: true
 });
 

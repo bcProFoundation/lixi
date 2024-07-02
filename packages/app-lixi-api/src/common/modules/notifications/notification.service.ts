@@ -8,11 +8,11 @@ import {
   WebpushNotification,
   BurnForTypeString
 } from '@bcpros/lixi-models';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Inject, Injectable, Logger, OnModuleInit, forwardRef } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { Notification as NotificationDb, NotificationLevel as NotificationLevelDb, Prisma } from '@prisma/client';
+import { Notification as NotificationDb, NotificationLevel as NotificationLevelDb, Prisma } from '@bcpros/lixi-prisma';
 import { Queue } from 'bullmq';
 import Redis from 'ioredis';
 import _ from 'lodash';
@@ -244,6 +244,12 @@ export class NotificationService implements OnModuleInit {
         break;
       case BurnForTypeString.comment:
         data.burnForType = this.i18n.t('burn.messages.comment', { lang: accountLanguage });
+        break;
+      case BurnForTypeString.account:
+        data.burnForType = this.i18n.t('burn.messages.account', { lang: accountLanguage });
+        break;
+      case BurnForTypeString.page:
+        data.burnForType = this.i18n.t('burn.messages.page', { lang: accountLanguage });
         break;
       default:
         break;

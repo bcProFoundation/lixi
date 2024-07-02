@@ -1,10 +1,10 @@
 import { createSelector } from 'reselect';
 
-import { RootState } from '../store';
+import { LixiStoreStateInterface } from '../state';
 
 import { ToastState } from './state';
 
 export const getToastNotification = createSelector(
-  (state: RootState) => state.toast,
-  (state: ToastState) => state
+  (state: LixiStoreStateInterface) => state.toast,
+  (state: ToastState) => state.event
 );

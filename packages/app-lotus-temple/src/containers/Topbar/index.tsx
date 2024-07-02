@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { BellTwoTone, MenuOutlined, SearchOutlined } from '@ant-design/icons';
 import { Space, Badge, Button } from 'antd';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { toggleCollapsedSideNav } from '@store/settings/actions';
 import { getNavCollapsed } from '@store/settings/selectors';
 import { Header } from 'antd/lib/layout/layout';
@@ -33,9 +33,9 @@ const PathDirection = styled.div`
 
 // eslint-disable-next-line react/display-name
 const Topbar = React.forwardRef(({ className }: TopbarProps, ref: React.RefCallback<HTMLElement>) => {
-  const dispatch = useAppDispatch();
-  const navCollapsed = useAppSelector(getNavCollapsed);
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const navCollapsed = useSliceSelector(getNavCollapsed);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const router = useRouter();
   const currentPathName = router.pathname ?? '';
   const pathDirection = currentPathName.split('/', 2);

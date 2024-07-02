@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import intl from 'react-intl-universal';
 import { getAllClaims } from '@store/claim/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import {
   archiveLixi,
   fetchMoreSubLixies,
@@ -33,7 +33,8 @@ import {
   UnarchiveLixiCommand,
   WithdrawLixiCommand
 } from '@bcpros/lixi-models/lib/lixi';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { getSelectedAccount } from '@store/account/selectors';
 import { getAllSubLixies, getLoadMoreSubLixiesStartId } from '@store/lixi/selectors';
 import { openModal } from '@store/modal/actions';
@@ -45,7 +46,7 @@ import SubLixiList from './SubLixiList';
 import LixiClaimedList from './LixiClaimedList';
 import useWindowDimensions from '@hooks/useWindowDimensions';
 import { QRCodeModal } from '@components/Common/QRCodeModal';
-import { QRCodeModalType } from '@bcpros/lixi-models/constants';
+import { QRCodeModalType } from '@bcpros/lixi-models/constants/QRCodeModal';
 import { PageMessageSessionStatus } from '@generated/types.generated';
 
 type CopiedProps = {
@@ -281,21 +282,21 @@ const StyledStatusContainer = styled.div`
 
 const Lixi = props => {
   const { lixi } = props;
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const Wallet = React.useContext(WalletContext);
   const { XPI } = Wallet;
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const selectedLixiRedux = useAppSelector(getSelectedLixi);
-  const selectedLixiIdRedux = useAppSelector(getSelectedLixiId);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const selectedLixiRedux = useSliceSelector(getSelectedLixi);
+  const selectedLixiIdRedux = useSliceSelector(getSelectedLixiId);
   const selectedLixiId = lixi.id ? selectedLixiIdRedux : lixi;
   const selectedLixi = lixi ? selectedLixiRedux : lixi;
-  const allClaimsCurrentLixi = useAppSelector(getAllClaims);
+  const allClaimsCurrentLixi = useSliceSelector(getAllClaims);
   const [claimCodeVisible, setClaimCodeVisible] = useState(false);
   const qrPanelRef = React.useRef(null);
   const [isLoadBalanceError, setIsLoadBalanceError] = useState(false);
-  const hasMoreSubLixies = useAppSelector(getHasMoreSubLixies);
-  const loadMoreStartId = useAppSelector(getLoadMoreSubLixiesStartId);
-  let subLixies = useAppSelector(getAllSubLixies);
+  const hasMoreSubLixies = useSliceSelector(getHasMoreSubLixies);
+  const loadMoreStartId = useSliceSelector(getLoadMoreSubLixiesStartId);
+  let subLixies = useSliceSelector(getAllSubLixies);
 
   subLixies = _.sortBy(subLixies, ['isClaimed', 'packageId']);
 

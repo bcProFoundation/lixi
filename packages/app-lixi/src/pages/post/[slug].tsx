@@ -2,11 +2,11 @@ import { AnalyticEvent } from '@bcpros/lixi-models';
 import { PrismaClient } from '@bcpros/lixi-prisma';
 import MainLayout from '@components/Layout/MainLayout';
 import PostDetail from '@components/Posts/PostDetail';
-import { PostQueryItem } from '@generated/index';
+import { PostQueryItem } from '@generated/types';
 import { analyticEvent } from '@store/analytic-event';
-import { useAppDispatch } from '@store/hooks';
-import { usePostQuery } from '@store/post/posts.generated';
-import { SagaStore, wrapper } from '@store/store';
+import { useSliceDispatch } from '@store/index';
+import { usePostQuery } from '@store/post/posts.api';
+import { SagaStore, wrapper } from 'src/store/store';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
 import React, { useEffect, useState } from 'react';
@@ -16,7 +16,7 @@ import { END } from 'redux-saga';
 import { stripHtml } from 'string-strip-html';
 
 const PostDetailPage = props => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const { postId, isMobile, postAsString } = props;
   const initialPost = JSON.parse(postAsString);
   const canonicalUrl = process.env.NEXT_PUBLIC_LIXI_URL + `post/${postId}`;
@@ -30,8 +30,12 @@ const PostDetailPage = props => {
     paragraphText = postQuery.data.post.poll.question;
   } else {
     const document = new DOMParser().parseFromString(post.content, 'text/html');
-    const paragraphElement = document.querySelector('.EditorLexical_paragraph');
-    paragraphText = paragraphElement?.textContent;
+    const paragraphElement = document.querySelectorAll('.EditorLexical_paragraph');
+
+    for (let i = 0; i < paragraphElement.length; i++) {
+      paragraphText = paragraphElement[i]?.textContent;
+      if (paragraphText) break;
+    }
   }
 
   useEffect(() => {
@@ -142,6 +146,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   };
 });
 
-PostDetailPage.Layout = ({ children }) => <MainLayout children={children} />;
+PostDetailPage.getLayout = children => <MainLayout>{children}</MainLayout>;
 
 export default PostDetailPage;

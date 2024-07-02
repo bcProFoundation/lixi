@@ -1,18 +1,7 @@
-import { Space, Table, Tag } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import _ from 'lodash';
+import { Space, Table } from 'antd';
+import { ColumnsType } from 'antd/lib/table';
 import React from 'react';
 import styled from 'styled-components';
-
-interface DataType {
-  key: string;
-  name: string;
-  ticker: string;
-  burn: number;
-  comments: string;
-  created: string;
-  tags: string[];
-}
 
 const StyledTokensListing = styled.div`
   .title-page {
@@ -47,26 +36,6 @@ const TokensTrading: React.FC = () => {
       dataIndex: 'seller',
       key: 'seller'
     },
-    // {
-    //   title: 'Tags',
-    //   key: 'tags',
-    //   dataIndex: 'tags',
-    //   render: (_, { tags }) => (
-    //     <>
-    //       {tags.map(tag => {
-    //         let color = tag.length > 5 ? 'geekblue' : 'green';
-    //         if (tag === 'loser') {
-    //           color = 'volcano';
-    //         }
-    //         return (
-    //           <Tag color={color} key={tag}>
-    //             {tag.toUpperCase()}
-    //           </Tag>
-    //         );
-    //       })}
-    //     </>
-    //   )
-    // },
     {
       title: 'Action',
       key: 'action',

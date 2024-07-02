@@ -1,4 +1,4 @@
-import { BurnForType, BurnType } from '@bcpros/lixi-models';
+import { BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import SlpWallet from '@bcpros/minimal-xpi-slp-wallet';
 import BCHJS from '@bcpros/xpi-js';
 import { WalletPathAddressInfo } from '@store/wallet';
@@ -11,14 +11,15 @@ import {
   getChangeAddressFromInputUtxos,
   parseXpiSendValue,
   signAndBuildTx
-} from '@utils/cashMethods';
-import { getRecipientPublicKey } from '@utils/chronik';
-import { generateBurnTxOutput } from '@utils/opReturnBurn';
+} from '../utils/cashMethods';
+import { getRecipientPublicKey } from '../utils/chronik';
+import { generateBurnTxOutput } from '../utils/opReturnBurn';
 import BigNumber from 'bignumber.js';
 import { ChronikClient, Utxo } from 'chronik-client';
 import intl from 'react-intl-universal';
 
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 
 export default function useXPI() {
   const getRestUrl = (apiIndex = 0) => {
@@ -165,21 +166,19 @@ export default function useXPI() {
       // returns the raw tx hex string
       const rawTxHex = signAndBuildTx(XPI, txInputObj.inputUtxos, txBuilder, walletPaths);
 
-      // Broadcast transaction to the network via the chronik client
       let broadcastResponse;
-      try {
-        broadcastResponse = await chronik.broadcastTx(rawTxHex);
-        if (!broadcastResponse) {
-          throw new Error('Empty chronik broadcast response');
-        }
-      } catch (err) {
-        console.log('Error broadcasting tx to chronik client');
-        throw err;
-      }
-
       if (returnHex) {
         return rawTxHex;
       } else {
+        try {
+          broadcastResponse = await chronik.broadcastTx(rawTxHex);
+          if (!broadcastResponse) {
+            throw new Error('Empty chronik broadcast response');
+          }
+        } catch (err) {
+          console.log('Error broadcasting tx to chronik client');
+          throw err;
+        }
         // return the explorer link for the broadcasted tx
         return `${coinInfo[COIN.XPI].blockExplorerUrl}/tx/${broadcastResponse.txid}`;
       }

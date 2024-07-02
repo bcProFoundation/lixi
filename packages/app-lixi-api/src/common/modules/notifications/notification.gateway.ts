@@ -1,5 +1,5 @@
 import { AnalyticEvent, NotificationDto as Notification, SessionAction, SocketUser } from '@bcpros/lixi-models';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Logger, UseGuards } from '@nestjs/common';
 import Redis from 'ioredis';
 

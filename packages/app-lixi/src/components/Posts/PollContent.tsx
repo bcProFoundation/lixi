@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
-import { Fragment } from 'react';
-import { PollQueryItem } from '@generated/types';
-import styled from 'styled-components';
-import { Button, Radio } from 'antd';
-import { useCreateVoteMutation } from '@store/post/polls.api';
 import { CreateVoteInput } from '@bcpros/lixi-models';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { PollTime } from '@bcpros/lixi-models/constants/pollType';
+import { PollQueryItem } from '@generated/types';
 import { getSelectedAccount, getSelectedAccountId } from '@store/account';
-import { timeLeft } from '@utils/timeLeft';
-import { PollTime } from '@bcpros/lixi-models/constants';
-import intl from 'react-intl-universal';
+import { useGetAccountByAddressQuery } from '@store/account/accounts.api';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { useCreateVoteMutation } from '@store/post/polls.api';
 import { showToast } from '@store/toast';
-import { useGetAccountByAddressQuery } from '@store/account/accounts.generated';
+import { timeLeft } from '@utils/timeLeft';
+import { Button, Radio } from 'antd';
+import React, { Fragment, useState } from 'react';
+import intl from 'react-intl-universal';
+import styled from 'styled-components';
 
 const PollWrapper = styled.div`
   border: 1px solid black;
@@ -43,6 +42,7 @@ const PollWrapper = styled.div`
     background: transparent;
     font-weight: 500;
     z-index: 1;
+    position: relative;
     .option-percentage {
       position: absolute;
       right: 10px;
@@ -79,9 +79,9 @@ type PollContentProps = {
 };
 
 const PollContent = ({ poll }: PollContentProps) => {
-  const dispatch = useAppDispatch();
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const [options, setOptions] = useState(poll.options);
   const [currentOption, setCurrentOption] = useState(null);
   const defaultOptions = poll?.defaultOptions && poll.defaultOptions;
@@ -144,10 +144,15 @@ const PollContent = ({ poll }: PollContentProps) => {
             const checkCalculate = calculatePercentage === 'NaN' ? 0 : calculatePercentage;
 
             return (
-              <Radio className="radio-option" onChange={() => handleOnChangePoll(item)} value={item.id}>
+              <Radio
+                className="radio-option"
+                onChange={() => handleOnChangePoll(item)}
+                value={item.id}
+                key={`poll-option-${item.id}`}
+              >
                 <span className="option-title">{item.option}</span>
                 <div className="option-percentage">{checkCalculate}%</div>
-                <div className="percentage-bar" style={{ width: `${checkCalculate}%` }}></div>
+                {/* <div className="percentage-bar"></div> */}
               </Radio>
             );
           })}

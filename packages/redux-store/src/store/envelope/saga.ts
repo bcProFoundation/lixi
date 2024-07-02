@@ -1,5 +1,5 @@
-import { Envelope } from '@bcpros/lixi-models';
-import { all, call, fork, put, takeLatest } from '@redux-saga/core/effects';
+import { Envelope } from '@bcpros/lixi-models/lib/envelope';
+import { all, call, fork, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import * as _ from 'lodash';
 import intl from 'react-intl-universal';

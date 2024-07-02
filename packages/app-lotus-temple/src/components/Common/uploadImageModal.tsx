@@ -1,7 +1,7 @@
-import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
+import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
 import { Page, UpdatePageInput } from '@generated/types.generated';
 import { getPageAvatarUpload, getPageCoverUpload } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { setPage } from '@store/page/action';
 import { useUpdatePageMutation } from '@store/page/pages.generated';
@@ -22,9 +22,9 @@ export const UploadAvatarCoverModal: React.FC<UploadAvatarCoverProps> = (props: 
     updatePageTrigger,
     { isLoading: isLoadingUpdatePage, isSuccess: isSuccessUpdatePage, isError: isErrorUpdatePage, error: errorOnUpdate }
   ] = useUpdatePageMutation();
-  const dispatch = useAppDispatch();
-  const avatar = useAppSelector(getPageAvatarUpload);
-  const cover = useAppSelector(getPageCoverUpload);
+  const dispatch = useSliceDispatch();
+  const avatar = useSliceSelector(getPageAvatarUpload);
+  const cover = useSliceSelector(getPageCoverUpload);
 
   const normFile = (e: any) => {
     if (Array.isArray(e)) {

@@ -1,12 +1,13 @@
-import { COIN } from '../../constants';
-import { Page } from '../page';
+import { COIN } from '../../constants/coins/coin';
+import { Nullable } from '../nullable';
+import { Page } from '../page/page.model';
 
 export interface CreateAccountCommand {
   mnemonic: string;
   encryptedMnemonic: string;
   mnemonicHash: string;
   language?: string;
-  coin?: COIN;
+  rootCoin?: COIN;
 }
 
 export interface ImportAccountCommand {
@@ -61,6 +62,7 @@ export interface AccountDto {
   language?: string;
   secondaryLanguage?: Nullable<string>;
   page?: Nullable<Page[]>;
+  rootCoin?: COIN;
 }
 
 export interface RegisterViaEmailNoVerifiedCommand {

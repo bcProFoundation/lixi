@@ -1,8 +1,8 @@
 import { CopyOutlined } from '@ant-design/icons';
-import { PostListType } from '@bcpros/lixi-models/constants';
+import { PostListType } from '@bcpros/lixi-models/constants/postListType';
 import CreatePostCard from '@components/Common/CreatePostCard';
 import SearchBox from '@components/Common/SearchBox';
-import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants';
+import { TOKEN_ICON_URL } from '@bcpros/lixi-models/constants/coins/coin';
 import { InfoSubCard } from '@components/Lixi';
 import PostListItem from '@components/Posts/PostListItem';
 import {
@@ -18,7 +18,7 @@ import { getSelectedAccountId } from '@store/account/selectors';
 import { getFailQueue } from '@store/burn';
 import { useCreateFollowTokenMutation, useDeleteFollowTokenMutation } from '@store/follow/follows.api';
 import { useInfiniteHashtagByTokenQuery } from '@store/hashtag/useInfiniteHashtagByTokenQuery';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { useInfinitePostsBySearchQueryWithHashtagAtToken } from '@store/post/useInfinitePostsBySearchQueryWithHashtagAtToken';
 import { getFilterPostsToken, getIsPostsByTime, getMinimumDanaFilter } from '@store/settings/selectors';
 import { showToast } from '@store/toast/actions';
@@ -34,7 +34,7 @@ import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import { useInfiniteTokenTimelineByScoreQuery, useInfiniteTokenTimelineByTimeQuery } from '@store/timeline';
 import { FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
-import { ParamPostFollowCommand } from '@bcpros/lixi-models/build/module/lib/post';
+import { ParamPostFollowCommand } from '@bcpros/lixi-models';
 import { changeFollowActionSheetPost } from '@store/post/actions';
 
 const StyledTokensFeed = styled.div`
@@ -210,20 +210,20 @@ type TokenProps = {
 };
 
 const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const router = useRouter();
   const [tokenDetailData, setTokenDetailData] = useState<any>(token);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
-  const walletStatus = useAppSelector(getWalletStatus);
-  const failQueue = useAppSelector(getFailQueue);
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
-  const filterValue = useAppSelector(getFilterPostsToken);
+  const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
+  const walletPaths = useSliceSelector(getAllWalletPaths);
+  const walletStatus = useSliceSelector(getWalletStatus);
+  const failQueue = useSliceSelector(getFailQueue);
+  const selectedAccountId = useSliceSelector(getSelectedAccountId);
+  const filterValue = useSliceSelector(getFilterPostsToken);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
   const [query, setQuery] = useState<any>('');
   const [hashtags, setHashtags] = useState<any>([]);
-  const isPostsByTime = useAppSelector(getIsPostsByTime);
-  const minimumDanaFilter = useAppSelector(getMinimumDanaFilter);
+  const isPostsByTime = useSliceSelector(getIsPostsByTime);
+  const minimumDanaFilter = useSliceSelector(getMinimumDanaFilter);
   const keyInfinite = `${token.id}:${minimumDanaFilter}`;
 
   let options = ['Withdraw', 'Rename', 'Export'];

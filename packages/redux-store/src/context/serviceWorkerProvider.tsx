@@ -1,6 +1,6 @@
-import usePushNotification from '@hooks/usePushNotification';
-import useUserStatus from '@hooks/useUserStatus';
-import { useAppDispatch } from '@store/hooks';
+import usePushNotification from '../hooks/usePushNotification';
+import useUserStatus from '../hooks/useUserStatus';
+import { useSliceDispatch } from '@store/index';
 import { subscribeSelectedAccount } from '@store/webpush';
 import { createContext, useEffect, useState } from 'react';
 
@@ -22,7 +22,7 @@ export const ServiceWorkerProvider = ({ children }) => {
   const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
   const { turnOnWebPushNotification, turnOffWebPushNotification } = usePushNotification({ registration: registration });
   useUserStatus();
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator && (window as any).workbox !== undefined) {

@@ -1,11 +1,10 @@
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { saveWebAuthnConfig } from '@store/settings/actions';
 import { getWebAuthnConfig } from '@store/settings/selectors';
-import { convertArrayBufferToBase64, convertBase64ToArrayBuffer } from '@utils/convertArrBuffBase64';
-import localforage from 'localforage';
-import _ from 'lodash';
-import { useEffect, useRef, useState } from 'react';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
+import { convertArrayBufferToBase64, convertBase64ToArrayBuffer } from '../utils/convertArrBuffBase64';
+import { useEffect, useState } from 'react';
 
 type AuthenticationConfig = {
   isAuthenticationRequired: boolean;
@@ -36,11 +35,11 @@ const useDeviceAuthentication = () => {
   const [isAuthenticationRequired, setIsAuthenticationRequired] = useState(undefined);
   const [credentialId, setCredentialId] = useState<string | null>(null);
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
-  const [userId, setUserId] = useState(Date.now().toString(16));
+  const [userId, setUserId] = useState<string>(Date.now().toString(16));
   const [loading, setLoading] = useState<boolean>(true);
 
-  const dispatch = useAppDispatch();
-  const webAuthnConfig = useAppSelector(getWebAuthnConfig);
+  const dispatch = useSliceDispatch();
+  const webAuthnConfig = useSliceSelector(getWebAuthnConfig);
 
   const saveAuthenticationConfigToLocalStorage = () => {
     try {

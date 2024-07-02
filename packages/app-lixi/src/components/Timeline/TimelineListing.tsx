@@ -2,21 +2,14 @@ import CreatePostCard from '@components/Common/CreatePostCard';
 import { OrderDirection, PostOrderField } from '@generated/types.generated';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { addRecentHashtagAtHome, setGraphqlRequestDone } from '@store/account/actions';
-import {
-  getGraphqlRequestStatus,
-  getRecentHashtagAtHome,
-  getSelectedAccount,
-  getSelectedAccountId
-} from '@store/account/selectors';
-import { getFailQueue } from '@store/burn';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { getGraphqlRequestStatus, getRecentHashtagAtHome } from '@store/account/selectors';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { setNewPostAvailable, setSelectedPost } from '@store/post/actions';
 import { api as postApi } from '@store/post/posts.api';
 import { getNewPostAvailable, getSelectedPostId } from '@store/post/selectors';
 import { useInfinitePostsBySearchQueryWithHashtag } from '@store/post/useInfinitePostsBySearchQueryWithHashtag';
 import { getFilterPostsHome, getLevelFilter } from '@store/settings/selectors';
 import { useInfiniteHomeTimelineQuery } from '@store/timeline/useInfiniteHomeTimelineQuery';
-import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { Skeleton } from 'antd';
 import { useRouter } from 'next/router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -119,26 +112,20 @@ const StyledInfiniteScroll = styled(InfiniteScroll)`
 
 const TimelineListing: React.FC<TimelineListingProps> = ({ className }: TimelineListingProps) => {
   const [count, setCount] = useState(0);
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const router = useRouter();
-  const selectedAccountId = useAppSelector(getSelectedAccountId);
   const refPostsListing = useRef<HTMLDivElement | null>(null);
   const [tab, setTab] = useState<any>('all');
   const [showNewPost, setShowNewPost] = useState<boolean>(false);
-  const selectedAccount = useAppSelector(getSelectedAccount);
-  const slpBalancesAndUtxos = useAppSelector(getSlpBalancesAndUtxos);
-  const walletPaths = useAppSelector(getAllWalletPaths);
-  const walletStatus = useAppSelector(getWalletStatus);
-  const failQueue = useAppSelector(getFailQueue);
-  const filterValue = useAppSelector(getFilterPostsHome);
-  const graphqlRequestLoading = useAppSelector(getGraphqlRequestStatus);
-  const recentTagAtHome = useAppSelector(getRecentHashtagAtHome);
-  const postIdSelected = useAppSelector(getSelectedPostId);
-  const [suggestedHashtag, setSuggestedTags] = useState([]);
-  const newPostAvailable = useAppSelector(getNewPostAvailable);
+  const filterValue = useSliceSelector(getFilterPostsHome);
+  const graphqlRequestLoading = useSliceSelector(getGraphqlRequestStatus);
+  const recentTagAtHome = useSliceSelector(getRecentHashtagAtHome);
+  const postIdSelected = useSliceSelector(getSelectedPostId);
+  const newPostAvailable = useSliceSelector(getNewPostAvailable);
+  const [suggestedHashtag, setSuggestedTags] = useState<string[]>([]);
   const [query, setQuery] = useState<string | null>(null);
   const [hashtags, setHashtags] = useState<string[]>([]);
-  const level = useAppSelector(getLevelFilter);
+  const level = useSliceSelector(getLevelFilter);
 
   useEffect(() => {
     if (router.query.hashtags) {

@@ -9,7 +9,10 @@ import PollLoader from './poll.loader';
 @Resolver(() => PollOption)
 @UseFilters(GqlHttpExceptionFilter)
 export class PollOptionResolver {
-  constructor(private readonly prisma: PrismaService, private readonly pollLoader: PollLoader) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly pollLoader: PollLoader
+  ) {}
 
   @ResolveField('danaScoreOption', () => Number)
   async danaScoreOption(@Parent() pollOption: PollOption) {

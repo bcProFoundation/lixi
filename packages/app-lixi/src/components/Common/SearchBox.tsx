@@ -1,11 +1,6 @@
-import { SearchOutlined, CloseCircleOutlined, CloseOutlined, HistoryOutlined } from '@ant-design/icons';
-import { Input, Popover, Switch, Tag } from 'antd';
-import React, { useEffect, useRef, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
-import styled from 'styled-components';
-import { useForm, Controller, SubmitHandler } from 'react-hook-form';
-import intl from 'react-intl-universal';
-import { useRouter } from 'next/router';
+import { CloseCircleOutlined, CloseOutlined, HistoryOutlined } from '@ant-design/icons';
+import { FilterType } from '@bcpros/lixi-models/lib/filter';
+import { ButtonTopbar, PopoverStyled, TitleFilterStyled } from '@containers/Topbar';
 import {
   addRecentHashtagAtHome,
   addRecentHashtagAtPages,
@@ -20,12 +15,17 @@ import {
   removeRecentHashtagAtPages,
   removeRecentHashtagAtToken
 } from '@store/account';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getCurrentThemes, getIsPostsByTime, savePostsByTimeFilter } from '@store/settings';
+import { Input, Popover, Switch, Tag } from 'antd';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
-import { ButtonTopbar, PopoverStyled, TitleFilterStyled } from '@containers/Topbar';
+import styled from 'styled-components';
 import { FilterBurnt } from './FilterBurn';
 import { FilterLevel } from './FilterLevel';
-import { FilterType } from '@bcpros/lixi-models/lib/filter';
 
 const Container = styled.div`
   display: flex;
@@ -162,17 +162,17 @@ const RecentContainer = styled.div`
 const SearchBox = () => {
   const [tags, setTags] = useState([]);
   const [recentTags, setRecentTags] = useState<string[]>();
-  const recentTagAtHome = useAppSelector(getRecentHashtagAtHome);
-  const recentTagAtPages = useAppSelector(getRecentHashtagAtPages);
-  const recentTagAtToken = useAppSelector(getRecentHashtagAtToken);
+  const recentTagAtHome = useSliceSelector(getRecentHashtagAtHome);
+  const recentTagAtPages = useSliceSelector(getRecentHashtagAtPages);
+  const recentTagAtToken = useSliceSelector(getRecentHashtagAtToken);
   const [query, setQuery] = useState<any>('');
   const router = useRouter();
   const numberOfTags = 3;
-  const dispatch = useAppDispatch();
-  const currentTheme = useAppSelector(getCurrentThemes);
+  const dispatch = useSliceDispatch();
+  const currentTheme = useSliceSelector(getCurrentThemes);
   const currentPathName = router.pathname ?? '';
   const pathDirection = currentPathName.split('/', 2);
-  const isPostsByTime = useAppSelector(getIsPostsByTime);
+  const isPostsByTime = useSliceSelector(getIsPostsByTime);
   const [filterType, setFilterType] = useState<FilterType>();
 
   const { control, getValues, setValue } = useForm({
@@ -206,8 +206,8 @@ const SearchBox = () => {
       const recentHashtags: string[] = tokenRecentHashtag?.hashtags.map(hashtag => hashtag.toLowerCase()) || [];
 
       setRecentTags(recentHashtags);
-    } else {
-      setRecentTags(recentTagAtHome.map(hashtag => hashtag.toLowerCase()));
+    } else if (recentTagAtHome && recentTagAtHome.length > 0) {
+      // setRecentTags(recentTagAtHome.map(hashtag => hashtag.toLowerCase()));
     }
   }, [recentTagAtPages, recentTagAtToken, recentTagAtHome]);
 
@@ -500,7 +500,7 @@ const SearchBox = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   style={{ paddingLeft: '0px' }}
-                  bordered={false}
+                  variant="borderless"
                   onChange={onChange}
                   onBlur={onBlur}
                   value={value}

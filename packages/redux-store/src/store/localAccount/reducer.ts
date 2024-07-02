@@ -1,10 +1,10 @@
-import { LocalUserAccount } from '@bcpros/lixi-models';
+import { LocalUserAccount } from '@bcpros/lixi-models/lib/account/local-user-account.model';
 import { createEntityAdapter, createReducer } from '@reduxjs/toolkit';
 
 import { setLocalUserAccount } from './actions';
 import { LocalUserAccountsState } from './state';
 
-export const localAccountsAdapter = createEntityAdapter<LocalUserAccount>({
+export const localAccountsAdapter = createEntityAdapter<LocalUserAccount, string>({
   selectId: account => account.address,
   sortComparer: (a, b) => {
     if (a === b) return 0;

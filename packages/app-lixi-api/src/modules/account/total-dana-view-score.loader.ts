@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import Redis from 'ioredis';
@@ -27,7 +27,7 @@ export default class TotalDanaViewScoreLoader {
         const listTokenIds = _.compact(listFollowOfType.map(item => item.tokenId));
         const listAccountIds = _.compact(listFollowOfType.map(item => item.accountId));
 
-        if (listPageIds.length > 0) {
+        if (!_.isNil(listPageIds) && listPageIds.length > 0) {
           const postsInPages = await this.prisma.post.findMany({
             where: { pageId: { in: listPageIds } },
             select: { id: true, pageId: true }
@@ -49,18 +49,17 @@ export default class TotalDanaViewScoreLoader {
               postIdsInPage.map(item => {
                 totalDanaViewScoreInPage += parseFloat(mapDanaViewScore.get(item) ?? '0');
               });
-
               mapItem.set(pageId, totalDanaViewScoreInPage);
             }
           });
         }
-        if (listTokenIds.length > 0) {
+        if (!_.isNil(listTokenIds) && listTokenIds.length > 0) {
           const postsInTokens = await this.prisma.post.findMany({
             where: { tokenId: { in: listTokenIds } },
             select: { id: true, tokenId: true }
           });
 
-          const allPostIdsTokens = postsInTokens.map(item => item.id);
+          const allPostIdsTokens = postsInTokens ? postsInTokens.map(item => item.id) : [];
 
           const listDanaViewScore = await this.danaViewScoreService.getByIds(allPostIdsTokens);
           const mapDanaViewScore = new Map(allPostIdsTokens.map((item, index) => [item, listDanaViewScore[index]]));
@@ -76,13 +75,12 @@ export default class TotalDanaViewScoreLoader {
               postIdsInToken.map(item => {
                 totalDanaViewScoreInToken += parseFloat(mapDanaViewScore.get(item) ?? '0');
               });
-
               mapItem.set(tokenId, totalDanaViewScoreInToken);
             }
           });
         }
 
-        if (listAccountIds.length > 0) {
+        if (!_.isNil(listAccountIds) && listAccountIds.length > 0) {
           const postsInAccounts = await this.prisma.post.findMany({
             where: { accountId: { in: listAccountIds } },
             select: { id: true, accountId: true }

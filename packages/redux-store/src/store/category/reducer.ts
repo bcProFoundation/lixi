@@ -1,12 +1,11 @@
-import { PageCategory } from '@bcpros/lixi-models';
+import { PageCategory } from '@bcpros/lixi-models/lib/pageCategory';
 import { createEntityAdapter, createReducer, isAnyOf, Update } from '@reduxjs/toolkit';
 
 import { getCategoriesSuccess } from './actions';
-import { CategoriesState } from './state';
 
 // Coutry
 export const categoriesAdapter = createEntityAdapter<PageCategory>({});
-const initialCategory: CategoriesState = categoriesAdapter.getInitialState({
+const initialCategory = categoriesAdapter.getInitialState({
   selectedCategoryId: 0
 });
 

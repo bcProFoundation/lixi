@@ -20,7 +20,7 @@ import moment from 'moment';
 import React, { useState } from 'react';
 import intl from 'react-intl-universal';
 import { getAllEnvelopes } from '@store/envelope/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { generateLixi } from '@store/lixi/actions';
 import { closeModal, openModal } from '@store/modal/actions';
 import { showToast } from '@store/toast/actions';
@@ -32,9 +32,9 @@ import {
   FormItemStaffAddressInput
 } from '@bcpros/lixi-components/components/Common/EnhancedInputs';
 import { StyledCollapse } from '@bcpros/lixi-components/components/Common/StyledCollapse';
-import { coinInfo, COIN } from '@bcpros/lixi-models/constants';
-import { countries, UPLOAD_BUTTON_TYPE, UPLOAD_TYPES } from '@bcpros/lixi-models/constants';
-import { Account } from '@bcpros/lixi-models/lib/account';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
+import { UPLOAD_BUTTON_TYPE, UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
 import { ClaimType, GenerateLixiCommand, LixiType, LotteryAddress, NetworkType } from '@bcpros/lixi-models/lib/lixi';
 import CountrySelectDropdown from '@components/Common/CountrySelectDropdown';
 import EnvelopeCarousel from '@components/Common/EnvelopeCarousel';
@@ -44,6 +44,8 @@ import { getEnvelopeUpload } from '@store/account/selectors';
 import { isValidAmountInput } from '@utils/validation';
 import { CreateLixiConfirmationModalProps } from './CreateLixiConfirmationModal';
 import { fromSmallestDenomination } from '@utils/cashMethods';
+import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import { countries } from '@bcpros/lixi-models/constants/countries';
 
 const { Panel } = Collapse;
 const { Option } = Select;
@@ -237,9 +239,9 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
   disabled,
   classStyle
 }: CreateLixiFormModalProps) => {
-  const dispatch = useAppDispatch();
-  const envelopes = useAppSelector(getAllEnvelopes);
-  const envelopeUpload = useAppSelector(getEnvelopeUpload);
+  const dispatch = useSliceDispatch();
+  const envelopes = useSliceSelector(getAllEnvelopes);
+  const envelopeUpload = useSliceSelector(getEnvelopeUpload);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const Wallet = React.useContext(WalletContext);
@@ -943,7 +945,7 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
             style={{
               width: '100%'
             }}
-            onSelect={handleNewActivatedTimeInput}
+            onCalendarChange={handleNewActivatedTimeInput}
             onOk={onActivatedOk}
           />
         </Form.Item>
@@ -963,7 +965,7 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
             style={{
               width: '100%'
             }}
-            onSelect={handleNewExpityTimeInput}
+            onCalendarChange={handleNewExpityTimeInput}
             onOk={onOk}
           />
         </Form.Item>
@@ -1111,7 +1113,7 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
                 style={{
                   width: '100%'
                 }}
-                onSelect={handleNewActivatedTimeInput}
+                onCalendarChange={handleNewActivatedTimeInput}
                 onOk={onActivatedOk}
               />
             </Form.Item>
@@ -1130,7 +1132,7 @@ export const CreateLixiFormModal: React.FC<CreateLixiFormModalProps> = ({
                 style={{
                   width: '100%'
                 }}
-                onSelect={handleNewExpityTimeInput}
+                onCalendarChange={handleNewExpityTimeInput}
                 onOk={onOk}
               />
             </Form.Item>

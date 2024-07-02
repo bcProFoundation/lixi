@@ -1,8 +1,8 @@
-import { Type } from '@nestjs/common';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 
 import { Edge } from './edge.type';
 import { IBasicPageInfo, IBasicPaginated } from './paginated.interface';
+import { Type } from './type';
 
 @ObjectType('BasicPageInfo')
 abstract class PageInfoType implements IBasicPageInfo {

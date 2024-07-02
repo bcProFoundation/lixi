@@ -1,15 +1,15 @@
 import { RetweetOutlined } from '@ant-design/icons';
 import { AnalyticEvent } from '@bcpros/lixi-models';
-import { PostListType } from '@bcpros/lixi-models/constants';
+import { PostListType } from '@bcpros/lixi-models/constants/postListType';
 import ActionPostBar from '@components/Common/ActionPostBar';
 import CommentComponent, { CommentItem } from '@components/Common/Comment';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { LoadingIcon } from '@components/Layout/MainLayout';
-import { PostQueryItem } from '@generated/index';
+import { PostQueryItem } from '@generated/types';
 import useWindowDimensions from '@hooks/useWindowDimensions';
 import { getSelectedAccount } from '@store/account';
 import { analyticEvent } from '@store/analytic-event';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
 import { getCurrentLocale } from '@store/settings/selectors';
 import { formatRelativeTime } from '@utils/formatting';
@@ -68,7 +68,7 @@ const CardHeader = styled.div`
   }
 `;
 
-const Content = styled.div<{ imageHeight: number }>`
+const Content = styled.div<{ $imageheight: number }>`
   .description-post {
     font-size: 15px;
     font-weight: 400;
@@ -85,6 +85,7 @@ const Content = styled.div<{ imageHeight: number }>`
       }
       iframe {
         max-width: 100% !important;
+        max-height: 100vh;
         &[title='YouTube video'] {
           width: 700px !important;
           height: 400px;
@@ -138,7 +139,7 @@ const Content = styled.div<{ imageHeight: number }>`
     transition: 0.5s ease;
     img {
       max-width: 100%;
-      max-height: ${props => props.imageHeight + 'vh' || '15vh'};
+      max-height: ${props => props.$imageheight + 'vh' || '15vh'};
       object-fit: contain;
       border-radius: var(--border-radius-primary);
     }
@@ -172,7 +173,7 @@ const Content = styled.div<{ imageHeight: number }>`
       img {
         width: auto;
         max-width: 75vw;
-        max-height: ${props => props.imageHeight + 'vh' || '15vh'};
+        max-height: ${props => props.$imageheight + 'vh' || '15vh'};
         object-fit: cover;
         border-radius: var(--border-radius-primary);
         border: 1px solid var(--lt-color-gray-100);
@@ -191,7 +192,7 @@ const Content = styled.div<{ imageHeight: number }>`
       }
     }
     .ant-image {
-      max-height: ${props => props.imageHeight + 'vh' || '15vh'};
+      max-height: ${props => props.$imageheight + 'vh' || '15vh'};
     }
   }
 `;
@@ -232,16 +233,16 @@ type PostListItemProps = {
 
 const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemProps) => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const post = item;
   const [showMoreImage, setShowMoreImage] = useState(true);
   const [imagesList, setImagesList] = useState([]);
   const [showTranslation, setShowTranslation] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
   const { width } = useWindowDimensions();
-  const currentLocale = useAppSelector(getCurrentLocale);
+  const currentLocale = useSliceSelector(getCurrentLocale);
   const [showFeatureTrans, setShowFeatureTrans] = useState(true);
-  const selectedAccount = useAppSelector(getSelectedAccount);
+  const selectedAccount = useSliceSelector(getSelectedAccount);
 
   // @todo: should move out of useEffect
   useEffect(() => {
@@ -252,7 +253,8 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
       let objImg = {
         src: imgUrl,
         width: imgWidth,
-        height: height
+        height: height,
+        key: img.cfImageId
       };
       return objImg;
     });
@@ -392,7 +394,9 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
   };
 
   const imageRenderer = useCallback(
-    ({ photo }) => <Image src={photo?.src} width={photo?.width} height={photo?.height} />,
+    ({ photo }) => (
+      <Image src={photo?.src} width={photo?.width} height={photo?.height} key={`photo-${photo?.key || photo?.src}`} />
+    ),
     []
   );
 
@@ -434,7 +438,7 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
             postListType={postListType}
           />
         </CardHeader>
-        <Content imageHeight={heightImage()}>
+        <Content $imageheight={heightImage()}>
           <div className="description-post">
             {post.poll ? (
               <PollContent poll={post.poll} />

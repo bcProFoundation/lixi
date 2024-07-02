@@ -1,4 +1,4 @@
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { Modal } from 'antd';
 import { useState } from 'react';
@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import styled from 'styled-components';
 import type { RadioChangeEvent } from 'antd';
 import { Radio } from 'antd';
-import { COIN } from '@bcpros/lixi-models/constants';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { generateAccount } from '@store/account';
 import intl from 'react-intl-universal';
 
@@ -35,7 +35,7 @@ const StyledModal = styled(Modal)`
 `;
 
 const CreateAccountModal = () => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
   const {
     handleSubmit,
     formState: { errors }

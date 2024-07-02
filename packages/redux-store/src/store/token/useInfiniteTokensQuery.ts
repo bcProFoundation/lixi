@@ -1,10 +1,10 @@
-import { BasicPaginationArgs } from '@bcpros/lixi-models';
-import { TokenQueryItem } from '@generated/index';
+import { BasicPaginationArgs } from '@bcpros/lixi-models/core/pagination/basic.pagination.args';
+import { TokenQueryItem } from '../../generated/types';
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useLazyTokensQuery, useTokensQuery } from '@store/token/tokens.api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-const tokensAdapter = createEntityAdapter<TokenQueryItem>({
+const tokensAdapter = createEntityAdapter<TokenQueryItem, string>({
   selectId: token => token.id
 });
 

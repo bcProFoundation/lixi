@@ -13,10 +13,10 @@ import { StyledCollapse } from '@components/Common/StyledCollapse';
 import { WalletContext } from '@context/index';
 import { deleteAccount, generateAccount, importAccount, renameAccount, selectAccount } from '@store/account/actions';
 import { getAllAccounts, getSelectedAccount } from '@store/account/selectors';
-import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getIsGlobalLoading } from '@store/loading/selectors';
 import { openModal } from '@store/modal/actions';
-import { setInitIntlStatus, updateLocale } from '@store/settings/actions';
+import { setInitIntlStatus, updateLanguage } from '@store/settings/actions';
 import { getCurrentLocale } from '@store/settings/selectors';
 import { Alert, Collapse, Form, Input, Modal, Spin } from 'antd';
 import axios from 'axios';
@@ -229,7 +229,7 @@ const helpInfoIcon = (
 const Settings: React.FC = () => {
   const Wallet = React.useContext(WalletContext);
 
-  const isLoading = useAppSelector(getIsGlobalLoading);
+  const isLoading = useSliceSelector(getIsGlobalLoading);
   const [seedInput, openSeedInput] = useState(false);
   const [isValidMnemonic, setIsValidMnemonic] = useState<boolean | null>(null);
   const [formData, setFormData] = useState({
@@ -240,9 +240,9 @@ const Settings: React.FC = () => {
   const [form] = Form.useForm();
   const [otherAccounts, setOtherAccounts] = useState<Account[]>([]);
 
-  const dispatch = useAppDispatch();
-  const savedAccounts: Account[] = useAppSelector(getAllAccounts);
-  const selectedAccount: Account | undefined = useAppSelector(getSelectedAccount);
+  const dispatch = useSliceDispatch();
+  const savedAccounts: Account[] = useSliceSelector(getAllAccounts);
+  const selectedAccount: Account | undefined = useSliceSelector(getSelectedAccount);
 
   useEffect(() => {
     setOtherAccounts(_.filter(savedAccounts, acc => acc.id !== selectedAccount?.id));
@@ -259,7 +259,7 @@ const Settings: React.FC = () => {
     await axios.post(url);
   };
 
-  const currentLocale = useAppSelector(getCurrentLocale);
+  const currentLocale = useSliceSelector(getCurrentLocale);
 
   const showPopulatedRenameAccountModal = (account: Account) => {
     const command: RenameAccountCommand = {
@@ -297,9 +297,9 @@ const Settings: React.FC = () => {
     setFormData(p => ({ ...p, [name]: value }));
   };
 
-  function setLocale(locales: any) {
+  function setLanguage(language: string) {
     dispatch(setInitIntlStatus(false));
-    dispatch(updateLocale(locales));
+    dispatch(updateLanguage(language));
   }
 
   async function submit() {
@@ -433,8 +433,8 @@ const Settings: React.FC = () => {
                   <AntdFormWrapper>
                     <LanguageSelectDropdown
                       defaultValue={currentLocale}
-                      onChange={(locale: any) => {
-                        setLocale(locale);
+                      onChange={(language: string) => {
+                        setLanguage(language);
                       }}
                     />
                   </AntdFormWrapper>

@@ -101,5 +101,9 @@ export const {
   useDeleteFollowAccountMutation,
   useDeleteFollowPageMutation,
   useCreateFollowTokenMutation,
-  useDeleteFollowTokenMutation
+  useDeleteFollowTokenMutation,
+  useAllFollowingsByFollowerQuery,
+  useLazyAllFollowingsByFollowerQuery,
+  useAllFollowersByFollowingQuery,
+  useLazyAllFollowersByFollowingQuery
 } = enhancedApi;

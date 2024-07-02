@@ -1,28 +1,28 @@
-import { State } from '@bcpros/lixi-models';
-import _ from 'lodash';
 import { createSelector } from 'reselect';
 
-import { RootState } from '../store';
+import { LixiStoreStateInterface } from '../state';
 
 import { countriesAdapter, statesAdapter } from './reducer';
-import { CountriesState, StatesState } from './state';
+import { CountriesState } from './state';
 
 export const getCountriesState = createSelector(
-  (state: RootState) => state.countries,
-  (countries: CountriesState) => countries,
-  (states: StatesState) => states
+  (state: LixiStoreStateInterface) => state.countries,
+  (countries: CountriesState) => countries
 );
 
 // Country
 const { selectAll, selectEntities, selectIds, selectTotal } = countriesAdapter.getSelectors();
 
-export const getAllCountries = createSelector((state: RootState) => state.countries, selectAll);
+export const getAllCountries = createSelector((state: LixiStoreStateInterface) => state.countries, selectAll);
 
-export const getAllCountriesEntities = createSelector((state: RootState) => state.countries, selectEntities);
+export const getAllCountriesEntities = createSelector(
+  (state: LixiStoreStateInterface) => state.countries,
+  selectEntities
+);
 
 // State
-const selectCountry = (state: RootState) => state.countries;
-const selectSelectedCountry = createSelector(selectCountry, state => state.selectCountryId);
+const selectCountry = (state: LixiStoreStateInterface) => state.countries;
+const selectSelectedCountry = createSelector(selectCountry, state => state.selectedCountryId);
 
 const {
   selectAll: selectAllStates,
@@ -31,9 +31,4 @@ const {
   selectTotal: selectTotalStates
 } = statesAdapter.getSelectors();
 
-export const getAllStates = createSelector((state: RootState) => state.states, selectAllStates);
-
-export const getAllStatesByCountry = (countryId: number) =>
-  createSelector([selectSelectedCountry, getAllStates], (states: State[]) =>
-    states ? states.filter(state => state?.country.id === countryId) : []
-  );
+export const getAllStates = createSelector((state: LixiStoreStateInterface) => state.states, selectAllStates);

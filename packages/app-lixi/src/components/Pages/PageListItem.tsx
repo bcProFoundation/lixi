@@ -8,7 +8,7 @@ import { PlusCircleOutlined } from '@ant-design/icons';
 import { push } from 'connected-next-router';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
-import { useAppDispatch } from '@store/hooks';
+import { useSliceDispatch } from '@store/index';
 import styled from 'styled-components';
 import Gallery from 'react-photo-gallery';
 
@@ -77,6 +77,7 @@ const Content = styled.div`
     }
     iframe {
       width: 100% !important;
+      max-height: 100vh;
       &#reddit-embed {
         height: 500px !important;
         @media (max-width: 960px) {
@@ -161,7 +162,7 @@ const CountBar = styled.div`
 `;
 
 const PageListItem = ({ index, item }) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useSliceDispatch();
 
   const [isCollapseComment, setIsCollapseComment] = useState(false);
   const [comments, setComments] = useState<CommentItem[]>([]);
@@ -180,7 +181,8 @@ const PageListItem = ({ index, item }) => {
       let objImg = {
         src: imgUrl,
         width: width,
-        height: height
+        height: height,
+        key: img.cfImageId
       };
       return objImg;
     });

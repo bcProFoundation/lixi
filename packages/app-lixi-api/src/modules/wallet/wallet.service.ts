@@ -13,7 +13,10 @@ import { calcFee } from '../../utils/cashMethods';
 @Injectable()
 export class WalletService {
   public logger: Logger = new Logger(WalletService.name);
-  constructor(@Inject(XPIJS) public readonly XPI: BCHJS, public chronik: ChronikClient) {}
+  constructor(
+    @Inject(XPIJS) public readonly XPI: BCHJS,
+    public chronik: ChronikClient
+  ) {}
 
   async getBalances(xAddress: string) {
     const hash = this.XPI.Address.toHash160(xAddress);
