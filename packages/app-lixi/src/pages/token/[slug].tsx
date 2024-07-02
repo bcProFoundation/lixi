@@ -93,6 +93,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) 
   };
 });
 
-TokenDetailPage.getLayout = ({ children }) => <MainLayout>{children}</MainLayout>;
+TokenDetailPage.getLayout = children => <MainLayout>{children}</MainLayout>;
 
 export default TokenDetailPage;

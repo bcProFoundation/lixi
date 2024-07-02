@@ -6,7 +6,8 @@ import {
   PageMessageSessionConnection,
   PageMessageSessionOrder,
   SessionAction,
-  SessionActionEnum
+  SessionActionEnum,
+  COIN
 } from '@bcpros/lixi-models';
 import { Account, CreatePageMessageInput, PageMessageSession, PaginationArgs } from '@bcpros/lixi-models';
 import { Notification, NotificationLevel, PageMessageSessionStatus } from '@bcpros/lixi-prisma';
@@ -607,7 +608,8 @@ export class PageMessageSessionResolver {
         additionalData: {
           senderName: account.name,
           lixiAmount: lixi?.amount.toFixed(0),
-          pageName: page?.name
+          pageName: page?.name,
+          coin: COIN.XPI
         }
       };
 
@@ -696,7 +698,8 @@ export class PageMessageSessionResolver {
         url: `/lixi/${result.lixi.id}`,
         additionalData: {
           pageName: pageMessageSession.page.name,
-          lixiAmount: result.lixi.amount.toFixed(0)
+          lixiAmount: result.lixi.amount.toFixed(0),
+          coin: COIN.XPI
         }
       };
 

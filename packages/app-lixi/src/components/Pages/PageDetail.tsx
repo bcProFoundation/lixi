@@ -7,6 +7,7 @@ import {
   InfoCircleOutlined
 } from '@ant-design/icons';
 import { ParamPostFollowCommand } from '@bcpros/lixi-models';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { PostListType } from '@bcpros/lixi-models/constants/postListType';
 import { Follow, FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
@@ -49,6 +50,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import intl from 'react-intl-universal';
 import { ReactSVG } from 'react-svg';
 import styled from 'styled-components';
+import Reaction from '@components/Common/Reaction';
 import ShareSocialButton from '@components/Common/ShareSocialButton';
 import { ShareForType } from '@bcpros/lixi-models/constants/share';
 
@@ -245,6 +247,15 @@ const ProfileCardHeader = styled.div`
     @media (max-width: 768px) {
       margin-left: 0;
       text-align: center;
+    }
+    .burn-page {
+      margin-left: -10px;
+      margin-bottom: 0;
+      text-align: left;
+      
+      .icon-burn {
+        cursor: pointer;
+      }
     }
     .infor-page {
       display: flex;
@@ -1036,6 +1047,14 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
           )}
 
           <div className="description-page">
+            {/*Dana of page */}
+            <p className="burn-page">
+              <span className="icon-burn">
+                <Reaction burnForType={BurnForType.Page} dataItem={pageDetailData} />
+              </span>
+              {pageDetailData?.dana?.danaReceivedScore || 0} {intl.get('general.dana')}
+            </p>
+
             {pageDetailData.description && (
               <p className="infor-page">
                 <InfoCircleOutlined /> {pageDetailData.description}
@@ -1068,11 +1087,6 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                 }
               </p>
             )}
-
-            <p className="infor-page">
-              {' '}
-              <FireOutlined /> {pageDetailData?.dana?.danaReceivedScore || 0 + intl.get('general.dana')}
-            </p>
 
             {totalDanaViewScore != 0 && (
               <Tooltip

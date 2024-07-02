@@ -499,7 +499,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
       address: slug
     },
     {
-      skip: !slug || router.pathname.includes('/page/') || router.pathname.includes('/post/') || slug.includes('lixi')
+      skip: !slug || !router.pathname.includes('/lotus_') || slug.includes('lixi')
     }
   );
 

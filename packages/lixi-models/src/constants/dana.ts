@@ -1,6 +1,5 @@
-export const GHPerDana = 100;
-export const adjustRate = 0.99918;
-export const ratioHash256 = 5714;
+export const ratioHash256 = 2857;
+export const GHPerDanaStart = ratioHash256 * 110;
 
 export type DanaRate = {
   blockHeight: number;

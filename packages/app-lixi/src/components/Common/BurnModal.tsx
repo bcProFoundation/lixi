@@ -32,6 +32,7 @@ import styled from 'styled-components';
 import { QRCodeModal } from './QRCodeModal';
 import { AuthenticationContext } from '@context/index';
 import { useConvertDanaToCoinQuery } from '@store/dana/dana.api';
+import { calBurnAmountWithFee, calBurnAmountWithoutFee } from 'src/utils/burnValueWithFee';
 
 const UpDownButton = styled(Button)`
   background: rgb(158, 42, 156);
@@ -161,7 +162,8 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
           isUpVote,
           burnForItem,
           burnForType,
-          burnValue: (Number(burnValue) * burnAmountPerCoin).toString()
+          burnValue: calBurnAmountWithoutFee(Number(burnValue), burnAmountPerCoin, true).toString(),
+          amountDana: Number(burnValue)
         })
       );
       dispatch(closeModal());
@@ -485,7 +487,7 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
               onChange={value => {
                 const amount = Number(value?.target?.value);
                 setSelectedAmount(amount);
-                setBurnAmount((coinInfo[selectedAccount?.coin ?? COIN.XPI].burnFee + 1) * burnAmountPerCoin * amount);
+                setBurnAmount(calBurnAmountWithFee(amount, burnAmountPerCoin, false));
                 onChange(value);
               }}
             />

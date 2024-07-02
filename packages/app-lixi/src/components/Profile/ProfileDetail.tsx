@@ -35,6 +35,8 @@ import SearchBox from '@components/Common/SearchBox';
 import Counter from '@components/Common/Counter';
 import { ParamPostFollowCommand } from '@bcpros/lixi-models';
 import { changeFollowActionSheetPost } from '@store/post/actions';
+import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
+import Reaction from '@components/Common/Reaction';
 import ShareSocialButton from '@components/Common/ShareSocialButton';
 import { ShareForType } from '@bcpros/lixi-models/constants/share';
 
@@ -214,6 +216,16 @@ const ProfileCardHeader = styled.div`
       margin-left: 0;
       text-align: center;
       overflow-wrap: anywhere;
+    }
+
+    .burn-profile {
+      margin-left: -10px;
+      margin-bottom: 0;
+      text-align: left;
+
+      .icon-burn {
+        cursor: pointer;
+      }
     }
 
     .infor-profile {
@@ -748,6 +760,15 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
           )}
 
           <div className="description-profile">
+            {/*Dana of account */}
+            <p className="burn-profile">
+              <span className="icon-burn">
+                <Reaction burnForType={BurnForType.Account} dataItem={user} />
+              </span>
+              <b> {user?.accountDana?.danaGiven || 0}</b> {intl.get('general.danaGiven')} <b>·</b>{' '}
+              <b> {user?.accountDana?.danaReceived || 0}</b> {intl.get('general.danaReceived')}
+            </p>
+
             {user.description && (
               <p className="infor-profile">
                 <InfoCircleOutlined /> {user.description}

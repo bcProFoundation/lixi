@@ -245,6 +245,12 @@ export class NotificationService implements OnModuleInit {
       case BurnForTypeString.comment:
         data.burnForType = this.i18n.t('burn.messages.comment', { lang: accountLanguage });
         break;
+      case BurnForTypeString.account:
+        data.burnForType = this.i18n.t('burn.messages.account', { lang: accountLanguage });
+        break;
+      case BurnForTypeString.page:
+        data.burnForType = this.i18n.t('burn.messages.page', { lang: accountLanguage });
+        break;
       default:
         break;
     }

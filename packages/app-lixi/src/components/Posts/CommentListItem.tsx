@@ -1,11 +1,10 @@
 import { Comment as AntdComment } from '@ant-design/compatible';
-import { DislikeFilled, DislikeOutlined, DownOutlined, LikeFilled, LikeOutlined, UpOutlined } from '@ant-design/icons';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import AvatarUser from '@components/Common/AvatarUser';
 import Counter from '@components/Common/Counter';
 import { AuthorizationContext } from '@context/index';
-import { Comment, Post } from '@generated/types.generated';
+import { Coin } from '@generated/types.generated';
 import { prepareBurnCommand } from '@store/burn';
 import { useSliceDispatch } from '@store/index';
 import { formatBalance } from '@utils/cashMethods';
@@ -19,6 +18,9 @@ import { PostQueryItem, CommentQueryItem } from '@generated/types';
 import styled from 'styled-components';
 import IconBurnComment from './IconBurnComment';
 import { Parser as HtmlToReactParser } from 'html-to-react';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { useConvertDanaToCoinQuery } from '@store/dana/dana.api';
+import { calBurnAmountWithFee } from 'src/utils/burnValueWithFee';
 
 const SpaceCustom = styled(Space)`
   gap: 5px !important;
@@ -53,7 +55,17 @@ const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFo
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
   const image = item?.imageUploadable?.uploads[0];
-  const [isHoverIconBurn, setIsHoverIconBurn] = useState<boolean>(false);
+
+  const [burnAmountPerCoin, setBurnAmountPerCoin] = useState(0);
+  const { data: dataBurn } = useConvertDanaToCoinQuery({
+    ConvertDanaInput: {
+      convertToCoin: COIN.XPI as unknown as Coin
+    }
+  });
+
+  useEffect(() => {
+    setBurnAmountPerCoin(dataBurn?.convertDanaToCoin ?? 0);
+  }, [dataBurn]);
 
   const userName = useMemo(() => {
     return _.isNil(item?.commentAccount) ? DEFAULT_USERNAME : item?.commentAccount?.name;
@@ -68,7 +80,8 @@ const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFo
           isUpVote,
           burnForItem: dataItem,
           burnForType,
-          burnValue: '1'
+          burnValue: burnAmountPerCoin.toString(),
+          amountDana: 1
         })
       );
     } else {
@@ -83,7 +96,7 @@ const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFo
 
   const actions = [
     <span key={`comment-down-vote-${item.id}`}>
-      <Tooltip title={() => intl.get('general.burnDown')}>
+      <Tooltip placement="topRight" title={calBurnAmountWithFee(1, burnAmountPerCoin, true)}>
         <SpaceCustom onClick={() => actionsComment(item, ACTION_VOTE.DOWN_VOTE)}>
           <IconBurnComment isUp={false} />
           <Counter num={formatBalance(item?.danaBurnDown ?? 0)} />
@@ -91,7 +104,7 @@ const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFo
       </Tooltip>
     </span>,
     <span style={{ marginInlineEnd: '15px' }} key={`comment-up-vote-${item.id}`}>
-      <Tooltip title={() => intl.get('general.burnUp')}>
+      <Tooltip placement="topRight" title={calBurnAmountWithFee(1, burnAmountPerCoin, true)}>
         <SpaceCustom onClick={() => actionsComment(item, ACTION_VOTE.UP_VOTE)}>
           <IconBurnComment isUp />
           <Counter num={formatBalance(item?.danaBurnUp ?? 0)} />
