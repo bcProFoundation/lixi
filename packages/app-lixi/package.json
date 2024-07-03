@@ -138,5 +138,5 @@
     "typescript": "5.4.2",
     "webpack": "5.75.0"
   },
-  "packageManager": "pnpm"
+  "packageManager": "pnpm@6.32.4"
 }
