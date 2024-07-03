@@ -198,5 +198,6 @@
     "fs": false,
     "os": false,
     "path": false
-  }
+  },
+  "packageManager": "pnpm"
 }
