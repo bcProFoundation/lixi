@@ -32,4 +32,4 @@ import { LIXI_HANDLE_INDEXER_QUEUE } from './handle.constants';
   ],
   exports: [Logger]
 })
-export class HandleModule { }
+export class LixiHandleModule { }

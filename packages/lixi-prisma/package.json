@@ -11,12 +11,16 @@
   "license": "MIT",
   "exports": {
     ".": {
+      "types": "./build/main/index.d.ts",
       "require": "./build/main/index.js",
-      "import": "./build/main/index.js"
+      "import": "./build/module/index.js",
+      "default": "./build/main/index.js"
     },
     "./*": {
+      "types": "./build/main/*.d.ts",
       "require": "./build/main/*.js",
-      "import": "./build/main/*.js"
+      "import": "./build/module/*.js",
+      "default": "./build/main/*.js"
     }
   },
   "scripts": {
@@ -28,8 +32,9 @@
     "lint:ts": "eslint \"src/**/*.ts\"",
     "format": "prettier --write \"src/**/*{.ts,.json}\" --write --config .prettierrc.js",
     "fix:lint": "eslint \"src/**/*.ts\" --fix",
-    "build": "rimraf build && tsc -p tsconfig.build.json",
-    "build:watch": "tsc -p tsconfig.build.json -w --preserveWatchOutput",
+    "build": "rimraf build && run-p build:*",
+    "build:main": "tsc -p tsconfig.build.json",
+    "build:module": "tsc -p tsconfig.module.json",
     "start:dev": "yarn run build:watch",
     "migrate:dev": "prisma migrate dev --preview-feature",
     "migrate:dev:create": "prisma migrate dev --create-only --preview-feature",
@@ -48,22 +53,22 @@
     "seed:countries": "ts-node prisma/seeds/countries.ts"
   },
   "devDependencies": {
-    "@types/node": "^20.11.29",
+    "@types/node": "^20.11.30",
     "eslint": "^8.33.0",
-    "eslint-config-prettier": "^8.6.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "npm-run-all": "4.1.5",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "npm-run-all": "^4.1.5",
     "prettier": "^3.2.5",
     "prisma": "^5.12.1",
     "rimraf": "^5.0.5",
     "ts-node": "^10.9.1",
-    "typescript": "^5.4.2"
+    "typescript": "5.4.3"
   },
   "dependencies": {
     "@prisma/client": "5.12.1"
   },
   "peerDependencies": {
-    "@nestjs/common": ">=10.1.3"
+    "@nestjs/common": "^10.3.3"
   },
   "prisma": {
     "schema": "./prisma/schema.prisma",

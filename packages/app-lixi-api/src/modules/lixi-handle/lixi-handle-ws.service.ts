@@ -3,15 +3,14 @@ import { adjustRate, COIN, coinInfo, DanaRate, GHPerDana, ratioHash256 } from '@
 import { decode, encode } from '@msgpack/msgpack';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { BlockInfo, ChronikClient, SubscribeMsg } from 'chronik-client';
+import { BlockInfo, ChronikClient, SubscribeMsg, Tx } from 'chronik-client';
 import { Redis } from 'ioredis';
 import { InjectChronikClient } from 'nestjs-chronik';
 import { template } from 'src/utils/stringTemplate';
-import { KeyCurrentAdjust, KeyCurrentHeight } from './dana.constants';
 import { fromSatoshisToCoin } from 'src/utils/cashMethods';
 
 @Injectable()
-export class HandleWsService implements OnModuleInit {
+export class LixiHandleWsService implements OnModuleInit {
   private logger: Logger = new Logger(HandleWsService.name);
   private keyInfoBlockPrefix = 'items:blocks:{{coin}}:item-data';
   private keyInfoConvertPrefix = 'items:convert-dana:{{coin}}:item-data';
@@ -21,6 +20,8 @@ export class HandleWsService implements OnModuleInit {
   private keyHighestConvertData = 'items:convert-dana-highest:{{coin}}';
   private keyCurrentAdjustDana = 'items:dana-rate-adjust-current:{{coin}}';
   private keyIndexHighestBlockData = 'items:index-block-highest:{{coin}}';
+
+  private blockConnectedLock = new AsyncLock();
 
   constructor(
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
@@ -78,69 +79,51 @@ export class HandleWsService implements OnModuleInit {
     await ws.waitForOpen();
     ws.subscribe('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
 
-    //ws for xec
-    const wsXEC = this.chronikXEC.ws({
-      onMessage: async (msg: SubscribeMsg) => {
-        const { type } = msg;
-        if (type === 'BlockConnected') {
-          //add new block
-          const keyHighestBlockCoin = template(this.keyIndexHighestBlockData, { coin: COIN.XEC });
-          const blockHighestInfo = (await this.chronikXEC.block(msg.blockHash)).blockInfo;
-          const currentIndexHighest = Number((await this.redis.get(keyHighestBlockCoin)) ?? '0');
-
-          if (blockHighestInfo.height < currentIndexHighest + 10) {
-            this.handleNewBlock(msg.blockHash, COIN.XEC);
-            this.redis.set(keyHighestBlockCoin, blockHighestInfo.height);
-          }
-
-          //adjust dana by blockTime
-          const keyAdjustDanaByXEC = template(this.keyAdjustDana, { coin: COIN.XEC });
-          const keyCurrentAdjustDanaByXEC = template(this.keyCurrentAdjustDana, { coin: COIN.XEC });
-          if (Number.isInteger(blockHighestInfo.height / coinInfo[COIN.XEC].totalBlockInDay)) {
-            const currentAdjust = await this.redis.hget(keyCurrentAdjustDanaByXEC, KeyCurrentAdjust);
-            if (!currentAdjust) {
-              //set default: 100GH
-              Promise.all([
-                this.redis.hset(keyAdjustDanaByXEC, blockHighestInfo.height, GHPerDana),
-                this.redis.hset(keyCurrentAdjustDanaByXEC, KeyCurrentAdjust, GHPerDana)
-              ]);
-            } else {
-              const currentAdjustRateDana = Number(currentAdjust) / adjustRate;
-              Promise.all([
-                this.redis.hset(keyAdjustDanaByXEC, blockHighestInfo.height, currentAdjustRateDana),
-                this.redis.hset(keyCurrentAdjustDanaByXEC, KeyCurrentAdjust, currentAdjustRateDana)
-              ]);
-            }
-          }
-        }
-      },
-      onReconnect: e => {
-        // Fired before a reconnect attempt is made:
-        this.logger.log('XEC Reconnecting websocket, disconnection cause: ');
-      },
-      onConnect: e => {
-        this.logger.log(`XEC Chronik websocket connected`);
-      },
-      onError: e => {
-        this.logger.log('XEC error', e);
-      }
-    });
-    await wsXEC.waitForOpen();
-    wsXEC.subscribe('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
 
     this.logger.log(`The module has been initialized.`);
   }
 
-  async handleNewBlock(blockHash: string | number, coin = COIN.XPI) {
-    let newBlockInfo;
-    switch (coin) {
-      case COIN.XPI:
-        newBlockInfo = (await this.chronikXPI.block(blockHash)).blockInfo;
+  async parseWebsocketMessage(wsMsg: SubscribeMsg) {
+
+    // determine message type 
+    // type can be AddedToMempool, BlockConnected, or Confirmed
+    const { type } = wsMsg;
+    switch (type) {
+      case 'BlockConnected': {
+        return this.blockConnectedLock
+          .acquire('handleBlockConnected', async function () {
+            return await handleBlockConnected(
+              wsMsg.blockHash,
+            );
+          })
+          .then(
+            result => {
+              // lock released with no error
+              return result;
+            },
+            error => {
+              // lock released with error thrown by handleBlockConnected()
+              console.log(
+                `Error in handleBlockConnected called by ${wsMsg.blockHash}`,
+                error,
+              );
+              // TODO notify admin
+              return false;
+            },
+          );
+      }
+      case 'AddedToMempool':
+        return handleAddedToMempool(chronik, db, cache, wsMsg.txid);
+      case 'RemovedFromMempool':
+        return deletePendingAliases(db, { txid: wsMsg.txid });
+      case 'Confirmed':
         break;
-      case COIN.XEC:
-        newBlockInfo = (await this.chronikXEC.block(blockHash)).blockInfo;
-        break;
+      default:
     }
+  }
+
+  async handleBlockConnected(blockHash: string) {
+    let newBlockInfo;
 
     //write into redis
     const keyInfoBlockCoin = template(this.keyInfoBlockPrefix, { coin });
@@ -202,6 +185,79 @@ export class HandleWsService implements OnModuleInit {
 
     this.redis.hset(keyInfoConvertDana, newBlockInfo.height, Buffer.from(encode(savedConvertedRate)));
     this.redis.hset(keyInfoHighestConvertDana, KeyCurrentHeight, Buffer.from(encode(savedConvertedRate)));
+  }
+
+  async handleAddedToMempool(txid: string) {
+    // TODO
+    let txDetails: Tx;
+    try {
+      txDetails = await this.chronikXPI.tx(txid);
+    } catch (err) {
+      this.logger.error(
+        `Error in chronik.tx(${txid}) in handleAddedToMempool`,
+        err,
+      );
+      throw err;
+    }
+
+    return parseTxForPendingHandles(txDetails);
+  }
+
+  async parseTxForPendingHandles(txDetails: Tx) {
+
+    // pending aliases must be unconfirmed
+    if (typeof txDetails.block !== 'undefined') {
+      return false;
+    }
+    // Check for valid alias tx(s) in given txDetails
+    // Note that getAliasTxs takes an array of txDetails objects
+    // In this case we pass an array of just this txDetails
+    const potentialPendingAliases = module.exports.getAliasTxs(
+      [txDetails],
+      aliasConstants,
+    );
+
+    if (potentialPendingAliases.length === 0) {
+      // We know this tx cannot be a pending alias tx as it contains no valid registration outputs
+      return false;
+    }
+
+    // Note that parseTxForPendingAliases is only called on one txDetails
+    // However, it is possible that one registration tx registers multiple aliases
+    // Edge case as in v0 this requires the tx to have multiple OP_RETURN outputs
+    let txContainsPendingAlias = false;
+    for (const potentialPendingAlias of potentialPendingAliases) {
+      const { alias } = potentialPendingAlias;
+
+      if ((await getAliasInfoFromAlias(db, alias)) === null) {
+        // If this alias is not already registered, then this is a valid pending registration
+        // Note that you may have more than 1 pending alias of the same 'alias'
+
+        // Get tipHeight to set with this pendingAlias
+        let tipHeight = cache.get('tipHeight');
+
+        if (typeof tipHeight === 'undefined') {
+          // If tipHeight is not set, get it from serverState
+          // More expensive call than cache, ok here bc edge case, can only happen
+          // for pending alias txs that come in right at server startup
+          const { processedBlockheight } = await getServerState(db);
+          tipHeight = processedBlockheight;
+        }
+        potentialPendingAlias.tipHeight = tipHeight;
+
+        const pendingAddedResult = await addOneAliasToPending(
+          db,
+          potentialPendingAlias,
+        );
+
+        if (pendingAddedResult && pendingAddedResult.acknowledged) {
+          console.log(`New pending alias: ${alias}`);
+          txContainsPendingAlias = true;
+        }
+      }
+    }
+
+    return txContainsPendingAlias;
   }
 
   async handleMultipleBlock(startBlock: number, endBlock: number, coin = COIN.XPI) {
