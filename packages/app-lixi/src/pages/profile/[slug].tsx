@@ -29,6 +29,15 @@ const ProfileDetailPage = props => {
   }
   const canonicalUrl = process.env.NEXT_PUBLIC_LIXI_URL + `profile/${userAddress}`;
 
+  let linkShare;
+  if (account?.cover) {
+    linkShare = account.cover;
+  } else if (account?.avatar) {
+    linkShare = account.avatar;
+  } else {
+    linkShare = process.env.NEXT_PUBLIC_LIXI_URL + 'images/default-avatar.jpg';
+  }
+
   return (
     <React.Fragment>
       {account && (
@@ -39,8 +48,9 @@ const ProfileDetailPage = props => {
             canonical={canonicalUrl}
             openGraph={{
               url: canonicalUrl,
-              title: 'Lixi',
-              images: [{ url: '' }],
+              title: account.name,
+              description: account?.description || 'Your Attention Your Money!',
+              images: [{ url: linkShare }],
               site_name: 'Lixi'
             }}
             twitter={{

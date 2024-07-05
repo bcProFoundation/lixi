@@ -123,6 +123,8 @@ export default {
   'general.open': 'Mở',
   'general.postFilter': 'Bài Theo Dõi: ',
   'general.dana': ' Dana',
+  'general.danaGiven': ' Dana Given',
+  'general.danaReceived': ' Dana Reiceived',
   'general.support': 'Hỗ trợ',
   'general.all': 'Tất cả',
   'general.installApp': 'Cài đặt ứng dụng',
@@ -759,8 +761,8 @@ export default {
   'messenger.pendingMessage': 'Đang chờ tin nhắn',
   'messenger.openMessage': 'Mở tin nhắn',
   'messenger.chatPage': 'Nhắn tin với tôi',
-  'messenger.offerChat': 'Đề nghị {xpi} XPI để trò chuyện với bạn.',
-  'messenger.youOfferChat': 'Bạn đề nghị {xpi} XPI để trò chuyện với bạn.',
+  'messenger.offerChat': 'Đã đề nghị {xpi} XPI để trò chuyện với bạn.',
+  'messenger.youOfferChat': 'Bạn đề nghị {xpi} XPI để trò chuyện.',
 
   /* 24. Code country to language*/
   'code.ab': 'Abkhazian',

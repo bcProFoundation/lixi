@@ -81,3 +81,5 @@ export const TRANSACTION = {
   /** Minimum output amount for any Give/Withdraw */
   MIN_OUTPUT_AMOUNT: 1000
 };
+
+export const epoch = '2024-06-01 00:00:00';

@@ -93,14 +93,14 @@ export const notificationTypeTranslations = [
     notificationTypeId: 7,
     language: 'en',
     isDefault: true,
-    template: '{{senderName}} gave you {{xpiGive}} XPI.'
+    template: '{{senderName}} gave you {{xpiGive}} {{coin}}.'
   },
   {
     id: 14,
     notificationTypeId: 7,
     language: 'vi',
     isDefault: false,
-    template: '{{senderName}} đã tặng cho bạn {{xpiGive}} XPI.'
+    template: '{{senderName}} đã tặng cho bạn {{xpiGive}} {{coin}}.'
   },
   // burn-comment-on-postAccount
   {
@@ -108,7 +108,7 @@ export const notificationTypeTranslations = [
     notificationTypeId: 8,
     language: 'en',
     isDefault: true,
-    template: '{{senderName}} {{burnType}} {{xpiBurn}} Dana for comment on your post. You received {{xpiFee}} XPI fee.'
+    template: '{{senderName}} {{burnType}} {{xpiBurn}} Dana for comment on your post. You received {{xpiFee}} {{coin}} fee.'
   },
   {
     id: 16,
@@ -116,7 +116,7 @@ export const notificationTypeTranslations = [
     language: 'vi',
     isDefault: false,
     template:
-      '{{senderName}} {{burnType}} {{xpiBurn}} Dana cho bình luận trong bài viết của bạn. Bạn được nhận {{xpiFee}} XPI tiền phí.'
+      '{{senderName}} {{burnType}} {{xpiBurn}} Dana cho bình luận trong bài viết của bạn. Bạn được nhận {{xpiFee}} {{coin}} tiền phí.'
   },
   // burn-account-fee
   {
@@ -124,7 +124,7 @@ export const notificationTypeTranslations = [
     notificationTypeId: 9,
     language: 'en',
     isDefault: true,
-    template: '{{senderName}} {{burnType}} {{xpiBurn}} Dana on your post. You received {{xpiFee}} XPI fee.'
+    template: '{{senderName}} {{burnType}} {{xpiBurn}} Dana on your post. You received {{xpiFee}} {{coin}} fee.'
   },
   {
     id: 18,
@@ -132,7 +132,7 @@ export const notificationTypeTranslations = [
     language: 'vi',
     isDefault: false,
     template:
-      '{{senderName}} {{burnType}} {{xpiBurn}} Dana cho bài viết của bạn. Bạn được nhận {{xpiFee}} XPI tiền phí.'
+      '{{senderName}} {{burnType}} {{xpiBurn}} Dana cho bài viết của bạn. Bạn được nhận {{xpiFee}} {{coin}} tiền phí.'
   },
   // burn-page-fee
   {
@@ -141,7 +141,7 @@ export const notificationTypeTranslations = [
     language: 'en',
     isDefault: true,
     template:
-      '{{senderName}} {{burnType}} {{xpiBurn}} Dana for {{burnForType}} on your {{pageName}} page. You received {{xpiFee}} XPI fee.'
+      '{{senderName}} {{burnType}} {{xpiBurn}} Dana for {{burnForType}} on your {{pageName}} page. You received {{xpiFee}} {{coin}} fee.'
   },
   {
     id: 20,
@@ -149,7 +149,7 @@ export const notificationTypeTranslations = [
     language: 'vi',
     isDefault: false,
     template:
-      '{{senderName}} {{burnType}} {{xpiBurn}} Dana cho {{burnForType}} trong trang {{pageName}} của bạn. Bạn được nhận {{xpiFee}} XPI tiền phí.'
+      '{{senderName}} {{burnType}} {{xpiBurn}} Dana cho {{burnForType}} trong trang {{pageName}} của bạn. Bạn được nhận {{xpiFee}} {{coin}} tiền phí.'
   },
   // follow-account
   {
@@ -188,14 +188,14 @@ export const notificationTypeTranslations = [
     notificationTypeId: 15,
     language: 'en',
     isDefault: true,
-    template: '{{senderName}} sent you {{lixiAmount}} to request for a chat with your page {{pageName}}.'
+    template: '{{senderName}} sent you {{lixiAmount}} {{coin}} to request for a chat with your page {{pageName}}.'
   },
   {
     id: 28,
     notificationTypeId: 15,
     language: 'vi',
     isDefault: false,
-    template: '{{senderName}} đã gửi {{lixiAmount}} với mong muốn trò chuyện với trang {{pageName}} của bạn'
+    template: '{{senderName}} đã gửi {{lixiAmount}} {{coin}} với mong muốn trò chuyện với trang {{pageName}} của bạn'
   },
   //accept page-message
   {
@@ -219,14 +219,14 @@ export const notificationTypeTranslations = [
     language: 'en',
     isDefault: true,
     template:
-      'Your request to chat with page {{pageName}} has been declined. Your Lixi of {{lixiAmount}} XPI has been returned.'
+      'Your request to chat with page {{pageName}} has been declined. Your Lixi of {{lixiAmount}} {{coin}} has been returned.'
   },
   {
     id: 32,
     notificationTypeId: 17,
     language: 'vi',
     isDefault: false,
-    template: 'Yêu cầu trò chuyện với trang {{pageName}} đã không được đồng ý. Bạn đã được hoàn lại {{lixiAmount}} XPI.'
+    template: 'Yêu cầu trò chuyện với trang {{pageName}} đã không được đồng ý. Bạn đã được hoàn lại {{lixiAmount}} {{coin}}.'
   },
   //reply-comment
   {
@@ -242,5 +242,35 @@ export const notificationTypeTranslations = [
     language: 'vi',
     isDefault: false,
     template: '{{senderName}} đã trả lời bạn.'
-  }
+  },
+  //burn for account and page
+  {
+    id: 35,
+    notificationTypeId: 19,
+    language: 'en',
+    isDefault: true,
+    template: '{{senderName}} {{burnType}} {{xpiBurn}} Dana for your {{pageName}} {{burnForType}}. You received {{xpiFee}} {{coin}} fee.'
+  },
+  {
+    id: 36,
+    notificationTypeId: 19,
+    language: 'vi',
+    isDefault: false,
+    template: '{{senderName}} {{burnType}} {{xpiBurn}} Dana cho {{burnForType}} {{pageName}} của bạn. Bạn được nhận {{xpiFee}} {{coin}} tiền phí.'
+  },
+  //burn without fee
+  {
+    id: 37,
+    notificationTypeId: 20,
+    language: 'en',
+    isDefault: true,
+    template: '{{senderName}} {{burnType}} {{xpiBurn}} Dana on your {{burnForType}}.'
+  },
+  {
+    id: 38,
+    notificationTypeId: 20,
+    language: 'vi',
+    isDefault: false,
+    template: '{{senderName}} {{burnType}} {{xpiBurn}} Dana cho {{burnForType}} của bạn.'
+  },
 ];

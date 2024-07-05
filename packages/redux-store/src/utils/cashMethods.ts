@@ -252,14 +252,14 @@ export const generateTxOutput = (
         const outputValue = new BigNumber(destinationAddressAndValueArray[i].split(',')[1]);
         txBuilder.addOutput(
           outputAddress,
-          parseInt(fromCoinToSatoshis(outputValue).toString(), coinInfo[COIN.XPI].cashDecimals)
+          parseInt(fromCoinToSatoshis(outputValue, coinInfo[COIN.XPI].cashDecimals).toString())
         );
       }
     } else {
       // for one to one mode, add output w/ single address and amount to send
       txBuilder.addOutput(
         destinationAddress,
-        parseInt(fromCoinToSatoshis(singleSendValue).toString(), coinInfo[COIN.XPI].cashDecimals)
+        parseInt(fromCoinToSatoshis(singleSendValue, coinInfo[COIN.XPI].cashDecimals).toString())
       );
     }
 
@@ -793,14 +793,14 @@ export const generateXecTxOutput = (
         let outputValue = new BigNumber(destinationAddressAndValueArray![i].split(',')[1]);
         txBuilder.addOutput(
           cashaddr.toLegacy(outputAddress),
-          parseInt(fromCoinToSatoshis(outputValue).toString(), coinInfo[COIN.XEC].cashDecimals)
+          parseInt(fromCoinToSatoshis(outputValue, coinInfo[COIN.XEC].cashDecimals).toString())
         );
       }
     } else {
       // for one to one mode, add output w/ single address and amount to send
       txBuilder.addOutput(
         cashaddr.toLegacy(destinationAddress),
-        parseInt(fromCoinToSatoshis(singleSendValue).toString(), coinInfo[COIN.XEC].cashDecimals)
+        parseInt(fromCoinToSatoshis(singleSendValue, coinInfo[COIN.XEC].cashDecimals).toString())
       );
     }
 

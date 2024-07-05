@@ -405,7 +405,7 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
           <ClaimComponent isClaimFromAccount={true} claimCodeFromURL={claimCode}></ClaimComponent>
         </div>
 
-        {selectedAccount?.coin !== COIN.XPI && (
+        {(selectedAccount?.coin ?? COIN.XPI) !== COIN.XPI && (
           <div>
             <p className="text-base-wallet">{intl.get('general.baseWallet')}</p>
             {UIWallet(COIN.XPI)}
@@ -414,7 +414,7 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
 
         <p className="text-other-wallet">{intl.get('general.otherWallet')}</p>
         {Object.keys(COIN).map(coin => {
-          if (coin === selectedAccount?.coin) return '';
+          if (coin === (selectedAccount?.coin ?? COIN.XPI)) return '';
           else return UIWallet(coin);
         })}
 

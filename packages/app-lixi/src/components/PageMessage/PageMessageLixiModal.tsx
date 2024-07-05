@@ -135,7 +135,7 @@ const PageMessageLixiModal = ({ account, page, wallet, classStyle }: PageMessage
               pattern: /^[0-9]*$/,
               validate: {
                 checkIsXPI: value => {
-                  return selectedAccount?.coin === COIN.XPI || 'Must be XPI wallet';
+                  return (selectedAccount?.coin ?? COIN.XPI) === COIN.XPI || 'Must be XPI wallet';
                 },
                 checkEnoughCoin: value => {
                   return (

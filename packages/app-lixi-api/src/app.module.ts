@@ -101,6 +101,10 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
           xpi: {
             clientUrls: [`${config.get<string>('CHRONIK_URL')}/xpi` || 'https://chronik.be.cash/xpi'],
             nodeUrls: ['https://chronik.pay2stay.com/xpi']
+          },
+          xrg: {
+            clientUrls: [`${config.get<string>('CHRONIK_URL')}/xrg` || 'https://chronik.be.cash/xrg'],
+            nodeUrls: ['https://chronik.pay2stay.com/xrg']
           }
         }
       })
