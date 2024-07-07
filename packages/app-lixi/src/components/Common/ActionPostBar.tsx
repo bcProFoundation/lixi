@@ -234,14 +234,14 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
           >
             <Space style={{ padding: '8px' }} className="repost" size={5} onClick={() => handleRepost(post)}>
               <RetweetOutlined />
-              <Counter isShowXPI={false} num={post.reposts?.length ?? 0} />
+              <Counter isShowDana={false} num={post.reposts?.length ?? 0} />
             </Space>
           </Tooltip>
         )}
         <Tooltip title={`${intl.get('post.danaViewScore')}: ${roundDanaViewScore}`}>
           <Space style={{ padding: '8px' }} className="dana-view-score" size={5}>
             <BarChartOutlined />
-            <Counter numberAbbreviation={true} isShowXPI={false} num={roundDanaViewScore} />
+            <Counter numberAbbreviation={true} isShowDana={false} num={roundDanaViewScore} />
           </Space>
         </Tooltip>
       </GroupIconText>

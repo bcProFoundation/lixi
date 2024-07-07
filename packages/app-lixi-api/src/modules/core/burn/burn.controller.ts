@@ -427,7 +427,8 @@ export class BurnController {
               command: command,
               txid: savedBurn.txid,
               amount: amountDana,
-              givenDanaAddress: burnByAddress
+              givenDanaAddress: burnByAddress,
+              receivedDanaAddress: null
             });
           });
         } else if (command.burnForType === BurnForType.Comment) {

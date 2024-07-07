@@ -38,6 +38,7 @@ import styled from 'styled-components';
 import useAuthorization from '../Common/Authorization/use-authorization.hooks';
 import { TokenQueryItem } from '@generated/types';
 import Reaction from '@components/Common/Reaction';
+import * as _ from 'lodash';
 
 const StyledTokensListing = styled.div`
   .table-tokens {
@@ -105,7 +106,7 @@ const CardItemToken = styled.div`
     margin-bottom: 8px;
   }
   .detail-token {
-    margin: 1rem 0;
+    margin-top: 1rem;
   }
   .group-action-btn {
     display: flex;
@@ -154,6 +155,7 @@ const TokensListing = () => {
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
   const currentTheme = useSliceSelector(getCurrentThemes);
   const [hasFollowed, setHasFollowed] = useState([]);
+  const [sortedTokens, setSortedTokens] = useState([]);
 
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
@@ -471,6 +473,12 @@ const TokensListing = () => {
     dispatch(setTransactionReady());
   }, [slpBalancesAndUtxos.nonSlpUtxos]);
 
+  useEffect(() => {
+    if (data.length > 0) {
+      setSortedTokens(_.orderBy(data, item => item?.dana?.danaBurnScore, 'desc'));
+    }
+  }, [data]);
+
   useDidMountEffectNotification();
 
   return (
@@ -500,9 +508,9 @@ const TokensListing = () => {
             }}
           />
           <StyledTokensListingMobile>
-            {data &&
-              data.length > 0 &&
-              data.map(token => {
+            {sortedTokens &&
+              sortedTokens.length > 0 &&
+              sortedTokens.map(token => {
                 return (
                   <React.Fragment key={token.id}>
                     <CardItemToken className="card-item-token">
@@ -527,10 +535,7 @@ const TokensListing = () => {
                         />
                       </div>
                       <div className="group-action-btn">
-                        <Button type="text" onClick={() => openBurnModal(token)}>
-                          <img src="/images/ico-burn-up.svg" alt="" />
-                        </Button>
-
+                        <Reaction burnForType={BurnForType.Token} dataItem={token} />
                         <Button type="text" className="follow-btn">
                           <Icon
                             component={() => <FollowSvg />}
