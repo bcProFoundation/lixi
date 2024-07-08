@@ -4,7 +4,7 @@ import { ToastType } from './state';
 
 export type ToastConfig = {
   message: string;
-  description?: string;
+  description?: string | React.ReactElement;
   duration?: number;
 };
 

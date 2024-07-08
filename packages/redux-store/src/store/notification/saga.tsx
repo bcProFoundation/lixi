@@ -24,7 +24,7 @@ import {
   readNotification,
   readNotificationFailure,
   readNotificationSuccess,
-  sendXpiNotification,
+  sendCoinNotification,
   userOffline,
   userOnline,
   xpiReceivedNotificationWebSocket,
@@ -181,14 +181,13 @@ function* readAllNotificationsFailureSaga(action: PayloadAction<Notification>) {
   yield put(hideLoading(readAllNotifications.type));
 }
 
-function* sendXpiNotificationSaga(action: PayloadAction<string>) {
+function* sendCoinNotificationSaga(action: PayloadAction<string>) {
   const link = action.payload;
-  // let description = (
-  //   <a href={link} target="_blank" rel="noopener noreferrer">
-  //     <p>Transaction successful. Click to view in block explorer.</p>
-  //   </a>
-  // );
-  let description = 'Transaction successful. Click to view in block explorer.';
+  let description = (
+    <a href={link} target="_blank" rel="noopener noreferrer">
+      <p>Transaction successful. Click to view in block explorer.</p>
+    </a>
+  );
   yield put(
     showToast('success', {
       message: intl.get('toast.info'),
@@ -296,8 +295,8 @@ function* watchReadAllNotificationsFailure() {
   );
 }
 
-function* watchSendXpiNotificationSaga() {
-  yield takeLatest(sendXpiNotification.type, sendXpiNotificationSaga);
+function* watchSendCoinNotificationSaga() {
+  yield takeLatest(sendCoinNotification.type, sendCoinNotificationSaga);
 }
 
 function* watchXpiReceivedNotificationWebSocketSaga() {
@@ -345,7 +344,7 @@ export default function* notificationSaga() {
       fork(watchReadAllNotifications),
       fork(watchReadAllNotificationsSuccess),
       fork(watchReadAllNotificationsFailure),
-      fork(watchSendXpiNotificationSaga),
+      fork(watchSendCoinNotificationSaga),
       fork(watchXpiReceivedNotificationWebSocketSaga),
       fork(watchUserOnline),
       fork(watchUserOffline),

@@ -168,7 +168,7 @@ export const SendXpiInput = ({ onMax, inputProps, selectProps, activeFiatCode, .
       <Form.Item {...otherProps}>
         <Input.Group compact>
           <Input
-            style={{ width: '58%', textAlign: 'left' }}
+            style={{ width: '83%', textAlign: 'left' }}
             type="number"
             step={inputProps.dollar === 1 ? 0.01 : 1 / 10 ** currency.cashDecimals}
             prefix={
@@ -180,7 +180,7 @@ export const SendXpiInput = ({ onMax, inputProps, selectProps, activeFiatCode, .
             }
             {...inputProps}
           />
-          {CurrencySelect}
+          {/* {CurrencySelect} */}
           <InputNumberAddonText
             className="input-number-addon"
             style={{
