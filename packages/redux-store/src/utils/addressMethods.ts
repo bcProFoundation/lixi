@@ -31,7 +31,7 @@ export function parseAddress(XPI: any, addressString: string, coin = COIN.XPI): 
         isValidAddress = XPI.Address.isXAddress(cleanAddress);
         break;
       case COIN.XEC:
-        isValidAddress = isValidXecAddress(cleanAddress)
+        isValidAddress = isValidXecAddress(cleanAddress);
         break;
     }
   } catch (err) {

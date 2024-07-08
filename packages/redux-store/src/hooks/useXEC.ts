@@ -121,16 +121,16 @@ export default function useXEC() {
         return toHex(rawTx);
       } else {
         try {
-        broadcastResponse = await chronik.broadcastTx(rawTx);
-        if (!broadcastResponse) {
-          throw new Error('Empty chronik broadcast response');
+          broadcastResponse = await chronik.broadcastTx(rawTx);
+          if (!broadcastResponse) {
+            throw new Error('Empty chronik broadcast response');
+          }
+        } catch (err) {
+          console.log('Error broadcasting tx to chronik client');
+          throw err;
         }
-      } catch (err) {
-        console.log('Error broadcasting tx to chronik client');
-        throw err;
-      }
-      // return the explorer link for the broadcasted tx
-      return `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${broadcastResponse.txid}`;
+        // return the explorer link for the broadcasted tx
+        return `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${broadcastResponse.txid}`;
       }
     } catch (err) {
       throw new Error(err);
