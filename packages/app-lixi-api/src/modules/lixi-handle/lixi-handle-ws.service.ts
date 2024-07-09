@@ -15,7 +15,7 @@ export class LixiHandleWsService implements OnModuleInit {
   constructor(
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
     @InjectRedis() private readonly redis: Redis
-  ) { }
+  ) {}
 
   async onModuleInit() {
     //ws for xpi
@@ -40,23 +40,18 @@ export class LixiHandleWsService implements OnModuleInit {
     await ws.waitForOpen();
     ws.subscribe('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
 
-
     this.logger.log(`The module has been initialized.`);
   }
 
   async parseWebsocketMessage(wsMsg: SubscribeMsg) {
-
-    // determine message type 
+    // determine message type
     // type can be AddedToMempool, BlockConnected, or Confirmed
     const { type } = wsMsg;
     switch (type) {
       case 'BlockConnected': {
-        return this.blockConnectedLock
-          .acquire('handleBlockConnected', async () => {
-            return await this.handleBlockConnected(
-              wsMsg.blockHash,
-            );
-          });
+        return this.blockConnectedLock.acquire('handleBlockConnected', async () => {
+          return await this.handleBlockConnected(wsMsg.blockHash);
+        });
       }
       case 'AddedToMempool':
       case 'RemovedFromMempool':
@@ -69,13 +64,9 @@ export class LixiHandleWsService implements OnModuleInit {
   async handleBlockConnected(blockHash: string) {
     let newBlockInfo;
     return newBlockInfo;
-
   }
 
-  async parseTxForPendingHandles(txDetails: Tx) {
+  async parseTxForPendingHandles(txDetails: Tx) {}
 
-  }
-
-  async handleMultipleBlock(startBlock: number, endBlock: number, coin = COIN.XPI) {
-  }
+  async handleMultipleBlock(startBlock: number, endBlock: number, coin = COIN.XPI) {}
 }

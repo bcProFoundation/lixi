@@ -27,7 +27,7 @@ export class DanaWsService implements OnModuleInit {
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
     @InjectChronikClient('xrg') private chronikXRG: ChronikClient,
     @InjectRedis() private readonly redis: Redis
-  ) { }
+  ) {}
 
   async onModuleInit() {
     //ws for xpi

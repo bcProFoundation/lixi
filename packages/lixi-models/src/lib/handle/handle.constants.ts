@@ -1,4 +1,3 @@
-
 export const LIXI_HANDLE_CONSTANTS = {
   OUTPUT_SCRIPT_START: '6a042e786563',
   MIN_LENGTH: 1,
@@ -25,6 +24,6 @@ export const LIXI_HANDLE_CONSTANTS = {
     18: 551,
     19: 551,
     20: 551,
-    21: 551,
+    21: 551
   }
-}
+};

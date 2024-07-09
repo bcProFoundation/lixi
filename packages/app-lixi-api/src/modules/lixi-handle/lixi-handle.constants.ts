@@ -25,6 +25,6 @@ export const LIXI_HANDLE_CONSTANTS = {
     18: 551,
     19: 551,
     20: 551,
-    21: 551,
+    21: 551
   }
-}
+};

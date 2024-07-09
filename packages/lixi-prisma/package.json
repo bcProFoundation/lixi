@@ -11,16 +11,12 @@
   "license": "MIT",
   "exports": {
     ".": {
-      "types": "./build/main/index.d.ts",
       "require": "./build/main/index.js",
-      "import": "./build/module/index.js",
-      "default": "./build/main/index.js"
+      "import": "./build/main/index.js"
     },
     "./*": {
-      "types": "./build/main/*.d.ts",
       "require": "./build/main/*.js",
-      "import": "./build/module/*.js",
-      "default": "./build/main/*.js"
+      "import": "./build/main/*.js"
     }
   },
   "scripts": {
@@ -32,7 +28,7 @@
     "lint:ts": "eslint \"src/**/*.ts\"",
     "format": "prettier --write \"src/**/*{.ts,.json}\" --write --config .prettierrc.js",
     "fix:lint": "eslint \"src/**/*.ts\" --fix",
-    "build": "rimraf build && run-p build:*",
+    "build": "rimraf build && tsc -p tsconfig.build.json",
     "build:main": "tsc -p tsconfig.build.json",
     "build:module": "tsc -p tsconfig.module.json",
     "start:dev": "yarn run build:watch",

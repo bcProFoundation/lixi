@@ -18,7 +18,7 @@ export class DanaIndexXPIService implements OnModuleInit {
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
     @InjectRedis() private readonly redis: Redis,
     @InjectQueue(INDEX_BLOCK_QUEUE) private indexBlockQueue: Queue
-  ) { }
+  ) {}
 
   async onModuleInit() {
     //clear queue before running

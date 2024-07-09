@@ -27,9 +27,7 @@ import { LIXI_HANDLE_INDEXER_QUEUE } from './lixi-handle.constants';
     })
   ],
   controllers: [],
-  providers: [
-    Logger,
-  ],
+  providers: [Logger],
   exports: [Logger]
 })
-export class LixiHandleModule { }
+export class LixiHandleModule {}
