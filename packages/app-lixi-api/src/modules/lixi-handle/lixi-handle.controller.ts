@@ -1,5 +1,5 @@
 
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { LixiHandleService } from './lixi-handle.service';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
@@ -16,16 +16,14 @@ export class LixiHandleController {
 
   @Get('address/:address')
   async getHandleByAddress(@Param('address') address: string) {
-    return this.lixiHandleService.getHandleByAddress(address);
+    return '';
+    // return this.lixiHandleService.getHandleByAddress(address);
   }
 
 
   @Get('name/:name')
   async getHandleByName(@Param('name') name: string) {
-    return this.prisma.handle.findUnique({
-      where: {
-        name
-      });
+    return '';
   }
 
 }

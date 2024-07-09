@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import IORedis from 'ioredis';
 import _ from 'lodash';
 import { AuthModule } from '../auth/auth.module';
-import { LIXI_HANDLE_INDEXER_QUEUE } from './handle.constants';
+import { LIXI_HANDLE_INDEXER_QUEUE } from './lixi-handle.constants';
 
 @Module({
   imports: [
