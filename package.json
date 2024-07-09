@@ -16,11 +16,13 @@
     "build:api": "turbo run build --filter=@bcpros/app-lixi-api",
     "build:app": "turbo run build --filter=@bcpros/app-lixi",
     "db:deploy": "turbo run db:deploy --filter=@bcpros/lixi-prisma",
+    "db:seeds": "turbo run db:seeds --filter=@bcpros/lixi-prisma",
     "format": "turbo run format"
   },
   "husky": {
     "hooks": {
       "pre-commit": "pnpm precommit"
     }
-  }
+  },
+  "packageManager": "pnpm@7.0.0"
 }
