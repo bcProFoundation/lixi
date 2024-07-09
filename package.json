@@ -22,5 +22,6 @@
     "hooks": {
       "pre-commit": "pnpm precommit"
     }
-  }
+  },
+  "packageManager": "pnpm@7.0.0"
 }

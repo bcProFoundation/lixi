@@ -137,5 +137,6 @@
     "prisma-graphql-type-decimal": "^3.0.0",
     "typescript": "5.4.2",
     "webpack": "5.75.0"
-  }
+  },
+  "packageManager": "pnpm@7.0.0"
 }
