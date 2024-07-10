@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -10,16 +7,18 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// The handle for page or user account
 model Handle {
-  id           String @id @default(cuid())
-  handle       String @map("handle") @db.VarChar(150)
-  handleNumber Int    @map("handle_number") @db.Oid
+  id          String @id @default(cuid())
+  network     Coin   @default(XPI)
+  name        String @map("name") @db.VarChar(150)
+  address     String @default("") @map("address")
+  blockHeight Int    @map("block_height")
+  status      String @default("pending")
+  txid        String
 
-  // User User[]
-  // Page Page[]
-
-  @@unique([handle, handleNumber])
+  @@index([name])
+  @@index([address])
+  @@index([address, txid])
   @@map("handle")
 }
 

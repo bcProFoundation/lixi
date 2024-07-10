@@ -1,5 +1,4 @@
 import { BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn/burn.model';
-import SlpWallet from '@bcpros/minimal-xpi-slp-wallet';
 import BCHJS from '@bcpros/xpi-js';
 import { WalletPathAddressInfo } from '@store/wallet';
 import {
@@ -22,22 +21,10 @@ import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 
 export default function useXPI() {
-  const getRestUrl = (apiIndex = 0) => {
-    const apiString: string =
-      process.env.NEXT_PUBLIC_NETWORK === `mainnet`
-        ? process.env.NEXT_PUBLIC_XPI_APIS!
-        : process.env.NEXT_PUBLIC_XPI_APIS_TEST!;
-    const apiArray = apiString.split(',');
-    return apiArray[apiIndex];
-  };
 
   const getXPI = (apiIndex = 0): BCHJS => {
-    let ConstructedSlpWallet;
-
-    ConstructedSlpWallet = new SlpWallet('', {
-      restURL: getRestUrl(apiIndex)
+    return new BCHJS({
     });
-    return ConstructedSlpWallet.bchjs as BCHJS;
   };
 
   const calcFee = (XPI: BCHJS, utxos: any, p2pkhOutputNumber = 2, satoshisPerByte = 2.01, opReturnLength = 0) => {
