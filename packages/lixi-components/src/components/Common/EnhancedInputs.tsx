@@ -134,10 +134,18 @@ type SendXpiInputProps = {
   selectProps: Object;
   activeFiatCode: string;
   help: string;
+  logo: string;
 } & InputProps &
   FormItemProps;
 
-export const SendXpiInput = ({ onMax, inputProps, selectProps, activeFiatCode, ...otherProps }: SendXpiInputProps) => {
+export const SendXpiInput = ({
+  onMax,
+  inputProps,
+  selectProps,
+  activeFiatCode,
+  logo,
+  ...otherProps
+}: SendXpiInputProps) => {
   const { Option } = Select;
   const currencies = [
     {
@@ -175,7 +183,7 @@ export const SendXpiInput = ({ onMax, inputProps, selectProps, activeFiatCode, .
               inputProps.dollar === 1 ? (
                 <ThemedDollarOutlined width={20} height={20} />
               ) : (
-                <img src={currency.logo} alt="" width={20} height={20} />
+                <img src={logo} alt="" width={20} height={20} />
               )
             }
             {...inputProps}

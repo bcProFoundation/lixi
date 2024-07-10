@@ -460,6 +460,7 @@ const SendComponent: React.FC = () => {
                   onChange: e => handleSelectedCurrencyChange(e)
                 }}
                 activeFiatCode={''}
+                logo={coinInfo[selectedAccount?.coin ?? COIN.XPI].logo}
               ></SendXpiInput>
               {/* OP_RETURN message */}
               {(selectedAccount?.coin ?? COIN.XPI) === COIN.XPI && (
