@@ -109,7 +109,6 @@
   },
   "dependencies": {
     "@bcpros/lixi-models": "1.1.11",
-    "@bcpros/minimal-xpi-slp-wallet": "3.0.10",
     "@bitgo/utxo-lib": "^9.34.0",
     "@nestjs/mapped-types": "^2.0.5",
     "@shoooe/derive": "^0.2.7",

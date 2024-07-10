@@ -43,7 +43,6 @@
     "@aws-sdk/client-s3": "^3.6.0",
     "@bcpros/lixi-models": "workspace:*",
     "@bcpros/lixi-prisma": "workspace:*",
-    "@bcpros/minimal-xpi-slp-wallet": "3.0.10",
     "@bcpros/xpi-js": "4.0.6",
     "@bitgo/utxo-lib": "^9.34.0",
     "@devoxa/prisma-relay-cursor-connection": "^2.2.2",
