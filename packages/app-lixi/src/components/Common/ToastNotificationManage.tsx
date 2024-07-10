@@ -68,9 +68,19 @@ const ToastNotificationManage = () => {
 
   useEffect(() => {
     if (currentToast) {
-      const { type, config } = currentToast;
+      const { type, config, isLink, linkDescription } = currentToast;
       if (config) {
         const newConfig = _.cloneDeep(config);
+
+        //process link
+        if (isLink) {
+          newConfig.description = (
+            <a href={`${newConfig.description}`} target="_blank" rel="noopener noreferrer">
+              <p>{linkDescription}</p>
+            </a>
+          );
+        }
+
         newConfig.placement = 'top';
         newConfig.className = `custom-toast-notification ${
           currentTheme === 'dark' ? 'custom-toast-notification-dark' : 'custom-toast-notification-light'

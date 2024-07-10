@@ -12,13 +12,14 @@ import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { WrapperPage } from '@components/Settings';
 import { WalletContext } from '@context/index';
 import useXPI from '@hooks/useXPI';
+import useXEC from '@hooks/useXEC';
 import { getSelectedAccount } from '@store/account/selectors';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
-import { sendXpiNotification } from '@store/notification/actions';
+import { sendCoinNotification } from '@store/notification/actions';
 import { sendCoinFailure } from '@store/send/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletBalances } from '@store/wallet';
 import { parseAddress } from '@utils/addressMethods';
-import { getDustXPI, getUtxoWif } from '@utils/cashMethods';
+import { getDustXPI, getUtxoWif, isValidXecAddress } from '@utils/cashMethods';
 import { getRecipientPublicKey } from '@utils/chronik';
 import { shouldRejectAmountInput } from '@utils/validation';
 import { Alert, Checkbox, Col, Form, message, Modal, Row } from 'antd';
@@ -27,6 +28,7 @@ import React, { useEffect, useState } from 'react';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import { showToast } from '@store/toast/actions';
+import cashaddr from 'ecashaddrjs';
 
 const StyledCheckbox = styled(Checkbox)`
   .ant-checkbox-inner {
@@ -51,8 +53,8 @@ const SendComponent: React.FC = () => {
   const dispatch = useSliceDispatch();
   const Wallet = React.useContext(WalletContext);
   const { XPI, chronik } = Wallet;
-  const wallet = useSliceSelector(getSelectedAccount);
-  const currentAddress = wallet?.address;
+  const selectedAccount = useSliceSelector(getSelectedAccount);
+  const currentAddress = selectedAccount?.address;
 
   const [formData, setFormData] = useState({
     dirty: true,
@@ -109,6 +111,7 @@ const SendComponent: React.FC = () => {
   };
 
   const { calcFee, sendXpi } = useXPI();
+  const { sendXec } = useXEC();
 
   async function submit() {
     setFormData({
@@ -121,33 +124,56 @@ const SendComponent: React.FC = () => {
     }
 
     const { address, value } = formData;
+    const selectedCoin = selectedAccount?.coin ?? COIN.XPI;
 
     // Get the param-free address
     let cleanAddress = address.split('?')[0];
-    const isValidAddress = XPI.Address.isXAddress(cleanAddress);
+
+    const isValidAddress = checkValidAddress(cleanAddress, selectedCoin);
     if (!isValidAddress) {
       setSendXpiAddressError(`Destination is not a valid XPI address`);
       return;
     }
     try {
-      const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-
-      const link = await sendXpi(
-        XPI,
-        chronik,
-        walletPaths,
-        slpBalancesAndUtxos.nonSlpUtxos,
-        coinInfo[COIN.XPI].defaultFee,
-        opReturnMsg,
-        false, // indicate send mode is one to one
-        null,
-        cleanAddress,
-        value,
-        isEncryptedOptionalOpReturnMsg,
-        fundingWif,
-        false
-      );
-      dispatch(sendXpiNotification(link));
+      const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths, selectedCoin);
+      let link;
+      switch (selectedCoin) {
+        case COIN.XPI:
+          link = await sendXpi(
+            XPI,
+            chronik,
+            walletPaths,
+            slpBalancesAndUtxos.nonSlpUtxos,
+            coinInfo[COIN.XPI].defaultFee,
+            opReturnMsg,
+            false, // indicate send mode is one to one
+            null,
+            cleanAddress,
+            value,
+            isEncryptedOptionalOpReturnMsg,
+            fundingWif,
+            false // return hex
+          );
+          break;
+        case COIN.XEC:
+          const { type, hash } = cashaddr.decode(cleanAddress, false);
+          const recipientHash = Buffer.from(hash).toString('hex');
+          link = await sendXec(
+            chronik,
+            fundingWif,
+            slpBalancesAndUtxos.nonSlpUtxos,
+            coinInfo[COIN.XEC].defaultFee,
+            undefined,
+            false, //indicate send mode is one to one
+            null,
+            recipientHash,
+            Number.parseFloat(value),
+            coinInfo[COIN.XEC].etokenSats,
+            false // return hex
+          );
+          break;
+      }
+      dispatch(sendCoinNotification(link));
     } catch (e) {
       let message;
       if (!e.error && !e.message) {
@@ -165,6 +191,20 @@ const SendComponent: React.FC = () => {
       dispatch(sendCoinFailure(message));
     }
   }
+
+  const checkValidAddress = (address: string, coin = COIN.XPI) => {
+    let valid = false;
+    switch (coin) {
+      case COIN.XPI:
+        valid = XPI.Address.isXAddress(address);
+        break;
+      case COIN.XEC:
+        valid = isValidXecAddress(address);
+        break;
+    }
+
+    return valid;
+  };
 
   const fetchRecipientPublicKey = async recipientAddress => {
     let recipientPubKey: string | boolean;
@@ -189,9 +229,10 @@ const SendComponent: React.FC = () => {
     const { value, name } = e.target;
     let error: string = '';
     let addressString: string = _.trim(value);
+    const selectedCoin = selectedAccount?.coin ?? COIN.XPI;
 
     // parse address
-    const addressInfo = parseAddress(XPI, addressString);
+    const addressInfo = parseAddress(XPI, addressString, selectedCoin);
     const { address, isValid, queryString, amount } = addressInfo;
 
     // If query string,
@@ -200,23 +241,38 @@ const SendComponent: React.FC = () => {
 
     // Is this valid address?
     if (!isValid) {
-      error = intl.get('claim.invalidAddress', { ticker: coinInfo[COIN.XPI].ticker });
+      error = intl.get('claim.invalidAddress', { ticker: coinInfo[selectedCoin ?? COIN.XPI].ticker });
     }
     // Is this address same with my address?
-    if (currentAddress && address && address === currentAddress) {
-      error = intl.get('send.canNotSendToYourSelf');
+    switch (selectedCoin) {
+      case COIN.XPI:
+        if (currentAddress && address && address === currentAddress) {
+          error = intl.get('send.canNotSendToYourSelf');
+        }
+        break;
+      case COIN.XEC:
+        let hashHex;
+        try {
+          const { type, hash } = cashaddr.decode(address, false);
+          hashHex = Buffer.from(hash).toString('hex');
+        } catch (err) {}
+        const hashHexAccount = Buffer.from(selectedAccount?.hash160 ?? '').toString('hex');
+        if (hashHexAccount && hashHex && hashHex === hashHexAccount) {
+          error = intl.get('send.canNotSendToYourSelf');
+        }
+        break;
     }
     setSendXpiAddressError(error);
     // if the address is correct
     // attempt the fetch the public key assocciated with this address
-    if (error === '') {
+    if (error === '' && selectedCoin === COIN.XPI) {
       fetchRecipientPublicKey(address);
     }
 
     // Set amount if it's in the query string
     if (amount !== null) {
       // Set currency to BCHA
-      setSelectedCurrency(coinInfo[COIN.XPI].ticker);
+      setSelectedCurrency(coinInfo[selectedCoin ?? COIN.XPI].ticker);
 
       // Use this object to mimic user input and get validation for the value
       let amountObj = {
@@ -250,7 +306,7 @@ const SendComponent: React.FC = () => {
   const handleBchAmountChange = e => {
     const { value, name } = e.target;
     let bchValue = value;
-    const error = shouldRejectAmountInput(bchValue, walletBalances.totalBalance);
+    const error = shouldRejectAmountInput(bchValue, walletBalances.totalBalance, selectedAccount?.coin ?? COIN.XPI);
     setSendXpiAmountError(error);
 
     setFormData(p => ({
@@ -263,13 +319,15 @@ const SendComponent: React.FC = () => {
     // Clear amt error
     setSendXpiAmountError('');
     // Set currency to XPI
-    setSelectedCurrency(coinInfo[COIN.XPI].ticker);
+    setSelectedCurrency(coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker);
     try {
       const txFeeSats = calcFee(XPI, slpBalancesAndUtxos.nonSlpUtxos);
-      const txFeeBch = txFeeSats / 10 ** coinInfo[COIN.XPI].cashDecimals;
+      const txFeeBch = txFeeSats / 10 ** coinInfo[selectedAccount?.coin ?? COIN.XPI].cashDecimals;
       let value =
         _.toNumber(walletBalances.totalBalance) - txFeeBch >= 0
-          ? (_.toNumber(walletBalances.totalBalance) - txFeeBch).toFixed(coinInfo[COIN.XPI].cashDecimals)
+          ? (_.toNumber(walletBalances.totalBalance) - txFeeBch).toFixed(
+              coinInfo[selectedAccount?.coin ?? COIN.XPI].cashDecimals
+            )
           : 0;
       value = value.toString();
       setFormData({
@@ -324,14 +382,17 @@ const SendComponent: React.FC = () => {
       <WrapperPage className="card send-component">
         {!walletBalances ? (
           <ZeroBalanceHeader>
-            {intl.get('zeroBalanceHeader.noBalance', { ticker: coinInfo[COIN.XPI].ticker })}
+            {intl.get('zeroBalanceHeader.noBalance', { ticker: coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker })}
             <br />
             {intl.get('zeroBalanceHeader.deposit')}
           </ZeroBalanceHeader>
         ) : (
           <>
-            <WalletLabel name={wallet?.name ?? ''} />
-            <BalanceHeader balance={walletBalances.totalBalance || 0} ticker={coinInfo[COIN.XPI].ticker} />
+            <WalletLabel name={selectedAccount?.name ?? ''} />
+            <BalanceHeader
+              balance={walletBalances.totalBalance || 0}
+              ticker={selectedAccount?.coin ?? coinInfo[COIN.XPI].ticker}
+            />
           </>
         )}
 
@@ -369,14 +430,14 @@ const SendComponent: React.FC = () => {
                   })
                 }
                 inputProps={{
-                  placeholder: `${coinInfo[COIN.XPI].ticker} Address`,
+                  placeholder: `${coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker} Address`,
                   name: 'address',
                   onChange: e => handleAddressChange(e),
                   required: true,
                   value: formData.address
                 }}
               ></FormItemWithQRCodeAddon>
-              {sendOnlyMessageCheckbox}
+              {(selectedAccount?.coin ?? COIN.XPI) === COIN.XPI && sendOnlyMessageCheckbox}
 
               <SendXpiInput
                 style={{
@@ -399,26 +460,29 @@ const SendComponent: React.FC = () => {
                   onChange: e => handleSelectedCurrencyChange(e)
                 }}
                 activeFiatCode={''}
+                logo={coinInfo[selectedAccount?.coin ?? COIN.XPI].logo}
               ></SendXpiInput>
               {/* OP_RETURN message */}
-              <OpReturnMessageInput
-                style={{
-                  margin: '0 0 25px 0'
-                }}
-                placeholder={intl.get('send.optionalPrivateMessage')}
-                disabled={isOpReturnMsgDisabled}
-                value={
-                  opReturnMsg
-                    ? isEncryptedOptionalOpReturnMsg
-                      ? opReturnMsg.substring(0, coinInfo[COIN.XPI].opReturn.encryptedMsgByteLimit)
-                      : opReturnMsg
-                    : ''
-                }
-                onChange={msg => setOpReturnMsg(msg)}
-                maxByteLength={computeOpReturnMsgMaxByteLength()}
-                labelTop={null}
-                labelBottom={null}
-              />
+              {(selectedAccount?.coin ?? COIN.XPI) === COIN.XPI && (
+                <OpReturnMessageInput
+                  style={{
+                    margin: '0 0 25px 0'
+                  }}
+                  placeholder={intl.get('send.optionalPrivateMessage')}
+                  disabled={isOpReturnMsgDisabled}
+                  value={
+                    opReturnMsg
+                      ? isEncryptedOptionalOpReturnMsg
+                        ? opReturnMsg.substring(0, coinInfo[COIN.XPI].opReturn.encryptedMsgByteLimit)
+                        : opReturnMsg
+                      : ''
+                  }
+                  onChange={msg => setOpReturnMsg(msg)}
+                  maxByteLength={computeOpReturnMsgMaxByteLength()}
+                  labelTop={null}
+                  labelBottom={null}
+                />
+              )}
               {/* END OF OP_RETURN message */}
               <div>
                 {!walletBalances || sendXpiAmountError || sendXpiAddressError ? (
@@ -435,7 +499,10 @@ const SendComponent: React.FC = () => {
               </div>
               {queryStringText && (
                 <Alert
-                  message={intl.get('send.queryString', { queryStringText, currency: coinInfo[COIN.XPI].ticker })}
+                  message={intl.get('send.queryString', {
+                    queryStringText,
+                    currency: coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker
+                  })}
                   type="warning"
                 />
               )}
