@@ -183,16 +183,16 @@ function* readAllNotificationsFailureSaga(action: PayloadAction<Notification>) {
 
 function* sendCoinNotificationSaga(action: PayloadAction<string>) {
   const link = action.payload;
-  let description = (
-    <a href={link} target="_blank" rel="noopener noreferrer">
-      <p>Transaction successful. Click to view in block explorer.</p>
-    </a>
-  );
   yield put(
-    showToast('success', {
-      message: intl.get('toast.info'),
-      description: description,
-    }),
+    showToast(
+      'success',
+      {
+        message: intl.get('toast.info'),
+        description: link,
+      },
+      true, //isLink
+      'Transaction successful. Click to view in block explorer.', //link description
+    ),
   );
 }
 

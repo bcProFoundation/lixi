@@ -28,5 +28,7 @@ export interface ToastState {
   event: {
     type: ToastType;
     config?: ArgsProps | null;
+    isLink?: boolean;
+    linkDescription?: string;
   };
 }
