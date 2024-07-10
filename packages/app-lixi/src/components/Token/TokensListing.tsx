@@ -155,7 +155,6 @@ const TokensListing = () => {
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
   const currentTheme = useSliceSelector(getCurrentThemes);
   const [hasFollowed, setHasFollowed] = useState([]);
-  const [sortedTokens, setSortedTokens] = useState([]);
 
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
@@ -346,7 +345,6 @@ const TokensListing = () => {
       title: intl.get('general.dana'),
       key: 'danaBurn',
       sorter: (tokenA, tokenB) => tokenA.dana.danaBurnScore - tokenB.dana.danaBurnScore,
-      defaultSortOrder: 'descend',
       render: (_, token) => <Counter num={formatBalance(token.dana.danaBurnScore)} />
     },
     {
@@ -473,12 +471,6 @@ const TokensListing = () => {
     dispatch(setTransactionReady());
   }, [slpBalancesAndUtxos.nonSlpUtxos]);
 
-  useEffect(() => {
-    if (data.length > 0) {
-      setSortedTokens(_.orderBy(data, item => item?.dana?.danaBurnScore, 'desc'));
-    }
-  }, [data]);
-
   useDidMountEffectNotification();
 
   return (
@@ -508,9 +500,9 @@ const TokensListing = () => {
             }}
           />
           <StyledTokensListingMobile>
-            {sortedTokens &&
-              sortedTokens.length > 0 &&
-              sortedTokens.map(token => {
+            {data &&
+              data.length > 0 &&
+              data.map(token => {
                 return (
                   <React.Fragment key={token.id}>
                     <CardItemToken className="card-item-token">
