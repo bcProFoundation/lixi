@@ -191,11 +191,12 @@ export class DanaWsService implements OnModuleInit {
   async handleMultipleBlock(startBlock: number, endBlock: number, coin = COIN.XPI) {
     let newBlockInfos: BlockInfo[];
     switch (coin) {
-      case COIN.XPI:
-        newBlockInfos = await this.chronikXPI.blocks(startBlock, endBlock);
-        break;
       case COIN.XEC:
         newBlockInfos = await this.chronikXEC.blocks(startBlock, endBlock);
+        break;
+      case COIN.XPI:
+      default:
+        newBlockInfos = await this.chronikXPI.blocks(startBlock, endBlock);
         break;
     }
     const blockMap = new Map();

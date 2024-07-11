@@ -17,14 +17,6 @@ import { BurnForType, BurnType, WalletPathAddressInfo } from '@bcpros/lixi-model
 import { coinInfo, COIN } from '@bcpros/lixi-models';
 
 export default function useXPI() {
-  const getRestUrl = (apiIndex = 0) => {
-    const apiString: string =
-      process.env.NEXT_PUBLIC_NETWORK === `mainnet`
-        ? process.env.NEXT_PUBLIC_XPI_APIS!
-        : process.env.NEXT_PUBLIC_XPI_APIS_TEST!;
-    const apiArray = apiString.split(',');
-    return apiArray[apiIndex];
-  };
 
   const calcFee = (XPI: BCHJS, utxos: any, p2pkhOutputNumber = 2, satoshisPerByte = 2.01, opReturnLength = 0) => {
     const byteCount = XPI.BitcoinCash.getByteCount({ P2PKH: utxos.length }, { P2PKH: p2pkhOutputNumber });
@@ -250,7 +242,6 @@ export default function useXPI() {
   };
 
   return {
-    getRestUrl,
     calcFee,
     sendXpi,
     createBurnTransaction

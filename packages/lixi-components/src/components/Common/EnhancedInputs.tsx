@@ -134,10 +134,18 @@ type SendXpiInputProps = {
   selectProps: Object;
   activeFiatCode: string;
   help: string;
+  logo: string;
 } & InputProps &
   FormItemProps;
 
-export const SendXpiInput = ({ onMax, inputProps, selectProps, activeFiatCode, ...otherProps }: SendXpiInputProps) => {
+export const SendXpiInput = ({
+  onMax,
+  inputProps,
+  selectProps,
+  activeFiatCode,
+  logo,
+  ...otherProps
+}: SendXpiInputProps) => {
   const { Option } = Select;
   const currencies = [
     {
@@ -168,19 +176,19 @@ export const SendXpiInput = ({ onMax, inputProps, selectProps, activeFiatCode, .
       <Form.Item {...otherProps}>
         <Input.Group compact>
           <Input
-            style={{ width: '58%', textAlign: 'left' }}
+            style={{ width: '83%', textAlign: 'left' }}
             type="number"
             step={inputProps.dollar === 1 ? 0.01 : 1 / 10 ** currency.cashDecimals}
             prefix={
               inputProps.dollar === 1 ? (
                 <ThemedDollarOutlined width={20} height={20} />
               ) : (
-                <img src={currency.logo} alt="" width={20} height={20} />
+                <img src={logo} alt="" width={20} height={20} />
               )
             }
             {...inputProps}
           />
-          {CurrencySelect}
+          {/* {CurrencySelect} */}
           <InputNumberAddonText
             className="input-number-addon"
             style={{

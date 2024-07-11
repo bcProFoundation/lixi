@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js';
 import cashaddr from 'ecashaddrjs';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { isValidXecAddress } from './cashMethods';
 
 export interface AddressInfo {
   address: string;
@@ -10,7 +11,7 @@ export interface AddressInfo {
   amount: number;
 }
 
-export function parseAddress(XPI: any, addressString: string): AddressInfo {
+export function parseAddress(XPI: any, addressString: string, coin = COIN.XPI): AddressInfo {
   const addressInfo: AddressInfo = {
     address: '',
     isValid: false,
@@ -25,7 +26,14 @@ export function parseAddress(XPI: any, addressString: string): AddressInfo {
   let isValidAddress;
 
   try {
-    isValidAddress = XPI.Address.isXAddress(cleanAddress);
+    switch (coin) {
+      case COIN.XPI:
+        isValidAddress = XPI.Address.isXAddress(cleanAddress);
+        break;
+      case COIN.XEC:
+        isValidAddress = isValidXecAddress(cleanAddress);
+        break;
+    }
   } catch (err) {
     isValidAddress = false;
   }
@@ -45,7 +53,7 @@ export function parseAddress(XPI: any, addressString: string): AddressInfo {
       // Amount in satoshis
       try {
         amount = new BigNumber(parseInt(addrParams.get('amount')))
-          .div(10 ** coinInfo[COIN.XPI].cashDecimals)
+          .div(10 ** coinInfo[coin ?? COIN.XPI].cashDecimals)
           .toString();
       } catch (err) {
         amount = null;

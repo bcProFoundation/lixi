@@ -116,11 +116,21 @@ export default function useXEC() {
       const tx = txBuild.sign(ecc, feeInSatsPerKByte, dustFee);
       const rawTx = tx.ser();
 
+      let broadcastResponse;
       if (returnHex) {
         return toHex(rawTx);
       } else {
-        console.log((await chronik.broadcastTx(rawTx)).txid);
-        return;
+        try {
+          broadcastResponse = await chronik.broadcastTx(rawTx);
+          if (!broadcastResponse) {
+            throw new Error('Empty chronik broadcast response');
+          }
+        } catch (err) {
+          console.log('Error broadcasting tx to chronik client');
+          throw err;
+        }
+        // return the explorer link for the broadcasted tx
+        return `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${broadcastResponse.txid}`;
       }
     } catch (err) {
       throw new Error(err);
