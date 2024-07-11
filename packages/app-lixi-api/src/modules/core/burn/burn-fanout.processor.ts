@@ -219,7 +219,11 @@ export class BurnFanoutProcessor extends WorkerHost {
           pipeline.zincrby(BurnFanoutProcessor.feedPageTimeline, score, burnForId);
           break;
         case BurnForType.Token:
-          pipeline.zincrby(BurnFanoutProcessor.feedTokenTimeline, score, burnForId);
+          const hoursPerMonth = 12 * 2 * 30;
+          const scoreForToken = burn.burnType
+            ? amountDana * Math.pow(2, diffHour / hoursPerMonth)
+            : -amountDana * Math.pow(2, diffHour / hoursPerMonth);
+          pipeline.zincrby(BurnFanoutProcessor.feedTokenTimeline, scoreForToken, burnForId);
           break;
       }
 
