@@ -160,21 +160,21 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
           parseFloat(post.page.createPostFee) != 0
         ) {
           const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-          txHex = await sendXpi(
-            XPI,
-            chronik,
-            walletPaths,
-            slpBalancesAndUtxos.nonSlpUtxos,
-            coinInfo[COIN.XPI].defaultFee,
-            '',
-            false, // indicate send mode is one to one
-            null,
-            post.page.pageAccount.address,
-            post.page.createPostFee,
-            true,
-            fundingWif,
-            true
-          );
+          // txHex = await sendXpi(
+          //   XPI,
+          //   chronik,
+          //   walletPaths,
+          //   slpBalancesAndUtxos.nonSlpUtxos,
+          //   coinInfo[COIN.XPI].defaultFee,
+          //   '',
+          //   false, // indicate send mode is one to one
+          //   null,
+          //   post.page.pageAccount.address,
+          //   post.page.createPostFee,
+          //   true,
+          //   fundingWif,
+          //   true
+          // );
         }
       } catch (error) {
         throw new Error(intl.get('post.insufficientFeeCreatePost'));

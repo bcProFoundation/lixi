@@ -503,6 +503,18 @@ export const getHashFromWallet = (wallet: WalletState): string => {
   return selectedHash160;
 };
 
+export const getSelectedWallet = (wallet: WalletState): WalletPathAddressInfo => {
+  if (!wallet || !wallet?.entities) {
+    return;
+  }
+
+  let selectedWallet: WalletPathAddressInfo;
+  Object.entries(wallet.entities).map(([key, value]) => {
+    if (key === wallet.selectedWalletPath) selectedWallet = value;
+  });
+  return selectedWallet;
+};
+
 export const isActiveWebsocket = ws => {
   // Return true if websocket is connected and subscribed
   // Otherwise return false
