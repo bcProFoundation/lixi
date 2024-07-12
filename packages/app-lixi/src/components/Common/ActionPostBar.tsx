@@ -4,8 +4,8 @@ import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { WalletContext } from '@context/walletProvider';
 import { PostQueryItem } from '@generated/types';
-import { RepostInput } from '@generated/types.generated';
-import useXPI from '@hooks/useXPI';
+import { Coin, RepostInput } from '@generated/types.generated';
+import useCoin from '@hooks/useCoin';
 import { getSelectedAccount } from '@store/account';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { useRepostMutation } from '@store/post/posts.api';
@@ -24,6 +24,7 @@ import BaseReaction from './Reaction';
 import ShareSocialButton from './ShareSocialButton';
 import _ from 'lodash';
 import { ShareForType } from '@bcpros/lixi-models/constants/share';
+import { useConvertDanaToCoinQuery } from '@store/dana/dana.api';
 
 export const GroupIconText = styled.div`
   align-items: center;
@@ -138,9 +139,20 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
   const selectedKey = router.pathname ?? '';
   const [borderBottom, setBorderBottom] = useState<Boolean>(false);
   const { XPI, chronik } = Wallet;
-  const { sendXpi } = useXPI();
+  const { sendCoin } = useCoin();
 
   const roundDanaViewScore = Math.round(post.danaViewScore || 0);
+
+  const [repostFee, setRepostFee] = useState(0);
+  const { data: dataFee } = useConvertDanaToCoinQuery({
+    ConvertDanaInput: {
+      convertToCoin: (selectedAccount?.coin ?? COIN.XPI) as unknown as Coin
+    }
+  });
+
+  useEffect(() => {
+    setRepostFee((dataFee?.convertDanaToCoin ?? 0) * Number(post?.page?.createPostFee) ?? 0);
+  }, [dataFee]);
 
   useEffect(() => {
     selectedKey.includes('post') || isSetBorderBottom ? setBorderBottom(true) : setBorderBottom(false);
@@ -160,21 +172,21 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
           parseFloat(post.page.createPostFee) != 0
         ) {
           const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-          // txHex = await sendXpi(
-          //   XPI,
-          //   chronik,
-          //   walletPaths,
-          //   slpBalancesAndUtxos.nonSlpUtxos,
-          //   coinInfo[COIN.XPI].defaultFee,
-          //   '',
-          //   false, // indicate send mode is one to one
-          //   null,
-          //   post.page.pageAccount.address,
-          //   post.page.createPostFee,
-          //   true,
-          //   fundingWif,
-          //   true
-          // );
+          const selectedCoin = selectedAccount?.coin ?? COIN.XPI;
+          txHex = await sendCoin(
+            selectedCoin,
+            XPI,
+            chronik,
+            fundingWif,
+            slpBalancesAndUtxos.nonSlpUtxos,
+            undefined,
+            false,
+            false, // one to one mode
+            null,
+            post.page.pageAccount.hash160,
+            repostFee,
+            true // return hex
+          );
         }
       } catch (error) {
         throw new Error(intl.get('post.insufficientFeeCreatePost'));
@@ -230,7 +242,7 @@ const ActionPostBar = ({ post, onClickIconComment, isSetBorderBottom }: ActionPo
         {/* Currently only apply repost to posts in the page and profile */}
         {(post.page || post.account.id === selectedAccount?.id) && (
           <Tooltip
-            title={`${intl.get('page.repostFee')}: ${post?.page?.createPostFee ?? 0} ${coinInfo[COIN.XPI].ticker}`}
+            title={`${intl.get('page.repostFee')}: ${repostFee ?? 0} ${coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker}`}
           >
             <Space style={{ padding: '8px' }} className="repost" size={5} onClick={() => handleRepost(post)}>
               <RetweetOutlined />
