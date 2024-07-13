@@ -1,0 +1,22 @@
+import { CoinInfo } from './typeCoinInfo';
+
+export const infoXrg: CoinInfo = {
+  name: 'Ergon',
+  ticker: 'XRG',
+  logo: '/images/currencies/xrg.png',
+  background: '/images/currencies/bg-xrg.svg',
+  legacyPrefix: 'bitcoincash',
+  coingeckoId: 'ecash',
+  defaultFee: 0.1,
+  dustSats: 5,
+  etokenSats: 5.46,
+  cashDecimals: 8,
+  burnFee: 0.04,
+  tokenName: 'eToken',
+  tokenTicker: 'eToken',
+  prefixes: ['ecash'],
+  tokenPrefixes: ['etoken'],
+  blockExplorerUrl: 'https://explorer.ergon.network',
+  blockTime: 600,
+  totalBlockInDay: 144
+};
