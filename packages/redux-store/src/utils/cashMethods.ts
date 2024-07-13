@@ -469,6 +469,7 @@ export const getUtxoWif = (
   let wif = '';
   switch (selectedCoin) {
     case COIN.XEC:
+    case COIN.XRG:
       wif = walletPaths.filter(acc => acc.cashAddress === utxo.address).pop().fundingWif;
       break;
     case COIN.XPI:

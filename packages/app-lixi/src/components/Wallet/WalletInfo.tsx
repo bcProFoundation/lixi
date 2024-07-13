@@ -24,7 +24,7 @@ import React, { useEffect, useState } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
-import { parseEcashAddress } from '@utils/addressMethods';
+import { parseCashAddressToPrefix } from '@utils/addressMethods';
 
 const CardContainer = styled.div<{ $bgCoin: string }>`
   position: relative;
@@ -155,7 +155,10 @@ const WalletInfoComponent: React.FC = () => {
         setCurrentAddress(selectedWalletPath?.xAddress);
         break;
       case COIN.XEC:
-        setCurrentAddress(parseEcashAddress(selectedWalletPath?.cashAddress));
+        setCurrentAddress(parseCashAddressToPrefix(COIN.XEC, selectedWalletPath?.cashAddress));
+        break;
+      case COIN.XRG:
+        setCurrentAddress(parseCashAddressToPrefix(COIN.XRG, selectedWalletPath?.cashAddress));
         break;
       default:
         setCurrentAddress(selectedWalletPath?.xAddress);
@@ -220,17 +223,10 @@ const WalletInfoComponent: React.FC = () => {
 
   return (
     <>
-      <CardContainer
-        $bgCoin={`/images/currencies/bg-${(selectedAccount?.coin ?? COIN.XPI).toLowerCase()}.svg`}
-        className="card-container"
-      >
+      <CardContainer $bgCoin={`${coinInfo[selectedAccount?.coin ?? COIN.XPI].background}`} className="card-container">
         <WalletCard>
           <div className="wallet-name">
-            <img
-              width={40}
-              src={`/images/currencies/${(selectedAccount?.coin ?? COIN.XPI).toLowerCase()}.svg`}
-              alt=""
-            />
+            <img width={40} src={`${coinInfo[selectedAccount?.coin ?? COIN.XPI].logo}`} alt="" />
             <WalletLabel name={selectedAccount?.name ?? ''} />
             <EditOutlined
               className="edit-ico"

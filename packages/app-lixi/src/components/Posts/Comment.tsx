@@ -240,6 +240,10 @@ const commentCommand = [
   {
     label: '/xec',
     value: '/xec'
+  },
+  {
+    label: '/xrg',
+    value: '/xrg'
   }
 ];
 

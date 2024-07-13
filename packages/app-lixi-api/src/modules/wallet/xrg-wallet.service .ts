@@ -11,8 +11,8 @@ import HDNode from '@bcpros/xpi-js/types/hdnode';
 import { getUtxoWif } from 'src/utils/cashMethods';
 
 @Injectable()
-export class XecWalletService extends WalletService {
-  public logger: Logger = new Logger(XecWalletService.name);
+export class XrgWalletService extends WalletService {
+  public logger: Logger = new Logger(XrgWalletService.name);
   private defaultPath = "m/44'/2137'/0'/0/0";
 
   constructor(
@@ -63,7 +63,7 @@ export class XecWalletService extends WalletService {
     });
     const walletStatus = await super.getWalletStatus(hash160AndAddressObjArray);
     const { slpBalancesAndUtxos } = walletStatus;
-    const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], sendWalletPath, COIN.XEC);
+    const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], sendWalletPath, COIN.XRG);
 
     const hex = await sendXrg(
       this.chronik,

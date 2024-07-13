@@ -40,6 +40,7 @@ import { JwtAuthGuard } from 'src/modules/auth/guards/jwtauth.guard';
 import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 import { XecWalletService } from 'src/modules/wallet/xec-wallet.service';
 import { XpiWalletService } from 'src/modules/wallet/xpi-wallet.service';
+import { XrgWalletService } from 'src/modules/wallet/xrg-wallet.service ';
 import { VError } from 'verror';
 import { aesGcmDecrypt, aesGcmEncrypt, generateRandomBase58Str, hashMnemonic } from '../../../utils/encryptionMethods';
 import { AccountCacheService } from '../../account/account-cache.service';
@@ -320,6 +321,9 @@ export class AccountController {
             break;
           case COIN.XEC:
             walletService = this.walletServices['xec'] as XecWalletService;
+            break;
+          case COIN.XRG:
+            walletService = this.walletServices['xrg'] as XrgWalletService;
             break;
           default:
             walletService = this.walletServices['xpi'] as XpiWalletService;

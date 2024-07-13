@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js';
 import cashaddr from 'ecashaddrjs';
+import * as ergonCashaddr from 'ergonaddrjs';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { isValidXecAddress } from './cashMethods';
@@ -64,11 +65,20 @@ export function parseAddress(XPI: any, addressString: string, coin = COIN.XPI): 
   return addressInfo;
 }
 
-export const parseEcashAddress = (cashAddress: string) => {
+export const parseCashAddressToPrefix = (coin = COIN.XEC, cashAddress: string) => {
   if (cashAddress) {
-    const { type, hash } = cashaddr.decode(cashAddress, false);
-    const changeAddress = cashaddr.encode('ecash', type, hash);
+    let changeAddress = '';
 
+    switch (coin) {
+      case COIN.XEC:
+        const { type: typeXEC, hash: hashXEC } = cashaddr.decode(cashAddress, false);
+        changeAddress = cashaddr.encode('ecash', typeXEC, hashXEC);
+        break;
+      case COIN.XRG:
+        const { type: typeXRG, hash: hashXRG } = ergonCashaddr.decode(cashAddress);
+        changeAddress = ergonCashaddr.encode('ergon', typeXRG, hashXRG);
+        break;
+    }
     return changeAddress;
   }
 };

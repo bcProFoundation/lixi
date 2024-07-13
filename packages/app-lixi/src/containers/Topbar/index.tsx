@@ -1,6 +1,7 @@
 import { CopyOutlined, SendOutlined, SyncOutlined, UserSwitchOutlined } from '@ant-design/icons';
 import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
+import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { FilterType } from '@bcpros/lixi-models/lib/filter';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 import AvatarUser from '@components/Common/AvatarUser';
@@ -24,7 +25,7 @@ import { savePostsByTimeFilter, toggleCollapsedSideNav } from '@store/settings/a
 import { getCurrentThemes, getIsPostsByTime, getNavCollapsed } from '@store/settings/selectors';
 import { showToast } from '@store/toast/actions';
 import { getSelectedWalletPath, getWalletHasUpdated, getWalletStatus } from '@store/wallet';
-import { parseEcashAddress } from '@utils/addressMethods';
+import { parseCashAddressToPrefix } from '@utils/addressMethods';
 import { fromSmallestDenomination } from '@utils/cashMethods';
 import { Badge, Button, Popover, Space, Switch } from 'antd';
 import { Header } from 'antd/lib/layout/layout';
@@ -484,7 +485,10 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
         setAddress(selectedAccount?.address);
         break;
       case COIN.XEC:
-        setAddress(parseEcashAddress(walletPath?.cashAddress));
+        setAddress(parseCashAddressToPrefix(COIN.XEC, walletPath?.cashAddress));
+        break;
+      case COIN.XRG:
+        setAddress(parseCashAddressToPrefix(COIN.XRG, walletPath?.cashAddress));
         break;
       default:
         setAddress(selectedAccount?.address);
@@ -636,7 +640,12 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
                   {
                     {
                       [COIN.XPI]: <span>{formatAddress(selectedAccount?.address)}</span>,
-                      [COIN.XEC]: <span>{formatAddress(parseEcashAddress(walletPath?.cashAddress))}</span>
+                      [COIN.XEC]: (
+                        <span>{formatAddress(parseCashAddressToPrefix(COIN.XEC, walletPath?.cashAddress))}</span>
+                      ),
+                      [COIN.XRG]: (
+                        <span>{formatAddress(parseCashAddressToPrefix(COIN.XRG, walletPath?.cashAddress))}</span>
+                      )
                     }[selectedAccount?.coin ?? COIN.XPI]
                   }
                   <span>
@@ -978,10 +987,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
                     icon={accountInfoTemp?.avatar}
                     isMarginRight={false}
                   />
-                  <img
-                    className="coin-logo"
-                    src={`/images/currencies/${selectedAccount?.coin ? selectedAccount.coin.toLowerCase() : 'xpi'}.svg`}
-                  />
+                  <img className="coin-logo" src={`${coinInfo[selectedAccount?.coin ?? COIN.XPI].logo}`} />
                 </div>
                 <p className="account-info">
                   <span className="account-name">{selectedAccount?.name || 'Anonymous'}</span>

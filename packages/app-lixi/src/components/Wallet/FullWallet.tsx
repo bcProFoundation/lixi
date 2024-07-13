@@ -250,12 +250,14 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
 
   const [showBalanceCoin, setShowBalanceCoin] = useState({
     XPI: false,
-    XEC: false
+    XEC: false,
+    XRG: false
   });
 
   const [balanceCoin, setBalanceCoin] = useState({
     XPI: '0',
-    XEC: '0'
+    XEC: '0',
+    XRG: '0'
   });
 
   const [pageNumber, setPageNumber] = useState<number>(1); //start pagination at page 1 (already have data at page 0)

@@ -70,6 +70,9 @@ const useWallet = () => {
       case COIN.XEC:
         accountCoin = 'xec';
         break;
+      case COIN.XRG:
+        accountCoin = 'xrg';
+        break;
       default:
         accountCoin = 'xpi';
         break;
@@ -393,6 +396,9 @@ const useWallet = () => {
         currentCoinAddress = selectedWalletPath?.xAddress;
         break;
       case COIN.XEC:
+        currentCoinAddress = selectedWalletPath?.cashAddress;
+        break;
+      case COIN.XRG:
         currentCoinAddress = selectedWalletPath?.cashAddress;
         break;
       default:
