@@ -7,6 +7,7 @@ import BigNumber from 'bignumber.js';
 import bs58 from 'bs58';
 import { Utxo } from 'chronik-client';
 import * as cashaddr from 'ecashaddrjs';
+import * as ergonCashaddr from 'ergonaddrjs';
 import { createSharedKey, decrypt, encrypt } from './encryption';
 
 export type TxInputObj = {
@@ -646,49 +647,58 @@ export const getAddressesOfWallet = wallet => {
   return addresses;
 };
 
-export const isValidXecAddress = (addr: string) => {
+export const isValidCoinAddress = (coin = COIN.XEC, addr: string) => {
   /* 
-  Returns true for a valid XEC address
+  Returns true for a valid coin address
 
-  Valid XEC address:
-  - May or may not have prefix `ecash:`
-  - Checksum must validate for prefix `ecash:`
+  Valid coin address:
+  - May or may not have prefix `coin:`
+  - Checksum must validate for prefix `coin:`
   
-  An eToken address is not considered a valid XEC address
+  An eToken address is not considered a valid coin address
   */
 
   if (!addr) {
     return false;
   }
 
-  let isValidXecAddress;
-  let isPrefixedXecAddress;
+  const prefixCoin = `${coinInfo[coin].name.toLowerCase()}`;
+  let isValidCoinAddress;
+  let isPrefixedAddress;
 
   // Check for possible prefix
   if (addr.includes(':')) {
     // Test for 'ecash:' prefix
-    isPrefixedXecAddress = addr.slice(0, 6) === 'ecash:';
-    // Any address including ':' that doesn't start explicitly with 'ecash:' is invalid
-    if (!isPrefixedXecAddress) {
-      isValidXecAddress = false;
-      return isValidXecAddress;
+    isPrefixedAddress = addr.slice(0, 6) === `${prefixCoin}:`;
+    // Any address including ':' that doesn't start explicitly with 'coin:' is invalid
+    if (!isPrefixedAddress) {
+      isValidCoinAddress = false;
+      return isValidCoinAddress;
     }
   } else {
-    isPrefixedXecAddress = false;
+    isPrefixedAddress = false;
   }
 
-  // If no prefix, assume it is checksummed for an ecash: prefix
-  const testXecAddr = isPrefixedXecAddress ? addr : `ecash:${addr}`;
+  // If no prefix, assume it is checksummed for an coin: prefix
+  const testCoinAddr = isPrefixedAddress ? addr : `${prefixCoin}:${addr}`;
 
   try {
-    const decoded = cashaddr.decode(testXecAddr, false);
-    if (decoded.prefix === 'ecash') {
-      isValidXecAddress = true;
+    let decoded;
+    switch (coin) {
+      case COIN.XEC:
+        decoded = cashaddr.decode(testCoinAddr, false);
+        break;
+      case COIN.XRG:
+        decoded = ergonCashaddr.decode(testCoinAddr);
+        break;
+    }
+    if (decoded.prefix === prefixCoin) {
+      isValidCoinAddress = true;
     }
   } catch (err) {
-    isValidXecAddress = false;
+    isValidCoinAddress = false;
   }
-  return isValidXecAddress;
+  return isValidCoinAddress;
 };
 
 export function cashaddrToHash160(addr: string) {
@@ -886,7 +896,7 @@ export const getChangeAddressFromInputUtxosXec = (inputUtxos: any, wallet: any):
 
   // Validate address
   try {
-    const valid = isValidXecAddress(changeAddress);
+    const valid = isValidCoinAddress(COIN.XEC, changeAddress);
 
     if (!valid) {
       throw new Error('Invalid change address');

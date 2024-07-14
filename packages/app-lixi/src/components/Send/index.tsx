@@ -19,7 +19,7 @@ import { sendCoinNotification } from '@store/notification/actions';
 import { sendCoinFailure } from '@store/send/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletBalances } from '@store/wallet';
 import { parseAddress } from '@utils/addressMethods';
-import { getDustXPI, getUtxoWif, isValidXecAddress } from '@utils/cashMethods';
+import { getDustXPI, getUtxoWif, isValidCoinAddress } from '@utils/cashMethods';
 import { getRecipientPublicKey } from '@utils/chronik';
 import { shouldRejectAmountInput } from '@utils/validation';
 import { Alert, Checkbox, Col, Form, message, Modal, Row } from 'antd';
@@ -189,7 +189,10 @@ const SendComponent: React.FC = () => {
         valid = XPI.Address.isXAddress(address);
         break;
       case COIN.XEC:
-        valid = isValidXecAddress(address);
+        valid = isValidCoinAddress(COIN.XEC, address);
+        break;
+      case COIN.XRG:
+        valid = isValidCoinAddress(COIN.XRG, address);
         break;
     }
 

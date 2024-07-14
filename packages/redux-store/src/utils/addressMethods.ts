@@ -3,7 +3,7 @@ import cashaddr from 'ecashaddrjs';
 import * as ergonCashaddr from 'ergonaddrjs';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
-import { isValidXecAddress } from './cashMethods';
+import { isValidCoinAddress } from './cashMethods';
 
 export interface AddressInfo {
   address: string;
@@ -32,7 +32,10 @@ export function parseAddress(XPI: any, addressString: string, coin = COIN.XPI): 
         isValidAddress = XPI.Address.isXAddress(cleanAddress);
         break;
       case COIN.XEC:
-        isValidAddress = isValidXecAddress(cleanAddress);
+        isValidAddress = isValidCoinAddress(COIN.XEC, cleanAddress);
+        break;
+      case COIN.XRG:
+        isValidAddress = isValidCoinAddress(COIN.XRG, cleanAddress);
         break;
     }
   } catch (err) {
