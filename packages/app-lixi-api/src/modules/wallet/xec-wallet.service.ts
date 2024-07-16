@@ -6,7 +6,7 @@ import BCHJS from '@bcpros/xpi-js';
 import { WalletPathAddressInfo, Hash160AndAddress } from '@bcpros/lixi-models';
 import { WalletService } from './wallet.service';
 import { coinInfo, COIN } from '@bcpros/lixi-models';
-import { sendXec } from 'src/utils/useXEC';
+import useXEC from 'src/utils/useXEC';
 import HDNode from '@bcpros/xpi-js/types/hdnode';
 import { getUtxoWif } from 'src/utils/cashMethods';
 
@@ -55,6 +55,7 @@ export class XecWalletService extends WalletService {
   }
 
   async send(sendWalletPath: WalletPathAddressInfo[], recieveAddress: string, amount: number) {
+    const { sendXec } = useXEC();
     const hash160AndAddressObjArray: Hash160AndAddress[] = sendWalletPath.map(item => {
       return {
         address: item.cashAddress,
