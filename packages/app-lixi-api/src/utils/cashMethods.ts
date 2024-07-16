@@ -61,9 +61,9 @@ export const fromSatoshisToCoin = (amount: any, cashDecimals = coinInfo[COIN.XPI
   return amountInBaseUnits;
 };
 
-export const fromSmallestDenomination = (amount: any, coin?: COIN) => {
+export const fromSmallestDenomination = (amount: any, cashDecimals = coinInfo[COIN.XPI].cashDecimals) => {
   const amountBig = new BigNumber(amount);
-  const multiplier = new BigNumber(10 ** (-1 * coinInfo[coin ?? COIN.XPI].cashDecimals));
+  const multiplier = new BigNumber(10 ** (-1 * cashDecimals));
   const amountInBaseUnits = amountBig.times(multiplier);
   return amountInBaseUnits.toNumber();
 };

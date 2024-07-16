@@ -10,6 +10,7 @@ export type CoinInfo = {
   dustSats: number;
   etokenSats: number;
   cashDecimals: number;
+  microCashDecimals?: number;
   burnFee: number;
   tokenName: string;
   tokenTicker: string;

@@ -99,7 +99,9 @@ export default function useXPI() {
       //check amount greater dust
       if (!isOneToMany) {
         if (!amountToSend) throw new Error('Invalid value');
-        if (sendSingleAmount < fromSmallestDenomination(coinInfo[COIN.XPI].etokenSats, COIN.XPI)) {
+        if (
+          sendSingleAmount < fromSmallestDenomination(coinInfo[COIN.XPI].etokenSats, coinInfo[COIN.XPI].cashDecimals)
+        ) {
           // Throw the same error given by the backend attempting to broadcast such a tx
           throw new Error('dust');
         }

@@ -29,6 +29,7 @@ import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import { showToast } from '@store/toast/actions';
 import cashaddr from 'ecashaddrjs';
+import ergonCashaddr from 'ergonaddrjs';
 
 const StyledCheckbox = styled(Checkbox)`
   .ant-checkbox-inner {
@@ -142,11 +143,14 @@ const SendComponent: React.FC = () => {
           recipientHash = XPI.Address.toHash160(cleanAddress);
           break;
         case COIN.XEC:
-          const { type, hash } = cashaddr.decode(cleanAddress, false);
-          recipientHash = Buffer.from(hash).toString('hex');
+          const { type: typeXEC, hash: hashXEC } = cashaddr.decode(cleanAddress, false);
+          recipientHash = Buffer.from(hashXEC).toString('hex');
+          break;
+        case COIN.XRG:
+          const { type: typeXRG, hash: hashXRG } = ergonCashaddr.decode(cleanAddress);
+          recipientHash = Buffer.from(hashXRG).toString('hex');
           break;
       }
-
       //send
       const link = await sendCoin(
         selectedCoin,
@@ -384,7 +388,7 @@ const SendComponent: React.FC = () => {
             <WalletLabel name={selectedAccount?.name ?? ''} />
             <BalanceHeader
               balance={walletBalances.totalBalance || 0}
-              ticker={selectedAccount?.coin ?? coinInfo[COIN.XPI].ticker}
+              ticker={coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker}
             />
           </>
         )}

@@ -46,11 +46,13 @@ export default function useXRG() {
         throw new Error('Invalid tx send xrg');
       }
 
-      const amountToSend = fromCoinToSatoshis(BigNumber(sendSingleAmount), coinInfo[COIN.XRG].cashDecimals);
+      const amountToSend = fromCoinToSatoshis(BigNumber(sendSingleAmount), coinInfo[COIN.XRG].microCashDecimals);
       //check amount greater dust
       if (!isOneToMany) {
         if (!amountToSend) throw new Error('Invalid value');
-        if (sendSingleAmount < fromSmallestDenomination(coinInfo[COIN.XRG].etokenSats, COIN.XRG)) {
+        if (
+          sendSingleAmount < fromSmallestDenomination(coinInfo[COIN.XRG].dustSats, coinInfo[COIN.XRG].microCashDecimals)
+        ) {
           // Throw the same error given by the backend attempting to broadcast such a tx
           throw new Error('dust');
         }

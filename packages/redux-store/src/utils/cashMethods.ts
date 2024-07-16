@@ -26,9 +26,9 @@ export const fromLegacyDecimals = (amount, cashDecimals = coinInfo[COIN.XPI].cas
   return amountSmallestDenomination;
 };
 
-export const fromSmallestDenomination = (amount, coin?: COIN) => {
+export const fromSmallestDenomination = (amount, cashDecimals = coinInfo[COIN.XPI].cashDecimals) => {
   const amountBig = new BigNumber(amount);
-  const multiplier = new BigNumber(10 ** (-1 * coinInfo[coin ?? COIN.XPI].cashDecimals));
+  const multiplier = new BigNumber(10 ** (-1 * cashDecimals));
   const amountInBaseUnits = amountBig.times(multiplier);
   return amountInBaseUnits.toNumber();
 };
@@ -427,7 +427,10 @@ export const getWalletBalanceFromUtxos = (nonSlpUtxos: Utxo[], coin = COIN.XPI) 
   );
   return {
     totalBalanceInSatoshis: totalBalanceInSatoshis.toString(),
-    totalBalance: fromSmallestDenomination(totalBalanceInSatoshis, coin).toString()
+    totalBalance: fromSmallestDenomination(
+      totalBalanceInSatoshis,
+      coin === COIN.XRG ? coinInfo[COIN.XRG].microCashDecimals : coinInfo[coin].cashDecimals
+    ).toString()
   };
 };
 
@@ -917,7 +920,8 @@ export const validateCoinAmount = (value: string, balances: number, coin: COIN):
   if (parseFloat(value) <= 0) return false;
 
   //check if balance is smaller than value
-  if (fromSmallestDenomination(balances, coin) <= parseFloat(value)) return false;
+  const cashDecimals = coin === COIN.XRG ? coinInfo[coin].microCashDecimals : coinInfo[coin].cashDecimals;
+  if (fromSmallestDenomination(balances, cashDecimals) <= parseFloat(value)) return false;
 
   return true;
 };

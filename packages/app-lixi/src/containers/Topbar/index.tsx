@@ -573,7 +573,9 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
   const balanceAccount = (acc?: any) => {
     const balanceString = fromSmallestDenomination(
       walletStatus.balances.totalBalanceInSatoshis ?? 0,
-      selectedAccount?.coin ?? COIN.XPI
+      selectedAccount?.coin === COIN.XRG
+        ? coinInfo[COIN.XRG].microCashDecimals
+        : coinInfo[selectedAccount?.coin ?? COIN.XPI].cashDecimals
     );
     return `${balanceString.toFixed(2)}`;
   };

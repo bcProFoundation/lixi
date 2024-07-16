@@ -238,7 +238,7 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
 
   const selectedAccount = useSliceSelector(getSelectedAccount);
   const currentLocale = useSliceSelector(getCurrentLocale);
-  const currentCoin = selectedAccount?.coin ?? COIN.XPI;
+  const currentCoin = coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker;
   const allTokens = useSliceSelector(selectTokens);
 
   const walletHasUpdated = useSliceSelector(getWalletHasUpdated);
@@ -381,7 +381,8 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
           <span className="balance-string">
             {showBalanceCoin[coin] && (
               <span>
-                {formatBalance(balanceCoin[coin])} <span className="balance-name"> {coin}</span>
+                {formatBalance(balanceCoin[coin])}{' '}
+                <span className="balance-name"> {coinInfo[coin ?? COIN.XPI].ticker}</span>
               </span>
             )}{' '}
             {!showBalanceCoin[coin] && '*******'}

@@ -238,7 +238,9 @@ const WalletInfoComponent: React.FC = () => {
               <BalanceHeader
                 balance={fromSmallestDenomination(
                   walletStatus.balances.totalBalanceInSatoshis ?? 0,
-                  selectedAccount?.coin ?? COIN.XPI
+                  selectedAccount?.coin === COIN.XRG
+                    ? coinInfo[selectedAccount?.coin].microCashDecimals //we use uXRG - cash=2
+                    : coinInfo[selectedAccount?.coin ?? COIN.XPI].cashDecimals
                 )}
                 ticker={coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker}
               />

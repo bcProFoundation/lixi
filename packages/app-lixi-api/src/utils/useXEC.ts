@@ -102,7 +102,7 @@ export const sendXec = async (
     //check amount greater dust
     if (!isOneToMany) {
       if (!amountToSend) throw new Error('Invalid value');
-      if (sendSingleAmount < fromSmallestDenomination(coinInfo[COIN.XEC].etokenSats, COIN.XEC)) {
+      if (sendSingleAmount < fromSmallestDenomination(coinInfo[COIN.XEC].etokenSats, coinInfo[COIN.XEC].cashDecimals)) {
         // Throw the same error given by the backend attempting to broadcast such a tx
         throw new Error('dust');
       }
