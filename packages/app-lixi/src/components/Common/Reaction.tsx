@@ -201,7 +201,8 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           burnForItem: dataItem,
           burnForType,
           burnValue: (Number(burnValueDana) * burnAmountPerCoin).toString(),
-          amountDana: Number(burnValueDana)
+          amountDana: Number(burnValueDana),
+          coinBurned: coinBurned as unknown as COIN
         })
       );
     } else {
@@ -263,7 +264,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         burnAmountPerCoin,
         coinBurned === Coin.Xrg ? false : true
       )}
-      coinBurned={coinInfo[coinBurned].ticker}
+      coinBurned={coinBurned.toString()}
       amountDana={amountDana}
       isUpBurn={isUpBurn}
       hideReact={hideReact}

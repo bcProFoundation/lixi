@@ -1,6 +1,8 @@
+import { BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { fromCoinToSatoshis, fromSmallestDenomination } from '../utils/cashMethods';
+import { generateBurnOpReturnScript } from '../utils/opReturnBurn';
 import BigNumber from 'bignumber.js';
 import { ChronikClient, Utxo } from 'chronik-client';
 
@@ -139,7 +141,135 @@ export default function useXRG() {
     }
   };
 
+  const createBurnTransaction = async (
+    fundingWif: string,
+    utxos: Array<Utxo & { address: string }>,
+    feeInSatsPerByte: number,
+    burnType: BurnType,
+    burnForType: BurnForType,
+    burnedBy: string | Buffer,
+    burnForId: string,
+    burnAmount: number,
+    dustFee: number,
+    tipToHashes?: { hash: string; amount: string }[]
+  ) => {
+    try {
+      if (
+        !fundingWif ||
+        !utxos ||
+        !feeInSatsPerByte ||
+        !burnType.toString() || //burn type have value 0
+        !burnForType ||
+        !burnedBy ||
+        !burnForId ||
+        !burnAmount ||
+        !dustFee
+      ) {
+        throw new Error('Invalid tx send xrg');
+      }
+
+      const satoshisToBurn = fromCoinToSatoshis(BigNumber(burnAmount), coinInfo[COIN.XRG].microCashDecimals);
+
+      // Throw validation error if fromCoinToSatoshis returns false
+      if (!satoshisToBurn) {
+        const error = new Error(`Invalid burn amount`);
+        throw error;
+      }
+
+      await initWasm();
+      // Build a signature context for elliptic curve cryptography (ECC)
+      const ecc = new Ecc();
+
+      //get private key from wif
+      const decodedWif = wif.decode(fundingWif);
+      const { privateKey } = decodedWif;
+      const sk = Buffer.from(privateKey).toString('hex');
+
+      const walletSk = fromHex(sk);
+      const walletPk = ecc.derivePubkey(walletSk);
+      const walletPkh = shaRmd160(walletPk);
+      const walletP2pkh = Script.p2pkh(walletPkh);
+
+      // TxId with unspent funds for the above wallet
+      const numberSatoshiToBurn = Number.parseFloat(satoshisToBurn.toString());
+      let outputsToMany = [];
+      if (tipToHashes) {
+        outputsToMany = tipToHashes.map(hashValue => {
+          const value = Number(hashValue.amount);
+          const hash = hashValue.hash;
+          return {
+            value: value,
+            script: Script.p2pkh(fromHex(hash))
+          };
+        });
+      }
+
+      const scriptBurnBuff = generateBurnOpReturnScript(
+        0x01,
+        burnType ? true : false,
+        burnForType,
+        burnedBy,
+        burnForId
+      );
+      const scriptBurn = new Script(new Uint8Array(scriptBurnBuff));
+
+      const outputs: TxBuilderOutput[] =
+        tipToHashes.length > 0
+          ? [
+              {
+                value: numberSatoshiToBurn,
+                script: scriptBurn
+              },
+              ...outputsToMany,
+              walletP2pkh
+            ]
+          : [
+              {
+                value: numberSatoshiToBurn,
+                script: scriptBurn
+              },
+              walletP2pkh
+            ];
+
+      // Tx builder
+      const txBuild = new TxBuilder({
+        inputs: utxos.map(utxo => ({
+          input: {
+            prevOut: utxo.outpoint,
+            signData: {
+              value: Number(utxo.value),
+              outputScript: walletP2pkh
+            }
+          },
+          signatory: P2PKHSignatory(walletSk, walletPk, ALL_BIP143)
+        })),
+        outputs: outputs
+      });
+
+      const feeInSatsPerKByte = parseInt((feeInSatsPerByte * 1000).toFixed(0));
+      const tx = txBuild.sign(ecc, feeInSatsPerKByte, dustFee);
+      const rawTx = tx.ser();
+      const rawTxHex = toHex(rawTx);
+
+      //calculate minerFee
+      let totalInput = new BigNumber(0);
+      let totalOutput = new BigNumber(0);
+      tx.inputs.forEach(input => {
+        totalInput = totalInput.plus(Number(input.signData.value));
+      });
+      tx.outputs.forEach(output => {
+        totalOutput = totalOutput.plus(Number(output.value));
+      });
+      const minerFee = totalInput.minus(totalOutput);
+
+      return { rawTxHex, minerFee };
+    } catch (err) {
+      throw new Error(err);
+    }
+  };
+
   return {
-    sendXrg
+    sendXrg,
+    createBurnTransaction
   } as const;
 }

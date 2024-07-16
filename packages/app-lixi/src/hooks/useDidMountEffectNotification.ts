@@ -32,7 +32,7 @@ const useDidMountEffectNotification = (func?) => {
               return intl.get('account.burningList', {
                 burnForType: getType(burn.burnForType),
                 burnValue: burn.burnValue,
-                coin: 'XPI'
+                coin: burn.coinBurned
               });
             })
             .join('\n')

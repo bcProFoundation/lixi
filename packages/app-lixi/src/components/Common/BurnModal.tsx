@@ -163,8 +163,13 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
           isUpVote,
           burnForItem,
           burnForType,
-          burnValue: calBurnAmountWithoutFee(Number(burnValue), burnAmountPerCoin, true).toString(),
-          amountDana: Number(burnValue)
+          burnValue: calBurnAmountWithoutFee(
+            Number(burnValue),
+            burnAmountPerCoin,
+            coinBurned === Coin.Xrg ? false : true
+          ).toString(),
+          amountDana: Number(burnValue),
+          coinBurned: coinBurned as unknown as COIN
         })
       );
       dispatch(closeModal());

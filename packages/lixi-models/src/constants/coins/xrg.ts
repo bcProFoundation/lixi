@@ -7,7 +7,7 @@ export const infoXrg: CoinInfo = {
   background: '/images/currencies/bg-xrg.svg',
   legacyPrefix: 'bitcoincash',
   coingeckoId: 'ecash',
-  defaultFee: 0.1,
+  defaultFee: 0.01,
   dustSats: 5,
   etokenSats: 5.46,
   cashDecimals: 8,
