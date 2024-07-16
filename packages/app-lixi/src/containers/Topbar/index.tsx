@@ -996,7 +996,7 @@ const Topbar: React.FC<any> = ({ className }: { className: string }) => {
                   {walletHasUpdated ? (
                     <span className="account-balance">
                       {balanceAccount(selectedAccount)}{' '}
-                      <span className="unit">{selectedAccount?.coin ?? COIN.XPI}</span>
+                      <span className="unit">{coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker}</span>
                     </span>
                   ) : (
                     <span>

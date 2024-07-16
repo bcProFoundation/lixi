@@ -13,6 +13,7 @@ export const infoXrg: CoinInfo = {
   cashDecimals: 8,
   microCashDecimals: 2,
   burnFee: 0.04,
+  canBurn: true,
   tokenName: 'eToken',
   tokenTicker: 'eToken',
   prefixes: ['ecash'],

@@ -12,6 +12,7 @@ export type CoinInfo = {
   cashDecimals: number;
   microCashDecimals?: number;
   burnFee: number;
+  canBurn: boolean;
   tokenName: string;
   tokenTicker: string;
   tokenPrefixes: string[];

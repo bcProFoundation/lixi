@@ -14,6 +14,7 @@ import { prepareBurnCommand } from '@store/burn';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
 import { getCurrentThemes } from '@store/settings';
+import { getSelectedAccount } from '@store/account/selectors';
 import { Popover, Space } from 'antd';
 import React, { useContext, useEffect, useState } from 'react';
 import { formatBalance } from 'src/utils/cashMethods';
@@ -142,15 +143,19 @@ type ReactionProps = {
 const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
   const dispatch = useSliceDispatch();
   const isMobile = useDetectMobileView();
+  const selectedAccount = useSliceSelector(getSelectedAccount);
   const [clicked, setClicked] = useState(false);
   const [hovered, setHovered] = useState(false);
   const currentTheme = useSliceSelector(getCurrentThemes);
   const authentication = useContext(AuthenticationContext);
 
   const [burnAmountPerCoin, setBurnAmountPerCoin] = useState(0);
+  const [coinBurned, setCoinBurned] = useState<Coin>(
+    (coinInfo[selectedAccount?.coin ?? COIN.XPI].canBurn ? selectedAccount?.coin : COIN.XPI) as unknown as Coin
+  );
   const { data: dataBurn } = useConvertDanaToCoinQuery({
     ConvertDanaInput: {
-      convertToCoin: COIN.XPI as unknown as Coin
+      convertToCoin: coinBurned
     }
   });
 
@@ -189,14 +194,14 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
       if (authentication && authentication.isAuthenticationRequired && !authentication.isSignedIn) {
         await authentication.signIn();
       }
-      const burnValue = optionBurn ? OPTION_BURN_VALUE[optionBurn] : '1';
+      const burnValueDana = optionBurn ? OPTION_BURN_VALUE[optionBurn] : '1';
       dispatch(
         prepareBurnCommand({
           isUpVote,
           burnForItem: dataItem,
           burnForType,
-          burnValue: (Number(burnValue) * burnAmountPerCoin).toString(),
-          amountDana: Number(burnValue)
+          burnValue: (Number(burnValueDana) * burnAmountPerCoin).toString(),
+          amountDana: Number(burnValueDana)
         })
       );
     } else {
@@ -239,6 +244,32 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
     hideReact();
   };
 
+  const IconBurnCustom = (
+    icon: string,
+    colorBackground: string,
+    colorFilterIcon: string,
+    amountDana: number,
+    isUpBurn: boolean
+  ) => (
+    <IconBurnCustomProps
+      icon={icon}
+      colorBackground={colorBackground}
+      colorFilterIcon={colorFilterIcon}
+      burnForType={burnForType}
+      dataItem={dataItem}
+      burnValueWithFee={calBurnAmountWithFee(amountDana, burnAmountPerCoin, coinBurned === Coin.Xrg ? false : true)}
+      burnValueWithoutFee={calBurnAmountWithoutFee(
+        amountDana,
+        burnAmountPerCoin,
+        coinBurned === Coin.Xrg ? false : true
+      )}
+      coinBurned={coinInfo[coinBurned].ticker}
+      amountDana={amountDana}
+      isUpBurn={isUpBurn}
+      hideReact={hideReact}
+    />
+  );
+
   const contentBurn = (
     <SpaceContentBurn>
       <Popover
@@ -248,18 +279,13 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         content={contentHoverHeart}
         trigger="hover"
       >
-        <IconBurnCustomProps
-          icon="down-arrow.svg"
-          colorBackground="var(--color-danger)"
-          colorFilterIcon="var(--filter-svg-red-color)"
-          burnForType={burnForType}
-          dataItem={dataItem}
-          burnValueWithFee={calBurnAmountWithFee(Number(OPTION_BURN_VALUE.DISLIKE), burnAmountPerCoin, true)}
-          burnValueWithoutFee={calBurnAmountWithoutFee(Number(OPTION_BURN_VALUE.DISLIKE), burnAmountPerCoin, true)}
-          amountDana={Number(OPTION_BURN_VALUE.DISLIKE)}
-          isUpBurn={false}
-          hideReact={hideReact}
-        />
+        {IconBurnCustom(
+          'down-arrow.svg',
+          'var(--color-danger)',
+          'var(--filter-svg-red-color)',
+          Number(OPTION_BURN_VALUE.DISLIKE),
+          false
+        )}
       </Popover>
       <Popover
         arrow={false}
@@ -268,18 +294,13 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         content={contentHoverDisLike}
         trigger="hover"
       >
-        <IconBurnCustomProps
-          icon="up-arrow.svg"
-          colorBackground="#00abe7"
-          colorFilterIcon="var(--filter-svg-blue-color)"
-          burnForType={burnForType}
-          dataItem={dataItem}
-          burnValueWithFee={calBurnAmountWithFee(Number(OPTION_BURN_VALUE.LIKE), burnAmountPerCoin, true)}
-          burnValueWithoutFee={calBurnAmountWithoutFee(Number(OPTION_BURN_VALUE.LIKE), burnAmountPerCoin, true)}
-          amountDana={Number(OPTION_BURN_VALUE.LIKE)}
-          isUpBurn={true}
-          hideReact={hideReact}
-        />
+        {IconBurnCustom(
+          'up-arrow.svg',
+          '#00abe7',
+          'var(--filter-svg-blue-color)',
+          Number(OPTION_BURN_VALUE.LIKE),
+          true
+        )}
       </Popover>
       <Popover
         arrow={false}
@@ -288,18 +309,13 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         content={contentHoverLike}
         trigger="hover"
       >
-        <IconBurnCustomProps
-          icon="double-up-arrow.svg"
-          colorBackground="#00abe7"
-          colorFilterIcon="var(--filter-svg-blue-color)"
-          burnForType={burnForType}
-          dataItem={dataItem}
-          burnValueWithFee={calBurnAmountWithFee(Number(OPTION_BURN_VALUE.LOVE), burnAmountPerCoin, true)}
-          burnValueWithoutFee={calBurnAmountWithoutFee(Number(OPTION_BURN_VALUE.LOVE), burnAmountPerCoin, true)}
-          amountDana={Number(OPTION_BURN_VALUE.LOVE)}
-          isUpBurn={true}
-          hideReact={hideReact}
-        />
+        {IconBurnCustom(
+          'double-up-arrow.svg',
+          '#00abe7',
+          'var(--filter-svg-blue-color)',
+          Number(OPTION_BURN_VALUE.LOVE),
+          true
+        )}
       </Popover>
       <Popover
         arrow={false}
@@ -332,8 +348,14 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           />
         </div>
         <HintMobile>
-          {Number(calBurnAmountWithFee(Number(OPTION_BURN_VALUE.DISLIKE), burnAmountPerCoin, true))}
-          <span>{coinInfo[COIN.XPI].ticker}</span>
+          {Number(
+            calBurnAmountWithFee(
+              Number(OPTION_BURN_VALUE.DISLIKE),
+              burnAmountPerCoin,
+              coinBurned === Coin.Xrg ? false : true
+            )
+          )}
+          <span>{coinInfo[coinBurned].ticker}</span>
         </HintMobile>
       </Popover>
       <Popover arrow={false} overlayClassName="popover-custom-hint">
@@ -347,8 +369,14 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           />
         </div>
         <HintMobile>
-          {Number(calBurnAmountWithFee(Number(OPTION_BURN_VALUE.LIKE), burnAmountPerCoin, true))}{' '}
-          <span>{coinInfo[COIN.XPI].ticker}</span>
+          {Number(
+            calBurnAmountWithFee(
+              Number(OPTION_BURN_VALUE.LIKE),
+              burnAmountPerCoin,
+              coinBurned === Coin.Xrg ? false : true
+            )
+          )}
+          <span>{coinInfo[coinBurned].ticker}</span>
         </HintMobile>
       </Popover>
 
@@ -363,8 +391,14 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           />
         </div>
         <HintMobile>
-          {Number(calBurnAmountWithFee(Number(OPTION_BURN_VALUE.LOVE), burnAmountPerCoin, true))}{' '}
-          <span>{coinInfo[COIN.XPI].ticker}</span>
+          {Number(
+            calBurnAmountWithFee(
+              Number(OPTION_BURN_VALUE.LOVE),
+              burnAmountPerCoin,
+              coinBurned === Coin.Xrg ? false : true
+            )
+          )}
+          <span>{coinInfo[coinBurned].ticker}</span>
         </HintMobile>
       </Popover>
       <Popover arrow={false} overlayClassName="popover-custom-hint">
