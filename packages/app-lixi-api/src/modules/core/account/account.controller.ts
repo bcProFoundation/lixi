@@ -314,15 +314,18 @@ export class AccountController {
   async createAccount(@Body() command: CreateAccountCommand, @I18n() i18n: I18nContext): Promise<AccountDto> {
     if (command) {
       try {
+        let path = walletPath.XPI; //default is XPI
         let walletService;
         switch (command.rootCoin) {
           case COIN.XPI:
             walletService = this.walletServices['xpi'] as XpiWalletService;
             break;
           case COIN.XEC:
+            path = walletPath.XEC;
             walletService = this.walletServices['xec'] as XecWalletService;
             break;
           case COIN.XRG:
+            path = walletPath.XRG;
             walletService = this.walletServices['xrg'] as XrgWalletService;
             break;
           default:
@@ -352,8 +355,7 @@ export class AccountController {
         };
 
         const addressType = _.toUpper(type) == 'P2PKH' ? 'P2PKH' : 'P2SH';
-        const path = command.rootCoin === COIN.XPI ? walletPath.XPI : walletPath.XEC;
-        const addressCoin = command.rootCoin === COIN.XPI ? address : cashAddress;
+        let addressCoin = command.rootCoin === COIN.XPI ? address : cashAddress;
 
         const createdAccount: AccountDb = await this.prisma.account.create({
           data: {
