@@ -361,6 +361,11 @@ function* selectAccountSuccessSaga(
   if (previousAccount?.language != currentAccount?.language) {
     yield put(setInitIntlStatus(false));
     yield put(changeCurrentLocale(currentAccount.language));
+
+    //change cookie
+    const cookies = new Cookies(null, { path: '/' });
+    const locale = getLocaleByLanguage(currentAccount.language);
+    cookies.set('locale', locale);
   }
 
   const localAccount: LocalUserAccount = {
@@ -487,11 +492,7 @@ function* changeAccountLocaleSuccessSaga(action: PayloadAction<Account>) {
     accountId: account.id,
     mnemonichHash: account.mnemonicHash
   };
-  const cookies = new Cookies(null, { path: '/' });
-  const locale = getLocaleByLanguage(account.language);
-  cookies.set('locale', locale);
   yield put(fetchNotifications(paramFetchNotification));
-  yield put(loadLocale(locale));
   yield put(hideLoading(changeAccountLocale.type));
   yield put(
     showToast('success', {

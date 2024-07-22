@@ -1,13 +1,16 @@
 import { injectStore as reduxInjectstore } from '@utils/axiosClient';
 import AppLocale from '@lang/index';
-import { useEffect, useState } from 'react';
 import intl from 'react-intl-universal';
 import { injectStore } from '../utils/axiosClient';
 import { useInit } from './useInit';
+import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
+import { setInitIntlStatus } from '@store/settings/actions';
 
 export const useIntl = () => {
-  const [initIntlDone, setInitIntlDone] = useState(false);
-  const [currentLocale, setCurrentLocale] = useState('en-US');
+  const currentLocale = useSliceSelector(getCurrentLocale);
+  const initIntlDone = useSliceSelector(getIntlInitStatus);
+  const dispatch = useSliceDispatch();
 
   const LOCALES_LIST = Object.keys(AppLocale);
 
@@ -30,15 +33,14 @@ export const useIntl = () => {
       }
     });
     const lang = currentLocale.split('-')[0];
-    setCurrentLocale(currentLocale);
     injectStore(lang);
     reduxInjectstore(lang);
-    setInitIntlDone(true);
+    dispatch(setInitIntlStatus(true));
   };
 
   useInit(() => {
     initializeIntl();
-  });
+  }, [currentLocale]);
 
   return { initIntlDone, currentLocale };
 };
