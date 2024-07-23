@@ -9,6 +9,7 @@ export interface WalletPathAddressInfo {
   hash160: string;
   legacyAddress: string;
   publicKey: string;
+  privateKey: string;
   xAddress: string;
 }
 

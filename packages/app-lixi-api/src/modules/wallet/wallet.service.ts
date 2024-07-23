@@ -9,6 +9,7 @@ import { XPIJS } from './wallet.constants';
 import { Hash160AndAddress } from '@bcpros/lixi-models';
 import { getUtxosChronik, getWalletBalanceFromUtxos, organizeUtxosByType } from '../../utils/chronik';
 import { calcFee } from '../../utils/cashMethods';
+import wif from 'wif';
 
 @Injectable()
 export class WalletService {
@@ -68,6 +69,8 @@ export class WalletService {
     const slpAddress = this.XPI.SLP.Address.toSLPAddress(cashAddress);
     const xAddress = this.XPI.HDNode.toXAddress(node);
     const publicKey = this.XPI.HDNode.toPublicKey(node).toString('hex');
+    const walletWif = this.XPI.HDNode.toWIF(node);
+    const { privateKey }: { privateKey: Uint8Array } = wif.decode(walletWif);
     return {
       path,
       xAddress,
@@ -77,7 +80,8 @@ export class WalletService {
       fundingWif: this.XPI.HDNode.toWIF(node),
       fundingAddress: this.XPI.SLP.Address.toSLPAddress(cashAddress),
       legacyAddress: this.XPI.SLP.Address.toLegacyAddress(cashAddress),
-      publicKey
+      publicKey,
+      privateKey: Buffer.from(privateKey).toString('hex')
     };
   }
 

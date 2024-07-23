@@ -31,6 +31,7 @@ import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { getAllAccounts, getSelectedAccount } from '@store/account';
 import useInterval from './useInterval';
 import useXPI from './useXPI';
+import wif from 'wif';
 
 // const chronik = new ChronikClient('https://chronik.be.cash/xec');
 const websocketConnectedRefreshInterval = 10000;
@@ -108,6 +109,8 @@ const useWallet = () => {
     const slpAddress = XPI.SLP.Address.toSLPAddress(cashAddress);
     const xAddress = XPI.HDNode.toXAddress(node);
     const publicKey = XPI.HDNode.toPublicKey(node).toString('hex');
+    const walletWif = XPI.HDNode.toWIF(node);
+    const { privateKey }: { privateKey: Uint8Array } = wif.decode(walletWif);
     return {
       path,
       xAddress,
@@ -117,7 +120,8 @@ const useWallet = () => {
       fundingWif: XPI.HDNode.toWIF(node),
       fundingAddress: XPI.SLP.Address.toSLPAddress(cashAddress),
       legacyAddress: XPI.SLP.Address.toLegacyAddress(cashAddress),
-      publicKey
+      publicKey,
+      privateKey: Buffer.from(privateKey).toString('hex')
     };
   };
 
