@@ -151,7 +151,9 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
 
   const [burnAmountPerCoin, setBurnAmountPerCoin] = useState(0);
   const [coinBurned, setCoinBurned] = useState<Coin>(
-    (coinInfo[selectedAccount?.coin ?? COIN.XPI].canBurn ? selectedAccount?.coin : COIN.XPI) as unknown as Coin
+    (coinInfo[selectedAccount?.coin ?? COIN.XPI].canBurn
+      ? selectedAccount?.coin ?? COIN.XPI
+      : COIN.XPI) as unknown as Coin
   );
   const { data: dataBurn } = useConvertDanaToCoinQuery({
     ConvertDanaInput: {
