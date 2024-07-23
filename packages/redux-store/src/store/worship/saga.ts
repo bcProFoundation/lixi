@@ -168,7 +168,7 @@ function* receiveLiveWorship(payload) {
   }
 }
 
-export default function* worshSaga() {
+export function* worshipSaga() {
   if (typeof window === 'undefined') {
     yield all([]);
   } else {

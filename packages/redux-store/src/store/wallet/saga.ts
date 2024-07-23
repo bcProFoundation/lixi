@@ -45,6 +45,6 @@ function* watchActivateWalletSaga() {
   yield takeLatest(activateWallet.type, activateWalletSaga);
 }
 
-export default function* walletSaga() {
+export function* walletSaga() {
   yield all([fork(watchActivateWalletSaga)]);
 }

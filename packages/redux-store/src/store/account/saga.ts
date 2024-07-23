@@ -968,7 +968,7 @@ function* watchSetSecondaryLanguageAccountSagaFailure() {
   yield takeLatest(setSecondaryLanguageAccountFailure.type, setSecondaryLanguageAccountFailureSaga);
 }
 
-export default function* accountSaga() {
+export function* accountSaga() {
   yield all([
     fork(watchGenerateAccount),
     fork(watchRemoveUpload),

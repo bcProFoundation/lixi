@@ -106,7 +106,7 @@ function* watchLoadLocaleFailuare() {
   yield takeLatest(loadLocaleFailure.type, loadLocaleFailureSaga);
 }
 
-export default function* lixiSaga() {
+export function* settingsSaga() {
   yield all([
     fork(watchLoadLocale),
     fork(watchLoadLocaleSuccess),
