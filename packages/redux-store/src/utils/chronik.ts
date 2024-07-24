@@ -4,13 +4,7 @@ import BigNumber from 'bignumber.js';
 import { ChronikClient, Tx, TxHistoryPage, Utxo } from 'chronik-client';
 
 import { Hash160AndAddress } from '@bcpros/lixi-models/lib/wallet/wallet.model';
-import {
-  decryptOpReturnMsg,
-  getHashArrayFromWallet,
-  getHashFromWallet,
-  getUtxoWif,
-  parseOpReturn
-} from './cashMethods';
+import { decryptOpReturnMsg, getSelectedWallet, parseOpReturn } from './cashMethods';
 import { parseBurnOutput, ParseBurnResult } from './opReturnBurn';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { TX_HISTORY_COUNT, COIN } from '@bcpros/lixi-models/constants/coins/coin';
@@ -278,7 +272,7 @@ export const parseChronikTx = async (
   wallet: WalletState,
   coin = COIN.XPI
 ): Promise<ParsedChronikTx> => {
-  const walletHash160: string = getHashFromWallet(wallet);
+  const selectedWallet = getSelectedWallet(wallet);
   const { inputs, outputs } = tx;
   // Assign defaults
   let incoming = true;
@@ -314,7 +308,7 @@ export const parseChronikTx = async (
     }
 
     // Incoming transaction means that all inputs are not from current addresses
-    if (thisInputSendingHash160.includes(walletHash160)) {
+    if (thisInputSendingHash160.includes(selectedWallet.hash160)) {
       // Then this is an outgoing tx
       incoming = false;
     }
@@ -370,7 +364,7 @@ export const parseChronikTx = async (
       parseBurnResult = parseBurnOutput(thisOutputReceivedAtHash160);
     }
     // Find amounts at your wallet's addresses
-    if (thisOutputReceivedAtHash160.includes(walletHash160)) {
+    if (thisOutputReceivedAtHash160.includes(selectedWallet.hash160)) {
       // If incoming tx, this is amount received by the user's wallet
       // if outgoing tx (incoming === false), then this is a change amount
       const thisOutputAmount = new BigNumber(thisOutput.value);
@@ -416,10 +410,7 @@ export const parseChronikTx = async (
     wallet.walletStatus.slpBalancesAndUtxos &&
     wallet.walletStatus.slpBalancesAndUtxos.nonSlpUtxos[0]
   ) {
-    const { selectAll } = walletAdapter.getSelectors();
-    // const allWalletPaths = Object.values(wallet.entities);
-    const allWalletPaths = selectAll(wallet);
-    const fundingWif = getUtxoWif(wallet.walletStatus.slpBalancesAndUtxos.nonSlpUtxos[0], allWalletPaths);
+    const fundingWif = selectedWallet.fundingWif;
     const decryption = await decryptOpReturnMsg(messageHex, fundingWif, otherPublicKey);
 
     if (decryption.success) {

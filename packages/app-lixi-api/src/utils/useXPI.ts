@@ -2,19 +2,31 @@ import BCHJS from '@bcpros/xpi-js';
 import {
   encryptOpReturnMsg,
   fromCoinToSatoshis,
-  generateOpReturnScript,
-  generateTxInput,
-  generateTxOutput,
-  getChangeAddressFromInputUtxos,
-  parseXpiSendValue,
-  signAndBuildTx
+  fromSmallestDenomination,
+  generateOpReturnScript
 } from './cashMethods';
 import { getRecipientPublicKey } from './chronik';
 import { ChronikClient, Utxo } from 'chronik-client';
 import BigNumber from 'bignumber.js';
-import { generateBurnTxOutput } from './opReturnBurn';
-import { BurnForType, BurnType, WalletPathAddressInfo } from '@bcpros/lixi-models';
+import { generateBurnOpReturnScript } from './opReturnBurn';
+import { BurnForType, BurnType } from '@bcpros/lixi-models';
 import { coinInfo, COIN } from '@bcpros/lixi-models';
+
+const wif = require('wif');
+
+import {
+  ALL_BIP143,
+  Ecc,
+  P2PKHSignatory,
+  Script,
+  TxBuilder,
+  TxBuilderOutput,
+  fromHex,
+  initWasm,
+  shaRmd160,
+  toHex
+} from 'ecash-lib';
+import { convertHashToXAddress } from './addressMethod';
 
 export default function useXPI() {
   const calcFee = (XPI: BCHJS, utxos: any, p2pkhOutputNumber = 2, satoshisPerByte = 2.01, opReturnLength = 0) => {
@@ -52,39 +64,67 @@ export default function useXPI() {
   const sendXpi = async (
     XPI: BCHJS,
     chronik: ChronikClient,
-    walletPaths: WalletPathAddressInfo[],
+    fundingWif: string,
     utxos: Array<Utxo & { address: string }>,
     feeInSatsPerByte: number,
     optionalOpReturnMsg: string | undefined,
-    isOneToMany: boolean,
-    destinationAddressAndValueArray: Array<string> | null,
-    destinationAddress: string,
-    sendAmount: string,
     encryptionFlag: boolean,
-    fundingWif: string,
+    isOneToMany: boolean,
+    destinationHashAndValueArray: Array<string> | null,
+    destinationHash: string,
+    sendSingleAmount: number,
+    dustFee: number,
     returnHex?: boolean
   ) => {
     try {
-      let txBuilder = new XPI.TransactionBuilder();
-
-      // parse the input value of XPIs to send
-      const value = parseXpiSendValue(isOneToMany, sendAmount, destinationAddressAndValueArray);
-
-      const satoshisToSend = fromCoinToSatoshis(value);
-
-      // Throw validation error if fromXecToSatoshis returns false
-      if (!satoshisToSend) {
-        const error = new Error(`Invalid decimal places for send amount`);
-        throw error;
+      if (
+        !chronik ||
+        (isOneToMany && !destinationHashAndValueArray) ||
+        (!isOneToMany && !destinationHash && !sendSingleAmount) ||
+        !fundingWif ||
+        !utxos ||
+        !feeInSatsPerByte ||
+        !dustFee
+      ) {
+        throw new Error('Invalid tx send xpi');
       }
 
-      let encryptedEj: Uint8Array; // serialized encryption data object
+      const amountToSend = fromCoinToSatoshis(BigNumber(sendSingleAmount), coinInfo[COIN.XPI].cashDecimals);
+      //check amount greater dust
+      if (!isOneToMany) {
+        if (!amountToSend) throw new Error('Invalid value');
+        if (sendSingleAmount < fromSmallestDenomination(coinInfo[COIN.XPI].etokenSats, COIN.XPI)) {
+          // Throw the same error given by the backend attempting to broadcast such a tx
+          throw new Error('dust');
+        }
+      }
+
+      await initWasm();
+      // Build a signature context for elliptic curve cryptography (ECC)
+      const ecc = new Ecc();
+
+      //get private key from wif
+      const decodedWif = wif.decode(fundingWif);
+      const { privateKey } = decodedWif;
+      const sk = Buffer.from(privateKey).toString('hex');
+
+      const walletSk = fromHex(sk);
+      const walletPk = ecc.derivePubkey(walletSk);
+      const walletPkh = shaRmd160(walletPk);
+      const walletP2pkh = Script.p2pkh(walletPkh);
+
+      const recipientP2pkh = Script.p2pkh(fromHex(destinationHash));
+      // TxId with unspent funds for the above wallet
+
+      let encryptedEj: Uint8Array = new Uint8Array(); // serialized encryption data object
+      let opReturnOutput: any;
 
       if (!returnHex) {
         // if the user has opted to encrypt this message
         if (encryptionFlag && optionalOpReturnMsg) {
           try {
             // get the pub key for the recipient address
+            const destinationAddress = convertHashToXAddress(XPI, destinationHash);
             const recipientPubKey = await getRecipientPublicKey(XPI, chronik, destinationAddress);
             // if the API can't find a pub key, it is due to the wallet having no outbound tx
             if (!recipientPubKey) {
@@ -102,141 +142,210 @@ export default function useXPI() {
         // Start of building the OP_RETURN output.
         // Only build the OP_RETURN output if the user supplied it
         if (optionalOpReturnMsg && typeof optionalOpReturnMsg !== 'undefined' && optionalOpReturnMsg.trim() !== '') {
-          const opReturnData = generateOpReturnScript(XPI, optionalOpReturnMsg, encryptionFlag, encryptedEj!);
-          txBuilder.addOutput(opReturnData, 0);
+          const opReturnData = generateOpReturnScript(XPI, optionalOpReturnMsg, encryptionFlag, encryptedEj);
+          opReturnOutput = { script: new Script(opReturnData), value: 0 };
         }
       }
 
-      // generate the tx inputs and add to txBuilder instance
-      // returns the updated txBuilder, txFee, totalInputUtxoValue and inputUtxos
-      const txInputObj = generateTxInput(
-        XPI,
-        isOneToMany,
-        utxos,
-        txBuilder,
-        destinationAddressAndValueArray,
-        satoshisToSend,
-        feeInSatsPerByte
-      );
-
-      const changeAddress = getChangeAddressFromInputUtxos(XPI, txInputObj.inputUtxos);
-
-      txBuilder = txInputObj.txBuilder; // update the local txBuilder with the generated tx inputs
-
-      // generate the tx outputs and add to txBuilder instance
-      // returns the updated txBuilder
-      const txOutputObj = generateTxOutput(
-        XPI,
-        isOneToMany,
-        value,
-        satoshisToSend,
-        txInputObj.totalInputUtxoValue,
-        destinationAddress,
-        destinationAddressAndValueArray,
-        changeAddress,
-        txInputObj.txFee,
-        txBuilder
-      );
-      txBuilder = txOutputObj; // update the local txBuilder with the generated tx outputs
-
-      // sign the collated inputUtxos and build the raw tx hex
-      // returns the raw tx hex string
-      const rawTxHex = signAndBuildTx(XPI, txInputObj.inputUtxos, txBuilder, walletPaths);
-
-      // Broadcast transaction to the network via the chronik client
-      let broadcastResponse;
-      try {
-        broadcastResponse = await chronik.broadcastTx(rawTxHex);
-        if (!broadcastResponse) {
-          throw new Error('Empty chronik broadcast response');
+      let outputs = [];
+      if (isOneToMany) {
+        //check opreturn
+        if (opReturnOutput) {
+          outputs.push(opReturnOutput);
         }
-      } catch (err) {
-        // this.logger.error('Error broadcasting tx to chronik client');
-        // this.logger.error(err);
-        throw err;
-      }
 
-      if (returnHex) {
-        return rawTxHex;
+        //add output send
+        if (destinationHashAndValueArray && destinationHashAndValueArray.length > 0) {
+          destinationHashAndValueArray.map(hashValue => {
+            const value = hashValue.split(',')[1];
+            const hash = hashValue.split(',')[0];
+            outputs.push({
+              value: value,
+              script: Script.p2pkh(fromHex(hash))
+            });
+          });
+        }
+        //add change address
+        outputs.push(walletP2pkh);
       } else {
+        //check opreturn
+        if (opReturnOutput) {
+          outputs.push(opReturnOutput);
+        }
+
+        //add output send and change address
+        outputs.push(
+          {
+            value: Number.parseFloat(amountToSend.toString()),
+            script: recipientP2pkh
+          },
+          walletP2pkh
+        );
+      }
+      // Tx builder
+      const txBuild = new TxBuilder({
+        inputs: utxos.map(utxo => ({
+          input: {
+            prevOut: utxo.outpoint,
+            signData: {
+              value: Number(utxo.value),
+              outputScript: walletP2pkh
+            }
+          },
+          signatory: P2PKHSignatory(walletSk, walletPk, ALL_BIP143)
+        })),
+        outputs: outputs
+      });
+
+      const feeInSatsPerKByte = parseInt((feeInSatsPerByte * 1000).toFixed(0));
+      const tx = txBuild.sign(ecc, feeInSatsPerKByte, dustFee);
+      const rawTx = tx.ser();
+
+      let broadcastResponse;
+      if (returnHex) {
+        return toHex(rawTx);
+      } else {
+        try {
+          broadcastResponse = await chronik.broadcastTx(rawTx);
+          if (!broadcastResponse) {
+            throw new Error('Empty chronik broadcast response');
+          }
+        } catch (err) {
+          console.log('Error broadcasting tx to chronik client');
+          throw err;
+        }
         // return the explorer link for the broadcasted tx
         return `${coinInfo[COIN.XPI].blockExplorerUrl}/tx/${broadcastResponse.txid}`;
       }
     } catch (err: any) {
-      // this.logger.error(err);
-      throw err;
+      throw new Error(err);
     }
   };
 
-  const createBurnTransaction = (
-    XPI: BCHJS,
-    walletPaths: WalletPathAddressInfo[],
+  const createBurnTransaction = async (
+    fundingWif: string,
     utxos: Array<Utxo & { address: string }>,
     feeInSatsPerByte: number,
     burnType: BurnType,
     burnForType: BurnForType,
     burnedBy: string | Buffer,
     burnForId: string,
-    burnAmount: string,
-    tipToAddresses?: { address: string; amount: string }[]
+    burnAmount: number,
+    dustFee: number,
+    tipToHashes?: { hash: string; amount: string }[]
   ) => {
-    let txBuilder = new XPI.TransactionBuilder();
-
-    const satoshisToBurn = fromCoinToSatoshis(new BigNumber(burnAmount));
-
-    // Throw validation error if fromXecToSatoshis returns false
-    if (!satoshisToBurn) {
-      const error = new Error(`Invalid burn amount`);
-      throw error;
-    }
-
-    // generate the tx inputs and add to txBuilder instance
-    // returns the updated txBuilder, txFee, totalInputUtxoValue and inputUtxos
-    const txInputObj = generateTxInput(
-      XPI,
-      tipToAddresses ? true : false,
-      utxos,
-      txBuilder,
-      tipToAddresses ?? [],
-      satoshisToBurn,
-      feeInSatsPerByte
-    );
-    const changeAddress = getChangeAddressFromInputUtxos(XPI, txInputObj.inputUtxos);
-
-    // generate the tx outputs with burn output
-    // and add to txBuilder instance
-    // returns the updated txBuilder
     try {
-      const txOutputObj = generateBurnTxOutput(
-        XPI,
-        feeInSatsPerByte,
-        satoshisToBurn,
-        burnType,
+      if (
+        !fundingWif ||
+        !utxos ||
+        !feeInSatsPerByte ||
+        !burnType ||
+        !burnForType ||
+        !burnedBy ||
+        !burnForId ||
+        !burnAmount ||
+        !dustFee
+      ) {
+        throw new Error('Invalid tx send xpi');
+      }
+
+      const satoshisToBurn = fromCoinToSatoshis(BigNumber(burnAmount), coinInfo[COIN.XPI].cashDecimals);
+
+      // Throw validation error if fromCoinToSatoshis returns false
+      if (!satoshisToBurn) {
+        const error = new Error(`Invalid burn amount`);
+        throw error;
+      }
+
+      await initWasm();
+      // Build a signature context for elliptic curve cryptography (ECC)
+      const ecc = new Ecc();
+
+      //get private key from wif
+      const decodedWif = wif.decode(fundingWif);
+      const { privateKey } = decodedWif;
+      const sk = Buffer.from(privateKey).toString('hex');
+
+      const walletSk = fromHex(sk);
+      const walletPk = ecc.derivePubkey(walletSk);
+      const walletPkh = shaRmd160(walletPk);
+      const walletP2pkh = Script.p2pkh(walletPkh);
+
+      // TxId with unspent funds for the above wallet
+      const numberSatoshiToBurn = Number.parseFloat(satoshisToBurn.toString());
+      let outputsToMany: any = [];
+      if (tipToHashes) {
+        outputsToMany = tipToHashes.map(hashValue => {
+          const value = Number(hashValue.amount);
+          const hash = hashValue.hash;
+          return {
+            value: value,
+            script: Script.p2pkh(fromHex(hash))
+          };
+        });
+      }
+
+      const scriptBurnBuff = generateBurnOpReturnScript(
+        0x01,
+        burnType ? true : false,
         burnForType,
         burnedBy,
-        burnForId,
-        txInputObj.totalInputUtxoValue,
-        changeAddress,
-        txInputObj.txFee,
-        txBuilder,
-        tipToAddresses ?? []
+        burnForId
       );
-      txBuilder = txOutputObj; // update the local txBuilder with the generated tx outputs
+      const scriptBurn = new Script(new Uint8Array(scriptBurnBuff));
 
-      //calculate miner fee
-      let feeInput = new BigNumber(0);
-      let feeOutput = new BigNumber(0);
-      feeInput = txInputObj.totalInputUtxoValue;
-      txOutputObj.transaction.tx.outs.forEach((tx: any) => {
-        feeOutput = feeOutput.plus(BigNumber(tx.value));
+      const outputs: TxBuilderOutput[] =
+        tipToHashes && tipToHashes.length > 0
+          ? [
+              {
+                value: numberSatoshiToBurn,
+                script: scriptBurn
+              },
+              ...outputsToMany,
+              walletP2pkh
+            ]
+          : [
+              {
+                value: numberSatoshiToBurn,
+                script: scriptBurn
+              },
+              walletP2pkh
+            ];
+
+      // Tx builder
+      const txBuild = new TxBuilder({
+        inputs: utxos.map(utxo => ({
+          input: {
+            prevOut: utxo.outpoint,
+            signData: {
+              value: Number(utxo.value),
+              outputScript: walletP2pkh
+            }
+          },
+          signatory: P2PKHSignatory(walletSk, walletPk, ALL_BIP143)
+        })),
+        outputs: outputs
       });
-      const minerFee = feeInput.minus(feeOutput);
 
-      const rawTxHex: string = signAndBuildTx(XPI, txInputObj.inputUtxos, txBuilder, walletPaths);
+      const feeInSatsPerKByte = parseInt((feeInSatsPerByte * 1000).toFixed(0));
+      const tx = txBuild.sign(ecc, feeInSatsPerKByte, dustFee);
+      const rawTx = tx.ser();
+      const rawTxHex = toHex(rawTx);
+
+      //calculate minerFee
+      let totalInput = new BigNumber(0);
+      let totalOutput = new BigNumber(0);
+      tx.inputs.forEach(input => {
+        totalInput = totalInput.plus(Number(input?.signData?.value ?? 0));
+      });
+      tx.outputs.forEach(output => {
+        totalOutput = totalOutput.plus(Number(output.value));
+      });
+      const minerFee = totalInput.minus(totalOutput);
 
       return { rawTxHex, minerFee };
-    } catch (e) {
-      throw new Error(`Insufficient funds`);
+    } catch (err: any) {
+      throw new Error(err);
     }
   };
 
