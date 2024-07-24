@@ -1096,7 +1096,14 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
               >
                 <p style={{ width: 'fit-content' }} className="infor-page">
                   <BarChartOutlined />
-                  {<Counter num={totalDanaViewScore} isShowXPI={true} numberAbbreviation={true} />}
+                  {
+                    <Counter
+                      num={totalDanaViewScore}
+                      isShowDana={true}
+                      numberAbbreviation={true}
+                      showText={intl.get('post.danaViewScore')}
+                    />
+                  }
                 </p>
               </Tooltip>
             )}

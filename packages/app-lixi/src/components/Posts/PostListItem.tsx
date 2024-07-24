@@ -85,7 +85,7 @@ const Content = styled.div<{ $imageheight: number }>`
       }
       iframe {
         max-width: 100% !important;
-        max-height: 100vh;
+        max-height: 35vh;
         &[title='YouTube video'] {
           width: 700px !important;
           height: 400px;

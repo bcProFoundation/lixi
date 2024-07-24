@@ -25,8 +25,7 @@ import { fromSmallestDenomination, getUtxoWif, validateCoinAmount } from '@utils
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { WalletContext } from '@context/index';
-import useXPI from '@hooks/useXPI';
-import useXEC from '@hooks/useXEC';
+import useCoin from '@hooks/useCoin';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
 import { useCreateCommentMutation, useCreateReplyCommentMutation } from '@store/comment/comments.api';
 import { showToast } from '@store/toast/actions';
@@ -249,8 +248,7 @@ const Comment = ({ post }: CommentProps) => {
   const dispatch = useSliceDispatch();
   const Wallet = React.useContext(WalletContext);
   const { XPI, chronik, getUtxosByCoin } = Wallet;
-  const { sendXpi } = useXPI();
-  const { sendXec } = useXEC();
+  const { sendCoin } = useCoin();
   const [open, setOpen] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const walletStatus = useSliceSelector(getWalletStatus);
@@ -420,17 +418,11 @@ const Comment = ({ post }: CommentProps) => {
         //check if amount is valid
         if (validateCoinAmount(amount, balances, coinGive)) {
           let tipHex = undefined;
-          tipHex = await giveCoinAsTip(
-            trimComment,
-            amount,
-            isReplyComment,
-            replyCommentAdress,
-            commentHash160,
-            coinGive,
-            utxos
-          ).then(result => {
-            return result;
-          });
+          tipHex = await giveCoinAsTip(trimComment, amount, isReplyComment, commentHash160, coinGive, utxos).then(
+            result => {
+              return result;
+            }
+          );
 
           if (tipHex) {
             const createCommentInput: CreateCommentInput = {
@@ -534,56 +526,30 @@ const Comment = ({ post }: CommentProps) => {
     text: string,
     amount: string,
     isReplyComment: boolean,
-    replyCommentAdress: string,
     recipientHash160: string,
     coin = COIN.XPI,
     nonSlpUtxos: (Utxo & { address: string })[]
   ): Promise<string> => {
     setIsSendingCoin(true);
     try {
-      let tipHex;
       const fundingWif = getUtxoWif(nonSlpUtxos[0], walletPaths, coin);
+      const recipientHash = isReplyComment ? recipientHash160 : post.account.hash160;
 
-      switch (coin) {
-        case COIN.XPI:
-          const recipientAddress = isReplyComment ? replyCommentAdress : post.account.address;
-          tipHex = await sendXpi(
-            XPI,
-            chronik,
-            walletPaths,
-            nonSlpUtxos,
-            coinInfo[COIN.XPI].defaultFee,
-            '',
-            false, // indicate send mode is one to one
-            null,
-            recipientAddress,
-            amount,
-            true,
-            fundingWif,
-            true
-          ).catch(error => {
-            throw error;
-          });
-          break;
-        case COIN.XEC:
-          const recipientHash = isReplyComment ? recipientHash160 : post.account.hash160;
-          tipHex = await sendXec(
-            chronik,
-            fundingWif,
-            nonSlpUtxos,
-            coinInfo[COIN.XEC].defaultFee,
-            undefined,
-            false, //indicate send mode is one to one
-            null,
-            recipientHash,
-            Number.parseFloat(amount),
-            coinInfo[COIN.XEC].etokenSats,
-            true // return hex
-          ).catch(error => {
-            throw error;
-          });
-          break;
-      }
+      const tipHex = await sendCoin(
+        coin,
+        XPI,
+        chronik,
+        fundingWif,
+        nonSlpUtxos,
+        undefined,
+        false,
+        false, // indicate send mode is one to one
+        null,
+        recipientHash,
+        Number.parseFloat(amount),
+        true // return hex
+      );
+
       return tipHex;
     } catch (e) {
       const message = e.message || e.error || JSON.stringify(e);
@@ -597,62 +563,27 @@ const Comment = ({ post }: CommentProps) => {
     setIsSendingCoin(true);
     try {
       let createFeeHex = undefined;
-      const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths, selectedAccount?.coin ?? COIN.XPI);
+      const selectedCoin = selectedAccount?.coin ?? COIN.XPI;
+      const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths, selectedCoin);
 
       const havePageFee = post?.page && post.page.createCommentFee !== '0';
       const haveAccountFee = !post?.page && post.account.createCommentFee !== '0';
 
       if (havePageFee || haveAccountFee) {
-        switch (selectedAccount?.coin) {
-          case COIN.XPI:
-            createFeeHex = await sendXpi(
-              XPI,
-              chronik,
-              walletPaths,
-              slpBalancesAndUtxos.nonSlpUtxos,
-              coinInfo[COIN.XPI].defaultFee,
-              '',
-              false, // indicate send mode is one to one
-              null,
-              post?.page ? post.page.pageAccount.address : post.account.address,
-              fromSmallestDenomination(coinInfo[COIN.XPI].dustSats).toString(),
-              true,
-              fundingWif,
-              true
-            );
-            break;
-          case COIN.XEC:
-            createFeeHex = await sendXec(
-              chronik,
-              fundingWif,
-              slpBalancesAndUtxos.nonSlpUtxos,
-              coinInfo[COIN.XEC].defaultFee,
-              undefined,
-              false, //indicate send mode is one to one
-              null,
-              post?.page ? post.page.pageAccount.hash160 : post.account.hash160,
-              fromSmallestDenomination(coinInfo[COIN.XEC].etokenSats, COIN.XEC), //amount
-              coinInfo[COIN.XEC].etokenSats,
-              true
-            ); // return hex
-            break;
-          default:
-            createFeeHex = await sendXpi(
-              XPI,
-              chronik,
-              walletPaths,
-              slpBalancesAndUtxos.nonSlpUtxos,
-              coinInfo[COIN.XPI].defaultFee,
-              '',
-              false, // indicate send mode is one to one
-              null,
-              post?.page ? post.page.pageAccount.address : post.account.address,
-              fromSmallestDenomination(coinInfo[COIN.XPI].dustSats).toString(),
-              true,
-              fundingWif,
-              true
-            );
-        }
+        createFeeHex = await sendCoin(
+          selectedCoin,
+          XPI,
+          chronik,
+          fundingWif,
+          slpBalancesAndUtxos.nonSlpUtxos,
+          undefined,
+          false,
+          false, // indicate send mode is one to one
+          null,
+          post?.page ? post.page.pageAccount.hash160 : post.account.hash160,
+          fromSmallestDenomination(coinInfo[selectedCoin].dustSats, selectedCoin), //amount
+          true // return hex
+        );
       }
 
       return createFeeHex;

@@ -65,7 +65,7 @@ export class BurnQueueCommand {
 
   defaultFee: number;
 
-  tipToAddresses?: { address: string; amount: string }[];
+  tipToHashes?: { hash: string; amount: string }[];
 
   worshipType?: WORSHIP_TYPES;
 

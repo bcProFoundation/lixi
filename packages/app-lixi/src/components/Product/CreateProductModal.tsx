@@ -4,8 +4,8 @@ import { UPLOAD_TYPES } from '@bcpros/lixi-models/constants/upload';
 import { MultiUploader } from '@components/Common/Uploader/MultiUploader';
 import { WalletContext } from '@context/walletProvider';
 import { PageQueryItem } from '@generated/types';
-import { CreateProductInput } from '@generated/types.generated';
-import useXPI from '@hooks/useXPI';
+import { Coin, CreateProductInput } from '@generated/types.generated';
+import useCoin from '@hooks/useCoin';
 import { getProductImageUploads, getSelectedAccount } from '@store/account/selectors';
 import { getAllCategories } from '@store/category/selectors';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
@@ -17,10 +17,11 @@ import { getUtxoWif } from '@utils/cashMethods';
 import { Button, Form, Input, Modal, Select } from 'antd';
 import isEmpty from 'lodash.isempty';
 import router from 'next/router';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import intl from 'react-intl-universal';
 import Gallery from 'react-photo-gallery';
 import styled from 'styled-components';
+import { useConvertDanaToCoinQuery } from '@store/dana/dana.api';
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -118,7 +119,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   const walletPaths = useSliceSelector(getAllWalletPaths);
   const Wallet = React.useContext(WalletContext);
   const { XPI, chronik } = Wallet;
-  const { sendXpi } = useXPI();
+  const { sendCoin } = useCoin();
   const selectedAccount = useSliceSelector(getSelectedAccount);
   const postCoverUploads = useSliceSelector(getProductImageUploads);
   const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
@@ -139,6 +140,17 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
     createProductTrigger,
     { isLoading: isLoadingCreatePage, isSuccess: isSuccessCreatePage, isError: isErrorCreatePage, error: errorOnCreate }
   ] = useCreateProductMutation();
+
+  const [postFee, setPostFee] = useState(0);
+  const { data: dataFee } = useConvertDanaToCoinQuery({
+    ConvertDanaInput: {
+      convertToCoin: (selectedAccount?.coin ?? COIN.XPI) as unknown as Coin
+    }
+  });
+
+  useEffect(() => {
+    setPostFee((dataFee?.convertDanaToCoin ?? 0) * Number(page?.createPostFee ?? 0));
+  }, [dataFee]);
 
   const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
   const categories = useSliceSelector(getAllCategories);
@@ -233,20 +245,20 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
       try {
         if (selectedAccount.id != page.pageAccountId && parseFloat(page.createPostFee) != 0) {
           const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths);
-          createFeeHex = await sendXpi(
+          const selectedCoin = selectedAccount?.coin ?? COIN.XPI;
+          createFeeHex = await sendCoin(
+            selectedCoin,
             XPI,
             chronik,
-            walletPaths,
-            slpBalancesAndUtxos.nonSlpUtxos,
-            coinInfo[COIN.XPI].defaultFee,
-            '',
-            false, // indicate send mode is one to one
-            null,
-            page.pageAccount.address,
-            page.createPostFee,
-            true,
             fundingWif,
-            true
+            slpBalancesAndUtxos.nonSlpUtxos,
+            undefined,
+            false,
+            false, //one to one mode
+            null,
+            page.pageAccount.hash160,
+            postFee,
+            true // return hex
           );
         }
       } catch (error) {

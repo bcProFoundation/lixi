@@ -12,7 +12,7 @@ import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { WrapperPage } from '@components/Settings';
 import { WalletContext } from '@context/index';
 import useXPI from '@hooks/useXPI';
-import useXEC from '@hooks/useXEC';
+import useCoin from '@hooks/useCoin';
 import { getSelectedAccount } from '@store/account/selectors';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { sendCoinNotification } from '@store/notification/actions';
@@ -110,8 +110,8 @@ const SendComponent: React.FC = () => {
     setIsModalVisible(false);
   };
 
-  const { calcFee, sendXpi } = useXPI();
-  const { sendXec } = useXEC();
+  const { calcFee } = useXPI();
+  const { sendCoin } = useCoin();
 
   async function submit() {
     setFormData({
@@ -136,43 +136,33 @@ const SendComponent: React.FC = () => {
     }
     try {
       const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths, selectedCoin);
-      let link;
+      let recipientHash;
       switch (selectedCoin) {
         case COIN.XPI:
-          link = await sendXpi(
-            XPI,
-            chronik,
-            walletPaths,
-            slpBalancesAndUtxos.nonSlpUtxos,
-            coinInfo[COIN.XPI].defaultFee,
-            opReturnMsg,
-            false, // indicate send mode is one to one
-            null,
-            cleanAddress,
-            value,
-            isEncryptedOptionalOpReturnMsg,
-            fundingWif,
-            false // return hex
-          );
+          recipientHash = XPI.Address.toHash160(cleanAddress);
           break;
         case COIN.XEC:
           const { type, hash } = cashaddr.decode(cleanAddress, false);
-          const recipientHash = Buffer.from(hash).toString('hex');
-          link = await sendXec(
-            chronik,
-            fundingWif,
-            slpBalancesAndUtxos.nonSlpUtxos,
-            coinInfo[COIN.XEC].defaultFee,
-            undefined,
-            false, //indicate send mode is one to one
-            null,
-            recipientHash,
-            Number.parseFloat(value),
-            coinInfo[COIN.XEC].etokenSats,
-            false // return hex
-          );
+          recipientHash = Buffer.from(hash).toString('hex');
           break;
       }
+
+      //send
+      const link = await sendCoin(
+        selectedCoin,
+        XPI,
+        chronik,
+        fundingWif,
+        slpBalancesAndUtxos.nonSlpUtxos,
+        opReturnMsg,
+        isEncryptedOptionalOpReturnMsg,
+        false, // indicate send mode is one to one
+        null,
+        recipientHash,
+        Number.parseFloat(value),
+        false //return hex
+      );
+
       dispatch(sendCoinNotification(link));
     } catch (e) {
       let message;

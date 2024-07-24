@@ -34,8 +34,9 @@ export const GridDiv = styled.div`
 
 type CounterProps = {
   num: number;
-  isShowXPI?: boolean;
+  isShowDana?: boolean;
   numberAbbreviation?: boolean;
+  showText?: string;
 };
 
 const Counter = (props: CounterProps) => {
@@ -66,7 +67,7 @@ const Counter = (props: CounterProps) => {
     <GridDiv className="grid count-component">
       <div className="count">
         <span style={{ fontSize: '13px' }} className={animationCounter}>
-          {displayValue} {props.isShowXPI ? intl.get('general.dana') : ''}
+          {displayValue} {props.isShowDana ? (props.showText ? props.showText : intl.get('general.dana')) : ''}
         </span>
       </div>
     </GridDiv>

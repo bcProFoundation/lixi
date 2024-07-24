@@ -3,8 +3,7 @@ import { AuthorizationContext } from '@context/index';
 import { WalletContext } from '@context/walletProvider';
 import { Coin, CreatePostInput, OrderDirection, PostOrderField, CreatePollInput } from '@generated/types.generated';
 import { PageQueryItem } from '@generated/types';
-import useXPI from '@hooks/useXPI';
-import useXEC from '@hooks/useXEC';
+import useCoin from '@hooks/useCoin';
 import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { deleteEditorTextFromCache, removeAllUpload } from '@store/account/actions';
 import { getAccountInfoTemp, getEditorCache, getPostCoverUploads, getSelectedAccount } from '@store/account/selectors';
@@ -226,8 +225,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
   const Wallet = React.useContext(WalletContext);
   const currentTheme = useSliceSelector(getCurrentThemes);
   const { XPI, chronik } = Wallet;
-  const { sendXpi } = useXPI();
-  const { sendXec } = useXEC();
+  const { sendCoin } = useCoin();
   const authorization = useContext(AuthorizationContext);
   const askAuthorization = useAuthorization();
   const showCreatePostMobile = useSliceSelector(getShowCreatePost);
@@ -280,61 +278,22 @@ const CreatePostCard = (props: CreatePostCardProp) => {
 
         try {
           if (selectedAccount.id != page.pageAccountId && parseFloat(page.createPostFee) != 0) {
-            const fundingWif = getUtxoWif(
-              slpBalancesAndUtxos.nonSlpUtxos[0],
-              walletPaths,
-              selectedAccount?.coin ?? COIN.XPI
+            const selectedCoin = selectedAccount?.coin ?? COIN.XPI;
+            const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], walletPaths, selectedCoin);
+            createFeeHex = await sendCoin(
+              selectedCoin,
+              XPI,
+              chronik,
+              fundingWif,
+              slpBalancesAndUtxos.nonSlpUtxos,
+              undefined,
+              false,
+              false, // indicate send mode is one to one
+              null,
+              page.pageAccount.hash160,
+              selectedCoin === COIN.XPI ? 1.25 : 5.65, // postFee, //amount
+              true // return hex
             );
-            switch (selectedAccount?.coin) {
-              case COIN.XPI:
-                createFeeHex = await sendXpi(
-                  XPI,
-                  chronik,
-                  walletPaths,
-                  slpBalancesAndUtxos.nonSlpUtxos,
-                  coinInfo[COIN.XPI].defaultFee,
-                  '',
-                  false, // indicate send mode is one to one
-                  null,
-                  page.pageAccount.address,
-                  postFee.toString(),
-                  true,
-                  fundingWif,
-                  true
-                );
-                break;
-              case COIN.XEC:
-                createFeeHex = await sendXec(
-                  chronik,
-                  fundingWif,
-                  slpBalancesAndUtxos.nonSlpUtxos,
-                  coinInfo[COIN.XEC].defaultFee,
-                  undefined,
-                  false, //indicate send mode is one to one
-                  null,
-                  page.pageAccount.hash160,
-                  postFee, //amount
-                  coinInfo[COIN.XEC].etokenSats,
-                  true
-                ); // return hex
-                break;
-              default:
-                createFeeHex = await sendXpi(
-                  XPI,
-                  chronik,
-                  walletPaths,
-                  slpBalancesAndUtxos.nonSlpUtxos,
-                  coinInfo[COIN.XPI].defaultFee,
-                  '',
-                  false, // indicate send mode is one to one
-                  null,
-                  page.pageAccount.address,
-                  postFee.toString(),
-                  true,
-                  fundingWif,
-                  true
-                );
-            }
           }
         } catch (error) {
           console.log('error', error);
