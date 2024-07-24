@@ -24,7 +24,7 @@
         "../../packages/redux-store/src/hooks/*"
       ],
       "@lang/*": [
-        "../../packages/redux-store/src/lang/*"
+        "src/lang/*"
       ],
       "@local-hooks/*": [
         "src/hooks/*"

@@ -17,8 +17,7 @@ import {
   OrderDirection,
   PageMessageSessionStatus
 } from '@generated/types.generated';
-import useXPI from '@hooks/useXPI';
-import useXEC from '@hooks/useXEC';
+import useCoin from '@hooks/useCoin';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import { getMessageUploads, getSelectedAccount, removeAllMessageUpload, removeUpload } from '@store/account';
 import { postClaim } from '@store/claim/actions';
@@ -638,8 +637,7 @@ const PageMessage = () => {
   const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
   const walletPaths = useSliceSelector(getAllWalletPaths);
-  const { sendXpi } = useXPI();
-  const { sendXec } = useXEC();
+  const { sendCoin } = useCoin();
   const walletStatus = useSliceSelector(getWalletStatus);
   const txFee = Math.ceil(Wallet.XPI.BitcoinCash.getByteCount({ P2PKH: 1 }, { P2PKH: 1 }) * 2.01); //satoshi
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -804,7 +802,7 @@ const PageMessage = () => {
 
         //check if amount is valid
         if (validateCoinAmount(amount, balances, coinGive)) {
-          tipHex = await giveXPI(trimMessage, amount, coinGive, utxos).then(result => {
+          tipHex = await giveCoin(trimMessage, amount, coinGive, utxos).then(result => {
             return result;
           });
           const input: CreateMessageInput = {
@@ -864,7 +862,7 @@ const PageMessage = () => {
   };
 
   //return promise of tipHex and createFeeHex
-  const giveXPI = async (
+  const giveCoin = async (
     text: string,
     amount: string,
     coin = COIN.XPI,
@@ -872,53 +870,25 @@ const PageMessage = () => {
   ): Promise<string> => {
     setIsSendingXPI(true);
     try {
-      let tipHex;
       const fundingWif = getUtxoWif(nonSlpUtxos[0], walletPaths, coin);
+      const recipientHash = isPageOwner
+        ? currentPageMessageSession?.account?.hash160
+        : currentPageMessageSession?.page?.pageAccount?.hash160;
 
-      switch (coin) {
-        case COIN.XPI:
-          const recipientAddress = isPageOwner
-            ? currentPageMessageSession?.account?.address
-            : currentPageMessageSession?.page?.pageAccount?.address;
-          tipHex = await sendXpi(
-            XPI,
-            chronik,
-            walletPaths,
-            nonSlpUtxos,
-            coinInfo[COIN.XPI].defaultFee,
-            '',
-            false, // indicate send mode is one to one
-            null,
-            recipientAddress,
-            amount,
-            true,
-            fundingWif,
-            true
-          ).catch(error => {
-            throw error;
-          });
-          break;
-        case COIN.XEC:
-          const recipientHash = isPageOwner
-            ? currentPageMessageSession?.account?.hash160
-            : currentPageMessageSession?.page?.pageAccount?.hash160;
-          tipHex = await sendXec(
-            chronik,
-            fundingWif,
-            nonSlpUtxos,
-            coinInfo[COIN.XEC].defaultFee,
-            undefined,
-            false, //indicate send mode is one to one
-            null,
-            recipientHash,
-            Number.parseFloat(amount),
-            coinInfo[COIN.XEC].etokenSats,
-            true // return hex
-          ).catch(error => {
-            throw error;
-          });
-          break;
-      }
+      const tipHex = await sendCoin(
+        coin,
+        XPI,
+        chronik,
+        fundingWif,
+        nonSlpUtxos,
+        undefined,
+        false,
+        false, // indicate send mode is one to one
+        null,
+        recipientHash,
+        Number.parseFloat(amount), //amount
+        true // return hex
+      );
 
       return tipHex;
     } catch (e) {

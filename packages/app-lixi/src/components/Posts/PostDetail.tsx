@@ -168,7 +168,7 @@ const PostContentDetail = styled.div`
     iframe {
       max-width: 100%;
       @media (max-width: 960px) {
-        max-height: 100vh;
+        max-height: 35vh;
       }
     }
     .hashtag-link {

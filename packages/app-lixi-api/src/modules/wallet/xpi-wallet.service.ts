@@ -81,20 +81,21 @@ export class XpiWalletService extends WalletService {
     const { slpBalancesAndUtxos } = walletStatus;
 
     const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], sendWalletPath);
+    const recipientHash = this.XPI.Address.toHash160(recieveAddress);
     const hex = await sendXpi(
       this.XPI,
       this.chronik,
-      sendWalletPath,
+      fundingWif,
       slpBalancesAndUtxos.nonSlpUtxos,
       coinInfo[COIN.XPI].defaultFee,
       undefined,
+      false,
       false, // indicate send mode is one to one
       null,
-      recieveAddress,
-      amount.toString(),
-      true,
-      fundingWif,
-      true
+      recipientHash,
+      coinInfo[COIN.XPI].dustSats,
+      amount,
+      true //return hex
     );
 
     return hex;
@@ -116,16 +117,16 @@ export class XpiWalletService extends WalletService {
     const hex = await sendXpi(
       this.XPI,
       this.chronik,
-      sendWalletPath,
+      fundingWif,
       slpBalancesAndUtxos.nonSlpUtxos,
       coinInfo[COIN.XPI].defaultFee,
-      '',
+      undefined,
+      false,
       true, // indicate send mode is one to one
       destinationAddressAndValueArray,
       '',
-      '',
-      true,
-      fundingWif,
+      coinInfo[COIN.XPI].dustSats,
+      0,
       true
     );
 
@@ -165,52 +166,5 @@ export class XpiWalletService extends WalletService {
     }
     const { txid } = broadcastResponse;
     return txid;
-  }
-
-  async burn(sendAddressMnemonic: string, recieveAddress: string, amount: number, burnCommand: BurnCommand) {
-    const { createBurnTransaction } = useXPI();
-    const { burnType, burnForType, burnForId, burnedBy } = burnCommand;
-    let tipToAddresses: { address: string; amount: string }[] = [];
-
-    try {
-      const sendWalletPath = await super.getWalletPathDetails(sendAddressMnemonic, [this.defaultPath]);
-      const hash160AndAddressObjArray: Hash160AndAddress[] = sendWalletPath.map(item => {
-        return {
-          address: item.xAddress,
-          hash160: item.hash160
-        };
-      });
-      const walletStatus = await super.getWalletStatus(hash160AndAddressObjArray);
-      const { slpBalancesAndUtxos } = walletStatus;
-
-      tipToAddresses.push({
-        address: recieveAddress,
-        amount: fromCoinToSatoshis(new BigNumber(amount).multipliedBy(coinInfo[COIN.XPI].burnFee)).valueOf().toString()
-      });
-
-      const { rawTxHex } = createBurnTransaction(
-        this.XPI,
-        sendWalletPath,
-        slpBalancesAndUtxos.nonSlpUtxos,
-        coinInfo[COIN.XPI].defaultFee,
-        burnType,
-        burnForType,
-        burnedBy,
-        burnForId,
-        amount.toString(),
-        tipToAddresses
-      );
-
-      const broadcastResponse = await this.chronik.broadcastTx(rawTxHex).catch(async err => {
-        const updatingWalletFund = 'Updating wallet fund';
-        throw new Error(updatingWalletFund);
-      });
-      const { txid } = broadcastResponse;
-
-      return txid;
-    } catch (e: any) {
-      this.logger.log(e);
-      throw new Error(e.message);
-    }
   }
 }
