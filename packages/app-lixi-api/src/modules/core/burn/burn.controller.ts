@@ -323,7 +323,8 @@ export class BurnController {
             post: post,
             latestDanaBurnScore: danaBurnScore,
             burnAccountId: burnAccount?.id,
-            amountDana: amountDana
+            amountDana: amountDana,
+            burnForType: BurnForType.Post
           });
 
           //prepare notification
@@ -443,11 +444,23 @@ export class BurnController {
 
             await this.tokenDanaCacheService.setTokenDana(command.burnForId, new TokenDana({ ...tokenDana }));
 
+            // Put burn result to fanout
+            await this.burnFanoutQueue.add(BURN_FANOUT_QUEUE, {
+              burn: { ...savedBurn },
+              post: null,
+              latestDanaBurnScore: null,
+              burnAccountId: null,
+              amountDana: amountDana,
+              burnForType: BurnForType.Token,
+              burnForId: command.burnForId
+            });
+
             this.accountDanaQueue.add(ACCOUNT_DANA_QUEUE, {
               command: command,
               txid: savedBurn.txid,
               amount: amountDana,
-              givenDanaAddress: burnByAddress
+              givenDanaAddress: burnByAddress,
+              receivedDanaAddress: null
             });
           });
         } else if (command.burnForType === BurnForType.Comment) {
@@ -551,6 +564,17 @@ export class BurnController {
           }
         } else if (command.burnForType === BurnForType.Page) {
           const burnByAddress = this.convertBurnedByToAddress(command.burnedBy);
+          // Put burn result to fanout
+          await this.burnFanoutQueue.add(BURN_FANOUT_QUEUE, {
+            burn: { ...savedBurn },
+            post: null,
+            latestDanaBurnScore: null,
+            burnAccountId: null,
+            amountDana: amountDana,
+            burnForType: BurnForType.Page,
+            burnForId: command.burnForId
+          });
+
           const updatePageDana = this.pageDanaQueue.add(PAGE_DANA_QUEUE, {
             command: command,
             amount: amountDana,

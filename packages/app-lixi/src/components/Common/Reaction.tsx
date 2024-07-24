@@ -447,7 +447,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           <img className={classStyle} alt="burnIcon" src={'/images/ico-burn-up.svg'} />
         </picture>
 
-        {burnForType === BurnForType.Post && burnValue && <Counter isShowXPI={true} num={burnValue ?? 0} />}
+        {burnForType === BurnForType.Post && burnValue && <Counter isShowDana={true} num={burnValue ?? 0} />}
       </Popover>
     </SpaceIconBurnHover>
   );
