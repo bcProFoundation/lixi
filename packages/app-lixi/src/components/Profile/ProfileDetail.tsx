@@ -790,7 +790,14 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
               >
                 <p style={{ width: 'fit-content' }} className="infor-profile">
                   <BarChartOutlined />
-                  {<Counter num={totalDanaViewScore} isShowXPI={true} numberAbbreviation={true} />}
+                  {
+                    <Counter
+                      num={totalDanaViewScore}
+                      isShowDana={true}
+                      numberAbbreviation={true}
+                      showText={intl.get('post.danaViewScore')}
+                    />
+                  }
                 </p>
               </Tooltip>
             )}
