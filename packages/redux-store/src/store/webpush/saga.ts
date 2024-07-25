@@ -220,7 +220,7 @@ function* unsubscribeAllFailureSaga(action: PayloadAction<{ interactive: boolean
   }
 }
 
-export default function* webpushSaga() {
+export function* webpushSaga() {
   yield all([
     fork(watchSubscribeSelectedAccount),
     fork(watchSubscribeSelectedAccountSuccess),

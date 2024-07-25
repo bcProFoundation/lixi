@@ -109,6 +109,6 @@ function* watchCommentCreateFailure() {
   yield takeLatest(createCommentFailure.type, createCommentFailureSaga);
 }
 
-export default function* commentSaga() {
+export function* commentSaga() {
   yield all([fork(watchCreateCommentSuccess), fork(watchCommentCreateFailure)]);
 }

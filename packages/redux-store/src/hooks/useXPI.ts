@@ -33,7 +33,6 @@ import {
 export default function useXPI() {
   const getXPI = (apiIndex = 0): BCHJS => {
     return new BCHJS({});
-    return new BCHJS({});
   };
 
   const calcFee = (XPI: BCHJS, utxos: any, p2pkhOutputNumber = 2, satoshisPerByte = 2.01, opReturnLength = 0) => {

@@ -37,7 +37,7 @@ function* watchUserSubcribeToAddressChannel() {
   yield takeLatest(userSubcribeToAddressChannel.type, userSubcribeToAddressChannelSaga);
 }
 
-export default function* messageSaga() {
+export function* messageSaga() {
   if (typeof window === 'undefined') {
     yield all([]);
   } else {

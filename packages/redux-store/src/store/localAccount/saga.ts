@@ -39,6 +39,6 @@ function* watchSilentLocalLogin() {
   yield takeLatest(silentLocalLogin.type, silentLocalLoginSaga);
 }
 
-export default function* accountSaga() {
+export function* localAccountSaga() {
   yield all([fork(watchSetLocalUserAccountSaga), fork(watchSilentLocalLogin)]);
 }

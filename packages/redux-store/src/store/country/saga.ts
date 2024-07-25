@@ -75,7 +75,7 @@ function* watchGetStatesFailure() {
   yield takeLatest(getStatesFailure.type, getStatesFailureSaga);
 }
 
-export default function* countrySaga() {
+export function* countrySaga() {
   yield all([
     fork(watchgetCountries),
     fork(watchgetCountriesFailure),

@@ -35,6 +35,6 @@ function* watchupdateLanguage() {
   yield takeLatest(updateLanguage.type, updateLanguageSaga);
 }
 
-export default function* lixiSaga() {
+export function* settingsSaga() {
   yield all([fork(watchupdateLanguage)]);
 }

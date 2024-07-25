@@ -52,6 +52,6 @@ function* watchAnalyticEvent(actionType, duration) {
   }
 }
 
-export default function* analyticEventSaga() {
+export function* analyticEventSaga() {
   yield all([watchAnalyticEvent(analyticEvent.type, 1000), fork(watchBatchAnalyticEvents)]);
 }
