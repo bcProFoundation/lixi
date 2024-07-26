@@ -11,9 +11,6 @@ import BigNumber from 'bignumber.js';
 import { generateBurnOpReturnScript } from './opReturnBurn';
 import { BurnForType, BurnType } from '@bcpros/lixi-models';
 import { coinInfo, COIN } from '@bcpros/lixi-models';
-
-const wif = require('wif');
-
 import {
   ALL_BIP143,
   Ecc,
@@ -27,6 +24,7 @@ import {
   toHex
 } from 'ecash-lib';
 import { convertHashToXAddress } from './addressMethod';
+const wif = require('wif');
 
 export default function useXPI() {
   const calcFee = (XPI: BCHJS, utxos: any, p2pkhOutputNumber = 2, satoshisPerByte = 2.01, opReturnLength = 0) => {
