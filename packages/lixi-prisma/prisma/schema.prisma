@@ -1193,9 +1193,10 @@ model Product {
 }
 
 model WalletPath {
+  id        Int         @id @default(autoincrement())
   path      String
-  address   String      @unique
-  hash160   String      @unique
+  address   String
+  hash160   String
   type      AddressType
   publicKey String      @map("public_key")
   accountId Int         @map("account_id")

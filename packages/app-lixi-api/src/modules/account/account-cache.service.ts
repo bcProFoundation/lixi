@@ -90,14 +90,14 @@ export class AccountCacheService {
                 id: { in: uncachedIds }
               },
               include: {
-                avatar: {
+                accountAvatarImageUploadable: {
                   include: {
-                    upload: true
+                    uploads: true
                   }
                 },
-                cover: {
+                accountCoverImageUploadable: {
                   include: {
-                    upload: true
+                    uploads: true
                   }
                 }
               }
@@ -108,8 +108,8 @@ export class AccountCacheService {
         dbValues.map(dbValue => {
           const account = new Account({
             ...dbValue,
-            avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.avatar?.upload),
-            cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.cover?.upload),
+            avatar: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.accountAvatarImageUploadable?.uploads[0]),
+            cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.accountCoverImageUploadable?.uploads[0]),
             hash160: dbValue.hash160.toString('hex')
           });
           accountsMap.set(dbValue.id.toString(), account);
