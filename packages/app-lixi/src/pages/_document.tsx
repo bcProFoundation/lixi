@@ -19,6 +19,8 @@ const MyDocument = () => (
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e1e1e" />
       <meta name="msapplication-navbutton-color" content="#fff" />
       <meta name="apple-mobile-web-app-status-bar-style" content="#fff" />
+      <meta name="version" content={process.env.NEXT_PUBLIC_APP_VERSION} />
+      <meta name="commit-hash" content={process.env.NEXT_PUBLIC_COMMIT_HASH} />
 
       <link rel="manifest" href="/manifest.json" />
       <link rel="shortcut icon" href="/favicon.ico" />
