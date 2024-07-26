@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "precommit": "turbo run format",
-    "build": "next build",
+    "build": "node scripts/extract-version-and-commit.js && next build",
     "debug": "NODE_OPTIONS='--inspect' next dev",
     "dev": "next dev",
     "lint": "next lint",
