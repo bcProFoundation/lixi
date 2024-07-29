@@ -36,6 +36,7 @@ type Account {
   rootCoin: Coin
   secondaryLanguage: String
   secret: String
+  telegramId: String
   totalDanaViewScore: Int
 
   """Identifies the date and time when the object was last updated."""

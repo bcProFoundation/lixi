@@ -306,6 +306,7 @@ model Account {
   imageUploadable                ImageUploadable[]
   PollAnswerOnAccount            PollAnswerOnAccount[]
   walletPaths                    WalletPath[]
+  telegramId                     String?               @unique @map("telegram_id")
 
   @@index([mnemonicHash], type: Hash)
   @@map("account")
