@@ -1193,7 +1193,7 @@ model Product {
 }
 
 model WalletPath {
-  id        Int         @id @default(autoincrement())
+  id        String      @id @default(cuid())
   path      String
   address   String
   hash160   String
