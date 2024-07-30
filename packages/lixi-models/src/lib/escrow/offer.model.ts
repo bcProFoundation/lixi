@@ -16,28 +16,19 @@ export class Offer {
   publicKey: string;
 
   @Field(() => String)
-  title: string;
+  message: string;
 
-  @Field(() => String, { nullable: true })
-  @IsOptional()
-  description?: string;
-
-  @Field(() => Number)
-  price: number;
-
-  @Field(() => Number)
-  amount: number;
+  @Field(() => String)
+  price: string;
 
   @Field(() => COIN)
   coin: COIN;
 
-  @Field(() => Number, { nullable: true })
-  @IsOptional()
-  orderLimitMin?: number;
+  @Field(() => Number)
+  orderLimitMin: number;
 
-  @Field(() => Number, { nullable: true })
-  @IsOptional()
-  orderLimitMax?: number;
+  @Field(() => Number)
+  orderLimitMax: number;
 
   @Field(() => OfferType)
   type: OfferType;

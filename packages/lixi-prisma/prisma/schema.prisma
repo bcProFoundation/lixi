@@ -1213,7 +1213,7 @@ model EscrowOrder {
   arbitratorPublicKey String            @map("arbitrator_public_key")
   escrowAddress       String?           @map("escrow_address")
   paymentMethod       PaymentMethod     @relation(fields: [paymentMethodId], references: [id])
-  paymentMethodId     String            @map("payment_method_id")
+  paymentMethodId     Int               @map("payment_method_id")
   message             String?
   price               Float             @default(0.0) @map("price")
   amount              Float             @default(0.0) @map("amount")
@@ -1243,14 +1243,12 @@ model Dispute {
 model Offer {
   id             String               @id @default(cuid())
   publicKey      String               @map("public_key")
-  title          String
-  description    String?
-  price          Float                @default(0.0) @map("price")
-  amount         Float                @default(0.0) @map("amount")
-  coin           Coin
-  orderLimitMin  Float?               @default(0.0) @map("order_limit_min")
-  orderLimitMax  Float?               @default(0.0) @map("order_limit_max")
-  type           OfferType
+  message        String
+  price          String
+  coin           Coin                 @default(XEC)
+  orderLimitMin  Float                @default(0.0) @map("order_limit_min")
+  orderLimitMax  Float                @default(0.0) @map("order_limit_max")
+  type           OfferType            @default(SELL)
   paymentMethods OfferPaymentMethod[]
   status         OfferStatus          @default(ACTIVE)
   location       String?
@@ -1266,7 +1264,7 @@ model OfferPaymentMethod {
   offer           Offer         @relation(fields: [offerId], references: [id])
   offerId         String        @map("offer_id")
   paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
-  paymentMethodId String        @map("payment_method_id")
+  paymentMethodId Int           @map("payment_method_id")
   createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime      @default(now()) @map("updated_at") @db.Timestamptz
 
@@ -1274,7 +1272,7 @@ model OfferPaymentMethod {
 }
 
 model PaymentMethod {
-  id                  String               @id @default(cuid())
+  id                  Int                  @id @default(autoincrement())
   name                String
   message             String?
   offerPaymentMethods OfferPaymentMethod[]

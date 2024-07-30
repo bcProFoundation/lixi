@@ -315,7 +315,7 @@ input CreateEscrowOrderInput {
   escrowAddress: String
   message: String
   offerId: String!
-  paymentMethodId: String!
+  paymentMethodId: Int!
   price: Int!
   sellerPublicKey: String!
 }
@@ -360,16 +360,14 @@ input CreateMessageInput {
 }
 
 input CreateOfferInput {
-  amount: Int!
   coin: Coin!
-  description: String
   location: String
-  orderLimitMax: Int
-  orderLimitMin: Int
-  paymentMethodIds: [String!]!
-  price: Int!
+  message: String!
+  orderLimitMax: Int!
+  orderLimitMin: Int!
+  paymentMethodIds: [Int!]!
+  price: String!
   publicKey: String!
-  title: String!
   type: OfferType!
 }
 
@@ -973,35 +971,33 @@ type Mutation {
 }
 
 type Offer {
-  amount: Int!
   coin: Coin!
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
-  description: String
   escrowOrders: [EscrowOrder!]
   id: ID!
   location: String
-  orderLimitMax: Int
-  orderLimitMin: Int
+  message: String!
+  orderLimitMax: Int!
+  orderLimitMin: Int!
   paymentMethods: [OfferPaymentMethod!]!
-  price: Int!
+  price: String!
   publicKey: String!
   status: OfferStatus!
-  title: String!
   type: OfferType!
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
 }
 
-type OfferConnection {
-  edges: [OfferEdge!]
-  pageInfo: PageInfo!
-  totalCount: Int
+type OfferBasicConnection {
+  edges: [OfferBasicEdge!]!
+  pageInfo: BasicPageInfo!
+  totalCount: Int!
 }
 
-type OfferEdge {
+type OfferBasicEdge {
   cursor: String!
   node: Offer!
 }
@@ -1029,7 +1025,7 @@ type OfferPaymentMethod {
   offer: Offer!
   offerId: String!
   paymentMethod: PaymentMethod!
-  paymentMethodId: String!
+  paymentMethodId: Int!
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
@@ -1198,7 +1194,7 @@ type PaymentMethod {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   escrowOrders: [EscrowOrder!]
-  id: ID!
+  id: Int!
   message: String
   name: String!
   offerPaymentMethods: [OfferPaymentMethod!]
@@ -1414,13 +1410,14 @@ type Query {
   ): HashtagConnection!
   allHashtagByToken(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: HashtagOrder, skip: Int): HashtagConnection!
   allMessageByPageMessageSessionId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: MessageOrder, skip: Int): MessageConnection!
-  allOffer(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: OfferOrder, skip: Int): OfferConnection!
-  allOfferByPublicKey(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: OfferOrder, publicKey: String!, skip: Int): OfferConnection!
+  allOffer(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: OfferOrder, skip: Int): OfferBasicConnection!
+  allOfferByPublicKey(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: OfferOrder, publicKey: String!, skip: Int): OfferBasicConnection!
   allOpenPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allOpenPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPages(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): PageBasicConnection!
   allPagesByUserId(after: String, first: Int, id: Int, skip: Int): PageBasicConnection!
+  allPaymenMethod: [PaymentMethod!]!
   allPendingPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPendingPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPostsByHashtagId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
@@ -1598,7 +1595,6 @@ type Subscription {
   escrowOrderCreated: EscrowOrder!
   hashtagCreated: Hashtag!
   messageCreated: Message!
-  offerCreated: Offer!
   pageMessageSessionCreated: PageMessageSession!
   templeCreated: Temple!
   worshipedPersonCreated: WorshipedPerson!

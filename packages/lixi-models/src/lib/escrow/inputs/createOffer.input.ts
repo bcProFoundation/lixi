@@ -12,37 +12,27 @@ export class CreateOfferInput {
 
   @Field(() => String)
   @IsNotEmpty()
-  title: string;
+  message: string;
 
-  @Field(() => String, { nullable: true })
-  @IsOptional()
-  description?: string;
-
-  @Field(() => Number)
+  @Field(() => String)
   @IsNotEmpty()
-  price: number;
-
-  @Field(() => Number)
-  @IsNotEmpty()
-  amount: number;
+  price: string;
 
   @Field(() => COIN)
   coin: COIN;
 
-  @Field(() => Number, { nullable: true })
-  @IsOptional()
-  orderLimitMin?: number;
+  @Field(() => Number)
+  orderLimitMin: number;
 
-  @Field(() => Number, { nullable: true })
-  @IsOptional()
-  orderLimitMax?: number;
+  @Field(() => Number)
+  orderLimitMax: number;
 
   @Field(() => OfferType)
   type: OfferType;
 
-  @Field(() => [String])
+  @Field(() => [Number])
   @IsNotEmpty()
-  paymentMethodIds: [string];
+  paymentMethodIds: [number];
 
   @Field(() => String, { nullable: true })
   @IsOptional()

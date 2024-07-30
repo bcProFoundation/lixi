@@ -1,3 +1,4 @@
+import { PaymentMethodsState } from '@bcpros/redux-store/src/store/payment-method/state';
 import {
   AccountsState,
   CategoriesState,
@@ -33,7 +34,8 @@ import {
   tokenReducer,
   walletStateReducer,
   actionReducer,
-  api
+  api,
+  paymentMethodReducer
 } from '@store/index';
 import { routerReducer } from 'connected-next-router';
 import { HYDRATE } from 'next-redux-wrapper';
@@ -147,6 +149,11 @@ const categoryPersistConfig: PersistConfig<CategoriesState> = {
   storage: storage('lixi-indexeddb')
 };
 
+const PaymentMethodPersistConfig: PersistConfig<PaymentMethodsState> = {
+  key: 'paymentMethods',
+  storage: storage('lixi-indexeddb')
+};
+
 const pageMessagePersistConfig: PersistConfig<PageMessageSessionState> = {
   key: 'pageMessage',
   storage: storage('lixi-indexeddb')
@@ -173,6 +180,7 @@ export const serverReducer = combineReducers({
   countries: countryReducer,
   states: stateReducer,
   categories: categoryReducer,
+  paymentMethods: paymentMethodReducer,
   burn: burnReducer,
   pageMessage: messageReducer,
   [api.reducerPath]: api.reducer,
@@ -200,6 +208,7 @@ export const clientReducer = combineReducers({
   countries: persistReducer(countryPersistConfig, countryReducer),
   states: persistReducer(statePersistConfig, stateReducer),
   categories: persistReducer(categoryPersistConfig, categoryReducer),
+  paymentMethods: persistReducer(PaymentMethodPersistConfig, paymentMethodReducer),
   burn: burnReducer,
   pageMessage: persistReducer(pageMessagePersistConfig, messageReducer),
   [api.reducerPath]: api.reducer,

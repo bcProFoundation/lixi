@@ -1,0 +1,34 @@
+fragment OfferFields on Offer {
+  id
+  publicKey
+  message
+  price
+  orderLimitMin
+  orderLimitMax
+  paymentMethods {
+    paymentMethod {
+      name
+    }
+  }
+}
+
+mutation CreateOffer($input: CreateOfferInput!) {
+  createOffer(data: $input) {
+    ...OfferFields
+  }
+}
+
+query AllOffer($after: String, $before: String, $first: Int, $last: Int) {
+  allOffer(after: $after, before: $before, first: $first, last: $last) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...OfferFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}

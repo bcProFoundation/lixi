@@ -921,5 +921,8 @@ export default {
   'poll.selectType': 'Chọn theo loại',
   'poll.canAdd': 'Người bầu chọn có thể thêm lựa chọn',
   'poll.vote': 'Bầu chọn',
-  'poll.requireDana': 'Cần Dana để bầu chọn'
+  'poll.requireDana': 'Cần Dana để bầu chọn',
+
+  /*22. Escrow */
+  'escrow.unablegetPaymentMethod': 'Unable to get paymentMethod'
 };

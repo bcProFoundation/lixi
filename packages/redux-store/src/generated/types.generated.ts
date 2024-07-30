@@ -343,7 +343,7 @@ export type CreateEscrowOrderInput = {
   escrowAddress?: InputMaybe<Scalars['String']['input']>;
   message?: InputMaybe<Scalars['String']['input']>;
   offerId: Scalars['String']['input'];
-  paymentMethodId: Scalars['String']['input'];
+  paymentMethodId: Scalars['Int']['input'];
   price: Scalars['Int']['input'];
   sellerPublicKey: Scalars['String']['input'];
 };
@@ -388,16 +388,14 @@ export type CreateMessageInput = {
 };
 
 export type CreateOfferInput = {
-  amount: Scalars['Int']['input'];
   coin: Coin;
-  description?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<Scalars['String']['input']>;
-  orderLimitMax?: InputMaybe<Scalars['Int']['input']>;
-  orderLimitMin?: InputMaybe<Scalars['Int']['input']>;
-  paymentMethodIds: Array<Scalars['String']['input']>;
-  price: Scalars['Int']['input'];
+  message: Scalars['String']['input'];
+  orderLimitMax: Scalars['Int']['input'];
+  orderLimitMin: Scalars['Int']['input'];
+  paymentMethodIds: Array<Scalars['Int']['input']>;
+  price: Scalars['String']['input'];
   publicKey: Scalars['String']['input'];
-  title: Scalars['String']['input'];
   type: OfferType;
 };
 
@@ -1143,35 +1141,33 @@ export type MutationUpdatePostArgs = {
 
 export type Offer = {
   __typename?: 'Offer';
-  amount: Scalars['Int']['output'];
   coin: Coin;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime']['output'];
-  description?: Maybe<Scalars['String']['output']>;
   escrowOrders?: Maybe<Array<EscrowOrder>>;
   id: Scalars['ID']['output'];
   location?: Maybe<Scalars['String']['output']>;
-  orderLimitMax?: Maybe<Scalars['Int']['output']>;
-  orderLimitMin?: Maybe<Scalars['Int']['output']>;
+  message: Scalars['String']['output'];
+  orderLimitMax: Scalars['Int']['output'];
+  orderLimitMin: Scalars['Int']['output'];
   paymentMethods: Array<OfferPaymentMethod>;
-  price: Scalars['Int']['output'];
+  price: Scalars['String']['output'];
   publicKey: Scalars['String']['output'];
   status: OfferStatus;
-  title: Scalars['String']['output'];
   type: OfferType;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export type OfferConnection = {
-  __typename?: 'OfferConnection';
-  edges?: Maybe<Array<OfferEdge>>;
-  pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']['output']>;
+export type OfferBasicConnection = {
+  __typename?: 'OfferBasicConnection';
+  edges: Array<OfferBasicEdge>;
+  pageInfo: BasicPageInfo;
+  totalCount: Scalars['Int']['output'];
 };
 
-export type OfferEdge = {
-  __typename?: 'OfferEdge';
+export type OfferBasicEdge = {
+  __typename?: 'OfferBasicEdge';
   cursor: Scalars['String']['output'];
   node: Offer;
 };
@@ -1200,7 +1196,7 @@ export type OfferPaymentMethod = {
   offer: Offer;
   offerId: Scalars['String']['output'];
   paymentMethod: PaymentMethod;
-  paymentMethodId: Scalars['String']['output'];
+  paymentMethodId: Scalars['Int']['output'];
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime']['output'];
 };
@@ -1369,7 +1365,7 @@ export type PaymentMethod = {
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime']['output'];
   escrowOrders?: Maybe<Array<EscrowOrder>>;
-  id: Scalars['ID']['output'];
+  id: Scalars['Int']['output'];
   message?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   offerPaymentMethods?: Maybe<Array<OfferPaymentMethod>>;
@@ -1578,13 +1574,14 @@ export type Query = {
   allHashtagBySearch: HashtagConnection;
   allHashtagByToken: HashtagConnection;
   allMessageByPageMessageSessionId: MessageConnection;
-  allOffer: OfferConnection;
-  allOfferByPublicKey: OfferConnection;
+  allOffer: OfferBasicConnection;
+  allOfferByPublicKey: OfferBasicConnection;
   allOpenPageMessageSessionByAccountId: PageMessageSessionConnection;
   allOpenPageMessageSessionByPageId: PageMessageSessionConnection;
   allPageMessageSessionByAccountId: PageMessageSessionConnection;
   allPages: PageBasicConnection;
   allPagesByUserId: PageBasicConnection;
+  allPaymenMethod: Array<PaymentMethod>;
   allPendingPageMessageSessionByAccountId: PageMessageSessionConnection;
   allPendingPageMessageSessionByPageId: PageMessageSessionConnection;
   allPostsByHashtagId: PostConnection;
@@ -2315,7 +2312,6 @@ export type Subscription = {
   escrowOrderCreated: EscrowOrder;
   hashtagCreated: Hashtag;
   messageCreated: Message;
-  offerCreated: Offer;
   pageMessageSessionCreated: PageMessageSession;
   templeCreated: Temple;
   worshipedPersonCreated: WorshipedPerson;

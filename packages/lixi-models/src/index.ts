@@ -167,6 +167,7 @@ export * from './lib/token/pagination/token-connection.model';
 export * from './lib/token/token-dana.model';
 export * from './lib/token/token.model';
 export * from './lib/upload';
+export * from './lib/paymentMethod';
 export * from './lib/wallet/balances.model';
 export * from './lib/wallet/wallet.model';
 export * from './lib/webpush/webpush-notification.model';
