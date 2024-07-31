@@ -30,7 +30,7 @@ import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { getAllAccounts, getSelectedAccount } from '@store/account';
 import useInterval from './useInterval';
-import useXPI from './useXPI';
+import {useXPI} from './useXPI';
 import wif from 'wif';
 
 // const chronik = new ChronikClient('https://chronik.be.cash/xec');

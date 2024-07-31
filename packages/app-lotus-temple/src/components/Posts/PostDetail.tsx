@@ -9,7 +9,7 @@ import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { NavBarHeader, PathDirection } from '@components/Layout/MainLayout';
 import { WalletContext } from '@context/walletProvider';
 import { CommentOrderField, CreateCommentInput, OrderDirection, PostQueryItem } from '@generated/index';
-import useXPI from '@hooks/useXPI';
+import { useXPI } from '@hooks/useXPI';
 import useDidMountEffectNotification from '@local-hooks/useDidMountEffectNotification';
 import { PatchCollection } from '@reduxjs/toolkit/dist/query/core/buildThunks';
 import { getSelectedAccount } from '@store/account/selectors';

@@ -1,4 +1,4 @@
-import useXPI from '@hooks/useXPI';
+import {useXPI} from '@hooks/useXPI';
 import { Action, Store, configureStore } from '@reduxjs/toolkit';
 import { UnknownAction } from 'redux';
 import createSagaMiddleware, { Task } from 'redux-saga';

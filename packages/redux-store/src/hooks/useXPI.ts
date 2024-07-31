@@ -28,7 +28,7 @@ import {
 } from 'ecash-lib';
 const wif = require('wif');
 
-export default function useXPI() {
+export function useXPI() {
   const getXPI = (apiIndex = 0): BCHJS => {
     return new BCHJS({});
   };
