@@ -427,9 +427,6 @@ export class AccountController {
     @Query('publicKey') publicKey: string,
     @I18n() i18n: I18nContext
   ) {
-    console.log('🚀 ~ AccountController ~ checkAccountPkWithTelegramId ~ publicKey:', publicKey);
-    console.log('🚀 ~ AccountController ~ checkAccountPkWithTelegramId ~ telegramId:', telegramId);
-
     if (!telegramId || !publicKey) {
       const accountNotExistMessage = await i18n.t('account.messages.accountNotExist');
       throw new VError(accountNotExistMessage);
@@ -446,6 +443,34 @@ export class AccountController {
               publicKey: publicKey
             }
           ]
+        }
+      });
+      if (!account) {
+        const accountNotExistMessage = await i18n.t('account.messages.accountNotExist');
+        throw new VError(accountNotExistMessage);
+      }
+
+      return true;
+    } catch (err: unknown) {
+      if (err instanceof VError) {
+        throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      } else {
+        const unableGetAccountMessage = await i18n.t('account.messages.unableGetAccount');
+        const error = new VError.WError(err as Error, unableGetAccountMessage);
+        throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
+  @Get('telegram/unlink/:id')
+  async unlinkTelegramAccount(@Param('id') id: string, @I18n() i18n: I18nContext) {
+    try {
+      const account = await this.prisma.account.update({
+        where: {
+          telegramId: id
+        },
+        data: {
+          telegramId: null
         }
       });
       if (!account) {

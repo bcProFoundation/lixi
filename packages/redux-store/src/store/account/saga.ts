@@ -98,7 +98,7 @@ const nameConfigGenerator: Config = {
  * Generate a account with random encryption password
  * @param action The data to needed generate a account
  */
-function* generateAccountSaga(action: PayloadAction<{ coin: COIN, telegramId: string }>) {
+function* generateAccountSaga(action: PayloadAction<{ coin: COIN; telegramId: string }>) {
   const { coin, telegramId } = action.payload;
   const { XPI } = callConfig.call.walletContext;
   const lang = 'english';
