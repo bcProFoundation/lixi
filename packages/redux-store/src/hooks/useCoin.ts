@@ -2,8 +2,8 @@ import BCHJS from '@bcpros/xpi-js';
 import { ChronikClient, Utxo } from 'chronik-client';
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
-import {useXPI} from './useXPI';
-import {useXEC} from './useXEC';
+import { useXPI } from './useXPI';
+import { useXEC } from './useXEC';
 
 export default function useCoin() {
   const sendCoin = async (
