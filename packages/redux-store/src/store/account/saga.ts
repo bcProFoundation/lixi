@@ -21,7 +21,7 @@ import { getCurrentLocale } from '@store/settings/selectors';
 import { removeAllWallets, removeWalletPaths } from '@store/wallet';
 import { aesGcmDecrypt, aesGcmEncrypt, numberToBase58 } from '../../utils/encryptionMethods';
 import intl from 'react-intl-universal';
-import { all, call, fork, put, putResolve, select, takeLatest } from 'redux-saga/effects';
+import { all, call, fork, getContext, put, putResolve, select, takeLatest } from 'redux-saga/effects';
 import { Config, names, uniqueNamesGenerator } from 'unique-names-generator';
 import Cookies from 'universal-cookie';
 import { LocalUser } from '../../models/localUser';
@@ -29,7 +29,7 @@ import { LocalUser } from '../../models/localUser';
 import { ChangeAccountLocaleCommand, PatchAccountCommand } from '@bcpros/lixi-models/lib/account/account.dto';
 import { api as accountGraphApi } from '@store/account/accounts.api';
 import { saveClaimAddress } from '@store/claim';
-import { removeAllPageMessageSession } from '@store/message';
+import { removeAllPageMessageSession } from '@store/message/actions';
 import { changeCurrentLocale, loadLocale, setInitIntlStatus } from '@store/settings/actions';
 import { getLocaleByLanguage } from '../../utils/languages';
 import accountApi from '../account/api';
@@ -100,7 +100,10 @@ const nameConfigGenerator: Config = {
  */
 function* generateAccountSaga(action: PayloadAction<{ coin: COIN }>) {
   const { coin } = action.payload;
-  const { XPI } = callConfig.call.walletContext;
+
+  const xpiContext = yield getContext('useXPI');
+  const { getXPI } = xpiContext();
+  const XPI = getXPI();
   const lang = 'english';
   const Bip39128BitMnemonic = XPI.Mnemonic.generate(128, XPI.Mnemonic.wordLists()[lang]);
 
