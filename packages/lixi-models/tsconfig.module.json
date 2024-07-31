@@ -3,6 +3,7 @@
   "compilerOptions": {
     "target": "ES2017",
     "outDir": "build/module",
+    "declarationDir": "build/module",
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true

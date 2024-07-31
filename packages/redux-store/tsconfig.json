@@ -4,6 +4,8 @@
     "incremental": true,
     "target": "ES2021",
     "outDir": "build/main",
+    "declaration": true,
+    "declarationDir": "build/module",
     "rootDir": "src",
     // "moduleResolution": "node",
     "module": "commonjs",

@@ -7,7 +7,7 @@ import { BurnForType, BurnType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import { WalletContext } from '@context/walletProvider';
 import { BurnForItem, CommentQueryItem, PostQueryItem } from '@generated/index';
 import { CommentOrderField, OrderDirection } from '@generated/types.generated';
-import useXPI from '@hooks/useXPI';
+import { useXPI } from '@hooks/useXPI';
 import { getSelectedAccount } from '@store/account/selectors';
 import { clearFailQueue, getBurnQueue, getFailQueue } from '@store/burn';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
