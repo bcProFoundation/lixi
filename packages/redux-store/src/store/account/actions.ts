@@ -14,7 +14,7 @@ import { Upload } from '@bcpros/lixi-models/lib/upload';
 import { createAction } from '@reduxjs/toolkit';
 import { WorshipedPersonFieldsFragment as WorshipedPerson } from '@store/worship/worshipedPerson.generated';
 
-export const generateAccount = createAction<{ coin?: COIN }>('account/generateAccount');
+export const generateAccount = createAction<{ coin?: COIN; telegramId?: string }>('account/generateAccount');
 export const setAccountInfoTemp = createAction<any>('account/setAccountInfoTemp');
 export const getAccount = createAction<number>('account/getAccount');
 export const getAccountSuccess = createAction<Account>('account/getAccountSuccess');
