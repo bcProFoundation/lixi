@@ -11,7 +11,7 @@ import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { WrapperPage } from '@components/Settings';
 import { WalletContext } from '@context/index';
-import useXPI from '@hooks/useXPI';
+import { useXPI } from '@hooks/useXPI';
 import useCoin from '@hooks/useCoin';
 import { getSelectedAccount } from '@store/account/selectors';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
