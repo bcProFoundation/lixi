@@ -14,6 +14,8 @@ import { Token } from '../token/token.model';
 
 import { PostDana } from './post-dana.model';
 import { Repost } from './repost.model';
+import { PostBoost } from './post-boost-score.model';
+import { Offer } from '../escrow/offer.model';
 
 @ObjectType()
 export class Post implements ICommentableTo, ITimelineable {
@@ -104,11 +106,18 @@ export class Post implements ICommentableTo, ITimelineable {
   @Field(() => PostDana, { nullable: true })
   dana?: Nullable<PostDana>;
 
+  @IsOptional()
+  @Field(() => PostBoost, { nullable: true })
+  boostScore?: Nullable<PostBoost>;
+
   @Field(() => Boolean, { nullable: true })
   burnedByOthers?: Nullable<boolean>;
 
   @Field(() => Poll, { nullable: true })
   poll?: Nullable<Poll>;
+
+  @Field(() => Offer, { nullable: true })
+  offer?: Nullable<Offer>;
 
   constructor(partial: Partial<Post>) {
     Object.assign(this, partial);

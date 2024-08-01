@@ -5,10 +5,12 @@ import {
   ICommentableTo,
   IImageUploadableTo,
   ImageUploadable as ImageUploadableModel,
+  Offer,
   Page,
   PaginationArgs,
   Poll,
   Post,
+  PostBoost,
   PostConnection,
   PostDana,
   PostOrder,
@@ -1252,6 +1254,11 @@ export class PostResolver {
     return this.timelineableLoader.batchDanas.load(post.id);
   }
 
+  @ResolveField('boostScore', () => PostBoost)
+  async boostScore(@Parent() post: Post) {
+    return this.timelineableLoader.batchBoosts.load(post.id);
+  }
+
   @ResolveField('isBookmarked', () => Boolean)
   async isBookmarked(@Parent() post: Post, @AccountEntity() account: Account) {
     const payload = {
@@ -1269,5 +1276,10 @@ export class PostResolver {
   @ResolveField('poll', () => Poll)
   async poll(@Parent() post: Post) {
     return this.postLoader.batchPolls.load(post.id);
+  }
+
+  @ResolveField('offer', () => Offer)
+  async offer(@Parent() post: Post) {
+    return this.postLoader.batchOffers.load(post.id);
   }
 }

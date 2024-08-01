@@ -38,6 +38,9 @@ export class PostFanoutProcessor extends WorkerHost {
   static tokenTimelineByTimeWithDanaFilterKey = 'timeline:token:{{tokenId}}:{{level}}';
   static tokenTimelineByTimeShowAll = 'timeline:token:{{tokenId}}:showAll';
 
+  //timeline for offer
+  static offerTimeline = 'timeline:offer:showAll';
+
   constructor(
     private readonly postCacheService: PostCacheService,
     private readonly followCacheService: FollowCacheService,
@@ -145,6 +148,11 @@ export class PostFanoutProcessor extends WorkerHost {
       pipeline.zincrby(keyProfile, score, timelineId);
       pipeline.zadd(keyProfileTimelineByTimeWithDanaFilter, postCreatedAt, timelineId);
       pipeline.zadd(keyProfileTimelineByTimeShowAll, postCreatedAt, timelineId);
+
+      //add default score for offer
+      if (post.type === PostType.OFFER) {
+        pipeline.zincrby(PostFanoutProcessor.offerTimeline, score, timelineId);
+      }
 
       await pipeline.exec();
     } catch (error) {

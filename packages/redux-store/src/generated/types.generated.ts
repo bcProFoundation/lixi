@@ -154,6 +154,37 @@ export enum BookmarkType {
   Product = 'PRODUCT'
 }
 
+export type BoostFee = {
+  __typename?: 'BoostFee';
+  boostForId: Scalars['String']['output'];
+  boostForType: BoostForType;
+  boostType: BoostType;
+  boostedByHash: Scalars['String']['output'];
+  boostedValue: Scalars['Int']['output'];
+  /** Identifies the date and time when the object was created. */
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['String']['output'];
+  txid: Scalars['String']['output'];
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
+/** Boost for something. */
+export enum BoostForType {
+  Account = 'Account',
+  Comment = 'Comment',
+  Page = 'Page',
+  Post = 'Post',
+  Token = 'Token',
+  Worship = 'Worship'
+}
+
+/** The type of boost. */
+export enum BoostType {
+  Down = 'Down',
+  Up = 'Up'
+}
+
 export type BurnBasicConnection = {
   __typename?: 'BurnBasicConnection';
   edges: Array<BurnItemBasicEdge>;
@@ -281,6 +312,7 @@ export enum CommentOrderField {
 /** The type comment attach to */
 export enum CommentType {
   Event = 'EVENT',
+  Offer = 'OFFER',
   Poll = 'POLL',
   Post = 'POST',
   Product = 'PRODUCT'
@@ -317,6 +349,15 @@ export type CreateBookmarkInput = {
   accountId: Scalars['Int']['input'];
   bookmarkForId: Scalars['String']['input'];
   bookmarkType: BookmarkType;
+};
+
+export type CreateBoostInput = {
+  boostForId: Scalars['String']['input'];
+  boostForType: BoostForType;
+  boostType: BoostType;
+  boostedBy: Scalars['String']['input'];
+  boostedValue: Scalars['Int']['input'];
+  txHex: Scalars['String']['input'];
 };
 
 export type CreateCommentInput = {
@@ -389,10 +430,12 @@ export type CreateMessageInput = {
 
 export type CreateOfferInput = {
   coin: Coin;
+  createFeeHex?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<Scalars['String']['input']>;
   message: Scalars['String']['input'];
   orderLimitMax: Scalars['Int']['input'];
   orderLimitMin: Scalars['Int']['input'];
+  pageId?: InputMaybe<Scalars['String']['input']>;
   paymentMethodIds: Array<Scalars['Int']['input']>;
   price: Scalars['String']['input'];
   publicKey: Scalars['String']['input'];
@@ -966,6 +1009,7 @@ export type Mutation = {
   create: Event;
   createAccount: Account;
   createBookmark: Bookmark;
+  createBoost: BoostFee;
   createComment: Comment;
   createDispute: Dispute;
   createEscrowOrder: EscrowOrder;
@@ -1013,6 +1057,10 @@ export type MutationCreateAccountArgs = {
 
 export type MutationCreateBookmarkArgs = {
   data: CreateBookmarkInput;
+};
+
+export type MutationCreateBoostArgs = {
+  data: CreateBoostInput;
 };
 
 export type MutationCreateCommentArgs = {
@@ -1145,12 +1193,12 @@ export type Offer = {
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime']['output'];
   escrowOrders?: Maybe<Array<EscrowOrder>>;
-  id: Scalars['ID']['output'];
   location?: Maybe<Scalars['String']['output']>;
   message: Scalars['String']['output'];
   orderLimitMax: Scalars['Int']['output'];
   orderLimitMin: Scalars['Int']['output'];
   paymentMethods: Array<OfferPaymentMethod>;
+  postId: Scalars['String']['output'];
   price: Scalars['String']['output'];
   publicKey: Scalars['String']['output'];
   status: OfferStatus;
@@ -1159,34 +1207,11 @@ export type Offer = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export type OfferBasicConnection = {
-  __typename?: 'OfferBasicConnection';
-  edges: Array<OfferBasicEdge>;
-  pageInfo: BasicPageInfo;
-  totalCount: Scalars['Int']['output'];
-};
-
 export type OfferBasicEdge = {
   __typename?: 'OfferBasicEdge';
   cursor: Scalars['String']['output'];
   node: Offer;
 };
-
-export type OfferOrder = {
-  direction: OrderDirection;
-  field: OfferOrderField;
-};
-
-/** Properties by which offer connections can be ordered. */
-export enum OfferOrderField {
-  Amount = 'amount',
-  CreatedAt = 'createdAt',
-  Id = 'id',
-  OrderLimitMax = 'orderLimitMax',
-  OrderLimitMin = 'orderLimitMin',
-  Price = 'price',
-  UpdatedAt = 'updatedAt'
-}
 
 export type OfferPaymentMethod = {
   __typename?: 'OfferPaymentMethod';
@@ -1412,6 +1437,7 @@ export type Post = {
   account: Account;
   accountId: Scalars['Int']['output'];
   bookmarkableId?: Maybe<Scalars['String']['output']>;
+  boostScore?: Maybe<PostBoost>;
   burnedByOthers?: Maybe<Scalars['Boolean']['output']>;
   commentableId?: Maybe<Scalars['String']['output']>;
   content: Scalars['String']['output'];
@@ -1425,6 +1451,7 @@ export type Post = {
   id: Scalars['ID']['output'];
   imageUploadable?: Maybe<ImageUploadable>;
   isBookmarked?: Maybe<Scalars['Boolean']['output']>;
+  offer?: Maybe<Offer>;
   originalLanguage?: Maybe<Scalars['String']['output']>;
   page?: Maybe<Page>;
   pageId?: Maybe<Scalars['String']['output']>;
@@ -1440,6 +1467,19 @@ export type Post = {
   type: Scalars['String']['output'];
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type PostBoost = {
+  __typename?: 'PostBoost';
+  boostDown: Scalars['Float']['output'];
+  boostReceivedDown: Scalars['Float']['output'];
+  boostReceivedScore: Scalars['Float']['output'];
+  boostReceivedUp: Scalars['Float']['output'];
+  boostScore: Scalars['Float']['output'];
+  boostUp: Scalars['Float']['output'];
+  post: Post;
+  postId: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
 };
 
 export type PostConnection = {
@@ -1574,8 +1614,8 @@ export type Query = {
   allHashtagBySearch: HashtagConnection;
   allHashtagByToken: HashtagConnection;
   allMessageByPageMessageSessionId: MessageConnection;
-  allOffer: OfferBasicConnection;
-  allOfferByPublicKey: OfferBasicConnection;
+  allOffer: TimelineItemConnection;
+  allOfferByPublicKey: TimelineItemConnection;
   allOpenPageMessageSessionByAccountId: PageMessageSessionConnection;
   allOpenPageMessageSessionByPageId: PageMessageSessionConnection;
   allPageMessageSessionByAccountId: PageMessageSessionConnection;
@@ -1788,21 +1828,13 @@ export type QueryAllMessageByPageMessageSessionIdArgs = {
 
 export type QueryAllOfferArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<OfferOrder>;
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllOfferByPublicKeyArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<OfferOrder>;
   publicKey: Scalars['String']['input'];
   skip?: InputMaybe<Scalars['Int']['input']>;
 };

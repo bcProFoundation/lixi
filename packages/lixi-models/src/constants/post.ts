@@ -4,7 +4,8 @@ export const POST_TYPE = {
   POST: 'POST',
   POLL: 'POLL',
   PRODUCT: 'PRODUCT',
-  EVENT: 'EVENT'
+  EVENT: 'EVENT',
+  OFFER: 'OFFER'
 };
 
 export const POST_FLAG = {

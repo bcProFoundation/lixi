@@ -1,13 +1,45 @@
-fragment OfferFields on Offer {
-  id
-  publicKey
-  message
-  price
-  orderLimitMin
-  orderLimitMax
-  paymentMethods {
-    paymentMethod {
-      name
+query AllOffer($first: Int = 20, $after: String) {
+  allOffer(first: $first, after: $after) {
+    totalCount
+    edges {
+      cursor
+      node {
+        id
+        data {
+          __typename
+          ... on Post {
+            ...PostFields
+          }
+        }
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
+query AllOfferByPublicKey(
+  $publicKey: String!
+  $first: Int = 20
+  $after: String
+) {
+  allOfferByPublicKey(publicKey: $publicKey, first: $first, after: $after) {
+    totalCount
+    edges {
+      cursor
+      node {
+        id
+        data {
+          __typename
+          ... on Post {
+            ...PostFields
+          }
+        }
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
     }
   }
 }
@@ -15,20 +47,5 @@ fragment OfferFields on Offer {
 mutation CreateOffer($input: CreateOfferInput!) {
   createOffer(data: $input) {
     ...OfferFields
-  }
-}
-
-query AllOffer($after: String, $before: String, $first: Int, $last: Int) {
-  allOffer(after: $after, before: $before, first: $first, last: $last) {
-    totalCount
-    edges {
-      cursor
-      node {
-        ...OfferFields
-      }
-    }
-    pageInfo {
-      ...BasicPageInfoFields
-    }
   }
 }

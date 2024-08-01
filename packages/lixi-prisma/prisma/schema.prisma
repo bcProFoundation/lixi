@@ -167,6 +167,8 @@ model Post {
   event             Event?
   poll              Poll?
   product           Product?
+  offer             Offer?
+  boostScore        PostBoostScore?
 
   @@index([commentableId])
   @@index([accountId])
@@ -189,11 +191,27 @@ model PostDana {
   @@map("post_dana")
 }
 
+model PostBoostScore {
+  boostReceivedUp    Float  @default(0.0) @map("boost_received_up")
+  boostReceivedDown  Float  @default(0.0) @map("boost_received_down")
+  boostReceivedScore Float  @default(0.0) @map("boost_received_score")
+  boostUp            Float  @default(0.0) @map("boost_up")
+  boostDown          Float  @default(0.0) @map("boost_down")
+  boostScore         Float  @default(0.0) @map("boost_score")
+  post               Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId             String @unique @map("post_id")
+  version            Int    @default(0)
+
+  @@index([postId])
+  @@map("post_boost_score")
+}
+
 enum PostType {
   POST
   EVENT
   POLL
   PRODUCT
+  OFFER
 
   @@map("post_type")
 }
@@ -203,6 +221,7 @@ enum CommentType {
   EVENT
   POLL
   PRODUCT
+  OFFER
 
   @@map("comment_type")
 }
@@ -766,6 +785,20 @@ model Burn {
   @@map("burn")
 }
 
+model BoostFee {
+  id            String    @id @default(cuid())
+  txid          String
+  boostType     Boolean   @map("boost_type")
+  boostForType  Int       @map("boost_for_type")
+  boostedByHash String    @map("boosted_by_hash")
+  boostForId    String    @map("boosted_for_id")
+  boostedValue  Float     @default(0) @map("boosted_value")
+  createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime? @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("boost_fee")
+}
+
 model GiveTip {
   id            String    @id @default(cuid())
   txid          String
@@ -1217,7 +1250,7 @@ model EscrowOrder {
   message             String?
   price               Float             @default(0.0) @map("price")
   amount              Float             @default(0.0) @map("amount")
-  offer               Offer             @relation(fields: [offerId], references: [id])
+  offer               Offer             @relation(fields: [offerId], references: [postId])
   offerId             String            @map("offer_id")
   status              EscrowOrderStatus @default(ACTIVE)
   dispute             Dispute?
@@ -1241,7 +1274,8 @@ model Dispute {
 }
 
 model Offer {
-  id             String               @id @default(cuid())
+  post           Post                 @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId         String               @unique
   publicKey      String               @map("public_key")
   message        String
   price          String
@@ -1261,7 +1295,7 @@ model Offer {
 
 model OfferPaymentMethod {
   id              String        @id @default(cuid())
-  offer           Offer         @relation(fields: [offerId], references: [id])
+  offer           Offer         @relation(fields: [offerId], references: [postId])
   offerId         String        @map("offer_id")
   paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
   paymentMethodId Int           @map("payment_method_id")

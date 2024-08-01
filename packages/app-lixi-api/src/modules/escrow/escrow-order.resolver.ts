@@ -78,7 +78,7 @@ export class EscrowOrderResolver {
         ..._.omit(data, 'offerId', 'paymentMethodId'),
         offer: {
           connect: {
-            id: offerId
+            postId: offerId
           }
         },
         paymentMethod: {

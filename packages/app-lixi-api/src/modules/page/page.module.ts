@@ -42,6 +42,8 @@ import BookmarkLoader from '../bookmark/bookmark.loader';
 import TotalDanaViewScoreLoader from '../account/total-dana-view-score.loader';
 import { RemovePostFanoutProcessor } from './remove-post-fanout.processor';
 import { PollOptionResolver } from './polls/poll-option.resolver';
+import { PostBoostCacheService } from './post-boost-cache.service';
+import { OfferCacheService } from '../escrow/offer-cache.service';
 
 @Module({
   imports: [
@@ -107,8 +109,10 @@ import { PollOptionResolver } from './polls/poll-option.resolver';
     PostCacheService,
     EventCacheService,
     PollCacheService,
+    OfferCacheService,
     ProductCacheService,
     PostDanaCacheService,
+    PostBoostCacheService,
     PollLoader,
     EventLoader,
     CommentCacheService,
@@ -131,7 +135,8 @@ import { PollOptionResolver } from './polls/poll-option.resolver';
     PostCacheService,
     DanaViewScoreService,
     PageDanaCacheService,
-    PostDanaCacheService
+    PostDanaCacheService,
+    PostBoostCacheService
   ]
 })
 export class PageModule {}

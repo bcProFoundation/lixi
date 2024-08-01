@@ -1,0 +1,15 @@
+fragment BoostFeeFields on BoostFee {
+  id
+  txid
+  boostType
+  boostForType
+  boostedByHash
+  boostForId
+  boostedValue
+}
+
+mutation CreateBoost($data: CreateBoostInput!) {
+  createBoost(data: $data) {
+    ...BoostFeeFields
+  }
+}

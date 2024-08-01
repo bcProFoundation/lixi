@@ -55,6 +55,7 @@ export * from './baseApi';
 export * from './state';
 export * from './payment-method';
 export * from './escrow';
+export * from './boost';
 export * as worship from './worship';
 export * as temple from './temple';
 export * as hashtag from './hashtag';
