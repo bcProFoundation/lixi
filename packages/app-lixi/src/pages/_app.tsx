@@ -23,7 +23,7 @@ import { AppContext, AppInitialProps, AppLayoutProps } from 'next/app';
 import NextNProgress from 'nextjs-progressbar';
 import { ReactNode, useEffect, useState } from 'react';
 import OutsideCallConsumer from 'react-outside-call';
-import axiosClient from 'src/utils/axiosClient';
+import { axiosClient } from 'src/utils/axiosClient';
 import { stripHtml } from 'string-strip-html';
 import { LanguageProvider } from '@local-context/languageProvider';
 import MainLayout from '../components/Layout/MainLayout';
