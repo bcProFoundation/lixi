@@ -14,7 +14,7 @@ import { toggleCollapsedSideNav } from '@store/settings/actions';
 import { getFilterPostsPage, getLevelFilter, getNavCollapsed } from '@store/settings/selectors';
 import { api as timelineApi } from '@store/timeline/timeline.api';
 import { useInfiniteHomeTimelineQuery } from '@store/timeline/useInfiniteHomeTimelineQuery';
-import axiosClient from '@utils/axiosClient';
+import { axiosClient } from '@utils/axiosClient';
 import { Avatar, Badge, Button, Layout, Space, message } from 'antd';
 import classNames from 'classnames';
 import { push } from 'connected-next-router';

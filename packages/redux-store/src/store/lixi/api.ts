@@ -11,7 +11,7 @@ import {
   WithdrawLixiCommand
 } from '@bcpros/lixi-models/lib/lixi';
 import { IPaginationResult } from '@bcpros/lixi-models/utils/paginationResult';
-import axiosClient from '../../utils/axiosClient';
+import { axiosClient } from '../../utils/axiosClient';
 
 const lixiApi = {
   getById(id: number, accountSecret?: string): Promise<LixiDto> {
