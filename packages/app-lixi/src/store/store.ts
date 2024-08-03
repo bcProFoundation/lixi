@@ -1,4 +1,5 @@
 import { useXPI } from '@hooks/useXPI';
+import { useXRG } from '@hooks/useXRG';
 import { Action, Store, configureStore } from '@reduxjs/toolkit';
 import { UnknownAction } from 'redux';
 import createSagaMiddleware, { Task } from 'redux-saga';
@@ -25,7 +26,8 @@ const makeStore = (context: Context) => {
       console.log(error);
     },
     context: {
-      useXPI: useXPI
+      useXPI: useXPI,
+      useXRG: useXRG
     }
   });
 

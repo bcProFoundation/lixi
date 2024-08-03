@@ -67,10 +67,11 @@ function* prepareBurnCommandSaga(
     burnForType: BurnForType;
     burnValue: string;
     amountDana: number;
+    coinBurned: COIN;
   }>
 ) {
   try {
-    const { isUpVote, burnForItem, burnForType, burnValue, amountDana } = action.payload;
+    const { isUpVote, burnForItem, burnForType, burnValue, amountDana, coinBurned } = action.payload;
 
     const failQueue = yield select(getFailQueue);
     if (failQueue.length > 0) yield put(clearFailQueue());
@@ -80,18 +81,21 @@ function* prepareBurnCommandSaga(
     const balances = yield select(getWalletBalances);
     const filterValue = yield select(getFilterPostsHome);
     const level = yield select(getLevelFilter);
+    const selectedCoin = selectedAccount?.coin ?? COIN.XPI;
 
     const { getUtxosByCoin } = callConfig.call.walletContext;
 
     let utxos = slpBalancesAndUtxos.nonSlpUtxos;
     let totalBalalanceInSats = balances.totalBalanceInSatoshis;
-    if ((selectedAccount?.coin ?? COIN.XPI) !== COIN.XPI) {
+    //wallet can't burn default use XPI wallet
+    if (selectedCoin !== COIN.XPI && !coinInfo[selectedCoin].canBurn) {
       const xpiUtxos = yield getUtxosByCoin(COIN.XPI);
       utxos = xpiUtxos.nonSlpUtxos;
       totalBalalanceInSats = utxos.reduce((accumulate, currentValue) => accumulate + Number(currentValue.value), 0);
     }
+    const typeAddress = coinBurned === COIN.XPI ? 'xAddress' : 'cashAddress';
     const fundingFirstUtxo = utxos[0];
-    const currentWalletPath = walletPaths.filter(acc => acc.xAddress === fundingFirstUtxo.address).pop();
+    const currentWalletPath = walletPaths.filter(acc => acc[typeAddress] === fundingFirstUtxo.address).pop();
     const { hash160 } = currentWalletPath;
 
     const burnType = isUpVote ? BurnType.Up : BurnType.Down;
@@ -99,36 +103,40 @@ function* prepareBurnCommandSaga(
     let burnForId = burnForItem.id.toString();
 
     let tipToHashes: { hash: string; amount: string }[] = [];
+    const cashDecimals =
+      coinBurned === COIN.XRG ? coinInfo[COIN.XRG].microCashDecimals : coinInfo[coinBurned].cashDecimals;
+    let amountToTip = fromCoinToSatoshis(
+      new BigNumber(burnValue).multipliedBy(coinInfo[coinBurned].burnFee),
+      cashDecimals
+    )
+      .valueOf()
+      .toString();
+    //get dust if tip not enough or NaN value
+    const numberAmountTip = parseFloat(amountToTip);
+    if (Number.isNaN(numberAmountTip) || numberAmountTip < coinInfo[coinBurned].dustSats) {
+      amountToTip = coinInfo[coinBurned].dustSats.toString();
+    }
 
     switch (burnForType) {
       case BurnForType.Post:
         const post = burnForItem as Post;
         tipToHashes.push({
           hash: post.page ? post.page.pageAccount.hash160 : post.account.hash160,
-          amount: fromCoinToSatoshis(
-            new BigNumber(burnValue).multipliedBy(coinInfo[COIN.XPI].burnFee),
-            coinInfo[COIN.XPI].cashDecimals
-          )
-            .valueOf()
-            .toString()
+          amount: amountToTip
         });
         break;
       case BurnForType.Page:
         const page = burnForItem as Page;
         tipToHashes.push({
           hash: page.pageAccount.hash160,
-          amount: fromCoinToSatoshis(new BigNumber(burnValue).multipliedBy(coinInfo[COIN.XPI].burnFee))
-            .valueOf()
-            .toString()
+          amount: amountToTip
         });
         break;
       case BurnForType.Account:
         const account = burnForItem as Account;
         tipToHashes.push({
           hash: account.hash160,
-          amount: fromCoinToSatoshis(new BigNumber(burnValue).multipliedBy(coinInfo[COIN.XPI].burnFee))
-            .valueOf()
-            .toString()
+          amount: amountToTip
         });
         burnForId = account?.hash160 ?? '';
         break;
@@ -144,17 +152,21 @@ function* prepareBurnCommandSaga(
           const postHash160 = post.account.hash160;
           tipToHashes.push({
             hash: pageHash160 ?? postHash160,
-            amount: fromCoinToSatoshis(new BigNumber(burnValue).multipliedBy(coinInfo[COIN.XPI].burnFee))
-              .valueOf()
-              .toString()
+            amount: amountToTip
           });
         }
         break;
     }
 
     tipToHashes = tipToHashes.filter(item => item.hash != selectedAccount?.hash160);
-    const totalTip = fromSmallestDenomination(tipToHashes.reduce((total, item) => total + parseFloat(item.amount), 0));
-    if (utxos.length == 0 || fromSmallestDenomination(totalBalalanceInSats) < parseInt(burnValue) + totalTip) {
+    const totalTip = fromSmallestDenomination(
+      tipToHashes.reduce((total, item) => total + parseFloat(item.amount), 0),
+      cashDecimals
+    );
+    if (
+      utxos.length == 0 ||
+      fromSmallestDenomination(totalBalalanceInSats, cashDecimals) < parseInt(burnValue) + totalTip
+    ) {
       throw new Error(intl.get('account.insufficientFunds'));
     }
 
@@ -177,7 +189,7 @@ function* prepareBurnCommandSaga(
       .otherwise(() => null);
 
     const burnCommand: BurnQueueCommand = {
-      defaultFee: coinInfo[COIN.XPI].defaultFee,
+      defaultFee: coinInfo[coinBurned].defaultFee,
       burnType,
       burnForType: burnForType,
       burnedBy,
@@ -186,6 +198,7 @@ function* prepareBurnCommandSaga(
       tipToHashes: tipToHashes,
       amountDana,
       utxos,
+      coinBurned: coinBurned,
       extraArguments
     };
 
@@ -204,31 +217,56 @@ function* prepareBurnCommandSaga(
 
 function* createTxHexSaga(action: PayloadAction<BurnQueueCommand>) {
   const data = action.payload;
-  const { XPI } = callConfig.call.walletContext;
-  const xpiContext = yield getContext('useXPI');
   const walletPaths = yield select(getAllWalletPaths);
-  const { createBurnTransaction } = xpiContext();
   const burnForId = data.burnForId;
   const tipToHashes = data.tipToHashes ? data.tipToHashes : null;
+  let txHex, fee;
 
   try {
-    const fundingWif = getUtxoWif(data.utxos[0], walletPaths, COIN.XPI);
-    const { rawTxHex, minerFee } = yield createBurnTransaction(
-      fundingWif,
-      data.utxos,
-      data.defaultFee,
-      data.burnType,
-      data.burnForType,
-      data.burnedBy,
-      burnForId,
-      Number(data.burnValue),
-      coinInfo[COIN.XPI].dustSats,
-      tipToHashes
-    );
+    switch (data.coinBurned) {
+      case COIN.XPI:
+        const xpiContext = yield getContext('useXPI');
+        const { createBurnTransaction: createBurnTransactionXPI } = xpiContext();
+        const fundingWifXpi = getUtxoWif(data.utxos[0], walletPaths, COIN.XPI);
+        const { rawTxHex: rawTxHexXpi, minerFee: minerFeeXpi } = yield createBurnTransactionXPI(
+          fundingWifXpi,
+          data.utxos,
+          data.defaultFee,
+          data.burnType,
+          data.burnForType,
+          data.burnedBy,
+          burnForId,
+          Number(data.burnValue),
+          coinInfo[COIN.XPI].dustSats,
+          tipToHashes
+        );
+        txHex = rawTxHexXpi;
+        fee = minerFeeXpi;
+        break;
+      case COIN.XRG:
+        const xrgContext = yield getContext('useXRG');
+        const { createBurnTransaction: createBurnTransactionXRG } = xrgContext();
+        const fundingWifXrg = getUtxoWif(data.utxos[0], walletPaths, COIN.XRG);
+        const { rawTxHex: rawTxHexXrg, minerFee: minerFeeXrg } = yield createBurnTransactionXRG(
+          fundingWifXrg,
+          data.utxos,
+          data.defaultFee,
+          data.burnType,
+          data.burnForType,
+          data.burnedBy,
+          burnForId,
+          Number(data.burnValue),
+          coinInfo[COIN.XRG].dustSats,
+          tipToHashes
+        );
+        txHex = rawTxHexXrg;
+        fee = minerFeeXrg;
+        break;
+    }
 
     const payload = {
-      rawTxHex: rawTxHex,
-      minerFee: _.toString(fromSatoshisToCoin(minerFee))
+      rawTxHex: txHex,
+      minerFee: _.toString(fromSatoshisToCoin(fee))
     };
 
     yield put({ type: returnTxHex.type, payload });
@@ -242,7 +280,7 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
   let patches, patch: PatchCollection;
   const command = action.payload;
 
-  const { burnForId: postId, extraArguments, amountDana } = command;
+  const { burnForId: postId, extraArguments, amountDana, coinBurned } = command;
   let burnValue = _.toNumber(command.burnValue);
   yield put(createTxHex(command));
   const { payload } = yield take(returnTxHex.type);
@@ -320,8 +358,8 @@ function* burnForUpDownVoteSaga(action: PayloadAction<BurnQueueCommand>) {
           message: intl.get(`toast.success`),
           description: intl.get('burn.totalBurn', {
             burnValue: amountDana,
-            totalAmount: burnValue + burnValue * coinInfo[COIN.XPI].burnFee + Number(minerFee),
-            coin: 'XPI'
+            totalAmount: burnValue + burnValue * coinInfo[coinBurned].burnFee + Number(minerFee),
+            coin: coinInfo[coinBurned].ticker
           })
         })
     );

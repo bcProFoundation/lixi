@@ -3,6 +3,8 @@ import Reply from '@assets/icons/reply.svg';
 import { BurnForType } from '@bcpros/lixi-models/lib/burn/burn.model';
 import ClaimComponent from '@components/Claim';
 import { FormattedTxAddress } from '@components/Common/FormattedWalletAddress';
+import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
+import { AuthorizationContext } from '@context/index';
 import { WalletContext } from '@context/index';
 import { getSelectedAccount } from '@store/account/selectors';
 import { setAccountCoin, useSliceDispatch, useSliceSelector } from '@store/index';
@@ -20,7 +22,7 @@ import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { formatBalance, getWalletBalanceFromUtxos } from '@utils/cashMethods';
 import styled from 'styled-components';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import intl from 'react-intl-universal';
 import WalletInfoComponent from './WalletInfo';
 import VirtualList from 'rc-virtual-list';
@@ -235,10 +237,12 @@ type WalletProps = {
 const FullWalletComponent = ({ claimCode }: WalletProps) => {
   const trimLength = 8;
   const dispatch = useSliceDispatch();
+  const askAuthorization = useAuthorization();
+  const authorization = useContext(AuthorizationContext);
 
   const selectedAccount = useSliceSelector(getSelectedAccount);
   const currentLocale = useSliceSelector(getCurrentLocale);
-  const currentCoin = selectedAccount?.coin ?? COIN.XPI;
+  const currentCoin = coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker;
   const allTokens = useSliceSelector(selectTokens);
 
   const walletHasUpdated = useSliceSelector(getWalletHasUpdated);
@@ -250,12 +254,14 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
 
   const [showBalanceCoin, setShowBalanceCoin] = useState({
     XPI: false,
-    XEC: false
+    XEC: false,
+    XRG: false
   });
 
   const [balanceCoin, setBalanceCoin] = useState({
     XPI: '0',
-    XEC: '0'
+    XEC: '0',
+    XRG: '0'
   });
 
   const [pageNumber, setPageNumber] = useState<number>(1); //start pagination at page 1 (already have data at page 0)
@@ -355,6 +361,10 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
   };
 
   const handleShowBalance = (coin: COIN) => {
+    if (!authorization.authorized) {
+      askAuthorization();
+      return;
+    }
     setShowBalanceCoin(pre => {
       return {
         ...pre,
@@ -367,6 +377,10 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
   };
 
   const handleChangeWallet = value => {
+    if (!authorization.authorized) {
+      askAuthorization();
+      return;
+    }
     dispatch(setAccountCoin({ id: selectedAccount.id, accountCoin: value }));
     dispatch(setWalletHasUpdated(false));
   };
@@ -379,7 +393,8 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
           <span className="balance-string">
             {showBalanceCoin[coin] && (
               <span>
-                {formatBalance(balanceCoin[coin])} <span className="balance-name"> {coin}</span>
+                {formatBalance(balanceCoin[coin])}{' '}
+                <span className="balance-name"> {coinInfo[coin ?? COIN.XPI].ticker}</span>
               </span>
             )}{' '}
             {!showBalanceCoin[coin] && '*******'}

@@ -21,7 +21,7 @@ import {
 import { api as timelineApi } from '@store/timeline/timeline.generated';
 import { showToast } from '@store/toast/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos } from '@store/wallet';
-import { fromSmallestDenomination, getUtxoWif } from '@utils/cashMethods';
+import { getUtxoWif } from '@utils/cashMethods';
 import { Button, Input, Modal, Space } from 'antd';
 import router from 'next/router';
 import React, { useContext, useEffect, useState } from 'react';
@@ -291,7 +291,7 @@ const CreatePostCard = (props: CreatePostCardProp) => {
               false, // indicate send mode is one to one
               null,
               page.pageAccount.hash160,
-              selectedCoin === COIN.XPI ? 1.25 : 5.65, // postFee, //amount
+              postFee, //amount
               true // return hex
             );
           }

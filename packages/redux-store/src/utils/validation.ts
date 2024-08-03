@@ -20,8 +20,12 @@ export const shouldRejectAmountInput = (cashAmount, totalCashBalance, coin = COI
     error = 'Amount must be a number';
   } else if (testedAmount.lte(0)) {
     error = 'Amount must be greater than 0';
-  } else if (testedAmount.lt(fromSmallestDenomination(coinInfo[coin ?? COIN.XPI].dustSats, coin).toString())) {
-    error = `Send amount must be at least ${fromSmallestDenomination(coinInfo[coin ?? COIN.XPI].dustSats, coin).toString()} ${
+  } else if (
+    testedAmount.lt(
+      fromSmallestDenomination(coinInfo[coin ?? COIN.XPI].dustSats, coinInfo[coin].cashDecimals).toString()
+    )
+  ) {
+    error = `Send amount must be at least ${fromSmallestDenomination(coinInfo[coin ?? COIN.XPI].dustSats, coinInfo[coin].cashDecimals).toString()} ${
       coinInfo[coin ?? COIN.XPI].ticker
     }`;
   } else if (testedAmount.gt(totalCashBalance)) {

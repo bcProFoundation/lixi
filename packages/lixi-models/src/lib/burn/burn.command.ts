@@ -3,6 +3,7 @@ import { IsNotEmpty } from 'class-validator';
 import { WORSHIP_TYPES } from '../../constants/worship';
 
 import { BurnForType, BurnType } from './burn.model';
+import { COIN } from '../../constants/coins/coin';
 
 export class BurnCommand {
   @IsNotEmpty()
@@ -25,6 +26,9 @@ export class BurnCommand {
 
   @IsNotEmpty()
   amountDana: number;
+
+  @IsNotEmpty()
+  coinBurned: COIN;
 
   postQueryTags?: string;
 
@@ -60,6 +64,9 @@ export class BurnQueueCommand {
 
   @IsNotEmpty()
   amountDana: number;
+
+  @IsNotEmpty()
+  coinBurned: COIN;
 
   utxos?: any;
 

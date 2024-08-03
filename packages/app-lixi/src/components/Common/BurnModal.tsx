@@ -135,17 +135,18 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
   const authentication = useContext(AuthenticationContext);
 
   const [burnAmountPerCoin, setBurnAmountPerCoin] = useState(0);
+  const [coinBurned, setCoinBurned] = useState<Coin>(
+    (coinInfo[selectedAccount?.coin ?? COIN.XPI].canBurn ? selectedAccount?.coin : COIN.XPI) as unknown as Coin
+  );
   const { data: dataBurn } = useConvertDanaToCoinQuery({
     ConvertDanaInput: {
-      convertToCoin: COIN.XPI as unknown as Coin
+      convertToCoin: coinBurned
     }
   });
 
   useEffect(() => {
     setBurnAmountPerCoin(dataBurn?.convertDanaToCoin ?? 0);
-    setBurnAmount(
-      (coinInfo[selectedAccount?.coin ?? COIN.XPI].burnFee + 1) * dataBurn?.convertDanaToCoin * selectedAmount
-    );
+    setBurnAmount((coinInfo[coinBurned].burnFee + 1) * dataBurn?.convertDanaToCoin * selectedAmount);
   }, [dataBurn]);
 
   const handleBurn = async (isUpVote: boolean) => {
@@ -162,8 +163,13 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
           isUpVote,
           burnForItem,
           burnForType,
-          burnValue: calBurnAmountWithoutFee(Number(burnValue), burnAmountPerCoin, true).toString(),
-          amountDana: Number(burnValue)
+          burnValue: calBurnAmountWithoutFee(
+            Number(burnValue),
+            burnAmountPerCoin,
+            coinBurned === Coin.Xrg ? false : true
+          ).toString(),
+          amountDana: Number(burnValue),
+          coinBurned: coinBurned as unknown as COIN
         })
       );
       dispatch(closeModal());
@@ -502,7 +508,7 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
       <p className="fee-burn">
         {intl.getHTML('burn.sendDana', {
           cost: Number.isInteger(burnAmount) ? burnAmount : burnAmount.toFixed(2),
-          coin: 'XPI'
+          coin: coinInfo[coinBurned].ticker
         })}
       </p>
       <p className="trans-amount">

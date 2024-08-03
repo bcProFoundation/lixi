@@ -36,7 +36,7 @@ import { setPageMessageSession } from '@store/page/action';
 import { getCurrentPageMessageSession } from '@store/page/selectors';
 import { sendCoinFailure, sendCoinSuccess } from '@store/send/actions';
 import { getAllWalletPaths, getSlpBalancesAndUtxos, getWalletStatus } from '@store/wallet';
-import { fromSmallestDenomination, getUtxoWif, validateCoinAmount } from '@utils/cashMethods';
+import { getUtxoWif, validateCoinAmount } from '@utils/cashMethods';
 import { Avatar, Button, Input, Popover, Skeleton, Spin } from 'antd';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
@@ -787,14 +787,15 @@ const PageMessage = () => {
       //Check if message is tip
       const arrayStringComment = trimMessage.toUpperCase().split(' ');
       const indexOfGiveString = arrayStringComment.findIndex(
-        item => item.startsWith('/') && Object.values(COIN).includes(item.substring(1, item.length) as COIN)
+        item =>
+          item.startsWith('/') && Object.values(COIN).includes(item.substring(item.length - 3, item.length) as COIN)
       );
       //find and it't not last element
       if (indexOfGiveString !== -1 && indexOfGiveString !== arrayStringComment.length - 1) {
         let tipHex = undefined;
         const amount: string = arrayStringComment[indexOfGiveString + 1];
         const textGive = arrayStringComment[indexOfGiveString];
-        const coinGive = textGive.substring(1, textGive.length) as COIN;
+        const coinGive = textGive.substring(textGive.length - 3, textGive.length) as COIN;
 
         const { nonSlpUtxos } = await getUtxosByCoin(coinGive);
         const utxos = selectedAccount?.coin === coinGive ? slpBalancesAndUtxos.nonSlpUtxos : nonSlpUtxos;

@@ -1202,7 +1202,7 @@ model WalletPath {
   publicKey String      @map("public_key")
   accountId Int         @map("account_id")
   account   Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  network   Coin
+  network   Coin        @default(XPI)
 
   @@map("wallet_path")
 }
@@ -1315,4 +1315,5 @@ enum AddressType {
 enum Coin {
   XPI
   XEC
+  XRG
 }

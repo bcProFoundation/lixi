@@ -4,6 +4,7 @@ import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { useXPI } from './useXPI';
 import { useXEC } from './useXEC';
+import { useXRG } from './useXRG';
 
 export default function useCoin() {
   const sendCoin = async (
@@ -23,6 +24,7 @@ export default function useCoin() {
     try {
       const { sendXpi } = useXPI();
       const { sendXec } = useXEC();
+      const { sendXrg } = useXRG();
 
       let result;
       switch (coin) {
@@ -55,6 +57,21 @@ export default function useCoin() {
             destinationHash,
             sendSingleAmount,
             coinInfo[COIN.XEC].etokenSats,
+            returnHex // return hex
+          );
+          break;
+        case COIN.XRG:
+          result = await sendXrg(
+            chronik,
+            fundingWif,
+            utxos,
+            coinInfo[COIN.XRG].defaultFee,
+            optionalOpReturnMsg,
+            isOneToMany, //indicate send mode is one to one
+            destinationHashAndValueArray,
+            destinationHash,
+            sendSingleAmount,
+            coinInfo[COIN.XRG].etokenSats,
             returnHex // return hex
           );
           break;

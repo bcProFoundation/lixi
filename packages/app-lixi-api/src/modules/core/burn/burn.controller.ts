@@ -4,10 +4,10 @@ import {
   BurnForType,
   BurnType,
   COIN,
-  CommentType,
   PostDana,
   TRANSLATION_REQUIRE_AMOUNT,
-  TokenDana
+  TokenDana,
+  coinInfo
 } from '@bcpros/lixi-models';
 import { NotificationLevel } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
@@ -34,6 +34,7 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Redis } from 'ioredis';
 import moment from 'moment';
 import { template } from 'src/utils/stringTemplate';
+import { fromSatoshisToCoin } from 'src/utils/cashMethods';
 
 @SkipThrottle()
 @Controller('burn')
@@ -46,7 +47,8 @@ export class BurnController {
     private prisma: PrismaService,
     private readonly notificationService: NotificationService,
     @I18n() private i18n: I18nService,
-    @InjectChronikClient('xpi') private chronik: ChronikClient,
+    @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
+    @InjectChronikClient('xrg') private chronikXRG: ChronikClient,
     @Inject(XPIJS) private XPI: BCHJS,
     @InjectQueue(BURN_FANOUT_QUEUE) private burnFanoutQueue: Queue,
     @InjectQueue(ACCOUNT_DANA_QUEUE) private accountDanaQueue: Queue,
@@ -69,13 +71,25 @@ export class BurnController {
   @Post()
   async burn(@Body() command: BurnCommand): Promise<Burn> {
     try {
-      const { amountDana } = command;
+      const { amountDana, coinBurned } = command;
       const value = parseFloat(command.burnValue);
       const savedBurn = await this.prisma.$transaction(async prisma => {
-        const broadcastResponse = await this.chronik.broadcastTx(command.txHex).catch(async err => {
-          const updatingWalletFund = await this.i18n.t('burn.messages.updatingWalletFund');
-          throw new VError(updatingWalletFund);
-        });
+        let broadcastResponse: { txid: string } = { txid: '' };
+        switch (coinBurned) {
+          case COIN.XPI:
+            broadcastResponse = await this.chronikXPI.broadcastTx(command.txHex).catch(async err => {
+              const updatingWalletFund = await this.i18n.t('burn.messages.updatingWalletFund');
+              throw new VError(updatingWalletFund);
+            });
+            break;
+          case COIN.XRG:
+            broadcastResponse = await this.chronikXRG.broadcastTx(command.txHex).catch(async err => {
+              const updatingWalletFund = await this.i18n.t('burn.messages.updatingWalletFund');
+              throw new VError(updatingWalletFund);
+            });
+            break;
+        }
+
         const { txid } = broadcastResponse;
         const prevTxIdExist = await this.prisma.burn.findFirst({
           where: {
@@ -144,6 +158,12 @@ export class BurnController {
 
         // BurnValue + tip + fee
         let fee = Number(command.burnValue) * 0.04;
+        const cashDecimals =
+          coinBurned === COIN.XRG ? coinInfo[COIN.XRG].microCashDecimals : coinInfo[coinBurned].cashDecimals;
+        const smallestFee = parseFloat(fromSatoshisToCoin(coinInfo[coinBurned].dustSats, cashDecimals).toString());
+        if (fee < smallestFee) {
+          fee = smallestFee;
+        }
 
         if (command.burnForType === BurnForType.Post) {
           const post = await this.prisma.post.findFirst({
@@ -318,7 +338,7 @@ export class BurnController {
             burnForType: burnForTypeString.toLowerCase(),
             xpiBurn: amountDana,
             xpiFee: fee,
-            coin: COIN.XPI
+            coin: coinInfo[coinBurned].ticker
           };
           if (post.page) {
             createNotifBurnAndTip = {
@@ -511,7 +531,7 @@ export class BurnController {
               burnForType: burnForTypeString.toLowerCase(),
               xpiBurn: amountDana,
               xpiFee: fee,
-              coin: COIN.XPI
+              coin: coinInfo[coinBurned].ticker
             };
             if (pagePost) {
               createNotifBurnAndTip = {
@@ -585,7 +605,7 @@ export class BurnController {
             burnForType: burnForTypeString.toLowerCase(),
             xpiBurn: amountDana,
             xpiFee: fee,
-            coin: COIN.XPI
+            coin: coinInfo[coinBurned].ticker
           };
           createNotifBurnAndTip = {
             senderId: sender.id,
@@ -618,7 +638,7 @@ export class BurnController {
             burnForType: burnForTypeString.toLowerCase(),
             xpiBurn: amountDana,
             xpiFee: fee,
-            coin: COIN.XPI
+            coin: coinInfo[coinBurned].ticker
           };
           createNotifBurnAndTip = {
             senderId: sender.id,
