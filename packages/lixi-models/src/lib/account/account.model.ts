@@ -124,6 +124,10 @@ export class Account {
   @Field(() => Number, { nullable: true })
   rankScore?: Nullable<number>;
 
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  telegramId?: Nullable<string>;
+
   constructor(partial: Partial<Account>) {
     Object.assign(this, partial);
   }

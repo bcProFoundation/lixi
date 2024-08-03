@@ -30,7 +30,8 @@ import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { getAllAccounts, getSelectedAccount } from '@store/account';
 import useInterval from './useInterval';
-import useXPI from './useXPI';
+import { useXPI } from './useXPI';
+import wif from 'wif';
 
 // const chronik = new ChronikClient('https://chronik.be.cash/xec');
 const websocketConnectedRefreshInterval = 10000;
@@ -104,6 +105,16 @@ const useWallet = () => {
     return walletPaths;
   };
 
+  const getXecWalletPublicKey = async (mnemonic: string): Promise<string> => {
+    const rootSeedBuffer: Buffer = await XPI.Mnemonic.toSeed(mnemonic);
+    const masterHDNode = XPI.HDNode.fromSeed(rootSeedBuffer);
+    const hdPath = `m/44'/1899'/0'/0/0`;
+    const childNode = XPI.HDNode.derivePath(masterHDNode, hdPath);
+    const publicKey = XPI.HDNode.toPublicKey(childNode).toString('hex');
+
+    return publicKey;
+  };
+
   const deriveAccount = async (XPI: BCHJS, { masterHDNode, path }) => {
     const node = XPI.HDNode.derivePath(masterHDNode, path);
     const cashAddress = XPI.HDNode.toCashAddress(node);
@@ -111,6 +122,8 @@ const useWallet = () => {
     const slpAddress = XPI.SLP.Address.toSLPAddress(cashAddress);
     const xAddress = XPI.HDNode.toXAddress(node);
     const publicKey = XPI.HDNode.toPublicKey(node).toString('hex');
+    const walletWif = XPI.HDNode.toWIF(node);
+    const { privateKey }: { privateKey: Uint8Array } = wif.decode(walletWif);
     return {
       path,
       xAddress,
@@ -120,7 +133,8 @@ const useWallet = () => {
       fundingWif: XPI.HDNode.toWIF(node),
       fundingAddress: XPI.SLP.Address.toSLPAddress(cashAddress),
       legacyAddress: XPI.SLP.Address.toLegacyAddress(cashAddress),
-      publicKey
+      publicKey,
+      privateKey: Buffer.from(privateKey).toString('hex')
     };
   };
 
@@ -454,7 +468,8 @@ const useWallet = () => {
     deriveAccount,
     getWalletPathDetails,
     validateMnemonic,
-    getUtxosByCoin
+    getUtxosByCoin,
+    getXecWalletPublicKey
   } as WalletContextValue;
 };
 

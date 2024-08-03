@@ -125,7 +125,7 @@ async function main() {
       const keysTopAccount: string[] = [];
         do {
             // Use the SCAN command to find keys matching the pattern
-            const [newCursor, keys] = await redis.scan(cursor, 'MATCH', "lixilotus:topAccountDanaGiven:*", 'COUNT', '10000');
+            const [newCursor, keys] = await redis.scan(cursorTopAccount, 'MATCH', "lixilotus:topAccountDanaGiven:*", 'COUNT', '10000');
     
             // If there are keys, delete them
             if (keys.length > 0) {
@@ -133,8 +133,8 @@ async function main() {
             }
     
             // Update the cursor
-            cursor = newCursor;
-        } while (cursor !== '0');
+            cursorTopAccount = newCursor;
+        } while (cursorTopAccount !== '0');
 
     //delete keys dana in redis
     const keysDana = [
@@ -144,6 +144,12 @@ async function main() {
       "lixilotus:items:posts:dana",
       "lixilotus:items:commentdana",
       "lixilotus:items:hashtagdana",
+    ]
+
+    //delete data of account and page
+    const keysDataAccountPage = [
+      'lixilotus:items:accounts:item-data',
+      'lixilotus:items:pages:item-data'
     ]
 
     Promise.all([
@@ -159,10 +165,10 @@ async function main() {
       resetPost,
       resetRepostDana,
       resetTokenDana,
-      redis.del(...keysDana, ...keysTimeline, ...keysTopAccount)
-    ])
-
-  console.log('Finish');
+      redis.del(...keysDana, ...keysTimeline, ...keysTopAccount, ...keysDataAccountPage)
+    ]).then(result => {
+      console.log("Finish!!")
+    })
 }
 
 main()

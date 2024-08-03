@@ -20,7 +20,7 @@ import {
   toHex
 } from 'ecash-lib';
 
-export default function useXEC() {
+export function useXEC() {
   const sendXec = async (
     chronik: ChronikClient,
     fundingWif: string,

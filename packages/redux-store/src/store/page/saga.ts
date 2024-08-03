@@ -271,7 +271,7 @@ function* watchGetPageFailure() {
   yield takeLatest(getPageFailure.type, getPageFailureSaga);
 }
 
-export default function* pageSaga() {
+export function* pageSaga() {
   yield all([
     fork(watchPostPage),
     fork(watchPostPageFailure),

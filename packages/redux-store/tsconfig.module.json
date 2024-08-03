@@ -5,6 +5,8 @@
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "declaration": true,
+    "declarationDir": "build/module",
   },
   "references": [
     {

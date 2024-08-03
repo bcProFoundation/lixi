@@ -1,5 +1,5 @@
-import useXPI from '@hooks/useXPI';
-import useXRG from '@hooks/useXRG';
+import { useXPI } from '@hooks/useXPI';
+import { useXRG } from '@hooks/useXRG';
 import { Action, Store, configureStore } from '@reduxjs/toolkit';
 import { UnknownAction } from 'redux';
 import createSagaMiddleware, { Task } from 'redux-saga';

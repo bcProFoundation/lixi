@@ -14,9 +14,6 @@ import { convertHashToXAddress } from '../utils/addressMethods';
 
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
-
-const wif = require('wif');
-
 import {
   ALL_BIP143,
   Ecc,
@@ -29,8 +26,9 @@ import {
   shaRmd160,
   toHex
 } from 'ecash-lib';
+const wif = require('wif');
 
-export default function useXPI() {
+export function useXPI() {
   const getXPI = (apiIndex = 0): BCHJS => {
     return new BCHJS({});
   };

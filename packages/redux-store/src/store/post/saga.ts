@@ -402,7 +402,7 @@ function* watchChangeBookmarkActionSheet() {
   yield takeLatest(changeBookmarkActionSheet.type, changeBookmarkActionSheetSaga);
 }
 
-export default function* postSaga() {
+export function* postSaga() {
   yield all([
     fork(watchPostPost),
     fork(watchPostPostFailure),

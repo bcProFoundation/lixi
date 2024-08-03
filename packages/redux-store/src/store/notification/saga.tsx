@@ -314,7 +314,7 @@ function* watchUserOffline() {
   yield takeLatest(userOffline.type, userOfflineSaga);
 }
 
-export default function* notificationSaga() {
+export function* notificationSaga() {
   if (typeof window === 'undefined') {
     yield all([
       fork(watchFetchNotifications),

@@ -837,7 +837,7 @@ function* watchRegisterLixiPackFailure() {
   yield takeLatest(registerLixiPackFailure.type, registerLixiPackFailureSaga);
 }
 
-export default function* lixiSaga() {
+export function* lixiSaga() {
   yield all([
     fork(watchGenerateLixi),
     fork(watchGetLixi),

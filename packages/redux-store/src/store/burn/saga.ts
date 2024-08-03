@@ -886,7 +886,7 @@ function* watchRequests() {
   }
 }
 
-export default function* burnSaga() {
+export function* burnSaga() {
   if (typeof window === 'undefined') {
     yield all([
       fork(watchCreateTxHex),

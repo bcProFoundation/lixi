@@ -38,6 +38,6 @@ function* watchgetCategoriesFailure() {
   yield takeLatest(getCategoriesFailure.type, getCategoriesFailureSaga);
 }
 
-export default function* categorySaga() {
+export function* categorySaga() {
   yield all([fork(watchgetCategories), fork(watchgetCategoriesFailure)]);
 }

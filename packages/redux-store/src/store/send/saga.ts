@@ -36,6 +36,6 @@ function* watchSendCoinFailureSaga() {
   yield takeLatest(sendCoinFailure.type, sendCoinFailureSaga);
 }
 
-export default function* sendSaga() {
+export function* sendSaga() {
   yield all([fork(watchSendCoinSuccessSaga), fork(watchSendCoinFailureSaga)]);
 }

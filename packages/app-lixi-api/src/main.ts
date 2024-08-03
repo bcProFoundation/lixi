@@ -22,7 +22,8 @@ const whitelistOrigins = [
   process.env.ABCPAY_URL,
   process.env.ABCPAY_SWAP_URL,
   process.env.LOTUSTEMPLE_URL,
-  process.env.LIXI_SOCIAL_URL
+  process.env.LIXI_SOCIAL_URL,
+  process.env.LOCAL_ECASH_URL
 ];
 
 function stripTrailingSlash(str: string) {
@@ -68,11 +69,12 @@ async function bootstrap() {
               const msg = `The CORS policy for this site does not allow access from the specified Origin. ${origin}`;
               callback(new Error(msg), true);
             } else {
-              callback(null, false);
+              callback(null, true);
             }
           },
     exposedHeaders: ['Authorization'],
-    allowedHeaders: 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe, Origin, Account-Secret',
+    allowedHeaders:
+      'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe, Origin, Account-Secret, lang',
     methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
     preflightContinue: false,
     optionsSuccessStatus: 200

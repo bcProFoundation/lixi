@@ -171,7 +171,7 @@ function* watchCheckInformationAndClaimNoAccount() {
   yield takeLatest(checkInformationAndClaimNoAccount.type, checkInformationAndClaimNoAccountSaga);
 }
 
-export default function* claimSaga() {
+export function* claimSaga() {
   yield all([
     fork(watchPostClaim),
     fork(watchPostClaimSuccess),

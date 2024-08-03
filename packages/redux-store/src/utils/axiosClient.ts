@@ -7,17 +7,12 @@ export const injectStore = (_locale: string) => {
 };
 
 const axiosClient = axios.create({
-  baseURL: '/',
-  headers: {
-    'Content-Type': 'application/json'
-  },
+  baseURL: process.env.NEXT_PUBLIC_LIXI_API ? process.env.NEXT_PUBLIC_LIXI_API : '/',
   withCredentials: true
 });
 
 export const axiosLocalClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_LOTUS_TEMPLE_URL // check if there is app url, replace it if using for another app
-    ? process.env.NEXT_PUBLIC_LOTUS_TEMPLE_URL
-    : '/',
+  baseURL: process.env.NEXT_PUBLIC_APPLICATION_URL, //Need this for local login
   headers: {
     'Content-Type': 'application/json'
   },

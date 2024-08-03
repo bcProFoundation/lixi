@@ -21,7 +21,7 @@ import {
   toHex
 } from 'ecash-lib';
 
-export default function useXRG() {
+export function useXRG() {
   const sendXrg = async (
     chronik: ChronikClient,
     fundingWif: string,
