@@ -4,8 +4,8 @@ import { Page } from '../page/page.model';
 
 export interface CreateAccountCommand {
   mnemonic: string;
-  encryptedMnemonic: string;
-  mnemonicHash: string;
+  encryptedMnemonic?: string;
+  mnemonicHash?: string;
   language?: string;
   rootCoin?: COIN;
   telegramId?: string;
@@ -55,7 +55,7 @@ export interface AccountDto {
   mnemonic?: string;
   secret?: string;
   encryptedMnemonic?: string;
-  mnemonicHash?: string;
+  mnemonicHash?: Nullable<string>;
   createdAt?: Date;
   updatedAt?: Date;
   address: string;

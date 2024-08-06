@@ -2,6 +2,12 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input AcceptEscrowOrderInput {
+  nonce: String!
+  orderId: String!
+  script: String!
+}
+
 type Account {
   accountDana: AccountDana
   address: String!
@@ -169,6 +175,10 @@ type BurnItemBasicEdge {
   node: BurnItem!
 }
 
+input CancelEscrowOrderInput {
+  orderId: String!
+}
+
 type Category {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
@@ -279,13 +289,6 @@ type Country {
   state: [State!]!
 }
 
-input CreateAccountInput {
-  encryptedMnemonic: String!
-  language: String!
-  mnemonic: String!
-  mnemonicHash: String!
-}
-
 input CreateBookmarkInput {
   accountId: Int!
   bookmarkForId: String!
@@ -313,7 +316,6 @@ input CreateEscrowOrderInput {
   amount: Int!
   arbitratorPublicKey: String!
   buyerPublicKey: String!
-  escrowAddress: String
   message: String
   offerId: String!
   paymentMethodId: String!
@@ -809,12 +811,6 @@ enum ImageUploadableType {
   TEMPLE_COVER
 }
 
-input ImportAccountInput {
-  language: String
-  mnemonic: String!
-  mnemonicHash: String
-}
-
 type LatestMessage {
   author: LatestMessageAuthor
   body: String
@@ -936,9 +932,10 @@ type MessageSessionEdge {
 }
 
 type Mutation {
+  acceptEscrowOrder(data: AcceptEscrowOrderInput!): EscrowOrder!
+  cancelEscrowOrder(data: CancelEscrowOrderInput!): EscrowOrder!
   closePageMessageSession(data: ClosePageMessageSessionInput!): PageMessageSession!
   create(data: CreateEventInput!): Event!
-  createAccount(data: CreateAccountInput!): Account!
   createBookmark(data: CreateBookmarkInput!): Bookmark!
   createComment(data: CreateCommentInput!): Comment!
   createDispute(data: CreateDisputeInput!): Dispute!
@@ -963,12 +960,10 @@ type Mutation {
   deleteFollowAccount(data: DeleteFollowAccountInput!): Boolean!
   deleteFollowPage(data: DeleteFollowPageInput!): Boolean!
   deleteFollowToken(data: DeleteFollowTokenInput!): Boolean!
-  importAccount(data: ImportAccountInput!): Account!
   openPageMessageSession(data: OpenPageMessageSessionInput!): PageMessageSession!
   removeBookmark(data: RemoveBookmarkInput!): Bookmark!
   removePost(data: RemovePostInput!): Post!
   repost(data: RepostInput!): Boolean!
-  updateAccount(data: UpdateAccountInput!): Account!
   updatePage(data: UpdatePageInput!): Page!
   updatePost(data: UpdatePostInput!): Post!
 }
@@ -1718,18 +1713,6 @@ type TokenDana {
   token: Token!
   tokenId: String!
   version: Int!
-}
-
-input UpdateAccountInput {
-  avatar: String
-  birthday: DateTime
-  cover: String
-  createCommentFee: String
-  description: String
-  id: Int!
-  language: String
-  name: String
-  website: String
 }
 
 input UpdatePageInput {

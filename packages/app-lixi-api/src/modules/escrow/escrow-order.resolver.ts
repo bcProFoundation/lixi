@@ -1,26 +1,11 @@
 import {
-  Account,
-  CreateDisputeInput,
+  AcceptEscrowOrderInput,
+  CancelEscrowOrderInput,
   CreateEscrowOrderInput,
-  CreateOfferInput,
-  CreateWorshipInput,
-  CreateWorshipedPersonInput,
-  Dispute,
-  DisputeConnection,
-  DisputeOrder,
   EscrowOrder,
   EscrowOrderConnection,
   EscrowOrderOrder,
-  Offer,
-  OfferConnection,
-  OfferOrder,
-  PaginationArgs,
-  Worship,
-  WorshipConnection,
-  WorshipOrder,
-  WorshipedPerson,
-  WorshipedPersonConnection,
-  WorshipedPersonOrder
+  PaginationArgs
 } from '@bcpros/lixi-models';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { Logger, UseFilters, UseGuards } from '@nestjs/common';
@@ -38,6 +23,7 @@ import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
 import { PERSON } from '../page/constants/meili.constants';
 import { MeiliService } from '../page/meili.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { EscrowOrderStatus } from '@bcpros/lixi-prisma';
 
 const pubSub = new PubSub();
 
@@ -110,6 +96,38 @@ export class EscrowOrderResolver {
             id: paymentMethodId
           }
         }
+      }
+    });
+
+    pubSub.publish('escrowOrderCreated', { escrowOrderCreated: escrowOrder });
+    return escrowOrder;
+  }
+
+  @Mutation(() => EscrowOrder)
+  async acceptEscrowOrder(@Args('data') data: AcceptEscrowOrderInput) {
+    const { nonce, orderId, script } = data;
+    const escrowOrder = await this.prisma.escrowOrder.update({
+      where: {
+        id: orderId
+      },
+      data: {
+        status: EscrowOrderStatus.ACTIVE
+      }
+    });
+
+    pubSub.publish('escrowOrderCreated', { escrowOrderCreated: escrowOrder });
+    return escrowOrder;
+  }
+
+  @Mutation(() => EscrowOrder)
+  async cancelEscrowOrder(@Args('data') data: CancelEscrowOrderInput) {
+    const { orderId } = data;
+    const escrowOrder = await this.prisma.escrowOrder.update({
+      where: {
+        id: orderId
+      },
+      data: {
+        status: EscrowOrderStatus.COMPLETE // Change later
       }
     });
 
