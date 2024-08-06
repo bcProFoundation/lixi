@@ -61,7 +61,7 @@ const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFo
 
   const [burnAmountPerCoin, setBurnAmountPerCoin] = useState(0);
   const [coinBurned, setCoinBurned] = useState<Coin>(
-    (coinInfo[selectedAccount?.coin ?? COIN.XPI].canBurn ? selectedAccount?.coin : COIN.XPI) as unknown as Coin
+    (coinInfo[selectedAccount?.coin]?.canBurn ? selectedAccount?.coin : COIN.XPI) as unknown as Coin
   );
   const { data: dataBurn } = useConvertDanaToCoinQuery({
     ConvertDanaInput: {
@@ -105,7 +105,7 @@ const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFo
     <span key={`comment-down-vote-${item.id}`}>
       <Tooltip
         placement="topRight"
-        title={`${calBurnAmountWithFee(1, burnAmountPerCoin, coinBurned === Coin.Xrg ? false : true)} ${coinInfo[coinBurned].ticker}`}
+        title={`${calBurnAmountWithFee(1, burnAmountPerCoin, coinBurned as unknown as COIN)} ${coinInfo[coinBurned].ticker}`}
       >
         <SpaceCustom onClick={() => actionsComment(item, ACTION_VOTE.DOWN_VOTE)}>
           <IconBurnComment isUp={false} />
@@ -116,7 +116,7 @@ const CommentListItem = ({ item, post, refsComment, setReplyCommentCustom, setFo
     <span style={{ marginInlineEnd: '15px' }} key={`comment-up-vote-${item.id}`}>
       <Tooltip
         placement="topRight"
-        title={`${calBurnAmountWithFee(1, burnAmountPerCoin, coinBurned === Coin.Xrg ? false : true)} ${coinInfo[coinBurned].ticker}`}
+        title={`${calBurnAmountWithFee(1, burnAmountPerCoin, coinBurned as unknown as COIN)} ${coinInfo[coinBurned].ticker}`}
       >
         <SpaceCustom onClick={() => actionsComment(item, ACTION_VOTE.UP_VOTE)}>
           <IconBurnComment isUp />

@@ -4,7 +4,6 @@ import { Button, List } from 'antd';
 import VirtualList from 'rc-virtual-list';
 import React from 'react';
 import styled from 'styled-components';
-import WalletInfoComponent from './WalletInfo';
 import intl from 'react-intl-universal';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getSelectedAccount } from '@store/account/selectors';
