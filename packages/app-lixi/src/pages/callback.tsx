@@ -1,5 +1,5 @@
 import React from 'react';
-import axiosClient from '@utils/axiosClient';
+import { axiosClient } from '@utils/axiosClient';
 import CallbackComponent from '@components/Callback';
 import { GetServerSideProps } from 'next';
 import { setCookie } from 'cookies-next';

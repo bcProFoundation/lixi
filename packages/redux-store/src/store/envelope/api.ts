@@ -1,5 +1,5 @@
 import { Envelope } from '@bcpros/lixi-models/lib/envelope';
-import axiosClient from '../../utils/axiosClient';
+import { axiosClient } from '../../utils/axiosClient';
 
 const envelopeApi = {
   getById(id: number): Promise<Envelope> {

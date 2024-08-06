@@ -6,7 +6,7 @@ export const injectStore = (_locale: string) => {
   locale = _locale;
 };
 
-const axiosClient = axios.create({
+export const axiosClient = axios.create({
   baseURL: '/',
   headers: {
     'Content-Type': 'application/json'
@@ -19,5 +19,3 @@ axiosClient.interceptors.request.use(function (config) {
   config.headers.lang = locale;
   return config;
 });
-
-export default axiosClient;

@@ -1,4 +1,4 @@
-import axiosClient, { axiosLocalClient } from '../../utils/axiosClient';
+import { axiosLocalClient } from '../../utils/axiosClient';
 import { LocalUser } from '../../models/localUser';
 
 const localAccountApi = {

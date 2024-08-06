@@ -255,7 +255,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
     if (authorization.authorized) {
       dispatch(
         openModal('BurnModal', {
-          burnForType: BurnForType.Post,
+          burnForType: burnForType,
           burnForItem: dataItem,
           classStyle: 'burn-modal'
         })

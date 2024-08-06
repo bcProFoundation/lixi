@@ -32,7 +32,7 @@ import styled from 'styled-components';
 import { QRCodeModal } from './QRCodeModal';
 import { AuthenticationContext } from '@context/index';
 import { useConvertDanaToCoinQuery } from '@store/dana/dana.api';
-import { calBurnAmountWithoutFee, calFeeWhenBurn } from 'src/utils/burnValueWithFee';
+import { calBurnAmountWithoutFee, calFeeWhenBurn, getHashOwner } from 'src/utils/burnValueWithFee';
 
 const UpDownButton = styled(Button)`
   background: rgb(158, 42, 156);
@@ -123,6 +123,8 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
   const [selectedAmount, setSelectedAmount] = useState(1);
   const [openSelectCurrencies, setOpenSelectCurrencies] = useState(false);
   const [selectCurrencies, setSelectCurrencies] = useState(null);
+  const [hashOwner, setHashOwner] = useState<string>('');
+  const [selectedHash, setSelectedHash] = useState<string>('');
   const defaultSelected = {
     name: 'Lotus',
     symbol: 'xpi',
@@ -239,6 +241,26 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
       })
     );
   };
+
+  //get Owner
+  useEffect(() => {
+    const getOwner = async () => {
+      const hashOwner = await getHashOwner(burnForItem, burnForType);
+      setHashOwner(hashOwner);
+    };
+    getOwner();
+  }, [burnForType, burnForItem]);
+
+  //get selectedHash
+  useEffect(() => {
+    const hash: any = selectedAccount?.hash160;
+    //backend return hash160 is string or {type: 'Buffer', data: []}
+    if (typeof hash !== 'string') {
+      setSelectedHash(Buffer.from(hash?.data).toString('hex'));
+      return;
+    }
+    setSelectedHash(hash);
+  }, []);
 
   const modalSelectWallet = () => {
     return (
@@ -508,7 +530,7 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
           amountDana: selectedAmount
         })}
       </p>
-      {(burnForItem as PostQueryItem)?.accountId !== selectedAccount.id && (
+      {hashOwner !== selectedHash && (
         <p className="amount-fee">
           {intl.get('burn.amountFee', {
             amountFee: calFeeWhenBurn(selectedAmount, burnAmountPerCoin, coinBurned as unknown as COIN),

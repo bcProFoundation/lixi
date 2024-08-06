@@ -3,7 +3,7 @@ import { UPLOAD_API_S3 } from '@bcpros/lixi-models/constants/upload';
 import { removeUpload, setUpload } from '@store/account/actions';
 import { useSliceDispatch } from '@store/index';
 import { showToast } from '@store/toast/actions';
-import axiosClient from '@utils/axiosClient';
+import { axiosClient } from '@utils/axiosClient';
 import { Button, Modal, Upload } from 'antd';
 import { ButtonType } from 'antd/lib/button';
 import { RcFile, UploadChangeParam } from 'antd/lib/upload';
