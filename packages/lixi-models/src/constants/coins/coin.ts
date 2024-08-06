@@ -1,6 +1,7 @@
 export enum COIN {
   XPI = 'XPI',
-  XEC = 'XEC'
+  XEC = 'XEC',
+  XRG = 'XRG'
 }
 
 export const TX_HISTORY_COUNT = 20;

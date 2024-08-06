@@ -11,7 +11,6 @@ import { closeModal } from '@store/modal/actions';
 import { setPage } from '@store/page/action';
 import { useUpdatePageMutation } from '@store/page/pages.api';
 import { showToast } from '@store/toast/actions';
-import { fromSmallestDenomination } from '@utils/cashMethods';
 import { Button, Col, Form, Input, Modal, Row, Select } from 'antd';
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';

@@ -51,6 +51,7 @@ export class MessageResolver {
     @Inject(XPIJS) private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
     @InjectChronikClient('xec') private chronikXEC: ChronikClient,
+    @InjectChronikClient('xrg') private chronikXRG: ChronikClient,
     private readonly notificationService: NotificationService,
     private readonly pageMessageSessionCacheService: PageMessageSessionCacheService
   ) {}
@@ -241,6 +242,9 @@ export class MessageResolver {
               break;
             case COIN.XEC:
               broadcastResponse = await this.chronikXEC.broadcastTx(tipHex);
+              break;
+            case COIN.XRG:
+              broadcastResponse = await this.chronikXRG.broadcastTx(tipHex);
               break;
             default:
               broadcastResponse = await this.chronikXPI.broadcastTx(tipHex);

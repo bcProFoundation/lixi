@@ -240,6 +240,10 @@ const commentCommand = [
   {
     label: '/xec',
     value: '/xec'
+  },
+  {
+    label: '/uxrg',
+    value: '/uxrg'
   }
 ];
 
@@ -403,18 +407,18 @@ const Comment = ({ post }: CommentProps) => {
       //Check if comment is tip
       const arrayStringComment = trimComment.toUpperCase().split(' ');
       const indexOfGiveString = arrayStringComment.findIndex(
-        item => item.startsWith('/') && Object.values(COIN).includes(item.substring(1, item.length) as COIN)
+        item =>
+          item.startsWith('/') && Object.values(COIN).includes(item.substring(item.length - 3, item.length) as COIN)
       );
       //find and it't not last element
       if (indexOfGiveString !== -1 && indexOfGiveString !== arrayStringComment.length - 1) {
         const amount: string = arrayStringComment[indexOfGiveString + 1];
         const textGive = arrayStringComment[indexOfGiveString];
-        const coinGive = textGive.substring(1, textGive.length) as COIN;
+        const coinGive = textGive.substring(textGive.length - 3, textGive.length) as COIN;
 
         const { nonSlpUtxos } = await getUtxosByCoin(coinGive);
         const utxos = selectedAccount?.coin === coinGive ? slpBalancesAndUtxos.nonSlpUtxos : nonSlpUtxos;
         const balances = utxos.reduce((accu, currentValue) => accu + parseFloat(currentValue.value), 0);
-
         //check if amount is valid
         if (validateCoinAmount(amount, balances, coinGive)) {
           let tipHex = undefined;
@@ -570,6 +574,8 @@ const Comment = ({ post }: CommentProps) => {
       const haveAccountFee = !post?.page && post.account.createCommentFee !== '0';
 
       if (havePageFee || haveAccountFee) {
+        const cashDecimals =
+          selectedCoin === COIN.XRG ? coinInfo[selectedCoin].microCashDecimals : coinInfo[selectedCoin].cashDecimals;
         createFeeHex = await sendCoin(
           selectedCoin,
           XPI,
@@ -581,7 +587,7 @@ const Comment = ({ post }: CommentProps) => {
           false, // indicate send mode is one to one
           null,
           post?.page ? post.page.pageAccount.hash160 : post.account.hash160,
-          fromSmallestDenomination(coinInfo[selectedCoin].dustSats, selectedCoin), //amount
+          fromSmallestDenomination(coinInfo[selectedCoin].dustSats, cashDecimals), //amount
           true // return hex
         );
       }

@@ -13,6 +13,7 @@ export const infoXpi: CoinInfo = {
   etokenSats: 546,
   cashDecimals: 6,
   burnFee: 0.04,
+  canBurn: true,
   tokenName: 'lToken',
   tokenTicker: 'lToken',
   tokenPrefixes: ['ltoken'],

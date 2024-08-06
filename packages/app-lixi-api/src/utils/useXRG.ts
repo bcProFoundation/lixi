@@ -1,16 +1,8 @@
-import BCHJS from '@bcpros/xpi-js';
-import {
-  encryptOpReturnMsg,
-  fromCoinToSatoshis,
-  fromSmallestDenomination,
-  generateOpReturnScript
-} from './cashMethods';
-import { getRecipientPublicKey } from './chronik';
-import { ChronikClient, Utxo } from 'chronik-client';
+import { cashaddrToHash160, fromCoinToSatoshis, fromSmallestDenomination } from './cashMethods';
+// import ecies from 'ecies-lite';
 import BigNumber from 'bignumber.js';
-import { generateBurnOpReturnScript } from './opReturnBurn';
-import { BurnForType, BurnType } from '@bcpros/lixi-models';
-import { coinInfo, COIN } from '@bcpros/lixi-models';
+import { ChronikClient, Utxo } from 'chronik-client';
+import { BurnForType, BurnType, COIN, coinInfo } from '@bcpros/lixi-models';
 import {
   ALL_BIP143,
   Ecc,
@@ -23,50 +15,17 @@ import {
   shaRmd160,
   toHex
 } from 'ecash-lib';
-import { convertHashToXAddress } from './addressMethod';
+import { generateBurnOpReturnScript } from './opReturnBurn';
+
 const wif = require('wif');
 
-export default function useXPI() {
-  const calcFee = (XPI: BCHJS, utxos: any, p2pkhOutputNumber = 2, satoshisPerByte = 2.01, opReturnLength = 0) => {
-    const byteCount = XPI.BitcoinCash.getByteCount({ P2PKH: utxos.length }, { P2PKH: p2pkhOutputNumber });
-    // 8 bytes : the output's value
-    // 1 bytes : Locking-Script Size
-    // opReturnLength: the size of the OP_RETURN script
-    // Referece
-    // https://github.com/bitcoinbook/bitcoinbook/blob/develop/ch06.asciidoc#transaction-serializationoutputs
-    //
-    // Technically, Locking-Script Size can be 1, 3, 5 or 9 bytes, But
-    //  - Lotus Node's default allowed OP_RETURN length is set the 223 bytes
-    //  - SendLotus max OP_RETURN length is also limited to 223 bytes
-    // We can safely assume it is 1 byte (0 - 252. fd, fe, ff are special)
-    //
-    // The Output Count field is of VarInt (1, 3, 5 or 9 bytes), which indicates the number of outputs present in the transaction
-    // Adding OP_RETURNs to the outputs increases the count
-    // Since SendLotus only allows single recipient transaction, the maxium number of outputs in a tx is 5
-    //  - one for recipient
-    //  - one for change
-    //  - maximum 3 for OP_RETURNs
-    // So we can safely assume the Output will only take 1 byte.
-    //
-    // In wallet where multiple recipients are allowed in a transaction
-    // adding extra OP_RETURN outputs may change the output count from 1 byte to 3 bytes
-    // this would affect the fee
-    let opReturnOutputByteLength = opReturnLength;
-    if (opReturnLength) {
-      opReturnOutputByteLength += 8 + 1;
-    }
-    const txFee = Math.ceil(satoshisPerByte * byteCount);
-    return txFee;
-  };
-
-  const sendXpi = async (
-    XPI: BCHJS,
+export default function useXRG() {
+  const sendXrg = async (
     chronik: ChronikClient,
     fundingWif: string,
     utxos: Array<Utxo & { address: string }>,
     feeInSatsPerByte: number,
     optionalOpReturnMsg: string | undefined,
-    encryptionFlag: boolean,
     isOneToMany: boolean,
     destinationHashAndValueArray: Array<string> | null,
     destinationHash: string,
@@ -84,15 +43,16 @@ export default function useXPI() {
         !feeInSatsPerByte ||
         !dustFee
       ) {
-        throw new Error('Invalid tx send xpi');
+        throw new Error('Invalid tx send xrg');
       }
 
-      const amountToSend = fromCoinToSatoshis(BigNumber(sendSingleAmount), coinInfo[COIN.XPI].cashDecimals);
+      const amountToSend = fromCoinToSatoshis(BigNumber(sendSingleAmount), coinInfo[COIN.XRG].microCashDecimals);
       //check amount greater dust
       if (!isOneToMany) {
         if (!amountToSend) throw new Error('Invalid value');
         if (
-          sendSingleAmount < fromSmallestDenomination(coinInfo[COIN.XPI].etokenSats, coinInfo[COIN.XPI].cashDecimals)
+          sendSingleAmount <
+          fromSmallestDenomination(coinInfo[COIN.XRG].etokenSats, coinInfo[COIN.XRG].microCashDecimals)
         ) {
           // Throw the same error given by the backend attempting to broadcast such a tx
           throw new Error('dust');
@@ -116,72 +76,29 @@ export default function useXPI() {
       const recipientP2pkh = Script.p2pkh(fromHex(destinationHash));
       // TxId with unspent funds for the above wallet
 
-      let encryptedEj: Uint8Array = new Uint8Array(); // serialized encryption data object
-      let opReturnOutput: any;
-
-      if (!returnHex) {
-        // if the user has opted to encrypt this message
-        if (encryptionFlag && optionalOpReturnMsg) {
-          try {
-            // get the pub key for the recipient address
-            const destinationAddress = convertHashToXAddress(XPI, destinationHash);
-            const recipientPubKey = await getRecipientPublicKey(XPI, chronik, destinationAddress);
-            // if the API can't find a pub key, it is due to the wallet having no outbound tx
-            if (!recipientPubKey) {
-              throw new Error('Cannot send an encrypted message to a wallet with no outgoing transactions');
-            }
-            if (recipientPubKey) {
-              encryptedEj = encryptOpReturnMsg(fundingWif, recipientPubKey, optionalOpReturnMsg);
-            }
-          } catch (err) {
-            console.log(`sendXpi() encryption error.`);
-            throw err;
-          }
-        }
-
-        // Start of building the OP_RETURN output.
-        // Only build the OP_RETURN output if the user supplied it
-        if (optionalOpReturnMsg && typeof optionalOpReturnMsg !== 'undefined' && optionalOpReturnMsg.trim() !== '') {
-          const opReturnData = generateOpReturnScript(XPI, optionalOpReturnMsg, encryptionFlag, encryptedEj);
-          opReturnOutput = { script: new Script(opReturnData), value: 0 };
-        }
-      }
-
-      let outputs = [];
+      let outputsToMany: any = [];
       if (isOneToMany) {
-        //check opreturn
-        if (opReturnOutput) {
-          outputs.push(opReturnOutput);
-        }
-
-        //add output send
-        if (destinationHashAndValueArray && destinationHashAndValueArray.length > 0) {
-          destinationHashAndValueArray.map(hashValue => {
-            const value = hashValue.split(',')[1];
-            const hash = hashValue.split(',')[0];
-            outputs.push({
-              value: value,
-              script: Script.p2pkh(fromHex(hash))
-            });
-          });
-        }
-        //add change address
-        outputs.push(walletP2pkh);
-      } else {
-        //check opreturn
-        if (opReturnOutput) {
-          outputs.push(opReturnOutput);
-        }
-
-        //add output send and change address
-        outputs.push(
-          {
-            value: Number.parseFloat(amountToSend.toString()),
-            script: recipientP2pkh
-          },
-          walletP2pkh
-        );
+        outputsToMany = destinationHashAndValueArray?.map(hashValue => {
+          const value = hashValue.split(',')[1];
+          const hash = hashValue.split(',')[0];
+          return {
+            value: value,
+            script: Script.p2pkh(fromHex(hash))
+          };
+        });
+        outputsToMany.push(walletP2pkh);
       }
+
+      const outputs: TxBuilderOutput[] = isOneToMany
+        ? outputsToMany
+        : [
+            {
+              value: Number.parseFloat(amountToSend.toString()),
+              script: recipientP2pkh
+            },
+            walletP2pkh
+          ];
+
       // Tx builder
       const txBuild = new TxBuilder({
         inputs: utxos.map(utxo => ({
@@ -197,8 +114,9 @@ export default function useXPI() {
         outputs: outputs
       });
 
-      const feeInSatsPerKByte = parseInt((feeInSatsPerByte * 1000).toFixed(0));
-      const tx = txBuild.sign(ecc, feeInSatsPerKByte, dustFee);
+      const feeInSatsPerKByte = feeInSatsPerByte * 1000;
+      const roundedFeeInSatsPerKByte = parseInt(feeInSatsPerKByte.toFixed(0));
+      const tx = txBuild.sign(ecc, roundedFeeInSatsPerKByte, dustFee);
       const rawTx = tx.ser();
 
       let broadcastResponse;
@@ -215,7 +133,7 @@ export default function useXPI() {
           throw err;
         }
         // return the explorer link for the broadcasted tx
-        return `${coinInfo[COIN.XPI].blockExplorerUrl}/tx/${broadcastResponse.txid}`;
+        return `${coinInfo[COIN.XRG].blockExplorerUrl}/tx/${broadcastResponse.txid}`;
       }
     } catch (err: any) {
       throw new Error(err);
@@ -239,17 +157,17 @@ export default function useXPI() {
         !fundingWif ||
         !utxos ||
         !feeInSatsPerByte ||
-        !burnType ||
+        !burnType.toString() || //burn type have value 0
         !burnForType ||
         !burnedBy ||
         !burnForId ||
         !burnAmount ||
         !dustFee
       ) {
-        throw new Error('Invalid tx send xpi');
+        throw new Error('Invalid tx send xrg');
       }
 
-      const satoshisToBurn = fromCoinToSatoshis(BigNumber(burnAmount), coinInfo[COIN.XPI].cashDecimals);
+      const satoshisToBurn = fromCoinToSatoshis(BigNumber(burnAmount), coinInfo[COIN.XRG].microCashDecimals);
 
       // Throw validation error if fromCoinToSatoshis returns false
       if (!satoshisToBurn) {
@@ -350,8 +268,7 @@ export default function useXPI() {
   };
 
   return {
-    calcFee,
-    sendXpi,
+    sendXrg,
     createBurnTransaction
   } as const;
 }

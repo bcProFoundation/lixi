@@ -50,6 +50,7 @@ export class CommentResolver {
     @I18n() private i18n: I18nService,
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
     @InjectChronikClient('xec') private chronikXEC: ChronikClient,
+    @InjectChronikClient('xrg') private chronikXRG: ChronikClient,
     @Inject(XPIJS) private XPI: BCHJS,
     private readonly commentLoader: CommentLoader,
     private readonly commentableLoader: CommentableLoader,
@@ -208,6 +209,9 @@ export class CommentResolver {
                 break;
               case COIN.XEC:
                 broadcastResponse = await this.chronikXEC.broadcastTx(createFeeHex ?? tipHex ?? '');
+                break;
+              case COIN.XRG:
+                broadcastResponse = await this.chronikXRG.broadcastTx(createFeeHex ?? tipHex ?? '');
                 break;
               default:
                 broadcastResponse = await this.chronikXPI.broadcastTx(createFeeHex ?? tipHex ?? '');
@@ -401,6 +405,9 @@ export class CommentResolver {
                 break;
               case COIN.XEC:
                 broadcastResponse = await this.chronikXEC.broadcastTx(createFeeHex ?? tipHex ?? '');
+                break;
+              case COIN.XRG:
+                broadcastResponse = await this.chronikXRG.broadcastTx(createFeeHex ?? tipHex ?? '');
                 break;
               default:
                 broadcastResponse = await this.chronikXPI.broadcastTx(createFeeHex ?? tipHex ?? '');

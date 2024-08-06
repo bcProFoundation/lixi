@@ -6,14 +6,14 @@ import BCHJS from '@bcpros/xpi-js';
 import { WalletPathAddressInfo, Hash160AndAddress } from '@bcpros/lixi-models';
 import { WalletService } from './wallet.service';
 import { coinInfo, COIN } from '@bcpros/lixi-models';
-import useXEC from 'src/utils/useXEC';
+import useXRG from 'src/utils/useXRG';
 import HDNode from '@bcpros/xpi-js/types/hdnode';
 import { getUtxoWif } from 'src/utils/cashMethods';
 
 @Injectable()
-export class XecWalletService extends WalletService {
-  public logger: Logger = new Logger(XecWalletService.name);
-  private defaultPath = "m/44'/1899'/0'/0/0";
+export class XrgWalletService extends WalletService {
+  public logger: Logger = new Logger(XrgWalletService.name);
+  private defaultPath = "m/44'/2137'/0'/0/0";
 
   constructor(
     @Inject(XPIJS) public readonly XPI: BCHJS,
@@ -34,7 +34,7 @@ export class XecWalletService extends WalletService {
   ): Promise<{ address: any; xpriv: any; wifKey: any; publicKey: any; keyPair: any; balance: string }> {
     const rootSeedBuffer: Buffer = await this.XPI.Mnemonic.toSeed(mnemonic);
     const masterHDNode = this.XPI.HDNode.fromSeed(rootSeedBuffer);
-    const hdPath = `m/44'/1899'/${vaultIndex}'/0/0`;
+    const hdPath = `m/44'/2137'/${vaultIndex}'/0/0`;
     const childNode: HDNode = this.XPI.HDNode.derivePath(masterHDNode, hdPath);
     const xAddress = this.XPI.HDNode.toXAddress(childNode);
     const xpriv = this.XPI.HDNode.toXPriv(childNode);
@@ -55,7 +55,7 @@ export class XecWalletService extends WalletService {
   }
 
   async send(sendWalletPath: WalletPathAddressInfo[], recieveAddress: string, amount: number) {
-    const { sendXec } = useXEC();
+    const { sendXrg } = useXRG();
     const hash160AndAddressObjArray: Hash160AndAddress[] = sendWalletPath.map(item => {
       return {
         address: item.cashAddress,
@@ -64,19 +64,19 @@ export class XecWalletService extends WalletService {
     });
     const walletStatus = await super.getWalletStatus(hash160AndAddressObjArray);
     const { slpBalancesAndUtxos } = walletStatus;
-    const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], sendWalletPath, COIN.XEC);
+    const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], sendWalletPath, COIN.XRG);
 
-    const hex = await sendXec(
+    const hex = await sendXrg(
       this.chronik,
       fundingWif,
       slpBalancesAndUtxos.nonSlpUtxos,
-      coinInfo[COIN.XEC].defaultFee,
+      coinInfo[COIN.XRG].defaultFee,
       undefined,
       false, //indicate send mode is one to one
       null,
       sendWalletPath[0].hash160,
       amount,
-      coinInfo[COIN.XEC].etokenSats,
+      coinInfo[COIN.XRG].etokenSats,
       true // return hex
     );
     return hex;

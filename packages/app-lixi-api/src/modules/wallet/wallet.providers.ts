@@ -13,9 +13,11 @@ import { WalletService } from './wallet.service';
 import { ChronikClients } from 'nestjs-chronik';
 import { XecWalletService } from './xec-wallet.service';
 import { XpiWalletService } from './xpi-wallet.service';
+import { XrgWalletService } from './xrg-wallet.service ';
 
 export const currencyToCoin: Record<string, string> = {
   xec: 'xec',
+  xrg: 'xrg',
   xpi: 'xpi'
 };
 
@@ -34,6 +36,9 @@ export function createFactory(
     switch (currency) {
       case 'xec':
         services[currency] = new XecWalletService(XPI, coin, redis, chronikClient);
+        break;
+      case 'xrg':
+        services[currency] = new XrgWalletService(XPI, coin, redis, chronikClient);
         break;
       case 'xpi':
         services[currency] = new XpiWalletService(XPI, coin, redis, chronikClient);

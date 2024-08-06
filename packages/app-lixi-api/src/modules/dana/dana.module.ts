@@ -10,6 +10,7 @@ import { BullModule } from '@nestjs/bullmq';
 import IORedis from 'ioredis';
 import _ from 'lodash';
 import { IndexBlockProcessor } from './index-block.process';
+import { DanaIndexXRGService } from './index-block-xrg.service';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { IndexBlockProcessor } from './index-block.process';
     ConvertDanaResolver,
     IndexBlockProcessor,
     DanaIndexXECService,
+    DanaIndexXRGService,
     DanaIndexXPIService
   ],
   exports: [Logger]
