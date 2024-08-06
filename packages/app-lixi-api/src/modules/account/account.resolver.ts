@@ -240,6 +240,163 @@ export class AccountResolver {
     } as IBasicPaginated<Account>;
   }
 
+  @UseGuards(GqlJwtAuthGuardByPass)
+  @Mutation(() => Account)
+  async updateAccount(@PageAccountEntity() account: Account, @Args('data') data: UpdateAccountInput) {
+    const { avatar: avatarId, cover: coverId, id } = data;
+
+    /*Account Avatar*/
+    if (avatarId) {
+      await this.prisma.$transaction(async prisma => {
+        //find account avatar image uploadable
+        const result = await prisma.imageUploadable.findFirst({
+          where: {
+            AND: [
+              {
+                account: {
+                  id: account.id
+                }
+              },
+              {
+                uploads: {
+                  every: {
+                    id: avatarId
+                  }
+                }
+              }
+            ]
+          }
+        });
+
+        if (result) {
+          //if found, disconnect all uploads and connect new one
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                set: []
+              }
+            }
+          });
+
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                connect: {
+                  id: avatarId
+                }
+              },
+              accountAvatar: {
+                connect: {
+                  id: account.id
+                }
+              },
+              type: ImageUploadableType.ACCOUNT_AVATAR
+            }
+          });
+
+          return result;
+        }
+      });
+    }
+
+    /*Account Cover*/
+    if (coverId) {
+      await this.prisma.$transaction(async prisma => {
+        //find page avatar image uploadable
+        const result = await prisma.imageUploadable.findFirst({
+          where: {
+            AND: [
+              {
+                account: {
+                  id: account.id
+                }
+              },
+              {
+                uploads: {
+                  every: {
+                    id: coverId
+                  }
+                }
+              }
+            ]
+          }
+        });
+
+        if (result) {
+          //if found, disconnect all uploads and connect new one
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                set: []
+              }
+            }
+          });
+
+          await prisma.imageUploadable.update({
+            where: {
+              id: result.id
+            },
+            data: {
+              uploads: {
+                connect: {
+                  id: coverId
+                }
+              },
+              accountCover: {
+                connect: {
+                  id: account.id
+                }
+              },
+              type: ImageUploadableType.ACCOUNT_COVER
+            }
+          });
+
+          return result;
+        }
+      });
+    }
+
+    const updatedAccount = await this.prisma.account.update({
+      where: {
+        id: id ?? _.toSafeInteger(account.id)
+      },
+      data: {
+        ..._.omit(data, ['id', 'avatar', 'cover']),
+        updatedAt: new Date()
+      }
+    });
+    await this.accountCacheService.removeByKeys([
+      updatedAccount.id.toString(),
+      updatedAccount.address,
+      updatedAccount.mnemonicHash!
+    ]);
+
+    //save to cache
+    const cachedAccount = await this.accountCacheService.getById(updatedAccount.id);
+    await this.accountCacheService.getByAddress(updatedAccount.address);
+
+    const result = _.omit(
+      {
+        ...cachedAccount
+      },
+      'encryptedMnemonic',
+      'encryptedSecret',
+      'mnemonicHash',
+      'notifications'
+    );
+    pubSub.publish('pageUpdated', { accountUpdated: result });
+    return result;
+  }
+
   @ResolveField('accountDana', () => AccountDana)
   async accountDana(@Parent() account: Account) {
     return this.accountLoader.batchAccountDanas.load(account.id);

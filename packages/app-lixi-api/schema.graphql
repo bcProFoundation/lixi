@@ -965,6 +965,7 @@ type Mutation {
   removeBookmark(data: RemoveBookmarkInput!): Bookmark!
   removePost(data: RemovePostInput!): Post!
   repost(data: RepostInput!): Boolean!
+  updateAccount(data: UpdateAccountInput!): Account!
   updatePage(data: UpdatePageInput!): Page!
   updatePost(data: UpdatePostInput!): Post!
 }
@@ -1714,6 +1715,18 @@ type TokenDana {
   token: Token!
   tokenId: String!
   version: Int!
+}
+
+input UpdateAccountInput {
+  avatar: String
+  birthday: DateTime
+  cover: String
+  createCommentFee: String
+  description: String
+  id: Int!
+  language: String
+  name: String
+  website: String
 }
 
 input UpdatePageInput {
