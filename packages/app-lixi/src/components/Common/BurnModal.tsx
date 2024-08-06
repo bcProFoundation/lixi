@@ -127,7 +127,7 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
   const hash = selectedAccount?.hash160;
   let selectedAccountHash = '';
   if (hash && (hash as any).data && typeof hash !== 'string') {
-    selectedAccountHash = (Buffer.from((hash as any).data).toString('hex'));
+    selectedAccountHash = Buffer.from((hash as any).data).toString('hex');
   } else if (hash) {
     selectedAccountHash = hash;
   }

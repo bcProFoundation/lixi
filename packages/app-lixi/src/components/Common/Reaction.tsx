@@ -149,7 +149,13 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
   const currentTheme = useSliceSelector(getCurrentThemes);
   const authentication = useContext(AuthenticationContext);
   const [itemOwnerHash, setItemOwnerHash] = useState<string>('');
-  const [selectedAccountHash, setSelectedAccountHash] = useState<string>('');
+  const hash = selectedAccount?.hash160;
+  let selectedAccountHash = '';
+  if (hash && (hash as any).data && typeof hash !== 'string') {
+    selectedAccountHash = Buffer.from((hash as any).data).toString('hex');
+  } else if (hash) {
+    selectedAccountHash = hash;
+  }
 
   const [burnAmountPerCoin, setBurnAmountPerCoin] = useState(0);
   const [coinBurned, setCoinBurned] = useState<Coin>(
@@ -173,17 +179,6 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
     };
     getOwner();
   }, [burnForType, dataItem]);
-
-  //get selectedAccountHash
-  useEffect(() => {
-    const hash: any = selectedAccount?.hash160;
-    //backend return hash160 is string or {type: 'Buffer', data: []}
-    if (typeof hash !== 'string') {
-      setSelectedAccountHash(Buffer.from(hash?.data).toString('hex'));
-      return;
-    }
-    setSelectedAccountHash(hash);
-  }, []);
 
   const burnValue: number = match(burnForType)
     .with(BurnForType.Post, () => (dataItem as PostQueryItem)?.dana?.danaReceivedScore)
