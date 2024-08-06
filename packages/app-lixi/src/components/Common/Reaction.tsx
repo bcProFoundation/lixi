@@ -27,7 +27,7 @@ import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { Coin } from '@generated/types.generated';
 import { useConvertDanaToCoinQuery } from '@store/dana/dana.api';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
-import { calBurnAmountWithFee, calBurnAmountWithoutFee } from 'src/utils/burnValueWithFee';
+import { calBurnAmountWithFee, calBurnAmountWithoutFee, getHashOwner } from 'src/utils/burnValueWithFee';
 
 const SpaceIconBurnHover = styled(Space)`
   min-height: 38px;
@@ -148,12 +148,12 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
   const [hovered, setHovered] = useState(false);
   const currentTheme = useSliceSelector(getCurrentThemes);
   const authentication = useContext(AuthenticationContext);
+  const [hashOwner, setHashOwner] = useState<string>('');
+  const [selectedHash, setSelectedHash] = useState<string>('');
 
   const [burnAmountPerCoin, setBurnAmountPerCoin] = useState(0);
   const [coinBurned, setCoinBurned] = useState<Coin>(
-    (coinInfo[selectedAccount?.coin ?? COIN.XPI].canBurn
-      ? selectedAccount?.coin ?? COIN.XPI
-      : COIN.XPI) as unknown as Coin
+    (coinInfo[selectedAccount?.coin]?.canBurn ? selectedAccount?.coin : COIN.XPI) as unknown as Coin
   );
   const { data: dataBurn } = useConvertDanaToCoinQuery({
     ConvertDanaInput: {
@@ -164,6 +164,26 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
   useEffect(() => {
     setBurnAmountPerCoin(dataBurn?.convertDanaToCoin ?? 0);
   }, [dataBurn]);
+
+  //get Owner
+  useEffect(() => {
+    const getOwner = async () => {
+      const hashOwner = await getHashOwner(dataItem, burnForType);
+      setHashOwner(hashOwner);
+    };
+    getOwner();
+  }, [burnForType, dataItem]);
+
+  //get selectedHash
+  useEffect(() => {
+    const hash: any = selectedAccount?.hash160;
+    //backend return hash160 is string or {type: 'Buffer', data: []}
+    if (typeof hash !== 'string') {
+      setSelectedHash(Buffer.from(hash?.data).toString('hex'));
+      return;
+    }
+    setSelectedHash(hash);
+  }, []);
 
   const burnValue: number = match(burnForType)
     .with(BurnForType.Post, () => (dataItem as PostQueryItem)?.dana?.danaReceivedScore)
@@ -246,7 +266,6 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
 
     hideReact();
   };
-
   const IconBurnCustom = (
     icon: string,
     colorBackground: string,
@@ -260,7 +279,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
       colorFilterIcon={colorFilterIcon}
       burnForType={burnForType}
       dataItem={dataItem}
-      burnValueWithFee={calBurnAmountWithFee(amountDana, burnAmountPerCoin, coinBurned === Coin.Xrg ? false : true)}
+      burnValueWithFee={calBurnAmountWithFee(amountDana, burnAmountPerCoin, coinBurned as unknown as COIN)}
       burnValueWithoutFee={calBurnAmountWithoutFee(
         amountDana,
         burnAmountPerCoin,
@@ -269,6 +288,8 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
       coinBurned={coinBurned.toString()}
       amountDana={amountDana}
       isUpBurn={isUpBurn}
+      selectedHash={selectedHash}
+      hashOwner={hashOwner}
       hideReact={hideReact}
     />
   );
@@ -351,13 +372,13 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           />
         </div>
         <HintMobile>
-          {Number(
-            calBurnAmountWithFee(
-              Number(OPTION_BURN_VALUE.DISLIKE),
-              burnAmountPerCoin,
-              coinBurned === Coin.Xrg ? false : true
-            )
-          )}
+          {selectedHash !== hashOwner
+            ? calBurnAmountWithFee(Number(OPTION_BURN_VALUE.DISLIKE), burnAmountPerCoin, coinBurned as unknown as COIN)
+            : calBurnAmountWithoutFee(
+                Number(OPTION_BURN_VALUE.DISLIKE),
+                burnAmountPerCoin,
+                coinBurned === Coin.Xrg ? false : true
+              )}
           <span>{coinInfo[coinBurned].ticker}</span>
         </HintMobile>
       </Popover>
@@ -372,13 +393,13 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           />
         </div>
         <HintMobile>
-          {Number(
-            calBurnAmountWithFee(
-              Number(OPTION_BURN_VALUE.LIKE),
-              burnAmountPerCoin,
-              coinBurned === Coin.Xrg ? false : true
-            )
-          )}
+          {selectedHash !== hashOwner
+            ? calBurnAmountWithFee(Number(OPTION_BURN_VALUE.DISLIKE), burnAmountPerCoin, coinBurned as unknown as COIN)
+            : calBurnAmountWithoutFee(
+                Number(OPTION_BURN_VALUE.DISLIKE),
+                burnAmountPerCoin,
+                coinBurned === Coin.Xrg ? false : true
+              )}
           <span>{coinInfo[coinBurned].ticker}</span>
         </HintMobile>
       </Popover>
@@ -394,13 +415,13 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           />
         </div>
         <HintMobile>
-          {Number(
-            calBurnAmountWithFee(
-              Number(OPTION_BURN_VALUE.LOVE),
-              burnAmountPerCoin,
-              coinBurned === Coin.Xrg ? false : true
-            )
-          )}
+          {selectedHash !== hashOwner
+            ? calBurnAmountWithFee(Number(OPTION_BURN_VALUE.DISLIKE), burnAmountPerCoin, coinBurned as unknown as COIN)
+            : calBurnAmountWithoutFee(
+                Number(OPTION_BURN_VALUE.DISLIKE),
+                burnAmountPerCoin,
+                coinBurned === Coin.Xrg ? false : true
+              )}
           <span>{coinInfo[coinBurned].ticker}</span>
         </HintMobile>
       </Popover>

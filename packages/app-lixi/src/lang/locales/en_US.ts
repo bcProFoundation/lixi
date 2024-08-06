@@ -45,6 +45,8 @@ export default {
   'burn.account': 'account',
   'burn.doneBurning': 'Burning completed!',
   'burn.sendDana': "You will pay <b>{cost} {coin}</b> (Excluding miner's fees).",
+  'burn.amountBurn': 'Dana fees: {amountBurn} {coin} for {amountDana} Dana.',
+  'burn.amountFee': 'Moderation fees: {amountFee} {coin} pay to owner.',
   'burn.owner': ' to {name} owner',
   'burn.feeMiner': "Miners' fees excluded",
   'burn.trans': 'Translation is enabled with {amount} Dana or more.',

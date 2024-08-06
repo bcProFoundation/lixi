@@ -321,16 +321,21 @@ const Comment = ({ post }: CommentProps) => {
   });
 
   const showTextComment = () => {
+    const cashDecimals =
+      (selectedAccount?.coin ?? COIN.XPI) === COIN.XRG
+        ? coinInfo[COIN.XRG].microCashDecimals
+        : coinInfo[selectedAccount?.coin].cashDecimals;
+    const commentFee = `${fromSmallestDenomination(coinInfo[selectedAccount?.coin ?? COIN.XPI].dustSats, cashDecimals)} ${coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker}`;
     if (post.page) {
       return post.page.createCommentFee != '0'
         ? intl.get('comment.writeCommentCoin', {
-            commentFee: `${post.page.createCommentFee}`
+            commentFee: `${commentFee}`
           })
         : intl.get('comment.writeCommentFree');
     } else if (post.account.createCommentFee && _.isNil(post.page)) {
       return post.account.createCommentFee != '0'
         ? intl.get('comment.writeCommentCoin', {
-            commentFee: `${post.account.createCommentFee}`
+            commentFee: `${commentFee}`
           })
         : intl.get('comment.writeCommentFree');
     } else {

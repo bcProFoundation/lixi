@@ -21,6 +21,8 @@ type IconBurnCustomProps = {
   amountDana: number;
   isUpBurn: boolean;
   coinBurned: string;
+  selectedHash: string;
+  hashOwner: string;
   hideReact: () => void;
 };
 
@@ -35,6 +37,8 @@ const IconBurnCustom = ({
   amountDana,
   isUpBurn,
   coinBurned,
+  hashOwner,
+  selectedHash,
   hideReact
 }: IconBurnCustomProps) => {
   const dispatch = useSliceDispatch();
@@ -80,7 +84,9 @@ const IconBurnCustom = ({
         setIsHover(false);
       }}
     >
-      <Tooltip title={`${burnValueWithFee} ${coinInfo[coinBurned].ticker}`}>
+      <Tooltip
+        title={`${selectedHash === hashOwner ? burnValueWithoutFee : burnValueWithFee} ${coinInfo[coinBurned].ticker}`}
+      >
         <StyledBurnIconHover
           src={`/images/${icon}`}
           style={{
