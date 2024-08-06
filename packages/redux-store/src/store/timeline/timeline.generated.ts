@@ -11,7 +11,7 @@
 
 import * as Types from '../../generated/types.generated';
 
-import { PostFieldsFragmentDoc } from '../post/posts.generated';
+import { PostFieldsFragmentDoc, OfferFieldsFragmentDoc } from '../post/posts.generated';
 import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
 import { api } from '@store/baseApi';
 export type TimelineQueryVariables = Types.Exact<{
@@ -77,6 +77,7 @@ export type TimelineQuery = {
         danaReceivedScore: number;
         version: number;
       } | null;
+      boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
       translations?: Array<{
         __typename?: 'PostTranslation';
         id: string;
@@ -118,6 +119,19 @@ export type TimelineQuery = {
             pollDanaScore: number;
             accountId: number;
           }> | null;
+        }>;
+      } | null;
+      offer?: {
+        __typename?: 'Offer';
+        postId: string;
+        publicKey: string;
+        message: string;
+        price: string;
+        orderLimitMin: number;
+        orderLimitMax: number;
+        paymentMethods: Array<{
+          __typename?: 'OfferPaymentMethod';
+          paymentMethod: { __typename?: 'PaymentMethod'; name: string };
         }>;
       } | null;
     };
@@ -195,6 +209,7 @@ export type HomeTimelineQuery = {
             danaReceivedScore: number;
             version: number;
           } | null;
+          boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
           translations?: Array<{
             __typename?: 'PostTranslation';
             id: string;
@@ -236,6 +251,19 @@ export type HomeTimelineQuery = {
                 pollDanaScore: number;
                 accountId: number;
               }> | null;
+            }>;
+          } | null;
+          offer?: {
+            __typename?: 'Offer';
+            postId: string;
+            publicKey: string;
+            message: string;
+            price: string;
+            orderLimitMin: number;
+            orderLimitMax: number;
+            paymentMethods: Array<{
+              __typename?: 'OfferPaymentMethod';
+              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
             }>;
           } | null;
         };
@@ -316,6 +344,7 @@ export type ProfileTimelineQuery = {
             danaReceivedScore: number;
             version: number;
           } | null;
+          boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
           translations?: Array<{
             __typename?: 'PostTranslation';
             id: string;
@@ -357,6 +386,19 @@ export type ProfileTimelineQuery = {
                 pollDanaScore: number;
                 accountId: number;
               }> | null;
+            }>;
+          } | null;
+          offer?: {
+            __typename?: 'Offer';
+            postId: string;
+            publicKey: string;
+            message: string;
+            price: string;
+            orderLimitMin: number;
+            orderLimitMax: number;
+            paymentMethods: Array<{
+              __typename?: 'OfferPaymentMethod';
+              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
             }>;
           } | null;
         };
@@ -438,6 +480,7 @@ export type ProfileTimelineByTimeQuery = {
             danaReceivedScore: number;
             version: number;
           } | null;
+          boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
           translations?: Array<{
             __typename?: 'PostTranslation';
             id: string;
@@ -479,6 +522,19 @@ export type ProfileTimelineByTimeQuery = {
                 pollDanaScore: number;
                 accountId: number;
               }> | null;
+            }>;
+          } | null;
+          offer?: {
+            __typename?: 'Offer';
+            postId: string;
+            publicKey: string;
+            message: string;
+            price: string;
+            orderLimitMin: number;
+            orderLimitMax: number;
+            paymentMethods: Array<{
+              __typename?: 'OfferPaymentMethod';
+              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
             }>;
           } | null;
         };
@@ -559,6 +615,7 @@ export type PageTimelineQuery = {
             danaReceivedScore: number;
             version: number;
           } | null;
+          boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
           translations?: Array<{
             __typename?: 'PostTranslation';
             id: string;
@@ -600,6 +657,19 @@ export type PageTimelineQuery = {
                 pollDanaScore: number;
                 accountId: number;
               }> | null;
+            }>;
+          } | null;
+          offer?: {
+            __typename?: 'Offer';
+            postId: string;
+            publicKey: string;
+            message: string;
+            price: string;
+            orderLimitMin: number;
+            orderLimitMax: number;
+            paymentMethods: Array<{
+              __typename?: 'OfferPaymentMethod';
+              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
             }>;
           } | null;
         };
@@ -681,6 +751,7 @@ export type PageTimelineByTimeQuery = {
             danaReceivedScore: number;
             version: number;
           } | null;
+          boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
           translations?: Array<{
             __typename?: 'PostTranslation';
             id: string;
@@ -722,6 +793,19 @@ export type PageTimelineByTimeQuery = {
                 pollDanaScore: number;
                 accountId: number;
               }> | null;
+            }>;
+          } | null;
+          offer?: {
+            __typename?: 'Offer';
+            postId: string;
+            publicKey: string;
+            message: string;
+            price: string;
+            orderLimitMin: number;
+            orderLimitMax: number;
+            paymentMethods: Array<{
+              __typename?: 'OfferPaymentMethod';
+              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
             }>;
           } | null;
         };
@@ -802,6 +886,7 @@ export type TokenTimelineQuery = {
             danaReceivedScore: number;
             version: number;
           } | null;
+          boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
           translations?: Array<{
             __typename?: 'PostTranslation';
             id: string;
@@ -843,6 +928,19 @@ export type TokenTimelineQuery = {
                 pollDanaScore: number;
                 accountId: number;
               }> | null;
+            }>;
+          } | null;
+          offer?: {
+            __typename?: 'Offer';
+            postId: string;
+            publicKey: string;
+            message: string;
+            price: string;
+            orderLimitMin: number;
+            orderLimitMax: number;
+            paymentMethods: Array<{
+              __typename?: 'OfferPaymentMethod';
+              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
             }>;
           } | null;
         };
@@ -924,6 +1022,7 @@ export type TokenTimelineByTimeQuery = {
             danaReceivedScore: number;
             version: number;
           } | null;
+          boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
           translations?: Array<{
             __typename?: 'PostTranslation';
             id: string;
@@ -965,6 +1064,19 @@ export type TokenTimelineByTimeQuery = {
                 pollDanaScore: number;
                 accountId: number;
               }> | null;
+            }>;
+          } | null;
+          offer?: {
+            __typename?: 'Offer';
+            postId: string;
+            publicKey: string;
+            message: string;
+            price: string;
+            orderLimitMin: number;
+            orderLimitMax: number;
+            paymentMethods: Array<{
+              __typename?: 'OfferPaymentMethod';
+              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
             }>;
           } | null;
         };

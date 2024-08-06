@@ -1,4 +1,4 @@
-import { Account, ITimelineable, PostDana, Repost } from '@bcpros/lixi-models';
+import { Account, ITimelineable, PostBoost, PostDana, Repost } from '@bcpros/lixi-models';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
@@ -12,6 +12,7 @@ import { PageCacheService } from './page-cache.service';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { PostDanaCacheService } from './post-dana-cache.service';
 import { BookmarkCacheService } from '../bookmark/bookmark-cache.service';
+import { PostBoostCacheService } from './post-boost-cache.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class TimelineableLoader {
@@ -21,6 +22,7 @@ export default class TimelineableLoader {
     private readonly pageCacheService: PageCacheService,
     private readonly accountCacheService: AccountCacheService,
     private readonly postDanaCacheService: PostDanaCacheService,
+    private readonly postBoostCacheService: PostBoostCacheService,
     private readonly followCacheService: FollowCacheService,
     private readonly danaViewScoreService: DanaViewScoreService,
     private readonly bookmarkCacheService: BookmarkCacheService
@@ -129,6 +131,15 @@ export default class TimelineableLoader {
     const danas = await this.postDanaCacheService.getPostDanas(postIds);
     const data = postIds.map((postId, index) => {
       return danas[index] ?? new PostDana({});
+    });
+    return Promise.resolve(data);
+  });
+
+  public readonly batchBoosts = new DataLoader<string, PostBoost>(async (ids: readonly string[]) => {
+    const postIds = ids as unknown as string[];
+    const boosts = await this.postBoostCacheService.getPostBoosts(postIds);
+    const data = postIds.map((postId, index) => {
+      return boosts[index] ?? new PostBoost({});
     });
     return Promise.resolve(data);
   });

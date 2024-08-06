@@ -33,7 +33,8 @@ export enum CommentType {
   POST = 'POST',
   EVENT = 'EVENT',
   POLL = 'POLL',
-  PRODUCT = 'PRODUCT'
+  PRODUCT = 'PRODUCT',
+  OFFER = 'OFFER'
 }
 
 registerEnumType(CommentType, {

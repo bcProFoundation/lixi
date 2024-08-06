@@ -12,6 +12,7 @@ import BCHJS from '@bcpros/xpi-js';
 import { XPIJS } from '../wallet/wallet.constants';
 import { template } from 'src/utils/stringTemplate';
 import { PollCacheService } from './polls/poll-cache.service';
+import { OfferCacheService } from '../escrow/offer-cache.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class PostLoader {
@@ -24,6 +25,7 @@ export default class PostLoader {
     private readonly pageCacheService: PageCacheService,
     private readonly accountCacheService: AccountCacheService,
     private readonly pollCacheService: PollCacheService,
+    private readonly offerCacheService: OfferCacheService,
     @Inject(XPIJS) private XPI: BCHJS
   ) {}
 
@@ -99,6 +101,19 @@ export default class PostLoader {
 
     polls &&
       polls.map(item => {
+        resultMap.set(item?.postId, item);
+      });
+
+    return postIds.map(item => resultMap.get(item) ?? undefined);
+  });
+
+  public readonly batchOffers = new DataLoader(async (postIds: readonly string[]) => {
+    const ids = (postIds as unknown as string[]) ?? [];
+    const resultMap = new Map();
+    const offers = await this.offerCacheService.getByIds(ids);
+
+    offers &&
+      offers.map(item => {
         resultMap.set(item?.postId, item);
       });
 

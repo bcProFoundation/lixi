@@ -76,6 +76,7 @@ export type PostQuery = {
       danaReceivedScore: number;
       version: number;
     } | null;
+    boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -117,6 +118,19 @@ export type PostQuery = {
           pollDanaScore: number;
           accountId: number;
         }> | null;
+      }>;
+    } | null;
+    offer?: {
+      __typename?: 'Offer';
+      postId: string;
+      publicKey: string;
+      message: string;
+      price: string;
+      orderLimitMin: number;
+      orderLimitMax: number;
+      paymentMethods: Array<{
+        __typename?: 'OfferPaymentMethod';
+        paymentMethod: { __typename?: 'PaymentMethod'; name: string };
       }>;
     } | null;
   };
@@ -196,6 +210,7 @@ export type PostsByPageIdQuery = {
           danaReceivedScore: number;
           version: number;
         } | null;
+        boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -237,6 +252,19 @@ export type PostsByPageIdQuery = {
               pollDanaScore: number;
               accountId: number;
             }> | null;
+          }>;
+        } | null;
+        offer?: {
+          __typename?: 'Offer';
+          postId: string;
+          publicKey: string;
+          message: string;
+          price: string;
+          orderLimitMin: number;
+          orderLimitMax: number;
+          paymentMethods: Array<{
+            __typename?: 'OfferPaymentMethod';
+            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
           }>;
         } | null;
       };
@@ -324,6 +352,7 @@ export type PostsByUserIdQuery = {
           danaReceivedScore: number;
           version: number;
         } | null;
+        boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -365,6 +394,19 @@ export type PostsByUserIdQuery = {
               pollDanaScore: number;
               accountId: number;
             }> | null;
+          }>;
+        } | null;
+        offer?: {
+          __typename?: 'Offer';
+          postId: string;
+          publicKey: string;
+          message: string;
+          price: string;
+          orderLimitMin: number;
+          orderLimitMax: number;
+          paymentMethods: Array<{
+            __typename?: 'OfferPaymentMethod';
+            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
           }>;
         } | null;
       };
@@ -452,6 +494,7 @@ export type PostsByHashtagIdQuery = {
           danaReceivedScore: number;
           version: number;
         } | null;
+        boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -493,6 +536,19 @@ export type PostsByHashtagIdQuery = {
               pollDanaScore: number;
               accountId: number;
             }> | null;
+          }>;
+        } | null;
+        offer?: {
+          __typename?: 'Offer';
+          postId: string;
+          publicKey: string;
+          message: string;
+          price: string;
+          orderLimitMin: number;
+          orderLimitMax: number;
+          paymentMethods: Array<{
+            __typename?: 'OfferPaymentMethod';
+            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
           }>;
         } | null;
       };
@@ -580,6 +636,7 @@ export type PostsByTokenIdQuery = {
           danaReceivedScore: number;
           version: number;
         } | null;
+        boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -621,6 +678,19 @@ export type PostsByTokenIdQuery = {
               pollDanaScore: number;
               accountId: number;
             }> | null;
+          }>;
+        } | null;
+        offer?: {
+          __typename?: 'Offer';
+          postId: string;
+          publicKey: string;
+          message: string;
+          price: string;
+          orderLimitMin: number;
+          orderLimitMax: number;
+          paymentMethods: Array<{
+            __typename?: 'OfferPaymentMethod';
+            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
           }>;
         } | null;
       };
@@ -700,6 +770,7 @@ export type PostsBySearchQuery = {
           danaReceivedScore: number;
           version: number;
         } | null;
+        boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -741,6 +812,19 @@ export type PostsBySearchQuery = {
               pollDanaScore: number;
               accountId: number;
             }> | null;
+          }>;
+        } | null;
+        offer?: {
+          __typename?: 'Offer';
+          postId: string;
+          publicKey: string;
+          message: string;
+          price: string;
+          orderLimitMin: number;
+          orderLimitMax: number;
+          paymentMethods: Array<{
+            __typename?: 'OfferPaymentMethod';
+            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
           }>;
         } | null;
       };
@@ -822,6 +906,7 @@ export type PostsBySearchWithHashtagQuery = {
           danaReceivedScore: number;
           version: number;
         } | null;
+        boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -863,6 +948,19 @@ export type PostsBySearchWithHashtagQuery = {
               pollDanaScore: number;
               accountId: number;
             }> | null;
+          }>;
+        } | null;
+        offer?: {
+          __typename?: 'Offer';
+          postId: string;
+          publicKey: string;
+          message: string;
+          price: string;
+          orderLimitMin: number;
+          orderLimitMax: number;
+          paymentMethods: Array<{
+            __typename?: 'OfferPaymentMethod';
+            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
           }>;
         } | null;
       };
@@ -945,6 +1043,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
           danaReceivedScore: number;
           version: number;
         } | null;
+        boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -986,6 +1085,19 @@ export type PostsBySearchWithHashtagAtPageQuery = {
               pollDanaScore: number;
               accountId: number;
             }> | null;
+          }>;
+        } | null;
+        offer?: {
+          __typename?: 'Offer';
+          postId: string;
+          publicKey: string;
+          message: string;
+          price: string;
+          orderLimitMin: number;
+          orderLimitMax: number;
+          paymentMethods: Array<{
+            __typename?: 'OfferPaymentMethod';
+            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
           }>;
         } | null;
       };
@@ -1068,6 +1180,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
           danaReceivedScore: number;
           version: number;
         } | null;
+        boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -1111,6 +1224,19 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
             }> | null;
           }>;
         } | null;
+        offer?: {
+          __typename?: 'Offer';
+          postId: string;
+          publicKey: string;
+          message: string;
+          price: string;
+          orderLimitMin: number;
+          orderLimitMax: number;
+          paymentMethods: Array<{
+            __typename?: 'OfferPaymentMethod';
+            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+          }>;
+        } | null;
       };
     }> | null;
     pageInfo: {
@@ -1144,6 +1270,20 @@ export type PollFieldsFragment = {
       pollDanaScore: number;
       accountId: number;
     }> | null;
+  }>;
+};
+
+export type OfferFieldsFragment = {
+  __typename?: 'Offer';
+  postId: string;
+  publicKey: string;
+  message: string;
+  price: string;
+  orderLimitMin: number;
+  orderLimitMax: number;
+  paymentMethods: Array<{
+    __typename?: 'OfferPaymentMethod';
+    paymentMethod: { __typename?: 'PaymentMethod'; name: string };
   }>;
 };
 
@@ -1201,6 +1341,7 @@ export type PostFieldsFragment = {
     danaReceivedScore: number;
     version: number;
   } | null;
+  boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
   translations?: Array<{
     __typename?: 'PostTranslation';
     id: string;
@@ -1242,6 +1383,19 @@ export type PostFieldsFragment = {
         pollDanaScore: number;
         accountId: number;
       }> | null;
+    }>;
+  } | null;
+  offer?: {
+    __typename?: 'Offer';
+    postId: string;
+    publicKey: string;
+    message: string;
+    price: string;
+    orderLimitMin: number;
+    orderLimitMax: number;
+    paymentMethods: Array<{
+      __typename?: 'OfferPaymentMethod';
+      paymentMethod: { __typename?: 'PaymentMethod'; name: string };
     }>;
   } | null;
 };
@@ -1295,6 +1449,7 @@ export type PostMeiliFieldsFragment = {
     danaReceivedScore: number;
     version: number;
   } | null;
+  boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
   translations?: Array<{
     __typename?: 'PostTranslation';
     id: string;
@@ -1336,6 +1491,19 @@ export type PostMeiliFieldsFragment = {
         pollDanaScore: number;
         accountId: number;
       }> | null;
+    }>;
+  } | null;
+  offer?: {
+    __typename?: 'Offer';
+    postId: string;
+    publicKey: string;
+    message: string;
+    price: string;
+    orderLimitMin: number;
+    orderLimitMax: number;
+    paymentMethods: Array<{
+      __typename?: 'OfferPaymentMethod';
+      paymentMethod: { __typename?: 'PaymentMethod'; name: string };
     }>;
   } | null;
 };
@@ -1400,6 +1568,7 @@ export type CreatePostMutation = {
       danaReceivedScore: number;
       version: number;
     } | null;
+    boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -1441,6 +1610,19 @@ export type CreatePostMutation = {
           pollDanaScore: number;
           accountId: number;
         }> | null;
+      }>;
+    } | null;
+    offer?: {
+      __typename?: 'Offer';
+      postId: string;
+      publicKey: string;
+      message: string;
+      price: string;
+      orderLimitMin: number;
+      orderLimitMax: number;
+      paymentMethods: Array<{
+        __typename?: 'OfferPaymentMethod';
+        paymentMethod: { __typename?: 'PaymentMethod'; name: string };
       }>;
     } | null;
   };
@@ -1506,6 +1688,7 @@ export type UpdatePostMutation = {
       danaReceivedScore: number;
       version: number;
     } | null;
+    boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -1547,6 +1730,19 @@ export type UpdatePostMutation = {
           pollDanaScore: number;
           accountId: number;
         }> | null;
+      }>;
+    } | null;
+    offer?: {
+      __typename?: 'Offer';
+      postId: string;
+      publicKey: string;
+      message: string;
+      price: string;
+      orderLimitMin: number;
+      orderLimitMax: number;
+      paymentMethods: Array<{
+        __typename?: 'OfferPaymentMethod';
+        paymentMethod: { __typename?: 'PaymentMethod'; name: string };
       }>;
     } | null;
   };
@@ -1618,6 +1814,7 @@ export type RemovePostMutation = {
       danaReceivedScore: number;
       version: number;
     } | null;
+    boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -1661,6 +1858,19 @@ export type RemovePostMutation = {
         }> | null;
       }>;
     } | null;
+    offer?: {
+      __typename?: 'Offer';
+      postId: string;
+      publicKey: string;
+      message: string;
+      price: string;
+      orderLimitMin: number;
+      orderLimitMax: number;
+      paymentMethods: Array<{
+        __typename?: 'OfferPaymentMethod';
+        paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+      }>;
+    } | null;
   };
 };
 
@@ -1682,6 +1892,21 @@ export const PollFieldsFragmentDoc = `
     pollAnswerOnAccount {
       pollDanaScore
       accountId
+    }
+  }
+}
+    `;
+export const OfferFieldsFragmentDoc = `
+    fragment OfferFields on Offer {
+  postId
+  publicKey
+  message
+  price
+  orderLimitMin
+  orderLimitMax
+  paymentMethods {
+    paymentMethod {
+      name
     }
   }
 }
@@ -1737,6 +1962,9 @@ export const PostFieldsFragmentDoc = `
     danaReceivedScore
     version
   }
+  boostScore {
+    boostScore
+  }
   totalComments
   commentableId
   createdAt
@@ -1769,8 +1997,12 @@ export const PostFieldsFragmentDoc = `
   poll {
     ...PollFields
   }
+  offer {
+    ...OfferFields
+  }
 }
-    ${PollFieldsFragmentDoc}`;
+    ${PollFieldsFragmentDoc}
+${OfferFieldsFragmentDoc}`;
 export const PostMeiliFieldsFragmentDoc = `
     fragment PostMeiliFields on Post {
   id
@@ -1818,6 +2050,9 @@ export const PostMeiliFieldsFragmentDoc = `
     danaReceivedScore
     version
   }
+  boostScore {
+    boostScore
+  }
   totalComments
   createdAt
   updatedAt
@@ -1849,8 +2084,12 @@ export const PostMeiliFieldsFragmentDoc = `
   poll {
     ...PollFields
   }
+  offer {
+    ...OfferFields
+  }
 }
-    ${PollFieldsFragmentDoc}`;
+    ${PollFieldsFragmentDoc}
+${OfferFieldsFragmentDoc}`;
 export const PostDocument = `
     query Post($id: String!) {
   post(id: $id) {

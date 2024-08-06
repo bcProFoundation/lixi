@@ -922,5 +922,8 @@ export default {
   'poll.selectType': 'Select-type ',
   'poll.canAdd': 'User can add option',
   'poll.vote': 'Vote',
-  'poll.requireDana': 'Required Dana to vote.'
+  'poll.requireDana': 'Required Dana to vote.',
+
+  /*22. Escrow */
+  'escrow.unablegetPaymentMethod': 'Unable to get paymentMethod'
 };

@@ -16,6 +16,7 @@ import { PageState } from './page';
 import { TokenState } from './token';
 import { CountriesState, StatesState } from './country';
 import { PageCategory } from '@bcpros/lixi-models/lib/pageCategory';
+import { PaymentMethodType } from '@bcpros/lixi-models/lib/paymentMethod';
 import { EntityState } from '@reduxjs/toolkit';
 import { BurnState } from './burn';
 import { PageMessageSessionState } from './message';
@@ -44,6 +45,9 @@ export type LixiStoreStateInterface = {
   states: StatesState;
   categories: EntityState<PageCategory, number> & {
     selectedCategoryId: number;
+  };
+  paymentMethods: EntityState<PaymentMethodType, number> & {
+    selectedPaymentMethodId: number;
   };
   burn: BurnState;
   pageMessage: PageMessageSessionState;

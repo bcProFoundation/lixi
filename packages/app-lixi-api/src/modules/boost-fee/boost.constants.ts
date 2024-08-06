@@ -1,0 +1,1 @@
+export const BOOST_FANOUT_QUEUE = 'BOOST_FANOUT_QUEUE';

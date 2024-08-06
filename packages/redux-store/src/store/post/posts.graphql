@@ -290,6 +290,20 @@ fragment PollFields on Poll {
   }
 }
 
+fragment OfferFields on Offer {
+  postId
+  publicKey
+  message
+  price
+  orderLimitMin
+  orderLimitMax
+  paymentMethods {
+    paymentMethod {
+      name
+    }
+  }
+}
+
 fragment PostFields on Post {
   id
   content
@@ -340,6 +354,9 @@ fragment PostFields on Post {
     danaReceivedScore
     version
   }
+  boostScore {
+    boostScore
+  }
   totalComments
   commentableId
   createdAt
@@ -371,6 +388,9 @@ fragment PostFields on Post {
   burnedByOthers
   poll {
     ...PollFields
+  }
+  offer {
+    ...OfferFields
   }
 }
 
@@ -420,6 +440,9 @@ fragment PostMeiliFields on Post {
     danaReceivedScore
     version
   }
+  boostScore {
+    boostScore
+  }
   totalComments
   createdAt
   updatedAt
@@ -450,6 +473,9 @@ fragment PostMeiliFields on Post {
   burnedByOthers
   poll {
     ...PollFields
+  }
+  offer {
+    ...OfferFields
   }
 }
 

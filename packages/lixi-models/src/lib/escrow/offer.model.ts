@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
@@ -6,38 +6,30 @@ import { COIN } from '../../constants/coins/coin';
 
 import { EscrowOrder } from './escrow-order.model';
 import { OfferPaymentMethod } from './offer-payment-method.model';
+import { Nullable } from '../nullable';
 
 @ObjectType()
 export class Offer {
-  @Field(() => ID)
-  id: string;
+  @Field(() => String)
+  postId: string;
 
   @Field(() => String)
   publicKey: string;
 
   @Field(() => String)
-  title: string;
+  message: string;
 
-  @Field(() => String, { nullable: true })
-  @IsOptional()
-  description?: string;
-
-  @Field(() => Number)
-  price: number;
-
-  @Field(() => Number)
-  amount: number;
+  @Field(() => String)
+  price: string;
 
   @Field(() => COIN)
   coin: COIN;
 
-  @Field(() => Number, { nullable: true })
-  @IsOptional()
-  orderLimitMin?: number;
+  @Field(() => Number)
+  orderLimitMin: number;
 
-  @Field(() => Number, { nullable: true })
-  @IsOptional()
-  orderLimitMax?: number;
+  @Field(() => Number)
+  orderLimitMax: number;
 
   @Field(() => OfferType)
   type: OfferType;
@@ -50,7 +42,7 @@ export class Offer {
 
   @Field(() => String, { nullable: true })
   @IsOptional()
-  location?: string;
+  location?: Nullable<string>;
 
   @Field(() => [EscrowOrder], { nullable: true })
   @IsOptional()
@@ -65,6 +57,10 @@ export class Offer {
     description: 'Identifies the date and time when the object was last updated.'
   })
   updatedAt: Date;
+
+  constructor(partial: Partial<Offer>) {
+    Object.assign(this, partial);
+  }
 }
 
 export enum OfferType {

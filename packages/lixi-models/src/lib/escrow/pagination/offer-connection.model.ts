@@ -1,7 +1,7 @@
 import { ObjectType } from '@nestjs/graphql';
 
-import { Paginated } from '../../../core/pagination/pagination';
+import { BasicPaginated } from '../../../core/pagination/basic.paginated.type';
 import { Offer } from '../offer.model';
 
 @ObjectType()
-export class OfferConnection extends Paginated(Offer) {}
+export class OfferBasicConnection extends BasicPaginated(Offer) {}
