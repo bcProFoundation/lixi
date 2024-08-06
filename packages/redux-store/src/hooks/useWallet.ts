@@ -71,6 +71,9 @@ const useWallet = () => {
       case COIN.XEC:
         accountCoin = 'xec';
         break;
+      case COIN.XRG:
+        accountCoin = 'xrg';
+        break;
       default:
         accountCoin = 'xpi';
         break;
@@ -100,6 +103,16 @@ const useWallet = () => {
     }
 
     return walletPaths;
+  };
+
+  const getXecWalletPublicKey = async (mnemonic: string): Promise<string> => {
+    const rootSeedBuffer: Buffer = await XPI.Mnemonic.toSeed(mnemonic);
+    const masterHDNode = XPI.HDNode.fromSeed(rootSeedBuffer);
+    const hdPath = `m/44'/1899'/0'/0/0`;
+    const childNode = XPI.HDNode.derivePath(masterHDNode, hdPath);
+    const publicKey = XPI.HDNode.toPublicKey(childNode).toString('hex');
+
+    return publicKey;
   };
 
   const deriveAccount = async (XPI: BCHJS, { masterHDNode, path }) => {
@@ -399,6 +412,9 @@ const useWallet = () => {
       case COIN.XEC:
         currentCoinAddress = selectedWalletPath?.cashAddress;
         break;
+      case COIN.XRG:
+        currentCoinAddress = selectedWalletPath?.cashAddress;
+        break;
       default:
         currentCoinAddress = selectedWalletPath?.xAddress;
         break;
@@ -452,7 +468,8 @@ const useWallet = () => {
     deriveAccount,
     getWalletPathDetails,
     validateMnemonic,
-    getUtxosByCoin
+    getUtxosByCoin,
+    getXecWalletPublicKey
   } as WalletContextValue;
 };
 

@@ -36,6 +36,7 @@ type Account {
   rootCoin: Coin
   secondaryLanguage: String
   secret: String
+  telegramId: String
   totalDanaViewScore: Int
 
   """Identifies the date and time when the object was last updated."""
@@ -225,6 +226,7 @@ input ClosePageMessageSessionInput {
 enum Coin {
   XEC
   XPI
+  XRG
 }
 
 type Comment {
@@ -1556,7 +1558,7 @@ type Query {
   checkIfFollowToken(tokenId: String): Boolean!
   comment(id: String!): Comment!
   commentsToCommentableId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: CommentOrder, skip: Int): CommentConnection!
-  convertDanaToCoin(ConvertDanaInput: ConvertDana!): Int!
+  convertDanaToCoin(ConvertDanaInput: ConvertDana!): Float!
   dispute(id: String!): Dispute!
   escrowOrder(id: String!): EscrowOrder!
   getAccountByAddress(address: String!): Account!

@@ -22,6 +22,10 @@ function* activateWalletSaga(action: PayloadAction<{ mnemonic: string; coin: COI
         defaultPath = "m/44'/1899'/0'/0/0";
         walletPaths = yield call(Wallet.getWalletPathDetails, mnemonic, [defaultPath]);
         break;
+      case COIN.XRG:
+        defaultPath = "m/44'/2137'/0'/0/0";
+        walletPaths = yield call(Wallet.getWalletPathDetails, mnemonic, [defaultPath]);
+        break;
       default:
         defaultPath = "m/44'/10605'/0'/0/0";
         walletPaths = yield call(Wallet.getWalletPathDetails, mnemonic, [defaultPath]);

@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import type { UploadFile } from 'antd/es/upload/interface';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { setUpload } from '@store/account/actions';
-import axiosClient from '@utils/axiosClient';
+import { axiosClient } from '@utils/axiosClient';
 import { UPLOAD_API_S3_MULTIPLE } from '@bcpros/lixi-models/constants/upload';
 import _ from 'lodash';
 import { ButtonType } from 'antd/lib/button';

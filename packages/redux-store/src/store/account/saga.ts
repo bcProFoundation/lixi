@@ -98,8 +98,8 @@ const nameConfigGenerator: Config = {
  * Generate a account with random encryption password
  * @param action The data to needed generate a account
  */
-function* generateAccountSaga(action: PayloadAction<{ coin: COIN }>) {
-  const { coin } = action.payload;
+function* generateAccountSaga(action: PayloadAction<{ coin: COIN; telegramId: string }>) {
+  const { coin, telegramId } = action.payload;
 
   const xpiContext = yield getContext('useXPI');
   const { getXPI } = xpiContext();
@@ -121,7 +121,8 @@ function* generateAccountSaga(action: PayloadAction<{ coin: COIN }>) {
     encryptedMnemonic,
     mnemonicHash,
     language: locale,
-    rootCoin: coin ? coin : COIN.XPI
+    rootCoin: coin ? coin : COIN.XPI,
+    telegramId: telegramId || undefined
   };
 
   yield put(postAccount(account));

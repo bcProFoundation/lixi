@@ -8,6 +8,7 @@ export interface CreateAccountCommand {
   mnemonicHash: string;
   language?: string;
   rootCoin?: COIN;
+  telegramId?: string;
 }
 
 export interface ImportAccountCommand {

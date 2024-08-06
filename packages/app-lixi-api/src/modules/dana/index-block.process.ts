@@ -19,6 +19,7 @@ export class IndexBlockProcessor extends WorkerHost {
 
   constructor(
     @InjectChronikClient('xec') private chronikXEC: ChronikClient,
+    @InjectChronikClient('xrg') private chronikXRG: ChronikClient,
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
     @InjectRedis() private readonly redis: Redis,
     private readonly danaWsService: DanaWsService
@@ -49,6 +50,14 @@ export class IndexBlockProcessor extends WorkerHost {
           if (highestXEC != startIndex) {
             await this.danaWsService.handleMultipleBlock(startIndex, highestXEC, coin);
             await this.redis.set(keyHighestBlockCoin, highestXEC);
+          }
+          break;
+        case COIN.XRG:
+          const { tipHeight: highestXRG } = await this.chronikXRG.blockchainInfo();
+          //Index new block generated when we index from first
+          if (highestXRG != startIndex) {
+            await this.danaWsService.handleMultipleBlock(startIndex, highestXRG, coin);
+            await this.redis.set(keyHighestBlockCoin, highestXRG);
           }
           break;
       }

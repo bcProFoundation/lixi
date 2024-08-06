@@ -385,9 +385,10 @@ export const parseChronikTx = async (
   }
 
   // Convert from sats to coin
-  xpiAmount = xpiAmount.shiftedBy(-1 * coinInfo[coin ?? COIN.XPI].cashDecimals);
+  const cashDecimals = coin === COIN.XRG ? coinInfo[coin].microCashDecimals : coinInfo[coin ?? COIN.XPI].cashDecimals;
+  xpiAmount = xpiAmount.shiftedBy(-1 * cashDecimals);
   if (isBurn) {
-    xpiBurnAmount = xpiBurnAmount.shiftedBy(-1 * coinInfo[coin ?? COIN.XPI].cashDecimals);
+    xpiBurnAmount = xpiBurnAmount.shiftedBy(-1 * cashDecimals);
   }
   // Convert from BigNumber to string
   const xpiAmountString = xpiAmount.toString();

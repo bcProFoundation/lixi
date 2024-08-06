@@ -2,7 +2,7 @@ import { Account } from '@bcpros/lixi-models/lib/account/account.model';
 import { getAllAccounts, getSelectedAccount } from '@store/account/selectors';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getAllNotifications } from '@store/notification/selectors';
-import axiosClient from '@utils/axiosClient';
+import { axiosClient } from '@utils/axiosClient';
 import { Layout, Space, message } from 'antd';
 import classNames from 'classnames';
 import Link from 'next/link';

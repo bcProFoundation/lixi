@@ -141,7 +141,7 @@ const PageMessageLixiModal = ({ account, page, wallet, classStyle }: PageMessage
                   return (
                     fromSmallestDenomination(
                       wallet.balances.totalBalanceInSatoshis,
-                      selectedAccount?.coin ?? COIN.XPI
+                      coinInfo[selectedAccount?.coin ?? COIN.XPI].cashDecimals
                     ) >= parseFloat(value) || `Not enough ${selectedAccount?.coin ?? COIN.XPI}`
                   );
                 },
@@ -150,7 +150,7 @@ const PageMessageLixiModal = ({ account, page, wallet, classStyle }: PageMessage
                     parseFloat(value) >=
                       fromSmallestDenomination(
                         coinInfo[selectedAccount?.coin ?? COIN.XPI].etokenSats,
-                        selectedAccount?.coin ?? COIN.XPI
+                        coinInfo[selectedAccount?.coin ?? COIN.XPI].cashDecimals
                       ) || `Must greater than dust`
                   );
                 }

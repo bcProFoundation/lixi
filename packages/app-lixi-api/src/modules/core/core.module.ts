@@ -95,7 +95,7 @@ const baseCorsConfig: CorsOptions = {
       imports: [ChronikModule],
       useFactory: () => {
         return {
-          currencies: ['xpi', 'xec']
+          currencies: ['xpi', 'xec', 'xrg']
         };
       }
     })

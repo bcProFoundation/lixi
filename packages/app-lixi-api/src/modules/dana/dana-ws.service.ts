@@ -97,7 +97,15 @@ export class DanaWsService implements OnModuleInit {
       onMessage: async (msg: SubscribeMsg) => {
         const { type } = msg;
         if (type === 'BlockConnected') {
+          const keyHighestBlockCoin = template(this.keyIndexHighestBlockData, { coin: COIN.XRG });
           const blockHighestInfo = (await this.chronikXRG.block(msg.blockHash)).blockInfo;
+          const currentIndexHighest = Number((await this.redis.get(keyHighestBlockCoin)) ?? '1'); //ergon start block at 1
+
+          //index new block
+          if (blockHighestInfo.height < currentIndexHighest + 10) {
+            this.handleNewBlock(blockHighestInfo, COIN.XRG);
+            this.redis.set(keyHighestBlockCoin, blockHighestInfo.height);
+          }
 
           //adjust dana by blockTime
           if (Number.isInteger(blockHighestInfo.height / 144)) {
@@ -156,7 +164,7 @@ export class DanaWsService implements OnModuleInit {
     const GHashratePerSecond = hashrate.times(Math.pow(10, -9));
     const GHashratePerBlockTime = GHashratePerSecond.times(coinInfo[coin].blockTime);
 
-    const issuance = parseInt(
+    const issuance = parseFloat(
       fromSatoshisToCoin(newBlockInfo.sumCoinbaseOutputSats, coinInfo[coin].cashDecimals).toString()
     );
 
@@ -194,6 +202,9 @@ export class DanaWsService implements OnModuleInit {
       case COIN.XEC:
         newBlockInfos = await this.chronikXEC.blocks(startBlock, endBlock);
         break;
+      case COIN.XRG:
+        newBlockInfos = await this.chronikXRG.blocks(startBlock, endBlock);
+        break;
       case COIN.XPI:
       default:
         newBlockInfos = await this.chronikXPI.blocks(startBlock, endBlock);
@@ -222,7 +233,7 @@ export class DanaWsService implements OnModuleInit {
       const GHashratePerSecond = hashrate.times(Math.pow(10, -9));
       const GHashratePerBlockTime = GHashratePerSecond.times(coinInfo[coin].blockTime);
 
-      const issuance = parseInt(
+      const issuance = parseFloat(
         fromSatoshisToCoin(currentBlock.sumCoinbaseOutputSats, coinInfo[coin].cashDecimals).toString()
       );
 

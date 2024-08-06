@@ -247,7 +247,8 @@ export type ClosePageMessageSessionInput = {
 /** The type of coin. */
 export enum Coin {
   Xec = 'XEC',
-  Xpi = 'XPI'
+  Xpi = 'XPI',
+  Xrg = 'XRG'
 }
 
 export type Comment = {
@@ -1649,7 +1650,7 @@ export type Query = {
   checkIfFollowToken: Scalars['Boolean']['output'];
   comment: Comment;
   commentsToCommentableId: CommentConnection;
-  convertDanaToCoin: Scalars['Int']['output'];
+  convertDanaToCoin: Scalars['Float']['output'];
   dispute: Dispute;
   escrowOrder: EscrowOrder;
   getAccountByAddress: Account;

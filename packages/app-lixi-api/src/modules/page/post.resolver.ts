@@ -86,6 +86,7 @@ export class PostResolver {
     @Inject(XPIJS) private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
     @InjectChronikClient('xec') private chronikXEC: ChronikClient,
+    @InjectChronikClient('xrg') private chronikXRG: ChronikClient,
     @I18n() private i18n: I18nService,
     private readonly accountCacheService: AccountCacheService,
     private readonly postLoader: PostLoader,
@@ -807,6 +808,9 @@ export class PostResolver {
               break;
             case COIN.XEC:
               broadcastResponse = await this.chronikXEC.broadcastTx(createFeeHex);
+              break;
+            case COIN.XRG:
+              broadcastResponse = await this.chronikXRG.broadcastTx(createFeeHex);
               break;
             default:
               broadcastResponse = await this.chronikXPI.broadcastTx(createFeeHex);

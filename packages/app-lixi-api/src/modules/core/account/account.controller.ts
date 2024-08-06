@@ -40,6 +40,7 @@ import { JwtAuthGuard } from 'src/modules/auth/guards/jwtauth.guard';
 import { WALLET_SERVICES, XPIJS } from 'src/modules/wallet/wallet.constants';
 import { XecWalletService } from 'src/modules/wallet/xec-wallet.service';
 import { XpiWalletService } from 'src/modules/wallet/xpi-wallet.service';
+import { XrgWalletService } from 'src/modules/wallet/xrg-wallet.service ';
 import { VError } from 'verror';
 import { aesGcmDecrypt, aesGcmEncrypt, generateRandomBase58Str, hashMnemonic } from '../../../utils/encryptionMethods';
 import { AccountCacheService } from '../../account/account-cache.service';
@@ -313,13 +314,19 @@ export class AccountController {
   async createAccount(@Body() command: CreateAccountCommand, @I18n() i18n: I18nContext): Promise<AccountDto> {
     if (command) {
       try {
+        let path = walletPath.XPI; //default is XPI
         let walletService;
         switch (command.rootCoin) {
           case COIN.XPI:
             walletService = this.walletServices['xpi'] as XpiWalletService;
             break;
           case COIN.XEC:
+            path = walletPath.XEC;
             walletService = this.walletServices['xec'] as XecWalletService;
+            break;
+          case COIN.XRG:
+            path = walletPath.XRG;
+            walletService = this.walletServices['xrg'] as XrgWalletService;
             break;
           default:
             walletService = this.walletServices['xpi'] as XpiWalletService;
@@ -344,12 +351,12 @@ export class AccountController {
           id: undefined,
           address: address,
           hash160: Buffer.from(this.XPI.Address.toHash160(address), 'hex'),
-          publicKey: publicKey
+          publicKey: publicKey,
+          telegramId: command.telegramId || undefined
         };
 
         const addressType = _.toUpper(type) == 'P2PKH' ? 'P2PKH' : 'P2SH';
-        const path = command.rootCoin === COIN.XPI ? walletPath.XPI : walletPath.XEC;
-        const addressCoin = command.rootCoin === COIN.XPI ? address : cashAddress;
+        let addressCoin = command.rootCoin === COIN.XPI ? address : cashAddress;
 
         const createdAccount: AccountDb = await this.prisma.account.create({
           data: {
@@ -393,6 +400,100 @@ export class AccountController {
       }
     }
     return null as any;
+  }
+
+  @Get('telegram/:id')
+  async checkAccountExistByTelegramId(@Param('id') id: string, @I18n() i18n: I18nContext) {
+    try {
+      const account = await this.prisma.account.findUnique({
+        where: {
+          telegramId: id
+        }
+      });
+      if (!account) {
+        const accountNotExistMessage = await i18n.t('account.messages.accountNotExist');
+        throw new VError(accountNotExistMessage);
+      }
+
+      return true;
+    } catch (err: unknown) {
+      if (err instanceof VError) {
+        throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      } else {
+        const unableGetAccountMessage = await i18n.t('account.messages.unableGetAccount');
+        const error = new VError.WError(err as Error, unableGetAccountMessage);
+        throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
+  @Get('telegram')
+  async checkAccountPkWithTelegramId(
+    @Query('telegramId') telegramId: string,
+    @Query('publicKey') publicKey: string,
+    @I18n() i18n: I18nContext
+  ) {
+    if (!telegramId || !publicKey) {
+      const accountNotExistMessage = await i18n.t('account.messages.accountNotExist');
+      throw new VError(accountNotExistMessage);
+    }
+
+    try {
+      const account = await this.prisma.account.findFirstOrThrow({
+        where: {
+          AND: [
+            {
+              telegramId: telegramId
+            },
+            {
+              publicKey: publicKey
+            }
+          ]
+        }
+      });
+      if (!account) {
+        const accountNotExistMessage = await i18n.t('account.messages.accountNotExist');
+        throw new VError(accountNotExistMessage);
+      }
+
+      return true;
+    } catch (err: unknown) {
+      if (err instanceof VError) {
+        throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      } else {
+        const unableGetAccountMessage = await i18n.t('account.messages.unableGetAccount');
+        const error = new VError.WError(err as Error, unableGetAccountMessage);
+        throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
+  @Get('telegram/unlink/:id')
+  async unlinkTelegramAccount(@Param('id') id: string, @I18n() i18n: I18nContext) {
+    try {
+      const account = await this.prisma.account.update({
+        where: {
+          telegramId: id
+        },
+        data: {
+          telegramId: null
+        }
+      });
+      if (!account) {
+        const accountNotExistMessage = await i18n.t('account.messages.accountNotExist');
+        throw new VError(accountNotExistMessage);
+      }
+
+      return true;
+    } catch (err: unknown) {
+      if (err instanceof VError) {
+        throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      } else {
+        const unableGetAccountMessage = await i18n.t('account.messages.unableGetAccount');
+        const error = new VError.WError(err as Error, unableGetAccountMessage);
+        throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
   }
 
   @Patch(':id')

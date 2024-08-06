@@ -12,6 +12,7 @@ export const infoXec: CoinInfo = {
   etokenSats: 546,
   cashDecimals: 2,
   burnFee: 0,
+  canBurn: false,
   tokenName: 'eToken',
   tokenTicker: 'eToken',
   prefixes: ['ecash'],
