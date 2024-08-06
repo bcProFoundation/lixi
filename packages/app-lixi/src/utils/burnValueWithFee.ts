@@ -33,7 +33,7 @@ export const calBurnAmountWithoutFee = (value: number, burnAmountPerCoin: number
   return rounded ? Math.ceil(totalBurn) : parseFloat(totalBurn.toFixed(2));
 };
 
-export const getHashOwner = async (dataItem: BurnForItem, burnForType: BurnForType) => {
+export const getItemOwnerHash = async (dataItem: BurnForItem, burnForType: BurnForType) => {
   let hashOwner: any = '';
   switch (burnForType) {
     case BurnForType.Post:

@@ -32,7 +32,7 @@ import styled from 'styled-components';
 import { QRCodeModal } from './QRCodeModal';
 import { AuthenticationContext } from '@context/index';
 import { useConvertDanaToCoinQuery } from '@store/dana/dana.api';
-import { calBurnAmountWithoutFee, calFeeWhenBurn, getHashOwner } from 'src/utils/burnValueWithFee';
+import { calBurnAmountWithoutFee, calFeeWhenBurn, getItemOwnerHash } from 'src/utils/burnValueWithFee';
 
 const UpDownButton = styled(Button)`
   background: rgb(158, 42, 156);
@@ -123,8 +123,8 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
   const [selectedAmount, setSelectedAmount] = useState(1);
   const [openSelectCurrencies, setOpenSelectCurrencies] = useState(false);
   const [selectCurrencies, setSelectCurrencies] = useState(null);
-  const [hashOwner, setHashOwner] = useState<string>('');
-  const [selectedHash, setSelectedHash] = useState<string>('');
+  const [itemOwnerHash, setItemOwnerHash] = useState<string>('');
+  const [selectedAccountHash, setSelectedAccountHash] = useState<string>('');
   const defaultSelected = {
     name: 'Lotus',
     symbol: 'xpi',
@@ -245,21 +245,21 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
   //get Owner
   useEffect(() => {
     const getOwner = async () => {
-      const hashOwner = await getHashOwner(burnForItem, burnForType);
-      setHashOwner(hashOwner);
+      const itemOwnerHash = await getItemOwnerHash(burnForItem, burnForType);
+      setItemOwnerHash(itemOwnerHash);
     };
     getOwner();
   }, [burnForType, burnForItem]);
 
-  //get selectedHash
+  //get selectedAccountHash
   useEffect(() => {
     const hash: any = selectedAccount?.hash160;
     //backend return hash160 is string or {type: 'Buffer', data: []}
     if (typeof hash !== 'string') {
-      setSelectedHash(Buffer.from(hash?.data).toString('hex'));
+      setSelectedAccountHash(Buffer.from(hash?.data).toString('hex'));
       return;
     }
-    setSelectedHash(hash);
+    setSelectedAccountHash(hash);
   }, []);
 
   const modalSelectWallet = () => {
@@ -530,7 +530,7 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
           amountDana: selectedAmount
         })}
       </p>
-      {hashOwner !== selectedHash && (
+      {itemOwnerHash !== selectedAccountHash && (
         <p className="amount-fee">
           {intl.get('burn.amountFee', {
             amountFee: calFeeWhenBurn(selectedAmount, burnAmountPerCoin, coinBurned as unknown as COIN),

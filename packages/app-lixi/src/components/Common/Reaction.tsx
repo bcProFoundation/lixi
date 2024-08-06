@@ -27,7 +27,7 @@ import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { Coin } from '@generated/types.generated';
 import { useConvertDanaToCoinQuery } from '@store/dana/dana.api';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
-import { calBurnAmountWithFee, calBurnAmountWithoutFee, getHashOwner } from 'src/utils/burnValueWithFee';
+import { calBurnAmountWithFee, calBurnAmountWithoutFee, getItemOwnerHash } from 'src/utils/burnValueWithFee';
 
 const SpaceIconBurnHover = styled(Space)`
   min-height: 38px;
@@ -148,8 +148,8 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
   const [hovered, setHovered] = useState(false);
   const currentTheme = useSliceSelector(getCurrentThemes);
   const authentication = useContext(AuthenticationContext);
-  const [hashOwner, setHashOwner] = useState<string>('');
-  const [selectedHash, setSelectedHash] = useState<string>('');
+  const [itemOwnerHash, setItemOwnerHash] = useState<string>('');
+  const [selectedAccountHash, setSelectedAccountHash] = useState<string>('');
 
   const [burnAmountPerCoin, setBurnAmountPerCoin] = useState(0);
   const [coinBurned, setCoinBurned] = useState<Coin>(
@@ -168,21 +168,21 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
   //get Owner
   useEffect(() => {
     const getOwner = async () => {
-      const hashOwner = await getHashOwner(dataItem, burnForType);
-      setHashOwner(hashOwner);
+      const itemOwnerHash = await getItemOwnerHash(dataItem, burnForType);
+      setItemOwnerHash(itemOwnerHash);
     };
     getOwner();
   }, [burnForType, dataItem]);
 
-  //get selectedHash
+  //get selectedAccountHash
   useEffect(() => {
     const hash: any = selectedAccount?.hash160;
     //backend return hash160 is string or {type: 'Buffer', data: []}
     if (typeof hash !== 'string') {
-      setSelectedHash(Buffer.from(hash?.data).toString('hex'));
+      setSelectedAccountHash(Buffer.from(hash?.data).toString('hex'));
       return;
     }
-    setSelectedHash(hash);
+    setSelectedAccountHash(hash);
   }, []);
 
   const burnValue: number = match(burnForType)
@@ -288,8 +288,8 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
       coinBurned={coinBurned.toString()}
       amountDana={amountDana}
       isUpBurn={isUpBurn}
-      selectedHash={selectedHash}
-      hashOwner={hashOwner}
+      selectedAccountHash={selectedAccountHash}
+      itemOwnerHash={itemOwnerHash}
       hideReact={hideReact}
     />
   );
@@ -372,7 +372,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           />
         </div>
         <HintMobile>
-          {selectedHash !== hashOwner
+          {selectedAccountHash !== itemOwnerHash
             ? calBurnAmountWithFee(Number(OPTION_BURN_VALUE.DISLIKE), burnAmountPerCoin, coinBurned as unknown as COIN)
             : calBurnAmountWithoutFee(
                 Number(OPTION_BURN_VALUE.DISLIKE),
@@ -393,7 +393,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           />
         </div>
         <HintMobile>
-          {selectedHash !== hashOwner
+          {selectedAccountHash !== itemOwnerHash
             ? calBurnAmountWithFee(Number(OPTION_BURN_VALUE.DISLIKE), burnAmountPerCoin, coinBurned as unknown as COIN)
             : calBurnAmountWithoutFee(
                 Number(OPTION_BURN_VALUE.DISLIKE),
@@ -415,7 +415,7 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
           />
         </div>
         <HintMobile>
-          {selectedHash !== hashOwner
+          {selectedAccountHash !== itemOwnerHash
             ? calBurnAmountWithFee(Number(OPTION_BURN_VALUE.DISLIKE), burnAmountPerCoin, coinBurned as unknown as COIN)
             : calBurnAmountWithoutFee(
                 Number(OPTION_BURN_VALUE.DISLIKE),
