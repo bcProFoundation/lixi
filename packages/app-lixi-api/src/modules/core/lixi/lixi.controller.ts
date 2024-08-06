@@ -294,6 +294,11 @@ export class LixiController {
           throw new Error(couldNotFindAccount);
         }
 
+        if (!account.encryptedMnemonic) {
+          const couldNotCreateLixi = await i18n.t('lixi.messages.couldNotCreateLixi');
+          throw Error(couldNotCreateLixi);
+        }
+
         // Decrypt to validate the mnemonic
         const mnemonicToValidate = await aesGcmDecrypt(account.encryptedMnemonic, mnemonicFromApi);
         if (mnemonicFromApi !== mnemonicToValidate) {
@@ -498,6 +503,11 @@ export class LixiController {
         throw new Error(couldNotFindAccount);
       }
 
+      if (!account.encryptedMnemonic) {
+        const couldNotCreateLixi = await i18n.t('lixi.messages.couldNotCreateLixi');
+        throw Error(couldNotCreateLixi);
+      }
+
       // Decrypt to validate the mnemonic
       const mnemonicToValidate = await aesGcmDecrypt(account.encryptedMnemonic, mnemonicFromApi);
       if (mnemonicFromApi !== mnemonicToValidate) {
@@ -621,6 +631,11 @@ export class LixiController {
         throw new Error(couldNotFindAccount);
       }
 
+      if (!account.encryptedMnemonic) {
+        const couldNotCreateLixi = await i18n.t('lixi.messages.couldNotCreateLixi');
+        throw Error(couldNotCreateLixi);
+      }
+
       // Decrypt to validate the mnemonic
       const mnemonicToValidate = await aesGcmDecrypt(account.encryptedMnemonic, mnemonicFromApi);
       if (mnemonicFromApi !== mnemonicToValidate) {
@@ -700,6 +715,11 @@ export class LixiController {
       if (!account) {
         const couldNotFindAccount = await i18n.t('lixi.messages.couldNotFindAccount');
         throw new Error(couldNotFindAccount);
+      }
+
+      if (!account.encryptedMnemonic) {
+        const couldNotCreateLixi = await i18n.t('lixi.messages.couldNotCreateLixi');
+        throw Error(couldNotCreateLixi);
       }
 
       // Decrypt to validate the mnemonic
@@ -1050,6 +1070,11 @@ export class LixiController {
         if (!account) {
           const couldNotFindAccount = await i18n.t('lixi.messages.couldNotFindAccount');
           throw new Error(couldNotFindAccount);
+        }
+
+        if (!account.encryptedMnemonic) {
+          const couldNotCreateLixi = await i18n.t('lixi.messages.couldNotCreateLixi');
+          throw Error(couldNotCreateLixi);
         }
 
         const mnemonicToValidate = await aesGcmDecrypt(account.encryptedMnemonic, mnemonicFromApi);

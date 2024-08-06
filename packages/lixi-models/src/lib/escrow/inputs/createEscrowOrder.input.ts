@@ -15,11 +15,7 @@ export class CreateEscrowOrderInput {
   @IsNotEmpty()
   arbitratorPublicKey: string;
 
-  @Field(() => String, { nullable: true })
-  @IsOptional()
-  escrowAddress?: string;
-
-  @Field(() => Number)
+  @Field(() => String)
   @IsNotEmpty()
   paymentMethodId: number;
 

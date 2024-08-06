@@ -1,4 +1,6 @@
 import {
+  AcceptEscrowOrderInput,
+  CancelEscrowOrderInput,
   CreateEscrowOrderInput,
   EscrowOrder,
   EscrowOrderConnection,
@@ -14,6 +16,7 @@ import * as _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { PrismaService } from '../prisma/prisma.service';
+import { EscrowOrderStatus } from '@bcpros/lixi-prisma';
 
 const pubSub = new PubSub();
 
@@ -86,6 +89,38 @@ export class EscrowOrderResolver {
             id: paymentMethodId
           }
         }
+      }
+    });
+
+    pubSub.publish('escrowOrderCreated', { escrowOrderCreated: escrowOrder });
+    return escrowOrder;
+  }
+
+  @Mutation(() => EscrowOrder)
+  async acceptEscrowOrder(@Args('data') data: AcceptEscrowOrderInput) {
+    const { nonce, orderId, script } = data;
+    const escrowOrder = await this.prisma.escrowOrder.update({
+      where: {
+        id: orderId
+      },
+      data: {
+        status: EscrowOrderStatus.ACTIVE
+      }
+    });
+
+    pubSub.publish('escrowOrderCreated', { escrowOrderCreated: escrowOrder });
+    return escrowOrder;
+  }
+
+  @Mutation(() => EscrowOrder)
+  async cancelEscrowOrder(@Args('data') data: CancelEscrowOrderInput) {
+    const { orderId } = data;
+    const escrowOrder = await this.prisma.escrowOrder.update({
+      where: {
+        id: orderId
+      },
+      data: {
+        status: EscrowOrderStatus.COMPLETE // Change later
       }
     });
 

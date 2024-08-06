@@ -253,51 +253,65 @@ export class AccountController {
 
         return resultApi;
       } else {
-        // Decrypt to validate the mnemonic
-        const mnemonicToValidate = await aesGcmDecrypt(account.encryptedMnemonic, mnemonic);
-        if (mnemonic !== mnemonicToValidate) {
-          const importAccountNotFoundMessage = await i18n.t('account.messages.importAccountNotFound');
-          throw Error(importAccountNotFoundMessage);
-        }
+        if (account.encryptedMnemonic && account.encryptedSecret) {
+          // Decrypt to validate the mnemonic
+          const mnemonicToValidate = await aesGcmDecrypt(account.encryptedMnemonic, mnemonic);
+          if (mnemonic !== mnemonicToValidate) {
+            const importAccountNotFoundMessage = await i18n.t('account.messages.importAccountNotFound');
+            throw Error(importAccountNotFoundMessage);
+          }
 
-        const { totalBalanceInSatoshis } = await walletService.getBalances(account.address);
-        const accountSecret = await aesGcmDecrypt(account.encryptedSecret, mnemonic);
+          const { totalBalanceInSatoshis } = await walletService.getBalances(account.address);
+          const accountSecret = await aesGcmDecrypt(account.encryptedSecret, mnemonic);
 
-        //check account connect to walletPaths
-        const addressType = _.toUpper(type) == 'P2PKH' ? 'P2PKH' : 'P2SH';
-        if (account.walletPaths.length === 0) {
-          await this.prisma.account.update({
-            where: {
-              id: account.id
-            },
-            data: {
-              walletPaths: {
-                create: {
-                  path: walletPath.XPI,
-                  address: address,
-                  hash160: Buffer.from(hash).toString('hex'),
-                  type: addressType,
-                  network: COIN.XPI,
-                  publicKey
+          //check account connect to walletPaths
+          const addressType = _.toUpper(type) == 'P2PKH' ? 'P2PKH' : 'P2SH';
+          if (account.walletPaths.length === 0) {
+            await this.prisma.account.update({
+              where: {
+                id: account.id
+              },
+              data: {
+                walletPaths: {
+                  create: {
+                    path: walletPath.XPI,
+                    address: address,
+                    hash160: Buffer.from(hash).toString('hex'),
+                    type: addressType,
+                    network: COIN.XPI,
+                    publicKey
+                  }
                 }
               }
-            }
-          });
+            });
+          }
+
+          const resultApi = _.omit(
+            {
+              ..._.omit(account, 'publicKey'),
+              name: account.name,
+              address: account.address,
+              balance: Number(totalBalanceInSatoshis),
+              secret: accountSecret,
+              rootCoin: account.walletPaths[0]?.network ?? COIN.XPI
+            } as AccountDto,
+            ['mnemonic', 'encryptedMnemonic']
+          );
+
+          return resultApi;
+        } else {
+          const resultApi = _.omit(
+            {
+              ...account,
+              name: account.name,
+              address: account.address,
+              rootCoin: account.walletPaths[0]?.network ?? COIN.XPI
+            } as AccountDto,
+            ['mnemonic', 'encryptedMnemonic']
+          );
+
+          return resultApi;
         }
-
-        const resultApi = _.omit(
-          {
-            ..._.omit(account, 'publicKey'),
-            name: account.name,
-            address: account.address,
-            balance: Number(totalBalanceInSatoshis),
-            secret: accountSecret,
-            rootCoin: account.walletPaths[0]?.network ?? COIN.XPI
-          } as AccountDto,
-          ['mnemonic', 'encryptedMnemonic']
-        );
-
-        return resultApi;
       }
     } catch (err) {
       if (err instanceof VError) {
@@ -339,16 +353,20 @@ export class AccountController {
 
         const name = address.slice(12, 17);
 
-        // Create random account secret then encrypt it using mnemonic
-        const accountSecret: string = generateRandomBase58Str(10);
-        const encryptedSecret = await aesGcmEncrypt(accountSecret, command.mnemonic);
+        let encryptedSecret = undefined;
+        let accountSecret = undefined;
+
+        if (command.encryptedMnemonic) {
+          // Create random account secret then encrypt it using mnemonic
+          accountSecret = generateRandomBase58Str(10);
+          encryptedSecret = await aesGcmEncrypt(accountSecret, command.mnemonic);
+        }
 
         const accountToInsert = {
           name: name,
           encryptedMnemonic: command.encryptedMnemonic,
           encryptedSecret: encryptedSecret,
           mnemonicHash: command.mnemonicHash,
-          id: undefined,
           address: address,
           hash160: Buffer.from(this.XPI.Address.toHash160(address), 'hex'),
           publicKey: publicKey,
@@ -381,7 +399,7 @@ export class AccountController {
         const resultApi: AccountDto = _.omit(
           {
             ...command,
-            ..._.omit(createdAccount, 'publicKey'),
+            ..._.omit(createdAccount, ['publicKey']),
             secret: accountSecret,
             address
           },
@@ -572,7 +590,7 @@ export class AccountController {
         }
       });
 
-      if (account) {
+      if (account && account.encryptedMnemonic) {
         // Validate the mnemonic
         const mnemonicToValidate = await aesGcmDecrypt(account.encryptedMnemonic, command.mnemonic);
         if (command.mnemonic !== mnemonicToValidate) {

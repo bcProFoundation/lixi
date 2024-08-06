@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 @InputType()
 export class CreateAccountInput {
@@ -8,12 +8,12 @@ export class CreateAccountInput {
   mnemonic: string;
 
   @Field(() => String)
-  @IsNotEmpty()
-  encryptedMnemonic: string;
+  @IsOptional()
+  encryptedMnemonic?: string;
 
   @Field(() => String)
-  @IsNotEmpty()
-  mnemonicHash: string;
+  @IsOptional()
+  mnemonicHash?: string;
 
   @Field(() => String)
   language: string;

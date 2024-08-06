@@ -25,13 +25,13 @@ export class Account {
   mnemonic?: string;
 
   @Field(() => String, { nullable: true })
-  encryptedMnemonic?: string;
+  encryptedMnemonic?: Nullable<string>;
 
   @Field(() => String, { nullable: true })
-  encryptedSecret?: string;
+  encryptedSecret?: Nullable<string>;
 
   @Field(() => String, { nullable: true })
-  secret?: string;
+  secret?: Nullable<string>;
 
   @Field(() => String, { nullable: true })
   publicKey?: string;
@@ -47,7 +47,7 @@ export class Account {
   updatedAt?: Date;
 
   @Field(() => String, { nullable: true })
-  mnemonicHash?: string;
+  mnemonicHash?: Nullable<string>;
 
   @Field(() => String)
   address: string;

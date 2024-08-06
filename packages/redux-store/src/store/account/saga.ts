@@ -88,6 +88,7 @@ import {
   verifyEmailSuccess
 } from './actions';
 import { getAccountById, getAllAccountsIds, getSelectedAccount, getSelectedAccountId } from './selectors';
+import _ from 'lodash';
 
 const nameConfigGenerator: Config = {
   dictionaries: [names, names],
@@ -107,8 +108,12 @@ function* generateAccountSaga(action: PayloadAction<{ coin: COIN; telegramId: st
   const lang = 'english';
   const Bip39128BitMnemonic = XPI.Mnemonic.generate(128, XPI.Mnemonic.wordLists()[lang]);
 
-  // Encrypted mnemonic is encrypted by itself
-  const encryptedMnemonic: string = yield call(aesGcmEncrypt, Bip39128BitMnemonic, Bip39128BitMnemonic);
+  let encryptedMnemonic: string = undefined;
+
+  if (_.isEmpty(telegramId) || _.isNil(telegramId)) {
+    // Encrypted mnemonic is encrypted by itself
+    encryptedMnemonic = yield call(aesGcmEncrypt, Bip39128BitMnemonic, Bip39128BitMnemonic);
+  }
 
   // Hash mnemonic and use it as an id in the database
   const mnemonicUtf8 = new TextEncoder().encode(Bip39128BitMnemonic); // encode mnemonic as UTF-8

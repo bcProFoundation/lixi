@@ -282,12 +282,12 @@ model CommentDana {
 model Account {
   id                             Int                   @id @default(autoincrement())
   name                           String
-  encryptedMnemonic              String                @map("encrypted_mnemonic")
-  encryptedSecret                String                @default("") @map("encrypted_secret")
+  encryptedMnemonic              String?               @map("encrypted_mnemonic")
+  encryptedSecret                String?               @default("") @map("encrypted_secret")
   createdAt                      DateTime              @default(now()) @map("created_at") @db.Timestamptz
   updatedAt                      DateTime              @default(now()) @map("updated_at") @db.Timestamptz
   lixies                         Lixi[]
-  mnemonicHash                   String                @map("mnemonic_hash")
+  mnemonicHash                   String?               @map("mnemonic_hash")
   address                        String                @default("") @map("address")
   hash160                        Bytes                 @default("") @map("hash_160")
   notifications                  Notification[]
@@ -1245,7 +1245,7 @@ model EscrowOrder {
   sellerPublicKey     String            @map("seller_public_key")
   buyerPublicKey      String            @map("buyer_public_key")
   arbitratorPublicKey String            @map("arbitrator_public_key")
-  escrowAddress       String?           @map("escrow_address")
+  escrowAddress       String?           @unique @map("escrow_address")
   paymentMethod       PaymentMethod     @relation(fields: [paymentMethodId], references: [id])
   paymentMethodId     Int               @map("payment_method_id")
   message             String?
@@ -1253,7 +1253,9 @@ model EscrowOrder {
   amount              Float             @default(0.0) @map("amount")
   offer               Offer             @relation(fields: [offerId], references: [postId])
   offerId             String            @map("offer_id")
-  status              EscrowOrderStatus @default(ACTIVE)
+  status              EscrowOrderStatus @default(PENDING)
+  escrowScript        Bytes?            @unique @map("escrow_script")
+  nonce               Bytes?            @unique @map("nonce")
   dispute             Dispute?
   createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz
   updatedAt           DateTime          @default(now()) @map("updated_at") @db.Timestamptz
@@ -1334,9 +1336,11 @@ enum DisputeStatus {
 }
 
 enum EscrowOrderStatus {
+  PENDING
   ACTIVE
   ESCROW
   COMPLETE
+  CANCEL
 }
 
 enum AddressType {

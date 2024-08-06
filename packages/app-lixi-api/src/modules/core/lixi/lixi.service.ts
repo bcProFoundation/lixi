@@ -56,7 +56,7 @@ export class LixiService {
     // Calculate the lixi encrypted claim code from the input password
     const { address, xpriv } = await walletService.deriveAddress(command.mnemonic, derivationIndex);
     const encryptedXPriv = await aesGcmEncrypt(xpriv, command.password);
-    const secret = await aesGcmDecrypt(account.encryptedSecret, command.mnemonic);
+    const secret = await aesGcmDecrypt(account.encryptedSecret!, command.mnemonic);
     const encryptedClaimCode = await aesGcmEncrypt(command.password, secret);
     const imageUploadable = command.uploadId
       ? await this.prisma.imageUploadable.findFirst({
@@ -179,7 +179,7 @@ export class LixiService {
     // Calculate the lixi encrypted claim code from the input password
     const { address, xpriv } = await walletService.deriveAddress(command.mnemonic, derivationIndex);
     const encryptedXPriv = await aesGcmEncrypt(xpriv, command.password);
-    const secret = await aesGcmDecrypt(account.encryptedSecret, command.mnemonic);
+    const secret = await aesGcmDecrypt(account.encryptedSecret!, command.mnemonic);
     const encryptedClaimCode = await aesGcmEncrypt(command.password, secret);
     const uploadDetail = command.uploadId
       ? await this.prisma.uploadDetail.findFirst({
@@ -327,7 +327,7 @@ export class LixiService {
       : additionalDistributionsNum;
 
     // Decrypt the account secret
-    const secret = await aesGcmDecrypt(account.encryptedSecret, command.mnemonic);
+    const secret = await aesGcmDecrypt(account.encryptedSecret!, command.mnemonic);
 
     const childrenJobs: FlowJob[] = [];
 
