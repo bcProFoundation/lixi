@@ -52,6 +52,7 @@ export type Account = {
   rootCoin?: Maybe<Coin>;
   secondaryLanguage?: Maybe<Scalars['String']['output']>;
   secret?: Maybe<Scalars['String']['output']>;
+  telegramId?: Maybe<Scalars['String']['output']>;
   totalDanaViewScore?: Maybe<Scalars['Int']['output']>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime']['output'];

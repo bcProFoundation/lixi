@@ -15,8 +15,8 @@ import { BOOST_FANOUT_QUEUE } from './boost.constants';
 export class BoostFanoutProcessor extends WorkerHost {
   private logger: Logger = new Logger(this.constructor.name);
 
-  //timeline for offer
-  static offerTimeline = 'timeline:offer:showAll';
+  //timeline for offer boost
+  static offerBoostingTimeline = 'timeline:offer:boosting:showAll';
 
   constructor(
     @InjectRedis() private readonly redis: Redis,
@@ -41,7 +41,7 @@ export class BoostFanoutProcessor extends WorkerHost {
 
       const pipeline = this.redis.pipeline();
       //update score of post
-      pipeline.zincrby(BoostFanoutProcessor.offerTimeline, score, timelineId);
+      pipeline.zincrby(BoostFanoutProcessor.offerBoostingTimeline, score, timelineId);
 
       await pipeline.exec();
     } catch (error) {

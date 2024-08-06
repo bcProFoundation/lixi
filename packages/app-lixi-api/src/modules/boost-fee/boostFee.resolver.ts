@@ -1,4 +1,4 @@
-import { Account, BoostFee, BoostType, CreateBoostInput, PostBoost } from '@bcpros/lixi-models';
+import { Account, BoostFee, BoostType, COIN, CreateBoostInput, PostBoost, coinInfo } from '@bcpros/lixi-models';
 import { Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
@@ -14,6 +14,8 @@ import { PostBoostCacheService } from '../page/post-boost-cache.service';
 import { Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
 import { BOOST_FANOUT_QUEUE } from './boost.constants';
+import { fromCoinToSatoshis } from 'src/utils/cashMethods';
+import BigNumber from 'bignumber.js';
 
 @SkipThrottle()
 @Resolver(() => BoostFee)
@@ -40,6 +42,14 @@ export class BoostFeeResolver {
           throw new Error('Error when broadcast XEC');
         });
         const { txid } = broadcastResponse;
+
+        //check value of boost and value broadcast
+        const detailTx = await this.chronikXEC.tx(txid);
+
+        const firstTxOutput = detailTx.outputs[0];
+        const boostedValueSats = fromCoinToSatoshis(BigNumber(boostedValue), coinInfo[COIN.XEC].cashDecimals);
+        if (!firstTxOutput || !boostedValueSats || firstTxOutput.value !== boostedValueSats.toString()) return null;
+
         const prevTxIdExist = await this.prisma.boostFee.findFirst({
           where: {
             txid: txid

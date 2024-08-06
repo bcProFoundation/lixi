@@ -38,8 +38,8 @@ export class PostFanoutProcessor extends WorkerHost {
   static tokenTimelineByTimeWithDanaFilterKey = 'timeline:token:{{tokenId}}:{{level}}';
   static tokenTimelineByTimeShowAll = 'timeline:token:{{tokenId}}:showAll';
 
-  //timeline for offer
-  static offerTimeline = 'timeline:offer:showAll';
+  //timeline for offer boost
+  static offerBoostingTimeline = 'timeline:offer:boosting:showAll';
 
   constructor(
     private readonly postCacheService: PostCacheService,
@@ -151,7 +151,7 @@ export class PostFanoutProcessor extends WorkerHost {
 
       //add default score for offer
       if (post.type === PostType.OFFER) {
-        pipeline.zincrby(PostFanoutProcessor.offerTimeline, score, timelineId);
+        pipeline.zincrby(PostFanoutProcessor.offerBoostingTimeline, score, timelineId);
       }
 
       await pipeline.exec();

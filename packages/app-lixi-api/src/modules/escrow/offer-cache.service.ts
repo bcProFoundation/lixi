@@ -13,7 +13,9 @@ import { template } from 'src/utils/stringTemplate';
 export class OfferCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   private keyPrefix = 'items:offers:item-data';
-  static offerTimeline = 'timeline:offer:showAll';
+
+  //timeline for offer boost
+  static offerBoostingTimeline = 'timeline:offer:boosting:showAll';
   static myOfferTimeline = 'timeline:offer:{{publicKey}}';
 
   constructor(
@@ -103,7 +105,7 @@ export class OfferCacheService {
   }
 
   async getOfferPaginatedTimeline(first: number = 20, after?: string) {
-    const key = OfferCacheService.offerTimeline;
+    const key = OfferCacheService.offerBoostingTimeline;
     const limit = 1000;
     const exist = await this.redis.exists([key]);
     if (!exist) {
@@ -143,7 +145,7 @@ export class OfferCacheService {
   }
 
   private async cacheOfferTimelineByScore(limit: number = 0, offset: number = 0) {
-    const key = OfferCacheService.offerTimeline;
+    const key = OfferCacheService.offerBoostingTimeline;
     const postBoostType = BoostForType.Post;
     const halfLife = '12 hours';
     const query = limit
