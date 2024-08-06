@@ -1,4 +1,4 @@
-import LockOutlined, { EditOutlined, SendOutlined, SyncOutlined } from '@ant-design/icons';
+import { EditOutlined, SendOutlined, SyncOutlined } from '@ant-design/icons';
 import BalanceHeader from '@bcpros/lixi-components/components/Common/BalanceHeader';
 import { FormattedWalletAddress } from '@bcpros/lixi-components/components/Common/QRCode';
 import WalletLabel from '@bcpros/lixi-components/components/Common/WalletLabel';
@@ -6,25 +6,24 @@ import { Account, RenameAccountCommand } from '@bcpros/lixi-models';
 import { QRCodeModalType } from '@bcpros/lixi-models/constants/QRCodeModal';
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
-import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
-import { SmartButton } from '@components/Common/PrimaryButton';
 import { QRCodeModal } from '@components/Common/QRCodeModal';
 import { RenameAccountModalProps } from '@components/Settings/RenameAccountModal';
-import { WalletContext } from '@context/index';
-import { importAccount, renameAccount } from '@store/account/actions';
+import { AuthorizationContext, WalletContext } from '@context/index';
+import { renameAccount, setAccountCoin } from '@store/account/actions';
 import { getSelectedAccount } from '@store/account/selectors';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { openModal } from '@store/modal/actions';
 import { showToast } from '@store/toast/actions';
-import { getSelectedWalletPath, getWalletHasUpdated, getWalletStatus } from '@store/wallet';
-import { fromSmallestDenomination } from '@utils/cashMethods';
-import { Form, Input } from 'antd';
+import { getSelectedWalletPath, getWalletHasUpdated, getWalletStatus, setWalletHasUpdated } from '@store/wallet';
+import { formatBalance, fromSmallestDenomination, getWalletBalanceFromUtxos } from '@utils/cashMethods';
+import { Button } from 'antd';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import { parseCashAddressToPrefix } from '@utils/addressMethods';
+import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
 
 const CardContainer = styled.div<{ $bgCoin: string }>`
   position: relative;
@@ -36,9 +35,17 @@ const CardContainer = styled.div<{ $bgCoin: string }>`
   padding: 2rem 2rem 3rem 2rem;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
+  margin-bottom: 1rem;
   @media (max-width: 768px) {
     padding: 1.5rem 1rem;
   }
+
+  // .btn-switch {
+  //   position: absolute;
+  //   right: 10px;
+  //   top: 10px;
+  //   cursor: pointer;
+  // }
 `;
 
 const WalletCard = styled.div`
@@ -54,6 +61,21 @@ const WalletCard = styled.div`
       font-size: 17px;
       color: rgba(237, 239, 240, 0.6);
     }
+  }
+
+  .balance-string {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fff;
+
+    .balance-name {
+      color: rgba(237, 239, 240, 0.8);
+      font-size: 0.75rem;
+    }
+  }
+
+  .btn-switch {
+    cursor: pointer;
   }
 `;
 
@@ -130,18 +152,19 @@ const ButtonSend = styled.div`
   }
 `;
 
-const WalletInfoComponent: React.FC = () => {
+type WalletInfoComponentProps = {
+  coin?: COIN;
+  mainWallet?: boolean;
+};
+
+const WalletInfoComponent = ({ coin = COIN.XPI, mainWallet = true }: WalletInfoComponentProps) => {
   const isServer = () => typeof window === 'undefined';
   const router = useRouter();
   const Wallet = React.useContext(WalletContext);
-  const { XPI } = Wallet;
-  const [formData, setFormData] = useState({
-    dirty: true,
-    mnemonic: ''
-  });
-  const [isValidMnemonic, setIsValidMnemonic] = useState(false);
-  const [seedInput, openSeedInput] = useState(false);
+  const { XPI, getUtxosByCoin } = Wallet;
   const dispatch = useSliceDispatch();
+  const askAuthorization = useAuthorization();
+  const authorization = useContext(AuthorizationContext);
   const walletStatus = useSliceSelector(getWalletStatus);
   const selectedAccount = useSliceSelector(getSelectedAccount);
   const selectedWalletPath = useSliceSelector(getSelectedWalletPath);
@@ -149,8 +172,20 @@ const WalletInfoComponent: React.FC = () => {
 
   const [currentAddress, setCurrentAddress] = useState<string>(selectedWalletPath?.xAddress);
 
+  const [showBalanceCoin, setShowBalanceCoin] = useState({
+    XPI: false,
+    XEC: false,
+    XRG: false
+  });
+
+  const [balanceCoin, setBalanceCoin] = useState({
+    XPI: '0',
+    XEC: '0',
+    XRG: '0'
+  });
+
   useEffect(() => {
-    switch (selectedAccount?.coin) {
+    switch (coin) {
       case COIN.XPI:
         setCurrentAddress(selectedWalletPath?.xAddress);
         break;
@@ -163,7 +198,7 @@ const WalletInfoComponent: React.FC = () => {
       default:
         setCurrentAddress(selectedWalletPath?.xAddress);
     }
-  }, [selectedAccount]);
+  }, [coin]);
 
   const showPopulatedRenameAccountModal = (account: Account) => {
     const command: RenameAccountCommand = {
@@ -178,28 +213,6 @@ const WalletInfoComponent: React.FC = () => {
     dispatch(openModal('RenameAccountModal', renameAcountModalProps));
   };
 
-  const handleChange = e => {
-    const { value, name } = e.target;
-
-    // Validate mnemonic on change
-    // Import button should be disabled unless mnemonic is valid
-    setIsValidMnemonic(Wallet.validateMnemonic(value));
-
-    setFormData(p => ({ ...p, [name]: value }));
-  };
-
-  async function submit() {
-    setFormData({
-      ...formData,
-      dirty: false
-    });
-
-    if (!formData.mnemonic) {
-      return;
-    }
-    dispatch(importAccount(formData.mnemonic));
-  }
-
   const handleOnCopy = () => {
     dispatch(
       showToast('info', {
@@ -207,6 +220,46 @@ const WalletInfoComponent: React.FC = () => {
         description: intl.get('lixi.addressCopied')
       })
     );
+  };
+
+  const getBalance = async (coin: COIN) => {
+    const utxos = await getUtxosByCoin(coin);
+    const balances = getWalletBalanceFromUtxos(utxos.nonSlpUtxos, coin);
+    setBalanceCoin(pre => {
+      return {
+        ...pre,
+        [coin]: balances.totalBalance
+      };
+    });
+  };
+
+  const handleShowBalance = (coin: COIN) => {
+    if (!authorization.authorized) {
+      askAuthorization();
+      return;
+    }
+    setShowBalanceCoin(pre => {
+      return {
+        ...pre,
+        [coin]: !pre[coin]
+      };
+    });
+    // don't call api if hide balance
+    if (showBalanceCoin[coin]) return;
+    getBalance(coin);
+  };
+
+  const handleChangeWallet = value => {
+    if (!authorization.authorized) {
+      askAuthorization();
+      return;
+    }
+    dispatch(setAccountCoin({ id: selectedAccount.id, accountCoin: value }));
+    dispatch(setWalletHasUpdated(false));
+  };
+
+  const openBurnHistoryModal = (coin: COIN) => {
+    dispatch(openModal('WalletHistoryModal', { coin }));
   };
 
   const addressForMutipleCoin = () => {
@@ -223,76 +276,76 @@ const WalletInfoComponent: React.FC = () => {
 
   return (
     <>
-      <CardContainer $bgCoin={`${coinInfo[selectedAccount?.coin ?? COIN.XPI].background}`} className="card-container">
+      <CardContainer $bgCoin={`${coinInfo[coin].background}`} className="card-container">
         <WalletCard>
           <div className="wallet-name">
-            <img width={40} src={`${coinInfo[selectedAccount?.coin ?? COIN.XPI].logo}`} alt="" />
+            <img width={40} src={`${coinInfo[coin].logo}`} alt="" />
             <WalletLabel name={selectedAccount?.name ?? ''} />
-            <EditOutlined
-              className="edit-ico"
-              onClick={() => showPopulatedRenameAccountModal(selectedAccount as Account)}
-            />
-          </div>
-          <StyledBalanceHeader>
-            {walletHasUpdated ? (
-              <BalanceHeader
-                balance={fromSmallestDenomination(
-                  walletStatus.balances.totalBalanceInSatoshis ?? 0,
-                  selectedAccount?.coin === COIN.XRG
-                    ? coinInfo[selectedAccount?.coin].microCashDecimals //we use uXRG - cash=2
-                    : coinInfo[selectedAccount?.coin ?? COIN.XPI].cashDecimals
-                )}
-                ticker={coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker}
+            {mainWallet ? (
+              <EditOutlined
+                className="edit-ico"
+                onClick={() => showPopulatedRenameAccountModal(selectedAccount as Account)}
               />
             ) : (
-              <React.Fragment>
-                <SyncOutlined spin />
-              </React.Fragment>
+              <div onClick={() => handleChangeWallet(coin)} className="btn-switch">
+                <img src="/images/switch-coin.svg" />
+              </div>
+            )}
+          </div>
+          <StyledBalanceHeader>
+            {mainWallet ? (
+              walletHasUpdated ? (
+                <BalanceHeader
+                  balance={fromSmallestDenomination(
+                    walletStatus.balances.totalBalanceInSatoshis ?? 0,
+                    selectedAccount?.coin === COIN.XRG
+                      ? coinInfo[selectedAccount?.coin].microCashDecimals //we use uXRG - cash=2
+                      : coinInfo[selectedAccount?.coin ?? COIN.XPI].cashDecimals
+                  )}
+                  ticker={coinInfo[coin].ticker}
+                />
+              ) : (
+                <React.Fragment>
+                  <SyncOutlined spin />
+                </React.Fragment>
+              )
+            ) : (
+              <>
+                <span className="balance-string">
+                  {showBalanceCoin[coin] && (
+                    <span>
+                      {formatBalance(balanceCoin[coin])}{' '}
+                      <span className="balance-name"> {coinInfo[coin ?? COIN.XPI].ticker}</span>
+                    </span>
+                  )}{' '}
+                  {!showBalanceCoin[coin] && '*******'}
+                </span>
+                <Button className="btn-show" type="text" onClick={() => handleShowBalance(coin as COIN)}>
+                  <img src="/images/eye.svg" />
+                </Button>
+              </>
             )}
           </StyledBalanceHeader>
         </WalletCard>
         {!isServer() && currentAddress && (
           <StyledQRCode>
-            <QRCodeModal
-              logoImage={coinInfo[selectedAccount?.coin ?? COIN.XPI].logo}
-              address={currentAddress}
-              type={QRCodeModalType.address}
-            />
-            {/* <QRCode address={selectedWalletPath?.xAddress} isAccountPage={true} /> */}
+            <QRCodeModal logoImage={coinInfo[coin].logo} address={currentAddress} type={QRCodeModalType.address} />
           </StyledQRCode>
         )}
         <AddressWalletBar>
-          <ButtonSend onClick={() => router.push('/send')}>
-            <SendOutlined />
-            {intl.get('general.send')}
-          </ButtonSend>
+          {mainWallet && (
+            <ButtonSend onClick={() => router.push('/send')}>
+              <SendOutlined />
+              {intl.get('general.send')}
+            </ButtonSend>
+          )}
+          <div style={{ cursor: 'pointer' }} onClick={() => openBurnHistoryModal(coin)}>
+            <img width={20} src="/images/ico-burn-history.svg" style={{ filter: 'var(--filter-svg-gray-color)' }} />
+            <span>History</span>
+          </div>
           {addressForMutipleCoin()}
         </AddressWalletBar>
       </CardContainer>
-
-      {seedInput && (
-        <AntdFormWrapper>
-          <Form style={{ width: 'auto' }}>
-            <Form.Item
-              validateStatus={!formData.dirty && !formData.mnemonic ? 'error' : ''}
-              help={!formData.mnemonic || !isValidMnemonic ? intl.get('account.mnemonicRequired') : ''}
-            >
-              <Input
-                prefix={<LockOutlined />}
-                placeholder={intl.get('account.mnemonic')}
-                name="mnemonic"
-                autoComplete="off"
-                onChange={e => handleChange(e)}
-                required
-              />
-            </Form.Item>
-
-            <SmartButton disabled={!isValidMnemonic} onClick={() => submit()}>
-              Import
-            </SmartButton>
-          </Form>
-        </AntdFormWrapper>
-      )}
     </>
   );
 };

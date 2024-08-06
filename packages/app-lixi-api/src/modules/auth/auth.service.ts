@@ -45,6 +45,9 @@ export class AuthService implements OnModuleInit {
     const account = await this.prisma.account.findFirst({
       where: {
         mnemonicHash: mnemonicHash
+      },
+      include: {
+        walletPaths: true
       }
     });
 
@@ -52,8 +55,8 @@ export class AuthService implements OnModuleInit {
       const accountNotExistMessage = await this.i18n.t('auth.messages.accountNotExist');
       throw new VError(accountNotExistMessage);
     }
-
-    const walletService = this.walletServices['xpi'] as XpiWalletService;
+    const rootCoin = account?.walletPaths[0].network.toLocaleLowerCase();
+    const walletService = this.walletServices[rootCoin];
     const { publicKey, wifKey } = await walletService.deriveAddress(mnemonic, 0);
     if (!account.publicKey) {
       // There're  no public key, old account

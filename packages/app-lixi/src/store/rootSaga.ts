@@ -20,6 +20,7 @@ import { tokenSaga } from '@store/token/saga';
 import { walletSaga } from '@store/wallet/saga';
 import { webpushSaga } from '@store/webpush/saga';
 import { all } from 'redux-saga/effects';
+import { paymentMethodsSaga } from '@store/payment-method/saga';
 
 export default function* rootSaga() {
   yield all([
@@ -43,6 +44,7 @@ export default function* rootSaga() {
     categorySaga(),
     messageSaga(),
     websocketSaga(),
-    analyticEventSaga()
+    analyticEventSaga(),
+    paymentMethodsSaga()
   ]);
 }

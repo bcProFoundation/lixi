@@ -17,7 +17,7 @@ export class CreateEscrowOrderInput {
 
   @Field(() => String)
   @IsNotEmpty()
-  paymentMethodId: string;
+  paymentMethodId: number;
 
   @Field(() => String, { nullable: true })
   @IsOptional()

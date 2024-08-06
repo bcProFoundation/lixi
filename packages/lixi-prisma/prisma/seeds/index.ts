@@ -7,6 +7,7 @@ import { emailTemplates } from './emailTemplates';
 import { emailTemplateTranslations } from './emailTemplateTranslations';
 import { categories } from './categories';
 import { worshipedPersonInVietNam } from './worship/vietnam';
+import { paymentMethod } from './paymentMethod';
 
 const prisma = new PrismaClient();
 
@@ -67,6 +68,17 @@ async function main() {
         where: { id: translation.id },
         update: { ...translation },
         create: { ...translation }
+      });
+    })
+  );
+
+  // add paymentMethod
+  await prisma.$transaction(
+    paymentMethod.map(payment => {
+      return prisma.paymentMethod.upsert({
+        where: { id: payment.id },
+        update: { ...payment },
+        create: { ...payment }
       });
     })
   );

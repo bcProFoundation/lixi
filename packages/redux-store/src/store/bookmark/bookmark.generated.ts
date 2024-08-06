@@ -11,7 +11,7 @@
 
 import * as Types from '../../generated/types.generated';
 
-import { PostFieldsFragmentDoc } from '../post/posts.generated';
+import { PostFieldsFragmentDoc, OfferFieldsFragmentDoc } from '../post/posts.generated';
 import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
 import { api } from '@store/baseApi';
 export type BookmarkFieldsFragment = {
@@ -110,6 +110,7 @@ export type BookmarkTimelineQuery = {
             danaReceivedScore: number;
             version: number;
           } | null;
+          boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
           translations?: Array<{
             __typename?: 'PostTranslation';
             id: string;
@@ -151,6 +152,19 @@ export type BookmarkTimelineQuery = {
                 pollDanaScore: number;
                 accountId: number;
               }> | null;
+            }>;
+          } | null;
+          offer?: {
+            __typename?: 'Offer';
+            postId: string;
+            publicKey: string;
+            message: string;
+            price: string;
+            orderLimitMin: number;
+            orderLimitMax: number;
+            paymentMethods: Array<{
+              __typename?: 'OfferPaymentMethod';
+              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
             }>;
           } | null;
         };

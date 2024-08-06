@@ -32,7 +32,7 @@ import styled from 'styled-components';
 import { QRCodeModal } from './QRCodeModal';
 import { AuthenticationContext } from '@context/index';
 import { useConvertDanaToCoinQuery } from '@store/dana/dana.api';
-import { calBurnAmountWithFee, calBurnAmountWithoutFee } from 'src/utils/burnValueWithFee';
+import { calBurnAmountWithoutFee, calFeeWhenBurn, getItemOwnerHash } from 'src/utils/burnValueWithFee';
 
 const UpDownButton = styled(Button)`
   background: rgb(158, 42, 156);
@@ -105,7 +105,7 @@ const RadioStyle = styled(Radio.Group)`
   }
 `;
 
-const DefaultXpiBurnValues = [1, 10, 50, 100, 200, 500, 1000];
+const DefaultXpiBurnValues = [1, 5, 10, 50, 100, 200, 1000];
 
 interface BurnModalProps {
   burnForItem: BurnForItem;
@@ -121,9 +121,10 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
   const dispatch = useSliceDispatch();
   const selectedAccount = useSliceSelector(getSelectedAccount);
   const [selectedAmount, setSelectedAmount] = useState(1);
-  const [burnAmount, setBurnAmount] = useState(1);
   const [openSelectCurrencies, setOpenSelectCurrencies] = useState(false);
   const [selectCurrencies, setSelectCurrencies] = useState(null);
+  const [itemOwnerHash, setItemOwnerHash] = useState<string>('');
+  const [selectedAccountHash, setSelectedAccountHash] = useState<string>('');
   const defaultSelected = {
     name: 'Lotus',
     symbol: 'xpi',
@@ -136,7 +137,7 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
 
   const [burnAmountPerCoin, setBurnAmountPerCoin] = useState(0);
   const [coinBurned, setCoinBurned] = useState<Coin>(
-    (coinInfo[selectedAccount?.coin ?? COIN.XPI].canBurn ? selectedAccount?.coin : COIN.XPI) as unknown as Coin
+    (coinInfo[selectedAccount?.coin]?.canBurn ? selectedAccount?.coin : COIN.XPI) as unknown as Coin
   );
   const { data: dataBurn } = useConvertDanaToCoinQuery({
     ConvertDanaInput: {
@@ -146,7 +147,6 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
 
   useEffect(() => {
     setBurnAmountPerCoin(dataBurn?.convertDanaToCoin ?? 0);
-    setBurnAmount((coinInfo[coinBurned].burnFee + 1) * dataBurn?.convertDanaToCoin * selectedAmount);
   }, [dataBurn]);
 
   const handleBurn = async (isUpVote: boolean) => {
@@ -241,6 +241,26 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
       })
     );
   };
+
+  //get Owner
+  useEffect(() => {
+    const getOwner = async () => {
+      const itemOwnerHash = await getItemOwnerHash(burnForItem, burnForType);
+      setItemOwnerHash(itemOwnerHash);
+    };
+    getOwner();
+  }, [burnForType, burnForItem]);
+
+  //get selectedAccountHash
+  useEffect(() => {
+    const hash: any = selectedAccount?.hash160;
+    //backend return hash160 is string or {type: 'Buffer', data: []}
+    if (typeof hash !== 'string') {
+      setSelectedAccountHash(Buffer.from(hash?.data).toString('hex'));
+      return;
+    }
+    setSelectedAccountHash(hash);
+  }, []);
 
   const modalSelectWallet = () => {
     return (
@@ -493,7 +513,6 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
               onChange={value => {
                 const amount = Number(value?.target?.value);
                 setSelectedAmount(amount);
-                setBurnAmount(calBurnAmountWithFee(amount, burnAmountPerCoin, false));
                 onChange(value);
               }}
             />
@@ -503,14 +522,22 @@ export const BurnModal = ({ burnForItem, burnForType, classStyle }: BurnModalPro
           {errors.burnedValue && errors.burnedValue.message}
         </p>
       </Form>
-      <p className="amount-burn">{intl.get('burn.youOffering') + selectedAmount + intl.get('general.dana')}.</p>
-
-      <p className="fee-burn">
-        {intl.getHTML('burn.sendDana', {
-          cost: Number.isInteger(burnAmount) ? burnAmount : burnAmount.toFixed(2),
-          coin: coinInfo[coinBurned].ticker
+      <p className="amount-dana">{intl.get('burn.youOffering') + selectedAmount + intl.get('general.dana')}.</p>
+      <p className="amount-burn">
+        {intl.get('burn.amountBurn', {
+          amountBurn: burnAmountPerCoin * selectedAmount,
+          coin: coinInfo[coinBurned].ticker,
+          amountDana: selectedAmount
         })}
       </p>
+      {itemOwnerHash !== selectedAccountHash && (
+        <p className="amount-fee">
+          {intl.get('burn.amountFee', {
+            amountFee: calFeeWhenBurn(selectedAmount, burnAmountPerCoin, coinBurned as unknown as COIN),
+            coin: coinInfo[coinBurned].ticker
+          })}
+        </p>
+      )}
       <p className="trans-amount">
         {intl.get('burn.trans', {
           amount: TRANSLATION_REQUIRE_AMOUNT

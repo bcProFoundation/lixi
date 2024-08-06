@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
@@ -7,8 +7,8 @@ import { OfferPaymentMethod } from './offer-payment-method.model';
 
 @ObjectType()
 export class PaymentMethod {
-  @Field(() => ID)
-  id: string;
+  @Field(() => Number)
+  id: number;
 
   @Field(() => String)
   name: string;

@@ -1,0 +1,51 @@
+query AllOffer($first: Int = 20, $after: String) {
+  allOffer(first: $first, after: $after) {
+    totalCount
+    edges {
+      cursor
+      node {
+        id
+        data {
+          __typename
+          ... on Post {
+            ...PostFields
+          }
+        }
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
+query AllOfferByPublicKey(
+  $publicKey: String!
+  $first: Int = 20
+  $after: String
+) {
+  allOfferByPublicKey(publicKey: $publicKey, first: $first, after: $after) {
+    totalCount
+    edges {
+      cursor
+      node {
+        id
+        data {
+          __typename
+          ... on Post {
+            ...PostFields
+          }
+        }
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
+mutation CreateOffer($input: CreateOfferInput!) {
+  createOffer(data: $input) {
+    ...OfferFields
+  }
+}

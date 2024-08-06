@@ -139,6 +139,38 @@ enum BookmarkType {
   PRODUCT
 }
 
+type BoostFee {
+  boostForId: String!
+  boostForType: BoostForType!
+  boostType: BoostType!
+  boostedByHash: String!
+  boostedValue: Int!
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime
+  id: String!
+  txid: String!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime
+}
+
+"""Boost for something."""
+enum BoostForType {
+  Account
+  Comment
+  Page
+  Post
+  Token
+  Worship
+}
+
+"""The type of boost."""
+enum BoostType {
+  Down
+  Up
+}
+
 type BurnBasicConnection {
   edges: [BurnItemBasicEdge!]!
   pageInfo: BasicPageInfo!
@@ -267,6 +299,7 @@ enum CommentOrderField {
 """The type comment attach to"""
 enum CommentType {
   EVENT
+  OFFER
   POLL
   POST
   PRODUCT
@@ -296,6 +329,15 @@ input CreateBookmarkInput {
   bookmarkType: BookmarkType!
 }
 
+input CreateBoostInput {
+  boostForId: String!
+  boostForType: BoostForType!
+  boostType: BoostType!
+  boostedBy: String!
+  boostedValue: Int!
+  txHex: String!
+}
+
 input CreateCommentInput {
   coinGive: Coin
   commentByPublicKey: String
@@ -319,7 +361,7 @@ input CreateEscrowOrderInput {
   buyerPublicKey: String!
   message: String
   offerId: String!
-  paymentMethodId: String!
+  paymentMethodId: Int!
   price: Int!
   sellerPublicKey: String!
 }
@@ -364,16 +406,16 @@ input CreateMessageInput {
 }
 
 input CreateOfferInput {
-  amount: Int!
   coin: Coin!
-  description: String
+  createFeeHex: String
   location: String
-  orderLimitMax: Int
-  orderLimitMin: Int
-  paymentMethodIds: [String!]!
-  price: Int!
+  message: String!
+  orderLimitMax: Int!
+  orderLimitMin: Int!
+  pageId: String
+  paymentMethodIds: [Int!]!
+  price: String!
   publicKey: String!
-  title: String!
   type: OfferType!
 }
 
@@ -938,6 +980,7 @@ type Mutation {
   closePageMessageSession(data: ClosePageMessageSessionInput!): PageMessageSession!
   create(data: CreateEventInput!): Event!
   createBookmark(data: CreateBookmarkInput!): Bookmark!
+  createBoost(data: CreateBoostInput!): BoostFee!
   createComment(data: CreateCommentInput!): Comment!
   createDispute(data: CreateDisputeInput!): Dispute!
   createEscrowOrder(data: CreateEscrowOrderInput!): EscrowOrder!
@@ -971,53 +1014,29 @@ type Mutation {
 }
 
 type Offer {
-  amount: Int!
   coin: Coin!
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
-  description: String
   escrowOrders: [EscrowOrder!]
-  id: ID!
   location: String
-  orderLimitMax: Int
-  orderLimitMin: Int
+  message: String!
+  orderLimitMax: Int!
+  orderLimitMin: Int!
   paymentMethods: [OfferPaymentMethod!]!
-  price: Int!
+  postId: String!
+  price: String!
   publicKey: String!
   status: OfferStatus!
-  title: String!
   type: OfferType!
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
 }
 
-type OfferConnection {
-  edges: [OfferEdge!]
-  pageInfo: PageInfo!
-  totalCount: Int
-}
-
-type OfferEdge {
+type OfferBasicEdge {
   cursor: String!
   node: Offer!
-}
-
-input OfferOrder {
-  direction: OrderDirection!
-  field: OfferOrderField!
-}
-
-"""Properties by which offer connections can be ordered."""
-enum OfferOrderField {
-  amount
-  createdAt
-  id
-  orderLimitMax
-  orderLimitMin
-  price
-  updatedAt
 }
 
 type OfferPaymentMethod {
@@ -1027,7 +1046,7 @@ type OfferPaymentMethod {
   offer: Offer!
   offerId: String!
   paymentMethod: PaymentMethod!
-  paymentMethodId: String!
+  paymentMethodId: Int!
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
@@ -1196,7 +1215,7 @@ type PaymentMethod {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   escrowOrders: [EscrowOrder!]
-  id: ID!
+  id: Int!
   message: String
   name: String!
   offerPaymentMethods: [OfferPaymentMethod!]
@@ -1240,6 +1259,7 @@ type Post {
   account: Account!
   accountId: Int!
   bookmarkableId: String
+  boostScore: PostBoost
   burnedByOthers: Boolean
   commentableId: String
   content: String!
@@ -1254,6 +1274,7 @@ type Post {
   id: ID!
   imageUploadable: ImageUploadable
   isBookmarked: Boolean
+  offer: Offer
   originalLanguage: String
   page: Page
   pageId: String
@@ -1270,6 +1291,18 @@ type Post {
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
+}
+
+type PostBoost {
+  boostDown: Float!
+  boostReceivedDown: Float!
+  boostReceivedScore: Float!
+  boostReceivedUp: Float!
+  boostScore: Float!
+  boostUp: Float!
+  post: Post!
+  postId: String!
+  version: Int!
 }
 
 type PostConnection {
@@ -1412,13 +1445,14 @@ type Query {
   ): HashtagConnection!
   allHashtagByToken(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: HashtagOrder, skip: Int): HashtagConnection!
   allMessageByPageMessageSessionId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: MessageOrder, skip: Int): MessageConnection!
-  allOffer(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: OfferOrder, skip: Int): OfferConnection!
-  allOfferByPublicKey(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: OfferOrder, publicKey: String!, skip: Int): OfferConnection!
+  allOffer(after: String, first: Int, skip: Int): TimelineItemConnection!
+  allOfferByPublicKey(after: String, first: Int, publicKey: String!, skip: Int): TimelineItemConnection!
   allOpenPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allOpenPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPages(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): PageBasicConnection!
   allPagesByUserId(after: String, first: Int, id: Int, skip: Int): PageBasicConnection!
+  allPaymenMethod: [PaymentMethod!]!
   allPendingPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPendingPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPostsByHashtagId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PostOrder, skip: Int): PostConnection!
@@ -1596,7 +1630,6 @@ type Subscription {
   escrowOrderCreated: EscrowOrder!
   hashtagCreated: Hashtag!
   messageCreated: Message!
-  offerCreated: Offer!
   pageMessageSessionCreated: PageMessageSession!
   templeCreated: Temple!
   worshipedPersonCreated: WorshipedPerson!

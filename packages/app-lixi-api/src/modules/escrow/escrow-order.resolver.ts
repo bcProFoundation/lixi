@@ -8,20 +8,13 @@ import {
   PaginationArgs
 } from '@bcpros/lixi-models';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
-import { Logger, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
+import { Logger, UseFilters } from '@nestjs/common';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PubSub } from 'graphql-subscriptions';
 import * as _ from 'lodash';
-import moment from 'moment';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { connectionFromArraySlice } from 'src/common/custom-graphql-relay/arrayConnection';
-import { AccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
-import ConnectionArgs, { getPagingParameters } from '../../common/custom-graphql-relay/connection.args';
-import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
-import { PERSON } from '../page/constants/meili.constants';
-import { MeiliService } from '../page/meili.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { EscrowOrderStatus } from '@bcpros/lixi-prisma';
 
@@ -88,7 +81,7 @@ export class EscrowOrderResolver {
         ..._.omit(data, 'offerId', 'paymentMethodId'),
         offer: {
           connect: {
-            id: offerId
+            postId: offerId
           }
         },
         paymentMethod: {

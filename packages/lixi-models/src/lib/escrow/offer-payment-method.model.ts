@@ -18,8 +18,8 @@ export class OfferPaymentMethod {
   @Field(() => PaymentMethod)
   paymentMethod: PaymentMethod;
 
-  @Field(() => String)
-  paymentMethodId: string;
+  @Field(() => Number)
+  paymentMethodId: number;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.'

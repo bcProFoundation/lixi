@@ -3,6 +3,7 @@ export * from './reducer';
 export * from './api';
 export * from './selectors';
 export * from './saga';
+export * from './actions';
 export * as postApi from './posts.api';
 export * as pollApi from './polls.api';
 export * from './useInfinitePostsByPageIdQuery';

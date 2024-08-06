@@ -44,6 +44,8 @@ export default {
   'burn.account': 'tài khoản',
   'burn.doneBurning': 'Đốt thành công!',
   'burn.sendDana': 'Bạn sẽ trả <b>{cost} {coin}</b> (Chưa tính phí của thợ đào).',
+  'burn.amountBurn': 'Phí Dana: Bạn sẽ trả {amountBurn} {coin} cho {amountDana} Dana.',
+  'burn.amountFee': 'Phí của chủ: Bạn sẽ trả {amountFee} {coin} cho người chủ.',
   'burn.owner': ' tới chủ {name} ',
   'burn.feeMiner': 'Chưa tính phí thợ đào',
   'burn.trans': 'Bài viết với {amount} Dana trở lên sẽ được dịch.',
@@ -921,5 +923,8 @@ export default {
   'poll.selectType': 'Chọn theo loại',
   'poll.canAdd': 'Người bầu chọn có thể thêm lựa chọn',
   'poll.vote': 'Bầu chọn',
-  'poll.requireDana': 'Cần Dana để bầu chọn'
+  'poll.requireDana': 'Cần Dana để bầu chọn',
+
+  /*22. Escrow */
+  'escrow.unablegetPaymentMethod': 'Unable to get paymentMethod'
 };

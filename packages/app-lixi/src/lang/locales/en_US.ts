@@ -45,6 +45,8 @@ export default {
   'burn.account': 'account',
   'burn.doneBurning': 'Burning completed!',
   'burn.sendDana': "You will pay <b>{cost} {coin}</b> (Excluding miner's fees).",
+  'burn.amountBurn': 'Dana fees: {amountBurn} {coin} for {amountDana} Dana.',
+  'burn.amountFee': 'Moderation fees: {amountFee} {coin} pay to owner.',
   'burn.owner': ' to {name} owner',
   'burn.feeMiner': "Miners' fees excluded",
   'burn.trans': 'Translation is enabled with {amount} Dana or more.',
@@ -922,5 +924,8 @@ export default {
   'poll.selectType': 'Select-type ',
   'poll.canAdd': 'User can add option',
   'poll.vote': 'Vote',
-  'poll.requireDana': 'Required Dana to vote.'
+  'poll.requireDana': 'Required Dana to vote.',
+
+  /*22. Escrow */
+  'escrow.unablegetPaymentMethod': 'Unable to get paymentMethod'
 };
