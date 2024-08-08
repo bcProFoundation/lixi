@@ -144,18 +144,6 @@ fragment AccountFields on Account {
   }
 }
 
-mutation createAccount($input: CreateAccountInput!) {
-  createAccount(data: $input) {
-    ...AccountFields
-  }
-}
-
-mutation importAccount($input: ImportAccountInput!) {
-  importAccount(data: $input) {
-    ...AccountFields
-  }
-}
-
 mutation updateAccount($input: UpdateAccountInput!) {
   updateAccount(data: $input) {
     ...AccountFields
