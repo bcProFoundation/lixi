@@ -624,7 +624,7 @@ type EscrowOrder {
   offer: Offer!
   offerId: String!
   paymentMethod: PaymentMethod!
-  paymentMethodId: String!
+  paymentMethodId: Int!
   price: Int!
   sellerPublicKey: String!
   status: EscrowOrderStatus!

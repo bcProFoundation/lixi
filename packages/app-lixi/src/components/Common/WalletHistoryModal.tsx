@@ -250,7 +250,10 @@ const WalletHistoryModal = ({ coin = COIN.XPI, classStyle }: WalletHistoryProps)
 
   //change tx history when change wallet
   useEffect(() => {
-    setDataWalletParsedHistory(walletParsedHistory);
+    //dont change for other wallet
+    if ((walletParsedHistory[0]?.network ?? COIN.XPI) === coin) {
+      setDataWalletParsedHistory(walletParsedHistory);
+    }
   }, [walletParsedHistory]);
 
   return (

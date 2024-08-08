@@ -77,6 +77,9 @@ const WalletCard = styled.div`
   .btn-switch {
     cursor: pointer;
   }
+  .btn-show {
+    background: none;
+  }
 `;
 
 const StyledBalanceHeader = styled.div`

@@ -6,9 +6,6 @@ const enhancedApi = api.enhanceEndpoints({
     getAccountByAddress: {
       providesTags: (result, error, arg) => ['Account']
     },
-    createAccount: {
-      invalidatesTags: ['Account']
-    },
     updateAccount: {
       invalidatesTags: ['Account']
     }
@@ -20,8 +17,6 @@ export { enhancedApi as api };
 export const {
   useGetAccountByAddressQuery,
   useLazyGetAccountByAddressQuery,
-  useCreateAccountMutation,
-  useImportAccountMutation,
   useUpdateAccountMutation,
   useAllFollowersByPageQuery,
   useLazyAllFollowersByPageQuery,

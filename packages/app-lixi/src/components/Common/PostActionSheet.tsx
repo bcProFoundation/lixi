@@ -15,6 +15,7 @@ import {
   ParamPostFollowCommand,
   RemovePostInput
 } from '@bcpros/lixi-models';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { getSelectedAccount, getSelectedAccountId } from '@store/account';
 import {
   useCreateFollowAccountMutation,
@@ -26,6 +27,7 @@ import {
 } from '@store/follow/follows.api';
 import {
   BookmarkType,
+  Coin,
   CreateBookmarkInput,
   CreateFollowAccountInput,
   DeleteFollowAccountInput,
@@ -42,6 +44,7 @@ import { useCreateBookmarkMutation, useRemoveBookmarkMutation } from '@store/boo
 import { showToast } from '@store/toast';
 import { useRemovePostMutation } from '@store/post/posts.api';
 import { usePageQuery } from '@store/page/pages.api';
+import { useConvertDanaToCoinQuery } from '@store/dana/dana.api';
 
 interface PostActionSheetProps {
   id?: string;
@@ -138,6 +141,17 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
   const [openCreatePost, setOpenCreatePost] = useState<boolean>(false);
   const selectedAccount = useSliceSelector(getSelectedAccount);
   const walletStatus = useSliceSelector(getWalletStatus);
+
+  const [postFee, setPostFee] = useState(0);
+  const { data: dataFee } = useConvertDanaToCoinQuery({
+    ConvertDanaInput: {
+      convertToCoin: (selectedAccount?.coin ?? COIN.XPI) as unknown as Coin
+    }
+  });
+
+  useEffect(() => {
+    setPostFee((dataFee?.convertDanaToCoin ?? 0) * Number(page?.createPostFee ?? 0));
+  }, [dataFee]);
 
   //bookmark
   const [isBookmarked, setIsBookmarked] = useState<boolean>(post?.isBookmarked);
@@ -437,7 +451,8 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
                       })
                     : intl.get('page.createPostOnPage', {
                         pageName: currentDataPageQuery?.page?.name,
-                        fee: parseInt(post.page.createPostFee)
+                        fee: postFee,
+                        coin: selectedAccount?.coin ?? COIN.XPI
                       })
                 }`}
                 icon="/images/ico-create-post.svg"

@@ -422,96 +422,6 @@ export type AccountFieldsFragment = {
   } | null;
 };
 
-export type CreateAccountMutationVariables = Types.Exact<{
-  input: Types.CreateAccountInput;
-}>;
-
-export type CreateAccountMutation = {
-  __typename?: 'Mutation';
-  createAccount: {
-    __typename?: 'Account';
-    id: number;
-    name: string;
-    address: string;
-    hash160?: string | null;
-    mnemonicHash?: string | null;
-    encryptedMnemonic?: string | null;
-    encryptedSecret?: string | null;
-    publicKey?: string | null;
-    language: string;
-    followersCount?: number | null;
-    followingsCount?: number | null;
-    followingPagesCount?: number | null;
-    totalDanaViewScore?: number | null;
-    website?: string | null;
-    description?: string | null;
-    createCommentFee?: string | null;
-    createdAt: any;
-    updatedAt: any;
-    avatar?: string | null;
-    cover?: string | null;
-    rankNumber?: number | null;
-    rankScore?: number | null;
-    pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
-    accountDana?: {
-      __typename?: 'AccountDana';
-      danaGiven?: number | null;
-      danaReceived?: number | null;
-      danaBurnUp: number;
-      danaBurnDown: number;
-      danaBurnScore: number;
-      danaReceivedUp: number;
-      danaReceivedDown: number;
-      danaReceivedScore: number;
-    } | null;
-  };
-};
-
-export type ImportAccountMutationVariables = Types.Exact<{
-  input: Types.ImportAccountInput;
-}>;
-
-export type ImportAccountMutation = {
-  __typename?: 'Mutation';
-  importAccount: {
-    __typename?: 'Account';
-    id: number;
-    name: string;
-    address: string;
-    hash160?: string | null;
-    mnemonicHash?: string | null;
-    encryptedMnemonic?: string | null;
-    encryptedSecret?: string | null;
-    publicKey?: string | null;
-    language: string;
-    followersCount?: number | null;
-    followingsCount?: number | null;
-    followingPagesCount?: number | null;
-    totalDanaViewScore?: number | null;
-    website?: string | null;
-    description?: string | null;
-    createCommentFee?: string | null;
-    createdAt: any;
-    updatedAt: any;
-    avatar?: string | null;
-    cover?: string | null;
-    rankNumber?: number | null;
-    rankScore?: number | null;
-    pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
-    accountDana?: {
-      __typename?: 'AccountDana';
-      danaGiven?: number | null;
-      danaReceived?: number | null;
-      danaBurnUp: number;
-      danaBurnDown: number;
-      danaBurnScore: number;
-      danaReceivedUp: number;
-      danaReceivedDown: number;
-      danaReceivedScore: number;
-    } | null;
-  };
-};
-
 export type UpdateAccountMutationVariables = Types.Exact<{
   input: Types.UpdateAccountInput;
 }>;
@@ -701,20 +611,6 @@ export const TopMonthAccountsDocument = `
 }
     ${AccountFieldsFragmentDoc}
 ${BasicPageInfoFieldsFragmentDoc}`;
-export const CreateAccountDocument = `
-    mutation createAccount($input: CreateAccountInput!) {
-  createAccount(data: $input) {
-    ...AccountFields
-  }
-}
-    ${AccountFieldsFragmentDoc}`;
-export const ImportAccountDocument = `
-    mutation importAccount($input: ImportAccountInput!) {
-  importAccount(data: $input) {
-    ...AccountFields
-  }
-}
-    ${AccountFieldsFragmentDoc}`;
 export const UpdateAccountDocument = `
     mutation updateAccount($input: UpdateAccountInput!) {
   updateAccount(data: $input) {
@@ -746,12 +642,6 @@ const injectedRtkApi = api.injectEndpoints({
     }),
     topMonthAccounts: build.query<TopMonthAccountsQuery, TopMonthAccountsQueryVariables>({
       query: variables => ({ document: TopMonthAccountsDocument, variables })
-    }),
-    createAccount: build.mutation<CreateAccountMutation, CreateAccountMutationVariables>({
-      query: variables => ({ document: CreateAccountDocument, variables })
-    }),
-    importAccount: build.mutation<ImportAccountMutation, ImportAccountMutationVariables>({
-      query: variables => ({ document: ImportAccountDocument, variables })
     }),
     updateAccount: build.mutation<UpdateAccountMutation, UpdateAccountMutationVariables>({
       query: variables => ({ document: UpdateAccountDocument, variables })

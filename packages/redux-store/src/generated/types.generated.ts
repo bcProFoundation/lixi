@@ -18,6 +18,12 @@ export type Scalars = {
   Decimal: { input: any; output: any };
 };
 
+export type AcceptEscrowOrderInput = {
+  nonce: Scalars['String']['input'];
+  orderId: Scalars['String']['input'];
+  script: Scalars['String']['input'];
+};
+
 export type Account = {
   __typename?: 'Account';
   accountDana?: Maybe<AccountDana>;
@@ -223,6 +229,10 @@ export type BurnItemBasicEdge = {
   node: BurnItem;
 };
 
+export type CancelEscrowOrderInput = {
+  orderId: Scalars['String']['input'];
+};
+
 export type Category = {
   __typename?: 'Category';
   /** Identifies the date and time when the object was created. */
@@ -340,13 +350,6 @@ export type Country = {
   state: Array<State>;
 };
 
-export type CreateAccountInput = {
-  encryptedMnemonic: Scalars['String']['input'];
-  language: Scalars['String']['input'];
-  mnemonic: Scalars['String']['input'];
-  mnemonicHash: Scalars['String']['input'];
-};
-
 export type CreateBookmarkInput = {
   accountId: Scalars['Int']['input'];
   bookmarkForId: Scalars['String']['input'];
@@ -383,7 +386,6 @@ export type CreateEscrowOrderInput = {
   amount: Scalars['Int']['input'];
   arbitratorPublicKey: Scalars['String']['input'];
   buyerPublicKey: Scalars['String']['input'];
-  escrowAddress?: InputMaybe<Scalars['String']['input']>;
   message?: InputMaybe<Scalars['String']['input']>;
   offerId: Scalars['String']['input'];
   paymentMethodId: Scalars['Int']['input'];
@@ -644,7 +646,7 @@ export type EscrowOrder = {
   offer: Offer;
   offerId: Scalars['String']['output'];
   paymentMethod: PaymentMethod;
-  paymentMethodId: Scalars['String']['output'];
+  paymentMethodId: Scalars['Int']['output'];
   price: Scalars['Int']['output'];
   sellerPublicKey: Scalars['String']['output'];
   status: EscrowOrderStatus;
@@ -878,12 +880,6 @@ export enum ImageUploadableType {
   TempleCover = 'TEMPLE_COVER'
 }
 
-export type ImportAccountInput = {
-  language?: InputMaybe<Scalars['String']['input']>;
-  mnemonic: Scalars['String']['input'];
-  mnemonicHash?: InputMaybe<Scalars['String']['input']>;
-};
-
 export type LatestMessage = {
   __typename?: 'LatestMessage';
   author?: Maybe<LatestMessageAuthor>;
@@ -1007,9 +1003,10 @@ export type MessageSessionEdge = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  acceptEscrowOrder: EscrowOrder;
+  cancelEscrowOrder: EscrowOrder;
   closePageMessageSession: PageMessageSession;
   create: Event;
-  createAccount: Account;
   createBookmark: Bookmark;
   createBoost: BoostFee;
   createComment: Comment;
@@ -1035,7 +1032,6 @@ export type Mutation = {
   deleteFollowAccount: Scalars['Boolean']['output'];
   deleteFollowPage: Scalars['Boolean']['output'];
   deleteFollowToken: Scalars['Boolean']['output'];
-  importAccount: Account;
   openPageMessageSession: PageMessageSession;
   removeBookmark: Bookmark;
   removePost: Post;
@@ -1045,16 +1041,20 @@ export type Mutation = {
   updatePost: Post;
 };
 
+export type MutationAcceptEscrowOrderArgs = {
+  data: AcceptEscrowOrderInput;
+};
+
+export type MutationCancelEscrowOrderArgs = {
+  data: CancelEscrowOrderInput;
+};
+
 export type MutationClosePageMessageSessionArgs = {
   data: ClosePageMessageSessionInput;
 };
 
 export type MutationCreateArgs = {
   data: CreateEventInput;
-};
-
-export type MutationCreateAccountArgs = {
-  data: CreateAccountInput;
 };
 
 export type MutationCreateBookmarkArgs = {
@@ -1155,10 +1155,6 @@ export type MutationDeleteFollowPageArgs = {
 
 export type MutationDeleteFollowTokenArgs = {
   data: DeleteFollowTokenInput;
-};
-
-export type MutationImportAccountArgs = {
-  data: ImportAccountInput;
 };
 
 export type MutationOpenPageMessageSessionArgs = {

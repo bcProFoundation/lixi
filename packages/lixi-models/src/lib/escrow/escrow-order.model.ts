@@ -27,8 +27,8 @@ export class EscrowOrder {
   @Field(() => PaymentMethod)
   paymentMethod: PaymentMethod;
 
-  @Field(() => String)
-  paymentMethodId: string;
+  @Field(() => Number)
+  paymentMethodId: number;
 
   @Field(() => String, { nullable: true })
   @IsOptional()
