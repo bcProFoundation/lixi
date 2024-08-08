@@ -192,6 +192,7 @@ type BurnItem {
   burnType: Boolean!
   burnedBy: Account!
   burnedValue: Int!
+  coinBurned: Coin
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime

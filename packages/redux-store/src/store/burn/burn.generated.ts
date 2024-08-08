@@ -21,6 +21,7 @@ export type BurnFieldsFragment = {
   burnForType: Types.BurnForTypeItem;
   burnForId: string;
   burnedValue: number;
+  coinBurned?: Types.Coin | null;
   createdAt?: any | null;
   updatedAt?: any | null;
   burnedBy: { __typename?: 'Account'; id: number; name: string; avatar?: string | null; address: string };
@@ -48,6 +49,7 @@ export type PostBurnHistoryQuery = {
         burnForType: Types.BurnForTypeItem;
         burnForId: string;
         burnedValue: number;
+        coinBurned?: Types.Coin | null;
         createdAt?: any | null;
         updatedAt?: any | null;
         burnedBy: { __typename?: 'Account'; id: number; name: string; avatar?: string | null; address: string };
@@ -71,6 +73,7 @@ export const BurnFieldsFragmentDoc = `
     avatar
     address
   }
+  coinBurned
   createdAt
   updatedAt
 }

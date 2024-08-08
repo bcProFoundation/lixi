@@ -11,6 +11,7 @@ fragment BurnFields on BurnItem {
     avatar
     address
   }
+  coinBurned
   createdAt
   updatedAt
 }

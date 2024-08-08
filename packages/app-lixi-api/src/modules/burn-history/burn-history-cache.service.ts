@@ -1,4 +1,4 @@
-import { BurnItem } from '@bcpros/lixi-models';
+import { BurnItem, COIN } from '@bcpros/lixi-models';
 import { PrismaService } from '../prisma/prisma.service';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
@@ -32,7 +32,8 @@ export class BurnHistoryCacheService {
 
       const burnData: BurnItem = new BurnItem({
         ...dbValue,
-        burnedBy: dbValue?.burnedBy.toString('hex')
+        burnedBy: dbValue?.burnedBy.toString('hex'),
+        coinBurned: dbValue.coinBurned as unknown as COIN
       });
       await this.redis.hset(BurnHistoryCacheService.KeyBurnItem, id, Buffer.from(encode(burnData)));
       return burnData;
@@ -73,7 +74,8 @@ export class BurnHistoryCacheService {
         dbValues.map(dbValue => {
           const burnItem = new BurnItem({
             ...dbValue,
-            burnedBy: dbValue?.burnedBy.toString('hex')
+            burnedBy: dbValue?.burnedBy.toString('hex'),
+            coinBurned: dbValue.coinBurned as unknown as COIN
           });
           burnsMap.set(dbValue.id, burnItem);
           const buffer = encode(burnItem);
