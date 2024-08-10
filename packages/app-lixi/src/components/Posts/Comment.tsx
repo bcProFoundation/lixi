@@ -321,11 +321,10 @@ const Comment = ({ post }: CommentProps) => {
   });
 
   const showTextComment = () => {
+    const selectedCoin = selectedAccount?.coin ?? COIN.XPI;
     const cashDecimals =
-      (selectedAccount?.coin ?? COIN.XPI) === COIN.XRG
-        ? coinInfo[COIN.XRG].microCashDecimals
-        : coinInfo[selectedAccount?.coin].cashDecimals;
-    const commentFee = `${fromSmallestDenomination(coinInfo[selectedAccount?.coin ?? COIN.XPI].dustSats, cashDecimals)} ${coinInfo[selectedAccount?.coin ?? COIN.XPI].ticker}`;
+      selectedCoin === COIN.XRG ? coinInfo[COIN.XRG].microCashDecimals : coinInfo[selectedCoin].cashDecimals;
+    const commentFee = `${fromSmallestDenomination(coinInfo[selectedCoin].dustSats, cashDecimals)} ${coinInfo[selectedCoin].ticker}`;
     if (post.page) {
       return post.page.createCommentFee != '0'
         ? intl.get('comment.writeCommentCoin', {
@@ -422,7 +421,7 @@ const Comment = ({ post }: CommentProps) => {
         const coinGive = textGive.substring(textGive.length - 3, textGive.length) as COIN;
 
         const { nonSlpUtxos } = await getUtxosByCoin(coinGive);
-        const utxos = selectedAccount?.coin === coinGive ? slpBalancesAndUtxos.nonSlpUtxos : nonSlpUtxos;
+        const utxos = (selectedAccount?.coin ?? COIN.XPI) === coinGive ? slpBalancesAndUtxos.nonSlpUtxos : nonSlpUtxos;
         const balances = utxos.reduce((accu, currentValue) => accu + parseFloat(currentValue.value), 0);
         //check if amount is valid
         if (validateCoinAmount(amount, balances, coinGive)) {

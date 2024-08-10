@@ -798,7 +798,7 @@ const PageMessage = () => {
         const coinGive = textGive.substring(textGive.length - 3, textGive.length) as COIN;
 
         const { nonSlpUtxos } = await getUtxosByCoin(coinGive);
-        const utxos = selectedAccount?.coin === coinGive ? slpBalancesAndUtxos.nonSlpUtxos : nonSlpUtxos;
+        const utxos = (selectedAccount?.coin ?? COIN.XPI) === coinGive ? slpBalancesAndUtxos.nonSlpUtxos : nonSlpUtxos;
         const balances = utxos.reduce((accu, currentValue) => accu + parseFloat(currentValue.value), 0);
 
         //check if amount is valid
