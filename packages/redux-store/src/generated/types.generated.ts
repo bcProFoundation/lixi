@@ -215,6 +215,7 @@ export type BurnItem = {
   burnType: Scalars['Boolean']['output'];
   burnedBy: Account;
   burnedValue: Scalars['Int']['output'];
+  coinBurned?: Maybe<Coin>;
   /** Identifies the date and time when the object was created. */
   createdAt?: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['ID']['output'];

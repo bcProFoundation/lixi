@@ -2,6 +2,7 @@ import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import type { Nullable } from './nullable';
+import { COIN } from '../constants/coins/coin';
 
 export enum BurnForTypeItem {
   Page = 0x5f01,
@@ -37,6 +38,9 @@ export class BurnItem {
 
   @Field(() => Number)
   burnedValue: number;
+
+  @Field(() => COIN, { nullable: true })
+  coinBurned?: Nullable<COIN>;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.',
