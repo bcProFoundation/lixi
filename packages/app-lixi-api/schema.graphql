@@ -362,7 +362,7 @@ input CreateEscrowOrderInput {
   buyerPublicKey: String!
   message: String
   offerId: String!
-  paymentMethodId: String!
+  paymentMethodId: Int!
   price: Int!
   sellerPublicKey: String!
 }
