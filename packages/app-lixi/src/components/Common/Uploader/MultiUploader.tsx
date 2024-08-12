@@ -14,6 +14,8 @@ import { ButtonType } from 'antd/lib/button';
 import { showToast } from '@store/toast/actions';
 import React from 'react';
 import { getPostCoverUploads } from '@store/account/selectors';
+import { getTempEditPostCoverUploads } from '@store/post/selectors';
+import { setUploadTempPost } from '@store/post/actions';
 
 const getBase64 = (file: RcFile): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -98,6 +100,8 @@ export const MultiUploader = React.forwardRef(
     const dispatch = useSliceDispatch();
     const postCoverUploads = useSliceSelector(getPostCoverUploads);
     const { imageUploadableId } = postCoverUploads;
+    const tempEditPostCoverUploads = useSliceSelector(getTempEditPostCoverUploads);
+    const { imageUploadableId: tempEditPostImageUploadbleId } = tempEditPostCoverUploads;
 
     useImperativeHandle(ref, () => ({
       async uploadImageFromClipboard(options) {
@@ -114,11 +118,10 @@ export const MultiUploader = React.forwardRef(
         };
 
         if (lastLengthUpload.current === countFile.current) {
-          if (imageUploadableId) {
-            formData.append('imageUploadableId', imageUploadableId);
+          if (tempEditPostImageUploadbleId ?? imageUploadableId) {
+            formData.append('imageUploadableId', tempEditPostImageUploadbleId ?? imageUploadableId);
           }
           formData.append('type', type);
-
           setUploadingImage(true);
           await axiosClient
             .post(url, formData, config)
@@ -126,9 +129,13 @@ export const MultiUploader = React.forwardRef(
               setUploadingImage(false);
               const { data } = response;
               const { images, imageUploadableId } = data;
-              images.map(image => {
-                dispatch(setUpload({ upload: { ...image, commentId }, type: type, imageUploadableId }));
-              });
+              if (!tempEditPostImageUploadbleId) {
+                images.map(image => {
+                  dispatch(setUpload({ upload: { ...image, commentId }, type: type, imageUploadableId }));
+                });
+              } else {
+                dispatch(setUploadTempPost({ uploads: images }));
+              }
 
               dispatch(
                 showToast('success', {
@@ -257,8 +264,8 @@ export const MultiUploader = React.forwardRef(
         }
       };
       if (lastLengthUpload.current === countFile.current) {
-        if (imageUploadableId) {
-          formData.append('imageUploadableId', imageUploadableId);
+        if (tempEditPostImageUploadbleId ?? imageUploadableId) {
+          formData.append('imageUploadableId', tempEditPostImageUploadbleId ?? imageUploadableId);
         }
         formData.append('type', type);
 
@@ -268,9 +275,11 @@ export const MultiUploader = React.forwardRef(
             const { data } = response;
             const { images, imageUploadableId } = data;
             return onSuccess(
-              images.map(image => {
-                dispatch(setUpload({ upload: { ...image, commentId }, type: type, imageUploadableId }));
-              })
+              !tempEditPostImageUploadbleId
+                ? images.map(image => {
+                    dispatch(setUpload({ upload: { ...image, commentId }, type: type, imageUploadableId }));
+                  })
+                : dispatch(setUploadTempPost({ uploads: images }))
             );
           })
           .catch(err => {

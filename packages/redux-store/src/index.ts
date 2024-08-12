@@ -4,6 +4,7 @@ import type {} from '@reduxjs/toolkit';
 import type {} from 'types';
 export * from './context/index';
 export * from './generated/types.generated';
+export * from './generated/types';
 export * from './graphql/fragments/page-info-fields.fragment.generated';
 export * from './hooks/useXPI';
 export * from './hooks/useWallet';

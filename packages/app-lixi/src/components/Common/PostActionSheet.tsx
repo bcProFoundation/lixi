@@ -37,7 +37,7 @@ import { getWalletStatus } from '@store/wallet';
 import { useSwipeable } from 'react-swipeable';
 import { useUserHadMessageToPageQuery } from '@store/message/pageMessageSession.api';
 import CreatePostCard from './CreatePostCard';
-import { changeFollowActionSheetPost } from '@store/post/actions';
+import { changeFollowActionSheetPost, setUploadTempPost } from '@store/post/actions';
 import { FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
 import { useRouter } from 'next/router';
 import { useCreateBookmarkMutation, useRemoveBookmarkMutation } from '@store/bookmark/bookmark.api';
@@ -268,6 +268,11 @@ export const PostActionSheet: React.FC<PostActionSheetProps> = ({
       content: post.content,
       postId: post.id
     };
+    if (post?.imageUploadable) {
+      dispatch(
+        setUploadTempPost({ uploads: post.imageUploadable?.uploads, imageUploadableId: post.imageUploadable?.id })
+      );
+    }
     dispatch(openModal('EditPostModalPopup', editPostProps));
     dispatch(closeActionSheet());
   };
