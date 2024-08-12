@@ -2,6 +2,7 @@ import { GlobalOutlined } from '@ant-design/icons';
 import EditorLexical from '@components/Common/Lexical/EditorLexical';
 import { UpdatePostInput } from '@generated/types.generated';
 import { getSelectedAccount } from '@store/account/selectors';
+import { removeAllUploadTempPost } from '@store/post/actions';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { closeModal } from '@store/modal/actions';
 import { useUpdatePostMutation } from '@store/post/posts.api';
@@ -87,6 +88,7 @@ export const EditPostModalPopup: React.FC<EditPostModalProps> = props => {
     try {
       await updatePostTrigger({ input: editPostInput }).unwrap();
 
+      dispatch(removeAllUploadTempPost());
       dispatch(closeModal());
       dispatch(
         showToast('success', {
@@ -114,7 +116,10 @@ export const EditPostModalPopup: React.FC<EditPostModalProps> = props => {
       transitionName=""
       open={true}
       footer={null}
-      onCancel={() => dispatch(closeModal())}
+      onCancel={() => {
+        dispatch(closeModal());
+        dispatch(removeAllUploadTempPost());
+      }}
     >
       <UserCreate>
         <div className="user-create-post">

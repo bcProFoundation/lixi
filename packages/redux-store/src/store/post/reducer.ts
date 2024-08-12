@@ -6,11 +6,14 @@ import {
   fetchAllPostsSuccess,
   getPostSuccess,
   postPostSuccess,
+  removeAllUploadTempPost,
+  removeUploadTempPost,
   setNewPostAvailable,
   setPost,
   setPostsByAccountId,
   setSelectedPost,
-  setShowCreatePost
+  setShowCreatePost,
+  setUploadTempPost
 } from './actions';
 import { PostState } from './state';
 
@@ -23,7 +26,8 @@ const initialState: PostState = postAdapter.getInitialState({
   isNewPost: false,
   selectedId: '',
   postsByAccountId: [],
-  showCreatePost: true
+  showCreatePost: true,
+  tempEditPostCoverUploads: { images: [], imageUploadableId: null }
 });
 
 export const postReducer = createReducer(initialState, builder => {
@@ -71,5 +75,27 @@ export const postReducer = createReducer(initialState, builder => {
     })
     .addCase(setShowCreatePost, (state, action) => {
       state.showCreatePost = action.payload;
+    })
+    .addCase(setUploadTempPost, (state, action) => {
+      const { uploads, imageUploadableId } = action.payload;
+
+      if (imageUploadableId) {
+        state.tempEditPostCoverUploads.imageUploadableId = imageUploadableId;
+      }
+      state.tempEditPostCoverUploads.images.push(...uploads);
+    })
+    .addCase(removeUploadTempPost, (state, action) => {
+      const { id } = action.payload;
+
+      state.tempEditPostCoverUploads.images = state.tempEditPostCoverUploads.images.filter(image => {
+        return image.id !== id;
+      });
+      if (state.tempEditPostCoverUploads.images.length === 0) {
+        state.tempEditPostCoverUploads.imageUploadableId = null;
+      }
+    })
+    .addCase(removeAllUploadTempPost, (state, action) => {
+      state.tempEditPostCoverUploads.images = [];
+      state.tempEditPostCoverUploads.imageUploadableId = null;
     });
 });

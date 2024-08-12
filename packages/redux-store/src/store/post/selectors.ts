@@ -35,3 +35,8 @@ export const getShowCreatePost = createSelector(
   (state: LixiStoreStateInterface) => state.posts,
   (state: PostState) => state.showCreatePost
 );
+
+export const getTempEditPostCoverUploads = createSelector(
+  (state: LixiStoreStateInterface) => state.posts,
+  (state: PostState) => state.tempEditPostCoverUploads
+);

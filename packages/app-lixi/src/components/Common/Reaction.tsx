@@ -389,9 +389,9 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         </div>
         <HintMobile>
           {selectedAccountHash !== itemOwnerHash
-            ? calBurnAmountWithFee(Number(OPTION_BURN_VALUE.DISLIKE), burnAmountPerCoin, coinBurned as unknown as COIN)
+            ? calBurnAmountWithFee(Number(OPTION_BURN_VALUE.LIKE), burnAmountPerCoin, coinBurned as unknown as COIN)
             : calBurnAmountWithoutFee(
-                Number(OPTION_BURN_VALUE.DISLIKE),
+                Number(OPTION_BURN_VALUE.LIKE),
                 burnAmountPerCoin,
                 coinBurned === Coin.Xrg ? false : true
               )}
@@ -411,9 +411,9 @@ const Reaction = ({ burnForType, dataItem }: ReactionProps) => {
         </div>
         <HintMobile>
           {selectedAccountHash !== itemOwnerHash
-            ? calBurnAmountWithFee(Number(OPTION_BURN_VALUE.DISLIKE), burnAmountPerCoin, coinBurned as unknown as COIN)
+            ? calBurnAmountWithFee(Number(OPTION_BURN_VALUE.LOVE), burnAmountPerCoin, coinBurned as unknown as COIN)
             : calBurnAmountWithoutFee(
-                Number(OPTION_BURN_VALUE.DISLIKE),
+                Number(OPTION_BURN_VALUE.LOVE),
                 burnAmountPerCoin,
                 coinBurned === Coin.Xrg ? false : true
               )}
