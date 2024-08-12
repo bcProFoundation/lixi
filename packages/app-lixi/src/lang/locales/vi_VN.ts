@@ -44,7 +44,7 @@ export default {
   'burn.account': 'tài khoản',
   'burn.doneBurning': 'Đốt thành công!',
   'burn.sendDana': 'Bạn sẽ trả <b>{cost} {coin}</b> (Chưa tính phí của thợ đào).',
-  'burn.amountBurn': 'Phí Dana: Bạn sẽ trả {amountBurn} {coin} cho {amountDana} Dana.',
+  'burn.amountBurn': 'Phí Dana: Bạn sẽ trả {amountBurn} {coin} cho {amountDana} Dana (Chưa tính phí của thợ đào).',
   'burn.amountFee': 'Phí của chủ: Bạn sẽ trả {amountFee} {coin} cho người chủ.',
   'burn.owner': ' tới chủ {name} ',
   'burn.feeMiner': 'Chưa tính phí thợ đào',
@@ -557,7 +557,7 @@ export default {
   'page.xpiHasBurned': 'XPI đã được đốt',
   'page.noXpiHasBurned': 'Chưa ai đốt cho trang này!',
   'category.foodAndDrink': 'Đồ ăn và thức uống',
-  'page.createPostOnPage': 'Tạo bài viết trên {pageName} (Fee: {fee} XPI)',
+  'page.createPostOnPage': 'Tạo bài viết trên {pageName} (Fee: {fee} {coin})',
 
   /* 14.Country */
   'country.unablegetCountries': 'Không thể tải quốc gia',

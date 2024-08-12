@@ -45,7 +45,7 @@ export default {
   'burn.account': 'account',
   'burn.doneBurning': 'Burning completed!',
   'burn.sendDana': "You will pay <b>{cost} {coin}</b> (Excluding miner's fees).",
-  'burn.amountBurn': 'Dana fees: {amountBurn} {coin} for {amountDana} Dana.',
+  'burn.amountBurn': "Dana fees: {amountBurn} {coin} for {amountDana} Dana (Excluding miner's fees).",
   'burn.amountFee': 'Moderation fees: {amountFee} {coin} pay to owner.',
   'burn.owner': ' to {name} owner',
   'burn.feeMiner': "Miners' fees excluded",
@@ -558,7 +558,7 @@ export default {
   'page.xpiHasBurned': 'XPI has been burned',
   'page.noXpiHasBurned': 'No one has burned for this page!',
   'page.selectAccountFirst': 'Please Select an account first before creating page',
-  'page.createPostOnPage': 'Create a post on {pageName} (Fee: {fee} XPI)',
+  'page.createPostOnPage': 'Create a post on {pageName} (Fee: {fee} {coin})',
 
   /* 14.Country */
   'country.unablegetCountries': 'Unable to get countries',

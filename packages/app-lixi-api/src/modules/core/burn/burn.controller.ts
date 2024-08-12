@@ -109,7 +109,8 @@ export class BurnController {
             burnForType: command.burnForType,
             burnedBy: Buffer.from(command.burnedBy, 'hex'),
             burnForId: command.burnForId,
-            burnedValue: value
+            burnedValue: value,
+            coinBurned: coinBurned ?? COIN.XPI
           }
         });
         return createdBurn;

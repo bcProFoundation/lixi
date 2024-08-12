@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import { closeActionSheet } from '@store/action-sheet/actions';
 import { formatRelativeTime } from '@utils/formatting';
 import intl from 'react-intl-universal';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 
 interface BurnHistoryProps {
   postId: string;
@@ -157,7 +158,7 @@ const BurnHistoryModal = ({ postId, classStyle }: BurnHistoryProps) => {
                     />
                     <span className="value">
                       <span>
-                        {item.burnedValue} {intl.get('general.dana')}
+                        {item.burnedValue} {item.coinBurned ?? COIN.XPI}
                       </span>
                       <span className="time-burn-created">{formatRelativeTime(item.createdAt)}</span>
                     </span>

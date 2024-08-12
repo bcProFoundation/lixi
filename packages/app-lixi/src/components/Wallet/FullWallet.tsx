@@ -181,7 +181,7 @@ const FullWalletComponent = ({ claimCode }: WalletProps) => {
 
   return (
     <>
-      <FullWalletWrapper className="full-wallet">
+      <FullWalletWrapper className="full-wallet" style={{ paddingBottom: '50px' }}>
         <p className="text-primary-wallet">{intl.get('general.primaryWallet')}</p>
         <WalletInfoComponent coin={selectedAccount?.coin ?? COIN.XPI} />
 
