@@ -3,6 +3,7 @@
   "version": "0.0.9",
   "private": true,
   "devDependencies": {
+    "@changesets/cli": "^2.27.7",
     "husky": "^9.0.11",
     "syncpack": "^12.3.3",
     "turbo": "1.13.0 "
