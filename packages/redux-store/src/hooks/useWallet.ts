@@ -36,7 +36,7 @@ import wif from 'wif';
 // const chronik = new ChronikClient('https://chronik.be.cash/xec');
 const websocketConnectedRefreshInterval = 10000;
 
-const useWallet = () => {
+export const useWallet = () => {
   // @todo: use constant
   // and consider to move to redux the neccessary variable
 
@@ -472,5 +472,3 @@ const useWallet = () => {
     getXecWalletPublicKey
   } as WalletContextValue;
 };
-
-export default useWallet;
