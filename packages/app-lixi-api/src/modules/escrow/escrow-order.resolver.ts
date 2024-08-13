@@ -76,24 +76,24 @@ export class EscrowOrderResolver {
   @Mutation(() => EscrowOrder)
   async createEscrowOrder(@Args('data') data: CreateEscrowOrderInput) {
     const { offerId, paymentMethodId } = data;
-    const escrowOrder = await this.prisma.escrowOrder.create({
-      data: {
-        ..._.omit(data, 'offerId', 'paymentMethodId'),
-        offer: {
-          connect: {
-            postId: offerId
-          }
-        },
-        paymentMethod: {
-          connect: {
-            id: paymentMethodId
-          }
-        }
-      }
-    });
+    // const escrowOrder = await this.prisma.escrowOrder.create({
+    //   data: {
+    //     ..._.omit(data, 'offerId', 'paymentMethodId'),
+    //     offer: {
+    //       connect: {
+    //         postId: offerId
+    //       }
+    //     },
+    //     paymentMethod: {
+    //       connect: {
+    //         id: paymentMethodId
+    //       }
+    //     }
+    //   }
+    // });
 
-    pubSub.publish('escrowOrderCreated', { escrowOrderCreated: escrowOrder });
-    return escrowOrder;
+    // pubSub.publish('escrowOrderCreated', { escrowOrderCreated: escrowOrder });
+    // return escrowOrder;
   }
 
   @Mutation(() => EscrowOrder)

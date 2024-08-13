@@ -77,21 +77,6 @@ export class DisputeResolver {
           include: {
             escrowOrder: true
           },
-          where: {
-            escrowOrder: {
-              OR: [
-                {
-                  sellerPublicKey: publicKey
-                },
-                {
-                  arbitratorPublicKey: publicKey
-                },
-                {
-                  buyerPublicKey: publicKey
-                }
-              ]
-            }
-          },
           orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
           ...args
         }),

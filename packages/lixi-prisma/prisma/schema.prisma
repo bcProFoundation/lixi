@@ -325,10 +325,21 @@ model Account {
   imageUploadable                ImageUploadable[]
   PollAnswerOnAccount            PollAnswerOnAccount[]
   walletPaths                    WalletPath[]
+  role                           Role                  @default(USER)
   telegramId                     String?               @unique @map("telegram_id")
+  escrowSellOrders               EscrowOrder[]         @relation("escrow_sell_orders")
+  escrowBuyOrders                EscrowOrder[]         @relation("escrow_buy_orders")
+  escrowArbiOrders               EscrowOrder[]         @relation("escrow_arbi_orders")
+  escrowModOrders                EscrowOrder[]         @relation("escrow_mod_orders")
 
   @@index([mnemonicHash], type: Hash)
   @@map("account")
+}
+
+enum Role {
+  MODERATOR
+  ARBITRATOR
+  USER
 }
 
 model AccountDana {
@@ -1243,9 +1254,14 @@ model WalletPath {
 
 model EscrowOrder {
   id                  String            @id @default(cuid())
-  sellerPublicKey     String            @map("seller_public_key")
-  buyerPublicKey      String            @map("buyer_public_key")
-  arbitratorPublicKey String            @map("arbitrator_public_key")
+  sellerAccount       Account           @relation("escrow_sell_orders", fields: [sellerAccountId], references: [id])
+  sellerAccountId     Int               @map("seller_account_id")
+  buyerAccount        Account           @relation("escrow_buy_orders", fields: [buyerAccountId], references: [id])
+  buyerAccountId      Int               @map("buyer_account_id")
+  arbitratorAccount   Account           @relation("escrow_arbi_orders", fields: [arbitratorAccountId], references: [id])
+  arbitratorAccountId Int               @map("arbitrator_account_id")
+  moderatorAccount    Account           @relation("escrow_mod_orders", fields: [moderatorAccountId], references: [id])
+  moderatorAccountId  Int               @map("moderator_account_id")
   escrowAddress       String?           @unique @map("escrow_address")
   paymentMethod       PaymentMethod     @relation(fields: [paymentMethodId], references: [id])
   paymentMethodId     Int               @map("payment_method_id")
