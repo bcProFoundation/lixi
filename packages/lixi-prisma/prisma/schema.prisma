@@ -327,10 +327,10 @@ model Account {
   walletPaths                    WalletPath[]
   role                           Role                  @default(USER)
   telegramId                     String?               @unique @map("telegram_id")
-  escrowSellOrder                EscrowOrder[]         @relation("escrow_sell_order")
-  escrowBuyOrder                 EscrowOrder[]         @relation("escrow_buy_order")
-  escrowArbiOrder                EscrowOrder[]         @relation("escrow_arbi_order")
-  escrowModOrder                 EscrowOrder[]         @relation("escrow_mod_order")
+  escrowSellOrders               EscrowOrder[]         @relation("escrow_sell_orders")
+  escrowBuyOrders                EscrowOrder[]         @relation("escrow_buy_orders")
+  escrowArbiOrders               EscrowOrder[]         @relation("escrow_arbi_orders")
+  escrowModOrders                EscrowOrder[]         @relation("escrow_mod_orders")
 
   @@index([mnemonicHash], type: Hash)
   @@map("account")
@@ -1254,13 +1254,13 @@ model WalletPath {
 
 model EscrowOrder {
   id                  String            @id @default(cuid())
-  sellerAccount       Account           @relation("escrow_sell_order", fields: [sellerAccountId], references: [id])
+  sellerAccount       Account           @relation("escrow_sell_orders", fields: [sellerAccountId], references: [id])
   sellerAccountId     Int               @map("seller_account_id")
-  buyerAccount        Account           @relation("escrow_buy_order", fields: [buyerAccountId], references: [id])
+  buyerAccount        Account           @relation("escrow_buy_orders", fields: [buyerAccountId], references: [id])
   buyerAccountId      Int               @map("buyer_account_id")
-  arbitratorAccount   Account           @relation("escrow_arbi_order", fields: [arbitratorAccountId], references: [id])
+  arbitratorAccount   Account           @relation("escrow_arbi_orders", fields: [arbitratorAccountId], references: [id])
   arbitratorAccountId Int               @map("arbitrator_account_id")
-  moderatorAccount    Account           @relation("escrow_mod_order", fields: [moderatorAccountId], references: [id])
+  moderatorAccount    Account           @relation("escrow_mod_orders", fields: [moderatorAccountId], references: [id])
   moderatorAccountId  Int               @map("moderator_account_id")
   escrowAddress       String?           @unique @map("escrow_address")
   paymentMethod       PaymentMethod     @relation(fields: [paymentMethodId], references: [id])
