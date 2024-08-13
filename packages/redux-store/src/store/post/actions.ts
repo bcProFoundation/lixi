@@ -5,6 +5,7 @@ import {
 } from '@bcpros/lixi-models/lib/post/create-post.command';
 import { createAction } from '@reduxjs/toolkit';
 import { Post } from '../../generated/types.generated';
+import { Upload } from '@bcpros/lixi-models/lib/upload';
 
 export const fetchAllPosts = createAction('posts/fetchAllPosts');
 export const fetchAllPostsSuccess = createAction<any>('posts/fetchAllPostsSuccess');
@@ -24,6 +25,13 @@ export const editPostSuccess = createAction<any>('posts/editPostSuccess');
 export const editPostFailure = createAction<string>('posts/editPostFailure');
 export const setNewPostAvailable = createAction<boolean>('posts/setNewPostAvailable');
 export const setShowCreatePost = createAction<boolean>('posts/setShowCreatePost');
+
+export const setUploadTempPost = createAction<{
+  uploads: Upload[];
+  imageUploadableId?: string;
+}>('posts/setUploadTempPost');
+export const removeUploadTempPost = createAction<{ id: string }>('posts/removeUploadTempPost');
+export const removeAllUploadTempPost = createAction('posts/removeAllUploadTempPost');
 
 export const changeFollowActionSheetPost = createAction<ParamPostFollowCommand>('posts/changeFollowActionSheetPost');
 

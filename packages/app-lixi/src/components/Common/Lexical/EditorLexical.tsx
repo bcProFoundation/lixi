@@ -10,7 +10,8 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import useDetectMobileView from '@local-hooks/useDetectMobileView';
 import { removeUpload } from '@store/account';
 import { getPostCoverUploads } from '@store/account/selectors';
-import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { getTempEditPostCoverUploads } from '@store/post/selectors';
+import { removeUploadTempPost, useSliceDispatch, useSliceSelector } from '@store/index';
 import { Button, Image, Progress } from 'antd';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import intl from 'react-intl-universal';
@@ -193,10 +194,13 @@ const EditorLexical = (props: EditorLexicalProps) => {
   const dispatch = useSliceDispatch();
   const isMobile = useDetectMobileView();
   const postCoverUploads = useSliceSelector(getPostCoverUploads);
+  const tempEditPostCoverUploads = useSliceSelector(getTempEditPostCoverUploads);
   const inputText = useRef(null);
   const multiUploader = useRef(null);
   const imagesList = useMemo(() => {
-    let imagesListResult = postCoverUploads.images.map(img => {
+    let imagesListResult = (
+      tempEditPostCoverUploads?.images.length > 0 ? tempEditPostCoverUploads.images : postCoverUploads.images
+    ).map(img => {
       const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img.cfImageId}/public`;
       let width = img?.width || 4;
       let height = img?.height || 3;
@@ -210,7 +214,7 @@ const EditorLexical = (props: EditorLexicalProps) => {
       return objImg;
     });
     return imagesListResult || [];
-  }, [postCoverUploads]);
+  }, [postCoverUploads, tempEditPostCoverUploads]);
   const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
   const [pureContent, setPureContent] = useState<string>('');
@@ -242,7 +246,12 @@ const EditorLexical = (props: EditorLexicalProps) => {
 
   const handleRemove = imgId => {
     if (imgId) {
-      dispatch(removeUpload({ uploadType: UPLOAD_TYPES.POST, id: imgId }));
+      dispatch(removeUpload({ uploadType: UPLOAD_TYPES.POST, id: imgId })); // remove in database
+
+      //remove front-end for editPost
+      if (tempEditPostCoverUploads?.images.length > 0) {
+        dispatch(removeUploadTempPost({ id: imgId }));
+      }
     }
   };
 
