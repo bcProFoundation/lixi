@@ -2,12 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-input AcceptEscrowOrderInput {
-  nonce: String!
-  orderId: String!
-  script: String!
-}
-
 type Account {
   accountDana: AccountDana
   address: String!
@@ -208,10 +202,6 @@ type BurnItemBasicEdge {
   node: BurnItem!
 }
 
-input CancelEscrowOrderInput {
-  orderId: String!
-}
-
 type Category {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
@@ -358,13 +348,16 @@ input CreateDisputeInput {
 
 input CreateEscrowOrderInput {
   amount: Int!
-  arbitratorPublicKey: String!
-  buyerPublicKey: String!
+  arbitratorId: Int!
+  buyerId: Int!
+  escrowScript: String!
   message: String
-  offerId: String!
+  moderatorId: Int!
+  nonce: String!
   paymentMethodId: Int!
+  postId: String!
   price: Int!
-  sellerPublicKey: String!
+  sellerId: Int!
 }
 
 input CreateEventInput {
@@ -613,21 +606,27 @@ type EnvelopeModel {
 
 type EscrowOrder {
   amount: Int!
-  arbitratorPublicKey: String!
-  buyerPublicKey: String!
+  arbitratorAccount: Account!
+  buyerAccount: Account!
+  cancelTxid: String
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   dispute: Dispute
   escrowAddress: String
+  escrowScript: String!
+  escrowTxid: String
   id: ID!
   message: String
+  moderatorAccount: Account!
+  nonce: String!
   offer: Offer!
   offerId: String!
   paymentMethod: PaymentMethod!
   paymentMethodId: Int!
   price: Int!
-  sellerPublicKey: String!
+  releaseTxid: String
+  sellerAccount: Account!
   status: EscrowOrderStatus!
 
   """Identifies the date and time when the object was last updated."""
@@ -662,8 +661,10 @@ enum EscrowOrderOrderField {
 """The status of escrow order."""
 enum EscrowOrderStatus {
   ACTIVE
+  CANCEL
   COMPLETE
   ESCROW
+  PENDING
 }
 
 type Event {
@@ -976,8 +977,6 @@ type MessageSessionEdge {
 }
 
 type Mutation {
-  acceptEscrowOrder(data: AcceptEscrowOrderInput!): EscrowOrder!
-  cancelEscrowOrder(data: CancelEscrowOrderInput!): EscrowOrder!
   closePageMessageSession(data: ClosePageMessageSessionInput!): PageMessageSession!
   create(data: CreateEventInput!): Event!
   createBookmark(data: CreateBookmarkInput!): Bookmark!
@@ -1010,6 +1009,7 @@ type Mutation {
   removePost(data: RemovePostInput!): Post!
   repost(data: RepostInput!): Boolean!
   updateAccount(data: UpdateAccountInput!): Account!
+  updateEscrowOrderStatus(orderId: String!, status: EscrowOrderStatus!, txid: String): EscrowOrder!
   updatePage(data: UpdatePageInput!): Page!
   updatePost(data: UpdatePostInput!): Post!
 }

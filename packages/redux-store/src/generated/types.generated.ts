@@ -18,12 +18,6 @@ export type Scalars = {
   Decimal: { input: any; output: any };
 };
 
-export type AcceptEscrowOrderInput = {
-  nonce: Scalars['String']['input'];
-  orderId: Scalars['String']['input'];
-  script: Scalars['String']['input'];
-};
-
 export type Account = {
   __typename?: 'Account';
   accountDana?: Maybe<AccountDana>;
@@ -230,10 +224,6 @@ export type BurnItemBasicEdge = {
   node: BurnItem;
 };
 
-export type CancelEscrowOrderInput = {
-  orderId: Scalars['String']['input'];
-};
-
 export type Category = {
   __typename?: 'Category';
   /** Identifies the date and time when the object was created. */
@@ -385,13 +375,16 @@ export type CreateDisputeInput = {
 
 export type CreateEscrowOrderInput = {
   amount: Scalars['Int']['input'];
-  arbitratorPublicKey: Scalars['String']['input'];
-  buyerPublicKey: Scalars['String']['input'];
+  arbitratorId: Scalars['Int']['input'];
+  buyerId: Scalars['Int']['input'];
+  escrowScript: Scalars['String']['input'];
   message?: InputMaybe<Scalars['String']['input']>;
-  offerId: Scalars['String']['input'];
+  moderatorId: Scalars['Int']['input'];
+  nonce: Scalars['String']['input'];
   paymentMethodId: Scalars['Int']['input'];
+  postId: Scalars['String']['input'];
   price: Scalars['Int']['input'];
-  sellerPublicKey: Scalars['String']['input'];
+  sellerId: Scalars['Int']['input'];
 };
 
 export type CreateEventInput = {
@@ -636,20 +629,26 @@ export type EnvelopeModel = {
 export type EscrowOrder = {
   __typename?: 'EscrowOrder';
   amount: Scalars['Int']['output'];
-  arbitratorPublicKey: Scalars['String']['output'];
-  buyerPublicKey: Scalars['String']['output'];
+  arbitratorAccount: Account;
+  buyerAccount: Account;
+  cancelTxid?: Maybe<Scalars['String']['output']>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime']['output'];
   dispute?: Maybe<Dispute>;
   escrowAddress?: Maybe<Scalars['String']['output']>;
+  escrowScript: Scalars['String']['output'];
+  escrowTxid?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   message?: Maybe<Scalars['String']['output']>;
+  moderatorAccount: Account;
+  nonce: Scalars['String']['output'];
   offer: Offer;
   offerId: Scalars['String']['output'];
   paymentMethod: PaymentMethod;
   paymentMethodId: Scalars['Int']['output'];
   price: Scalars['Int']['output'];
-  sellerPublicKey: Scalars['String']['output'];
+  releaseTxid?: Maybe<Scalars['String']['output']>;
+  sellerAccount: Account;
   status: EscrowOrderStatus;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime']['output'];
@@ -685,8 +684,10 @@ export enum EscrowOrderOrderField {
 /** The status of escrow order. */
 export enum EscrowOrderStatus {
   Active = 'ACTIVE',
+  Cancel = 'CANCEL',
   Complete = 'COMPLETE',
-  Escrow = 'ESCROW'
+  Escrow = 'ESCROW',
+  Pending = 'PENDING'
 }
 
 export type Event = {
@@ -1004,8 +1005,6 @@ export type MessageSessionEdge = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  acceptEscrowOrder: EscrowOrder;
-  cancelEscrowOrder: EscrowOrder;
   closePageMessageSession: PageMessageSession;
   create: Event;
   createBookmark: Bookmark;
@@ -1038,16 +1037,9 @@ export type Mutation = {
   removePost: Post;
   repost: Scalars['Boolean']['output'];
   updateAccount: Account;
+  updateEscrowOrderStatus: EscrowOrder;
   updatePage: Page;
   updatePost: Post;
-};
-
-export type MutationAcceptEscrowOrderArgs = {
-  data: AcceptEscrowOrderInput;
-};
-
-export type MutationCancelEscrowOrderArgs = {
-  data: CancelEscrowOrderInput;
 };
 
 export type MutationClosePageMessageSessionArgs = {
@@ -1176,6 +1168,12 @@ export type MutationRepostArgs = {
 
 export type MutationUpdateAccountArgs = {
   data: UpdateAccountInput;
+};
+
+export type MutationUpdateEscrowOrderStatusArgs = {
+  orderId: Scalars['String']['input'];
+  status: EscrowOrderStatus;
+  txid?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type MutationUpdatePageArgs = {

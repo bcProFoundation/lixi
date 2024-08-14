@@ -2,6 +2,8 @@ import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
+import { Account } from '../account/account.model';
+
 import { Dispute } from './dispute.model';
 import { Offer } from './offer.model';
 import { PaymentMethod } from './payment-method.model';
@@ -11,14 +13,17 @@ export class EscrowOrder {
   @Field(() => ID)
   id: string;
 
-  @Field(() => String)
-  sellerPublicKey: string;
+  @Field(() => Account)
+  sellerAccount: Account;
 
-  @Field(() => String)
-  buyerPublicKey: string;
+  @Field(() => Account)
+  buyerAccount: Account;
 
-  @Field(() => String)
-  arbitratorPublicKey: string;
+  @Field(() => Account)
+  arbitratorAccount: Account;
+
+  @Field(() => Account)
+  moderatorAccount: Account;
 
   @Field(() => String, { nullable: true })
   @IsOptional()
@@ -49,6 +54,24 @@ export class EscrowOrder {
   @Field(() => EscrowOrderStatus)
   status: EscrowOrderStatus;
 
+  @Field(() => String)
+  escrowScript: string;
+
+  @Field(() => String)
+  nonce: string;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  escrowTxid?: string;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  releaseTxid?: string;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  cancelTxid?: string;
+
   @Field(() => Dispute, { nullable: true })
   @IsOptional()
   dispute?: Dispute;
@@ -66,8 +89,10 @@ export class EscrowOrder {
 
 export enum EscrowOrderStatus {
   ACTIVE = 'ACTIVE',
+  PENDING = 'PENDING',
   ESCROW = 'ESCROW',
-  COMPLETE = 'COMPLETE'
+  COMPLETE = 'COMPLETE',
+  CANCEL = 'CANCEL'
 }
 
 registerEnumType(EscrowOrderStatus, {

@@ -3,6 +3,7 @@ import { api } from './offer.generated';
 const enhancedApi = api.enhanceEndpoints({
   addTagTypes: ['Offer', 'OfferTimeline'],
   endpoints: {
+    Offer: {},
     AllOffer: {
       providesTags: ['OfferTimeline'],
       serializeQueryArgs({ queryArgs }) {
@@ -26,6 +27,8 @@ const enhancedApi = api.enhanceEndpoints({
 export { enhancedApi as api };
 
 export const {
+  useOfferQuery,
+  useLazyOfferQuery,
   useAllOfferQuery,
   useLazyAllOfferQuery,
   useAllOfferByPublicKeyQuery,

@@ -1,0 +1,70 @@
+fragment EscrowOrderFields on EscrowOrder {
+  id
+  message
+  arbitratorAccount {
+    id
+    publicKey
+    hash160
+    telegramId
+  }
+  buyerAccount {
+    id
+    publicKey
+    hash160
+    telegramId
+  }
+  sellerAccount {
+    id
+    publicKey
+    hash160
+    telegramId
+  }
+  moderatorAccount {
+    id
+    publicKey
+    hash160
+    telegramId
+  }
+  paymentMethod {
+    id
+    name
+  }
+  offer {
+    postId
+    message
+  }
+  escrowScript
+  nonce
+  escrowTxid
+  releaseTxid
+  cancelTxid
+  price
+  amount
+  status
+  createdAt
+  updatedAt
+}
+
+query EscrowOrder($id: String!) {
+  escrowOrder(id: $id) {
+    ...EscrowOrderFields
+  }
+}
+
+mutation CreateEscrowOrder($input: CreateEscrowOrderInput!) {
+  createEscrowOrder(data: $input) {
+    id
+  }
+}
+
+mutation UpdateEscrowOrderStatus($orderId: String!, $status: EscrowOrderStatus!, $txid: String) {
+  updateEscrowOrderStatus(orderId: $orderId, status: $status, txid: $txid) {
+    id
+    message
+    price
+    amount
+    status
+    createdAt
+    updatedAt
+  }
+}
