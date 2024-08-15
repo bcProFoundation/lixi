@@ -27,6 +27,9 @@ const config: Config = {
     expiresIn: '2m',
     refreshIn: '7d',
     bcryptSaltOrRound: 10
+  },
+  telegram_bot: {
+    telegram_local_ecash_ciudad_bot_token: process.env.TELEGRAM_LOCAL_ECASH_BOT_TOKEN
   }
 };
 

@@ -42,6 +42,8 @@ import { ChronikModule } from 'nestjs-chronik';
 import { DanaModule } from './modules/dana/dana.module';
 import { EscrowModule } from './modules/escrow/escrow.module';
 import { BoostFeeModule } from './modules/boost-fee/boostFee.modules';
+import { TelegramBotModule } from './modules/telegram/telegram-bot.module';
+import { TelegramBotModuleOptions } from './modules/telegram/telegram-bot.interface';
 
 //enabled serving multiple static for fastify
 type FastifyServeStaticModuleOptions = ServeStaticModuleOptions & {
@@ -206,7 +208,21 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
     BurnHistoryModule,
     DanaModule,
     EscrowModule,
-    BoostFeeModule
+    BoostFeeModule,
+    TelegramBotModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const localEcashBotToken = configService.get<string>('TELEGRAM_LOCAL_ECASH_BOT_TOKEN')!;
+
+        return {
+          local_ecash: localEcashBotToken
+            ? {
+                token: localEcashBotToken
+              }
+            : undefined
+        } as TelegramBotModuleOptions;
+      }
+    })
   ],
   controllers: [],
   providers: [
