@@ -8,6 +8,7 @@ export interface Config {
   security: SecurityConfig;
   prisma: PrismaConfig;
   cloudflare?: CloudflareConfig;
+  telegram_bot: TelegramBotConfig;
 }
 
 export interface NestConfig {
@@ -47,3 +48,7 @@ export interface CloudflareConfig {
   cfImagesToken: string;
   cfImagesDeliveryUrl: string;
 }
+
+export type TelegramBotConfig = Partial<{
+  telegram_local_ecash_ciudad_bot_token: string;
+}>;

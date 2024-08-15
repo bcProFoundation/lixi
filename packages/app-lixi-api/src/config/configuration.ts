@@ -9,6 +9,9 @@ export default () => {
       cfAccountHash: process.env.CF_ACCOUNT_HASH,
       cfImagesToken: process.env.CF_IMAGES_TOKEN,
       cfImagesDeliveryUrl: process.env.CF_IMAGES_DELIVERY_URL
+    },
+    telegram_bot: {
+      telegram_local_ecash_bot_token: process.env.TELEGRAM_LOCAL_ECASH_BOT_TOKEN
     }
   };
 
