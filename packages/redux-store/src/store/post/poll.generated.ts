@@ -11,7 +11,7 @@
 
 import * as Types from '../../generated/types.generated';
 
-import { PostFieldsFragmentDoc, OfferFieldsFragmentDoc } from './posts.generated';
+import { PostFieldsFragmentDoc } from './posts.generated';
 import { api } from '@store/baseApi';
 export type CreatePollMutationVariables = Types.Exact<{
   input: Types.CreatePollInput;
@@ -125,6 +125,7 @@ export type CreatePollMutation = {
       price: string;
       orderLimitMin: number;
       orderLimitMax: number;
+      status: Types.OfferStatus;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
         paymentMethod: { __typename?: 'PaymentMethod'; name: string };

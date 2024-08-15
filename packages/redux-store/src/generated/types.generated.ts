@@ -1017,7 +1017,7 @@ export type Mutation = {
   createFollowPage: FollowPage;
   createFollowToken: FollowPage;
   createMessage: Message;
-  createOffer: Offer;
+  createOffer: Post;
   createPage: Page;
   createPageMessageSession: PageMessageSession;
   createPoll: Post;
@@ -1614,7 +1614,7 @@ export type Query = {
   allHashtagByToken: HashtagConnection;
   allMessageByPageMessageSessionId: MessageConnection;
   allOffer: TimelineItemConnection;
-  allOfferByPublicKey: TimelineItemConnection;
+  allOfferByAccount: TimelineItemConnection;
   allOpenPageMessageSessionByAccountId: PageMessageSessionConnection;
   allOpenPageMessageSessionByPageId: PageMessageSessionConnection;
   allPageMessageSessionByAccountId: PageMessageSessionConnection;
@@ -1831,10 +1831,10 @@ export type QueryAllOfferArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export type QueryAllOfferByPublicKeyArgs = {
+export type QueryAllOfferByAccountArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
-  publicKey: Scalars['String']['input'];
+  offerStatus: OfferStatus;
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 

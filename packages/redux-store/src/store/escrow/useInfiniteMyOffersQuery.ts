@@ -2,8 +2,9 @@ import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { TimelineQueryItem } from '../../generated/types';
-import { useAllOfferByPublicKeyQuery, useLazyAllOfferByPublicKeyQuery } from './offer.api';
-import { BasicPaginationArgs } from '@bcpros/lixi-models/core/pagination/basic.pagination.args';
+import { useAllOfferByAccountQuery, useLazyAllOfferByAccountQuery } from './offer.api';
+import { BasicPaginationArgs } from '@bcpros/lixi-models';
+import { OfferStatus } from '../../generated/types.generated';
 
 const offerTimelineAdapter = createEntityAdapter<TimelineQueryItem, string>({
   selectId: item => item.id
@@ -11,17 +12,17 @@ const offerTimelineAdapter = createEntityAdapter<TimelineQueryItem, string>({
 
 const { selectAll } = offerTimelineAdapter.getSelectors();
 
-type MyOfferParams = BasicPaginationArgs & {
-  publicKey: string;
-};
+interface MyOfferType extends BasicPaginationArgs {
+  offerStatus: OfferStatus;
+}
 
 export function useInfiniteMyOffersQuery(
-  params: MyOfferParams,
+  params: MyOfferType,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const baseResult = useAllOfferByPublicKeyQuery(params);
+  const baseResult = useAllOfferByAccountQuery(params, { skip: !params.offerStatus });
 
-  const [trigger, nextResult] = useLazyAllOfferByPublicKeyQuery();
+  const [trigger, nextResult] = useLazyAllOfferByAccountQuery();
   const [combinedData, setCombinedData] = useState(offerTimelineAdapter.getInitialState({}));
 
   const isBaseReady = useRef(false);
@@ -37,13 +38,13 @@ export function useInfiniteMyOffersQuery(
 
   // Base result
   useEffect(() => {
-    next.current = baseResult.data?.allOfferByPublicKey?.pageInfo?.endCursor;
-    if (baseResult?.data?.allOfferByPublicKey) {
+    next.current = baseResult.data?.allOfferByAccount?.pageInfo?.endCursor;
+    if (baseResult?.data?.allOfferByAccount) {
       isBaseReady.current = true;
 
       const adapterSetAll = offerTimelineAdapter.setAll(
         combinedData,
-        baseResult.data?.allOfferByPublicKey.edges.map(item => item.node)
+        baseResult.data?.allOfferByAccount.edges.map(item => item.node)
       );
 
       setCombinedData(adapterSetAll);
@@ -77,7 +78,7 @@ export function useInfiniteMyOffersQuery(
   };
   return {
     data: data ?? [],
-    totalCount: baseResult?.data?.allOfferByPublicKey.totalCount ?? 0,
+    totalCount: baseResult?.data?.allOfferByAccount.totalCount ?? 0,
     error: baseResult?.error,
     isError: baseResult?.isError,
     isLoading: baseResult?.isLoading,
@@ -85,7 +86,7 @@ export function useInfiniteMyOffersQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: !!baseResult.data?.allOfferByPublicKey?.pageInfo?.hasNextPage,
+    hasNext: !!baseResult.data?.allOfferByAccount?.pageInfo?.hasNextPage,
     fetchNext,
     refetch
   };

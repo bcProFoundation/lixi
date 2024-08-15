@@ -11,7 +11,7 @@
 
 import * as Types from '../../generated/types.generated';
 
-import { PostFieldsFragmentDoc, OfferFieldsFragmentDoc } from '../post/posts.generated';
+import { PostFieldsFragmentDoc } from '../post/posts.generated';
 import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
 import { api } from '@store/baseApi';
 export type BookmarkFieldsFragment = {
@@ -162,6 +162,7 @@ export type BookmarkTimelineQuery = {
             price: string;
             orderLimitMin: number;
             orderLimitMax: number;
+            status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; name: string };
