@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { TimelineQueryItem } from '../../generated/types';
 import { useAllOfferByAccountQuery, useLazyAllOfferByAccountQuery } from './offer.api';
-import { BasicPaginationArgs } from '@bcpros/lixi-models';
+import { BasicPaginationArgs } from '@bcpros/lixi-models/core/pagination/basic.pagination.args';
 import { OfferStatus } from '../../generated/types.generated';
 
 const offerTimelineAdapter = createEntityAdapter<TimelineQueryItem, string>({
@@ -12,9 +12,9 @@ const offerTimelineAdapter = createEntityAdapter<TimelineQueryItem, string>({
 
 const { selectAll } = offerTimelineAdapter.getSelectors();
 
-interface MyOfferType extends BasicPaginationArgs {
+type MyOfferType = BasicPaginationArgs & {
   offerStatus: OfferStatus;
-}
+};
 
 export function useInfiniteMyOffersQuery(
   params: MyOfferType,
