@@ -37,7 +37,7 @@ fragment EscrowOrderFields on EscrowOrder {
   nonce
   escrowTxid
   releaseTxid
-  cancelTxid
+  returnTxid
   price
   amount
   status
@@ -48,6 +48,18 @@ fragment EscrowOrderFields on EscrowOrder {
 query EscrowOrder($id: String!) {
   escrowOrder(id: $id) {
     ...EscrowOrderFields
+  }
+}
+
+query GetModeratorAccount {
+  getModeratorAccount {
+    ...AccountFields
+  }
+}
+
+query GetRandomArbitratorAccount {
+  getRandomArbitratorAccount {
+    ...AccountFields
   }
 }
 

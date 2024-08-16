@@ -6,6 +6,8 @@ const enhancedApi = api.enhanceEndpoints({
   endpoints: {
     EscrowOrder: {},
     CreateEscrowOrder: {},
+    GetModeratorAccount: {},
+    GetRandomArbitratorAccount: {},
     UpdateEscrowOrderStatus: {
       onQueryStarted: async ({ orderId, status, txid }, { dispatch, queryFulfilled }) => {
         try {
@@ -24,7 +26,7 @@ const enhancedApi = api.enhanceEndpoints({
                     draft.escrowOrder.releaseTxid = txid;
                     break;
                   case 'CANCEL':
-                    draft.escrowOrder.cancelTxid = txid;
+                    draft.escrowOrder.returnTxid = txid;
                     break;
                 }
               }
@@ -44,5 +46,9 @@ export const {
   useEscrowOrderQuery,
   useLazyEscrowOrderQuery,
   useCreateEscrowOrderMutation,
-  useUpdateEscrowOrderStatusMutation
+  useGetRandomArbitratorAccountQuery,
+  useLazyGetRandomArbitratorAccountQuery,
+  useUpdateEscrowOrderStatusMutation,
+  useGetModeratorAccountQuery,
+  useLazyGetModeratorAccountQuery
 } = enhancedApi;

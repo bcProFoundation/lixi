@@ -349,7 +349,6 @@ input CreateDisputeInput {
 input CreateEscrowOrderInput {
   amount: Int!
   arbitratorId: Int!
-  buyerId: Int!
   escrowScript: String!
   message: String
   moderatorId: Int!
@@ -608,7 +607,6 @@ type EscrowOrder {
   amount: Int!
   arbitratorAccount: Account!
   buyerAccount: Account!
-  cancelTxid: String
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
@@ -626,6 +624,7 @@ type EscrowOrder {
   paymentMethodId: Int!
   price: Int!
   releaseTxid: String
+  returnTxid: String
   sellerAccount: Account!
   status: EscrowOrderStatus!
 
@@ -1009,6 +1008,7 @@ type Mutation {
   removePost(data: RemovePostInput!): Post!
   repost(data: RepostInput!): Boolean!
   updateAccount(data: UpdateAccountInput!): Account!
+  updateDispute(data: UpdateDisputeInput!): Dispute!
   updateEscrowOrderStatus(orderId: String!, status: EscrowOrderStatus!, txid: String): EscrowOrder!
   updatePage(data: UpdatePageInput!): Page!
   updatePost(data: UpdatePostInput!): Post!
@@ -1421,8 +1421,7 @@ type Query {
   account(id: Int!): Account!
   allAccounts(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): AccountBasicConnection!
   allClosedPageMessageSession(accountId: Int, after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, pageId: String, skip: Int): PageMessageSessionConnection!
-  allDispute(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: DisputeOrder, skip: Int): DisputeConnection!
-  allDisputeByPublicKey(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: DisputeOrder, publicKey: String!, skip: Int): DisputeConnection!
+  allDisputeByAccountId(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: DisputeOrder, skip: Int): DisputeConnection!
   allEscrowOrderByOfferId(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, offerId: String!, orderBy: EscrowOrderOrder, skip: Int): EscrowOrderConnection!
   allFollowersByFollowing(after: String, before: String, first: Int, followingAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
   allFollowersByPage(after: String, first: Int, id: String, skip: Int): AccountBasicConnection!
@@ -1560,6 +1559,8 @@ type Query {
   escrowOrder(id: String!): EscrowOrder!
   getAccountByAddress(address: String!): Account!
   getBalances(address: String!): Balances!
+  getModeratorAccount: Account!
+  getRandomArbitratorAccount: Account!
   hashtag(content: String!): Hashtag!
   homeTimeline(after: String, first: Int, level: Int, skip: Int): TimelineItemConnection!
   message(id: String!): Message!
@@ -1761,6 +1762,12 @@ input UpdateAccountInput {
   language: String
   name: String
   website: String
+}
+
+input UpdateDisputeInput {
+  escrowOrderId: String!
+  id: String!
+  status: DisputeStatus!
 }
 
 input UpdatePageInput {

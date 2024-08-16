@@ -1,0 +1,32 @@
+fragment DisputeFields on Dispute {
+  id
+  escrowOrder {
+    id
+    status
+    createdAt
+    updatedAt
+  }
+  reason
+  createdBy
+  status
+  createdAt
+  updatedAt
+}
+
+query Dispute($id: String!) {
+  dispute(id: $id) {
+    ...DisputeFields
+  }
+}
+
+mutation CreateDispute($input: CreateDisputeInput!) {
+  createDispute(data: $input) {
+    id
+  }
+}
+
+mutation UpdateDispute($input: UpdateDisputeInput!) {
+  updateDispute(data: $input) {
+    id
+  }
+}

@@ -376,7 +376,6 @@ export type CreateDisputeInput = {
 export type CreateEscrowOrderInput = {
   amount: Scalars['Int']['input'];
   arbitratorId: Scalars['Int']['input'];
-  buyerId: Scalars['Int']['input'];
   escrowScript: Scalars['String']['input'];
   message?: InputMaybe<Scalars['String']['input']>;
   moderatorId: Scalars['Int']['input'];
@@ -631,7 +630,6 @@ export type EscrowOrder = {
   amount: Scalars['Int']['output'];
   arbitratorAccount: Account;
   buyerAccount: Account;
-  cancelTxid?: Maybe<Scalars['String']['output']>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime']['output'];
   dispute?: Maybe<Dispute>;
@@ -648,6 +646,7 @@ export type EscrowOrder = {
   paymentMethodId: Scalars['Int']['output'];
   price: Scalars['Int']['output'];
   releaseTxid?: Maybe<Scalars['String']['output']>;
+  returnTxid?: Maybe<Scalars['String']['output']>;
   sellerAccount: Account;
   status: EscrowOrderStatus;
   /** Identifies the date and time when the object was last updated. */
@@ -1037,6 +1036,7 @@ export type Mutation = {
   removePost: Post;
   repost: Scalars['Boolean']['output'];
   updateAccount: Account;
+  updateDispute: Dispute;
   updateEscrowOrderStatus: EscrowOrder;
   updatePage: Page;
   updatePost: Post;
@@ -1168,6 +1168,10 @@ export type MutationRepostArgs = {
 
 export type MutationUpdateAccountArgs = {
   data: UpdateAccountInput;
+};
+
+export type MutationUpdateDisputeArgs = {
+  data: UpdateDisputeInput;
 };
 
 export type MutationUpdateEscrowOrderStatusArgs = {
@@ -1599,8 +1603,7 @@ export type Query = {
   account: Account;
   allAccounts: AccountBasicConnection;
   allClosedPageMessageSession: PageMessageSessionConnection;
-  allDispute: DisputeConnection;
-  allDisputeByPublicKey: DisputeConnection;
+  allDisputeByAccountId: DisputeConnection;
   allEscrowOrderByOfferId: EscrowOrderConnection;
   allFollowersByFollowing: AccountConnection;
   allFollowersByPage: AccountBasicConnection;
@@ -1651,6 +1654,8 @@ export type Query = {
   escrowOrder: EscrowOrder;
   getAccountByAddress: Account;
   getBalances: Balances;
+  getModeratorAccount: Account;
+  getRandomArbitratorAccount: Account;
   hashtag: Hashtag;
   homeTimeline: TimelineItemConnection;
   message: Message;
@@ -1704,24 +1709,13 @@ export type QueryAllClosedPageMessageSessionArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export type QueryAllDisputeArgs = {
+export type QueryAllDisputeByAccountIdArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<DisputeOrder>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type QueryAllDisputeByPublicKeyArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<DisputeOrder>;
-  publicKey: Scalars['String']['input'];
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -2478,6 +2472,12 @@ export type UpdateAccountInput = {
   language?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   website?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateDisputeInput = {
+  escrowOrderId: Scalars['String']['input'];
+  id: Scalars['String']['input'];
+  status: DisputeStatus;
 };
 
 export type UpdatePageInput = {

@@ -64,6 +64,7 @@ export * from './lib/envelope';
 export * from './lib/escrow/dispute.model';
 export * from './lib/escrow/escrow-order.model';
 export * from './lib/escrow/inputs/createDispute.input';
+export * from './lib/escrow/inputs/updateDispute.input';
 export * from './lib/escrow/inputs/createEscrowOrder.input';
 export * from './lib/escrow/inputs/acceptEscrowOrder.input';
 export * from './lib/escrow/inputs/cancelEscrowOrder.input';

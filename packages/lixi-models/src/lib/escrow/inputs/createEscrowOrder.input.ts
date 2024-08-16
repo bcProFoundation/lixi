@@ -9,10 +9,6 @@ export class CreateEscrowOrderInput {
 
   @Field(() => Number)
   @IsNotEmpty()
-  buyerId: number;
-
-  @Field(() => Number)
-  @IsNotEmpty()
   arbitratorId: number;
 
   @Field(() => Number)

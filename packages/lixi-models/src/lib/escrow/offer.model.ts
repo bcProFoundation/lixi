@@ -3,10 +3,10 @@ import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { COIN } from '../../constants/coins/coin';
+import { Nullable } from '../nullable';
 
 import { EscrowOrder } from './escrow-order.model';
 import { OfferPaymentMethod } from './offer-payment-method.model';
-import { Nullable } from '../nullable';
 
 @ObjectType()
 export class Offer {

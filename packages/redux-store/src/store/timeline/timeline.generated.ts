@@ -11,7 +11,7 @@
 
 import * as Types from '../../generated/types.generated';
 
-import { PostFieldsFragmentDoc, OfferFieldsFragmentDoc } from '../post/posts.generated';
+import { PostFieldsFragmentDoc } from '../post/posts.generated';
 import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
 import { api } from '@store/baseApi';
 export type TimelineQueryVariables = Types.Exact<{
@@ -47,6 +47,7 @@ export type TimelineQuery = {
         __typename?: 'Account';
         address: string;
         hash160?: string | null;
+        publicKey?: string | null;
         id: number;
         name: string;
         avatar?: string | null;
@@ -131,7 +132,7 @@ export type TimelineQuery = {
         orderLimitMax: number;
         paymentMethods: Array<{
           __typename?: 'OfferPaymentMethod';
-          paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+          paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
         }>;
       } | null;
     };
@@ -179,6 +180,7 @@ export type HomeTimelineQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -263,7 +265,7 @@ export type HomeTimelineQuery = {
             orderLimitMax: number;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };
@@ -314,6 +316,7 @@ export type ProfileTimelineQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -398,7 +401,7 @@ export type ProfileTimelineQuery = {
             orderLimitMax: number;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };
@@ -450,6 +453,7 @@ export type ProfileTimelineByTimeQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -534,7 +538,7 @@ export type ProfileTimelineByTimeQuery = {
             orderLimitMax: number;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };
@@ -585,6 +589,7 @@ export type PageTimelineQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -669,7 +674,7 @@ export type PageTimelineQuery = {
             orderLimitMax: number;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };
@@ -721,6 +726,7 @@ export type PageTimelineByTimeQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -805,7 +811,7 @@ export type PageTimelineByTimeQuery = {
             orderLimitMax: number;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };
@@ -856,6 +862,7 @@ export type TokenTimelineQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -940,7 +947,7 @@ export type TokenTimelineQuery = {
             orderLimitMax: number;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };
@@ -992,6 +999,7 @@ export type TokenTimelineByTimeQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -1076,7 +1084,7 @@ export type TokenTimelineByTimeQuery = {
             orderLimitMax: number;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };

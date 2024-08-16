@@ -70,7 +70,7 @@ export class EscrowOrder {
 
   @Field(() => String, { nullable: true })
   @IsOptional()
-  cancelTxid?: string;
+  returnTxid?: string;
 
   @Field(() => Dispute, { nullable: true })
   @IsOptional()

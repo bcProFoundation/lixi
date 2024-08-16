@@ -11,6 +11,7 @@
 
 import * as Types from '../../generated/types.generated';
 
+import { AccountFieldsFragmentDoc } from '../account/accounts.generated';
 import { api } from '@store/baseApi';
 export type EscrowOrderFieldsFragment = {
   __typename?: 'EscrowOrder';
@@ -20,7 +21,7 @@ export type EscrowOrderFieldsFragment = {
   nonce: string;
   escrowTxid?: string | null;
   releaseTxid?: string | null;
-  cancelTxid?: string | null;
+  returnTxid?: string | null;
   price: number;
   amount: number;
   status: Types.EscrowOrderStatus;
@@ -72,7 +73,7 @@ export type EscrowOrderQuery = {
     nonce: string;
     escrowTxid?: string | null;
     releaseTxid?: string | null;
-    cancelTxid?: string | null;
+    returnTxid?: string | null;
     price: number;
     amount: number;
     status: Types.EscrowOrderStatus;
@@ -108,6 +109,92 @@ export type EscrowOrderQuery = {
     };
     paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
     offer: { __typename?: 'Offer'; postId: string; message: string };
+  };
+};
+
+export type GetModeratorAccountQueryVariables = Types.Exact<{ [key: string]: never }>;
+
+export type GetModeratorAccountQuery = {
+  __typename?: 'Query';
+  getModeratorAccount: {
+    __typename?: 'Account';
+    id: number;
+    name: string;
+    address: string;
+    hash160?: string | null;
+    mnemonicHash?: string | null;
+    encryptedMnemonic?: string | null;
+    encryptedSecret?: string | null;
+    publicKey?: string | null;
+    language: string;
+    followersCount?: number | null;
+    followingsCount?: number | null;
+    followingPagesCount?: number | null;
+    totalDanaViewScore?: number | null;
+    website?: string | null;
+    description?: string | null;
+    createCommentFee?: string | null;
+    createdAt: any;
+    updatedAt: any;
+    avatar?: string | null;
+    cover?: string | null;
+    rankNumber?: number | null;
+    rankScore?: number | null;
+    pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+    accountDana?: {
+      __typename?: 'AccountDana';
+      danaGiven?: number | null;
+      danaReceived?: number | null;
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+    } | null;
+  };
+};
+
+export type GetRandomArbitratorAccountQueryVariables = Types.Exact<{ [key: string]: never }>;
+
+export type GetRandomArbitratorAccountQuery = {
+  __typename?: 'Query';
+  getRandomArbitratorAccount: {
+    __typename?: 'Account';
+    id: number;
+    name: string;
+    address: string;
+    hash160?: string | null;
+    mnemonicHash?: string | null;
+    encryptedMnemonic?: string | null;
+    encryptedSecret?: string | null;
+    publicKey?: string | null;
+    language: string;
+    followersCount?: number | null;
+    followingsCount?: number | null;
+    followingPagesCount?: number | null;
+    totalDanaViewScore?: number | null;
+    website?: string | null;
+    description?: string | null;
+    createCommentFee?: string | null;
+    createdAt: any;
+    updatedAt: any;
+    avatar?: string | null;
+    cover?: string | null;
+    rankNumber?: number | null;
+    rankScore?: number | null;
+    pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+    accountDana?: {
+      __typename?: 'AccountDana';
+      danaGiven?: number | null;
+      danaReceived?: number | null;
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+    } | null;
   };
 };
 
@@ -180,7 +267,7 @@ export const EscrowOrderFieldsFragmentDoc = `
   nonce
   escrowTxid
   releaseTxid
-  cancelTxid
+  returnTxid
   price
   amount
   status
@@ -195,6 +282,20 @@ export const EscrowOrderDocument = `
   }
 }
     ${EscrowOrderFieldsFragmentDoc}`;
+export const GetModeratorAccountDocument = `
+    query GetModeratorAccount {
+  getModeratorAccount {
+    ...AccountFields
+  }
+}
+    ${AccountFieldsFragmentDoc}`;
+export const GetRandomArbitratorAccountDocument = `
+    query GetRandomArbitratorAccount {
+  getRandomArbitratorAccount {
+    ...AccountFields
+  }
+}
+    ${AccountFieldsFragmentDoc}`;
 export const CreateEscrowOrderDocument = `
     mutation CreateEscrowOrder($input: CreateEscrowOrderInput!) {
   createEscrowOrder(data: $input) {
@@ -221,6 +322,15 @@ const injectedRtkApi = api.injectEndpoints({
   endpoints: build => ({
     EscrowOrder: build.query<EscrowOrderQuery, EscrowOrderQueryVariables>({
       query: variables => ({ document: EscrowOrderDocument, variables })
+    }),
+    GetModeratorAccount: build.query<GetModeratorAccountQuery, GetModeratorAccountQueryVariables | void>({
+      query: variables => ({ document: GetModeratorAccountDocument, variables })
+    }),
+    GetRandomArbitratorAccount: build.query<
+      GetRandomArbitratorAccountQuery,
+      GetRandomArbitratorAccountQueryVariables | void
+    >({
+      query: variables => ({ document: GetRandomArbitratorAccountDocument, variables })
     }),
     CreateEscrowOrder: build.mutation<CreateEscrowOrderMutation, CreateEscrowOrderMutationVariables>({
       query: variables => ({ document: CreateEscrowOrderDocument, variables })

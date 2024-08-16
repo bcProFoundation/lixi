@@ -46,6 +46,7 @@ export type PostQuery = {
       __typename?: 'Account';
       address: string;
       hash160?: string | null;
+      publicKey?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
@@ -130,7 +131,7 @@ export type PostQuery = {
       orderLimitMax: number;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
-        paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+        paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
       }>;
     } | null;
   };
@@ -180,6 +181,7 @@ export type PostsByPageIdQuery = {
           __typename?: 'Account';
           address: string;
           hash160?: string | null;
+          publicKey?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
@@ -264,7 +266,7 @@ export type PostsByPageIdQuery = {
           orderLimitMax: number;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
-            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+            paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
         } | null;
       };
@@ -322,6 +324,7 @@ export type PostsByUserIdQuery = {
           __typename?: 'Account';
           address: string;
           hash160?: string | null;
+          publicKey?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
@@ -406,7 +409,7 @@ export type PostsByUserIdQuery = {
           orderLimitMax: number;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
-            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+            paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
         } | null;
       };
@@ -464,6 +467,7 @@ export type PostsByHashtagIdQuery = {
           __typename?: 'Account';
           address: string;
           hash160?: string | null;
+          publicKey?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
@@ -548,7 +552,7 @@ export type PostsByHashtagIdQuery = {
           orderLimitMax: number;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
-            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+            paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
         } | null;
       };
@@ -606,6 +610,7 @@ export type PostsByTokenIdQuery = {
           __typename?: 'Account';
           address: string;
           hash160?: string | null;
+          publicKey?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
@@ -690,7 +695,7 @@ export type PostsByTokenIdQuery = {
           orderLimitMax: number;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
-            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+            paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
         } | null;
       };
@@ -824,7 +829,7 @@ export type PostsBySearchQuery = {
           orderLimitMax: number;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
-            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+            paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
         } | null;
       };
@@ -960,7 +965,7 @@ export type PostsBySearchWithHashtagQuery = {
           orderLimitMax: number;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
-            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+            paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
         } | null;
       };
@@ -1097,7 +1102,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
           orderLimitMax: number;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
-            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+            paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
         } | null;
       };
@@ -1234,7 +1239,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
           orderLimitMax: number;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
-            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+            paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
         } | null;
       };
@@ -1283,7 +1288,7 @@ export type OfferFieldsFragment = {
   orderLimitMax: number;
   paymentMethods: Array<{
     __typename?: 'OfferPaymentMethod';
-    paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+    paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
   }>;
 };
 
@@ -1311,6 +1316,7 @@ export type PostFieldsFragment = {
     __typename?: 'Account';
     address: string;
     hash160?: string | null;
+    publicKey?: string | null;
     id: number;
     name: string;
     avatar?: string | null;
@@ -1395,7 +1401,7 @@ export type PostFieldsFragment = {
     orderLimitMax: number;
     paymentMethods: Array<{
       __typename?: 'OfferPaymentMethod';
-      paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+      paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
     }>;
   } | null;
 };
@@ -1503,7 +1509,7 @@ export type PostMeiliFieldsFragment = {
     orderLimitMax: number;
     paymentMethods: Array<{
       __typename?: 'OfferPaymentMethod';
-      paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+      paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
     }>;
   } | null;
 };
@@ -1538,6 +1544,7 @@ export type CreatePostMutation = {
       __typename?: 'Account';
       address: string;
       hash160?: string | null;
+      publicKey?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
@@ -1622,7 +1629,7 @@ export type CreatePostMutation = {
       orderLimitMax: number;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
-        paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+        paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
       }>;
     } | null;
   };
@@ -1658,6 +1665,7 @@ export type UpdatePostMutation = {
       __typename?: 'Account';
       address: string;
       hash160?: string | null;
+      publicKey?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
@@ -1742,7 +1750,7 @@ export type UpdatePostMutation = {
       orderLimitMax: number;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
-        paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+        paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
       }>;
     } | null;
   };
@@ -1784,6 +1792,7 @@ export type RemovePostMutation = {
       __typename?: 'Account';
       address: string;
       hash160?: string | null;
+      publicKey?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
@@ -1868,7 +1877,7 @@ export type RemovePostMutation = {
       orderLimitMax: number;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
-        paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+        paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
       }>;
     } | null;
   };
@@ -1906,6 +1915,7 @@ export const OfferFieldsFragmentDoc = `
   orderLimitMax
   paymentMethods {
     paymentMethod {
+      id
       name
     }
   }
@@ -1918,6 +1928,7 @@ export const PostFieldsFragmentDoc = `
   account {
     address
     hash160
+    publicKey
     id
     name
     avatar

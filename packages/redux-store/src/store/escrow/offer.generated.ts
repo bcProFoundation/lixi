@@ -30,7 +30,7 @@ export type OfferQuery = {
     orderLimitMax: number;
     paymentMethods: Array<{
       __typename?: 'OfferPaymentMethod';
-      paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+      paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
     }>;
   };
 };
@@ -75,6 +75,7 @@ export type AllOfferQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -159,7 +160,7 @@ export type AllOfferQuery = {
             orderLimitMax: number;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };
@@ -210,6 +211,7 @@ export type AllOfferByPublicKeyQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -294,7 +296,7 @@ export type AllOfferByPublicKeyQuery = {
             orderLimitMax: number;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };
@@ -320,7 +322,7 @@ export type CreateOfferMutation = {
     orderLimitMax: number;
     paymentMethods: Array<{
       __typename?: 'OfferPaymentMethod';
-      paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+      paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
     }>;
   };
 };

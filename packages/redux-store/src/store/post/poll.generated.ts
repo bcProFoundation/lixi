@@ -11,7 +11,7 @@
 
 import * as Types from '../../generated/types.generated';
 
-import { PostFieldsFragmentDoc, OfferFieldsFragmentDoc } from './posts.generated';
+import { PostFieldsFragmentDoc } from './posts.generated';
 import { api } from '@store/baseApi';
 export type CreatePollMutationVariables = Types.Exact<{
   input: Types.CreatePollInput;
@@ -43,6 +43,7 @@ export type CreatePollMutation = {
       __typename?: 'Account';
       address: string;
       hash160?: string | null;
+      publicKey?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
@@ -127,7 +128,7 @@ export type CreatePollMutation = {
       orderLimitMax: number;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
-        paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+        paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
       }>;
     } | null;
   };

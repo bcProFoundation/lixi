@@ -42,6 +42,39 @@ export class EscrowOrderResolver {
     return pubSub.asyncIterator('escrowOrderCreated');
   }
 
+  @Query(() => Account)
+  async getModeratorAccount() {
+    try {
+      return this.prisma.account.findFirst({
+        where: {
+          role: Role.MODERATOR
+        }
+      });
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
+  @Query(() => Account)
+  async getRandomArbitratorAccount() {
+    try {
+      const accounts = await this.prisma.account.findMany({
+        where: {
+          role: Role.ARBITRATOR
+        }
+      });
+
+      if (accounts.length === 0) {
+        throw new HttpException('No arbitrator found', HttpStatus.NOT_FOUND);
+      }
+
+      const randomIndex = Math.floor(Math.random() * accounts.length);
+      return accounts[randomIndex];
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
   @Query(() => EscrowOrder)
   @UseGuards(GqlJwtAuthGuard)
   async escrowOrder(@AccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
@@ -119,83 +152,102 @@ export class EscrowOrderResolver {
   }
 
   @Mutation(() => EscrowOrder)
-  async createEscrowOrder(@Args('data') data: CreateEscrowOrderInput) {
-    const {
-      postId,
-      paymentMethodId,
-      sellerId,
-      arbitratorId,
-      buyerId,
-      moderatorId,
-      amount,
-      price,
-      message,
-      escrowScript,
-      nonce
-    } = data;
-
-    const moderatorAccount = await this.prisma.account.findUnique({
-      where: {
-        id: moderatorId
-      }
-    });
-
-    if (!moderatorAccount || moderatorAccount.role !== Role.MODERATOR) {
-      throw new Error('Moderator not found');
-    }
-
-    const arbitratorAccount = await this.prisma.account.findUnique({
-      where: {
-        id: arbitratorId
-      }
-    });
-
-    if (!arbitratorAccount || arbitratorAccount.role !== Role.ARBITRATOR) {
-      throw new Error('Arbitrator not found');
-    }
-
-    const escrowOrder = await this.prisma.escrowOrder.create({
-      data: {
+  @UseGuards(GqlJwtAuthGuard)
+  async createEscrowOrder(@AccountEntity() account: Account, @Args('data') data: CreateEscrowOrderInput) {
+    try {
+      const {
+        postId,
+        paymentMethodId,
+        sellerId,
+        moderatorId,
+        arbitratorId,
         amount,
         price,
         message,
-        escrowScript: Buffer.from(escrowScript, 'hex'),
-        nonce: nonce,
-        paymentMethod: {
-          connect: {
-            id: paymentMethodId
-          }
-        },
-        sellerAccount: {
-          connect: {
-            id: sellerId
-          }
-        },
-        buyerAccount: {
-          connect: {
-            id: buyerId
-          }
-        },
-        arbitratorAccount: {
-          connect: {
-            id: arbitratorId
-          }
-        },
-        moderatorAccount: {
-          connect: {
-            id: moderatorId
-          }
-        },
-        offer: {
-          connect: {
-            postId: postId
+        escrowScript,
+        nonce
+      } = data;
+
+      const buyerAccount = await this.prisma.account.findUnique({
+        where: {
+          id: account.id
+        }
+      });
+
+      if (!buyerAccount) {
+        throw new Error('Buyer not found');
+      }
+
+      //TODO: Uncomment when done testing
+      // if (buyerAccount.id === sellerId) {
+      //   throw new Error('Seller and buyer cannot be the same');
+      // }
+
+      const moderatorAccount = await this.prisma.account.findUnique({
+        where: {
+          id: moderatorId
+        }
+      });
+
+      if (!moderatorAccount || moderatorAccount.role !== Role.MODERATOR) {
+        throw new Error('Moderator not found');
+      }
+
+      const arbitratorAccount = await this.prisma.account.findUnique({
+        where: {
+          id: arbitratorId
+        }
+      });
+
+      if (!arbitratorAccount || arbitratorAccount.role !== Role.ARBITRATOR) {
+        throw new Error('Arbitrator not found');
+      }
+
+      const escrowOrder = await this.prisma.escrowOrder.create({
+        data: {
+          amount,
+          price,
+          message,
+          escrowScript: Buffer.from(escrowScript, 'hex'),
+          nonce: nonce,
+          paymentMethod: {
+            connect: {
+              id: paymentMethodId
+            }
+          },
+          sellerAccount: {
+            connect: {
+              id: sellerId
+            }
+          },
+          buyerAccount: {
+            connect: {
+              id: buyerAccount.id
+            }
+          },
+          arbitratorAccount: {
+            connect: {
+              id: arbitratorId
+            }
+          },
+          moderatorAccount: {
+            connect: {
+              id: moderatorId
+            }
+          },
+          offer: {
+            connect: {
+              postId: postId
+            }
           }
         }
-      }
-    });
+      });
 
-    pubSub.publish('escrowOrderCreated', { escrowOrderCreated: escrowOrder });
-    return escrowOrder;
+      pubSub.publish('escrowOrderCreated', { escrowOrderCreated: escrowOrder });
+      return escrowOrder;
+    } catch (e) {
+      this.logger.error(e);
+    }
   }
 
   @Mutation(() => EscrowOrder)
@@ -254,7 +306,7 @@ export class EscrowOrderResolver {
           _.set(dataToUpdate, 'releaseTxid', txid ?? null);
           break;
         case EscrowOrderStatus.CANCEL:
-          _.set(dataToUpdate, 'cancelTxid', txid ?? null);
+          _.set(dataToUpdate, 'returnTxid', txid ?? null);
           break;
       }
 
