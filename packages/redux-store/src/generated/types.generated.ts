@@ -376,6 +376,7 @@ export type CreateDisputeInput = {
 export type CreateEscrowOrderInput = {
   amount: Scalars['Int']['input'];
   arbitratorId: Scalars['Int']['input'];
+  escrowAddress: Scalars['String']['input'];
   escrowScript: Scalars['String']['input'];
   message?: InputMaybe<Scalars['String']['input']>;
   moderatorId: Scalars['Int']['input'];
@@ -633,7 +634,7 @@ export type EscrowOrder = {
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime']['output'];
   dispute?: Maybe<Dispute>;
-  escrowAddress?: Maybe<Scalars['String']['output']>;
+  escrowAddress: Scalars['String']['output'];
   escrowScript: Scalars['String']['output'];
   escrowTxid?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];

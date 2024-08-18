@@ -349,6 +349,7 @@ input CreateDisputeInput {
 input CreateEscrowOrderInput {
   amount: Int!
   arbitratorId: Int!
+  escrowAddress: String!
   escrowScript: String!
   message: String
   moderatorId: Int!
@@ -611,7 +612,7 @@ type EscrowOrder {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   dispute: Dispute
-  escrowAddress: String
+  escrowAddress: String!
   escrowScript: String!
   escrowTxid: String
   id: ID!

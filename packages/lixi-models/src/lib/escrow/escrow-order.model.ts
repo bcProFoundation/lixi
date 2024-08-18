@@ -25,9 +25,8 @@ export class EscrowOrder {
   @Field(() => Account)
   moderatorAccount: Account;
 
-  @Field(() => String, { nullable: true })
-  @IsOptional()
-  escrowAddress?: string;
+  @Field(() => String)
+  escrowAddress: string;
 
   @Field(() => PaymentMethod)
   paymentMethod: PaymentMethod;

@@ -1262,6 +1262,7 @@ model EscrowOrder {
   arbitratorAccountId Int               @map("arbitrator_account_id")
   moderatorAccount    Account           @relation("escrow_mod_orders", fields: [moderatorAccountId], references: [id])
   moderatorAccountId  Int               @map("moderator_account_id")
+  escrowAddress       String            @unique @map("escrow_address")
   escrowTxid          String?           @unique @map("escrow_txid")
   releaseTxid         String?           @unique @map("release_txid")
   returnTxid          String?           @unique @map("return_txid")

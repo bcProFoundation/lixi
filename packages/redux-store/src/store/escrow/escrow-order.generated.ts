@@ -18,6 +18,7 @@ export type EscrowOrderFieldsFragment = {
   id: string;
   message?: string | null;
   escrowScript: string;
+  escrowAddress: string;
   nonce: string;
   escrowTxid?: string | null;
   releaseTxid?: string | null;
@@ -70,6 +71,7 @@ export type EscrowOrderQuery = {
     id: string;
     message?: string | null;
     escrowScript: string;
+    escrowAddress: string;
     nonce: string;
     escrowTxid?: string | null;
     releaseTxid?: string | null;
@@ -264,6 +266,7 @@ export const EscrowOrderFieldsFragmentDoc = `
     message
   }
   escrowScript
+  escrowAddress
   nonce
   escrowTxid
   releaseTxid

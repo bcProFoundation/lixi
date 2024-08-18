@@ -165,6 +165,7 @@ export class EscrowOrderResolver {
         price,
         message,
         escrowScript,
+        escrowAddress,
         nonce
       } = data;
 
@@ -208,6 +209,7 @@ export class EscrowOrderResolver {
           amount,
           price,
           message,
+          escrowAddress,
           escrowScript: Buffer.from(escrowScript, 'hex'),
           nonce: nonce,
           paymentMethod: {

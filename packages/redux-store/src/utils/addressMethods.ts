@@ -91,6 +91,12 @@ export const convertHashToEcashAddress = (hash160: string) => {
   return cashAddress;
 };
 
+export const convertEscrowScriptHashToEcashAddress = (escrowScriptHash160: Uint8Array) => {
+  const cashAddress = cashaddr.encode('ecash', 'P2SH', escrowScriptHash160);
+
+  return cashAddress;
+};
+
 export const convertHashToXAddress = (XPI: any, hash: string | Buffer) => {
   const legacyAddress = XPI.Address.hash160ToLegacy(hash);
   const xAddress = XPI.Address.toXAddress(legacyAddress);
