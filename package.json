@@ -4,9 +4,9 @@
   "private": true,
   "devDependencies": {
     "@changesets/cli": "^2.27.7",
-    "husky": "^9.0.11",
-    "syncpack": "^12.3.3",
-    "turbo": "1.13.0 "
+    "husky": "^9.1.4",
+    "syncpack": "^12.4.0",
+    "turbo": "1.13.0"
   },
   "scripts": {
     "prepare": "husky install",
