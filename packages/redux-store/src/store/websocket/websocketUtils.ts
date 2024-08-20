@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 
-const baseUrl = process.env.NEXT_PUBLIC_LIXI_API ? process.env.NEXT_PUBLIC_LIXI_API : 'https://lixilotus.com/';
+const baseUrl = process.env.NEXT_PUBLIC_LIXI_API ? process.env.NEXT_PUBLIC_LIXI_API : 'https://lixi.social';
 const socketServerUrl = `${baseUrl}/ws/notifications`;
 
 export const connectWebSocket = (): Promise<Socket> => {
