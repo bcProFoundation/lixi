@@ -25,8 +25,8 @@ const getDeviceNotificationStyle = () => {
 };
 
 let socket: Socket;
-const baseUrl = process.env.NEXT_PUBLIC_LIXI_API ? process.env.NEXT_PUBLIC_LIXI_API : 'https://lixi.social/';
-const socketServerUrl = `${baseUrl}ws/worship`;
+const baseUrl = process.env.NEXT_PUBLIC_LIXI_API ? process.env.NEXT_PUBLIC_LIXI_API : 'https://lixi.social';
+const socketServerUrl = `${baseUrl}/ws/worship`;
 
 /**
  * Wait for the selector until the value existed
