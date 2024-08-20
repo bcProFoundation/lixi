@@ -989,7 +989,7 @@ type Mutation {
   createFollowPage(data: CreateFollowPageInput!): FollowPage!
   createFollowToken(data: CreateFollowTokenInput!): FollowPage!
   createMessage(data: CreateMessageInput!): Message!
-  createOffer(data: CreateOfferInput!): Offer!
+  createOffer(data: CreateOfferInput!): Post!
   createPage(data: CreatePageInput!): Page!
   createPageMessageSession(data: CreatePageMessageInput!): PageMessageSession!
   createPoll(data: CreatePollInput!): Post!
@@ -1447,7 +1447,7 @@ type Query {
   allHashtagByToken(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: HashtagOrder, skip: Int): HashtagConnection!
   allMessageByPageMessageSessionId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: MessageOrder, skip: Int): MessageConnection!
   allOffer(after: String, first: Int, skip: Int): TimelineItemConnection!
-  allOfferByPublicKey(after: String, first: Int, publicKey: String!, skip: Int): TimelineItemConnection!
+  allOfferByAccount(after: String, first: Int, offerStatus: OfferStatus!, skip: Int): TimelineItemConnection!
   allOpenPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allOpenPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!

@@ -1,5 +1,5 @@
 import { PostType } from '@bcpros/lixi-prisma';
-import { Post } from '@bcpros/lixi-prisma';
+import { Post } from '@bcpros/lixi-models';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
@@ -40,6 +40,7 @@ export class PostFanoutProcessor extends WorkerHost {
 
   //timeline for offer boost
   static offerBoostingTimeline = 'timeline:offer:boosting:showAll';
+  static myOfferTimeline = 'timeline:offer:{{accountId}}:{{offerStatus}}';
 
   constructor(
     private readonly postCacheService: PostCacheService,
@@ -151,7 +152,12 @@ export class PostFanoutProcessor extends WorkerHost {
 
       //add default score for offer
       if (post.type === PostType.OFFER) {
+        const myOfferTimelineKey = template(`${PostFanoutProcessor.myOfferTimeline}`, {
+          accountId,
+          offerStatus: post?.offer?.status
+        });
         pipeline.zincrby(PostFanoutProcessor.offerBoostingTimeline, score, timelineId);
+        pipeline.zincrby(myOfferTimelineKey, score, timelineId);
       }
 
       await pipeline.exec();
