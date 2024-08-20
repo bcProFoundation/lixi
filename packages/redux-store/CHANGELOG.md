@@ -1,5 +1,13 @@
 # @bcpros/redux-store
 
+## 1.2.6
+
+### Patch Changes
+
+- b4f08cf: fix cors and url
+- Updated dependencies [b4f08cf]
+  - @bcpros/lixi-models@1.2.6
+
 ## 1.2.5
 
 ### Patch Changes
