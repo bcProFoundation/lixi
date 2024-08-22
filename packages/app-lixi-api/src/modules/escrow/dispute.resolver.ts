@@ -39,7 +39,8 @@ export class DisputeResolver {
   }
 
   @Query(() => Dispute)
-  async dispute(@Args('id', { type: () => String }) id: string) {
+  @UseGuards(GqlJwtAuthGuard)
+  async dispute(@AccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
     const result = await this.prisma.dispute.findUnique({
       where: { id: id },
       include: {
@@ -47,12 +48,23 @@ export class DisputeResolver {
       }
     });
 
+    if (!result) {
+      return;
+    }
+
+    const { arbitratorAccountId, moderatorAccountId } = result.escrowOrder;
+
+    //TODO: remove if want buyer/seller to view dispute
+    if (arbitratorAccountId !== account.id && moderatorAccountId !== account.id) {
+      throw new Error('You are not allowed to view the dispute');
+    }
+
     return result;
   }
 
   @Query(() => DisputeConnection)
   @UseGuards(GqlJwtAuthGuard)
-  async allDisputeByAccountId(
+  async allDisputesByAccountId(
     @Args() { after, before, first, last }: PaginationArgs,
     @AccountEntity() account: Account,
     @Args({
@@ -61,7 +73,31 @@ export class DisputeResolver {
       nullable: true
     })
     orderBy: DisputeOrder
-  ) {}
+  ) {
+    const result = await findManyCursorConnection(
+      args =>
+        this.prisma.dispute.findMany({
+          where: {
+            escrowOrder: {
+              OR: [
+                {
+                  arbitratorAccountId: account.id
+                },
+                {
+                  moderatorAccountId: account.id
+                }
+              ]
+            }
+          },
+          include: { escrowOrder: true },
+          orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
+          ...args
+        }),
+      () => this.prisma.dispute.count({}),
+      { first, last, before, after }
+    );
+    return result;
+  }
 
   @Mutation(() => Dispute)
   @UseGuards(GqlJwtAuthGuard)
@@ -71,11 +107,18 @@ export class DisputeResolver {
     const escrowOrder = await this.prisma.escrowOrder.findUnique({
       where: {
         id: escrowOrderId
+      },
+      include: {
+        dispute: true
       }
     });
 
     if (!escrowOrder) {
       throw new Error('Escrow order not found');
+    }
+
+    if (escrowOrder.dispute) {
+      throw new Error('Escrow order already has a dispute');
     }
 
     if (escrowOrder.status !== EscrowOrderStatus.ESCROW) {

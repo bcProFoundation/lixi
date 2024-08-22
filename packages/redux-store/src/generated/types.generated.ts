@@ -12,6 +12,8 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean };
   Int: { input: number; output: number };
   Float: { input: number; output: number };
+  /** The `BigInt` scalar type represents non-fractional signed whole numeric values. */
+  BigInt: { input: any; output: any };
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   DateTime: { input: any; output: any };
   /** An arbitrary-precision Decimal type */
@@ -636,7 +638,7 @@ export type EscrowOrder = {
   dispute?: Maybe<Dispute>;
   escrowAddress: Scalars['String']['output'];
   escrowScript: Scalars['String']['output'];
-  escrowTxid?: Maybe<Scalars['String']['output']>;
+  escrowTxids?: Maybe<Array<EscrowTxid>>;
   id: Scalars['ID']['output'];
   message?: Maybe<Scalars['String']['output']>;
   moderatorAccount: Account;
@@ -689,6 +691,18 @@ export enum EscrowOrderStatus {
   Escrow = 'ESCROW',
   Pending = 'PENDING'
 }
+
+export type EscrowTxid = {
+  __typename?: 'EscrowTxid';
+  /** Identifies the date and time when the object was created. */
+  createdAt: Scalars['DateTime']['output'];
+  escrowOrder: EscrowOrder;
+  escrowOrderId: Scalars['String']['output'];
+  txid: Scalars['String']['output'];
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt: Scalars['DateTime']['output'];
+  value: Scalars['BigInt']['output'];
+};
 
 export type Event = {
   __typename?: 'Event';
@@ -1176,9 +1190,7 @@ export type MutationUpdateDisputeArgs = {
 };
 
 export type MutationUpdateEscrowOrderStatusArgs = {
-  orderId: Scalars['String']['input'];
-  status: EscrowOrderStatus;
-  txid?: InputMaybe<Scalars['String']['input']>;
+  data: UpdateEscrowOrderInput;
 };
 
 export type MutationUpdatePageArgs = {
@@ -1604,7 +1616,7 @@ export type Query = {
   account: Account;
   allAccounts: AccountBasicConnection;
   allClosedPageMessageSession: PageMessageSessionConnection;
-  allDisputeByAccountId: DisputeConnection;
+  allDisputesByAccountId: DisputeConnection;
   allEscrowOrderByOfferId: EscrowOrderConnection;
   allFollowersByFollowing: AccountConnection;
   allFollowersByPage: AccountBasicConnection;
@@ -1710,7 +1722,7 @@ export type QueryAllClosedPageMessageSessionArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export type QueryAllDisputeByAccountIdArgs = {
+export type QueryAllDisputesByAccountIdArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
@@ -2479,6 +2491,13 @@ export type UpdateDisputeInput = {
   escrowOrderId: Scalars['String']['input'];
   id: Scalars['String']['input'];
   status: DisputeStatus;
+};
+
+export type UpdateEscrowOrderInput = {
+  orderId: Scalars['String']['input'];
+  status: EscrowOrderStatus;
+  txid?: InputMaybe<Scalars['String']['input']>;
+  value?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type UpdatePageInput = {

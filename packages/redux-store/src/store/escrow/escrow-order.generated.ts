@@ -20,7 +20,6 @@ export type EscrowOrderFieldsFragment = {
   escrowScript: string;
   escrowAddress: string;
   nonce: string;
-  escrowTxid?: string | null;
   releaseTxid?: string | null;
   returnTxid?: string | null;
   price: number;
@@ -58,6 +57,8 @@ export type EscrowOrderFieldsFragment = {
   };
   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
   offer: { __typename?: 'Offer'; postId: string; message: string };
+  escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any }> | null;
+  dispute?: { __typename?: 'Dispute'; createdBy: string; reason?: string | null; status: Types.DisputeStatus } | null;
 };
 
 export type EscrowOrderQueryVariables = Types.Exact<{
@@ -73,7 +74,6 @@ export type EscrowOrderQuery = {
     escrowScript: string;
     escrowAddress: string;
     nonce: string;
-    escrowTxid?: string | null;
     releaseTxid?: string | null;
     returnTxid?: string | null;
     price: number;
@@ -111,6 +111,8 @@ export type EscrowOrderQuery = {
     };
     paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
     offer: { __typename?: 'Offer'; postId: string; message: string };
+    escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any }> | null;
+    dispute?: { __typename?: 'Dispute'; createdBy: string; reason?: string | null; status: Types.DisputeStatus } | null;
   };
 };
 
@@ -210,9 +212,7 @@ export type CreateEscrowOrderMutation = {
 };
 
 export type UpdateEscrowOrderStatusMutationVariables = Types.Exact<{
-  orderId: Types.Scalars['String']['input'];
-  status: Types.EscrowOrderStatus;
-  txid?: Types.InputMaybe<Types.Scalars['String']['input']>;
+  input: Types.UpdateEscrowOrderInput;
 }>;
 
 export type UpdateEscrowOrderStatusMutation = {
@@ -268,7 +268,15 @@ export const EscrowOrderFieldsFragmentDoc = `
   escrowScript
   escrowAddress
   nonce
-  escrowTxid
+  escrowTxids {
+    txid
+    value
+  }
+  dispute {
+    createdBy
+    reason
+    status
+  }
   releaseTxid
   returnTxid
   price
@@ -307,8 +315,8 @@ export const CreateEscrowOrderDocument = `
 }
     `;
 export const UpdateEscrowOrderStatusDocument = `
-    mutation UpdateEscrowOrderStatus($orderId: String!, $status: EscrowOrderStatus!, $txid: String) {
-  updateEscrowOrderStatus(orderId: $orderId, status: $status, txid: $txid) {
+    mutation UpdateEscrowOrderStatus($input: UpdateEscrowOrderInput!) {
+  updateEscrowOrderStatus(data: $input) {
     id
     message
     price

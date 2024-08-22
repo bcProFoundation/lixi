@@ -10,7 +10,9 @@ import {
   PaymentMethod,
   Offer,
   Dispute,
-  EscrowOrderStatus
+  EscrowOrderStatus,
+  UpdateEscrowOrderInput,
+  DisputeStatus
 } from '@bcpros/lixi-models';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
@@ -56,11 +58,19 @@ export class EscrowOrderResolver {
   }
 
   @Query(() => Account)
-  async getRandomArbitratorAccount() {
+  @UseGuards(GqlJwtAuthGuard)
+  async getRandomArbitratorAccount(@AccountEntity() account: Account) {
     try {
       const accounts = await this.prisma.account.findMany({
         where: {
-          role: Role.ARBITRATOR
+          AND: [
+            {
+              id: { not: account.id }
+            },
+            {
+              role: Role.ARBITRATOR
+            }
+          ]
         }
       });
 
@@ -90,7 +100,8 @@ export class EscrowOrderResolver {
           arbitratorAccount: true,
           buyerAccount: true,
           sellerAccount: true,
-          moderatorAccount: true
+          moderatorAccount: true,
+          escrowTxids: true
         }
       });
 
@@ -107,8 +118,12 @@ export class EscrowOrderResolver {
       }
 
       //Check if the user is part of the escrow order
-      if (result.buyerAccount.id !== account.id && result.sellerAccount.id !== account.id) {
-        // fix this
+      if (
+        result.buyerAccount.id !== account.id &&
+        result.sellerAccount.id !== account.id &&
+        result.arbitratorAccount.id !== account.id &&
+        result.moderatorAccount.id !== account.id
+      ) {
         throw new Error('User is not part of the escrow order');
       }
 
@@ -254,16 +269,15 @@ export class EscrowOrderResolver {
 
   @Mutation(() => EscrowOrder)
   @UseGuards(GqlJwtAuthGuard)
-  async updateEscrowOrderStatus(
-    @AccountEntity() account: Account,
-    @Args('orderId', { type: () => String }) orderId: string,
-    @Args('status', { type: () => EscrowOrderStatus }) status: EscrowOrderStatus,
-    @Args('txid', { type: () => String, nullable: true }) txid?: string
-  ) {
+  async updateEscrowOrderStatus(@AccountEntity() account: Account, @Args('data') data: UpdateEscrowOrderInput) {
+    const { orderId, status, txid, value } = data;
     try {
       const result = await this.prisma.escrowOrder.findUnique({
         where: {
           id: orderId
+        },
+        include: {
+          dispute: true
         }
       });
 
@@ -287,12 +301,12 @@ export class EscrowOrderResolver {
         throw new Error('Only seller or buyer can cancel the order');
       }
 
-      if (status === EscrowOrderStatus.ESCROW && _.isNil(txid)) {
-        throw new Error('Txid is required for escrow status');
-      }
-
       if (status === EscrowOrderStatus.COMPLETE && _.isNil(txid)) {
         throw new Error('Txid is required for complete status');
+      }
+
+      if (status === EscrowOrderStatus.ESCROW && result.status === EscrowOrderStatus.COMPLETE) {
+        throw new Error('The order has completed');
       }
 
       const dataToUpdate = {
@@ -301,8 +315,20 @@ export class EscrowOrderResolver {
       };
 
       switch (status) {
-        case EscrowOrderStatus.ESCROW:
-          _.set(dataToUpdate, 'escrowTxid', txid ?? null);
+        case EscrowOrderStatus.ACTIVE:
+          txid &&
+            value &&
+            (await this.prisma.escrowTxId.create({
+              data: {
+                txid: txid,
+                value: BigInt(value),
+                escrowOrder: {
+                  connect: {
+                    id: orderId
+                  }
+                }
+              }
+            }));
           break;
         case EscrowOrderStatus.COMPLETE:
           _.set(dataToUpdate, 'releaseTxid', txid ?? null);
@@ -318,6 +344,17 @@ export class EscrowOrderResolver {
         },
         data: dataToUpdate
       });
+
+      if (result.dispute) {
+        await this.prisma.dispute.update({
+          where: {
+            id: result.dispute.id
+          },
+          data: {
+            status: DisputeStatus.RESOLVED
+          }
+        });
+      }
 
       pubSub.publish('escrowOrderUpdated', { escrowOrderUpdated: escrowOrder });
       return escrowOrder;
@@ -383,6 +420,15 @@ export class EscrowOrderResolver {
   @ResolveField('dispute', () => Dispute)
   async dispute(@Parent() escrowOrder: EscrowOrder) {
     return this.prisma.dispute.findUnique({
+      where: {
+        escrowOrderId: escrowOrder.id
+      }
+    });
+  }
+
+  @ResolveField('escrowTxids', () => Dispute)
+  async escrowTxids(@Parent() escrowOrder: EscrowOrder) {
+    return this.prisma.escrowTxId.findMany({
       where: {
         escrowOrderId: escrowOrder.id
       }

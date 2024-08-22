@@ -2,9 +2,6 @@ fragment DisputeFields on Dispute {
   id
   escrowOrder {
     id
-    status
-    createdAt
-    updatedAt
   }
   reason
   createdBy
@@ -16,6 +13,20 @@ fragment DisputeFields on Dispute {
 query Dispute($id: String!) {
   dispute(id: $id) {
     ...DisputeFields
+  }
+}
+
+query DisputesByAccountId($after: String, $before: String, $first: Int, $last: Int, $orderBy: DisputeOrder) {
+  allDisputesByAccountId(after: $after, before: $before, first: $first, last: $last, orderBy: $orderBy) {
+    edges {
+      cursor
+      node {
+        ...DisputeFields
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
+    }
   }
 }
 

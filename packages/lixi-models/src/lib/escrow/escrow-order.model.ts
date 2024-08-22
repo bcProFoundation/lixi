@@ -3,8 +3,10 @@ import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { Account } from '../account/account.model';
+import { Nullable } from '../nullable';
 
 import { Dispute } from './dispute.model';
+import { EscrowTxid } from './escrow-txid.model';
 import { Offer } from './offer.model';
 import { PaymentMethod } from './payment-method.model';
 
@@ -59,9 +61,8 @@ export class EscrowOrder {
   @Field(() => String)
   nonce: string;
 
-  @Field(() => String, { nullable: true })
-  @IsOptional()
-  escrowTxid?: string;
+  @Field(() => [EscrowTxid], { nullable: true })
+  escrowTxids?: Nullable<EscrowTxid[]>;
 
   @Field(() => String, { nullable: true })
   @IsOptional()

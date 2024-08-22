@@ -1,5 +1,5 @@
-import { EscrowOrderStatus } from '@bcpros/lixi-models';
 import { api } from './escrow-order.generated';
+import { DisputeStatus } from '../../generated/types.generated';
 
 const enhancedApi = api.enhanceEndpoints({
   addTagTypes: ['EscrowOrder'],
@@ -9,29 +9,48 @@ const enhancedApi = api.enhanceEndpoints({
     GetModeratorAccount: {},
     GetRandomArbitratorAccount: {},
     UpdateEscrowOrderStatus: {
-      onQueryStarted: async ({ orderId, status, txid }, { dispatch, queryFulfilled }) => {
+      onQueryStarted: async ({ input }, { dispatch, queryFulfilled }) => {
+        const { orderId, status, txid, value } = input;
         try {
           const { data } = await queryFulfilled;
-          dispatch(
-            api.util.updateQueryData('EscrowOrder', { id: orderId }, draft => {
-              if (draft) {
-                draft.escrowOrder.status = status;
-                draft.escrowOrder.updatedAt = data.updateEscrowOrderStatus.updatedAt;
+          if (data) {
+            dispatch(
+              api.util.updateQueryData('EscrowOrder', { id: orderId }, draft => {
+                if (draft) {
+                  draft.escrowOrder.status = status;
+                  draft.escrowOrder.updatedAt = data.updateEscrowOrderStatus.updatedAt;
 
-                switch (status) {
-                  case 'ESCROW':
-                    draft.escrowOrder.escrowTxid = txid;
-                    break;
-                  case 'COMPLETE':
-                    draft.escrowOrder.releaseTxid = txid;
-                    break;
-                  case 'CANCEL':
-                    draft.escrowOrder.returnTxid = txid;
-                    break;
+                  switch (status) {
+                    case 'COMPLETE':
+                      draft.escrowOrder.releaseTxid = txid;
+                      if (draft.escrowOrder.dispute) {
+                        draft.escrowOrder.dispute.status = DisputeStatus.Resolved;
+                      }
+                      break;
+                    case 'CANCEL':
+                      draft.escrowOrder.returnTxid = txid;
+                      break;
+                    case 'ACTIVE':
+                      txid &&
+                        value &&
+                        draft.escrowOrder.escrowTxids.push({
+                          txid,
+                          value
+                        });
+                      break;
+                    case 'ESCROW':
+                      txid &&
+                        value &&
+                        draft.escrowOrder.escrowTxids.push({
+                          txid,
+                          value
+                        });
+                      break;
+                  }
                 }
-              }
-            })
-          );
+              })
+            );
+          }
         } catch (e) {
           console.error(e);
         }

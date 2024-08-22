@@ -11,6 +11,10 @@
 
 import * as Types from '../../generated/types.generated';
 
+import {
+  PageInfoFieldsFragmentDoc,
+  PostMeiliPageInfoFieldsFragmentDoc
+} from '../../graphql/fragments/page-info-fields.fragment.generated';
 import { api } from '@store/baseApi';
 export type DisputeFieldsFragment = {
   __typename?: 'Dispute';
@@ -20,13 +24,7 @@ export type DisputeFieldsFragment = {
   status: Types.DisputeStatus;
   createdAt: any;
   updatedAt: any;
-  escrowOrder: {
-    __typename?: 'EscrowOrder';
-    id: string;
-    status: Types.EscrowOrderStatus;
-    createdAt: any;
-    updatedAt: any;
-  };
+  escrowOrder: { __typename?: 'EscrowOrder'; id: string };
 };
 
 export type DisputeQueryVariables = Types.Exact<{
@@ -43,12 +41,42 @@ export type DisputeQuery = {
     status: Types.DisputeStatus;
     createdAt: any;
     updatedAt: any;
-    escrowOrder: {
-      __typename?: 'EscrowOrder';
-      id: string;
-      status: Types.EscrowOrderStatus;
-      createdAt: any;
-      updatedAt: any;
+    escrowOrder: { __typename?: 'EscrowOrder'; id: string };
+  };
+};
+
+export type DisputesByAccountIdQueryVariables = Types.Exact<{
+  after?: Types.InputMaybe<Types.Scalars['String']['input']>;
+  before?: Types.InputMaybe<Types.Scalars['String']['input']>;
+  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  last?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  orderBy?: Types.InputMaybe<Types.DisputeOrder>;
+}>;
+
+export type DisputesByAccountIdQuery = {
+  __typename?: 'Query';
+  allDisputesByAccountId: {
+    __typename?: 'DisputeConnection';
+    edges?: Array<{
+      __typename?: 'DisputeEdge';
+      cursor: string;
+      node: {
+        __typename?: 'Dispute';
+        id: string;
+        reason?: string | null;
+        createdBy: string;
+        status: Types.DisputeStatus;
+        createdAt: any;
+        updatedAt: any;
+        escrowOrder: { __typename?: 'EscrowOrder'; id: string };
+      };
+    }> | null;
+    pageInfo: {
+      __typename?: 'PageInfo';
+      endCursor?: string | null;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+      startCursor?: string | null;
     };
   };
 };
@@ -70,9 +98,6 @@ export const DisputeFieldsFragmentDoc = `
   id
   escrowOrder {
     id
-    status
-    createdAt
-    updatedAt
   }
   reason
   createdBy
@@ -88,6 +113,28 @@ export const DisputeDocument = `
   }
 }
     ${DisputeFieldsFragmentDoc}`;
+export const DisputesByAccountIdDocument = `
+    query DisputesByAccountId($after: String, $before: String, $first: Int, $last: Int, $orderBy: DisputeOrder) {
+  allDisputesByAccountId(
+    after: $after
+    before: $before
+    first: $first
+    last: $last
+    orderBy: $orderBy
+  ) {
+    edges {
+      cursor
+      node {
+        ...DisputeFields
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
+    }
+  }
+}
+    ${DisputeFieldsFragmentDoc}
+${PageInfoFieldsFragmentDoc}`;
 export const CreateDisputeDocument = `
     mutation CreateDispute($input: CreateDisputeInput!) {
   createDispute(data: $input) {
@@ -108,6 +155,9 @@ const injectedRtkApi = api.injectEndpoints({
   endpoints: build => ({
     Dispute: build.query<DisputeQuery, DisputeQueryVariables>({
       query: variables => ({ document: DisputeDocument, variables })
+    }),
+    DisputesByAccountId: build.query<DisputesByAccountIdQuery, DisputesByAccountIdQueryVariables | void>({
+      query: variables => ({ document: DisputesByAccountIdDocument, variables })
     }),
     CreateDispute: build.mutation<CreateDisputeMutation, CreateDisputeMutationVariables>({
       query: variables => ({ document: CreateDisputeDocument, variables })

@@ -1263,7 +1263,7 @@ model EscrowOrder {
   moderatorAccount    Account           @relation("escrow_mod_orders", fields: [moderatorAccountId], references: [id])
   moderatorAccountId  Int               @map("moderator_account_id")
   escrowAddress       String            @unique @map("escrow_address")
-  escrowTxid          String?           @unique @map("escrow_txid")
+  escrowTxids         EscrowTxId[]
   releaseTxid         String?           @unique @map("release_txid")
   returnTxid          String?           @unique @map("return_txid")
   paymentMethod       PaymentMethod     @relation(fields: [paymentMethodId], references: [id])
@@ -1281,6 +1281,15 @@ model EscrowOrder {
   updatedAt           DateTime          @default(now()) @map("updated_at") @db.Timestamptz
 
   @@map("escrow_order")
+}
+
+model EscrowTxId {
+  txid          String      @unique
+  value         BigInt
+  escrowOrder   EscrowOrder @relation(fields: [escrowOrderId], references: [id])
+  escrowOrderId String
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime    @default(now()) @map("updated_at") @db.Timestamptz
 }
 
 model Dispute {

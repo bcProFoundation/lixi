@@ -64,7 +64,7 @@ export const useWallet = () => {
 
     let accountCoin: string;
 
-    switch (selectedAccount?.coin) {
+    switch (selectedAccount.coin ?? selectedAccount.rootCoin) {
       case COIN.XPI:
         accountCoin = 'xpi';
         break;
@@ -359,7 +359,9 @@ export const useWallet = () => {
         return;
       }
 
-      const { chronikUtxos, nonSlpUtxos } = await getUtxosByCoin(selectedAccount?.coin ?? COIN.XPI);
+      const { chronikUtxos, nonSlpUtxos } = await getUtxosByCoin(
+        selectedAccount?.rootCoin ?? selectedAccount?.coin ?? COIN.XPI
+      );
 
       // Need to call wToUpdateith wallet as a parameter rather than trusting it is in state, otherwise can sometimes get wallet=false from haveUtxosChanged
       const utxosHaveChanged = haveUtxosChanged(chronikUtxos, walletUtxos);
@@ -374,7 +376,13 @@ export const useWallet = () => {
         return;
       }
 
-      const { chronikTxHistory } = await getTxHistoryChronik(chronik, XPI, wallet, 0, selectedAccount?.coin);
+      const { chronikTxHistory } = await getTxHistoryChronik(
+        chronik,
+        XPI,
+        wallet,
+        0,
+        selectedAccount?.rootCoin ?? selectedAccount?.coin
+      );
 
       const newWalletStatus: WalletStatus = {
         balances: getWalletBalanceFromUtxos(nonSlpUtxos, selectedAccount?.coin),

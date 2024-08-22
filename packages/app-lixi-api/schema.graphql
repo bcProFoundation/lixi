@@ -111,6 +111,11 @@ type BasicPageInfo {
   hasNextPage: Boolean!
 }
 
+"""
+The `BigInt` scalar type represents non-fractional signed whole numeric values.
+"""
+scalar BigInt
+
 type Bookmark {
   account: Account!
   accountId: Int!
@@ -614,7 +619,7 @@ type EscrowOrder {
   dispute: Dispute
   escrowAddress: String!
   escrowScript: String!
-  escrowTxid: String
+  escrowTxids: [EscrowTxid!]
   id: ID!
   message: String
   moderatorAccount: Account!
@@ -665,6 +670,18 @@ enum EscrowOrderStatus {
   COMPLETE
   ESCROW
   PENDING
+}
+
+type EscrowTxid {
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  escrowOrder: EscrowOrder!
+  escrowOrderId: String!
+  txid: String!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+  value: BigInt!
 }
 
 type Event {
@@ -1010,7 +1027,7 @@ type Mutation {
   repost(data: RepostInput!): Boolean!
   updateAccount(data: UpdateAccountInput!): Account!
   updateDispute(data: UpdateDisputeInput!): Dispute!
-  updateEscrowOrderStatus(orderId: String!, status: EscrowOrderStatus!, txid: String): EscrowOrder!
+  updateEscrowOrderStatus(data: UpdateEscrowOrderInput!): EscrowOrder!
   updatePage(data: UpdatePageInput!): Page!
   updatePost(data: UpdatePostInput!): Post!
 }
@@ -1422,7 +1439,7 @@ type Query {
   account(id: Int!): Account!
   allAccounts(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): AccountBasicConnection!
   allClosedPageMessageSession(accountId: Int, after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, pageId: String, skip: Int): PageMessageSessionConnection!
-  allDisputeByAccountId(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: DisputeOrder, skip: Int): DisputeConnection!
+  allDisputesByAccountId(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: DisputeOrder, skip: Int): DisputeConnection!
   allEscrowOrderByOfferId(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, offerId: String!, orderBy: EscrowOrderOrder, skip: Int): EscrowOrderConnection!
   allFollowersByFollowing(after: String, before: String, first: Int, followingAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
   allFollowersByPage(after: String, first: Int, id: String, skip: Int): AccountBasicConnection!
@@ -1769,6 +1786,13 @@ input UpdateDisputeInput {
   escrowOrderId: String!
   id: String!
   status: DisputeStatus!
+}
+
+input UpdateEscrowOrderInput {
+  orderId: String!
+  status: EscrowOrderStatus!
+  txid: String
+  value: Int
 }
 
 input UpdatePageInput {

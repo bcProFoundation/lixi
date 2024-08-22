@@ -36,7 +36,15 @@ fragment EscrowOrderFields on EscrowOrder {
   escrowScript
   escrowAddress
   nonce
-  escrowTxid
+  escrowTxids {
+    txid
+    value
+  }
+  dispute {
+    createdBy
+    reason
+    status
+  }
   releaseTxid
   returnTxid
   price
@@ -70,8 +78,8 @@ mutation CreateEscrowOrder($input: CreateEscrowOrderInput!) {
   }
 }
 
-mutation UpdateEscrowOrderStatus($orderId: String!, $status: EscrowOrderStatus!, $txid: String) {
-  updateEscrowOrderStatus(orderId: $orderId, status: $status, txid: $txid) {
+mutation UpdateEscrowOrderStatus($input: UpdateEscrowOrderInput!) {
+  updateEscrowOrderStatus(data: $input) {
     id
     message
     price
