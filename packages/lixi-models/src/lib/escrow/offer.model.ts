@@ -7,6 +7,8 @@ import { COIN } from '../../constants/coins/coin';
 import { EscrowOrder } from './escrow-order.model';
 import { OfferPaymentMethod } from './offer-payment-method.model';
 import { Nullable } from '../nullable';
+import { Country } from '../geo-location/country.model';
+import { State } from '../geo-location/state.model';
 
 @ObjectType()
 export class Offer {
@@ -40,9 +42,17 @@ export class Offer {
   @Field(() => OfferStatus)
   status: OfferStatus;
 
-  @Field(() => String, { nullable: true })
-  @IsOptional()
-  location?: Nullable<string>;
+  @Field(() => Number, { nullable: true })
+  countryId?: Nullable<number>;
+
+  @Field(() => Country, { nullable: true })
+  country?: Nullable<Country>;
+
+  @Field(() => Number, { nullable: true })
+  stateId?: Nullable<number>;
+
+  @Field(() => State, { nullable: true })
+  state?: Nullable<State>;
 
   @Field(() => [EscrowOrder], { nullable: true })
   @IsOptional()

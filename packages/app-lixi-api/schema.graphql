@@ -408,8 +408,8 @@ input CreateMessageInput {
 
 input CreateOfferInput {
   coin: Coin!
+  countryId: Int
   createFeeHex: String
-  location: String
   message: String!
   orderLimitMax: Int!
   orderLimitMin: Int!
@@ -417,6 +417,7 @@ input CreateOfferInput {
   paymentMethodIds: [Int!]!
   price: String!
   publicKey: String!
+  stateId: Int
   type: OfferType!
 }
 
@@ -1016,11 +1017,12 @@ type Mutation {
 
 type Offer {
   coin: Coin!
+  country: Country
+  countryId: Int
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   escrowOrders: [EscrowOrder!]
-  location: String
   message: String!
   orderLimitMax: Int!
   orderLimitMin: Int!
@@ -1028,6 +1030,8 @@ type Offer {
   postId: String!
   price: String!
   publicKey: String!
+  state: State
+  stateId: Int
   status: OfferStatus!
   type: OfferType!
 
@@ -1038,6 +1042,12 @@ type Offer {
 type OfferBasicEdge {
   cursor: String!
   node: Offer!
+}
+
+input OfferFilterInput {
+  countryId: Int
+  paymentMethodIds: [Int!]
+  stateId: Int
 }
 
 type OfferPaymentMethod {
@@ -1564,6 +1574,7 @@ type Query {
   homeTimeline(after: String, first: Int, level: Int, skip: Int): TimelineItemConnection!
   message(id: String!): Message!
   offer(id: String!): Offer!
+  offerByFilter(after: String, first: Int, offerFilterInput: OfferFilterInput!, skip: Int): TimelineItemConnection!
   page(id: String!): Page!
   pageMessageSession(id: String!): PageMessageSession!
   pageTimeline(after: String, first: Int, id: String!, skip: Int): TimelineItemConnection!
@@ -1622,7 +1633,7 @@ type State {
   city: [City!]!
   country: City!
   id: ID!
-  name: String!
+  name: String
 }
 
 type Subscription {

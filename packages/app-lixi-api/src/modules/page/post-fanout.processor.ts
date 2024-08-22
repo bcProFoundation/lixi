@@ -158,8 +158,23 @@ export class PostFanoutProcessor extends WorkerHost {
         });
         pipeline.zincrby(PostFanoutProcessor.offerBoostingTimeline, score, timelineId);
         pipeline.zincrby(myOfferTimelineKey, score, timelineId);
-      }
 
+        // add cache for payment method (offer:method{id})
+        post.offer?.paymentMethods.map(item => {
+          const keyPaymentMethod = `offer:method{${item.paymentMethod.id}}`;
+          pipeline.zincrby(keyPaymentMethod, score, timelineId);
+        });
+
+        //add cache for country and state (offer:country{countryId})
+        const keyCountry = `offer:country{${post.offer?.country?.id}}`;
+        pipeline.zincrby(keyCountry, score, timelineId);
+
+        //state is optional (offer:state{stateId})
+        if (post.offer?.state?.id) {
+          const keyState = `offer:state{${post.offer.state.id}}`;
+          pipeline.zincrby(keyState, score, timelineId);
+        }
+      }
       await pipeline.exec();
     } catch (error) {
       this.logger.error(error);

@@ -83,3 +83,8 @@ export const getMinimumDanaFilter = createSelector(
   (state: LixiStoreStateInterface) => state.settings,
   (state: SettingsState) => state.minimumDanaFilter
 );
+
+export const getOfferFilterConfig = createSelector(
+  (state: LixiStoreStateInterface) => state.settings,
+  (state: SettingsState) => state.offerFilterConfig
+);

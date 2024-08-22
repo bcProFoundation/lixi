@@ -435,8 +435,8 @@ export type CreateMessageInput = {
 
 export type CreateOfferInput = {
   coin: Coin;
+  countryId?: InputMaybe<Scalars['Int']['input']>;
   createFeeHex?: InputMaybe<Scalars['String']['input']>;
-  location?: InputMaybe<Scalars['String']['input']>;
   message: Scalars['String']['input'];
   orderLimitMax: Scalars['Int']['input'];
   orderLimitMin: Scalars['Int']['input'];
@@ -444,6 +444,7 @@ export type CreateOfferInput = {
   paymentMethodIds: Array<Scalars['Int']['input']>;
   price: Scalars['String']['input'];
   publicKey: Scalars['String']['input'];
+  stateId?: InputMaybe<Scalars['Int']['input']>;
   type: OfferType;
 };
 
@@ -1189,10 +1190,11 @@ export type MutationUpdatePostArgs = {
 export type Offer = {
   __typename?: 'Offer';
   coin: Coin;
+  country?: Maybe<Country>;
+  countryId?: Maybe<Scalars['Int']['output']>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime']['output'];
   escrowOrders?: Maybe<Array<EscrowOrder>>;
-  location?: Maybe<Scalars['String']['output']>;
   message: Scalars['String']['output'];
   orderLimitMax: Scalars['Int']['output'];
   orderLimitMin: Scalars['Int']['output'];
@@ -1200,6 +1202,8 @@ export type Offer = {
   postId: Scalars['String']['output'];
   price: Scalars['String']['output'];
   publicKey: Scalars['String']['output'];
+  state?: Maybe<State>;
+  stateId?: Maybe<Scalars['Int']['output']>;
   status: OfferStatus;
   type: OfferType;
   /** Identifies the date and time when the object was last updated. */
@@ -1210,6 +1214,12 @@ export type OfferBasicEdge = {
   __typename?: 'OfferBasicEdge';
   cursor: Scalars['String']['output'];
   node: Offer;
+};
+
+export type OfferFilterInput = {
+  countryId?: InputMaybe<Scalars['Int']['input']>;
+  paymentMethodIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  stateId?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type OfferPaymentMethod = {
@@ -1657,6 +1667,7 @@ export type Query = {
   homeTimeline: TimelineItemConnection;
   message: Message;
   offer: Offer;
+  offerByFilter: TimelineItemConnection;
   page: Page;
   pageMessageSession: PageMessageSession;
   pageTimeline: TimelineItemConnection;
@@ -2170,6 +2181,13 @@ export type QueryOfferArgs = {
   id: Scalars['String']['input'];
 };
 
+export type QueryOfferByFilterArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  offerFilterInput: OfferFilterInput;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type QueryPageArgs = {
   id: Scalars['String']['input'];
 };
@@ -2333,7 +2351,7 @@ export type State = {
   city: Array<City>;
   country: City;
   id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
+  name?: Maybe<Scalars['String']['output']>;
 };
 
 export type Subscription = {

@@ -1,4 +1,4 @@
-import { BoostForType, COIN, Offer, OfferStatus, OfferType } from '@bcpros/lixi-models';
+import { BoostForType, COIN, Offer, OfferFilterInput, OfferStatus, OfferType } from '@bcpros/lixi-models';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { decode, encode } from '@msgpack/msgpack';
 import { Logger } from '@nestjs/common';
@@ -121,6 +121,29 @@ export class OfferCacheService {
       }
     }
     // nothing change
+    return paginated;
+  }
+
+  async getOfferFilterPaginatedTimeline(offerFilterInput: OfferFilterInput, first: number = 20, after?: string) {
+    const { countryId, stateId, paymentMethodIds } = offerFilterInput;
+    //combination key: timeline:offer:country{countryId}:state{stateId}:method{payment1-payment2} (get all payment1-payment2 in country-state)
+    let key = 'timeline:offer';
+    if (countryId) {
+      key = key.concat(`:country{${countryId}}`);
+    }
+    if (stateId) {
+      key = key.concat(`:state{${stateId}}`);
+    }
+    if (paymentMethodIds && paymentMethodIds.length > 0) {
+      const paymentSorted = paymentMethodIds.sort();
+      const stringPayment = paymentSorted.join('-');
+      key = key.concat(`:payment{${stringPayment}}`);
+    }
+
+    //always cache new filter
+    await this.cacheOfferFilterTimeline(offerFilterInput, key);
+
+    const paginated = await basicSortedSetPagination(this.redis, key, first, after);
     return paginated;
   }
 
@@ -255,6 +278,51 @@ export class OfferCacheService {
       return true;
     } catch (err) {
       this.logger.error(err);
+    }
+  }
+
+  private async cacheOfferFilterTimeline(offerFilterInput: OfferFilterInput, combinationKey: string) {
+    try {
+      const { countryId, stateId, paymentMethodIds } = offerFilterInput;
+      let keyPaymentMethods = '';
+      let totalKeyPaymentMethods = 0;
+      //get cache payment-methods
+      if (paymentMethodIds && paymentMethodIds.length > 1) {
+        keyPaymentMethods = `offer:method{${paymentMethodIds.join('-')}}`;
+        totalKeyPaymentMethods = paymentMethodIds.length;
+        const multiSetUnion = paymentMethodIds.map(item => `offer:method{${item}}`);
+
+        await this.redis.zunionstore(keyPaymentMethods, totalKeyPaymentMethods, multiSetUnion, 'AGGREGATE', 'MAX');
+      }
+
+      //count total key intersect
+      let totalKeyInter = 0;
+      let multiSetInter: string[] = [];
+
+      if (countryId) {
+        totalKeyInter += 1;
+        multiSetInter.push(`offer:country{${countryId}}`);
+      }
+      if (stateId) {
+        totalKeyInter += 1;
+        multiSetInter.push(`offer:state{${stateId}}`);
+      }
+      if (totalKeyPaymentMethods !== 0) {
+        //means have >2
+        totalKeyInter += 1;
+        multiSetInter.push(keyPaymentMethods);
+      } else if (paymentMethodIds && paymentMethodIds.length === 1) {
+        totalKeyInter += 1;
+        multiSetInter.push(`offer:method{${paymentMethodIds[0]}}`);
+      }
+
+      //intersect cache
+      await this.redis.zinterstore(combinationKey, totalKeyInter, ...multiSetInter, 'AGGREGATE', 'MAX');
+
+      return true;
+    } catch (err) {
+      this.logger.error(err);
+      return false;
     }
   }
 }

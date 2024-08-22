@@ -303,6 +303,14 @@ fragment OfferFields on Offer {
     }
   }
   status
+  stateId
+  state {
+    name
+  }
+  countryId
+  country {
+    name
+  }
 }
 
 fragment PostFields on Post {

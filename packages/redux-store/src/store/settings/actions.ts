@@ -3,6 +3,7 @@ import { SearchBoxCommand } from '@bcpros/lixi-models/lib/search';
 import { createAction } from '@reduxjs/toolkit';
 
 import { WebAuthnConfig, WebPushNotifConfig } from './model';
+import { OfferFilterInput } from '@bcpros/lixi-models/lib/escrow/inputs/offer-filter.input';
 
 export const toggleCollapsedSideNav = createAction<boolean>('settings/toggleCollapsedSideNav');
 export const updateLanguage = createAction<string>('settings/updateLanguage');
@@ -24,3 +25,5 @@ export const saveMinimumDanaFilter = createAction<number>('settings/saveMinimumD
 export const setNegativeDanaStatus = createAction<boolean>('settings/setNegativeDanaStatus');
 
 export const changeCurrentLocale = createAction<string>('settings/changeCurrentLocale');
+
+export const saveOfferFilterConfig = createAction<OfferFilterInput>('settings/saveOfferFilterConfig');

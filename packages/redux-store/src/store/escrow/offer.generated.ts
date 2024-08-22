@@ -137,10 +137,154 @@ export type AllOfferQuery = {
             orderLimitMin: number;
             orderLimitMax: number;
             status: Types.OfferStatus;
+            stateId?: number | null;
+            countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; name: string };
             }>;
+            state?: { __typename?: 'State'; name?: string | null } | null;
+            country?: { __typename?: 'Country'; name: string } | null;
+          } | null;
+        };
+      };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
+  };
+};
+
+export type OfferByFilterQueryVariables = Types.Exact<{
+  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  after?: Types.InputMaybe<Types.Scalars['String']['input']>;
+  offerFilterInput: Types.OfferFilterInput;
+}>;
+
+export type OfferByFilterQuery = {
+  __typename?: 'Query';
+  offerByFilter: {
+    __typename?: 'TimelineItemConnection';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'TimelineItemBasicEdge';
+      cursor: string;
+      node: {
+        __typename?: 'TimelineItem';
+        id: string;
+        data: {
+          __typename: 'Post';
+          id: string;
+          content: string;
+          accountId: number;
+          pageId?: string | null;
+          tokenId?: string | null;
+          repostCount: number;
+          totalComments: number;
+          commentableId?: string | null;
+          createdAt: any;
+          updatedAt: any;
+          followPostOwner?: boolean | null;
+          followedPage?: boolean | null;
+          followedToken?: boolean | null;
+          bookmarkableId?: string | null;
+          isBookmarked?: boolean | null;
+          originalLanguage?: string | null;
+          danaViewScore?: number | null;
+          burnedByOthers?: boolean | null;
+          account: {
+            __typename?: 'Account';
+            address: string;
+            hash160?: string | null;
+            id: number;
+            name: string;
+            avatar?: string | null;
+            createCommentFee?: string | null;
+          };
+          page?: {
+            __typename?: 'Page';
+            avatar?: string | null;
+            name: string;
+            id: string;
+            createPostFee: string;
+            createCommentFee: string;
+            pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
+          } | null;
+          token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
+          reposts?: Array<{
+            __typename?: 'Repost';
+            accountId?: number | null;
+            account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+          }> | null;
+          dana?: {
+            __typename?: 'PostDana';
+            danaBurnUp: number;
+            danaBurnDown: number;
+            danaBurnScore: number;
+            danaReceivedUp: number;
+            danaReceivedDown: number;
+            danaReceivedScore: number;
+            version: number;
+          } | null;
+          boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+          translations?: Array<{
+            __typename?: 'PostTranslation';
+            id: string;
+            translateContent?: string | null;
+            translateLanguage?: string | null;
+          }> | null;
+          imageUploadable?: {
+            __typename?: 'ImageUploadable';
+            id: string;
+            uploads: Array<{
+              __typename?: 'Upload';
+              id: string;
+              sha: string;
+              bucket?: string | null;
+              width?: number | null;
+              height?: number | null;
+              cfImageId?: string | null;
+              cfImageFilename?: string | null;
+            }>;
+          } | null;
+          poll?: {
+            __typename?: 'Poll';
+            postId: string;
+            question: string;
+            startDate: any;
+            endDate: any;
+            canAddOption: boolean;
+            singleSelect: boolean;
+            defaultOptions?: Array<string> | null;
+            totalVote?: number | null;
+            options: Array<{
+              __typename?: 'PollOption';
+              id: string;
+              option: string;
+              pollId: string;
+              danaScoreOption?: number | null;
+              pollAnswerOnAccount?: Array<{
+                __typename?: 'PollAnswerOnAccount';
+                pollDanaScore: number;
+                accountId: number;
+              }> | null;
+            }>;
+          } | null;
+          offer?: {
+            __typename?: 'Offer';
+            postId: string;
+            publicKey: string;
+            message: string;
+            price: string;
+            orderLimitMin: number;
+            orderLimitMax: number;
+            status: Types.OfferStatus;
+            stateId?: number | null;
+            countryId?: number | null;
+            paymentMethods: Array<{
+              __typename?: 'OfferPaymentMethod';
+              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+            }>;
+            state?: { __typename?: 'State'; name?: string | null } | null;
+            country?: { __typename?: 'Country'; name: string } | null;
           } | null;
         };
       };
@@ -273,10 +417,14 @@ export type AllOfferByAccountQuery = {
             orderLimitMin: number;
             orderLimitMax: number;
             status: Types.OfferStatus;
+            stateId?: number | null;
+            countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; name: string };
             }>;
+            state?: { __typename?: 'State'; name?: string | null } | null;
+            country?: { __typename?: 'Country'; name: string } | null;
           } | null;
         };
       };
@@ -398,10 +546,14 @@ export type CreateOfferMutation = {
       orderLimitMin: number;
       orderLimitMax: number;
       status: Types.OfferStatus;
+      stateId?: number | null;
+      countryId?: number | null;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
         paymentMethod: { __typename?: 'PaymentMethod'; name: string };
       }>;
+      state?: { __typename?: 'State'; name?: string | null } | null;
+      country?: { __typename?: 'Country'; name: string } | null;
     } | null;
   };
 };
@@ -409,6 +561,29 @@ export type CreateOfferMutation = {
 export const AllOfferDocument = `
     query AllOffer($first: Int = 20, $after: String) {
   allOffer(first: $first, after: $after) {
+    totalCount
+    edges {
+      cursor
+      node {
+        id
+        data {
+          __typename
+          ... on Post {
+            ...PostFields
+          }
+        }
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+    ${PostFieldsFragmentDoc}
+${BasicPageInfoFieldsFragmentDoc}`;
+export const OfferByFilterDocument = `
+    query OfferByFilter($first: Int = 20, $after: String, $offerFilterInput: OfferFilterInput!) {
+  offerByFilter(first: $first, after: $after, offerFilterInput: $offerFilterInput) {
     totalCount
     edges {
       cursor
@@ -465,6 +640,9 @@ const injectedRtkApi = api.injectEndpoints({
   endpoints: build => ({
     AllOffer: build.query<AllOfferQuery, AllOfferQueryVariables | void>({
       query: variables => ({ document: AllOfferDocument, variables })
+    }),
+    OfferByFilter: build.query<OfferByFilterQuery, OfferByFilterQueryVariables>({
+      query: variables => ({ document: OfferByFilterDocument, variables })
     }),
     AllOfferByAccount: build.query<AllOfferByAccountQuery, AllOfferByAccountQueryVariables>({
       query: variables => ({ document: AllOfferByAccountDocument, variables })

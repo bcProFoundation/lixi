@@ -15,7 +15,8 @@ import {
   updateLanguage,
   changeCurrentLocale,
   setNegativeDanaStatus,
-  saveMinimumDanaFilter
+  saveMinimumDanaFilter,
+  saveOfferFilterConfig
 } from './actions';
 import { SettingsState } from './state';
 // import { SearchBoxType } from '@bcpros/lixi-models/lib/search';
@@ -38,7 +39,12 @@ const initialState: SettingsState = {
   isSystemThemes: true,
   levelFilter: 3,
   negativeDana: false,
-  minimumDanaFilter: 1
+  minimumDanaFilter: 1,
+  offerFilterConfig: {
+    countryId: null,
+    stateId: null,
+    paymentMethodIds: []
+  }
 };
 
 export const settingsReducer = createReducer(initialState, builder => {
@@ -98,5 +104,8 @@ export const settingsReducer = createReducer(initialState, builder => {
     })
     .addCase(changeCurrentLocale, (state, action) => {
       state.locale = action.payload;
+    })
+    .addCase(saveOfferFilterConfig, (state, action) => {
+      state.offerFilterConfig = action.payload;
     });
 });

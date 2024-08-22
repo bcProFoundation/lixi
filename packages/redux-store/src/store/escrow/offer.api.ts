@@ -34,6 +34,21 @@ const enhancedApi = api.enhanceEndpoints({
         currentCacheData.allOfferByAccount.totalCount = responseData.allOfferByAccount.totalCount;
       }
     },
+    OfferByFilter: {
+      providesTags: ['OfferTimeline'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { offerFilterInput } = queryArgs;
+          return { offerFilterInput };
+        }
+        return {};
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.offerByFilter.edges.push(...responseData.offerByFilter.edges);
+        currentCacheData.offerByFilter.pageInfo = responseData.offerByFilter.pageInfo;
+        currentCacheData.offerByFilter.totalCount = responseData.offerByFilter.totalCount;
+      }
+    },
     CreateOffer: {
       async onQueryStarted({ input }, { dispatch, getState, queryFulfilled }) {
         try {
@@ -77,5 +92,7 @@ export const {
   useLazyAllOfferQuery,
   useAllOfferByAccountQuery,
   useLazyAllOfferByAccountQuery,
+  useOfferByFilterQuery,
+  useLazyOfferByFilterQuery,
   useCreateOfferMutation
 } = enhancedApi;

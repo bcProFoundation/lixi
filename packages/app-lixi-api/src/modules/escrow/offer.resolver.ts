@@ -2,11 +2,15 @@ import {
   Account,
   BasicPaginationArgs,
   COIN,
+  Country,
   CreateOfferInput,
   IBasicPaginated,
   Offer,
   OfferStatus,
   Post,
+  OfferFilterInput,
+  PaymentMethod,
+  State,
   TimelineItem,
   TimelineItemConnection
 } from '@bcpros/lixi-models';
@@ -31,6 +35,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { createEdge } from 'src/common/custom-graphql-relay/paginate';
 import { TimelineItemService } from '../timeline/timeline-item.service';
 import { VError } from 'verror';
+import OfferLoader from './offer.loader';
 
 @SkipThrottle()
 @Resolver(() => Offer)
@@ -45,7 +50,8 @@ export class OfferResolver {
     @InjectQueue(CONTENT_FANOUT_QUEUE) private postFanoutQueue: Queue,
     @InjectRedis() private readonly redis: Redis,
     private readonly offerCacheService: OfferCacheService,
-    private readonly timelineItemService: TimelineItemService
+    private readonly timelineItemService: TimelineItemService,
+    private readonly offerLoader: OfferLoader
   ) {}
 
   @Query(() => Offer)
@@ -60,6 +66,21 @@ export class OfferResolver {
   @Query(() => TimelineItemConnection)
   async allOffer(@Args() { after, first }: BasicPaginationArgs) {
     const paginated = await this.offerCacheService.getOfferPaginatedTimeline(first, after);
+    const timelineIds = paginated.edges.map(item => item.cursor);
+    const timelines = await this.timelineItemService.getByIds(timelineIds);
+    const result = {
+      ...paginated,
+      edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+    } as IBasicPaginated<TimelineItem>;
+    return result;
+  }
+
+  @Query(() => TimelineItemConnection)
+  async offerByFilter(
+    @Args() { after, first }: BasicPaginationArgs,
+    @Args({ name: 'offerFilterInput', type: () => OfferFilterInput }) offerFilterInput: OfferFilterInput
+  ) {
+    const paginated = await this.offerCacheService.getOfferFilterPaginatedTimeline(offerFilterInput, first, after);
     const timelineIds = paginated.edges.map(item => item.cursor);
     const timelines = await this.timelineItemService.getByIds(timelineIds);
     const result = {
@@ -98,7 +119,7 @@ export class OfferResolver {
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Post)
   async createOffer(@AccountEntity() account: Account, @Args('data') data: CreateOfferInput) {
-    const { paymentMethodIds, pageId, createFeeHex, coin } = data;
+    const { paymentMethodIds, pageId, createFeeHex, coin, stateId, countryId } = data;
 
     const offer = await this.prisma.$transaction(async prisma => {
       let txid: string | undefined;
@@ -151,25 +172,50 @@ export class OfferResolver {
               price: data.price,
               publicKey: account?.publicKey ?? '',
               orderLimitMin: data.orderLimitMin,
-              orderLimitMax: data.orderLimitMax
+              orderLimitMax: data.orderLimitMax,
+              country: {
+                connect: countryId ? { id: Number(countryId) } : undefined
+              },
+              state: {
+                connect: stateId ? { id: Number(stateId) } : undefined
+              },
+              paymentMethods: {
+                createMany: {
+                  data: paymentMethodIds.map(item => {
+                    return {
+                      paymentMethodId: item
+                    };
+                  })
+                }
+              }
             }
           }
         },
         include: {
-          offer: true
+          offer: {
+            include: {
+              state: {
+                select: {
+                  id: true
+                }
+              },
+              country: {
+                select: {
+                  id: true
+                }
+              },
+              paymentMethods: {
+                include: {
+                  paymentMethod: {
+                    select: {
+                      id: true
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
-      });
-
-      // Step 2: Create OfferPaymentMethod Entries
-      const offerPaymentMethods = paymentMethodIds.map(paymentMethodId => {
-        return {
-          offerId: createdOffer.id,
-          paymentMethodId
-        };
-      });
-
-      await prisma.offerPaymentMethod.createMany({
-        data: offerPaymentMethods
       });
 
       return createdOffer;
@@ -180,7 +226,7 @@ export class OfferResolver {
     return offer;
   }
 
-  @ResolveField('paymentMethods', () => String)
+  @ResolveField('paymentMethods', () => [PaymentMethod])
   async paymentMethods(@Parent() offer: Offer) {
     const offerPaymentMethod = await this.prisma.offerPaymentMethod.findMany({
       where: {
@@ -188,5 +234,15 @@ export class OfferResolver {
       }
     });
     return offerPaymentMethod;
+  }
+
+  @ResolveField('country', () => Country)
+  async country(@Parent() offer: Offer) {
+    return this.offerLoader.batchCountries.load(Number(offer?.countryId ?? '0'));
+  }
+
+  @ResolveField('state', () => State)
+  async state(@Parent() offer: Offer) {
+    return this.offerLoader.batchStates.load(Number(offer?.stateId ?? '0'));
   }
 }

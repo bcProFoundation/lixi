@@ -58,7 +58,7 @@ export type TempleFieldsFragment = {
     };
   } | null;
   country?: { __typename?: 'Country'; id: string; name: string } | null;
-  state?: { __typename?: 'State'; id: string; name: string } | null;
+  state?: { __typename?: 'State'; id: string; name?: string | null } | null;
   city?: { __typename?: 'City'; id: string; name: string } | null;
 };
 
@@ -110,7 +110,7 @@ export type TempleQuery = {
       };
     } | null;
     country?: { __typename?: 'Country'; id: string; name: string } | null;
-    state?: { __typename?: 'State'; id: string; name: string } | null;
+    state?: { __typename?: 'State'; id: string; name?: string | null } | null;
     city?: { __typename?: 'City'; id: string; name: string } | null;
   };
 };
@@ -174,7 +174,7 @@ export type TemplesQuery = {
           };
         } | null;
         country?: { __typename?: 'Country'; id: string; name: string } | null;
-        state?: { __typename?: 'State'; id: string; name: string } | null;
+        state?: { __typename?: 'State'; id: string; name?: string | null } | null;
         city?: { __typename?: 'City'; id: string; name: string } | null;
       };
     }> | null;
@@ -245,7 +245,7 @@ export type TempleBySearchQuery = {
           };
         } | null;
         country?: { __typename?: 'Country'; id: string; name: string } | null;
-        state?: { __typename?: 'State'; id: string; name: string } | null;
+        state?: { __typename?: 'State'; id: string; name?: string | null } | null;
         city?: { __typename?: 'City'; id: string; name: string } | null;
       };
     }> | null;
@@ -307,7 +307,7 @@ export type CreateTempleMutation = {
       };
     } | null;
     country?: { __typename?: 'Country'; id: string; name: string } | null;
-    state?: { __typename?: 'State'; id: string; name: string } | null;
+    state?: { __typename?: 'State'; id: string; name?: string | null } | null;
     city?: { __typename?: 'City'; id: string; name: string } | null;
   };
 };
