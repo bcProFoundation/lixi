@@ -11,7 +11,7 @@
 
 import * as Types from '../../generated/types.generated';
 
-import { PostFieldsFragmentDoc, OfferFieldsFragmentDoc } from '../post/posts.generated';
+import { PostFieldsFragmentDoc } from '../post/posts.generated';
 import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
 import { api } from '@store/baseApi';
 export type TimelineQueryVariables = Types.Exact<{
@@ -129,6 +129,7 @@ export type TimelineQuery = {
         price: string;
         orderLimitMin: number;
         orderLimitMax: number;
+        status: Types.OfferStatus;
         paymentMethods: Array<{
           __typename?: 'OfferPaymentMethod';
           paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -261,6 +262,7 @@ export type HomeTimelineQuery = {
             price: string;
             orderLimitMin: number;
             orderLimitMax: number;
+            status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -396,6 +398,7 @@ export type ProfileTimelineQuery = {
             price: string;
             orderLimitMin: number;
             orderLimitMax: number;
+            status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -532,6 +535,7 @@ export type ProfileTimelineByTimeQuery = {
             price: string;
             orderLimitMin: number;
             orderLimitMax: number;
+            status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -667,6 +671,7 @@ export type PageTimelineQuery = {
             price: string;
             orderLimitMin: number;
             orderLimitMax: number;
+            status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -803,6 +808,7 @@ export type PageTimelineByTimeQuery = {
             price: string;
             orderLimitMin: number;
             orderLimitMax: number;
+            status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -938,6 +944,7 @@ export type TokenTimelineQuery = {
             price: string;
             orderLimitMin: number;
             orderLimitMax: number;
+            status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -1074,6 +1081,7 @@ export type TokenTimelineByTimeQuery = {
             price: string;
             orderLimitMin: number;
             orderLimitMax: number;
+            status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; name: string };

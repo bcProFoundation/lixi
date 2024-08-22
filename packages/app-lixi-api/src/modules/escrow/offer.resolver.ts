@@ -5,6 +5,8 @@ import {
   CreateOfferInput,
   IBasicPaginated,
   Offer,
+  OfferStatus,
+  Post,
   TimelineItem,
   TimelineItemConnection
 } from '@bcpros/lixi-models';
@@ -28,6 +30,7 @@ import { CONTENT_FANOUT_QUEUE } from '../page/constants';
 import { InjectQueue } from '@nestjs/bullmq';
 import { createEdge } from 'src/common/custom-graphql-relay/paginate';
 import { TimelineItemService } from '../timeline/timeline-item.service';
+import { VError } from 'verror';
 
 @SkipThrottle()
 @Resolver(() => Offer)
@@ -67,11 +70,22 @@ export class OfferResolver {
   }
 
   @Query(() => TimelineItemConnection)
-  async allOfferByPublicKey(
+  @UseGuards(GqlJwtAuthGuard)
+  async allOfferByAccount(
+    @AccountEntity() account: Account,
     @Args() { after, first }: BasicPaginationArgs,
-    @Args({ name: 'publicKey', type: () => String }) publicKey: string
+    @Args({ name: 'offerStatus', type: () => OfferStatus }) offerStatus: OfferStatus
   ) {
-    const paginated = await this.offerCacheService.getPaginatedMyOfferTimelineByTime(publicKey, first, after);
+    if (!account) {
+      const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
+      throw new VError(accountNotExistMessage);
+    }
+    const paginated = await this.offerCacheService.getPaginatedMyOfferTimelineByTime(
+      account.id,
+      offerStatus,
+      first,
+      after
+    );
     const timelineIds = paginated.edges.map(item => item.cursor);
     const timelines = await this.timelineItemService.getByIds(timelineIds);
     const result = {
@@ -82,7 +96,7 @@ export class OfferResolver {
   }
 
   @UseGuards(GqlJwtAuthGuard)
-  @Mutation(() => Offer)
+  @Mutation(() => Post)
   async createOffer(@AccountEntity() account: Account, @Args('data') data: CreateOfferInput) {
     const { paymentMethodIds, pageId, createFeeHex, coin } = data;
 
@@ -163,7 +177,7 @@ export class OfferResolver {
 
     //add to cache
     await this.postFanoutQueue.add(CONTENT_FANOUT_QUEUE, { post: offer });
-    return offer?.offer;
+    return offer;
   }
 
   @ResolveField('paymentMethods', () => String)

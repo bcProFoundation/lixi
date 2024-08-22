@@ -128,6 +128,7 @@ export type PostQuery = {
       price: string;
       orderLimitMin: number;
       orderLimitMax: number;
+      status: Types.OfferStatus;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
         paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -262,6 +263,7 @@ export type PostsByPageIdQuery = {
           price: string;
           orderLimitMin: number;
           orderLimitMax: number;
+          status: Types.OfferStatus;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -404,6 +406,7 @@ export type PostsByUserIdQuery = {
           price: string;
           orderLimitMin: number;
           orderLimitMax: number;
+          status: Types.OfferStatus;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -546,6 +549,7 @@ export type PostsByHashtagIdQuery = {
           price: string;
           orderLimitMin: number;
           orderLimitMax: number;
+          status: Types.OfferStatus;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -688,6 +692,7 @@ export type PostsByTokenIdQuery = {
           price: string;
           orderLimitMin: number;
           orderLimitMax: number;
+          status: Types.OfferStatus;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -822,6 +827,7 @@ export type PostsBySearchQuery = {
           price: string;
           orderLimitMin: number;
           orderLimitMax: number;
+          status: Types.OfferStatus;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -958,6 +964,7 @@ export type PostsBySearchWithHashtagQuery = {
           price: string;
           orderLimitMin: number;
           orderLimitMax: number;
+          status: Types.OfferStatus;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -1095,6 +1102,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
           price: string;
           orderLimitMin: number;
           orderLimitMax: number;
+          status: Types.OfferStatus;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -1232,6 +1240,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
           price: string;
           orderLimitMin: number;
           orderLimitMax: number;
+          status: Types.OfferStatus;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -1281,6 +1290,7 @@ export type OfferFieldsFragment = {
   price: string;
   orderLimitMin: number;
   orderLimitMax: number;
+  status: Types.OfferStatus;
   paymentMethods: Array<{
     __typename?: 'OfferPaymentMethod';
     paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -1393,6 +1403,7 @@ export type PostFieldsFragment = {
     price: string;
     orderLimitMin: number;
     orderLimitMax: number;
+    status: Types.OfferStatus;
     paymentMethods: Array<{
       __typename?: 'OfferPaymentMethod';
       paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -1501,6 +1512,7 @@ export type PostMeiliFieldsFragment = {
     price: string;
     orderLimitMin: number;
     orderLimitMax: number;
+    status: Types.OfferStatus;
     paymentMethods: Array<{
       __typename?: 'OfferPaymentMethod';
       paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -1620,6 +1632,7 @@ export type CreatePostMutation = {
       price: string;
       orderLimitMin: number;
       orderLimitMax: number;
+      status: Types.OfferStatus;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
         paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -1740,6 +1753,7 @@ export type UpdatePostMutation = {
       price: string;
       orderLimitMin: number;
       orderLimitMax: number;
+      status: Types.OfferStatus;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
         paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -1866,6 +1880,7 @@ export type RemovePostMutation = {
       price: string;
       orderLimitMin: number;
       orderLimitMax: number;
+      status: Types.OfferStatus;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
         paymentMethod: { __typename?: 'PaymentMethod'; name: string };
@@ -1909,6 +1924,7 @@ export const OfferFieldsFragmentDoc = `
       name
     }
   }
+  status
 }
     `;
 export const PostFieldsFragmentDoc = `

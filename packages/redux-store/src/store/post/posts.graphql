@@ -302,6 +302,7 @@ fragment OfferFields on Offer {
       name
     }
   }
+  status
 }
 
 fragment PostFields on Post {
