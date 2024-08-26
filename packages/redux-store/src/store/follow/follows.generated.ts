@@ -65,6 +65,8 @@ export type AllFollowersByFollowingQuery = {
         cover?: string | null;
         rankNumber?: number | null;
         rankScore?: number | null;
+        telegramId?: string | null;
+        telegramUsername?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -131,6 +133,8 @@ export type AllFollowingsByFollowerQuery = {
         cover?: string | null;
         rankNumber?: number | null;
         rankScore?: number | null;
+        telegramId?: string | null;
+        telegramUsername?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';

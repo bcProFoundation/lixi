@@ -55,6 +55,7 @@ export type Account = {
   secondaryLanguage?: Maybe<Scalars['String']['output']>;
   secret?: Maybe<Scalars['String']['output']>;
   telegramId?: Maybe<Scalars['String']['output']>;
+  telegramUsername?: Maybe<Scalars['String']['output']>;
   totalDanaViewScore?: Maybe<Scalars['Int']['output']>;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime']['output'];
@@ -1051,6 +1052,7 @@ export type Mutation = {
   removePost: Post;
   repost: Scalars['Boolean']['output'];
   updateAccount: Account;
+  updateAccountTelegramUsername: Account;
   updateDispute: Dispute;
   updateEscrowOrderStatus: EscrowOrder;
   updatePage: Page;
@@ -1183,6 +1185,11 @@ export type MutationRepostArgs = {
 
 export type MutationUpdateAccountArgs = {
   data: UpdateAccountInput;
+};
+
+export type MutationUpdateAccountTelegramUsernameArgs = {
+  telegramId: Scalars['String']['input'];
+  telegramUsername: Scalars['String']['input'];
 };
 
 export type MutationUpdateDisputeArgs = {

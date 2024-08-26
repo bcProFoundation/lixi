@@ -43,6 +43,8 @@ export type AccountQuery = {
     cover?: string | null;
     rankNumber?: number | null;
     rankScore?: number | null;
+    telegramId?: string | null;
+    telegramUsername?: string | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -88,6 +90,8 @@ export type GetAccountByAddressQuery = {
     cover?: string | null;
     rankNumber?: number | null;
     rankScore?: number | null;
+    telegramId?: string | null;
+    telegramUsername?: string | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -141,6 +145,8 @@ export type AllFollowersByPageQuery = {
         cover?: string | null;
         rankNumber?: number | null;
         rankScore?: number | null;
+        telegramId?: string | null;
+        telegramUsername?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -197,6 +203,8 @@ export type AllFollowersByTokenQuery = {
         cover?: string | null;
         rankNumber?: number | null;
         rankScore?: number | null;
+        telegramId?: string | null;
+        telegramUsername?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -252,6 +260,8 @@ export type AccountsQuery = {
         cover?: string | null;
         rankNumber?: number | null;
         rankScore?: number | null;
+        telegramId?: string | null;
+        telegramUsername?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -309,6 +319,8 @@ export type TopWeekAccountsQuery = {
         cover?: string | null;
         rankNumber?: number | null;
         rankScore?: number | null;
+        telegramId?: string | null;
+        telegramUsername?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -366,6 +378,8 @@ export type TopMonthAccountsQuery = {
         cover?: string | null;
         rankNumber?: number | null;
         rankScore?: number | null;
+        telegramId?: string | null;
+        telegramUsername?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -408,6 +422,8 @@ export type AccountFieldsFragment = {
   cover?: string | null;
   rankNumber?: number | null;
   rankScore?: number | null;
+  telegramId?: string | null;
+  telegramUsername?: string | null;
   pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
   accountDana?: {
     __typename?: 'AccountDana';
@@ -452,6 +468,56 @@ export type UpdateAccountMutation = {
     cover?: string | null;
     rankNumber?: number | null;
     rankScore?: number | null;
+    telegramId?: string | null;
+    telegramUsername?: string | null;
+    pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+    accountDana?: {
+      __typename?: 'AccountDana';
+      danaGiven?: number | null;
+      danaReceived?: number | null;
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+    } | null;
+  };
+};
+
+export type UpdateAccountTelegramUsernameMutationVariables = Types.Exact<{
+  telegramId: Types.Scalars['String']['input'];
+  telegramUsername: Types.Scalars['String']['input'];
+}>;
+
+export type UpdateAccountTelegramUsernameMutation = {
+  __typename?: 'Mutation';
+  updateAccountTelegramUsername: {
+    __typename?: 'Account';
+    id: number;
+    name: string;
+    address: string;
+    hash160?: string | null;
+    mnemonicHash?: string | null;
+    encryptedMnemonic?: string | null;
+    encryptedSecret?: string | null;
+    publicKey?: string | null;
+    language: string;
+    followersCount?: number | null;
+    followingsCount?: number | null;
+    followingPagesCount?: number | null;
+    totalDanaViewScore?: number | null;
+    website?: string | null;
+    description?: string | null;
+    createCommentFee?: string | null;
+    createdAt: any;
+    updatedAt: any;
+    avatar?: string | null;
+    cover?: string | null;
+    rankNumber?: number | null;
+    rankScore?: number | null;
+    telegramId?: string | null;
+    telegramUsername?: string | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -505,6 +571,8 @@ export const AccountFieldsFragmentDoc = `
     danaReceivedDown
     danaReceivedScore
   }
+  telegramId
+  telegramUsername
 }
     `;
 export const AccountDocument = `
@@ -618,6 +686,16 @@ export const UpdateAccountDocument = `
   }
 }
     ${AccountFieldsFragmentDoc}`;
+export const UpdateAccountTelegramUsernameDocument = `
+    mutation UpdateAccountTelegramUsername($telegramId: String!, $telegramUsername: String!) {
+  updateAccountTelegramUsername(
+    telegramId: $telegramId
+    telegramUsername: $telegramUsername
+  ) {
+    ...AccountFields
+  }
+}
+    ${AccountFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
   overrideExisting: true,
@@ -645,6 +723,12 @@ const injectedRtkApi = api.injectEndpoints({
     }),
     updateAccount: build.mutation<UpdateAccountMutation, UpdateAccountMutationVariables>({
       query: variables => ({ document: UpdateAccountDocument, variables })
+    }),
+    UpdateAccountTelegramUsername: build.mutation<
+      UpdateAccountTelegramUsernameMutation,
+      UpdateAccountTelegramUsernameMutationVariables
+    >({
+      query: variables => ({ document: UpdateAccountTelegramUsernameDocument, variables })
     })
   })
 });

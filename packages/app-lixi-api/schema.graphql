@@ -37,6 +37,7 @@ type Account {
   secondaryLanguage: String
   secret: String
   telegramId: String
+  telegramUsername: String
   totalDanaViewScore: Int
 
   """Identifies the date and time when the object was last updated."""
@@ -1026,6 +1027,7 @@ type Mutation {
   removePost(data: RemovePostInput!): Post!
   repost(data: RepostInput!): Boolean!
   updateAccount(data: UpdateAccountInput!): Account!
+  updateAccountTelegramUsername(telegramId: String!, telegramUsername: String!): Account!
   updateDispute(data: UpdateDisputeInput!): Dispute!
   updateEscrowOrderStatus(data: UpdateEscrowOrderInput!): EscrowOrder!
   updatePage(data: UpdatePageInput!): Page!

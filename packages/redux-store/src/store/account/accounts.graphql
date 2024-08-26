@@ -55,18 +55,8 @@ query Accounts($after: String, $first: Int = 20) {
   }
 }
 
-query topWeekAccounts(
-  $after: String
-  $first: Int = 20
-  $week: Int!
-  $year: Int!
-) {
-  topWeekAccountDanaGiven(
-    after: $after
-    first: $first
-    week: $week
-    year: $year
-  ) {
+query topWeekAccounts($after: String, $first: Int = 20, $week: Int!, $year: Int!) {
+  topWeekAccountDanaGiven(after: $after, first: $first, week: $week, year: $year) {
     totalCount
     edges {
       cursor
@@ -80,18 +70,8 @@ query topWeekAccounts(
   }
 }
 
-query topMonthAccounts(
-  $after: String
-  $first: Int = 19
-  $month: Int!
-  $year: Int!
-) {
-  topMonthAccountDanaGiven(
-    after: $after
-    first: $first
-    month: $month
-    year: $year
-  ) {
+query topMonthAccounts($after: String, $first: Int = 19, $month: Int!, $year: Int!) {
+  topMonthAccountDanaGiven(after: $after, first: $first, month: $month, year: $year) {
     totalCount
     edges {
       cursor
@@ -142,10 +122,18 @@ fragment AccountFields on Account {
     danaReceivedDown
     danaReceivedScore
   }
+  telegramId
+  telegramUsername
 }
 
 mutation updateAccount($input: UpdateAccountInput!) {
   updateAccount(data: $input) {
+    ...AccountFields
+  }
+}
+
+mutation UpdateAccountTelegramUsername($telegramId: String!, $telegramUsername: String!) {
+  updateAccountTelegramUsername(telegramId: $telegramId, telegramUsername: $telegramUsername) {
     ...AccountFields
   }
 }
