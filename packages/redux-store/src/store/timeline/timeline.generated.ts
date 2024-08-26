@@ -130,6 +130,7 @@ export type TimelineQuery = {
         price: string;
         orderLimitMin: number;
         orderLimitMax: number;
+        status: Types.OfferStatus;
         paymentMethods: Array<{
           __typename?: 'OfferPaymentMethod';
           paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -263,6 +264,7 @@ export type HomeTimelineQuery = {
             price: string;
             orderLimitMin: number;
             orderLimitMax: number;
+            status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -399,6 +401,7 @@ export type ProfileTimelineQuery = {
             price: string;
             orderLimitMin: number;
             orderLimitMax: number;
+            status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -536,6 +539,7 @@ export type ProfileTimelineByTimeQuery = {
             price: string;
             orderLimitMin: number;
             orderLimitMax: number;
+            status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -672,6 +676,7 @@ export type PageTimelineQuery = {
             price: string;
             orderLimitMin: number;
             orderLimitMax: number;
+            status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -809,6 +814,7 @@ export type PageTimelineByTimeQuery = {
             price: string;
             orderLimitMin: number;
             orderLimitMax: number;
+            status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -945,6 +951,7 @@ export type TokenTimelineQuery = {
             price: string;
             orderLimitMin: number;
             orderLimitMax: number;
+            status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -1082,6 +1089,7 @@ export type TokenTimelineByTimeQuery = {
             price: string;
             orderLimitMin: number;
             orderLimitMax: number;
+            status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };

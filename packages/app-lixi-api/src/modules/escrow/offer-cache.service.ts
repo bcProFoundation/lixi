@@ -16,7 +16,7 @@ export class OfferCacheService {
 
   //timeline for offer boost
   static offerBoostingTimeline = 'timeline:offer:boosting:showAll';
-  static myOfferTimeline = 'timeline:offer:{{publicKey}}';
+  static myOfferTimeline = 'timeline:offer:{{accountId}}:{{offerStatus}}';
 
   constructor(
     private readonly prisma: PrismaService,
@@ -124,18 +124,23 @@ export class OfferCacheService {
     return paginated;
   }
 
-  async getPaginatedMyOfferTimelineByTime(publicKey: string, first: number = 20, after?: string) {
-    const key = template(`${OfferCacheService.myOfferTimeline}`, { publicKey });
+  async getPaginatedMyOfferTimelineByTime(
+    accountId: number,
+    offerStatus: OfferStatus,
+    first: number = 20,
+    after?: string
+  ) {
+    const key = template(`${OfferCacheService.myOfferTimeline}`, { accountId, offerStatus });
     const limit = 1000;
     const exist = await this.redis.exists([key]);
     if (!exist) {
-      await this.cacheMyOfferTimelineByTime(publicKey, limit);
+      await this.cacheMyOfferTimelineByTime(accountId, offerStatus, limit);
     }
     const paginated = await basicSortedSetPagination(this.redis, key, first, after);
     const hasNextPage = paginated.pageInfo.hasNextPage;
     if (!hasNextPage) {
       const offset = paginated.totalCount;
-      const shouldPaginate = await this.cacheMyOfferTimelineByTime(publicKey, limit, offset);
+      const shouldPaginate = await this.cacheMyOfferTimelineByTime(accountId, offerStatus, limit, offset);
       if (shouldPaginate) {
         return await basicSortedSetPagination(this.redis, key, first, after);
       }
@@ -209,10 +214,15 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheMyOfferTimelineByTime(publicKey: string, limit: number = 0, offset: number = 0) {
-    const key = template(`${OfferCacheService.myOfferTimeline}`, { publicKey });
+  private async cacheMyOfferTimelineByTime(
+    accountId: number,
+    offerStatus: OfferStatus,
+    limit: number = 0,
+    offset: number = 0
+  ) {
+    const key = template(`${OfferCacheService.myOfferTimeline}`, { accountId, offerStatus });
     try {
-      //query all post with public key of offer
+      //query all post with of account
       const posts = await this.prisma.post.findMany({
         select: {
           id: true,
@@ -220,8 +230,9 @@ export class OfferCacheService {
           createdAt: true
         },
         where: {
+          accountId,
           offer: {
-            publicKey
+            status: offerStatus
           }
         },
         orderBy: {

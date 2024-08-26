@@ -147,11 +147,11 @@ const LixiClaimed = ({ className, claim, isMobile, lixi }: LixiClaimProps) => {
   const baseApiUrl = process.env.NEXT_PUBLIC_LIXI_API;
   const baseUrl = process.env.NEXT_PUBLIC_LIXI_URL;
 
-  const imageUrl = claim?.image ? claim?.image : baseApiUrl + 'api/' + 'images/default.png';
+  const imageUrl = claim?.image ? claim?.image : baseApiUrl + '/api/' + 'images/default.png';
 
   const slug = numberToBase58(claim.id);
 
-  const shareUrl = `${baseUrl}claimed/${slug}`;
+  const shareUrl = `${baseUrl}/claimed/${slug}`;
   //
   const ShareSocialDropdown = (
     <Popover content={() => popOverContent(shareUrl)}>

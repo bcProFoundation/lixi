@@ -161,7 +161,7 @@ const RecentContainer = styled.div`
 
 const SearchBox = () => {
   const [tags, setTags] = useState([]);
-  const [recentTags, setRecentTags] = useState<string[]>();
+  const [recentTags, setRecentTags] = useState<string[]>([]);
   const recentTagAtHome = useSliceSelector(getRecentHashtagAtHome);
   const recentTagAtPages = useSliceSelector(getRecentHashtagAtPages);
   const recentTagAtToken = useSliceSelector(getRecentHashtagAtToken);

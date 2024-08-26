@@ -1,5 +1,11 @@
 # @bcpros/lixi-prisma
 
+## 1.2.6
+
+### Patch Changes
+
+- b4f08cf: fix cors and url
+
 ## 1.2.5
 
 ### Patch Changes

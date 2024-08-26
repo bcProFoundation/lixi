@@ -25,12 +25,12 @@ query AllOffer($first: Int = 20, $after: String) {
   }
 }
 
-query AllOfferByPublicKey(
-  $publicKey: String!
+query AllOfferByAccount(
   $first: Int = 20
   $after: String
+  $offerStatus: OfferStatus!
 ) {
-  allOfferByPublicKey(publicKey: $publicKey, first: $first, after: $after) {
+  allOfferByAccount(first: $first, after: $after, offerStatus: $offerStatus) {
     totalCount
     edges {
       cursor
@@ -52,6 +52,6 @@ query AllOfferByPublicKey(
 
 mutation CreateOffer($input: CreateOfferInput!) {
   createOffer(data: $input) {
-    ...OfferFields
+    ...PostFields
   }
 }

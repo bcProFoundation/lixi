@@ -126,6 +126,7 @@ export type CreatePollMutation = {
       price: string;
       orderLimitMin: number;
       orderLimitMax: number;
+      status: Types.OfferStatus;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };

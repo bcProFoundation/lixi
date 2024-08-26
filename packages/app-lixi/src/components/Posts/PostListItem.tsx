@@ -414,88 +414,77 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
   };
 
   return (
-    <PostListItemContainer className="post-list-item" key={post.id} ref={ref}>
-      <Waypoint onEnter={onEnterPostItem} />
-      <CardContainer className="card-container-post">
-        {reposted()}
-        <CardHeader>
-          <InfoCardUser
-            imgUrl={post.account.avatar ? post.account.avatar : ''}
-            name={showUsername()}
-            title={formatRelativeTime(post.createdAt)}
-            accountAddress={post.account ? post.account.address : undefined}
-            page={post.page ? post.page : undefined}
-            token={post.token ? post.token : undefined}
-            activatePostLocation={true}
-            onEditPostClick={editPost}
-            postEdited={post.createdAt !== post.updatedAt}
-            isDropdown={true}
-            danaBurnScore={post.dana.danaReceivedScore}
-            followPostOwner={post.followPostOwner}
-            followedPage={post.followedPage}
-            followedToken={post.followedToken}
-            post={post}
-            postListType={postListType}
-          />
-        </CardHeader>
-        <Content $imageheight={heightImage()}>
-          <div className="description-post">
-            {post.poll ? (
-              <PollContent poll={post.poll} />
-            ) : (
-              <div onClick={e => handlePostClick(e)}>
-                <PostContent post={post} showTranslation={showTranslation} currentLocale={currentLocale} />
-              </div>
-            )}
-          </div>
-
-          {post.translations &&
-            post.translations.length > 0 &&
-            showFeatureTrans &&
-            (showTranslation ? (
-              <StyledTranslate onClick={translatePost} className="post-translation">
-                {intl.get('post.originTranslate', {
-                  language: handleCodeToLanguage()
-                })}
-              </StyledTranslate>
-            ) : (
-              <StyledTranslate onClick={translatePost} className="post-translation">
-                {intl.get('post.showTranslate')}
-              </StyledTranslate>
-            ))}
-
-          {item.imageUploadable?.uploads.length != 0 && !showMoreImage && imagesList && (
-            <div className={`images-post ${imagesList?.length > 1 ? 'images-post-desktop' : ''}`}>
-              <Image.PreviewGroup>
-                <Gallery
-                  targetRowHeight={200}
-                  photos={imagesList?.length > 3 ? imagesList.slice(0, 3) : imagesList}
-                  renderImage={imageRenderer}
-                />
-              </Image.PreviewGroup>
-              {item.imageUploadable?.uploads.length > 3 && (
-                <Button type="link" className="show-more-desktop show-more-image no-border-btn">
-                  {item.imageUploadable?.uploads.length - 1 + ' +'}
-                </Button>
-              )}
-            </div>
-          )}
-          {item.imageUploadable?.uploads.length != 0 && showMoreImage && imagesList && (
-            <React.Fragment>
-              {item.imageUploadable?.uploads.length > 1 && (
-                <div className="images-post images-post-mobile">
-                  <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
-                    {imagesList.map((img, index) => (
-                      <PhotoView key={index} src={img.src}>
-                        <img src={img.src} alt="" />
-                      </PhotoView>
-                    ))}
-                  </PhotoProvider>
+    !post.offer && ( //temporary hide offer on lixi
+      <PostListItemContainer className="post-list-item" key={post.id} ref={ref}>
+        <Waypoint onEnter={onEnterPostItem} />
+        <CardContainer className="card-container-post">
+          {reposted()}
+          <CardHeader>
+            <InfoCardUser
+              imgUrl={post.account.avatar ? post.account.avatar : ''}
+              name={showUsername()}
+              title={formatRelativeTime(post.createdAt)}
+              accountAddress={post.account ? post.account.address : undefined}
+              page={post.page ? post.page : undefined}
+              token={post.token ? post.token : undefined}
+              activatePostLocation={true}
+              onEditPostClick={editPost}
+              postEdited={post.createdAt !== post.updatedAt}
+              isDropdown={true}
+              danaBurnScore={post.dana.danaReceivedScore}
+              followPostOwner={post.followPostOwner}
+              followedPage={post.followedPage}
+              followedToken={post.followedToken}
+              post={post}
+              postListType={postListType}
+            />
+          </CardHeader>
+          <Content $imageheight={heightImage()}>
+            <div className="description-post">
+              {post.poll ? (
+                <PollContent poll={post.poll} />
+              ) : (
+                <div onClick={e => handlePostClick(e)}>
+                  <PostContent post={post} showTranslation={showTranslation} currentLocale={currentLocale} />
                 </div>
               )}
-              {item.imageUploadable?.uploads.length === 1 && (
-                <>
-                  <div className="images-post images-post-mobile only-one-image">
+            </div>
+
+            {post.translations &&
+              post.translations.length > 0 &&
+              showFeatureTrans &&
+              (showTranslation ? (
+                <StyledTranslate onClick={translatePost} className="post-translation">
+                  {intl.get('post.originTranslate', {
+                    language: handleCodeToLanguage()
+                  })}
+                </StyledTranslate>
+              ) : (
+                <StyledTranslate onClick={translatePost} className="post-translation">
+                  {intl.get('post.showTranslate')}
+                </StyledTranslate>
+              ))}
+
+            {item.imageUploadable?.uploads.length != 0 && !showMoreImage && imagesList && (
+              <div className={`images-post ${imagesList?.length > 1 ? 'images-post-desktop' : ''}`}>
+                <Image.PreviewGroup>
+                  <Gallery
+                    targetRowHeight={200}
+                    photos={imagesList?.length > 3 ? imagesList.slice(0, 3) : imagesList}
+                    renderImage={imageRenderer}
+                  />
+                </Image.PreviewGroup>
+                {item.imageUploadable?.uploads.length > 3 && (
+                  <Button type="link" className="show-more-desktop show-more-image no-border-btn">
+                    {item.imageUploadable?.uploads.length - 1 + ' +'}
+                  </Button>
+                )}
+              </div>
+            )}
+            {item.imageUploadable?.uploads.length != 0 && showMoreImage && imagesList && (
+              <React.Fragment>
+                {item.imageUploadable?.uploads.length > 1 && (
+                  <div className="images-post images-post-mobile">
                     <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
                       {imagesList.map((img, index) => (
                         <PhotoView key={index} src={img.src}>
@@ -504,14 +493,27 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
                       ))}
                     </PhotoProvider>
                   </div>
-                </>
-              )}
-            </React.Fragment>
-          )}
-        </Content>
-      </CardContainer>
-      <ActionPostBar post={post} onClickIconComment={e => handlePostClick(e)} />
-    </PostListItemContainer>
+                )}
+                {item.imageUploadable?.uploads.length === 1 && (
+                  <>
+                    <div className="images-post images-post-mobile only-one-image">
+                      <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
+                        {imagesList.map((img, index) => (
+                          <PhotoView key={index} src={img.src}>
+                            <img src={img.src} alt="" />
+                          </PhotoView>
+                        ))}
+                      </PhotoProvider>
+                    </div>
+                  </>
+                )}
+              </React.Fragment>
+            )}
+          </Content>
+        </CardContainer>
+        <ActionPostBar post={post} onClickIconComment={e => handlePostClick(e)} />
+      </PostListItemContainer>
+    )
   );
 };
 

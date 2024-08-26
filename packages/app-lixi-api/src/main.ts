@@ -34,12 +34,7 @@ async function bootstrap() {
   const fastifyAdapter = new FastifyAdapter({
     trustProxy: true
   });
-  fastifyAdapter
-    .getInstance()
-    .addContentTypeParser('application/json', { bodyLimit: 10048576 }, (_request, _payload, done) => {
-      done(null, (_payload as any).body);
-    });
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
+  const app = await NestFactory.create<NestFastifyApplication>(AppModule, fastifyAdapter, {
     logger: loggerConfig,
     snapshot: true
   });
@@ -56,31 +51,24 @@ async function bootstrap() {
     console.log(JSON.stringify(err));
   });
 
-  const allowedOrigins = _.compact(whitelistOrigins).map(origin => stripTrailingSlash(origin));
+  const allowedOrigins = _.compact(whitelistOrigins).map(origin => _.trim(origin));
 
-  const corsOptions: FastifyCorsOptions = {
-    credentials: true,
-    origin:
-      process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'local'
-        ? ['*']
-        : function (origin, callback) {
-            if (!origin) return callback(null, true);
-            if (allowedOrigins.indexOf(stripTrailingSlash(origin)) === -1) {
-              const msg = `The CORS policy for this site does not allow access from the specified Origin. ${origin}`;
-              callback(new Error(msg), true);
-            } else {
-              callback(null, true);
-            }
-          },
-    exposedHeaders: ['Authorization'],
-    allowedHeaders:
-      'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe, Origin, Account-Secret, lang',
-    methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
-    preflightContinue: false,
-    optionsSuccessStatus: 200
-  };
+  app.enableCors(instance => {
+    return (req: any, callback: any) => {
+      const corsOptions: FastifyCorsOptions = {
+        credentials: true,
+        origin: process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'local' ? true : allowedOrigins,
+        exposedHeaders: ['Authorization'],
+        allowedHeaders:
+          'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe, Origin, Account-Secret, lang, Lang',
+        methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
+        preflightContinue: false,
+        optionsSuccessStatus: 200
+      };
 
-  app.register(fastifyCors, corsOptions);
+      callback(null, corsOptions);
+    };
+  });
 
   // Prisma
   const prismaService: PrismaService = app.get(PrismaService);

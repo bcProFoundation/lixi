@@ -158,6 +158,7 @@ export type AllOfferQuery = {
             price: string;
             orderLimitMin: number;
             orderLimitMax: number;
+            status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -170,15 +171,15 @@ export type AllOfferQuery = {
   };
 };
 
-export type AllOfferByPublicKeyQueryVariables = Types.Exact<{
-  publicKey: Types.Scalars['String']['input'];
+export type AllOfferByAccountQueryVariables = Types.Exact<{
   first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   after?: Types.InputMaybe<Types.Scalars['String']['input']>;
+  offerStatus: Types.OfferStatus;
 }>;
 
-export type AllOfferByPublicKeyQuery = {
+export type AllOfferByAccountQuery = {
   __typename?: 'Query';
-  allOfferByPublicKey: {
+  allOfferByAccount: {
     __typename?: 'TimelineItemConnection';
     totalCount: number;
     edges: Array<{
@@ -294,6 +295,7 @@ export type AllOfferByPublicKeyQuery = {
             price: string;
             orderLimitMin: number;
             orderLimitMax: number;
+            status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -313,17 +315,118 @@ export type CreateOfferMutationVariables = Types.Exact<{
 export type CreateOfferMutation = {
   __typename?: 'Mutation';
   createOffer: {
-    __typename?: 'Offer';
-    postId: string;
-    publicKey: string;
-    message: string;
-    price: string;
-    orderLimitMin: number;
-    orderLimitMax: number;
-    paymentMethods: Array<{
-      __typename?: 'OfferPaymentMethod';
-      paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-    }>;
+    __typename?: 'Post';
+    id: string;
+    content: string;
+    accountId: number;
+    pageId?: string | null;
+    tokenId?: string | null;
+    repostCount: number;
+    totalComments: number;
+    commentableId?: string | null;
+    createdAt: any;
+    updatedAt: any;
+    followPostOwner?: boolean | null;
+    followedPage?: boolean | null;
+    followedToken?: boolean | null;
+    bookmarkableId?: string | null;
+    isBookmarked?: boolean | null;
+    originalLanguage?: string | null;
+    danaViewScore?: number | null;
+    burnedByOthers?: boolean | null;
+    account: {
+      __typename?: 'Account';
+      address: string;
+      hash160?: string | null;
+      id: number;
+      name: string;
+      avatar?: string | null;
+      createCommentFee?: string | null;
+    };
+    page?: {
+      __typename?: 'Page';
+      avatar?: string | null;
+      name: string;
+      id: string;
+      createPostFee: string;
+      createCommentFee: string;
+      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
+    } | null;
+    token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
+    reposts?: Array<{
+      __typename?: 'Repost';
+      accountId?: number | null;
+      account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+    }> | null;
+    dana?: {
+      __typename?: 'PostDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+      version: number;
+    } | null;
+    boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+    translations?: Array<{
+      __typename?: 'PostTranslation';
+      id: string;
+      translateContent?: string | null;
+      translateLanguage?: string | null;
+    }> | null;
+    imageUploadable?: {
+      __typename?: 'ImageUploadable';
+      id: string;
+      uploads: Array<{
+        __typename?: 'Upload';
+        id: string;
+        sha: string;
+        bucket?: string | null;
+        width?: number | null;
+        height?: number | null;
+        cfImageId?: string | null;
+        cfImageFilename?: string | null;
+      }>;
+    } | null;
+    poll?: {
+      __typename?: 'Poll';
+      postId: string;
+      question: string;
+      startDate: any;
+      endDate: any;
+      canAddOption: boolean;
+      singleSelect: boolean;
+      defaultOptions?: Array<string> | null;
+      totalVote?: number | null;
+      options: Array<{
+        __typename?: 'PollOption';
+        id: string;
+        option: string;
+        pollId: string;
+        danaScoreOption?: number | null;
+        pollAnswerOnAccount?: Array<{
+          __typename?: 'PollAnswerOnAccount';
+          pollDanaScore: number;
+          accountId: number;
+        }> | null;
+      }>;
+    } | null;
+    offer?: {
+      __typename?: 'Offer';
+      postId: string;
+      publicKey: string;
+      message: string;
+      price: string;
+      orderLimitMin: number;
+      orderLimitMax: number;
+      status: Types.OfferStatus;
+      paymentMethods: Array<{
+        __typename?: 'OfferPaymentMethod';
+        paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+      }>;
+    } | null;
+    paymentMethods;
   };
 };
 
@@ -357,9 +460,9 @@ export const AllOfferDocument = `
 }
     ${PostFieldsFragmentDoc}
 ${BasicPageInfoFieldsFragmentDoc}`;
-export const AllOfferByPublicKeyDocument = `
-    query AllOfferByPublicKey($publicKey: String!, $first: Int = 20, $after: String) {
-  allOfferByPublicKey(publicKey: $publicKey, first: $first, after: $after) {
+export const AllOfferByAccountDocument = `
+    query AllOfferByAccount($first: Int = 20, $after: String, $offerStatus: OfferStatus!) {
+  allOfferByAccount(first: $first, after: $after, offerStatus: $offerStatus) {
     totalCount
     edges {
       cursor
@@ -383,10 +486,10 @@ ${BasicPageInfoFieldsFragmentDoc}`;
 export const CreateOfferDocument = `
     mutation CreateOffer($input: CreateOfferInput!) {
   createOffer(data: $input) {
-    ...OfferFields
+    ...PostFields
   }
 }
-    ${OfferFieldsFragmentDoc}`;
+    ${PostFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
   overrideExisting: true,
@@ -397,8 +500,8 @@ const injectedRtkApi = api.injectEndpoints({
     AllOffer: build.query<AllOfferQuery, AllOfferQueryVariables | void>({
       query: variables => ({ document: AllOfferDocument, variables })
     }),
-    AllOfferByPublicKey: build.query<AllOfferByPublicKeyQuery, AllOfferByPublicKeyQueryVariables>({
-      query: variables => ({ document: AllOfferByPublicKeyDocument, variables })
+    AllOfferByAccount: build.query<AllOfferByAccountQuery, AllOfferByAccountQueryVariables>({
+      query: variables => ({ document: AllOfferByAccountDocument, variables })
     }),
     CreateOffer: build.mutation<CreateOfferMutation, CreateOfferMutationVariables>({
       query: variables => ({ document: CreateOfferDocument, variables })

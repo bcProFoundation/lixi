@@ -6,6 +6,7 @@ import { useInit } from './useInit';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getCurrentLocale, getIntlInitStatus } from '@store/settings/selectors';
 import { setInitIntlStatus } from '@store/settings/actions';
+import moment from 'moment';
 
 export const useIntl = () => {
   const currentLocale = useSliceSelector(getCurrentLocale);
@@ -35,6 +36,7 @@ export const useIntl = () => {
     const lang = currentLocale.split('-')[0];
     injectStore(lang);
     reduxInjectstore(lang);
+    moment.locale(lang);
     dispatch(setInitIntlStatus(true));
   };
 
