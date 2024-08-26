@@ -11,9 +11,30 @@
 
 import * as Types from '../../generated/types.generated';
 
-import { PostFieldsFragmentDoc } from '../post/posts.generated';
+import { OfferFieldsFragmentDoc, PostFieldsFragmentDoc } from '../post/posts.generated';
 import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
 import { api } from '@store/baseApi';
+export type OfferQueryVariables = Types.Exact<{
+  id: Types.Scalars['String']['input'];
+}>;
+
+export type OfferQuery = {
+  __typename?: 'Query';
+  offer: {
+    __typename?: 'Offer';
+    postId: string;
+    publicKey: string;
+    message: string;
+    price: string;
+    orderLimitMin: number;
+    orderLimitMax: number;
+    paymentMethods: Array<{
+      __typename?: 'OfferPaymentMethod';
+      paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
+    }>;
+  };
+};
+
 export type AllOfferQueryVariables = Types.Exact<{
   first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   after?: Types.InputMaybe<Types.Scalars['String']['input']>;
@@ -54,6 +75,7 @@ export type AllOfferQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -139,7 +161,7 @@ export type AllOfferQuery = {
             status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };
@@ -190,6 +212,7 @@ export type AllOfferByAccountQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -275,7 +298,7 @@ export type AllOfferByAccountQuery = {
             status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };
@@ -403,9 +426,17 @@ export type CreateOfferMutation = {
         paymentMethod: { __typename?: 'PaymentMethod'; name: string };
       }>;
     } | null;
+    paymentMethods;
   };
 };
 
+export const OfferDocument = `
+    query Offer($id: String!) {
+  offer(id: $id) {
+    ...OfferFields
+  }
+}
+    ${OfferFieldsFragmentDoc}`;
 export const AllOfferDocument = `
     query AllOffer($first: Int = 20, $after: String) {
   allOffer(first: $first, after: $after) {
@@ -463,6 +494,9 @@ export const CreateOfferDocument = `
 const injectedRtkApi = api.injectEndpoints({
   overrideExisting: true,
   endpoints: build => ({
+    Offer: build.query<OfferQuery, OfferQueryVariables>({
+      query: variables => ({ document: OfferDocument, variables })
+    }),
     AllOffer: build.query<AllOfferQuery, AllOfferQueryVariables | void>({
       query: variables => ({ document: AllOfferDocument, variables })
     }),

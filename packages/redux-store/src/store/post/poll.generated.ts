@@ -43,6 +43,7 @@ export type CreatePollMutation = {
       __typename?: 'Account';
       address: string;
       hash160?: string | null;
+      publicKey?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
@@ -128,7 +129,7 @@ export type CreatePollMutation = {
       status: Types.OfferStatus;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
-        paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+        paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
       }>;
     } | null;
   };

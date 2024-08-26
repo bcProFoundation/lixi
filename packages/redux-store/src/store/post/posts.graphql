@@ -141,14 +141,7 @@ query PostsByTokenId(
   }
 }
 
-query PostsBySearch(
-  $after: String
-  $before: String
-  $first: Int
-  $last: Int
-  $query: String
-  $minBurnFilter: Int
-) {
+query PostsBySearch($after: String, $before: String, $first: Int, $last: Int, $query: String, $minBurnFilter: Int) {
   allPostsBySearch(
     after: $after
     before: $before
@@ -299,6 +292,7 @@ fragment OfferFields on Offer {
   orderLimitMax
   paymentMethods {
     paymentMethod {
+      id
       name
     }
   }
@@ -311,6 +305,7 @@ fragment PostFields on Post {
   account {
     address
     hash160
+    publicKey
     id
     name
     avatar

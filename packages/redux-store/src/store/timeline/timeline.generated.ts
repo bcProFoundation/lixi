@@ -47,6 +47,7 @@ export type TimelineQuery = {
         __typename?: 'Account';
         address: string;
         hash160?: string | null;
+        publicKey?: string | null;
         id: number;
         name: string;
         avatar?: string | null;
@@ -132,7 +133,7 @@ export type TimelineQuery = {
         status: Types.OfferStatus;
         paymentMethods: Array<{
           __typename?: 'OfferPaymentMethod';
-          paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+          paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
         }>;
       } | null;
     };
@@ -180,6 +181,7 @@ export type HomeTimelineQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -265,7 +267,7 @@ export type HomeTimelineQuery = {
             status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };
@@ -316,6 +318,7 @@ export type ProfileTimelineQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -401,7 +404,7 @@ export type ProfileTimelineQuery = {
             status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };
@@ -453,6 +456,7 @@ export type ProfileTimelineByTimeQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -538,7 +542,7 @@ export type ProfileTimelineByTimeQuery = {
             status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };
@@ -589,6 +593,7 @@ export type PageTimelineQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -674,7 +679,7 @@ export type PageTimelineQuery = {
             status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };
@@ -726,6 +731,7 @@ export type PageTimelineByTimeQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -811,7 +817,7 @@ export type PageTimelineByTimeQuery = {
             status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };
@@ -862,6 +868,7 @@ export type TokenTimelineQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -947,7 +954,7 @@ export type TokenTimelineQuery = {
             status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };
@@ -999,6 +1006,7 @@ export type TokenTimelineByTimeQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -1084,7 +1092,7 @@ export type TokenTimelineByTimeQuery = {
             status: Types.OfferStatus;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
           } | null;
         };

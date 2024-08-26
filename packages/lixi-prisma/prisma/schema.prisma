@@ -327,6 +327,7 @@ model Account {
   walletPaths                    WalletPath[]
   role                           Role                  @default(USER)
   telegramId                     String?               @unique @map("telegram_id")
+  telegramUsername               String?               @map("telegram_username")
   escrowSellOrders               EscrowOrder[]         @relation("escrow_sell_orders")
   escrowBuyOrders                EscrowOrder[]         @relation("escrow_buy_orders")
   escrowArbiOrders               EscrowOrder[]         @relation("escrow_arbi_orders")
@@ -1262,7 +1263,10 @@ model EscrowOrder {
   arbitratorAccountId Int               @map("arbitrator_account_id")
   moderatorAccount    Account           @relation("escrow_mod_orders", fields: [moderatorAccountId], references: [id])
   moderatorAccountId  Int               @map("moderator_account_id")
-  escrowAddress       String?           @unique @map("escrow_address")
+  escrowAddress       String            @unique @map("escrow_address")
+  escrowTxids         EscrowTxId[]
+  releaseTxid         String?           @unique @map("release_txid")
+  returnTxid          String?           @unique @map("return_txid")
   paymentMethod       PaymentMethod     @relation(fields: [paymentMethodId], references: [id])
   paymentMethodId     Int               @map("payment_method_id")
   message             String?
@@ -1271,13 +1275,22 @@ model EscrowOrder {
   offer               Offer             @relation(fields: [offerId], references: [postId])
   offerId             String            @map("offer_id")
   status              EscrowOrderStatus @default(PENDING)
-  escrowScript        Bytes?            @unique @map("escrow_script")
-  nonce               Bytes?            @unique @map("nonce")
+  escrowScript        Bytes             @unique @map("escrow_script")
+  nonce               String            @unique @map("nonce")
   dispute             Dispute?
   createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz
   updatedAt           DateTime          @default(now()) @map("updated_at") @db.Timestamptz
 
   @@map("escrow_order")
+}
+
+model EscrowTxId {
+  txid          String      @unique
+  value         BigInt
+  escrowOrder   EscrowOrder @relation(fields: [escrowOrderId], references: [id])
+  escrowOrderId String
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime    @default(now()) @map("updated_at") @db.Timestamptz
 }
 
 model Dispute {

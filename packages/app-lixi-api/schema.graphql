@@ -2,12 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-input AcceptEscrowOrderInput {
-  nonce: String!
-  orderId: String!
-  script: String!
-}
-
 type Account {
   accountDana: AccountDana
   address: String!
@@ -43,6 +37,7 @@ type Account {
   secondaryLanguage: String
   secret: String
   telegramId: String
+  telegramUsername: String
   totalDanaViewScore: Int
 
   """Identifies the date and time when the object was last updated."""
@@ -116,6 +111,11 @@ type BasicPageInfo {
   endCursor: String!
   hasNextPage: Boolean!
 }
+
+"""
+The `BigInt` scalar type represents non-fractional signed whole numeric values.
+"""
+scalar BigInt
 
 type Bookmark {
   account: Account!
@@ -206,10 +206,6 @@ type BurnItem {
 type BurnItemBasicEdge {
   cursor: String!
   node: BurnItem!
-}
-
-input CancelEscrowOrderInput {
-  orderId: String!
 }
 
 type Category {
@@ -358,13 +354,16 @@ input CreateDisputeInput {
 
 input CreateEscrowOrderInput {
   amount: Int!
-  arbitratorPublicKey: String!
-  buyerPublicKey: String!
+  arbitratorId: Int!
+  escrowAddress: String!
+  escrowScript: String!
   message: String
-  offerId: String!
+  moderatorId: Int!
+  nonce: String!
   paymentMethodId: Int!
+  postId: String!
   price: Int!
-  sellerPublicKey: String!
+  sellerId: Int!
 }
 
 input CreateEventInput {
@@ -613,21 +612,27 @@ type EnvelopeModel {
 
 type EscrowOrder {
   amount: Int!
-  arbitratorPublicKey: String!
-  buyerPublicKey: String!
+  arbitratorAccount: Account!
+  buyerAccount: Account!
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   dispute: Dispute
-  escrowAddress: String
+  escrowAddress: String!
+  escrowScript: String!
+  escrowTxids: [EscrowTxid!]
   id: ID!
   message: String
+  moderatorAccount: Account!
+  nonce: String!
   offer: Offer!
   offerId: String!
   paymentMethod: PaymentMethod!
   paymentMethodId: Int!
   price: Int!
-  sellerPublicKey: String!
+  releaseTxid: String
+  returnTxid: String
+  sellerAccount: Account!
   status: EscrowOrderStatus!
 
   """Identifies the date and time when the object was last updated."""
@@ -662,8 +667,22 @@ enum EscrowOrderOrderField {
 """The status of escrow order."""
 enum EscrowOrderStatus {
   ACTIVE
+  CANCEL
   COMPLETE
   ESCROW
+  PENDING
+}
+
+type EscrowTxid {
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  escrowOrder: EscrowOrder!
+  escrowOrderId: String!
+  txid: String!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+  value: BigInt!
 }
 
 type Event {
@@ -976,8 +995,6 @@ type MessageSessionEdge {
 }
 
 type Mutation {
-  acceptEscrowOrder(data: AcceptEscrowOrderInput!): EscrowOrder!
-  cancelEscrowOrder(data: CancelEscrowOrderInput!): EscrowOrder!
   closePageMessageSession(data: ClosePageMessageSessionInput!): PageMessageSession!
   create(data: CreateEventInput!): Event!
   createBookmark(data: CreateBookmarkInput!): Bookmark!
@@ -1010,6 +1027,9 @@ type Mutation {
   removePost(data: RemovePostInput!): Post!
   repost(data: RepostInput!): Boolean!
   updateAccount(data: UpdateAccountInput!): Account!
+  updateAccountTelegramUsername(telegramId: String!, telegramUsername: String!): Account!
+  updateDispute(data: UpdateDisputeInput!): Dispute!
+  updateEscrowOrderStatus(data: UpdateEscrowOrderInput!): EscrowOrder!
   updatePage(data: UpdatePageInput!): Page!
   updatePost(data: UpdatePostInput!): Post!
 }
@@ -1421,8 +1441,7 @@ type Query {
   account(id: Int!): Account!
   allAccounts(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): AccountBasicConnection!
   allClosedPageMessageSession(accountId: Int, after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, pageId: String, skip: Int): PageMessageSessionConnection!
-  allDispute(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: DisputeOrder, skip: Int): DisputeConnection!
-  allDisputeByPublicKey(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: DisputeOrder, publicKey: String!, skip: Int): DisputeConnection!
+  allDisputesByAccountId(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: DisputeOrder, skip: Int): DisputeConnection!
   allEscrowOrderByOfferId(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, offerId: String!, orderBy: EscrowOrderOrder, skip: Int): EscrowOrderConnection!
   allFollowersByFollowing(after: String, before: String, first: Int, followingAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
   allFollowersByPage(after: String, first: Int, id: String, skip: Int): AccountBasicConnection!
@@ -1560,6 +1579,8 @@ type Query {
   escrowOrder(id: String!): EscrowOrder!
   getAccountByAddress(address: String!): Account!
   getBalances(address: String!): Balances!
+  getModeratorAccount: Account!
+  getRandomArbitratorAccount: Account!
   hashtag(content: String!): Hashtag!
   homeTimeline(after: String, first: Int, level: Int, skip: Int): TimelineItemConnection!
   message(id: String!): Message!
@@ -1761,6 +1782,19 @@ input UpdateAccountInput {
   language: String
   name: String
   website: String
+}
+
+input UpdateDisputeInput {
+  escrowOrderId: String!
+  id: String!
+  status: DisputeStatus!
+}
+
+input UpdateEscrowOrderInput {
+  orderId: String!
+  status: EscrowOrderStatus!
+  txid: String
+  value: Int
 }
 
 input UpdatePageInput {

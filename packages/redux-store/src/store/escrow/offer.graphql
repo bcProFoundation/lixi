@@ -1,3 +1,9 @@
+query Offer($id: String!) {
+  offer(id: $id) {
+    ...OfferFields
+  }
+}
+
 query AllOffer($first: Int = 20, $after: String) {
   allOffer(first: $first, after: $after) {
     totalCount
