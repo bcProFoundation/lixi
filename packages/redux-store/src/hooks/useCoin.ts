@@ -1,5 +1,5 @@
 import BCHJS from '@bcpros/xpi-js';
-import { ChronikClient, Utxo } from 'chronik-client';
+import { ChronikClient, Utxo, ChronikClientNode, Utxo_InNode } from 'chronik-client';
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { useXPI } from './useXPI';
@@ -10,9 +10,9 @@ export default function useCoin() {
   const sendCoin = async (
     coin: COIN,
     XPI: BCHJS,
-    chronik: ChronikClient,
+    chronik: ChronikClient | ChronikClientNode,
     fundingWif: string,
-    utxos: Array<Utxo & { address: string }>,
+    utxos: Array<Utxo & { address: string }> | Array<Utxo_InNode & { address: string }>,
     optionalOpReturnMsg: string | undefined,
     encryptionFlag: boolean,
     isOneToMany: boolean,
@@ -31,9 +31,9 @@ export default function useCoin() {
         case COIN.XPI:
           result = await sendXpi(
             XPI,
-            chronik,
+            chronik as ChronikClient,
             fundingWif,
-            utxos,
+            utxos as Array<Utxo & { address: string }>,
             coinInfo[COIN.XPI].defaultFee,
             optionalOpReturnMsg,
             encryptionFlag,
@@ -47,9 +47,9 @@ export default function useCoin() {
           break;
         case COIN.XEC:
           result = await sendXec(
-            chronik,
+            chronik as ChronikClientNode,
             fundingWif,
-            utxos,
+            utxos as Array<Utxo_InNode & { address: string }>,
             coinInfo[COIN.XEC].defaultFee,
             optionalOpReturnMsg,
             isOneToMany, //indicate send mode is one to one
@@ -62,9 +62,9 @@ export default function useCoin() {
           break;
         case COIN.XRG:
           result = await sendXrg(
-            chronik,
+            chronik as ChronikClient,
             fundingWif,
-            utxos,
+            utxos as Array<Utxo & { address: string }>,
             coinInfo[COIN.XRG].defaultFee,
             optionalOpReturnMsg,
             isOneToMany, //indicate send mode is one to one
@@ -78,9 +78,9 @@ export default function useCoin() {
         default:
           result = await sendXpi(
             XPI,
-            chronik,
+            chronik as ChronikClient,
             fundingWif,
-            utxos,
+            utxos as Array<Utxo & { address: string }>,
             coinInfo[COIN.XPI].defaultFee,
             optionalOpReturnMsg,
             encryptionFlag,

@@ -2,7 +2,7 @@ import { createSelector } from 'reselect';
 
 import { LixiStoreStateInterface } from '../state';
 
-import { WalletStatus } from './models';
+import { WalletStatus, WalletStatusNode } from './models';
 import { walletAdapter } from './reducer';
 import { WalletState } from './state';
 
@@ -18,6 +18,8 @@ export const getWalletPathAddressInfoByPath = (path: string) =>
   createSelector(getAllWalletPathsEntities, paths => paths?.[path]);
 
 export const getWalletStatus = createSelector(getWalletState, (state: WalletState) => state.walletStatus);
+
+export const getWalletStatusNode = createSelector(getWalletState, (state: WalletState) => state.walletStatusNode);
 
 export const getWaletRefreshInterval = createSelector(
   getWalletState,
@@ -35,6 +37,10 @@ export const getSlpBalancesAndUtxos = createSelector(getWalletStatus, (state: Wa
 );
 
 export const getWalletUtxos = createSelector(getWalletStatus, (state: WalletStatus) =>
+  state && state.utxos ? state.utxos : []
+);
+
+export const getWalletUtxosNode = createSelector(getWalletStatusNode, (state: WalletStatusNode) =>
   state && state.utxos ? state.utxos : []
 );
 

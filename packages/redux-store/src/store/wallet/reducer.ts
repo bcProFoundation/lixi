@@ -7,7 +7,8 @@ import {
   setWalletHasUpdated,
   setWalletPaths,
   setWalletRefreshInterval,
-  writeWalletStatus
+  writeWalletStatus,
+  writeWalletStatusNode
 } from './actions';
 import { WalletPathAddressInfo } from './models';
 import { WalletState } from './state';
@@ -38,6 +39,9 @@ export const walletStateReducer = createReducer(initialState, builder => {
   builder
     .addCase(writeWalletStatus, (state, action) => {
       state.walletStatus = action.payload;
+    })
+    .addCase(writeWalletStatusNode, (state, action) => {
+      state.walletStatusNode = action.payload;
     })
     .addCase(activateWalletSuccess, (state, action) => {
       const { walletPaths, mnemonic, selectPath } = action.payload;

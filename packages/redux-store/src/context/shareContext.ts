@@ -1,18 +1,19 @@
 import { useContext } from 'react';
 import { createCaller } from 'react-outside-call';
-
 import { AuthenticationContext } from './authenticationProvider';
 import { AuthorizationContext } from './authorizationProvider';
 import { WalletContext } from './walletProvider';
 import { ServiceWorkerContext } from './serviceWorkerProvider';
 import { SocketContext } from './socketContext';
 import { FeatureToggleContext } from './featureToggleContext';
+import { WalletContextNode } from './walletProviderNode';
 
 export const callConfig = createCaller({
   serviceWorkerContext: () => useContext(ServiceWorkerContext),
   authenticationContext: () => useContext(AuthenticationContext),
   authorizationContext: () => useContext(AuthorizationContext),
   walletContext: () => useContext(WalletContext),
+  walletContextNode: () => useContext(WalletContextNode),
   socketContext: () => useContext(SocketContext),
   featureContext: () => useContext(FeatureToggleContext)
 });
