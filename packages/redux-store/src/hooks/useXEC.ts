@@ -2,8 +2,7 @@ import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { fromCoinToSatoshis, fromSmallestDenomination } from '../utils/cashMethods';
 import BigNumber from 'bignumber.js';
-import { ChronikClient, Utxo } from 'chronik-client';
-import intl from 'react-intl-universal';
+import { ChronikClientNode, Utxo_InNode } from 'chronik-client';
 
 const wif = require('wif');
 
@@ -22,9 +21,9 @@ import {
 
 export function useXEC() {
   const sendXec = async (
-    chronik: ChronikClient,
+    chronik: ChronikClientNode,
     fundingWif: string,
-    utxos: Array<Utxo & { address: string }>,
+    utxos: Array<Utxo_InNode & { address: string }>,
     feeInSatsPerByte: number,
     optionalOpReturnMsg: string | undefined,
     isOneToMany: boolean,
