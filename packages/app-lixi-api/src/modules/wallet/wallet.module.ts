@@ -7,12 +7,12 @@ import { WALLET_MODULE_OPTIONS, WALLET_SERVICES, WALLET_SUPPORT_CURRENCIES, XPIJ
 import { WalletModuleAsyncOptions, WalletModuleOptions, WalletServices } from './wallet.interface';
 import { createAsyncProviders, createFactory } from './wallet.providers';
 import { WalletResolver } from './wallet.resolver';
-import { ChronikClients, CHRONIK_CLIENTS } from 'nestjs-chronik';
+import { ChronikClients, CHRONIK_CLIENTS, ChronikClientNodes } from 'nestjs-chronik';
 
 @Global()
 @Module({})
 export class WalletModule {
-  public static forRoot(options: WalletModuleOptions, isGlobal = true): DynamicModule {
+  public static forRoot(options: WalletModuleOptions, _isGlobal = true): DynamicModule {
     const gitbotOptions: Provider = {
       provide: WALLET_MODULE_OPTIONS,
       useValue: options
@@ -25,9 +25,17 @@ export class WalletModule {
         config: ConfigService,
         redisService: RedisService,
         chronikClients: ChronikClients,
+        chronikClientNodes: ChronikClientNodes,
         xpijs: BCHJS
       ) => {
-        return await createFactory(options, config, redisService.getClient(), chronikClients, xpijs);
+        return await createFactory(
+          options,
+          config,
+          redisService.getClient(),
+          chronikClients,
+          chronikClientNodes,
+          xpijs
+        );
       }
     };
 
@@ -65,9 +73,17 @@ export class WalletModule {
         config: ConfigService,
         redisService: RedisService,
         chronikClients: ChronikClients,
+        chronikClientNodes: ChronikClientNodes,
         xpijs: BCHJS
       ) => {
-        return await createFactory(walletOptions, config, redisService.getClient(), chronikClients, xpijs);
+        return await createFactory(
+          walletOptions,
+          config,
+          redisService.getClient(),
+          chronikClients,
+          chronikClientNodes,
+          xpijs
+        );
       }
     };
 

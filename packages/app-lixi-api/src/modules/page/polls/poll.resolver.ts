@@ -6,9 +6,9 @@ import { Inject, Injectable, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { Queue } from 'bullmq';
-import { ChronikClient } from 'chronik-client';
+import { ChronikClient, ChronikClientNode } from 'chronik-client';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { InjectChronikClient } from 'nestjs-chronik';
+import { InjectChronikClient, InjectChronikClientNode } from 'nestjs-chronik';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { AccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
@@ -21,9 +21,8 @@ import { HashtagService } from '../../hashtag/hashtag.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { XPIJS } from '../../wallet/wallet.constants';
 import { CONTENT_FANOUT_QUEUE } from '../constants';
-import { HASHTAG, POSTS } from '../constants/meili.constants';
+import { POSTS } from '../constants/meili.constants';
 import { MeiliService } from '../meili.service';
-import TimelineableLoader from '../timelineable.loader';
 import { PollCacheService } from './poll-cache.service';
 import { PollAnswerOnAccount, CreateVoteInput } from '@bcpros/lixi-models';
 import { AccountDanaCacheService } from 'src/modules/account/account-dana-cache.service';
@@ -40,7 +39,7 @@ export class PollResolver {
     @InjectQueue(CONTENT_FANOUT_QUEUE) private postFanoutQueue: Queue,
     @Inject(XPIJS) private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
-    @InjectChronikClient('xec') private chronikXEC: ChronikClient,
+    @InjectChronikClientNode('xec') private chronikXEC: ChronikClientNode,
     @InjectChronikClient('xrg') private chronikXRG: ChronikClient,
     @I18n() private i18n: I18nService,
     private readonly hashtagService: HashtagService,

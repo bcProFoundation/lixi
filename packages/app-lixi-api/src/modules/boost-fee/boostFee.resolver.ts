@@ -7,8 +7,8 @@ import { I18n, I18nService } from 'nestjs-i18n';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { PrismaService } from '../prisma/prisma.service';
 import { AccountEntity } from 'src/decorators';
-import { ChronikClient } from 'chronik-client';
-import { InjectChronikClient } from 'nestjs-chronik';
+import { ChronikClient, ChronikClientNode } from 'chronik-client';
+import { InjectChronikClient, InjectChronikClientNode } from 'nestjs-chronik';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
 import { PostBoostCacheService } from '../page/post-boost-cache.service';
 import { Queue } from 'bullmq';
@@ -27,7 +27,7 @@ export class BoostFeeResolver {
     @I18n() private i18n: I18nService,
     @InjectQueue(BOOST_FANOUT_QUEUE) private boostFanoutQueue: Queue,
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
-    @InjectChronikClient('xec') private chronikXEC: ChronikClient,
+    @InjectChronikClientNode('xec') private chronikXEC: ChronikClientNode,
     private readonly postBoostCacheService: PostBoostCacheService
   ) {}
 
@@ -48,7 +48,8 @@ export class BoostFeeResolver {
 
         const firstTxOutput = detailTx.outputs[0];
         const boostedValueSats = fromCoinToSatoshis(BigNumber(boostedValue), coinInfo[COIN.XEC].cashDecimals);
-        if (!firstTxOutput || !boostedValueSats || firstTxOutput.value !== boostedValueSats.toString()) return null;
+        if (!firstTxOutput || !boostedValueSats || !new BigNumber(firstTxOutput.value).isEqualTo(boostedValueSats))
+          return null;
 
         const prevTxIdExist = await this.prisma.boostFee.findFirst({
           where: {

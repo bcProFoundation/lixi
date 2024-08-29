@@ -19,8 +19,8 @@ import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { PrismaService } from '../prisma/prisma.service';
 import { AccountEntity } from 'src/decorators';
 import { CommentType, PostType } from '@bcpros/lixi-prisma';
-import { ChronikClient } from 'chronik-client';
-import { InjectChronikClient } from 'nestjs-chronik';
+import { ChronikClient, ChronikClientNode } from 'chronik-client';
+import { InjectChronikClient, InjectChronikClientNode } from 'nestjs-chronik';
 import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
 import { OfferCacheService } from './offer-cache.service';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -41,7 +41,7 @@ export class OfferResolver {
     private prisma: PrismaService,
     @I18n() private i18n: I18nService,
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
-    @InjectChronikClient('xec') private chronikXEC: ChronikClient,
+    @InjectChronikClientNode('xec') private chronikXEC: ChronikClientNode,
     @InjectQueue(CONTENT_FANOUT_QUEUE) private postFanoutQueue: Queue,
     @InjectRedis() private readonly redis: Redis,
     private readonly offerCacheService: OfferCacheService,

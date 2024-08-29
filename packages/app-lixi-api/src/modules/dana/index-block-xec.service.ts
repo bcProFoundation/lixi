@@ -1,9 +1,9 @@
 import { COIN } from '@bcpros/lixi-models';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { ChronikClient } from 'chronik-client';
+import { ChronikClientNode } from 'chronik-client';
 import { Redis } from 'ioredis';
-import { InjectChronikClient } from 'nestjs-chronik';
+import { InjectChronikClientNode } from 'nestjs-chronik';
 import { INDEX_BLOCK_QUEUE } from './dana.constants';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
@@ -15,7 +15,7 @@ export class DanaIndexXECService implements OnModuleInit {
   private keyIndexHighestBlockData = 'items:index-block-highest:XEC';
 
   constructor(
-    @InjectChronikClient('xec') private chronikXEC: ChronikClient,
+    @InjectChronikClientNode('xec') private chronikXEC: ChronikClientNode,
     @InjectRedis() private readonly redis: Redis,
     @InjectQueue(INDEX_BLOCK_QUEUE) private indexBlockQueue: Queue
   ) {}

@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ChronikClient } from 'chronik-client';
+import { ChronikClient, ChronikClientNode } from 'chronik-client';
 import Redis from 'ioredis';
-import { WALLET_SERVICES, XPIJS } from './wallet.constants';
+import { XPIJS } from './wallet.constants';
 import BCHJS from '@bcpros/xpi-js';
 import { WalletPathAddressInfo, Hash160AndAddress } from '@bcpros/lixi-models';
 import { WalletService } from './wallet.service';
@@ -19,7 +19,8 @@ export class XecWalletService extends WalletService {
     @Inject(XPIJS) public readonly XPI: BCHJS,
     private coin: string,
     private redis: Redis,
-    public chronik: ChronikClient
+    public chronik: ChronikClient,
+    public chronikNode: ChronikClientNode
   ) {
     super(XPI, chronik);
   }
@@ -67,7 +68,7 @@ export class XecWalletService extends WalletService {
     const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], sendWalletPath, COIN.XEC);
 
     const hex = await sendXec(
-      this.chronik,
+      this.chronikNode,
       fundingWif,
       slpBalancesAndUtxos.nonSlpUtxos,
       coinInfo[COIN.XEC].defaultFee,

@@ -36,12 +36,12 @@ import { HttpException, HttpStatus, Inject, Injectable, Logger, UseFilters, UseG
 import { Args, Int, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { Queue } from 'bullmq';
-import { ChronikClient } from 'chronik-client';
+import { ChronikClient, ChronikClientNode } from 'chronik-client';
 import { PubSub } from 'graphql-subscriptions';
 import { Redis } from 'ioredis';
 import * as _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { InjectChronikClient } from 'nestjs-chronik';
+import { InjectChronikClient, InjectChronikClientNode } from 'nestjs-chronik';
 import { NOTIFICATION_TYPES } from 'src/common/modules/notifications/notification.constants';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { AccountEntity } from 'src/decorators';
@@ -83,9 +83,8 @@ export class PostResolver {
     private hashtagService: HashtagService,
     @InjectQueue(CONTENT_FANOUT_QUEUE) private postFanoutQueue: Queue,
     @InjectQueue(REMOVE_POST_FANOUT_QUEUE) private removePostFanoutQueue: Queue,
-    @Inject(XPIJS) private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
-    @InjectChronikClient('xec') private chronikXEC: ChronikClient,
+    @InjectChronikClientNode('xec') private chronikXEC: ChronikClientNode,
     @InjectChronikClient('xrg') private chronikXRG: ChronikClient,
     @I18n() private i18n: I18nService,
     private readonly accountCacheService: AccountCacheService,
@@ -99,7 +98,7 @@ export class PostResolver {
   @SkipThrottle()
   @Query(() => Post)
   @UseGuards(GqlJwtAuthGuardByPass)
-  async post(@AccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
+  async post(@Args('id', { type: () => String }) id: string) {
     return await this.postCacheService.getById(id);
   }
 
@@ -331,12 +330,6 @@ export class PostResolver {
   ) {
     try {
       const { limit, offset } = getPagingParameters(args);
-
-      const count = await this.hashtagService.searchByQueryEstimatedTotalHits(
-        `${process.env.MEILISEARCH_BUCKET}_${POSTS}`,
-        query,
-        hashtags
-      );
 
       const posts = await this.hashtagService.searchByQueryHits(
         `${process.env.MEILISEARCH_BUCKET}_${POSTS}`,
@@ -708,8 +701,7 @@ export class PostResolver {
   @Query(() => PostConnection)
   @UseGuards(GqlJwtAuthGuardByPass)
   async allPostsByHashtagId(
-    @AccountEntity() account: Account,
-    @Args() { after, before, first, last, minBurnFilter }: PaginationArgs,
+    @Args() { after, before, first, last }: PaginationArgs,
     @Args({ name: 'id', type: () => String, nullable: true })
     hashtagId: string,
     @Args({
@@ -1071,7 +1063,7 @@ export class PostResolver {
     const reposted = await this.prisma.$transaction(async prisma => {
       let txid = null;
       if (data.txHex) {
-        const broadcastResponse = await this.chronikXPI.broadcastTx(data.txHex).catch(async err => {
+        const broadcastResponse = await this.chronikXPI.broadcastTx(data.txHex).catch(async () => {
           throw new Error('Empty chronik broadcast response');
         });
         txid = broadcastResponse.txid;

@@ -10,7 +10,7 @@ import {
   WalletServices
 } from './wallet.interface';
 import { WalletService } from './wallet.service';
-import { ChronikClients } from 'nestjs-chronik';
+import { ChronikClientNodes, ChronikClients } from 'nestjs-chronik';
 import { XecWalletService } from './xec-wallet.service';
 import { XpiWalletService } from './xpi-wallet.service';
 import { XrgWalletService } from './xrg-wallet.service ';
@@ -26,16 +26,18 @@ export function createFactory(
   config: ConfigService,
   redis: Redis,
   chronikClients: ChronikClients,
+  chronikClientNodes: ChronikClientNodes,
   XPI: BCHJS
 ): WalletServices {
   const services: { [currency: string]: WalletService } = {};
   for (const currency of options.currencies) {
     const coin = currencyToCoin[currency];
     const chronikClient = chronikClients[coin];
+    const chronikClientNode = chronikClientNodes[coin];
 
     switch (currency) {
       case 'xec':
-        services[currency] = new XecWalletService(XPI, coin, redis, chronikClient);
+        services[currency] = new XecWalletService(XPI, coin, redis, chronikClient, chronikClientNode);
         break;
       case 'xrg':
         services[currency] = new XrgWalletService(XPI, coin, redis, chronikClient);

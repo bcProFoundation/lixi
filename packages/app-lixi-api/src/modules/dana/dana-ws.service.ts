@@ -1,10 +1,10 @@
 import { COIN, coinInfo, DanaRate, GHPerDanaStart, ratioHash256 } from '@bcpros/lixi-models';
-import { decode, encode } from '@msgpack/msgpack';
+import { encode } from '@msgpack/msgpack';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { BlockInfo, ChronikClient, SubscribeMsg } from 'chronik-client';
+import { BlockInfo, BlockInfo_InNode, ChronikClient, ChronikClientNode, SubscribeMsg } from 'chronik-client';
 import { Redis } from 'ioredis';
-import { InjectChronikClient } from 'nestjs-chronik';
+import { InjectChronikClient, InjectChronikClientNode } from 'nestjs-chronik';
 import { template } from 'src/utils/stringTemplate';
 import { KeyCurrentAdjust, KeyCurrentHeight } from './dana.constants';
 import { fromSatoshisToCoin } from 'src/utils/cashMethods';
@@ -23,7 +23,7 @@ export class DanaWsService implements OnModuleInit {
   private keyIndexHighestBlockData = 'items:index-block-highest:{{coin}}';
 
   constructor(
-    @InjectChronikClient('xec') private chronikXEC: ChronikClient,
+    @InjectChronikClientNode('xec') private chronikXEC: ChronikClientNode,
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
     @InjectChronikClient('xrg') private chronikXRG: ChronikClient,
     @InjectRedis() private readonly redis: Redis
@@ -63,9 +63,9 @@ export class DanaWsService implements OnModuleInit {
 
     //ws for xec
     const wsXEC = this.chronikXEC.ws({
-      onMessage: async (msg: SubscribeMsg) => {
+      onMessage: async msg => {
         const { type } = msg;
-        if (type === 'BlockConnected') {
+        if (type === 'Block') {
           //add new block
           const keyHighestBlockCoin = template(this.keyIndexHighestBlockData, { coin: COIN.XEC });
           const blockHighestInfo = (await this.chronikXEC.block(msg.blockHash)).blockInfo;
@@ -90,7 +90,7 @@ export class DanaWsService implements OnModuleInit {
     });
     await wsXEC.waitForOpen();
     //we need to subscribe address to listen new block
-    wsXEC.subscribe('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
+    wsXEC.subscribeToScript('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
 
     //ws for ergon
     const wsXRG = this.chronikXRG.ws({
@@ -138,7 +138,7 @@ export class DanaWsService implements OnModuleInit {
     this.logger.log(`The module has been initialized.`);
   }
 
-  async handleNewBlock(newBlockInfo: BlockInfo, coin = COIN.XPI) {
+  async handleNewBlock(newBlockInfo: BlockInfo | BlockInfo_InNode, coin = COIN.XPI) {
     //write into redis
     const keyInfoBlockCoin = template(this.keyInfoBlockPrefix, { coin });
     const keyInfoHighestBlock = template(this.keyHighestBlockData, { coin });
@@ -197,7 +197,7 @@ export class DanaWsService implements OnModuleInit {
   }
 
   async handleMultipleBlock(startBlock: number, endBlock: number, coin = COIN.XPI) {
-    let newBlockInfos: BlockInfo[];
+    let newBlockInfos = [];
     switch (coin) {
       case COIN.XEC:
         newBlockInfos = await this.chronikXEC.blocks(startBlock, endBlock);

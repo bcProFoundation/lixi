@@ -1,7 +1,7 @@
 import { cashaddrToHash160, fromCoinToSatoshis, fromSmallestDenomination } from './cashMethods';
 // import ecies from 'ecies-lite';
 import BigNumber from 'bignumber.js';
-import { ChronikClient, Utxo } from 'chronik-client';
+import { ChronikClientNode, Utxo } from 'chronik-client';
 import { COIN, coinInfo } from '@bcpros/lixi-models';
 import {
   ALL_BIP143,
@@ -20,7 +20,7 @@ const wif = require('wif');
 
 export default function useXEC() {
   const getRecipientPublicKey = async (
-    chronik: ChronikClient,
+    chronik: ChronikClientNode,
     recipientAddress: string,
     optionalMockPubKeyResponse = false
   ) => {
@@ -74,7 +74,7 @@ export default function useXEC() {
   };
 
   const sendXec = async (
-    chronik: ChronikClient,
+    chronik: ChronikClientNode,
     fundingWif: string,
     utxos: Array<Utxo & { address: string }>,
     feeInSatsPerByte: number,

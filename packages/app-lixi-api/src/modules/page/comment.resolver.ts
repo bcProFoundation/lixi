@@ -23,10 +23,10 @@ import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection
 import { HttpException, HttpStatus, Inject, Logger, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
-import { ChronikClient } from 'chronik-client';
+import { ChronikClient, ChronikClientNode } from 'chronik-client';
 import _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { InjectChronikClient } from 'nestjs-chronik';
+import { InjectChronikClient, InjectChronikClientNode } from 'nestjs-chronik';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { AccountEntity } from 'src/decorators';
 import VError from 'verror';
@@ -49,7 +49,7 @@ export class CommentResolver {
     private prisma: PrismaService,
     @I18n() private i18n: I18nService,
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
-    @InjectChronikClient('xec') private chronikXEC: ChronikClient,
+    @InjectChronikClientNode('xec') private chronikXEC: ChronikClientNode,
     @InjectChronikClient('xrg') private chronikXRG: ChronikClient,
     @Inject(XPIJS) private XPI: BCHJS,
     private readonly commentLoader: CommentLoader,
