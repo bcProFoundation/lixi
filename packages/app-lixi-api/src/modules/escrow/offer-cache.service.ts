@@ -9,6 +9,9 @@ import { basicSortedSetPagination } from 'src/common/custom-graphql-relay/pagina
 import { Prisma } from '@bcpros/lixi-prisma';
 import { epoch } from 'src/utils/constants';
 import { template } from 'src/utils/stringTemplate';
+import stringify from 'json-stable-stringify';
+import { IndexNameOffer } from './escrow.contants';
+import ReSearch from 'src/common/redis/redis-search';
 
 export class OfferCacheService {
   private logger: Logger = new Logger(this.constructor.name);
@@ -17,6 +20,7 @@ export class OfferCacheService {
   //timeline for offer boost
   static offerBoostingTimeline = 'timeline:offer:boosting:showAll';
   static myOfferTimeline = 'timeline:offer:{{accountId}}:{{offerStatus}}';
+  static timelineOfferFilter = 'timeline:offer:{{keyFilter}}';
 
   constructor(
     private readonly prisma: PrismaService,
@@ -126,24 +130,26 @@ export class OfferCacheService {
 
   async getOfferFilterPaginatedTimeline(offerFilterInput: OfferFilterInput, first: number = 20, after?: string) {
     const { countryId, stateId, paymentMethodIds } = offerFilterInput;
-    //combination key: timeline:offer:country{countryId}:state{stateId}:method{payment1-payment2} (get all payment1-payment2 in country-state)
-    let key = 'timeline:offer';
-    if (countryId) {
-      key = key.concat(`:country{${countryId}}`);
-    }
-    if (stateId) {
-      key = key.concat(`:state{${stateId}}`);
-    }
+    //sort array payment
     if (paymentMethodIds && paymentMethodIds.length > 0) {
-      const paymentSorted = paymentMethodIds.sort();
-      const stringPayment = paymentSorted.join('-');
-      key = key.concat(`:payment{${stringPayment}}`);
+      offerFilterInput.paymentMethodIds = offerFilterInput.paymentMethodIds?.sort();
     }
+    const keyFilter = _.isObject(offerFilterInput) ? stringify(offerFilterInput) : offerFilterInput;
 
-    //always cache new filter
-    await this.cacheOfferFilterTimeline(offerFilterInput, key);
-
-    const paginated = await basicSortedSetPagination(this.redis, key, first, after);
+    const keyTimeline = template(`${OfferCacheService.timelineOfferFilter}`, { keyFilter });
+    const exist = await this.redis.exists([keyTimeline]);
+    if (!exist) {
+      await this.cacheOfferFilterTimeline(offerFilterInput, keyTimeline, keyFilter);
+    }
+    const paginated = await basicSortedSetPagination(this.redis, keyTimeline, first, after);
+    const hasNextPage = paginated.pageInfo.hasNextPage;
+    if (!hasNextPage) {
+      const shouldPaginate = await this.cacheOfferFilterTimeline(offerFilterInput, keyTimeline, keyFilter);
+      if (shouldPaginate) {
+        return await basicSortedSetPagination(this.redis, keyTimeline, first, after);
+      }
+    }
+    // nothing change
     return paginated;
   }
 
@@ -281,8 +287,13 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheOfferFilterTimeline(offerFilterInput: OfferFilterInput, combinationKey: string) {
+  private async cacheOfferFilterTimeline(
+    offerFilterInput: OfferFilterInput,
+    combinationKey: string,
+    keyFilter: string
+  ) {
     try {
+      const reSearch = new ReSearch(this.redis);
       const { countryId, stateId, paymentMethodIds } = offerFilterInput;
       let keyPaymentMethods = '';
       let totalKeyPaymentMethods = 0;
@@ -317,7 +328,19 @@ export class OfferCacheService {
       }
 
       //intersect cache
-      await this.redis.zinterstore(combinationKey, totalKeyInter, ...multiSetInter, 'AGGREGATE', 'MAX');
+      const docAdded = {
+        countryId: offerFilterInput?.countryId?.toString() ?? '',
+        stateId: offerFilterInput?.stateId?.toString() ?? '',
+        methods: offerFilterInput?.paymentMethodIds?.map(item => `${item}`)
+      };
+      //add cache and index
+      Promise.all([
+        this.redis.zinterstore(combinationKey, totalKeyInter, ...multiSetInter, 'AGGREGATE', 'MAX'),
+        reSearch.add(IndexNameOffer, `docOffer:${keyFilter}`, docAdded)
+      ]);
+
+      //expire key
+      await this.redis.expire(combinationKey, 60 * 60 * 24 * 30); //1 month
 
       return true;
     } catch (err) {

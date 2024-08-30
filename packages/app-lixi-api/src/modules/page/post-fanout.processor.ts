@@ -14,6 +14,8 @@ import { FollowCacheService } from '../account/follow-cache.service';
 import { CONTENT_FANOUT_QUEUE } from './constants';
 import { PostCacheService } from './post-cache.service';
 import { epoch } from 'src/utils/constants';
+import ReSearch from 'src/common/redis/redis-search';
+import { IndexNameOffer } from '../escrow/escrow.contants';
 
 @Injectable()
 @Processor(CONTENT_FANOUT_QUEUE, { concurrency: 50 })
@@ -41,6 +43,7 @@ export class PostFanoutProcessor extends WorkerHost {
   //timeline for offer boost
   static offerBoostingTimeline = 'timeline:offer:boosting:showAll';
   static myOfferTimeline = 'timeline:offer:{{accountId}}:{{offerStatus}}';
+  static timelineOfferFilter = 'timeline:offer:{{keyFilter}}';
 
   constructor(
     private readonly postCacheService: PostCacheService,
@@ -173,6 +176,35 @@ export class PostFanoutProcessor extends WorkerHost {
         if (post.offer?.state?.id) {
           const keyState = `offer:state{${post.offer.state.id}}`;
           pipeline.zincrby(keyState, score, timelineId);
+        }
+
+        //find item have countryId|stateId|{in payment-method} by search and add offer to it
+        const reSearch = new ReSearch(this.redis);
+        //create index if not exist
+        const existIndex = await reSearch.exist(IndexNameOffer);
+        if (!existIndex) {
+          await reSearch.create(IndexNameOffer, true, ['1', 'docOffer:'], {
+            countryId: 'TEXT',
+            stateId: 'TEXT',
+            methods: 'TAG'
+          });
+        }
+
+        //search item
+        const methodIds = post?.offer?.paymentMethods?.map(item => item.paymentMethodId).join('|'); // 1|2|3
+        const queryItem = `@countryId:${post?.offer?.countryId}|@stateId:${post?.offer?.stateId}|@methods:{${methodIds}}`;
+        const searchResult = await reSearch.search(IndexNameOffer, queryItem);
+        //add item to search result
+        if (searchResult.length > 0) {
+          //search return result: [total item, keyItem1, valueItem1, keyItem2, valueItem2,...]
+          for (let i = 1; i < searchResult.length; i += 2) {
+            const keyDoc = searchResult[i];
+            //get keyFilter, key doc: lixilotus:docOffer:keyFilter
+            const arrKeyDoc = keyDoc.split('docOffer:');
+            const keyFilter = arrKeyDoc[arrKeyDoc.length - 1];
+            const keyTimelineFilter = template(`${PostFanoutProcessor.timelineOfferFilter}`, { keyFilter });
+            pipeline.zincrby(keyTimelineFilter, score, timelineId);
+          }
         }
       }
       await pipeline.exec();

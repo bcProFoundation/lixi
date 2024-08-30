@@ -28,10 +28,15 @@ export type OfferQuery = {
     price: string;
     orderLimitMin: number;
     orderLimitMax: number;
+    status: Types.OfferStatus;
+    stateId?: number | null;
+    countryId?: number | null;
     paymentMethods: Array<{
       __typename?: 'OfferPaymentMethod';
       paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
     }>;
+    state?: { __typename?: 'State'; name?: string | null } | null;
+    country?: { __typename?: 'Country'; name: string } | null;
   };
 };
 
@@ -216,6 +221,7 @@ export type OfferByFilterQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -303,7 +309,7 @@ export type OfferByFilterQuery = {
             countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
             state?: { __typename?: 'State'; name?: string | null } | null;
             country?: { __typename?: 'Country'; name: string } | null;
@@ -486,6 +492,7 @@ export type CreateOfferMutation = {
       __typename?: 'Account';
       address: string;
       hash160?: string | null;
+      publicKey?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
@@ -573,12 +580,11 @@ export type CreateOfferMutation = {
       countryId?: number | null;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
-        paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+        paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
       }>;
       state?: { __typename?: 'State'; name?: string | null } | null;
       country?: { __typename?: 'Country'; name: string } | null;
     } | null;
-    paymentMethods;
   };
 };
 

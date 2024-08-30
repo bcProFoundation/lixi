@@ -1324,7 +1324,7 @@ model Offer {
   country        Country?             @relation(fields: [countryId], references: [id])
   countryId      Int?                 @map("country_id")
   state          State?               @relation(fields: [stateId], references: [id])
-  stateId        Int?
+  stateId        Int?                 @map("state_id")
   createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz
   updatedAt      DateTime             @default(now()) @map("updated_at") @db.Timestamptz
 
