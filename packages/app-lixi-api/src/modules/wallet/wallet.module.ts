@@ -7,7 +7,7 @@ import { WALLET_MODULE_OPTIONS, WALLET_SERVICES, WALLET_SUPPORT_CURRENCIES, XPIJ
 import { WalletModuleAsyncOptions, WalletModuleOptions, WalletServices } from './wallet.interface';
 import { createAsyncProviders, createFactory } from './wallet.providers';
 import { WalletResolver } from './wallet.resolver';
-import { ChronikClients, CHRONIK_CLIENTS, ChronikClientNodes } from 'nestjs-chronik';
+import { ChronikClients, CHRONIK_CLIENTS, ChronikClientNodes, CHRONIK_CLIENT_NODES } from 'nestjs-chronik';
 
 @Global()
 @Module({})
@@ -20,7 +20,7 @@ export class WalletModule {
 
     const servicesProvider: Provider = {
       provide: WALLET_SERVICES,
-      inject: [ConfigService, RedisService, CHRONIK_CLIENTS, XPIJS],
+      inject: [ConfigService, RedisService, CHRONIK_CLIENTS, CHRONIK_CLIENT_NODES, XPIJS],
       useFactory: async (
         config: ConfigService,
         redisService: RedisService,
@@ -67,7 +67,7 @@ export class WalletModule {
   public static forRootAsync(options: WalletModuleAsyncOptions, isGlobal = true): DynamicModule {
     const servicesProvider: Provider = {
       provide: WALLET_SERVICES,
-      inject: [WALLET_MODULE_OPTIONS, ConfigService, RedisService, CHRONIK_CLIENTS, XPIJS],
+      inject: [WALLET_MODULE_OPTIONS, ConfigService, RedisService, CHRONIK_CLIENTS, CHRONIK_CLIENT_NODES, XPIJS],
       useFactory: async (
         walletOptions: WalletModuleOptions,
         config: ConfigService,
