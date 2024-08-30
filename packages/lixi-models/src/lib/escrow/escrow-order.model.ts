@@ -2,7 +2,11 @@ import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
+import { Account } from '../account/account.model';
+import { Nullable } from '../nullable';
+
 import { Dispute } from './dispute.model';
+import { EscrowTxid } from './escrow-txid.model';
 import { Offer } from './offer.model';
 import { PaymentMethod } from './payment-method.model';
 
@@ -11,18 +15,20 @@ export class EscrowOrder {
   @Field(() => ID)
   id: string;
 
-  @Field(() => String)
-  sellerPublicKey: string;
+  @Field(() => Account)
+  sellerAccount: Account;
+
+  @Field(() => Account)
+  buyerAccount: Account;
+
+  @Field(() => Account)
+  arbitratorAccount: Account;
+
+  @Field(() => Account)
+  moderatorAccount: Account;
 
   @Field(() => String)
-  buyerPublicKey: string;
-
-  @Field(() => String)
-  arbitratorPublicKey: string;
-
-  @Field(() => String, { nullable: true })
-  @IsOptional()
-  escrowAddress?: string;
+  escrowAddress: string;
 
   @Field(() => PaymentMethod)
   paymentMethod: PaymentMethod;
@@ -49,6 +55,23 @@ export class EscrowOrder {
   @Field(() => EscrowOrderStatus)
   status: EscrowOrderStatus;
 
+  @Field(() => String)
+  escrowScript: string;
+
+  @Field(() => String)
+  nonce: string;
+
+  @Field(() => [EscrowTxid], { nullable: true })
+  escrowTxids?: Nullable<EscrowTxid[]>;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  releaseTxid?: string;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  returnTxid?: string;
+
   @Field(() => Dispute, { nullable: true })
   @IsOptional()
   dispute?: Dispute;
@@ -66,8 +89,10 @@ export class EscrowOrder {
 
 export enum EscrowOrderStatus {
   ACTIVE = 'ACTIVE',
+  PENDING = 'PENDING',
   ESCROW = 'ESCROW',
-  COMPLETE = 'COMPLETE'
+  COMPLETE = 'COMPLETE',
+  CANCEL = 'CANCEL'
 }
 
 registerEnumType(EscrowOrderStatus, {

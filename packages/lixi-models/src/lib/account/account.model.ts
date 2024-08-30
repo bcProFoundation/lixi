@@ -128,6 +128,10 @@ export class Account {
   @IsOptional()
   telegramId?: Nullable<string>;
 
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  telegramUsername?: Nullable<string>;
+
   constructor(partial: Partial<Account>) {
     Object.assign(this, partial);
   }

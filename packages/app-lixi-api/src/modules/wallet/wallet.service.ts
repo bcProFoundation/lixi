@@ -4,7 +4,7 @@ import { coinInfo, COIN } from '@bcpros/lixi-models';
 import BCHJS from '@bcpros/xpi-js';
 import HDNode from '@bcpros/xpi-js/types/hdnode';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ChronikClient } from 'chronik-client';
+import { ChronikClient, ChronikClientNode } from 'chronik-client';
 import { XPIJS } from './wallet.constants';
 import { Hash160AndAddress } from '@bcpros/lixi-models';
 import { getUtxosChronik, getWalletBalanceFromUtxos, organizeUtxosByType } from '../../utils/chronik';

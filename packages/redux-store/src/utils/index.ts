@@ -1,7 +1,9 @@
 export * from './addressMethods';
 export * from './axiosClient';
 export * from './cashMethods';
+export * as cashMethodsNode from './cashMethodsNode';
 export * from './chronik';
+export * as chronikNode from './chronik-node';
 export * from './comparision';
 export * from './convertArrBuffBase64';
 export * from './encryption';

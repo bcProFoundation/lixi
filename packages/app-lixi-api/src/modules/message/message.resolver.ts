@@ -21,10 +21,10 @@ import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection
 import { Inject, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
-import { ChronikClient } from 'chronik-client';
+import { ChronikClient, ChronikClientNode } from 'chronik-client';
 import { PubSub } from 'graphql-subscriptions';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { InjectChronikClient } from 'nestjs-chronik';
+import { InjectChronikClient, InjectChronikClientNode } from 'nestjs-chronik';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { NotificationService } from 'src/common/modules/notifications/notification.service';
 import { AccountEntity } from 'src/decorators';
@@ -50,7 +50,7 @@ export class MessageResolver {
     private notificationGateway: NotificationGateway,
     @Inject(XPIJS) private XPI: BCHJS,
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
-    @InjectChronikClient('xec') private chronikXEC: ChronikClient,
+    @InjectChronikClientNode('xec') private chronikXEC: ChronikClientNode,
     @InjectChronikClient('xrg') private chronikXRG: ChronikClient,
     private readonly notificationService: NotificationService,
     private readonly pageMessageSessionCacheService: PageMessageSessionCacheService

@@ -46,6 +46,7 @@ export type PostQuery = {
       __typename?: 'Account';
       address: string;
       hash160?: string | null;
+      publicKey?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
@@ -133,7 +134,7 @@ export type PostQuery = {
       countryId?: number | null;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
-        paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+        paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
       }>;
       state?: { __typename?: 'State'; name?: string | null } | null;
       country?: { __typename?: 'Country'; name: string } | null;
@@ -185,6 +186,7 @@ export type PostsByPageIdQuery = {
           __typename?: 'Account';
           address: string;
           hash160?: string | null;
+          publicKey?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
@@ -272,7 +274,7 @@ export type PostsByPageIdQuery = {
           countryId?: number | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
-            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+            paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
           state?: { __typename?: 'State'; name?: string | null } | null;
           country?: { __typename?: 'Country'; name: string } | null;
@@ -332,6 +334,7 @@ export type PostsByUserIdQuery = {
           __typename?: 'Account';
           address: string;
           hash160?: string | null;
+          publicKey?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
@@ -419,7 +422,7 @@ export type PostsByUserIdQuery = {
           countryId?: number | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
-            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+            paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
           state?: { __typename?: 'State'; name?: string | null } | null;
           country?: { __typename?: 'Country'; name: string } | null;
@@ -479,6 +482,7 @@ export type PostsByHashtagIdQuery = {
           __typename?: 'Account';
           address: string;
           hash160?: string | null;
+          publicKey?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
@@ -566,7 +570,7 @@ export type PostsByHashtagIdQuery = {
           countryId?: number | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
-            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+            paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
           state?: { __typename?: 'State'; name?: string | null } | null;
           country?: { __typename?: 'Country'; name: string } | null;
@@ -626,6 +630,7 @@ export type PostsByTokenIdQuery = {
           __typename?: 'Account';
           address: string;
           hash160?: string | null;
+          publicKey?: string | null;
           id: number;
           name: string;
           avatar?: string | null;
@@ -713,7 +718,7 @@ export type PostsByTokenIdQuery = {
           countryId?: number | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
-            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+            paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
           state?: { __typename?: 'State'; name?: string | null } | null;
           country?: { __typename?: 'Country'; name: string } | null;
@@ -852,7 +857,7 @@ export type PostsBySearchQuery = {
           countryId?: number | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
-            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+            paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
           state?: { __typename?: 'State'; name?: string | null } | null;
           country?: { __typename?: 'Country'; name: string } | null;
@@ -993,7 +998,7 @@ export type PostsBySearchWithHashtagQuery = {
           countryId?: number | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
-            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+            paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
           state?: { __typename?: 'State'; name?: string | null } | null;
           country?: { __typename?: 'Country'; name: string } | null;
@@ -1135,7 +1140,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
           countryId?: number | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
-            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+            paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
           state?: { __typename?: 'State'; name?: string | null } | null;
           country?: { __typename?: 'Country'; name: string } | null;
@@ -1277,7 +1282,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
           countryId?: number | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
-            paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+            paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
           state?: { __typename?: 'State'; name?: string | null } | null;
           country?: { __typename?: 'Country'; name: string } | null;
@@ -1331,7 +1336,7 @@ export type OfferFieldsFragment = {
   countryId?: number | null;
   paymentMethods: Array<{
     __typename?: 'OfferPaymentMethod';
-    paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+    paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
   }>;
   state?: { __typename?: 'State'; name?: string | null } | null;
   country?: { __typename?: 'Country'; name: string } | null;
@@ -1361,6 +1366,7 @@ export type PostFieldsFragment = {
     __typename?: 'Account';
     address: string;
     hash160?: string | null;
+    publicKey?: string | null;
     id: number;
     name: string;
     avatar?: string | null;
@@ -1448,7 +1454,7 @@ export type PostFieldsFragment = {
     countryId?: number | null;
     paymentMethods: Array<{
       __typename?: 'OfferPaymentMethod';
-      paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+      paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
     }>;
     state?: { __typename?: 'State'; name?: string | null } | null;
     country?: { __typename?: 'Country'; name: string } | null;
@@ -1561,7 +1567,7 @@ export type PostMeiliFieldsFragment = {
     countryId?: number | null;
     paymentMethods: Array<{
       __typename?: 'OfferPaymentMethod';
-      paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+      paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
     }>;
     state?: { __typename?: 'State'; name?: string | null } | null;
     country?: { __typename?: 'Country'; name: string } | null;
@@ -1598,6 +1604,7 @@ export type CreatePostMutation = {
       __typename?: 'Account';
       address: string;
       hash160?: string | null;
+      publicKey?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
@@ -1685,7 +1692,7 @@ export type CreatePostMutation = {
       countryId?: number | null;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
-        paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+        paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
       }>;
       state?: { __typename?: 'State'; name?: string | null } | null;
       country?: { __typename?: 'Country'; name: string } | null;
@@ -1723,6 +1730,7 @@ export type UpdatePostMutation = {
       __typename?: 'Account';
       address: string;
       hash160?: string | null;
+      publicKey?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
@@ -1810,7 +1818,7 @@ export type UpdatePostMutation = {
       countryId?: number | null;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
-        paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+        paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
       }>;
       state?: { __typename?: 'State'; name?: string | null } | null;
       country?: { __typename?: 'Country'; name: string } | null;
@@ -1854,6 +1862,7 @@ export type RemovePostMutation = {
       __typename?: 'Account';
       address: string;
       hash160?: string | null;
+      publicKey?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
@@ -1941,7 +1950,7 @@ export type RemovePostMutation = {
       countryId?: number | null;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
-        paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+        paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
       }>;
       state?: { __typename?: 'State'; name?: string | null } | null;
       country?: { __typename?: 'Country'; name: string } | null;
@@ -1981,6 +1990,7 @@ export const OfferFieldsFragmentDoc = `
   orderLimitMax
   paymentMethods {
     paymentMethod {
+      id
       name
     }
   }
@@ -2002,6 +2012,7 @@ export const PostFieldsFragmentDoc = `
   account {
     address
     hash160
+    publicKey
     id
     name
     avatar

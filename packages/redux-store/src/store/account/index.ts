@@ -2,6 +2,7 @@ export * from './state';
 export * from './actions';
 export * from './reducer';
 export * from './api';
+export * as accountsApi from './accounts.api';
 export * from './selectors';
 export * from './saga';
 export * from './useInfiniteFollowersByPageQuery';

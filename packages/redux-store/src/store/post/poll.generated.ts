@@ -43,6 +43,7 @@ export type CreatePollMutation = {
       __typename?: 'Account';
       address: string;
       hash160?: string | null;
+      publicKey?: string | null;
       id: number;
       name: string;
       avatar?: string | null;
@@ -130,7 +131,7 @@ export type CreatePollMutation = {
       countryId?: number | null;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
-        paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+        paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
       }>;
       state?: { __typename?: 'State'; name?: string | null } | null;
       country?: { __typename?: 'Country'; name: string } | null;

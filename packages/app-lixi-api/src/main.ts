@@ -51,7 +51,7 @@ async function bootstrap() {
     console.log(JSON.stringify(err));
   });
 
-  const allowedOrigins = _.compact(whitelistOrigins).map(origin => stripTrailingSlash(origin));
+  const allowedOrigins = _.compact(whitelistOrigins).map(origin => _.trim(origin));
 
   app.enableCors(instance => {
     return (req: any, callback: any) => {
@@ -60,7 +60,7 @@ async function bootstrap() {
         origin: process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'local' ? true : allowedOrigins,
         exposedHeaders: ['Authorization'],
         allowedHeaders:
-          'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe, Origin, Account-Secret, lang',
+          'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe, Origin, Account-Secret, lang, Lang',
         methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
         preflightContinue: false,
         optionsSuccessStatus: 200

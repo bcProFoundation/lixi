@@ -8,6 +8,26 @@ const enhancedApi = api.enhanceEndpoints({
     },
     updateAccount: {
       invalidatesTags: ['Account']
+    },
+    UpdateAccountTelegramUsername: {
+      onQueryStarted: async ({ telegramId, telegramUsername }, { dispatch, queryFulfilled }) => {
+        try {
+          const { data } = await queryFulfilled;
+          if (data) {
+            const { updateAccountTelegramUsername } = data;
+            const { address } = updateAccountTelegramUsername;
+            dispatch(
+              api.util.updateQueryData('getAccountByAddress', { address }, draft => {
+                if (draft) {
+                  draft.getAccountByAddress.telegramUsername = telegramUsername;
+                }
+              })
+            );
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
     }
   }
 });
@@ -25,5 +45,6 @@ export const {
   useTopWeekAccountsQuery,
   useLazyTopWeekAccountsQuery,
   useTopMonthAccountsQuery,
-  useLazyTopMonthAccountsQuery
+  useLazyTopMonthAccountsQuery,
+  useUpdateAccountTelegramUsernameMutation
 } = enhancedApi;

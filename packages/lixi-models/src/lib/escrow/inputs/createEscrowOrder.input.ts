@@ -3,17 +3,29 @@ import { IsNotEmpty, IsOptional } from 'class-validator';
 
 @InputType()
 export class CreateEscrowOrderInput {
-  @Field(() => String)
+  @Field(() => Number)
   @IsNotEmpty()
-  sellerPublicKey: string;
+  sellerId: number;
+
+  @Field(() => Number)
+  @IsNotEmpty()
+  arbitratorId: number;
+
+  @Field(() => Number)
+  @IsNotEmpty()
+  moderatorId: number;
 
   @Field(() => String)
   @IsNotEmpty()
-  buyerPublicKey: string;
+  escrowScript: string;
 
   @Field(() => String)
   @IsNotEmpty()
-  arbitratorPublicKey: string;
+  escrowAddress: string;
+
+  @Field(() => String)
+  @IsNotEmpty()
+  nonce: string;
 
   @Field(() => Number)
   @IsNotEmpty()
@@ -33,5 +45,5 @@ export class CreateEscrowOrderInput {
 
   @Field(() => String)
   @IsNotEmpty()
-  offerId: string;
+  postId: string;
 }

@@ -99,6 +99,33 @@ export class AccountResolver {
     }
   }
 
+  @Mutation(() => Account)
+  async updateAccountTelegramUsername(
+    @Args('telegramId', { type: () => String }) telegramId: string,
+    @Args('telegramUsername', { type: () => String }) telegramUsername: string
+  ) {
+    try {
+      const result = await this.prisma.account.update({
+        where: {
+          telegramId
+        },
+        data: {
+          telegramUsername
+        }
+      });
+
+      return result;
+    } catch (err: unknown) {
+      if (err instanceof VError) {
+        throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      } else {
+        const unableGetAccountMessage = await this.i18n.t('account.messages.unableGetAccount');
+        const error = new VError.WError(err as Error, unableGetAccountMessage);
+        throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
   @Query(() => Account)
   async getAccountByAddress(@Args('address', { type: () => String }) address: string) {
     try {

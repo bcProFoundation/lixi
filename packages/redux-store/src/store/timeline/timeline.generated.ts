@@ -47,6 +47,7 @@ export type TimelineQuery = {
         __typename?: 'Account';
         address: string;
         hash160?: string | null;
+        publicKey?: string | null;
         id: number;
         name: string;
         avatar?: string | null;
@@ -134,7 +135,7 @@ export type TimelineQuery = {
         countryId?: number | null;
         paymentMethods: Array<{
           __typename?: 'OfferPaymentMethod';
-          paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+          paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
         }>;
         state?: { __typename?: 'State'; name?: string | null } | null;
         country?: { __typename?: 'Country'; name: string } | null;
@@ -184,6 +185,7 @@ export type HomeTimelineQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -271,7 +273,7 @@ export type HomeTimelineQuery = {
             countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
             state?: { __typename?: 'State'; name?: string | null } | null;
             country?: { __typename?: 'Country'; name: string } | null;
@@ -324,6 +326,7 @@ export type ProfileTimelineQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -411,7 +414,7 @@ export type ProfileTimelineQuery = {
             countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
             state?: { __typename?: 'State'; name?: string | null } | null;
             country?: { __typename?: 'Country'; name: string } | null;
@@ -465,6 +468,7 @@ export type ProfileTimelineByTimeQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -552,7 +556,7 @@ export type ProfileTimelineByTimeQuery = {
             countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
             state?: { __typename?: 'State'; name?: string | null } | null;
             country?: { __typename?: 'Country'; name: string } | null;
@@ -605,6 +609,7 @@ export type PageTimelineQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -692,7 +697,7 @@ export type PageTimelineQuery = {
             countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
             state?: { __typename?: 'State'; name?: string | null } | null;
             country?: { __typename?: 'Country'; name: string } | null;
@@ -746,6 +751,7 @@ export type PageTimelineByTimeQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -833,7 +839,7 @@ export type PageTimelineByTimeQuery = {
             countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
             state?: { __typename?: 'State'; name?: string | null } | null;
             country?: { __typename?: 'Country'; name: string } | null;
@@ -886,6 +892,7 @@ export type TokenTimelineQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -973,7 +980,7 @@ export type TokenTimelineQuery = {
             countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
             state?: { __typename?: 'State'; name?: string | null } | null;
             country?: { __typename?: 'Country'; name: string } | null;
@@ -1027,6 +1034,7 @@ export type TokenTimelineByTimeQuery = {
             __typename?: 'Account';
             address: string;
             hash160?: string | null;
+            publicKey?: string | null;
             id: number;
             name: string;
             avatar?: string | null;
@@ -1114,7 +1122,7 @@ export type TokenTimelineByTimeQuery = {
             countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
-              paymentMethod: { __typename?: 'PaymentMethod'; name: string };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
             state?: { __typename?: 'State'; name?: string | null } | null;
             country?: { __typename?: 'Country'; name: string } | null;

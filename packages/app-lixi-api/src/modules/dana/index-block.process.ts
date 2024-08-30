@@ -7,8 +7,8 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { template } from 'src/utils/stringTemplate';
 import { INDEX_BLOCK_QUEUE } from './dana.constants';
 import { DanaWsService } from './dana-ws.service';
-import { InjectChronikClient } from 'nestjs-chronik';
-import { ChronikClient } from 'chronik-client';
+import { InjectChronikClient, InjectChronikClientNode } from 'nestjs-chronik';
+import { ChronikClient, ChronikClientNode } from 'chronik-client';
 import { COIN } from '@bcpros/lixi-models';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class IndexBlockProcessor extends WorkerHost {
   private keyIndexHighestBlockData = 'items:index-block-highest:{{coin}}';
 
   constructor(
-    @InjectChronikClient('xec') private chronikXEC: ChronikClient,
+    @InjectChronikClientNode('xec') private chronikXEC: ChronikClientNode,
     @InjectChronikClient('xrg') private chronikXRG: ChronikClient,
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
     @InjectRedis() private readonly redis: Redis,

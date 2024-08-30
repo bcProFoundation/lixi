@@ -1,5 +1,5 @@
 import { ParsedChronikTx } from '../../utils/chronik';
-import { Tx, Utxo } from 'chronik-client';
+import { Tx, Utxo, Utxo_InNode, Tx_InNode } from 'chronik-client';
 
 export interface WalletPathAddressInfo {
   path: string;
@@ -23,4 +23,16 @@ export interface WalletStatus {
     nonSlpUtxos: Array<Utxo & { address: string }>;
   };
   utxos: Array<Utxo & { address: string }>;
+}
+
+export interface WalletStatusNode {
+  balances: {
+    totalBalance: string;
+    totalBalanceInSatoshis: string;
+  };
+  parsedTxHistory: Array<Tx_InNode & { parsed: ParsedChronikTx }>;
+  slpBalancesAndUtxos: {
+    nonSlpUtxos: Array<Utxo_InNode & { address: string }>;
+  };
+  utxos: Array<Utxo_InNode & { address: string }>;
 }

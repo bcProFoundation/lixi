@@ -1,0 +1,43 @@
+fragment DisputeFields on Dispute {
+  id
+  escrowOrder {
+    id
+  }
+  reason
+  createdBy
+  status
+  createdAt
+  updatedAt
+}
+
+query Dispute($id: String!) {
+  dispute(id: $id) {
+    ...DisputeFields
+  }
+}
+
+query DisputesByAccountId($after: String, $before: String, $first: Int, $last: Int, $orderBy: DisputeOrder) {
+  allDisputesByAccountId(after: $after, before: $before, first: $first, last: $last, orderBy: $orderBy) {
+    edges {
+      cursor
+      node {
+        ...DisputeFields
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
+    }
+  }
+}
+
+mutation CreateDispute($input: CreateDisputeInput!) {
+  createDispute(data: $input) {
+    id
+  }
+}
+
+mutation UpdateDispute($input: UpdateDisputeInput!) {
+  updateDispute(data: $input) {
+    id
+  }
+}

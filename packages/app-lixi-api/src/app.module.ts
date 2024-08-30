@@ -98,16 +98,16 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
       useFactory: (config: ConfigService) => ({
         networks: {
           xec: {
-            clientUrls: [`${config.get<string>('CHRONIK_URL')}/xec` || 'https://chronik.be.cash/xec'],
-            nodeUrls: ['https://chronik.pay2stay.com/xec']
+            clientUrls: [`${config.get<string>('CHRONIK_XEC_URL')}` || 'https://chronik.be.cash/xec'],
+            nodeUrls: [`${config.get<string>('CHRONIK_XEC_URL')}`]
           },
           xpi: {
-            clientUrls: [`${config.get<string>('CHRONIK_URL')}/xpi` || 'https://chronik.be.cash/xpi'],
-            nodeUrls: ['https://chronik.pay2stay.com/xpi']
+            clientUrls: [`${config.get<string>('CHRONIK_XPI_URL')}/xpi` || 'https://chronik.be.cash/xpi'],
+            nodeUrls: [`${config.get<string>('CHRONIK_XPI_URL')}/xpi`]
           },
           xrg: {
-            clientUrls: [`${config.get<string>('CHRONIK_URL')}/xrg` || 'https://chronik.be.cash/xrg'],
-            nodeUrls: ['https://chronik.pay2stay.com/xrg']
+            clientUrls: [`${config.get<string>('CHRONIK_XRG_URL')}/xrg` || 'https://chronik.be.cash/xrg'],
+            nodeUrls: [`${config.get<string>('CHRONIK_XRG_URL')}/xrg`]
           }
         }
       })

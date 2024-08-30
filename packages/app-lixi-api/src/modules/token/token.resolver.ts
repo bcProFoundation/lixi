@@ -11,10 +11,10 @@ import {
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
-import { ChronikClient } from 'chronik-client';
+import { ChronikClientNode } from 'chronik-client';
 import moment from 'moment';
 import { I18n, I18nContext, I18nService } from 'nestjs-i18n';
-import { InjectChronikClient } from 'nestjs-chronik';
+import { InjectChronikClientNode } from 'nestjs-chronik';
 import { AccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from 'src/modules/auth/guards/gql-jwtauth.guard';
@@ -39,7 +39,7 @@ export class TokenResolver {
     private readonly tokenLoader: TokenLoader,
     private readonly totalDanaViewScoreLoader: TotalDanaViewScoreLoader,
     @I18n() private readonly i18n: I18nService,
-    @InjectChronikClient('xec') private chronik: ChronikClient
+    @InjectChronikClientNode('xec') private chronik: ChronikClientNode
   ) {}
 
   @Query(() => Token)
@@ -81,14 +81,14 @@ export class TokenResolver {
 
         const tokenToInsert = {
           tokenId: tokenId,
-          name: tokenInfo?.slpTxData?.genesisInfo?.tokenName,
-          ticker: tokenInfo?.slpTxData?.genesisInfo?.tokenTicker,
-          decimals: tokenInfo?.slpTxData?.genesisInfo?.decimals,
-          initialTokenQuantity: tokenInfo?.initialTokenQuantity,
-          tokenType: tokenInfo?.slpTxData?.slpMeta?.tokenType,
-          tokenDocumentUrl: tokenInfo?.slpTxData?.genesisInfo?.tokenDocumentUrl,
-          totalBurned: tokenInfo?.tokenStats?.totalBurned,
-          totalMinted: tokenInfo?.tokenStats?.totalMinted,
+          name: tokenInfo?.genesisInfo?.tokenName,
+          ticker: tokenInfo?.genesisInfo?.tokenTicker,
+          decimals: tokenInfo?.genesisInfo?.decimals,
+          initialTokenQuantity: '0',
+          tokenType: '0',
+          tokenDocumentUrl: tokenInfo?.genesisInfo?.url,
+          totalBurned: '0',
+          totalMinted: '0',
           createdDate: moment(tokenInfo?.block?.timestamp, 'X').toDate(),
           comments: moment().toDate()
         };
