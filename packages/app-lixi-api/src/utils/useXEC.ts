@@ -1,7 +1,7 @@
 import { cashaddrToHash160, fromCoinToSatoshis, fromSmallestDenomination } from './cashMethods';
 // import ecies from 'ecies-lite';
 import BigNumber from 'bignumber.js';
-import { ChronikClientNode, Utxo } from 'chronik-client';
+import { ChronikClientNode, Utxo_InNode } from 'chronik-client';
 import { COIN, coinInfo } from '@bcpros/lixi-models';
 import {
   ALL_BIP143,
@@ -76,7 +76,7 @@ export default function useXEC() {
   const sendXec = async (
     chronik: ChronikClientNode,
     fundingWif: string,
-    utxos: Array<Utxo & { address: string }>,
+    utxos: Array<Utxo_InNode & { address: string }>,
     feeInSatsPerByte: number,
     optionalOpReturnMsg: string | undefined,
     isOneToMany: boolean,

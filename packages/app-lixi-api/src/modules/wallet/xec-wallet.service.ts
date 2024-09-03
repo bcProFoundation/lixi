@@ -8,7 +8,10 @@ import { WalletService } from './wallet.service';
 import { coinInfo, COIN } from '@bcpros/lixi-models';
 import useXEC from 'src/utils/useXEC';
 import HDNode from '@bcpros/xpi-js/types/hdnode';
-import { getUtxoWif } from 'src/utils/cashMethods';
+import { getUtxoWif } from 'src/utils/cashMethodsNode';
+import { getUtxosChronik, organizeUtxosByType } from 'src/utils/chronik-node';
+import { getXecWalletBalanceFromUtxos } from 'src/utils/cashMethodsNode';
+import { WalletStatusNode } from './wallet.model';
 
 @Injectable()
 export class XecWalletService extends WalletService {
@@ -25,8 +28,37 @@ export class XecWalletService extends WalletService {
     super(XPI, chronik);
   }
 
+  async getXecWalletStatus(hash160AndAddressObjArray: Hash160AndAddress[]): Promise<WalletStatusNode> {
+    const chronikUtxos = await getUtxosChronik(this.chronikNode, hash160AndAddressObjArray);
+
+    const { nonSlpUtxos, preliminarySlpUtxos } = organizeUtxosByType(chronikUtxos);
+
+    const walletStatus: WalletStatusNode = {
+      balances: getXecWalletBalanceFromUtxos(nonSlpUtxos),
+      slpBalancesAndUtxos: {
+        nonSlpUtxos,
+        preliminarySlpUtxos
+      },
+      utxos: chronikUtxos
+    };
+
+    return walletStatus;
+  }
+
   async deriveAccount({ masterHDNode, path }: { masterHDNode: any; path: string }) {
     return super.deriveAccount({ masterHDNode, path });
+  }
+
+  async getXecBalances(address: string) {
+    const hash = this.XPI.Address.toHash160(address);
+    const walletStatus = await this.getXecWalletStatus([
+      {
+        address: address,
+        hash160: hash
+      }
+    ]);
+    const { balances } = walletStatus;
+    return balances;
   }
 
   async deriveAddress(
@@ -43,7 +75,7 @@ export class XecWalletService extends WalletService {
     const publicKey = this.XPI.HDNode.toPublicKey(childNode).toString('hex');
     const keyPair = this.XPI.HDNode.toKeyPair(childNode);
 
-    const balance = await this.getBalances(xAddress);
+    const balance = await this.getXecBalances(xAddress);
 
     return {
       address: xAddress,
@@ -63,7 +95,7 @@ export class XecWalletService extends WalletService {
         hash160: item.hash160
       };
     });
-    const walletStatus = await super.getWalletStatus(hash160AndAddressObjArray);
+    const walletStatus = await this.getXecWalletStatus(hash160AndAddressObjArray);
     const { slpBalancesAndUtxos } = walletStatus;
     const fundingWif = getUtxoWif(slpBalancesAndUtxos.nonSlpUtxos[0], sendWalletPath, COIN.XEC);
 
