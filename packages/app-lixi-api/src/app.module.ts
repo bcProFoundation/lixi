@@ -99,8 +99,8 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
       useFactory: (config: ConfigService) => ({
         networks: {
           xec: {
-            clientUrls: [`${config.get<string>('CHRONIK_XEC_URL')}` || 'https://chronik.be.cash/xec'],
-            nodeUrls: [`${config.get<string>('CHRONIK_XEC_URL')}`]
+            clientUrls: [`${config.get<string>('CHRONIK_XEC_URL')}/xec` || 'https://chronik.be.cash/xec'],
+            nodeUrls: [`${config.get<string>('CHRONIK_XEC_URL')}/xec`]
           },
           xpi: {
             clientUrls: [`${config.get<string>('CHRONIK_XPI_URL')}/xpi` || 'https://chronik.be.cash/xpi'],
@@ -217,21 +217,21 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
     BurnHistoryModule,
     DanaModule,
     EscrowModule,
-    BoostFeeModule,
-    TelegramBotModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const localEcashBotToken = configService.get<string>('TELEGRAM_LOCAL_ECASH_BOT_TOKEN')!;
+    BoostFeeModule
+    // TelegramBotModule.forRootAsync({
+    //   inject: [ConfigService],
+    //   useFactory: (configService: ConfigService) => {
+    //     const localEcashBotToken = configService.get<string>('TELEGRAM_LOCAL_ECASH_BOT_TOKEN')!;
 
-        return {
-          local_ecash: localEcashBotToken
-            ? {
-                token: localEcashBotToken
-              }
-            : undefined
-        } as TelegramBotModuleOptions;
-      }
-    })
+    //     return {
+    //       local_ecash: localEcashBotToken
+    //         ? {
+    //             token: localEcashBotToken
+    //           }
+    //         : undefined
+    //     } as TelegramBotModuleOptions;
+    //   }
+    // })
   ],
   controllers: [],
   providers: [
