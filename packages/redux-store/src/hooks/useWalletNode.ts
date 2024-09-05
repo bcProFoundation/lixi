@@ -46,7 +46,7 @@ export const useWallet = () => {
   const [chronikWebsocket, setChronikWebsocket] = useState<WsEndpoint_InNode>(null);
   const [apiError, setApiError] = useState(false);
   const [chronik, setChronik] = useState<ChronikClientNode>(
-    new ChronikClientNode([`${process.env.NEXT_PUBLIC_CHRONIK_URL}/xec`])
+    new ChronikClientNode([`${process.env.NEXT_PUBLIC_CHRONIK_URL}`])
   );
   const { getXPI } = useXPI();
   const XPI = getXPI();
@@ -75,7 +75,7 @@ export const useWallet = () => {
         break;
     }
 
-    setChronik(new ChronikClientNode([`${process.env.NEXT_PUBLIC_CHRONIK_URL}/xec`]));
+    setChronik(new ChronikClientNode([`${process.env.NEXT_PUBLIC_CHRONIK_URL}`]));
   }, [selectedAccount]);
 
   const getWalletPathDetails = async (mnemonic: string, paths: string[]): Promise<WalletPathAddressInfo[]> => {
@@ -407,9 +407,7 @@ export const useWallet = () => {
   };
 
   const getUtxosByCoin = async (coin: COIN) => {
-    const chronikByCoin: ChronikClientNode = new ChronikClientNode([
-      `${process.env.NEXT_PUBLIC_CHRONIK_URL}/${coin.toLowerCase()}`
-    ]);
+    const chronikByCoin: ChronikClientNode = new ChronikClientNode([`${process.env.NEXT_PUBLIC_CHRONIK_URL}`]);
 
     let currentCoinAddress = undefined;
     switch (coin) {
