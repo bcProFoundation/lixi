@@ -14,7 +14,7 @@ import _ from 'lodash';
 import { TimelineItemService } from '../timeline/timeline-item.service';
 import { PostCacheService } from '../page/post-cache.service';
 import OfferLoader from './offer.loader';
-import { RedisKeySpaceNotification } from './redis-keySpace-notification.service';
+import { RedisKeySpaceNotification } from './redis-keyspace-notification.service';
 
 @Module({
   imports: [

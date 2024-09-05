@@ -114,7 +114,8 @@ export function useXEC() {
       });
 
       const feeInSatsPerKByte = feeInSatsPerByte * 1000;
-      const tx = txBuild.sign(ecc, feeInSatsPerKByte, dustFee);
+      const roundedFeeInSatsPerKByte = parseInt(feeInSatsPerKByte.toFixed(0));
+      const tx = txBuild.sign(ecc, roundedFeeInSatsPerKByte, dustFee);
       const rawTx = tx.ser();
 
       let broadcastResponse;
