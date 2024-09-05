@@ -407,9 +407,7 @@ export const useWallet = () => {
   };
 
   const getUtxosByCoin = async (coin: COIN) => {
-    const chronikByCoin: ChronikClientNode = new ChronikClientNode([
-      `${process.env.NEXT_PUBLIC_CHRONIK_URL}/${coin.toLowerCase()}`
-    ]);
+    const chronikByCoin: ChronikClientNode = new ChronikClientNode([`${process.env.NEXT_PUBLIC_CHRONIK_URL}`]);
 
     let currentCoinAddress = undefined;
     switch (coin) {
