@@ -4,6 +4,15 @@
 
 ### Patch Changes
 
+- Updated dependencies
+  - @bcpros/redux-store@1.2.7
+  - @bcpros/lixi-models@1.2.7
+  - @bcpros/lixi-prisma@1.2.7
+
+## 1.1.6
+
+### Patch Changes
+
 - Updated dependencies [b4f08cf]
   - @bcpros/redux-store@1.2.6
   - @bcpros/lixi-models@1.2.6

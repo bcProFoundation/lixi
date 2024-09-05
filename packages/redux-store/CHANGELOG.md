@@ -1,5 +1,13 @@
 # @bcpros/redux-store
 
+## 1.2.7
+
+### Patch Changes
+
+- Update socket url
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.7
+
 ## 1.2.6
 
 ### Patch Changes

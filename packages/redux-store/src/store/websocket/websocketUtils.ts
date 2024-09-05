@@ -1,16 +1,15 @@
 import { io, Socket } from 'socket.io-client';
+import _ from 'lodash';
 
-const baseUrl = process.env.NEXT_PUBLIC_LIXI_API ? process.env.NEXT_PUBLIC_LIXI_API : 'https://lixi.social';
-const socketServerUrl = `${baseUrl}/ws/notifications`;
-
-export const connectWebSocket = (): Promise<Socket> => {
+export const connectWebSocket = (baseSocketUrl: string): Promise<Socket> => {
   return new Promise<Socket>((resolve, reject) => {
     let socket: Socket;
     let reconnectAttempts = 0;
     const maxReconnectAttempts = 5;
     const reconnectDelay = 5000;
 
-    const setupSocket = () => {
+    const setupSocket = (socketUrl: string) => {
+      const socketServerUrl = `${_.trimEnd(socketUrl, '/')}/ws/notifications`;
       socket = io(socketServerUrl, {
         transports: ['websocket'],
         reconnection: true,
@@ -42,19 +41,9 @@ export const connectWebSocket = (): Promise<Socket> => {
 
       socket.on('disconnect', () => {
         console.log('WebSocket disconnected');
-        /* I dont know if we need to reconnect here?? */
-
-        // if (reconnectAttempts < maxReconnectAttempts) {
-        //   reconnectAttempts++;
-        //   console.log('Attempting to reconnect...');
-        //   setTimeout(setupSocket, reconnectDelay);
-        // } else {
-        //   console.log('WebSocket connection failed after maximum reconnect attempts.');
-        //   reject('WebSocket connection failed after maximum reconnect attempts.');
-        // }
       });
     };
 
-    setupSocket();
+    setupSocket(baseSocketUrl);
   });
 };

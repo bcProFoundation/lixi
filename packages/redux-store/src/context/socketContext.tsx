@@ -23,15 +23,25 @@ export const useSocket = () => {
   return useContext(SocketContext);
 };
 
+
+const socketDefaltUrl = process.env.NEXT_PUBLIC_LIXI_API ? process.env.NEXT_PUBLIC_LIXI_API : 'https://lixi.social';
+
 export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [socketUrl, setSocketUrl] = useState<string>(socketDefaltUrl);
   const dispatch = useSliceDispatch();
   const selectedAccount = useSliceSelector(getSelectedAccount);
   const previousSelectedAccount: Account = usePrevious(selectedAccount);
 
+
+  // You would call this function when you need to change the URL
+  const changeSocketUrl = (newUrl: string) => {
+    setSocketUrl(newUrl);
+  };
+
   useEffect(() => {
     const setupSocket = async () => {
-      const newSocket = await connectWebSocket();
+      const newSocket = await connectWebSocket(socketUrl ?? socketDefaltUrl);
       setSocket(newSocket);
     };
 
@@ -42,7 +52,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
         socket.disconnect();
       }
     };
-  }, []);
+  }, [socketUrl]);
 
   useEffect(() => {
     if (socket) {
@@ -66,7 +76,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       if (socket) socket.disconnect();
 
       const setupSocket = async () => {
-        const newSocket = await connectWebSocket();
+        const newSocket = await connectWebSocket(socketUrl);
         setSocket(newSocket);
       };
 
@@ -75,6 +85,6 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   }, [selectedAccount]);
 
   return (
-    <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
+    <SocketContext.Provider value={{ socket, changeSocketUrl }}>{children}</SocketContext.Provider>
   );
 }

@@ -1,5 +1,11 @@
 # @bcpros/lixi-prisma
 
+## 1.2.7
+
+### Patch Changes
+
+- Update socket url
+
 ## 1.2.6
 
 ### Patch Changes
