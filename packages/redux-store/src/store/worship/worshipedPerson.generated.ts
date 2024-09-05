@@ -49,7 +49,7 @@ export type WorshipedPersonFieldsFragment = {
     };
   } | null;
   country?: { __typename?: 'Country'; id: string; name: string } | null;
-  state?: { __typename?: 'State'; id: string; name: string } | null;
+  state?: { __typename?: 'State'; id: string; name?: string | null } | null;
   city?: { __typename?: 'City'; id: string; name: string } | null;
 };
 
@@ -111,7 +111,7 @@ export type WorshipedPersonQuery = {
       };
     } | null;
     country?: { __typename?: 'Country'; id: string; name: string } | null;
-    state?: { __typename?: 'State'; id: string; name: string } | null;
+    state?: { __typename?: 'State'; id: string; name?: string | null } | null;
     city?: { __typename?: 'City'; id: string; name: string } | null;
   };
 };
@@ -192,7 +192,7 @@ export type WorshipedPeopleQuery = {
           };
         } | null;
         country?: { __typename?: 'Country'; id: string; name: string } | null;
-        state?: { __typename?: 'State'; id: string; name: string } | null;
+        state?: { __typename?: 'State'; id: string; name?: string | null } | null;
         city?: { __typename?: 'City'; id: string; name: string } | null;
       };
     }> | null;
@@ -256,7 +256,7 @@ export type WorshipedPeopleByUserIdQuery = {
           };
         } | null;
         country?: { __typename?: 'Country'; id: string; name: string } | null;
-        state?: { __typename?: 'State'; id: string; name: string } | null;
+        state?: { __typename?: 'State'; id: string; name?: string | null } | null;
         city?: { __typename?: 'City'; id: string; name: string } | null;
       };
     }> | null;
@@ -318,7 +318,7 @@ export type WorshipedPersonBySearchQuery = {
           };
         } | null;
         country?: { __typename?: 'Country'; id: string; name: string } | null;
-        state?: { __typename?: 'State'; id: string; name: string } | null;
+        state?: { __typename?: 'State'; id: string; name?: string | null } | null;
         city?: { __typename?: 'City'; id: string; name: string } | null;
       };
     }> | null;
@@ -382,7 +382,7 @@ export type WorshipedPeopleSpecialDateQuery = {
           };
         } | null;
         country?: { __typename?: 'Country'; id: string; name: string } | null;
-        state?: { __typename?: 'State'; id: string; name: string } | null;
+        state?: { __typename?: 'State'; id: string; name?: string | null } | null;
         city?: { __typename?: 'City'; id: string; name: string } | null;
       };
     }> | null;
@@ -575,7 +575,7 @@ export type CreateWorshipedPersonMutation = {
       };
     } | null;
     country?: { __typename?: 'Country'; id: string; name: string } | null;
-    state?: { __typename?: 'State'; id: string; name: string } | null;
+    state?: { __typename?: 'State'; id: string; name?: string | null } | null;
     city?: { __typename?: 'City'; id: string; name: string } | null;
   };
 };

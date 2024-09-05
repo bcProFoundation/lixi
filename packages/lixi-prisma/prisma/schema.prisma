@@ -663,6 +663,7 @@ model Country {
   worshipedPerson WorshipedPerson[]
   temples         Temple[]
   Product         Product[]
+  Offer           Offer[]
 
   @@map("country")
 }
@@ -687,6 +688,7 @@ model State {
   worshipedPerson WorshipedPerson[]
   temples         Temple[]
   Product         Product[]
+  Offer           Offer[]
 
   @@index([countryId], map: "idx_158799_country_region")
   @@map("state")
@@ -1308,7 +1310,7 @@ model Dispute {
 
 model Offer {
   post           Post                 @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId         String               @unique
+  postId         String               @unique @map("post_id")
   publicKey      String               @map("public_key")
   message        String
   price          String
@@ -1318,8 +1320,11 @@ model Offer {
   type           OfferType            @default(SELL)
   paymentMethods OfferPaymentMethod[]
   status         OfferStatus          @default(ACTIVE)
-  location       String?
   escrowOrders   EscrowOrder[]
+  country        Country?             @relation(fields: [countryId], references: [id])
+  countryId      Int?                 @map("country_id")
+  state          State?               @relation(fields: [stateId], references: [id])
+  stateId        Int?                 @map("state_id")
   createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz
   updatedAt      DateTime             @default(now()) @map("updated_at") @db.Timestamptz
 

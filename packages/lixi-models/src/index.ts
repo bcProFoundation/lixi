@@ -74,6 +74,7 @@ export * from './lib/escrow/inputs/createOffer.input';
 export * from './lib/escrow/inputs/dispute-order.input';
 export * from './lib/escrow/inputs/escrow-order-order.input';
 export * from './lib/escrow/inputs/offer-order.input';
+export * from './lib/escrow/inputs/offer-filter.input';
 export * from './lib/escrow/offer-payment-method.model';
 export * from './lib/escrow/offer.model';
 export * from './lib/escrow/pagination/dispute-connection.model';

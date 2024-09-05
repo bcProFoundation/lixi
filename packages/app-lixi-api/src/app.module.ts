@@ -44,6 +44,7 @@ import { EscrowModule } from './modules/escrow/escrow.module';
 import { BoostFeeModule } from './modules/boost-fee/boostFee.modules';
 import { TelegramBotModule } from './modules/telegram/telegram-bot.module';
 import { TelegramBotModuleOptions } from './modules/telegram/telegram-bot.interface';
+import { REDIS_CLIENTS_KEYSPACE_NOTIFICATION } from './common/redis/redis.constants';
 
 //enabled serving multiple static for fastify
 type FastifyServeStaticModuleOptions = ServeStaticModuleOptions & {
@@ -167,12 +168,20 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
     RedisModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        config: {
-          keyPrefix: 'lixilotus:',
-          enableAutoPipelining: true,
-          host: config.get<string>('REDIS_HOST') ? config.get<string>('REDIS_HOST') : 'redis-lixi',
-          port: config.get<string>('REDIS_PORT') ? _.toSafeInteger(config.get<string>('REDIS_PORT')) : 6379
-        }
+        enableAutoPipelining: true,
+        config: [
+          {
+            keyPrefix: 'lixilotus:',
+            host: config.get<string>('REDIS_HOST') ? config.get<string>('REDIS_HOST') : 'redis-lixi',
+            port: config.get<string>('REDIS_PORT') ? _.toSafeInteger(config.get<string>('REDIS_PORT')) : 6379
+          },
+          {
+            namespace: REDIS_CLIENTS_KEYSPACE_NOTIFICATION,
+            keyPrefix: 'lixilotus:',
+            host: config.get<string>('REDIS_HOST') ? config.get<string>('REDIS_HOST') : 'redis-lixi',
+            port: config.get<string>('REDIS_PORT') ? _.toSafeInteger(config.get<string>('REDIS_PORT')) : 6379
+          }
+        ]
       })
     }),
     WalletModule,

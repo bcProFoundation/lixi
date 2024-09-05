@@ -131,10 +131,14 @@ export type TimelineQuery = {
         orderLimitMin: number;
         orderLimitMax: number;
         status: Types.OfferStatus;
+        stateId?: number | null;
+        countryId?: number | null;
         paymentMethods: Array<{
           __typename?: 'OfferPaymentMethod';
           paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
         }>;
+        state?: { __typename?: 'State'; name?: string | null } | null;
+        country?: { __typename?: 'Country'; name: string } | null;
       } | null;
     };
   };
@@ -265,10 +269,14 @@ export type HomeTimelineQuery = {
             orderLimitMin: number;
             orderLimitMax: number;
             status: Types.OfferStatus;
+            stateId?: number | null;
+            countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
+            state?: { __typename?: 'State'; name?: string | null } | null;
+            country?: { __typename?: 'Country'; name: string } | null;
           } | null;
         };
       };
@@ -402,10 +410,14 @@ export type ProfileTimelineQuery = {
             orderLimitMin: number;
             orderLimitMax: number;
             status: Types.OfferStatus;
+            stateId?: number | null;
+            countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
+            state?: { __typename?: 'State'; name?: string | null } | null;
+            country?: { __typename?: 'Country'; name: string } | null;
           } | null;
         };
       };
@@ -540,10 +552,14 @@ export type ProfileTimelineByTimeQuery = {
             orderLimitMin: number;
             orderLimitMax: number;
             status: Types.OfferStatus;
+            stateId?: number | null;
+            countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
+            state?: { __typename?: 'State'; name?: string | null } | null;
+            country?: { __typename?: 'Country'; name: string } | null;
           } | null;
         };
       };
@@ -677,10 +693,14 @@ export type PageTimelineQuery = {
             orderLimitMin: number;
             orderLimitMax: number;
             status: Types.OfferStatus;
+            stateId?: number | null;
+            countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
+            state?: { __typename?: 'State'; name?: string | null } | null;
+            country?: { __typename?: 'Country'; name: string } | null;
           } | null;
         };
       };
@@ -815,10 +835,14 @@ export type PageTimelineByTimeQuery = {
             orderLimitMin: number;
             orderLimitMax: number;
             status: Types.OfferStatus;
+            stateId?: number | null;
+            countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
+            state?: { __typename?: 'State'; name?: string | null } | null;
+            country?: { __typename?: 'Country'; name: string } | null;
           } | null;
         };
       };
@@ -952,10 +976,14 @@ export type TokenTimelineQuery = {
             orderLimitMin: number;
             orderLimitMax: number;
             status: Types.OfferStatus;
+            stateId?: number | null;
+            countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
+            state?: { __typename?: 'State'; name?: string | null } | null;
+            country?: { __typename?: 'Country'; name: string } | null;
           } | null;
         };
       };
@@ -1090,10 +1118,14 @@ export type TokenTimelineByTimeQuery = {
             orderLimitMin: number;
             orderLimitMax: number;
             status: Types.OfferStatus;
+            stateId?: number | null;
+            countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
+            state?: { __typename?: 'State'; name?: string | null } | null;
+            country?: { __typename?: 'Country'; name: string } | null;
           } | null;
         };
       };

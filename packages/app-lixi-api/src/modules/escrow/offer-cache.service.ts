@@ -1,4 +1,4 @@
-import { BoostForType, COIN, Offer, OfferStatus, OfferType } from '@bcpros/lixi-models';
+import { BoostForType, COIN, Offer, OfferFilterInput, OfferStatus, OfferType, POST_TYPE } from '@bcpros/lixi-models';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { decode, encode } from '@msgpack/msgpack';
 import { Logger } from '@nestjs/common';
@@ -9,6 +9,9 @@ import { basicSortedSetPagination } from 'src/common/custom-graphql-relay/pagina
 import { Prisma } from '@bcpros/lixi-prisma';
 import { epoch } from 'src/utils/constants';
 import { template } from 'src/utils/stringTemplate';
+import stringify from 'json-stable-stringify';
+import { IndexNameOffer } from './escrow.contants';
+import ReSearch from 'src/common/redis/redis-search';
 
 export class OfferCacheService {
   private logger: Logger = new Logger(this.constructor.name);
@@ -17,6 +20,7 @@ export class OfferCacheService {
   //timeline for offer boost
   static offerBoostingTimeline = 'timeline:offer:boosting:showAll';
   static myOfferTimeline = 'timeline:offer:{{accountId}}:{{offerStatus}}';
+  static timelineOfferFilter = 'timeline:offer:{{keyFilter}}';
 
   constructor(
     private readonly prisma: PrismaService,
@@ -118,6 +122,31 @@ export class OfferCacheService {
       const shouldPaginate = await this.cacheOfferTimelineByScore(limit, offset);
       if (shouldPaginate) {
         return await basicSortedSetPagination(this.redis, key, first, after);
+      }
+    }
+    // nothing change
+    return paginated;
+  }
+
+  async getOfferFilterPaginatedTimeline(offerFilterInput: OfferFilterInput, first: number = 20, after?: string) {
+    const { countryId, stateId, paymentMethodIds } = offerFilterInput;
+    //sort array payment
+    if (paymentMethodIds && paymentMethodIds.length > 0) {
+      offerFilterInput.paymentMethodIds = offerFilterInput.paymentMethodIds?.sort();
+    }
+    const keyFilter = _.isObject(offerFilterInput) ? stringify(offerFilterInput) : offerFilterInput;
+
+    const keyTimeline = template(`${OfferCacheService.timelineOfferFilter}`, { keyFilter });
+    const exist = await this.redis.exists([keyTimeline]);
+    if (!exist) {
+      await this.cacheOfferFilterTimeline(offerFilterInput, keyTimeline, keyFilter);
+    }
+    const paginated = await basicSortedSetPagination(this.redis, keyTimeline, first, after);
+    const hasNextPage = paginated.pageInfo.hasNextPage;
+    if (!hasNextPage) {
+      const shouldPaginate = await this.cacheOfferFilterTimeline(offerFilterInput, keyTimeline, keyFilter);
+      if (shouldPaginate) {
+        return await basicSortedSetPagination(this.redis, keyTimeline, first, after);
       }
     }
     // nothing change
@@ -251,6 +280,215 @@ export class OfferCacheService {
         pipeline.zincrby(key, post.createdAt.getTime(), id);
       }
       pipeline.expire(key, 2592000);
+      await pipeline.exec();
+      return true;
+    } catch (err) {
+      this.logger.error(err);
+    }
+  }
+
+  private async cacheOfferFilterTimeline(
+    offerFilterInput: OfferFilterInput,
+    combinationKey: string,
+    keyFilter: string
+  ) {
+    try {
+      const reSearch = new ReSearch(this.redis);
+      const { countryId, stateId, paymentMethodIds } = offerFilterInput;
+      let keyPaymentMethods = '';
+      let totalKeyPaymentMethods = 0;
+      //get cache payment-methods
+      if (paymentMethodIds && paymentMethodIds.length > 1) {
+        keyPaymentMethods = `offer:method:{${paymentMethodIds.join('-')}}`;
+        totalKeyPaymentMethods = paymentMethodIds.length;
+
+        let multiSetUnion: string[] = [];
+        for (let i = 0; i < totalKeyPaymentMethods; i++) {
+          const keyMethod = `offer:method:{${paymentMethodIds[i]}}`;
+          const existKeyMethod = await this.redis.exists([keyMethod]);
+          if (!existKeyMethod) await this.cacheOfferMethodId(paymentMethodIds[i]);
+          multiSetUnion.push(keyMethod);
+        }
+
+        await this.redis.zunionstore(keyPaymentMethods, totalKeyPaymentMethods, multiSetUnion, 'AGGREGATE', 'MAX');
+
+        //expire key intermediate
+        await this.redis.expire(keyPaymentMethods, 60 * 60 * 24 * 30); //1 month
+      }
+
+      //count total key intersect
+      let totalKeyInter = 0;
+      let multiSetInter: string[] = [];
+
+      if (countryId) {
+        //check key countryId
+        const keyCountry = `offer:country:{${countryId}}`;
+        const existKeyCountry = await this.redis.exists([keyCountry]);
+        if (!existKeyCountry) this.cacheOfferCountryId(countryId);
+
+        totalKeyInter += 1;
+        multiSetInter.push(keyCountry);
+      }
+      if (stateId) {
+        //check key stateId
+        const keyState = `offer:state:{${stateId}}`;
+        const existKeyState = await this.redis.exists([keyState]);
+        if (!existKeyState) await this.cacheOfferStateId(stateId);
+
+        totalKeyInter += 1;
+        multiSetInter.push(`offer:state:{${stateId}}`);
+      }
+      if (totalKeyPaymentMethods !== 0) {
+        //means have >2
+        totalKeyInter += 1;
+        multiSetInter.push(keyPaymentMethods);
+      } else if (paymentMethodIds && paymentMethodIds.length === 1) {
+        const keyMethod = `offer:method:{${paymentMethodIds[0]}}`;
+        const existKeyMethod = await this.redis.exists([keyMethod]);
+        if (!existKeyMethod) await this.cacheOfferMethodId(paymentMethodIds[0]);
+
+        totalKeyInter += 1;
+        multiSetInter.push(`offer:method:{${paymentMethodIds[0]}}`);
+      }
+
+      //intersect cache
+      const docAdded = {
+        countryId: offerFilterInput?.countryId?.toString() ?? '',
+        stateId: offerFilterInput?.stateId?.toString() ?? '',
+        methods: offerFilterInput?.paymentMethodIds?.map(item => `${item}`)
+      };
+      //add cache and index
+      Promise.all([
+        this.redis.zinterstore(combinationKey, totalKeyInter, ...multiSetInter, 'AGGREGATE', 'MAX'),
+        reSearch.add(IndexNameOffer, `docOffer:${keyFilter}`, docAdded)
+      ]);
+
+      //expire key
+      await this.redis.expire(combinationKey, 60 * 60 * 24 * 30); //1 month
+
+      return true;
+    } catch (err) {
+      this.logger.error(err);
+      return false;
+    }
+  }
+
+  private async cacheOfferCountryId(countryId: number) {
+    const key = `offer:country:{${countryId}}`;
+    const postBoostType = BoostForType.Post;
+    const halfLife = '12 hours';
+    const query = Prisma.sql`
+      SELECT
+        offer.post_id,
+        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value)) AS score 
+      FROM
+        offer 
+        JOIN
+            boost_fee as boost 
+            ON offer.post_id = boost.boosted_for_id
+      WHERE
+        boost.boost_for_type = ${postBoostType} 
+        AND boost.boosted_value > 0
+        AND offer.country_id = ${countryId}
+      GROUP BY
+        offer.post_id
+      ORDER by
+        score desc
+    ;`;
+    try {
+      const posts = await this.prisma.$queryRaw<{ post_id: string; score: number }[]>(query);
+
+      // Check if there are any posts
+      // If not means that we should not need to query anymore
+      if (posts.length == 0) return false;
+      const pipeline = this.redis.pipeline();
+      for (const post of posts) {
+        const id = `${POST_TYPE.OFFER}:${post.post_id}`;
+        pipeline.zincrby(key, post.score ?? 0, id);
+      }
+      await pipeline.exec();
+      return true;
+    } catch (err) {
+      this.logger.error(err);
+    }
+  }
+
+  private async cacheOfferStateId(stateId: number) {
+    const key = `offer:state:{${stateId}}`;
+    const postBoostType = BoostForType.Post;
+    const halfLife = '12 hours';
+    const query = Prisma.sql`
+      SELECT
+        offer.post_id,
+        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value)) AS score 
+      FROM
+        offer 
+        JOIN
+            boost_fee as boost 
+            ON offer.post_id = boost.boosted_for_id
+      WHERE
+        boost.boost_for_type = ${postBoostType} 
+        AND boost.boosted_value > 0
+        AND offer.state_id = ${stateId}
+      GROUP BY
+        offer.post_id
+      ORDER by
+        score desc
+    ;`;
+    try {
+      const posts = await this.prisma.$queryRaw<{ post_id: string; score: number }[]>(query);
+
+      // Check if there are any posts
+      // If not means that we should not need to query anymore
+      if (posts.length == 0) return false;
+      const pipeline = this.redis.pipeline();
+      for (const post of posts) {
+        const id = `${POST_TYPE.OFFER}:${post.post_id}`;
+        pipeline.zincrby(key, post.score ?? 0, id);
+      }
+      await pipeline.exec();
+      return true;
+    } catch (err) {
+      this.logger.error(err);
+    }
+  }
+
+  private async cacheOfferMethodId(methodId: number) {
+    const key = `offer:method:{${methodId}}`;
+    const postBoostType = BoostForType.Post;
+    const halfLife = '12 hours';
+    const query = Prisma.sql`
+      SELECT
+        offer.post_id,
+        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value)) AS score 
+      FROM
+        offer 
+        JOIN
+            boost_fee as boost 
+            ON offer.post_id = boost.boosted_for_id
+        JOIN 
+            offer_payment_method as method
+            ON offer.post_id = method.offer_id
+      WHERE
+        boost.boost_for_type = ${postBoostType} 
+        AND boost.boosted_value > 0
+        AND method.payment_method_id = ${methodId}
+      GROUP BY
+        offer.post_id
+      ORDER by
+        score desc
+    ;`;
+    try {
+      const posts = await this.prisma.$queryRaw<{ post_id: string; score: number }[]>(query);
+
+      // Check if there are any posts
+      // If not means that we should not need to query anymore
+      if (posts.length == 0) return false;
+      const pipeline = this.redis.pipeline();
+      for (const post of posts) {
+        const id = `${POST_TYPE.OFFER}:${post.post_id}`;
+        pipeline.zincrby(key, post.score ?? 0, id);
+      }
       await pipeline.exec();
       return true;
     } catch (err) {

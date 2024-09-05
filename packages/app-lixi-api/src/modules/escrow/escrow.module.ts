@@ -13,6 +13,8 @@ import IORedis from 'ioredis';
 import _ from 'lodash';
 import { TimelineItemService } from '../timeline/timeline-item.service';
 import { PostCacheService } from '../page/post-cache.service';
+import OfferLoader from './offer.loader';
+import { RedisKeySpaceNotification } from './redis-keyspace-notification.service';
 
 @Module({
   imports: [
@@ -38,12 +40,14 @@ import { PostCacheService } from '../page/post-cache.service';
     DisputeResolver,
     EscrowOrderResolver,
     OfferResolver,
+    OfferLoader,
     OfferCacheService,
     Logger,
     PaymentMethodResolver,
     OfferPaymentMethodResolver,
     TimelineItemService,
-    PostCacheService
+    PostCacheService,
+    RedisKeySpaceNotification
   ],
   exports: [Logger]
 })

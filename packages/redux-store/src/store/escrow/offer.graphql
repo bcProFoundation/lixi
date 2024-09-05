@@ -25,6 +25,35 @@ query AllOffer($first: Int = 20, $after: String) {
   }
 }
 
+query OfferByFilter(
+  $first: Int = 20
+  $after: String
+  $offerFilterInput: OfferFilterInput!
+) {
+  offerByFilter(
+    first: $first
+    after: $after
+    offerFilterInput: $offerFilterInput
+  ) {
+    totalCount
+    edges {
+      cursor
+      node {
+        id
+        data {
+          __typename
+          ... on Post {
+            ...PostFields
+          }
+        }
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
 query AllOfferByAccount(
   $first: Int = 20
   $after: String

@@ -164,10 +164,14 @@ export type BookmarkTimelineQuery = {
             orderLimitMin: number;
             orderLimitMax: number;
             status: Types.OfferStatus;
+            stateId?: number | null;
+            countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
+            state?: { __typename?: 'State'; name?: string | null } | null;
+            country?: { __typename?: 'Country'; name: string } | null;
           } | null;
         };
       };
