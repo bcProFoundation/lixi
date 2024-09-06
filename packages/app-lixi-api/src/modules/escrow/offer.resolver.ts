@@ -36,6 +36,7 @@ import { createEdge } from 'src/common/custom-graphql-relay/paginate';
 import { TimelineItemService } from '../timeline/timeline-item.service';
 import { VError } from 'verror';
 import OfferLoader from './offer.loader';
+import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 
 @SkipThrottle()
 @Resolver(() => Offer)
@@ -51,7 +52,8 @@ export class OfferResolver {
     @InjectRedis() private readonly redis: Redis,
     private readonly offerCacheService: OfferCacheService,
     private readonly timelineItemService: TimelineItemService,
-    private readonly offerLoader: OfferLoader
+    private readonly offerLoader: OfferLoader,
+    private notificationGateway: NotificationGateway
   ) {}
 
   @Query(() => Offer)
@@ -223,6 +225,9 @@ export class OfferResolver {
 
     //add to cache
     await this.postFanoutQueue.add(CONTENT_FANOUT_QUEUE, { post: offer });
+
+    //emit new post
+    this.notificationGateway.publishNewPost();
     return offer;
   }
 

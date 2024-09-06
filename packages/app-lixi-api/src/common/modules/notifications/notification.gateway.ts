@@ -263,6 +263,10 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
     this.server.to(pageMessageSessionId).emit('sessionAction', message);
   }
 
+  publishNewPost() {
+    this.server.emit('new_post_created', 'New post created');
+  }
+
   /// Analytic events
   @UseGuards(WsAuthGuardByPass)
   @SubscribeMessage('analyticEvents')
