@@ -65,6 +65,18 @@ function createNotificationSocketChannel(socket: Socket) {
   });
 }
 
+function createNewPostNotificationHomeTimelineSocketChannel(socket: Socket) {
+  return eventChannel(emit => {
+    const handler = (data: Notification) => {
+      emit(data);
+    };
+    socket.on('new_post_created', handler);
+    return () => {
+      socket.off('new_post_created', handler);
+    };
+  });
+}
+
 // WebSocket Saga
 function* connectToChannelsSaga() {
   const socket = callConfig.call.socketContext;
@@ -72,13 +84,15 @@ function* connectToChannelsSaga() {
   const socketAddressChannel = yield call(createAddressSocketChannel, socket);
   const sessionActionSocketChannel = yield call(createSessionActionSocketChannel, socket);
   const notificationSocketChannel = yield call(createNotificationSocketChannel, socket);
+  const newPostHometimelineSocketChannel = yield call(createNewPostNotificationHomeTimelineSocketChannel, socket);
 
   while (true) {
-    const { message, payload, sessionAction, notification } = yield race({
+    const { message, payload, sessionAction, notification, newPost } = yield race({
       message: take(socketMessageChannel),
       payload: take(socketAddressChannel),
       sessionAction: take(sessionActionSocketChannel),
-      notification: take(notificationSocketChannel)
+      notification: take(notificationSocketChannel),
+      newPost: take(newPostHometimelineSocketChannel)
     });
 
     if (message) {
@@ -95,6 +109,10 @@ function* connectToChannelsSaga() {
 
     if (notification) {
       yield receiveNewNotification(notification);
+    }
+
+    if (newPost) {
+      yield put(setNewPostAvailable(true));
     }
   }
 }
