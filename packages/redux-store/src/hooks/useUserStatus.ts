@@ -17,7 +17,7 @@ const useUserStatus = () => {
   const previousSelectedAccount: Account = usePrevious(selectedAccount);
   const isServerStatusOn = useSliceSelector(getIsServerStatusOn);
   const deviceId = useSliceSelector(getDeviceId);
-  const socket = useSocket();
+  const { socket } = useSocket();
 
   useEffect(() => {
     if (selectedAccount && deviceId) {

@@ -9,19 +9,19 @@ import { callConfig } from '../../context/shareContext';
 
 function* userSubcribeToPageMessageSessionSaga(action: PayloadAction<string>) {
   const { payload } = action;
-  const socket = callConfig.call.socketContext;
+  const { socket } = callConfig.call.socketContext;
   socket.emit('subscribePageMessageSession', payload);
 }
 
 function* userSubcribeToMultiPageMessageSessionSaga(action: PayloadAction<number>) {
   const { payload } = action;
-  const socket = callConfig.call.socketContext;
+  const { socket } = callConfig.call.socketContext;
   socket.emit('subscribeMultiPageMessageSession', payload);
 }
 
 function* userSubcribeToAddressChannelSaga(action: PayloadAction<string>) {
   const { payload } = action;
-  const socket = callConfig.call.socketContext;
+  const { socket } = callConfig.call.socketContext;
   socket.emit('subscribeAddressChannel', payload);
 }
 

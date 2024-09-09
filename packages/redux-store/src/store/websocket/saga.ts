@@ -79,7 +79,7 @@ function createNewPostNotificationHomeTimelineSocketChannel(socket: Socket) {
 
 // WebSocket Saga
 function* connectToChannelsSaga() {
-  const socket = callConfig.call.socketContext;
+  const { socket } = callConfig.call.socketContext;
   const socketMessageChannel = yield call(createMessageSocketChannel, socket);
   const socketAddressChannel = yield call(createAddressSocketChannel, socket);
   const sessionActionSocketChannel = yield call(createSessionActionSocketChannel, socket);
@@ -167,7 +167,7 @@ function* receiveNewMessage(payload: PageMessageSession) {
   const { id, page } = payload;
   const account: AccountDto = yield select(getSelectedAccount);
   // subcribe to new message session
-  const socket = callConfig.call.socketContext;
+  const { socket } = callConfig.call.socketContext;
   socket.emit('subscribePageMessageSession', id);
 
   try {

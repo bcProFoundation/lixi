@@ -5,7 +5,7 @@ import { AnalyticEvent } from '@bcpros/lixi-models/lib/analytic-event/analytic-e
 import { callConfig } from '../../context/shareContext';
 
 function* batchEventsSaga(action: PayloadAction<AnalyticEvent[]>) {
-  const socket = callConfig.call.socketContext;
+  const { socket } = callConfig.call.socketContext;
   const { payload } = action;
   if (payload && payload.length > 0) {
     socket.emit('analyticEvents', payload);
