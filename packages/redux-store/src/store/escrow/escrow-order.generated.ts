@@ -33,6 +33,7 @@ export type EscrowOrderFieldsFragment = {
     publicKey?: string | null;
     hash160?: string | null;
     telegramId?: string | null;
+    telegramUsername?: string | null;
   };
   buyerAccount: {
     __typename?: 'Account';
@@ -40,6 +41,7 @@ export type EscrowOrderFieldsFragment = {
     publicKey?: string | null;
     hash160?: string | null;
     telegramId?: string | null;
+    telegramUsername?: string | null;
   };
   sellerAccount: {
     __typename?: 'Account';
@@ -47,6 +49,7 @@ export type EscrowOrderFieldsFragment = {
     publicKey?: string | null;
     hash160?: string | null;
     telegramId?: string | null;
+    telegramUsername?: string | null;
   };
   moderatorAccount: {
     __typename?: 'Account';
@@ -54,6 +57,7 @@ export type EscrowOrderFieldsFragment = {
     publicKey?: string | null;
     hash160?: string | null;
     telegramId?: string | null;
+    telegramUsername?: string | null;
   };
   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
   offer: { __typename?: 'Offer'; postId: string; message: string };
@@ -87,6 +91,7 @@ export type EscrowOrderQuery = {
       publicKey?: string | null;
       hash160?: string | null;
       telegramId?: string | null;
+      telegramUsername?: string | null;
     };
     buyerAccount: {
       __typename?: 'Account';
@@ -94,6 +99,7 @@ export type EscrowOrderQuery = {
       publicKey?: string | null;
       hash160?: string | null;
       telegramId?: string | null;
+      telegramUsername?: string | null;
     };
     sellerAccount: {
       __typename?: 'Account';
@@ -101,6 +107,7 @@ export type EscrowOrderQuery = {
       publicKey?: string | null;
       hash160?: string | null;
       telegramId?: string | null;
+      telegramUsername?: string | null;
     };
     moderatorAccount: {
       __typename?: 'Account';
@@ -108,6 +115,7 @@ export type EscrowOrderQuery = {
       publicKey?: string | null;
       hash160?: string | null;
       telegramId?: string | null;
+      telegramUsername?: string | null;
     };
     paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
     offer: { __typename?: 'Offer'; postId: string; message: string };
@@ -242,24 +250,28 @@ export const EscrowOrderFieldsFragmentDoc = `
     publicKey
     hash160
     telegramId
+    telegramUsername
   }
   buyerAccount {
     id
     publicKey
     hash160
     telegramId
+    telegramUsername
   }
   sellerAccount {
     id
     publicKey
     hash160
     telegramId
+    telegramUsername
   }
   moderatorAccount {
     id
     publicKey
     hash160
     telegramId
+    telegramUsername
   }
   paymentMethod {
     id

@@ -6,24 +6,28 @@ fragment EscrowOrderFields on EscrowOrder {
     publicKey
     hash160
     telegramId
+    telegramUsername
   }
   buyerAccount {
     id
     publicKey
     hash160
     telegramId
+    telegramUsername
   }
   sellerAccount {
     id
     publicKey
     hash160
     telegramId
+    telegramUsername
   }
   moderatorAccount {
     id
     publicKey
     hash160
     telegramId
+    telegramUsername
   }
   paymentMethod {
     id
