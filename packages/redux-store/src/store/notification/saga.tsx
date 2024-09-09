@@ -198,9 +198,8 @@ function* sendCoinNotificationSaga(action: PayloadAction<string>) {
 
 function* xpiReceivedNotificationWebSocketSaga(action: PayloadAction<string>) {
   const xpiAmount = new BigNumber(action.payload);
-  let description = `${'Lotus received'} ${xpiAmount.toLocaleString()} ${
-    coinInfo[COIN.XPI].ticker
-  }`;
+  let description = `${'Lotus received'} ${xpiAmount.toLocaleString()} ${coinInfo[COIN.XPI].ticker
+    }`;
   yield put(
     showToast('info', {
       message: intl.get('toast.info'),
@@ -211,13 +210,13 @@ function* xpiReceivedNotificationWebSocketSaga(action: PayloadAction<string>) {
 
 function* userOnlineSaga(action: PayloadAction<SocketUser>) {
   const { payload } = action;
-  const socket = callConfig.call.socketContext;
+  const { socket } = callConfig.call.socketContext;
   socket.emit('user_online', payload);
 }
 
 function* userOfflineSaga(action: PayloadAction<SocketUser>) {
   const { payload } = action;
-  const socket = callConfig.call.socketContext;
+  const { socket } = callConfig.call.socketContext;
   socket.emit('user_offline', payload);
 }
 
