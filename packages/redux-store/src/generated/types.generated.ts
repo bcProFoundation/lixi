@@ -577,30 +577,11 @@ export type Dispute = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export type DisputeConnection = {
-  __typename?: 'DisputeConnection';
-  edges?: Maybe<Array<DisputeEdge>>;
-  pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
 export type DisputeEdge = {
   __typename?: 'DisputeEdge';
   cursor: Scalars['String']['output'];
   node: Dispute;
 };
-
-export type DisputeOrder = {
-  direction: OrderDirection;
-  field: DisputeOrderField;
-};
-
-/** Properties by which offer connections can be ordered. */
-export enum DisputeOrderField {
-  CreatedAt = 'createdAt',
-  Id = 'id',
-  UpdatedAt = 'updatedAt'
-}
 
 /** The status of dispute. */
 export enum DisputeStatus {
@@ -634,7 +615,9 @@ export type EscrowOrder = {
   __typename?: 'EscrowOrder';
   amount: Scalars['Int']['output'];
   arbitratorAccount: Account;
+  arbitratorAccountId: Scalars['Int']['output'];
   buyerAccount: Account;
+  buyerAccountId: Scalars['Int']['output'];
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime']['output'];
   dispute?: Maybe<Dispute>;
@@ -644,6 +627,7 @@ export type EscrowOrder = {
   id: Scalars['ID']['output'];
   message?: Maybe<Scalars['String']['output']>;
   moderatorAccount: Account;
+  moderatorAccountId: Scalars['Int']['output'];
   nonce: Scalars['String']['output'];
   offer: Offer;
   offerId: Scalars['String']['output'];
@@ -653,16 +637,10 @@ export type EscrowOrder = {
   releaseTxid?: Maybe<Scalars['String']['output']>;
   returnTxid?: Maybe<Scalars['String']['output']>;
   sellerAccount: Account;
+  sellerAccountId: Scalars['Int']['output'];
   status: EscrowOrderStatus;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime']['output'];
-};
-
-export type EscrowOrderConnection = {
-  __typename?: 'EscrowOrderConnection';
-  edges?: Maybe<Array<EscrowOrderEdge>>;
-  pageInfo: PageInfo;
-  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type EscrowOrderEdge = {
@@ -670,20 +648,6 @@ export type EscrowOrderEdge = {
   cursor: Scalars['String']['output'];
   node: EscrowOrder;
 };
-
-export type EscrowOrderOrder = {
-  direction: OrderDirection;
-  field: EscrowOrderOrderField;
-};
-
-/** Properties by which escrow order connections can be ordered. */
-export enum EscrowOrderOrderField {
-  Amount = 'amount',
-  CreatedAt = 'createdAt',
-  Id = 'id',
-  Price = 'price',
-  UpdatedAt = 'updatedAt'
-}
 
 /** The status of escrow order. */
 export enum EscrowOrderStatus {
@@ -1633,8 +1597,9 @@ export type Query = {
   account: Account;
   allAccounts: AccountBasicConnection;
   allClosedPageMessageSession: PageMessageSessionConnection;
-  allDisputesByAccountId: DisputeConnection;
-  allEscrowOrderByOfferId: EscrowOrderConnection;
+  allDisputeByAccount: TimelineItemConnection;
+  allEscrowOrderByAccount: TimelineItemConnection;
+  allEscrowOrderByOfferId: TimelineItemConnection;
   allFollowersByFollowing: AccountConnection;
   allFollowersByPage: AccountBasicConnection;
   allFollowersByToken: AccountBasicConnection;
@@ -1740,24 +1705,24 @@ export type QueryAllClosedPageMessageSessionArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export type QueryAllDisputesByAccountIdArgs = {
+export type QueryAllDisputeByAccountArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
+  disputeStatus: DisputeStatus;
   first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<DisputeOrder>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryAllEscrowOrderByAccountArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  escrowOrderStatus: EscrowOrderStatus;
+  first?: InputMaybe<Scalars['Int']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryAllEscrowOrderByOfferIdArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   offerId: Scalars['String']['input'];
-  orderBy?: InputMaybe<EscrowOrderOrder>;
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -2369,8 +2334,6 @@ export type State = {
 export type Subscription = {
   __typename?: 'Subscription';
   bookmarkCreated: Bookmark;
-  disputeCreated: Dispute;
-  escrowOrderCreated: EscrowOrder;
   hashtagCreated: Hashtag;
   messageCreated: Message;
   pageMessageSessionCreated: PageMessageSession;
@@ -2449,7 +2412,7 @@ export type TimelineItemConnection = {
   totalCount: Scalars['Int']['output'];
 };
 
-export type TimelineItemData = Post;
+export type TimelineItemData = Dispute | EscrowOrder | Post;
 
 export type Token = {
   __typename?: 'Token';

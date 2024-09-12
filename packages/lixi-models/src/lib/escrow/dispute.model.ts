@@ -3,6 +3,7 @@ import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { EscrowOrder } from './escrow-order.model';
+import { Nullable } from '../nullable';
 
 @ObjectType()
 export class Dispute {
@@ -20,7 +21,7 @@ export class Dispute {
 
   @Field(() => String, { nullable: true })
   @IsOptional()
-  reason?: string;
+  reason?: Nullable<string>;
 
   @Field(() => DisputeStatus)
   status: DisputeStatus;
@@ -34,6 +35,10 @@ export class Dispute {
     description: 'Identifies the date and time when the object was last updated.'
   })
   updatedAt: Date;
+
+  constructor(partial: Partial<Dispute>) {
+    Object.assign(this, partial);
+  }
 }
 
 export enum DisputeStatus {

@@ -1,4 +1,5 @@
 import { RemoveBookmarkInput } from '@bcpros/lixi-models';
+import { PostQueryItem } from '@bcpros/redux-store';
 import AvatarUser from '@components/Common/AvatarUser';
 import { getSelectedAccountId } from '@store/account';
 import { useInfiniteBookmarkTimelineQuery } from '@store/bookmark';
@@ -151,31 +152,34 @@ function BookmarkContainer() {
             <List
               itemLayout="vertical"
               dataSource={data}
-              renderItem={item => (
-                <List.Item
-                  key={item.id}
-                  extra={
-                    <Button onClick={() => unBookmark(item.data)} className="button-unsaved">
-                      {intl.get('post.unSave')}
-                    </Button>
-                  }
-                >
-                  <List.Item.Meta
+              renderItem={item => {
+                const itemData = item.data as PostQueryItem;
+                return (
+                  <List.Item
                     key={item.id}
-                    avatar={
-                      <div onClick={() => router.push(`post/${item.data.id}`)}>
-                        <AvatarUser icon={postImage(item.data)} isMarginRight={false} name={item.data.account.name} />
-                      </div>
+                    extra={
+                      <Button onClick={() => unBookmark(item.data)} className="button-unsaved">
+                        {intl.get('post.unSave')}
+                      </Button>
                     }
-                    title={
-                      <div onClick={() => router.push(`post/${item.data.id}`)}>
-                        {parseHtmlContent(item.data.content)}
-                      </div>
-                    }
-                    description={<p>{savedFromContent(item.data)}</p>}
-                  />
-                </List.Item>
-              )}
+                  >
+                    <List.Item.Meta
+                      key={item.id}
+                      avatar={
+                        <div onClick={() => router.push(`post/${item.data.id}`)}>
+                          <AvatarUser icon={postImage(item.data)} isMarginRight={false} name={itemData.account.name} />
+                        </div>
+                      }
+                      title={
+                        <div onClick={() => router.push(`post/${item.data.id}`)}>
+                          {parseHtmlContent(itemData.content)}
+                        </div>
+                      }
+                      description={<p>{savedFromContent(item.data)}</p>}
+                    />
+                  </List.Item>
+                );
+              }}
             ></List>
           </InfiniteScroll>
         )}

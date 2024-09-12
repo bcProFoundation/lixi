@@ -10,13 +10,7 @@ query AllOffer($first: Int = 20, $after: String) {
     edges {
       cursor
       node {
-        id
-        data {
-          __typename
-          ... on Post {
-            ...PostFields
-          }
-        }
+         ...TimelineItemFields
       }
     }
     pageInfo {
@@ -39,13 +33,7 @@ query OfferByFilter(
     edges {
       cursor
       node {
-        id
-        data {
-          __typename
-          ... on Post {
-            ...PostFields
-          }
-        }
+        ...TimelineItemFields
       }
     }
     pageInfo {
@@ -64,13 +52,7 @@ query AllOfferByAccount(
     edges {
       cursor
       node {
-        id
-        data {
-          __typename
-          ... on Post {
-            ...PostFields
-          }
-        }
+         ...TimelineItemFields
       }
     }
     pageInfo {

@@ -1,0 +1,75 @@
+query EscrowOrder($id: String!) {
+  escrowOrder(id: $id) {
+    ...EscrowOrderFields
+  }
+}
+
+query GetModeratorAccount {
+  getModeratorAccount {
+    ...AccountFields
+  }
+}
+
+query GetRandomArbitratorAccount {
+  getRandomArbitratorAccount {
+    ...AccountFields
+  }
+}
+
+query AllEscrowOrderByAccount(
+  $first: Int = 20
+  $after: String,
+  $escrowOrderStatus: EscrowOrderStatus!  
+) {
+  allEscrowOrderByAccount(first: $first, after: $after, escrowOrderStatus: $escrowOrderStatus) {
+    totalCount
+    edges {
+      cursor
+      node {
+         ...TimelineItemFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
+query AllEscrowOrderByOfferId(
+  $offerId: String!
+  $first: Int = 20
+  $after: String
+) {
+  allEscrowOrderByOfferId(first: $first, after: $after, offerId: $offerId) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...TimelineItemFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
+
+
+mutation CreateEscrowOrder($input: CreateEscrowOrderInput!) {
+  createEscrowOrder(data: $input) {
+    id
+  }
+}
+
+mutation UpdateEscrowOrderStatus($input: UpdateEscrowOrderInput!) {
+  updateEscrowOrderStatus(data: $input) {
+    id
+    message
+    price
+    amount
+    status
+    createdAt
+    updatedAt
+  }
+}

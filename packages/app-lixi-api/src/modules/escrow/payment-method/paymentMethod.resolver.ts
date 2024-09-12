@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common';
 import { Query, Resolver } from '@nestjs/graphql';
 import * as _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Resolver(() => PaymentMethod)
 export class PaymentMethodResolver {

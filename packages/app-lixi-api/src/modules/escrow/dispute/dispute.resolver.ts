@@ -1,27 +1,30 @@
 import {
   Account,
+  BasicPaginationArgs,
   CreateDisputeInput,
   Dispute,
-  DisputeConnection,
-  DisputeOrder,
   DisputeStatus,
   EscrowOrderStatus,
-  PaginationArgs,
+  IBasicPaginated,
+  TIMELINE_TYPE,
+  TimelineItem,
+  TimelineItemConnection,
   UpdateDisputeInput
 } from '@bcpros/lixi-models';
-import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { Logger, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
-import { PubSub } from 'graphql-subscriptions';
 import * as _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
-import { PrismaService } from '../prisma/prisma.service';
-import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
+import { PrismaService } from '../../prisma/prisma.service';
+import { GqlJwtAuthGuard } from '../../auth/guards/gql-jwtauth.guard';
 import { AccountEntity } from 'src/decorators';
-
-const pubSub = new PubSub();
+import DisputeLoader from './dispute.loader';
+import { VError } from 'verror';
+import { DisputeCacheService } from './dispute-cache.service';
+import { TimelineItemService } from 'src/modules/timeline/timeline-item.service';
+import { createEdge } from 'src/common/custom-graphql-relay/paginate';
 
 @SkipThrottle()
 @Resolver(() => Dispute)
@@ -30,13 +33,11 @@ export class DisputeResolver {
   constructor(
     private logger: Logger,
     private prisma: PrismaService,
-    @I18n() private i18n: I18nService
+    @I18n() private i18n: I18nService,
+    private readonly disputeLoader: DisputeLoader,
+    private readonly disputeCacheService: DisputeCacheService,
+    private readonly timelineItemService: TimelineItemService
   ) {}
-
-  @Subscription(() => Dispute)
-  disputeCreated() {
-    return pubSub.asyncIterator('disputeCreated');
-  }
 
   @Query(() => Dispute)
   @UseGuards(GqlJwtAuthGuard)
@@ -62,40 +63,30 @@ export class DisputeResolver {
     return result;
   }
 
-  @Query(() => DisputeConnection)
+  @Query(() => TimelineItemConnection)
   @UseGuards(GqlJwtAuthGuard)
-  async allDisputesByAccountId(
-    @Args() { after, before, first, last }: PaginationArgs,
+  async allDisputeByAccount(
     @AccountEntity() account: Account,
-    @Args({
-      name: 'orderBy',
-      type: () => DisputeOrder,
-      nullable: true
-    })
-    orderBy: DisputeOrder
+    @Args() { after, first }: BasicPaginationArgs,
+    @Args({ name: 'disputeStatus', type: () => DisputeStatus }) disputeStatus: DisputeStatus
   ) {
-    const result = await findManyCursorConnection(
-      args =>
-        this.prisma.dispute.findMany({
-          where: {
-            escrowOrder: {
-              OR: [
-                {
-                  arbitratorAccountId: account.id
-                },
-                {
-                  moderatorAccountId: account.id
-                }
-              ]
-            }
-          },
-          include: { escrowOrder: true },
-          orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
-          ...args
-        }),
-      () => this.prisma.dispute.count({}),
-      { first, last, before, after }
+    if (!account) {
+      const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
+      throw new VError(accountNotExistMessage);
+    }
+    const paginated = await this.disputeCacheService.getPaginatedMyDisputeTimelineByTime(
+      account.id,
+      disputeStatus,
+      first,
+      after
     );
+    const timelineIds = paginated.edges.map(item => item.cursor);
+    // const timelines = await this.escrowOrderCacheService.getByIds(timelineIds);
+    const timelines = await this.timelineItemService.getByIds(timelineIds, TIMELINE_TYPE.DISPUTE);
+    const result = {
+      ...paginated,
+      edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+    } as IBasicPaginated<TimelineItem>;
     return result;
   }
 
@@ -141,7 +132,6 @@ export class DisputeResolver {
       }
     });
 
-    pubSub.publish('disputeCreated', { disputeCreated: dispute });
     return dispute;
   }
 
@@ -173,19 +163,11 @@ export class DisputeResolver {
       }
     });
 
-    pubSub.publish('disputeCreated', { disputeCreated: dispute });
     return dispute;
   }
 
   @ResolveField()
   async escrowOrder(@Parent() dispute: Dispute) {
-    const escrowOrder = this.prisma.escrowOrder.findFirst({
-      where: {
-        dispute: {
-          id: dispute.id
-        }
-      }
-    });
-    return escrowOrder;
+    return this.disputeLoader.batchEscrowOrders.load(dispute.escrowOrderId);
   }
 }

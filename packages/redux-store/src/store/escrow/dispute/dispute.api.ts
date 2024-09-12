@@ -1,10 +1,11 @@
-import { DisputeStatus } from '../../generated/types.generated';
+import { DisputeStatus } from '../../../generated/types.generated';
 import { api } from './dispute.generated';
-import { api as escrowApi } from './escrow-order.generated';
+import { api as escrowApi } from '../escrow-order/escrow-order.generated';
 
 const enhancedApi = api.enhanceEndpoints({
   addTagTypes: ['Dispute'],
   endpoints: {
+    AllDisputeByAccount: {},
     CreateDispute: {
       onQueryStarted: async ({ input }, { dispatch, queryFulfilled }) => {
         const { createdBy, escrowOrderId, reason } = input;
@@ -35,4 +36,11 @@ const enhancedApi = api.enhanceEndpoints({
 
 export { enhancedApi as api };
 
-export const { useCreateDisputeMutation, useDisputeQuery, useUpdateDisputeMutation, useLazyDisputeQuery } = enhancedApi;
+export const {
+  useCreateDisputeMutation,
+  useDisputeQuery,
+  useUpdateDisputeMutation,
+  useLazyDisputeQuery,
+  useAllDisputeByAccountQuery,
+  useLazyAllDisputeByAccountQuery
+} = enhancedApi;

@@ -1,5 +1,5 @@
 import { api } from './escrow-order.generated';
-import { DisputeStatus } from '../../generated/types.generated';
+import { DisputeStatus } from '../../../generated/types.generated';
 
 const enhancedApi = api.enhanceEndpoints({
   addTagTypes: ['EscrowOrder'],
@@ -8,6 +8,8 @@ const enhancedApi = api.enhanceEndpoints({
     CreateEscrowOrder: {},
     GetModeratorAccount: {},
     GetRandomArbitratorAccount: {},
+    AllEscrowOrderByAccount: {},
+    AllEscrowOrderByOfferId: {},
     UpdateEscrowOrderStatus: {
       onQueryStarted: async ({ input }, { dispatch, queryFulfilled }) => {
         const { orderId, status, txid, value } = input;
@@ -17,7 +19,7 @@ const enhancedApi = api.enhanceEndpoints({
             dispatch(
               api.util.updateQueryData('EscrowOrder', { id: orderId }, draft => {
                 if (draft) {
-                  draft.escrowOrder.status = status;
+                  draft.escrowOrder.escrowOrderStatus = status;
                   draft.escrowOrder.updatedAt = data.updateEscrowOrderStatus.updatedAt;
 
                   switch (status) {
@@ -69,5 +71,9 @@ export const {
   useLazyGetRandomArbitratorAccountQuery,
   useUpdateEscrowOrderStatusMutation,
   useGetModeratorAccountQuery,
-  useLazyGetModeratorAccountQuery
+  useLazyGetModeratorAccountQuery,
+  useAllEscrowOrderByAccountQuery,
+  useLazyAllEscrowOrderByAccountQuery,
+  useAllEscrowOrderByOfferIdQuery,
+  useLazyAllEscrowOrderByOfferIdQuery
 } = enhancedApi;
