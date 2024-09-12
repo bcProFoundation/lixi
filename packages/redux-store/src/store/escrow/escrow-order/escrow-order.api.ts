@@ -2,14 +2,42 @@ import { api } from './escrow-order.generated';
 import { DisputeStatus } from '../../../generated/types.generated';
 
 const enhancedApi = api.enhanceEndpoints({
-  addTagTypes: ['EscrowOrder'],
+  addTagTypes: ['EscrowOrder', 'EscrowOrderTimeline'],
   endpoints: {
     EscrowOrder: {},
     CreateEscrowOrder: {},
     GetModeratorAccount: {},
     GetRandomArbitratorAccount: {},
-    AllEscrowOrderByAccount: {},
-    AllEscrowOrderByOfferId: {},
+    AllEscrowOrderByAccount: {
+      providesTags: ['EscrowOrderTimeline'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { escrowOrderStatus } = queryArgs;
+          return { escrowOrderStatus };
+        }
+        return {};
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.allEscrowOrderByAccount.edges.push(...responseData.allEscrowOrderByAccount.edges);
+        currentCacheData.allEscrowOrderByAccount.pageInfo = responseData.allEscrowOrderByAccount.pageInfo;
+        currentCacheData.allEscrowOrderByAccount.totalCount = responseData.allEscrowOrderByAccount.totalCount;
+      }
+    },
+    AllEscrowOrderByOfferId: {
+      providesTags: ['EscrowOrderTimeline'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { offerId } = queryArgs;
+          return { offerId };
+        }
+        return {};
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.allEscrowOrderByOfferId.edges.push(...responseData.allEscrowOrderByOfferId.edges);
+        currentCacheData.allEscrowOrderByOfferId.pageInfo = responseData.allEscrowOrderByOfferId.pageInfo;
+        currentCacheData.allEscrowOrderByOfferId.totalCount = responseData.allEscrowOrderByOfferId.totalCount;
+      }
+    },
     UpdateEscrowOrderStatus: {
       onQueryStarted: async ({ input }, { dispatch, queryFulfilled }) => {
         const { orderId, status, txid, value } = input;

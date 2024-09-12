@@ -3,9 +3,23 @@ import { api } from './dispute.generated';
 import { api as escrowApi } from '../escrow-order/escrow-order.generated';
 
 const enhancedApi = api.enhanceEndpoints({
-  addTagTypes: ['Dispute'],
+  addTagTypes: ['Dispute', 'DisputeTimeline'],
   endpoints: {
-    AllDisputeByAccount: {},
+    AllDisputeByAccount: {
+      providesTags: ['DisputeTimeline'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { disputeStatus } = queryArgs;
+          return { disputeStatus };
+        }
+        return {};
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.allDisputeByAccount.edges.push(...responseData.allDisputeByAccount.edges);
+        currentCacheData.allDisputeByAccount.pageInfo = responseData.allDisputeByAccount.pageInfo;
+        currentCacheData.allDisputeByAccount.totalCount = responseData.allDisputeByAccount.totalCount;
+      }
+    },
     CreateDispute: {
       onQueryStarted: async ({ input }, { dispatch, queryFulfilled }) => {
         const { createdBy, escrowOrderId, reason } = input;

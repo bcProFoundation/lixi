@@ -66,7 +66,20 @@ export type AllOfferQuery = {
               createdAt: any;
               updatedAt: any;
               disputeStatus: Types.DisputeStatus;
-              escrowOrder: { __typename?: 'EscrowOrder'; id: string };
+              escrowOrder: {
+                __typename?: 'EscrowOrder';
+                amount: number;
+                id: string;
+                buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                offer: {
+                  __typename?: 'Offer';
+                  message: string;
+                  createdAt: any;
+                  country?: { __typename?: 'Country'; name: string } | null;
+                  state?: { __typename?: 'State'; name?: string | null } | null;
+                };
+              };
             }
           | {
               __typename: 'EscrowOrder';
@@ -280,7 +293,20 @@ export type OfferByFilterQuery = {
               createdAt: any;
               updatedAt: any;
               disputeStatus: Types.DisputeStatus;
-              escrowOrder: { __typename?: 'EscrowOrder'; id: string };
+              escrowOrder: {
+                __typename?: 'EscrowOrder';
+                amount: number;
+                id: string;
+                buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                offer: {
+                  __typename?: 'Offer';
+                  message: string;
+                  createdAt: any;
+                  country?: { __typename?: 'Country'; name: string } | null;
+                  state?: { __typename?: 'State'; name?: string | null } | null;
+                };
+              };
             }
           | {
               __typename: 'EscrowOrder';
@@ -494,7 +520,20 @@ export type AllOfferByAccountQuery = {
               createdAt: any;
               updatedAt: any;
               disputeStatus: Types.DisputeStatus;
-              escrowOrder: { __typename?: 'EscrowOrder'; id: string };
+              escrowOrder: {
+                __typename?: 'EscrowOrder';
+                amount: number;
+                id: string;
+                buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                offer: {
+                  __typename?: 'Offer';
+                  message: string;
+                  createdAt: any;
+                  country?: { __typename?: 'Country'; name: string } | null;
+                  state?: { __typename?: 'State'; name?: string | null } | null;
+                };
+              };
             }
           | {
               __typename: 'EscrowOrder';

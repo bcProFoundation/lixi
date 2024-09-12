@@ -65,7 +65,24 @@ fragment EscrowOrderFields on EscrowOrder {
 fragment DisputeFields on Dispute {
   id
   escrowOrder {
+  amount
     id
+    buyerAccount {
+      telegramUsername
+    }
+    sellerAccount {
+      telegramUsername
+    }
+    offer {
+      message
+      country {
+        name
+      }
+      state {
+        name
+      }
+      createdAt
+    }
   }
   reason
   createdBy

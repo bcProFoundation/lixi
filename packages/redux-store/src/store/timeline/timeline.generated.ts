@@ -74,7 +74,20 @@ export type DisputeFieldsFragment = {
   createdAt: any;
   updatedAt: any;
   disputeStatus: Types.DisputeStatus;
-  escrowOrder: { __typename?: 'EscrowOrder'; id: string };
+  escrowOrder: {
+    __typename?: 'EscrowOrder';
+    amount: number;
+    id: string;
+    buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+    sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+    offer: {
+      __typename?: 'Offer';
+      message: string;
+      createdAt: any;
+      country?: { __typename?: 'Country'; name: string } | null;
+      state?: { __typename?: 'State'; name?: string | null } | null;
+    };
+  };
 };
 
 export type TimelineItemFieldsFragment = {
@@ -89,7 +102,20 @@ export type TimelineItemFieldsFragment = {
         createdAt: any;
         updatedAt: any;
         disputeStatus: Types.DisputeStatus;
-        escrowOrder: { __typename?: 'EscrowOrder'; id: string };
+        escrowOrder: {
+          __typename?: 'EscrowOrder';
+          amount: number;
+          id: string;
+          buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+          sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+          offer: {
+            __typename?: 'Offer';
+            message: string;
+            createdAt: any;
+            country?: { __typename?: 'Country'; name: string } | null;
+            state?: { __typename?: 'State'; name?: string | null } | null;
+          };
+        };
       }
     | {
         __typename: 'EscrowOrder';
@@ -285,7 +311,20 @@ export type TimelineQuery = {
           createdAt: any;
           updatedAt: any;
           disputeStatus: Types.DisputeStatus;
-          escrowOrder: { __typename?: 'EscrowOrder'; id: string };
+          escrowOrder: {
+            __typename?: 'EscrowOrder';
+            amount: number;
+            id: string;
+            buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+            sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+            offer: {
+              __typename?: 'Offer';
+              message: string;
+              createdAt: any;
+              country?: { __typename?: 'Country'; name: string } | null;
+              state?: { __typename?: 'State'; name?: string | null } | null;
+            };
+          };
         }
       | {
           __typename: 'EscrowOrder';
@@ -490,7 +529,20 @@ export type HomeTimelineQuery = {
               createdAt: any;
               updatedAt: any;
               disputeStatus: Types.DisputeStatus;
-              escrowOrder: { __typename?: 'EscrowOrder'; id: string };
+              escrowOrder: {
+                __typename?: 'EscrowOrder';
+                amount: number;
+                id: string;
+                buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                offer: {
+                  __typename?: 'Offer';
+                  message: string;
+                  createdAt: any;
+                  country?: { __typename?: 'Country'; name: string } | null;
+                  state?: { __typename?: 'State'; name?: string | null } | null;
+                };
+              };
             }
           | {
               __typename: 'EscrowOrder';
@@ -704,7 +756,20 @@ export type ProfileTimelineQuery = {
               createdAt: any;
               updatedAt: any;
               disputeStatus: Types.DisputeStatus;
-              escrowOrder: { __typename?: 'EscrowOrder'; id: string };
+              escrowOrder: {
+                __typename?: 'EscrowOrder';
+                amount: number;
+                id: string;
+                buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                offer: {
+                  __typename?: 'Offer';
+                  message: string;
+                  createdAt: any;
+                  country?: { __typename?: 'Country'; name: string } | null;
+                  state?: { __typename?: 'State'; name?: string | null } | null;
+                };
+              };
             }
           | {
               __typename: 'EscrowOrder';
@@ -919,7 +984,20 @@ export type ProfileTimelineByTimeQuery = {
               createdAt: any;
               updatedAt: any;
               disputeStatus: Types.DisputeStatus;
-              escrowOrder: { __typename?: 'EscrowOrder'; id: string };
+              escrowOrder: {
+                __typename?: 'EscrowOrder';
+                amount: number;
+                id: string;
+                buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                offer: {
+                  __typename?: 'Offer';
+                  message: string;
+                  createdAt: any;
+                  country?: { __typename?: 'Country'; name: string } | null;
+                  state?: { __typename?: 'State'; name?: string | null } | null;
+                };
+              };
             }
           | {
               __typename: 'EscrowOrder';
@@ -1133,7 +1211,20 @@ export type PageTimelineQuery = {
               createdAt: any;
               updatedAt: any;
               disputeStatus: Types.DisputeStatus;
-              escrowOrder: { __typename?: 'EscrowOrder'; id: string };
+              escrowOrder: {
+                __typename?: 'EscrowOrder';
+                amount: number;
+                id: string;
+                buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                offer: {
+                  __typename?: 'Offer';
+                  message: string;
+                  createdAt: any;
+                  country?: { __typename?: 'Country'; name: string } | null;
+                  state?: { __typename?: 'State'; name?: string | null } | null;
+                };
+              };
             }
           | {
               __typename: 'EscrowOrder';
@@ -1348,7 +1439,20 @@ export type PageTimelineByTimeQuery = {
               createdAt: any;
               updatedAt: any;
               disputeStatus: Types.DisputeStatus;
-              escrowOrder: { __typename?: 'EscrowOrder'; id: string };
+              escrowOrder: {
+                __typename?: 'EscrowOrder';
+                amount: number;
+                id: string;
+                buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                offer: {
+                  __typename?: 'Offer';
+                  message: string;
+                  createdAt: any;
+                  country?: { __typename?: 'Country'; name: string } | null;
+                  state?: { __typename?: 'State'; name?: string | null } | null;
+                };
+              };
             }
           | {
               __typename: 'EscrowOrder';
@@ -1562,7 +1666,20 @@ export type TokenTimelineQuery = {
               createdAt: any;
               updatedAt: any;
               disputeStatus: Types.DisputeStatus;
-              escrowOrder: { __typename?: 'EscrowOrder'; id: string };
+              escrowOrder: {
+                __typename?: 'EscrowOrder';
+                amount: number;
+                id: string;
+                buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                offer: {
+                  __typename?: 'Offer';
+                  message: string;
+                  createdAt: any;
+                  country?: { __typename?: 'Country'; name: string } | null;
+                  state?: { __typename?: 'State'; name?: string | null } | null;
+                };
+              };
             }
           | {
               __typename: 'EscrowOrder';
@@ -1777,7 +1894,20 @@ export type TokenTimelineByTimeQuery = {
               createdAt: any;
               updatedAt: any;
               disputeStatus: Types.DisputeStatus;
-              escrowOrder: { __typename?: 'EscrowOrder'; id: string };
+              escrowOrder: {
+                __typename?: 'EscrowOrder';
+                amount: number;
+                id: string;
+                buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                offer: {
+                  __typename?: 'Offer';
+                  message: string;
+                  createdAt: any;
+                  country?: { __typename?: 'Country'; name: string } | null;
+                  state?: { __typename?: 'State'; name?: string | null } | null;
+                };
+              };
             }
           | {
               __typename: 'EscrowOrder';
@@ -2030,7 +2160,24 @@ export const DisputeFieldsFragmentDoc = `
     fragment DisputeFields on Dispute {
   id
   escrowOrder {
+    amount
     id
+    buyerAccount {
+      telegramUsername
+    }
+    sellerAccount {
+      telegramUsername
+    }
+    offer {
+      message
+      country {
+        name
+      }
+      state {
+        name
+      }
+      createdAt
+    }
   }
   reason
   createdBy
