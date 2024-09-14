@@ -43,6 +43,7 @@ fragment EscrowOrderFields on EscrowOrder {
   escrowTxids {
     txid
     value
+    outIdx
   }
   dispute {
     createdBy

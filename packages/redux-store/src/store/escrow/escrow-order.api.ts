@@ -12,7 +12,7 @@ const enhancedApi = api.enhanceEndpoints({
     ArbiRequestTelegramChat: {},
     UpdateEscrowOrderStatus: {
       onQueryStarted: async ({ input }, { dispatch, queryFulfilled }) => {
-        const { orderId, status, txid, value } = input;
+        const { orderId, status, txid, value, outIdx } = input;
         try {
           const { data } = await queryFulfilled;
           if (data) {
@@ -35,17 +35,12 @@ const enhancedApi = api.enhanceEndpoints({
                     case 'ACTIVE':
                       txid &&
                         value &&
+                        outIdx !== undefined &&
+                        outIdx !== null &&
                         draft.escrowOrder.escrowTxids.push({
                           txid,
-                          value
-                        });
-                      break;
-                    case 'ESCROW':
-                      txid &&
-                        value &&
-                        draft.escrowOrder.escrowTxids.push({
-                          txid,
-                          value
+                          value,
+                          outIdx
                         });
                       break;
                   }

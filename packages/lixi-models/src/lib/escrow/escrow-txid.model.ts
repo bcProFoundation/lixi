@@ -11,6 +11,9 @@ export class EscrowTxid {
   @Field(() => GraphQLBigInt)
   value: number;
 
+  @Field(() => Number)
+  outIdx: number;
+
   @Field(() => EscrowOrder)
   escrowOrder: EscrowOrder;
 

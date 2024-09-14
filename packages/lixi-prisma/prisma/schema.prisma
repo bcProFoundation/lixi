@@ -1288,6 +1288,7 @@ model EscrowOrder {
 
 model EscrowTxId {
   txid          String      @unique
+  outIdx        Int
   value         BigInt
   escrowOrder   EscrowOrder @relation(fields: [escrowOrderId], references: [id])
   escrowOrderId String

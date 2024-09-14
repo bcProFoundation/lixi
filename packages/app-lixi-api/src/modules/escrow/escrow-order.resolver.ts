@@ -430,7 +430,7 @@ export class EscrowOrderResolver {
   @Mutation(() => EscrowOrder)
   @UseGuards(GqlJwtAuthGuard)
   async updateEscrowOrderStatus(@AccountEntity() account: Account, @Args('data') data: UpdateEscrowOrderInput) {
-    const { orderId, status, txid, value } = data;
+    const { orderId, status, txid, value, outIdx } = data;
     try {
       const result = await this.prisma.escrowOrder.findUnique({
         where: {
@@ -441,7 +441,8 @@ export class EscrowOrderResolver {
           buyerAccount: true,
           sellerAccount: true,
           arbitratorAccount: true,
-          moderatorAccount: true
+          moderatorAccount: true,
+          escrowTxids: true
         }
       });
 
@@ -473,6 +474,10 @@ export class EscrowOrderResolver {
         throw new Error('The order has completed');
       }
 
+      if (status === EscrowOrderStatus.ESCROW && result.escrowTxids.length === 0) {
+        throw new Error('The order does not have any escrow transaction');
+      }
+
       const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`;
       const dataToUpdate = {
         status,
@@ -483,10 +488,12 @@ export class EscrowOrderResolver {
         case EscrowOrderStatus.ACTIVE:
           txid &&
             value &&
+            !_.isNil(outIdx) &&
             (await this.prisma.escrowTxId.create({
               data: {
                 txid: txid,
                 value: BigInt(value),
+                outIdx,
                 escrowOrder: {
                   connect: {
                     id: orderId

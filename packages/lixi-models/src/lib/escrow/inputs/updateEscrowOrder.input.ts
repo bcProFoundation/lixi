@@ -19,5 +19,9 @@ export class UpdateEscrowOrderInput {
 
   @Field(() => Number, { nullable: true })
   @IsOptional()
+  outIdx?: number;
+
+  @Field(() => Number, { nullable: true })
+  @IsOptional()
   value?: number;
 }
