@@ -1240,8 +1240,10 @@ export type OfferBasicEdge = {
 
 export type OfferFilterInput = {
   countryId?: InputMaybe<Scalars['Int']['input']>;
+  countryName?: InputMaybe<Scalars['String']['input']>;
   paymentMethodIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   stateId?: InputMaybe<Scalars['Int']['input']>;
+  stateName?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type OfferPaymentMethod = {

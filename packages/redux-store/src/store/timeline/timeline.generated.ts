@@ -52,6 +52,7 @@ export type TimelineQuery = {
         name: string;
         avatar?: string | null;
         createCommentFee?: string | null;
+        telegramUsername?: string | null;
       };
       page?: {
         __typename?: 'Page';
@@ -190,6 +191,7 @@ export type HomeTimelineQuery = {
             name: string;
             avatar?: string | null;
             createCommentFee?: string | null;
+            telegramUsername?: string | null;
           };
           page?: {
             __typename?: 'Page';
@@ -331,6 +333,7 @@ export type ProfileTimelineQuery = {
             name: string;
             avatar?: string | null;
             createCommentFee?: string | null;
+            telegramUsername?: string | null;
           };
           page?: {
             __typename?: 'Page';
@@ -473,6 +476,7 @@ export type ProfileTimelineByTimeQuery = {
             name: string;
             avatar?: string | null;
             createCommentFee?: string | null;
+            telegramUsername?: string | null;
           };
           page?: {
             __typename?: 'Page';
@@ -614,6 +618,7 @@ export type PageTimelineQuery = {
             name: string;
             avatar?: string | null;
             createCommentFee?: string | null;
+            telegramUsername?: string | null;
           };
           page?: {
             __typename?: 'Page';
@@ -756,6 +761,7 @@ export type PageTimelineByTimeQuery = {
             name: string;
             avatar?: string | null;
             createCommentFee?: string | null;
+            telegramUsername?: string | null;
           };
           page?: {
             __typename?: 'Page';
@@ -897,6 +903,7 @@ export type TokenTimelineQuery = {
             name: string;
             avatar?: string | null;
             createCommentFee?: string | null;
+            telegramUsername?: string | null;
           };
           page?: {
             __typename?: 'Page';
@@ -1039,6 +1046,7 @@ export type TokenTimelineByTimeQuery = {
             name: string;
             avatar?: string | null;
             createCommentFee?: string | null;
+            telegramUsername?: string | null;
           };
           page?: {
             __typename?: 'Page';

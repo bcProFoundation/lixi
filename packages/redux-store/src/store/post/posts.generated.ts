@@ -51,6 +51,7 @@ export type PostQuery = {
       name: string;
       avatar?: string | null;
       createCommentFee?: string | null;
+      telegramUsername?: string | null;
     };
     page?: {
       __typename?: 'Page';
@@ -191,6 +192,7 @@ export type PostsByPageIdQuery = {
           name: string;
           avatar?: string | null;
           createCommentFee?: string | null;
+          telegramUsername?: string | null;
         };
         page?: {
           __typename?: 'Page';
@@ -339,6 +341,7 @@ export type PostsByUserIdQuery = {
           name: string;
           avatar?: string | null;
           createCommentFee?: string | null;
+          telegramUsername?: string | null;
         };
         page?: {
           __typename?: 'Page';
@@ -487,6 +490,7 @@ export type PostsByHashtagIdQuery = {
           name: string;
           avatar?: string | null;
           createCommentFee?: string | null;
+          telegramUsername?: string | null;
         };
         page?: {
           __typename?: 'Page';
@@ -635,6 +639,7 @@ export type PostsByTokenIdQuery = {
           name: string;
           avatar?: string | null;
           createCommentFee?: string | null;
+          telegramUsername?: string | null;
         };
         page?: {
           __typename?: 'Page';
@@ -1371,6 +1376,7 @@ export type PostFieldsFragment = {
     name: string;
     avatar?: string | null;
     createCommentFee?: string | null;
+    telegramUsername?: string | null;
   };
   page?: {
     __typename?: 'Page';
@@ -1609,6 +1615,7 @@ export type CreatePostMutation = {
       name: string;
       avatar?: string | null;
       createCommentFee?: string | null;
+      telegramUsername?: string | null;
     };
     page?: {
       __typename?: 'Page';
@@ -1735,6 +1742,7 @@ export type UpdatePostMutation = {
       name: string;
       avatar?: string | null;
       createCommentFee?: string | null;
+      telegramUsername?: string | null;
     };
     page?: {
       __typename?: 'Page';
@@ -1867,6 +1875,7 @@ export type RemovePostMutation = {
       name: string;
       avatar?: string | null;
       createCommentFee?: string | null;
+      telegramUsername?: string | null;
     };
     page?: {
       __typename?: 'Page';
@@ -2017,6 +2026,7 @@ export const PostFieldsFragmentDoc = `
     name
     avatar
     createCommentFee
+    telegramUsername
   }
   accountId
   page {

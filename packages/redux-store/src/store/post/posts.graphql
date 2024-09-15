@@ -318,6 +318,7 @@ fragment PostFields on Post {
     name
     avatar
     createCommentFee
+    telegramUsername
   }
   accountId
   page {
