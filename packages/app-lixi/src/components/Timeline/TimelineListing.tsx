@@ -18,6 +18,7 @@ import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import SearchBox from '../Common/SearchBox';
 import PostListItem from '../Posts/PostListItem';
+import { TimelineQueryData } from '@bcpros/redux-store';
 
 type TimelineListingProps = {
   className?: string;
@@ -321,7 +322,7 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
             {queryData.map((item, index) => {
               return (
                 <PostListItem
-                  item={item}
+                  item={item as TimelineQueryData}
                   key={item.id}
                   addToRecentHashtags={hashtag => dispatch(addRecentHashtagAtHome(hashtag.substring(1)))}
                 />

@@ -81,7 +81,7 @@ const ToastNotificationManage = () => {
           );
         }
 
-        newConfig.placement = 'top';
+        newConfig.placement = 'topLeft'; //fault of lib (top is topLeft, topLeft is top)
         newConfig.className = `custom-toast-notification ${
           currentTheme === 'dark' ? 'custom-toast-notification-dark' : 'custom-toast-notification-light'
         }`;

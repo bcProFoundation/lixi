@@ -8,7 +8,6 @@ import _ from 'lodash';
 import { CloudflareConfig } from '../../config/config.interface';
 import { toImageUrl } from '../page/page.utils';
 import { PrismaService } from '../prisma/prisma.service';
-import { AccountDanaCacheService } from './account-dana-cache.service';
 
 @Injectable()
 export class AccountCacheService {
@@ -20,7 +19,6 @@ export class AccountCacheService {
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly accountDanaCacheService: AccountDanaCacheService,
     @InjectRedis() private readonly redis: Redis
   ) {
     const cloudflareConfig = this.config.get<CloudflareConfig>('cloudflare');

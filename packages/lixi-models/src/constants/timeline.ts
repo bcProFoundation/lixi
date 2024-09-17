@@ -1,0 +1,5 @@
+export const TIMELINE_TYPE = {
+  POST: 'POST',
+  ESCROWORDER: 'ESCROW_ORDER',
+  DISPUTE: 'DISPUTE'
+};

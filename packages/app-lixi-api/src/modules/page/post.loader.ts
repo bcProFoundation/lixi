@@ -12,7 +12,7 @@ import BCHJS from '@bcpros/xpi-js';
 import { XPIJS } from '../wallet/wallet.constants';
 import { template } from 'src/utils/stringTemplate';
 import { PollCacheService } from './polls/poll-cache.service';
-import { OfferCacheService } from '../escrow/offer-cache.service';
+import { OfferCacheService } from '../escrow/offer/offer-cache.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class PostLoader {

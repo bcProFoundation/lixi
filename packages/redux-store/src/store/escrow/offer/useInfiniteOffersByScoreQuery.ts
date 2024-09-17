@@ -1,10 +1,9 @@
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { TimelineQueryItem } from '../../generated/types';
-import { useAllOfferByAccountQuery, useLazyAllOfferByAccountQuery } from './offer.api';
+import { TimelineQueryItem } from '../../../generated/types';
+import { useAllOfferQuery, useLazyAllOfferQuery } from './offer.api';
 import { BasicPaginationArgs } from '@bcpros/lixi-models/core/pagination/basic.pagination.args';
-import { OfferStatus } from '../../generated/types.generated';
 
 const offerTimelineAdapter = createEntityAdapter<TimelineQueryItem, string>({
   selectId: item => item.id
@@ -12,17 +11,13 @@ const offerTimelineAdapter = createEntityAdapter<TimelineQueryItem, string>({
 
 const { selectAll } = offerTimelineAdapter.getSelectors();
 
-type MyOfferType = BasicPaginationArgs & {
-  offerStatus: OfferStatus;
-};
-
-export function useInfiniteMyOffersQuery(
-  params: MyOfferType,
+export function useInfiniteOffersByScoreQuery(
+  params: BasicPaginationArgs,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const baseResult = useAllOfferByAccountQuery(params, { skip: !params.offerStatus });
+  const baseResult = useAllOfferQuery(params);
 
-  const [trigger, nextResult] = useLazyAllOfferByAccountQuery();
+  const [trigger, nextResult] = useLazyAllOfferQuery();
   const [combinedData, setCombinedData] = useState(offerTimelineAdapter.getInitialState({}));
 
   const isBaseReady = useRef(false);
@@ -38,13 +33,13 @@ export function useInfiniteMyOffersQuery(
 
   // Base result
   useEffect(() => {
-    next.current = baseResult.data?.allOfferByAccount?.pageInfo?.endCursor;
-    if (baseResult?.data?.allOfferByAccount) {
+    next.current = baseResult.data?.allOffer?.pageInfo?.endCursor;
+    if (baseResult?.data?.allOffer) {
       isBaseReady.current = true;
 
       const adapterSetAll = offerTimelineAdapter.setAll(
         combinedData,
-        baseResult.data?.allOfferByAccount.edges.map(item => item.node)
+        baseResult.data?.allOffer.edges.map(item => item.node)
       );
 
       setCombinedData(adapterSetAll);
@@ -78,7 +73,7 @@ export function useInfiniteMyOffersQuery(
   };
   return {
     data: data ?? [],
-    totalCount: baseResult?.data?.allOfferByAccount.totalCount ?? 0,
+    totalCount: baseResult?.data?.allOffer.totalCount ?? 0,
     error: baseResult?.error,
     isError: baseResult?.isError,
     isLoading: baseResult?.isLoading,
@@ -86,7 +81,7 @@ export function useInfiniteMyOffersQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: !!baseResult.data?.allOfferByAccount?.pageInfo?.hasNextPage,
+    hasNext: !!baseResult.data?.allOffer?.pageInfo?.hasNextPage,
     fetchNext,
     refetch
   };

@@ -119,7 +119,7 @@ export type CreatePollMutation = {
         }> | null;
       }>;
     } | null;
-    offer?: {
+    postOffer?: {
       __typename?: 'Offer';
       postId: string;
       publicKey: string;

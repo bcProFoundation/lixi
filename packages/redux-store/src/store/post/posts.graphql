@@ -394,7 +394,7 @@ fragment PostFields on Post {
   poll {
     ...PollFields
   }
-  offer {
+  postOffer: offer {
     ...OfferFields
   }
 }

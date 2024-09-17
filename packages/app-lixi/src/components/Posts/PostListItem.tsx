@@ -5,7 +5,7 @@ import ActionPostBar from '@components/Common/ActionPostBar';
 import CommentComponent, { CommentItem } from '@components/Common/Comment';
 import InfoCardUser from '@components/Common/InfoCardUser';
 import { LoadingIcon } from '@components/Layout/MainLayout';
-import { PostQueryItem } from '@generated/types';
+import { PostQueryItem, TimelineQueryData } from '@generated/types';
 import useWindowDimensions from '@hooks/useWindowDimensions';
 import { getSelectedAccount } from '@store/account';
 import { analyticEvent } from '@store/analytic-event';
@@ -226,7 +226,7 @@ const PostListItemContainer = styled(List.Item)`
 `;
 
 type PostListItemProps = {
-  item: PostQueryItem;
+  item: TimelineQueryData;
   postListType?: PostListType;
   addToRecentHashtags?: (hashtag: string) => any;
 };
@@ -234,7 +234,7 @@ type PostListItemProps = {
 const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemProps) => {
   const router = useRouter();
   const dispatch = useSliceDispatch();
-  const post = item;
+  const post = item as PostQueryItem;
   const [showMoreImage, setShowMoreImage] = useState(true);
   const [imagesList, setImagesList] = useState([]);
   const [showTranslation, setShowTranslation] = useState(false);
@@ -246,7 +246,7 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
 
   // @todo: should move out of useEffect
   useEffect(() => {
-    const mapImages = item.imageUploadable?.uploads.map(img => {
+    const mapImages = post.imageUploadable?.uploads.map(img => {
       const imgUrl = `${process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL}/${process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH}/${img?.cfImageId}/public`;
       let imgWidth = img?.width || 4;
       let height = img?.height || 3;
@@ -414,7 +414,7 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
   };
 
   return (
-    !post.offer && ( //temporary hide offer on lixi
+    !post.postOffer && ( //temporary hide offer on lixi
       <PostListItemContainer className="post-list-item" key={post.id} ref={ref}>
         <Waypoint onEnter={onEnterPostItem} />
         <CardContainer className="card-container-post">
@@ -465,7 +465,7 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
                 </StyledTranslate>
               ))}
 
-            {item.imageUploadable?.uploads.length != 0 && !showMoreImage && imagesList && (
+            {post.imageUploadable?.uploads.length != 0 && !showMoreImage && imagesList && (
               <div className={`images-post ${imagesList?.length > 1 ? 'images-post-desktop' : ''}`}>
                 <Image.PreviewGroup>
                   <Gallery
@@ -474,16 +474,16 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
                     renderImage={imageRenderer}
                   />
                 </Image.PreviewGroup>
-                {item.imageUploadable?.uploads.length > 3 && (
+                {post.imageUploadable?.uploads.length > 3 && (
                   <Button type="link" className="show-more-desktop show-more-image no-border-btn">
-                    {item.imageUploadable?.uploads.length - 1 + ' +'}
+                    {post.imageUploadable?.uploads.length - 1 + ' +'}
                   </Button>
                 )}
               </div>
             )}
-            {item.imageUploadable?.uploads.length != 0 && showMoreImage && imagesList && (
+            {post.imageUploadable?.uploads.length != 0 && showMoreImage && imagesList && (
               <React.Fragment>
-                {item.imageUploadable?.uploads.length > 1 && (
+                {post.imageUploadable?.uploads.length > 1 && (
                   <div className="images-post images-post-mobile">
                     <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
                       {imagesList.map((img, index) => (
@@ -494,7 +494,7 @@ const PostListItem = ({ item, postListType, addToRecentHashtags }: PostListItemP
                     </PhotoProvider>
                   </div>
                 )}
-                {item.imageUploadable?.uploads.length === 1 && (
+                {post.imageUploadable?.uploads.length === 1 && (
                   <>
                     <div className="images-post images-post-mobile only-one-image">
                       <PhotoProvider loop={true} loadingElement={<Spin indicator={LoadingIcon} />}>
