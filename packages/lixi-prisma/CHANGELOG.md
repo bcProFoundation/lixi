@@ -1,5 +1,11 @@
 # @bcpros/lixi-prisma
 
+## 1.2.11
+
+### Patch Changes
+
+- Fix navigate error and add escrow out index
+
 ## 1.2.10
 
 ### Patch Changes
