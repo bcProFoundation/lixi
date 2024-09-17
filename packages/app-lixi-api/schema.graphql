@@ -645,6 +645,7 @@ type EscrowTxid {
   createdAt: DateTime!
   escrowOrder: EscrowOrder!
   escrowOrderId: String!
+  outIdx: Int!
   txid: String!
 
   """Identifies the date and time when the object was last updated."""
@@ -1772,6 +1773,7 @@ input UpdateDisputeInput {
 
 input UpdateEscrowOrderInput {
   orderId: String!
+  outIdx: Int
   status: EscrowOrderStatus!
   txid: String
   value: Int

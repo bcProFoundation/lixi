@@ -664,6 +664,7 @@ export type EscrowTxid = {
   createdAt: Scalars['DateTime']['output'];
   escrowOrder: EscrowOrder;
   escrowOrderId: Scalars['String']['output'];
+  outIdx: Scalars['Int']['output'];
   txid: Scalars['String']['output'];
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime']['output'];
@@ -2496,6 +2497,7 @@ export type UpdateDisputeInput = {
 
 export type UpdateEscrowOrderInput = {
   orderId: Scalars['String']['input'];
+  outIdx?: InputMaybe<Scalars['Int']['input']>;
   status: EscrowOrderStatus;
   txid?: InputMaybe<Scalars['String']['input']>;
   value?: InputMaybe<Scalars['Int']['input']>;

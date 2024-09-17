@@ -62,7 +62,7 @@ export type EscrowOrderFieldsFragment = {
   };
   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
   escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
-  escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any }> | null;
+  escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
   dispute?: { __typename?: 'Dispute'; createdBy: string; reason?: string | null; status: Types.DisputeStatus } | null;
 };
 
@@ -165,7 +165,7 @@ export type TimelineItemFieldsFragment = {
         };
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
         escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
-        escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any }> | null;
+        escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
         dispute?: {
           __typename?: 'Dispute';
           createdBy: string;
@@ -375,7 +375,7 @@ export type TimelineQuery = {
           };
           paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
-          escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any }> | null;
+          escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
           dispute?: {
             __typename?: 'Dispute';
             createdBy: string;
@@ -594,7 +594,7 @@ export type HomeTimelineQuery = {
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any }> | null;
+              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
                 createdBy: string;
@@ -822,7 +822,7 @@ export type ProfileTimelineQuery = {
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any }> | null;
+              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
                 createdBy: string;
@@ -1051,7 +1051,7 @@ export type ProfileTimelineByTimeQuery = {
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any }> | null;
+              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
                 createdBy: string;
@@ -1279,7 +1279,7 @@ export type PageTimelineQuery = {
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any }> | null;
+              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
                 createdBy: string;
@@ -1508,7 +1508,7 @@ export type PageTimelineByTimeQuery = {
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any }> | null;
+              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
                 createdBy: string;
@@ -1736,7 +1736,7 @@ export type TokenTimelineQuery = {
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any }> | null;
+              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
                 createdBy: string;
@@ -1965,7 +1965,7 @@ export type TokenTimelineByTimeQuery = {
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any }> | null;
+              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
                 createdBy: string;
@@ -2150,6 +2150,7 @@ export const EscrowOrderFieldsFragmentDoc = `
   escrowTxids {
     txid
     value
+    outIdx
   }
   dispute {
     createdBy

@@ -146,6 +146,51 @@ export const getByteCount = (p2pkhInputCount: number, p2pkhOutputCount: number):
   return Number(byteCount);
 };
 
+export const getByteCountEscrow = (p2pkhInputCount: number, p2pkhOutputCount: number): number => {
+  // Simplifying bch-js function for P2PKH txs only, as this is all Cashtab supports for now
+  // https://github.com/Permissionless-Software-Foundation/bch-js/blob/master/src/bitcoincash.js#L408
+  /*
+  const types = {
+      inputs: {            
+          'MULTISIG-P2SH': 49 * 4,
+      },
+      outputs: {
+          P2PKH: 34 * 4,
+      },
+  };
+  */
+
+  const inputCount = new BigNumber(p2pkhInputCount);
+  const outputCount = new BigNumber(p2pkhOutputCount);
+  const inputWeight = new BigNumber(49 * 4);
+  const outputWeight = new BigNumber(34 * 4);
+  const nonSegwitWeightConstant = new BigNumber(10 * 4);
+  let totalWeight = new BigNumber(0);
+  totalWeight = totalWeight
+    .plus(inputCount.times(inputWeight))
+    .plus(outputCount.times(outputWeight))
+    .plus(nonSegwitWeightConstant);
+  const byteCount = totalWeight.div(4).integerValue(BigNumber.ROUND_CEIL);
+
+  return Number(byteCount);
+};
+
+export const calcFeeEscrow = (
+  utxos: Array<Utxo_InNode>,
+  p2pkhOutputNumber = 2,
+  satoshisPerByte = 2.01,
+  opReturnLength = 0
+) => {
+  const byteCount = getByteCount(utxos.length, p2pkhOutputNumber);
+
+  let opReturnOutputByteLength = opReturnLength;
+  if (opReturnLength) {
+    opReturnOutputByteLength += 8 + 1;
+  }
+  const txFee = Math.ceil(satoshisPerByte * (byteCount + opReturnOutputByteLength));
+  return txFee;
+};
+
 export const calcFee = (
   utxos: Array<Utxo_InNode>,
   p2pkhOutputNumber = 2,

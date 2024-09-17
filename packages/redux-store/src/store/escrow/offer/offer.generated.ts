@@ -129,7 +129,7 @@ export type AllOfferQuery = {
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any }> | null;
+              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
                 createdBy: string;
@@ -357,7 +357,7 @@ export type OfferByFilterQuery = {
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any }> | null;
+              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
                 createdBy: string;
@@ -585,7 +585,7 @@ export type AllOfferByAccountQuery = {
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any }> | null;
+              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
                 createdBy: string;

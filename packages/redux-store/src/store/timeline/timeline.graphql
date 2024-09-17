@@ -47,6 +47,7 @@ fragment EscrowOrderFields on EscrowOrder {
   escrowTxids {
     txid
     value
+    outIdx
   }
   dispute {
     createdBy
@@ -65,7 +66,7 @@ fragment EscrowOrderFields on EscrowOrder {
 fragment DisputeFields on Dispute {
   id
   escrowOrder {
-  amount
+    amount
     id
     buyerAccount {
       telegramUsername
@@ -109,7 +110,7 @@ fragment TimelineItemFields on TimelineItem {
 
 query Timeline($id: String!) {
   timeline(id: $id) {
-     ...TimelineItemFields
+    ...TimelineItemFields
   }
 }
 
@@ -134,7 +135,7 @@ query ProfileTimeline($after: String, $first: Int = 20, $id: Int!) {
     edges {
       cursor
       node {
-         ...TimelineItemFields
+        ...TimelineItemFields
       }
     }
     pageInfo {
@@ -143,23 +144,13 @@ query ProfileTimeline($after: String, $first: Int = 20, $id: Int!) {
   }
 }
 
-query ProfileTimelineByTime(
-  $after: String
-  $first: Int = 20
-  $id: Int!
-  $minimumDanaFilter: Int!
-) {
-  profileTimelineByTime(
-    after: $after
-    first: $first
-    id: $id
-    minimumDanaFilter: $minimumDanaFilter
-  ) {
+query ProfileTimelineByTime($after: String, $first: Int = 20, $id: Int!, $minimumDanaFilter: Int!) {
+  profileTimelineByTime(after: $after, first: $first, id: $id, minimumDanaFilter: $minimumDanaFilter) {
     totalCount
     edges {
       cursor
       node {
-         ...TimelineItemFields
+        ...TimelineItemFields
       }
     }
     pageInfo {
@@ -174,7 +165,7 @@ query PageTimeline($after: String, $first: Int = 20, $id: String!) {
     edges {
       cursor
       node {
-         ...TimelineItemFields
+        ...TimelineItemFields
       }
     }
     pageInfo {
@@ -183,23 +174,13 @@ query PageTimeline($after: String, $first: Int = 20, $id: String!) {
   }
 }
 
-query PageTimelineByTime(
-  $after: String
-  $first: Int = 20
-  $id: String!
-  $minimumDanaFilter: Int!
-) {
-  pageTimelineByTime(
-    after: $after
-    first: $first
-    id: $id
-    minimumDanaFilter: $minimumDanaFilter
-  ) {
+query PageTimelineByTime($after: String, $first: Int = 20, $id: String!, $minimumDanaFilter: Int!) {
+  pageTimelineByTime(after: $after, first: $first, id: $id, minimumDanaFilter: $minimumDanaFilter) {
     totalCount
     edges {
       cursor
       node {
-         ...TimelineItemFields
+        ...TimelineItemFields
       }
     }
     pageInfo {
@@ -214,7 +195,7 @@ query TokenTimeline($after: String, $first: Int = 20, $id: String!) {
     edges {
       cursor
       node {
-         ...TimelineItemFields
+        ...TimelineItemFields
       }
     }
     pageInfo {
@@ -223,23 +204,13 @@ query TokenTimeline($after: String, $first: Int = 20, $id: String!) {
   }
 }
 
-query TokenTimelineByTime(
-  $after: String
-  $first: Int = 20
-  $id: String!
-  $minimumDanaFilter: Int!
-) {
-  tokenTimelineByTime(
-    after: $after
-    first: $first
-    id: $id
-    minimumDanaFilter: $minimumDanaFilter
-  ) {
+query TokenTimelineByTime($after: String, $first: Int = 20, $id: String!, $minimumDanaFilter: Int!) {
+  tokenTimelineByTime(after: $after, first: $first, id: $id, minimumDanaFilter: $minimumDanaFilter) {
     totalCount
     edges {
       cursor
       node {
-         ...TimelineItemFields
+        ...TimelineItemFields
       }
     }
     pageInfo {
