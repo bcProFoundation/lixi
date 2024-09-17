@@ -43,7 +43,7 @@ export class DisputeResolver {
     private readonly disputeCacheService: DisputeCacheService,
     private readonly timelineItemService: TimelineItemService,
     @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>
-  ) { }
+  ) {}
 
   @Query(() => Dispute)
   @UseGuards(GqlJwtAuthGuard)
