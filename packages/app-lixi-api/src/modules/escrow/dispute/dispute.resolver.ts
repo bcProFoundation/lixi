@@ -25,6 +25,11 @@ import { VError } from 'verror';
 import { DisputeCacheService } from './dispute-cache.service';
 import { TimelineItemService } from 'src/modules/timeline/timeline-item.service';
 import { createEdge } from 'src/common/custom-graphql-relay/paginate';
+import { InjectBot } from 'nestjs-telegraf';
+import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../../telegram/telegram-bot.constants';
+import { Context, Telegraf } from 'telegraf';
+import { format } from 'node:util';
+import { BOT } from 'src/utils/bot.constants';
 
 @SkipThrottle()
 @Resolver(() => Dispute)
@@ -36,8 +41,9 @@ export class DisputeResolver {
     @I18n() private i18n: I18nService,
     private readonly disputeLoader: DisputeLoader,
     private readonly disputeCacheService: DisputeCacheService,
-    private readonly timelineItemService: TimelineItemService
-  ) {}
+    private readonly timelineItemService: TimelineItemService,
+    @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>
+  ) { }
 
   @Query(() => Dispute)
   @UseGuards(GqlJwtAuthGuard)
@@ -93,46 +99,69 @@ export class DisputeResolver {
   @Mutation(() => Dispute)
   @UseGuards(GqlJwtAuthGuard)
   async createDispute(@AccountEntity() account: Account, @Args('data') data: CreateDisputeInput) {
-    const { escrowOrderId, createdBy, reason } = data;
+    try {
+      const { escrowOrderId, createdBy, reason } = data;
 
-    const escrowOrder = await this.prisma.escrowOrder.findUnique({
-      where: {
-        id: escrowOrderId
-      },
-      include: {
-        dispute: true
+      const escrowOrder = await this.prisma.escrowOrder.findUnique({
+        where: {
+          id: escrowOrderId
+        },
+        include: {
+          dispute: true,
+          sellerAccount: true,
+          buyerAccount: true
+        }
+      });
+
+      if (!escrowOrder) {
+        throw new Error('Escrow order not found');
       }
-    });
 
-    if (!escrowOrder) {
-      throw new Error('Escrow order not found');
-    }
+      const { sellerAccount, buyerAccount } = escrowOrder;
 
-    if (escrowOrder.dispute) {
-      throw new Error('Escrow order already has a dispute');
-    }
+      if (escrowOrder.dispute) {
+        throw new Error('Escrow order already has a dispute');
+      }
 
-    if (escrowOrder.status !== EscrowOrderStatus.ESCROW) {
-      throw new Error('Escrow order is not in escrow status');
-    }
+      if (escrowOrder.status !== EscrowOrderStatus.ESCROW) {
+        throw new Error('Escrow order is not in escrow status');
+      }
 
-    if (escrowOrder.sellerAccountId !== account.id && escrowOrder.buyerAccountId !== account.id) {
-      throw new Error('You are not allowed to create dispute for this escrow order');
-    }
+      if (escrowOrder.sellerAccountId !== account.id && escrowOrder.buyerAccountId !== account.id) {
+        throw new Error('You are not allowed to create dispute for this escrow order');
+      }
 
-    const dispute = await this.prisma.dispute.create({
-      data: {
-        createdBy,
-        reason,
-        escrowOrder: {
-          connect: {
-            id: escrowOrderId
+      const dispute = await this.prisma.dispute.create({
+        data: {
+          createdBy,
+          reason,
+          escrowOrder: {
+            connect: {
+              id: escrowOrderId
+            }
           }
         }
-      }
-    });
+      });
+      const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`;
 
-    return dispute;
+      if (createdBy === buyerAccount.publicKey && sellerAccount.telegramId) {
+        const formatReplied = format(BOT.MESSAGE.BUYER_RAISED_DISPUTE, reason, url);
+        await this.bot.telegram.sendMessage(sellerAccount.telegramId, formatReplied, {
+          parse_mode: 'Markdown'
+        });
+      }
+
+      if (createdBy === sellerAccount.publicKey && buyerAccount.telegramId) {
+        const formatReplied = format(BOT.MESSAGE.SELLER_RAISED_DISPUTE, reason, url);
+        await this.bot.telegram.sendMessage(buyerAccount.telegramId, formatReplied, {
+          parse_mode: 'Markdown'
+        });
+      }
+
+      return dispute;
+    } catch (e) {
+      this.logger.log(e);
+    }
   }
 
   @Mutation(() => Dispute)

@@ -1544,6 +1544,7 @@ type Query {
   ): WorshipedPersonConnection!
   allWorshipedPersonByUserId(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: WorshipedPersonOrder, skip: Int): WorshipedPersonConnection!
   allWorshipedPersonSpecialDate(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: WorshipedPersonOrder, skip: Int): WorshipedPersonConnection!
+  arbiRequestTelegramChat(escrowOrderId: String!, requestChatPublicKey: String!): Boolean!
   bookmark(id: String!): Bookmark!
   bookmarkTimeline(after: String, first: Int, id: Int!, skip: Int): TimelineItemConnection!
   checkIfFollowAccount(followingAccountId: Int!): Boolean!
@@ -1583,6 +1584,7 @@ type Query {
   topMonthAccountDanaGiven(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, month: Int!, skip: Int, year: Int!): AccountBasicConnection!
   topWeekAccountDanaGiven(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int, week: Int!, year: Int!): AccountBasicConnection!
   userHadMessageToPage(accountId: Int, pageId: String): PageMessageSession
+  userRequestTelegramChat(id: String!): Boolean!
   worship(id: String!): Worship!
   worshipedPerson(id: String!): WorshipedPerson!
 }

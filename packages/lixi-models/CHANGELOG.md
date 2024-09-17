@@ -1,5 +1,17 @@
 # @bcpros/lixi-models
 
+## 1.2.9
+
+### Patch Changes
+
+- Bump version
+
+## 1.2.8
+
+### Patch Changes
+
+- Fix minor issues
+
 ## 1.2.7
 
 ### Patch Changes

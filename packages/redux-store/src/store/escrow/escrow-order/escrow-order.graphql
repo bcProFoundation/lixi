@@ -54,7 +54,13 @@ query AllEscrowOrderByOfferId(
   }
 }
 
+query UserRequestTelegramChat($id: String!) {
+  userRequestTelegramChat(id: $id)
+}
 
+query ArbiRequestTelegramChat($requestChatPublicKey: String!, $escrowOrderId: String!) {
+  arbiRequestTelegramChat(requestChatPublicKey: $requestChatPublicKey, escrowOrderId: $escrowOrderId)
+}
 
 mutation CreateEscrowOrder($input: CreateEscrowOrderInput!) {
   createEscrowOrder(data: $input) {

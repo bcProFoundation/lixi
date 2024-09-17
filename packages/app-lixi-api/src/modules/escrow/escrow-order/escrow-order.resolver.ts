@@ -30,6 +30,13 @@ import { VError } from 'verror';
 import { EscrowOrderCacheService } from './escrow-order-cache.service';
 import { TimelineItemService } from 'src/modules/timeline/timeline-item.service';
 import { createEdge } from 'src/common/custom-graphql-relay/paginate';
+import { format } from 'node:util';
+import { BOT } from 'src/utils/bot.constants';
+import { InjectBot } from 'nestjs-telegraf';
+import { Context, Telegraf } from 'telegraf';
+import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../../telegram/telegram-bot.constants';
+import { GqlThrottlerGuard } from '../../auth/guards/gql-throttler.guard';
+
 
 @SkipThrottle()
 @Resolver(() => EscrowOrder)
@@ -41,8 +48,9 @@ export class EscrowOrderResolver {
     @I18n() private i18n: I18nService,
     private readonly escrowOrderLoader: EscrowOrderLoader,
     private readonly escrowOrderCacheService: EscrowOrderCacheService,
-    private readonly timelineItemService: TimelineItemService
-  ) {}
+    private readonly timelineItemService: TimelineItemService,
+    @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
+  ) { }
 
   @Query(() => Account)
   @UseGuards(GqlJwtAuthGuard)
@@ -110,14 +118,6 @@ export class EscrowOrderResolver {
         throw new Error('Escrow order not found');
       }
 
-      //Check if there is a dispute and if the user is part of the dispute
-      if (
-        !result.dispute &&
-        (result.moderatorAccount.id === account.id || result.arbitratorAccount.id === account.id)
-      ) {
-        throw new Error('User hasnt raised a dispute');
-      }
-
       //Check if the user is part of the escrow order
       if (
         result.buyerAccount.id !== account.id &&
@@ -138,12 +138,152 @@ export class EscrowOrderResolver {
     }
   }
 
+  @Query(() => Boolean)
+  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlThrottlerGuard)
+  async userRequestTelegramChat(@AccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
+    try {
+      const result = await this.prisma.escrowOrder.findUnique({
+        where: {
+          id: id
+        },
+        include: {
+          paymentMethod: true,
+          offer: true,
+          dispute: true,
+          arbitratorAccount: true,
+          buyerAccount: true,
+          sellerAccount: true,
+          moderatorAccount: true,
+          escrowTxids: true
+        }
+      });
+
+      if (!result) {
+        throw new Error('Escrow order not found');
+      }
+
+      //Check if the user is part of the escrow order
+      if (
+        result.buyerAccount.id !== account.id &&
+        result.sellerAccount.id !== account.id &&
+        result.arbitratorAccount.id !== account.id &&
+        result.moderatorAccount.id !== account.id
+      ) {
+        throw new Error('User is not part of the escrow order');
+      }
+
+      const { sellerAccount, buyerAccount } = result;
+      const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`;
+
+      if (account.id === result.sellerAccountId && buyerAccount.telegramId) {
+        const formatReplied = format(BOT.MESSAGE.SELLER_REQUEST_CHAT, sellerAccount.telegramUsername, url);
+        await this.bot.telegram.sendMessage(buyerAccount.telegramId, formatReplied, {
+          parse_mode: 'Markdown'
+        });
+      }
+
+      if (account.id === result.buyerAccountId && sellerAccount.telegramId) {
+        const formatReplied = format(BOT.MESSAGE.BUYER_REQUEST_CHAT, buyerAccount.telegramUsername, url);
+        await this.bot.telegram.sendMessage(sellerAccount.telegramId, formatReplied, {
+          parse_mode: 'Markdown'
+        });
+      }
+
+      return true;
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
+  @Query(() => Boolean)
+  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlThrottlerGuard)
+  async arbiRequestTelegramChat(
+    @AccountEntity() account: Account,
+    @Args('requestChatPublicKey', { type: () => String }) requestChatPublicKey: string,
+    @Args('escrowOrderId', { type: () => String }) escrowOrderId: string
+  ) {
+    try {
+      const result = await this.prisma.escrowOrder.findUnique({
+        where: {
+          id: escrowOrderId
+        },
+        include: {
+          paymentMethod: true,
+          offer: true,
+          dispute: true,
+          arbitratorAccount: true,
+          buyerAccount: true,
+          sellerAccount: true,
+          moderatorAccount: true,
+          escrowTxids: true
+        }
+      });
+
+      if (!result) {
+        throw new Error('Escrow order not found');
+      }
+
+      //Check if the user is part of the escrow order
+      if (
+        result.buyerAccount.id !== account.id &&
+        result.sellerAccount.id !== account.id &&
+        result.arbitratorAccount.id !== account.id &&
+        result.moderatorAccount.id !== account.id
+      ) {
+        throw new Error('User is not part of the escrow order');
+      }
+
+      const { moderatorAccount, arbitratorAccount, sellerAccount, buyerAccount } = result;
+      const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`;
+
+      if (account.id === result.arbitratorAccountId) {
+        if (requestChatPublicKey === sellerAccount.publicKey && sellerAccount.telegramId) {
+          const formatReplied = format(BOT.MESSAGE.ARBI_REQUEST_CHAT, arbitratorAccount.telegramUsername, url);
+          await this.bot.telegram.sendMessage(sellerAccount.telegramId, formatReplied, {
+            parse_mode: 'Markdown'
+          });
+        }
+
+        if (requestChatPublicKey === buyerAccount.publicKey && buyerAccount.telegramId) {
+          const formatReplied = format(BOT.MESSAGE.ARBI_REQUEST_CHAT, arbitratorAccount.telegramUsername, url);
+          await this.bot.telegram.sendMessage(buyerAccount.telegramId, formatReplied, {
+            parse_mode: 'Markdown'
+          });
+        }
+      }
+
+      if (account.id === result.moderatorAccountId) {
+        if (requestChatPublicKey === sellerAccount.publicKey && sellerAccount.telegramId) {
+          const formatReplied = format(BOT.MESSAGE.MOD_REQUEST_CHAT, moderatorAccount.telegramUsername, url);
+          await this.bot.telegram.sendMessage(sellerAccount.telegramId, formatReplied, {
+            parse_mode: 'Markdown'
+          });
+        }
+
+        if (requestChatPublicKey === buyerAccount.publicKey && buyerAccount.telegramId) {
+          const formatReplied = format(BOT.MESSAGE.MOD_REQUEST_CHAT, moderatorAccount.telegramUsername, url);
+          await this.bot.telegram.sendMessage(buyerAccount.telegramId, formatReplied, {
+            parse_mode: 'Markdown'
+          });
+        }
+      }
+
+      return true;
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
+
   @Query(() => TimelineItemConnection)
   @UseGuards(GqlJwtAuthGuard)
   async allEscrowOrderByAccount(
     @AccountEntity() account: Account,
     @Args() { after, first }: BasicPaginationArgs,
     @Args({ name: 'escrowOrderStatus', type: () => EscrowOrderStatus }) escrowOrderStatus: EscrowOrderStatus
+
   ) {
     if (!account) {
       const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
@@ -284,7 +424,28 @@ export class EscrowOrderResolver {
           }
         }
       });
+      const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`;
 
+      if (buyerAccount.telegramId) {
+        const formatReplied = format(BOT.MESSAGE.ORDER_CREATED, url);
+        await this.bot.telegram.sendMessage(buyerAccount.telegramId, formatReplied, {
+          parse_mode: 'Markdown'
+        });
+      }
+
+      if (arbitratorAccount.telegramId) {
+        const formatReplied = format(BOT.MESSAGE.ARBITRATOR_SELECTED, url);
+        await this.bot.telegram.sendMessage(arbitratorAccount.telegramId, formatReplied, {
+          parse_mode: 'Markdown'
+        });
+      }
+
+      if (moderatorAccount.telegramId) {
+        const formatReplied = format(BOT.MESSAGE.MODERATOR_SELECTED, url);
+        await this.bot.telegram.sendMessage(moderatorAccount.telegramId, formatReplied, {
+          parse_mode: 'Markdown'
+        });
+      }
       return escrowOrder;
     } catch (e) {
       this.logger.error(e);
@@ -301,7 +462,11 @@ export class EscrowOrderResolver {
           id: orderId
         },
         include: {
-          dispute: true
+          dispute: true,
+          buyerAccount: true,
+          sellerAccount: true,
+          arbitratorAccount: true,
+          moderatorAccount: true
         }
       });
 
@@ -333,6 +498,7 @@ export class EscrowOrderResolver {
         throw new Error('The order has completed');
       }
 
+      const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`;
       const dataToUpdate = {
         status,
         updatedAt: new Date()
@@ -356,9 +522,39 @@ export class EscrowOrderResolver {
           break;
         case EscrowOrderStatus.COMPLETE:
           _.set(dataToUpdate, 'releaseTxid', txid ?? null);
+
+          if (result.sellerAccount.telegramId) {
+            const formatReplied = format(BOT.MESSAGE.ORDER_COMPLETED, url);
+            await this.bot.telegram.sendMessage(result.sellerAccount.telegramId, formatReplied, {
+              parse_mode: 'Markdown'
+            });
+          }
+
+          if (result.buyerAccount.telegramId) {
+            const formatReplied = format(BOT.MESSAGE.ORDER_COMPLETED, url);
+            await this.bot.telegram.sendMessage(result.buyerAccount.telegramId, formatReplied, {
+              parse_mode: 'Markdown'
+            });
+          }
+
           break;
         case EscrowOrderStatus.CANCEL:
           _.set(dataToUpdate, 'returnTxid', txid ?? null);
+
+          if (result.sellerAccount.telegramId) {
+            const formatReplied = format(BOT.MESSAGE.ORDER_CANCELED, url);
+            await this.bot.telegram.sendMessage(result.sellerAccount.telegramId, formatReplied, {
+              parse_mode: 'Markdown'
+            });
+          }
+
+          if (result.buyerAccount.telegramId) {
+            const formatReplied = format(BOT.MESSAGE.ORDER_CANCELED, url);
+            await this.bot.telegram.sendMessage(result.buyerAccount.telegramId, formatReplied, {
+              parse_mode: 'Markdown'
+            });
+          }
+
           break;
       }
 

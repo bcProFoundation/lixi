@@ -38,6 +38,8 @@ const enhancedApi = api.enhanceEndpoints({
         currentCacheData.allEscrowOrderByOfferId.totalCount = responseData.allEscrowOrderByOfferId.totalCount;
       }
     },
+    UserRequestTelegramChat: {},
+    ArbiRequestTelegramChat: {},
     UpdateEscrowOrderStatus: {
       onQueryStarted: async ({ input }, { dispatch, queryFulfilled }) => {
         const { orderId, status, txid, value } = input;
@@ -103,5 +105,10 @@ export const {
   useAllEscrowOrderByAccountQuery,
   useLazyAllEscrowOrderByAccountQuery,
   useAllEscrowOrderByOfferIdQuery,
-  useLazyAllEscrowOrderByOfferIdQuery
+  useLazyAllEscrowOrderByOfferIdQuery,
+  useLazyUserRequestTelegramChatQuery,
+  useUserRequestTelegramChatQuery,
+  useArbiRequestTelegramChatQuery,
+  useLazyArbiRequestTelegramChatQuery,
+  usePrefetch
 } = enhancedApi;
