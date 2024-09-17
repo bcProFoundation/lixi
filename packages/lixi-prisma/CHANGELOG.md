@@ -1,5 +1,11 @@
 # @bcpros/lixi-prisma
 
+## 1.2.10
+
+### Patch Changes
+
+- Update for offers and escrows
+
 ## 1.2.9
 
 ### Patch Changes
