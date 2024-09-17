@@ -21,13 +21,7 @@ export class ConvertDanaResolver {
 
   @Query(() => Float)
   @UseGuards(GqlJwtAuthGuardByPass)
-  async convertDanaToCoin(
-    @AccountEntity() account: Account,
-    @Args('ConvertDanaInput', { type: () => ConvertDanaInput }) data: ConvertDanaInput
-  ) {
-    if (!account) {
-      return 0;
-    }
+  async convertDanaToCoin(@Args('ConvertDanaInput', { type: () => ConvertDanaInput }) data: ConvertDanaInput) {
     const { convertToCoin } = data;
     const keyHighestConvertRate = template(this.keyHighestConvertData, { coin: convertToCoin });
 

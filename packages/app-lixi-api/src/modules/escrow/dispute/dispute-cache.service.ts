@@ -18,7 +18,7 @@ export class DisputeCacheService {
   constructor(
     private readonly prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis
-  ) { }
+  ) {}
 
   async getById(id: string): Promise<Nullable<Dispute>> {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id);
@@ -65,10 +65,10 @@ export class DisputeCacheService {
     const dbValues =
       uncachedIds.length > 0
         ? await this.prisma.dispute.findMany({
-          where: {
-            id: { in: uncachedIds }
-          }
-        })
+            where: {
+              id: { in: uncachedIds }
+            }
+          })
         : [];
 
     const dbValuesMap = new Map(
@@ -132,39 +132,39 @@ export class DisputeCacheService {
       //query all dispute with of account
       const posts = cursor
         ? await this.prisma.dispute.findMany({
-          select: {
-            id: true,
-            createdAt: true
-          },
-          where: {
-            escrowOrder: {
-              OR: [{ buyerAccountId: accountId }, { sellerAccountId: accountId }]
+            select: {
+              id: true,
+              createdAt: true
             },
-            status: disputeStatus
-          },
-          orderBy: {
-            createdAt: 'desc'
-          },
-          cursor: { id: cursor ? cursor : undefined },
-          take: limit,
-          skip: 1
-        })
+            where: {
+              escrowOrder: {
+                OR: [{ buyerAccountId: accountId }, { sellerAccountId: accountId }]
+              },
+              status: disputeStatus
+            },
+            orderBy: {
+              createdAt: 'desc'
+            },
+            cursor: { id: cursor ? cursor : undefined },
+            take: limit,
+            skip: 1
+          })
         : await this.prisma.dispute.findMany({
-          select: {
-            id: true,
-            createdAt: true
-          },
-          where: {
-            escrowOrder: {
-              OR: [{ buyerAccountId: accountId }, { sellerAccountId: accountId }]
+            select: {
+              id: true,
+              createdAt: true
             },
-            status: disputeStatus
-          },
-          orderBy: {
-            createdAt: 'desc'
-          },
-          take: limit
-        });
+            where: {
+              escrowOrder: {
+                OR: [{ buyerAccountId: accountId }, { sellerAccountId: accountId }]
+              },
+              status: disputeStatus
+            },
+            orderBy: {
+              createdAt: 'desc'
+            },
+            take: limit
+          });
 
       // Check if there are any posts
       // If not means that we should not need to query anymore

@@ -119,7 +119,7 @@ const ShareButton = styled.span`
 const ShareSocialButton = (props: ShareSocialProps) => {
   const { slug, content, accountName, shareForType } = props;
   const baseUrl = process.env.NEXT_PUBLIC_LIXI_URL;
-  const shareUrl = `${baseUrl}${shareForType}/${slug}`;
+  const shareUrl = `${baseUrl}/${shareForType}/${slug}`;
   const isMobile = useDetectMobileView();
 
   const titleShare = content ? `${accountName} at Lixi: "${stripHtml(content).result.substring(0, 50)}..."` : '';

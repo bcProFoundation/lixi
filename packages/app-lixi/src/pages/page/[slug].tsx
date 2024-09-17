@@ -12,23 +12,25 @@ import { NextSeo } from 'next-seo';
 import React, { ReactElement } from 'react';
 import { getSelectorsByUserAgent } from 'react-device-detect';
 import { END } from 'redux-saga';
+import { useRouter } from 'next/router';
 
 const PageDetailPage = props => {
   const { pageAsString, isMobile } = props;
-  const page = JSON.parse(pageAsString);
-  const canonicalUrl = process.env.NEXT_PUBLIC_LIXI_URL + `page/${page.id}`;
+  const page = JSON.parse(pageAsString ?? '{}');
+  const router = useRouter();
+  const pageId = router.query?.slug ?? '';
+  const canonicalUrl = process.env.NEXT_PUBLIC_LIXI_URL + `page/${pageId}`;
   const selectedAccount = useSliceSelector(getSelectedAccount);
 
-  const { currentData: currentDataPageQuery } = usePageQuery({ id: page.id }, { skip: !page });
+  const { currentData: currentDataPageQuery } = usePageQuery({ id: pageId as string }, { skip: !pageId });
+  const pageToRender = currentDataPageQuery?.page ?? page;
 
   const { currentData: currentDataCheckIsFollowed, isSuccess: isSuccessCheckIsFollowed } = useCheckIfFollowPageQuery(
     {
-      pageId: page.id
+      pageId: pageToRender.id
     },
-    { skip: !selectedAccount || !page }
+    { skip: !selectedAccount || !pageToRender }
   );
-
-  const pageToRender = currentDataPageQuery?.page ?? page;
 
   let linkShare;
   if (pageToRender?.cover) {
@@ -43,13 +45,13 @@ const PageDetailPage = props => {
     <React.Fragment>
       <React.Fragment>
         <NextSeo
-          title={page.name}
+          title={pageToRender.name}
           description="A place where you have complete control on what you want to see and what you want others to see collectively. No platform influence. No platform ads."
           canonical={canonicalUrl}
           openGraph={{
             url: canonicalUrl,
-            title: page.name,
-            description: page.description || 'Your Attention Your Money!',
+            title: pageToRender.name,
+            description: pageToRender.description || 'Your Attention Your Money!',
             images: [{ url: linkShare }],
             site_name: 'Lixi'
           }}

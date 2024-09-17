@@ -10,30 +10,35 @@ import { getSelectorsByUserAgent } from 'react-device-detect';
 import { END } from 'redux-saga';
 import { toImageUrl } from '@utils/index';
 import { useGetAccountByAddressQuery } from '@store/account/accounts.api';
+import { useRouter } from 'next/router';
 
 const ProfileDetailPage = props => {
   const { userAddress, isMobile, accountAsString } = props;
-  const account = JSON.parse(accountAsString);
+  const account = JSON.parse(accountAsString ?? '{}');
+  const router = useRouter();
+  const accountAddress = router.query?.slug ?? '';
 
   const { currentData: currentDataProfile } = useGetAccountByAddressQuery(
-    { address: account.address },
-    { skip: !account.address }
+    { address: accountAddress as string },
+    { skip: !accountAddress }
   );
+  const accountToRender = currentDataProfile?.getAccountByAddress ?? account;
+
   const { currentData: currentIsFollowedData, isSuccess: isSuccessCheckFollowed } = useCheckIfFollowAccountQuery({
-    followingAccountId: account.id
+    followingAccountId: accountToRender.id
   });
 
   let isFollowed;
   if (isSuccessCheckFollowed && currentIsFollowedData) {
     isFollowed = currentIsFollowedData.checkIfFollowAccount;
   }
-  const canonicalUrl = process.env.NEXT_PUBLIC_LIXI_URL + `profile/${userAddress}`;
+  const canonicalUrl = process.env.NEXT_PUBLIC_LIXI_URL + `profile/${accountAddress}`;
 
   let linkShare;
-  if (account?.cover) {
-    linkShare = account.cover;
-  } else if (account?.avatar) {
-    linkShare = account.avatar;
+  if (accountToRender?.cover) {
+    linkShare = accountToRender.cover;
+  } else if (accountToRender?.avatar) {
+    linkShare = accountToRender.avatar;
   } else {
     linkShare = process.env.NEXT_PUBLIC_LIXI_URL + 'images/default-avatar.jpg';
   }
@@ -43,13 +48,13 @@ const ProfileDetailPage = props => {
       {account && (
         <React.Fragment>
           <NextSeo
-            title={account.name}
+            title={accountToRender.name}
             description="A place where you have complete control on what you want to see and what you want others to see collectively. No platform influence. No platform ads."
             canonical={canonicalUrl}
             openGraph={{
               url: canonicalUrl,
-              title: account.name,
-              description: account?.description || 'Your Attention Your Money!',
+              title: accountToRender.name,
+              description: accountToRender?.description || 'Your Attention Your Money!',
               images: [{ url: linkShare }],
               site_name: 'Lixi'
             }}
@@ -59,11 +64,7 @@ const ProfileDetailPage = props => {
               cardType: 'summary_large_image'
             }}
           />
-          <ProfileDetail
-            user={currentDataProfile?.getAccountByAddress ?? account}
-            isMobile={isMobile}
-            checkIsFollowed={isFollowed}
-          />
+          <ProfileDetail user={accountToRender} isMobile={isMobile} checkIsFollowed={isFollowed} />
         </React.Fragment>
       )}
     </React.Fragment>

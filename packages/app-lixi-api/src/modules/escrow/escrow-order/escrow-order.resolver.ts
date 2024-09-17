@@ -37,7 +37,6 @@ import { Context, Telegraf } from 'telegraf';
 import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../../telegram/telegram-bot.constants';
 import { GqlThrottlerGuard } from '../../auth/guards/gql-throttler.guard';
 
-
 @SkipThrottle()
 @Resolver(() => EscrowOrder)
 @UseFilters(GqlHttpExceptionFilter)
@@ -49,8 +48,8 @@ export class EscrowOrderResolver {
     private readonly escrowOrderLoader: EscrowOrderLoader,
     private readonly escrowOrderCacheService: EscrowOrderCacheService,
     private readonly timelineItemService: TimelineItemService,
-    @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
-  ) { }
+    @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>
+  ) {}
 
   @Query(() => Account)
   @UseGuards(GqlJwtAuthGuard)
@@ -276,14 +275,12 @@ export class EscrowOrderResolver {
     }
   }
 
-
   @Query(() => TimelineItemConnection)
   @UseGuards(GqlJwtAuthGuard)
   async allEscrowOrderByAccount(
     @AccountEntity() account: Account,
     @Args() { after, first }: BasicPaginationArgs,
     @Args({ name: 'escrowOrderStatus', type: () => EscrowOrderStatus }) escrowOrderStatus: EscrowOrderStatus
-
   ) {
     if (!account) {
       const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
