@@ -42,7 +42,9 @@ const initialState: SettingsState = {
   minimumDanaFilter: 1,
   offerFilterConfig: {
     countryId: null,
+    countryName: '',
     stateId: null,
+    stateName: '',
     paymentMethodIds: []
   }
 };

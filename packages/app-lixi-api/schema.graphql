@@ -1032,8 +1032,10 @@ type OfferBasicEdge {
 
 input OfferFilterInput {
   countryId: Int
+  countryName: String
   paymentMethodIds: [Int!]
   stateId: Int
+  stateName: String
 }
 
 type OfferPaymentMethod {

@@ -166,6 +166,7 @@ export type AllOfferQuery = {
                 name: string;
                 avatar?: string | null;
                 createCommentFee?: string | null;
+                telegramUsername?: string | null;
               };
               page?: {
                 __typename?: 'Page';
@@ -393,6 +394,7 @@ export type OfferByFilterQuery = {
                 name: string;
                 avatar?: string | null;
                 createCommentFee?: string | null;
+                telegramUsername?: string | null;
               };
               page?: {
                 __typename?: 'Page';
@@ -620,6 +622,7 @@ export type AllOfferByAccountQuery = {
                 name: string;
                 avatar?: string | null;
                 createCommentFee?: string | null;
+                telegramUsername?: string | null;
               };
               page?: {
                 __typename?: 'Page';
@@ -756,6 +759,7 @@ export type CreateOfferMutation = {
       name: string;
       avatar?: string | null;
       createCommentFee?: string | null;
+      telegramUsername?: string | null;
     };
     page?: {
       __typename?: 'Page';

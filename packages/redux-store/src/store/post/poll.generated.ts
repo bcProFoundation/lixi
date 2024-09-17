@@ -48,6 +48,7 @@ export type CreatePollMutation = {
       name: string;
       avatar?: string | null;
       createCommentFee?: string | null;
+      telegramUsername?: string | null;
     };
     page?: {
       __typename?: 'Page';

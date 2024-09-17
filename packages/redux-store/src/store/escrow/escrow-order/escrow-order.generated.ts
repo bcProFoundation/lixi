@@ -290,6 +290,7 @@ export type AllEscrowOrderByAccountQuery = {
                 name: string;
                 avatar?: string | null;
                 createCommentFee?: string | null;
+                telegramUsername?: string | null;
               };
               page?: {
                 __typename?: 'Page';
@@ -517,6 +518,7 @@ export type AllEscrowOrderByOfferIdQuery = {
                 name: string;
                 avatar?: string | null;
                 createCommentFee?: string | null;
+                telegramUsername?: string | null;
               };
               page?: {
                 __typename?: 'Page';
