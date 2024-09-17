@@ -318,6 +318,7 @@ fragment PostFields on Post {
     name
     avatar
     createCommentFee
+    telegramUsername
   }
   accountId
   page {
@@ -393,7 +394,7 @@ fragment PostFields on Post {
   poll {
     ...PollFields
   }
-  offer {
+  postOffer: offer {
     ...OfferFields
   }
 }

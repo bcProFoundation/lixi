@@ -30,6 +30,17 @@ const initialState: WalletState = walletAdapter.getInitialState({
     },
     utxos: []
   },
+  walletStatusNode: {
+    balances: {
+      totalBalance: '0',
+      totalBalanceInSatoshis: '0'
+    },
+    parsedTxHistory: [],
+    slpBalancesAndUtxos: {
+      nonSlpUtxos: []
+    },
+    utxos: []
+  },
   mnemonic: '',
   walletRefreshInterval: 5000,
   walletHasUpdated: false

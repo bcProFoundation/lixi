@@ -51,6 +51,7 @@ export type PostQuery = {
       name: string;
       avatar?: string | null;
       createCommentFee?: string | null;
+      telegramUsername?: string | null;
     };
     page?: {
       __typename?: 'Page';
@@ -121,7 +122,7 @@ export type PostQuery = {
         }> | null;
       }>;
     } | null;
-    offer?: {
+    postOffer?: {
       __typename?: 'Offer';
       postId: string;
       publicKey: string;
@@ -191,6 +192,7 @@ export type PostsByPageIdQuery = {
           name: string;
           avatar?: string | null;
           createCommentFee?: string | null;
+          telegramUsername?: string | null;
         };
         page?: {
           __typename?: 'Page';
@@ -261,7 +263,7 @@ export type PostsByPageIdQuery = {
             }> | null;
           }>;
         } | null;
-        offer?: {
+        postOffer?: {
           __typename?: 'Offer';
           postId: string;
           publicKey: string;
@@ -339,6 +341,7 @@ export type PostsByUserIdQuery = {
           name: string;
           avatar?: string | null;
           createCommentFee?: string | null;
+          telegramUsername?: string | null;
         };
         page?: {
           __typename?: 'Page';
@@ -409,7 +412,7 @@ export type PostsByUserIdQuery = {
             }> | null;
           }>;
         } | null;
-        offer?: {
+        postOffer?: {
           __typename?: 'Offer';
           postId: string;
           publicKey: string;
@@ -487,6 +490,7 @@ export type PostsByHashtagIdQuery = {
           name: string;
           avatar?: string | null;
           createCommentFee?: string | null;
+          telegramUsername?: string | null;
         };
         page?: {
           __typename?: 'Page';
@@ -557,7 +561,7 @@ export type PostsByHashtagIdQuery = {
             }> | null;
           }>;
         } | null;
-        offer?: {
+        postOffer?: {
           __typename?: 'Offer';
           postId: string;
           publicKey: string;
@@ -635,6 +639,7 @@ export type PostsByTokenIdQuery = {
           name: string;
           avatar?: string | null;
           createCommentFee?: string | null;
+          telegramUsername?: string | null;
         };
         page?: {
           __typename?: 'Page';
@@ -705,7 +710,7 @@ export type PostsByTokenIdQuery = {
             }> | null;
           }>;
         } | null;
-        offer?: {
+        postOffer?: {
           __typename?: 'Offer';
           postId: string;
           publicKey: string;
@@ -1371,6 +1376,7 @@ export type PostFieldsFragment = {
     name: string;
     avatar?: string | null;
     createCommentFee?: string | null;
+    telegramUsername?: string | null;
   };
   page?: {
     __typename?: 'Page';
@@ -1441,7 +1447,7 @@ export type PostFieldsFragment = {
       }> | null;
     }>;
   } | null;
-  offer?: {
+  postOffer?: {
     __typename?: 'Offer';
     postId: string;
     publicKey: string;
@@ -1609,6 +1615,7 @@ export type CreatePostMutation = {
       name: string;
       avatar?: string | null;
       createCommentFee?: string | null;
+      telegramUsername?: string | null;
     };
     page?: {
       __typename?: 'Page';
@@ -1679,7 +1686,7 @@ export type CreatePostMutation = {
         }> | null;
       }>;
     } | null;
-    offer?: {
+    postOffer?: {
       __typename?: 'Offer';
       postId: string;
       publicKey: string;
@@ -1735,6 +1742,7 @@ export type UpdatePostMutation = {
       name: string;
       avatar?: string | null;
       createCommentFee?: string | null;
+      telegramUsername?: string | null;
     };
     page?: {
       __typename?: 'Page';
@@ -1805,7 +1813,7 @@ export type UpdatePostMutation = {
         }> | null;
       }>;
     } | null;
-    offer?: {
+    postOffer?: {
       __typename?: 'Offer';
       postId: string;
       publicKey: string;
@@ -1867,6 +1875,7 @@ export type RemovePostMutation = {
       name: string;
       avatar?: string | null;
       createCommentFee?: string | null;
+      telegramUsername?: string | null;
     };
     page?: {
       __typename?: 'Page';
@@ -1937,7 +1946,7 @@ export type RemovePostMutation = {
         }> | null;
       }>;
     } | null;
-    offer?: {
+    postOffer?: {
       __typename?: 'Offer';
       postId: string;
       publicKey: string;
@@ -2017,6 +2026,7 @@ export const PostFieldsFragmentDoc = `
     name
     avatar
     createCommentFee
+    telegramUsername
   }
   accountId
   page {
@@ -2092,7 +2102,7 @@ export const PostFieldsFragmentDoc = `
   poll {
     ...PollFields
   }
-  offer {
+  postOffer: offer {
     ...OfferFields
   }
 }

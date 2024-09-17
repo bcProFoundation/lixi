@@ -1,5 +1,13 @@
 # @bcpros/redux-store
 
+## 1.2.10
+
+### Patch Changes
+
+- Update for offers and escrows
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.10
+
 ## 1.2.9
 
 ### Patch Changes

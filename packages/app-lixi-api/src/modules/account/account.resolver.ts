@@ -114,6 +114,8 @@ export class AccountResolver {
         }
       });
 
+      //remove cache
+      await this.accountCacheService.removeByKeys([result.id.toString(), result.address, result.mnemonicHash!]);
       return result;
     } catch (err: unknown) {
       if (err instanceof VError) {

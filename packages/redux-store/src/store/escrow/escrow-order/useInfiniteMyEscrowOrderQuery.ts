@@ -1,32 +1,29 @@
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { TimelineQueryItem } from '../../generated/types';
-import { useOfferByFilterQuery, useLazyOfferByFilterQuery } from './offer.api';
+import { TimelineQueryItem } from '../../../generated/types';
+import { useAllEscrowOrderByAccountQuery, useLazyAllEscrowOrderByAccountQuery } from './escrow-order.api';
 import { BasicPaginationArgs } from '@bcpros/lixi-models/core/pagination/basic.pagination.args';
-import { OfferFilterInput } from '../../generated/types.generated';
+import { EscrowOrderStatus } from '../../../generated/types.generated';
 
-const offerTimelineAdapter = createEntityAdapter<TimelineQueryItem, string>({
+const escrowOrderTimelineAdapter = createEntityAdapter<TimelineQueryItem, string>({
   selectId: item => item.id
 });
 
-const { selectAll } = offerTimelineAdapter.getSelectors();
+const { selectAll } = escrowOrderTimelineAdapter.getSelectors();
 
-type FilterOfferType = BasicPaginationArgs & {
-  offerFilterInput: OfferFilterInput;
+type MyEscrowOrderType = BasicPaginationArgs & {
+  escrowOrderStatus: EscrowOrderStatus;
 };
 
-export function useInfiniteOfferFilterQuery(
-  params: FilterOfferType,
+export function useInfiniteMyEscrowOrderQuery(
+  params: MyEscrowOrderType,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const { countryId, stateId, paymentMethodIds } = params.offerFilterInput;
-  const baseResult = useOfferByFilterQuery(params, {
-    skip: !countryId && !stateId && (paymentMethodIds?.length ?? 0) === 0
-  });
+  const baseResult = useAllEscrowOrderByAccountQuery(params, { skip: !params.escrowOrderStatus });
 
-  const [trigger, nextResult] = useLazyOfferByFilterQuery();
-  const [combinedData, setCombinedData] = useState(offerTimelineAdapter.getInitialState({}));
+  const [trigger, nextResult] = useLazyAllEscrowOrderByAccountQuery();
+  const [combinedData, setCombinedData] = useState(escrowOrderTimelineAdapter.getInitialState({}));
 
   const isBaseReady = useRef(false);
   const isNextDone = useRef(true);
@@ -41,13 +38,13 @@ export function useInfiniteOfferFilterQuery(
 
   // Base result
   useEffect(() => {
-    next.current = baseResult.data?.offerByFilter?.pageInfo?.endCursor;
-    if (baseResult?.data?.offerByFilter) {
+    next.current = baseResult.data?.allEscrowOrderByAccount?.pageInfo?.endCursor;
+    if (baseResult?.data?.allEscrowOrderByAccount) {
       isBaseReady.current = true;
 
-      const adapterSetAll = offerTimelineAdapter.setAll(
+      const adapterSetAll = escrowOrderTimelineAdapter.setAll(
         combinedData,
-        baseResult.data?.offerByFilter.edges.map(item => item.node)
+        baseResult.data?.allEscrowOrderByAccount.edges.map(item => item.node)
       );
 
       setCombinedData(adapterSetAll);
@@ -81,7 +78,7 @@ export function useInfiniteOfferFilterQuery(
   };
   return {
     data: data ?? [],
-    totalCount: baseResult?.data?.offerByFilter.totalCount ?? 0,
+    totalCount: baseResult?.data?.allEscrowOrderByAccount.totalCount ?? 0,
     error: baseResult?.error,
     isError: baseResult?.isError,
     isLoading: baseResult?.isLoading,
@@ -89,7 +86,7 @@ export function useInfiniteOfferFilterQuery(
     errorNext: nextResult?.error,
     isErrorNext: nextResult?.isError,
     isFetchingNext: nextResult?.isFetching,
-    hasNext: !!baseResult.data?.offerByFilter?.pageInfo?.hasNextPage,
+    hasNext: !!baseResult.data?.allEscrowOrderByAccount?.pageInfo?.hasNextPage,
     fetchNext,
     refetch
   };

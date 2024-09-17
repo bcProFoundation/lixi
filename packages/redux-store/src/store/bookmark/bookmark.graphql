@@ -25,13 +25,7 @@ query BookmarkTimeline($first: Int = 20, $after: String, $id: Int!) {
     edges {
       cursor
       node {
-        id
-        data {
-          __typename
-          ... on Post {
-            ...PostFields
-          }
-        }
+       ...TimelineItemFields
       }
     }
     pageInfo {

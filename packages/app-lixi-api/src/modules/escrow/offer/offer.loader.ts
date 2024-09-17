@@ -4,7 +4,7 @@ import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class OfferLoader {

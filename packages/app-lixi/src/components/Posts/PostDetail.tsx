@@ -160,6 +160,10 @@ const PostContentDetail = styled.div`
     div[data-lexical-decorator] {
       display: flex;
       justify-content: center;
+      div[style*='width: 550px'] {
+        max-width: 550px;
+        width: auto !important;
+      }
     }
     a {
       cursor: pointer;

@@ -12,6 +12,7 @@ export * from './constants/dana';
 export * from './constants/notification';
 export * from './constants/pollType';
 export * from './constants/post';
+export * from './constants/timeline';
 export * from './constants/postListType';
 export * from './constants/postQueryTag';
 export * from './constants/share';

@@ -36,6 +36,7 @@ import { useInfiniteTokenTimelineByScoreQuery, useInfiniteTokenTimelineByTimeQue
 import { FollowForType } from '@bcpros/lixi-models/lib/follow/follow.model';
 import { ParamPostFollowCommand } from '@bcpros/lixi-models';
 import { changeFollowActionSheetPost } from '@store/post/actions';
+import { TimelineQueryData } from '@bcpros/redux-store';
 
 const StyledTokensFeed = styled.div`
   margin: 1rem auto;
@@ -487,7 +488,7 @@ const TokensFeed = ({ token, checkIsFollowed, isMobile }: TokenProps) => {
             {queryData.map((item, index) => {
               return (
                 <PostListItem
-                  item={item}
+                  item={item as TimelineQueryData}
                   key={item.id}
                   addToRecentHashtags={hashtag =>
                     dispatch(addRecentHashtagAtToken({ id: token.id, hashtag: hashtag.substring(1) }))
