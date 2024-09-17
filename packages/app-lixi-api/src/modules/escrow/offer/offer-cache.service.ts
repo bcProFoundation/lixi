@@ -25,7 +25,7 @@ export class OfferCacheService {
   constructor(
     private readonly prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis
-  ) {}
+  ) { }
 
   async getById(id: string): Promise<Nullable<Offer>> {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id);
@@ -74,10 +74,10 @@ export class OfferCacheService {
     const dbValues =
       uncachedIds.length > 0
         ? await this.prisma.offer.findMany({
-            where: {
-              postId: { in: uncachedIds }
-            }
-          })
+          where: {
+            postId: { in: uncachedIds }
+          }
+        })
         : [];
 
     const dbValuesMap = new Map(
@@ -168,8 +168,7 @@ export class OfferCacheService {
     const paginated = await basicSortedSetPagination(this.redis, key, first, after);
     const hasNextPage = paginated.pageInfo.hasNextPage;
     if (!hasNextPage) {
-      const offset = paginated.totalCount;
-      const shouldPaginate = await this.cacheMyOfferTimelineByTime(accountId, offerStatus, limit, offset);
+      const shouldPaginate = await this.cacheMyOfferTimelineByTime(accountId, offerStatus, limit, after);
       if (shouldPaginate) {
         return await basicSortedSetPagination(this.redis, key, first, after);
       }
@@ -247,29 +246,48 @@ export class OfferCacheService {
     accountId: number,
     offerStatus: OfferStatus,
     limit: number = 0,
-    offset: number = 0
+    cursor?: string
   ) {
     const key = template(`${OfferCacheService.myOfferTimeline}`, { accountId, offerStatus });
     try {
       //query all post with of account
-      const posts = await this.prisma.post.findMany({
-        select: {
-          id: true,
-          type: true,
-          createdAt: true
-        },
-        where: {
-          accountId,
-          offer: {
-            status: offerStatus
-          }
-        },
-        orderBy: {
-          createdAt: 'desc'
-        },
-        take: limit,
-        skip: offset
-      });
+      const posts = cursor
+        ? await this.prisma.post.findMany({
+          select: {
+            id: true,
+            type: true,
+            createdAt: true
+          },
+          where: {
+            accountId,
+            offer: {
+              status: offerStatus
+            }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          },
+          cursor: { id: cursor ? cursor : undefined },
+          take: limit,
+          skip: 1 // skip cursor item
+        })
+        : await this.prisma.post.findMany({
+          select: {
+            id: true,
+            type: true,
+            createdAt: true
+          },
+          where: {
+            accountId,
+            offer: {
+              status: offerStatus
+            }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          },
+          take: limit
+        });
 
       // Check if there are any posts
       // If not means that we should not need to query anymore

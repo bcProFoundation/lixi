@@ -18,7 +18,7 @@ export class DisputeCacheService {
   constructor(
     private readonly prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis
-  ) {}
+  ) { }
 
   async getById(id: string): Promise<Nullable<Dispute>> {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id);
@@ -65,10 +65,10 @@ export class DisputeCacheService {
     const dbValues =
       uncachedIds.length > 0
         ? await this.prisma.dispute.findMany({
-            where: {
-              id: { in: uncachedIds }
-            }
-          })
+          where: {
+            id: { in: uncachedIds }
+          }
+        })
         : [];
 
     const dbValuesMap = new Map(
@@ -112,8 +112,7 @@ export class DisputeCacheService {
     const paginated = await basicSortedSetPagination(this.redis, key, first, after);
     const hasNextPage = paginated.pageInfo.hasNextPage;
     if (!hasNextPage) {
-      const offset = paginated.totalCount;
-      const shouldPaginate = await this.cacheMyDisputeTimelineByTime(accountId, disputeStatus, limit, offset);
+      const shouldPaginate = await this.cacheMyDisputeTimelineByTime(accountId, disputeStatus, limit, after);
       if (shouldPaginate) {
         return await basicSortedSetPagination(this.redis, key, first, after);
       }
@@ -126,28 +125,46 @@ export class DisputeCacheService {
     accountId: number,
     disputeStatus: DisputeStatus,
     limit: number = 0,
-    offset: number = 0
+    cursor?: string
   ) {
     const key = template(`${DisputeCacheService.myDisputeTimeline}`, { accountId, disputeStatus });
     try {
       //query all dispute with of account
-      const posts = await this.prisma.dispute.findMany({
-        select: {
-          id: true,
-          createdAt: true
-        },
-        where: {
-          escrowOrder: {
-            OR: [{ buyerAccountId: accountId }, { sellerAccountId: accountId }]
+      const posts = cursor
+        ? await this.prisma.dispute.findMany({
+          select: {
+            id: true,
+            createdAt: true
           },
-          status: disputeStatus
-        },
-        orderBy: {
-          createdAt: 'desc'
-        },
-        take: limit,
-        skip: offset
-      });
+          where: {
+            escrowOrder: {
+              OR: [{ buyerAccountId: accountId }, { sellerAccountId: accountId }]
+            },
+            status: disputeStatus
+          },
+          orderBy: {
+            createdAt: 'desc'
+          },
+          cursor: { id: cursor ? cursor : undefined },
+          take: limit,
+          skip: 1
+        })
+        : await this.prisma.dispute.findMany({
+          select: {
+            id: true,
+            createdAt: true
+          },
+          where: {
+            escrowOrder: {
+              OR: [{ buyerAccountId: accountId }, { sellerAccountId: accountId }]
+            },
+            status: disputeStatus
+          },
+          orderBy: {
+            createdAt: 'desc'
+          },
+          take: limit
+        });
 
       // Check if there are any posts
       // If not means that we should not need to query anymore

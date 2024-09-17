@@ -131,13 +131,7 @@ export class EscrowOrderCacheService {
     const paginated = await basicSortedSetPagination(this.redis, key, first, after);
     const hasNextPage = paginated.pageInfo.hasNextPage;
     if (!hasNextPage) {
-      const offset = paginated.totalCount;
-      const shouldPaginate = await this.cacheMyEscrowOrderTimelineByTime(
-        accountId,
-        keyEscrowOrderStatus,
-        limit,
-        offset
-      );
+      const shouldPaginate = await this.cacheMyEscrowOrderTimelineByTime(accountId, keyEscrowOrderStatus, limit, after);
       if (shouldPaginate) {
         return await basicSortedSetPagination(this.redis, key, first, after);
       }
@@ -155,8 +149,7 @@ export class EscrowOrderCacheService {
     const paginated = await basicSortedSetPagination(this.redis, key, first, after);
     const hasNextPage = paginated.pageInfo.hasNextPage;
     if (!hasNextPage) {
-      const offset = paginated.totalCount;
-      const shouldPaginate = await this.cacheEscrowOrderByOfferIdTimelineByTime(offerId, limit, offset);
+      const shouldPaginate = await this.cacheEscrowOrderByOfferIdTimelineByTime(offerId, limit, after);
       if (shouldPaginate) {
         return await basicSortedSetPagination(this.redis, key, first, after);
       }
@@ -169,7 +162,7 @@ export class EscrowOrderCacheService {
     accountId: number,
     keyEscrowOrderStatus: string,
     limit: number = 0,
-    offset: number = 0
+    cursor?: string
   ) {
     const key = template(`${EscrowOrderCacheService.myEscrowOrderTimeline}`, {
       accountId,
@@ -177,24 +170,43 @@ export class EscrowOrderCacheService {
     });
     try {
       //query all escrow-order with of account
-      const posts = await this.prisma.escrowOrder.findMany({
-        select: {
-          id: true,
-          createdAt: true
-        },
-        where: {
-          buyerAccountId: accountId,
-          OR:
-            keyEscrowOrderStatus === TIMELINE_ESCROW_ORDER.active
-              ? [{ status: 'ACTIVE' }, { status: 'PENDING' }, { status: 'ESCROW' }]
-              : [{ status: 'CANCEL' }, { status: 'COMPLETE' }]
-        },
-        orderBy: {
-          createdAt: 'desc'
-        },
-        take: limit,
-        skip: offset
-      });
+      const posts = cursor
+        ? await this.prisma.escrowOrder.findMany({
+            select: {
+              id: true,
+              createdAt: true
+            },
+            where: {
+              buyerAccountId: accountId,
+              OR:
+                keyEscrowOrderStatus === TIMELINE_ESCROW_ORDER.active
+                  ? [{ status: 'ACTIVE' }, { status: 'PENDING' }, { status: 'ESCROW' }]
+                  : [{ status: 'CANCEL' }, { status: 'COMPLETE' }]
+            },
+            orderBy: {
+              createdAt: 'desc'
+            },
+            cursor: { id: cursor ? cursor : undefined },
+            take: limit,
+            skip: 1
+          })
+        : await this.prisma.escrowOrder.findMany({
+            select: {
+              id: true,
+              createdAt: true
+            },
+            where: {
+              buyerAccountId: accountId,
+              OR:
+                keyEscrowOrderStatus === TIMELINE_ESCROW_ORDER.active
+                  ? [{ status: 'ACTIVE' }, { status: 'PENDING' }, { status: 'ESCROW' }]
+                  : [{ status: 'CANCEL' }, { status: 'COMPLETE' }]
+            },
+            orderBy: {
+              createdAt: 'desc'
+            },
+            take: limit
+          });
 
       // Check if there are any posts
       // If not means that we should not need to query anymore
@@ -211,24 +223,39 @@ export class EscrowOrderCacheService {
       this.logger.error(err);
     }
   }
-  private async cacheEscrowOrderByOfferIdTimelineByTime(offerId: string, limit: number = 0, offset: number = 0) {
+  private async cacheEscrowOrderByOfferIdTimelineByTime(offerId: string, limit: number = 0, cursor?: string) {
     const key = template(`${EscrowOrderCacheService.escrowOrderByOfferIdTimeline}`, { offerId });
     try {
       //query all escrow-order with of account
-      const posts = await this.prisma.escrowOrder.findMany({
-        select: {
-          id: true,
-          createdAt: true
-        },
-        where: {
-          offerId: offerId
-        },
-        orderBy: {
-          createdAt: 'desc'
-        },
-        take: limit,
-        skip: offset
-      });
+      const posts = cursor
+        ? await this.prisma.escrowOrder.findMany({
+            select: {
+              id: true,
+              createdAt: true
+            },
+            where: {
+              offerId: offerId
+            },
+            orderBy: {
+              createdAt: 'desc'
+            },
+            cursor: { id: cursor ? cursor : undefined },
+            take: limit,
+            skip: 1 // skip cursor item
+          })
+        : await this.prisma.escrowOrder.findMany({
+            select: {
+              id: true,
+              createdAt: true
+            },
+            where: {
+              offerId: offerId
+            },
+            orderBy: {
+              createdAt: 'desc'
+            },
+            take: limit
+          });
 
       // Check if there are any posts
       // If not means that we should not need to query anymore
