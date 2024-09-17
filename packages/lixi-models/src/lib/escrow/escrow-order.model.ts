@@ -18,14 +18,26 @@ export class EscrowOrder {
   @Field(() => Account)
   sellerAccount: Account;
 
+  @Field(() => Number)
+  sellerAccountId: number;
+
   @Field(() => Account)
   buyerAccount: Account;
+
+  @Field(() => Number)
+  buyerAccountId: number;
 
   @Field(() => Account)
   arbitratorAccount: Account;
 
+  @Field(() => Number)
+  arbitratorAccountId: number;
+
   @Field(() => Account)
   moderatorAccount: Account;
+
+  @Field(() => Number)
+  moderatorAccountId: number;
 
   @Field(() => String)
   escrowAddress: string;
@@ -37,8 +49,7 @@ export class EscrowOrder {
   paymentMethodId: number;
 
   @Field(() => String, { nullable: true })
-  @IsOptional()
-  message?: string;
+  message?: Nullable<string>;
 
   @Field(() => Number)
   price: number;
@@ -66,15 +77,15 @@ export class EscrowOrder {
 
   @Field(() => String, { nullable: true })
   @IsOptional()
-  releaseTxid?: string;
+  releaseTxid?: Nullable<string>;
 
   @Field(() => String, { nullable: true })
   @IsOptional()
-  returnTxid?: string;
+  returnTxid?: Nullable<string>;
 
   @Field(() => Dispute, { nullable: true })
   @IsOptional()
-  dispute?: Dispute;
+  dispute?: Nullable<Dispute>;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.'
@@ -85,6 +96,10 @@ export class EscrowOrder {
     description: 'Identifies the date and time when the object was last updated.'
   })
   updatedAt: Date;
+
+  constructor(partial: Partial<EscrowOrder>) {
+    Object.assign(this, partial);
+  }
 }
 
 export enum EscrowOrderStatus {

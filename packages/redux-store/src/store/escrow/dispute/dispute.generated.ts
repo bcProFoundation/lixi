@@ -9,45 +9,51 @@
  * for this file to be re-created
  */
 
-import * as Types from '../../generated/types.generated';
+import * as Types from '../../../generated/types.generated';
 
-import { TimelineItemFieldsFragmentDoc } from '../timeline/timeline.generated';
-import { BasicPageInfoFieldsFragmentDoc } from '../../graphql/fragments/basic-page-info-fields.fragment.generated';
+import { DisputeFieldsFragmentDoc, TimelineItemFieldsFragmentDoc } from '../../timeline/timeline.generated';
+import { BasicPageInfoFieldsFragmentDoc } from '../../../graphql/fragments/basic-page-info-fields.fragment.generated';
 import { api } from '@store/baseApi';
-export type BookmarkFieldsFragment = {
-  __typename?: 'Bookmark';
-  id: string;
-  bookmarkableId: string;
-  createdAt?: any | null;
-  updatedAt?: any | null;
-  account: { __typename?: 'Account'; address: string; id: number; name: string };
-};
-
-export type BookmarkQueryVariables = Types.Exact<{
+export type DisputeQueryVariables = Types.Exact<{
   id: Types.Scalars['String']['input'];
 }>;
 
-export type BookmarkQuery = {
+export type DisputeQuery = {
   __typename?: 'Query';
-  bookmark: {
-    __typename?: 'Bookmark';
+  dispute: {
+    __typename?: 'Dispute';
     id: string;
-    bookmarkableId: string;
-    createdAt?: any | null;
-    updatedAt?: any | null;
-    account: { __typename?: 'Account'; address: string; id: number; name: string };
+    reason?: string | null;
+    createdBy: string;
+    createdAt: any;
+    updatedAt: any;
+    disputeStatus: Types.DisputeStatus;
+    escrowOrder: {
+      __typename?: 'EscrowOrder';
+      amount: number;
+      id: string;
+      buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+      sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+      offer: {
+        __typename?: 'Offer';
+        message: string;
+        createdAt: any;
+        country?: { __typename?: 'Country'; name: string } | null;
+        state?: { __typename?: 'State'; name?: string | null } | null;
+      };
+    };
   };
 };
 
-export type BookmarkTimelineQueryVariables = Types.Exact<{
+export type AllDisputeByAccountQueryVariables = Types.Exact<{
   first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   after?: Types.InputMaybe<Types.Scalars['String']['input']>;
-  id: Types.Scalars['Int']['input'];
+  disputeStatus: Types.DisputeStatus;
 }>;
 
-export type BookmarkTimelineQuery = {
+export type AllDisputeByAccountQuery = {
   __typename?: 'Query';
-  bookmarkTimeline: {
+  allDisputeByAccount: {
     __typename?: 'TimelineItemConnection';
     totalCount: number;
     edges: Array<{
@@ -266,61 +272,28 @@ export type BookmarkTimelineQuery = {
   };
 };
 
-export type CreateBookmarkMutationVariables = Types.Exact<{
-  input: Types.CreateBookmarkInput;
+export type CreateDisputeMutationVariables = Types.Exact<{
+  input: Types.CreateDisputeInput;
 }>;
 
-export type CreateBookmarkMutation = {
-  __typename?: 'Mutation';
-  createBookmark: {
-    __typename?: 'Bookmark';
-    id: string;
-    bookmarkableId: string;
-    createdAt?: any | null;
-    updatedAt?: any | null;
-    account: { __typename?: 'Account'; address: string; id: number; name: string };
-  };
-};
+export type CreateDisputeMutation = { __typename?: 'Mutation'; createDispute: { __typename?: 'Dispute'; id: string } };
 
-export type RemoveBookmarkMutationVariables = Types.Exact<{
-  input: Types.RemoveBookmarkInput;
+export type UpdateDisputeMutationVariables = Types.Exact<{
+  input: Types.UpdateDisputeInput;
 }>;
 
-export type RemoveBookmarkMutation = {
-  __typename?: 'Mutation';
-  removeBookmark: {
-    __typename?: 'Bookmark';
-    id: string;
-    bookmarkableId: string;
-    createdAt?: any | null;
-    updatedAt?: any | null;
-    account: { __typename?: 'Account'; address: string; id: number; name: string };
-  };
-};
+export type UpdateDisputeMutation = { __typename?: 'Mutation'; updateDispute: { __typename?: 'Dispute'; id: string } };
 
-export const BookmarkFieldsFragmentDoc = `
-    fragment BookmarkFields on Bookmark {
-  id
-  account {
-    address
-    id
-    name
-  }
-  bookmarkableId
-  createdAt
-  updatedAt
-}
-    `;
-export const BookmarkDocument = `
-    query Bookmark($id: String!) {
-  bookmark(id: $id) {
-    ...BookmarkFields
+export const DisputeDocument = `
+    query Dispute($id: String!) {
+  dispute(id: $id) {
+    ...DisputeFields
   }
 }
-    ${BookmarkFieldsFragmentDoc}`;
-export const BookmarkTimelineDocument = `
-    query BookmarkTimeline($first: Int = 20, $after: String, $id: Int!) {
-  bookmarkTimeline(first: $first, after: $after, id: $id) {
+    ${DisputeFieldsFragmentDoc}`;
+export const AllDisputeByAccountDocument = `
+    query AllDisputeByAccount($first: Int = 20, $after: String, $disputeStatus: DisputeStatus!) {
+  allDisputeByAccount(first: $first, after: $after, disputeStatus: $disputeStatus) {
     totalCount
     edges {
       cursor
@@ -335,35 +308,35 @@ export const BookmarkTimelineDocument = `
 }
     ${TimelineItemFieldsFragmentDoc}
 ${BasicPageInfoFieldsFragmentDoc}`;
-export const CreateBookmarkDocument = `
-    mutation CreateBookmark($input: CreateBookmarkInput!) {
-  createBookmark(data: $input) {
-    ...BookmarkFields
+export const CreateDisputeDocument = `
+    mutation CreateDispute($input: CreateDisputeInput!) {
+  createDispute(data: $input) {
+    id
   }
 }
-    ${BookmarkFieldsFragmentDoc}`;
-export const RemoveBookmarkDocument = `
-    mutation RemoveBookmark($input: RemoveBookmarkInput!) {
-  removeBookmark(data: $input) {
-    ...BookmarkFields
+    `;
+export const UpdateDisputeDocument = `
+    mutation UpdateDispute($input: UpdateDisputeInput!) {
+  updateDispute(data: $input) {
+    id
   }
 }
-    ${BookmarkFieldsFragmentDoc}`;
+    `;
 
 const injectedRtkApi = api.injectEndpoints({
   overrideExisting: true,
   endpoints: build => ({
-    Bookmark: build.query<BookmarkQuery, BookmarkQueryVariables>({
-      query: variables => ({ document: BookmarkDocument, variables })
+    Dispute: build.query<DisputeQuery, DisputeQueryVariables>({
+      query: variables => ({ document: DisputeDocument, variables })
     }),
-    BookmarkTimeline: build.query<BookmarkTimelineQuery, BookmarkTimelineQueryVariables>({
-      query: variables => ({ document: BookmarkTimelineDocument, variables })
+    AllDisputeByAccount: build.query<AllDisputeByAccountQuery, AllDisputeByAccountQueryVariables>({
+      query: variables => ({ document: AllDisputeByAccountDocument, variables })
     }),
-    CreateBookmark: build.mutation<CreateBookmarkMutation, CreateBookmarkMutationVariables>({
-      query: variables => ({ document: CreateBookmarkDocument, variables })
+    CreateDispute: build.mutation<CreateDisputeMutation, CreateDisputeMutationVariables>({
+      query: variables => ({ document: CreateDisputeDocument, variables })
     }),
-    RemoveBookmark: build.mutation<RemoveBookmarkMutation, RemoveBookmarkMutationVariables>({
-      query: variables => ({ document: RemoveBookmarkDocument, variables })
+    UpdateDispute: build.mutation<UpdateDisputeMutation, UpdateDisputeMutationVariables>({
+      query: variables => ({ document: UpdateDisputeDocument, variables })
     })
   })
 });

@@ -1,3 +1,4 @@
+import { TimelineQueryData } from '@bcpros/redux-store';
 import CreatePostCard from '@components/Common/CreatePostCard';
 import PostListItem from '@components/Posts/PostListItem';
 import { OrderDirection, PostOrderField } from '@generated/types.generated';
@@ -86,7 +87,7 @@ const Hashtag = ({ hashtag, isMobile }: HashtagProps) => {
         scrollableTarget="scrollableDiv"
       >
         {data.map((item, index) => {
-          return <PostListItem item={item} key={item.id} />;
+          return <PostListItem item={item as TimelineQueryData} key={item.id} />;
         })}
       </InfiniteScroll>
     </StyledContainer>

@@ -1,39 +1,42 @@
 import {
-  AcceptEscrowOrderInput,
   Account,
-  CancelEscrowOrderInput,
   CreateEscrowOrderInput,
-  EscrowOrderConnection,
-  EscrowOrderOrder,
-  PaginationArgs,
   EscrowOrder,
   PaymentMethod,
   Offer,
   Dispute,
   EscrowOrderStatus,
   UpdateEscrowOrderInput,
-  DisputeStatus
+  DisputeStatus,
+  EscrowTxid,
+  TimelineItemConnection,
+  BasicPaginationArgs,
+  TimelineItem,
+  IBasicPaginated,
+  TIMELINE_TYPE
 } from '@bcpros/lixi-models';
-import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
-import { SkipThrottle, Throttle } from '@nestjs/throttler';
-import { PubSub } from 'graphql-subscriptions';
+import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { SkipThrottle } from '@nestjs/throttler';
 import * as _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { Role } from '@bcpros/lixi-prisma';
-import { GqlJwtAuthGuard } from '../auth/guards/gql-jwtauth.guard';
+import { GqlJwtAuthGuard } from '../../auth/guards/gql-jwtauth.guard';
 import { AccountEntity } from 'src/decorators';
+import EscrowOrderLoader from './escrow-order.loader';
+import { VError } from 'verror';
+import { EscrowOrderCacheService } from './escrow-order-cache.service';
+import { TimelineItemService } from 'src/modules/timeline/timeline-item.service';
+import { createEdge } from 'src/common/custom-graphql-relay/paginate';
 import { format } from 'node:util';
 import { BOT } from 'src/utils/bot.constants';
 import { InjectBot } from 'nestjs-telegraf';
 import { Context, Telegraf } from 'telegraf';
-import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../telegram/telegram-bot.constants';
-import { GqlThrottlerGuard } from '../auth/guards/gql-throttler.guard';
+import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../../telegram/telegram-bot.constants';
+import { GqlThrottlerGuard } from '../../auth/guards/gql-throttler.guard';
 
-const pubSub = new PubSub();
 
 @SkipThrottle()
 @Resolver(() => EscrowOrder)
@@ -42,16 +45,15 @@ export class EscrowOrderResolver {
   constructor(
     private logger: Logger,
     private prisma: PrismaService,
+    @I18n() private i18n: I18nService,
+    private readonly escrowOrderLoader: EscrowOrderLoader,
+    private readonly escrowOrderCacheService: EscrowOrderCacheService,
+    private readonly timelineItemService: TimelineItemService,
     @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
-    @I18n() private i18n: I18nService
-  ) {}
-
-  @Subscription(() => EscrowOrder)
-  escrowOrderCreated() {
-    return pubSub.asyncIterator('escrowOrderCreated');
-  }
+  ) { }
 
   @Query(() => Account)
+  @UseGuards(GqlJwtAuthGuard)
   async getModeratorAccount() {
     try {
       return this.prisma.account.findFirst({
@@ -274,32 +276,58 @@ export class EscrowOrderResolver {
     }
   }
 
-  @Query(() => EscrowOrderConnection)
-  async allEscrowOrderByOfferId(
-    @Args() { after, before, first, last }: PaginationArgs,
-    @Args({ name: 'offerId', type: () => String }) offerId: string,
-    @Args({
-      name: 'orderBy',
-      type: () => EscrowOrderOrder,
-      nullable: true
-    })
-    orderBy: EscrowOrderOrder
+
+  @Query(() => TimelineItemConnection)
+  @UseGuards(GqlJwtAuthGuard)
+  async allEscrowOrderByAccount(
+    @AccountEntity() account: Account,
+    @Args() { after, first }: BasicPaginationArgs,
+    @Args({ name: 'escrowOrderStatus', type: () => EscrowOrderStatus }) escrowOrderStatus: EscrowOrderStatus
+
   ) {
-    const result = await findManyCursorConnection(
-      args =>
-        this.prisma.escrowOrder.findMany({
-          include: {
-            paymentMethod: true
-          },
-          where: {
-            offerId: offerId
-          },
-          orderBy: orderBy ? { [orderBy.field]: orderBy.direction } : undefined,
-          ...args
-        }),
-      () => this.prisma.escrowOrder.count({}),
-      { first, last, before, after }
+    if (!account) {
+      const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
+      throw new VError(accountNotExistMessage);
+    }
+    const paginated = await this.escrowOrderCacheService.getPaginatedMyEscrowOrderTimelineByTime(
+      account.id,
+      escrowOrderStatus,
+      first,
+      after
     );
+    const timelineIds = paginated.edges.map(item => item.cursor);
+    // const timelines = await this.escrowOrderCacheService.getByIds(timelineIds);
+    const timelines = await this.timelineItemService.getByIds(timelineIds, TIMELINE_TYPE.ESCROWORDER);
+    const result = {
+      ...paginated,
+      edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+    } as IBasicPaginated<TimelineItem>;
+    return result;
+  }
+
+  @Query(() => TimelineItemConnection)
+  @UseGuards(GqlJwtAuthGuard)
+  async allEscrowOrderByOfferId(
+    @AccountEntity() account: Account,
+    @Args() { after, first }: BasicPaginationArgs,
+    @Args({ name: 'offerId', type: () => String }) offerId: string
+  ) {
+    if (!account) {
+      const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
+      throw new VError(accountNotExistMessage);
+    }
+    const paginated = await this.escrowOrderCacheService.getPaginatedEscrowOrderByOfferIdTimelineByTime(
+      offerId,
+      first,
+      after
+    );
+    const timelineIds = paginated.edges.map(item => item.cursor);
+    // const timelines = await this.timelineItemService.getByIds(timelineIds);
+    const timelines = await this.timelineItemService.getByIds(timelineIds, TIMELINE_TYPE.ESCROWORDER);
+    const result = {
+      ...paginated,
+      edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+    } as IBasicPaginated<TimelineItem>;
     return result;
   }
 
@@ -396,7 +424,6 @@ export class EscrowOrderResolver {
           }
         }
       });
-
       const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`;
 
       if (buyerAccount.telegramId) {
@@ -419,8 +446,6 @@ export class EscrowOrderResolver {
           parse_mode: 'Markdown'
         });
       }
-
-      pubSub.publish('escrowOrderCreated', { escrowOrderCreated: escrowOrder });
       return escrowOrder;
     } catch (e) {
       this.logger.error(e);
@@ -551,7 +576,6 @@ export class EscrowOrderResolver {
         });
       }
 
-      pubSub.publish('escrowOrderUpdated', { escrowOrderUpdated: escrowOrder });
       return escrowOrder;
     } catch (e) {
       this.logger.error(e);
@@ -560,56 +584,36 @@ export class EscrowOrderResolver {
 
   @ResolveField('arbitratorAccount', () => Account)
   async arbitratorAccount(@Parent() escrowOrder: EscrowOrder) {
-    return this.prisma.account.findUnique({
-      where: {
-        id: escrowOrder.arbitratorAccount.id
-      }
-    });
+    return escrowOrder.arbitratorAccountId
+      ? this.escrowOrderLoader.batchAccounts.load(escrowOrder.arbitratorAccountId)
+      : null;
   }
 
   @ResolveField('buyerAccount', () => Account)
   async buyerAccount(@Parent() escrowOrder: EscrowOrder) {
-    return this.prisma.account.findUnique({
-      where: {
-        id: escrowOrder.buyerAccount.id
-      }
-    });
+    return escrowOrder.buyerAccountId ? this.escrowOrderLoader.batchAccounts.load(escrowOrder.buyerAccountId) : null;
   }
 
   @ResolveField('sellerAccount', () => Account)
   async sellerAccount(@Parent() escrowOrder: EscrowOrder) {
-    return this.prisma.account.findUnique({
-      where: {
-        id: escrowOrder.sellerAccount.id
-      }
-    });
+    return escrowOrder.sellerAccountId ? this.escrowOrderLoader.batchAccounts.load(escrowOrder.sellerAccountId) : null;
   }
 
   @ResolveField('moderatorAccount', () => Account)
   async moderatorAccount(@Parent() escrowOrder: EscrowOrder) {
-    return this.prisma.account.findUnique({
-      where: {
-        id: escrowOrder.moderatorAccount.id
-      }
-    });
+    return escrowOrder.moderatorAccountId
+      ? this.escrowOrderLoader.batchAccounts.load(escrowOrder.moderatorAccountId)
+      : null;
   }
 
   @ResolveField('paymentMethod', () => PaymentMethod)
   async paymentMethod(@Parent() escrowOrder: EscrowOrder) {
-    return this.prisma.paymentMethod.findUnique({
-      where: {
-        id: escrowOrder.paymentMethod.id
-      }
-    });
+    return this.escrowOrderLoader.batchPaymentMethods.load(escrowOrder.paymentMethodId);
   }
 
   @ResolveField('offer', () => Offer)
   async offer(@Parent() escrowOrder: EscrowOrder) {
-    return this.prisma.offer.findUnique({
-      where: {
-        postId: escrowOrder.offer.postId
-      }
-    });
+    return this.escrowOrderLoader.batchOffers.load(escrowOrder.offerId);
   }
 
   @ResolveField('dispute', () => Dispute)
@@ -621,7 +625,7 @@ export class EscrowOrderResolver {
     });
   }
 
-  @ResolveField('escrowTxids', () => Dispute)
+  @ResolveField('escrowTxids', () => EscrowTxid)
   async escrowTxids(@Parent() escrowOrder: EscrowOrder) {
     return this.prisma.escrowTxId.findMany({
       where: {

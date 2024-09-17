@@ -1,4 +1,4 @@
-import { CommentType } from '../../generated/types.generated';
+import { CommentType, Post } from '../../generated/types.generated';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { api as commentsApi } from '@store/comment/comments.api';
 import { api as postsApi } from '@store/post/posts.api';
@@ -64,8 +64,8 @@ function* createCommentSuccessSaga(
           );
           if (timelineItemToUpdateIndex >= 0) {
             const timelineItemToUpdate = draft.homeTimeline.edges[timelineItemToUpdateIndex];
-            draft.homeTimeline.edges[timelineItemToUpdateIndex].node.data.totalComments =
-              timelineItemToUpdate.node.data.totalComments + 1;
+            (draft.homeTimeline.edges[timelineItemToUpdateIndex].node.data as Post).totalComments =
+              (timelineItemToUpdate.node.data as Post).totalComments + 1;
           }
         })
       );

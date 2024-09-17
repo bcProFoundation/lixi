@@ -43,7 +43,7 @@ import TotalDanaViewScoreLoader from '../account/total-dana-view-score.loader';
 import { RemovePostFanoutProcessor } from './remove-post-fanout.processor';
 import { PollOptionResolver } from './polls/poll-option.resolver';
 import { PostBoostCacheService } from './post-boost-cache.service';
-import { OfferCacheService } from '../escrow/offer-cache.service';
+import { OfferCacheService } from '../escrow/offer/offer-cache.service';
 
 @Module({
   imports: [

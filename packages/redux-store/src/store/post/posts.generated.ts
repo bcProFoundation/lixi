@@ -121,7 +121,7 @@ export type PostQuery = {
         }> | null;
       }>;
     } | null;
-    offer?: {
+    postOffer?: {
       __typename?: 'Offer';
       postId: string;
       publicKey: string;
@@ -261,7 +261,7 @@ export type PostsByPageIdQuery = {
             }> | null;
           }>;
         } | null;
-        offer?: {
+        postOffer?: {
           __typename?: 'Offer';
           postId: string;
           publicKey: string;
@@ -409,7 +409,7 @@ export type PostsByUserIdQuery = {
             }> | null;
           }>;
         } | null;
-        offer?: {
+        postOffer?: {
           __typename?: 'Offer';
           postId: string;
           publicKey: string;
@@ -557,7 +557,7 @@ export type PostsByHashtagIdQuery = {
             }> | null;
           }>;
         } | null;
-        offer?: {
+        postOffer?: {
           __typename?: 'Offer';
           postId: string;
           publicKey: string;
@@ -705,7 +705,7 @@ export type PostsByTokenIdQuery = {
             }> | null;
           }>;
         } | null;
-        offer?: {
+        postOffer?: {
           __typename?: 'Offer';
           postId: string;
           publicKey: string;
@@ -1441,7 +1441,7 @@ export type PostFieldsFragment = {
       }> | null;
     }>;
   } | null;
-  offer?: {
+  postOffer?: {
     __typename?: 'Offer';
     postId: string;
     publicKey: string;
@@ -1679,7 +1679,7 @@ export type CreatePostMutation = {
         }> | null;
       }>;
     } | null;
-    offer?: {
+    postOffer?: {
       __typename?: 'Offer';
       postId: string;
       publicKey: string;
@@ -1805,7 +1805,7 @@ export type UpdatePostMutation = {
         }> | null;
       }>;
     } | null;
-    offer?: {
+    postOffer?: {
       __typename?: 'Offer';
       postId: string;
       publicKey: string;
@@ -1937,7 +1937,7 @@ export type RemovePostMutation = {
         }> | null;
       }>;
     } | null;
-    offer?: {
+    postOffer?: {
       __typename?: 'Offer';
       postId: string;
       publicKey: string;
@@ -2092,7 +2092,7 @@ export const PostFieldsFragmentDoc = `
   poll {
     ...PollFields
   }
-  offer {
+  postOffer: offer {
     ...OfferFields
   }
 }

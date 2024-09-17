@@ -2,15 +2,114 @@
 # import PostFields from '../post/posts.graphql
 # import BasicPageInfoFields from '../../graphql/fragments/basic-page-info-fields.fragment.graphql'
 
+fragment EscrowOrderFields on EscrowOrder {
+  id
+  message
+  arbitratorAccount {
+    id
+    publicKey
+    hash160
+    telegramId
+    telegramUsername
+  }
+  buyerAccount {
+    id
+    publicKey
+    hash160
+    telegramId
+    telegramUsername
+  }
+  sellerAccount {
+    id
+    publicKey
+    hash160
+    telegramId
+    telegramUsername
+  }
+  moderatorAccount {
+    id
+    publicKey
+    hash160
+    telegramId
+    telegramUsername
+  }
+  paymentMethod {
+    id
+    name
+  }
+  escrowOffer: offer {
+    postId
+    message
+  }
+  escrowScript
+  escrowAddress
+  nonce
+  escrowTxids {
+    txid
+    value
+  }
+  dispute {
+    createdBy
+    reason
+    status
+  }
+  releaseTxid
+  returnTxid
+  price
+  amount
+  escrowOrderStatus: status
+  createdAt
+  updatedAt
+}
+
+fragment DisputeFields on Dispute {
+  id
+  escrowOrder {
+  amount
+    id
+    buyerAccount {
+      telegramUsername
+    }
+    sellerAccount {
+      telegramUsername
+    }
+    offer {
+      message
+      country {
+        name
+      }
+      state {
+        name
+      }
+      createdAt
+    }
+  }
+  reason
+  createdBy
+  disputeStatus: status
+  createdAt
+  updatedAt
+}
+
+fragment TimelineItemFields on TimelineItem {
+  id
+  data {
+    __typename
+    ... on Post {
+      ...PostFields
+    }
+    ... on EscrowOrder {
+      ...EscrowOrderFields
+    }
+    ... on Dispute {
+      ...DisputeFields
+    }
+  }
+}
+
 query Timeline($id: String!) {
   timeline(id: $id) {
-    id
-    data {
-      __typename
-      ... on Post {
-        ...PostFields
-      }
-    }
+     ...TimelineItemFields
   }
 }
 
@@ -20,13 +119,7 @@ query HomeTimeline($after: String, $first: Int = 20, $level: Int) {
     edges {
       cursor
       node {
-        id
-        data {
-          __typename
-          ... on Post {
-            ...PostFields
-          }
-        }
+        ...TimelineItemFields
       }
     }
     pageInfo {
@@ -41,13 +134,7 @@ query ProfileTimeline($after: String, $first: Int = 20, $id: Int!) {
     edges {
       cursor
       node {
-        id
-        data {
-          __typename
-          ... on Post {
-            ...PostFields
-          }
-        }
+         ...TimelineItemFields
       }
     }
     pageInfo {
@@ -72,13 +159,7 @@ query ProfileTimelineByTime(
     edges {
       cursor
       node {
-        id
-        data {
-          __typename
-          ... on Post {
-            ...PostFields
-          }
-        }
+         ...TimelineItemFields
       }
     }
     pageInfo {
@@ -93,13 +174,7 @@ query PageTimeline($after: String, $first: Int = 20, $id: String!) {
     edges {
       cursor
       node {
-        id
-        data {
-          __typename
-          ... on Post {
-            ...PostFields
-          }
-        }
+         ...TimelineItemFields
       }
     }
     pageInfo {
@@ -124,13 +199,7 @@ query PageTimelineByTime(
     edges {
       cursor
       node {
-        id
-        data {
-          __typename
-          ... on Post {
-            ...PostFields
-          }
-        }
+         ...TimelineItemFields
       }
     }
     pageInfo {
@@ -145,13 +214,7 @@ query TokenTimeline($after: String, $first: Int = 20, $id: String!) {
     edges {
       cursor
       node {
-        id
-        data {
-          __typename
-          ... on Post {
-            ...PostFields
-          }
-        }
+         ...TimelineItemFields
       }
     }
     pageInfo {
@@ -176,13 +239,7 @@ query TokenTimelineByTime(
     edges {
       cursor
       node {
-        id
-        data {
-          __typename
-          ... on Post {
-            ...PostFields
-          }
-        }
+         ...TimelineItemFields
       }
     }
     pageInfo {

@@ -561,27 +561,9 @@ type Dispute {
   updatedAt: DateTime!
 }
 
-type DisputeConnection {
-  edges: [DisputeEdge!]
-  pageInfo: PageInfo!
-  totalCount: Int
-}
-
 type DisputeEdge {
   cursor: String!
   node: Dispute!
-}
-
-input DisputeOrder {
-  direction: OrderDirection!
-  field: DisputeOrderField!
-}
-
-"""Properties by which offer connections can be ordered."""
-enum DisputeOrderField {
-  createdAt
-  id
-  updatedAt
 }
 
 """The status of dispute."""
@@ -614,7 +596,9 @@ type EnvelopeModel {
 type EscrowOrder {
   amount: Int!
   arbitratorAccount: Account!
+  arbitratorAccountId: Int!
   buyerAccount: Account!
+  buyerAccountId: Int!
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
@@ -625,6 +609,7 @@ type EscrowOrder {
   id: ID!
   message: String
   moderatorAccount: Account!
+  moderatorAccountId: Int!
   nonce: String!
   offer: Offer!
   offerId: String!
@@ -634,35 +619,16 @@ type EscrowOrder {
   releaseTxid: String
   returnTxid: String
   sellerAccount: Account!
+  sellerAccountId: Int!
   status: EscrowOrderStatus!
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
 }
 
-type EscrowOrderConnection {
-  edges: [EscrowOrderEdge!]
-  pageInfo: PageInfo!
-  totalCount: Int
-}
-
 type EscrowOrderEdge {
   cursor: String!
   node: EscrowOrder!
-}
-
-input EscrowOrderOrder {
-  direction: OrderDirection!
-  field: EscrowOrderOrderField!
-}
-
-"""Properties by which escrow order connections can be ordered."""
-enum EscrowOrderOrderField {
-  amount
-  createdAt
-  id
-  price
-  updatedAt
 }
 
 """The status of escrow order."""
@@ -1451,8 +1417,9 @@ type Query {
   account(id: Int!): Account!
   allAccounts(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): AccountBasicConnection!
   allClosedPageMessageSession(accountId: Int, after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, pageId: String, skip: Int): PageMessageSessionConnection!
-  allDisputesByAccountId(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: DisputeOrder, skip: Int): DisputeConnection!
-  allEscrowOrderByOfferId(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, offerId: String!, orderBy: EscrowOrderOrder, skip: Int): EscrowOrderConnection!
+  allDisputeByAccount(after: String, disputeStatus: DisputeStatus!, first: Int, skip: Int): TimelineItemConnection!
+  allEscrowOrderByAccount(after: String, escrowOrderStatus: EscrowOrderStatus!, first: Int, skip: Int): TimelineItemConnection!
+  allEscrowOrderByOfferId(after: String, first: Int, offerId: String!, skip: Int): TimelineItemConnection!
   allFollowersByFollowing(after: String, before: String, first: Int, followingAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
   allFollowersByPage(after: String, first: Int, id: String, skip: Int): AccountBasicConnection!
   allFollowersByToken(after: String, first: Int, id: String, skip: Int): AccountBasicConnection!
@@ -1661,8 +1628,6 @@ type State {
 
 type Subscription {
   bookmarkCreated: Bookmark!
-  disputeCreated: Dispute!
-  escrowOrderCreated: EscrowOrder!
   hashtagCreated: Hashtag!
   messageCreated: Message!
   pageMessageSessionCreated: PageMessageSession!
@@ -1737,7 +1702,7 @@ type TimelineItemConnection {
   totalCount: Int!
 }
 
-union TimelineItemData = Post
+union TimelineItemData = Dispute | EscrowOrder | Post
 
 type Token {
   """Identifies the date and time when the object was last comments."""

@@ -1,13 +1,43 @@
 import { api } from './escrow-order.generated';
-import { DisputeStatus } from '../../generated/types.generated';
+import { DisputeStatus } from '../../../generated/types.generated';
 
 const enhancedApi = api.enhanceEndpoints({
-  addTagTypes: ['EscrowOrder'],
+  addTagTypes: ['EscrowOrder', 'EscrowOrderTimeline'],
   endpoints: {
     EscrowOrder: {},
     CreateEscrowOrder: {},
     GetModeratorAccount: {},
     GetRandomArbitratorAccount: {},
+    AllEscrowOrderByAccount: {
+      providesTags: ['EscrowOrderTimeline'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { escrowOrderStatus } = queryArgs;
+          return { escrowOrderStatus };
+        }
+        return {};
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.allEscrowOrderByAccount.edges.push(...responseData.allEscrowOrderByAccount.edges);
+        currentCacheData.allEscrowOrderByAccount.pageInfo = responseData.allEscrowOrderByAccount.pageInfo;
+        currentCacheData.allEscrowOrderByAccount.totalCount = responseData.allEscrowOrderByAccount.totalCount;
+      }
+    },
+    AllEscrowOrderByOfferId: {
+      providesTags: ['EscrowOrderTimeline'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { offerId } = queryArgs;
+          return { offerId };
+        }
+        return {};
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.allEscrowOrderByOfferId.edges.push(...responseData.allEscrowOrderByOfferId.edges);
+        currentCacheData.allEscrowOrderByOfferId.pageInfo = responseData.allEscrowOrderByOfferId.pageInfo;
+        currentCacheData.allEscrowOrderByOfferId.totalCount = responseData.allEscrowOrderByOfferId.totalCount;
+      }
+    },
     UserRequestTelegramChat: {},
     ArbiRequestTelegramChat: {},
     UpdateEscrowOrderStatus: {
@@ -19,7 +49,7 @@ const enhancedApi = api.enhanceEndpoints({
             dispatch(
               api.util.updateQueryData('EscrowOrder', { id: orderId }, draft => {
                 if (draft) {
-                  draft.escrowOrder.status = status;
+                  draft.escrowOrder.escrowOrderStatus = status;
                   draft.escrowOrder.updatedAt = data.updateEscrowOrderStatus.updatedAt;
 
                   switch (status) {
@@ -72,6 +102,10 @@ export const {
   useUpdateEscrowOrderStatusMutation,
   useGetModeratorAccountQuery,
   useLazyGetModeratorAccountQuery,
+  useAllEscrowOrderByAccountQuery,
+  useLazyAllEscrowOrderByAccountQuery,
+  useAllEscrowOrderByOfferIdQuery,
+  useLazyAllEscrowOrderByOfferIdQuery,
   useLazyUserRequestTelegramChatQuery,
   useUserRequestTelegramChatQuery,
   useArbiRequestTelegramChatQuery,
