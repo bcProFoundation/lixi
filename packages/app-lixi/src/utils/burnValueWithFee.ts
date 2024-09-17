@@ -42,11 +42,11 @@ export const getItemOwnerHash = async (dataItem: BurnForItem, burnForType: BurnF
       break;
     case BurnForType.Page:
       const page = dataItem as Page;
-      hashOwner = page.pageAccount.hash160;
+      hashOwner = page.pageAccount?.hash160 ?? '';
       break;
     case BurnForType.Account:
       const account = dataItem as Account;
-      hashOwner = account.hash160;
+      hashOwner = account?.hash160 ?? '';
       break;
     case BurnForType.Comment:
       const comment = dataItem as Comment;

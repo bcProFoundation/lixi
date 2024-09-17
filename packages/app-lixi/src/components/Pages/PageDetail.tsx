@@ -961,7 +961,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                   shareForType={ShareForType.PAGE}
                 />
               </div>
-              <p>{intl.get('category.' + pageDetailData.category.name)}</p>
+              <p>{intl.get('category.' + pageDetailData?.category?.name)}</p>
             </div>
             {/* TODO: implement in the future */}
             {selectedAccountId == pageDetailData?.pageAccountId && (
