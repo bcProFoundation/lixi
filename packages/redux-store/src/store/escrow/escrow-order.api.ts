@@ -8,6 +8,8 @@ const enhancedApi = api.enhanceEndpoints({
     CreateEscrowOrder: {},
     GetModeratorAccount: {},
     GetRandomArbitratorAccount: {},
+    UserRequestTelegramChat: {},
+    ArbiRequestTelegramChat: {},
     UpdateEscrowOrderStatus: {
       onQueryStarted: async ({ input }, { dispatch, queryFulfilled }) => {
         const { orderId, status, txid, value } = input;
@@ -69,5 +71,10 @@ export const {
   useLazyGetRandomArbitratorAccountQuery,
   useUpdateEscrowOrderStatusMutation,
   useGetModeratorAccountQuery,
-  useLazyGetModeratorAccountQuery
+  useLazyGetModeratorAccountQuery,
+  useLazyUserRequestTelegramChatQuery,
+  useUserRequestTelegramChatQuery,
+  useArbiRequestTelegramChatQuery,
+  useLazyArbiRequestTelegramChatQuery,
+  usePrefetch
 } = enhancedApi;

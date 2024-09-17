@@ -217,21 +217,21 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
     BurnHistoryModule,
     DanaModule,
     EscrowModule,
-    BoostFeeModule
-    // TelegramBotModule.forRootAsync({
-    //   inject: [ConfigService],
-    //   useFactory: (configService: ConfigService) => {
-    //     const localEcashBotToken = configService.get<string>('TELEGRAM_LOCAL_ECASH_BOT_TOKEN')!;
+    BoostFeeModule,
+    TelegramBotModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const localEcashBotToken = configService.get<string>('TELEGRAM_LOCAL_ECASH_BOT_TOKEN')!;
 
-    //     return {
-    //       local_ecash: localEcashBotToken
-    //         ? {
-    //             token: localEcashBotToken
-    //           }
-    //         : undefined
-    //     } as TelegramBotModuleOptions;
-    //   }
-    // })
+        return {
+          local_ecash: localEcashBotToken
+            ? {
+                token: localEcashBotToken
+              }
+            : undefined
+        } as TelegramBotModuleOptions;
+      }
+    })
   ],
   controllers: [],
   providers: [

@@ -1672,6 +1672,7 @@ export type Query = {
   allWorshipedPersonBySearch: WorshipedPersonConnection;
   allWorshipedPersonByUserId: WorshipedPersonConnection;
   allWorshipedPersonSpecialDate: WorshipedPersonConnection;
+  arbiRequestTelegramChat: Scalars['Boolean']['output'];
   bookmark: Bookmark;
   bookmarkTimeline: TimelineItemConnection;
   checkIfFollowAccount: Scalars['Boolean']['output'];
@@ -1711,6 +1712,7 @@ export type Query = {
   topMonthAccountDanaGiven: AccountBasicConnection;
   topWeekAccountDanaGiven: AccountBasicConnection;
   userHadMessageToPage?: Maybe<PageMessageSession>;
+  userRequestTelegramChat: Scalars['Boolean']['output'];
   worship: Worship;
   worshipedPerson: WorshipedPerson;
 };
@@ -2116,6 +2118,11 @@ export type QueryAllWorshipedPersonSpecialDateArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type QueryArbiRequestTelegramChatArgs = {
+  escrowOrderId: Scalars['String']['input'];
+  requestChatPublicKey: Scalars['String']['input'];
+};
+
 export type QueryBookmarkArgs = {
   id: Scalars['String']['input'];
 };
@@ -2319,6 +2326,10 @@ export type QueryTopWeekAccountDanaGivenArgs = {
 export type QueryUserHadMessageToPageArgs = {
   accountId?: InputMaybe<Scalars['Int']['input']>;
   pageId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type QueryUserRequestTelegramChatArgs = {
+  id: Scalars['String']['input'];
 };
 
 export type QueryWorshipArgs = {

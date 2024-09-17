@@ -64,6 +64,14 @@ query EscrowOrder($id: String!) {
   }
 }
 
+query UserRequestTelegramChat($id: String!) {
+  userRequestTelegramChat(id: $id)
+}
+
+query ArbiRequestTelegramChat($requestChatPublicKey: String!, $escrowOrderId: String!) {
+  arbiRequestTelegramChat(requestChatPublicKey: $requestChatPublicKey, escrowOrderId: $escrowOrderId)
+}
+
 query GetModeratorAccount {
   getModeratorAccount {
     ...AccountFields

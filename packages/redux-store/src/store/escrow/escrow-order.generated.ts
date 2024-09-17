@@ -124,6 +124,19 @@ export type EscrowOrderQuery = {
   };
 };
 
+export type UserRequestTelegramChatQueryVariables = Types.Exact<{
+  id: Types.Scalars['String']['input'];
+}>;
+
+export type UserRequestTelegramChatQuery = { __typename?: 'Query'; userRequestTelegramChat: boolean };
+
+export type ArbiRequestTelegramChatQueryVariables = Types.Exact<{
+  requestChatPublicKey: Types.Scalars['String']['input'];
+  escrowOrderId: Types.Scalars['String']['input'];
+}>;
+
+export type ArbiRequestTelegramChatQuery = { __typename?: 'Query'; arbiRequestTelegramChat: boolean };
+
 export type GetModeratorAccountQueryVariables = Types.Exact<{ [key: string]: never }>;
 
 export type GetModeratorAccountQuery = {
@@ -309,6 +322,19 @@ export const EscrowOrderDocument = `
   }
 }
     ${EscrowOrderFieldsFragmentDoc}`;
+export const UserRequestTelegramChatDocument = `
+    query UserRequestTelegramChat($id: String!) {
+  userRequestTelegramChat(id: $id)
+}
+    `;
+export const ArbiRequestTelegramChatDocument = `
+    query ArbiRequestTelegramChat($requestChatPublicKey: String!, $escrowOrderId: String!) {
+  arbiRequestTelegramChat(
+    requestChatPublicKey: $requestChatPublicKey
+    escrowOrderId: $escrowOrderId
+  )
+}
+    `;
 export const GetModeratorAccountDocument = `
     query GetModeratorAccount {
   getModeratorAccount {
@@ -349,6 +375,12 @@ const injectedRtkApi = api.injectEndpoints({
   endpoints: build => ({
     EscrowOrder: build.query<EscrowOrderQuery, EscrowOrderQueryVariables>({
       query: variables => ({ document: EscrowOrderDocument, variables })
+    }),
+    UserRequestTelegramChat: build.query<UserRequestTelegramChatQuery, UserRequestTelegramChatQueryVariables>({
+      query: variables => ({ document: UserRequestTelegramChatDocument, variables })
+    }),
+    ArbiRequestTelegramChat: build.query<ArbiRequestTelegramChatQuery, ArbiRequestTelegramChatQueryVariables>({
+      query: variables => ({ document: ArbiRequestTelegramChatDocument, variables })
     }),
     GetModeratorAccount: build.query<GetModeratorAccountQuery, GetModeratorAccountQueryVariables | void>({
       query: variables => ({ document: GetModeratorAccountDocument, variables })
