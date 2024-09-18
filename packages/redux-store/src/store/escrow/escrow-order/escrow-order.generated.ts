@@ -70,7 +70,13 @@ export type EscrowOrderQuery = {
     paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
     escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
     escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
-    dispute?: { __typename?: 'Dispute'; createdBy: string; reason?: string | null; status: Types.DisputeStatus } | null;
+    dispute?: {
+      __typename?: 'Dispute';
+      id: string;
+      createdBy: string;
+      reason?: string | null;
+      status: Types.DisputeStatus;
+    } | null;
   };
 };
 
@@ -256,6 +262,7 @@ export type AllEscrowOrderByAccountQuery = {
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
+                id: string;
                 createdBy: string;
                 reason?: string | null;
                 status: Types.DisputeStatus;
@@ -484,6 +491,7 @@ export type AllEscrowOrderByOfferIdQuery = {
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
+                id: string;
                 createdBy: string;
                 reason?: string | null;
                 status: Types.DisputeStatus;

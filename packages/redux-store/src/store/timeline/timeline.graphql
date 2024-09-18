@@ -50,6 +50,7 @@ fragment EscrowOrderFields on EscrowOrder {
     outIdx
   }
   dispute {
+    id
     createdBy
     reason
     status

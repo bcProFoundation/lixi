@@ -26,10 +26,12 @@ const enhancedApi = api.enhanceEndpoints({
         try {
           const { data } = await queryFulfilled;
           if (data) {
+            const { id } = data.createDispute;
             dispatch(
               escrowApi.util.updateQueryData('EscrowOrder', { id: escrowOrderId }, draft => {
                 if (draft) {
                   draft.escrowOrder.dispute = {
+                    id,
                     createdBy,
                     reason,
                     status: DisputeStatus.Active

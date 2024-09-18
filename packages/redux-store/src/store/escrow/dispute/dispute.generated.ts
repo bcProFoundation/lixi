@@ -137,6 +137,7 @@ export type AllDisputeByAccountQuery = {
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
+                id: string;
                 createdBy: string;
                 reason?: string | null;
                 status: Types.DisputeStatus;
