@@ -63,7 +63,13 @@ export type EscrowOrderFieldsFragment = {
   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
   escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
   escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
-  dispute?: { __typename?: 'Dispute'; createdBy: string; reason?: string | null; status: Types.DisputeStatus } | null;
+  dispute?: {
+    __typename?: 'Dispute';
+    id: string;
+    createdBy: string;
+    reason?: string | null;
+    status: Types.DisputeStatus;
+  } | null;
 };
 
 export type DisputeFieldsFragment = {
@@ -168,6 +174,7 @@ export type TimelineItemFieldsFragment = {
         escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
         dispute?: {
           __typename?: 'Dispute';
+          id: string;
           createdBy: string;
           reason?: string | null;
           status: Types.DisputeStatus;
@@ -378,6 +385,7 @@ export type TimelineQuery = {
           escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
           dispute?: {
             __typename?: 'Dispute';
+            id: string;
             createdBy: string;
             reason?: string | null;
             status: Types.DisputeStatus;
@@ -597,6 +605,7 @@ export type HomeTimelineQuery = {
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
+                id: string;
                 createdBy: string;
                 reason?: string | null;
                 status: Types.DisputeStatus;
@@ -825,6 +834,7 @@ export type ProfileTimelineQuery = {
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
+                id: string;
                 createdBy: string;
                 reason?: string | null;
                 status: Types.DisputeStatus;
@@ -1054,6 +1064,7 @@ export type ProfileTimelineByTimeQuery = {
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
+                id: string;
                 createdBy: string;
                 reason?: string | null;
                 status: Types.DisputeStatus;
@@ -1282,6 +1293,7 @@ export type PageTimelineQuery = {
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
+                id: string;
                 createdBy: string;
                 reason?: string | null;
                 status: Types.DisputeStatus;
@@ -1511,6 +1523,7 @@ export type PageTimelineByTimeQuery = {
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
+                id: string;
                 createdBy: string;
                 reason?: string | null;
                 status: Types.DisputeStatus;
@@ -1739,6 +1752,7 @@ export type TokenTimelineQuery = {
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
+                id: string;
                 createdBy: string;
                 reason?: string | null;
                 status: Types.DisputeStatus;
@@ -1968,6 +1982,7 @@ export type TokenTimelineByTimeQuery = {
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
+                id: string;
                 createdBy: string;
                 reason?: string | null;
                 status: Types.DisputeStatus;
@@ -2153,6 +2168,7 @@ export const EscrowOrderFieldsFragmentDoc = `
     outIdx
   }
   dispute {
+    id
     createdBy
     reason
     status
