@@ -470,63 +470,22 @@ const StyledAvatar = styled(Avatar)`
   align-items: center;
 `;
 
-const SubAbout = ({
-  icon,
-  text,
-  dataItem,
-  imgUrl,
-  onClickIcon
-}: {
-  icon?: React.FC;
-  text?: string;
-  dataItem?: any;
-  imgUrl?: string;
-  onClickIcon: () => void;
-}) => (
-  <StyledSpace onClick={onClickIcon}>
-    {icon && React.createElement(icon)}
-    {imgUrl && React.createElement('img', { src: imgUrl }, null)}
-    {text}
-  </StyledSpace>
-);
-
 const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => {
   const dispatch = useSliceDispatch();
-  const walletPaths = useSliceSelector(getAllWalletPaths);
-  const walletStatus = useSliceSelector(getWalletStatus);
   const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
   const slpBalancesAndUtxosRef = useRef(slpBalancesAndUtxos);
-  const failQueue = useSliceSelector(getFailQueue);
-  const filterValue = useSliceSelector(getFilterPostsProfile);
   const selectedAccountId = useSliceSelector(getSelectedAccountId);
   const accountInfoTemp = useSliceSelector(getAccountInfoTemp);
-  const level = useSliceSelector(getLevelFilter);
   const [query, setQuery] = useState('');
   const [hashtags, setHashtags] = useState([]);
   const isPostsByTime = useSliceSelector(getIsPostsByTime);
   const minimumDanaFilter = useSliceSelector(getMinimumDanaFilter);
-  const keyInfinite = `${user.id}:${minimumDanaFilter}`;
-  const totalDanaViewScore = user.totalDanaViewScore ?? 0;
+  const keyInfinite = `${user?.id}:${minimumDanaFilter}`;
+  const totalDanaViewScore = user?.totalDanaViewScore ?? 0;
 
-  const [
-    createFollowAccountTrigger,
-    {
-      isLoading: isLoadingCreateFollowAccount,
-      isSuccess: isSuccessCreateFollowAccount,
-      isError: isErrorCreateFollowAccount,
-      error: errorOnCreate
-    }
-  ] = useCreateFollowAccountMutation();
+  const [createFollowAccountTrigger] = useCreateFollowAccountMutation();
 
-  const [
-    deleteFollowAccountTrigger,
-    {
-      isLoading: isLoadingDeleteFollowAccount,
-      isSuccess: isSuccessDeleteFollowAccount,
-      isError: isErrorDeleteFollowAccount,
-      error: errorOnDelete
-    }
-  ] = useDeleteFollowAccountMutation();
+  const [deleteFollowAccountTrigger] = useDeleteFollowAccountMutation();
 
   const {
     data: profileTimelineByTime,
@@ -537,7 +496,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
     {
       first: 20,
       minimumDanaFilter: minimumDanaFilter,
-      id: _.toSafeInteger(user.id)
+      id: _.toSafeInteger(user?.id)
     },
     false
   );
@@ -547,7 +506,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
     fetchNext: fetchNextprofileTimelineScore,
     isFetching: isFetchingProfileTimelineScore,
     hasNext: hasNextProfileTimelineScore
-  } = useInfiniteProfileTimelineByScoreQuery({ first: 20, id: _.toSafeInteger(user.id) });
+  } = useInfiniteProfileTimelineByScoreQuery({ first: 20, id: _.toSafeInteger(user?.id) });
 
   const loadMoreItems = () => {
     if (hasNextProfileTimelineByTime && !isFetchingProfileTimelineByTime) {
@@ -576,13 +535,13 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
     changeFollow: checkIsFollowed,
     followForType: FollowForType.Account,
     extraArgumentsPostFollow: {
-      accountId: parseInt(user.id)
+      accountId: parseInt(user?.id)
     }
   };
 
   const handleFollow = async () => {
     const createFollowAccountInput: CreateFollowAccountInput = {
-      followingAccountId: parseInt(user.id),
+      followingAccountId: parseInt(user?.id),
       followerAccountId: selectedAccountId
     };
 
@@ -593,7 +552,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
 
   const handleUnfollow = async () => {
     const deleteFollowAccountInput: DeleteFollowAccountInput = {
-      followingAccountId: parseInt(user.id),
+      followingAccountId: parseInt(user?.id),
       followerAccountId: selectedAccountId
     };
 
@@ -612,7 +571,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
 
   const getAvatarAccount = () => {
     let urlAvatarAccount;
-    if (selectedAccountId === user.id) {
+    if (selectedAccountId === user?.id) {
       urlAvatarAccount = accountInfoTemp?.avatar;
     } else {
       urlAvatarAccount = user?.avatar;
@@ -652,7 +611,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
             <picture>
               <img className="cover-img" src={getCoverAccount()} alt="" />
             </picture>
-            {selectedAccountId == user.id && (
+            {selectedAccountId == user?.id && (
               <Button type="primary" className="no-border-btn" onClick={() => uploadModal(false)}>
                 <CameraOutlined />
                 {intl.get('page.editCoverPhoto')}
@@ -668,7 +627,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
               ) : (
                 <StyledAvatar className="avatar-img">{transformShortName(user?.name)}</StyledAvatar>
               )}
-              {selectedAccountId == user.id && (
+              {selectedAccountId == user?.id && (
                 <div className="btn-upload-avatar" onClick={() => uploadModal(true)}>
                   <CameraOutlined />
                 </div>
@@ -685,11 +644,11 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                     shareForType={ShareForType.ACCOUNT}
                   />
                 </div>
-                <p className="add">{user?.address.slice(6, 11) + '...' + user?.address.slice(-5)}</p>
+                <p className="add">{user?.address?.slice(6, 11) + '...' + user?.address?.slice(-5)}</p>
               </div>
             </div>
             {/* Follow */}
-            {user.id != selectedAccountId && (
+            {user?.id != selectedAccountId && (
               <AuthorizedButton
                 id="follow-button"
                 onClick={checkIsFollowed ? () => handleUnfollow() : () => handleFollow()}
@@ -699,17 +658,8 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
             )}
 
             {/* TODO: implement in the future */}
-            {selectedAccountId == user.id && (
+            {selectedAccountId == user?.id && (
               <div className="action-profile">
-                {/* <Button
-                  style={{ marginRight: '1rem' }}
-                  type="primary"
-                  className="outline-btn"
-                  onClick={navigateEditPage}
-                >
-                  <EditOutlined />
-                  Edit profile
-                </Button> */}
                 <Button
                   type="primary"
                   icon={
@@ -728,7 +678,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
             )}
           </div>
 
-          {selectedAccountId == user.id && (
+          {selectedAccountId == user?.id && (
             <div className="follow-profile">
               <Button
                 type="primary"
@@ -736,7 +686,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                 style={{ alignItems: 'center' }}
                 onClick={() => openFollowModal(Follow.Followers)}
               >
-                {user.followersCount}
+                {user?.followersCount}
                 <br />
                 {intl.get('general.followers')}
               </Button>
@@ -746,7 +696,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                 style={{ alignItems: 'center' }}
                 onClick={() => openFollowModal(Follow.Followees)}
               >
-                {user.followingsCount} <br /> {intl.get('general.followings')}
+                {user?.followingsCount} <br /> {intl.get('general.followings')}
               </Button>
               <Button
                 type="primary"
@@ -754,7 +704,7 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                 style={{ alignItems: 'center' }}
                 onClick={() => openFollowModal(Follow.FollowingPages)}
               >
-                {user.followingPagesCount} <br /> {intl.get('general.followingPages')}
+                {user?.followingPagesCount} <br /> {intl.get('general.followingPages')}
               </Button>
             </div>
           )}
@@ -769,16 +719,21 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
               <b> {user?.accountDana?.danaReceived || 0}</b> {intl.get('general.danaReceived')}
             </p>
 
-            {user.description && (
+            {user?.description && (
               <p className="infor-profile">
-                <InfoCircleOutlined /> {user.description}
+                <InfoCircleOutlined /> {user?.description}
               </p>
             )}
 
-            {user.website && (
+            {user?.website && (
               <p className="infor-profile">
                 <CompassOutlined />
-                {<a href={user.website.includes('http') ? user.website : 'https://' + user.website}> {user.website}</a>}
+                {
+                  <a href={user?.website.includes('http') ? user?.website : 'https://' + user?.website}>
+                    {' '}
+                    {user?.website}
+                  </a>
+                }
               </p>
             )}
 
@@ -807,109 +762,13 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
         <ProfileContentContainer>
           <StyledMenu defaultActiveKey="post">
             <Tabs.TabPane tab="Post" key="post">
-              {/* TODO: implement in the future */}
-              {/* <LegacyProfile>
-                <AboutBox>
-                  <h3>About</h3>
-                  {userDetailData && (
-                    <div className="blank-about">
-                      <img src="/images/about-blank.svg" alt="" />
-                      <p>Let people know more about you (description, hobbies, address...</p>
-                      <Button type="primary" className="outline-btn">
-                        Update info
-                      </Button>
-                    </div>
-                  )}
-                  <div className="about-content">
-                    <SubAbout
-                      dataItem={userDetailData?.address}
-                      onClickIcon={() => {}}
-                      icon={CompassOutlined}
-                      text={userDetailData?.address}
-                    />
-                    {selectedAccountId == userDetailData.id && (
-                      <Button type="primary" className="outline-btn" onClick={navigateEditPage}>
-                        Edit your profile
-                      </Button>
-                    )}
-                  </div>
-                </AboutBox>
-                <PictureBox>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <h3>Pictures</h3>
-                    {listsPicture && listsPicture.length > 0 && (
-                      <Button type="primary" className="no-border-btn" style={{ padding: '0' }}>
-                        See all
-                      </Button>
-                    )}
-                  </div>
-                  {listsPicture && listsPicture.length == 0 && (
-                    <div className="blank-picture">
-                      <img src="/images/photo-blank.svg" alt="" />
-                      <p>Photos uploaded in posts, or posts that have tag of your name</p>
-                      <Button type="primary" className="outline-btn">
-                        Update picture
-                      </Button>
-                    </div>
-                  )}
-                  {listsPicture && listsPicture.length > 0 && (
-                    <div className="picture-content">
-                      {listsPicture.map((item: any, index: number) => {
-                        if (index < 9) return <img key={item.id} src={item.download_url} alt={item.author} />;
-                      })}
-                    </div>
-                  )}
-                </PictureBox>
-                <FriendBox>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <div>
-                      <h3>Friends</h3>
-                      <p
-                        style={{
-                          margin: '0',
-                          fontSize: '13px',
-                          letterSpacing: '0.5px',
-                          color: 'rgba(30, 26, 29, 0.6)'
-                        }}
-                      >
-                        {listsFriend.length > 0 ? listsFriend.length + ' friends' : ''}
-                      </p>
-                    </div>
-                    {listsFriend && listsFriend.length > 0 && (
-                      <Button type="primary" className="no-border-btn" style={{ padding: '0' }}>
-                        See all
-                      </Button>
-                    )}
-                  </div>
-                  {listsFriend && listsFriend.length == 0 && (
-                    <div className="blank-friend">
-                      <img src="/images/friend-blank.svg" alt="" />
-                      <p>Connect with people you know in Lixi.</p>
-                      <Button type="primary" className="outline-btn">
-                        Discover Lixi social network
-                      </Button>
-                    </div>
-                  )}
-                  {listsFriend && listsFriend.length > 0 && (
-                    <div className="friend-content">
-                      {listsFriend.map((item: any, index: number) => {
-                        if (index < 9)
-                          return (
-                            <div key={item.id} className="friend-item">
-                              <img src={item.download_url} alt="" />
-                              <p>{item.author}</p>
-                            </div>
-                          );
-                      })}
-                    </div>
-                  )}
-                </FriendBox>
-              </LegacyProfile> */}
               <ContentTimeline>
                 <div className="search-bar">
                   <SearchBox />
                 </div>
-                {selectedAccountId == user.id && <CreatePostCard userId={user.id} hashtags={hashtags} query={query} />}
+                {selectedAccountId == user?.id && (
+                  <CreatePostCard userId={user?.id} hashtags={hashtags} query={query} />
+                )}
                 <Timeline>
                   {profileTimelineScore.length == 0 && (
                     <div className="blank-timeline">
@@ -959,11 +818,6 @@ const ProfileDetail = ({ user, checkIsFollowed, isMobile }: UserDetailProps) => 
                 </Timeline>
               </ContentTimeline>
             </Tabs.TabPane>
-
-            {/* TODO: implement in the future */}
-            {/* <Tabs.TabPane tab="About" key="about"></Tabs.TabPane>
-            <Tabs.TabPane tab="Friend" key="friend"></Tabs.TabPane>
-            <Tabs.TabPane tab="Picture" key="picture"></Tabs.TabPane> */}
           </StyledMenu>
         </ProfileContentContainer>
       </StyledContainerProfileDetail>
