@@ -45,6 +45,7 @@ function* activateWalletSaga(action: PayloadAction<{ mnemonic: string; coin: COI
       })
     );
   } catch (err) {
+    console.log('🚀 ~ activateWalletSaga ~ err:', err);
     yield put(activateWalletFailure(JSON.stringify(err)));
   }
 }
