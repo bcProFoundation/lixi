@@ -1,6 +1,6 @@
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import BCHJS from '@bcpros/xpi-js';
-import { useWallet } from '../hooks/useWalletNode';
+import { useWalletNode } from '../hooks/useWalletNode';
 import { WalletPathAddressInfo } from '@store/wallet';
 import { ChronikClientNode, Utxo_InNode } from 'chronik-client';
 import { createContext } from 'react';
@@ -20,7 +20,7 @@ export type WalletContextNodeValue = {
 export const WalletContextNode = createContext<WalletContextNodeValue | null>(null);
 
 export const WalletProviderNode = ({ children }) => {
-  const wallet = useWallet();
+  const wallet = useWalletNode();
 
   return <WalletContextNode.Provider value={wallet}>{children}</WalletContextNode.Provider>;
 };

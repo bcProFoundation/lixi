@@ -39,7 +39,7 @@ import wif from 'wif';
 // const chronik = new ChronikClient('https://chronik.be.cash/xec');
 const websocketConnectedRefreshInterval = 10000;
 
-export const useWallet = () => {
+export const useWalletNode = () => {
   // @todo: use constant
   // and consider to move to redux the neccessary variable
 

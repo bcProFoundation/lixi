@@ -8,6 +8,7 @@ export * from './generated/types';
 export * from './graphql/fragments/page-info-fields.fragment.generated';
 export * from './hooks/useXPI';
 export * from './hooks/useWallet';
+export * from './hooks/useWalletNode';
 export * from './hooks/useXEC';
 export * from './models/localUser';
 export * from './models/session';
