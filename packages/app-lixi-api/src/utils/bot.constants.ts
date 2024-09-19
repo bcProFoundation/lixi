@@ -9,11 +9,11 @@ export const BOT = {
     ORDER_COMPLETED: `✅ Order has been completed! \r\n\r\n` + `[View order](%s)`,
     SELLER_RAISED_DISPUTE:
       `⚖️ The seller has raised a dispute with the arbitrator/moderator regarding your order! \r\n\r\n` +
-      `Reason: "(%s)" \r\n\r\n` +
+      `Reason: "%s" \r\n\r\n` +
       `[View order](%s)`,
     BUYER_RAISED_DISPUTE:
       `⚖️ The buyer has raised a dispute with the arbitrator/moderator regarding your order! \r\n\r\n` +
-      `Reason: "(%s)" \r\n\r\n` +
+      `Reason: "%s" \r\n\r\n` +
       `[View order](%s)`,
     SELLER_REQUEST_CHAT: `💬 The seller %s has requested to chat with you! \r\n\r\n` + `[View order](%s)`,
     BUYER_REQUEST_CHAT: `💬 The buyer %s has requested to chat with you! \r\n\r\n` + `[View order](%s)`,
