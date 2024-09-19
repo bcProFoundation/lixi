@@ -17,7 +17,7 @@ function* setLocalUserAccountSaga(action: PayloadAction<LocalUserAccount>) {
     rootCoin: account.rootCoin ? account.rootCoin : COIN.XPI,
     coin: account.coin ? account.coin : COIN.XPI
   };
-  yield put(activateWallet({ mnemonic: account.mnemonic, coin: account.rootCoin }));
+  yield put(activateWallet({ mnemonic: account.mnemonic, coin: account.rootCoin ?? account.coin }));
   yield put(silentLocalLogin(localUser));
 }
 
