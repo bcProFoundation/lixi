@@ -59,7 +59,7 @@ export const buildSubscribeCommand = (
 
         const { fundingWif, xAddress, legacyAddress } = associatedWallet;
         const { privateKey, compressed } = wif.decode(fundingWif);
-        const signature = messageLib.sign(xAddress, privateKey, compressed).toString('base64');
+        const signature = messageLib.sign(xAddress, Buffer.from(privateKey), compressed).toString('base64');
         const subscriber: WebpushSubscriberCommand = {
           address: account.address,
           legacyAddress: legacyAddress,
