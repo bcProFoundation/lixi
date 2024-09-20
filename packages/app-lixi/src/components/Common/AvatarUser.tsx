@@ -35,7 +35,7 @@ type AvatarUserProps = {
 
 export const transformShortName = (name: string) => {
   let shortName = '';
-  let nameArr = name.split(' ');
+  let nameArr = name?.split(' ') ?? [];
   if (nameArr.length > 1) {
     nameArr = [nameArr[0], nameArr[nameArr.length - 1]];
   }

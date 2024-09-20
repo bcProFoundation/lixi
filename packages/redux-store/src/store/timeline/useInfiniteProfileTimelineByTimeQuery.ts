@@ -20,7 +20,7 @@ export function useInfiniteProfileTimelineByTimeQuery(
   params: ProfileTimelineByTimeListParams,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const baseResult = useProfileTimelineByTimeQuery(params);
+  const baseResult = useProfileTimelineByTimeQuery(params, { skip: !params.id || params.id === 0 });
 
   const [trigger, nextResult] = useLazyProfileTimelineByTimeQuery();
   const [combinedData, setCombinedData] = useState(profileTimelineAdapter.getInitialState({}));

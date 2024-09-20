@@ -24,9 +24,12 @@ const ProfileDetailPage = props => {
   );
   const accountToRender = currentDataProfile?.getAccountByAddress ?? account;
 
-  const { currentData: currentIsFollowedData, isSuccess: isSuccessCheckFollowed } = useCheckIfFollowAccountQuery({
-    followingAccountId: accountToRender.id
-  });
+  const { currentData: currentIsFollowedData, isSuccess: isSuccessCheckFollowed } = useCheckIfFollowAccountQuery(
+    {
+      followingAccountId: accountToRender.id
+    },
+    { skip: !accountToRender?.id }
+  );
 
   let isFollowed;
   if (isSuccessCheckFollowed && currentIsFollowedData) {
@@ -48,12 +51,12 @@ const ProfileDetailPage = props => {
       {account && (
         <React.Fragment>
           <NextSeo
-            title={accountToRender.name}
+            title={accountToRender?.name}
             description="A place where you have complete control on what you want to see and what you want others to see collectively. No platform influence. No platform ads."
             canonical={canonicalUrl}
             openGraph={{
               url: canonicalUrl,
-              title: accountToRender.name,
+              title: accountToRender?.name,
               description: accountToRender?.description || 'Your Attention Your Money!',
               images: [{ url: linkShare }],
               site_name: 'Lixi'

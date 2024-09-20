@@ -19,7 +19,7 @@ export function useInfiniteProfileTimelineByScoreQuery(
   params: TimelineListParams,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const baseResult = useProfileTimelineQuery(params);
+  const baseResult = useProfileTimelineQuery(params, { skip: !params.id || params.id === 0 });
 
   const [trigger, nextResult] = useLazyProfileTimelineQuery();
   const [combinedData, setCombinedData] = useState(profileTimelineAdapter.getInitialState({}));
