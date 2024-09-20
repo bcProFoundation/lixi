@@ -1,5 +1,14 @@
 # @bcpros/app-lixi
 
+## 1.1.13
+
+### Patch Changes
+
+- Upgpade wif package
+- Updated dependencies
+  - @bcpros/redux-store@1.2.14
+  - @bcpros/lixi-models@1.2.14
+
 ## 1.1.12
 
 ### Patch Changes

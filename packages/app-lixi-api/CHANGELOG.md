@@ -1,5 +1,11 @@
 # @bcpros/app-lixi-api
 
+## 1.1.13
+
+### Patch Changes
+
+- @bcpros/lixi-models@1.2.14
+
 ## 1.1.12
 
 ### Patch Changes
