@@ -132,6 +132,6 @@
     "unique-names-generator": "^4.7.1",
     "universal-cookie": "^7.1.4",
     "uuid": "^9.0.1",
-    "wif": ">=4.0.0"
+    "wif": "^5.0.0"
   }
 }
