@@ -15,3 +15,8 @@ export type ImportAccountType = {
   mnemonic: string;
   coin: COIN;
 };
+
+export type SilentLoginType = {
+  mnemonic: string;
+  coin: COIN;
+};

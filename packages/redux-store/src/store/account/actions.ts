@@ -1,4 +1,4 @@
-import { GenerateAccountType, ImportAccountType } from '@bcpros/lixi-models/constants/account';
+import { GenerateAccountType, ImportAccountType, SilentLoginType } from '@bcpros/lixi-models/constants/account';
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import {
   ChangeAccountLocaleCommand,
@@ -61,7 +61,7 @@ export const refreshLixiListSilentSuccess = createAction<{
   lixies: Lixi[];
 }>('lixi/refreshLixiListSilentSuccess');
 export const refreshLixiListSilentFailure = createAction<string>('lixi/refreshLixiListSilentFailure');
-export const silentLogin = createAction<string>('account/silentLogin');
+export const silentLogin = createAction<SilentLoginType>('account/silentLogin');
 export const silentLoginSuccess = createAction('account/silentLoginSuccess');
 export const silentLoginFailure = createAction('account/silentLoginFailure');
 export const setUpload = createAction<{

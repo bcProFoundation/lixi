@@ -10,7 +10,12 @@ import {
   SecondaryLanguageAccountCommand
 } from '@bcpros/lixi-models/lib/account/account.dto';
 import { Account } from '@bcpros/lixi-models/lib/account/account.model';
-import { AccountType, GenerateAccountType, ImportAccountType } from '@bcpros/lixi-models/constants/account';
+import {
+  AccountType,
+  GenerateAccountType,
+  ImportAccountType,
+  SilentLoginType
+} from '@bcpros/lixi-models/constants/account';
 import { UpdateAccountInput } from '@bcpros/lixi-models/lib/account/inputs/updateAccount.input';
 import { LocalUserAccount } from '@bcpros/lixi-models/lib/account/local-user-account.model';
 import { Lixi } from '@bcpros/lixi-models/lib/lixi';
@@ -322,7 +327,12 @@ function* importAccountSuccessSaga(action: PayloadAction<{ account: Account; lix
   }
   yield put(setAccount(account));
   yield put(hideLoading(importAccount.type));
-  yield putResolve(silentLogin(action.payload.account.mnemonic));
+
+  const dataSilentLogin: SilentLoginType = {
+    mnemonic: action.payload.account.mnemonic,
+    coin: action.payload.account.coin
+  };
+  yield putResolve(silentLogin(dataSilentLogin));
 }
 
 function* importAccountFailureSaga(action: PayloadAction<string>) {
@@ -394,7 +404,12 @@ function* selectAccountSuccessSaga(
     coin: account.coin ? account.coin : COIN.XPI
   };
   yield put(setLocalUserAccount(localAccount));
-  yield putResolve(silentLogin(account.mnemonic));
+
+  const dataSilentLogin: SilentLoginType = {
+    mnemonic: account.mnemonic,
+    coin: account.coin
+  };
+  yield putResolve(silentLogin(dataSilentLogin));
   yield put(removeAllPageMessageSession());
   yield put(hideLoading(selectAccount.type));
 }
@@ -430,7 +445,12 @@ function* setAccountSuccessSaga(action: PayloadAction<Account>) {
     updatedAt: account.updatedAt
   };
   yield put(setLocalUserAccount(localAccount));
-  yield putResolve(silentLogin(account.mnemonic));
+
+  const dataSilentLogin: SilentLoginType = {
+    mnemonic: account.mnemonic,
+    coin: account.coin
+  };
+  yield putResolve(silentLogin(dataSilentLogin));
 }
 
 function* renameAccountSaga(action: PayloadAction<RenameAccountCommand>) {
@@ -921,10 +941,9 @@ function* watchTopFiveFailure() {
   yield takeLatest(getLeaderboardFailure.type, getLeaderboardFailureSaga);
 }
 
-function* silentLoginSaga(action: PayloadAction<string>) {
-  const mnemonic = action.payload;
+function* silentLoginSaga(action: PayloadAction<SilentLoginType>) {
   try {
-    const data = yield call(accountApi.login, mnemonic);
+    const data = yield call(accountApi.login, action.payload);
     yield put(silentLoginSuccess());
   } catch (err) {
     yield put(silentLoginFailure());

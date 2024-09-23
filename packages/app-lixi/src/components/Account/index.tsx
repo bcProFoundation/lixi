@@ -15,6 +15,8 @@ import { getSelectedAccount } from '@store/account/selectors';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getLixiesBySelectedAccount } from '@store/lixi/selectors';
 import styled from 'styled-components';
+import { SilentLoginType } from '@bcpros/lixi-models/constants/account';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 
 const { TabPane } = Tabs;
 const StyledTabs = styled(Tabs)`
@@ -48,8 +50,12 @@ const Account: React.FC = () => {
 
   useEffect(() => {
     if (selectedAccount) {
+      const dataSilentLogin: SilentLoginType = {
+        mnemonic: selectedAccount.mnemonic,
+        coin: selectedAccount?.coin ?? COIN.XPI
+      };
       dispatch(getAccount(selectedAccount.id));
-      dispatch(silentLogin(selectedAccount.mnemonic));
+      dispatch(silentLogin(dataSilentLogin));
       dispatch(refreshLixiListSilent(selectedAccount?.id));
     }
   }, []);

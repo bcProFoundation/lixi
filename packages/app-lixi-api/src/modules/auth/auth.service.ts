@@ -6,13 +6,16 @@ import { I18n, I18nService } from 'nestjs-i18n';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { VError } from 'verror';
 // import * as wif from 'wif';
-import { Account } from '@bcpros/lixi-models';
+import { Account, COIN, SilentLoginType } from '@bcpros/lixi-models';
 import { ModuleRef } from '@nestjs/core';
 import { hashMnemonic } from '../../utils/encryptionMethods';
 import { AccountCacheService } from '../account/account-cache.service';
 import { WalletService } from '../wallet/wallet.service';
-import { WALLET_SERVICES } from '../wallet/wallet.constants';
+import { WALLET_SERVICES, XPIJS } from '../wallet/wallet.constants';
 import { XpiWalletService } from '../wallet/xpi-wallet.service';
+import { XecWalletService } from '../wallet/xec-wallet.service';
+import { XrgWalletService } from '../wallet/xrg-wallet.service ';
+import BCHJS from '@bcpros/xpi-js';
 const wif = require('wif');
 
 @Injectable()
@@ -26,6 +29,7 @@ export class AuthService implements OnModuleInit {
     private prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis,
     @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
+    @Inject(XPIJS) private XPI: BCHJS,
     @I18n() private i18n: I18nService // private moduleRef: ModuleRef
   ) {}
 
@@ -38,13 +42,33 @@ export class AuthService implements OnModuleInit {
    * @param mnemonic The mnemonic of the account
    * @returns The jwt token
    */
-  public async login(mnemonic: string): Promise<string | never> {
+  public async login(data: SilentLoginType): Promise<string | never> {
+    const { coin, mnemonic } = data;
     const mnemonicHash = await hashMnemonic(mnemonic);
+
+    let walletService;
+    switch (coin) {
+      case COIN.XPI:
+        walletService = this.walletServices['xpi'] as XpiWalletService;
+        break;
+      case COIN.XEC:
+        walletService = this.walletServices['xec'] as XecWalletService;
+        break;
+      case COIN.XRG:
+        walletService = this.walletServices['xrg'] as XrgWalletService;
+        break;
+      default:
+        walletService = this.walletServices['xpi'] as XpiWalletService;
+        break;
+    }
+
+    const { address, publicKey, wifKey } = await walletService.deriveAddress(mnemonic, 0);
+    const hash160 = this.XPI.Address.toHash160(address);
 
     // Find the account
     const account = await this.prisma.account.findFirst({
       where: {
-        mnemonicHash: mnemonicHash
+        hash160: Buffer.from(hash160, 'hex')
       },
       include: {
         walletPaths: true
@@ -55,9 +79,6 @@ export class AuthService implements OnModuleInit {
       const accountNotExistMessage = await this.i18n.t('auth.messages.accountNotExist');
       throw new VError(accountNotExistMessage);
     }
-    const rootCoin = account?.walletPaths[0].network.toLocaleLowerCase();
-    const walletService = this.walletServices[rootCoin];
-    const { publicKey, wifKey } = await walletService.deriveAddress(mnemonic, 0);
     if (!account.publicKey) {
       // There're  no public key, old account
       await this.prisma.account.update({
