@@ -11,6 +11,7 @@ import React, { useState } from 'react';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import { AuthorizationOptions } from './Authorization.interface';
+import { AccountType, GenerateAccountType, ImportAccountType } from '@bcpros/lixi-models/constants/account';
 
 export const MaybeLaterLink = styled.a`
   width: 100%;
@@ -89,7 +90,12 @@ export const AuthorizationModal = ({ classStyle }: AuthorizationModalProps) => {
       cancelText: intl.get('onboarding.cancel'),
       centered: true,
       onOk() {
-        dispatch(generateAccount({ coin: COIN.XPI }));
+        const dataGenerateAccount: GenerateAccountType = {
+          coin: COIN.XPI,
+          telegramId: undefined,
+          accountType: AccountType.NORMAL
+        };
+        dispatch(generateAccount(dataGenerateAccount));
         dispatch(closeModal());
       },
       onCancel() {}
@@ -111,7 +117,12 @@ export const AuthorizationModal = ({ classStyle }: AuthorizationModalProps) => {
       return;
     }
 
-    dispatch(importAccount(formData.mnemonic));
+    const dataImportAccount: ImportAccountType = {
+      mnemonic: formData.mnemonic,
+      coin: COIN.XPI
+    };
+
+    dispatch(importAccount(dataImportAccount));
     dispatch(closeModal());
   }
 

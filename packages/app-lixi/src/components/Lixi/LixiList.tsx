@@ -2,7 +2,6 @@ import { Button, Checkbox, Col, Dropdown, Input, Menu, Modal, Row, Space, Spin, 
 import { Lixi } from '@bcpros/lixi-models/lib/lixi';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { getIsGlobalLoading } from '@store/loading/selectors';
-import { CashLoadingIcon } from '@bcpros/lixi-components/components/Common/CustomIcons';
 import LixiListItem, { MoreIcon, typeLixi } from './LixiListItem';
 import styled from 'styled-components';
 import { FilterOutlined, MoreOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
@@ -27,6 +26,7 @@ import {
 import { RenameLixiModalProps } from './RenameLixiModal';
 import { useRouter } from 'next/router';
 import { PageMessageSession } from '@bcpros/lixi-models';
+import { AccountType } from '@bcpros/lixi-models/constants/account';
 
 const { Text } = Typography;
 
@@ -167,6 +167,7 @@ const LixiList = ({ lixies }: LixiListProps) => {
   const dispatch = useSliceDispatch();
   const router = useRouter();
   const selectedAccount = useSliceSelector(getSelectedAccount);
+  const accountType = selectedAccount?.accountType ?? AccountType.NORMAL;
   const isLoading = useSliceSelector(getIsGlobalLoading);
   const [isModalVisible, setModalVisible] = useState(false);
   const [isChecked, setChecked] = useState(false);
@@ -444,7 +445,7 @@ const LixiList = ({ lixies }: LixiListProps) => {
 
   return (
     <>
-      {selectedAccount ? (
+      {selectedAccount && accountType !== AccountType.NONCUSTODIAL ? (
         <React.Fragment>
           <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
             <ActionBarLixi>

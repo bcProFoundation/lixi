@@ -240,6 +240,7 @@ export default {
   'account.unableUpdateProfile': 'Không thể cập nhật hồ sơ.',
   'account.unableSetSecondLanguage': 'Không thể chọn ngôn ngữ thứ 2',
   'account.chooseNewAccount': 'Chọn tài khoản mới',
+  'account.chooseCoinAccountImport': 'Chọn coin của tài khoản',
 
   /* 03.Lixi */
   'lixi.createLixi': 'Tạo lixi mới',

@@ -53,6 +53,7 @@ import styled from 'styled-components';
 import Reaction from '@components/Common/Reaction';
 import ShareSocialButton from '@components/Common/ShareSocialButton';
 import { ShareForType } from '@bcpros/lixi-models/constants/share';
+import { AccountType } from '@bcpros/lixi-models/constants/account';
 
 type PageDetailProps = {
   page: PageQueryItem;
@@ -527,6 +528,7 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
   const router = useRouter();
   const pageDetailData = page;
   const selectedAccount = useSliceSelector(getSelectedAccount);
+  const accountType = selectedAccount?.accountType ?? AccountType.NORMAL;
   const selectedAccountId = useSliceSelector(getSelectedAccountId);
   const slpBalancesAndUtxos = useSliceSelector(getSlpBalancesAndUtxos);
   const walletStatus = useSliceSelector(getWalletStatus);
@@ -998,7 +1000,12 @@ const PageDetail = ({ page, checkIsFollowed, isMobile }: PageDetailProps) => {
                 {/* Chat */}
                 {selectedAccountId != pageDetailData?.pageAccountId &&
                   _.isNil(pageMessageSessionData?.userHadMessageToPage) && (
-                    <Button type="primary" className="outline-btn" onClick={() => openPageMessageLixiModal()}>
+                    <Button
+                      disabled={accountType === AccountType.NONCUSTODIAL}
+                      type="primary"
+                      className="outline-btn"
+                      onClick={() => openPageMessageLixiModal()}
+                    >
                       {intl.get('messenger.chatPage')}
                     </Button>
                   )}

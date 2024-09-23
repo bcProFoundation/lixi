@@ -1,3 +1,4 @@
+import { AccountType } from '../../constants/account';
 import { COIN } from '../../constants/coins/coin';
 
 export class LocalUserAccount {
@@ -10,6 +11,7 @@ export class LocalUserAccount {
   updatedAt: Date;
   rootCoin?: COIN;
   coin?: COIN;
+  accountType?: AccountType;
 }
 
 export class RenameLocalUserAccountCommand {

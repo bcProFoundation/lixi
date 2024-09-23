@@ -13,6 +13,7 @@ import {
   ServiceWorkerProvider,
   SocketProvider,
   WalletProvider,
+  WalletProviderNode,
   callConfig
 } from '@context/index';
 import { wrapper } from 'src/store/store';
@@ -118,20 +119,22 @@ const LixiApp: NextComponentType<AppContext, AppInitialProps, AppLayoutProps> = 
             <ServiceWorkerProvider>
               <LanguageProvider>
                 <WalletProvider>
-                  <AuthenticationProvider>
-                    <AuthorizationProvider>
-                      <OutsideCallConsumer config={callConfig}>
-                        {/* <Layout className="lixi-app-layout"> */}
-                        {getLayout(
-                          <ConnectedRouter>
-                            <NextNProgress options={{ showSpinner: false }} height={5} />
-                            <Component {...props.pageProps} />
-                          </ConnectedRouter>
-                        )}
-                        {/* </Layout> */}
-                      </OutsideCallConsumer>
-                    </AuthorizationProvider>
-                  </AuthenticationProvider>
+                  <WalletProviderNode>
+                    <AuthenticationProvider>
+                      <AuthorizationProvider>
+                        <OutsideCallConsumer config={callConfig}>
+                          {/* <Layout className="lixi-app-layout"> */}
+                          {getLayout(
+                            <ConnectedRouter>
+                              <NextNProgress options={{ showSpinner: false }} height={5} />
+                              <Component {...props.pageProps} />
+                            </ConnectedRouter>
+                          )}
+                          {/* </Layout> */}
+                        </OutsideCallConsumer>
+                      </AuthorizationProvider>
+                    </AuthenticationProvider>
+                  </WalletProviderNode>
                 </WalletProvider>
               </LanguageProvider>
             </ServiceWorkerProvider>

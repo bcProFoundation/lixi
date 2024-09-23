@@ -1,4 +1,4 @@
-import { Account, ITimelineable, PostBoost, PostDana, Repost } from '@bcpros/lixi-models';
+import { Account, ITimelineable, PostBoost, PostDana, Repost, AccountType } from '@bcpros/lixi-models';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
@@ -67,7 +67,11 @@ export default class TimelineableLoader {
         const reposts = repostsDb.map(item => {
           return new Repost({
             ...item,
-            account: { ...item.account, hash160: item?.account.hash160.toString('hex') }
+            account: {
+              ...item.account,
+              hash160: item?.account.hash160.toString('hex'),
+              accountType: item?.account.accountType as AccountType
+            }
           });
         });
         return postIds.map(postId => {

@@ -243,6 +243,7 @@ export default {
   'account.unableUpdateProfile': 'Unable to update the profile.',
   'account.unableSetSecondLanguage': 'Unable to set secondary language',
   'account.chooseNewAccount': 'Choose new account',
+  'account.chooseCoinAccountImport': 'Choose coin of your account',
 
   /* 03.Lixi */
   'lixi.createLixi': 'Create new lixi',

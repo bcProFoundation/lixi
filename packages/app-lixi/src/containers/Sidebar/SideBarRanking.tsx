@@ -18,6 +18,7 @@ import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import intl from 'react-intl-universal';
 import styled from 'styled-components';
 import ClaimComponent from '@components/Claim';
+import { AccountType, GenerateAccountType, ImportAccountType } from '@bcpros/lixi-models/constants/account';
 const { Sider } = Layout;
 
 export const ShortcutItemAccess = ({
@@ -294,7 +295,12 @@ const SidebarRanking = () => {
       return;
     }
 
-    dispatch(importAccount(formData.mnemonic));
+    const dataImportAccount: ImportAccountType = {
+      mnemonic: formData.mnemonic,
+      coin: COIN.XPI
+    };
+
+    dispatch(importAccount(dataImportAccount));
     form.setFieldsValue({
       mnemonic: ''
     });
@@ -568,7 +574,14 @@ const SidebarRanking = () => {
                   type="primary"
                   className="outline-btn"
                   style={{ margin: '1rem 0' }}
-                  onClick={() => dispatch(generateAccount({ coin: COIN.XPI }))}
+                  onClick={() => {
+                    const dataGenerateAccount: GenerateAccountType = {
+                      coin: COIN.XPI,
+                      telegramId: undefined,
+                      accountType: AccountType.NORMAL
+                    };
+                    dispatch(generateAccount(dataGenerateAccount));
+                  }}
                 >
                   New account
                 </Button>

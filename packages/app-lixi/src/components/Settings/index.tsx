@@ -343,6 +343,10 @@ const Settings: React.FC = () => {
     dispatch(openModal('CreateAccountModal', null));
   };
 
+  const showPopulatedImportAccountModal = (mnemonic: string) => {
+    dispatch(openModal('ImportAccountModal', { mnemonic }));
+  };
+
   const handleChange = e => {
     const { value, name } = e.target;
 
@@ -380,7 +384,7 @@ const Settings: React.FC = () => {
       return;
     }
 
-    dispatch(importAccount(formData.mnemonic));
+    showPopulatedImportAccountModal(formData.mnemonic);
 
     form.setFieldsValue({
       mnemonic: ''

@@ -7,7 +7,7 @@ import _ from 'lodash';
 import { CloudflareConfig } from '../../config/config.interface';
 import { PrismaService } from '../prisma/prisma.service';
 import { toImageUrl } from './page.utils';
-import { Page } from '@bcpros/lixi-models';
+import { AccountType, Page } from '@bcpros/lixi-models';
 
 export class PageCacheService {
   private logger: Logger = new Logger(this.constructor.name);
@@ -59,7 +59,11 @@ export class PageCacheService {
         cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.pageCoverImageUploadable?.uploads[0]),
         stateName: dbValue.state?.name || '',
         countryName: dbValue.country?.name || '',
-        pageAccount: { ...dbValue.pageAccount, hash160: dbValue?.pageAccount.hash160.toString('hex') }
+        pageAccount: {
+          ...dbValue.pageAccount,
+          hash160: dbValue?.pageAccount.hash160.toString('hex'),
+          accountType: dbValue?.pageAccount.accountType as AccountType
+        }
       });
 
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(page)));
@@ -120,7 +124,11 @@ export class PageCacheService {
             cover: toImageUrl(this.deliveryUrl, this.cfAccountHash, dbValue.pageCoverImageUploadable?.uploads[0]),
             stateName: dbValue.state?.name || '',
             countryName: dbValue.country?.name || '',
-            pageAccount: { ...dbValue.pageAccount, hash160: dbValue?.pageAccount.hash160.toString('hex') }
+            pageAccount: {
+              ...dbValue.pageAccount,
+              hash160: dbValue?.pageAccount.hash160.toString('hex'),
+              accountType: dbValue?.pageAccount.accountType as AccountType
+            }
           });
           itemsMap.set(dbValue.id, page);
           const buffer = encode(page);

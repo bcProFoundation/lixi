@@ -11,7 +11,7 @@ import {
   fromSmallestDenomination,
   walletPath
 } from '@bcpros/lixi-models';
-import { Account as AccountDb, AddressType, Coin } from '@bcpros/lixi-prisma';
+import { Account as AccountDb, AccountType, AddressType, Coin } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import {
   Body,
@@ -175,23 +175,42 @@ export class AccountController {
   }
   @Post('import')
   async import(@Body() importAccountCommand: ImportAccountCommand, @I18n() i18n: I18nContext): Promise<AccountDto> {
-    const { mnemonic } = importAccountCommand;
+    const { mnemonic, coin } = importAccountCommand;
 
     try {
+      let walletService;
+      let path = walletPath.XPI; //default is XPI
+      switch (coin) {
+        case COIN.XPI:
+          walletService = this.walletServices['xpi'] as XpiWalletService;
+          break;
+        case COIN.XEC:
+          path = walletPath.XEC;
+          walletService = this.walletServices['xec'] as XecWalletService;
+          break;
+        case COIN.XRG:
+          path = walletPath.XRG;
+          walletService = this.walletServices['xrg'] as XrgWalletService;
+          break;
+        default:
+          walletService = this.walletServices['xpi'] as XpiWalletService;
+          break;
+      }
+
+      const { address, publicKey } = await walletService.deriveAddress(mnemonic, 0);
+      const hash160 = this.XPI.Address.toHash160(address);
+      const cashAddress = this.XPI.Address.toCashAddress(address);
+      const { hash, type } = cashaddr.decode(cashAddress, false);
+
       const mnemonicHash = importAccountCommand?.mnemonicHash ?? (await hashMnemonic(mnemonic));
       const account = await this.prisma.account.findFirst({
         where: {
-          mnemonicHash: mnemonicHash
+          hash160: Buffer.from(hash160, 'hex')
         },
         include: {
           walletPaths: true
         }
       });
-
-      const walletService = this.walletServices['xpi'];
-      const { address, publicKey } = await walletService.deriveAddress(mnemonic, 0);
-      const cashAddress = this.XPI.Address.toCashAddress(address);
-      const { hash, type } = cashaddr.decode(cashAddress, false);
 
       if (!account) {
         // Validate mnemonic
@@ -210,8 +229,11 @@ export class AccountController {
         // create account in database
         const name = address.slice(12, 17);
         const addressType = _.toUpper(type) === 'P2PKH' ? AddressType.P2PKH : AddressType.P2SH;
+        let addressCoin = coin === COIN.XPI ? address : cashAddress;
+
         const accountToInsert = {
           name: name,
+          accountType: AccountType.NORMAL,
           encryptedMnemonic: encryptedMnemonic,
           encryptedSecret: encryptedSecret,
           mnemonicHash: mnemonicHash,
@@ -224,11 +246,11 @@ export class AccountController {
           },
           walletPaths: {
             create: {
-              path: walletPath.XPI,
-              address: address,
+              path: path,
+              address: addressCoin,
               hash160: Buffer.from(hash).toString('hex'),
               type: addressType,
-              network: COIN.XPI,
+              network: coin ?? COIN.XPI,
               publicKey
             }
           }
@@ -246,7 +268,8 @@ export class AccountController {
             address: createdAccount.address,
             balance: Number(totalBalanceInSatoshis),
             secret: accountSecret,
-            rootCoin: COIN.XPI //import account not exist, set default coin is XPI
+            rootCoin: coin,
+            accountType: createdAccount.accountType ?? AccountType.NORMAL
           } as AccountDto,
           ['mnemonic', 'encryptedMnemonic']
         );
@@ -293,7 +316,8 @@ export class AccountController {
               address: account.address,
               balance: Number(totalBalanceInSatoshis),
               secret: accountSecret,
-              rootCoin: account.walletPaths[0]?.network ?? COIN.XPI
+              rootCoin: account.walletPaths[0]?.network ?? COIN.XPI,
+              accountType: account.accountType ?? AccountType.NORMAL
             } as AccountDto,
             ['mnemonic', 'encryptedMnemonic']
           );
@@ -305,7 +329,8 @@ export class AccountController {
               ...account,
               name: account.name,
               address: account.address,
-              rootCoin: account.walletPaths[0]?.network ?? COIN.XPI
+              rootCoin: account.walletPaths[0]?.network ?? COIN.XPI,
+              accountType: account.accountType
             } as AccountDto,
             ['mnemonic', 'encryptedMnemonic']
           );
@@ -364,6 +389,7 @@ export class AccountController {
 
         const accountToInsert = {
           name: name,
+          accountType: (command.accountType as AccountType) || undefined,
           encryptedMnemonic: command.encryptedMnemonic,
           encryptedSecret: encryptedSecret,
           mnemonicHash: command.mnemonicHash,
@@ -401,7 +427,8 @@ export class AccountController {
             ...command,
             ..._.omit(createdAccount, ['publicKey']),
             secret: accountSecret,
-            address
+            address,
+            accountType: command.accountType
           },
           ['mnemonic', 'encryptedMnemonic', 'encryptedSecret']
         );
@@ -549,12 +576,13 @@ export class AccountController {
         });
         await this.accountCacheService.removeByKey(updatedAccount.id.toString());
 
-        const resultApi: AccountDto = _.omit(
+        const resultApi = _.omit(
           {
             ...command,
             ..._.omit(updatedAccount, 'publicKey'),
-            address: updatedAccount.address as string
-          },
+            address: updatedAccount.address as string,
+            accountType: updatedAccount.accountType
+          } as AccountDto,
           ['mnemonic', 'encryptedMnemonic']
         );
 

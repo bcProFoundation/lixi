@@ -4,6 +4,7 @@
 
 type Account {
   accountDana: AccountDana
+  accountType: AccountType
   address: String!
   avatar: String
   balance: Int!
@@ -100,6 +101,12 @@ enum AccountOrderField {
   id
   name
   updatedAt
+}
+
+"""The type of account."""
+enum AccountType {
+  NONCUSTODIAL
+  NORMAL
 }
 
 type Balances {
