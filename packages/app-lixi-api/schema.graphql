@@ -415,7 +415,6 @@ input CreateOfferInput {
   pageId: String
   paymentMethodIds: [Int!]!
   price: String!
-  publicKey: String!
   stateId: Int
   type: OfferType!
 }
