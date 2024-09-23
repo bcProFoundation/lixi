@@ -439,7 +439,6 @@ export type CreateOfferInput = {
   pageId?: InputMaybe<Scalars['String']['input']>;
   paymentMethodIds: Array<Scalars['Int']['input']>;
   price: Scalars['String']['input'];
-  publicKey: Scalars['String']['input'];
   stateId?: InputMaybe<Scalars['Int']['input']>;
   type: OfferType;
 };
