@@ -1,5 +1,20 @@
 # @bcpros/redux-store
 
+## 1.2.16
+
+### Patch Changes
+
+- Update bump version
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.16
+
+## 1.2.15
+
+### Patch Changes
+
+- Update denomination
+  - @bcpros/lixi-models@1.2.15
+
 ## 1.2.14
 
 ### Patch Changes
