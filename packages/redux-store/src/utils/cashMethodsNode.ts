@@ -17,7 +17,7 @@ export type TxInputObj = {
   txFee: number;
 };
 
-export const fromLegacyDecimals = (amount, cashDecimals = coinInfo[COIN.XPI].cashDecimals) => {
+export const fromLegacyDecimals = (amount, cashDecimals = coinInfo[COIN.XEC].cashDecimals) => {
   // Input 0.00000546 BCH
   // Output 5.46 XEC or 0.00000546 BCH, depending on currency.cashDecimals
   const amountBig = new BigNumber(amount);
@@ -26,14 +26,14 @@ export const fromLegacyDecimals = (amount, cashDecimals = coinInfo[COIN.XPI].cas
   return amountSmallestDenomination;
 };
 
-export const fromSmallestDenomination = (amount, cashDecimals = coinInfo[COIN.XPI].cashDecimals) => {
+export const fromSmallestDenomination = (amount, cashDecimals = coinInfo[COIN.XEC].cashDecimals) => {
   const amountBig = new BigNumber(amount);
   const multiplier = new BigNumber(10 ** (-1 * cashDecimals));
   const amountInBaseUnits = amountBig.times(multiplier);
   return amountInBaseUnits.toNumber();
 };
 
-export const toSmallestDenomination = (sendAmount: BigNumber, cashDecimals = coinInfo[COIN.XPI].cashDecimals) => {
+export const toSmallestDenomination = (sendAmount: BigNumber, cashDecimals = coinInfo[COIN.XEC].cashDecimals) => {
   // Replace the BCH.toSatoshi method with an equivalent function that works for arbitrary decimal places
   // Example, for an 8 decimal place currency like Bitcoin
   // Input: a BigNumber of the amount of Bitcoin to be sent
@@ -469,7 +469,7 @@ export const normalizeBalance = slpBalancesAndUtxos => {
   };
 };
 
-export const getWalletBalanceFromUtxos = (nonSlpUtxos: Utxo_InNode[], coin = COIN.XPI) => {
+export const getWalletBalanceFromUtxos = (nonSlpUtxos: Utxo_InNode[], coin = COIN.XEC) => {
   const totalBalanceInSatoshis = nonSlpUtxos.reduce(
     (previousBalance, utxo) => previousBalance.plus(new BigNumber(utxo.value)),
     new BigNumber(0)
