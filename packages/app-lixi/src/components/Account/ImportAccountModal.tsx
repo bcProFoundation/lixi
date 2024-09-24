@@ -7,9 +7,9 @@ import styled from 'styled-components';
 import type { RadioChangeEvent } from 'antd';
 import { Radio } from 'antd';
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
-import { generateAccount } from '@store/account';
+import { generateAccount, importAccount } from '@store/account';
 import intl from 'react-intl-universal';
-import { AccountType, GenerateAccountType } from '@bcpros/lixi-models/constants/account';
+import { AccountType, GenerateAccountType, ImportAccountType } from '@bcpros/lixi-models/constants/account';
 
 const StyledModal = styled(Modal)`
   .ant-descriptions-bordered .ant-descriptions-view {
@@ -39,30 +39,26 @@ const StyledModal = styled(Modal)`
   }
 `;
 
-const CreateAccountModal = () => {
+const ImportAccountModal = ({ mnemonic }) => {
+  console.log(mnemonic);
   const dispatch = useSliceDispatch();
   const {
     handleSubmit,
     formState: { errors }
   } = useForm();
   const [coin, setCoin] = useState<COIN>(COIN.XPI);
-  const [accountType, setAccountType] = useState<AccountType>(AccountType.NORMAL);
 
   const onChangeCoin = (e: RadioChangeEvent) => {
     setCoin(e.target.value);
   };
 
-  const onChangeAccountType = (e: RadioChangeEvent) => {
-    setAccountType(e.target.value);
-  };
-
   const handleOk = () => {
-    const dataGenerateAccount: GenerateAccountType = {
-      coin: coin ? coin : COIN.XPI,
-      telegramId: undefined,
-      accountType: accountType ? accountType : AccountType.NORMAL
+    const dataImportAccount: ImportAccountType = {
+      mnemonic: mnemonic,
+      coin: coin
     };
-    dispatch(generateAccount(dataGenerateAccount));
+
+    dispatch(importAccount(dataImportAccount));
     dispatch(closeModal());
   };
 
@@ -77,10 +73,9 @@ const CreateAccountModal = () => {
       onOk={handleSubmit(handleOk)}
       onCancel={handleCancel}
       closable={false}
-      title={<div className="custom-burn-header">{intl.get('account.chooseNewAccount')}</div>}
+      title={<div>{intl.get('account.chooseCoinAccountImport')}</div>}
     >
       <div className="account-coin">
-        <h2>Coin</h2>
         <Radio.Group onChange={onChangeCoin} value={coin}>
           {Object.values(COIN).map(key => (
             <Radio key={key} value={key}>
@@ -89,19 +84,8 @@ const CreateAccountModal = () => {
           ))}
         </Radio.Group>
       </div>
-
-      <div className="account-type">
-        <h2>Account type</h2>
-        <Radio.Group onChange={onChangeAccountType} value={accountType}>
-          {Object.values(AccountType).map(key => (
-            <Radio key={key} value={key}>
-              {AccountType[key]}
-            </Radio>
-          ))}
-        </Radio.Group>
-      </div>
     </StyledModal>
   );
 };
 
-export default CreateAccountModal;
+export default ImportAccountModal;

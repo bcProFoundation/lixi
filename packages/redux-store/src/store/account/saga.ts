@@ -10,10 +10,15 @@ import {
   SecondaryLanguageAccountCommand
 } from '@bcpros/lixi-models/lib/account/account.dto';
 import { Account } from '@bcpros/lixi-models/lib/account/account.model';
+import {
+  AccountType,
+  GenerateAccountType,
+  ImportAccountType,
+  SilentLoginType
+} from '@bcpros/lixi-models/constants/account';
 import { UpdateAccountInput } from '@bcpros/lixi-models/lib/account/inputs/updateAccount.input';
 import { LocalUserAccount } from '@bcpros/lixi-models/lib/account/local-user-account.model';
 import { Lixi } from '@bcpros/lixi-models/lib/lixi';
-import { callConfig } from '../../context/shareContext';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { setLocalUserAccount, silentLocalLogin } from '@store/localAccount';
 import { fetchNotifications, removeAllNotifications } from '@store/notification/actions';
@@ -30,7 +35,7 @@ import { ChangeAccountLocaleCommand, PatchAccountCommand } from '@bcpros/lixi-mo
 import { api as accountGraphApi } from '@store/account/accounts.api';
 import { saveClaimAddress } from '@store/claim';
 import { removeAllPageMessageSession } from '@store/message/actions';
-import { changeCurrentLocale, loadLocale, setInitIntlStatus } from '@store/settings/actions';
+import { changeCurrentLocale, setInitIntlStatus } from '@store/settings/actions';
 import { getLocaleByLanguage } from '../../utils/languages';
 import accountApi from '../account/api';
 import lixiApi from '../lixi/api';
@@ -99,8 +104,8 @@ const nameConfigGenerator: Config = {
  * Generate a account with random encryption password
  * @param action The data to needed generate a account
  */
-function* generateAccountSaga(action: PayloadAction<{ coin: COIN; telegramId: string }>) {
-  const { coin, telegramId } = action.payload;
+function* generateAccountSaga(action: PayloadAction<GenerateAccountType>) {
+  const { coin, telegramId, accountType } = action.payload;
 
   const xpiContext = yield getContext('useXPI');
   const { getXPI } = xpiContext();
@@ -109,16 +114,18 @@ function* generateAccountSaga(action: PayloadAction<{ coin: COIN; telegramId: st
   const Bip39128BitMnemonic = XPI.Mnemonic.generate(128, XPI.Mnemonic.wordLists()[lang]);
 
   let encryptedMnemonic: string = undefined;
+  let mnemonicHash: string = undefined;
 
-  if (_.isEmpty(telegramId) || _.isNil(telegramId)) {
+  if (!telegramId && accountType !== AccountType.NONCUSTODIAL) {
     // Encrypted mnemonic is encrypted by itself
     encryptedMnemonic = yield call(aesGcmEncrypt, Bip39128BitMnemonic, Bip39128BitMnemonic);
+
+    // Hash mnemonic and store it in the database
+    const mnemonicUtf8 = new TextEncoder().encode(Bip39128BitMnemonic); // encode mnemonic as UTF-8
+    const mnemonicHashBuffer = yield call([crypto.subtle, crypto.subtle.digest], 'SHA-256', mnemonicUtf8); // hash the mnemonic
+    mnemonicHash = Buffer.from(new Uint8Array(mnemonicHashBuffer)).toString('hex');
   }
 
-  // Hash mnemonic and use it as an id in the database
-  const mnemonicUtf8 = new TextEncoder().encode(Bip39128BitMnemonic); // encode mnemonic as UTF-8
-  const mnemonicHashBuffer = yield call([crypto.subtle, crypto.subtle.digest], 'SHA-256', mnemonicUtf8); // hash the mnemonic
-  const mnemonicHash = Buffer.from(new Uint8Array(mnemonicHashBuffer)).toString('hex');
   const locale: string | undefined = yield select(getCurrentLocale);
 
   const account: CreateAccountCommand = {
@@ -127,7 +134,8 @@ function* generateAccountSaga(action: PayloadAction<{ coin: COIN; telegramId: st
     mnemonicHash,
     language: locale,
     rootCoin: coin ? coin : COIN.XPI,
-    telegramId: telegramId || undefined
+    telegramId: telegramId || undefined,
+    accountType: accountType ? accountType : AccountType.NORMAL
   };
 
   yield put(postAccount(account));
@@ -203,7 +211,8 @@ function* postAccountSaga(action: PayloadAction<CreateAccountCommand>) {
       ...command,
       ...data,
       rootCoin: command.rootCoin,
-      coin: command.rootCoin
+      coin: command.rootCoin,
+      accountType: command.accountType
     } as Account;
 
     yield put(postAccountSuccess(result));
@@ -248,9 +257,9 @@ function* postAccountFailureSaga(action: PayloadAction<string>) {
   yield put(hideLoading(postAccount.type));
 }
 
-function* importAccountSaga(action: PayloadAction<string>) {
+function* importAccountSaga(action: PayloadAction<ImportAccountType>) {
   try {
-    const mnemonic: string = action.payload;
+    const { mnemonic, coin } = action.payload;
 
     // Hash mnemonic and use it as an id in the database
     const mnemonicUtf8 = new TextEncoder().encode(mnemonic); // encode mnemonic as UTF-8
@@ -262,13 +271,14 @@ function* importAccountSaga(action: PayloadAction<string>) {
     const command: ImportAccountCommand = {
       mnemonic,
       mnemonicHash,
-      language: locale
+      language: locale,
+      coin: coin ? coin : COIN.XPI
     };
 
     const data: AccountDto = yield call(accountApi.import, command);
 
     // Merge back to action payload
-    const account = { ...data } as Account;
+    const account = { ...data, coin: coin } as Account;
 
     const lixies: Lixi[] = [];
 
@@ -317,7 +327,12 @@ function* importAccountSuccessSaga(action: PayloadAction<{ account: Account; lix
   }
   yield put(setAccount(account));
   yield put(hideLoading(importAccount.type));
-  yield putResolve(silentLogin(action.payload.account.mnemonic));
+
+  const dataSilentLogin: SilentLoginType = {
+    mnemonic: action.payload.account.mnemonic,
+    coin: action.payload.account.coin
+  };
+  yield putResolve(silentLogin(dataSilentLogin));
 }
 
 function* importAccountFailureSaga(action: PayloadAction<string>) {
@@ -389,7 +404,12 @@ function* selectAccountSuccessSaga(
     coin: account.coin ? account.coin : COIN.XPI
   };
   yield put(setLocalUserAccount(localAccount));
-  yield putResolve(silentLogin(account.mnemonic));
+
+  const dataSilentLogin: SilentLoginType = {
+    mnemonic: account.mnemonic,
+    coin: account.coin
+  };
+  yield putResolve(silentLogin(dataSilentLogin));
   yield put(removeAllPageMessageSession());
   yield put(hideLoading(selectAccount.type));
 }
@@ -420,11 +440,17 @@ function* setAccountSuccessSaga(action: PayloadAction<Account>) {
     name: account.name,
     rootCoin: account.rootCoin ? account.rootCoin : COIN.XPI,
     coin: account.coin ? account.coin : COIN.XPI,
+    accountType: account.accountType ? account.accountType : AccountType.NORMAL,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt
   };
   yield put(setLocalUserAccount(localAccount));
-  yield putResolve(silentLogin(account.mnemonic));
+
+  const dataSilentLogin: SilentLoginType = {
+    mnemonic: account.mnemonic,
+    coin: account.coin
+  };
+  yield putResolve(silentLogin(dataSilentLogin));
 }
 
 function* renameAccountSaga(action: PayloadAction<RenameAccountCommand>) {
@@ -915,10 +941,9 @@ function* watchTopFiveFailure() {
   yield takeLatest(getLeaderboardFailure.type, getLeaderboardFailureSaga);
 }
 
-function* silentLoginSaga(action: PayloadAction<string>) {
-  const mnemonic = action.payload;
+function* silentLoginSaga(action: PayloadAction<SilentLoginType>) {
   try {
-    const data = yield call(accountApi.login, mnemonic);
+    const data = yield call(accountApi.login, action.payload);
     yield put(silentLoginSuccess());
   } catch (err) {
     yield put(silentLoginFailure());

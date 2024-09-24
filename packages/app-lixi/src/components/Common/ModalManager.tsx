@@ -27,6 +27,7 @@ import LixiEnvelopeViewModal from '@components/Lixi/LixiEnvelopeViewModal';
 import CreateAccountModal from '@components/Account/CreateAccountModal';
 import BurnHistoryModal from './BurnHistoryModal';
 import WalletHistoryModal from './WalletHistoryModal';
+import ImportAccountModal from '@components/Account/ImportAccountModal';
 
 const modalComponentLookupTable = {
   CreateLixiConfirmationModal,
@@ -49,6 +50,7 @@ const modalComponentLookupTable = {
   EditProfileModal,
   LixiEnvelopeViewModal,
   CreateAccountModal,
+  ImportAccountModal,
   BurnHistoryModal,
   WalletHistoryModal
 };

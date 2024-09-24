@@ -1,4 +1,4 @@
-import { Post } from '@bcpros/lixi-models';
+import { AccountType, Post } from '@bcpros/lixi-models';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { decode, encode } from '@msgpack/msgpack';
 import { Logger } from '@nestjs/common';
@@ -32,7 +32,11 @@ export class PostCacheService {
 
       const post: Post = new Post({
         ...dbValue,
-        account: { ...dbValue.account, hash160: dbValue?.account.hash160.toString('hex') }
+        account: {
+          ...dbValue.account,
+          hash160: dbValue?.account.hash160.toString('hex'),
+          accountType: dbValue?.account.accountType as AccountType
+        }
       });
 
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(post)));
@@ -78,7 +82,11 @@ export class PostCacheService {
       dbValues.map((dbValue, i) => {
         const item = new Post({
           ...dbValue,
-          account: { ...dbValue.account, hash160: dbValue?.account.hash160.toString('hex') }
+          account: {
+            ...dbValue.account,
+            hash160: dbValue?.account.hash160.toString('hex'),
+            accountType: dbValue?.account.accountType as AccountType
+          }
         });
         itemsMap.set(dbValue.id, item);
         return [dbValue.id, Buffer.from(encode(item))];

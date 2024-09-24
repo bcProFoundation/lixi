@@ -1,4 +1,5 @@
 import { ExclamationCircleOutlined, ImportOutlined, LockOutlined, PlusSquareOutlined } from '@ant-design/icons';
+import { AccountType, GenerateAccountType, ImportAccountType } from '@bcpros/lixi-models/constants/account';
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { AntdFormWrapper } from '@components/Common/EnhancedInputs';
 import PrimaryButton, { SecondaryButton, SmartButton } from '@components/Common/PrimaryButton';
@@ -66,7 +67,12 @@ const OnboardingComponent: React.FC = () => {
       cancelText: intl.get('onboarding.cancel'),
       centered: true,
       onOk() {
-        dispatch(generateAccount({ coin: COIN.XPI }));
+        const dataGenerateAccount: GenerateAccountType = {
+          coin: COIN.XPI,
+          telegramId: undefined,
+          accountType: AccountType.NORMAL
+        };
+        dispatch(generateAccount(dataGenerateAccount));
       },
       onCancel() {
         console.log('Cancel');
@@ -99,7 +105,12 @@ const OnboardingComponent: React.FC = () => {
       return;
     }
 
-    dispatch(importAccount(formData.mnemonic));
+    const dataImportAccount: ImportAccountType = {
+      mnemonic: formData.mnemonic,
+      coin: COIN.XPI
+    };
+
+    dispatch(importAccount(dataImportAccount));
   }
 
   return (

@@ -4,6 +4,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import VError from 'verror';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwtauth.guard';
+import { SilentLoginType } from '@bcpros/lixi-models';
 
 @SkipThrottle()
 @Controller('auth')
@@ -11,10 +12,13 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() body: { mnemonic: string }, @Res({ passthrough: true }) response: FastifyReply): Promise<string> {
+  async login(
+    @Body() body: { data: SilentLoginType },
+    @Res({ passthrough: true }) response: FastifyReply
+  ): Promise<string> {
     try {
-      const { mnemonic } = body;
-      const token = await this.authService.login(mnemonic);
+      const { data } = body;
+      const token = await this.authService.login(data);
       response.setCookie('_auth_token', token, {
         httpOnly: true,
         sameSite: 'none',

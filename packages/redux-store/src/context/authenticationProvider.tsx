@@ -3,6 +3,8 @@ import { useSliceDispatch, useSliceSelector } from '@store/index';
 import { createContext, useEffect } from 'react';
 import useWebAuthentication, { DeviceAuthenticationValue } from '../hooks/useDeviceAuthentication';
 import { shallowEqual } from 'react-redux';
+import { SilentLoginType } from '@bcpros/lixi-models/constants/account';
+import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 
 export const AuthenticationContext = createContext<DeviceAuthenticationValue | undefined>(undefined);
 
@@ -14,7 +16,11 @@ export const AuthenticationProvider = ({ children }) => {
 
   useEffect(() => {
     if (selectedAccount) {
-      dispatch(silentLogin(selectedAccount.mnemonic));
+      const dataSilentLogin: SilentLoginType = {
+        mnemonic: selectedAccount.mnemonic,
+        coin: selectedAccount?.coin ?? COIN.XPI
+      }
+      dispatch(silentLogin(dataSilentLogin));
     }
   }, []);
 

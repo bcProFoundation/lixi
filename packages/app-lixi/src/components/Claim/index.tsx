@@ -4,6 +4,7 @@ import {
   FormItemWithQRCodeAddon
 } from '@bcpros/lixi-components/components/Common/EnhancedInputs';
 import PrimaryButton from '@bcpros/lixi-components/components/Common/PrimaryButton';
+import { AccountType, GenerateAccountType } from '@bcpros/lixi-models/constants/account';
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import useAuthorization from '@components/Common/Authorization/use-authorization.hooks';
@@ -149,8 +150,13 @@ const ClaimComponent = ({ isClaimFromAccount, claimCodeFromURL }: ClaimProps) =>
             };
             dispatch(checkInformationAndClaim(payload));
           } else {
+            const dataGenerateAccount: GenerateAccountType = {
+              coin: COIN.XPI,
+              telegramId: undefined,
+              accountType: AccountType.NORMAL
+            };
             dispatch(checkInformationAndClaimNoAccount(token));
-            dispatch(generateAccount({ coin: COIN.XPI }));
+            dispatch(generateAccount(dataGenerateAccount));
           }
         });
       });

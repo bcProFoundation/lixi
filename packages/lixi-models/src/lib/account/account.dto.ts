@@ -1,3 +1,4 @@
+import { AccountType } from '../../constants/account';
 import { COIN } from '../../constants/coins/coin';
 import { Nullable } from '../nullable';
 import { Page } from '../page/page.model';
@@ -9,12 +10,14 @@ export interface CreateAccountCommand {
   language?: string;
   rootCoin?: COIN;
   telegramId?: string;
+  accountType?: AccountType;
 }
 
 export interface ImportAccountCommand {
   mnemonic: string;
   mnemonicHash?: string;
   language?: string;
+  coin: COIN;
 }
 
 export interface ChangeAccountLocaleCommand {
@@ -64,6 +67,7 @@ export interface AccountDto {
   secondaryLanguage?: Nullable<string>;
   page?: Nullable<Page[]>;
   rootCoin?: COIN;
+  accountType?: AccountType;
 }
 
 export interface RegisterViaEmailNoVerifiedCommand {

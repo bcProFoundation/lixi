@@ -1,3 +1,4 @@
+import { GenerateAccountType, ImportAccountType, SilentLoginType } from '@bcpros/lixi-models/constants/account';
 import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import {
   ChangeAccountLocaleCommand,
@@ -14,7 +15,7 @@ import { Upload } from '@bcpros/lixi-models/lib/upload';
 import { createAction } from '@reduxjs/toolkit';
 import { WorshipedPersonFieldsFragment as WorshipedPerson } from '@store/worship/worshipedPerson.generated';
 
-export const generateAccount = createAction<{ coin?: COIN; telegramId?: string }>('account/generateAccount');
+export const generateAccount = createAction<GenerateAccountType>('account/generateAccount');
 export const setAccountInfoTemp = createAction<any>('account/setAccountInfoTemp');
 export const getAccount = createAction<number>('account/getAccount');
 export const getAccountSuccess = createAction<Account>('account/getAccountSuccess');
@@ -33,7 +34,7 @@ export const selectAccountSuccess = createAction<{
   previousAccount: Account;
 }>('account/selectAccountSuccess');
 export const selectAccountFailure = createAction<string>('account/selectAccountFailure');
-export const importAccount = createAction<string>('account/importAccount');
+export const importAccount = createAction<ImportAccountType>('account/importAccount');
 export const importAccountSuccess = createAction<{
   account: Account;
   lixies: Lixi[];
@@ -60,7 +61,7 @@ export const refreshLixiListSilentSuccess = createAction<{
   lixies: Lixi[];
 }>('lixi/refreshLixiListSilentSuccess');
 export const refreshLixiListSilentFailure = createAction<string>('lixi/refreshLixiListSilentFailure');
-export const silentLogin = createAction<string>('account/silentLogin');
+export const silentLogin = createAction<SilentLoginType>('account/silentLogin');
 export const silentLoginSuccess = createAction('account/silentLoginSuccess');
 export const silentLoginFailure = createAction('account/silentLoginFailure');
 export const setUpload = createAction<{

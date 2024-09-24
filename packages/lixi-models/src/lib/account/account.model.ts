@@ -9,6 +9,7 @@ import { Nullable } from '../nullable';
 import { Page } from '../page/page.model';
 
 import { AccountDana } from './account-dana.model';
+import { AccountType } from '../../constants/account';
 
 @ObjectType()
 export class Account {
@@ -17,6 +18,9 @@ export class Account {
 
   @Field(() => String)
   name: string;
+
+  @Field(() => AccountType, { nullable: true })
+  accountType?: Nullable<AccountType>;
 
   @Field(() => Number)
   balance?: number;
@@ -140,4 +144,9 @@ export class Account {
 registerEnumType(COIN, {
   name: 'Coin',
   description: 'The type of coin.'
+});
+
+registerEnumType(AccountType, {
+  name: 'AccountType',
+  description: 'The type of account.'
 });

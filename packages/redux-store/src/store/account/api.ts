@@ -9,6 +9,7 @@ import {
 } from '@bcpros/lixi-models/lib/account/account.dto';
 import { axiosClient } from '../../utils/axiosClient';
 import getOauth2URL from '../../utils/oauth2';
+import { SilentLoginType } from '@bcpros/lixi-models';
 
 const accountApi = {
   getById(id: number): Promise<AccountDto> {
@@ -81,10 +82,10 @@ const accountApi = {
         throw response?.data ?? err ?? 'Network Error';
       });
   },
-  login(mnemonic: string): Promise<string> {
+  login(data: SilentLoginType): Promise<string> {
     const url = `/api/auth/login`;
     return axiosClient
-      .post(url, { mnemonic })
+      .post(url, { data })
       .then(response => {
         return response.data as string;
       })
