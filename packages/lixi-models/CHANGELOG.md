@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.17
+
+### Patch Changes
+
+- Move auth token from 3rd party cookie to session storage
+
 ## 1.2.16
 
 ### Patch Changes
