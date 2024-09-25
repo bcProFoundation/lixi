@@ -87,6 +87,13 @@ const accountApi = {
     return axiosClient
       .post(url, { data })
       .then(response => {
+        const token = response.headers.authorization as string;
+
+        if (token && token.startsWith('Bearer ')) {
+          const jwtToken = token.slice(7); // Remove "Bearer " prefix
+          // Store the token in localStorage, sessionStorage, or state
+          sessionStorage.setItem('Authorization', jwtToken);
+        }
         return response.data as string;
       })
       .catch(err => {
