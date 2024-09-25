@@ -5,7 +5,39 @@ const enhancedApi = api.enhanceEndpoints({
   addTagTypes: ['EscrowOrder', 'EscrowOrderTimeline'],
   endpoints: {
     EscrowOrder: {},
-    CreateEscrowOrder: {},
+    CreateEscrowOrder: {
+      async onQueryStarted({ input }, { dispatch, getState, queryFulfilled }) {
+        try {
+          const { data: result } = await queryFulfilled;
+
+          const timelineInvalidatedBy = enhancedApi.util.selectInvalidatedBy(getState(), ['EscrowOrderTimeline']);
+          for (const invalidatedBy of timelineInvalidatedBy) {
+            const { endpointName, originalArgs } = invalidatedBy;
+            dispatch(
+              enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
+                const fields = Object.keys(draft);
+                for (const field of fields) {
+                  if (!draft[field]) continue;
+
+                  const timelineId = result.createEscrowOrder.id;
+                  draft[field].edges.unshift({
+                    cursor: timelineId,
+                    node: {
+                      id: timelineId,
+                      data: {
+                        __typename: 'Post',
+                        ...result.createEscrowOrder
+                      }
+                    }
+                  });
+                  draft[field].totalCount = draft[field].totalCount + 1;
+                }
+              })
+            );
+          }
+        } catch {}
+      }
+    },
     GetModeratorAccount: {},
     GetRandomArbitratorAccount: {},
     AllEscrowOrderByAccount: {

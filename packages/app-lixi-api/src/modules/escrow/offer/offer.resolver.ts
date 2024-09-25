@@ -82,6 +82,12 @@ export class OfferResolver {
     @Args() { after, first }: BasicPaginationArgs,
     @Args({ name: 'offerFilterInput', type: () => OfferFilterInput }) offerFilterInput: OfferFilterInput
   ) {
+    // filter input before get cache (just take stateId, countryId, methods)
+    offerFilterInput = {
+      countryId: offerFilterInput.countryId,
+      stateId: offerFilterInput.stateId,
+      paymentMethodIds: offerFilterInput.paymentMethodIds
+    };
     const paginated = await this.offerCacheService.getOfferFilterPaginatedTimeline(offerFilterInput, first, after);
     const timelineIds = paginated.edges.map(item => item.cursor);
     const timelines = await this.timelineItemService.getByIds(timelineIds);

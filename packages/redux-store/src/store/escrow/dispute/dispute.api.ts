@@ -21,28 +21,36 @@ const enhancedApi = api.enhanceEndpoints({
       }
     },
     CreateDispute: {
-      onQueryStarted: async ({ input }, { dispatch, queryFulfilled }) => {
-        const { createdBy, escrowOrderId, reason } = input;
+      async onQueryStarted({ input }, { dispatch, getState, queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled;
-          if (data) {
-            const { id } = data.createDispute;
+          const { data: result } = await queryFulfilled;
+
+          const timelineInvalidatedBy = enhancedApi.util.selectInvalidatedBy(getState(), ['DisputeTimeline']);
+          for (const invalidatedBy of timelineInvalidatedBy) {
+            const { endpointName, originalArgs } = invalidatedBy;
             dispatch(
-              escrowApi.util.updateQueryData('EscrowOrder', { id: escrowOrderId }, draft => {
-                if (draft) {
-                  draft.escrowOrder.dispute = {
-                    id,
-                    createdBy,
-                    reason,
-                    status: DisputeStatus.Active
-                  };
+              enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
+                const fields = Object.keys(draft);
+                for (const field of fields) {
+                  if (!draft[field]) continue;
+
+                  const timelineId = result.createDispute.id;
+                  draft[field].edges.unshift({
+                    cursor: timelineId,
+                    node: {
+                      id: timelineId,
+                      data: {
+                        __typename: 'Post',
+                        ...result.createDispute
+                      }
+                    }
+                  });
+                  draft[field].totalCount = draft[field].totalCount + 1;
                 }
               })
             );
           }
-        } catch (e) {
-          console.error(e);
-        }
+        } catch {}
       }
     },
     UpdateDispute: {},
