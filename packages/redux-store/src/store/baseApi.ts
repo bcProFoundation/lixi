@@ -13,8 +13,11 @@ export const client = new GraphQLClient(
       const cookies = new Cookies(null, { path: '/' });
       const locale = cookies.get('locale');
       const lang = locale ? locale.split('-')[0] : 'en';
+      const token = sessionStorage.getItem('Authorization');
+
       return {
-        lang: lang
+        lang: lang,
+        Authorization: token
       };
     }
   }

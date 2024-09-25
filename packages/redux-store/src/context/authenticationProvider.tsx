@@ -18,8 +18,8 @@ export const AuthenticationProvider = ({ children }) => {
     if (selectedAccount) {
       const dataSilentLogin: SilentLoginType = {
         mnemonic: selectedAccount.mnemonic,
-        coin: selectedAccount?.coin ?? COIN.XPI
-      }
+        coin: selectedAccount?.rootCoin ?? COIN.XPI
+      };
       dispatch(silentLogin(dataSilentLogin));
     }
   }, []);

@@ -17,7 +17,7 @@ export class GqlJwtAuthGuard implements CanActivate {
       const ctx = GqlExecutionContext.create(context);
       const req = ctx.getContext().req;
 
-      const token = req.cookies['_auth_token'];
+      const token = req.headers['authorization'];
 
       return new Promise(async (resolve, reject) => {
         try {

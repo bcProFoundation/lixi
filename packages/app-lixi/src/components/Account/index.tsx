@@ -52,7 +52,7 @@ const Account: React.FC = () => {
     if (selectedAccount) {
       const dataSilentLogin: SilentLoginType = {
         mnemonic: selectedAccount.mnemonic,
-        coin: selectedAccount?.coin ?? COIN.XPI
+        coin: selectedAccount?.rootCoin ?? COIN.XPI
       };
       dispatch(getAccount(selectedAccount.id));
       dispatch(silentLogin(dataSilentLogin));

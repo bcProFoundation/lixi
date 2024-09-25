@@ -330,7 +330,7 @@ function* importAccountSuccessSaga(action: PayloadAction<{ account: Account; lix
 
   const dataSilentLogin: SilentLoginType = {
     mnemonic: action.payload.account.mnemonic,
-    coin: action.payload.account.coin
+    coin: action.payload.account.rootCoin
   };
   yield putResolve(silentLogin(dataSilentLogin));
 }
@@ -448,7 +448,7 @@ function* setAccountSuccessSaga(action: PayloadAction<Account>) {
 
   const dataSilentLogin: SilentLoginType = {
     mnemonic: account.mnemonic,
-    coin: account.coin
+    coin: account.rootCoin
   };
   yield putResolve(silentLogin(dataSilentLogin));
 }

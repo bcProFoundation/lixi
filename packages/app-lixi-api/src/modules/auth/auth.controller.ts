@@ -19,13 +19,20 @@ export class AuthController {
     try {
       const { data } = body;
       const token = await this.authService.login(data);
-      response.setCookie('_auth_token', token, {
-        httpOnly: true,
-        sameSite: 'none',
-        signed: true,
-        secure: true,
-        path: '/'
-      });
+
+      response.header('Authorization', `Bearer ${token}`);
+
+      // response.setCookie('_auth_token', token, {
+      //   httpOnly: true,
+      //   sameSite: 'none',
+      //   signed: true,
+      //   secure: true,
+      //   path: '/',
+      //   priority: 'high',
+      //   domain: 'ecash-escrow.test',
+      //   maxAge: 15552000 // 6 months
+      // });
+
       return token;
     } catch (err) {
       if (err instanceof VError) {

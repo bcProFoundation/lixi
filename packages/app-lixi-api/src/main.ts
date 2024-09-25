@@ -60,7 +60,7 @@ async function bootstrap() {
         origin: process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'local' ? true : allowedOrigins,
         exposedHeaders: ['Authorization'],
         allowedHeaders:
-          'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe, Origin, Account-Secret, lang, Lang',
+          'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe, Origin, Account-Secret, lang, Lang, Authorization',
         methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
         preflightContinue: false,
         optionsSuccessStatus: 200
