@@ -521,6 +521,7 @@ export class AccountController {
           telegramId: id
         },
         data: {
+          telegramUsername: null,
           telegramId: null
         }
       });

@@ -62,7 +62,13 @@ const useDeviceAuthentication = () => {
   useEffect(() => {
     (async () => {
       // check to see if user device supports User Verification
-      const available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      let available = false;
+      try {
+        available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      } catch (e) {
+        console.log(e);
+      }
+
       if (available) {
         // signout the user when the app is not visible (minimize the browser, switch tab, switch app window)
         const handleDocVisibilityChange = () => {
@@ -83,7 +89,13 @@ const useDeviceAuthentication = () => {
   useEffect(() => {
     (async () => {
       // check to see if user device supports User Verification
-      const available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+
+      let available = false;
+      try {
+        available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      } catch (e) {
+        console.log(e);
+      }
       // only attempt to save/load authentication configuration from local storage if web authetication is supported
       if (available) {
         const authenticationConfig = webAuthnConfig;
