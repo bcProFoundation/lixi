@@ -1,5 +1,12 @@
 # @bcpros/app-lixi-api
 
+## 1.1.17
+
+### Patch Changes
+
+- Fix issue authen device
+  - @bcpros/lixi-models@1.2.18
+
 ## 1.1.16
 
 ### Patch Changes

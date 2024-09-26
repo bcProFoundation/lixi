@@ -1,5 +1,12 @@
 # @bcpros/redux-store
 
+## 1.2.18
+
+### Patch Changes
+
+- Fix issue authen device
+  - @bcpros/lixi-models@1.2.18
+
 ## 1.2.17
 
 ### Patch Changes
