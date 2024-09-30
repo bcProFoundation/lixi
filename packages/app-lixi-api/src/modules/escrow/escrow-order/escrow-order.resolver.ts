@@ -177,16 +177,50 @@ export class EscrowOrderResolver {
 
       if (account.id === result.sellerAccountId && buyerAccount.telegramId) {
         const formatReplied = format(BOT.MESSAGE.SELLER_REQUEST_CHAT, sellerAccount.telegramUsername, url);
-        await this.bot.telegram.sendMessage(buyerAccount.telegramId, formatReplied, {
-          parse_mode: 'Markdown'
-        });
+        await this.bot.telegram
+          .sendMessage(buyerAccount.telegramId, formatReplied, {
+            parse_mode: 'Markdown',
+            protect_content: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  {
+                    text: 'Open App',
+                    web_app: {
+                      url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`
+                    }
+                  }
+                ]
+              ]
+            }
+          })
+          .catch(e => {
+            this.logger.error(e);
+          });
       }
 
       if (account.id === result.buyerAccountId && sellerAccount.telegramId) {
         const formatReplied = format(BOT.MESSAGE.BUYER_REQUEST_CHAT, buyerAccount.telegramUsername, url);
-        await this.bot.telegram.sendMessage(sellerAccount.telegramId, formatReplied, {
-          parse_mode: 'Markdown'
-        });
+        await this.bot.telegram
+          .sendMessage(sellerAccount.telegramId, formatReplied, {
+            parse_mode: 'Markdown',
+            protect_content: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  {
+                    text: 'Open App',
+                    web_app: {
+                      url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`
+                    }
+                  }
+                ]
+              ]
+            }
+          })
+          .catch(e => {
+            this.logger.error(e);
+          });
       }
 
       return true;
@@ -240,32 +274,100 @@ export class EscrowOrderResolver {
       if (account.id === result.arbitratorAccountId) {
         if (requestChatPublicKey === sellerAccount.publicKey && sellerAccount.telegramId) {
           const formatReplied = format(BOT.MESSAGE.ARBI_REQUEST_CHAT, arbitratorAccount.telegramUsername, url);
-          await this.bot.telegram.sendMessage(sellerAccount.telegramId, formatReplied, {
-            parse_mode: 'Markdown'
-          });
+          await this.bot.telegram
+            .sendMessage(sellerAccount.telegramId, formatReplied, {
+              parse_mode: 'Markdown',
+              protect_content: true,
+              reply_markup: {
+                inline_keyboard: [
+                  [
+                    {
+                      text: 'Open App',
+                      web_app: {
+                        url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrderId}`
+                      }
+                    }
+                  ]
+                ]
+              }
+            })
+            .catch(e => {
+              this.logger.error(e);
+            });
         }
 
         if (requestChatPublicKey === buyerAccount.publicKey && buyerAccount.telegramId) {
           const formatReplied = format(BOT.MESSAGE.ARBI_REQUEST_CHAT, arbitratorAccount.telegramUsername, url);
-          await this.bot.telegram.sendMessage(buyerAccount.telegramId, formatReplied, {
-            parse_mode: 'Markdown'
-          });
+          await this.bot.telegram
+            .sendMessage(buyerAccount.telegramId, formatReplied, {
+              parse_mode: 'Markdown',
+              protect_content: true,
+              reply_markup: {
+                inline_keyboard: [
+                  [
+                    {
+                      text: 'Open App',
+                      web_app: {
+                        url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrderId}`
+                      }
+                    }
+                  ]
+                ]
+              }
+            })
+            .catch(e => {
+              this.logger.error(e);
+            });
         }
       }
 
       if (account.id === result.moderatorAccountId) {
         if (requestChatPublicKey === sellerAccount.publicKey && sellerAccount.telegramId) {
           const formatReplied = format(BOT.MESSAGE.MOD_REQUEST_CHAT, moderatorAccount.telegramUsername, url);
-          await this.bot.telegram.sendMessage(sellerAccount.telegramId, formatReplied, {
-            parse_mode: 'Markdown'
-          });
+          await this.bot.telegram
+            .sendMessage(sellerAccount.telegramId, formatReplied, {
+              parse_mode: 'Markdown',
+              protect_content: true,
+              reply_markup: {
+                inline_keyboard: [
+                  [
+                    {
+                      text: 'Open App',
+                      web_app: {
+                        url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrderId}`
+                      }
+                    }
+                  ]
+                ]
+              }
+            })
+            .catch(e => {
+              this.logger.error(e);
+            });
         }
 
         if (requestChatPublicKey === buyerAccount.publicKey && buyerAccount.telegramId) {
           const formatReplied = format(BOT.MESSAGE.MOD_REQUEST_CHAT, moderatorAccount.telegramUsername, url);
-          await this.bot.telegram.sendMessage(buyerAccount.telegramId, formatReplied, {
-            parse_mode: 'Markdown'
-          });
+          await this.bot.telegram
+            .sendMessage(buyerAccount.telegramId, formatReplied, {
+              parse_mode: 'Markdown',
+              protect_content: true,
+              reply_markup: {
+                inline_keyboard: [
+                  [
+                    {
+                      text: 'Open App',
+                      web_app: {
+                        url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrderId}`
+                      }
+                    }
+                  ]
+                ]
+              }
+            })
+            .catch(e => {
+              this.logger.error(e);
+            });
         }
       }
 
@@ -356,6 +458,16 @@ export class EscrowOrderResolver {
         throw new Error('Buyer not found');
       }
 
+      const sellerAccount = await this.prisma.account.findUnique({
+        where: {
+          id: sellerId
+        }
+      });
+
+      if (!sellerAccount) {
+        throw new Error('Seller not found');
+      }
+
       //TODO: Uncomment when done testing
       // if (buyerAccount.id === sellerId) {
       //   throw new Error('Seller and buyer cannot be the same');
@@ -423,25 +535,76 @@ export class EscrowOrderResolver {
       });
       const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`;
 
-      if (buyerAccount.telegramId) {
+      if (sellerAccount.telegramId) {
         const formatReplied = format(BOT.MESSAGE.ORDER_CREATED, url);
-        await this.bot.telegram.sendMessage(buyerAccount.telegramId, formatReplied, {
-          parse_mode: 'Markdown'
-        });
+        await this.bot.telegram
+          .sendMessage(sellerAccount.telegramId, formatReplied, {
+            parse_mode: 'Markdown',
+            protect_content: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  {
+                    text: 'Open App',
+                    web_app: {
+                      url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`
+                    }
+                  }
+                ]
+              ]
+            }
+          })
+          .catch(e => {
+            this.logger.error(e);
+          });
       }
 
       if (arbitratorAccount.telegramId) {
         const formatReplied = format(BOT.MESSAGE.ARBITRATOR_SELECTED, url);
-        await this.bot.telegram.sendMessage(arbitratorAccount.telegramId, formatReplied, {
-          parse_mode: 'Markdown'
-        });
+        await this.bot.telegram
+          .sendMessage(arbitratorAccount.telegramId, formatReplied, {
+            parse_mode: 'Markdown',
+            protect_content: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  {
+                    text: 'Open App',
+                    web_app: {
+                      url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`
+                    }
+                  }
+                ]
+              ]
+            }
+          })
+          .catch(e => {
+            this.logger.error(e);
+          });
       }
 
       if (moderatorAccount.telegramId) {
         const formatReplied = format(BOT.MESSAGE.MODERATOR_SELECTED, url);
-        await this.bot.telegram.sendMessage(moderatorAccount.telegramId, formatReplied, {
-          parse_mode: 'Markdown'
-        });
+        await this.bot.telegram
+          .sendMessage(moderatorAccount.telegramId, formatReplied, {
+            parse_mode: 'Markdown',
+            protect_content: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  {
+                    text: 'Open App',
+                    web_app: {
+                      url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`
+                    }
+                  }
+                ]
+              ]
+            }
+          })
+          .catch(e => {
+            this.logger.error(e);
+          });
       }
       return escrowOrder;
     } catch (e) {
@@ -529,16 +692,50 @@ export class EscrowOrderResolver {
 
           if (result.sellerAccount.telegramId) {
             const formatReplied = format(BOT.MESSAGE.ORDER_COMPLETED, url);
-            await this.bot.telegram.sendMessage(result.sellerAccount.telegramId, formatReplied, {
-              parse_mode: 'Markdown'
-            });
+            await this.bot.telegram
+              .sendMessage(result.sellerAccount.telegramId, formatReplied, {
+                parse_mode: 'Markdown',
+                protect_content: true,
+                reply_markup: {
+                  inline_keyboard: [
+                    [
+                      {
+                        text: 'Open App',
+                        web_app: {
+                          url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${orderId}`
+                        }
+                      }
+                    ]
+                  ]
+                }
+              })
+              .catch(e => {
+                this.logger.error(e);
+              });
           }
 
           if (result.buyerAccount.telegramId) {
             const formatReplied = format(BOT.MESSAGE.ORDER_COMPLETED, url);
-            await this.bot.telegram.sendMessage(result.buyerAccount.telegramId, formatReplied, {
-              parse_mode: 'Markdown'
-            });
+            await this.bot.telegram
+              .sendMessage(result.buyerAccount.telegramId, formatReplied, {
+                parse_mode: 'Markdown',
+                protect_content: true,
+                reply_markup: {
+                  inline_keyboard: [
+                    [
+                      {
+                        text: 'Open App',
+                        web_app: {
+                          url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${orderId}`
+                        }
+                      }
+                    ]
+                  ]
+                }
+              })
+              .catch(e => {
+                this.logger.error(e);
+              });
           }
 
           break;
@@ -547,16 +744,50 @@ export class EscrowOrderResolver {
 
           if (result.sellerAccount.telegramId) {
             const formatReplied = format(BOT.MESSAGE.ORDER_CANCELED, url);
-            await this.bot.telegram.sendMessage(result.sellerAccount.telegramId, formatReplied, {
-              parse_mode: 'Markdown'
-            });
+            await this.bot.telegram
+              .sendMessage(result.sellerAccount.telegramId, formatReplied, {
+                parse_mode: 'Markdown',
+                protect_content: true,
+                reply_markup: {
+                  inline_keyboard: [
+                    [
+                      {
+                        text: 'Open App',
+                        web_app: {
+                          url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${orderId}`
+                        }
+                      }
+                    ]
+                  ]
+                }
+              })
+              .catch(e => {
+                this.logger.error(e);
+              });
           }
 
           if (result.buyerAccount.telegramId) {
             const formatReplied = format(BOT.MESSAGE.ORDER_CANCELED, url);
-            await this.bot.telegram.sendMessage(result.buyerAccount.telegramId, formatReplied, {
-              parse_mode: 'Markdown'
-            });
+            await this.bot.telegram
+              .sendMessage(result.buyerAccount.telegramId, formatReplied, {
+                parse_mode: 'Markdown',
+                protect_content: true,
+                reply_markup: {
+                  inline_keyboard: [
+                    [
+                      {
+                        text: 'Open App',
+                        web_app: {
+                          url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${orderId}`
+                        }
+                      }
+                    ]
+                  ]
+                }
+              })
+              .catch(e => {
+                this.logger.error(e);
+              });
           }
 
           break;
