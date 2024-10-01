@@ -23,6 +23,7 @@ export const BOT = {
       `⚖️ The buyer has raised a dispute with the arbitrator/moderator regarding your order! \r\n\r\n` +
       `Reason: "%s" \r\n\r\n` +
       `[View order](%s)`,
+    ARB_RECEIVE_DISPUTE: `⚖️ The %s has raised a dispute! \r\n\r\n` + `Reason: "%s" \r\n\r\n` + `[View order](%s)`,
     SELLER_REQUEST_CHAT: `💬 The seller %s has requested to chat with you! \r\n\r\n` + `[View order](%s)`,
     BUYER_REQUEST_CHAT: `💬 The buyer %s has requested to chat with you! \r\n\r\n` + `[View order](%s)`,
     ARBI_REQUEST_CHAT: `💬 The arbitrator %s has requested to chat with you! \r\n\r\n` + `[View order](%s)`,

@@ -49,7 +49,7 @@ export class EscrowOrderResolver {
     private readonly escrowOrderCacheService: EscrowOrderCacheService,
     private readonly timelineItemService: TimelineItemService,
     @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>
-  ) { }
+  ) {}
 
   @Query(() => Account)
   @UseGuards(GqlJwtAuthGuard)

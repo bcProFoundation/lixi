@@ -109,7 +109,8 @@ export class DisputeResolver {
         include: {
           dispute: true,
           sellerAccount: true,
-          buyerAccount: true
+          buyerAccount: true,
+          arbitratorAccount: true
         }
       });
 
@@ -117,7 +118,7 @@ export class DisputeResolver {
         throw new Error('Escrow order not found');
       }
 
-      const { sellerAccount, buyerAccount } = escrowOrder;
+      const { sellerAccount, buyerAccount, arbitratorAccount } = escrowOrder;
 
       if (escrowOrder.dispute) {
         throw new Error('Escrow order already has a dispute');
@@ -144,16 +145,24 @@ export class DisputeResolver {
       });
       const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`;
 
-      if (createdBy === buyerAccount.publicKey && buyerAccount.telegramId) {
+      if (createdBy === buyerAccount.publicKey && sellerAccount.telegramId) {
         const formatReplied = format(BOT.MESSAGE.BUYER_RAISED_DISPUTE, reason, url);
+        await this.bot.telegram.sendMessage(sellerAccount.telegramId, formatReplied, {
+          parse_mode: 'Markdown'
+        });
+      }
+
+      if (createdBy === sellerAccount.publicKey && buyerAccount.telegramId) {
+        const formatReplied = format(BOT.MESSAGE.SELLER_RAISED_DISPUTE, reason, url);
         await this.bot.telegram.sendMessage(buyerAccount.telegramId, formatReplied, {
           parse_mode: 'Markdown'
         });
       }
 
-      if (createdBy === sellerAccount.publicKey && sellerAccount.telegramId) {
-        const formatReplied = format(BOT.MESSAGE.SELLER_RAISED_DISPUTE, reason, url);
-        await this.bot.telegram.sendMessage(sellerAccount.telegramId, formatReplied, {
+      if (arbitratorAccount.telegramId) {
+        const whoOpenDispute = createdBy === buyerAccount.publicKey ? 'buyer' : 'seller';
+        const formatReplied = format(BOT.MESSAGE.ARB_RECEIVE_DISPUTE, whoOpenDispute, reason, url);
+        await this.bot.telegram.sendMessage(arbitratorAccount.telegramId, formatReplied, {
           parse_mode: 'Markdown'
         });
       }
