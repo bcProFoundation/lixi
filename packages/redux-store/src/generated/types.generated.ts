@@ -23,6 +23,7 @@ export type Scalars = {
 export type Account = {
   __typename?: 'Account';
   accountDana?: Maybe<AccountDana>;
+  accountType?: Maybe<AccountType>;
   address: Scalars['String']['output'];
   avatar?: Maybe<Scalars['String']['output']>;
   balance: Scalars['Int']['output'];
@@ -123,6 +124,12 @@ export enum AccountOrderField {
   Id = 'id',
   Name = 'name',
   UpdatedAt = 'updatedAt'
+}
+
+/** The type of account. */
+export enum AccountType {
+  Noncustodial = 'NONCUSTODIAL',
+  Normal = 'NORMAL'
 }
 
 export type Balances = {

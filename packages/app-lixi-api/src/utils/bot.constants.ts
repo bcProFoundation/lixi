@@ -7,6 +7,14 @@ export const BOT = {
     ORDER_CREATED: `📦 A new order has been placed! \r\n\r\n` + `[View order](%s)`,
     ORDER_CANCELED: `❌ Your order has been canceled! \r\n\r\n` + `[View order](%s)`,
     ORDER_COMPLETED: `✅ Order has been completed! \r\n\r\n` + `[View order](%s)`,
+    ORDER_RETURN_BY_ARBMOD_SELLER:
+      `The order's dispute has been resolved. The funds have been returned to you! \r\n\r\n` + `[View order](%s)`,
+    ORDER_RETURN_BY_ARBMOD_BUYER:
+      `The order's dispute has been resolved. The funds have been returned to seller! \r\n\r\n` + `[View order](%s)`,
+    ORDER_RELEASE_BY_ARBMOD_SELLER:
+      `The order's dispute has been resolved. The funds have been released to buyer! \r\n\r\n` + `[View order](%s)`,
+    ORDER_RELEASE_BY_ARBMOD_BUYER:
+      `The order's dispute has been resolved. The funds have been released to you! \r\n\r\n` + `[View order](%s)`,
     SELLER_RAISED_DISPUTE:
       `⚖️ The seller has raised a dispute with the arbitrator/moderator regarding your order! \r\n\r\n` +
       `Reason: "%s" \r\n\r\n` +

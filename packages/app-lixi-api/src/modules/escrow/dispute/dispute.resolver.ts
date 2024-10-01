@@ -144,16 +144,16 @@ export class DisputeResolver {
       });
       const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`;
 
-      if (createdBy === buyerAccount.publicKey && sellerAccount.telegramId) {
+      if (createdBy === buyerAccount.publicKey && buyerAccount.telegramId) {
         const formatReplied = format(BOT.MESSAGE.BUYER_RAISED_DISPUTE, reason, url);
-        await this.bot.telegram.sendMessage(sellerAccount.telegramId, formatReplied, {
+        await this.bot.telegram.sendMessage(buyerAccount.telegramId, formatReplied, {
           parse_mode: 'Markdown'
         });
       }
 
-      if (createdBy === sellerAccount.publicKey && buyerAccount.telegramId) {
+      if (createdBy === sellerAccount.publicKey && sellerAccount.telegramId) {
         const formatReplied = format(BOT.MESSAGE.SELLER_RAISED_DISPUTE, reason, url);
-        await this.bot.telegram.sendMessage(buyerAccount.telegramId, formatReplied, {
+        await this.bot.telegram.sendMessage(sellerAccount.telegramId, formatReplied, {
           parse_mode: 'Markdown'
         });
       }
