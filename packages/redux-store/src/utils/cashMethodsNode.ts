@@ -111,13 +111,19 @@ export const parseXpiSendValue = (
   return value;
 };
 
-export const getByteCountEscrow = (p2pkhInputCount: number, p2pkhOutputCount: number): number => {
+export const getByteCountEscrow = (
+  p2shInputCount: number,
+  p2pkhOutputCount: number,
+  redeemScriptSize: number
+): number => {
   // Simplifying bch-js function for P2PKH txs only, as this is all Cashtab supports for now
   // https://github.com/Permissionless-Software-Foundation/bch-js/blob/master/src/bitcoincash.js#L408
   /*
   const types = {
       inputs: {            
-          'MULTISIG-P2SH': 49 * 4,
+          current scriptsig we create have form: spenderPK, oracleSig, oraclePK, OP_1|2|..., redeemScript
+          PK: 33 bytes, Sig: 73 bytes, OP_?: 1 byte, redeemScript: ? bytes 
+          P2SH: 33 * 2 + 73 + 1 + sizeRedeemScript
       },
       outputs: {
           P2PKH: 34 * 4,
@@ -125,9 +131,10 @@ export const getByteCountEscrow = (p2pkhInputCount: number, p2pkhOutputCount: nu
   };
   */
 
-  const inputCount = new BigNumber(p2pkhInputCount);
+  const inputCount = new BigNumber(p2shInputCount);
   const outputCount = new BigNumber(p2pkhOutputCount);
-  const inputWeight = new BigNumber(49 * 4);
+
+  const inputWeight = new BigNumber((33 * 2 + 73 + 1 + redeemScriptSize) * 4); //*4 because P2SH not SegWit
   const outputWeight = new BigNumber(34 * 4);
   const nonSegwitWeightConstant = new BigNumber(10 * 4);
   let totalWeight = new BigNumber(0);
@@ -147,13 +154,13 @@ export const calcFeeEscrow = (
   opReturnLength = 0,
   scriptByteSize: number
 ) => {
-  const byteCount = getByteCount(utxosLength, p2pkhOutputNumber);
+  const byteCount = getByteCountEscrow(utxosLength, p2pkhOutputNumber, scriptByteSize);
 
   let opReturnOutputByteLength = opReturnLength;
   if (opReturnLength) {
     opReturnOutputByteLength += 8 + 1;
   }
-  const txFee = Math.ceil(satoshisPerByte * (byteCount + opReturnOutputByteLength + scriptByteSize));
+  const txFee = Math.ceil(satoshisPerByte * (byteCount + opReturnOutputByteLength));
   return txFee;
 };
 
