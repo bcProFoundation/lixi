@@ -241,6 +241,7 @@ export class DisputeResolver {
             this.logger.error(e);
           });
       }
+
       return dispute;
     } catch (e) {
       this.logger.log(e);

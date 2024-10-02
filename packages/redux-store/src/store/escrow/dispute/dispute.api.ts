@@ -23,7 +23,22 @@ const enhancedApi = api.enhanceEndpoints({
     CreateDispute: {
       async onQueryStarted({ input }, { dispatch, getState, queryFulfilled }) {
         try {
+          const { createdBy, escrowOrderId, reason } = input;
           const { data: result } = await queryFulfilled;
+
+          //add dispute to escrow-order
+          dispatch(
+            escrowApi.util.updateQueryData('EscrowOrder', { id: escrowOrderId }, draft => {
+              if (draft) {
+                draft.escrowOrder.dispute = {
+                  createdBy,
+                  id: escrowOrderId,
+                  reason: reason,
+                  status: DisputeStatus.Active
+                };
+              }
+            })
+          );
 
           const timelineInvalidatedBy = enhancedApi.util.selectInvalidatedBy(getState(), ['DisputeTimeline']);
           for (const invalidatedBy of timelineInvalidatedBy) {
@@ -50,7 +65,9 @@ const enhancedApi = api.enhanceEndpoints({
               })
             );
           }
-        } catch {}
+        } catch (err) {
+          console.log('error: ', err);
+        }
       }
     },
     UpdateDispute: {},

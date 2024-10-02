@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.19
+
+### Patch Changes
+
+- seller deposit fee
+
 ## 1.2.18
 
 ## 1.2.17

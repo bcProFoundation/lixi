@@ -1,5 +1,13 @@
 # @bcpros/redux-store
 
+## 1.2.19
+
+### Patch Changes
+
+- seller deposit fee
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.19
+
 ## 1.2.18
 
 ### Patch Changes

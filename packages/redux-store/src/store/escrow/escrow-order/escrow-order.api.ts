@@ -1,10 +1,12 @@
 import { api } from './escrow-order.generated';
-import { DisputeStatus } from '../../../generated/types.generated';
+import { DisputeStatus, EscrowOrderStatus } from '../../../generated/types.generated';
 
 const enhancedApi = api.enhanceEndpoints({
   addTagTypes: ['EscrowOrder', 'EscrowOrderTimeline'],
   endpoints: {
-    EscrowOrder: {},
+    EscrowOrder: {
+      providesTags: ['EscrowOrder']
+    },
     CreateEscrowOrder: {
       async onQueryStarted({ input }, { dispatch, getState, queryFulfilled }) {
         try {
@@ -85,16 +87,19 @@ const enhancedApi = api.enhanceEndpoints({
                   draft.escrowOrder.updatedAt = data.updateEscrowOrderStatus.updatedAt;
 
                   switch (status) {
-                    case 'COMPLETE':
+                    case EscrowOrderStatus.Complete:
                       draft.escrowOrder.releaseTxid = txid;
                       if (draft.escrowOrder.dispute) {
                         draft.escrowOrder.dispute.status = DisputeStatus.Resolved;
                       }
                       break;
-                    case 'CANCEL':
+                    case EscrowOrderStatus.Cancel:
                       draft.escrowOrder.returnTxid = txid;
+                      if (draft.escrowOrder.dispute) {
+                        draft.escrowOrder.dispute.status = DisputeStatus.Resolved;
+                      }
                       break;
-                    case 'ACTIVE':
+                    case EscrowOrderStatus.Active:
                       txid &&
                         value &&
                         outIdx !== undefined &&
@@ -103,6 +108,15 @@ const enhancedApi = api.enhanceEndpoints({
                           txid,
                           value,
                           outIdx
+                        });
+                      break;
+                    case EscrowOrderStatus.Escrow:
+                      txid &&
+                        value &&
+                        draft.escrowOrder.escrowTxids.push({
+                          txid,
+                          value,
+                          outIdx: outIdx ?? 0
                         });
                       break;
                   }

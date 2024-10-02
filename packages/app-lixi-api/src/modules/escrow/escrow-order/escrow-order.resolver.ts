@@ -448,16 +448,6 @@ export class EscrowOrderResolver {
         nonce
       } = data;
 
-      const buyerAccount = await this.prisma.account.findUnique({
-        where: {
-          id: account.id
-        }
-      });
-
-      if (!buyerAccount) {
-        throw new Error('Buyer not found');
-      }
-
       const sellerAccount = await this.prisma.account.findUnique({
         where: {
           id: sellerId
@@ -466,6 +456,16 @@ export class EscrowOrderResolver {
 
       if (!sellerAccount) {
         throw new Error('Seller not found');
+      }
+
+      const buyerAccount = await this.prisma.account.findUnique({
+        where: {
+          id: account.id
+        }
+      });
+
+      if (!buyerAccount) {
+        throw new Error('Buyer not found');
       }
 
       //TODO: Uncomment when done testing
@@ -646,9 +646,11 @@ export class EscrowOrderResolver {
       if (
         status === EscrowOrderStatus.CANCEL &&
         account.id !== result.sellerAccountId &&
-        account.id !== result.buyerAccountId
+        account.id !== result.buyerAccountId &&
+        account.id !== result.arbitratorAccountId &&
+        account.id !== result.moderatorAccountId
       ) {
-        throw new Error('Only seller or buyer can cancel the order');
+        throw new Error('You do not have the authority to cancel order');
       }
 
       if (status === EscrowOrderStatus.COMPLETE && _.isNil(txid)) {
@@ -659,10 +661,7 @@ export class EscrowOrderResolver {
         throw new Error('The order has completed');
       }
 
-      if (status === EscrowOrderStatus.ESCROW && result.escrowTxids.length === 0) {
-        throw new Error('The order does not have any escrow transaction');
-      }
-
+      const isArbiMod = account.id === result?.arbitratorAccountId || account.id === result?.moderatorAccountId;
       const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`;
       const dataToUpdate = {
         status,
@@ -687,11 +686,29 @@ export class EscrowOrderResolver {
               }
             }));
           break;
+        case EscrowOrderStatus.ESCROW:
+          txid &&
+            value &&
+            (await this.prisma.escrowTxId.create({
+              data: {
+                txid: txid,
+                value: BigInt(value),
+                outIdx: 0,
+                escrowOrder: {
+                  connect: {
+                    id: orderId
+                  }
+                }
+              }
+            }));
+          break;
         case EscrowOrderStatus.COMPLETE:
           _.set(dataToUpdate, 'releaseTxid', txid ?? null);
 
           if (result.sellerAccount.telegramId) {
-            const formatReplied = format(BOT.MESSAGE.ORDER_COMPLETED, url);
+            const formatReplied = isArbiMod
+              ? format(BOT.MESSAGE.ORDER_RELEASE_BY_ARBMOD_SELLER, url)
+              : format(BOT.MESSAGE.ORDER_COMPLETED, url);
             await this.bot.telegram
               .sendMessage(result.sellerAccount.telegramId, formatReplied, {
                 parse_mode: 'Markdown',
@@ -715,7 +732,9 @@ export class EscrowOrderResolver {
           }
 
           if (result.buyerAccount.telegramId) {
-            const formatReplied = format(BOT.MESSAGE.ORDER_COMPLETED, url);
+            const formatReplied = isArbiMod
+              ? format(BOT.MESSAGE.ORDER_RELEASE_BY_ARBMOD_BUYER, url)
+              : format(BOT.MESSAGE.ORDER_COMPLETED, url);
             await this.bot.telegram
               .sendMessage(result.buyerAccount.telegramId, formatReplied, {
                 parse_mode: 'Markdown',
@@ -743,7 +762,9 @@ export class EscrowOrderResolver {
           _.set(dataToUpdate, 'returnTxid', txid ?? null);
 
           if (result.sellerAccount.telegramId) {
-            const formatReplied = format(BOT.MESSAGE.ORDER_CANCELED, url);
+            const formatReplied = isArbiMod
+              ? format(BOT.MESSAGE.ORDER_RETURN_BY_ARBMOD_SELLER, url)
+              : format(BOT.MESSAGE.ORDER_CANCELED, url);
             await this.bot.telegram
               .sendMessage(result.sellerAccount.telegramId, formatReplied, {
                 parse_mode: 'Markdown',
@@ -767,7 +788,9 @@ export class EscrowOrderResolver {
           }
 
           if (result.buyerAccount.telegramId) {
-            const formatReplied = format(BOT.MESSAGE.ORDER_CANCELED, url);
+            const formatReplied = isArbiMod
+              ? format(BOT.MESSAGE.ORDER_RETURN_BY_ARBMOD_BUYER, url)
+              : format(BOT.MESSAGE.ORDER_CANCELED, url);
             await this.bot.telegram
               .sendMessage(result.buyerAccount.telegramId, formatReplied, {
                 parse_mode: 'Markdown',

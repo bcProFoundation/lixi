@@ -1,6 +1,6 @@
 {
   "name": "@bcpros/lixi-models",
-  "version": "1.2.18",
+  "version": "1.2.19",
   "description": "Models library for lixi application",
   "main": "build/main/index.js",
   "types": "build/main/index.d.ts",
