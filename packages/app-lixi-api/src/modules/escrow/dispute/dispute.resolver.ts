@@ -108,9 +108,10 @@ export class DisputeResolver {
         },
         include: {
           dispute: true,
+          arbitratorAccount: true,
+          moderatorAccount: true,
           sellerAccount: true,
-          buyerAccount: true,
-          arbitratorAccount: true
+          buyerAccount: true
         }
       });
 
@@ -118,7 +119,7 @@ export class DisputeResolver {
         throw new Error('Escrow order not found');
       }
 
-      const { sellerAccount, buyerAccount, arbitratorAccount } = escrowOrder;
+      const { sellerAccount, buyerAccount, arbitratorAccount, moderatorAccount } = escrowOrder;
 
       if (escrowOrder.dispute) {
         throw new Error('Escrow order already has a dispute');
@@ -147,24 +148,98 @@ export class DisputeResolver {
 
       if (createdBy === buyerAccount.publicKey && sellerAccount.telegramId) {
         const formatReplied = format(BOT.MESSAGE.BUYER_RAISED_DISPUTE, reason, url);
-        await this.bot.telegram.sendMessage(sellerAccount.telegramId, formatReplied, {
-          parse_mode: 'Markdown'
-        });
+        await this.bot.telegram
+          .sendMessage(sellerAccount.telegramId, formatReplied, {
+            parse_mode: 'Markdown',
+            protect_content: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  {
+                    text: 'Open App',
+                    web_app: {
+                      url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrderId}`
+                    }
+                  }
+                ]
+              ]
+            }
+          })
+          .catch(e => {
+            this.logger.error(e);
+          });
       }
 
       if (createdBy === sellerAccount.publicKey && buyerAccount.telegramId) {
         const formatReplied = format(BOT.MESSAGE.SELLER_RAISED_DISPUTE, reason, url);
-        await this.bot.telegram.sendMessage(buyerAccount.telegramId, formatReplied, {
-          parse_mode: 'Markdown'
-        });
+        await this.bot.telegram
+          .sendMessage(buyerAccount.telegramId, formatReplied, {
+            parse_mode: 'Markdown',
+            protect_content: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  {
+                    text: 'Open App',
+                    web_app: {
+                      url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrderId}`
+                    }
+                  }
+                ]
+              ]
+            }
+          })
+          .catch(e => {
+            this.logger.error(e);
+          });
       }
 
       if (arbitratorAccount.telegramId) {
-        const whoOpenDispute = createdBy === buyerAccount.publicKey ? 'buyer' : 'seller';
-        const formatReplied = format(BOT.MESSAGE.ARB_RECEIVE_DISPUTE, whoOpenDispute, reason, url);
-        await this.bot.telegram.sendMessage(arbitratorAccount.telegramId, formatReplied, {
-          parse_mode: 'Markdown'
-        });
+        const formatReplied = format(BOT.MESSAGE.NOTIFY_ARBI_MOD_DISPUTE, url);
+        await this.bot.telegram
+          .sendMessage(arbitratorAccount.telegramId, formatReplied, {
+            parse_mode: 'Markdown',
+            protect_content: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  {
+                    text: 'Open App',
+                    web_app: {
+                      url: `${process.env.LOCAL_ECASH_URL}/dispute-detail?id=${dispute.id}`
+                    }
+                  }
+                ]
+              ]
+            }
+          })
+          .catch(e => {
+            this.logger.error(e);
+          });
+      }
+
+      if (moderatorAccount.telegramId) {
+        const formatReplied = format(BOT.MESSAGE.NOTIFY_ARBI_MOD_DISPUTE, url);
+        await this.bot.telegram
+          .sendMessage(moderatorAccount.telegramId, formatReplied, {
+            parse_mode: 'Markdown',
+            protect_content: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  {
+                    text: 'Open App',
+                    web_app: {
+                      url: `${process.env.LOCAL_ECASH_URL}/dispute-detail?id=${dispute.id}`
+                    }
+                  }
+                ]
+              ]
+            }
+          })
+          .catch(e => {
+            this.logger.error(e);
+          });
       }
 
       return dispute;
