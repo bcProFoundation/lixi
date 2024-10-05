@@ -13,7 +13,9 @@ import {
   BasicPaginationArgs,
   TimelineItem,
   IBasicPaginated,
-  TIMELINE_TYPE
+  TIMELINE_TYPE,
+  UtxoInNode,
+  UtxoInNodeInput
 } from '@bcpros/lixi-models';
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
@@ -36,11 +38,17 @@ import { InjectBot } from 'nestjs-telegraf';
 import { Context, Telegraf } from 'telegraf';
 import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../../telegram/telegram-bot.constants';
 import { GqlThrottlerGuard } from '../../auth/guards/gql-throttler.guard';
+import { template } from 'src/utils/stringTemplate';
+import { Redis } from 'ioredis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
+import { encode } from '@msgpack/msgpack';
 
 @SkipThrottle()
 @Resolver(() => EscrowOrder)
 @UseFilters(GqlHttpExceptionFilter)
 export class EscrowOrderResolver {
+  private keyUtxosInProcess = 'utxosInProcess:{{accountId}}';
+
   constructor(
     private logger: Logger,
     private prisma: PrismaService,
@@ -48,7 +56,8 @@ export class EscrowOrderResolver {
     private readonly escrowOrderLoader: EscrowOrderLoader,
     private readonly escrowOrderCacheService: EscrowOrderCacheService,
     private readonly timelineItemService: TimelineItemService,
-    @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>
+    @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
+    @InjectRedis() private readonly redis: Redis
   ) {}
 
   @Query(() => Account)
@@ -343,7 +352,9 @@ export class EscrowOrderResolver {
         message,
         escrowScript,
         escrowAddress,
-        nonce
+        nonce,
+        buyerDepositTx,
+        utxoInProcess
       } = data;
 
       const sellerAccount = await this.prisma.account.findUnique({
@@ -366,10 +377,9 @@ export class EscrowOrderResolver {
         throw new Error('Buyer not found');
       }
 
-      //TODO: Uncomment when done testing
-      // if (buyerAccount.id === sellerId) {
-      //   throw new Error('Seller and buyer cannot be the same');
-      // }
+      if (buyerAccount.id === sellerId) {
+        throw new Error('Seller and buyer cannot be the same');
+      }
 
       const moderatorAccount = await this.prisma.account.findUnique({
         where: {
@@ -399,6 +409,7 @@ export class EscrowOrderResolver {
           escrowAddress,
           escrowScript: Buffer.from(escrowScript, 'hex'),
           nonce: nonce,
+          buyerDepositTx: buyerDepositTx,
           paymentMethod: {
             connect: {
               id: paymentMethodId
@@ -431,6 +442,17 @@ export class EscrowOrderResolver {
           }
         }
       });
+
+      //add utxo in list UtxoInProcess
+      if (buyerDepositTx && utxoInProcess) {
+        const keyUtxos = template(this.keyUtxosInProcess, { accountId: account.id });
+        await this.redis.hset(
+          keyUtxos,
+          `${utxoInProcess.txid}:${utxoInProcess.outIdx}`,
+          Buffer.from(encode(utxoInProcess))
+        );
+      }
+
       const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`;
 
       if (sellerAccount.telegramId) {
@@ -469,7 +491,7 @@ export class EscrowOrderResolver {
   @Mutation(() => EscrowOrder)
   @UseGuards(GqlJwtAuthGuard)
   async updateEscrowOrderStatus(@AccountEntity() account: Account, @Args('data') data: UpdateEscrowOrderInput) {
-    const { orderId, status, txid, value, outIdx } = data;
+    const { orderId, status, txid, value, outIdx, utxoInNodeOfBuyer } = data;
     try {
       const result = await this.prisma.escrowOrder.findUnique({
         where: {
@@ -523,31 +545,15 @@ export class EscrowOrderResolver {
       };
 
       switch (status) {
-        case EscrowOrderStatus.ACTIVE:
-          txid &&
-            value &&
-            !_.isNil(outIdx) &&
-            (await this.prisma.escrowTxId.create({
-              data: {
-                txid: txid,
-                value: BigInt(value),
-                outIdx,
-                escrowOrder: {
-                  connect: {
-                    id: orderId
-                  }
-                }
-              }
-            }));
-          break;
         case EscrowOrderStatus.ESCROW:
           txid &&
             value &&
+            outIdx &&
             (await this.prisma.escrowTxId.create({
               data: {
                 txid: txid,
                 value: BigInt(value),
-                outIdx: 0,
+                outIdx: outIdx,
                 escrowOrder: {
                   connect: {
                     id: orderId
@@ -555,6 +561,19 @@ export class EscrowOrderResolver {
                 }
               }
             }));
+          //notify for buyer
+          if (result.buyerAccount.telegramId) {
+            const formatReplied = format(BOT.MESSAGE.ORDER_COMPLETED, url);
+            await this.bot.telegram.sendMessage(result.buyerAccount.telegramId, formatReplied, {
+              parse_mode: 'Markdown'
+            });
+          }
+
+          //remove utxo of buyer if have
+          if (utxoInNodeOfBuyer) {
+            const keyUtxos = template(this.keyUtxosInProcess, { accountId: account.id });
+            await this.redis.hdel(keyUtxos, `${utxoInNodeOfBuyer.txid}:${utxoInNodeOfBuyer.outIdx}`);
+          }
           break;
         case EscrowOrderStatus.COMPLETE:
           _.set(dataToUpdate, 'releaseTxid', txid ?? null);
@@ -598,7 +617,6 @@ export class EscrowOrderResolver {
               parse_mode: 'Markdown'
             });
           }
-
           break;
       }
 
@@ -621,6 +639,30 @@ export class EscrowOrderResolver {
       }
 
       return escrowOrder;
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
+  @Mutation(() => [UtxoInNode])
+  @UseGuards(GqlJwtAuthGuard)
+  async filterUtxos(
+    @AccountEntity() account: Account,
+    @Args('data', { type: () => [UtxoInNodeInput] }) data: UtxoInNodeInput[]
+  ) {
+    try {
+      const keyUtxos = template(this.keyUtxosInProcess, { accountId: account.id });
+      const existsKey = await this.redis.exists([keyUtxos]);
+      if (!existsKey) return data;
+
+      const keysUtxos = data.map(item => {
+        return `${item.txid}:${item.outIdx}`;
+      });
+      const utxosInProcess = await this.redis.hmgetBuffer(keyUtxos, ...keysUtxos);
+
+      //choose utxos don't store
+      const filteredUtxos = data.filter((key, index) => utxosInProcess[index] === null);
+      return filteredUtxos;
     } catch (e) {
       this.logger.error(e);
     }

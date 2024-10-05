@@ -386,6 +386,7 @@ export type CreateDisputeInput = {
 export type CreateEscrowOrderInput = {
   amount: Scalars['Int']['input'];
   arbitratorId: Scalars['Int']['input'];
+  buyerDepositTx?: InputMaybe<Scalars['String']['input']>;
   escrowAddress: Scalars['String']['input'];
   escrowScript: Scalars['String']['input'];
   message?: InputMaybe<Scalars['String']['input']>;
@@ -395,6 +396,7 @@ export type CreateEscrowOrderInput = {
   postId: Scalars['String']['input'];
   price: Scalars['Int']['input'];
   sellerId: Scalars['Int']['input'];
+  utxoInProcess?: InputMaybe<UtxoInNodeInput>;
 };
 
 export type CreateEventInput = {
@@ -624,6 +626,7 @@ export type EscrowOrder = {
   arbitratorAccountId: Scalars['Int']['output'];
   buyerAccount: Account;
   buyerAccountId: Scalars['Int']['output'];
+  buyerDepositTx?: Maybe<Scalars['String']['output']>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime']['output'];
   dispute?: Maybe<Dispute>;
@@ -1019,6 +1022,7 @@ export type Mutation = {
   deleteFollowAccount: Scalars['Boolean']['output'];
   deleteFollowPage: Scalars['Boolean']['output'];
   deleteFollowToken: Scalars['Boolean']['output'];
+  filterUtxos: Array<UtxoInNode>;
   openPageMessageSession: PageMessageSession;
   removeBookmark: Bookmark;
   removePost: Post;
@@ -1137,6 +1141,10 @@ export type MutationDeleteFollowPageArgs = {
 
 export type MutationDeleteFollowTokenArgs = {
   data: DeleteFollowTokenInput;
+};
+
+export type MutationFilterUtxosArgs = {
+  data: Array<UtxoInNodeInput>;
 };
 
 export type MutationOpenPageMessageSessionArgs = {
@@ -2506,6 +2514,7 @@ export type UpdateEscrowOrderInput = {
   outIdx?: InputMaybe<Scalars['Int']['input']>;
   status: EscrowOrderStatus;
   txid?: InputMaybe<Scalars['String']['input']>;
+  utxoInNodeOfBuyer?: InputMaybe<UtxoInNodeInput>;
   value?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -2556,6 +2565,19 @@ export type UploadDetail = {
   id: Scalars['ID']['output'];
   postId?: Maybe<Scalars['String']['output']>;
   upload: Upload;
+};
+
+export type UtxoInNode = {
+  __typename?: 'UtxoInNode';
+  outIdx: Scalars['Int']['output'];
+  txid: Scalars['String']['output'];
+  value: Scalars['Int']['output'];
+};
+
+export type UtxoInNodeInput = {
+  outIdx: Scalars['Int']['input'];
+  txid: Scalars['String']['input'];
+  value: Scalars['Int']['input'];
 };
 
 export type Worship = {

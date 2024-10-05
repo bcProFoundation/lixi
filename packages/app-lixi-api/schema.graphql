@@ -362,6 +362,7 @@ input CreateDisputeInput {
 input CreateEscrowOrderInput {
   amount: Int!
   arbitratorId: Int!
+  buyerDepositTx: String
   escrowAddress: String!
   escrowScript: String!
   message: String
@@ -371,6 +372,7 @@ input CreateEscrowOrderInput {
   postId: String!
   price: Int!
   sellerId: Int!
+  utxoInProcess: UtxoInNodeInput
 }
 
 input CreateEventInput {
@@ -605,6 +607,7 @@ type EscrowOrder {
   arbitratorAccountId: Int!
   buyerAccount: Account!
   buyerAccountId: Int!
+  buyerDepositTx: String
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
@@ -996,6 +999,7 @@ type Mutation {
   deleteFollowAccount(data: DeleteFollowAccountInput!): Boolean!
   deleteFollowPage(data: DeleteFollowPageInput!): Boolean!
   deleteFollowToken(data: DeleteFollowTokenInput!): Boolean!
+  filterUtxos(data: [UtxoInNodeInput!]!): [UtxoInNode!]!
   openPageMessageSession(data: OpenPageMessageSessionInput!): PageMessageSession!
   removeBookmark(data: RemoveBookmarkInput!): Bookmark!
   removePost(data: RemovePostInput!): Post!
@@ -1782,6 +1786,7 @@ input UpdateEscrowOrderInput {
   outIdx: Int
   status: EscrowOrderStatus!
   txid: String
+  utxoInNodeOfBuyer: UtxoInNodeInput
   value: Int
 }
 
@@ -1830,6 +1835,18 @@ type UploadDetail {
   id: ID!
   postId: String
   upload: Upload!
+}
+
+type UtxoInNode {
+  outIdx: Int!
+  txid: String!
+  value: Int!
+}
+
+input UtxoInNodeInput {
+  outIdx: Int!
+  txid: String!
+  value: Int!
 }
 
 type Worship {

@@ -90,6 +90,7 @@ export type AllOfferQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              buyerDepositTx?: string | null;
               price: number;
               amount: number;
               createdAt: any;
@@ -319,6 +320,7 @@ export type OfferByFilterQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              buyerDepositTx?: string | null;
               price: number;
               amount: number;
               createdAt: any;
@@ -548,6 +550,7 @@ export type AllOfferByAccountQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              buyerDepositTx?: string | null;
               price: number;
               amount: number;
               createdAt: any;

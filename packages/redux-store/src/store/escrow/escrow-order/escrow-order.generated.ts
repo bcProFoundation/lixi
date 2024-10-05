@@ -30,6 +30,7 @@ export type EscrowOrderQuery = {
     nonce: string;
     releaseTxid?: string | null;
     returnTxid?: string | null;
+    buyerDepositTx?: string | null;
     price: number;
     amount: number;
     createdAt: any;
@@ -220,6 +221,7 @@ export type AllEscrowOrderByAccountQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              buyerDepositTx?: string | null;
               price: number;
               amount: number;
               createdAt: any;
@@ -449,6 +451,7 @@ export type AllEscrowOrderByOfferIdQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              buyerDepositTx?: string | null;
               price: number;
               amount: number;
               createdAt: any;
@@ -668,6 +671,15 @@ export type UpdateEscrowOrderStatusMutation = {
   };
 };
 
+export type FilterUtxosMutationVariables = Types.Exact<{
+  input: Array<Types.UtxoInNodeInput> | Types.UtxoInNodeInput;
+}>;
+
+export type FilterUtxosMutation = {
+  __typename?: 'Mutation';
+  filterUtxos: Array<{ __typename?: 'UtxoInNode'; txid: string; outIdx: number; value: number }>;
+};
+
 export const EscrowOrderDocument = `
     query EscrowOrder($id: String!) {
   escrowOrder(id: $id) {
@@ -760,6 +772,15 @@ export const UpdateEscrowOrderStatusDocument = `
   }
 }
     `;
+export const FilterUtxosDocument = `
+    mutation FilterUtxos($input: [UtxoInNodeInput!]!) {
+  filterUtxos(data: $input) {
+    txid
+    outIdx
+    value
+  }
+}
+    `;
 
 const injectedRtkApi = api.injectEndpoints({
   overrideExisting: true,
@@ -793,6 +814,9 @@ const injectedRtkApi = api.injectEndpoints({
     }),
     UpdateEscrowOrderStatus: build.mutation<UpdateEscrowOrderStatusMutation, UpdateEscrowOrderStatusMutationVariables>({
       query: variables => ({ document: UpdateEscrowOrderStatusDocument, variables })
+    }),
+    FilterUtxos: build.mutation<FilterUtxosMutation, FilterUtxosMutationVariables>({
+      query: variables => ({ document: FilterUtxosDocument, variables })
     })
   })
 });

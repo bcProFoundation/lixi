@@ -89,6 +89,7 @@ export type BookmarkTimelineQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              buyerDepositTx?: string | null;
               price: number;
               amount: number;
               createdAt: any;
