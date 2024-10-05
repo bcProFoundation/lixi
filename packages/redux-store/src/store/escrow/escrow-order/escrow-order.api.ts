@@ -1,5 +1,6 @@
 import { api } from './escrow-order.generated';
 import { DisputeStatus, EscrowOrderStatus } from '../../../generated/types.generated';
+import _ from 'lodash';
 
 const enhancedApi = api.enhanceEndpoints({
   addTagTypes: ['EscrowOrder', 'EscrowOrderTimeline'],
@@ -102,7 +103,7 @@ const enhancedApi = api.enhanceEndpoints({
                     case EscrowOrderStatus.Escrow:
                       txid &&
                         value &&
-                        outIdx &&
+                        !_.isNil(outIdx) &&
                         draft.escrowOrder.escrowTxids.push({
                           txid,
                           value,

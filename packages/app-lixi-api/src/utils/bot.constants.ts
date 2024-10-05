@@ -6,6 +6,7 @@ export const BOT = {
       `🧑‍⚖️ Heads up! You have been assigned as the moderator for a new order! \r\n\r\n` + `[View order](%s)`,
     ORDER_CREATED: `📦 A new order has been placed! \r\n\r\n` + `[View order](%s)`,
     ORDER_CANCELED: `❌ Your order has been canceled! \r\n\r\n` + `[View order](%s)`,
+    ORDER_DECLINED: `❌ Your order has been declined! \r\n\r\n` + `[View order](%s)`,
     ORDER_ESCROW: `✅ Your order has been escrowed! \r\n\r\n` + `[View order](%s)`,
     ORDER_COMPLETED: `✅ Order has been completed! \r\n\r\n` + `[View order](%s)`,
     ORDER_RETURN_BY_ARBMOD_SELLER:

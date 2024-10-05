@@ -657,10 +657,6 @@ export class EscrowOrderResolver {
         throw new Error('Escrow order not found');
       }
 
-      if (status === EscrowOrderStatus.ACTIVE && account.id !== result.sellerAccountId) {
-        throw new Error('Only seller can accept the order');
-      }
-
       if (status === EscrowOrderStatus.ESCROW && account.id !== result.sellerAccountId) {
         throw new Error('Only seller can put the order in escrow');
       }
@@ -683,6 +679,7 @@ export class EscrowOrderResolver {
         throw new Error('The order has completed');
       }
 
+      const isSeller = account.id === result?.sellerAccountId;
       const isArbiMod = account.id === result?.arbitratorAccountId || account.id === result?.moderatorAccountId;
       const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`;
       const dataToUpdate = {
@@ -694,7 +691,7 @@ export class EscrowOrderResolver {
         case EscrowOrderStatus.ESCROW:
           txid &&
             value &&
-            outIdx &&
+            !_.isNil(outIdx) &&
             (await this.prisma.escrowTxId.create({
               data: {
                 txid: txid,
@@ -709,7 +706,7 @@ export class EscrowOrderResolver {
             }));
           //notify for buyer
           if (result.buyerAccount.telegramId) {
-            const formatReplied = format(BOT.MESSAGE.ORDER_COMPLETED, url);
+            const formatReplied = format(BOT.MESSAGE.ORDER_ESCROW, url);
             await this.bot.telegram.sendMessage(result.buyerAccount.telegramId, formatReplied, {
               parse_mode: 'Markdown'
             });
@@ -717,14 +714,14 @@ export class EscrowOrderResolver {
 
           //remove utxo of buyer if have
           if (utxoInNodeOfBuyer) {
-            const keyUtxos = template(this.keyUtxosInProcess, { accountId: account.id });
+            const keyUtxos = template(this.keyUtxosInProcess, { accountId: result.buyerAccountId });
             await this.redis.hdel(keyUtxos, `${utxoInNodeOfBuyer.txid}:${utxoInNodeOfBuyer.outIdx}`);
           }
           break;
         case EscrowOrderStatus.COMPLETE:
           _.set(dataToUpdate, 'releaseTxid', txid ?? null);
 
-          if (result.sellerAccount.telegramId) {
+          if (result.sellerAccount.telegramId && isArbiMod) {
             const formatReplied = isArbiMod
               ? format(BOT.MESSAGE.ORDER_RELEASE_BY_ARBMOD_SELLER, url)
               : format(BOT.MESSAGE.ORDER_COMPLETED, url);
@@ -780,7 +777,8 @@ export class EscrowOrderResolver {
         case EscrowOrderStatus.CANCEL:
           _.set(dataToUpdate, 'returnTxid', txid ?? null);
 
-          if (result.sellerAccount.telegramId) {
+          //buyer cancel => notif for seller (always notif if arb cancel)
+          if (result.sellerAccount.telegramId && (!isSeller || isArbiMod)) {
             const formatReplied = isArbiMod
               ? format(BOT.MESSAGE.ORDER_RETURN_BY_ARBMOD_SELLER, url)
               : format(BOT.MESSAGE.ORDER_CANCELED, url);
@@ -806,10 +804,11 @@ export class EscrowOrderResolver {
               });
           }
 
-          if (result.buyerAccount.telegramId) {
+          //seller cancel => notif for buyer
+          if (result.buyerAccount.telegramId && (isSeller || isArbiMod)) {
             const formatReplied = isArbiMod
               ? format(BOT.MESSAGE.ORDER_RETURN_BY_ARBMOD_BUYER, url)
-              : format(BOT.MESSAGE.ORDER_CANCELED, url);
+              : format(BOT.MESSAGE.ORDER_DECLINED, url);
             await this.bot.telegram
               .sendMessage(result.buyerAccount.telegramId, formatReplied, {
                 parse_mode: 'Markdown',
