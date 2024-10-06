@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.20
+
+### Patch Changes
+
+- Update local-ecash support
+
 ## 1.2.19
 
 ### Patch Changes

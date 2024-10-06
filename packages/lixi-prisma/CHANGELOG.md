@@ -1,5 +1,11 @@
 # @bcpros/lixi-prisma
 
+## 1.2.12
+
+### Patch Changes
+
+- Update local-ecash support
+
 ## 1.2.11
 
 ### Patch Changes
