@@ -1280,6 +1280,7 @@ model EscrowOrder {
   status              EscrowOrderStatus @default(PENDING)
   escrowScript        Bytes             @unique @map("escrow_script")
   nonce               String            @unique @map("nonce")
+  buyerDepositTx      String?           @unique @map("buyer_deposit_tx")
   dispute             Dispute?
   createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz
   updatedAt           DateTime          @default(now()) @map("updated_at") @db.Timestamptz

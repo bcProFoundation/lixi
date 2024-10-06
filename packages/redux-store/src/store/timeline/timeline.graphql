@@ -57,6 +57,7 @@ fragment EscrowOrderFields on EscrowOrder {
   }
   releaseTxid
   returnTxid
+  buyerDepositTx
   price
   amount
   escrowOrderStatus: status

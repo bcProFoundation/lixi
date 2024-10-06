@@ -83,6 +83,10 @@ export class EscrowOrder {
   @IsOptional()
   returnTxid?: Nullable<string>;
 
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  buyerDepositTx?: Nullable<string>;
+
   @Field(() => Dispute, { nullable: true })
   @IsOptional()
   dispute?: Nullable<Dispute>;

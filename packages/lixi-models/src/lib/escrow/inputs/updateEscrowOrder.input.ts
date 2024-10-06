@@ -2,6 +2,7 @@ import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
 import { EscrowOrderStatus } from '../escrow-order.model';
+import { UtxoInNodeInput } from '../../utxo/input/utxo-inNode.input';
 
 @InputType()
 export class UpdateEscrowOrderInput {
@@ -24,4 +25,8 @@ export class UpdateEscrowOrderInput {
   @Field(() => Number, { nullable: true })
   @IsOptional()
   value?: number;
+
+  @Field(() => UtxoInNodeInput, { nullable: true })
+  @IsOptional()
+  utxoInNodeOfBuyer?: UtxoInNodeInput;
 }

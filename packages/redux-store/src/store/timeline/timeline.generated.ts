@@ -23,6 +23,7 @@ export type EscrowOrderFieldsFragment = {
   nonce: string;
   releaseTxid?: string | null;
   returnTxid?: string | null;
+  buyerDepositTx?: string | null;
   price: number;
   amount: number;
   createdAt: any;
@@ -132,6 +133,7 @@ export type TimelineItemFieldsFragment = {
         nonce: string;
         releaseTxid?: string | null;
         returnTxid?: string | null;
+        buyerDepositTx?: string | null;
         price: number;
         amount: number;
         createdAt: any;
@@ -343,6 +345,7 @@ export type TimelineQuery = {
           nonce: string;
           releaseTxid?: string | null;
           returnTxid?: string | null;
+          buyerDepositTx?: string | null;
           price: number;
           amount: number;
           createdAt: any;
@@ -563,6 +566,7 @@ export type HomeTimelineQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              buyerDepositTx?: string | null;
               price: number;
               amount: number;
               createdAt: any;
@@ -792,6 +796,7 @@ export type ProfileTimelineQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              buyerDepositTx?: string | null;
               price: number;
               amount: number;
               createdAt: any;
@@ -1022,6 +1027,7 @@ export type ProfileTimelineByTimeQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              buyerDepositTx?: string | null;
               price: number;
               amount: number;
               createdAt: any;
@@ -1251,6 +1257,7 @@ export type PageTimelineQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              buyerDepositTx?: string | null;
               price: number;
               amount: number;
               createdAt: any;
@@ -1481,6 +1488,7 @@ export type PageTimelineByTimeQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              buyerDepositTx?: string | null;
               price: number;
               amount: number;
               createdAt: any;
@@ -1710,6 +1718,7 @@ export type TokenTimelineQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              buyerDepositTx?: string | null;
               price: number;
               amount: number;
               createdAt: any;
@@ -1940,6 +1949,7 @@ export type TokenTimelineByTimeQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              buyerDepositTx?: string | null;
               price: number;
               amount: number;
               createdAt: any;
@@ -2175,6 +2185,7 @@ export const EscrowOrderFieldsFragmentDoc = `
   }
   releaseTxid
   returnTxid
+  buyerDepositTx
   price
   amount
   escrowOrderStatus: status

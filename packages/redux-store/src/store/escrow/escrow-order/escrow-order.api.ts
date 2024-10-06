@@ -1,5 +1,6 @@
 import { api } from './escrow-order.generated';
 import { DisputeStatus, EscrowOrderStatus } from '../../../generated/types.generated';
+import _ from 'lodash';
 
 const enhancedApi = api.enhanceEndpoints({
   addTagTypes: ['EscrowOrder', 'EscrowOrderTimeline'],
@@ -99,24 +100,14 @@ const enhancedApi = api.enhanceEndpoints({
                         draft.escrowOrder.dispute.status = DisputeStatus.Resolved;
                       }
                       break;
-                    case EscrowOrderStatus.Active:
-                      txid &&
-                        value &&
-                        outIdx !== undefined &&
-                        outIdx !== null &&
-                        draft.escrowOrder.escrowTxids.push({
-                          txid,
-                          value,
-                          outIdx
-                        });
-                      break;
                     case EscrowOrderStatus.Escrow:
                       txid &&
                         value &&
+                        !_.isNil(outIdx) &&
                         draft.escrowOrder.escrowTxids.push({
                           txid,
                           value,
-                          outIdx: outIdx ?? 0
+                          outIdx: outIdx
                         });
                       break;
                   }
@@ -128,7 +119,8 @@ const enhancedApi = api.enhanceEndpoints({
           console.error(e);
         }
       }
-    }
+    },
+    FilterUtxos: {}
   }
 });
 
@@ -151,5 +143,6 @@ export const {
   useUserRequestTelegramChatQuery,
   useArbiRequestTelegramChatQuery,
   useLazyArbiRequestTelegramChatQuery,
+  useFilterUtxosMutation,
   usePrefetch
 } = enhancedApi;

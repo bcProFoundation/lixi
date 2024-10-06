@@ -79,3 +79,11 @@ mutation UpdateEscrowOrderStatus($input: UpdateEscrowOrderInput!) {
     updatedAt
   }
 }
+
+mutation FilterUtxos($input: [UtxoInNodeInput!]!) {
+  filterUtxos(data: $input) {
+    txid
+    outIdx
+    value
+  }
+}
