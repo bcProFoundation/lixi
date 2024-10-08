@@ -707,9 +707,26 @@ export class EscrowOrderResolver {
           //notify for buyer
           if (result.buyerAccount.telegramId) {
             const formatReplied = format(BOT.MESSAGE.ORDER_ESCROW, url);
-            await this.bot.telegram.sendMessage(result.buyerAccount.telegramId, formatReplied, {
-              parse_mode: 'Markdown'
-            });
+            await this.bot.telegram
+              .sendMessage(result.buyerAccount.telegramId, formatReplied, {
+                parse_mode: 'Markdown',
+                protect_content: true,
+                reply_markup: {
+                  inline_keyboard: [
+                    [
+                      {
+                        text: 'Open App',
+                        web_app: {
+                          url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${orderId}`
+                        }
+                      }
+                    ]
+                  ]
+                }
+              })
+              .catch(e => {
+                this.logger.error(e);
+              });
           }
 
           //remove utxo of buyer if have
@@ -864,7 +881,8 @@ export class EscrowOrderResolver {
     @Args('data', { type: () => [UtxoInNodeInput] }) data: UtxoInNodeInput[]
   ) {
     try {
-      const keyUtxos = template(this.keyUtxosInProcess, { accountId: account.id });
+      if (data.length === 0) return [];
+      const keyUtxos = template(this.keyUtxosInProcess, { accountId: account?.id });
       const existsKey = await this.redis.exists([keyUtxos]);
       if (!existsKey) return data;
 
