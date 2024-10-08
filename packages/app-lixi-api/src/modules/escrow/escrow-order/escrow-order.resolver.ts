@@ -671,12 +671,26 @@ export class EscrowOrderResolver {
         throw new Error('You do not have the authority to cancel order');
       }
 
+      if (status === EscrowOrderStatus.CANCEL && result.status === EscrowOrderStatus.ESCROW && !txid) {
+        throw new Error('Cannot cancel an escrowed order without returning funds!');
+      }
+
       if (status === EscrowOrderStatus.COMPLETE && _.isNil(txid)) {
         throw new Error('Txid is required for complete status');
       }
 
-      if (status === EscrowOrderStatus.ESCROW && result.status === EscrowOrderStatus.COMPLETE) {
+      if (result.status === EscrowOrderStatus.COMPLETE) {
         throw new Error('The order has completed');
+      }
+
+      if (result.status === EscrowOrderStatus.CANCEL) {
+        throw new Error('The order has cancelled');
+      }
+
+      //remove utxo of buyer if have
+      if (utxoInNodeOfBuyer) {
+        const keyUtxos = template(this.keyUtxosInProcess, { accountId: result.buyerAccountId });
+        await this.redis.hdel(keyUtxos, `${utxoInNodeOfBuyer.txid}:${utxoInNodeOfBuyer.outIdx}`);
       }
 
       const isSeller = account.id === result?.sellerAccountId;
@@ -727,12 +741,6 @@ export class EscrowOrderResolver {
               .catch(e => {
                 this.logger.error(e);
               });
-          }
-
-          //remove utxo of buyer if have
-          if (utxoInNodeOfBuyer) {
-            const keyUtxos = template(this.keyUtxosInProcess, { accountId: result.buyerAccountId });
-            await this.redis.hdel(keyUtxos, `${utxoInNodeOfBuyer.txid}:${utxoInNodeOfBuyer.outIdx}`);
           }
           break;
         case EscrowOrderStatus.COMPLETE:
