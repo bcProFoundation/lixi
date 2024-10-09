@@ -31,6 +31,14 @@ export const BOT = {
     SELLER_REQUEST_CHAT: `💬 The seller %s has requested to chat with you! \r\n\r\n` + `[View order](%s)`,
     BUYER_REQUEST_CHAT: `💬 The buyer %s has requested to chat with you! \r\n\r\n` + `[View order](%s)`,
     ARBI_REQUEST_CHAT: `💬 The arbitrator %s has requested to chat with you! \r\n\r\n` + `[View order](%s)`,
-    MOD_REQUEST_CHAT: `💬 The mod %s has requested to chat with you! \r\n\r\n` + `[View order](%s)`
+    MOD_REQUEST_CHAT: `💬 The mod %s has requested to chat with you! \r\n\r\n` + `[View order](%s)`,
+    BOOST_NOTIFY:
+      `A offer is boosted! \n` +
+      `*Message:* %s \n` +
+      `*Order limit:* %s \n` +
+      `*Price:* %s \n` +
+      `*Payment method:* %s\n` +
+      `*Location:* %s\n\n` +
+      `[View offer](%s)`
   }
 };

@@ -16,6 +16,11 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { BOOST_FANOUT_QUEUE } from './boost.constants';
 import { fromCoinToSatoshis } from 'src/utils/cashMethods';
 import BigNumber from 'bignumber.js';
+import { InjectBot } from 'nestjs-telegraf';
+import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../telegram/telegram-bot.constants';
+import { Context, Telegraf } from 'telegraf';
+import { BOT } from 'src/utils/bot.constants';
+import { format } from 'node:util';
 
 @SkipThrottle()
 @Resolver(() => BoostFee)
@@ -28,7 +33,8 @@ export class BoostFeeResolver {
     @InjectQueue(BOOST_FANOUT_QUEUE) private boostFanoutQueue: Queue,
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
     @InjectChronikClientNode('xec') private chronikXEC: ChronikClientNode,
-    private readonly postBoostCacheService: PostBoostCacheService
+    private readonly postBoostCacheService: PostBoostCacheService,
+    @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>
   ) {}
 
   @UseGuards(GqlJwtAuthGuard)
@@ -139,7 +145,49 @@ export class BoostFeeResolver {
         post: post
       });
 
-      return savedBoost;
+      const offerBoosted = await this.prisma.post.findFirst({
+        where: { id: boostForId },
+        include: { offer: { include: { state: true, country: true, paymentMethods: true } } }
+      });
+
+      //notify to channel
+      if (offerBoosted) {
+        const channelId = process.env.TELEGRAM_CHANNEL_ID ?? -1002199386416;
+        const link = `${process.env.LOCAL_ECASH_URL}/offer-detail?id=${boostForId}`;
+        const stateName = offerBoosted.offer?.state?.name;
+        const countryName = offerBoosted.offer?.country?.name;
+        const location = [stateName, countryName].filter(Boolean).join(', ');
+        const paymentMethodIds = offerBoosted.offer?.paymentMethods.map(item => item.paymentMethodId);
+        const paymenMethod = await this.prisma.paymentMethod.findMany({
+          where: {
+            id: { in: paymentMethodIds }
+          },
+          select: {
+            name: true
+          }
+        });
+        const paymentMethodString = paymenMethod.map(item => item.name).join(' - ');
+
+        //message - orderlimit - price - paymentMethod - location - link
+        const formatReplied = format(
+          BOT.MESSAGE.BOOST_NOTIFY,
+          `${offerBoosted?.offer?.message}`,
+          `${offerBoosted?.offer?.orderLimitMin} XEC - ${offerBoosted?.offer?.orderLimitMax} XEC`,
+          `${offerBoosted?.offer?.price}`,
+          paymentMethodString,
+          location,
+          link
+        );
+        await this.bot.telegram.sendMessage(channelId, formatReplied, {
+          parse_mode: 'Markdown'
+        });
+      }
+
+      const result = {
+        ...savedBoost,
+        boostType: savedBoost.boostType ? BoostType.Up : BoostType.Down
+      };
+      return result;
     }
     return null;
   }
