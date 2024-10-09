@@ -86,6 +86,17 @@ export const walletStateReducer = createReducer(initialState, builder => {
         },
         utxos: []
       };
+      state.walletStatusNode = {
+        balances: {
+          totalBalance: '0',
+          totalBalanceInSatoshis: '0'
+        },
+        parsedTxHistory: [],
+        slpBalancesAndUtxos: {
+          nonSlpUtxos: []
+        },
+        utxos: []
+      };
       state.mnemonic = '';
       state.selectedWalletPath = null;
     });
