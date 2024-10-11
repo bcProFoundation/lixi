@@ -581,30 +581,6 @@ export class EscrowOrderResolver {
           });
       }
 
-      if (arbitratorAccount.telegramId) {
-        const formatReplied = format(BOT.MESSAGE.ARBITRATOR_SELECTED, url);
-        await this.bot.telegram
-          .sendMessage(arbitratorAccount.telegramId, formatReplied, {
-            parse_mode: 'Markdown',
-            protect_content: true,
-            reply_markup: {
-              inline_keyboard: [
-                [
-                  {
-                    text: 'Open App',
-                    web_app: {
-                      url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`
-                    }
-                  }
-                ]
-              ]
-            }
-          })
-          .catch(e => {
-            this.logger.error(e);
-          });
-      }
-
       if (moderatorAccount.telegramId) {
         const formatReplied = format(BOT.MESSAGE.MODERATOR_SELECTED, url);
         await this.bot.telegram
