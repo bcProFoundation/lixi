@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.21
+
+### Patch Changes
+
+- Update socket
+
 ## 1.2.20
 
 ### Patch Changes
