@@ -21,6 +21,7 @@ import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../telegram/telegram-bot.constant
 import { Context, Telegraf } from 'telegraf';
 import { BOT } from 'src/utils/bot.constants';
 import { format } from 'node:util';
+import { ConfigService } from '@nestjs/config';
 
 @SkipThrottle()
 @Resolver(() => BoostFee)
@@ -29,6 +30,7 @@ export class BoostFeeResolver {
   constructor(
     private logger: Logger,
     private prisma: PrismaService,
+    private readonly configService: ConfigService,
     @I18n() private i18n: I18nService,
     @InjectQueue(BOOST_FANOUT_QUEUE) private boostFanoutQueue: Queue,
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
@@ -152,7 +154,7 @@ export class BoostFeeResolver {
 
       //notify to channel
       if (offerBoosted) {
-        const channelId = process.env.TELEGRAM_CHANNEL_ID ?? -1002199386416;
+        const channelId = this.configService.get<string>('TELEGRAM_CHANNEL_ID') ?? -1002199386416;
         const link = `${process.env.LOCAL_ECASH_URL}/offer-detail?id=${boostForId}`;
         const stateName = offerBoosted.offer?.state?.name;
         const countryName = offerBoosted.offer?.country?.name;
