@@ -30,6 +30,7 @@ import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../../telegram/telegram-bot.const
 import { Context, Telegraf } from 'telegraf';
 import { format } from 'node:util';
 import { BOT } from 'src/utils/bot.constants';
+import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 
 @SkipThrottle()
 @Resolver(() => Dispute)
@@ -42,6 +43,7 @@ export class DisputeResolver {
     private readonly disputeLoader: DisputeLoader,
     private readonly disputeCacheService: DisputeCacheService,
     private readonly timelineItemService: TimelineItemService,
+    private notificationGateway: NotificationGateway,
     @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>
   ) {}
 
@@ -133,6 +135,7 @@ export class DisputeResolver {
         throw new Error('You are not allowed to create dispute for this escrow order');
       }
 
+      const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`;
       const dispute = await this.prisma.dispute.create({
         data: {
           createdBy,
@@ -144,7 +147,16 @@ export class DisputeResolver {
           }
         }
       });
-      const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`;
+
+      this.notificationGateway.publishEscrowOrderStatus(escrowOrderId, {
+        escrowOrderId,
+        dispute: {
+          id: dispute.id,
+          createdBy,
+          reason,
+          status: dispute.status
+        }
+      });
 
       if (createdBy === buyerAccount.publicKey && sellerAccount.telegramId) {
         const formatReplied = format(BOT.MESSAGE.BUYER_RAISED_DISPUTE, reason, url);

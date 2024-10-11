@@ -19,28 +19,32 @@ export class LixiHandleWsService implements OnModuleInit {
 
   async onModuleInit() {
     //ws for xpi
-    const ws = this.chronikXPI.ws({
-      onMessage: async (msg: SubscribeMsg) => {
-        const { type } = msg;
-        if (type === 'BlockConnected') {
-          //add new block
+    try {
+      const ws = this.chronikXPI.ws({
+        onMessage: async (msg: SubscribeMsg) => {
+          const { type } = msg;
+          if (type === 'BlockConnected') {
+            //add new block
+          }
+        },
+        onReconnect: e => {
+          // Fired before a reconnect attempt is made:
+          this.logger.log('Reconnecting websocket, disconnection cause: ');
+        },
+        onConnect: e => {
+          this.logger.log(`XPI ChronikClient websocket connected`);
+        },
+        onError: e => {
+          this.logger.log('error', e);
         }
-      },
-      onReconnect: e => {
-        // Fired before a reconnect attempt is made:
-        this.logger.log('Reconnecting websocket, disconnection cause: ');
-      },
-      onConnect: e => {
-        this.logger.log(`Chronik websocket connected`);
-      },
-      onError: e => {
-        this.logger.log('error', e);
-      }
-    });
-    await ws.waitForOpen();
-    ws.subscribe('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
+      });
+      await ws.waitForOpen();
+      ws.subscribe('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
 
-    this.logger.log(`The module has been initialized.`);
+      this.logger.log(`The module has been initialized.`);
+    } catch (e) {
+      this.logger.error('lixi-handle-ws - websocket - error: ', e);
+    }
   }
 
   async parseWebsocketMessage(wsMsg: SubscribeMsg) {

@@ -22,5 +22,6 @@ export const axiosLocalClient = axios.create({
 // Add a request interceptor
 axiosClient.interceptors.request.use(function (config) {
   config.headers.lang = locale;
+  config.headers.Authorization = sessionStorage.getItem('Authorization');
   return config;
 });
