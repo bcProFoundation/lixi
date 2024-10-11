@@ -75,51 +75,7 @@ const enhancedApi = api.enhanceEndpoints({
     },
     UserRequestTelegramChat: {},
     ArbiRequestTelegramChat: {},
-    UpdateEscrowOrderStatus: {
-      onQueryStarted: async ({ input }, { dispatch, queryFulfilled }) => {
-        const { orderId, status, txid, value, outIdx } = input;
-        try {
-          const { data } = await queryFulfilled;
-          if (data) {
-            dispatch(
-              api.util.updateQueryData('EscrowOrder', { id: orderId }, draft => {
-                if (draft) {
-                  draft.escrowOrder.escrowOrderStatus = status;
-                  draft.escrowOrder.updatedAt = data.updateEscrowOrderStatus.updatedAt;
-
-                  switch (status) {
-                    case EscrowOrderStatus.Complete:
-                      draft.escrowOrder.releaseTxid = txid;
-                      if (draft.escrowOrder.dispute) {
-                        draft.escrowOrder.dispute.status = DisputeStatus.Resolved;
-                      }
-                      break;
-                    case EscrowOrderStatus.Cancel:
-                      draft.escrowOrder.returnTxid = txid;
-                      if (draft.escrowOrder.dispute) {
-                        draft.escrowOrder.dispute.status = DisputeStatus.Resolved;
-                      }
-                      break;
-                    case EscrowOrderStatus.Escrow:
-                      txid &&
-                        value &&
-                        !_.isNil(outIdx) &&
-                        draft.escrowOrder.escrowTxids.push({
-                          txid,
-                          value,
-                          outIdx: outIdx
-                        });
-                      break;
-                  }
-                }
-              })
-            );
-          }
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    },
+    UpdateEscrowOrderStatus: {},
     FilterUtxos: {}
   }
 });

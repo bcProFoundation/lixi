@@ -42,6 +42,7 @@ import { template } from 'src/utils/stringTemplate';
 import { Redis } from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { encode } from '@msgpack/msgpack';
+import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 
 @SkipThrottle()
 @Resolver(() => EscrowOrder)
@@ -56,6 +57,7 @@ export class EscrowOrderResolver {
     private readonly escrowOrderLoader: EscrowOrderLoader,
     private readonly escrowOrderCacheService: EscrowOrderCacheService,
     private readonly timelineItemService: TimelineItemService,
+    private notificationGateway: NotificationGateway,
     @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
     @InjectRedis() private readonly redis: Redis
   ) {}
@@ -581,29 +583,6 @@ export class EscrowOrderResolver {
           });
       }
 
-      if (moderatorAccount.telegramId) {
-        const formatReplied = format(BOT.MESSAGE.MODERATOR_SELECTED, url);
-        await this.bot.telegram
-          .sendMessage(moderatorAccount.telegramId, formatReplied, {
-            parse_mode: 'Markdown',
-            protect_content: true,
-            reply_markup: {
-              inline_keyboard: [
-                [
-                  {
-                    text: 'Open App',
-                    web_app: {
-                      url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`
-                    }
-                  }
-                ]
-              ]
-            }
-          })
-          .catch(e => {
-            this.logger.error(e);
-          });
-      }
       return escrowOrder;
     } catch (e) {
       this.logger.error(e);
@@ -694,6 +673,7 @@ export class EscrowOrderResolver {
                 }
               }
             }));
+
           //notify for buyer
           if (result.buyerAccount.telegramId) {
             const formatReplied = format(BOT.MESSAGE.ORDER_ESCROW, url);
@@ -718,6 +698,18 @@ export class EscrowOrderResolver {
                 this.logger.error(e);
               });
           }
+
+          this.notificationGateway.publishEscrowOrderStatus(orderId, {
+            escrowOrderId: orderId,
+            escrowOrder: {
+              txid,
+              value,
+              outIdx,
+              updatedAt: dataToUpdate.updatedAt,
+              status: EscrowOrderStatus.ESCROW
+            }
+          });
+
           break;
         case EscrowOrderStatus.COMPLETE:
           _.set(dataToUpdate, 'releaseTxid', txid ?? null);
@@ -773,6 +765,15 @@ export class EscrowOrderResolver {
                 this.logger.error(e);
               });
           }
+
+          this.notificationGateway.publishEscrowOrderStatus(orderId, {
+            escrowOrderId: orderId,
+            escrowOrder: {
+              txid,
+              updatedAt: dataToUpdate.updatedAt,
+              status: EscrowOrderStatus.COMPLETE
+            }
+          });
 
           break;
         case EscrowOrderStatus.CANCEL:
@@ -831,6 +832,16 @@ export class EscrowOrderResolver {
                 this.logger.error(e);
               });
           }
+
+          this.notificationGateway.publishEscrowOrderStatus(orderId, {
+            escrowOrderId: orderId,
+            escrowOrder: {
+              txid,
+              updatedAt: dataToUpdate.updatedAt,
+              status: EscrowOrderStatus.CANCEL
+            }
+          });
+
           break;
       }
 
