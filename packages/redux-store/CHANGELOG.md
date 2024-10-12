@@ -1,5 +1,21 @@
 # @bcpros/redux-store
 
+## 1.2.22
+
+### Patch Changes
+
+- Bump missing versions
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.22
+
+## 1.2.21
+
+### Patch Changes
+
+- Update socket
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.21
+
 ## 1.2.20
 
 ### Patch Changes

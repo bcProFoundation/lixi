@@ -266,29 +266,34 @@ export const useWalletNode = () => {
     // Initialize if not in state
     let ws = chronikWebsocket;
     if (ws === null) {
-      console.log('start connect websocket');
-      ws = chronik.ws({
-        onMessage: (msg: WsMsgClient) => {
-          processChronikWsMsg(msg, wallet);
-        },
-        onReconnect: e => {
-          // Fired before a reconnect attempt is made:
-          console.log('Reconnecting websocket, disconnection cause: ', e);
-        },
-        onConnect: e => {
-          console.log(`Chronik websocket connected`, e);
-          console.log(
-            `Websocket connected, adjusting wallet refresh interval to ${websocketConnectedRefreshInterval / 1000}s`
-          );
-          setWalletRefreshInterval(websocketConnectedRefreshInterval);
-        },
-        onError: e => {
-          console.log('error', e);
-        }
-      });
+      console.log('start connect chronik websocket');
 
-      // Wait for websocket to be connected:
-      await ws.waitForOpen();
+      try {
+        ws = chronik.ws({
+          onMessage: (msg: WsMsgClient) => {
+            processChronikWsMsg(msg, wallet);
+          },
+          onReconnect: e => {
+            // Fired before a reconnect attempt is made:
+            console.log('Reconnecting websocket, disconnection cause: ', e);
+          },
+          onConnect: e => {
+            console.log(`Chronik websocket connected`, e);
+            console.log(
+              `Websocket connected, adjusting wallet refresh interval to ${websocketConnectedRefreshInterval / 1000}s`
+            );
+            setWalletRefreshInterval(websocketConnectedRefreshInterval);
+          },
+          onError: e => {
+            console.log('error', e);
+          }
+        });
+
+        // Wait for websocket to be connected:
+        await ws.waitForOpen();
+      } catch (e) {
+        console.error('useWalletNode - websocket - error: ', e);
+      }
     } else {
       /*        
       If the websocket connection is not null, initializeWebsocket was called

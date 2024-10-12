@@ -30,112 +30,120 @@ export class DanaWsService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    //ws for xpi
-    const ws = this.chronikXPI.ws({
-      onMessage: async (msg: SubscribeMsg) => {
-        const { type } = msg;
-        if (type === 'BlockConnected') {
-          //add new block
-          const keyHighestBlockCoin = template(this.keyIndexHighestBlockData, { coin: COIN.XPI });
-          const blockHighestInfo = (await this.chronikXPI.block(msg.blockHash)).blockInfo;
-          const currentIndexHighest = Number((await this.redis.get(keyHighestBlockCoin)) ?? '1');
+    try {
+      //ws for xpi
+      const ws = this.chronikXPI.ws({
+        onMessage: async (msg: SubscribeMsg) => {
+          const { type } = msg;
+          if (type === 'BlockConnected') {
+            //add new block
+            const keyHighestBlockCoin = template(this.keyIndexHighestBlockData, { coin: COIN.XPI });
+            const blockHighestInfo = (await this.chronikXPI.block(msg.blockHash)).blockInfo;
+            const currentIndexHighest = Number((await this.redis.get(keyHighestBlockCoin)) ?? '1');
 
-          if (blockHighestInfo.height < currentIndexHighest + 10) {
-            this.handleNewBlock(blockHighestInfo, COIN.XPI);
-            this.redis.set(keyHighestBlockCoin, blockHighestInfo.height);
+            if (blockHighestInfo.height < currentIndexHighest + 10) {
+              this.handleNewBlock(blockHighestInfo, COIN.XPI);
+              this.redis.set(keyHighestBlockCoin, blockHighestInfo.height);
+            }
           }
+        },
+        onReconnect: e => {
+          // Fired before a reconnect attempt is made:
+          this.logger.log('Reconnecting websocket, disconnection cause: ');
+        },
+        onConnect: e => {
+          this.logger.log(`XPI ChronikClient websocket connected`);
+        },
+        onError: e => {
+          this.logger.log('error', e);
         }
-      },
-      onReconnect: e => {
-        // Fired before a reconnect attempt is made:
-        this.logger.log('Reconnecting websocket, disconnection cause: ');
-      },
-      onConnect: e => {
-        this.logger.log(`Chronik websocket connected`);
-      },
-      onError: e => {
-        this.logger.log('error', e);
-      }
-    });
-    await ws.waitForOpen();
-    //we need to subscribe address to listen new block
-    ws.subscribe('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
+      });
+      await ws.waitForOpen();
+      //we need to subscribe address to listen new block
+      ws.subscribe('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
+    } catch (e) {
+      this.logger.error('dana-ws-service - xpi - websocket - error: ', e);
+    }
 
-    //ws for xec
-    const wsXEC = this.chronikXEC.ws({
-      onMessage: async msg => {
-        const { type } = msg;
-        if (type === 'Block') {
-          //add new block
-          const keyHighestBlockCoin = template(this.keyIndexHighestBlockData, { coin: COIN.XEC });
-          const blockHighestInfo = (await this.chronikXEC.block(msg.blockHash)).blockInfo;
-          const currentIndexHighest = Number((await this.redis.get(keyHighestBlockCoin)) ?? '0');
+    try {
+      //ws for xec
+      const wsXEC = this.chronikXEC.ws({
+        onMessage: async msg => {
+          const { type } = msg;
+          if (type === 'Block') {
+            //add new block
+            const keyHighestBlockCoin = template(this.keyIndexHighestBlockData, { coin: COIN.XEC });
+            const blockHighestInfo = (await this.chronikXEC.block(msg.blockHash)).blockInfo;
+            const currentIndexHighest = Number((await this.redis.get(keyHighestBlockCoin)) ?? '0');
 
-          if (blockHighestInfo.height < currentIndexHighest + 10) {
-            this.handleNewBlock(blockHighestInfo, COIN.XEC);
-            this.redis.set(keyHighestBlockCoin, blockHighestInfo.height);
+            if (blockHighestInfo.height < currentIndexHighest + 10) {
+              this.handleNewBlock(blockHighestInfo, COIN.XEC);
+              this.redis.set(keyHighestBlockCoin, blockHighestInfo.height);
+            }
           }
+        },
+        onReconnect: e => {
+          // Fired before a reconnect attempt is made:
+          this.logger.log('XEC Reconnecting websocket, disconnection cause: ');
+        },
+        onConnect: e => {
+          this.logger.log(`XEC ChronikNode websocket connected`);
+        },
+        onError: e => {
+          this.logger.log('XEC error', e);
         }
-      },
-      onReconnect: e => {
-        // Fired before a reconnect attempt is made:
-        this.logger.log('XEC Reconnecting websocket, disconnection cause: ');
-      },
-      onConnect: e => {
-        this.logger.log(`XEC Chronik websocket connected`);
-      },
-      onError: e => {
-        this.logger.log('XEC error', e);
-      }
-    });
-    await wsXEC.waitForOpen();
-    //we need to subscribe address to listen new block
-    wsXEC.subscribeToScript('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
+      });
+      await wsXEC.waitForOpen();
+      //we need to subscribe address to listen new block
+      wsXEC.subscribeToScript('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
+    } catch (e) {
+      this.logger.error('dana-ws-service - xec - websocket - error: ', e);
+    }
 
     //ws for ergon
-    const wsXRG = this.chronikXRG.ws({
-      onMessage: async (msg: SubscribeMsg) => {
-        const { type } = msg;
-        if (type === 'BlockConnected') {
-          const keyHighestBlockCoin = template(this.keyIndexHighestBlockData, { coin: COIN.XRG });
-          const blockHighestInfo = (await this.chronikXRG.block(msg.blockHash)).blockInfo;
-          const currentIndexHighest = Number((await this.redis.get(keyHighestBlockCoin)) ?? '1'); //ergon start block at 1
+    // const wsXRG = this.chronikXRG.ws({
+    //   onMessage: async (msg: SubscribeMsg) => {
+    //     const { type } = msg;
+    //     if (type === 'BlockConnected') {
+    //       const keyHighestBlockCoin = template(this.keyIndexHighestBlockData, { coin: COIN.XRG });
+    //       const blockHighestInfo = (await this.chronikXRG.block(msg.blockHash)).blockInfo;
+    //       const currentIndexHighest = Number((await this.redis.get(keyHighestBlockCoin)) ?? '1'); //ergon start block at 1
 
-          //index new block
-          if (blockHighestInfo.height < currentIndexHighest + 10) {
-            this.handleNewBlock(blockHighestInfo, COIN.XRG);
-            this.redis.set(keyHighestBlockCoin, blockHighestInfo.height);
-          }
+    //       //index new block
+    //       if (blockHighestInfo.height < currentIndexHighest + 10) {
+    //         this.handleNewBlock(blockHighestInfo, COIN.XRG);
+    //         this.redis.set(keyHighestBlockCoin, blockHighestInfo.height);
+    //       }
 
-          //adjust dana by blockTime
-          if (Number.isInteger(blockHighestInfo.height / 144)) {
-            const currentAdjustRateDana = this.calGHPerDanaByErgon(
-              blockHighestInfo.nBits,
-              Number(blockHighestInfo.sumCoinbaseOutputSats)
-            );
-            Promise.all([
-              this.redis.hset(this.keyAdjustDana, blockHighestInfo.height, currentAdjustRateDana),
-              this.redis.hset(this.keyCurrentAdjustDana, KeyCurrentAdjust, currentAdjustRateDana)
-            ]);
-          }
-        }
-      },
-      onReconnect: e => {
-        // Fired before a reconnect attempt is made:
-        this.logger.log('XRG Reconnecting websocket, disconnection cause: ');
-      },
-      onConnect: e => {
-        this.logger.log(`XRG Chronik websocket connected`);
-      },
-      onError: e => {
-        this.logger.log('XRG error', e);
-      }
-    });
-    await wsXRG.waitForOpen();
-    //we need to subscribe address to listen new block
-    wsXRG.subscribe('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
+    //       //adjust dana by blockTime
+    //       if (Number.isInteger(blockHighestInfo.height / 144)) {
+    //         const currentAdjustRateDana = this.calGHPerDanaByErgon(
+    //           blockHighestInfo.nBits,
+    //           Number(blockHighestInfo.sumCoinbaseOutputSats)
+    //         );
+    //         Promise.all([
+    //           this.redis.hset(this.keyAdjustDana, blockHighestInfo.height, currentAdjustRateDana),
+    //           this.redis.hset(this.keyCurrentAdjustDana, KeyCurrentAdjust, currentAdjustRateDana)
+    //         ]);
+    //       }
+    //     }
+    //   },
+    //   onReconnect: e => {
+    //     // Fired before a reconnect attempt is made:
+    //     this.logger.log('XRG Reconnecting websocket, disconnection cause: ', e);
+    //   },
+    //   onConnect: e => {
+    //     this.logger.log(`XRG Chronik websocket connected`);
+    //   },
+    //   onError: e => {
+    //     this.logger.log('XRG error', e);
+    //   }
+    // });
+    // await wsXRG.waitForOpen();
+    // //we need to subscribe address to listen new block
+    // wsXRG.subscribe('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
 
-    this.logger.log(`The module has been initialized.`);
+    // this.logger.log(`The module has been initialized.`);
   }
 
   async handleNewBlock(newBlockInfo: BlockInfo | BlockInfo_InNode, coin = COIN.XPI) {

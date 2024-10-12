@@ -3,7 +3,7 @@ import { AccountDto } from '@bcpros/lixi-models/lib/account/account.dto';
 import { NotificationDto as Notification } from '@bcpros/lixi-models/lib/common/notification';
 import { SessionAction, SessionActionEnum } from '@bcpros/lixi-models/lib/sessionAction';
 import { callConfig } from '../../context/shareContext';
-import { PageMessageSession } from '../../generated/types.generated';
+import { DisputeStatus, EscrowOrderStatus, PageMessageSession } from '../../generated/types.generated';
 import { getAccountById, getSelectedAccount } from '@store/account/selectors';
 import { setPageMessageSession } from '@store/page/action';
 import { setNewPostAvailable } from '@store/post/actions';
@@ -13,9 +13,11 @@ import { Socket } from 'socket.io-client';
 import { downloadExportedLixi, refreshLixiSilent } from '../lixi/actions';
 import { api as messageApi } from '../message/message.api';
 import { api as pageMessageApi } from '../message/pageMessageSession.api';
+import { api as escrowOrderApi } from '../escrow/escrow-order/escrow-order.api';
 import { receiveNotification } from '../notification/actions';
 import { showToast } from '../toast/actions';
 import { connectToChannels } from './actions';
+import _ from 'lodash';
 
 function createMessageSocketChannel(socket: Socket) {
   return eventChannel(emit => {
@@ -77,6 +79,18 @@ function createNewPostNotificationHomeTimelineSocketChannel(socket: Socket) {
   });
 }
 
+function createEscrowOrderSocketChannel(socket: Socket) {
+  return eventChannel(emit => {
+    const handler = (data: string) => {
+      emit(data);
+    };
+    socket.on('publishEscrowOrderStatus', handler);
+    return () => {
+      socket.off('publishEscrowOrderStatus', handler);
+    };
+  });
+}
+
 // WebSocket Saga
 function* connectToChannelsSaga() {
   const { socket } = callConfig.call.socketContext;
@@ -85,14 +99,16 @@ function* connectToChannelsSaga() {
   const sessionActionSocketChannel = yield call(createSessionActionSocketChannel, socket);
   const notificationSocketChannel = yield call(createNotificationSocketChannel, socket);
   const newPostHometimelineSocketChannel = yield call(createNewPostNotificationHomeTimelineSocketChannel, socket);
+  const escrowOrderSocketChannel = yield call(createEscrowOrderSocketChannel, socket);
 
   while (true) {
-    const { message, payload, sessionAction, notification, newPost } = yield race({
+    const { message, payload, sessionAction, notification, newPost, escrowOrder } = yield race({
       message: take(socketMessageChannel),
       payload: take(socketAddressChannel),
       sessionAction: take(sessionActionSocketChannel),
       notification: take(notificationSocketChannel),
-      newPost: take(newPostHometimelineSocketChannel)
+      newPost: take(newPostHometimelineSocketChannel),
+      escrowOrder: take(escrowOrderSocketChannel)
     });
 
     if (message) {
@@ -113,6 +129,10 @@ function* connectToChannelsSaga() {
 
     if (newPost) {
       yield put(setNewPostAvailable(true));
+    }
+
+    if (escrowOrder) {
+      yield receiveEscrowOrder(escrowOrder);
     }
   }
 }
@@ -266,6 +286,79 @@ function* receiveNewNotification(payload: Notification) {
     }
   } catch (error) {
     console.log('error', error.message);
+  }
+}
+
+function* receiveEscrowOrder(payload: any) {
+  const {
+    escrowOrderId,
+    escrowOrder,
+    dispute
+  }: {
+    escrowOrderId: string;
+    escrowOrder?: {
+      status: EscrowOrderStatus;
+      outIdx?: number;
+      txid: string;
+      value?: number;
+      updatedAt?: Date;
+    };
+    dispute?: {
+      id: string;
+      createdBy: string;
+      reason: string;
+      status: DisputeStatus;
+    };
+  } = payload;
+
+  try {
+    if (dispute) {
+      yield putAction(
+        escrowOrderApi.util.updateQueryData('EscrowOrder', { id: escrowOrderId }, draft => {
+          if (draft) {
+            draft.escrowOrder.dispute = {
+              ...dispute
+            };
+          }
+        })
+      );
+    }
+
+    yield putAction(
+      escrowOrderApi.util.updateQueryData('EscrowOrder', { id: escrowOrderId }, draft => {
+        if (draft) {
+          draft.escrowOrder.escrowOrderStatus = escrowOrder.status;
+          draft.escrowOrder.updatedAt = escrowOrder.updatedAt;
+
+          switch (escrowOrder.status) {
+            case EscrowOrderStatus.Complete:
+              draft.escrowOrder.releaseTxid = escrowOrder.txid;
+              if (draft.escrowOrder.dispute) {
+                draft.escrowOrder.dispute.status = DisputeStatus.Resolved;
+              }
+              break;
+            case EscrowOrderStatus.Cancel:
+              draft.escrowOrder.returnTxid = escrowOrder.txid;
+              if (draft.escrowOrder.dispute) {
+                draft.escrowOrder.dispute.status = DisputeStatus.Resolved;
+              }
+              break;
+            case EscrowOrderStatus.Escrow:
+              escrowOrder.txid &&
+                escrowOrder.value &&
+                !_.isNil(escrowOrder.outIdx) &&
+                draft.escrowOrder.escrowTxids.push({
+                  txid: escrowOrder.txid,
+                  value: escrowOrder.value,
+                  outIdx: escrowOrder.outIdx
+                });
+              break;
+          }
+        }
+      })
+    );
+  } catch (e) {
+    console.error(e);
   }
 }
 

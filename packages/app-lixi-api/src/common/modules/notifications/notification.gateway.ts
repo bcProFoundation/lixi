@@ -1,4 +1,10 @@
-import { AnalyticEvent, NotificationDto as Notification, SessionAction, SocketUser } from '@bcpros/lixi-models';
+import {
+  AnalyticEvent,
+  EscrowOrderStatus,
+  NotificationDto as Notification,
+  SessionAction,
+  SocketUser
+} from '@bcpros/lixi-models';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Logger, UseGuards } from '@nestjs/common';
 import Redis from 'ioredis';
@@ -239,6 +245,31 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
     }
   }
 
+  @SubscribeMessage('subscribeEscrowOrderChannel')
+  handleEscrowOrderChannelSubscription(
+    @MessageBody() escrowOrderId: string,
+    @ConnectedSocket() client: Socket
+  ): WsResponse<string> {
+    //Check if already join a room
+    const joinedRoom = Array.from(client.rooms).find(room => {
+      return room === escrowOrderId;
+    });
+
+    if (!joinedRoom) {
+      client.join(escrowOrderId);
+
+      return {
+        event: 'escrowOrderId',
+        data: client.id
+      };
+    } else {
+      return {
+        event: '',
+        data: client.id
+      };
+    }
+  }
+
   sendNotification(room: string, notification: Notification) {
     this.server.to(room).emit('notification', notification);
   }
@@ -265,6 +296,10 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
 
   publishNewPost() {
     this.server.emit('new_post_created', 'New post created');
+  }
+
+  publishEscrowOrderStatus(escrowOrderId: string, data: any) {
+    this.server.to(escrowOrderId).emit('publishEscrowOrderStatus', data);
   }
 
   /// Analytic events
