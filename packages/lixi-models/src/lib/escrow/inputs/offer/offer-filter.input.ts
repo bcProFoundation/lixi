@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { Nullable } from '../../nullable';
+import { Nullable } from '../../../nullable';
 
 @InputType()
 export class OfferFilterInput {

@@ -1,0 +1,7 @@
+query AllCoinList {
+  allCoinList {
+    id
+    name
+    alias
+  }
+}

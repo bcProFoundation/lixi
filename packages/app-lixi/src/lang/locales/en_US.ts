@@ -564,6 +564,7 @@ export default {
   /* 14.Country */
   'country.unablegetCountries': 'Unable to get countries',
   'country.unablegetStates': 'Unable to get states',
+  'country.unablegetCitites': 'Unable to get cities',
 
   /* 15.Post */
   'general.on': 'On',
@@ -928,5 +929,7 @@ export default {
   'poll.requireDana': 'Required Dana to vote.',
 
   /*22. Escrow */
-  'escrow.unablegetPaymentMethod': 'Unable to get paymentMethod'
+  'escrow.unablegetPaymentMethod': 'Unable to get paymentMethod',
+  'escrow.unablegetCurrencies': 'Unable to get currencies',
+  'escrow.unablegetCoinList': 'Unable to get all coin'
 };

@@ -3,7 +3,7 @@ import { SearchBoxCommand } from '@bcpros/lixi-models/lib/search';
 import { createAction } from '@reduxjs/toolkit';
 
 import { WebAuthnConfig, WebPushNotifConfig } from './model';
-import { OfferFilterInput } from '@bcpros/lixi-models/lib/escrow/inputs/offer-filter.input';
+import { OfferFilterInput } from '@bcpros/lixi-models/lib/escrow/inputs/offer/offer-filter.input';
 
 export const toggleCollapsedSideNav = createAction<boolean>('settings/toggleCollapsedSideNav');
 export const updateLanguage = createAction<string>('settings/updateLanguage');

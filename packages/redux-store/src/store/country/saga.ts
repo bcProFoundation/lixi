@@ -5,6 +5,9 @@ import intl from 'react-intl-universal';
 import * as Effects from 'redux-saga/effects';
 
 import {
+  getCities,
+  getCitiesFailure,
+  getCitiesSuccess,
   getCountries,
   getCountriesFailure,
   getCountriesSuccess,
@@ -59,6 +62,29 @@ function* getStatesFailureSaga(action: PayloadAction<string>) {
   );
 }
 
+function* getCitiesSaga(action: PayloadAction<number>) {
+  try {
+    const id = action.payload;
+    const data = yield call(countryApi.getCities, id);
+    console.log('data: ', data);
+    yield put(getCitiesSuccess(data));
+  } catch (err) {
+    const message = (err as Error).message ?? intl.get('country.unablegetCitites');
+    yield put(getCitiesFailure(message));
+  }
+}
+
+function* getCitiesFailureSaga(action: PayloadAction<string>) {
+  const message = action.payload ?? intl.get('country.unablegetCitites');
+  yield put(
+    showToast('error', {
+      message: 'Error',
+      description: message,
+      duration: 5
+    })
+  );
+}
+
 function* watchgetCountries() {
   yield takeLatest(getCountries.type, getCountriesSaga);
 }
@@ -75,11 +101,21 @@ function* watchGetStatesFailure() {
   yield takeLatest(getStatesFailure.type, getStatesFailureSaga);
 }
 
+function* watchGetCities() {
+  yield takeLatest(getCities.type, getCitiesSaga);
+}
+
+function* watchGetCitiesFailure() {
+  yield takeLatest(getCitiesFailure.type, getCitiesFailureSaga);
+}
+
 export function* countrySaga() {
   yield all([
     fork(watchgetCountries),
     fork(watchgetCountriesFailure),
     fork(watchGetStates),
-    fork(watchGetStatesFailure)
+    fork(watchGetStatesFailure),
+    fork(watchGetCities),
+    fork(watchGetCitiesFailure)
   ]);
 }

@@ -563,6 +563,7 @@ export default {
   /* 14.Country */
   'country.unablegetCountries': 'Không thể tải quốc gia',
   'country.unablegetStates': 'Không thể tải tỉnh thành',
+  'country.unablegetCitites': 'Không thể tải quận huyện',
 
   /* 15.Post */
   'general.on': 'Bật',
@@ -927,5 +928,7 @@ export default {
   'poll.requireDana': 'Cần Dana để bầu chọn',
 
   /*22. Escrow */
-  'escrow.unablegetPaymentMethod': 'Unable to get paymentMethod'
+  'escrow.unablegetPaymentMethod': 'Không thể lấy phương thức thanh toán',
+  'escrow.unablegetCurrencies': 'Không thể lấy các đồng tiền',
+  'escrow.unablegetCoinList': 'Không thể lấy các coin'
 };

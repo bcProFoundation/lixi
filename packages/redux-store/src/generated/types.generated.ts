@@ -263,6 +263,18 @@ export enum Coin {
   Xrg = 'XRG'
 }
 
+export type CoinList = {
+  __typename?: 'CoinList';
+  alias: Scalars['String']['output'];
+  /** Identifies the date and time when the object was created. */
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['Int']['output'];
+  isSupport: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type Comment = {
   __typename?: 'Comment';
   commentAccount: Account;
@@ -554,6 +566,19 @@ export type CreateWorshipedPersonInput = {
   quote?: InputMaybe<Scalars['String']['input']>;
   stateId?: InputMaybe<Scalars['String']['input']>;
   wikiDataId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Currencies = {
+  __typename?: 'Currencies';
+  code: Scalars['String']['output'];
+  /** Identifies the date and time when the object was created. */
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['Int']['output'];
+  isSupport: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  symbol: Scalars['String']['output'];
+  /** Identifies the date and time when the object was last updated. */
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type DeleteFollowAccountInput = {
@@ -1614,6 +1639,8 @@ export type Query = {
   account: Account;
   allAccounts: AccountBasicConnection;
   allClosedPageMessageSession: PageMessageSessionConnection;
+  allCoinList: Array<CoinList>;
+  allCurrencies: Array<Currencies>;
   allDisputeByAccount: TimelineItemConnection;
   allEscrowOrderByAccount: TimelineItemConnection;
   allEscrowOrderByOfferId: TimelineItemConnection;

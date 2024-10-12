@@ -2,8 +2,9 @@ import { Country } from '@bcpros/lixi-models/lib/geo-location/country.model';
 import { State } from '@bcpros/lixi-models/lib/geo-location/state.model';
 import { createEntityAdapter, createReducer, isAnyOf, Update } from '@reduxjs/toolkit';
 
-import { getCountriesSuccess, getStatesSuccess } from './actions';
-import { CountriesState, StatesState } from './state';
+import { getCitiesSuccess, getCountriesSuccess, getStatesSuccess } from './actions';
+import { CitiesState, CountriesState, StatesState } from './state';
+import { City } from '@bcpros/lixi-models';
 
 // Coutry
 export const countriesAdapter = createEntityAdapter<Country>({});
@@ -28,5 +29,18 @@ export const stateReducer = createReducer(initialState, builder => {
   builder.addCase(getStatesSuccess, (state, action) => {
     const states = action.payload;
     statesAdapter.setAll(state, states);
+  });
+});
+
+// City
+export const citiesAdapter = createEntityAdapter<City>({});
+const initialCity: CitiesState = citiesAdapter.getInitialState({
+  selectedCityId: 0
+});
+
+export const cityReducer = createReducer(initialCity, builder => {
+  builder.addCase(getCitiesSuccess, (state, action) => {
+    const cities = action.payload;
+    citiesAdapter.setAll(state, cities);
   });
 });

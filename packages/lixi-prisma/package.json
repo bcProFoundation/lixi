@@ -46,7 +46,8 @@
     "generate:watch": "yarn prisma generate --watch",
     "start:db": "run-s migrate:up generate seed",
     "seed": "ts-node prisma/seeds/index.ts",
-    "seed:countries": "ts-node prisma/seeds/countries.ts"
+    "seed:countries": "ts-node prisma/seeds/countries.ts",
+    "seed:currencies": "ts-node prisma/seeds/currencies.ts"
   },
   "devDependencies": {
     "@types/node": "^20.11.30",

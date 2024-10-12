@@ -15,13 +15,13 @@ function* getPaymenMethodsSaga(action: PayloadAction) {
     const data = yield promise;
     yield put(getPaymenMethodsSuccess(data?.data?.allPaymenMethod));
   } catch (err) {
-    const message = (err as Error).message ?? intl.get('country.unablegetPaymentMethod');
+    const message = (err as Error).message ?? intl.get('escrow.unablegetPaymentMethod');
     yield put(getPaymenMethodsFailure(message));
   }
 }
 
 function* getPaymenMethodsFailureSaga(action: PayloadAction<string>) {
-  const message = action.payload ?? intl.get('country.unablegetPaymentMethod');
+  const message = action.payload ?? intl.get('escrow.unablegetPaymentMethod');
   yield put(
     showToast('error', {
       message: 'Error',

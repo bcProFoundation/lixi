@@ -2,7 +2,7 @@ import { createSelector } from 'reselect';
 
 import { LixiStoreStateInterface } from '../state';
 
-import { countriesAdapter, statesAdapter } from './reducer';
+import { citiesAdapter, countriesAdapter, statesAdapter } from './reducer';
 import { CountriesState } from './state';
 
 export const getCountriesState = createSelector(
@@ -32,3 +32,16 @@ const {
 } = statesAdapter.getSelectors();
 
 export const getAllStates = createSelector((state: LixiStoreStateInterface) => state.states, selectAllStates);
+
+// City
+const selectCity = (state: LixiStoreStateInterface) => state.cities;
+const selectSelectedCity = createSelector(selectCity, state => state.selectedCityId);
+
+const {
+  selectAll: selectAllCities,
+  selectEntities: selectEntitiesCities,
+  selectIds: selectIdsCities,
+  selectTotal: selectTotalCities
+} = citiesAdapter.getSelectors();
+
+export const getAllCities = createSelector((state: LixiStoreStateInterface) => state.cities, selectAllCities);

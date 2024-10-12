@@ -14,7 +14,7 @@ import { SettingsState } from './settings';
 import { NotificationsState } from './notification';
 import { PageState } from './page';
 import { TokenState } from './token';
-import { CountriesState, StatesState } from './country';
+import { CitiesState, CountriesState, StatesState } from './country';
 import { PageCategory } from '@bcpros/lixi-models/lib/pageCategory';
 import { PaymentMethodType } from '@bcpros/lixi-models/lib/paymentMethod';
 import { EntityState } from '@reduxjs/toolkit';
@@ -23,6 +23,8 @@ import { PageMessageSessionState } from './message';
 import { CombinedState } from '@reduxjs/toolkit/query';
 import { ActionState } from './action';
 import { PersistState } from 'redux-persist';
+import { Currencies } from '@bcpros/lixi-models/lib/escrow/currencies.model';
+import { CoinList } from '@bcpros/lixi-models/lib/escrow/coin-list.model';
 
 export type LixiStoreStateInterface = {
   wallet: WalletState;
@@ -43,11 +45,18 @@ export type LixiStoreStateInterface = {
   tokens: TokenState;
   countries: CountriesState;
   states: StatesState;
+  cities: CitiesState;
   categories: EntityState<PageCategory, number> & {
     selectedCategoryId: number;
   };
   paymentMethods: EntityState<PaymentMethodType, number> & {
     selectedPaymentMethodId: number;
+  };
+  currencies: EntityState<Currencies, number> & {
+    selectedCurrencyId: number;
+  };
+  coinList: EntityState<CoinList, number> & {
+    selectedCoinId: number;
   };
   burn: BurnState;
   pageMessage: PageMessageSessionState;

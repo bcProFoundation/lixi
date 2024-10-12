@@ -53,22 +53,11 @@ export class CountryController {
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(600000)
   @Get(':id/cities')
-  async getCities(
-    @Query('countryId') countryId: number,
-    @Query('stateId') stateId: number,
-    @I18n() i18n: I18nContext
-  ): Promise<any> {
+  async getCities(@Param('id') stateId: number | string, @I18n() i18n: I18nContext): Promise<any> {
     try {
       const cities = await this.prisma.city.findMany({
         where: {
-          AND: [
-            {
-              countryId: _.toSafeInteger(countryId)
-            },
-            {
-              stateId: _.toSafeInteger(stateId)
-            }
-          ]
+          stateId: _.toSafeInteger(stateId)
         }
       });
 

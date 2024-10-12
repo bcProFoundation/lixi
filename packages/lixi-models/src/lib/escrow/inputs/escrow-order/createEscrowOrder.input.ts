@@ -1,7 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional } from 'class-validator';
-import { Nullable } from '../../nullable';
-import { UtxoInNodeInput } from '../../utxo/input/utxo-inNode.input';
+import { Nullable } from '../../../nullable';
+import { UtxoInNodeInput } from '../../../utxo/input/utxo-inNode.input';
 
 @InputType()
 export class CreateEscrowOrderInput {

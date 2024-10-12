@@ -21,6 +21,8 @@ import { AccountCacheService } from '../account/account-cache.service';
 import { EscrowOrderCacheService } from './escrow-order/escrow-order-cache.service';
 import { DisputeCacheService } from './dispute/dispute-cache.service';
 import DisputeLoader from './dispute/dispute.loader';
+import { CoinListResolver } from './coinList/coin-list.resolver';
+import { CurrenciesResolver } from './currencies/currencies.resolver';
 
 @Module({
   imports: [
@@ -59,6 +61,8 @@ import DisputeLoader from './dispute/dispute.loader';
     TimelineItemService,
     PostCacheService,
     RedisKeySpaceNotification,
+    CoinListResolver,
+    CurrenciesResolver,
     AccountCacheService
   ],
   exports: [Logger]

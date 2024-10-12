@@ -8,6 +8,7 @@ import { emailTemplateTranslations } from './emailTemplateTranslations';
 import { categories } from './categories';
 import { worshipedPersonInVietNam } from './worship/vietnam';
 import { paymentMethod } from './paymentMethod';
+import { coins } from './coins';
 
 const prisma = new PrismaClient();
 
@@ -79,6 +80,16 @@ async function main() {
         where: { id: payment.id },
         update: { ...payment },
         create: { ...payment }
+      });
+    })
+  );
+
+  await prisma.$transaction(
+    coins.map(coin => {
+      return prisma.coinList.upsert({
+        where: { id: coin.id },
+        update: { ...coin },
+        create: { ...coin }
       });
     })
   );

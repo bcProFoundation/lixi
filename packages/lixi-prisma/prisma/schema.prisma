@@ -1358,6 +1358,29 @@ model PaymentMethod {
   @@map("payment_method")
 }
 
+model Currencies {
+  id        Int      @id @default(autoincrement())
+  code      String   @db.VarChar(3)
+  name      String   @db.VarChar(50)
+  symbol    String   @db.VarChar(5)
+  isSupport Boolean  @map("is_support")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("currencies")
+}
+
+model CoinList {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(50)
+  alias     String
+  isSupport Boolean  @default(true) @map("is_support")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("coin_list")
+}
+
 enum OfferType {
   BUY
   SELL

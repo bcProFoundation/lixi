@@ -83,3 +83,33 @@ export const TRANSACTION = {
 };
 
 export const epoch = '2024-01-01 00:00:00';
+
+export const LIST_CURRENCIES_USED = [
+  { code: 'USD', name: 'US Dollar' },
+  { code: 'AUD', name: 'Australian Dollar' },
+  { code: 'VND', name: 'Vietnamese Dong' },
+  { code: 'HNL', name: 'Honduran Lempira' },
+  { code: 'INR', name: 'Indian Rupee' },
+  { code: 'BRL', name: 'Brazilian Real' },
+  { code: 'CAD', name: 'Canadian Dollar' },
+  { code: 'CHF', name: 'Swiss Franc' },
+  { code: 'EUR', name: 'Euro' },
+  { code: 'GBP', name: 'Great British Pound' },
+  { code: 'HKD', name: 'Honk Kong Dollar' },
+  { code: 'INR', name: 'Indian Rupee' },
+  { code: 'JPY', name: 'Japanese Yen' },
+  { code: 'KRW', name: 'South Korean Won' },
+  { code: 'MXN', name: 'Mexican Peso' },
+  { code: 'NOK', name: 'Norwegian Krone' },
+  { code: 'NZD', name: 'New Zealand Dollar' },
+  { code: 'PHP', name: 'Philippine Peso' },
+  { code: 'RUB', name: 'Russian Ruble' },
+  { code: 'SEK', name: 'Swedish Krona' },
+  { code: 'SGD', name: 'Singapore Dollar' },
+  { code: 'THB', name: 'Thai Baht' },
+  { code: 'USD', name: 'US Dollar' },
+  { code: 'VEF', name: 'Venezuelan Bolívar' },
+  { code: 'XCD', name: 'Eastern Caribbean Dollar' },
+  { code: 'ZAR', name: 'South African Rand' },
+  { code: 'CNY', name: 'Chinese Yuan' }
+];

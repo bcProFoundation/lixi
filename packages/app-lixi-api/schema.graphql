@@ -243,6 +243,19 @@ enum Coin {
   XRG
 }
 
+type CoinList {
+  alias: String!
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  id: Int!
+  isSupport: Boolean!
+  name: String!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+}
+
 type Comment {
   commentAccount: Account!
   commentAccountId: Int
@@ -530,6 +543,20 @@ input CreateWorshipedPersonInput {
   quote: String
   stateId: String
   wikiDataId: String
+}
+
+type Currencies {
+  code: String!
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  id: Int!
+  isSupport: Boolean!
+  name: String!
+  symbol: String!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
 }
 
 """
@@ -1430,6 +1457,8 @@ type Query {
   account(id: Int!): Account!
   allAccounts(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): AccountBasicConnection!
   allClosedPageMessageSession(accountId: Int, after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, pageId: String, skip: Int): PageMessageSessionConnection!
+  allCoinList: [CoinList!]!
+  allCurrencies: [Currencies!]!
   allDisputeByAccount(after: String, disputeStatus: DisputeStatus!, first: Int, skip: Int): TimelineItemConnection!
   allEscrowOrderByAccount(after: String, escrowOrderStatus: EscrowOrderStatus!, first: Int, skip: Int): TimelineItemConnection!
   allEscrowOrderByOfferId(after: String, first: Int, offerId: String!, skip: Int): TimelineItemConnection!
