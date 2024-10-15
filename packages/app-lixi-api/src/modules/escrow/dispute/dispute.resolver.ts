@@ -50,25 +50,29 @@ export class DisputeResolver {
   @Query(() => Dispute)
   @UseGuards(GqlJwtAuthGuard)
   async dispute(@AccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
-    const result = await this.prisma.dispute.findUnique({
-      where: { id: id },
-      include: {
-        escrowOrder: true
+    try {
+      const result = await this.prisma.dispute.findUnique({
+        where: { id: id },
+        include: {
+          escrowOrder: true
+        }
+      });
+
+      if (!result) {
+        return;
       }
-    });
 
-    if (!result) {
-      return;
+      const { arbitratorAccountId, moderatorAccountId } = result.escrowOrder;
+
+      //TODO: remove if want buyer/seller to view dispute
+      if (arbitratorAccountId !== account.id && moderatorAccountId !== account.id) {
+        throw new Error('You are not allowed to view the dispute');
+      }
+
+      return result;
+    } catch (e: any) {
+      throw new Error(e);
     }
-
-    const { arbitratorAccountId, moderatorAccountId } = result.escrowOrder;
-
-    //TODO: remove if want buyer/seller to view dispute
-    if (arbitratorAccountId !== account.id && moderatorAccountId !== account.id) {
-      throw new Error('You are not allowed to view the dispute');
-    }
-
-    return result;
   }
 
   @Query(() => TimelineItemConnection)
@@ -255,40 +259,44 @@ export class DisputeResolver {
       }
 
       return dispute;
-    } catch (e) {
-      this.logger.log(e);
+    } catch (e: any) {
+      throw new Error(e);
     }
   }
 
   @Mutation(() => Dispute)
   @UseGuards(GqlJwtAuthGuard)
   async updateDispute(@AccountEntity() account: Account, @Args('data') data: UpdateDisputeInput) {
-    const { escrowOrderId, id, status } = data;
+    try {
+      const { escrowOrderId, id, status } = data;
 
-    const escrowOrder = await this.prisma.escrowOrder.findUnique({
-      where: {
-        id: escrowOrderId
+      const escrowOrder = await this.prisma.escrowOrder.findUnique({
+        where: {
+          id: escrowOrderId
+        }
+      });
+
+      if (!escrowOrder) {
+        throw new Error('Escrow order not found');
       }
-    });
 
-    if (!escrowOrder) {
-      throw new Error('Escrow order not found');
-    }
-
-    if (escrowOrder.arbitratorAccountId !== account.id && escrowOrder.moderatorAccountId !== account.id) {
-      throw new Error('You are not allowed to create dispute for this escrow order');
-    }
-
-    const dispute = await this.prisma.dispute.update({
-      where: {
-        id
-      },
-      data: {
-        status
+      if (escrowOrder.arbitratorAccountId !== account.id && escrowOrder.moderatorAccountId !== account.id) {
+        throw new Error('You are not allowed to create dispute for this escrow order');
       }
-    });
 
-    return dispute;
+      const dispute = await this.prisma.dispute.update({
+        where: {
+          id
+        },
+        data: {
+          status
+        }
+      });
+
+      return dispute;
+    } catch (e: any) {
+      throw new Error(e);
+    }
   }
 
   @ResolveField()
