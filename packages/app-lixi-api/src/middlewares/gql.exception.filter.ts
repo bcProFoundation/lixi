@@ -3,6 +3,7 @@ import { GqlArgumentsHost, GqlExceptionFilter } from '@nestjs/graphql';
 import { I18n, I18nService } from 'nestjs-i18n';
 import VError from 'verror';
 import { HttpExceptionFilter } from './exception.filter';
+import { GraphQLError } from 'graphql';
 
 @Catch()
 export class GqlHttpExceptionFilter implements GqlExceptionFilter {
@@ -12,16 +13,7 @@ export class GqlHttpExceptionFilter implements GqlExceptionFilter {
   async catch(exception: any, host: ArgumentsHost): Promise<any> {
     const ctx = GqlArgumentsHost.create(host);
     const request = (ctx as any).req;
-    const response = (ctx as any).reply;
-    let error = exception.response ?? exception;
-
-    const statusCode = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
-
-    if (!(error instanceof VError)) {
-      const unableToGetPage = await this.i18n.t('common.messages.unexpectedErrorOccurs');
-      this.logger.error(error);
-      error = new VError.WError(error as Error, unableToGetPage);
-    }
+    let error: Error = exception.response ?? exception;
 
     this.logger.error(error);
     let err = error;
@@ -31,20 +23,23 @@ export class GqlHttpExceptionFilter implements GqlExceptionFilter {
       err = (err as any).cause();
     }
 
-    const devErrorResponse: any = {
-      statusCode,
-      timestamp: new Date().toISOString(),
-      path: request.path,
-      queryName: request.fieldName,
-      errorName: exception?.name,
-      message: error,
-      stack: exception?.stack
-    };
+    if (request) {
+      const devErrorResponse: any = {
+        statusCode: 500,
+        timestamp: new Date().toISOString(),
+        path: request.path,
+        queryName: request.fieldName,
+        errorName: exception?.name,
+        message: error,
+        stack: exception?.stack
+      };
 
-    this.logger.error(
-      `error at request method:${request.path.typename} ${request.path.key}`,
-      JSON.stringify(devErrorResponse)
-    );
-    return new HttpException(error, statusCode);
+      this.logger.error(
+        `error at request method:${request.path.typename} ${request.path.key}`,
+        JSON.stringify(devErrorResponse)
+      );
+    }
+
+    return new GraphQLError(error.message);
   }
 }

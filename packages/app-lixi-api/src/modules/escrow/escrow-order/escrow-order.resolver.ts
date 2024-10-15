@@ -94,13 +94,13 @@ export class EscrowOrderResolver {
       });
 
       if (accounts.length === 0) {
-        throw new HttpException('No arbitrator found', HttpStatus.NOT_FOUND);
+        throw new Error('No arbitrator found');
       }
 
       const randomIndex = Math.floor(Math.random() * accounts.length);
       return accounts[randomIndex];
-    } catch (e) {
-      this.logger.error(e);
+    } catch (e: any) {
+      throw new Error(e);
     }
   }
 
@@ -143,8 +143,8 @@ export class EscrowOrderResolver {
         escrowScript: result.escrowScript.toString('hex'),
         nonce: result.nonce
       };
-    } catch (e) {
-      this.logger.error(e);
+    } catch (e: any) {
+      throw new Error(e);
     }
   }
 
@@ -235,8 +235,8 @@ export class EscrowOrderResolver {
       }
 
       return true;
-    } catch (e) {
-      this.logger.error(e);
+    } catch (e: any) {
+      throw new Error(e);
     }
   }
 
@@ -383,8 +383,8 @@ export class EscrowOrderResolver {
       }
 
       return true;
-    } catch (e) {
-      this.logger.error(e);
+    } catch (e: any) {
+      throw new Error(e);
     }
   }
 
@@ -584,8 +584,8 @@ export class EscrowOrderResolver {
       }
 
       return escrowOrder;
-    } catch (e) {
-      this.logger.error(e);
+    } catch (e: any) {
+      throw new Error(e);
     }
   }
 
@@ -864,8 +864,8 @@ export class EscrowOrderResolver {
       }
 
       return escrowOrder;
-    } catch (e) {
-      this.logger.error(e);
+    } catch (e: any) {
+      throw new Error(e);
     }
   }
 
@@ -889,8 +889,8 @@ export class EscrowOrderResolver {
       //choose utxos don't store
       const filteredUtxos = data.filter((key, index) => utxosInProcess[index] === null);
       return filteredUtxos;
-    } catch (e) {
-      this.logger.error(e);
+    } catch (e: any) {
+      throw new Error(e);
     }
   }
 
