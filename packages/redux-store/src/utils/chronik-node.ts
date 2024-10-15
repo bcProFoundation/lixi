@@ -10,14 +10,14 @@ import {
   Utxo_InNode
 } from 'chronik-client';
 import { Hash160AndAddress } from '@bcpros/lixi-models/lib/wallet/wallet.model';
-import { decryptOpReturnMsg, getSelectedWallet, parseOpReturn } from './cashMethods';
+import { decryptOpReturnMsg, getSelectedWallet, parseOpReturn } from './cashMethodsNode';
 import { parseBurnOutput, ParseBurnResult } from './opReturnBurn';
 import { coinInfo } from '@bcpros/lixi-models/constants/coins/coin-info';
 import { TX_HISTORY_COUNT, COIN } from '@bcpros/lixi-models/constants/coins/coin';
 
-export interface ParsedChronikTx {
+export interface ParsedChronikTx_InNode {
   incoming: boolean;
-  xpiAmount: string;
+  xecAmount: string;
   originatingHash160: string;
   opReturnMessage: string;
   isLotusMessage: boolean;
@@ -28,7 +28,7 @@ export interface ParsedChronikTx {
   // Burn
   isBurn: boolean;
   burnInfo?: ParseBurnResult;
-  xpiBurnAmount: string;
+  xecBurnAmount: string;
 }
 
 const getWalletPathsFromWalletState = (wallet: WalletState) => {
@@ -274,23 +274,23 @@ export const getRecipientPublicKey = async (
   throw new Error('Cannot send an encrypted message to a wallet with no outgoing transactions in the last 20 txs');
 };
 
-export const parseChronikTx = async (
+export const parseChronikTx_InNode = async (
   XPI: BCHJS,
   chronik: ChronikClientNode,
   tx: Tx_InNode,
   wallet: WalletState,
   coin = COIN.XPI
-): Promise<ParsedChronikTx> => {
+): Promise<ParsedChronikTx_InNode> => {
   const selectedWallet = getSelectedWallet(wallet);
   const { inputs, outputs } = tx;
   // Assign defaults
   let incoming = true;
-  let xpiAmount = new BigNumber(0);
+  let xecAmount = new BigNumber(0);
   let originatingHash160 = '';
 
   // Burn
   let isBurn = false;
-  let xpiBurnAmount = new BigNumber(0);
+  let xecBurnAmount = new BigNumber(0);
   let parseBurnResult;
 
   // Initialize required variables
@@ -333,43 +333,25 @@ export const parseChronikTx = async (
       const parsedOpReturnArray = parseOpReturn(hex);
 
       if (!parsedOpReturnArray) {
-        console.log('parseChronikTx() error: parsed array is empty');
+        console.log('parseChronikTx_InNode() error: parsed array is empty');
         break;
       }
 
       const txType = parsedOpReturnArray[0];
 
-      if (txType === coinInfo[COIN.XPI].opReturn.appPrefixesHex.lotusChat) {
-        // this is a sendlotus message
-        try {
-          messageHex = parsedOpReturnArray[1];
-          isLotusMessage = true;
-          opReturnMessage = Buffer.from(messageHex, 'hex').toString();
-        } catch (err) {
-          // soft error if an unexpected or invalid cashtab hex is encountered
-          opReturnMessage = '';
-          console.log('useBCH.parsedTxData() error: invalid cashtab msg hex: ' + parsedOpReturnArray[1]);
-        }
-      } else if (txType === coinInfo[COIN.XPI].opReturn.appPrefixesHex.lotusChatEncrypted) {
-        isLotusMessage = true;
-        isEncryptedMessage = true;
-        messageHex = parsedOpReturnArray[1];
-      } else {
-        // this is an externally generated message
-        messageHex = txType; // index 0 is the message content in this instance
+      messageHex = txType; // index 0 is the message content in this instance
 
-        // if there are more than one part to the external message
-        const arrayLength = parsedOpReturnArray.length;
-        for (let i = 1; i < arrayLength; i++) {
-          messageHex = messageHex + parsedOpReturnArray[i];
-        }
+      // if there are more than one part to the external message
+      const arrayLength = parsedOpReturnArray.length;
+      for (let i = 1; i < arrayLength; i++) {
+        messageHex = messageHex + parsedOpReturnArray[i];
       }
     }
 
     // Check OP_RETURN burn
     if (!isLotusMessage && thisOutputReceivedAtHash160.startsWith('6a')) {
       isBurn = true;
-      xpiBurnAmount = new BigNumber(thisOutput.value);
+      xecBurnAmount = new BigNumber(thisOutput.value);
       parseBurnResult = parseBurnOutput(thisOutputReceivedAtHash160);
     }
     // Find amounts at your wallet's addresses
@@ -377,12 +359,12 @@ export const parseChronikTx = async (
       // If incoming tx, this is amount received by the user's wallet
       // if outgoing tx (incoming === false), then this is a change amount
       const thisOutputAmount = new BigNumber(thisOutput.value);
-      xpiAmount = incoming ? xpiAmount.plus(thisOutputAmount) : xpiAmount.minus(thisOutputAmount);
+      xecAmount = incoming ? xecAmount.plus(thisOutputAmount) : xecAmount.minus(thisOutputAmount);
     }
     // Output amounts not at your wallet are sent amounts if !incoming
     if (!incoming) {
       const thisOutputAmount = new BigNumber(thisOutput.value);
-      xpiAmount = xpiAmount.plus(thisOutputAmount);
+      xecAmount = xecAmount.plus(thisOutputAmount);
       try {
         if (!destinationAddress) {
           // Assumpt the destination address is the first output
@@ -394,14 +376,14 @@ export const parseChronikTx = async (
   }
 
   // Convert from sats to coin
-  const cashDecimals = coin === COIN.XRG ? coinInfo[coin].microCashDecimals : coinInfo[coin ?? COIN.XPI].cashDecimals;
-  xpiAmount = xpiAmount.shiftedBy(-1 * cashDecimals);
+  const cashDecimals = coinInfo[COIN.XEC].cashDecimals;
+  xecAmount = xecAmount.shiftedBy(-1 * cashDecimals);
   if (isBurn) {
-    xpiBurnAmount = xpiBurnAmount.shiftedBy(-1 * cashDecimals);
+    xecBurnAmount = xecBurnAmount.shiftedBy(-1 * cashDecimals);
   }
   // Convert from BigNumber to string
-  const xpiAmountString = xpiAmount.toString();
-  const xpiBurnAmountString = xpiBurnAmount.toString();
+  const xecAmountString = xecAmount.toString();
+  const xecBurnAmountString = xecBurnAmount.toString();
 
   // Convert messageHex to string
   const theOtherAddress = incoming ? replyAddress : destinationAddress;
@@ -416,9 +398,9 @@ export const parseChronikTx = async (
     theOtherAddress &&
     otherPublicKey &&
     wallet &&
-    wallet.walletStatus &&
-    wallet.walletStatus.slpBalancesAndUtxos &&
-    wallet.walletStatus.slpBalancesAndUtxos.nonSlpUtxos[0]
+    wallet.walletStatusNode &&
+    wallet.walletStatusNode.slpBalancesAndUtxos &&
+    wallet.walletStatusNode.slpBalancesAndUtxos.nonSlpUtxos[0]
   ) {
     const fundingWif = selectedWallet.fundingWif;
     const decryption = await decryptOpReturnMsg(messageHex, fundingWif, otherPublicKey);
@@ -430,9 +412,9 @@ export const parseChronikTx = async (
       opReturnMessage = 'Error in decrypting message!';
     }
   }
-  const parsedTx: ParsedChronikTx = {
+  const parsedTx: ParsedChronikTx_InNode = {
     incoming,
-    xpiAmount: xpiAmountString,
+    xecAmount: xecAmountString,
     originatingHash160,
     opReturnMessage,
     isLotusMessage,
@@ -442,7 +424,7 @@ export const parseChronikTx = async (
     destinationAddress,
     isBurn,
     burnInfo: isBurn && parseBurnResult,
-    xpiBurnAmount: xpiBurnAmountString
+    xecBurnAmount: xecBurnAmountString
   };
   return parsedTx;
 };
@@ -453,7 +435,7 @@ export const getTxHistoryChronik = async (
   wallet: WalletState,
   pageNumber = 0,
   coin = COIN.XPI
-): Promise<{ chronikTxHistory: Array<Tx_InNode & { parsed: ParsedChronikTx }> }> => {
+): Promise<{ chronikTxHistory: Array<Tx_InNode & { parsed: ParsedChronikTx_InNode }> }> => {
   // Create array txHistory with selectedPath
   const walletPathSelected = getSelectedWalletPathFromWalletState(wallet);
 
@@ -476,12 +458,12 @@ export const getTxHistoryChronik = async (
   const sortedTxHistoryArray = sortAndTrimChronikTxHistory(txHistoryOfAllAddresses.txs, TX_HISTORY_COUNT);
 
   // Parse txs
-  const chronikTxHistory: Array<Tx_InNode & { parsed: ParsedChronikTx }> = [];
+  const chronikTxHistory: Array<Tx_InNode & { parsed: ParsedChronikTx_InNode }> = [];
   for (let i = 0; i < sortedTxHistoryArray.length; i += 1) {
     const sortedTx: any = sortedTxHistoryArray[i];
     // Add token genesis info so parsing function can calculate amount by decimals
-    sortedTx.parsed = await parseChronikTx(XPI, chronik, sortedTx, wallet, coin);
-    chronikTxHistory.push(sortedTx as Tx_InNode & { parsed: ParsedChronikTx });
+    sortedTx.parsed = await parseChronikTx_InNode(XPI, chronik, sortedTx, wallet, coin);
+    chronikTxHistory.push(sortedTx as Tx_InNode & { parsed: ParsedChronikTx_InNode });
   }
 
   return {

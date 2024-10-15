@@ -1,7 +1,7 @@
 import BCHJS from '@bcpros/xpi-js';
 import { WalletContextNodeValue } from '../context/index';
 import { useSliceDispatch, useSliceSelector } from '@store/index';
-import { xpiReceivedNotificationWebSocket } from '@store/notification/actions';
+import { xecReceivedNotificationWebSocket } from '@store/notification/actions';
 import {
   WalletPathAddressInfo,
   WalletState,
@@ -22,7 +22,12 @@ import {
   writeWalletStatusNode
 } from '@store/wallet';
 import { getHashArrayFromWallet, getWalletBalanceFromUtxos } from '../utils/cashMethodsNode';
-import { getTxHistoryChronik, getUtxosChronik, organizeUtxosByType, parseChronikTx } from '../utils/chronik-node';
+import {
+  getTxHistoryChronik,
+  getUtxosChronik,
+  organizeUtxosByType,
+  parseChronikTx_InNode
+} from '../utils/chronik-node';
 import isEqualIgnoreUndefined from '../utils/comparision';
 import { ChronikClientNode, MsgTxClient, Tx_InNode, Utxo_InNode, WsEndpoint_InNode, WsMsgClient } from 'chronik-client';
 import _ from 'lodash';
@@ -245,11 +250,11 @@ export const useWalletNode = () => {
     }
 
     // parse tx for notification
-    const parsedChronikTx = await parseChronikTx(XPI, chronik, incomingTxDetails, wallet);
+    const parsedChronikTx = await parseChronikTx_InNode(XPI, chronik, incomingTxDetails, wallet);
 
     if (parsedChronikTx && parsedChronikTx.incoming) {
       // Notification
-      dispatch(xpiReceivedNotificationWebSocket(parsedChronikTx.xpiAmount));
+      dispatch(xecReceivedNotificationWebSocket(parsedChronikTx.xecAmount));
     }
   };
 

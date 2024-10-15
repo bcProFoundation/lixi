@@ -27,6 +27,7 @@ export const receiveNotification = createAction<NotificationDto>('notification/r
 
 export const sendCoinNotification = createAction<string>('notification/sendCoinNotification');
 export const xpiReceivedNotificationWebSocket = createAction<string>('notification/xpiReceivedNotificationWebSocket');
+export const xecReceivedNotificationWebSocket = createAction<string>('notification/xecReceivedNotificationWebSocket');
 
 export const readAllNotifications = createAction<{
   accountId: number;
