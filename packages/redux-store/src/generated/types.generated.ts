@@ -52,6 +52,7 @@ export type Account = {
   publicKey?: Maybe<Scalars['String']['output']>;
   rankNumber?: Maybe<Scalars['Int']['output']>;
   rankScore?: Maybe<Scalars['Int']['output']>;
+  role: Role;
   rootCoin?: Maybe<Coin>;
   secondaryLanguage?: Maybe<Scalars['String']['output']>;
   secret?: Maybe<Scalars['String']['output']>;
@@ -2350,6 +2351,13 @@ export type RepostInput = {
   postId: Scalars['String']['input'];
   txHex?: InputMaybe<Scalars['String']['input']>;
 };
+
+/** The role of account. */
+export enum Role {
+  Arbitrator = 'ARBITRATOR',
+  Moderator = 'MODERATOR',
+  User = 'USER'
+}
 
 export type State = {
   __typename?: 'State';

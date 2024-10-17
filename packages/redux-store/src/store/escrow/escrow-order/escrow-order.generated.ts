@@ -111,6 +111,7 @@ export type GetModeratorAccountQuery = {
     rankScore?: number | null;
     telegramId?: string | null;
     telegramUsername?: string | null;
+    role: Types.Role;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -156,6 +157,7 @@ export type GetRandomArbitratorAccountQuery = {
     rankScore?: number | null;
     telegramId?: string | null;
     telegramUsername?: string | null;
+    role: Types.Role;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
