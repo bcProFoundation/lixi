@@ -5,6 +5,12 @@ export enum AccountType {
   NONCUSTODIAL = 'NONCUSTODIAL'
 }
 
+export enum Role {
+  USER = 'USER',
+  ARBITRATOR = 'ARBITRATOR',
+  MODERATOR = 'MODERATOR'
+}
+
 export type GenerateAccountType = {
   coin?: COIN;
   telegramId?: string;

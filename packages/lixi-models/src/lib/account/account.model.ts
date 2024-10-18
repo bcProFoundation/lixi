@@ -2,6 +2,7 @@ import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
+import { AccountType, Role } from '../../constants/account';
 import { COIN } from '../../constants/coins/coin';
 import { Message } from '../message/message.model';
 import { PageMessageSession } from '../message/pageMessageSession.model';
@@ -9,7 +10,6 @@ import { Nullable } from '../nullable';
 import { Page } from '../page/page.model';
 
 import { AccountDana } from './account-dana.model';
-import { AccountType } from '../../constants/account';
 
 @ObjectType()
 export class Account {
@@ -136,10 +136,18 @@ export class Account {
   @IsOptional()
   telegramUsername?: Nullable<string>;
 
+  @Field(() => Role)
+  role: Role;
+
   constructor(partial: Partial<Account>) {
     Object.assign(this, partial);
   }
 }
+
+registerEnumType(Role, {
+  name: 'Role',
+  description: 'The role of account.'
+});
 
 registerEnumType(COIN, {
   name: 'Coin',

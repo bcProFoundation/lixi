@@ -1,4 +1,4 @@
-import { AccountType, Post } from '@bcpros/lixi-models';
+import { AccountType, Post, Role } from '@bcpros/lixi-models';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { decode, encode } from '@msgpack/msgpack';
 import { Logger } from '@nestjs/common';
@@ -34,6 +34,7 @@ export class PostCacheService {
         ...dbValue,
         account: {
           ...dbValue.account,
+          role: dbValue?.account.role as Role,
           hash160: dbValue?.account.hash160.toString('hex'),
           accountType: dbValue?.account.accountType as AccountType
         }
@@ -84,6 +85,7 @@ export class PostCacheService {
           ...dbValue,
           account: {
             ...dbValue.account,
+            role: dbValue?.account.role as Role,
             hash160: dbValue?.account.hash160.toString('hex'),
             accountType: dbValue?.account.accountType as AccountType
           }
