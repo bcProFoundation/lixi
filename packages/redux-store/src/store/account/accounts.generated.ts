@@ -45,6 +45,7 @@ export type AccountQuery = {
     rankScore?: number | null;
     telegramId?: string | null;
     telegramUsername?: string | null;
+    role: Types.Role;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -92,6 +93,7 @@ export type GetAccountByAddressQuery = {
     rankScore?: number | null;
     telegramId?: string | null;
     telegramUsername?: string | null;
+    role: Types.Role;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -147,6 +149,7 @@ export type AllFollowersByPageQuery = {
         rankScore?: number | null;
         telegramId?: string | null;
         telegramUsername?: string | null;
+        role: Types.Role;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -205,6 +208,7 @@ export type AllFollowersByTokenQuery = {
         rankScore?: number | null;
         telegramId?: string | null;
         telegramUsername?: string | null;
+        role: Types.Role;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -262,6 +266,7 @@ export type AccountsQuery = {
         rankScore?: number | null;
         telegramId?: string | null;
         telegramUsername?: string | null;
+        role: Types.Role;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -321,6 +326,7 @@ export type TopWeekAccountsQuery = {
         rankScore?: number | null;
         telegramId?: string | null;
         telegramUsername?: string | null;
+        role: Types.Role;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -380,6 +386,7 @@ export type TopMonthAccountsQuery = {
         rankScore?: number | null;
         telegramId?: string | null;
         telegramUsername?: string | null;
+        role: Types.Role;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -424,6 +431,7 @@ export type AccountFieldsFragment = {
   rankScore?: number | null;
   telegramId?: string | null;
   telegramUsername?: string | null;
+  role: Types.Role;
   pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
   accountDana?: {
     __typename?: 'AccountDana';
@@ -470,6 +478,7 @@ export type UpdateAccountMutation = {
     rankScore?: number | null;
     telegramId?: string | null;
     telegramUsername?: string | null;
+    role: Types.Role;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -518,6 +527,7 @@ export type UpdateAccountTelegramUsernameMutation = {
     rankScore?: number | null;
     telegramId?: string | null;
     telegramUsername?: string | null;
+    role: Types.Role;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -573,6 +583,7 @@ export const AccountFieldsFragmentDoc = `
   }
   telegramId
   telegramUsername
+  role
 }
     `;
 export const AccountDocument = `

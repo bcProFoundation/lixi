@@ -1,4 +1,4 @@
-import { Account, POST_FLAG, Repost, UploadDetail, AccountType } from '@bcpros/lixi-models';
+import { Account, POST_FLAG, Repost, UploadDetail, AccountType, Role } from '@bcpros/lixi-models';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
@@ -152,6 +152,7 @@ export default class PostLoader {
             ...item,
             account: {
               ...item.account,
+              role: item?.account.role as Role,
               hash160: item?.account.hash160.toString('hex'),
               accountType: item?.account.accountType as AccountType
             }

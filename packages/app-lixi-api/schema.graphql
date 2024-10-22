@@ -34,6 +34,7 @@ type Account {
   publicKey: String
   rankNumber: Int
   rankScore: Int
+  role: Role!
   rootCoin: Coin
   secondaryLanguage: String
   secret: String
@@ -1657,6 +1658,13 @@ input RepostInput {
   accountId: Int!
   postId: String!
   txHex: String
+}
+
+"""The role of account."""
+enum Role {
+  ARBITRATOR
+  MODERATOR
+  USER
 }
 
 type State {

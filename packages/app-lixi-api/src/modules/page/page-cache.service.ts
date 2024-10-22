@@ -7,7 +7,7 @@ import _ from 'lodash';
 import { CloudflareConfig } from '../../config/config.interface';
 import { PrismaService } from '../prisma/prisma.service';
 import { toImageUrl } from './page.utils';
-import { AccountType, Page } from '@bcpros/lixi-models';
+import { AccountType, Page, Role } from '@bcpros/lixi-models';
 
 export class PageCacheService {
   private logger: Logger = new Logger(this.constructor.name);
@@ -61,6 +61,7 @@ export class PageCacheService {
         countryName: dbValue.country?.name || '',
         pageAccount: {
           ...dbValue.pageAccount,
+          role: dbValue?.pageAccount.role as Role,
           hash160: dbValue?.pageAccount.hash160.toString('hex'),
           accountType: dbValue?.pageAccount.accountType as AccountType
         }
@@ -126,6 +127,7 @@ export class PageCacheService {
             countryName: dbValue.country?.name || '',
             pageAccount: {
               ...dbValue.pageAccount,
+              role: dbValue?.pageAccount.role as Role,
               hash160: dbValue?.pageAccount.hash160.toString('hex'),
               accountType: dbValue?.pageAccount.accountType as AccountType
             }

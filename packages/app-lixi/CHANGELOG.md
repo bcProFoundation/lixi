@@ -1,5 +1,13 @@
 # @bcpros/app-lixi
 
+## 1.1.23
+
+### Patch Changes
+
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.24
+  - @bcpros/redux-store@1.2.24
+
 ## 1.1.22
 
 ### Patch Changes
