@@ -1,0 +1,12 @@
+query GetFiatRate {
+  getFiatRate {
+    currency
+    fiatRates {
+      coin
+      rates {
+        ts
+        rate
+      }
+    }
+  }
+}

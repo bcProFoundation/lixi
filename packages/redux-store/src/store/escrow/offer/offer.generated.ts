@@ -27,6 +27,9 @@ export type OfferQuery = {
     publicKey: string;
     message: string;
     price: string;
+    coinPayment?: string | null;
+    marginPercentage: number;
+    localCurrency?: string | null;
     orderLimitMin: number;
     orderLimitMax: number;
     status: Types.OfferStatus;
@@ -37,7 +40,7 @@ export type OfferQuery = {
       paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
     }>;
     state?: { __typename?: 'State'; name?: string | null } | null;
-    country?: { __typename?: 'Country'; name: string } | null;
+    country?: { __typename?: 'Country'; name?: string | null } | null;
   };
 };
 
@@ -76,7 +79,7 @@ export type AllOfferQuery = {
                   __typename?: 'Offer';
                   message: string;
                   createdAt: any;
-                  country?: { __typename?: 'Country'; name: string } | null;
+                  country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
                 };
               };
@@ -91,8 +94,9 @@ export type AllOfferQuery = {
               releaseTxid?: string | null;
               returnTxid?: string | null;
               buyerDepositTx?: string | null;
-              price: number;
+              price: string;
               amount: number;
+              amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
               escrowOrderStatus: Types.EscrowOrderStatus;
@@ -129,7 +133,13 @@ export type AllOfferQuery = {
                 telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-              escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
+              escrowOffer: {
+                __typename?: 'Offer';
+                postId: string;
+                message: string;
+                coinPayment?: string | null;
+                localCurrency?: string | null;
+              };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
@@ -251,6 +261,9 @@ export type AllOfferQuery = {
                 publicKey: string;
                 message: string;
                 price: string;
+                coinPayment?: string | null;
+                marginPercentage: number;
+                localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
@@ -261,7 +274,7 @@ export type AllOfferQuery = {
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
                 state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name: string } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -306,7 +319,7 @@ export type OfferByFilterQuery = {
                   __typename?: 'Offer';
                   message: string;
                   createdAt: any;
-                  country?: { __typename?: 'Country'; name: string } | null;
+                  country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
                 };
               };
@@ -321,8 +334,9 @@ export type OfferByFilterQuery = {
               releaseTxid?: string | null;
               returnTxid?: string | null;
               buyerDepositTx?: string | null;
-              price: number;
+              price: string;
               amount: number;
+              amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
               escrowOrderStatus: Types.EscrowOrderStatus;
@@ -359,7 +373,13 @@ export type OfferByFilterQuery = {
                 telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-              escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
+              escrowOffer: {
+                __typename?: 'Offer';
+                postId: string;
+                message: string;
+                coinPayment?: string | null;
+                localCurrency?: string | null;
+              };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
@@ -481,6 +501,9 @@ export type OfferByFilterQuery = {
                 publicKey: string;
                 message: string;
                 price: string;
+                coinPayment?: string | null;
+                marginPercentage: number;
+                localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
@@ -491,7 +514,7 @@ export type OfferByFilterQuery = {
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
                 state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name: string } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -536,7 +559,7 @@ export type AllOfferByAccountQuery = {
                   __typename?: 'Offer';
                   message: string;
                   createdAt: any;
-                  country?: { __typename?: 'Country'; name: string } | null;
+                  country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
                 };
               };
@@ -551,8 +574,9 @@ export type AllOfferByAccountQuery = {
               releaseTxid?: string | null;
               returnTxid?: string | null;
               buyerDepositTx?: string | null;
-              price: number;
+              price: string;
               amount: number;
+              amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
               escrowOrderStatus: Types.EscrowOrderStatus;
@@ -589,7 +613,13 @@ export type AllOfferByAccountQuery = {
                 telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-              escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
+              escrowOffer: {
+                __typename?: 'Offer';
+                postId: string;
+                message: string;
+                coinPayment?: string | null;
+                localCurrency?: string | null;
+              };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
@@ -711,6 +741,9 @@ export type AllOfferByAccountQuery = {
                 publicKey: string;
                 message: string;
                 price: string;
+                coinPayment?: string | null;
+                marginPercentage: number;
+                localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
@@ -721,7 +754,7 @@ export type AllOfferByAccountQuery = {
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
                 state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name: string } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -842,6 +875,9 @@ export type CreateOfferMutation = {
       publicKey: string;
       message: string;
       price: string;
+      coinPayment?: string | null;
+      marginPercentage: number;
+      localCurrency?: string | null;
       orderLimitMin: number;
       orderLimitMax: number;
       status: Types.OfferStatus;
@@ -852,7 +888,7 @@ export type CreateOfferMutation = {
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
       }>;
       state?: { __typename?: 'State'; name?: string | null } | null;
-      country?: { __typename?: 'Country'; name: string } | null;
+      country?: { __typename?: 'Country'; name?: string | null } | null;
     } | null;
   };
 };

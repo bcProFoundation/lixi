@@ -7,7 +7,7 @@ import _ from 'lodash';
 import { PrismaService } from '../../prisma/prisma.service';
 import { basicSortedSetPagination } from 'src/common/custom-graphql-relay/paginate';
 import { Prisma } from '@bcpros/lixi-prisma';
-import { epoch } from 'src/utils/constants';
+import { currency, epoch } from 'src/utils/constants';
 import { template } from 'src/utils/stringTemplate';
 import stringify from 'json-stable-stringify';
 import { IndexNameOffer } from '../escrow.contants';
@@ -312,7 +312,7 @@ export class OfferCacheService {
   ) {
     try {
       const reSearch = new ReSearch(this.redis);
-      const { countryId, stateId, paymentMethodIds } = offerFilterInput;
+      const { countryId, stateId, paymentMethodIds, coin, fiatCurrency } = offerFilterInput;
       let keyPaymentMethods = '';
       let totalKeyPaymentMethods = 0;
       //get cache payment-methods
@@ -355,6 +355,24 @@ export class OfferCacheService {
 
         totalKeyInter += 1;
         multiSetInter.push(`offer:state:{${stateId}}`);
+      }
+      if (coin) {
+        //check key stateId
+        const keyCoin = `offer:coin:{${coin}}`;
+        const existKeyCoin = await this.redis.exists([keyCoin]);
+        if (!existKeyCoin) await this.cacheOfferCoin(coin);
+
+        totalKeyInter += 1;
+        multiSetInter.push(`offer:coin:{${coin}}`);
+      }
+      if (fiatCurrency) {
+        //check key stateId
+        const keyCurrency = `offer:currency:{${currency}}`;
+        const existKeyCurrency = await this.redis.exists([keyCurrency]);
+        if (!existKeyCurrency) await this.cacheOfferCurrency(fiatCurrency);
+
+        totalKeyInter += 1;
+        multiSetInter.push(`offer:currency:{${fiatCurrency}}`);
       }
       if (totalKeyPaymentMethods !== 0) {
         //means have >2
@@ -448,6 +466,86 @@ export class OfferCacheService {
         boost.boost_for_type = ${postBoostType} 
         AND boost.boosted_value > 0
         AND offer.state_id = ${stateId}
+      GROUP BY
+        offer.post_id
+      ORDER by
+        score desc
+    ;`;
+    try {
+      const posts = await this.prisma.$queryRaw<{ post_id: string; score: number }[]>(query);
+
+      // Check if there are any posts
+      // If not means that we should not need to query anymore
+      if (posts.length == 0) return false;
+      const pipeline = this.redis.pipeline();
+      for (const post of posts) {
+        const id = `${POST_TYPE.OFFER}:${post.post_id}`;
+        pipeline.zincrby(key, post.score ?? 0, id);
+      }
+      await pipeline.exec();
+      return true;
+    } catch (err) {
+      this.logger.error(err);
+    }
+  }
+
+  private async cacheOfferCoin(coin: string) {
+    const key = `offer:coin:{${coin}}`;
+    const postBoostType = BoostForType.Post;
+    const halfLife = '12 hours';
+    const query = Prisma.sql`
+      SELECT
+        offer.post_id,
+        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value)) AS score 
+      FROM
+        offer 
+        JOIN
+            boost_fee as boost 
+            ON offer.post_id = boost.boosted_for_id
+      WHERE
+        boost.boost_for_type = ${postBoostType} 
+        AND boost.boosted_value > 0
+        AND offer.coin_payment = ${coin}
+      GROUP BY
+        offer.post_id
+      ORDER by
+        score desc
+    ;`;
+    try {
+      const posts = await this.prisma.$queryRaw<{ post_id: string; score: number }[]>(query);
+
+      // Check if there are any posts
+      // If not means that we should not need to query anymore
+      if (posts.length == 0) return false;
+      const pipeline = this.redis.pipeline();
+      for (const post of posts) {
+        const id = `${POST_TYPE.OFFER}:${post.post_id}`;
+        pipeline.zincrby(key, post.score ?? 0, id);
+      }
+      await pipeline.exec();
+      return true;
+    } catch (err) {
+      this.logger.error(err);
+    }
+  }
+
+  private async cacheOfferCurrency(currency: string) {
+    const key = `offer:currency:{${currency}}`;
+    const postBoostType = BoostForType.Post;
+    const halfLife = '12 hours';
+    const query = Prisma.sql`
+      SELECT
+        offer.post_id,
+        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value)) AS score 
+      FROM
+        offer 
+        JOIN
+            boost_fee as boost 
+            ON offer.post_id = boost.boosted_for_id
+      WHERE
+        boost.boost_for_type = ${postBoostType} 
+        AND boost.boosted_value > 0
+        AND offer.local_currency = ${currency}
       GROUP BY
         offer.post_id
       ORDER by

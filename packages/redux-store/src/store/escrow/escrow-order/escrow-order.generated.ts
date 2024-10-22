@@ -31,8 +31,9 @@ export type EscrowOrderQuery = {
     releaseTxid?: string | null;
     returnTxid?: string | null;
     buyerDepositTx?: string | null;
-    price: number;
+    price: string;
     amount: number;
+    amountCoinOrCurrency: number;
     createdAt: any;
     updatedAt: any;
     escrowOrderStatus: Types.EscrowOrderStatus;
@@ -69,7 +70,13 @@ export type EscrowOrderQuery = {
       telegramUsername?: string | null;
     };
     paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-    escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
+    escrowOffer: {
+      __typename?: 'Offer';
+      postId: string;
+      message: string;
+      coinPayment?: string | null;
+      localCurrency?: string | null;
+    };
     escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
     dispute?: {
       __typename?: 'Dispute';
@@ -207,7 +214,7 @@ export type AllEscrowOrderByAccountQuery = {
                   __typename?: 'Offer';
                   message: string;
                   createdAt: any;
-                  country?: { __typename?: 'Country'; name: string } | null;
+                  country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
                 };
               };
@@ -222,8 +229,9 @@ export type AllEscrowOrderByAccountQuery = {
               releaseTxid?: string | null;
               returnTxid?: string | null;
               buyerDepositTx?: string | null;
-              price: number;
+              price: string;
               amount: number;
+              amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
               escrowOrderStatus: Types.EscrowOrderStatus;
@@ -260,7 +268,13 @@ export type AllEscrowOrderByAccountQuery = {
                 telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-              escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
+              escrowOffer: {
+                __typename?: 'Offer';
+                postId: string;
+                message: string;
+                coinPayment?: string | null;
+                localCurrency?: string | null;
+              };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
@@ -382,6 +396,9 @@ export type AllEscrowOrderByAccountQuery = {
                 publicKey: string;
                 message: string;
                 price: string;
+                coinPayment?: string | null;
+                marginPercentage: number;
+                localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
@@ -392,7 +409,7 @@ export type AllEscrowOrderByAccountQuery = {
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
                 state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name: string } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -437,7 +454,7 @@ export type AllEscrowOrderByOfferIdQuery = {
                   __typename?: 'Offer';
                   message: string;
                   createdAt: any;
-                  country?: { __typename?: 'Country'; name: string } | null;
+                  country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
                 };
               };
@@ -452,8 +469,9 @@ export type AllEscrowOrderByOfferIdQuery = {
               releaseTxid?: string | null;
               returnTxid?: string | null;
               buyerDepositTx?: string | null;
-              price: number;
+              price: string;
               amount: number;
+              amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
               escrowOrderStatus: Types.EscrowOrderStatus;
@@ -490,7 +508,13 @@ export type AllEscrowOrderByOfferIdQuery = {
                 telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-              escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
+              escrowOffer: {
+                __typename?: 'Offer';
+                postId: string;
+                message: string;
+                coinPayment?: string | null;
+                localCurrency?: string | null;
+              };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
@@ -612,6 +636,9 @@ export type AllEscrowOrderByOfferIdQuery = {
                 publicKey: string;
                 message: string;
                 price: string;
+                coinPayment?: string | null;
+                marginPercentage: number;
+                localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
@@ -622,7 +649,7 @@ export type AllEscrowOrderByOfferIdQuery = {
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
                 state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name: string } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -663,7 +690,7 @@ export type UpdateEscrowOrderStatusMutation = {
     __typename?: 'EscrowOrder';
     id: string;
     message?: string | null;
-    price: number;
+    price: string;
     amount: number;
     status: Types.EscrowOrderStatus;
     createdAt: any;

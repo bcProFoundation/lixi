@@ -1,4 +1,4 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, Float, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
 import { COIN } from '../../../constants/coins/coin';
@@ -14,6 +14,15 @@ export class CreateOfferInput {
   @Field(() => String)
   @IsNotEmpty()
   price: string;
+
+  @Field(() => String, { nullable: true })
+  coinPayment?: Nullable<string>;
+
+  @Field(() => Float)
+  marginPercentage: number;
+
+  @Field(() => String, { nullable: true })
+  localCurrency?: Nullable<string>;
 
   @Field(() => COIN)
   coin: COIN;

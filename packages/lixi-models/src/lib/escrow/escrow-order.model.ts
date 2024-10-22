@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, Float, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
@@ -51,11 +51,14 @@ export class EscrowOrder {
   @Field(() => String, { nullable: true })
   message?: Nullable<string>;
 
-  @Field(() => Number)
-  price: number;
+  @Field(() => String)
+  price: string;
 
-  @Field(() => Number)
+  @Field(() => Float)
   amount: number;
+
+  @Field(() => Float)
+  amountCoinOrCurrency: number;
 
   @Field(() => Offer)
   offer: Offer;

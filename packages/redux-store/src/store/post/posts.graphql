@@ -288,6 +288,9 @@ fragment OfferFields on Offer {
   publicKey
   message
   price
+  coinPayment
+  marginPercentage
+  localCurrency
   orderLimitMin
   orderLimitMax
   paymentMethods {

@@ -138,7 +138,7 @@ export class DisputeCacheService {
             },
             where: {
               escrowOrder: {
-                OR: [{ buyerAccountId: accountId }, { sellerAccountId: accountId }]
+                OR: [{ arbitratorAccountId: accountId }, { moderatorAccountId: accountId }]
               },
               status: disputeStatus
             },
@@ -156,7 +156,7 @@ export class DisputeCacheService {
             },
             where: {
               escrowOrder: {
-                OR: [{ buyerAccountId: accountId }, { sellerAccountId: accountId }]
+                OR: [{ arbitratorAccountId: accountId }, { moderatorAccountId: accountId }]
               },
               status: disputeStatus
             },

@@ -10,5 +10,7 @@ export * from './escrow-order/useInfiniteEscrowOrderByOfferIdQuery ';
 export * as disputeApi from './dispute/dispute.api';
 export * from './dispute/useInfiniteMyDisputeQuery';
 
+export * as fiatCurrencyApi from './fiat-currency/fiat-currency.api';
+
 export * from './action';
 export * from './saga';

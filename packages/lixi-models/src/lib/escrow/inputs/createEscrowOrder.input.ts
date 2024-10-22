@@ -1,4 +1,4 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, Float, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 import { Nullable } from '../../nullable';
 import { UtxoInNodeInput } from '../../utxo/input/utxo-inNode.input';
@@ -37,13 +37,17 @@ export class CreateEscrowOrderInput {
   @IsOptional()
   message?: string;
 
-  @Field(() => Number)
+  @Field(() => String)
   @IsNotEmpty()
-  price: number;
+  price: string;
 
-  @Field(() => Number)
+  @Field(() => Float)
   @IsNotEmpty()
   amount: number;
+
+  @Field(() => Float)
+  @IsNotEmpty()
+  amountCoinOrCurrency: number;
 
   @Field(() => String, { nullable: true })
   @IsOptional()

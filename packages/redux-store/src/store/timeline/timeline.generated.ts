@@ -24,8 +24,9 @@ export type EscrowOrderFieldsFragment = {
   releaseTxid?: string | null;
   returnTxid?: string | null;
   buyerDepositTx?: string | null;
-  price: number;
+  price: string;
   amount: number;
+  amountCoinOrCurrency: number;
   createdAt: any;
   updatedAt: any;
   escrowOrderStatus: Types.EscrowOrderStatus;
@@ -62,7 +63,13 @@ export type EscrowOrderFieldsFragment = {
     telegramUsername?: string | null;
   };
   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-  escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
+  escrowOffer: {
+    __typename?: 'Offer';
+    postId: string;
+    message: string;
+    coinPayment?: string | null;
+    localCurrency?: string | null;
+  };
   escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
   dispute?: {
     __typename?: 'Dispute';
@@ -91,7 +98,7 @@ export type DisputeFieldsFragment = {
       __typename?: 'Offer';
       message: string;
       createdAt: any;
-      country?: { __typename?: 'Country'; name: string } | null;
+      country?: { __typename?: 'Country'; name?: string | null } | null;
       state?: { __typename?: 'State'; name?: string | null } | null;
     };
   };
@@ -119,7 +126,7 @@ export type TimelineItemFieldsFragment = {
             __typename?: 'Offer';
             message: string;
             createdAt: any;
-            country?: { __typename?: 'Country'; name: string } | null;
+            country?: { __typename?: 'Country'; name?: string | null } | null;
             state?: { __typename?: 'State'; name?: string | null } | null;
           };
         };
@@ -134,8 +141,9 @@ export type TimelineItemFieldsFragment = {
         releaseTxid?: string | null;
         returnTxid?: string | null;
         buyerDepositTx?: string | null;
-        price: number;
+        price: string;
         amount: number;
+        amountCoinOrCurrency: number;
         createdAt: any;
         updatedAt: any;
         escrowOrderStatus: Types.EscrowOrderStatus;
@@ -172,7 +180,13 @@ export type TimelineItemFieldsFragment = {
           telegramUsername?: string | null;
         };
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-        escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
+        escrowOffer: {
+          __typename?: 'Offer';
+          postId: string;
+          message: string;
+          coinPayment?: string | null;
+          localCurrency?: string | null;
+        };
         escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
         dispute?: {
           __typename?: 'Dispute';
@@ -288,6 +302,9 @@ export type TimelineItemFieldsFragment = {
           publicKey: string;
           message: string;
           price: string;
+          coinPayment?: string | null;
+          marginPercentage: number;
+          localCurrency?: string | null;
           orderLimitMin: number;
           orderLimitMax: number;
           status: Types.OfferStatus;
@@ -298,7 +315,7 @@ export type TimelineItemFieldsFragment = {
             paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
           state?: { __typename?: 'State'; name?: string | null } | null;
-          country?: { __typename?: 'Country'; name: string } | null;
+          country?: { __typename?: 'Country'; name?: string | null } | null;
         } | null;
       };
 };
@@ -331,7 +348,7 @@ export type TimelineQuery = {
               __typename?: 'Offer';
               message: string;
               createdAt: any;
-              country?: { __typename?: 'Country'; name: string } | null;
+              country?: { __typename?: 'Country'; name?: string | null } | null;
               state?: { __typename?: 'State'; name?: string | null } | null;
             };
           };
@@ -346,8 +363,9 @@ export type TimelineQuery = {
           releaseTxid?: string | null;
           returnTxid?: string | null;
           buyerDepositTx?: string | null;
-          price: number;
+          price: string;
           amount: number;
+          amountCoinOrCurrency: number;
           createdAt: any;
           updatedAt: any;
           escrowOrderStatus: Types.EscrowOrderStatus;
@@ -384,7 +402,13 @@ export type TimelineQuery = {
             telegramUsername?: string | null;
           };
           paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-          escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
+          escrowOffer: {
+            __typename?: 'Offer';
+            postId: string;
+            message: string;
+            coinPayment?: string | null;
+            localCurrency?: string | null;
+          };
           escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
           dispute?: {
             __typename?: 'Dispute';
@@ -500,6 +524,9 @@ export type TimelineQuery = {
             publicKey: string;
             message: string;
             price: string;
+            coinPayment?: string | null;
+            marginPercentage: number;
+            localCurrency?: string | null;
             orderLimitMin: number;
             orderLimitMax: number;
             status: Types.OfferStatus;
@@ -510,7 +537,7 @@ export type TimelineQuery = {
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
             state?: { __typename?: 'State'; name?: string | null } | null;
-            country?: { __typename?: 'Country'; name: string } | null;
+            country?: { __typename?: 'Country'; name?: string | null } | null;
           } | null;
         };
   };
@@ -552,7 +579,7 @@ export type HomeTimelineQuery = {
                   __typename?: 'Offer';
                   message: string;
                   createdAt: any;
-                  country?: { __typename?: 'Country'; name: string } | null;
+                  country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
                 };
               };
@@ -567,8 +594,9 @@ export type HomeTimelineQuery = {
               releaseTxid?: string | null;
               returnTxid?: string | null;
               buyerDepositTx?: string | null;
-              price: number;
+              price: string;
               amount: number;
+              amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
               escrowOrderStatus: Types.EscrowOrderStatus;
@@ -605,7 +633,13 @@ export type HomeTimelineQuery = {
                 telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-              escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
+              escrowOffer: {
+                __typename?: 'Offer';
+                postId: string;
+                message: string;
+                coinPayment?: string | null;
+                localCurrency?: string | null;
+              };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
@@ -727,6 +761,9 @@ export type HomeTimelineQuery = {
                 publicKey: string;
                 message: string;
                 price: string;
+                coinPayment?: string | null;
+                marginPercentage: number;
+                localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
@@ -737,7 +774,7 @@ export type HomeTimelineQuery = {
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
                 state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name: string } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -782,7 +819,7 @@ export type ProfileTimelineQuery = {
                   __typename?: 'Offer';
                   message: string;
                   createdAt: any;
-                  country?: { __typename?: 'Country'; name: string } | null;
+                  country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
                 };
               };
@@ -797,8 +834,9 @@ export type ProfileTimelineQuery = {
               releaseTxid?: string | null;
               returnTxid?: string | null;
               buyerDepositTx?: string | null;
-              price: number;
+              price: string;
               amount: number;
+              amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
               escrowOrderStatus: Types.EscrowOrderStatus;
@@ -835,7 +873,13 @@ export type ProfileTimelineQuery = {
                 telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-              escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
+              escrowOffer: {
+                __typename?: 'Offer';
+                postId: string;
+                message: string;
+                coinPayment?: string | null;
+                localCurrency?: string | null;
+              };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
@@ -957,6 +1001,9 @@ export type ProfileTimelineQuery = {
                 publicKey: string;
                 message: string;
                 price: string;
+                coinPayment?: string | null;
+                marginPercentage: number;
+                localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
@@ -967,7 +1014,7 @@ export type ProfileTimelineQuery = {
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
                 state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name: string } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -1013,7 +1060,7 @@ export type ProfileTimelineByTimeQuery = {
                   __typename?: 'Offer';
                   message: string;
                   createdAt: any;
-                  country?: { __typename?: 'Country'; name: string } | null;
+                  country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
                 };
               };
@@ -1028,8 +1075,9 @@ export type ProfileTimelineByTimeQuery = {
               releaseTxid?: string | null;
               returnTxid?: string | null;
               buyerDepositTx?: string | null;
-              price: number;
+              price: string;
               amount: number;
+              amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
               escrowOrderStatus: Types.EscrowOrderStatus;
@@ -1066,7 +1114,13 @@ export type ProfileTimelineByTimeQuery = {
                 telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-              escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
+              escrowOffer: {
+                __typename?: 'Offer';
+                postId: string;
+                message: string;
+                coinPayment?: string | null;
+                localCurrency?: string | null;
+              };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
@@ -1188,6 +1242,9 @@ export type ProfileTimelineByTimeQuery = {
                 publicKey: string;
                 message: string;
                 price: string;
+                coinPayment?: string | null;
+                marginPercentage: number;
+                localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
@@ -1198,7 +1255,7 @@ export type ProfileTimelineByTimeQuery = {
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
                 state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name: string } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -1243,7 +1300,7 @@ export type PageTimelineQuery = {
                   __typename?: 'Offer';
                   message: string;
                   createdAt: any;
-                  country?: { __typename?: 'Country'; name: string } | null;
+                  country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
                 };
               };
@@ -1258,8 +1315,9 @@ export type PageTimelineQuery = {
               releaseTxid?: string | null;
               returnTxid?: string | null;
               buyerDepositTx?: string | null;
-              price: number;
+              price: string;
               amount: number;
+              amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
               escrowOrderStatus: Types.EscrowOrderStatus;
@@ -1296,7 +1354,13 @@ export type PageTimelineQuery = {
                 telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-              escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
+              escrowOffer: {
+                __typename?: 'Offer';
+                postId: string;
+                message: string;
+                coinPayment?: string | null;
+                localCurrency?: string | null;
+              };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
@@ -1418,6 +1482,9 @@ export type PageTimelineQuery = {
                 publicKey: string;
                 message: string;
                 price: string;
+                coinPayment?: string | null;
+                marginPercentage: number;
+                localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
@@ -1428,7 +1495,7 @@ export type PageTimelineQuery = {
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
                 state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name: string } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -1474,7 +1541,7 @@ export type PageTimelineByTimeQuery = {
                   __typename?: 'Offer';
                   message: string;
                   createdAt: any;
-                  country?: { __typename?: 'Country'; name: string } | null;
+                  country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
                 };
               };
@@ -1489,8 +1556,9 @@ export type PageTimelineByTimeQuery = {
               releaseTxid?: string | null;
               returnTxid?: string | null;
               buyerDepositTx?: string | null;
-              price: number;
+              price: string;
               amount: number;
+              amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
               escrowOrderStatus: Types.EscrowOrderStatus;
@@ -1527,7 +1595,13 @@ export type PageTimelineByTimeQuery = {
                 telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-              escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
+              escrowOffer: {
+                __typename?: 'Offer';
+                postId: string;
+                message: string;
+                coinPayment?: string | null;
+                localCurrency?: string | null;
+              };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
@@ -1649,6 +1723,9 @@ export type PageTimelineByTimeQuery = {
                 publicKey: string;
                 message: string;
                 price: string;
+                coinPayment?: string | null;
+                marginPercentage: number;
+                localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
@@ -1659,7 +1736,7 @@ export type PageTimelineByTimeQuery = {
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
                 state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name: string } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -1704,7 +1781,7 @@ export type TokenTimelineQuery = {
                   __typename?: 'Offer';
                   message: string;
                   createdAt: any;
-                  country?: { __typename?: 'Country'; name: string } | null;
+                  country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
                 };
               };
@@ -1719,8 +1796,9 @@ export type TokenTimelineQuery = {
               releaseTxid?: string | null;
               returnTxid?: string | null;
               buyerDepositTx?: string | null;
-              price: number;
+              price: string;
               amount: number;
+              amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
               escrowOrderStatus: Types.EscrowOrderStatus;
@@ -1757,7 +1835,13 @@ export type TokenTimelineQuery = {
                 telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-              escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
+              escrowOffer: {
+                __typename?: 'Offer';
+                postId: string;
+                message: string;
+                coinPayment?: string | null;
+                localCurrency?: string | null;
+              };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
@@ -1879,6 +1963,9 @@ export type TokenTimelineQuery = {
                 publicKey: string;
                 message: string;
                 price: string;
+                coinPayment?: string | null;
+                marginPercentage: number;
+                localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
@@ -1889,7 +1976,7 @@ export type TokenTimelineQuery = {
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
                 state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name: string } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -1935,7 +2022,7 @@ export type TokenTimelineByTimeQuery = {
                   __typename?: 'Offer';
                   message: string;
                   createdAt: any;
-                  country?: { __typename?: 'Country'; name: string } | null;
+                  country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
                 };
               };
@@ -1950,8 +2037,9 @@ export type TokenTimelineByTimeQuery = {
               releaseTxid?: string | null;
               returnTxid?: string | null;
               buyerDepositTx?: string | null;
-              price: number;
+              price: string;
               amount: number;
+              amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
               escrowOrderStatus: Types.EscrowOrderStatus;
@@ -1988,7 +2076,13 @@ export type TokenTimelineByTimeQuery = {
                 telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-              escrowOffer: { __typename?: 'Offer'; postId: string; message: string };
+              escrowOffer: {
+                __typename?: 'Offer';
+                postId: string;
+                message: string;
+                coinPayment?: string | null;
+                localCurrency?: string | null;
+              };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
               dispute?: {
                 __typename?: 'Dispute';
@@ -2110,6 +2204,9 @@ export type TokenTimelineByTimeQuery = {
                 publicKey: string;
                 message: string;
                 price: string;
+                coinPayment?: string | null;
+                marginPercentage: number;
+                localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
@@ -2120,7 +2217,7 @@ export type TokenTimelineByTimeQuery = {
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
                 state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name: string } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -2168,6 +2265,8 @@ export const EscrowOrderFieldsFragmentDoc = `
   escrowOffer: offer {
     postId
     message
+    coinPayment
+    localCurrency
   }
   escrowScript
   escrowAddress
@@ -2188,6 +2287,7 @@ export const EscrowOrderFieldsFragmentDoc = `
   buyerDepositTx
   price
   amount
+  amountCoinOrCurrency
   escrowOrderStatus: status
   createdAt
   updatedAt

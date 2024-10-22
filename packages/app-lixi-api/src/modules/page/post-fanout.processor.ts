@@ -169,13 +169,24 @@ export class PostFanoutProcessor extends WorkerHost {
         });
 
         //add cache for country and state (offer:country:{countryId})
-        const keyCountry = `offer:country:{${post.offer?.country?.id}}`;
-        pipeline.zincrby(keyCountry, score, timelineId);
-
+        if (post.offer?.country?.id) {
+          const keyCountry = `offer:country:{${post.offer?.country?.id}}`;
+          pipeline.zincrby(keyCountry, score, timelineId);
+        }
         //state is optional (offer:state:{stateId})
         if (post.offer?.state?.id) {
           const keyState = `offer:state:{${post.offer.state.id}}`;
           pipeline.zincrby(keyState, score, timelineId);
+        }
+
+        if (post.offer?.coinPayment) {
+          const keyCoin = `offer:coin:{${post.offer.coinPayment}}`;
+          pipeline.zincrby(keyCoin, score, timelineId);
+        }
+
+        if (post.offer?.localCurrency) {
+          const keyCurrency = `offer:currency:{${post.offer.localCurrency}}`;
+          pipeline.zincrby(keyCurrency, score, timelineId);
         }
 
         //find item have countryId|stateId|{in payment-method} by search and add offer to it
@@ -186,13 +197,15 @@ export class PostFanoutProcessor extends WorkerHost {
           await reSearch.create(IndexNameOffer, true, ['1', 'docOffer:'], {
             countryId: 'TEXT',
             stateId: 'TEXT',
-            methods: 'TAG'
+            methods: 'TAG',
+            coin: 'TEXT',
+            currency: 'TEXT'
           });
         }
 
         //search item
         const methodIds = post?.offer?.paymentMethods?.map(item => item.paymentMethodId).join('|'); // 1|2|3
-        const queryItem = `@countryId:${post?.offer?.countryId}|@stateId:${post?.offer?.stateId}|@methods:{${methodIds}}`;
+        const queryItem = `@countryId:${post?.offer?.countryId}|@stateId:${post?.offer?.stateId}|@coin:${post?.offer?.coinPayment}|@currency:${post?.offer?.localCurrency}|@methods:{${methodIds}}`;
         const searchResult = await reSearch.search(IndexNameOffer, queryItem);
         //add item to search result
         if (searchResult.length > 0) {

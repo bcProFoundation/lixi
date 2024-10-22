@@ -458,7 +458,8 @@ export class EscrowOrderResolver {
         escrowAddress,
         nonce,
         buyerDepositTx,
-        utxoInProcess
+        utxoInProcess,
+        amountCoinOrCurrency
       } = data;
 
       const sellerAccount = await this.prisma.account.findUnique({
@@ -508,6 +509,7 @@ export class EscrowOrderResolver {
       const escrowOrder = await this.prisma.escrowOrder.create({
         data: {
           amount,
+          amountCoinOrCurrency,
           price,
           message,
           escrowAddress,

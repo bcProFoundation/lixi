@@ -57,7 +57,7 @@ export type TempleFieldsFragment = {
       height?: number | null;
     };
   } | null;
-  country?: { __typename?: 'Country'; id: string; name: string } | null;
+  country?: { __typename?: 'Country'; id: string; name?: string | null } | null;
   state?: { __typename?: 'State'; id: string; name?: string | null } | null;
   city?: { __typename?: 'City'; id: string; name: string } | null;
 };
@@ -109,7 +109,7 @@ export type TempleQuery = {
         height?: number | null;
       };
     } | null;
-    country?: { __typename?: 'Country'; id: string; name: string } | null;
+    country?: { __typename?: 'Country'; id: string; name?: string | null } | null;
     state?: { __typename?: 'State'; id: string; name?: string | null } | null;
     city?: { __typename?: 'City'; id: string; name: string } | null;
   };
@@ -173,7 +173,7 @@ export type TemplesQuery = {
             height?: number | null;
           };
         } | null;
-        country?: { __typename?: 'Country'; id: string; name: string } | null;
+        country?: { __typename?: 'Country'; id: string; name?: string | null } | null;
         state?: { __typename?: 'State'; id: string; name?: string | null } | null;
         city?: { __typename?: 'City'; id: string; name: string } | null;
       };
@@ -244,7 +244,7 @@ export type TempleBySearchQuery = {
             height?: number | null;
           };
         } | null;
-        country?: { __typename?: 'Country'; id: string; name: string } | null;
+        country?: { __typename?: 'Country'; id: string; name?: string | null } | null;
         state?: { __typename?: 'State'; id: string; name?: string | null } | null;
         city?: { __typename?: 'City'; id: string; name: string } | null;
       };
@@ -306,7 +306,7 @@ export type CreateTempleMutation = {
         height?: number | null;
       };
     } | null;
-    country?: { __typename?: 'Country'; id: string; name: string } | null;
+    country?: { __typename?: 'Country'; id: string; name?: string | null } | null;
     state?: { __typename?: 'State'; id: string; name?: string | null } | null;
     city?: { __typename?: 'City'; id: string; name: string } | null;
   };

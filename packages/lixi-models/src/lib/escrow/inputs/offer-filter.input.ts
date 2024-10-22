@@ -17,4 +17,10 @@ export class OfferFilterInput {
 
   @Field(() => String, { nullable: true })
   stateName?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  fiatCurrency?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  coin?: Nullable<string>;
 }

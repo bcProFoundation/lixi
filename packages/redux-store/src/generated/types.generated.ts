@@ -347,7 +347,8 @@ export type Country = {
   capital: Scalars['String']['output'];
   city: Array<City>;
   id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
+  iso2?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
   state: Array<State>;
 };
 
@@ -384,7 +385,8 @@ export type CreateDisputeInput = {
 };
 
 export type CreateEscrowOrderInput = {
-  amount: Scalars['Int']['input'];
+  amount: Scalars['Float']['input'];
+  amountCoinOrCurrency: Scalars['Float']['input'];
   arbitratorId: Scalars['Int']['input'];
   buyerDepositTx?: InputMaybe<Scalars['String']['input']>;
   escrowAddress: Scalars['String']['input'];
@@ -394,7 +396,7 @@ export type CreateEscrowOrderInput = {
   nonce: Scalars['String']['input'];
   paymentMethodId: Scalars['Int']['input'];
   postId: Scalars['String']['input'];
-  price: Scalars['Int']['input'];
+  price: Scalars['String']['input'];
   sellerId: Scalars['Int']['input'];
   utxoInProcess?: InputMaybe<UtxoInNodeInput>;
 };
@@ -440,8 +442,11 @@ export type CreateMessageInput = {
 
 export type CreateOfferInput = {
   coin: Coin;
+  coinPayment?: InputMaybe<Scalars['String']['input']>;
   countryId?: InputMaybe<Scalars['Int']['input']>;
   createFeeHex?: InputMaybe<Scalars['String']['input']>;
+  localCurrency?: InputMaybe<Scalars['String']['input']>;
+  marginPercentage: Scalars['Float']['input'];
   message: Scalars['String']['input'];
   orderLimitMax: Scalars['Int']['input'];
   orderLimitMin: Scalars['Int']['input'];
@@ -556,6 +561,12 @@ export type CreateWorshipedPersonInput = {
   wikiDataId?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CurrencyRates = {
+  __typename?: 'CurrencyRates';
+  coin: Scalars['String']['output'];
+  rates: Array<RateEntry>;
+};
+
 export type DeleteFollowAccountInput = {
   followerAccountId: Scalars['Int']['input'];
   followingAccountId: Scalars['Int']['input'];
@@ -621,7 +632,8 @@ export type EnvelopeModel = {
 
 export type EscrowOrder = {
   __typename?: 'EscrowOrder';
-  amount: Scalars['Int']['output'];
+  amount: Scalars['Float']['output'];
+  amountCoinOrCurrency: Scalars['Float']['output'];
   arbitratorAccount: Account;
   arbitratorAccountId: Scalars['Int']['output'];
   buyerAccount: Account;
@@ -642,7 +654,7 @@ export type EscrowOrder = {
   offerId: Scalars['String']['output'];
   paymentMethod: PaymentMethod;
   paymentMethodId: Scalars['Int']['output'];
-  price: Scalars['Int']['output'];
+  price: Scalars['String']['output'];
   releaseTxid?: Maybe<Scalars['String']['output']>;
   returnTxid?: Maybe<Scalars['String']['output']>;
   sellerAccount: Account;
@@ -731,6 +743,12 @@ export type ExtraArguments = {
   minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<PostOrder>;
   query?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type FiatRates = {
+  __typename?: 'FiatRates';
+  currency: Scalars['String']['output'];
+  fiatRates: Array<CurrencyRates>;
 };
 
 export type FollowAccount = {
@@ -1191,11 +1209,14 @@ export type MutationUpdatePostArgs = {
 export type Offer = {
   __typename?: 'Offer';
   coin: Coin;
+  coinPayment?: Maybe<Scalars['String']['output']>;
   country?: Maybe<Country>;
   countryId?: Maybe<Scalars['Int']['output']>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime']['output'];
   escrowOrders?: Maybe<Array<EscrowOrder>>;
+  localCurrency?: Maybe<Scalars['String']['output']>;
+  marginPercentage: Scalars['Float']['output'];
   message: Scalars['String']['output'];
   orderLimitMax: Scalars['Int']['output'];
   orderLimitMin: Scalars['Int']['output'];
@@ -1218,8 +1239,10 @@ export type OfferBasicEdge = {
 };
 
 export type OfferFilterInput = {
+  coin?: InputMaybe<Scalars['String']['input']>;
   countryId?: InputMaybe<Scalars['Int']['input']>;
   countryName?: InputMaybe<Scalars['String']['input']>;
+  fiatCurrency?: InputMaybe<Scalars['String']['input']>;
   paymentMethodIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   stateId?: InputMaybe<Scalars['Int']['input']>;
   stateName?: InputMaybe<Scalars['String']['input']>;
@@ -1667,6 +1690,7 @@ export type Query = {
   escrowOrder: EscrowOrder;
   getAccountByAddress: Account;
   getBalances: Balances;
+  getFiatRate: Array<FiatRates>;
   getModeratorAccount: Account;
   getRandomArbitratorAccount: Account;
   hashtag: Hashtag;
@@ -2320,6 +2344,12 @@ export type QueryWorshipArgs = {
 
 export type QueryWorshipedPersonArgs = {
   id: Scalars['String']['input'];
+};
+
+export type RateEntry = {
+  __typename?: 'RateEntry';
+  rate: Scalars['Float']['output'];
+  ts: Scalars['Float']['output'];
 };
 
 export type RemoveBookmarkInput = {
