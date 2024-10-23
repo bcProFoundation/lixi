@@ -95,7 +95,7 @@ export class CountryController {
       }
       throw Error('Unable to detect ip address');
     } catch (err) {
-      throw err;
+      throw new HttpException(err as string, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }
