@@ -577,8 +577,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       geoip-country:
-        specifier: ^4.1.42
-        version: 4.2.80
+        specifier: ^5.0.202410222341
+        version: 5.0.202410222341
       graphql:
         specifier: ^16.8.1
         version: 16.8.1
@@ -6560,6 +6560,9 @@ packages:
       typescript:
         optional: true
 
+  countries-list@3.1.1:
+    resolution: {integrity: sha512-nPklKJ5qtmY5MdBKw1NiBAoyx5Sa7p2yPpljZyQ7gyCN1m+eMFs9I6CT37Mxt8zvR5L3VzD3DJBE4WQzX3WF4A==}
+
   create-hash@1.2.0:
     resolution: {integrity: sha512-z00bCGNHDG8mHAkP7CtT1qVu+bFQUPjYq/4Iv3C3kWjTFV10zIjfSoeqXo9Asws8gwSHDGj/hl2u4OGIjapeCg==}
 
@@ -7731,7 +7734,7 @@ packages:
     resolution: {integrity: sha512-oWb1Z6mkHIskLzEJ/XWX0srkpkTQ7vaopMQkyaEIoq0fmtFVxOthb8cCxeT+p3ynTdkk/RZwbgG4brR5BeWECw==}
     engines: {node: '>= 4.0'}
     os: [darwin]
-    deprecated: The v1 package contains DANGEROUS / INSECURE binaries. Upgrade to safe fsevents v2
+    deprecated: Upgrade to fsevents v2 to mitigate potential security issues
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -7763,9 +7766,9 @@ packages:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
     engines: {node: '>=6.9.0'}
 
-  geoip-country@4.2.80:
-    resolution: {integrity: sha512-dOG6/cMWCAt09qOciDvxGQiLiKT8TsKYNiFa/AcYHf5ZoIBfBYrAtLWuSQ+bf/chuGn08pdK6r/C90qtFeS3rA==}
-    engines: {node: '>=0.6.3'}
+  geoip-country@5.0.202410222341:
+    resolution: {integrity: sha512-vcD2l7541TN/Y77JE2yck7B/RGFpGzZO0JBjFyndB21f83UBUP3ikL8XzJVIOVYSIf2NUB87cKUdTHj30FWdkQ==}
+    engines: {node: '>=10.20.0'}
 
   get-caller-file@2.0.5:
     resolution: {integrity: sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==}
@@ -8186,10 +8189,6 @@ packages:
 
   iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
-    engines: {node: '>=0.10.0'}
-
-  iconv-lite@0.5.2:
-    resolution: {integrity: sha512-kERHXvpSaB4aU3eANwidg79K8FlrN77m8G9V+0vOR3HYaRifrlwMEpT7ZBJqLSEIHnEgJTHcWK82wwLwwKwtag==}
     engines: {node: '>=0.10.0'}
 
   iconv-lite@0.6.3:
@@ -9089,10 +9088,6 @@ packages:
   lazy-universal-dotenv@4.0.0:
     resolution: {integrity: sha512-aXpZJRnTkpK6gQ/z4nk+ZBLd/Qdp118cvPruLSIQzQNRhKwEcdXCOzXuF55VDqIiuAaY3UGZ10DJtvZzDcvsxg==}
     engines: {node: '>=14.0.0'}
-
-  lazy@1.0.11:
-    resolution: {integrity: sha512-Y+CjUfLmIpoUCCRl0ub4smrYtGGr5AOa2AKOaWelGHOGz33X/Y/KizefGqbkwfz44+cnq/+9habclf8vOmu2LA==}
-    engines: {node: '>=0.2.0'}
 
   leac@0.6.0:
     resolution: {integrity: sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==}
@@ -20188,6 +20183,8 @@ snapshots:
     optionalDependencies:
       typescript: 5.4.3
 
+  countries-list@3.1.1: {}
+
   create-hash@1.2.0:
     dependencies:
       cipher-base: 1.0.4
@@ -21853,13 +21850,11 @@ snapshots:
 
   gensync@1.0.0-beta.2: {}
 
-  geoip-country@4.2.80:
+  geoip-country@5.0.202410222341:
     dependencies:
       async: 2.6.4
-      iconv-lite: 0.5.2
+      countries-list: 3.1.1
       ip-address: 6.4.0
-      lazy: 1.0.11
-      rimraf: 2.7.1
       yauzl: 2.10.0
 
   get-caller-file@2.0.5: {}
@@ -22365,10 +22360,6 @@ snapshots:
   husky@9.1.4: {}
 
   iconv-lite@0.4.24:
-    dependencies:
-      safer-buffer: 2.1.2
-
-  iconv-lite@0.5.2:
     dependencies:
       safer-buffer: 2.1.2
 
@@ -23553,8 +23544,6 @@ snapshots:
       app-root-dir: 1.0.2
       dotenv: 16.4.5
       dotenv-expand: 10.0.0
-
-  lazy@1.0.11: {}
 
   leac@0.6.0: {}
 
