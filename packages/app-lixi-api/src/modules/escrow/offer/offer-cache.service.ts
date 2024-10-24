@@ -391,7 +391,9 @@ export class OfferCacheService {
       const docAdded = {
         countryId: offerFilterInput?.countryId?.toString() ?? '',
         stateId: offerFilterInput?.stateId?.toString() ?? '',
-        methods: offerFilterInput?.paymentMethodIds?.map(item => `${item}`)
+        methods: offerFilterInput?.paymentMethodIds?.map(item => `${item}`),
+        coin: offerFilterInput?.coin ?? '',
+        currency: offerFilterInput?.fiatCurrency ?? '',
       };
       //add cache and index
       Promise.all([

@@ -5,6 +5,7 @@ import * as _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { PrismaService } from '../../prisma/prisma.service';
 import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 
 @Resolver(() => FiatRates)
 export class FiatCurrencyRateResolver {
@@ -12,7 +13,8 @@ export class FiatCurrencyRateResolver {
     private logger: Logger,
     private prisma: PrismaService,
     @I18n() private i18n: I18nService,
-    private readonly httpService: HttpService
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService
   ) {}
 
   @Query(() => [FiatRates])
@@ -24,7 +26,7 @@ export class FiatCurrencyRateResolver {
       const ratePromises = LIST_CURRENCIES_USED.map(async currencyInfo => {
         const currency = currencyInfo.code;
         const response = await this.httpService
-          .get(`https://aws.abcpay.cash/bws/api/v2/fiatrates/${currency ?? 'USD'}`)
+          .get(`${this.configService.get<string>('FIAT_RATE_API')}/${currency ?? 'USD'}`)
           .toPromise();
 
         if (response?.status !== 200) {

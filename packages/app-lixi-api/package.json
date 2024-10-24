@@ -38,7 +38,8 @@
     "update:createCommentFee": "ts-node scripts/comment-fee/index.ts",
     "update:resetDana": "ts-node scripts/dana/reset-dana/index.ts",
     "update:resetBurnAndViewScore": "ts-node scripts/burn/index.ts",
-    "update:resetRedisSearch": "ts-node scripts/RedisSearch/index.ts"
+    "update:resetRedisSearch": "ts-node scripts/RedisSearch/index.ts",
+    "update:addOfferToCache": "ts-node scripts/offer/index.ts"
   },
   "dependencies": {
     "@abcpros/bitcore-lib-xpi": ">=8.25.37",
