@@ -1,5 +1,12 @@
 # @bcpros/app-lixi
 
+## 1.1.25
+
+### Patch Changes
+
+- Updated dependencies
+  - @bcpros/lixi-prisma@1.2.14
+
 ## 1.1.24
 
 ### Patch Changes
