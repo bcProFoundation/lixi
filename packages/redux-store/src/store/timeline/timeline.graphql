@@ -40,6 +40,8 @@ fragment EscrowOrderFields on EscrowOrder {
   escrowOffer: offer {
     postId
     message
+    coinPayment
+    localCurrency
   }
   escrowScript
   escrowAddress
@@ -60,6 +62,7 @@ fragment EscrowOrderFields on EscrowOrder {
   buyerDepositTx
   price
   amount
+  amountCoinOrCurrency
   escrowOrderStatus: status
   createdAt
   updatedAt

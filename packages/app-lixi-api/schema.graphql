@@ -324,7 +324,8 @@ type Country {
   capital: String!
   city: [City!]!
   id: ID!
-  name: String!
+  iso2: String
+  name: String
   state: [State!]!
 }
 
@@ -361,7 +362,8 @@ input CreateDisputeInput {
 }
 
 input CreateEscrowOrderInput {
-  amount: Int!
+  amount: Float!
+  amountCoinOrCurrency: Float!
   arbitratorId: Int!
   buyerDepositTx: String
   escrowAddress: String!
@@ -371,7 +373,7 @@ input CreateEscrowOrderInput {
   nonce: String!
   paymentMethodId: Int!
   postId: String!
-  price: Int!
+  price: String!
   sellerId: Int!
   utxoInProcess: UtxoInNodeInput
 }
@@ -417,8 +419,11 @@ input CreateMessageInput {
 
 input CreateOfferInput {
   coin: Coin!
+  coinPayment: String
   countryId: Int
   createFeeHex: String
+  localCurrency: String
+  marginPercentage: Float!
   message: String!
   orderLimitMax: Int!
   orderLimitMin: Int!
@@ -533,6 +538,11 @@ input CreateWorshipedPersonInput {
   wikiDataId: String
 }
 
+type CurrencyRates {
+  coin: String!
+  rates: [RateEntry!]!
+}
+
 """
 A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
 """
@@ -603,7 +613,8 @@ type EnvelopeModel {
 }
 
 type EscrowOrder {
-  amount: Int!
+  amount: Float!
+  amountCoinOrCurrency: Float!
   arbitratorAccount: Account!
   arbitratorAccountId: Int!
   buyerAccount: Account!
@@ -625,7 +636,7 @@ type EscrowOrder {
   offerId: String!
   paymentMethod: PaymentMethod!
   paymentMethodId: Int!
-  price: Int!
+  price: String!
   releaseTxid: String
   returnTxid: String
   sellerAccount: Account!
@@ -714,6 +725,11 @@ input ExtraArguments {
   minBurnFilter: Int
   orderBy: PostOrder
   query: String
+}
+
+type FiatRates {
+  currency: String!
+  fiatRates: [CurrencyRates!]!
 }
 
 type FollowAccount {
@@ -1015,12 +1031,15 @@ type Mutation {
 
 type Offer {
   coin: Coin!
+  coinPayment: String
   country: Country
   countryId: Int
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   escrowOrders: [EscrowOrder!]
+  localCurrency: String
+  marginPercentage: Float!
   message: String!
   orderLimitMax: Int!
   orderLimitMin: Int!
@@ -1043,8 +1062,10 @@ type OfferBasicEdge {
 }
 
 input OfferFilterInput {
+  coin: String
   countryId: Int
   countryName: String
+  fiatCurrency: String
   paymentMethodIds: [Int!]
   stateId: Int
   stateName: String
@@ -1571,6 +1592,7 @@ type Query {
   escrowOrder(id: String!): EscrowOrder!
   getAccountByAddress(address: String!): Account!
   getBalances(address: String!): Balances!
+  getFiatRate: [FiatRates!]!
   getModeratorAccount: Account!
   getRandomArbitratorAccount: Account!
   hashtag(content: String!): Hashtag!
@@ -1601,6 +1623,11 @@ type Query {
   userRequestTelegramChat(id: String!): Boolean!
   worship(id: String!): Worship!
   worshipedPerson(id: String!): WorshipedPerson!
+}
+
+type RateEntry {
+  rate: Float!
+  ts: Float!
 }
 
 input RemoveBookmarkInput {

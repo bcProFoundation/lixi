@@ -86,7 +86,9 @@ export class OfferResolver {
     offerFilterInput = {
       countryId: offerFilterInput.countryId,
       stateId: offerFilterInput.stateId,
-      paymentMethodIds: offerFilterInput.paymentMethodIds
+      paymentMethodIds: offerFilterInput.paymentMethodIds,
+      coin: offerFilterInput.coin,
+      fiatCurrency: offerFilterInput.fiatCurrency
     };
     const paginated = await this.offerCacheService.getOfferFilterPaginatedTimeline(offerFilterInput, first, after);
     const timelineIds = paginated.edges.map(item => item.cursor);
@@ -179,6 +181,9 @@ export class OfferResolver {
               message: data.message,
               price: data.price,
               publicKey: account?.publicKey ?? '',
+              marginPercentage: data.marginPercentage,
+              coinPayment: data.coinPayment,
+              localCurrency: data.localCurrency,
               orderLimitMin: data.orderLimitMin,
               orderLimitMax: data.orderLimitMax,
               country: {

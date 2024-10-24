@@ -21,6 +21,8 @@ import { AccountCacheService } from '../account/account-cache.service';
 import { EscrowOrderCacheService } from './escrow-order/escrow-order-cache.service';
 import { DisputeCacheService } from './dispute/dispute-cache.service';
 import DisputeLoader from './dispute/dispute.loader';
+import { HttpModule } from '@nestjs/axios';
+import { FiatCurrencyRateResolver } from './fiat-currency-rate/fiatCurrencyRate.resolver';
 
 @Module({
   imports: [
@@ -41,7 +43,8 @@ import DisputeLoader from './dispute/dispute.loader';
         };
       }
     }),
-    NotificationModule
+    NotificationModule,
+    HttpModule
   ],
   providers: [
     DisputeResolver,
@@ -59,7 +62,8 @@ import DisputeLoader from './dispute/dispute.loader';
     TimelineItemService,
     PostCacheService,
     RedisKeySpaceNotification,
-    AccountCacheService
+    AccountCacheService,
+    FiatCurrencyRateResolver
   ],
   exports: [Logger]
 })

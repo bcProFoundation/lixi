@@ -1,4 +1,4 @@
-import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, Float, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
@@ -23,6 +23,15 @@ export class Offer {
 
   @Field(() => String)
   price: string;
+
+  @Field(() => String, { nullable: true })
+  coinPayment?: Nullable<string>;
+
+  @Field(() => Float)
+  marginPercentage: number;
+
+  @Field(() => String, { nullable: true })
+  localCurrency?: Nullable<string>;
 
   @Field(() => COIN)
   coin: COIN;

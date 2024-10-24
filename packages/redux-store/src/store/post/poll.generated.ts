@@ -125,6 +125,9 @@ export type CreatePollMutation = {
       publicKey: string;
       message: string;
       price: string;
+      coinPayment?: string | null;
+      marginPercentage: number;
+      localCurrency?: string | null;
       orderLimitMin: number;
       orderLimitMax: number;
       status: Types.OfferStatus;
@@ -135,7 +138,7 @@ export type CreatePollMutation = {
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
       }>;
       state?: { __typename?: 'State'; name?: string | null } | null;
-      country?: { __typename?: 'Country'; name: string } | null;
+      country?: { __typename?: 'Country'; name?: string | null } | null;
     } | null;
   };
 };

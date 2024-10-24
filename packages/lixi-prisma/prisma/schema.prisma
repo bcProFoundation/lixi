@@ -1257,33 +1257,34 @@ model WalletPath {
 }
 
 model EscrowOrder {
-  id                  String            @id @default(cuid())
-  sellerAccount       Account           @relation("escrow_sell_orders", fields: [sellerAccountId], references: [id])
-  sellerAccountId     Int               @map("seller_account_id")
-  buyerAccount        Account           @relation("escrow_buy_orders", fields: [buyerAccountId], references: [id])
-  buyerAccountId      Int               @map("buyer_account_id")
-  arbitratorAccount   Account           @relation("escrow_arbi_orders", fields: [arbitratorAccountId], references: [id])
-  arbitratorAccountId Int               @map("arbitrator_account_id")
-  moderatorAccount    Account           @relation("escrow_mod_orders", fields: [moderatorAccountId], references: [id])
-  moderatorAccountId  Int               @map("moderator_account_id")
-  escrowAddress       String            @unique @map("escrow_address")
-  escrowTxids         EscrowTxId[]
-  releaseTxid         String?           @unique @map("release_txid")
-  returnTxid          String?           @unique @map("return_txid")
-  paymentMethod       PaymentMethod     @relation(fields: [paymentMethodId], references: [id])
-  paymentMethodId     Int               @map("payment_method_id")
-  message             String?
-  price               Float             @default(0.0) @map("price")
-  amount              Float             @default(0.0) @map("amount")
-  offer               Offer             @relation(fields: [offerId], references: [postId])
-  offerId             String            @map("offer_id")
-  status              EscrowOrderStatus @default(PENDING)
-  escrowScript        Bytes             @unique @map("escrow_script")
-  nonce               String            @unique @map("nonce")
-  buyerDepositTx      String?           @unique @map("buyer_deposit_tx")
-  dispute             Dispute?
-  createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt           DateTime          @default(now()) @map("updated_at") @db.Timestamptz
+  id                   String            @id @default(cuid())
+  sellerAccount        Account           @relation("escrow_sell_orders", fields: [sellerAccountId], references: [id])
+  sellerAccountId      Int               @map("seller_account_id")
+  buyerAccount         Account           @relation("escrow_buy_orders", fields: [buyerAccountId], references: [id])
+  buyerAccountId       Int               @map("buyer_account_id")
+  arbitratorAccount    Account           @relation("escrow_arbi_orders", fields: [arbitratorAccountId], references: [id])
+  arbitratorAccountId  Int               @map("arbitrator_account_id")
+  moderatorAccount     Account           @relation("escrow_mod_orders", fields: [moderatorAccountId], references: [id])
+  moderatorAccountId   Int               @map("moderator_account_id")
+  escrowAddress        String            @unique @map("escrow_address")
+  escrowTxids          EscrowTxId[]
+  releaseTxid          String?           @unique @map("release_txid")
+  returnTxid           String?           @unique @map("return_txid")
+  paymentMethod        PaymentMethod     @relation(fields: [paymentMethodId], references: [id])
+  paymentMethodId      Int               @map("payment_method_id")
+  message              String?
+  price                String            @map("price")
+  amount               Float             @default(0.0) @map("amount")
+  amountCoinOrCurrency Float             @default(0.0) @map("amount_coin_or_currency")
+  offer                Offer             @relation(fields: [offerId], references: [postId])
+  offerId              String            @map("offer_id")
+  status               EscrowOrderStatus @default(PENDING)
+  escrowScript         Bytes             @unique @map("escrow_script")
+  nonce                String            @unique @map("nonce")
+  buyerDepositTx       String?           @unique @map("buyer_deposit_tx")
+  dispute              Dispute?
+  createdAt            DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime          @default(now()) @map("updated_at") @db.Timestamptz
 
   @@map("escrow_order")
 }
@@ -1312,24 +1313,27 @@ model Dispute {
 }
 
 model Offer {
-  post           Post                 @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId         String               @unique @map("post_id")
-  publicKey      String               @map("public_key")
-  message        String
-  price          String
-  coin           Coin                 @default(XEC)
-  orderLimitMin  Float                @default(0.0) @map("order_limit_min")
-  orderLimitMax  Float                @default(0.0) @map("order_limit_max")
-  type           OfferType            @default(SELL)
-  paymentMethods OfferPaymentMethod[]
-  status         OfferStatus          @default(ACTIVE)
-  escrowOrders   EscrowOrder[]
-  country        Country?             @relation(fields: [countryId], references: [id])
-  countryId      Int?                 @map("country_id")
-  state          State?               @relation(fields: [stateId], references: [id])
-  stateId        Int?                 @map("state_id")
-  createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt      DateTime             @default(now()) @map("updated_at") @db.Timestamptz
+  post             Post                 @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId           String               @unique @map("post_id")
+  publicKey        String               @map("public_key")
+  message          String
+  price            String
+  coinPayment      String?              @map("coin_payment")
+  marginPercentage Float                @map("margin_percentage")
+  localCurrency    String?              @map("local_currency")
+  coin             Coin                 @default(XEC)
+  orderLimitMin    Float                @default(0.0) @map("order_limit_min")
+  orderLimitMax    Float                @default(0.0) @map("order_limit_max")
+  type             OfferType            @default(SELL)
+  paymentMethods   OfferPaymentMethod[]
+  status           OfferStatus          @default(ACTIVE)
+  escrowOrders     EscrowOrder[]
+  country          Country?             @relation(fields: [countryId], references: [id])
+  countryId        Int?                 @map("country_id")
+  state            State?               @relation(fields: [stateId], references: [id])
+  stateId          Int?                 @map("state_id")
+  createdAt        DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime             @default(now()) @map("updated_at") @db.Timestamptz
 
   @@map("offer")
 }

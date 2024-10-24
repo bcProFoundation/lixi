@@ -37,7 +37,9 @@
     "update:accountWalletPaths": "ts-node scripts/account/wallet-paths/index.ts",
     "update:createCommentFee": "ts-node scripts/comment-fee/index.ts",
     "update:resetDana": "ts-node scripts/dana/reset-dana/index.ts",
-    "update:resetBurnAndViewScore": "ts-node scripts/burn/index.ts"
+    "update:resetBurnAndViewScore": "ts-node scripts/burn/index.ts",
+    "update:resetRedisSearch": "ts-node scripts/RedisSearch/index.ts",
+    "update:addOfferToCache": "ts-node scripts/offer/index.ts"
   },
   "dependencies": {
     "@abcpros/bitcore-lib-xpi": ">=8.25.37",
@@ -58,6 +60,7 @@
     "@mercuriusjs/gateway": "^1.0.0",
     "@msgpack/msgpack": "^3.0.0-beta2",
     "@nestjs-modules/mailer": "^1.8.1",
+    "@nestjs/axios": "^3.1.0",
     "@nestjs/bullmq": "^10.1.0",
     "@nestjs/cache-manager": "^2.2.1",
     "@nestjs/common": "^10.3.3",
