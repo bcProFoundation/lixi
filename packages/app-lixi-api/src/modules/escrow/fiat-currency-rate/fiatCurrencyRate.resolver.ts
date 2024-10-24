@@ -26,7 +26,7 @@ export class FiatCurrencyRateResolver {
       const ratePromises = LIST_CURRENCIES_USED.map(async currencyInfo => {
         const currency = currencyInfo.code;
         const response = await this.httpService
-          .get(`${this.configService.get<string>('FIAT_RATE_API')}/${currency ?? 'USD'}`)
+          .get(`${this.configService.get<string>('BITCORE_URL')}/${currency ?? 'USD'}`)
           .toPromise();
 
         if (response?.status !== 200) {
