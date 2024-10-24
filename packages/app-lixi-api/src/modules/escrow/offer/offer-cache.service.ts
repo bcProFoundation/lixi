@@ -393,7 +393,7 @@ export class OfferCacheService {
         stateId: offerFilterInput?.stateId?.toString() ?? '',
         methods: offerFilterInput?.paymentMethodIds?.map(item => `${item}`),
         coin: offerFilterInput?.coin ?? '',
-        currency: offerFilterInput?.fiatCurrency ?? '',
+        currency: offerFilterInput?.fiatCurrency ?? ''
       };
       //add cache and index
       Promise.all([
