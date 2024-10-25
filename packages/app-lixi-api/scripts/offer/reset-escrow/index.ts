@@ -24,6 +24,9 @@ async function main() {
       },
     })
   );
+
+  await Promise.all(removePosts);
+  
   const [keysOffer, keysOrders, keysDispute] = await Promise.all([
     scanAndCollectKeys('*offer*'),
     scanAndCollectKeys('*escrowOrders*'),
