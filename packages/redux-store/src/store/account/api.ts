@@ -82,7 +82,7 @@ const accountApi = {
         throw response?.data ?? err ?? 'Network Error';
       });
   },
-  login(data: SilentLoginType): Promise<string> {
+  login(data: { token: string }): Promise<string> {
     const url = `/api/auth/login`;
     return axiosClient
       .post(url, { data })

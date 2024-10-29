@@ -62,8 +62,8 @@ const enhancedApi = api.enhanceEndpoints({
       providesTags: ['EscrowOrderTimeline'],
       serializeQueryArgs({ queryArgs }) {
         if (queryArgs) {
-          const { offerId } = queryArgs;
-          return { offerId };
+          const { offerId, escrowOrderStatus } = queryArgs;
+          return { offerId, escrowOrderStatus };
         }
         return {};
       },

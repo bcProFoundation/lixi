@@ -184,10 +184,9 @@ export class EscrowOrderResolver {
       }
 
       const { sellerAccount, buyerAccount } = result;
-      const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`;
 
       if (account.id === result.sellerAccountId && buyerAccount.telegramId) {
-        const formatReplied = format(BOT.MESSAGE.SELLER_REQUEST_CHAT, sellerAccount.telegramUsername, url);
+        const formatReplied = format(BOT.MESSAGE.SELLER_REQUEST_CHAT, sellerAccount.telegramUsername);
         await this.bot.telegram
           .sendMessage(buyerAccount.telegramId, formatReplied, {
             parse_mode: 'Markdown',
@@ -211,7 +210,7 @@ export class EscrowOrderResolver {
       }
 
       if (account.id === result.buyerAccountId && sellerAccount.telegramId) {
-        const formatReplied = format(BOT.MESSAGE.BUYER_REQUEST_CHAT, buyerAccount.telegramUsername, url);
+        const formatReplied = format(BOT.MESSAGE.BUYER_REQUEST_CHAT, buyerAccount.telegramUsername);
         await this.bot.telegram
           .sendMessage(sellerAccount.telegramId, formatReplied, {
             parse_mode: 'Markdown',
@@ -280,11 +279,10 @@ export class EscrowOrderResolver {
       }
 
       const { moderatorAccount, arbitratorAccount, sellerAccount, buyerAccount } = result;
-      const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`;
 
       if (account.id === result.arbitratorAccountId) {
         if (requestChatPublicKey === sellerAccount.publicKey && sellerAccount.telegramId) {
-          const formatReplied = format(BOT.MESSAGE.ARBI_REQUEST_CHAT, arbitratorAccount.telegramUsername, url);
+          const formatReplied = format(BOT.MESSAGE.ARBI_REQUEST_CHAT, arbitratorAccount.telegramUsername);
           await this.bot.telegram
             .sendMessage(sellerAccount.telegramId, formatReplied, {
               parse_mode: 'Markdown',
@@ -308,7 +306,7 @@ export class EscrowOrderResolver {
         }
 
         if (requestChatPublicKey === buyerAccount.publicKey && buyerAccount.telegramId) {
-          const formatReplied = format(BOT.MESSAGE.ARBI_REQUEST_CHAT, arbitratorAccount.telegramUsername, url);
+          const formatReplied = format(BOT.MESSAGE.ARBI_REQUEST_CHAT, arbitratorAccount.telegramUsername);
           await this.bot.telegram
             .sendMessage(buyerAccount.telegramId, formatReplied, {
               parse_mode: 'Markdown',
@@ -334,7 +332,7 @@ export class EscrowOrderResolver {
 
       if (account.id === result.moderatorAccountId) {
         if (requestChatPublicKey === sellerAccount.publicKey && sellerAccount.telegramId) {
-          const formatReplied = format(BOT.MESSAGE.MOD_REQUEST_CHAT, moderatorAccount.telegramUsername, url);
+          const formatReplied = format(BOT.MESSAGE.MOD_REQUEST_CHAT, moderatorAccount.telegramUsername);
           await this.bot.telegram
             .sendMessage(sellerAccount.telegramId, formatReplied, {
               parse_mode: 'Markdown',
@@ -358,7 +356,7 @@ export class EscrowOrderResolver {
         }
 
         if (requestChatPublicKey === buyerAccount.publicKey && buyerAccount.telegramId) {
-          const formatReplied = format(BOT.MESSAGE.MOD_REQUEST_CHAT, moderatorAccount.telegramUsername, url);
+          const formatReplied = format(BOT.MESSAGE.MOD_REQUEST_CHAT, moderatorAccount.telegramUsername);
           await this.bot.telegram
             .sendMessage(buyerAccount.telegramId, formatReplied, {
               parse_mode: 'Markdown',
@@ -420,7 +418,8 @@ export class EscrowOrderResolver {
   async allEscrowOrderByOfferId(
     @AccountEntity() account: Account,
     @Args() { after, first }: BasicPaginationArgs,
-    @Args({ name: 'offerId', type: () => String }) offerId: string
+    @Args({ name: 'offerId', type: () => String }) offerId: string,
+    @Args({ name: 'escrowOrderStatus', type: () => EscrowOrderStatus }) escrowOrderStatus: EscrowOrderStatus
   ) {
     if (!account) {
       const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
@@ -428,6 +427,7 @@ export class EscrowOrderResolver {
     }
     const paginated = await this.escrowOrderCacheService.getPaginatedEscrowOrderByOfferIdTimelineByTime(
       offerId,
+      escrowOrderStatus,
       first,
       after
     );
@@ -472,6 +472,10 @@ export class EscrowOrderResolver {
         throw new Error('Seller not found');
       }
 
+      if (!sellerAccount.telegramId) {
+        throw new Error(`Seller doesn't connect to Telegram account`);
+      }
+
       const buyerAccount = await this.prisma.account.findUnique({
         where: {
           id: account.id
@@ -480,6 +484,10 @@ export class EscrowOrderResolver {
 
       if (!buyerAccount) {
         throw new Error('Buyer not found');
+      }
+
+      if (!buyerAccount.telegramId) {
+        throw new Error(`Buyer doesn't connect to Telegram account`);
       }
 
       if (buyerAccount.id === sellerId) {
@@ -496,6 +504,10 @@ export class EscrowOrderResolver {
         throw new Error('Moderator not found');
       }
 
+      if (!moderatorAccount.telegramId) {
+        throw new Error(`Moderator doesn't connect to Telegram account`);
+      }
+
       const arbitratorAccount = await this.prisma.account.findUnique({
         where: {
           id: arbitratorId
@@ -504,6 +516,10 @@ export class EscrowOrderResolver {
 
       if (!arbitratorAccount || arbitratorAccount.role !== Role.ARBITRATOR) {
         throw new Error('Arbitrator not found');
+      }
+
+      if (!arbitratorAccount.telegramId) {
+        throw new Error(`Arbitrator doesn't connect to Telegram account`);
       }
 
       const escrowOrder = await this.prisma.escrowOrder.create({
@@ -559,10 +575,8 @@ export class EscrowOrderResolver {
         );
       }
 
-      const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`;
-
       if (sellerAccount.telegramId) {
-        const formatReplied = format(BOT.MESSAGE.ORDER_CREATED, url);
+        const formatReplied = format(BOT.MESSAGE.ORDER_CREATED);
         await this.bot.telegram
           .sendMessage(sellerAccount.telegramId, formatReplied, {
             parse_mode: 'Markdown',
@@ -602,6 +616,7 @@ export class EscrowOrderResolver {
         },
         include: {
           dispute: true,
+          offer: true,
           buyerAccount: true,
           sellerAccount: true,
           arbitratorAccount: true,
@@ -652,7 +667,6 @@ export class EscrowOrderResolver {
 
       const isSeller = account.id === result?.sellerAccountId;
       const isArbiMod = account.id === result?.arbitratorAccountId || account.id === result?.moderatorAccountId;
-      const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`;
       const dataToUpdate = {
         status,
         updatedAt: new Date()
@@ -678,7 +692,7 @@ export class EscrowOrderResolver {
 
           //notify for buyer
           if (result.buyerAccount.telegramId) {
-            const formatReplied = format(BOT.MESSAGE.ORDER_ESCROW, url);
+            const formatReplied = format(BOT.MESSAGE.ORDER_ESCROW);
             await this.bot.telegram
               .sendMessage(result.buyerAccount.telegramId, formatReplied, {
                 parse_mode: 'Markdown',
@@ -712,14 +726,22 @@ export class EscrowOrderResolver {
             }
           });
 
+          await this.escrowOrderCacheService.updateEscrowOrderByOfferIdCache(
+            orderId,
+            dataToUpdate.updatedAt,
+            result.offerId,
+            result.status as EscrowOrderStatus,
+            EscrowOrderStatus.ESCROW
+          );
+
           break;
         case EscrowOrderStatus.COMPLETE:
           _.set(dataToUpdate, 'releaseTxid', txid ?? null);
 
           if (result.sellerAccount.telegramId && isArbiMod) {
             const formatReplied = isArbiMod
-              ? format(BOT.MESSAGE.ORDER_RELEASE_BY_ARBMOD_SELLER, url)
-              : format(BOT.MESSAGE.ORDER_COMPLETED, url);
+              ? format(BOT.MESSAGE.ORDER_RELEASE_BY_ARBMOD_SELLER)
+              : format(BOT.MESSAGE.ORDER_COMPLETED);
             await this.bot.telegram
               .sendMessage(result.sellerAccount.telegramId, formatReplied, {
                 parse_mode: 'Markdown',
@@ -744,8 +766,8 @@ export class EscrowOrderResolver {
 
           if (result.buyerAccount.telegramId) {
             const formatReplied = isArbiMod
-              ? format(BOT.MESSAGE.ORDER_RELEASE_BY_ARBMOD_BUYER, url)
-              : format(BOT.MESSAGE.ORDER_COMPLETED, url);
+              ? format(BOT.MESSAGE.ORDER_RELEASE_BY_ARBMOD_BUYER)
+              : format(BOT.MESSAGE.ORDER_COMPLETED);
             await this.bot.telegram
               .sendMessage(result.buyerAccount.telegramId, formatReplied, {
                 parse_mode: 'Markdown',
@@ -777,6 +799,20 @@ export class EscrowOrderResolver {
             }
           });
 
+          await this.escrowOrderCacheService.updateMyEscrowOrderTimelineCache(
+            orderId,
+            dataToUpdate.updatedAt,
+            result.buyerAccount.id
+          );
+
+          await this.escrowOrderCacheService.updateEscrowOrderByOfferIdCache(
+            orderId,
+            dataToUpdate.updatedAt,
+            result.offerId,
+            result.status as EscrowOrderStatus,
+            EscrowOrderStatus.COMPLETE
+          );
+
           break;
         case EscrowOrderStatus.CANCEL:
           _.set(dataToUpdate, 'returnTxid', txid ?? null);
@@ -784,8 +820,8 @@ export class EscrowOrderResolver {
           //buyer cancel => notif for seller (always notif if arb cancel)
           if (result.sellerAccount.telegramId && (!isSeller || isArbiMod)) {
             const formatReplied = isArbiMod
-              ? format(BOT.MESSAGE.ORDER_RETURN_BY_ARBMOD_SELLER, url)
-              : format(BOT.MESSAGE.ORDER_CANCELED, url);
+              ? format(BOT.MESSAGE.ORDER_RETURN_BY_ARBMOD_SELLER)
+              : format(BOT.MESSAGE.ORDER_CANCELED);
             await this.bot.telegram
               .sendMessage(result.sellerAccount.telegramId, formatReplied, {
                 parse_mode: 'Markdown',
@@ -811,8 +847,8 @@ export class EscrowOrderResolver {
           //seller cancel => notif for buyer
           if (result.buyerAccount.telegramId && (isSeller || isArbiMod)) {
             const formatReplied = isArbiMod
-              ? format(BOT.MESSAGE.ORDER_RETURN_BY_ARBMOD_BUYER, url)
-              : format(BOT.MESSAGE.ORDER_DECLINED, url);
+              ? format(BOT.MESSAGE.ORDER_RETURN_BY_ARBMOD_BUYER)
+              : format(BOT.MESSAGE.ORDER_DECLINED);
             await this.bot.telegram
               .sendMessage(result.buyerAccount.telegramId, formatReplied, {
                 parse_mode: 'Markdown',
@@ -843,6 +879,20 @@ export class EscrowOrderResolver {
               status: EscrowOrderStatus.CANCEL
             }
           });
+
+          await this.escrowOrderCacheService.updateMyEscrowOrderTimelineCache(
+            orderId,
+            dataToUpdate.updatedAt,
+            result.buyerAccount.id
+          );
+
+          await this.escrowOrderCacheService.updateEscrowOrderByOfferIdCache(
+            orderId,
+            dataToUpdate.updatedAt,
+            result.offerId,
+            result.status as EscrowOrderStatus,
+            EscrowOrderStatus.CANCEL
+          );
 
           break;
       }

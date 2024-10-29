@@ -1765,6 +1765,7 @@ export type QueryAllEscrowOrderByAccountArgs = {
 
 export type QueryAllEscrowOrderByOfferIdArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
+  escrowOrderStatus: EscrowOrderStatus;
   first?: InputMaybe<Scalars['Int']['input']>;
   offerId: Scalars['String']['input'];
   skip?: InputMaybe<Scalars['Int']['input']>;

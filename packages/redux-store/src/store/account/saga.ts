@@ -24,7 +24,7 @@ import { setLocalUserAccount, silentLocalLogin } from '@store/localAccount';
 import { fetchNotifications, removeAllNotifications } from '@store/notification/actions';
 import { getCurrentLocale } from '@store/settings/selectors';
 import { removeAllWallets, removeWalletPaths } from '@store/wallet';
-import { aesGcmDecrypt, aesGcmEncrypt, numberToBase58 } from '../../utils/encryptionMethods';
+import { aesGcmDecrypt, aesGcmEncrypt, numberToBase58, signToken } from '../../utils/encryptionMethods';
 import intl from 'react-intl-universal';
 import { all, call, fork, getContext, put, putResolve, select, takeLatest } from 'redux-saga/effects';
 import { Config, names, uniqueNamesGenerator } from 'unique-names-generator';
@@ -94,6 +94,9 @@ import {
 } from './actions';
 import { getAccountById, getAllAccountsIds, getSelectedAccount, getSelectedAccountId } from './selectors';
 import _ from 'lodash';
+import HDNode from '@bcpros/xpi-js/types/hdnode';
+
+const wif = require('wif');
 
 const nameConfigGenerator: Config = {
   dictionaries: [names, names],
@@ -942,8 +945,42 @@ function* watchTopFiveFailure() {
 }
 
 function* silentLoginSaga(action: PayloadAction<SilentLoginType>) {
+  let path;
+  const { mnemonic, coin } = action.payload;
+  const account = yield select(getSelectedAccount);
+  const xpiContext = yield getContext('useXPI');
+  const { getXPI } = xpiContext();
+  const XPI = getXPI();
+
+  switch (coin) {
+    case COIN.XPI:
+      path = 10605;
+      break;
+    case COIN.XEC:
+      path = 1899;
+      break;
+    case COIN.XRG:
+      path = 2137;
+      break;
+  }
+
+  const rootSeedBuffer: Buffer = yield call(XPI.Mnemonic.toSeed, mnemonic);
+  const masterHDNode = XPI.HDNode.fromSeed(rootSeedBuffer);
+  const hdPath = `m/44'/${path}'/0'/0/0`;
+  const childNode: HDNode = XPI.HDNode.derivePath(masterHDNode, hdPath);
+  const wifKey = XPI.HDNode.toWIF(childNode);
+
+  const dataToSign = {
+    id: account.id
+  };
+  const wifDecoded = wif.decode(wifKey);
+  const privateKey: any = wifDecoded.privateKey;
+
+  const payload = JSON.stringify(dataToSign);
+  const token: string = yield call(signToken, payload, privateKey);
+
   try {
-    const data = yield call(accountApi.login, action.payload);
+    const data = yield call(accountApi.login, { token: token });
     yield put(silentLoginSuccess());
   } catch (err) {
     yield put(silentLoginFailure());
