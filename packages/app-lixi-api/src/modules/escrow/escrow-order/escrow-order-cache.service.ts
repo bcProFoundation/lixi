@@ -15,7 +15,7 @@ export class EscrowOrderCacheService {
 
   //timeline
   static myEscrowOrderTimeline = 'timeline:escrowOrders:{{accountId}}:{{escrowOrderStatus}}';
-  static escrowOrderByOfferIdTimeline = 'timeline:escrowOrders:{{offerId}}';
+  static escrowOrderByOfferIdTimeline = 'timeline:escrowOrders:{{offerId}}:{{escrowOrderStatus}}';
 
   constructor(
     private readonly prisma: PrismaService,
@@ -139,17 +139,30 @@ export class EscrowOrderCacheService {
     // nothing change
     return paginated;
   }
-  async getPaginatedEscrowOrderByOfferIdTimelineByTime(offerId: string, first: number = 20, after?: string) {
-    const key = template(`${EscrowOrderCacheService.escrowOrderByOfferIdTimeline}`, { offerId });
+  async getPaginatedEscrowOrderByOfferIdTimelineByTime(
+    offerId: string,
+    escrowOrderStatus: EscrowOrderStatus,
+    first: number = 20,
+    after?: string
+  ) {
+    const key = template(`${EscrowOrderCacheService.escrowOrderByOfferIdTimeline}`, {
+      offerId,
+      escrowOrderStatus
+    });
     const limit = 1000;
     const exist = await this.redis.exists([key]);
     if (!exist) {
-      await this.cacheEscrowOrderByOfferIdTimelineByTime(offerId, limit);
+      await this.cacheEscrowOrderByOfferIdTimelineByTime(offerId, escrowOrderStatus, limit);
     }
     const paginated = await basicSortedSetPagination(this.redis, key, first, after);
     const hasNextPage = paginated.pageInfo.hasNextPage;
     if (!hasNextPage) {
-      const shouldPaginate = await this.cacheEscrowOrderByOfferIdTimelineByTime(offerId, limit, after);
+      const shouldPaginate = await this.cacheEscrowOrderByOfferIdTimelineByTime(
+        offerId,
+        escrowOrderStatus,
+        limit,
+        after
+      );
       if (shouldPaginate) {
         return await basicSortedSetPagination(this.redis, key, first, after);
       }
@@ -223,8 +236,16 @@ export class EscrowOrderCacheService {
       this.logger.error(err);
     }
   }
-  private async cacheEscrowOrderByOfferIdTimelineByTime(offerId: string, limit: number = 0, cursor?: string) {
-    const key = template(`${EscrowOrderCacheService.escrowOrderByOfferIdTimeline}`, { offerId });
+  private async cacheEscrowOrderByOfferIdTimelineByTime(
+    offerId: string,
+    escrowOrderStatus: EscrowOrderStatus,
+    limit: number = 0,
+    cursor?: string
+  ) {
+    const key = template(`${EscrowOrderCacheService.escrowOrderByOfferIdTimeline}`, {
+      offerId,
+      escrowOrderStatus
+    });
     try {
       //query all escrow-order with of account
       const posts = cursor
@@ -234,7 +255,8 @@ export class EscrowOrderCacheService {
               createdAt: true
             },
             where: {
-              offerId: offerId
+              offerId: offerId,
+              status: escrowOrderStatus
             },
             orderBy: {
               createdAt: 'desc'
@@ -249,7 +271,8 @@ export class EscrowOrderCacheService {
               createdAt: true
             },
             where: {
-              offerId: offerId
+              offerId: offerId,
+              status: escrowOrderStatus
             },
             orderBy: {
               createdAt: 'desc'
@@ -268,6 +291,35 @@ export class EscrowOrderCacheService {
       pipeline.expire(key, 2592000);
       await pipeline.exec();
       return true;
+    } catch (err) {
+      this.logger.error(err);
+    }
+  }
+
+  async updateEscrowStatusCache(escrowId: string, escrowOrderUpdatedAt: Date, accountId: number) {
+    try {
+      const keyEscrowOrderStatusActive = TIMELINE_ESCROW_ORDER.active;
+      const keyEscrowOrderStatusInactive = TIMELINE_ESCROW_ORDER.unactive;
+
+      const keyToAdd = template(`${EscrowOrderCacheService.myEscrowOrderTimeline}`, {
+        accountId,
+        escrowOrderStatus: keyEscrowOrderStatusInactive
+      });
+
+      const keyToRemove = template(`${EscrowOrderCacheService.myEscrowOrderTimeline}`, {
+        accountId,
+        escrowOrderStatus: keyEscrowOrderStatusActive
+      });
+
+      const pipeline = this.redis.pipeline();
+
+      //remove from active
+      pipeline.zrem(keyToRemove);
+
+      //add to inactice
+      pipeline.zincrby(keyToAdd, escrowOrderUpdatedAt.getTime(), escrowId);
+
+      await pipeline.exec();
     } catch (err) {
       this.logger.error(err);
     }

@@ -422,6 +422,7 @@ export type AllEscrowOrderByAccountQuery = {
 
 export type AllEscrowOrderByOfferIdQueryVariables = Types.Exact<{
   offerId: Types.Scalars['String']['input'];
+  escrowOrderStatus: Types.EscrowOrderStatus;
   first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   after?: Types.InputMaybe<Types.Scalars['String']['input']>;
 }>;
@@ -752,8 +753,13 @@ export const AllEscrowOrderByAccountDocument = `
     ${TimelineItemFieldsFragmentDoc}
 ${BasicPageInfoFieldsFragmentDoc}`;
 export const AllEscrowOrderByOfferIdDocument = `
-    query AllEscrowOrderByOfferId($offerId: String!, $first: Int = 20, $after: String) {
-  allEscrowOrderByOfferId(first: $first, after: $after, offerId: $offerId) {
+    query AllEscrowOrderByOfferId($offerId: String!, $escrowOrderStatus: EscrowOrderStatus!, $first: Int = 20, $after: String) {
+  allEscrowOrderByOfferId(
+    first: $first
+    after: $after
+    offerId: $offerId
+    escrowOrderStatus: $escrowOrderStatus
+  ) {
     totalCount
     edges {
       cursor

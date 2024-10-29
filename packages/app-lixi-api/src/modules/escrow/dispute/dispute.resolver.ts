@@ -139,7 +139,6 @@ export class DisputeResolver {
         throw new Error('You are not allowed to create dispute for this escrow order');
       }
 
-      const url = `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`;
       const dispute = await this.prisma.dispute.create({
         data: {
           createdBy,
@@ -163,7 +162,7 @@ export class DisputeResolver {
       });
 
       if (createdBy === buyerAccount.publicKey && sellerAccount.telegramId) {
-        const formatReplied = format(BOT.MESSAGE.BUYER_RAISED_DISPUTE, reason, url);
+        const formatReplied = format(BOT.MESSAGE.BUYER_RAISED_DISPUTE, reason);
         await this.bot.telegram
           .sendMessage(sellerAccount.telegramId, formatReplied, {
             parse_mode: 'Markdown',
@@ -187,7 +186,7 @@ export class DisputeResolver {
       }
 
       if (createdBy === sellerAccount.publicKey && buyerAccount.telegramId) {
-        const formatReplied = format(BOT.MESSAGE.SELLER_RAISED_DISPUTE, reason, url);
+        const formatReplied = format(BOT.MESSAGE.SELLER_RAISED_DISPUTE, reason);
         await this.bot.telegram
           .sendMessage(buyerAccount.telegramId, formatReplied, {
             parse_mode: 'Markdown',
@@ -211,7 +210,7 @@ export class DisputeResolver {
       }
 
       if (arbitratorAccount.telegramId) {
-        const formatReplied = format(BOT.MESSAGE.NOTIFY_ARBI_MOD_DISPUTE, url);
+        const formatReplied = format(BOT.MESSAGE.NOTIFY_ARBI_MOD_DISPUTE);
         await this.bot.telegram
           .sendMessage(arbitratorAccount.telegramId, formatReplied, {
             parse_mode: 'Markdown',
@@ -235,7 +234,7 @@ export class DisputeResolver {
       }
 
       if (moderatorAccount.telegramId) {
-        const formatReplied = format(BOT.MESSAGE.NOTIFY_ARBI_MOD_DISPUTE, url);
+        const formatReplied = format(BOT.MESSAGE.NOTIFY_ARBI_MOD_DISPUTE);
         await this.bot.telegram
           .sendMessage(moderatorAccount.telegramId, formatReplied, {
             parse_mode: 'Markdown',

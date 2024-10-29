@@ -13,12 +13,12 @@ export class AuthController {
 
   @Post('login')
   async login(
-    @Body() body: { data: SilentLoginType },
+    @Body() body: { data: { token: string } },
     @Res({ passthrough: true }) response: FastifyReply
   ): Promise<string> {
     try {
-      const { data } = body;
-      const token = await this.authService.login(data);
+      const { token } = body.data;
+      // const token = await this.authService.login(data);
 
       response.header('Authorization', `Bearer ${token}`);
 

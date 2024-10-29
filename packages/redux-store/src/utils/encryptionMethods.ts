@@ -1,3 +1,5 @@
+import { TokenSigner } from 'jsontokens';
+
 /**
  * Encrypts plaintext using AES-GCM with supplied password, for decryption with aesGcmDecrypt().
  * @param {String} plaintext Plaintext to be encrypted.
@@ -107,3 +109,8 @@ export function base58ToNumber(text: string): number {
   }
   return result;
 }
+
+export const signToken = async (payload, privateKey) => {
+  const tokenSigner = new TokenSigner('ES256K', privateKey);
+  return await tokenSigner.signAsync(payload);
+};

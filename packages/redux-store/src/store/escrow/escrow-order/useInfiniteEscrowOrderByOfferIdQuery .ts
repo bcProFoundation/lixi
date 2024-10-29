@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { TimelineQueryItem } from '../../../generated/types';
 import { useAllEscrowOrderByOfferIdQuery, useLazyAllEscrowOrderByOfferIdQuery } from './escrow-order.api';
 import { BasicPaginationArgs } from '@bcpros/lixi-models/core/pagination/basic.pagination.args';
+import { EscrowOrderStatus } from '../../../generated/types.generated';
 
 const escrowOrderTimelineAdapter = createEntityAdapter<TimelineQueryItem, string>({
   selectId: item => item.id
@@ -13,6 +14,7 @@ const { selectAll } = escrowOrderTimelineAdapter.getSelectors();
 
 type EscrowOrderByOfferIdType = BasicPaginationArgs & {
   offerId: string;
+  escrowOrderStatus: EscrowOrderStatus;
 };
 
 export function useInfiniteEscrowOrderByOfferIdQuery(
