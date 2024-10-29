@@ -296,17 +296,17 @@ export class EscrowOrderCacheService {
     }
   }
 
-  async updateEscrowStatusCache(escrowId: string, escrowOrderUpdatedAt: Date, accountId: number) {
+  async updateMyEscrowOrderTimelineCache(escrowId: string, escrowOrderUpdatedAt: Date, accountId: number) {
     try {
       const keyEscrowOrderStatusActive = TIMELINE_ESCROW_ORDER.active;
       const keyEscrowOrderStatusInactive = TIMELINE_ESCROW_ORDER.unactive;
 
-      const keyToAdd = template(`${EscrowOrderCacheService.myEscrowOrderTimeline}`, {
+      const myEscrowOrderTimelineKeyToAdd = template(`${EscrowOrderCacheService.myEscrowOrderTimeline}`, {
         accountId,
         escrowOrderStatus: keyEscrowOrderStatusInactive
       });
 
-      const keyToRemove = template(`${EscrowOrderCacheService.myEscrowOrderTimeline}`, {
+      const myEscrowOrderTimelineKeyToRemove = template(`${EscrowOrderCacheService.myEscrowOrderTimeline}`, {
         accountId,
         escrowOrderStatus: keyEscrowOrderStatusActive
       });
@@ -314,10 +314,42 @@ export class EscrowOrderCacheService {
       const pipeline = this.redis.pipeline();
 
       //remove from active
-      pipeline.zrem(keyToRemove);
+      pipeline.zrem(myEscrowOrderTimelineKeyToRemove, escrowId);
 
       //add to inactice
-      pipeline.zincrby(keyToAdd, escrowOrderUpdatedAt.getTime(), escrowId);
+      pipeline.zincrby(myEscrowOrderTimelineKeyToAdd, escrowOrderUpdatedAt.getTime(), escrowId);
+
+      await pipeline.exec();
+    } catch (err) {
+      this.logger.error(err);
+    }
+  }
+
+  async updateEscrowOrderByOfferIdCache(
+    escrowId: string,
+    escrowOrderUpdatedAt: Date,
+    offerId: string,
+    prevEscrowOrderStatus: EscrowOrderStatus,
+    latestEscrowOrderStatus: EscrowOrderStatus
+  ) {
+    try {
+      const escrowOrderByOfferIdKeyToAdd = template(`${EscrowOrderCacheService.escrowOrderByOfferIdTimeline}`, {
+        offerId,
+        escrowOrderStatus: latestEscrowOrderStatus
+      });
+
+      const escrowOrderByOfferIdKeyToRemove = template(`${EscrowOrderCacheService.escrowOrderByOfferIdTimeline}`, {
+        offerId,
+        escrowOrderStatus: prevEscrowOrderStatus
+      });
+
+      const pipeline = this.redis.pipeline();
+
+      //remove from active
+      pipeline.zrem(escrowOrderByOfferIdKeyToRemove, escrowId);
+
+      //add to inactice
+      pipeline.zincrby(escrowOrderByOfferIdKeyToAdd, escrowOrderUpdatedAt.getTime(), escrowId);
 
       await pipeline.exec();
     } catch (err) {

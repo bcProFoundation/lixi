@@ -616,6 +616,7 @@ export class EscrowOrderResolver {
         },
         include: {
           dispute: true,
+          offer: true,
           buyerAccount: true,
           sellerAccount: true,
           arbitratorAccount: true,
@@ -725,6 +726,14 @@ export class EscrowOrderResolver {
             }
           });
 
+          await this.escrowOrderCacheService.updateEscrowOrderByOfferIdCache(
+            orderId,
+            dataToUpdate.updatedAt,
+            result.offerId,
+            result.status as EscrowOrderStatus,
+            EscrowOrderStatus.ESCROW
+          );
+
           break;
         case EscrowOrderStatus.COMPLETE:
           _.set(dataToUpdate, 'releaseTxid', txid ?? null);
@@ -790,7 +799,19 @@ export class EscrowOrderResolver {
             }
           });
 
-          await this.escrowOrderCacheService.updateEscrowStatusCache(orderId, dataToUpdate.updatedAt, account.id);
+          await this.escrowOrderCacheService.updateMyEscrowOrderTimelineCache(
+            orderId,
+            dataToUpdate.updatedAt,
+            result.buyerAccount.id
+          );
+
+          await this.escrowOrderCacheService.updateEscrowOrderByOfferIdCache(
+            orderId,
+            dataToUpdate.updatedAt,
+            result.offerId,
+            result.status as EscrowOrderStatus,
+            EscrowOrderStatus.COMPLETE
+          );
 
           break;
         case EscrowOrderStatus.CANCEL:
@@ -859,7 +880,19 @@ export class EscrowOrderResolver {
             }
           });
 
-          await this.escrowOrderCacheService.updateEscrowStatusCache(orderId, dataToUpdate.updatedAt, account.id);
+          await this.escrowOrderCacheService.updateMyEscrowOrderTimelineCache(
+            orderId,
+            dataToUpdate.updatedAt,
+            result.buyerAccount.id
+          );
+
+          await this.escrowOrderCacheService.updateEscrowOrderByOfferIdCache(
+            orderId,
+            dataToUpdate.updatedAt,
+            result.offerId,
+            result.status as EscrowOrderStatus,
+            EscrowOrderStatus.CANCEL
+          );
 
           break;
       }
