@@ -506,9 +506,9 @@ export class EscrowOrderResolver {
         throw new Error('Moderator not found');
       }
 
-      // if (!moderatorAccount.telegramId) {
-      //   throw new Error(`Moderator doesn't connect to Telegram account`);
-      // }
+      if (!moderatorAccount.telegramId) {
+        throw new Error(`Moderator doesn't connect to Telegram account`);
+      }
 
       const arbitratorAccount = await this.prisma.account.findUnique({
         where: {
@@ -520,9 +520,9 @@ export class EscrowOrderResolver {
         throw new Error('Arbitrator not found');
       }
 
-      // if (!arbitratorAccount.telegramId) {
-      //   throw new Error(`Arbitrator doesn't connect to Telegram account`);
-      // }
+      if (!arbitratorAccount.telegramId) {
+        throw new Error(`Arbitrator doesn't connect to Telegram account`);
+      }
 
       const escrowOrder = await this.prisma.escrowOrder.create({
         data: {
