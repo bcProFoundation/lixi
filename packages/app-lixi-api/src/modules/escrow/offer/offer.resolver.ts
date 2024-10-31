@@ -327,6 +327,10 @@ export class OfferResolver {
     //remove cache in mutiple keys and add to Archive key
     await this.offerCacheService.changeStatusOffer(account.id, offerUpdated.postId, offerUpdated.createdAt);
 
+    //remove cache and add again
+    await this.offerCacheService.removeByKeys([offerUpdated.postId]);
+    await this.offerCacheService.getById(offerUpdated.postId);
+
     const post = await this.postCacheService.getById(offerUpdated.postId);
     return post;
   }
