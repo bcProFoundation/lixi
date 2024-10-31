@@ -290,13 +290,63 @@ export type CreateDisputeMutationVariables = Types.Exact<{
   input: Types.CreateDisputeInput;
 }>;
 
-export type CreateDisputeMutation = { __typename?: 'Mutation'; createDispute: { __typename?: 'Dispute'; id: string } };
+export type CreateDisputeMutation = {
+  __typename?: 'Mutation';
+  createDispute: {
+    __typename?: 'Dispute';
+    id: string;
+    reason?: string | null;
+    createdBy: string;
+    createdAt: any;
+    updatedAt: any;
+    disputeStatus: Types.DisputeStatus;
+    escrowOrder: {
+      __typename?: 'EscrowOrder';
+      amount: number;
+      id: string;
+      buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+      sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+      offer: {
+        __typename?: 'Offer';
+        message: string;
+        createdAt: any;
+        country?: { __typename?: 'Country'; name?: string | null } | null;
+        state?: { __typename?: 'State'; name?: string | null } | null;
+      };
+    };
+  };
+};
 
 export type UpdateDisputeMutationVariables = Types.Exact<{
   input: Types.UpdateDisputeInput;
 }>;
 
-export type UpdateDisputeMutation = { __typename?: 'Mutation'; updateDispute: { __typename?: 'Dispute'; id: string } };
+export type UpdateDisputeMutation = {
+  __typename?: 'Mutation';
+  updateDispute: {
+    __typename?: 'Dispute';
+    id: string;
+    reason?: string | null;
+    createdBy: string;
+    createdAt: any;
+    updatedAt: any;
+    disputeStatus: Types.DisputeStatus;
+    escrowOrder: {
+      __typename?: 'EscrowOrder';
+      amount: number;
+      id: string;
+      buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+      sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+      offer: {
+        __typename?: 'Offer';
+        message: string;
+        createdAt: any;
+        country?: { __typename?: 'Country'; name?: string | null } | null;
+        state?: { __typename?: 'State'; name?: string | null } | null;
+      };
+    };
+  };
+};
 
 export const DisputeDocument = `
     query Dispute($id: String!) {
@@ -325,17 +375,17 @@ ${BasicPageInfoFieldsFragmentDoc}`;
 export const CreateDisputeDocument = `
     mutation CreateDispute($input: CreateDisputeInput!) {
   createDispute(data: $input) {
-    id
+    ...DisputeFields
   }
 }
-    `;
+    ${DisputeFieldsFragmentDoc}`;
 export const UpdateDisputeDocument = `
     mutation UpdateDispute($input: UpdateDisputeInput!) {
   updateDispute(data: $input) {
-    id
+    ...DisputeFields
   }
 }
-    `;
+    ${DisputeFieldsFragmentDoc}`;
 
 const injectedRtkApi = api.injectEndpoints({
   overrideExisting: true,

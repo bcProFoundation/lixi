@@ -43,6 +43,7 @@ import { Redis } from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { encode } from '@msgpack/msgpack';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
+import { DisputeCacheService } from '../dispute/dispute-cache.service';
 
 @SkipThrottle()
 @Resolver(() => EscrowOrder)
@@ -56,6 +57,7 @@ export class EscrowOrderResolver {
     @I18n() private i18n: I18nService,
     private readonly escrowOrderLoader: EscrowOrderLoader,
     private readonly escrowOrderCacheService: EscrowOrderCacheService,
+    private readonly disputeCacheService: DisputeCacheService,
     private readonly timelineItemService: TimelineItemService,
     private notificationGateway: NotificationGateway,
     @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
@@ -608,7 +610,7 @@ export class EscrowOrderResolver {
   @Mutation(() => EscrowOrder)
   @UseGuards(GqlJwtAuthGuard)
   async updateEscrowOrderStatus(@AccountEntity() account: Account, @Args('data') data: UpdateEscrowOrderInput) {
-    const { orderId, status, txid, value, outIdx, utxoInNodeOfBuyer } = data;
+    const { orderId, status, txid, value, outIdx, utxoInNodeOfBuyer, socketId } = data;
     try {
       const result = await this.prisma.escrowOrder.findUnique({
         where: {
@@ -723,7 +725,8 @@ export class EscrowOrderResolver {
               outIdx,
               updatedAt: dataToUpdate.updatedAt,
               status: EscrowOrderStatus.ESCROW
-            }
+            },
+            socketId: socketId ?? ''
           });
 
           await this.escrowOrderCacheService.updateEscrowOrderByOfferIdCache(
@@ -796,7 +799,8 @@ export class EscrowOrderResolver {
               txid,
               updatedAt: dataToUpdate.updatedAt,
               status: EscrowOrderStatus.COMPLETE
-            }
+            },
+            socketId: socketId ?? ''
           });
 
           await this.escrowOrderCacheService.updateMyEscrowOrderTimelineCache(
@@ -877,7 +881,8 @@ export class EscrowOrderResolver {
               txid,
               updatedAt: dataToUpdate.updatedAt,
               status: EscrowOrderStatus.CANCEL
-            }
+            },
+            socketId: socketId ?? ''
           });
 
           await this.escrowOrderCacheService.updateMyEscrowOrderTimelineCache(
@@ -905,13 +910,35 @@ export class EscrowOrderResolver {
       });
 
       if (result.dispute) {
-        await this.prisma.dispute.update({
-          where: {
-            id: result.dispute.id
-          },
-          data: {
-            status: DisputeStatus.RESOLVED
-          }
+        await this.prisma.$transaction(async prisma => {
+          const dispute = await prisma.dispute.update({
+            where: {
+              id: result.dispute!.id
+            },
+            data: {
+              status: DisputeStatus.RESOLVED,
+              updatedAt: new Date()
+            }
+          });
+
+          //arbi
+          await this.disputeCacheService.updateMyDisputeTimelineCache(
+            result?.arbitratorAccountId,
+            dispute.id,
+            dispute.updatedAt,
+            DisputeStatus.ACTIVE,
+            DisputeStatus.RESOLVED
+          );
+
+          //mod
+          //arbi
+          await this.disputeCacheService.updateMyDisputeTimelineCache(
+            result?.moderatorAccountId,
+            dispute.id,
+            dispute.updatedAt,
+            DisputeStatus.ACTIVE,
+            DisputeStatus.RESOLVED
+          );
         });
       }
 

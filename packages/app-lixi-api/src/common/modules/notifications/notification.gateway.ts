@@ -1,5 +1,6 @@
 import {
   AnalyticEvent,
+  DisputeStatus,
   EscrowOrderStatus,
   NotificationDto as Notification,
   SessionAction,
@@ -298,8 +299,27 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
     this.server.emit('new_post_created', 'New post created');
   }
 
-  publishEscrowOrderStatus(escrowOrderId: string, data: any) {
-    this.server.to(escrowOrderId).emit('publishEscrowOrderStatus', data);
+  publishEscrowOrderStatus(
+    escrowOrderId: string,
+    data: {
+      escrowOrderId: string;
+      escrowOrder?: {
+        status: EscrowOrderStatus;
+        outIdx?: number;
+        txid?: string;
+        value?: number;
+        updatedAt?: Date;
+      };
+      dispute?: {
+        id: string;
+        createdBy: string;
+        reason: string;
+        status: DisputeStatus;
+      };
+      socketId: string;
+    }
+  ) {
+    this.server.to(escrowOrderId).except(data.socketId).emit('publishEscrowOrderStatus', data);
   }
 
   /// Analytic events

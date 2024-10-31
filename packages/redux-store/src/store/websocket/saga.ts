@@ -290,10 +290,12 @@ function* receiveNewNotification(payload: Notification) {
 }
 
 function* receiveEscrowOrder(payload: any) {
+  const { socket } = callConfig.call.socketContext;
   const {
     escrowOrderId,
     escrowOrder,
-    dispute
+    dispute,
+    socketId
   }: {
     escrowOrderId: string;
     escrowOrder?: {
@@ -309,7 +311,12 @@ function* receiveEscrowOrder(payload: any) {
       reason: string;
       status: DisputeStatus;
     };
+    socketId: string;
   } = payload;
+
+  if (socket && socket.id === socketId) {
+    return;
+  }
 
   try {
     if (dispute) {
@@ -324,39 +331,41 @@ function* receiveEscrowOrder(payload: any) {
       );
     }
 
-    yield putAction(
-      escrowOrderApi.util.updateQueryData('EscrowOrder', { id: escrowOrderId }, draft => {
-        if (draft) {
-          draft.escrowOrder.escrowOrderStatus = escrowOrder.status;
-          draft.escrowOrder.updatedAt = escrowOrder.updatedAt;
+    if (escrowOrder) {
+      yield putAction(
+        escrowOrderApi.util.updateQueryData('EscrowOrder', { id: escrowOrderId }, draft => {
+          if (draft) {
+            draft.escrowOrder.escrowOrderStatus = escrowOrder.status;
+            draft.escrowOrder.updatedAt = escrowOrder.updatedAt;
 
-          switch (escrowOrder.status) {
-            case EscrowOrderStatus.Complete:
-              draft.escrowOrder.releaseTxid = escrowOrder.txid;
-              if (draft.escrowOrder.dispute) {
-                draft.escrowOrder.dispute.status = DisputeStatus.Resolved;
-              }
-              break;
-            case EscrowOrderStatus.Cancel:
-              draft.escrowOrder.returnTxid = escrowOrder.txid;
-              if (draft.escrowOrder.dispute) {
-                draft.escrowOrder.dispute.status = DisputeStatus.Resolved;
-              }
-              break;
-            case EscrowOrderStatus.Escrow:
-              escrowOrder.txid &&
-                escrowOrder.value &&
-                !_.isNil(escrowOrder.outIdx) &&
-                draft.escrowOrder.escrowTxids.push({
-                  txid: escrowOrder.txid,
-                  value: escrowOrder.value,
-                  outIdx: escrowOrder.outIdx
-                });
-              break;
+            switch (escrowOrder.status) {
+              case EscrowOrderStatus.Complete:
+                draft.escrowOrder.releaseTxid = escrowOrder.txid;
+                if (draft.escrowOrder.dispute) {
+                  draft.escrowOrder.dispute.status = DisputeStatus.Resolved;
+                }
+                break;
+              case EscrowOrderStatus.Cancel:
+                draft.escrowOrder.returnTxid = escrowOrder.txid;
+                if (draft.escrowOrder.dispute) {
+                  draft.escrowOrder.dispute.status = DisputeStatus.Resolved;
+                }
+                break;
+              case EscrowOrderStatus.Escrow:
+                escrowOrder.txid &&
+                  escrowOrder.value &&
+                  !_.isNil(escrowOrder.outIdx) &&
+                  draft.escrowOrder.escrowTxids.push({
+                    txid: escrowOrder.txid,
+                    value: escrowOrder.value,
+                    outIdx: escrowOrder.outIdx
+                  });
+                break;
+            }
           }
-        }
-      })
-    );
+        })
+      );
+    }
   } catch (e) {
     console.error(e);
   }

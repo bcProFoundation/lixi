@@ -383,6 +383,7 @@ export type CreateDisputeInput = {
   createdBy: Scalars['String']['input'];
   escrowOrderId: Scalars['String']['input'];
   reason: Scalars['String']['input'];
+  socketId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreateEscrowOrderInput = {
@@ -2563,6 +2564,7 @@ export type UpdateDisputeInput = {
 export type UpdateEscrowOrderInput = {
   orderId: Scalars['String']['input'];
   outIdx?: InputMaybe<Scalars['Int']['input']>;
+  socketId?: InputMaybe<Scalars['String']['input']>;
   status: EscrowOrderStatus;
   txid?: InputMaybe<Scalars['String']['input']>;
   utxoInNodeOfBuyer?: InputMaybe<UtxoInNodeInput>;
