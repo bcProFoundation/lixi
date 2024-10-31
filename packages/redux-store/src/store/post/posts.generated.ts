@@ -127,6 +127,7 @@ export type PostQuery = {
       postId: string;
       publicKey: string;
       message: string;
+      noteOffer?: string | null;
       price: string;
       coinPayment?: string | null;
       marginPercentage: number;
@@ -271,6 +272,7 @@ export type PostsByPageIdQuery = {
           postId: string;
           publicKey: string;
           message: string;
+          noteOffer?: string | null;
           price: string;
           coinPayment?: string | null;
           marginPercentage: number;
@@ -423,6 +425,7 @@ export type PostsByUserIdQuery = {
           postId: string;
           publicKey: string;
           message: string;
+          noteOffer?: string | null;
           price: string;
           coinPayment?: string | null;
           marginPercentage: number;
@@ -575,6 +578,7 @@ export type PostsByHashtagIdQuery = {
           postId: string;
           publicKey: string;
           message: string;
+          noteOffer?: string | null;
           price: string;
           coinPayment?: string | null;
           marginPercentage: number;
@@ -727,6 +731,7 @@ export type PostsByTokenIdQuery = {
           postId: string;
           publicKey: string;
           message: string;
+          noteOffer?: string | null;
           price: string;
           coinPayment?: string | null;
           marginPercentage: number;
@@ -869,6 +874,7 @@ export type PostsBySearchQuery = {
           postId: string;
           publicKey: string;
           message: string;
+          noteOffer?: string | null;
           price: string;
           coinPayment?: string | null;
           marginPercentage: number;
@@ -1013,6 +1019,7 @@ export type PostsBySearchWithHashtagQuery = {
           postId: string;
           publicKey: string;
           message: string;
+          noteOffer?: string | null;
           price: string;
           coinPayment?: string | null;
           marginPercentage: number;
@@ -1158,6 +1165,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
           postId: string;
           publicKey: string;
           message: string;
+          noteOffer?: string | null;
           price: string;
           coinPayment?: string | null;
           marginPercentage: number;
@@ -1303,6 +1311,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
           postId: string;
           publicKey: string;
           message: string;
+          noteOffer?: string | null;
           price: string;
           coinPayment?: string | null;
           marginPercentage: number;
@@ -1360,6 +1369,7 @@ export type OfferFieldsFragment = {
   postId: string;
   publicKey: string;
   message: string;
+  noteOffer?: string | null;
   price: string;
   coinPayment?: string | null;
   marginPercentage: number;
@@ -1482,6 +1492,7 @@ export type PostFieldsFragment = {
     postId: string;
     publicKey: string;
     message: string;
+    noteOffer?: string | null;
     price: string;
     coinPayment?: string | null;
     marginPercentage: number;
@@ -1598,6 +1609,7 @@ export type PostMeiliFieldsFragment = {
     postId: string;
     publicKey: string;
     message: string;
+    noteOffer?: string | null;
     price: string;
     coinPayment?: string | null;
     marginPercentage: number;
@@ -1727,6 +1739,7 @@ export type CreatePostMutation = {
       postId: string;
       publicKey: string;
       message: string;
+      noteOffer?: string | null;
       price: string;
       coinPayment?: string | null;
       marginPercentage: number;
@@ -1857,6 +1870,7 @@ export type UpdatePostMutation = {
       postId: string;
       publicKey: string;
       message: string;
+      noteOffer?: string | null;
       price: string;
       coinPayment?: string | null;
       marginPercentage: number;
@@ -1993,6 +2007,7 @@ export type RemovePostMutation = {
       postId: string;
       publicKey: string;
       message: string;
+      noteOffer?: string | null;
       price: string;
       coinPayment?: string | null;
       marginPercentage: number;
@@ -2039,6 +2054,7 @@ export const OfferFieldsFragmentDoc = `
   postId
   publicKey
   message
+  noteOffer
   price
   coinPayment
   marginPercentage

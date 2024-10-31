@@ -11,6 +11,9 @@ export class CreateOfferInput {
   @IsNotEmpty()
   message: string;
 
+  @Field(() => String, { nullable: true })
+  noteOffer?: Nullable<string>;
+
   @Field(() => String)
   @IsNotEmpty()
   price: string;

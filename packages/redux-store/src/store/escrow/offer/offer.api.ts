@@ -1,5 +1,6 @@
 import { POST_TYPE } from '@bcpros/lixi-models/constants/post';
 import { api } from './offer.generated';
+import { OfferStatus } from '../../../generated/types.generated';
 
 const enhancedApi = api.enhanceEndpoints({
   addTagTypes: ['Offer', 'OfferTimeline'],
@@ -82,6 +83,87 @@ const enhancedApi = api.enhanceEndpoints({
           }
         } catch {}
       }
+    },
+    UpdateOffer: {
+      async onQueryStarted({ input }, { dispatch, getState, queryFulfilled }) {
+        try {
+          const { data: result } = await queryFulfilled;
+          // const { message, marginPercentage } = result.updateOffer;
+
+          const timelineInvalidatedBy = enhancedApi.util.selectInvalidatedBy(getState(), ['OfferTimeline']);
+          for (const invalidatedBy of timelineInvalidatedBy) {
+            const { endpointName, originalArgs } = invalidatedBy;
+            dispatch(
+              enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
+                const fields = Object.keys(draft);
+                for (const field of fields) {
+                  if (!draft[field]) continue;
+
+                  const timelineId = `${POST_TYPE.OFFER}:${result.updateOffer.postId}`;
+                  const timelineItemToUpdateIndex = draft[field].edges.findIndex(item => item.node.id === timelineId);
+                  if (timelineItemToUpdateIndex === -1) return;
+                  draft[field].edges[timelineItemToUpdateIndex].node.data.postOffer = result.updateOffer;
+                }
+              })
+            );
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    },
+    UpdateOfferStatus: {
+      async onQueryStarted({ input }, { dispatch, getState, queryFulfilled }) {
+        try {
+          const { data: result } = await queryFulfilled;
+          const timelineId = `${POST_TYPE.OFFER}:${result.updateOfferStatus.id}`;
+
+          const timelineInvalidatedBy = enhancedApi.util.selectInvalidatedBy(getState(), ['OfferTimeline']);
+          for (const invalidatedBy of timelineInvalidatedBy) {
+            const { endpointName, originalArgs } = invalidatedBy;
+            //remove offer in ACTIVE
+            if (endpointName === 'AllOfferByAccount' && originalArgs?.offerStatus === OfferStatus.Active) {
+              dispatch(
+                enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
+                  const fields = Object.keys(draft);
+                  for (const field of fields) {
+                    if (!draft[field]) continue;
+
+                    const timelineItemToUpdateIndex = draft[field].edges.findIndex(item => item.node.id === timelineId);
+                    if (timelineItemToUpdateIndex === -1 || draft[field].edges.length === 0) return;
+                    draft[field].edges.splice(timelineItemToUpdateIndex, 1);
+                    draft[field].totalCount = draft[field].totalCount - 1;
+                  }
+                })
+              );
+            }
+
+            //add offer to ARCHIVED
+            if (endpointName === 'AllOfferByAccount' && originalArgs?.offerStatus === OfferStatus.Archive) {
+              dispatch(
+                enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
+                  const fields = Object.keys(draft);
+                  for (const field of fields) {
+                    if (!draft[field]) continue;
+
+                    draft[field].edges.unshift({
+                      cursor: timelineId,
+                      node: {
+                        id: timelineId,
+                        data: {
+                          __typename: 'Post',
+                          ...result.updateOfferStatus
+                        }
+                      }
+                    });
+                    draft[field].totalCount = draft[field].totalCount + 1;
+                  }
+                })
+              );
+            }
+          }
+        } catch {}
+      }
     }
   }
 });
@@ -97,5 +179,7 @@ export const {
   useLazyAllOfferByAccountQuery,
   useOfferByFilterQuery,
   useLazyOfferByFilterQuery,
-  useCreateOfferMutation
+  useCreateOfferMutation,
+  useUpdateOfferMutation,
+  useUpdateOfferStatusMutation
 } = enhancedApi;

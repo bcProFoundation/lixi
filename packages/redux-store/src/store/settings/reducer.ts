@@ -16,7 +16,8 @@ import {
   changeCurrentLocale,
   setNegativeDanaStatus,
   saveMinimumDanaFilter,
-  saveOfferFilterConfig
+  saveOfferFilterConfig,
+  updateTimeBackup
 } from './actions';
 import { SettingsState } from './state';
 // import { SearchBoxType } from '@bcpros/lixi-models/lib/search';
@@ -46,7 +47,8 @@ const initialState: SettingsState = {
     stateId: null,
     stateName: '',
     paymentMethodIds: []
-  }
+  },
+  timeBackupSeed: null
 };
 
 export const settingsReducer = createReducer(initialState, builder => {
@@ -109,5 +111,8 @@ export const settingsReducer = createReducer(initialState, builder => {
     })
     .addCase(saveOfferFilterConfig, (state, action) => {
       state.offerFilterConfig = action.payload;
+    })
+    .addCase(updateTimeBackup, (state, action) => {
+      state.timeBackupSeed = action.payload;
     });
 });
