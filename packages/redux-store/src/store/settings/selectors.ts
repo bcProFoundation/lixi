@@ -89,7 +89,7 @@ export const getOfferFilterConfig = createSelector(
   (state: SettingsState) => state.offerFilterConfig
 );
 
-export const getTimeBackup = createSelector(
+export const getSeedBackupTime = createSelector(
   (state: LixiStoreStateInterface) => state.settings,
-  (state: SettingsState) => state.timeBackupSeed
+  (state: SettingsState) => state.lastSeedBackupTime
 );

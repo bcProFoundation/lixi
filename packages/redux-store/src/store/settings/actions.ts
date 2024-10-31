@@ -27,4 +27,4 @@ export const setNegativeDanaStatus = createAction<boolean>('settings/setNegative
 export const changeCurrentLocale = createAction<string>('settings/changeCurrentLocale');
 
 export const saveOfferFilterConfig = createAction<OfferFilterInput>('settings/saveOfferFilterConfig');
-export const updateTimeBackup = createAction<string>('settings/updateTimeBackup');
+export const updateSeedBackupTime = createAction<string>('settings/updateSeedBackupTime');

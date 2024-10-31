@@ -18,5 +18,5 @@ export interface SettingsState {
   negativeDana: boolean;
   minimumDanaFilter: number;
   offerFilterConfig: OfferFilterInput;
-  timeBackupSeed: string;
+  lastSeedBackupTime: string;
 }

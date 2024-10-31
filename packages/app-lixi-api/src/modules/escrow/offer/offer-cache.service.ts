@@ -109,14 +109,14 @@ export class OfferCacheService {
   }
 
   async changeStatusOffer(accountId: number, offerId: string, createdAt: Date) {
-    //find all sorted set have "offer" and remove key in it
-    const allKeys = await this.redis.keys('*offer*');
+    // find all sorted set have "offer" and remove key in it
+    const allOfferKeys = await this.redis.keys('*offer*');
     const timelineId = `${POST_TYPE.OFFER}:${offerId}`;
     const pipeline = this.redis.pipeline();
 
-    for (const key of allKeys) {
+    for (const offerKey of allOfferKeys) {
       // Check if the key is a sorted set
-      const keyRemovePrefix = key.replace(/^lixilotus:/, '');
+      const keyRemovePrefix = offerKey.replace(/^lixilotus:/, '');
       const type = await this.redis.type(keyRemovePrefix);
       if (type === 'zset') {
         // Add the ZREM command to the pipeline for each sorted set
