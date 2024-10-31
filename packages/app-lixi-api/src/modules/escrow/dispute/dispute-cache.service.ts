@@ -181,4 +181,36 @@ export class DisputeCacheService {
       this.logger.error(err);
     }
   }
+
+  async updateMyDisputeTimelineCache(
+    accountId: number,
+    disputeId: string,
+    disputeUpdatedAt: Date,
+    prevDisputeStatus: DisputeStatus,
+    latestDisputeStatus: DisputeStatus
+  ) {
+    try {
+      const myDisputeTimelineKeyToAdd = template(`${DisputeCacheService.myDisputeTimeline}`, {
+        accountId,
+        disputeStatus: latestDisputeStatus
+      });
+
+      const myDisputeTimelineKeyToRemove = template(`${DisputeCacheService.myDisputeTimeline}`, {
+        accountId,
+        disputeStatus: prevDisputeStatus
+      });
+
+      const pipeline = this.redis.pipeline();
+
+      //remove from active
+      pipeline.zrem(myDisputeTimelineKeyToRemove, disputeId);
+
+      //add to inactice
+      pipeline.zincrby(myDisputeTimelineKeyToAdd, disputeUpdatedAt.getTime(), disputeId);
+
+      await pipeline.exec();
+    } catch (err) {
+      this.logger.error(err);
+    }
+  }
 }

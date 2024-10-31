@@ -359,6 +359,7 @@ input CreateDisputeInput {
   createdBy: String!
   escrowOrderId: String!
   reason: String!
+  socketId: String
 }
 
 input CreateEscrowOrderInput {
@@ -1823,6 +1824,7 @@ input UpdateDisputeInput {
 input UpdateEscrowOrderInput {
   orderId: String!
   outIdx: Int
+  socketId: String
   status: EscrowOrderStatus!
   txid: String
   utxoInNodeOfBuyer: UtxoInNodeInput

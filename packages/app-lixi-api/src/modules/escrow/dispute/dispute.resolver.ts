@@ -106,7 +106,7 @@ export class DisputeResolver {
   @UseGuards(GqlJwtAuthGuard)
   async createDispute(@AccountEntity() account: Account, @Args('data') data: CreateDisputeInput) {
     try {
-      const { escrowOrderId, createdBy, reason } = data;
+      const { escrowOrderId, createdBy, reason, socketId } = data;
 
       const escrowOrder = await this.prisma.escrowOrder.findUnique({
         where: {
@@ -157,8 +157,9 @@ export class DisputeResolver {
           id: dispute.id,
           createdBy,
           reason,
-          status: dispute.status
-        }
+          status: dispute.status as DisputeStatus
+        },
+        socketId: socketId ?? ''
       });
 
       if (createdBy === buyerAccount.publicKey && sellerAccount.telegramId) {
@@ -272,6 +273,9 @@ export class DisputeResolver {
       const escrowOrder = await this.prisma.escrowOrder.findUnique({
         where: {
           id: escrowOrderId
+        },
+        include: {
+          dispute: true
         }
       });
 
@@ -280,7 +284,7 @@ export class DisputeResolver {
       }
 
       if (escrowOrder.arbitratorAccountId !== account.id && escrowOrder.moderatorAccountId !== account.id) {
-        throw new Error('You are not allowed to create dispute for this escrow order');
+        throw new Error('You are not allowed to update dispute for this escrow order');
       }
 
       const dispute = await this.prisma.dispute.update({
@@ -288,9 +292,18 @@ export class DisputeResolver {
           id
         },
         data: {
-          status
+          status,
+          updatedAt: new Date()
         }
       });
+
+      await this.disputeCacheService.updateMyDisputeTimelineCache(
+        account.id,
+        dispute.id,
+        dispute.updatedAt,
+        DisputeStatus.ACTIVE,
+        DisputeStatus.RESOLVED
+      );
 
       return dispute;
     } catch (e: any) {

@@ -3,17 +3,13 @@ query Dispute($id: String!) {
     ...DisputeFields
   }
 }
-query AllDisputeByAccount(
-  $first: Int = 20
-  $after: String,
-  $disputeStatus: DisputeStatus!
-) {
+query AllDisputeByAccount($first: Int = 20, $after: String, $disputeStatus: DisputeStatus!) {
   allDisputeByAccount(first: $first, after: $after, disputeStatus: $disputeStatus) {
     totalCount
     edges {
       cursor
       node {
-         ...TimelineItemFields
+        ...TimelineItemFields
       }
     }
     pageInfo {
@@ -24,12 +20,12 @@ query AllDisputeByAccount(
 
 mutation CreateDispute($input: CreateDisputeInput!) {
   createDispute(data: $input) {
-    id
+    ...DisputeFields
   }
 }
 
 mutation UpdateDispute($input: UpdateDisputeInput!) {
   updateDispute(data: $input) {
-    id
+    ...DisputeFields
   }
 }

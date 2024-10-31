@@ -26,6 +26,17 @@ const enhancedApi = api.enhanceEndpoints({
           const { createdBy, escrowOrderId, reason } = input;
           const { data: result } = await queryFulfilled;
 
+          dispatch(
+            escrowApi.util.updateQueryData('EscrowOrder', { id: escrowOrderId }, draft => {
+              if (draft) {
+                draft.escrowOrder.dispute = {
+                  ...result.createDispute,
+                  status: result.createDispute.disputeStatus
+                };
+              }
+            })
+          );
+
           const timelineInvalidatedBy = enhancedApi.util.selectInvalidatedBy(getState(), ['DisputeTimeline']);
           for (const invalidatedBy of timelineInvalidatedBy) {
             const { endpointName, originalArgs } = invalidatedBy;
