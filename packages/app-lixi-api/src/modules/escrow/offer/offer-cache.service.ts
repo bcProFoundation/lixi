@@ -108,6 +108,29 @@ export class OfferCacheService {
     await this.redis.hdel(this.keyPrefix, ...keys);
   }
 
+  async changeStatusOffer(accountId: number, offerId: string, createdAt: Date) {
+    // find all sorted set have "offer" and remove key in it
+    const allOfferKeys = await this.redis.keys('*offer*');
+    const timelineId = `${POST_TYPE.OFFER}:${offerId}`;
+    const pipeline = this.redis.pipeline();
+
+    for (const offerKey of allOfferKeys) {
+      // Check if the key is a sorted set
+      const keyRemovePrefix = offerKey.replace(/^lixilotus:/, '');
+      const type = await this.redis.type(keyRemovePrefix);
+      if (type === 'zset') {
+        // Add the ZREM command to the pipeline for each sorted set
+        pipeline.zrem(keyRemovePrefix, timelineId);
+      }
+    }
+
+    //add that key to archive cache
+    const keyAdded = template(`${OfferCacheService.myOfferTimeline}`, { accountId, offerStatus: OfferStatus.ARCHIVE });
+    pipeline.zincrby(keyAdded, createdAt.getTime(), timelineId);
+
+    await pipeline.exec();
+  }
+
   async getOfferPaginatedTimeline(first: number = 20, after?: string) {
     const key = OfferCacheService.offerBoostingTimeline;
     const limit = 1000;

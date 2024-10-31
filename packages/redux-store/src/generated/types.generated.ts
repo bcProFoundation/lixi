@@ -449,6 +449,7 @@ export type CreateOfferInput = {
   localCurrency?: InputMaybe<Scalars['String']['input']>;
   marginPercentage: Scalars['Float']['input'];
   message: Scalars['String']['input'];
+  noteOffer?: InputMaybe<Scalars['String']['input']>;
   orderLimitMax: Scalars['Int']['input'];
   orderLimitMin: Scalars['Int']['input'];
   pageId?: InputMaybe<Scalars['String']['input']>;
@@ -1050,6 +1051,8 @@ export type Mutation = {
   updateAccountTelegramUsername: Account;
   updateDispute: Dispute;
   updateEscrowOrderStatus: EscrowOrder;
+  updateOffer: Offer;
+  updateOfferStatus: Post;
   updatePage: Page;
   updatePost: Post;
 };
@@ -1199,6 +1202,14 @@ export type MutationUpdateEscrowOrderStatusArgs = {
   data: UpdateEscrowOrderInput;
 };
 
+export type MutationUpdateOfferArgs = {
+  data: UpdateOfferInput;
+};
+
+export type MutationUpdateOfferStatusArgs = {
+  data: UpdateOfferStatusInput;
+};
+
 export type MutationUpdatePageArgs = {
   data: UpdatePageInput;
 };
@@ -1219,6 +1230,7 @@ export type Offer = {
   localCurrency?: Maybe<Scalars['String']['output']>;
   marginPercentage: Scalars['Float']['output'];
   message: Scalars['String']['output'];
+  noteOffer?: Maybe<Scalars['String']['output']>;
   orderLimitMax: Scalars['Int']['output'];
   orderLimitMin: Scalars['Int']['output'];
   paymentMethods: Array<OfferPaymentMethod>;
@@ -2555,6 +2567,25 @@ export type UpdateEscrowOrderInput = {
   txid?: InputMaybe<Scalars['String']['input']>;
   utxoInNodeOfBuyer?: InputMaybe<UtxoInNodeInput>;
   value?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type UpdateOfferInput = {
+  coinPayment?: InputMaybe<Scalars['String']['input']>;
+  countryId?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['String']['input'];
+  localCurrency?: InputMaybe<Scalars['String']['input']>;
+  marginPercentage?: InputMaybe<Scalars['Float']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  noteOffer?: InputMaybe<Scalars['String']['input']>;
+  orderLimitMax?: InputMaybe<Scalars['Int']['input']>;
+  orderLimitMin?: InputMaybe<Scalars['Int']['input']>;
+  paymentMethodIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  stateId?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type UpdateOfferStatusInput = {
+  id: Scalars['String']['input'];
+  status?: InputMaybe<OfferStatus>;
 };
 
 export type UpdatePageInput = {

@@ -425,6 +425,7 @@ input CreateOfferInput {
   localCurrency: String
   marginPercentage: Float!
   message: String!
+  noteOffer: String
   orderLimitMax: Int!
   orderLimitMin: Int!
   pageId: String
@@ -1025,6 +1026,8 @@ type Mutation {
   updateAccountTelegramUsername(telegramId: String!, telegramUsername: String!): Account!
   updateDispute(data: UpdateDisputeInput!): Dispute!
   updateEscrowOrderStatus(data: UpdateEscrowOrderInput!): EscrowOrder!
+  updateOffer(data: UpdateOfferInput!): Offer!
+  updateOfferStatus(data: UpdateOfferStatusInput!): Post!
   updatePage(data: UpdatePageInput!): Page!
   updatePost(data: UpdatePostInput!): Post!
 }
@@ -1041,6 +1044,7 @@ type Offer {
   localCurrency: String
   marginPercentage: Float!
   message: String!
+  noteOffer: String
   orderLimitMax: Int!
   orderLimitMin: Int!
   paymentMethods: [OfferPaymentMethod!]!
@@ -1823,6 +1827,25 @@ input UpdateEscrowOrderInput {
   txid: String
   utxoInNodeOfBuyer: UtxoInNodeInput
   value: Int
+}
+
+input UpdateOfferInput {
+  coinPayment: String
+  countryId: Int
+  id: String!
+  localCurrency: String
+  marginPercentage: Float
+  message: String
+  noteOffer: String
+  orderLimitMax: Int
+  orderLimitMin: Int
+  paymentMethodIds: [Int!]
+  stateId: Int
+}
+
+input UpdateOfferStatusInput {
+  id: String!
+  status: OfferStatus
 }
 
 input UpdatePageInput {

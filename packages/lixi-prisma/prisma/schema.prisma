@@ -1317,9 +1317,10 @@ model Offer {
   postId           String               @unique @map("post_id")
   publicKey        String               @map("public_key")
   message          String
+  noteOffer        String?              @default("") @map("note_offer")
   price            String
   coinPayment      String?              @map("coin_payment")
-  marginPercentage Float                @map("margin_percentage")
+  marginPercentage Float                @map("margin_percentage") @default(0.0)
   localCurrency    String?              @map("local_currency")
   coin             Coin                 @default(XEC)
   orderLimitMin    Float                @default(0.0) @map("order_limit_min")

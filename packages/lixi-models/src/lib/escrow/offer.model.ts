@@ -21,6 +21,9 @@ export class Offer {
   @Field(() => String)
   message: string;
 
+  @Field(() => String, { nullable: true })
+  noteOffer?: Nullable<string>;
+
   @Field(() => String)
   price: string;
 

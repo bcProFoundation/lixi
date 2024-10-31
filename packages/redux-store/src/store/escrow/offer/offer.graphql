@@ -66,3 +66,15 @@ mutation CreateOffer($input: CreateOfferInput!) {
     ...PostFields
   }
 }
+
+mutation UpdateOffer($input: UpdateOfferInput!) {
+  updateOffer(data: $input) {
+    ...OfferFields
+  }
+}
+
+mutation UpdateOfferStatus($input: UpdateOfferStatusInput!) {
+  updateOfferStatus(data: $input) {
+    ...PostFields
+  }
+}

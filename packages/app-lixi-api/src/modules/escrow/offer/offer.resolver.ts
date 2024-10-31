@@ -12,7 +12,9 @@ import {
   PaymentMethod,
   State,
   TimelineItem,
-  TimelineItemConnection
+  TimelineItemConnection,
+  UpdateOfferInput,
+  UpdateOfferStatusInput
 } from '@bcpros/lixi-models';
 import { Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
@@ -37,6 +39,7 @@ import { TimelineItemService } from '../../timeline/timeline-item.service';
 import { VError } from 'verror';
 import OfferLoader from './offer.loader';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
+import { PostCacheService } from 'src/modules/page/post-cache.service';
 
 @SkipThrottle()
 @Resolver(() => Offer)
@@ -51,6 +54,7 @@ export class OfferResolver {
     @InjectQueue(CONTENT_FANOUT_QUEUE) private postFanoutQueue: Queue,
     @InjectRedis() private readonly redis: Redis,
     private readonly offerCacheService: OfferCacheService,
+    private readonly postCacheService: PostCacheService,
     private readonly timelineItemService: TimelineItemService,
     private readonly offerLoader: OfferLoader,
     private notificationGateway: NotificationGateway
@@ -179,6 +183,7 @@ export class OfferResolver {
           offer: {
             create: {
               message: data.message,
+              noteOffer: data.noteOffer,
               price: data.price,
               publicKey: account?.publicKey ?? '',
               marginPercentage: data.marginPercentage,
@@ -240,6 +245,90 @@ export class OfferResolver {
     //emit new post
     this.notificationGateway.publishNewPost();
     return offer;
+  }
+
+  @UseGuards(GqlJwtAuthGuard)
+  @Mutation(() => Offer)
+  async updateOffer(@AccountEntity() account: Account, @Args('data') data: UpdateOfferInput) {
+    if (!account) {
+      const couldNotFindAccount = await this.i18n.t('page.messages.couldNotFindAccount');
+      throw new VError.WError(couldNotFindAccount);
+    }
+
+    const offerUpdated = await this.prisma.offer.update({
+      where: {
+        postId: data.id
+      },
+      data: {
+        message: data.message ?? '',
+        noteOffer: data.noteOffer ?? '',
+        orderLimitMin: data.orderLimitMin ?? 0,
+        orderLimitMax: data.orderLimitMax ?? 0,
+        marginPercentage: data.marginPercentage ?? 0,
+        coinPayment: data.coinPayment ?? '',
+        localCurrency: data.localCurrency ?? '',
+        paymentMethods: {
+          deleteMany: {},
+          createMany: {
+            data:
+              data.paymentMethodIds && data.paymentMethodIds.length > 0
+                ? data.paymentMethodIds.map(item => {
+                    return {
+                      paymentMethodId: item
+                    };
+                  })
+                : []
+          }
+        },
+        country: {
+          connect: data.countryId
+            ? {
+                id: Number(data.countryId)
+              }
+            : undefined
+        },
+        state: {
+          disconnect: !data.stateId,
+          connect: data.stateId
+            ? {
+                id: Number(data.stateId)
+              }
+            : undefined
+        }
+      }
+    });
+
+    //remove cache and add again
+    await this.offerCacheService.removeByKeys([offerUpdated.postId]);
+
+    await this.offerCacheService.getById(offerUpdated.postId);
+
+    return offerUpdated;
+  }
+
+  @UseGuards(GqlJwtAuthGuard)
+  @Mutation(() => Post)
+  async updateOfferStatus(@AccountEntity() account: Account, @Args('data') data: UpdateOfferStatusInput) {
+    if (!account) {
+      const couldNotFindAccount = await this.i18n.t('page.messages.couldNotFindAccount');
+      throw new VError.WError(couldNotFindAccount);
+    }
+
+    //change from active to archive
+    const offerUpdated = await this.prisma.offer.update({
+      where: {
+        postId: data.id
+      },
+      data: {
+        status: data.status ?? OfferStatus.ARCHIVE
+      }
+    });
+
+    //remove cache in mutiple keys and add to Archive key
+    await this.offerCacheService.changeStatusOffer(account.id, offerUpdated.postId, offerUpdated.createdAt);
+
+    const post = await this.postCacheService.getById(offerUpdated.postId);
+    return post;
   }
 
   @ResolveField('paymentMethods', () => [PaymentMethod])

@@ -301,6 +301,7 @@ export type TimelineItemFieldsFragment = {
           postId: string;
           publicKey: string;
           message: string;
+          noteOffer?: string | null;
           price: string;
           coinPayment?: string | null;
           marginPercentage: number;
@@ -523,6 +524,7 @@ export type TimelineQuery = {
             postId: string;
             publicKey: string;
             message: string;
+            noteOffer?: string | null;
             price: string;
             coinPayment?: string | null;
             marginPercentage: number;
@@ -760,6 +762,7 @@ export type HomeTimelineQuery = {
                 postId: string;
                 publicKey: string;
                 message: string;
+                noteOffer?: string | null;
                 price: string;
                 coinPayment?: string | null;
                 marginPercentage: number;
@@ -1000,6 +1003,7 @@ export type ProfileTimelineQuery = {
                 postId: string;
                 publicKey: string;
                 message: string;
+                noteOffer?: string | null;
                 price: string;
                 coinPayment?: string | null;
                 marginPercentage: number;
@@ -1241,6 +1245,7 @@ export type ProfileTimelineByTimeQuery = {
                 postId: string;
                 publicKey: string;
                 message: string;
+                noteOffer?: string | null;
                 price: string;
                 coinPayment?: string | null;
                 marginPercentage: number;
@@ -1481,6 +1486,7 @@ export type PageTimelineQuery = {
                 postId: string;
                 publicKey: string;
                 message: string;
+                noteOffer?: string | null;
                 price: string;
                 coinPayment?: string | null;
                 marginPercentage: number;
@@ -1722,6 +1728,7 @@ export type PageTimelineByTimeQuery = {
                 postId: string;
                 publicKey: string;
                 message: string;
+                noteOffer?: string | null;
                 price: string;
                 coinPayment?: string | null;
                 marginPercentage: number;
@@ -1962,6 +1969,7 @@ export type TokenTimelineQuery = {
                 postId: string;
                 publicKey: string;
                 message: string;
+                noteOffer?: string | null;
                 price: string;
                 coinPayment?: string | null;
                 marginPercentage: number;
@@ -2203,6 +2211,7 @@ export type TokenTimelineByTimeQuery = {
                 postId: string;
                 publicKey: string;
                 message: string;
+                noteOffer?: string | null;
                 price: string;
                 coinPayment?: string | null;
                 marginPercentage: number;

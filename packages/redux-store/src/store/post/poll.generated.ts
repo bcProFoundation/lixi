@@ -124,6 +124,7 @@ export type CreatePollMutation = {
       postId: string;
       publicKey: string;
       message: string;
+      noteOffer?: string | null;
       price: string;
       coinPayment?: string | null;
       marginPercentage: number;

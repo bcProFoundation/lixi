@@ -397,6 +397,7 @@ export type AllEscrowOrderByAccountQuery = {
                 postId: string;
                 publicKey: string;
                 message: string;
+                noteOffer?: string | null;
                 price: string;
                 coinPayment?: string | null;
                 marginPercentage: number;
@@ -638,6 +639,7 @@ export type AllEscrowOrderByOfferIdQuery = {
                 postId: string;
                 publicKey: string;
                 message: string;
+                noteOffer?: string | null;
                 price: string;
                 coinPayment?: string | null;
                 marginPercentage: number;
