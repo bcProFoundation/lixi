@@ -59,6 +59,8 @@ const enhancedApi = api.enhanceEndpoints({
           const timelineInvalidatedBy = enhancedApi.util.selectInvalidatedBy(getState(), ['OfferTimeline']);
           for (const invalidatedBy of timelineInvalidatedBy) {
             const { endpointName, originalArgs } = invalidatedBy;
+            //dont add to archived
+            if (endpointName === 'AllOfferByAccount' && originalArgs?.offerStatus === OfferStatus.Archive) continue;
             dispatch(
               enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
                 const fields = Object.keys(draft);
