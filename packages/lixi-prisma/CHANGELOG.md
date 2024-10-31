@@ -1,5 +1,12 @@
 # @bcpros/lixi-prisma
 
+## 1.2.15
+
+### Patch Changes
+
+- fa5f721: Fix offer
+- Bump version
+
 ## 1.2.14
 
 ### Patch Changes

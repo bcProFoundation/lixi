@@ -1,5 +1,15 @@
 # @bcpros/redux-store
 
+## 1.2.26
+
+### Patch Changes
+
+- fa5f721: Fix offer
+- Bump version
+- Updated dependencies [fa5f721]
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.26
+
 ## 1.2.25
 
 ### Patch Changes

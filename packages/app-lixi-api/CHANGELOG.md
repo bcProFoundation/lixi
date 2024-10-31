@@ -1,5 +1,14 @@
 # @bcpros/app-lixi-api
 
+## 1.1.26
+
+### Patch Changes
+
+- Updated dependencies [fa5f721]
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.26
+  - @bcpros/lixi-prisma@1.2.15
+
 ## 1.1.25
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @bcpros/lixi-models
 
+## 1.2.26
+
+### Patch Changes
+
+- fa5f721: Fix offer
+- Bump version
+
 ## 1.2.25
 
 ### Patch Changes
