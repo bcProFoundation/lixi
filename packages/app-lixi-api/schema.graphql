@@ -1018,7 +1018,7 @@ type Mutation {
   deleteFollowAccount(data: DeleteFollowAccountInput!): Boolean!
   deleteFollowPage(data: DeleteFollowPageInput!): Boolean!
   deleteFollowToken(data: DeleteFollowTokenInput!): Boolean!
-  filterUtxos(data: [UtxoInNodeInput!]!): [UtxoInNode!]!
+  filterUtxos(data: [UtxoInNodeInput!]!, hash160: String!): [UtxoInNode!]!
   openPageMessageSession(data: OpenPageMessageSessionInput!): PageMessageSession!
   removeBookmark(data: RemoveBookmarkInput!): Bookmark!
   removePost(data: RemovePostInput!): Post!
