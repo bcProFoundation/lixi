@@ -1,5 +1,15 @@
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
-import { Controller, Get, Headers, HttpException, HttpStatus, Param, Query, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Headers,
+  HttpException,
+  HttpStatus,
+  Logger,
+  Param,
+  Query,
+  UseInterceptors
+} from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import geoip from 'geoip-country';
 import * as _ from 'lodash';
@@ -11,6 +21,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 @SkipThrottle()
 @Controller('countries')
 export class CountryController {
+  private logger: Logger = new Logger(this.constructor.name);
   constructor(private prisma: PrismaService) {}
 
   @CacheTTL(600000)
@@ -87,6 +98,9 @@ export class CountryController {
 
   @Get('ipaddr')
   async getCountryFromIpAddress(@Headers('x-forwarded-for') headerIp: string, @ReqSocket() socket: any): Promise<any> {
+    this.logger.log('getCountryFromIpAddress ~ headerIp:', headerIp);
+    this.logger.log('getCountryFromIpAddress ~ socket:', socket);
+
     try {
       const ip = (headerIp || socket.remoteAddress) as string;
       const geolocation = geoip.lookup(ip);
