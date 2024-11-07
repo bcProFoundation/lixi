@@ -12,7 +12,6 @@
 import * as Types from '../../../generated/types.generated';
 
 import { EscrowOrderFieldsFragmentDoc, TimelineItemFieldsFragmentDoc } from '../../timeline/timeline.generated';
-import { AccountFieldsFragmentDoc } from '../../account/accounts.generated';
 import { BasicPageInfoFieldsFragmentDoc } from '../../../graphql/fragments/basic-page-info-fields.fragment.generated';
 import { api } from '@store/baseApi';
 export type EscrowOrderQueryVariables = Types.Exact<{
@@ -92,92 +91,14 @@ export type GetModeratorAccountQueryVariables = Types.Exact<{ [key: string]: nev
 
 export type GetModeratorAccountQuery = {
   __typename?: 'Query';
-  getModeratorAccount: {
-    __typename?: 'Account';
-    id: number;
-    name: string;
-    address: string;
-    hash160?: string | null;
-    mnemonicHash?: string | null;
-    encryptedMnemonic?: string | null;
-    encryptedSecret?: string | null;
-    publicKey?: string | null;
-    language: string;
-    followersCount?: number | null;
-    followingsCount?: number | null;
-    followingPagesCount?: number | null;
-    totalDanaViewScore?: number | null;
-    website?: string | null;
-    description?: string | null;
-    createCommentFee?: string | null;
-    createdAt: any;
-    updatedAt: any;
-    avatar?: string | null;
-    cover?: string | null;
-    rankNumber?: number | null;
-    rankScore?: number | null;
-    telegramId?: string | null;
-    telegramUsername?: string | null;
-    role: Types.Role;
-    pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
-    accountDana?: {
-      __typename?: 'AccountDana';
-      danaGiven?: number | null;
-      danaReceived?: number | null;
-      danaBurnUp: number;
-      danaBurnDown: number;
-      danaBurnScore: number;
-      danaReceivedUp: number;
-      danaReceivedDown: number;
-      danaReceivedScore: number;
-    } | null;
-  };
+  getModeratorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null };
 };
 
 export type GetRandomArbitratorAccountQueryVariables = Types.Exact<{ [key: string]: never }>;
 
 export type GetRandomArbitratorAccountQuery = {
   __typename?: 'Query';
-  getRandomArbitratorAccount: {
-    __typename?: 'Account';
-    id: number;
-    name: string;
-    address: string;
-    hash160?: string | null;
-    mnemonicHash?: string | null;
-    encryptedMnemonic?: string | null;
-    encryptedSecret?: string | null;
-    publicKey?: string | null;
-    language: string;
-    followersCount?: number | null;
-    followingsCount?: number | null;
-    followingPagesCount?: number | null;
-    totalDanaViewScore?: number | null;
-    website?: string | null;
-    description?: string | null;
-    createCommentFee?: string | null;
-    createdAt: any;
-    updatedAt: any;
-    avatar?: string | null;
-    cover?: string | null;
-    rankNumber?: number | null;
-    rankScore?: number | null;
-    telegramId?: string | null;
-    telegramUsername?: string | null;
-    role: Types.Role;
-    pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
-    accountDana?: {
-      __typename?: 'AccountDana';
-      danaGiven?: number | null;
-      danaReceived?: number | null;
-      danaBurnUp: number;
-      danaBurnDown: number;
-      danaBurnScore: number;
-      danaReceivedUp: number;
-      danaReceivedDown: number;
-      danaReceivedScore: number;
-    } | null;
-  };
+  getRandomArbitratorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null };
 };
 
 export type AllEscrowOrderByAccountQueryVariables = Types.Exact<{
@@ -722,17 +643,19 @@ export const EscrowOrderDocument = `
 export const GetModeratorAccountDocument = `
     query GetModeratorAccount {
   getModeratorAccount {
-    ...AccountFields
+    id
+    publicKey
   }
 }
-    ${AccountFieldsFragmentDoc}`;
+    `;
 export const GetRandomArbitratorAccountDocument = `
     query GetRandomArbitratorAccount {
   getRandomArbitratorAccount {
-    ...AccountFields
+    id
+    publicKey
   }
 }
-    ${AccountFieldsFragmentDoc}`;
+    `;
 export const AllEscrowOrderByAccountDocument = `
     query AllEscrowOrderByAccount($first: Int = 20, $after: String, $escrowOrderStatus: EscrowOrderStatus!) {
   allEscrowOrderByAccount(
