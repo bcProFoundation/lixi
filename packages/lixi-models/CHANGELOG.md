@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.29
+
+### Patch Changes
+
+- Fix utxo filter
+
 ## 1.2.28
 
 ### Patch Changes

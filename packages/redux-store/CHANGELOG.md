@@ -1,5 +1,13 @@
 # @bcpros/redux-store
 
+## 1.2.29
+
+### Patch Changes
+
+- Fix utxo filter
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.29
+
 ## 1.2.28
 
 ### Patch Changes
