@@ -98,11 +98,8 @@ export class CountryController {
 
   @Get('ipaddr')
   async getCountryFromIpAddress(@Headers('x-forwarded-for') headerIp: string, @ReqSocket() socket: any): Promise<any> {
-    this.logger.log('getCountryFromIpAddress ~ headerIp:', headerIp);
-    this.logger.log('getCountryFromIpAddress ~ socket:', socket);
-
     try {
-      const ip = (headerIp || socket.remoteAddress) as string;
+      const ip = headerIp.includes(',') ? headerIp.split(',')[0] : headerIp || socket.remoteAddress;
       const geolocation = geoip.lookup(ip);
       if (geolocation) {
         return geolocation?.country;
