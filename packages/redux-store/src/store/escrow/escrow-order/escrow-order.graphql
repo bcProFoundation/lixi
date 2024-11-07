@@ -6,13 +6,15 @@ query EscrowOrder($id: String!) {
 
 query GetModeratorAccount {
   getModeratorAccount {
-    ...AccountFields
+    id
+    publicKey
   }
 }
 
 query GetRandomArbitratorAccount {
   getRandomArbitratorAccount {
-    ...AccountFields
+    id
+    publicKey
   }
 }
 
