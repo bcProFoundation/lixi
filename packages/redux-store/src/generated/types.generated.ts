@@ -1168,7 +1168,6 @@ export type MutationDeleteFollowTokenArgs = {
 
 export type MutationFilterUtxosArgs = {
   data: Array<UtxoInNodeInput>;
-  hash160: Scalars['String']['input'];
 };
 
 export type MutationOpenPageMessageSessionArgs = {

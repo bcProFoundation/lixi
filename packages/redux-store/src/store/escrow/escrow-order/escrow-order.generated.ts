@@ -705,7 +705,6 @@ export type UpdateEscrowOrderStatusMutation = {
 
 export type FilterUtxosMutationVariables = Types.Exact<{
   input: Array<Types.UtxoInNodeInput> | Types.UtxoInNodeInput;
-  hash160: Types.Scalars['String']['input'];
 }>;
 
 export type FilterUtxosMutation = {
@@ -811,8 +810,8 @@ export const UpdateEscrowOrderStatusDocument = `
 }
     `;
 export const FilterUtxosDocument = `
-    mutation FilterUtxos($input: [UtxoInNodeInput!]!, $hash160: String!) {
-  filterUtxos(data: $input, hash160: $hash160) {
+    mutation FilterUtxos($input: [UtxoInNodeInput!]!) {
+  filterUtxos(data: $input) {
     txid
     outIdx
     value

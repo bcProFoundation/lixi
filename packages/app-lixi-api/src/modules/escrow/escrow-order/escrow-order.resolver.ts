@@ -949,18 +949,13 @@ export class EscrowOrderResolver {
   }
 
   @Mutation(() => [UtxoInNode])
+  @UseGuards(GqlJwtAuthGuard)
   async filterUtxos(
-    @Args('data', { type: () => [UtxoInNodeInput] }) data: UtxoInNodeInput[],
-    @Args('hash160', { type: () => String }) hash160: string
+    @AccountEntity() account: Account,
+    @Args('data', { type: () => [UtxoInNodeInput] }) data: UtxoInNodeInput[]
   ) {
     try {
       if (data.length === 0) return [];
-
-      const account = await this.prisma.account.findFirst({
-        where: {
-          hash160: Buffer.from(hash160, 'hex')
-        }
-      });
 
       const keyUtxos = template(this.keyUtxosInProcess, { accountId: account?.id });
       const existsKey = await this.redis.exists([keyUtxos]);
