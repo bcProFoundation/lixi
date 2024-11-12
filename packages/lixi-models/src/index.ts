@@ -199,6 +199,8 @@ export * from './lib/worshiped-person/worship.model';
 export * from './lib/worshiped-person/worshipedPerson.model';
 export * from './lib/utxo/utxo-inNode.models';
 export * from './lib/utxo/input/utxo-inNode.input';
+export * from './lib/setting/setting.model';
+export * from './lib/setting/setting.dto';
 export * from './utils/addressUtils';
 export * from './utils/cashMethods';
 export * from './utils/paginationResult';
