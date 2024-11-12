@@ -15,7 +15,9 @@ import {
   IBasicPaginated,
   TIMELINE_TYPE,
   UtxoInNode,
-  UtxoInNodeInput
+  UtxoInNodeInput,
+  coinInfo,
+  COIN
 } from '@bcpros/lixi-models';
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
@@ -564,6 +566,15 @@ export class EscrowOrderResolver {
               postId: postId
             }
           }
+        },
+        include: {
+          offer: {
+            select: {
+              telegramMessageId: true,
+              localCurrency: true,
+              coinPayment: true
+            }
+          }
         }
       });
 
@@ -577,10 +588,71 @@ export class EscrowOrderResolver {
         );
       }
 
-      if (sellerAccount.telegramId) {
-        const formatReplied = format(BOT.MESSAGE.ORDER_CREATED);
+      if (sellerAccount.telegramId && buyerAccount.telegramId) {
+        const replied = buyerDepositTx
+          ? BOT.MESSAGE.ORDER_CREATED + `Buyer Deposit: %s XEC`
+          : BOT.MESSAGE.ORDER_CREATED;
+        const formatReplied = format(
+          replied,
+          escrowOrder.id,
+          escrowOrder.amountCoinOrCurrency,
+          escrowOrder.offer.coinPayment ?? escrowOrder.offer.localCurrency,
+          buyerAccount.telegramUsername,
+          escrowAddress,
+          escrowOrder.message,
+          buyerDepositTx
+            ? (() => {
+                const fee1Percent = parseFloat((escrowOrder.amount / 100).toFixed(2));
+                const dustXEC = coinInfo[COIN.XEC].dustSats / Math.pow(10, coinInfo[COIN.XEC].cashDecimals);
+
+                return Math.max(fee1Percent, dustXEC);
+              })()
+            : ''
+        );
+
+        //send to seller
         await this.bot.telegram
           .sendMessage(sellerAccount.telegramId, formatReplied, {
+            parse_mode: 'Markdown',
+            protect_content: true,
+            reply_parameters: {
+              message_id: escrowOrder.offer.telegramMessageId ? parseInt(escrowOrder.offer.telegramMessageId!) : -1,
+              allow_sending_without_reply: true
+            },
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  {
+                    text: 'Open App',
+                    web_app: {
+                      url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`
+                    }
+                  }
+                ]
+              ]
+            }
+          })
+          .then(async res => {
+            await this.prisma.escrowOrder.update({
+              where: {
+                id: escrowOrder.id
+              },
+              data: {
+                sellerTelegramMessageId: res.message_id
+              }
+            });
+
+            await this.bot.telegram
+              .pinChatMessage(sellerAccount.telegramId!, res.message_id)
+              .catch(e => this.logger.error(e));
+          })
+          .catch(e => {
+            this.logger.error(e);
+          });
+
+        //Send order to buyer
+        await this.bot.telegram
+          .sendMessage(buyerAccount.telegramId, formatReplied, {
             parse_mode: 'Markdown',
             protect_content: true,
             reply_markup: {
@@ -596,8 +668,19 @@ export class EscrowOrderResolver {
               ]
             }
           })
-          .catch(e => {
-            this.logger.error(e);
+          .then(async res => {
+            await this.prisma.escrowOrder.update({
+              where: {
+                id: escrowOrder.id
+              },
+              data: {
+                buyerTelegramMessageId: res.message_id
+              }
+            });
+
+            await this.bot.telegram
+              .pinChatMessage(buyerAccount.telegramId!, res.message_id)
+              .catch(e => this.logger.error(e));
           });
       }
 
@@ -699,6 +782,9 @@ export class EscrowOrderResolver {
               .sendMessage(result.buyerAccount.telegramId, formatReplied, {
                 parse_mode: 'Markdown',
                 protect_content: true,
+                reply_parameters: {
+                  message_id: result.buyerTelegramMessageId!
+                },
                 reply_markup: {
                   inline_keyboard: [
                     [
@@ -741,52 +827,48 @@ export class EscrowOrderResolver {
         case EscrowOrderStatus.COMPLETE:
           _.set(dataToUpdate, 'releaseTxid', txid ?? null);
 
-          if (result.sellerAccount.telegramId && isArbiMod) {
+          if (result.sellerAccount.telegramId && result.buyerAccount.telegramId) {
             const formatReplied = isArbiMod
               ? format(BOT.MESSAGE.ORDER_RELEASE_BY_ARBMOD_SELLER)
               : format(BOT.MESSAGE.ORDER_COMPLETED);
+
+            //send to seller
             await this.bot.telegram
               .sendMessage(result.sellerAccount.telegramId, formatReplied, {
                 parse_mode: 'Markdown',
                 protect_content: true,
-                reply_markup: {
-                  inline_keyboard: [
-                    [
-                      {
-                        text: 'Open App',
-                        web_app: {
-                          url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${orderId}`
-                        }
-                      }
-                    ]
-                  ]
+                reply_parameters: {
+                  message_id: result.sellerTelegramMessageId!,
+                  allow_sending_without_reply: true
                 }
+              })
+              .then(async res => {
+                await this.bot.telegram
+                  .unpinChatMessage(result.sellerAccount.telegramId!, result.sellerTelegramMessageId!)
+                  .catch(e => {
+                    this.logger.error(e);
+                  });
               })
               .catch(e => {
                 this.logger.error(e);
               });
-          }
 
-          if (result.buyerAccount.telegramId) {
-            const formatReplied = isArbiMod
-              ? format(BOT.MESSAGE.ORDER_RELEASE_BY_ARBMOD_BUYER)
-              : format(BOT.MESSAGE.ORDER_COMPLETED);
+            //send to buyer
             await this.bot.telegram
               .sendMessage(result.buyerAccount.telegramId, formatReplied, {
                 parse_mode: 'Markdown',
                 protect_content: true,
-                reply_markup: {
-                  inline_keyboard: [
-                    [
-                      {
-                        text: 'Open App',
-                        web_app: {
-                          url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${orderId}`
-                        }
-                      }
-                    ]
-                  ]
+                reply_parameters: {
+                  message_id: result.buyerTelegramMessageId!,
+                  allow_sending_without_reply: true
                 }
+              })
+              .then(async res => {
+                await this.bot.telegram
+                  .unpinChatMessage(result.buyerAccount.telegramId!, result.buyerTelegramMessageId!)
+                  .catch(e => {
+                    this.logger.error(e);
+                  });
               })
               .catch(e => {
                 this.logger.error(e);
@@ -826,21 +908,14 @@ export class EscrowOrderResolver {
             const formatReplied = isArbiMod
               ? format(BOT.MESSAGE.ORDER_RETURN_BY_ARBMOD_SELLER)
               : format(BOT.MESSAGE.ORDER_CANCELED);
+
             await this.bot.telegram
               .sendMessage(result.sellerAccount.telegramId, formatReplied, {
                 parse_mode: 'Markdown',
                 protect_content: true,
-                reply_markup: {
-                  inline_keyboard: [
-                    [
-                      {
-                        text: 'Open App',
-                        web_app: {
-                          url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${orderId}`
-                        }
-                      }
-                    ]
-                  ]
+                reply_parameters: {
+                  message_id: result.sellerTelegramMessageId!,
+                  allow_sending_without_reply: true
                 }
               })
               .catch(e => {
@@ -853,27 +928,34 @@ export class EscrowOrderResolver {
             const formatReplied = isArbiMod
               ? format(BOT.MESSAGE.ORDER_RETURN_BY_ARBMOD_BUYER)
               : format(BOT.MESSAGE.ORDER_DECLINED);
+
             await this.bot.telegram
               .sendMessage(result.buyerAccount.telegramId, formatReplied, {
                 parse_mode: 'Markdown',
                 protect_content: true,
-                reply_markup: {
-                  inline_keyboard: [
-                    [
-                      {
-                        text: 'Open App',
-                        web_app: {
-                          url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${orderId}`
-                        }
-                      }
-                    ]
-                  ]
+                reply_parameters: {
+                  message_id: result.buyerTelegramMessageId!,
+                  allow_sending_without_reply: true
                 }
               })
               .catch(e => {
                 this.logger.error(e);
               });
           }
+
+          //unpin for seller
+          await this.bot.telegram
+            .unpinChatMessage(result.sellerAccount.telegramId!, result.sellerTelegramMessageId!)
+            .catch(e => {
+              this.logger.error(e);
+            });
+
+          //unpin for buyer
+          await this.bot.telegram
+            .unpinChatMessage(result.buyerAccount.telegramId!, result.buyerTelegramMessageId!)
+            .catch(e => {
+              this.logger.error(e);
+            });
 
           this.notificationGateway.publishEscrowOrderStatus(orderId, {
             escrowOrderId: orderId,

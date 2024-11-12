@@ -40,6 +40,11 @@ import { VError } from 'verror';
 import OfferLoader from './offer.loader';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { PostCacheService } from 'src/modules/page/post-cache.service';
+import { InjectBot } from 'nestjs-telegraf';
+import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from 'src/modules/telegram/telegram-bot.constants';
+import { format } from 'node:util';
+import { Context, Telegraf } from 'telegraf';
+import { BOT } from 'src/utils/bot.constants';
 
 @SkipThrottle()
 @Resolver(() => Offer)
@@ -53,6 +58,7 @@ export class OfferResolver {
     @InjectChronikClientNode('xec') private chronikXEC: ChronikClientNode,
     @InjectQueue(CONTENT_FANOUT_QUEUE) private postFanoutQueue: Queue,
     @InjectRedis() private readonly redis: Redis,
+    @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
     private readonly offerCacheService: OfferCacheService,
     private readonly postCacheService: PostCacheService,
     private readonly timelineItemService: TimelineItemService,
@@ -61,12 +67,18 @@ export class OfferResolver {
   ) {}
 
   @Query(() => Offer)
-  async offer(@Args('id', { type: () => String }) id: string) {
-    const result = await this.prisma.offer.findUnique({
-      where: { postId: id }
+  @UseGuards(GqlJwtAuthGuard)
+  async offer(@AccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
+    const post = await this.prisma.post.findFirst({
+      where: {
+        AND: [{ id: id, accountId: account.id }]
+      },
+      include: {
+        offer: true
+      }
     });
 
-    return result;
+    return post?.offer;
   }
 
   @Query(() => TimelineItemConnection)
@@ -78,6 +90,7 @@ export class OfferResolver {
       ...paginated,
       edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
     } as IBasicPaginated<TimelineItem>;
+
     return result;
   }
 
@@ -135,7 +148,7 @@ export class OfferResolver {
   async createOffer(@AccountEntity() account: Account, @Args('data') data: CreateOfferInput) {
     const { paymentMethodIds, pageId, createFeeHex, coin, stateId, countryId } = data;
 
-    const offer = await this.prisma.$transaction(async prisma => {
+    const result = await this.prisma.$transaction(async prisma => {
       let txid: string | undefined;
       let broadcastResponse;
       if (createFeeHex) {
@@ -214,19 +227,22 @@ export class OfferResolver {
             include: {
               state: {
                 select: {
-                  id: true
+                  id: true,
+                  name: true
                 }
               },
               country: {
                 select: {
-                  id: true
+                  id: true,
+                  name: true
                 }
               },
               paymentMethods: {
                 include: {
                   paymentMethod: {
                     select: {
-                      id: true
+                      id: true,
+                      name: true
                     }
                   }
                 }
@@ -239,12 +255,49 @@ export class OfferResolver {
       return createdOffer;
     });
 
+    const { offer } = result || {};
+
+    const formatReplied = format(
+      BOT.MESSAGE.OFFER_CREATED,
+      result.id,
+      offer?.message,
+      offer?.marginPercentage,
+      offer?.orderLimitMin,
+      offer?.orderLimitMax,
+      offer?.paymentMethods[0].paymentMethod.name,
+      offer?.state?.name ?? '---',
+      offer?.country?.name ?? '---'
+    );
+
+    account.telegramId &&
+      (await this.bot.telegram
+        .sendMessage(account.telegramId, formatReplied, {
+          parse_mode: 'Markdown'
+        })
+        .then(async res => {
+          try {
+            await this.prisma.offer.update({
+              where: {
+                postId: result.id
+              },
+              data: {
+                telegramMessageId: res.message_id.toString()
+              }
+            });
+          } catch (e) {
+            this.logger.error(e);
+          }
+        })
+        .catch(e => {
+          this.logger.error(e);
+        }));
+
     //add to cache
     await this.postFanoutQueue.add(CONTENT_FANOUT_QUEUE, { post: offer });
 
     //emit new post
     this.notificationGateway.publishNewPost();
-    return offer;
+    return result;
   }
 
   @UseGuards(GqlJwtAuthGuard)

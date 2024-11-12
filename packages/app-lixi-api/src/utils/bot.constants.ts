@@ -2,10 +2,15 @@ export const BOT = {
   MESSAGE: {
     ARBITRATOR_SELECTED: `🧑‍⚖️ Heads up! You have been assigned as the arbitrator for a new order! \r\n\r\n`,
     MODERATOR_SELECTED: `🧑‍⚖️ Heads up! You have been assigned as the moderator for a new order! \r\n\r\n`,
-    ORDER_CREATED: `📦 A new order has been placed! \r\n\r\n`,
-    ORDER_CANCELED: `❌ An order has been canceled! \r\n\r\n`,
-    ORDER_DECLINED: `❌ Your order has been declined! \r\n\r\n`,
-    ORDER_ESCROW: `✅ Your order has been escrowed! \r\n\r\n`,
+    ORDER_CREATED:
+      `📦 Order #%s has been placed! \r\n\r\n` +
+      `*Amount:* %s %s \n` +
+      `*Ordered By:* %s \n` +
+      `*Escrow Address:* %s \n` +
+      `*Message:* %s \n`,
+    ORDER_CANCELED: `❌ Order has been canceled! \r\n\r\n`,
+    ORDER_DECLINED: `❌ Order has been declined! \r\n\r\n`,
+    ORDER_ESCROW: `✅ Order has been escrowed! \r\n\r\n`,
     ORDER_COMPLETED: `✅ Order has been completed! \r\n\r\n`,
     ORDER_RETURN_BY_ARBMOD_SELLER: `The order's dispute has been resolved. The funds have been returned to you! \r\n\r\n`,
     ORDER_RETURN_BY_ARBMOD_BUYER: `The order's dispute has been resolved. The funds have been returned to seller! \r\n\r\n`,
@@ -30,6 +35,13 @@ export const BOT = {
       `*Price:* %s \n` +
       `*Payment method:* %s\n` +
       `*Location:* %s\n\n` +
-      `[View offer](%s)`
+      `[View offer](%s)`,
+    OFFER_CREATED:
+      `Offer #%s \n` +
+      `*Headline:* %s \n` +
+      `*Margin:* %s% \n` +
+      `*Order limit:* %sXEC - %sXEC \n` +
+      `*Payment method:* %s\n` +
+      `*Location:* %s, %s \n`
   }
 };
