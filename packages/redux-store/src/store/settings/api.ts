@@ -19,7 +19,7 @@ export const settingApi = {
   updateSetting(updateSettingCommand: UpdateSettingCommand): Promise<Setting> {
     const url = `/api/v1/settings/${updateSettingCommand.accountId}/update`;
     return axiosClient
-      .post(url, updateSettingCommand) 
+      .post(url, updateSettingCommand)
       .then(response => {
         return response.data as Setting;
       })
@@ -29,4 +29,3 @@ export const settingApi = {
       });
   }
 };
-

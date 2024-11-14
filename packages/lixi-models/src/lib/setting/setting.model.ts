@@ -10,5 +10,4 @@ export class Setting {
 
   @Field(() => GraphQLDateTime, { nullable: true })
   lastSeedBackupTime?: Nullable<Date>;
-
 }

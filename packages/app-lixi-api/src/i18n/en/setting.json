@@ -1,6 +1,5 @@
 {
-    "messages": {
-      "unableGetSetting": "Unable to get setting."
-    }
+  "messages": {
+    "unableGetSetting": "Unable to get setting."
   }
-  
+}
