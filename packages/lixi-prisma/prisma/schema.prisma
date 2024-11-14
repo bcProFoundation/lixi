@@ -322,6 +322,7 @@ model Account {
   accountAvatarImageUploadableId String?               @unique @map("account_avatar_image_uploadable_id")
   accountCoverImageUploadable    ImageUploadable?      @relation("account_cover_image_uploadable", fields: [accountCoverImageUploadableId], references: [id])
   accountCoverImageUploadableId  String?               @unique @map("account_cover_image_uploadable_id")
+  setting                        Setting?              
   bookmarks                      Bookmark[]
   imageUploadable                ImageUploadable[]
   PollAnswerOnAccount            PollAnswerOnAccount[]
@@ -1364,6 +1365,15 @@ model PaymentMethod {
   updatedAt           DateTime             @default(now()) @map("updated_at") @db.Timestamptz
 
   @@map("payment_method")
+}
+
+model Setting {
+  id                  String               @id @default(cuid())
+  account             Account              @relation(fields: [accountId], references: [id])     
+  accountId           Int                  @unique     
+  lastSeedBackupTime  DateTime?
+  createdAt           DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime             @default(now()) @map("updated_at") @db.Timestamptz
 }
 
 enum OfferType {
