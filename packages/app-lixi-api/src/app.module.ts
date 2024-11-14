@@ -99,16 +99,16 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
       useFactory: (config: ConfigService) => ({
         networks: {
           xec: {
-            clientUrls: [`${config.get<string>('CHRONIK_XEC_URL')}` || 'https://chronik.be.cash/xec'],
-            nodeUrls: [`${config.get<string>('CHRONIK_XEC_URL')}`]
+            clientUrls: [`${config.get<string>('CHRONIK_XEC_URL')}`, 'https://chronik.be.cash/xec'],
+            nodeUrls: [`${config.get<string>('CHRONIK_XEC_URL')}`, 'https://chronik.be.cash/xec']
           },
           xpi: {
-            clientUrls: [`${config.get<string>('CHRONIK_XPI_URL')}` || 'https://chronik.be.cash/xpi'],
-            nodeUrls: [`${config.get<string>('CHRONIK_XPI_URL')}`]
+            clientUrls: [`${config.get<string>('CHRONIK_XPI_URL')}`, 'https://chronik.be.cash/xpi'], // replace with self host chronik when needed
+            nodeUrls: [`${config.get<string>('CHRONIK_XPI_URL')}`, 'https://chronik.be.cash/xpi']
           },
           xrg: {
-            clientUrls: [`${config.get<string>('CHRONIK_XRG_URL')}` || 'https://chronik.be.cash/xrg'],
-            nodeUrls: [`${config.get<string>('CHRONIK_XRG_URL')}`]
+            clientUrls: [`${config.get<string>('CHRONIK_XRG_URL')}`, 'https://chronik.be.cash/xrg'],
+            nodeUrls: [`${config.get<string>('CHRONIK_XRG_URL')}`, 'https://chronik.be.cash/xrg']
           }
         }
       })
