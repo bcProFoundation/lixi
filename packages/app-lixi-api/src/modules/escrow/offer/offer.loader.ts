@@ -52,4 +52,24 @@ export default class OfferLoader {
     });
     return Promise.resolve(data);
   });
+
+  public readonly batchLocations = new DataLoader(async (ids: readonly string[]) => {
+    const locationIds = ids as unknown as string[];
+    const locations = await this.prisma.worldcities.findMany({
+      where: {
+        id: { in: locationIds }
+      }
+    });
+
+    const mapResult = new Map(
+      locations.map(location => {
+        return [location.id, location];
+      })
+    );
+
+    const data = locationIds.map((id, index) => {
+      return mapResult.get(id) ?? '';
+    });
+    return Promise.resolve(data);
+  });
 }

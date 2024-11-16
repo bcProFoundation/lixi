@@ -12,7 +12,7 @@ import {
   getStatesFailure,
   getStatesSuccess
 } from './actions';
-import countryApi from './api';
+import { countryApi } from './api';
 
 const call: any = Effects.call;
 

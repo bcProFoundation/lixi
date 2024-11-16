@@ -17,12 +17,16 @@ import { I18n, I18nContext } from 'nestjs-i18n';
 import { ReqSocket } from 'src/decorators/req.socket.decorator';
 import { VError } from 'verror';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MeiliService } from 'src/modules/page/meili.service';
 
 @SkipThrottle()
 @Controller('countries')
 export class CountryController {
   private logger: Logger = new Logger(this.constructor.name);
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private meiliService: MeiliService
+  ) {}
 
   @CacheTTL(600000)
   @Get()
@@ -39,13 +43,14 @@ export class CountryController {
 
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(600000)
-  @Get(':id/states')
-  async getStates(@Param('id') id: number | string, @I18n() i18n: I18nContext): Promise<any> {
+  @Get(':countryCode/states')
+  async getStates(@Param('countryCode') countryCode: string, @I18n() i18n: I18nContext): Promise<any> {
     try {
-      const states = await this.prisma.state.findMany({
+      const states = await this.prisma.worldcities.findMany({
         where: {
-          countryId: _.toSafeInteger(id)
-        }
+          iso2: countryCode
+        },
+        distinct: 'adminNameAscii'
       });
 
       const resultApi = states;
@@ -63,28 +68,47 @@ export class CountryController {
 
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(600000)
-  @Get(':id/cities')
+  @Get('/cities')
   async getCities(
-    @Query('countryId') countryId: number,
-    @Query('stateId') stateId: number,
+    @Query('countryCode') countryCode: string,
+    @Query('adminCode') adminCode: string,
     @I18n() i18n: I18nContext
   ): Promise<any> {
     try {
-      const cities = await this.prisma.city.findMany({
+      const cities = await this.prisma.worldcities.findMany({
         where: {
-          AND: [
-            {
-              countryId: _.toSafeInteger(countryId)
-            },
-            {
-              stateId: _.toSafeInteger(stateId)
-            }
-          ]
-        }
+          iso2: countryCode,
+          adminCode: adminCode
+        },
+        distinct: 'cityAscii'
       });
 
       const resultApi = cities;
       return resultApi;
+    } catch (err: unknown) {
+      if (err instanceof VError) {
+        throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      } else {
+        const unableToGetLixi = await i18n.t('country.messages.unableToGetCity');
+        const error = new VError.WError(err as Error, unableToGetLixi);
+        throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(600000)
+  @Get('locations')
+  async getLocations(@Query('query') query: string, @I18n() i18n: I18nContext): Promise<any> {
+    try {
+      const locations = await this.meiliService.searchByQueryHits(
+        `${process.env.MEILISEARCH_BUCKET}_locations`,
+        query,
+        0,
+        20
+      );
+
+      return locations;
     } catch (err: unknown) {
       if (err instanceof VError) {
         throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);

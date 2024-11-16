@@ -322,7 +322,7 @@ model Account {
   accountAvatarImageUploadableId String?               @unique @map("account_avatar_image_uploadable_id")
   accountCoverImageUploadable    ImageUploadable?      @relation("account_cover_image_uploadable", fields: [accountCoverImageUploadableId], references: [id])
   accountCoverImageUploadableId  String?               @unique @map("account_cover_image_uploadable_id")
-  setting                        Setting?              
+  setting                        Setting?
   bookmarks                      Bookmark[]
   imageUploadable                ImageUploadable[]
   PollAnswerOnAccount            PollAnswerOnAccount[]
@@ -1336,6 +1336,8 @@ model Offer {
   countryId         Int?                 @map("country_id")
   state             State?               @relation(fields: [stateId], references: [id])
   stateId           Int?                 @map("state_id")
+  location          Worldcities?         @relation(fields: [locationId], references: [id])
+  locationId        String?              @map("_id")
   telegramMessageId String?              @map("telegram_message_id")
   createdAt         DateTime             @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime             @default(now()) @map("updated_at") @db.Timestamptz
@@ -1368,12 +1370,41 @@ model PaymentMethod {
 }
 
 model Setting {
-  id                  String               @id @default(cuid())
-  account             Account              @relation(fields: [accountId], references: [id])     
-  accountId           Int                  @unique     
-  lastSeedBackupTime  DateTime?
-  createdAt           DateTime             @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt           DateTime             @default(now()) @map("updated_at") @db.Timestamptz
+  id                 String    @id @default(cuid())
+  account            Account   @relation(fields: [accountId], references: [id])
+  accountId          Int       @unique
+  lastSeedBackupTime DateTime?
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime  @default(now()) @map("updated_at") @db.Timestamptz
+}
+
+model Worldcities {
+  city             String? @db.VarChar(120)
+  cityAscii        String? @map("city_ascii") @db.VarChar(120)
+  cityAlt          String? @map("city_alt") @db.VarChar(1000)
+  lat              Float?  @default(0.0)
+  lng              Float?  @default(0.0)
+  country          String? @db.VarChar(120)
+  iso2             String? @db.Char(2)
+  iso3             String? @db.Char(3)
+  adminName        String? @map("admin_name") @db.VarChar(120)
+  adminNameAscii   String? @map("admin_name_ascii") @db.VarChar(120)
+  adminCode        String? @map("admin_code") @db.VarChar(6)
+  adminType        String? @map("admin_type") @db.VarChar(27)
+  capital          String? @db.VarChar(7)
+  density          Float?  @default(0.0)
+  population       String?
+  populationProper String? @map("population_proper")
+  ranking          Int?
+  timezone         String? @db.VarChar(120)
+  sameName         String? @map("same_name") @db.VarChar(5)
+  id               String  @id @db.VarChar(10)
+  Offer            Offer[]
+
+  // Adding indexes
+  @@index([iso2])
+  @@index([iso2, adminNameAscii])
+  @@map("world_cities")
 }
 
 enum OfferType {

@@ -34,14 +34,19 @@ export type OfferQuery = {
     orderLimitMin: number;
     orderLimitMax: number;
     status: Types.OfferStatus;
-    stateId?: number | null;
-    countryId?: number | null;
+    locationId?: string | null;
     paymentMethods: Array<{
       __typename?: 'OfferPaymentMethod';
       paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
     }>;
-    state?: { __typename?: 'State'; name?: string | null } | null;
-    country?: { __typename?: 'Country'; name?: string | null } | null;
+    location?: {
+      __typename?: 'Location';
+      id: string;
+      iso2?: string | null;
+      country?: string | null;
+      adminNameAscii?: string | null;
+      cityAscii?: string | null;
+    } | null;
   };
 };
 
@@ -82,6 +87,14 @@ export type AllOfferQuery = {
                   createdAt: any;
                   country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
+                  location?: {
+                    __typename?: 'Location';
+                    id: string;
+                    iso2?: string | null;
+                    country?: string | null;
+                    adminNameAscii?: string | null;
+                    cityAscii?: string | null;
+                  } | null;
                 };
               };
             }
@@ -269,14 +282,19 @@ export type AllOfferQuery = {
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
-                stateId?: number | null;
-                countryId?: number | null;
+                locationId?: string | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
-                state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name?: string | null } | null;
+                location?: {
+                  __typename?: 'Location';
+                  id: string;
+                  iso2?: string | null;
+                  country?: string | null;
+                  adminNameAscii?: string | null;
+                  cityAscii?: string | null;
+                } | null;
               } | null;
             };
       };
@@ -323,6 +341,14 @@ export type OfferByFilterQuery = {
                   createdAt: any;
                   country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
+                  location?: {
+                    __typename?: 'Location';
+                    id: string;
+                    iso2?: string | null;
+                    country?: string | null;
+                    adminNameAscii?: string | null;
+                    cityAscii?: string | null;
+                  } | null;
                 };
               };
             }
@@ -510,14 +536,19 @@ export type OfferByFilterQuery = {
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
-                stateId?: number | null;
-                countryId?: number | null;
+                locationId?: string | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
-                state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name?: string | null } | null;
+                location?: {
+                  __typename?: 'Location';
+                  id: string;
+                  iso2?: string | null;
+                  country?: string | null;
+                  adminNameAscii?: string | null;
+                  cityAscii?: string | null;
+                } | null;
               } | null;
             };
       };
@@ -564,6 +595,14 @@ export type AllOfferByAccountQuery = {
                   createdAt: any;
                   country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
+                  location?: {
+                    __typename?: 'Location';
+                    id: string;
+                    iso2?: string | null;
+                    country?: string | null;
+                    adminNameAscii?: string | null;
+                    cityAscii?: string | null;
+                  } | null;
                 };
               };
             }
@@ -751,14 +790,19 @@ export type AllOfferByAccountQuery = {
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
-                stateId?: number | null;
-                countryId?: number | null;
+                locationId?: string | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
-                state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name?: string | null } | null;
+                location?: {
+                  __typename?: 'Location';
+                  id: string;
+                  iso2?: string | null;
+                  country?: string | null;
+                  adminNameAscii?: string | null;
+                  cityAscii?: string | null;
+                } | null;
               } | null;
             };
       };
@@ -886,14 +930,19 @@ export type CreateOfferMutation = {
       orderLimitMin: number;
       orderLimitMax: number;
       status: Types.OfferStatus;
-      stateId?: number | null;
-      countryId?: number | null;
+      locationId?: string | null;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
       }>;
-      state?: { __typename?: 'State'; name?: string | null } | null;
-      country?: { __typename?: 'Country'; name?: string | null } | null;
+      location?: {
+        __typename?: 'Location';
+        id: string;
+        iso2?: string | null;
+        country?: string | null;
+        adminNameAscii?: string | null;
+        cityAscii?: string | null;
+      } | null;
     } | null;
   };
 };
@@ -917,14 +966,19 @@ export type UpdateOfferMutation = {
     orderLimitMin: number;
     orderLimitMax: number;
     status: Types.OfferStatus;
-    stateId?: number | null;
-    countryId?: number | null;
+    locationId?: string | null;
     paymentMethods: Array<{
       __typename?: 'OfferPaymentMethod';
       paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
     }>;
-    state?: { __typename?: 'State'; name?: string | null } | null;
-    country?: { __typename?: 'Country'; name?: string | null } | null;
+    location?: {
+      __typename?: 'Location';
+      id: string;
+      iso2?: string | null;
+      country?: string | null;
+      adminNameAscii?: string | null;
+      cityAscii?: string | null;
+    } | null;
   };
 };
 
@@ -1047,14 +1101,19 @@ export type UpdateOfferStatusMutation = {
       orderLimitMin: number;
       orderLimitMax: number;
       status: Types.OfferStatus;
-      stateId?: number | null;
-      countryId?: number | null;
+      locationId?: string | null;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
       }>;
-      state?: { __typename?: 'State'; name?: string | null } | null;
-      country?: { __typename?: 'Country'; name?: string | null } | null;
+      location?: {
+        __typename?: 'Location';
+        id: string;
+        iso2?: string | null;
+        country?: string | null;
+        adminNameAscii?: string | null;
+        cityAscii?: string | null;
+      } | null;
     } | null;
   };
 };

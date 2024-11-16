@@ -51,9 +51,6 @@ export class CreateOfferInput {
   @Field(() => String, { nullable: true })
   createFeeHex?: Nullable<string>;
 
-  @Field(() => Number, { nullable: true })
-  countryId?: Nullable<number>;
-
-  @Field(() => Number, { nullable: true })
-  stateId?: Nullable<number>;
+  @Field(() => String, { nullable: true })
+  locationId?: Nullable<string>;
 }

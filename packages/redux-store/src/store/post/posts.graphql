@@ -301,13 +301,13 @@ fragment OfferFields on Offer {
     }
   }
   status
-  stateId
-  state {
-    name
-  }
-  countryId
-  country {
-    name
+  locationId
+  location {
+    id
+    iso2
+    country
+    adminNameAscii
+    cityAscii
   }
 }
 

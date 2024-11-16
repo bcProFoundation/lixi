@@ -421,9 +421,9 @@ input CreateMessageInput {
 input CreateOfferInput {
   coin: Coin!
   coinPayment: String
-  countryId: Int
   createFeeHex: String
   localCurrency: String
+  locationId: String
   marginPercentage: Float!
   message: String!
   noteOffer: String
@@ -432,7 +432,6 @@ input CreateOfferInput {
   pageId: String
   paymentMethodIds: [Int!]!
   price: String!
-  stateId: Int
   type: OfferType!
 }
 
@@ -933,6 +932,15 @@ type LixiModel {
   updatedAt: DateTime
 }
 
+type Location {
+  adminCode: String
+  adminNameAscii: String
+  cityAscii: String
+  country: String
+  id: ID!
+  iso2: String
+}
+
 type Message {
   author: Account!
   body: String
@@ -1043,6 +1051,8 @@ type Offer {
   createdAt: DateTime!
   escrowOrders: [EscrowOrder!]
   localCurrency: String
+  location: Location
+  locationId: String
   marginPercentage: Float!
   message: String!
   noteOffer: String
@@ -1067,12 +1077,12 @@ type OfferBasicEdge {
 }
 
 input OfferFilterInput {
+  cityName: String
   coin: String
-  countryId: Int
+  countryCode: String
   countryName: String
   fiatCurrency: String
   paymentMethodIds: [Int!]
-  stateId: Int
   stateName: String
 }
 
