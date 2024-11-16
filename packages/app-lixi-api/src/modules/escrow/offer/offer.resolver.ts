@@ -14,7 +14,8 @@ import {
   TimelineItem,
   TimelineItemConnection,
   UpdateOfferInput,
-  UpdateOfferStatusInput
+  UpdateOfferStatusInput,
+  Location
 } from '@bcpros/lixi-models';
 import { Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
@@ -99,13 +100,14 @@ export class OfferResolver {
     @Args() { after, first }: BasicPaginationArgs,
     @Args({ name: 'offerFilterInput', type: () => OfferFilterInput }) offerFilterInput: OfferFilterInput
   ) {
-    // filter input before get cache (just take stateId, countryId, methods)
+    // filter input before get cache (just take stateName, countryName, methods, coin, fiatCurrency)
     offerFilterInput = {
-      countryId: offerFilterInput.countryId,
-      stateId: offerFilterInput.stateId,
+      countryCode: offerFilterInput.countryCode ?? null,
+      stateName: offerFilterInput.stateName ?? null,
+      cityName: offerFilterInput.cityName ?? null,
       paymentMethodIds: offerFilterInput.paymentMethodIds,
-      coin: offerFilterInput.coin,
-      fiatCurrency: offerFilterInput.fiatCurrency
+      coin: offerFilterInput.coin ?? null,
+      fiatCurrency: offerFilterInput.fiatCurrency ?? null
     };
     const paginated = await this.offerCacheService.getOfferFilterPaginatedTimeline(offerFilterInput, first, after);
     const timelineIds = paginated.edges.map(item => item.cursor);
@@ -146,7 +148,7 @@ export class OfferResolver {
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Post)
   async createOffer(@AccountEntity() account: Account, @Args('data') data: CreateOfferInput) {
-    const { paymentMethodIds, pageId, createFeeHex, coin, stateId, countryId } = data;
+    const { paymentMethodIds, pageId, createFeeHex, coin, locationId } = data;
 
     const result = await this.prisma.$transaction(async prisma => {
       let txid: string | undefined;
@@ -204,11 +206,8 @@ export class OfferResolver {
               localCurrency: data.localCurrency,
               orderLimitMin: data.orderLimitMin,
               orderLimitMax: data.orderLimitMax,
-              country: {
-                connect: countryId ? { id: Number(countryId) } : undefined
-              },
-              state: {
-                connect: stateId ? { id: Number(stateId) } : undefined
+              location: {
+                connect: locationId ? { id: locationId } : undefined
               },
               paymentMethods: {
                 createMany: {
@@ -246,6 +245,15 @@ export class OfferResolver {
                     }
                   }
                 }
+              },
+              location: {
+                select: {
+                  id: true,
+                  country: true,
+                  iso2: true,
+                  adminNameAscii: true,
+                  cityAscii: true
+                }
               }
             }
           }
@@ -256,6 +264,10 @@ export class OfferResolver {
     });
 
     const { offer } = result || {};
+    const locationOfOffer = offer?.location;
+    const strLocation =
+      locationOfOffer &&
+      `${[locationOfOffer?.cityAscii, locationOfOffer?.adminNameAscii, locationOfOffer?.country].filter(Boolean).join(', ')}`;
 
     const formatReplied = format(
       BOT.MESSAGE.OFFER_CREATED,
@@ -265,8 +277,7 @@ export class OfferResolver {
       offer?.orderLimitMin,
       offer?.orderLimitMax,
       offer?.paymentMethods[0].paymentMethod.name,
-      offer?.state?.name ?? '---',
-      offer?.country?.name ?? '---'
+      strLocation ?? '---'
     );
 
     account.telegramId &&
@@ -293,7 +304,7 @@ export class OfferResolver {
         }));
 
     //add to cache
-    await this.postFanoutQueue.add(CONTENT_FANOUT_QUEUE, { post: offer });
+    await this.postFanoutQueue.add(CONTENT_FANOUT_QUEUE, { post: result });
 
     //emit new post
     this.notificationGateway.publishNewPost();
@@ -406,5 +417,10 @@ export class OfferResolver {
   @ResolveField('state', () => State)
   async state(@Parent() offer: Offer) {
     return this.offerLoader.batchStates.load(Number(offer?.stateId ?? '0'));
+  }
+
+  @ResolveField('location', () => Location)
+  async location(@Parent() offer: Offer) {
+    return this.offerLoader.batchLocations.load(offer?.locationId ?? '0');
   }
 }

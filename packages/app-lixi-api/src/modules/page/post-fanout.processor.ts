@@ -168,15 +168,19 @@ export class PostFanoutProcessor extends WorkerHost {
           pipeline.zincrby(keyPaymentMethod, score, timelineId);
         });
 
-        //add cache for country and state (offer:country:{countryId})
-        if (post.offer?.country?.id) {
-          const keyCountry = `offer:country:{${post.offer?.country?.id}}`;
+        //add cache for country - state - city (offer:country:{countryName})
+        const countryCode = post.offer?.location?.iso2 ?? null;
+        const stateName = post.offer?.location?.adminNameAscii ?? null;
+        const cityName = post.offer?.location?.cityAscii ?? null;
+        if (post.offer?.location) {
+          const keyCountry = `offer:country:{${countryCode}}`;
           pipeline.zincrby(keyCountry, score, timelineId);
-        }
-        //state is optional (offer:state:{stateId})
-        if (post.offer?.state?.id) {
-          const keyState = `offer:state:{${post.offer.state.id}}`;
+
+          const keyState = `offer:state:{${stateName}}`;
           pipeline.zincrby(keyState, score, timelineId);
+
+          const keyCity = `offer:city:{${cityName}}`;
+          pipeline.zincrby(keyCity, score, timelineId);
         }
 
         if (post.offer?.coinPayment) {
@@ -195,8 +199,9 @@ export class PostFanoutProcessor extends WorkerHost {
         const existIndex = await reSearch.exist(IndexNameOffer);
         if (!existIndex) {
           await reSearch.create(IndexNameOffer, true, ['1', 'docOffer:'], {
-            countryId: 'TEXT',
-            stateId: 'TEXT',
+            country: 'TEXT',
+            state: 'TEXT',
+            city: 'TEXT',
             methods: 'TAG',
             coin: 'TEXT',
             currency: 'TEXT'
@@ -205,7 +210,7 @@ export class PostFanoutProcessor extends WorkerHost {
 
         //search item
         const methodIds = post?.offer?.paymentMethods?.map(item => item.paymentMethodId).join('|'); // 1|2|3
-        const queryItem = `@countryId:${post?.offer?.countryId}|@stateId:${post?.offer?.stateId}|@coin:${post?.offer?.coinPayment}|@currency:${post?.offer?.localCurrency}|@methods:{${methodIds}}`;
+        const queryItem = `@country:${countryCode}|@state:${stateName}|@city:${cityName}|@coin:${post?.offer?.coinPayment}|@currency:${post?.offer?.localCurrency}|@methods:{${methodIds}}`;
         const searchResult = await reSearch.search(IndexNameOffer, queryItem);
         //add item to search result
         if (searchResult.length > 0) {
