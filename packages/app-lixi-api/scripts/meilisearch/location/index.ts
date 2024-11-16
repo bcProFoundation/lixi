@@ -18,7 +18,7 @@ async function main() {
    })
 
    const indexedLocations = locations.map(location => ({
-      primaryId: location.id,
+      id: location.id,
       country: location.country,
       iso2: location.iso2,
       adminNameAscii: location.adminNameAscii,
@@ -30,7 +30,7 @@ async function main() {
    for (let i = 0; i < indexedLocations.length; i += batchSize) {
       console.log("index to: ", i)
       const batch = indexedLocations.slice(i, i + batchSize);
-      await meiliClient.index(`${process.env.MEILISEARCH_BUCKET}_locations`).addDocuments(batch, { primaryKey: 'primaryId' });
+      await meiliClient.index(`${process.env.MEILISEARCH_BUCKET}_locations`).addDocuments(batch, { primaryKey: 'id' });
    }
 }
 
