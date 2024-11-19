@@ -16,6 +16,9 @@ export class OfferFilterInput {
   stateName?: Nullable<string>;
 
   @Field(() => String, { nullable: true })
+  adminCode?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
   cityName?: Nullable<string>;
 
   @Field(() => String, { nullable: true })

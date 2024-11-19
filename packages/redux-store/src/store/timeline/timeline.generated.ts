@@ -336,6 +336,7 @@ export type TimelineItemFieldsFragment = {
             iso2?: string | null;
             country?: string | null;
             adminNameAscii?: string | null;
+            adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
         } | null;
@@ -572,6 +573,7 @@ export type TimelineQuery = {
               iso2?: string | null;
               country?: string | null;
               adminNameAscii?: string | null;
+              adminCode?: string | null;
               cityAscii?: string | null;
             } | null;
           } | null;
@@ -823,6 +825,7 @@ export type HomeTimelineQuery = {
                   iso2?: string | null;
                   country?: string | null;
                   adminNameAscii?: string | null;
+                  adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
               } | null;
@@ -1077,6 +1080,7 @@ export type ProfileTimelineQuery = {
                   iso2?: string | null;
                   country?: string | null;
                   adminNameAscii?: string | null;
+                  adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
               } | null;
@@ -1332,6 +1336,7 @@ export type ProfileTimelineByTimeQuery = {
                   iso2?: string | null;
                   country?: string | null;
                   adminNameAscii?: string | null;
+                  adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
               } | null;
@@ -1586,6 +1591,7 @@ export type PageTimelineQuery = {
                   iso2?: string | null;
                   country?: string | null;
                   adminNameAscii?: string | null;
+                  adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
               } | null;
@@ -1841,6 +1847,7 @@ export type PageTimelineByTimeQuery = {
                   iso2?: string | null;
                   country?: string | null;
                   adminNameAscii?: string | null;
+                  adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
               } | null;
@@ -2095,6 +2102,7 @@ export type TokenTimelineQuery = {
                   iso2?: string | null;
                   country?: string | null;
                   adminNameAscii?: string | null;
+                  adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
               } | null;
@@ -2350,6 +2358,7 @@ export type TokenTimelineByTimeQuery = {
                   iso2?: string | null;
                   country?: string | null;
                   adminNameAscii?: string | null;
+                  adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
               } | null;

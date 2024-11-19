@@ -94,7 +94,12 @@ export class BoostFeeResolver {
           id: boostForId
         },
         include: {
-          boostScore: true
+          boostScore: true,
+          offer: {
+            include: {
+              location: true
+            }
+          }
         }
       });
 

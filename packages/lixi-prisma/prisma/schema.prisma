@@ -1337,12 +1337,13 @@ model Offer {
   state             State?               @relation(fields: [stateId], references: [id])
   stateId           Int?                 @map("state_id")
   location          Worldcities?         @relation(fields: [locationId], references: [id])
-  locationId        String?              @map("_id")
+  locationId        String?              @map("location_id")
   telegramMessageId String?              @map("telegram_message_id")
   createdAt         DateTime             @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime             @default(now()) @map("updated_at") @db.Timestamptz
 
   @@map("offer")
+  @@index([locationId])
 }
 
 model OfferPaymentMethod {
@@ -1399,11 +1400,11 @@ model Worldcities {
   timezone         String? @db.VarChar(120)
   sameName         String? @map("same_name") @db.VarChar(5)
   id               String  @id @db.VarChar(10)
-  Offer            Offer[]
+  offers           Offer[]
 
   // Adding indexes
   @@index([iso2])
-  @@index([iso2, adminNameAscii])
+  @@index([iso2, adminCode])
   @@map("world_cities")
 }
 

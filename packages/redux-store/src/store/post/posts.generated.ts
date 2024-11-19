@@ -146,6 +146,7 @@ export type PostQuery = {
         iso2?: string | null;
         country?: string | null;
         adminNameAscii?: string | null;
+        adminCode?: string | null;
         cityAscii?: string | null;
       } | null;
     } | null;
@@ -296,6 +297,7 @@ export type PostsByPageIdQuery = {
             iso2?: string | null;
             country?: string | null;
             adminNameAscii?: string | null;
+            adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
         } | null;
@@ -454,6 +456,7 @@ export type PostsByUserIdQuery = {
             iso2?: string | null;
             country?: string | null;
             adminNameAscii?: string | null;
+            adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
         } | null;
@@ -612,6 +615,7 @@ export type PostsByHashtagIdQuery = {
             iso2?: string | null;
             country?: string | null;
             adminNameAscii?: string | null;
+            adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
         } | null;
@@ -770,6 +774,7 @@ export type PostsByTokenIdQuery = {
             iso2?: string | null;
             country?: string | null;
             adminNameAscii?: string | null;
+            adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
         } | null;
@@ -918,6 +923,7 @@ export type PostsBySearchQuery = {
             iso2?: string | null;
             country?: string | null;
             adminNameAscii?: string | null;
+            adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
         } | null;
@@ -1068,6 +1074,7 @@ export type PostsBySearchWithHashtagQuery = {
             iso2?: string | null;
             country?: string | null;
             adminNameAscii?: string | null;
+            adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
         } | null;
@@ -1219,6 +1226,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
             iso2?: string | null;
             country?: string | null;
             adminNameAscii?: string | null;
+            adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
         } | null;
@@ -1370,6 +1378,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
             iso2?: string | null;
             country?: string | null;
             adminNameAscii?: string | null;
+            adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
         } | null;
@@ -1433,6 +1442,7 @@ export type OfferFieldsFragment = {
     iso2?: string | null;
     country?: string | null;
     adminNameAscii?: string | null;
+    adminCode?: string | null;
     cityAscii?: string | null;
   } | null;
 };
@@ -1561,6 +1571,7 @@ export type PostFieldsFragment = {
       iso2?: string | null;
       country?: string | null;
       adminNameAscii?: string | null;
+      adminCode?: string | null;
       cityAscii?: string | null;
     } | null;
   } | null;
@@ -1683,6 +1694,7 @@ export type PostMeiliFieldsFragment = {
       iso2?: string | null;
       country?: string | null;
       adminNameAscii?: string | null;
+      adminCode?: string | null;
       cityAscii?: string | null;
     } | null;
   } | null;
@@ -1818,6 +1830,7 @@ export type CreatePostMutation = {
         iso2?: string | null;
         country?: string | null;
         adminNameAscii?: string | null;
+        adminCode?: string | null;
         cityAscii?: string | null;
       } | null;
     } | null;
@@ -1954,6 +1967,7 @@ export type UpdatePostMutation = {
         iso2?: string | null;
         country?: string | null;
         adminNameAscii?: string | null;
+        adminCode?: string | null;
         cityAscii?: string | null;
       } | null;
     } | null;
@@ -2096,6 +2110,7 @@ export type RemovePostMutation = {
         iso2?: string | null;
         country?: string | null;
         adminNameAscii?: string | null;
+        adminCode?: string | null;
         cityAscii?: string | null;
       } | null;
     } | null;
@@ -2149,6 +2164,7 @@ export const OfferFieldsFragmentDoc = `
     iso2
     country
     adminNameAscii
+    adminCode
     cityAscii
   }
 }

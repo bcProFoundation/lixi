@@ -1077,6 +1077,7 @@ type OfferBasicEdge {
 }
 
 input OfferFilterInput {
+  adminCode: String
   cityName: String
   coin: String
   countryCode: String

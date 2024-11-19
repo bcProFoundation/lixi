@@ -297,6 +297,7 @@ export type AllDisputeByAccountQuery = {
                   iso2?: string | null;
                   country?: string | null;
                   adminNameAscii?: string | null;
+                  adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
               } | null;

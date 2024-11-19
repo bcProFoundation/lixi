@@ -307,6 +307,7 @@ fragment OfferFields on Offer {
     iso2
     country
     adminNameAscii
+    adminCode
     cityAscii
   }
 }

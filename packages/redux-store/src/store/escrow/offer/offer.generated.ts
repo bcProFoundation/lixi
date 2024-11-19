@@ -45,6 +45,7 @@ export type OfferQuery = {
       iso2?: string | null;
       country?: string | null;
       adminNameAscii?: string | null;
+      adminCode?: string | null;
       cityAscii?: string | null;
     } | null;
   };
@@ -293,6 +294,7 @@ export type AllOfferQuery = {
                   iso2?: string | null;
                   country?: string | null;
                   adminNameAscii?: string | null;
+                  adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
               } | null;
@@ -547,6 +549,7 @@ export type OfferByFilterQuery = {
                   iso2?: string | null;
                   country?: string | null;
                   adminNameAscii?: string | null;
+                  adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
               } | null;
@@ -801,6 +804,7 @@ export type AllOfferByAccountQuery = {
                   iso2?: string | null;
                   country?: string | null;
                   adminNameAscii?: string | null;
+                  adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
               } | null;
@@ -941,6 +945,7 @@ export type CreateOfferMutation = {
         iso2?: string | null;
         country?: string | null;
         adminNameAscii?: string | null;
+        adminCode?: string | null;
         cityAscii?: string | null;
       } | null;
     } | null;
@@ -977,6 +982,7 @@ export type UpdateOfferMutation = {
       iso2?: string | null;
       country?: string | null;
       adminNameAscii?: string | null;
+      adminCode?: string | null;
       cityAscii?: string | null;
     } | null;
   };
@@ -1112,6 +1118,7 @@ export type UpdateOfferStatusMutation = {
         iso2?: string | null;
         country?: string | null;
         adminNameAscii?: string | null;
+        adminCode?: string | null;
         cityAscii?: string | null;
       } | null;
     } | null;

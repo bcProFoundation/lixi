@@ -100,11 +100,12 @@ export class OfferResolver {
     @Args() { after, first }: BasicPaginationArgs,
     @Args({ name: 'offerFilterInput', type: () => OfferFilterInput }) offerFilterInput: OfferFilterInput
   ) {
-    // filter input before get cache (just take stateName, countryName, methods, coin, fiatCurrency)
+    const replaceDashWithUnderscore = (str: any) => (str ? str.replace(/-/g, '_') : str);
+
     offerFilterInput = {
       countryCode: offerFilterInput.countryCode ?? null,
-      stateName: offerFilterInput.stateName ?? null,
-      cityName: offerFilterInput.cityName ?? null,
+      adminCode: replaceDashWithUnderscore(offerFilterInput.adminCode),
+      cityName: replaceDashWithUnderscore(offerFilterInput.cityName),
       paymentMethodIds: offerFilterInput.paymentMethodIds,
       coin: offerFilterInput.coin ?? null,
       fiatCurrency: offerFilterInput.fiatCurrency ?? null
@@ -252,6 +253,7 @@ export class OfferResolver {
                   country: true,
                   iso2: true,
                   adminNameAscii: true,
+                  adminCode: true,
                   cityAscii: true
                 }
               }
@@ -280,28 +282,28 @@ export class OfferResolver {
       strLocation ?? '---'
     );
 
-    account.telegramId &&
-      (await this.bot.telegram
-        .sendMessage(account.telegramId, formatReplied, {
-          parse_mode: 'Markdown'
-        })
-        .then(async res => {
-          try {
-            await this.prisma.offer.update({
-              where: {
-                postId: result.id
-              },
-              data: {
-                telegramMessageId: res.message_id.toString()
-              }
-            });
-          } catch (e) {
-            this.logger.error(e);
-          }
-        })
-        .catch(e => {
-          this.logger.error(e);
-        }));
+    // account.telegramId &&
+    //   (await this.bot.telegram
+    //     .sendMessage(account.telegramId, formatReplied, {
+    //       parse_mode: 'Markdown'
+    //     })
+    //     .then(async res => {
+    //       try {
+    //         await this.prisma.offer.update({
+    //           where: {
+    //             postId: result.id
+    //           },
+    //           data: {
+    //             telegramMessageId: res.message_id.toString()
+    //           }
+    //         });
+    //       } catch (e) {
+    //         this.logger.error(e);
+    //       }
+    //     })
+    //     .catch(e => {
+    //       this.logger.error(e);
+    //     }));
 
     //add to cache
     await this.postFanoutQueue.add(CONTENT_FANOUT_QUEUE, { post: result });
@@ -421,6 +423,7 @@ export class OfferResolver {
 
   @ResolveField('location', () => Location)
   async location(@Parent() offer: Offer) {
-    return this.offerLoader.batchLocations.load(offer?.locationId ?? '0');
+    if (!offer?.locationId) return null;
+    return this.offerLoader.batchLocations.load(offer.locationId);
   }
 }

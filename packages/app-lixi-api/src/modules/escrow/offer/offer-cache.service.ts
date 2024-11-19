@@ -335,7 +335,7 @@ export class OfferCacheService {
   ) {
     try {
       const reSearch = new ReSearch(this.redis);
-      const { countryCode, stateName, cityName, paymentMethodIds, coin, fiatCurrency } = offerFilterInput;
+      const { countryCode, adminCode, cityName, paymentMethodIds, coin, fiatCurrency } = offerFilterInput;
       let keyPaymentMethods = '';
       let totalKeyPaymentMethods = 0;
       //get cache payment-methods
@@ -370,11 +370,11 @@ export class OfferCacheService {
         totalKeyInter += 1;
         multiSetInter.push(keyCountry);
       }
-      if (stateName) {
+      if (adminCode) {
         //check key stateId
-        const keyState = `offer:state:{${stateName}}`;
+        const keyState = `offer:state:{${adminCode}}`;
         const existKeyState = await this.redis.exists([keyState]);
-        if (!existKeyState) await this.cacheOfferState(stateName);
+        if (!existKeyState) await this.cacheOfferState(adminCode);
 
         totalKeyInter += 1;
         multiSetInter.push(keyState);
@@ -422,15 +422,15 @@ export class OfferCacheService {
 
       //intersect cache
       const docAdded = {
-        country: offerFilterInput?.countryCode ?? '',
-        state: offerFilterInput?.stateName ?? '',
+        countryCode: offerFilterInput?.countryCode ?? '',
+        adminCode: offerFilterInput?.adminCode ?? '',
         city: offerFilterInput?.cityName ?? '',
         methods: offerFilterInput?.paymentMethodIds?.map(item => `${item}`),
         coin: offerFilterInput?.coin ?? '',
         currency: offerFilterInput?.fiatCurrency ?? ''
       };
       //add cache and index
-      Promise.all([
+      await Promise.all([
         this.redis.zinterstore(combinationKey, totalKeyInter, ...multiSetInter, 'AGGREGATE', 'MAX'),
         reSearch.add(IndexNameOffer, `docOffer:${keyFilter}`, docAdded)
       ]);
@@ -458,10 +458,13 @@ export class OfferCacheService {
         JOIN
             boost_fee as boost 
             ON offer.post_id = boost.boosted_for_id
+        JOIN 
+            world_cities as wc
+            ON offer.location_id = wc.id
       WHERE
         boost.boost_for_type = ${postBoostType} 
         AND boost.boosted_value > 0
-        AND offer.world_cities.iso2 = ${countryCode}
+        AND wc.iso2 = ${countryCode}
       GROUP BY
         offer.post_id
       ORDER by
@@ -485,8 +488,8 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheOfferState(state: string) {
-    const key = `offer:state:{${state}}`;
+  private async cacheOfferState(adminCode: string) {
+    const key = `offer:state:{${adminCode}}`;
     const postBoostType = BoostForType.Post;
     const halfLife = '12 hours';
     const query = Prisma.sql`
@@ -498,10 +501,13 @@ export class OfferCacheService {
         JOIN
             boost_fee as boost 
             ON offer.post_id = boost.boosted_for_id
+        JOIN 
+            world_cities as wc
+            ON offer.location_id = wc.id
       WHERE
         boost.boost_for_type = ${postBoostType} 
         AND boost.boosted_value > 0
-        AND offer.world_cities.admin_name_ascii = ${state}
+        AND wc.admin_code = ${adminCode}
       GROUP BY
         offer.post_id
       ORDER by
@@ -538,10 +544,13 @@ export class OfferCacheService {
         JOIN
             boost_fee as boost 
             ON offer.post_id = boost.boosted_for_id
+        JOIN 
+            world_cities as wc
+            ON offer.location_id = wc.id
       WHERE
         boost.boost_for_type = ${postBoostType} 
         AND boost.boosted_value > 0
-        AND offer.world_cities.city_ascii = ${city}
+        AND wc.city_ascii = ${city}
       GROUP BY
         offer.post_id
       ORDER by

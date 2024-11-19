@@ -42,7 +42,7 @@ async function main() {
       const keyCountry = `offer:country:{${offer.location.iso2}}`;
       redis.zincrby(keyCountry, score, timelineId);
 
-      const keyState = `offer:state:{${offer.location.adminNameAscii}}`;
+      const keyState = `offer:state:{${offer.location.adminCode}}`;
       redis.zincrby(keyState, score, timelineId);
     
       const keyCity = `offer:city:{${offer.location.cityAscii}}`;

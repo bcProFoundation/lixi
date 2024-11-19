@@ -12,6 +12,7 @@ async function main() {
          country: true,
          iso2: true,
          adminNameAscii: true,
+         adminCode: true,
          cityAscii: true,
          id: true
       }
@@ -22,6 +23,7 @@ async function main() {
       country: location.country,
       iso2: location.iso2,
       adminNameAscii: location.adminNameAscii,
+      adminCode: location.adminCode,
       cityAscii: location.cityAscii
     }));
     
