@@ -75,6 +75,7 @@ yalc.lock
 .store/
 .turbo/
 data/
+!data/worldcities.zip
 dist/
 node_modules/
 target/
