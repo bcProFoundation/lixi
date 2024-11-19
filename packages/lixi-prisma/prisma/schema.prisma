@@ -1342,8 +1342,8 @@ model Offer {
   createdAt         DateTime             @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime             @default(now()) @map("updated_at") @db.Timestamptz
 
-  @@map("offer")
   @@index([locationId])
+  @@map("offer")
 }
 
 model OfferPaymentMethod {
@@ -1406,6 +1406,15 @@ model Worldcities {
   @@index([iso2])
   @@index([iso2, adminCode])
   @@map("world_cities")
+}
+
+model SeedVersion {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("seed_version")
 }
 
 enum OfferType {
