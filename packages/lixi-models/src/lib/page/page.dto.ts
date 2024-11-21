@@ -5,16 +5,16 @@ export class PageDto {
   pageAccountId: number;
   name: string;
   title: string;
-  categoryId: number;
+  categoryId?: Nullable<number>;
   walletAddress: string;
   description: string;
   avatar: string;
   cover: string;
   parentId?: Nullable<string>;
-  address?: string;
+  address?: Nullable<string>;
   website: string;
-  countryId?: number;
-  stateId?: number;
+  countryId?: Nullable<number>;
+  stateId?: Nullable<number>;
   createdAt: Date;
   updatedAt: Date;
 

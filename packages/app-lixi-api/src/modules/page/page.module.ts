@@ -44,6 +44,7 @@ import { RemovePostFanoutProcessor } from './remove-post-fanout.processor';
 import { PollOptionResolver } from './polls/poll-option.resolver';
 import { PostBoostCacheService } from './post-boost-cache.service';
 import { OfferCacheService } from '../escrow/offer/offer-cache.service';
+import { PageController } from './page.controller';
 
 @Module({
   imports: [
@@ -86,6 +87,7 @@ import { OfferCacheService } from '../escrow/offer/offer-cache.service';
       }
     )
   ],
+  controllers: [PageController],
   providers: [
     PageResolver,
     Logger,
