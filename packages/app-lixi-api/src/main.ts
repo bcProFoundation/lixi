@@ -36,7 +36,8 @@ async function bootstrap() {
   });
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, fastifyAdapter, {
     logger: loggerConfig,
-    snapshot: true
+    snapshot: true,
+    abortOnError: false
   });
 
   await app.register(contentParser);
