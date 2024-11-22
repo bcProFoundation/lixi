@@ -44,6 +44,10 @@ export const getWalletUtxosNode = createSelector(getWalletStatusNode, (state: Wa
   state && state.utxos ? state.utxos : []
 );
 
+export const getSlpBalancesAndUtxosNode = createSelector(getWalletStatusNode, (state: WalletStatusNode) =>
+  state && state.slpBalancesAndUtxos ? state.slpBalancesAndUtxos.nonSlpUtxos : null
+);
+
 export const getWalletMnemonic = createSelector(getWalletState, (state: WalletState) => state.mnemonic);
 
 export const getSelectedWalletPath = createSelector(getWalletState, (state: WalletState) =>

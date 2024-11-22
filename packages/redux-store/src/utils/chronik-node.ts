@@ -348,12 +348,6 @@ export const parseChronikTx_InNode = async (
       }
     }
 
-    // Check OP_RETURN burn
-    if (!isLotusMessage && thisOutputReceivedAtHash160.startsWith('6a')) {
-      isBurn = true;
-      xecBurnAmount = new BigNumber(thisOutput.value);
-      parseBurnResult = parseBurnOutput(thisOutputReceivedAtHash160);
-    }
     // Find amounts at your wallet's addresses
     if (thisOutputReceivedAtHash160.includes(selectedWallet.hash160)) {
       // If incoming tx, this is amount received by the user's wallet
@@ -423,7 +417,6 @@ export const parseChronikTx_InNode = async (
     replyAddress,
     destinationAddress,
     isBurn,
-    burnInfo: isBurn && parseBurnResult,
     xecBurnAmount: xecBurnAmountString
   };
   return parsedTx;
