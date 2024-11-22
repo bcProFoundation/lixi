@@ -75,6 +75,7 @@ yalc.lock
 .store/
 .turbo/
 data/
+data/worldcities.tar.gz
 dist/
 node_modules/
 target/
