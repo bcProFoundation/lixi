@@ -20,8 +20,7 @@ async function main() {
         }
       },
       post: true,
-      country: true,
-      state: true
+      location: true
     }
   });
 
@@ -39,14 +38,15 @@ async function main() {
       redis.zincrby(keyPaymentMethod, score, timelineId);
     });
 
-    if (offer?.country?.id) {
-      const keyCountry = `lixilotus:offer:country:{${offer?.country?.id}}`;
+    if (offer?.location) {
+      const keyCountry = `offer:country:{${offer.location.iso2}}`;
       redis.zincrby(keyCountry, score, timelineId);
-    }
 
-    if (offer?.state?.id) {
-      const keyState = `lixilotus:offer:state:{${offer.state.id}}`;
+      const keyState = `offer:state:{${offer.location.adminCode}}`;
       redis.zincrby(keyState, score, timelineId);
+    
+      const keyCity = `offer:city:{${offer.location.cityAscii}}`;
+      redis.zincrby(keyCity, score, timelineId);
     }
 
     if (offer?.coinPayment) {

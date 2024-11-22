@@ -87,6 +87,13 @@ fragment DisputeFields on Dispute {
       state {
         name
       }
+      location {
+        id
+        iso2
+        country
+        adminNameAscii
+        cityAscii
+      }
       createdAt
     }
   }

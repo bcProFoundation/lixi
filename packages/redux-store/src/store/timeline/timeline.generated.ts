@@ -100,6 +100,14 @@ export type DisputeFieldsFragment = {
       createdAt: any;
       country?: { __typename?: 'Country'; name?: string | null } | null;
       state?: { __typename?: 'State'; name?: string | null } | null;
+      location?: {
+        __typename?: 'Location';
+        id: string;
+        iso2?: string | null;
+        country?: string | null;
+        adminNameAscii?: string | null;
+        cityAscii?: string | null;
+      } | null;
     };
   };
 };
@@ -128,6 +136,14 @@ export type TimelineItemFieldsFragment = {
             createdAt: any;
             country?: { __typename?: 'Country'; name?: string | null } | null;
             state?: { __typename?: 'State'; name?: string | null } | null;
+            location?: {
+              __typename?: 'Location';
+              id: string;
+              iso2?: string | null;
+              country?: string | null;
+              adminNameAscii?: string | null;
+              cityAscii?: string | null;
+            } | null;
           };
         };
       }
@@ -309,14 +325,20 @@ export type TimelineItemFieldsFragment = {
           orderLimitMin: number;
           orderLimitMax: number;
           status: Types.OfferStatus;
-          stateId?: number | null;
-          countryId?: number | null;
+          locationId?: string | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           }>;
-          state?: { __typename?: 'State'; name?: string | null } | null;
-          country?: { __typename?: 'Country'; name?: string | null } | null;
+          location?: {
+            __typename?: 'Location';
+            id: string;
+            iso2?: string | null;
+            country?: string | null;
+            adminNameAscii?: string | null;
+            adminCode?: string | null;
+            cityAscii?: string | null;
+          } | null;
         } | null;
       };
 };
@@ -351,6 +373,14 @@ export type TimelineQuery = {
               createdAt: any;
               country?: { __typename?: 'Country'; name?: string | null } | null;
               state?: { __typename?: 'State'; name?: string | null } | null;
+              location?: {
+                __typename?: 'Location';
+                id: string;
+                iso2?: string | null;
+                country?: string | null;
+                adminNameAscii?: string | null;
+                cityAscii?: string | null;
+              } | null;
             };
           };
         }
@@ -532,14 +562,20 @@ export type TimelineQuery = {
             orderLimitMin: number;
             orderLimitMax: number;
             status: Types.OfferStatus;
-            stateId?: number | null;
-            countryId?: number | null;
+            locationId?: string | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
             }>;
-            state?: { __typename?: 'State'; name?: string | null } | null;
-            country?: { __typename?: 'Country'; name?: string | null } | null;
+            location?: {
+              __typename?: 'Location';
+              id: string;
+              iso2?: string | null;
+              country?: string | null;
+              adminNameAscii?: string | null;
+              adminCode?: string | null;
+              cityAscii?: string | null;
+            } | null;
           } | null;
         };
   };
@@ -583,6 +619,14 @@ export type HomeTimelineQuery = {
                   createdAt: any;
                   country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
+                  location?: {
+                    __typename?: 'Location';
+                    id: string;
+                    iso2?: string | null;
+                    country?: string | null;
+                    adminNameAscii?: string | null;
+                    cityAscii?: string | null;
+                  } | null;
                 };
               };
             }
@@ -770,14 +814,20 @@ export type HomeTimelineQuery = {
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
-                stateId?: number | null;
-                countryId?: number | null;
+                locationId?: string | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
-                state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name?: string | null } | null;
+                location?: {
+                  __typename?: 'Location';
+                  id: string;
+                  iso2?: string | null;
+                  country?: string | null;
+                  adminNameAscii?: string | null;
+                  adminCode?: string | null;
+                  cityAscii?: string | null;
+                } | null;
               } | null;
             };
       };
@@ -824,6 +874,14 @@ export type ProfileTimelineQuery = {
                   createdAt: any;
                   country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
+                  location?: {
+                    __typename?: 'Location';
+                    id: string;
+                    iso2?: string | null;
+                    country?: string | null;
+                    adminNameAscii?: string | null;
+                    cityAscii?: string | null;
+                  } | null;
                 };
               };
             }
@@ -1011,14 +1069,20 @@ export type ProfileTimelineQuery = {
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
-                stateId?: number | null;
-                countryId?: number | null;
+                locationId?: string | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
-                state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name?: string | null } | null;
+                location?: {
+                  __typename?: 'Location';
+                  id: string;
+                  iso2?: string | null;
+                  country?: string | null;
+                  adminNameAscii?: string | null;
+                  adminCode?: string | null;
+                  cityAscii?: string | null;
+                } | null;
               } | null;
             };
       };
@@ -1066,6 +1130,14 @@ export type ProfileTimelineByTimeQuery = {
                   createdAt: any;
                   country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
+                  location?: {
+                    __typename?: 'Location';
+                    id: string;
+                    iso2?: string | null;
+                    country?: string | null;
+                    adminNameAscii?: string | null;
+                    cityAscii?: string | null;
+                  } | null;
                 };
               };
             }
@@ -1253,14 +1325,20 @@ export type ProfileTimelineByTimeQuery = {
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
-                stateId?: number | null;
-                countryId?: number | null;
+                locationId?: string | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
-                state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name?: string | null } | null;
+                location?: {
+                  __typename?: 'Location';
+                  id: string;
+                  iso2?: string | null;
+                  country?: string | null;
+                  adminNameAscii?: string | null;
+                  adminCode?: string | null;
+                  cityAscii?: string | null;
+                } | null;
               } | null;
             };
       };
@@ -1307,6 +1385,14 @@ export type PageTimelineQuery = {
                   createdAt: any;
                   country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
+                  location?: {
+                    __typename?: 'Location';
+                    id: string;
+                    iso2?: string | null;
+                    country?: string | null;
+                    adminNameAscii?: string | null;
+                    cityAscii?: string | null;
+                  } | null;
                 };
               };
             }
@@ -1494,14 +1580,20 @@ export type PageTimelineQuery = {
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
-                stateId?: number | null;
-                countryId?: number | null;
+                locationId?: string | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
-                state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name?: string | null } | null;
+                location?: {
+                  __typename?: 'Location';
+                  id: string;
+                  iso2?: string | null;
+                  country?: string | null;
+                  adminNameAscii?: string | null;
+                  adminCode?: string | null;
+                  cityAscii?: string | null;
+                } | null;
               } | null;
             };
       };
@@ -1549,6 +1641,14 @@ export type PageTimelineByTimeQuery = {
                   createdAt: any;
                   country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
+                  location?: {
+                    __typename?: 'Location';
+                    id: string;
+                    iso2?: string | null;
+                    country?: string | null;
+                    adminNameAscii?: string | null;
+                    cityAscii?: string | null;
+                  } | null;
                 };
               };
             }
@@ -1736,14 +1836,20 @@ export type PageTimelineByTimeQuery = {
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
-                stateId?: number | null;
-                countryId?: number | null;
+                locationId?: string | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
-                state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name?: string | null } | null;
+                location?: {
+                  __typename?: 'Location';
+                  id: string;
+                  iso2?: string | null;
+                  country?: string | null;
+                  adminNameAscii?: string | null;
+                  adminCode?: string | null;
+                  cityAscii?: string | null;
+                } | null;
               } | null;
             };
       };
@@ -1790,6 +1896,14 @@ export type TokenTimelineQuery = {
                   createdAt: any;
                   country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
+                  location?: {
+                    __typename?: 'Location';
+                    id: string;
+                    iso2?: string | null;
+                    country?: string | null;
+                    adminNameAscii?: string | null;
+                    cityAscii?: string | null;
+                  } | null;
                 };
               };
             }
@@ -1977,14 +2091,20 @@ export type TokenTimelineQuery = {
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
-                stateId?: number | null;
-                countryId?: number | null;
+                locationId?: string | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
-                state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name?: string | null } | null;
+                location?: {
+                  __typename?: 'Location';
+                  id: string;
+                  iso2?: string | null;
+                  country?: string | null;
+                  adminNameAscii?: string | null;
+                  adminCode?: string | null;
+                  cityAscii?: string | null;
+                } | null;
               } | null;
             };
       };
@@ -2032,6 +2152,14 @@ export type TokenTimelineByTimeQuery = {
                   createdAt: any;
                   country?: { __typename?: 'Country'; name?: string | null } | null;
                   state?: { __typename?: 'State'; name?: string | null } | null;
+                  location?: {
+                    __typename?: 'Location';
+                    id: string;
+                    iso2?: string | null;
+                    country?: string | null;
+                    adminNameAscii?: string | null;
+                    cityAscii?: string | null;
+                  } | null;
                 };
               };
             }
@@ -2219,14 +2347,20 @@ export type TokenTimelineByTimeQuery = {
                 orderLimitMin: number;
                 orderLimitMax: number;
                 status: Types.OfferStatus;
-                stateId?: number | null;
-                countryId?: number | null;
+                locationId?: string | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
                 }>;
-                state?: { __typename?: 'State'; name?: string | null } | null;
-                country?: { __typename?: 'Country'; name?: string | null } | null;
+                location?: {
+                  __typename?: 'Location';
+                  id: string;
+                  iso2?: string | null;
+                  country?: string | null;
+                  adminNameAscii?: string | null;
+                  adminCode?: string | null;
+                  cityAscii?: string | null;
+                } | null;
               } | null;
             };
       };
@@ -2321,6 +2455,13 @@ export const DisputeFieldsFragmentDoc = `
       }
       state {
         name
+      }
+      location {
+        id
+        iso2
+        country
+        adminNameAscii
+        cityAscii
       }
       createdAt
     }

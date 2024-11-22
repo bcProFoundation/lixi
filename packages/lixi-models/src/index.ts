@@ -109,6 +109,7 @@ export * from './lib/follow/pagination/followPage-connection.model';
 export * from './lib/geo-location/city.model';
 export * from './lib/geo-location/country.model';
 export * from './lib/geo-location/state.model';
+export * from './lib/geo-location/location.model';
 export * from './lib/handle/handle.constants';
 export * from './lib/hashtag/hashtag-dana.model';
 export * from './lib/hashtag/hashtag.model';

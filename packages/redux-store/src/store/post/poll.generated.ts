@@ -132,14 +132,20 @@ export type CreatePollMutation = {
       orderLimitMin: number;
       orderLimitMax: number;
       status: Types.OfferStatus;
-      stateId?: number | null;
-      countryId?: number | null;
+      locationId?: string | null;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
       }>;
-      state?: { __typename?: 'State'; name?: string | null } | null;
-      country?: { __typename?: 'Country'; name?: string | null } | null;
+      location?: {
+        __typename?: 'Location';
+        id: string;
+        iso2?: string | null;
+        country?: string | null;
+        adminNameAscii?: string | null;
+        adminCode?: string | null;
+        cityAscii?: string | null;
+      } | null;
     } | null;
   };
 };

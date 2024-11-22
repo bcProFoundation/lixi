@@ -445,9 +445,9 @@ export type CreateMessageInput = {
 export type CreateOfferInput = {
   coin: Coin;
   coinPayment?: InputMaybe<Scalars['String']['input']>;
-  countryId?: InputMaybe<Scalars['Int']['input']>;
   createFeeHex?: InputMaybe<Scalars['String']['input']>;
   localCurrency?: InputMaybe<Scalars['String']['input']>;
+  locationId?: InputMaybe<Scalars['String']['input']>;
   marginPercentage: Scalars['Float']['input'];
   message: Scalars['String']['input'];
   noteOffer?: InputMaybe<Scalars['String']['input']>;
@@ -456,7 +456,6 @@ export type CreateOfferInput = {
   pageId?: InputMaybe<Scalars['String']['input']>;
   paymentMethodIds: Array<Scalars['Int']['input']>;
   price: Scalars['String']['input'];
-  stateId?: InputMaybe<Scalars['Int']['input']>;
   type: OfferType;
 };
 
@@ -955,6 +954,16 @@ export type LixiModel = {
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
+export type Location = {
+  __typename?: 'Location';
+  adminCode?: Maybe<Scalars['String']['output']>;
+  adminNameAscii?: Maybe<Scalars['String']['output']>;
+  cityAscii?: Maybe<Scalars['String']['output']>;
+  country?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  iso2?: Maybe<Scalars['String']['output']>;
+};
+
 export type Message = {
   __typename?: 'Message';
   author: Account;
@@ -1229,6 +1238,8 @@ export type Offer = {
   createdAt: Scalars['DateTime']['output'];
   escrowOrders?: Maybe<Array<EscrowOrder>>;
   localCurrency?: Maybe<Scalars['String']['output']>;
+  location?: Maybe<Location>;
+  locationId?: Maybe<Scalars['String']['output']>;
   marginPercentage: Scalars['Float']['output'];
   message: Scalars['String']['output'];
   noteOffer?: Maybe<Scalars['String']['output']>;
@@ -1253,12 +1264,13 @@ export type OfferBasicEdge = {
 };
 
 export type OfferFilterInput = {
+  adminCode?: InputMaybe<Scalars['String']['input']>;
+  cityName?: InputMaybe<Scalars['String']['input']>;
   coin?: InputMaybe<Scalars['String']['input']>;
-  countryId?: InputMaybe<Scalars['Int']['input']>;
+  countryCode?: InputMaybe<Scalars['String']['input']>;
   countryName?: InputMaybe<Scalars['String']['input']>;
   fiatCurrency?: InputMaybe<Scalars['String']['input']>;
   paymentMethodIds?: InputMaybe<Array<Scalars['Int']['input']>>;
-  stateId?: InputMaybe<Scalars['Int']['input']>;
   stateName?: InputMaybe<Scalars['String']['input']>;
 };
 

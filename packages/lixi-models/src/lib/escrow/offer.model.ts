@@ -9,6 +9,7 @@ import { EscrowOrder } from './escrow-order.model';
 import { OfferPaymentMethod } from './offer-payment-method.model';
 import { Country } from '../geo-location/country.model';
 import { State } from '../geo-location/state.model';
+import { Location } from '../geo-location/location.model';
 
 @ObjectType()
 export class Offer {
@@ -65,6 +66,12 @@ export class Offer {
 
   @Field(() => State, { nullable: true })
   state?: Nullable<State>;
+
+  @Field(() => String, { nullable: true })
+  locationId?: Nullable<string>;
+
+  @Field(() => Location, { nullable: true })
+  location?: Nullable<Location>;
 
   @Field(() => [EscrowOrder], { nullable: true })
   @IsOptional()

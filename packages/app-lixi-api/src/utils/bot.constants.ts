@@ -42,6 +42,6 @@ export const BOT = {
       `*Margin:* %s% \n` +
       `*Order limit:* %sXEC - %sXEC \n` +
       `*Payment method:* %s\n` +
-      `*Location:* %s, %s \n`
+      `*Location:* %s\n`
   }
 };

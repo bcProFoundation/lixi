@@ -152,7 +152,7 @@ export class OfferCacheService {
   }
 
   async getOfferFilterPaginatedTimeline(offerFilterInput: OfferFilterInput, first: number = 20, after?: string) {
-    const { countryId, stateId, paymentMethodIds } = offerFilterInput;
+    const { paymentMethodIds } = offerFilterInput;
     //sort array payment
     if (paymentMethodIds && paymentMethodIds.length > 0) {
       offerFilterInput.paymentMethodIds = offerFilterInput.paymentMethodIds?.sort();
@@ -335,7 +335,7 @@ export class OfferCacheService {
   ) {
     try {
       const reSearch = new ReSearch(this.redis);
-      const { countryId, stateId, paymentMethodIds, coin, fiatCurrency } = offerFilterInput;
+      const { countryCode, adminCode, cityName, paymentMethodIds, coin, fiatCurrency } = offerFilterInput;
       let keyPaymentMethods = '';
       let totalKeyPaymentMethods = 0;
       //get cache payment-methods
@@ -361,24 +361,34 @@ export class OfferCacheService {
       let totalKeyInter = 0;
       let multiSetInter: string[] = [];
 
-      if (countryId) {
+      if (countryCode) {
         //check key countryId
-        const keyCountry = `offer:country:{${countryId}}`;
+        const keyCountry = `offer:country:{${countryCode}}`;
         const existKeyCountry = await this.redis.exists([keyCountry]);
-        if (!existKeyCountry) this.cacheOfferCountryId(countryId);
+        if (!existKeyCountry) this.cacheOfferCountry(countryCode);
 
         totalKeyInter += 1;
         multiSetInter.push(keyCountry);
       }
-      if (stateId) {
+      if (adminCode) {
         //check key stateId
-        const keyState = `offer:state:{${stateId}}`;
+        const keyState = `offer:state:{${adminCode}}`;
         const existKeyState = await this.redis.exists([keyState]);
-        if (!existKeyState) await this.cacheOfferStateId(stateId);
+        if (!existKeyState) await this.cacheOfferState(adminCode);
 
         totalKeyInter += 1;
-        multiSetInter.push(`offer:state:{${stateId}}`);
+        multiSetInter.push(keyState);
       }
+      if (cityName) {
+        //check key stateId
+        const keyCity = `offer:city:{${cityName}}`;
+        const existKeyCity = await this.redis.exists([keyCity]);
+        if (!existKeyCity) await this.cacheOfferCity(cityName);
+
+        totalKeyInter += 1;
+        multiSetInter.push(keyCity);
+      }
+
       if (coin) {
         //check key stateId
         const keyCoin = `offer:coin:{${coin}}`;
@@ -412,14 +422,15 @@ export class OfferCacheService {
 
       //intersect cache
       const docAdded = {
-        countryId: offerFilterInput?.countryId?.toString() ?? '',
-        stateId: offerFilterInput?.stateId?.toString() ?? '',
+        countryCode: offerFilterInput?.countryCode ?? '',
+        adminCode: offerFilterInput?.adminCode ?? '',
+        city: offerFilterInput?.cityName ?? '',
         methods: offerFilterInput?.paymentMethodIds?.map(item => `${item}`),
         coin: offerFilterInput?.coin ?? '',
         currency: offerFilterInput?.fiatCurrency ?? ''
       };
       //add cache and index
-      Promise.all([
+      await Promise.all([
         this.redis.zinterstore(combinationKey, totalKeyInter, ...multiSetInter, 'AGGREGATE', 'MAX'),
         reSearch.add(IndexNameOffer, `docOffer:${keyFilter}`, docAdded)
       ]);
@@ -434,8 +445,8 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheOfferCountryId(countryId: number) {
-    const key = `offer:country:{${countryId}}`;
+  private async cacheOfferCountry(countryCode: string) {
+    const key = `offer:country:{${countryCode}}`;
     const postBoostType = BoostForType.Post;
     const halfLife = '12 hours';
     const query = Prisma.sql`
@@ -447,10 +458,13 @@ export class OfferCacheService {
         JOIN
             boost_fee as boost 
             ON offer.post_id = boost.boosted_for_id
+        JOIN 
+            world_cities as wc
+            ON offer.location_id = wc.id
       WHERE
         boost.boost_for_type = ${postBoostType} 
         AND boost.boosted_value > 0
-        AND offer.country_id = ${countryId}
+        AND wc.iso2 = ${countryCode}
       GROUP BY
         offer.post_id
       ORDER by
@@ -474,8 +488,8 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheOfferStateId(stateId: number) {
-    const key = `offer:state:{${stateId}}`;
+  private async cacheOfferState(adminCode: string) {
+    const key = `offer:state:{${adminCode}}`;
     const postBoostType = BoostForType.Post;
     const halfLife = '12 hours';
     const query = Prisma.sql`
@@ -487,10 +501,56 @@ export class OfferCacheService {
         JOIN
             boost_fee as boost 
             ON offer.post_id = boost.boosted_for_id
+        JOIN 
+            world_cities as wc
+            ON offer.location_id = wc.id
       WHERE
         boost.boost_for_type = ${postBoostType} 
         AND boost.boosted_value > 0
-        AND offer.state_id = ${stateId}
+        AND wc.admin_code = ${adminCode}
+      GROUP BY
+        offer.post_id
+      ORDER by
+        score desc
+    ;`;
+    try {
+      const posts = await this.prisma.$queryRaw<{ post_id: string; score: number }[]>(query);
+
+      // Check if there are any posts
+      // If not means that we should not need to query anymore
+      if (posts.length == 0) return false;
+      const pipeline = this.redis.pipeline();
+      for (const post of posts) {
+        const id = `${POST_TYPE.OFFER}:${post.post_id}`;
+        pipeline.zincrby(key, post.score ?? 0, id);
+      }
+      await pipeline.exec();
+      return true;
+    } catch (err) {
+      this.logger.error(err);
+    }
+  }
+
+  private async cacheOfferCity(city: string) {
+    const key = `offer:state:{${city}}`;
+    const postBoostType = BoostForType.Post;
+    const halfLife = '12 hours';
+    const query = Prisma.sql`
+      SELECT
+        offer.post_id,
+        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value)) AS score 
+      FROM
+        offer 
+        JOIN
+            boost_fee as boost 
+            ON offer.post_id = boost.boosted_for_id
+        JOIN 
+            world_cities as wc
+            ON offer.location_id = wc.id
+      WHERE
+        boost.boost_for_type = ${postBoostType} 
+        AND boost.boosted_value > 0
+        AND wc.city_ascii = ${city}
       GROUP BY
         offer.post_id
       ORDER by

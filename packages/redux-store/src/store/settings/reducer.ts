@@ -42,10 +42,10 @@ const initialState: SettingsState = {
   negativeDana: false,
   minimumDanaFilter: 1,
   offerFilterConfig: {
-    countryId: null,
     countryName: '',
-    stateId: null,
+    countryCode: '',
     stateName: '',
+    cityName: '',
     paymentMethodIds: []
   },
   lastSeedBackupTime: null
