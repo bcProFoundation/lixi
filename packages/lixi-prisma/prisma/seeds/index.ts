@@ -12,12 +12,11 @@ import { paymentMethod } from './paymentMethod';
 import fs from 'fs';
 import path, { join } from 'path';
 import os from 'os';
-import zlib from 'zlib';
+import { exec } from 'child_process';
 import { promisify } from 'util';
-import { createReadStream, createWriteStream } from 'fs';
 import { pipeline } from 'stream';
 
-const pipelineAsync = promisify(pipeline);
+const execAsync = promisify(exec);
 const prisma = new PrismaClient();
 
 async function main() {
@@ -139,19 +138,11 @@ async function main() {
       fs.mkdirSync(dataDir, { recursive: true });
     }
 
-    // Extract the tar.gz file
+    // Extract the tar.gz file using the tar command
     try {
-      const gunzip = zlib.createGunzip();
-      const source = createReadStream(tarFilePath);
-      const target = createWriteStream(path.join(__dirname, '../data/worldcities.csv'));
-
-      await pipelineAsync(
-        source,
-        gunzip,
-        target
-      );
+      await execAsync(`tar -xzf ${tarFilePath} -C ${path.join(__dirname, '../data')}`);
     } catch (error) {
-      throw new Error(`Failed to extract worldcities.tar.gz: ${error.message}`);
+      throw new Error(`Failed to extract worldcities.tar.gz using tar: ${error.message}`);
     }
 
     const tempDir = os.tmpdir();
@@ -159,15 +150,14 @@ async function main() {
     const tempCsvFilePath = path.join(tempDir, 'worldcities.csv');
 
     // Copy the .csv file to the temp directory
-    console.warn("DEBUGPRINT[2]: index.ts:129: tempCsvFilePath=", tempCsvFilePath)
-    console.warn("DEBUGPRINT[1]: index.ts:129: csvFilePath=", csvFilePath)
     fs.copyFileSync(csvFilePath, tempCsvFilePath);
 
     const query = `
         COPY world_cities (city, city_ascii, city_alt, lat, lng, country, iso2, iso3, admin_name, admin_name_ascii, admin_code, admin_type, capital, density, population, population_proper, ranking, timezone, same_name, id)
         FROM '${tempCsvFilePath}'
         DELIMITER ','
-        CSV HEADER;
+        CSV HEADER
+        ENCODING 'UTF8';
     `;
 
     await prisma.$queryRawUnsafe(query);
