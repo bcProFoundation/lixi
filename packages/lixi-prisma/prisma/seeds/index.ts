@@ -12,7 +12,12 @@ import { paymentMethod } from './paymentMethod';
 import fs from 'fs';
 import path, { join } from 'path';
 import os from 'os';
+import zlib from 'zlib';
+import { promisify } from 'util';
+import { createReadStream, createWriteStream } from 'fs';
+import { pipeline } from 'stream';
 
+const pipelineAsync = promisify(pipeline);
 const prisma = new PrismaClient();
 
 async function main() {
@@ -119,14 +124,44 @@ async function main() {
     }
   })
 
-
   if (!dataWorldCities) {
+
+    const tarFilePath = path.join(__dirname, '../data/worldcities.tar.gz');
+
+    // Check if the tar.gz file exists
+    if (!fs.existsSync(tarFilePath)) {
+      throw new Error('worldcities.tar.gz file not found');
+    }
+
+    // Create the data directory if it doesn't exist
+    const dataDir = path.join(__dirname, '../data');
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+
+    // Extract the tar.gz file
+    try {
+      const gunzip = zlib.createGunzip();
+      const source = createReadStream(tarFilePath);
+      const target = createWriteStream(path.join(__dirname, '../data/worldcities.csv'));
+
+      await pipelineAsync(
+        source,
+        gunzip,
+        target
+      );
+    } catch (error) {
+      throw new Error(`Failed to extract worldcities.tar.gz: ${error.message}`);
+    }
+
     const tempDir = os.tmpdir();
     const csvFilePath = path.join(__dirname, '../data/worldcities.csv');
     const tempCsvFilePath = path.join(tempDir, 'worldcities.csv');
 
     // Copy the .csv file to the temp directory
-    fs.copyFileSync(csvFilePath, tempCsvFilePath);  
+    console.warn("DEBUGPRINT[2]: index.ts:129: tempCsvFilePath=", tempCsvFilePath)
+    console.warn("DEBUGPRINT[1]: index.ts:129: csvFilePath=", csvFilePath)
+    fs.copyFileSync(csvFilePath, tempCsvFilePath);
 
     const query = `
         COPY world_cities (city, city_ascii, city_alt, lat, lng, country, iso2, iso3, admin_name, admin_name_ascii, admin_code, admin_type, capital, density, population, population_proper, ranking, timezone, same_name, id)
@@ -141,11 +176,12 @@ async function main() {
     await prisma.seedVersion.create({
       data: {
         name: '1732246093_seed_worldCities'
-      }})
+      }
+    })
 
     //remove file in tmp
-    fs.unlinkSync(tempCsvFilePath); 
-    }
+    fs.unlinkSync(tempCsvFilePath);
+  }
 }
 
 main()
