@@ -1408,6 +1408,14 @@ model Worldcities {
   @@map("world_cities")
 }
 
+model SeedVersion {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz
+  @@map("seed_version")
+}
+
 enum OfferType {
   BUY
   SELL

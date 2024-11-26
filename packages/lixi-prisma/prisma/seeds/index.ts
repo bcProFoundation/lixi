@@ -9,6 +9,10 @@ import { categories } from './categories';
 import { worshipedPersonInVietNam } from './worship/vietnam';
 import { paymentMethod } from './paymentMethod';
 
+import fs from 'fs';
+import path, { join } from 'path';
+import os from 'os';
+
 const prisma = new PrismaClient();
 
 async function main() {
@@ -108,6 +112,40 @@ async function main() {
     }),
     skipDuplicates: true,
   })
+
+  const dataWorldCities = await prisma.seedVersion.findFirst({
+    where: {
+      name: '1732246093_seed_worldCities'
+    }
+  })
+
+
+  if (!dataWorldCities) {
+    const tempDir = os.tmpdir();
+    const csvFilePath = path.join(__dirname, '../data/worldcities.csv');
+    const tempCsvFilePath = path.join(tempDir, 'worldcities.csv');
+
+    // Copy the .csv file to the temp directory
+    fs.copyFileSync(csvFilePath, tempCsvFilePath);  
+
+    const query = `
+        COPY world_cities (city, city_ascii, city_alt, lat, lng, country, iso2, iso3, admin_name, admin_name_ascii, admin_code, admin_type, capital, density, population, population_proper, ranking, timezone, same_name, id)
+        FROM '${tempCsvFilePath}'
+        DELIMITER ','
+        CSV HEADER;
+    `;
+
+    await prisma.$queryRawUnsafe(query);
+
+    //create data
+    await prisma.seedVersion.create({
+      data: {
+        name: '1732246093_seed_worldCities'
+      }})
+
+    //remove file in tmp
+    fs.unlinkSync(tempCsvFilePath); 
+    }
 }
 
 main()

@@ -24,3 +24,10 @@
 ## License
 
 Code released under [the MIT license](https://github.com/bcProFoundation/lixilotus/blob/master/LICENSE).
+
+
+## Get data (world_cities)
+Before cloning or pulling the repository, ensure you have Git LFS installed.
+If you cloned or pulled the repository before installing Git LFS, run the following command after installing Git LFS to download the LFS file:
+`git lfs pull`
+Once the .tar.gz file is downloaded, extract it manually and run seed.
