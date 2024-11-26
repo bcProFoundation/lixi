@@ -126,6 +126,8 @@ async function main() {
   if (!dataWorldCities) {
 
     const tarFilePath = path.join(__dirname, '../data/worldcities.tar.gz');
+    const tempDir = os.tmpdir();
+    const tempCsvFilePath = path.join(tempDir, 'worldcities.csv');
 
     // Check if the tar.gz file exists
     if (!fs.existsSync(tarFilePath)) {
@@ -140,17 +142,10 @@ async function main() {
 
     // Extract the tar.gz file using the tar command
     try {
-      await execAsync(`tar -xzf ${tarFilePath} -C ${path.join(__dirname, '../data')}`);
+      await execAsync(`tar -xzf ${tarFilePath} -C ${path.join(tempDir)}`);
     } catch (error) {
       throw new Error(`Failed to extract worldcities.tar.gz using tar: ${error.message}`);
     }
-
-    const tempDir = os.tmpdir();
-    const csvFilePath = path.join(__dirname, '../data/worldcities.csv');
-    const tempCsvFilePath = path.join(tempDir, 'worldcities.csv');
-
-    // Copy the .csv file to the temp directory
-    fs.copyFileSync(csvFilePath, tempCsvFilePath);
 
     const query = `
         COPY world_cities (city, city_ascii, city_alt, lat, lng, country, iso2, iso3, admin_name, admin_name_ascii, admin_code, admin_type, capital, density, population, population_proper, ranking, timezone, same_name, id)
