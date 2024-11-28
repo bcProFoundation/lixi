@@ -51,7 +51,7 @@ export const useWalletNode = () => {
   const [chronikWebsocket, setChronikWebsocket] = useState<WsEndpoint_InNode>(null);
   const [apiError, setApiError] = useState(false);
   const [chronik, setChronik] = useState<ChronikClientNode>(
-    new ChronikClientNode([`${process.env.NEXT_PUBLIC_LIXI_CHRONIK_URL}`, `${process.env.NEXT_PUBLIC_CHRONIK_URL}`])
+    new ChronikClientNode(process.env.NEXT_PUBLIC_CHRONIK_URL.split(','))
   );
   const { getXPI } = useXPI();
   const XPI = getXPI();
@@ -80,9 +80,7 @@ export const useWalletNode = () => {
         break;
     }
 
-    setChronik(
-      new ChronikClientNode([`${process.env.NEXT_PUBLIC_LIXI_CHRONIK_URL}`, `${process.env.NEXT_PUBLIC_CHRONIK_URL}`])
-    );
+    setChronik(new ChronikClientNode(process.env.NEXT_PUBLIC_CHRONIK_URL.split(',')));
   }, [selectedAccount]);
 
   const getWalletPathDetails = async (mnemonic: string, paths: string[]): Promise<WalletPathAddressInfo[]> => {
