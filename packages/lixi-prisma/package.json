@@ -61,7 +61,10 @@
     "typescript": "5.4.3"
   },
   "dependencies": {
-    "@prisma/client": "5.12.1"
+    "@prisma/client": "5.12.1",
+    "pg": "^8.13.1",
+    "pg-copy-streams": "^6.0.6",
+    "url": "^0.11.4"
   },
   "peerDependencies": {
     "@nestjs/common": "^10.3.3"

@@ -12,12 +12,28 @@ import { paymentMethod } from './paymentMethod';
 import fs from 'fs';
 import path, { join } from 'path';
 import os from 'os';
+import { from } from 'pg-copy-streams';
+import { Pool } from 'pg';
+import { parse } from 'url';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { pipeline } from 'stream';
 
 const execAsync = promisify(exec);
 const prisma = new PrismaClient();
+
+const params = parse(process.env.DATABASE_URL);
+const auth = params.auth.split(':');
+
+const config = {
+  user: auth[0],
+  password: auth[1],
+  host: params.hostname,
+  port: params.port,
+  database: params.pathname.split('/')[1],
+  ssl: false
+};
+const pool = new Pool(config);
 
 async function main() {
   const resultEnvelopes = await prisma.$transaction(
@@ -147,15 +163,19 @@ async function main() {
       throw new Error(`Failed to extract worldcities.tar.gz using tar: ${error.message}`);
     }
 
-    const query = `
-        COPY world_cities (city, city_ascii, city_alt, lat, lng, country, iso2, iso3, admin_name, admin_name_ascii, admin_code, admin_type, capital, density, population, population_proper, ranking, timezone, same_name, id)
-        FROM '${tempCsvFilePath}'
-        DELIMITER ','
-        CSV HEADER
-        ENCODING 'UTF8';
-    `;
-
-    await prisma.$queryRawUnsafe(query);
+    const client = await pool.connect();
+    try {
+        const stream = client.query(from(`COPY world_cities FROM STDIN CSV HEADER`));
+        const fileStream = fs.createReadStream(tempCsvFilePath);
+        
+        await new Promise((resolve, reject) => {
+          fileStream.pipe(stream)
+            .on('finish', resolve)
+            .on('error', reject);
+        });
+    } finally {
+      client.release();
+    }
 
     //create data
     await prisma.seedVersion.create({
