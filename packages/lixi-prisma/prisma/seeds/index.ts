@@ -15,6 +15,7 @@ import os from 'os';
 import { from } from 'pg-copy-streams';
 import { Pool } from 'pg';
 import { parse } from 'url';
+import { parse as parseQuery } from 'querystring';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { pipeline } from 'stream';
@@ -24,6 +25,7 @@ const prisma = new PrismaClient();
 
 const params = parse(process.env.DATABASE_URL);
 const auth = params.auth.split(':');
+const schema = params.query ? parseQuery(params.query).schema : 'public';
 
 const config = {
   user: auth[0],
@@ -31,6 +33,7 @@ const config = {
   host: params.hostname,
   port: params.port,
   database: params.pathname.split('/')[1],
+  schema: schema as string,
   ssl: false
 };
 const pool = new Pool(config);
@@ -165,7 +168,7 @@ async function main() {
 
     const client = await pool.connect();
     try {
-        const stream = client.query(from(`COPY world_cities FROM STDIN CSV HEADER`));
+        const stream = client.query(from(`COPY ${schema}.world_cities FROM STDIN CSV HEADER`));
         const fileStream = fs.createReadStream(tempCsvFilePath);
         
         await new Promise((resolve, reject) => {

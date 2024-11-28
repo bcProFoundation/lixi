@@ -1267,6 +1267,9 @@ importers:
       pg-copy-streams:
         specifier: ^6.0.6
         version: 6.0.6
+      querystring:
+        specifier: ^0.2.1
+        version: 0.2.1
       url:
         specifier: ^0.11.4
         version: 0.11.4
@@ -10822,6 +10825,11 @@ packages:
 
   querystring@0.2.0:
     resolution: {integrity: sha512-X/xY82scca2tau62i9mDyU9K+I+djTMUsvwf7xnUX5GLvVzgJybOJf4Y6o9Zx3oJK/LSXg5tTZBjwzqVPaPO2g==}
+    engines: {node: '>=0.4.x'}
+    deprecated: The querystring API is considered Legacy. new code should use the URLSearchParams API instead.
+
+  querystring@0.2.1:
+    resolution: {integrity: sha512-wkvS7mL/JMugcup3/rMitHmd9ecIGd2lhFhK9N3UUQ450h66d1r3Y9nvXzQAW1Lq+wyx61k/1pfKS5KuKiyEbg==}
     engines: {node: '>=0.4.x'}
     deprecated: The querystring API is considered Legacy. new code should use the URLSearchParams API instead.
 
@@ -25641,6 +25649,8 @@ snapshots:
   qs@6.5.3: {}
 
   querystring@0.2.0: {}
+
+  querystring@0.2.1: {}
 
   querystringify@2.2.0: {}
 

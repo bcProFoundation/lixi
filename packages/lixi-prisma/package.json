@@ -64,6 +64,7 @@
     "@prisma/client": "5.12.1",
     "pg": "^8.13.1",
     "pg-copy-streams": "^6.0.6",
+    "querystring": "^0.2.1",
     "url": "^0.11.4"
   },
   "peerDependencies": {
