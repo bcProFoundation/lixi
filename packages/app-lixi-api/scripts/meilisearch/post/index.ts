@@ -1,65 +1,74 @@
 import { PrismaClient } from '@bcpros/lixi-prisma';
 import { MeiliSearch } from 'meilisearch';
-import { stripHtml } from "string-strip-html";
+import { stripHtml } from 'string-strip-html';
 require('dotenv').config();
 
 const prisma = new PrismaClient();
-const meiliClient = new MeiliSearch({ host: process.env.MEILISEARCH_HOST!, apiKey: process.env.MEILISEARCH_MASTER_KEY });
+const meiliClient = new MeiliSearch({
+  host: process.env.MEILISEARCH_HOST!,
+  apiKey: process.env.MEILISEARCH_MASTER_KEY
+});
 
 async function main() {
-   console.log(`Indexing database to meilisearch bucket: ${process.env.MEILISEARCH_BUCKET}`)
-   let indexedPosts: any = [];
-   const posts = await prisma.post.findMany({
-      include: {
-         page: {
-            select: {
-               id: true,
-               name: true
-            }
-         },
-         token: {
-            select: {
-               id: true,
-               name: true
-            }
-         },
-         account: {
-            select: {
-               name: true,
-            }
-         }
+  console.log(`Indexing database to meilisearch bucket: ${process.env.MEILISEARCH_BUCKET}`);
+  let indexedPosts: any[] = [];
+  const posts = await prisma.post.findMany({
+    include: {
+      page: {
+        select: {
+          id: true,
+          name: true
+        }
+      },
+      token: {
+        select: {
+          id: true,
+          name: true
+        }
+      },
+      account: {
+        select: {
+          name: true
+        }
       }
-   });
+    }
+  });
 
-   posts.map(async (post) => {
-      const indexedPost = {
-         primaryId: post.id,
-         id: post.id,
-         content: stripHtml(post.content).result,
-         accountName: post.account.name,
-         createdAt: post.createdAt,
-         updatedAt: post.updatedAt,
-         page: {
-            id: post.page?.id,
-            name: post.page?.name
-         },
-         token: {
-            id: post.token?.id,
-            name: post.token?.name
-         }
-      };
+  posts.map(async post => {
+    const indexedPost = {
+      primaryId: post.id,
+      id: post.id,
+      content: stripHtml(post.content).result,
+      accountName: post.account.name,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+      page: {
+        id: post.page?.id,
+        name: post.page?.name
+      },
+      token: {
+        id: post.token?.id,
+        name: post.token?.name
+      }
+    };
 
-      indexedPosts.push(indexedPost);
-   })
+    indexedPosts.push(indexedPost);
+  });
 
-   await meiliClient.index(`${process.env.MEILISEARCH_BUCKET}_posts`).addDocuments(indexedPosts, { primaryKey: 'primaryId' });
+  // Batch index data to avoid payload size limit
+  const batchSize = 1000; // Adjust based on document size
+  for (let i = 0; i < indexedPosts.length; i += batchSize) {
+    console.log('index to: ', i);
+    const batch = indexedPosts.slice(i, i + batchSize);
+    await meiliClient.index(`${process.env.MEILISEARCH_BUCKET}_posts`).addDocuments(batch, { primaryKey: 'primaryId' });
+  }
 }
 
 main()
-   .catch(e => {
-      console.error(e);
-      process.exit(1);
-   })
-   .finally(async () => {
-      await prisma.$disconnect();
-   });
+  .catch(e => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
