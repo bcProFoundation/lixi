@@ -282,28 +282,28 @@ export class OfferResolver {
       strLocation ?? '---'
     );
 
-    // account.telegramId &&
-    //   (await this.bot.telegram
-    //     .sendMessage(account.telegramId, formatReplied, {
-    //       parse_mode: 'Markdown'
-    //     })
-    //     .then(async res => {
-    //       try {
-    //         await this.prisma.offer.update({
-    //           where: {
-    //             postId: result.id
-    //           },
-    //           data: {
-    //             telegramMessageId: res.message_id.toString()
-    //           }
-    //         });
-    //       } catch (e) {
-    //         this.logger.error(e);
-    //       }
-    //     })
-    //     .catch(e => {
-    //       this.logger.error(e);
-    //     }));
+    account.telegramId &&
+      (await this.bot.telegram
+        .sendMessage(account.telegramId, formatReplied, {
+          parse_mode: 'Markdown'
+        })
+        .then(async res => {
+          try {
+            await this.prisma.offer.update({
+              where: {
+                postId: result.id
+              },
+              data: {
+                telegramMessageId: res.message_id.toString()
+              }
+            });
+          } catch (e) {
+            this.logger.error(e);
+          }
+        })
+        .catch(e => {
+          this.logger.error(e);
+        }));
 
     //add to cache
     await this.postFanoutQueue.add(CONTENT_FANOUT_QUEUE, { post: result });

@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EnqueuedTask, MeiliSearch } from 'meilisearch';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { InjectMeiliSearch, MEILI_CLIENT } from 'nestjs-meilisearch';
-import { HASHTAG, PERSON, POSTS, TEMPLE } from './constants/meili.constants';
+import { HASHTAG, LOCATIONS, PERSON, POSTS, TEMPLE } from './constants/meili.constants';
 
 @Injectable()
 export class MeiliService implements OnModuleInit {
@@ -34,6 +34,12 @@ export class MeiliService implements OnModuleInit {
       typoTolerance: {
         enabled: false
       }
+    });
+    await this.meiliSearch.index(`${process.env.MEILISEARCH_BUCKET}_${LOCATIONS}`).updateSettings({
+      rankingRules: ['words', 'typo', 'proximity', 'attribute', 'exactness', 'sort'],
+      filterableAttributes: ['_geo'],
+      sortableAttributes: ['_geo', 'cityAscii', 'adminNameAscii', 'country'],
+      searchableAttributes: ['cityAscii', 'adminNameAscii', 'country']
     });
   }
 
@@ -84,17 +90,70 @@ export class MeiliService implements OnModuleInit {
     return hits;
   }
 
+  public async searchByLatLngHits(index: string, lat: string, lng: string, offset: number, limit: number) {
+    const radius = 10000; // in meters
+    try {
+      const hits = await this.meiliSearch
+        .index(index)
+        .search(``, {
+          filter: [`_geoRadius(${lat}, ${lng}, ${radius})`],
+          offset: offset,
+          limit: limit,
+          sort: [`_geoPoint(${lat}, ${lng}):asc`]
+        })
+        .then(res => {
+          return res.hits;
+        });
+
+      return hits;
+    } catch (err) {
+      console.log(err);
+    }
+
+    return [];
+  }
+
+  public async searchByLocationQueryHits(index: string, query: string, offset: number, limit: number) {
+    try {
+      const hits = await this.meiliSearch
+        .index(index)
+        .search(query, {
+          offset: offset,
+          limit: limit,
+          sort: [
+            'adminNameAscii:asc', // Then by state/region
+            'cityAscii:asc', // Finally, by city
+            'country:asc' // Sort by country first
+          ]
+        })
+        .then(res => {
+          return res.hits;
+        });
+      return hits;
+    } catch (e) {
+      console.log(e);
+    }
+
+    return [];
+  }
+
   public async searchByQueryHits(index: string, query: string, offset: number, limit: number) {
-    const hits = await this.meiliSearch
-      .index(index)
-      .search(query, {
-        offset: offset,
-        limit: limit
-      })
-      .then(res => {
-        return res.hits;
-      });
-    return hits;
+    try {
+      const hits = await this.meiliSearch
+        .index(index)
+        .search(query, {
+          offset: offset,
+          limit: limit
+        })
+        .then(res => {
+          return res.hits;
+        });
+      return hits;
+    } catch (e) {
+      console.log(e);
+    }
+
+    return [];
   }
 
   public async searchByQueryEstimatedTotalHits(index: string, query: string) {
