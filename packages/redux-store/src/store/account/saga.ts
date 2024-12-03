@@ -141,6 +141,8 @@ function* generateAccountSaga(action: PayloadAction<GenerateAccountType>) {
     accountType: accountType ? accountType : AccountType.NORMAL
   };
 
+  console.log('🚀 ~ function*generateAccountSaga ~ account:', account);
+
   yield put(postAccount(account));
 }
 

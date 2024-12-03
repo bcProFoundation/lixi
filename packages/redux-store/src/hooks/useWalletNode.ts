@@ -362,7 +362,7 @@ export const useWalletNode = () => {
       dispatch(setWalletRefreshInterval(websocketConnectedRefreshInterval));
     }
     try {
-      if (!wallet || _.isEmpty(wallet.ids)) {
+      if (!wallet || _.isEmpty(wallet.ids) || _.isNil(selectedWalletPath) || _.isNil(selectedAccount)) {
         return;
       }
 
@@ -434,6 +434,7 @@ export const useWalletNode = () => {
         currentCoinAddress = selectedWalletPath?.xAddress;
         break;
     }
+    console.log('🚀 ~ getUtxosByCoin ~ selectedWalletPath:', selectedWalletPath);
 
     const hash160AndAddressObjArray: Hash160AndAddress[] = [selectedWalletPath].map(item => {
       return {
@@ -454,13 +455,14 @@ export const useWalletNode = () => {
   // Update wallet according to defined interval
   useInterval(async () => {
     const wallet = walletState;
+    console.log('🚀 ~ useInterval ~ wallet:', wallet);
+
     update(wallet).finally(() => {
       if (!walletHasUpdated) {
         dispatch(setWalletHasUpdated(true));
       }
     });
   }, walletRefreshInterval);
-
   /*
     Use wallet.mnemonic as the useEffect parameter here because we 
     want to run initializeWebsocket(wallet, fiatPrice) when a new unique wallet
