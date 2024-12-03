@@ -51,5 +51,17 @@ export const countryApi = {
         const { response } = err;
         throw response?.data ?? err ?? 'Network Error';
       });
+  },
+  getCoordinate(lat: string, lng: string): Promise<Location> {
+    const url = `/api/countries/coordinate?lat=${lat}&lng=${lng}`;
+    return axiosClient
+      .get(url)
+      .then(response => {
+        return response.data as Location;
+      })
+      .catch(err => {
+        const { response } = err;
+        throw response?.data ?? err ?? 'Network Error';
+      });
   }
 };

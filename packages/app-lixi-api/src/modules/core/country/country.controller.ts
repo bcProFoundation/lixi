@@ -101,9 +101,34 @@ export class CountryController {
   @Get('locations')
   async getLocations(@Query('query') query: string, @I18n() i18n: I18nContext): Promise<any> {
     try {
-      const locations = await this.meiliService.searchByQueryHits(
+      const locations = await this.meiliService.searchByLocationQueryHits(
         `${process.env.MEILISEARCH_BUCKET}_locations`,
         query,
+        0,
+        20
+      );
+
+      return locations;
+    } catch (err: unknown) {
+      if (err instanceof VError) {
+        throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      } else {
+        const unableToGetLixi = await i18n.t('country.messages.unableToGetState');
+        const error = new VError.WError(err as Error, unableToGetLixi);
+        throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(600000)
+  @Get('coordinate')
+  async getCoordinate(@Query('lat') lat: string, @Query('lng') lng: string, @I18n() i18n: I18nContext): Promise<any> {
+    try {
+      const locations = await this.meiliService.searchByLatLngHits(
+        `${process.env.MEILISEARCH_BUCKET}_locations`,
+        lat,
+        lng,
         0,
         20
       );
