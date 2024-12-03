@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.33
+
+### Patch Changes
+
+- Temporary debug
+
 ## 1.2.32
 
 ### Patch Changes
