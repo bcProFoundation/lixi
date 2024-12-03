@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.31
+
+### Patch Changes
+
+- Update countries api
+
 ## 1.2.30
 
 ### Patch Changes
