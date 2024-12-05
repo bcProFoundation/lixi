@@ -37,7 +37,7 @@ import { saveClaimAddress } from '@store/claim';
 import { removeAllPageMessageSession } from '@store/message/actions';
 import { changeCurrentLocale, setInitIntlStatus } from '@store/settings/actions';
 import { getLocaleByLanguage } from '../../utils/languages';
-import accountApi from '../account/api';
+import { accountApi } from '../account/api';
 import lixiApi from '../lixi/api';
 import { hideLoading, showLoading } from '../loading/actions';
 import { showToast } from '../toast/actions';

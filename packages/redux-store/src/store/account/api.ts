@@ -11,7 +11,7 @@ import { axiosClient } from '../../utils/axiosClient';
 import getOauth2URL from '../../utils/oauth2';
 import { SilentLoginType } from '@bcpros/lixi-models';
 
-const accountApi = {
+export const accountApi = {
   getById(id: number): Promise<AccountDto> {
     const url = `/api/accounts/${id}`;
     return axiosClient
@@ -169,5 +169,3 @@ const accountApi = {
       });
   }
 };
-
-export default accountApi;
