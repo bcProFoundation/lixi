@@ -36,10 +36,6 @@ function* activateWalletSaga(action: PayloadAction<{ mnemonic: string; coin: COI
         break;
     }
 
-    console.log('🚀 ~ function*activateWalletSaga ~ walletPaths:', walletPaths);
-    console.log('🚀 ~ function*activateWalletSaga ~ mnemonic:', mnemonic);
-    console.log('🚀 ~ function*activateWalletSaga ~ walletPaths[0].xAddress:', walletPaths[0].xAddress);
-
     yield put(setWalletHasUpdated(false));
     yield put(
       activateWalletSuccess({
@@ -49,7 +45,6 @@ function* activateWalletSaga(action: PayloadAction<{ mnemonic: string; coin: COI
       })
     );
   } catch (err) {
-    console.log('🚀 ~ activateWalletSaga ~ err:', err);
     yield put(activateWalletFailure(JSON.stringify(err)));
   }
 }

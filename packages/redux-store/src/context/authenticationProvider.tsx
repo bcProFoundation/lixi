@@ -1,5 +1,5 @@
 import { getSelectedAccount, silentLogin } from '@store/account';
-import { useSliceDispatch, useSliceSelector } from '@store/index';
+import { getSelectedWalletPath, useSliceDispatch, useSliceSelector } from '@store/index';
 import { createContext, useEffect } from 'react';
 import useWebAuthentication, { DeviceAuthenticationValue } from '../hooks/useDeviceAuthentication';
 import { shallowEqual } from 'react-redux';
@@ -12,10 +12,11 @@ export const AuthenticationProvider = ({ children }) => {
   // useWebAuthentication returns null if Web Authn is not supported
   const authentication = useWebAuthentication();
   const selectedAccount = useSliceSelector(getSelectedAccount, shallowEqual);
+  const selectedWalletPath = useSliceSelector(getSelectedWalletPath, shallowEqual);
   const dispatch = useSliceDispatch();
 
   useEffect(() => {
-    if (selectedAccount) {
+    if (selectedAccount && selectedWalletPath) {
       const dataSilentLogin: SilentLoginType = {
         mnemonic: selectedAccount.mnemonic,
         coin: selectedAccount?.rootCoin ?? COIN.XPI
