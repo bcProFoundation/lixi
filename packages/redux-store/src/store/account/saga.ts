@@ -955,75 +955,81 @@ function* watchTopFiveFailure() {
 }
 
 function* silentLoginSaga(action: PayloadAction<SilentLoginType>) {
-  let path;
-  const { mnemonic, coin } = action.payload;
-  const account = yield select(getSelectedAccount);
-  const xpiContext = yield getContext('useXPI');
-  const { getXPI } = xpiContext();
-  const XPI = getXPI();
-
-  switch (coin) {
-    case COIN.XPI:
-      path = 10605;
-      break;
-    case COIN.XEC:
-      path = 1899;
-      break;
-    case COIN.XRG:
-      path = 2137;
-      break;
-  }
-
-  const rootSeedBuffer: Buffer = yield call(XPI.Mnemonic.toSeed, mnemonic);
-  const masterHDNode = XPI.HDNode.fromSeed(rootSeedBuffer);
-  const hdPath = `m/44'/${path}'/0'/0/0`;
-  const childNode: HDNode = XPI.HDNode.derivePath(masterHDNode, hdPath);
-  const wifKey = XPI.HDNode.toWIF(childNode);
-
-  const dataToSign = {
-    id: account.id
-  };
-  const wifDecoded = wif.decode(wifKey);
-  const privateKey: any = wifDecoded.privateKey;
-
-  const payload = JSON.stringify(dataToSign);
-  const token: string = yield call(signToken, payload, privateKey);
-
   try {
+    let path;
+    const { mnemonic, coin } = action.payload;
+    const account = yield select(getSelectedAccount);
+    const xpiContext = yield getContext('useXPI');
+    const { getXPI } = xpiContext();
+    const XPI = getXPI();
+
+    switch (coin) {
+      case COIN.XPI:
+        path = 10605;
+        break;
+      case COIN.XEC:
+        path = 1899;
+        break;
+      case COIN.XRG:
+        path = 2137;
+        break;
+    }
+
+    const rootSeedBuffer: Buffer = yield call(XPI.Mnemonic.toSeed, mnemonic);
+    const masterHDNode = XPI.HDNode.fromSeed(rootSeedBuffer);
+    const hdPath = `m/44'/${path}'/0'/0/0`;
+    const childNode: HDNode = XPI.HDNode.derivePath(masterHDNode, hdPath);
+    const wifKey = XPI.HDNode.toWIF(childNode);
+
+    const dataToSign = {
+      id: account.id
+    };
+    const wifDecoded = wif.decode(wifKey);
+    const privateKey: any = wifDecoded.privateKey;
+
+    const payload = JSON.stringify(dataToSign);
+    const token: string = yield call(signToken, payload, privateKey);
+
     const data = yield call(accountApi.login, { token: token });
+    console.log('🚀 ~ function*silentLoginSaga ~ data:', data);
     yield put(silentLoginSuccess());
   } catch (err) {
+    console.log('🚀 ~ function*silentLoginSaga ~ err:', err);
     yield put(silentLoginFailure());
   }
 }
 
 function* silentLoginSuccessSaga(action: PayloadAction) {
-  const account = yield select(getSelectedAccount);
+  try {
+    const account = yield select(getSelectedAccount);
 
-  // If server login then we also local-login
-  const localUser: LocalUser = {
-    id: account.address,
-    address: account.address,
-    name: account.name,
-    rootCoin: account.rootCoin ? account.rootCoin : COIN.XPI,
-    coin: account.coin ? account.coin : COIN.XPI
-  };
-  // yield put(activateWallet(account.mnemonic));
-  yield put(silentLocalLogin(localUser));
-  const promise = yield put(
-    accountGraphApi.endpoints.getAccountByAddress.initiate({
-      address: account.address
-    })
-  );
-  yield promise;
-  const data = yield promise.unwrap();
-  yield put(setAccountInfoTemp(data.getAccountByAddress));
-  yield putResolve(
-    fetchNotifications({
-      accountId: account.id,
-      mnemonichHash: account.mnemonicHash
-    })
-  );
+    // If server login then we also local-login
+    const localUser: LocalUser = {
+      id: account.address,
+      address: account.address,
+      name: account.name,
+      rootCoin: account.rootCoin ? account.rootCoin : COIN.XPI,
+      coin: account.coin ? account.coin : COIN.XPI
+    };
+    // yield put(activateWallet(account.mnemonic));
+    yield put(silentLocalLogin(localUser));
+    const promise = yield put(
+      accountGraphApi.endpoints.getAccountByAddress.initiate({
+        address: account.address
+      })
+    );
+    yield promise;
+    const data = yield promise.unwrap();
+    yield put(setAccountInfoTemp(data.getAccountByAddress));
+    yield putResolve(
+      fetchNotifications({
+        accountId: account.id,
+        mnemonichHash: account.mnemonicHash
+      })
+    );
+  } catch (e) {
+    console.log('🚀 ~ function*silentLoginSuccessSaga ~ e:', e);
+  }
 }
 
 function* watchSilentLogin() {
