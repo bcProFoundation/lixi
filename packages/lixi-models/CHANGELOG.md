@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.35
+
+### Patch Changes
+
+- Fix account api
+
 ## 1.2.34
 
 ### Patch Changes
