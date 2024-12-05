@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.37
+
+### Patch Changes
+
+- Fix error local-login
+
 ## 1.2.36
 
 ### Patch Changes

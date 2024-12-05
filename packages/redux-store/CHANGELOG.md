@@ -1,5 +1,13 @@
 # @bcpros/redux-store
 
+## 1.2.37
+
+### Patch Changes
+
+- Fix error local-login
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.37
+
 ## 1.2.36
 
 ### Patch Changes
