@@ -434,7 +434,6 @@ export const useWalletNode = () => {
         currentCoinAddress = selectedWalletPath?.xAddress;
         break;
     }
-    console.log('🚀 ~ getUtxosByCoin ~ selectedWalletPath:', selectedWalletPath);
 
     const hash160AndAddressObjArray: Hash160AndAddress[] = [selectedWalletPath].map(item => {
       return {
@@ -455,7 +454,6 @@ export const useWalletNode = () => {
   // Update wallet according to defined interval
   useInterval(async () => {
     const wallet = walletState;
-    console.log('🚀 ~ useInterval ~ wallet:', wallet);
 
     update(wallet).finally(() => {
       if (!walletHasUpdated) {

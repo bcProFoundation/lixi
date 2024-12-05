@@ -109,16 +109,12 @@ const nameConfigGenerator: Config = {
  */
 function* generateAccountSaga(action: PayloadAction<GenerateAccountType>) {
   const { coin, telegramId, accountType } = action.payload;
-  console.log('🚀 ~ function*generateAccountSaga ~ action.payload:', action.payload);
 
   const xpiContext = yield getContext('useXPI');
   const { getXPI } = xpiContext();
-  console.log('🚀 ~ function*generateAccountSaga ~ getXPI:', getXPI);
   const XPI = getXPI();
-  console.log('🚀 ~ function*generateAccountSaga ~ XPI:', XPI);
   const lang = 'english';
   const Bip39128BitMnemonic = XPI.Mnemonic.generate(128, XPI.Mnemonic.wordLists()[lang]);
-  console.log('🚀 ~ function*generateAccountSaga ~ Bip39128BitMnemonic:', Bip39128BitMnemonic);
 
   let encryptedMnemonic: string = undefined;
   let mnemonicHash: string = undefined;
@@ -126,18 +122,14 @@ function* generateAccountSaga(action: PayloadAction<GenerateAccountType>) {
   if (!telegramId && accountType !== AccountType.NONCUSTODIAL) {
     // Encrypted mnemonic is encrypted by itself
     encryptedMnemonic = yield call(aesGcmEncrypt, Bip39128BitMnemonic, Bip39128BitMnemonic);
-    console.log('🚀 ~ function*generateAccountSaga ~ encryptedMnemonic:', encryptedMnemonic);
 
     // Hash mnemonic and store it in the database
     const mnemonicUtf8 = new TextEncoder().encode(Bip39128BitMnemonic); // encode mnemonic as UTF-8
-    console.log('🚀 ~ function*generateAccountSaga ~ mnemonicUtf8:', mnemonicUtf8);
     const mnemonicHashBuffer = yield call([crypto.subtle, crypto.subtle.digest], 'SHA-256', mnemonicUtf8); // hash the mnemonic
     mnemonicHash = Buffer.from(new Uint8Array(mnemonicHashBuffer)).toString('hex');
-    console.log('🚀 ~ function*generateAccountSaga ~ mnemonicHash:', mnemonicHash);
   }
 
   const locale: string | undefined = yield select(getCurrentLocale);
-  console.log('🚀 ~ function*generateAccountSaga ~ locale:', locale);
 
   const account: CreateAccountCommand = {
     mnemonic: Bip39128BitMnemonic,
@@ -148,8 +140,6 @@ function* generateAccountSaga(action: PayloadAction<GenerateAccountType>) {
     telegramId: telegramId || undefined,
     accountType: accountType ? accountType : AccountType.NORMAL
   };
-
-  console.log('🚀 ~ function*generateAccountSaga ~ account:', account);
 
   yield put(postAccount(account));
 }
@@ -991,10 +981,8 @@ function* silentLoginSaga(action: PayloadAction<SilentLoginType>) {
     const token: string = yield call(signToken, payload, privateKey);
 
     const data = yield call(accountApi.login, { token: token });
-    console.log('🚀 ~ function*silentLoginSaga ~ data:', data);
     yield put(silentLoginSuccess());
   } catch (err) {
-    console.log('🚀 ~ function*silentLoginSaga ~ err:', err);
     yield put(silentLoginFailure());
   }
 }
@@ -1028,7 +1016,7 @@ function* silentLoginSuccessSaga(action: PayloadAction) {
       })
     );
   } catch (e) {
-    console.log('🚀 ~ function*silentLoginSuccessSaga ~ e:', e);
+    console.log(e);
   }
 }
 
