@@ -169,7 +169,7 @@ export class PostFanoutProcessor extends WorkerHost {
         });
 
         //add cache for country - state - city (offer:country:{countryName})
-        const countryCode = post.offer?.location?.iso2 ?? null;
+        const countryCode = post.offer?.location?.iso2 ?? post.offer?.country?.iso2 ?? null;
         let adminCode = post.offer?.location?.adminCode ?? null;
         let cityName = post.offer?.location?.cityAscii ?? null;
 
@@ -181,6 +181,7 @@ export class PostFanoutProcessor extends WorkerHost {
           cityName = cityName.replace(/-/g, '_');
         }
 
+        //cash in person
         if (post.offer?.location) {
           const keyCountry = `offer:country:{${countryCode}}`;
           pipeline.zincrby(keyCountry, score, timelineId);
@@ -190,6 +191,12 @@ export class PostFanoutProcessor extends WorkerHost {
 
           const keyCity = `offer:city:{${cityName}}`;
           pipeline.zincrby(keyCity, score, timelineId);
+        }
+
+        // bank transfer
+        if (post.offer?.country) {
+          const keyCountry = `offer:country:{${countryCode}}`;
+          pipeline.zincrby(keyCountry, score, timelineId);
         }
 
         if (post.offer?.coinPayment) {
@@ -233,7 +240,7 @@ export class PostFanoutProcessor extends WorkerHost {
             const keyFilterJson = JSON.parse(keyFilter);
 
             //if not have location, drop key have countryCode
-            if (!post?.offer?.location) {
+            if (!countryCode) {
               if (keyFilterJson?.countryCode) continue;
             } else {
               //fetch all of item added and filter again, just add offer have field === indexField

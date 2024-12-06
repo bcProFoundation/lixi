@@ -97,7 +97,8 @@ export class BoostFeeResolver {
           boostScore: true,
           offer: {
             include: {
-              location: true
+              location: true,
+              country: true
             }
           }
         }
@@ -154,16 +155,13 @@ export class BoostFeeResolver {
 
       const offerBoosted = await this.prisma.post.findFirst({
         where: { id: boostForId },
-        include: { offer: { include: { state: true, country: true, paymentMethods: true } } }
+        include: { offer: { include: { location: true, country: true, paymentMethods: true } } }
       });
 
       //notify to channel
       if (offerBoosted) {
         const channelId = this.configService.get<string>('TELEGRAM_CHANNEL_ID') ?? -1002199386416;
         const link = `${process.env.LOCAL_ECASH_URL}/offer-detail?id=${boostForId}`;
-        const stateName = offerBoosted.offer?.state?.name;
-        const countryName = offerBoosted.offer?.country?.name;
-        const location = [stateName, countryName].filter(Boolean).join(', ');
         const paymentMethodIds = offerBoosted.offer?.paymentMethods.map(item => item.paymentMethodId);
         const paymenMethod = await this.prisma.paymentMethod.findMany({
           where: {
@@ -174,7 +172,13 @@ export class BoostFeeResolver {
           }
         });
         const paymentMethodString = paymenMethod.map(item => item.name).join(' - ');
-
+        const locationOfOffer = offerBoosted.offer?.location;
+        let strLocation =
+          locationOfOffer &&
+          `${[locationOfOffer?.cityAscii, locationOfOffer?.adminNameAscii, locationOfOffer?.country].filter(Boolean).join(', ')}`;
+        if (offerBoosted.offer?.country) {
+          strLocation = `${offerBoosted.offer?.country.name}`;
+        }
         //message - orderlimit - price - paymentMethod - location - link
         const formatReplied = format(
           BOT.MESSAGE.BOOST_NOTIFY,
@@ -182,7 +186,7 @@ export class BoostFeeResolver {
           `${offerBoosted?.offer?.orderLimitMin} XEC - ${offerBoosted?.offer?.orderLimitMax} XEC`,
           `${offerBoosted?.offer?.price}`,
           paymentMethodString,
-          location,
+          strLocation,
           link
         );
         await this.bot.telegram.sendMessage(channelId, formatReplied, {
