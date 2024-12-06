@@ -19,7 +19,8 @@ async function main() {
       cityAscii: true,
       id: true,
       lat: true,
-      lng: true
+      lng: true,
+      cityAlt: true
     }
   });
 
@@ -30,6 +31,7 @@ async function main() {
     adminNameAscii: location.adminNameAscii,
     adminCode: location.adminCode,
     cityAscii: location.cityAscii,
+    cityAlt: location.cityAlt,
     _geo: {
       lat: location.lat,
       lng: location.lng

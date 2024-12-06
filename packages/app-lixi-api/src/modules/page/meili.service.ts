@@ -39,7 +39,7 @@ export class MeiliService implements OnModuleInit {
       rankingRules: ['words', 'typo', 'proximity', 'attribute', 'exactness', 'sort'],
       filterableAttributes: ['_geo'],
       sortableAttributes: ['_geo', 'cityAscii', 'adminNameAscii', 'country'],
-      searchableAttributes: ['cityAscii', 'adminNameAscii', 'country']
+      searchableAttributes: ['cityAscii', 'adminNameAscii', 'country', 'cityAlt']
     });
   }
 
