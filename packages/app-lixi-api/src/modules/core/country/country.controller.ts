@@ -50,7 +50,8 @@ export class CountryController {
         where: {
           iso2: countryCode
         },
-        distinct: 'adminNameAscii'
+        distinct: 'adminNameAscii',
+        orderBy: { adminNameAscii: 'asc' }
       });
 
       const resultApi = states;
@@ -80,7 +81,8 @@ export class CountryController {
           iso2: countryCode,
           adminCode: adminCode
         },
-        distinct: 'cityAscii'
+        distinct: 'cityAscii',
+        orderBy: { cityAscii: 'asc' }
       });
 
       const resultApi = cities;

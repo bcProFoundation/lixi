@@ -2584,17 +2584,12 @@ export type UpdateEscrowOrderInput = {
 };
 
 export type UpdateOfferInput = {
-  coinPayment?: InputMaybe<Scalars['String']['input']>;
-  countryId?: InputMaybe<Scalars['Int']['input']>;
   id: Scalars['String']['input'];
-  localCurrency?: InputMaybe<Scalars['String']['input']>;
   marginPercentage?: InputMaybe<Scalars['Float']['input']>;
   message?: InputMaybe<Scalars['String']['input']>;
   noteOffer?: InputMaybe<Scalars['String']['input']>;
   orderLimitMax?: InputMaybe<Scalars['Int']['input']>;
   orderLimitMin?: InputMaybe<Scalars['Int']['input']>;
-  paymentMethodIds?: InputMaybe<Array<Scalars['Int']['input']>>;
-  stateId?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type UpdateOfferStatusInput = {

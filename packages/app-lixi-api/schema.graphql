@@ -1843,17 +1843,12 @@ input UpdateEscrowOrderInput {
 }
 
 input UpdateOfferInput {
-  coinPayment: String
-  countryId: Int
   id: String!
-  localCurrency: String
   marginPercentage: Float
   message: String
   noteOffer: String
   orderLimitMax: Int
   orderLimitMin: Int
-  paymentMethodIds: [Int!]
-  stateId: Int
 }
 
 input UpdateOfferStatusInput {

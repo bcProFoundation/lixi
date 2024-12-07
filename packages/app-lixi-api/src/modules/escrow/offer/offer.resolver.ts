@@ -104,8 +104,8 @@ export class OfferResolver {
 
     offerFilterInput = {
       countryCode: offerFilterInput.countryCode ?? null,
-      adminCode: replaceDashWithUnderscore(offerFilterInput.adminCode),
-      cityName: replaceDashWithUnderscore(offerFilterInput.cityName),
+      adminCode: offerFilterInput.adminCode ? replaceDashWithUnderscore(offerFilterInput.adminCode) : null,
+      cityName: offerFilterInput.cityName ? replaceDashWithUnderscore(offerFilterInput.cityName) : null,
       paymentMethodIds: offerFilterInput.paymentMethodIds,
       coin: offerFilterInput.coin ?? null,
       fiatCurrency: offerFilterInput.fiatCurrency ?? null
@@ -208,7 +208,10 @@ export class OfferResolver {
               orderLimitMin: data.orderLimitMin,
               orderLimitMax: data.orderLimitMax,
               location: {
-                connect: locationId ? { id: locationId } : undefined
+                connect: paymentMethodIds[0] === 1 && locationId ? { id: locationId } : undefined //cash in person
+              },
+              country: {
+                connect: paymentMethodIds[0] === 2 && locationId ? { id: Number(locationId) } : undefined //bank transfer
               },
               paymentMethods: {
                 createMany: {
@@ -234,7 +237,8 @@ export class OfferResolver {
               country: {
                 select: {
                   id: true,
-                  name: true
+                  name: true,
+                  iso2: true
                 }
               },
               paymentMethods: {
@@ -267,9 +271,12 @@ export class OfferResolver {
 
     const { offer } = result || {};
     const locationOfOffer = offer?.location;
-    const strLocation =
+    let strLocation =
       locationOfOffer &&
       `${[locationOfOffer?.cityAscii, locationOfOffer?.adminNameAscii, locationOfOffer?.country].filter(Boolean).join(', ')}`;
+    if (offer?.country) {
+      strLocation = `${offer?.country.name}`;
+    }
 
     const formatReplied = format(
       BOT.MESSAGE.OFFER_CREATED,
@@ -330,37 +337,7 @@ export class OfferResolver {
         noteOffer: data.noteOffer ?? '',
         orderLimitMin: data.orderLimitMin ?? 0,
         orderLimitMax: data.orderLimitMax ?? 0,
-        marginPercentage: data.marginPercentage ?? 0,
-        coinPayment: data.coinPayment ?? '',
-        localCurrency: data.localCurrency ?? '',
-        paymentMethods: {
-          deleteMany: {},
-          createMany: {
-            data:
-              data.paymentMethodIds && data.paymentMethodIds.length > 0
-                ? data.paymentMethodIds.map(item => {
-                    return {
-                      paymentMethodId: item
-                    };
-                  })
-                : []
-          }
-        },
-        country: {
-          connect: data.countryId
-            ? {
-                id: Number(data.countryId)
-              }
-            : undefined
-        },
-        state: {
-          disconnect: !data.stateId,
-          connect: data.stateId
-            ? {
-                id: Number(data.stateId)
-              }
-            : undefined
-        }
+        marginPercentage: data.marginPercentage ?? 0
       }
     });
 
