@@ -67,11 +67,20 @@ export class SettingController {
         throw new VError(accountNotExistMessage);
       }
 
-      const setting = await this.prisma.setting.update({
+      //find setting first
+      const setting = await this.prisma.setting.upsert({
         where: {
           accountId: Number(accountId)
         },
-        data: {
+        update: {
+          lastSeedBackupTime: lastSeedBackupTime
+        },
+        create: {
+          account: {
+            connect: {
+              id: Number(accountId)
+            }
+          },
           lastSeedBackupTime: lastSeedBackupTime
         }
       });
