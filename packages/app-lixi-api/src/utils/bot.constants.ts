@@ -29,10 +29,9 @@ export const BOT = {
     ARBI_REQUEST_CHAT: `💬 The arbitrator %s has requested to chat with you! \r\n\r\n`,
     MOD_REQUEST_CHAT: `💬 The mod %s has requested to chat with you! \r\n\r\n`,
     BOOST_NOTIFY:
-      `A offer is boosted! \n` +
+      `An offer is boosted! \n` +
       `*Message:* %s \n` +
       `*Order limit:* %s \n` +
-      `*Price:* %s \n` +
       `*Payment method:* %s\n` +
       `*Location:* %s\n\n` +
       `[View offer](%s)`,
