@@ -48,8 +48,8 @@ export class BoostFanoutProcessor extends WorkerHost {
       pipeline.zincrby(BoostFanoutProcessor.offerBoostingTimeline, score, timelineId);
 
       //update score of post in cache (country-state-method)
-      post.offer?.paymentMethods.map(item => {
-        const keyPaymentMethod = `offer:method:{${item.paymentMethod.id}}`;
+      post.offer?.paymentMethods?.map(item => {
+        const keyPaymentMethod = `offer:method:{${item.paymentMethodId}}`;
         pipeline.zincrby(keyPaymentMethod, score, timelineId);
       });
 

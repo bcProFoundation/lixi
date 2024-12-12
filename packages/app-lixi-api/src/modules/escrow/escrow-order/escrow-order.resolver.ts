@@ -513,6 +513,10 @@ export class EscrowOrderResolver {
         throw new Error(`Moderator doesn't connect to Telegram account`);
       }
 
+      if (moderatorAccount.id === account.id) {
+        throw new Error(`Moderator can not create an escrow order`);
+      }
+
       const arbitratorAccount = await this.prisma.account.findUnique({
         where: {
           id: arbitratorId

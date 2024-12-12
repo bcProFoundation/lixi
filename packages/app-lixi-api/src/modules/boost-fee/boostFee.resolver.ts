@@ -98,7 +98,8 @@ export class BoostFeeResolver {
           offer: {
             include: {
               location: true,
-              country: true
+              country: true,
+              paymentMethods: true
             }
           }
         }
@@ -161,7 +162,7 @@ export class BoostFeeResolver {
       //notify to channel
       if (offerBoosted) {
         const channelId = this.configService.get<string>('TELEGRAM_CHANNEL_ID') ?? -1002199386416;
-        const link = `${process.env.LOCAL_ECASH_URL}/offer-detail?id=${boostForId}`;
+        const link = `https://t.me/${process.env.TELEGRAM_LOCAL_ECASH_BOT_NAME}?startapp=offer__detail__${boostForId}`;
         const paymentMethodIds = offerBoosted.offer?.paymentMethods.map(item => item.paymentMethodId);
         const paymenMethod = await this.prisma.paymentMethod.findMany({
           where: {
@@ -184,14 +185,18 @@ export class BoostFeeResolver {
           BOT.MESSAGE.BOOST_NOTIFY,
           `${offerBoosted?.offer?.message}`,
           `${offerBoosted?.offer?.orderLimitMin} XEC - ${offerBoosted?.offer?.orderLimitMax} XEC`,
-          `${offerBoosted?.offer?.price}`,
           paymentMethodString,
-          strLocation,
+          strLocation ?? '',
           link
         );
-        await this.bot.telegram.sendMessage(channelId, formatReplied, {
-          parse_mode: 'Markdown'
-        });
+
+        await this.bot.telegram
+          .sendMessage(channelId, formatReplied, {
+            parse_mode: 'Markdown'
+          })
+          .catch(e => {
+            console.log(e);
+          });
       }
 
       const result = {
