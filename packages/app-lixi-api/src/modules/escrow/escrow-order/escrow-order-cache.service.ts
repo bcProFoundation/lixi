@@ -15,7 +15,7 @@ export class EscrowOrderCacheService {
 
   //timeline
   static myEscrowOrderTimeline = 'timeline:escrowOrders:{{accountId}}:{{escrowOrderStatus}}';
-  static escrowOrderByOfferIdTimeline = 'timeline:escrowOrders:{{offerId}}:{{escrowOrderStatus}}';
+  static escrowOrderByOfferIdTimeline = 'timeline:escrowOrders:{{accountId}}:{{offerId}}:{{escrowOrderStatus}}';
 
   constructor(
     private readonly prisma: PrismaService,
@@ -142,17 +142,19 @@ export class EscrowOrderCacheService {
   async getPaginatedEscrowOrderByOfferIdTimelineByTime(
     offerId: string,
     escrowOrderStatus: EscrowOrderStatus,
+    accountId: number,
     first: number = 20,
     after?: string
   ) {
     const key = template(`${EscrowOrderCacheService.escrowOrderByOfferIdTimeline}`, {
+      accountId,
       offerId,
       escrowOrderStatus
     });
     const limit = 1000;
     const exist = await this.redis.exists([key]);
     if (!exist) {
-      await this.cacheEscrowOrderByOfferIdTimelineByTime(offerId, escrowOrderStatus, limit);
+      await this.cacheEscrowOrderByOfferIdTimelineByTime(offerId, escrowOrderStatus, accountId, limit);
     }
     const paginated = await basicSortedSetPagination(this.redis, key, first, after);
     const hasNextPage = paginated.pageInfo.hasNextPage;
@@ -160,6 +162,7 @@ export class EscrowOrderCacheService {
       const shouldPaginate = await this.cacheEscrowOrderByOfferIdTimelineByTime(
         offerId,
         escrowOrderStatus,
+        accountId,
         limit,
         after
       );
@@ -239,10 +242,12 @@ export class EscrowOrderCacheService {
   private async cacheEscrowOrderByOfferIdTimelineByTime(
     offerId: string,
     escrowOrderStatus: EscrowOrderStatus,
+    accountId: number,
     limit: number = 0,
     cursor?: string
   ) {
     const key = template(`${EscrowOrderCacheService.escrowOrderByOfferIdTimeline}`, {
+      accountId,
       offerId,
       escrowOrderStatus
     });
@@ -256,7 +261,8 @@ export class EscrowOrderCacheService {
             },
             where: {
               offerId: offerId,
-              status: escrowOrderStatus
+              status: escrowOrderStatus,
+              sellerAccountId: accountId
             },
             orderBy: {
               createdAt: 'desc'
@@ -272,7 +278,8 @@ export class EscrowOrderCacheService {
             },
             where: {
               offerId: offerId,
-              status: escrowOrderStatus
+              status: escrowOrderStatus,
+              sellerAccountId: accountId
             },
             orderBy: {
               createdAt: 'desc'
