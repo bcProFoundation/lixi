@@ -432,6 +432,7 @@ export class EscrowOrderResolver {
     const paginated = await this.escrowOrderCacheService.getPaginatedEscrowOrderByOfferIdTimelineByTime(
       offerId,
       escrowOrderStatus,
+      account?.id,
       first,
       after
     );
