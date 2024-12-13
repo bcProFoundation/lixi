@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { PrismaService } from '../../prisma/prisma.service';
-import { Role } from '@bcpros/lixi-prisma';
+import { OfferStatus, Role } from '@bcpros/lixi-prisma';
 import { GqlJwtAuthGuard } from '../../auth/guards/gql-jwtauth.guard';
 import { AccountEntity } from 'src/decorators';
 import EscrowOrderLoader from './escrow-order.loader';
@@ -466,6 +466,16 @@ export class EscrowOrderResolver {
         utxoInProcess,
         amountCoinOrCurrency
       } = data;
+
+      const offer = await this.prisma.offer.findUnique({
+        where: {
+          postId: postId
+        }
+      });
+
+      if (offer && offer.status === OfferStatus.ARCHIVE) {
+        throw new Error('Offer is no longer available');
+      }
 
       const sellerAccount = await this.prisma.account.findUnique({
         where: {
