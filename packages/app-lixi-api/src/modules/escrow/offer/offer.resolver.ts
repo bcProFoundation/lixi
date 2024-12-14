@@ -151,6 +151,16 @@ export class OfferResolver {
   async createOffer(@AccountEntity() account: Account, @Args('data') data: CreateOfferInput) {
     const { paymentMethodIds, pageId, createFeeHex, coin, locationId } = data;
 
+    const moderatorAccount = await this.prisma.account.findUnique({
+      where: {
+        id: account.id
+      }
+    });
+
+    if (moderatorAccount) {
+      this.logger.error('Moderator account is not allowed to create offer');
+    }
+
     const result = await this.prisma.$transaction(async prisma => {
       let txid: string | undefined;
       let broadcastResponse;
