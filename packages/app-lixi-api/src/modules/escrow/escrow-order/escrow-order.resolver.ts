@@ -577,7 +577,8 @@ export class EscrowOrderResolver {
             select: {
               telegramMessageId: true,
               localCurrency: true,
-              coinPayment: true
+              coinPayment: true,
+              message: true
             }
           }
         }
@@ -599,11 +600,11 @@ export class EscrowOrderResolver {
           : BOT.MESSAGE.ORDER_CREATED;
         const formatReplied = format(
           replied,
-          escrowOrder.id,
-          escrowOrder.amountCoinOrCurrency,
-          escrowOrder.offer.coinPayment ?? escrowOrder.offer.localCurrency,
+          escrowOrder.amount.toLocaleString('en-US'),
           buyerAccount.telegramUsername,
-          escrowAddress,
+          escrowOrder.offer.message,
+          escrowOrder.amountCoinOrCurrency.toLocaleString('en-US'),
+          escrowOrder.offer.coinPayment ?? escrowOrder.offer.localCurrency ?? 'XEC',
           escrowOrder.message,
           buyerDepositTx
             ? (() => {

@@ -273,6 +273,7 @@ export type BookmarkTimelineQuery = {
                 orderLimitMax: number;
                 status: Types.OfferStatus;
                 locationId?: string | null;
+                countryId?: number | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -286,6 +287,7 @@ export type BookmarkTimelineQuery = {
                   adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };

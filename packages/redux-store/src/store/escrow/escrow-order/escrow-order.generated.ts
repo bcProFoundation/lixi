@@ -335,6 +335,7 @@ export type AllEscrowOrderByAccountQuery = {
                 orderLimitMax: number;
                 status: Types.OfferStatus;
                 locationId?: string | null;
+                countryId?: number | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -348,6 +349,7 @@ export type AllEscrowOrderByAccountQuery = {
                   adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -591,6 +593,7 @@ export type AllEscrowOrderByOfferIdQuery = {
                 orderLimitMax: number;
                 status: Types.OfferStatus;
                 locationId?: string | null;
+                countryId?: number | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -604,6 +607,7 @@ export type AllEscrowOrderByOfferIdQuery = {
                   adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };

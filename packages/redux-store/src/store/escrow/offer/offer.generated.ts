@@ -35,6 +35,7 @@ export type OfferQuery = {
     orderLimitMax: number;
     status: Types.OfferStatus;
     locationId?: string | null;
+    countryId?: number | null;
     paymentMethods: Array<{
       __typename?: 'OfferPaymentMethod';
       paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -48,6 +49,7 @@ export type OfferQuery = {
       adminCode?: string | null;
       cityAscii?: string | null;
     } | null;
+    country?: { __typename?: 'Country'; name?: string | null } | null;
   };
 };
 
@@ -284,6 +286,7 @@ export type AllOfferQuery = {
                 orderLimitMax: number;
                 status: Types.OfferStatus;
                 locationId?: string | null;
+                countryId?: number | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -297,6 +300,7 @@ export type AllOfferQuery = {
                   adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -539,6 +543,7 @@ export type OfferByFilterQuery = {
                 orderLimitMax: number;
                 status: Types.OfferStatus;
                 locationId?: string | null;
+                countryId?: number | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -552,6 +557,7 @@ export type OfferByFilterQuery = {
                   adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -794,6 +800,7 @@ export type AllOfferByAccountQuery = {
                 orderLimitMax: number;
                 status: Types.OfferStatus;
                 locationId?: string | null;
+                countryId?: number | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -807,6 +814,7 @@ export type AllOfferByAccountQuery = {
                   adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -935,6 +943,7 @@ export type CreateOfferMutation = {
       orderLimitMax: number;
       status: Types.OfferStatus;
       locationId?: string | null;
+      countryId?: number | null;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -948,6 +957,7 @@ export type CreateOfferMutation = {
         adminCode?: string | null;
         cityAscii?: string | null;
       } | null;
+      country?: { __typename?: 'Country'; name?: string | null } | null;
     } | null;
   };
 };
@@ -972,6 +982,7 @@ export type UpdateOfferMutation = {
     orderLimitMax: number;
     status: Types.OfferStatus;
     locationId?: string | null;
+    countryId?: number | null;
     paymentMethods: Array<{
       __typename?: 'OfferPaymentMethod';
       paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -985,6 +996,7 @@ export type UpdateOfferMutation = {
       adminCode?: string | null;
       cityAscii?: string | null;
     } | null;
+    country?: { __typename?: 'Country'; name?: string | null } | null;
   };
 };
 
@@ -1108,6 +1120,7 @@ export type UpdateOfferStatusMutation = {
       orderLimitMax: number;
       status: Types.OfferStatus;
       locationId?: string | null;
+      countryId?: number | null;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -1121,6 +1134,7 @@ export type UpdateOfferStatusMutation = {
         adminCode?: string | null;
         cityAscii?: string | null;
       } | null;
+      country?: { __typename?: 'Country'; name?: string | null } | null;
     } | null;
   };
 };

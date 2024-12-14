@@ -181,14 +181,23 @@ export class BoostFeeResolver {
           strLocation = `${offerBoosted.offer?.country.name}`;
         }
         //message - orderlimit - price - paymentMethod - location - link
-        const formatReplied = format(
-          BOT.MESSAGE.BOOST_NOTIFY,
-          `${offerBoosted?.offer?.message}`,
-          `${offerBoosted?.offer?.orderLimitMin} XEC - ${offerBoosted?.offer?.orderLimitMax} XEC`,
-          paymentMethodString,
-          strLocation ?? '',
-          link
-        );
+        const formatReplied =
+          strLocation && strLocation !== ''
+            ? format(
+                BOT.MESSAGE.BOOST_NOTIFY,
+                `${offerBoosted?.offer?.message}`,
+                `${offerBoosted?.offer?.orderLimitMin.toLocaleString('en-US')} XEC - ${offerBoosted?.offer?.orderLimitMax.toLocaleString('en-US')} XEC`,
+                paymentMethodString,
+                strLocation,
+                link
+              )
+            : format(
+                BOT.MESSAGE.BOOST_NOTIFY_WITHOUT_LOCATION,
+                `${offerBoosted?.offer?.message}`,
+                `${offerBoosted?.offer?.orderLimitMin.toLocaleString('en-US')} XEC - ${offerBoosted?.offer?.orderLimitMax.toLocaleString('en-US')} XEC`,
+                paymentMethodString,
+                link
+              );
 
         await this.bot.telegram
           .sendMessage(channelId, formatReplied, {

@@ -136,6 +136,7 @@ export type PostQuery = {
       orderLimitMax: number;
       status: Types.OfferStatus;
       locationId?: string | null;
+      countryId?: number | null;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -149,6 +150,7 @@ export type PostQuery = {
         adminCode?: string | null;
         cityAscii?: string | null;
       } | null;
+      country?: { __typename?: 'Country'; name?: string | null } | null;
     } | null;
   };
 };
@@ -287,6 +289,7 @@ export type PostsByPageIdQuery = {
           orderLimitMax: number;
           status: Types.OfferStatus;
           locationId?: string | null;
+          countryId?: number | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -300,6 +303,7 @@ export type PostsByPageIdQuery = {
             adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
+          country?: { __typename?: 'Country'; name?: string | null } | null;
         } | null;
       };
     }> | null;
@@ -446,6 +450,7 @@ export type PostsByUserIdQuery = {
           orderLimitMax: number;
           status: Types.OfferStatus;
           locationId?: string | null;
+          countryId?: number | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -459,6 +464,7 @@ export type PostsByUserIdQuery = {
             adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
+          country?: { __typename?: 'Country'; name?: string | null } | null;
         } | null;
       };
     }> | null;
@@ -605,6 +611,7 @@ export type PostsByHashtagIdQuery = {
           orderLimitMax: number;
           status: Types.OfferStatus;
           locationId?: string | null;
+          countryId?: number | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -618,6 +625,7 @@ export type PostsByHashtagIdQuery = {
             adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
+          country?: { __typename?: 'Country'; name?: string | null } | null;
         } | null;
       };
     }> | null;
@@ -764,6 +772,7 @@ export type PostsByTokenIdQuery = {
           orderLimitMax: number;
           status: Types.OfferStatus;
           locationId?: string | null;
+          countryId?: number | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -777,6 +786,7 @@ export type PostsByTokenIdQuery = {
             adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
+          country?: { __typename?: 'Country'; name?: string | null } | null;
         } | null;
       };
     }> | null;
@@ -913,6 +923,7 @@ export type PostsBySearchQuery = {
           orderLimitMax: number;
           status: Types.OfferStatus;
           locationId?: string | null;
+          countryId?: number | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -926,6 +937,7 @@ export type PostsBySearchQuery = {
             adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
+          country?: { __typename?: 'Country'; name?: string | null } | null;
         } | null;
       };
     }> | null;
@@ -1064,6 +1076,7 @@ export type PostsBySearchWithHashtagQuery = {
           orderLimitMax: number;
           status: Types.OfferStatus;
           locationId?: string | null;
+          countryId?: number | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -1077,6 +1090,7 @@ export type PostsBySearchWithHashtagQuery = {
             adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
+          country?: { __typename?: 'Country'; name?: string | null } | null;
         } | null;
       };
     }> | null;
@@ -1216,6 +1230,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
           orderLimitMax: number;
           status: Types.OfferStatus;
           locationId?: string | null;
+          countryId?: number | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -1229,6 +1244,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
             adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
+          country?: { __typename?: 'Country'; name?: string | null } | null;
         } | null;
       };
     }> | null;
@@ -1368,6 +1384,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
           orderLimitMax: number;
           status: Types.OfferStatus;
           locationId?: string | null;
+          countryId?: number | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -1381,6 +1398,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
             adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
+          country?: { __typename?: 'Country'; name?: string | null } | null;
         } | null;
       };
     }> | null;
@@ -1432,6 +1450,7 @@ export type OfferFieldsFragment = {
   orderLimitMax: number;
   status: Types.OfferStatus;
   locationId?: string | null;
+  countryId?: number | null;
   paymentMethods: Array<{
     __typename?: 'OfferPaymentMethod';
     paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -1445,6 +1464,7 @@ export type OfferFieldsFragment = {
     adminCode?: string | null;
     cityAscii?: string | null;
   } | null;
+  country?: { __typename?: 'Country'; name?: string | null } | null;
 };
 
 export type PostFieldsFragment = {
@@ -1561,6 +1581,7 @@ export type PostFieldsFragment = {
     orderLimitMax: number;
     status: Types.OfferStatus;
     locationId?: string | null;
+    countryId?: number | null;
     paymentMethods: Array<{
       __typename?: 'OfferPaymentMethod';
       paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -1574,6 +1595,7 @@ export type PostFieldsFragment = {
       adminCode?: string | null;
       cityAscii?: string | null;
     } | null;
+    country?: { __typename?: 'Country'; name?: string | null } | null;
   } | null;
 };
 
@@ -1684,6 +1706,7 @@ export type PostMeiliFieldsFragment = {
     orderLimitMax: number;
     status: Types.OfferStatus;
     locationId?: string | null;
+    countryId?: number | null;
     paymentMethods: Array<{
       __typename?: 'OfferPaymentMethod';
       paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -1697,6 +1720,7 @@ export type PostMeiliFieldsFragment = {
       adminCode?: string | null;
       cityAscii?: string | null;
     } | null;
+    country?: { __typename?: 'Country'; name?: string | null } | null;
   } | null;
 };
 
@@ -1820,6 +1844,7 @@ export type CreatePostMutation = {
       orderLimitMax: number;
       status: Types.OfferStatus;
       locationId?: string | null;
+      countryId?: number | null;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -1833,6 +1858,7 @@ export type CreatePostMutation = {
         adminCode?: string | null;
         cityAscii?: string | null;
       } | null;
+      country?: { __typename?: 'Country'; name?: string | null } | null;
     } | null;
   };
 };
@@ -1957,6 +1983,7 @@ export type UpdatePostMutation = {
       orderLimitMax: number;
       status: Types.OfferStatus;
       locationId?: string | null;
+      countryId?: number | null;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -1970,6 +1997,7 @@ export type UpdatePostMutation = {
         adminCode?: string | null;
         cityAscii?: string | null;
       } | null;
+      country?: { __typename?: 'Country'; name?: string | null } | null;
     } | null;
   };
 };
@@ -2100,6 +2128,7 @@ export type RemovePostMutation = {
       orderLimitMax: number;
       status: Types.OfferStatus;
       locationId?: string | null;
+      countryId?: number | null;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -2113,6 +2142,7 @@ export type RemovePostMutation = {
         adminCode?: string | null;
         cityAscii?: string | null;
       } | null;
+      country?: { __typename?: 'Country'; name?: string | null } | null;
     } | null;
   };
 };
@@ -2166,6 +2196,10 @@ export const OfferFieldsFragmentDoc = `
     adminNameAscii
     adminCode
     cityAscii
+  }
+  countryId
+  country {
+    name
   }
 }
     `;
