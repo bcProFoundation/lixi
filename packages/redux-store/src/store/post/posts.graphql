@@ -310,6 +310,10 @@ fragment OfferFields on Offer {
     adminCode
     cityAscii
   }
+  countryId
+  country {
+    name
+  }
 }
 
 fragment PostFields on Post {

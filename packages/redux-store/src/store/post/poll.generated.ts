@@ -133,6 +133,7 @@ export type CreatePollMutation = {
       orderLimitMax: number;
       status: Types.OfferStatus;
       locationId?: string | null;
+      countryId?: number | null;
       paymentMethods: Array<{
         __typename?: 'OfferPaymentMethod';
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -146,6 +147,7 @@ export type CreatePollMutation = {
         adminCode?: string | null;
         cityAscii?: string | null;
       } | null;
+      country?: { __typename?: 'Country'; name?: string | null } | null;
     } | null;
   };
 };

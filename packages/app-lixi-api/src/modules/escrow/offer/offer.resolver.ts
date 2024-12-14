@@ -288,16 +288,39 @@ export class OfferResolver {
       strLocation = `${offer?.country.name}`;
     }
 
-    const formatReplied = format(
-      BOT.MESSAGE.OFFER_CREATED,
-      result.id,
-      offer?.message,
-      offer?.marginPercentage,
-      offer?.orderLimitMin,
-      offer?.orderLimitMax,
-      offer?.paymentMethods[0].paymentMethod.name,
-      strLocation ?? '---'
-    );
+    let formatReplied =
+      strLocation && strLocation !== ''
+        ? format(
+            BOT.MESSAGE.OFFER_CREATED,
+            result.id,
+            offer?.message,
+            offer?.marginPercentage,
+            offer?.orderLimitMin.toLocaleString('en-US'),
+            offer?.orderLimitMax.toLocaleString('en-US'),
+            offer?.paymentMethods[0].paymentMethod.name,
+            strLocation
+          )
+        : format(
+            BOT.MESSAGE.OFFER_CREATED_WITHOUT_LOCATION,
+            result.id,
+            offer?.message,
+            offer?.marginPercentage,
+            offer?.orderLimitMin.toLocaleString('en-US'),
+            offer?.orderLimitMax.toLocaleString('en-US'),
+            offer?.paymentMethods[0].paymentMethod.name
+          );
+
+    //process for goods services
+    if (paymentMethodIds[0] === 5) {
+      formatReplied = format(
+        BOT.MESSAGE.OFFER_CREATED_GOODS_SERVICES,
+        result.id,
+        offer?.message,
+        offer?.orderLimitMin.toLocaleString('en-US'),
+        offer?.orderLimitMax.toLocaleString('en-US'),
+        offer?.paymentMethods[0].paymentMethod.name
+      );
+    }
 
     account.telegramId &&
       (await this.bot.telegram

@@ -3,10 +3,9 @@ export const BOT = {
     ARBITRATOR_SELECTED: `🧑‍⚖️ Heads up! You have been assigned as the arbitrator for a new order! \r\n\r\n`,
     MODERATOR_SELECTED: `🧑‍⚖️ Heads up! You have been assigned as the moderator for a new order! \r\n\r\n`,
     ORDER_CREATED:
-      `📦 Order #%s has been placed! \r\n\r\n` +
-      `*Amount:* %s %s \n` +
-      `*Ordered By:* %s \n` +
-      `*Escrow Address:* %s \n` +
+      `📦 Order of %s XEC has been placed by %s! \r\n\r\n` +
+      `*Offer:* %s\n` +
+      `*Amount paying:* %s %s \n` +
       `*Message:* %s \n`,
     ORDER_CANCELED: `❌ Order has been canceled! \r\n\r\n`,
     ORDER_DECLINED: `❌ Order has been declined! \r\n\r\n`,
@@ -35,12 +34,26 @@ export const BOT = {
       `*Payment method:* %s\n` +
       `*Location:* %s\n\n` +
       `[View offer](%s)`,
+    BOOST_NOTIFY_WITHOUT_LOCATION:
+      `An offer is boosted! \n` +
+      `*Message:* %s \n` +
+      `*Order limit:* %s \n` +
+      `*Payment method:* %s\n` +
+      `[View offer](%s)`,
     OFFER_CREATED:
       `Offer #%s \n` +
       `*Headline:* %s \n` +
       `*Margin:* %s% \n` +
-      `*Order limit:* %sXEC - %sXEC \n` +
+      `*Order limit:* %s XEC - %s XEC \n` +
       `*Payment method:* %s\n` +
-      `*Location:* %s\n`
+      `*Location:* %s\n`,
+    OFFER_CREATED_WITHOUT_LOCATION:
+      `Offer #%s \n` +
+      `*Headline:* %s \n` +
+      `*Margin:* %s% \n` +
+      `*Order limit:* %s XEC - %s XEC \n` +
+      `*Payment method:* %s\n`,
+    OFFER_CREATED_GOODS_SERVICES:
+      `Offer #%s \n` + `*Headline:* %s \n` + `*Order limit:* %s XEC - %s XEC \n` + `*Payment method:* %s\n`
   }
 };

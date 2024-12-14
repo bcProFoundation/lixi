@@ -326,6 +326,7 @@ export type TimelineItemFieldsFragment = {
           orderLimitMax: number;
           status: Types.OfferStatus;
           locationId?: string | null;
+          countryId?: number | null;
           paymentMethods: Array<{
             __typename?: 'OfferPaymentMethod';
             paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -339,6 +340,7 @@ export type TimelineItemFieldsFragment = {
             adminCode?: string | null;
             cityAscii?: string | null;
           } | null;
+          country?: { __typename?: 'Country'; name?: string | null } | null;
         } | null;
       };
 };
@@ -563,6 +565,7 @@ export type TimelineQuery = {
             orderLimitMax: number;
             status: Types.OfferStatus;
             locationId?: string | null;
+            countryId?: number | null;
             paymentMethods: Array<{
               __typename?: 'OfferPaymentMethod';
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -576,6 +579,7 @@ export type TimelineQuery = {
               adminCode?: string | null;
               cityAscii?: string | null;
             } | null;
+            country?: { __typename?: 'Country'; name?: string | null } | null;
           } | null;
         };
   };
@@ -815,6 +819,7 @@ export type HomeTimelineQuery = {
                 orderLimitMax: number;
                 status: Types.OfferStatus;
                 locationId?: string | null;
+                countryId?: number | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -828,6 +833,7 @@ export type HomeTimelineQuery = {
                   adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -1070,6 +1076,7 @@ export type ProfileTimelineQuery = {
                 orderLimitMax: number;
                 status: Types.OfferStatus;
                 locationId?: string | null;
+                countryId?: number | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -1083,6 +1090,7 @@ export type ProfileTimelineQuery = {
                   adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -1326,6 +1334,7 @@ export type ProfileTimelineByTimeQuery = {
                 orderLimitMax: number;
                 status: Types.OfferStatus;
                 locationId?: string | null;
+                countryId?: number | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -1339,6 +1348,7 @@ export type ProfileTimelineByTimeQuery = {
                   adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -1581,6 +1591,7 @@ export type PageTimelineQuery = {
                 orderLimitMax: number;
                 status: Types.OfferStatus;
                 locationId?: string | null;
+                countryId?: number | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -1594,6 +1605,7 @@ export type PageTimelineQuery = {
                   adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -1837,6 +1849,7 @@ export type PageTimelineByTimeQuery = {
                 orderLimitMax: number;
                 status: Types.OfferStatus;
                 locationId?: string | null;
+                countryId?: number | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -1850,6 +1863,7 @@ export type PageTimelineByTimeQuery = {
                   adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -2092,6 +2106,7 @@ export type TokenTimelineQuery = {
                 orderLimitMax: number;
                 status: Types.OfferStatus;
                 locationId?: string | null;
+                countryId?: number | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -2105,6 +2120,7 @@ export type TokenTimelineQuery = {
                   adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
@@ -2348,6 +2364,7 @@ export type TokenTimelineByTimeQuery = {
                 orderLimitMax: number;
                 status: Types.OfferStatus;
                 locationId?: string | null;
+                countryId?: number | null;
                 paymentMethods: Array<{
                   __typename?: 'OfferPaymentMethod';
                   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
@@ -2361,6 +2378,7 @@ export type TokenTimelineByTimeQuery = {
                   adminCode?: string | null;
                   cityAscii?: string | null;
                 } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
               } | null;
             };
       };
