@@ -30,34 +30,38 @@ async function main() {
     const score = 1 * Math.pow(2, diffHour / 12);
     const timelineId = `${offer.post.type}:${offer.postId}`;
 
+    if (offer.status === 'ARCHIVE') {
+      continue;
+    }
+
     //add to home
     redis.zincrby('lixilotus:timeline:offer:boosting:showAll', score, timelineId);
   
-    offer?.paymentMethods.map(item => {
-      const keyPaymentMethod = `lixilotus:offer:method:{${item.paymentMethod.id}}`;
-      redis.zincrby(keyPaymentMethod, score, timelineId);
-    });
+    // offer?.paymentMethods.map(item => {
+    //   const keyPaymentMethod = `lixilotus:offer:method:{${item.paymentMethod.id}}`;
+    //   redis.zincrby(keyPaymentMethod, score, timelineId);
+    // });
 
-    if (offer?.location) {
-      const keyCountry = `offer:country:{${offer.location.iso2}}`;
-      redis.zincrby(keyCountry, score, timelineId);
+    // if (offer?.location) {
+    //   const keyCountry = `offer:country:{${offer.location.iso2}}`;
+    //   redis.zincrby(keyCountry, score, timelineId);
 
-      const keyState = `offer:state:{${offer.location.adminCode}}`;
-      redis.zincrby(keyState, score, timelineId);
+    //   const keyState = `offer:state:{${offer.location.adminCode}}`;
+    //   redis.zincrby(keyState, score, timelineId);
     
-      const keyCity = `offer:city:{${offer.location.cityAscii}}`;
-      redis.zincrby(keyCity, score, timelineId);
-    }
+    //   const keyCity = `offer:city:{${offer.location.cityAscii}}`;
+    //   redis.zincrby(keyCity, score, timelineId);
+    // }
 
-    if (offer?.coinPayment) {
-      const keyCoin = `lixilotus:offer:coin:{${offer.coinPayment}}`;
-      redis.zincrby(keyCoin, score, timelineId);
-    }
+    // if (offer?.coinPayment) {
+    //   const keyCoin = `lixilotus:offer:coin:{${offer.coinPayment}}`;
+    //   redis.zincrby(keyCoin, score, timelineId);
+    // }
 
-    if (offer?.localCurrency) {
-      const keyCurrency = `lixilotus:offer:currency:{${offer.localCurrency}}`;
-      redis.zincrby(keyCurrency, score, timelineId);
-    }
+    // if (offer?.localCurrency) {
+    //   const keyCurrency = `lixilotus:offer:currency:{${offer.localCurrency}}`;
+    //   redis.zincrby(keyCurrency, score, timelineId);
+    // }
   }
   console.log("Finish!!")
 }
