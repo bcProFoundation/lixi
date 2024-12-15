@@ -215,6 +215,10 @@ export class OfferCacheService {
         JOIN
             boost_fee as boost 
             ON post.id = boost.boosted_for_id
+        JOIN
+            offer 
+            ON offer.post_id = post.id AND
+            offer.status = 'ACTIVE'
       WHERE
         boost.boost_for_type = ${postBoostType} 
         AND boost.boosted_value > 0
@@ -236,6 +240,10 @@ export class OfferCacheService {
         JOIN
             boost_fee as boost 
             ON post.id = boost.boosted_for_id
+        JOIN
+            offer 
+            ON offer.post_id = post.id AND
+            offer.status = 'ACTIVE'
       WHERE
       boost.boost_for_type = ${postBoostType} 
       AND boost.boosted_value > 0
