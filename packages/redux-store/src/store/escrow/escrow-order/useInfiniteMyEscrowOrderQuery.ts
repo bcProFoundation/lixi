@@ -12,9 +12,9 @@ const escrowOrderTimelineAdapter = createEntityAdapter<EscrowOrderQuery['escrowO
 
 const { selectAll } = escrowOrderTimelineAdapter.getSelectors();
 
-export interface EscrowOrderListParams extends PaginationArgs {
+export type EscrowOrderListParams = PaginationArgs & {
   escrowOrderStatus: EscrowOrderStatus;
-}
+};
 
 export function useInfiniteMyEscrowOrderQuery(
   params: EscrowOrderListParams,
