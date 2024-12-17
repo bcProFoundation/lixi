@@ -1,6 +1,6 @@
 {
   "name": "@bcpros/app-lotus-temple",
-  "version": "1.1.39",
+  "version": "1.1.40",
   "private": true,
   "scripts": {
     "precommit": "turbo run format",
