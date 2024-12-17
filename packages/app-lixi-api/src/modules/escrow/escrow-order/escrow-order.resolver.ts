@@ -420,18 +420,21 @@ export class EscrowOrderResolver {
               buyerAccount: true
             },
             where: {
-              OR: [
+              AND: [
                 {
-                  buyerAccountId: account.id
+                  OR: [
+                    {
+                      buyerAccountId: account.id
+                    },
+                    {
+                      sellerAccountId: account.id
+                    }
+                  ]
                 },
                 {
-                  sellerAccountId: account.id
-                },
-                {
-                  status: EscrowOrderStatus.COMPLETE
-                },
-                {
-                  status: EscrowOrderStatus.CANCEL
+                  status: {
+                    in: [EscrowOrderStatus.COMPLETE, EscrowOrderStatus.CANCEL]
+                  }
                 }
               ]
             },
