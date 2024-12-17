@@ -666,6 +666,13 @@ export type EscrowOrder = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type EscrowOrderConnection = {
+  __typename?: 'EscrowOrderConnection';
+  edges?: Maybe<Array<EscrowOrderEdge>>;
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 export type EscrowOrderEdge = {
   __typename?: 'EscrowOrderEdge';
   cursor: Scalars['String']['output'];
@@ -1664,7 +1671,7 @@ export type Query = {
   allAccounts: AccountBasicConnection;
   allClosedPageMessageSession: PageMessageSessionConnection;
   allDisputeByAccount: TimelineItemConnection;
-  allEscrowOrderByAccount: TimelineItemConnection;
+  allEscrowOrderByAccount: EscrowOrderConnection;
   allEscrowOrderByOfferId: TimelineItemConnection;
   allFollowersByFollowing: AccountConnection;
   allFollowersByPage: AccountBasicConnection;
@@ -1783,8 +1790,11 @@ export type QueryAllDisputeByAccountArgs = {
 
 export type QueryAllEscrowOrderByAccountArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
   escrowOrderStatus: EscrowOrderStatus;
   first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minBurnFilter?: InputMaybe<Scalars['Int']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 

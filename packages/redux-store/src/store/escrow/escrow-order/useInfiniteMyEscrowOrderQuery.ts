@@ -1,23 +1,23 @@
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { useEffect, useMemo, useRef, useState } from 'react';
-
-import { TimelineQueryItem } from '../../../generated/types';
+import { PaginationArgs } from '@bcpros/lixi-models/core/pagination/pagination.args';
 import { useAllEscrowOrderByAccountQuery, useLazyAllEscrowOrderByAccountQuery } from './escrow-order.api';
-import { BasicPaginationArgs } from '@bcpros/lixi-models/core/pagination/basic.pagination.args';
 import { EscrowOrderStatus } from '../../../generated/types.generated';
+import { EscrowOrderQuery } from './escrow-order.generated';
 
-const escrowOrderTimelineAdapter = createEntityAdapter<TimelineQueryItem, string>({
-  selectId: item => item.id
+const escrowOrderTimelineAdapter = createEntityAdapter<EscrowOrderQuery['escrowOrder'], string>({
+  selectId: item => item.id,
+  sortComparer: (a, b) => b.createdAt - a.createdAt
 });
 
 const { selectAll } = escrowOrderTimelineAdapter.getSelectors();
 
-type MyEscrowOrderType = BasicPaginationArgs & {
+export interface EscrowOrderListParams extends PaginationArgs {
   escrowOrderStatus: EscrowOrderStatus;
-};
+}
 
 export function useInfiniteMyEscrowOrderQuery(
-  params: MyEscrowOrderType,
+  params: EscrowOrderListParams,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
   const baseResult = useAllEscrowOrderByAccountQuery(params, { skip: !params.escrowOrderStatus });

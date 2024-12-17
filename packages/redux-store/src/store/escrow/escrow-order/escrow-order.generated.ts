@@ -12,6 +12,10 @@
 import * as Types from '../../../generated/types.generated';
 
 import { EscrowOrderFieldsFragmentDoc, TimelineItemFieldsFragmentDoc } from '../../timeline/timeline.generated';
+import {
+  PageInfoFieldsFragmentDoc,
+  PostMeiliPageInfoFieldsFragmentDoc
+} from '../../../graphql/fragments/page-info-fields.fragment.generated';
 import { BasicPageInfoFieldsFragmentDoc } from '../../../graphql/fragments/basic-page-info-fields.fragment.generated';
 import { api } from '@store/baseApi';
 export type EscrowOrderQueryVariables = Types.Exact<{
@@ -103,258 +107,93 @@ export type GetRandomArbitratorAccountQuery = {
 
 export type AllEscrowOrderByAccountQueryVariables = Types.Exact<{
   first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  before?: Types.InputMaybe<Types.Scalars['String']['input']>;
   after?: Types.InputMaybe<Types.Scalars['String']['input']>;
+  last?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   escrowOrderStatus: Types.EscrowOrderStatus;
 }>;
 
 export type AllEscrowOrderByAccountQuery = {
   __typename?: 'Query';
   allEscrowOrderByAccount: {
-    __typename?: 'TimelineItemConnection';
-    totalCount: number;
-    edges: Array<{
-      __typename?: 'TimelineItemBasicEdge';
+    __typename?: 'EscrowOrderConnection';
+    totalCount?: number | null;
+    edges?: Array<{
+      __typename?: 'EscrowOrderEdge';
       cursor: string;
       node: {
-        __typename?: 'TimelineItem';
+        __typename?: 'EscrowOrder';
         id: string;
-        data:
-          | {
-              __typename: 'Dispute';
-              id: string;
-              reason?: string | null;
-              createdBy: string;
-              createdAt: any;
-              updatedAt: any;
-              disputeStatus: Types.DisputeStatus;
-              escrowOrder: {
-                __typename?: 'EscrowOrder';
-                amount: number;
-                id: string;
-                buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
-                sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
-                offer: {
-                  __typename?: 'Offer';
-                  message: string;
-                  createdAt: any;
-                  country?: { __typename?: 'Country'; name?: string | null } | null;
-                  state?: { __typename?: 'State'; name?: string | null } | null;
-                  location?: {
-                    __typename?: 'Location';
-                    id: string;
-                    iso2?: string | null;
-                    country?: string | null;
-                    adminNameAscii?: string | null;
-                    cityAscii?: string | null;
-                  } | null;
-                };
-              };
-            }
-          | {
-              __typename: 'EscrowOrder';
-              id: string;
-              message?: string | null;
-              escrowScript: string;
-              escrowAddress: string;
-              nonce: string;
-              releaseTxid?: string | null;
-              returnTxid?: string | null;
-              buyerDepositTx?: string | null;
-              price: string;
-              amount: number;
-              amountCoinOrCurrency: number;
-              createdAt: any;
-              updatedAt: any;
-              escrowOrderStatus: Types.EscrowOrderStatus;
-              arbitratorAccount: {
-                __typename?: 'Account';
-                id: number;
-                publicKey?: string | null;
-                hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
-              };
-              buyerAccount: {
-                __typename?: 'Account';
-                id: number;
-                publicKey?: string | null;
-                hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
-              };
-              sellerAccount: {
-                __typename?: 'Account';
-                id: number;
-                publicKey?: string | null;
-                hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
-              };
-              moderatorAccount: {
-                __typename?: 'Account';
-                id: number;
-                publicKey?: string | null;
-                hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
-              };
-              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-              escrowOffer: {
-                __typename?: 'Offer';
-                postId: string;
-                message: string;
-                coinPayment?: string | null;
-                localCurrency?: string | null;
-              };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
-              dispute?: {
-                __typename?: 'Dispute';
-                id: string;
-                createdBy: string;
-                reason?: string | null;
-                status: Types.DisputeStatus;
-              } | null;
-            }
-          | {
-              __typename: 'Post';
-              id: string;
-              content: string;
-              accountId: number;
-              pageId?: string | null;
-              tokenId?: string | null;
-              repostCount: number;
-              totalComments: number;
-              commentableId?: string | null;
-              createdAt: any;
-              updatedAt: any;
-              followPostOwner?: boolean | null;
-              followedPage?: boolean | null;
-              followedToken?: boolean | null;
-              bookmarkableId?: string | null;
-              isBookmarked?: boolean | null;
-              originalLanguage?: string | null;
-              danaViewScore?: number | null;
-              burnedByOthers?: boolean | null;
-              account: {
-                __typename?: 'Account';
-                address: string;
-                hash160?: string | null;
-                publicKey?: string | null;
-                id: number;
-                name: string;
-                avatar?: string | null;
-                createCommentFee?: string | null;
-                telegramUsername?: string | null;
-              };
-              page?: {
-                __typename?: 'Page';
-                avatar?: string | null;
-                name: string;
-                id: string;
-                createPostFee: string;
-                createCommentFee: string;
-                pageAccount: {
-                  __typename?: 'Account';
-                  id: number;
-                  name: string;
-                  address: string;
-                  hash160?: string | null;
-                };
-              } | null;
-              token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
-              reposts?: Array<{
-                __typename?: 'Repost';
-                accountId?: number | null;
-                account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
-              }> | null;
-              dana?: {
-                __typename?: 'PostDana';
-                danaBurnUp: number;
-                danaBurnDown: number;
-                danaBurnScore: number;
-                danaReceivedUp: number;
-                danaReceivedDown: number;
-                danaReceivedScore: number;
-                version: number;
-              } | null;
-              boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
-              translations?: Array<{
-                __typename?: 'PostTranslation';
-                id: string;
-                translateContent?: string | null;
-                translateLanguage?: string | null;
-              }> | null;
-              imageUploadable?: {
-                __typename?: 'ImageUploadable';
-                id: string;
-                uploads: Array<{
-                  __typename?: 'Upload';
-                  id: string;
-                  sha: string;
-                  bucket?: string | null;
-                  width?: number | null;
-                  height?: number | null;
-                  cfImageId?: string | null;
-                  cfImageFilename?: string | null;
-                }>;
-              } | null;
-              poll?: {
-                __typename?: 'Poll';
-                postId: string;
-                question: string;
-                startDate: any;
-                endDate: any;
-                canAddOption: boolean;
-                singleSelect: boolean;
-                defaultOptions?: Array<string> | null;
-                totalVote?: number | null;
-                options: Array<{
-                  __typename?: 'PollOption';
-                  id: string;
-                  option: string;
-                  pollId: string;
-                  danaScoreOption?: number | null;
-                  pollAnswerOnAccount?: Array<{
-                    __typename?: 'PollAnswerOnAccount';
-                    pollDanaScore: number;
-                    accountId: number;
-                  }> | null;
-                }>;
-              } | null;
-              postOffer?: {
-                __typename?: 'Offer';
-                postId: string;
-                publicKey: string;
-                message: string;
-                noteOffer?: string | null;
-                price: string;
-                coinPayment?: string | null;
-                marginPercentage: number;
-                localCurrency?: string | null;
-                orderLimitMin: number;
-                orderLimitMax: number;
-                status: Types.OfferStatus;
-                locationId?: string | null;
-                countryId?: number | null;
-                paymentMethods: Array<{
-                  __typename?: 'OfferPaymentMethod';
-                  paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-                }>;
-                location?: {
-                  __typename?: 'Location';
-                  id: string;
-                  iso2?: string | null;
-                  country?: string | null;
-                  adminNameAscii?: string | null;
-                  adminCode?: string | null;
-                  cityAscii?: string | null;
-                } | null;
-                country?: { __typename?: 'Country'; name?: string | null } | null;
-              } | null;
-            };
+        message?: string | null;
+        escrowScript: string;
+        escrowAddress: string;
+        nonce: string;
+        releaseTxid?: string | null;
+        returnTxid?: string | null;
+        buyerDepositTx?: string | null;
+        price: string;
+        amount: number;
+        amountCoinOrCurrency: number;
+        createdAt: any;
+        updatedAt: any;
+        escrowOrderStatus: Types.EscrowOrderStatus;
+        arbitratorAccount: {
+          __typename?: 'Account';
+          id: number;
+          publicKey?: string | null;
+          hash160?: string | null;
+          telegramId?: string | null;
+          telegramUsername?: string | null;
+        };
+        buyerAccount: {
+          __typename?: 'Account';
+          id: number;
+          publicKey?: string | null;
+          hash160?: string | null;
+          telegramId?: string | null;
+          telegramUsername?: string | null;
+        };
+        sellerAccount: {
+          __typename?: 'Account';
+          id: number;
+          publicKey?: string | null;
+          hash160?: string | null;
+          telegramId?: string | null;
+          telegramUsername?: string | null;
+        };
+        moderatorAccount: {
+          __typename?: 'Account';
+          id: number;
+          publicKey?: string | null;
+          hash160?: string | null;
+          telegramId?: string | null;
+          telegramUsername?: string | null;
+        };
+        paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
+        escrowOffer: {
+          __typename?: 'Offer';
+          postId: string;
+          message: string;
+          coinPayment?: string | null;
+          localCurrency?: string | null;
+        };
+        escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+        dispute?: {
+          __typename?: 'Dispute';
+          id: string;
+          createdBy: string;
+          reason?: string | null;
+          status: Types.DisputeStatus;
+        } | null;
       };
-    }>;
-    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
+    }> | null;
+    pageInfo: {
+      __typename?: 'PageInfo';
+      endCursor?: string | null;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+      startCursor?: string | null;
+    };
   };
 };
 
@@ -689,26 +528,28 @@ export const GetRandomArbitratorAccountDocument = `
 }
     `;
 export const AllEscrowOrderByAccountDocument = `
-    query AllEscrowOrderByAccount($first: Int = 20, $after: String, $escrowOrderStatus: EscrowOrderStatus!) {
+    query AllEscrowOrderByAccount($first: Int = 20, $before: String, $after: String, $last: Int, $escrowOrderStatus: EscrowOrderStatus!) {
   allEscrowOrderByAccount(
     first: $first
     after: $after
+    before: $before
+    last: $last
     escrowOrderStatus: $escrowOrderStatus
   ) {
     totalCount
     edges {
       cursor
       node {
-        ...TimelineItemFields
+        ...EscrowOrderFields
       }
     }
     pageInfo {
-      ...BasicPageInfoFields
+      ...PageInfoFields
     }
   }
 }
-    ${TimelineItemFieldsFragmentDoc}
-${BasicPageInfoFieldsFragmentDoc}`;
+    ${EscrowOrderFieldsFragmentDoc}
+${PageInfoFieldsFragmentDoc}`;
 export const AllEscrowOrderByOfferIdDocument = `
     query AllEscrowOrderByOfferId($offerId: String!, $escrowOrderStatus: EscrowOrderStatus!, $first: Int = 20, $after: String) {
   allEscrowOrderByOfferId(

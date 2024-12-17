@@ -17,7 +17,10 @@ import {
   UtxoInNode,
   UtxoInNodeInput,
   coinInfo,
-  COIN
+  COIN,
+  EscrowOrderConnection,
+  PaginationArgs,
+  EscrowOrderOrder
 } from '@bcpros/lixi-models';
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
@@ -46,6 +49,7 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { encode } from '@msgpack/msgpack';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { DisputeCacheService } from '../dispute/dispute-cache.service';
+import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 
 @SkipThrottle()
 @Resolver(() => EscrowOrder)
@@ -390,31 +394,129 @@ export class EscrowOrderResolver {
     }
   }
 
-  @Query(() => TimelineItemConnection)
+  @Query(() => EscrowOrderConnection)
   @UseGuards(GqlJwtAuthGuard)
   async allEscrowOrderByAccount(
     @AccountEntity() account: Account,
-    @Args() { after, first }: BasicPaginationArgs,
+    @Args() { after, before, first, last }: PaginationArgs,
     @Args({ name: 'escrowOrderStatus', type: () => EscrowOrderStatus }) escrowOrderStatus: EscrowOrderStatus
   ) {
     if (!account) {
       const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
       throw new VError(accountNotExistMessage);
     }
-    const paginated = await this.escrowOrderCacheService.getPaginatedMyEscrowOrderTimelineByTime(
-      account.id,
-      escrowOrderStatus,
-      first,
-      after
+
+    //if escrow order status is complete or cancel, return all escrow orders with status complete or cancel
+    if (escrowOrderStatus === EscrowOrderStatus.COMPLETE || escrowOrderStatus === EscrowOrderStatus.CANCEL) {
+      const escrowOrders = await findManyCursorConnection(
+        async args => {
+          const result = await this.prisma.escrowOrder.findMany({
+            include: {
+              offer: true,
+              paymentMethod: true,
+              moderatorAccount: true,
+              arbitratorAccount: true,
+              sellerAccount: true,
+              buyerAccount: true
+            },
+            where: {
+              OR: [
+                {
+                  buyerAccountId: account.id
+                },
+                {
+                  sellerAccountId: account.id
+                },
+                {
+                  status: EscrowOrderStatus.COMPLETE
+                },
+                {
+                  status: EscrowOrderStatus.CANCEL
+                }
+              ]
+            },
+            orderBy: {
+              updatedAt: 'desc'
+            },
+            ...args
+          });
+
+          return result.map(item => ({
+            ...item,
+            escrowScript: item.escrowScript.toString('hex')
+          }));
+        },
+        () =>
+          this.prisma.escrowOrder.count({
+            where: {
+              status: escrowOrderStatus,
+              OR: [
+                {
+                  buyerAccountId: account.id
+                },
+                {
+                  sellerAccountId: account.id
+                }
+              ]
+            }
+          }),
+        { first, last, before, after }
+      );
+
+      return escrowOrders;
+    }
+
+    const escrowOrders = await findManyCursorConnection(
+      async args => {
+        const result = await this.prisma.escrowOrder.findMany({
+          include: {
+            offer: true,
+            paymentMethod: true,
+            moderatorAccount: true,
+            arbitratorAccount: true,
+            sellerAccount: true,
+            buyerAccount: true
+          },
+          where: {
+            status: escrowOrderStatus,
+            OR: [
+              {
+                buyerAccountId: account.id
+              },
+              {
+                sellerAccountId: account.id
+              }
+            ]
+          },
+          orderBy: {
+            updatedAt: 'desc'
+          },
+          ...args
+        });
+
+        return result.map(item => ({
+          ...item,
+          escrowScript: item.escrowScript.toString('hex')
+        }));
+      },
+      () =>
+        this.prisma.escrowOrder.count({
+          where: {
+            status: escrowOrderStatus,
+            OR: [
+              {
+                buyerAccountId: account.id
+              },
+              {
+                sellerAccountId: account.id
+              }
+            ]
+          }
+        }),
+      { first, last, before, after }
     );
-    const timelineIds = paginated.edges.map(item => item.cursor);
-    // const timelines = await this.escrowOrderCacheService.getByIds(timelineIds);
-    const timelines = await this.timelineItemService.getByIds(timelineIds, TIMELINE_TYPE.ESCROWORDER);
-    const result = {
-      ...paginated,
-      edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
-    } as IBasicPaginated<TimelineItem>;
-    return result;
+
+    return escrowOrders;
   }
 
   @Query(() => TimelineItemConnection)
