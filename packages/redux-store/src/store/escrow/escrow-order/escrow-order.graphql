@@ -18,17 +18,29 @@ query GetRandomArbitratorAccount {
   }
 }
 
-query AllEscrowOrderByAccount($first: Int = 20, $after: String, $escrowOrderStatus: EscrowOrderStatus!) {
-  allEscrowOrderByAccount(first: $first, after: $after, escrowOrderStatus: $escrowOrderStatus) {
+query AllEscrowOrderByAccount(
+  $first: Int = 20
+  $before: String
+  $after: String
+  $last: Int
+  $escrowOrderStatus: EscrowOrderStatus!
+) {
+  allEscrowOrderByAccount(
+    first: $first
+    after: $after
+    before: $before
+    last: $last
+    escrowOrderStatus: $escrowOrderStatus
+  ) {
     totalCount
     edges {
       cursor
       node {
-        ...TimelineItemFields
+        ...EscrowOrderFields
       }
     }
     pageInfo {
-      ...BasicPageInfoFields
+      ...PageInfoFields
     }
   }
 }

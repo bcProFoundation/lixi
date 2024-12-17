@@ -648,6 +648,12 @@ type EscrowOrder {
   updatedAt: DateTime!
 }
 
+type EscrowOrderConnection {
+  edges: [EscrowOrderEdge!]
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
 type EscrowOrderEdge {
   cursor: String!
   node: EscrowOrder!
@@ -1469,7 +1475,7 @@ type Query {
   allAccounts(after: String, before: String, first: Int, last: Int, minBurnFilter: Int, skip: Int): AccountBasicConnection!
   allClosedPageMessageSession(accountId: Int, after: String, before: String, first: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, pageId: String, skip: Int): PageMessageSessionConnection!
   allDisputeByAccount(after: String, disputeStatus: DisputeStatus!, first: Int, skip: Int): TimelineItemConnection!
-  allEscrowOrderByAccount(after: String, escrowOrderStatus: EscrowOrderStatus!, first: Int, skip: Int): TimelineItemConnection!
+  allEscrowOrderByAccount(after: String, before: String, escrowOrderStatus: EscrowOrderStatus!, first: Int, last: Int, minBurnFilter: Int, skip: Int): EscrowOrderConnection!
   allEscrowOrderByOfferId(after: String, escrowOrderStatus: EscrowOrderStatus!, first: Int, offerId: String!, skip: Int): TimelineItemConnection!
   allFollowersByFollowing(after: String, before: String, first: Int, followingAccountId: Int, last: Int, minBurnFilter: Int, orderBy: AccountOrder, skip: Int): AccountConnection!
   allFollowersByPage(after: String, first: Int, id: String, skip: Int): AccountBasicConnection!
