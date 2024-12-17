@@ -333,6 +333,7 @@ export class EscrowOrderCacheService {
   }
 
   async updateEscrowOrderByOfferIdCache(
+    sellerAccountId: number,
     escrowId: string,
     escrowOrderUpdatedAt: Date,
     offerId: string,
@@ -341,11 +342,13 @@ export class EscrowOrderCacheService {
   ) {
     try {
       const escrowOrderByOfferIdKeyToAdd = template(`${EscrowOrderCacheService.escrowOrderByOfferIdTimeline}`, {
+        sellerAccountId,
         offerId,
         escrowOrderStatus: latestEscrowOrderStatus
       });
 
       const escrowOrderByOfferIdKeyToRemove = template(`${EscrowOrderCacheService.escrowOrderByOfferIdTimeline}`, {
+        sellerAccountId,
         offerId,
         escrowOrderStatus: prevEscrowOrderStatus
       });

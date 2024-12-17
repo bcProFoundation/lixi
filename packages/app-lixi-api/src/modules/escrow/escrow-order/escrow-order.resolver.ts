@@ -832,6 +832,7 @@ export class EscrowOrderResolver {
           });
 
           await this.escrowOrderCacheService.updateEscrowOrderByOfferIdCache(
+            result.sellerAccount.id, //update cache offer from seller
             orderId,
             dataToUpdate.updatedAt,
             result.offerId,
@@ -908,6 +909,7 @@ export class EscrowOrderResolver {
           );
 
           await this.escrowOrderCacheService.updateEscrowOrderByOfferIdCache(
+            result.sellerAccount.id,
             orderId,
             dataToUpdate.updatedAt,
             result.offerId,
@@ -990,6 +992,7 @@ export class EscrowOrderResolver {
           );
 
           await this.escrowOrderCacheService.updateEscrowOrderByOfferIdCache(
+            result.sellerAccount.id,
             orderId,
             dataToUpdate.updatedAt,
             result.offerId,
