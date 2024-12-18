@@ -3,6 +3,7 @@ import { Help, InjectBot, On, Message, Start, Update, Command } from 'nestjs-tel
 import { Context, Telegraf } from 'telegraf';
 import { PrismaService } from '../prisma/prisma.service';
 import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from './telegram-bot.constants';
+import { format } from 'node:util';
 
 @Update()
 @Injectable()
@@ -17,18 +18,19 @@ export class LocalEcashBotUpdate implements OnModuleInit {
   onModuleInit() {}
 
   @Start()
-  async onStart(): Promise<string> {
-    const me = await this.bot.telegram.getMe();
-    return `Hey, I'm ${me.first_name}`;
-  }
+  async onStart(ctx: Context) {
+    const formatReplied = format(
+      `Welcome to the Local eCash Bot, your gateway to securely trading $XEC on Telegram! This mini-app features an innovative on-chain escrow system for buying and selling, alongside a non-custodial wallet where your keys stay safe on your device, keeping your funds out of third-party hands. Don't miss out on updates and special offers by following our channel @localecash.
 
-  @Help()
-  async onHelp(): Promise<string> {
-    return 'Send me any text';
-  }
+Are you ready? Let's get started.
 
-  @Command('echo')
-  async onEcho(ctx: Context) {
-    await ctx.reply('echo');
+Link to button to [Open App](%s) (Start trading)`,
+      `https://t.me/${process.env.TELEGRAM_LOCAL_ECASH_BOT_NAME}?startapp`
+    );
+
+    await ctx.reply(formatReplied, {
+      parse_mode: 'Markdown'
+    });
+    return;
   }
 }
