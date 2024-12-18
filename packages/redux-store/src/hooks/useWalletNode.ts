@@ -159,12 +159,12 @@ export const useWalletNode = () => {
   const syncAccountsToWallets = async (accounts: Account[], walletPaths: WalletPathAddressInfo[]) => {
     const accountsNotInWallets = _.filter(accounts, (account: Account) => {
       return !_.some(walletPaths, (walletPath: WalletPathAddressInfo) => {
-        return walletPath.xAddress === account.address;
+        return walletPath?.xAddress === account.address;
       });
     });
     const walletsAlreadySync: WalletPathAddressInfo[] = _.filter(walletPaths, (walletPath: WalletPathAddressInfo) => {
       return _.some(accounts, (account: Account) => {
-        return walletPath.xAddress === account.address;
+        return walletPath?.xAddress === account.address;
       });
     });
 

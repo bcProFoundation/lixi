@@ -93,12 +93,109 @@ const enhancedApi = api.enhanceEndpoints({
                       if (draft.escrowOrder.dispute) {
                         draft.escrowOrder.dispute.status = DisputeStatus.Resolved;
                       }
+
+                      //remove from escrow cache
+                      dispatch(
+                        api.util.updateQueryData(
+                          'AllEscrowOrderByAccount',
+                          { escrowOrderStatus: EscrowOrderStatus.Escrow },
+                          draft => {
+                            if (draft) {
+                              draft.allEscrowOrderByAccount.edges = draft.allEscrowOrderByAccount.edges.filter(
+                                item => item.node.id !== orderId
+                              );
+                              draft.allEscrowOrderByAccount.totalCount = draft.allEscrowOrderByAccount.edges.length;
+                              draft.allEscrowOrderByAccount.pageInfo.startCursor =
+                                draft.allEscrowOrderByAccount.edges[0]?.cursor || null;
+                              draft.allEscrowOrderByAccount.pageInfo.endCursor =
+                                draft.allEscrowOrderByAccount.edges[draft.allEscrowOrderByAccount.edges.length - 1]
+                                  ?.cursor || null;
+                            }
+                          }
+                        )
+                      );
+
+                      //add to complete cache
+                      dispatch(
+                        api.util.updateQueryData(
+                          'AllEscrowOrderByAccount',
+                          { escrowOrderStatus: EscrowOrderStatus.Complete },
+                          localDraft => {
+                            if (localDraft) {
+                              localDraft.allEscrowOrderByAccount.edges.unshift({
+                                cursor: orderId,
+                                node: {
+                                  ...draft.escrowOrder
+                                }
+                              });
+                              localDraft.allEscrowOrderByAccount.totalCount =
+                                localDraft.allEscrowOrderByAccount.edges.length;
+                              localDraft.allEscrowOrderByAccount.pageInfo.startCursor =
+                                localDraft.allEscrowOrderByAccount.edges[0]?.cursor || null;
+                              localDraft.allEscrowOrderByAccount.pageInfo.endCursor =
+                                localDraft.allEscrowOrderByAccount.edges[
+                                  localDraft.allEscrowOrderByAccount.edges.length - 1
+                                ]?.cursor || null;
+                            }
+                          }
+                        )
+                      );
+
                       break;
+
                     case EscrowOrderStatus.Cancel:
                       draft.escrowOrder.returnTxid = txid;
                       if (draft.escrowOrder.dispute) {
                         draft.escrowOrder.dispute.status = DisputeStatus.Resolved;
                       }
+
+                      //remove from escorw cache
+                      dispatch(
+                        api.util.updateQueryData(
+                          'AllEscrowOrderByAccount',
+                          { escrowOrderStatus: EscrowOrderStatus.Escrow },
+                          draft => {
+                            if (draft) {
+                              draft.allEscrowOrderByAccount.edges = draft.allEscrowOrderByAccount.edges.filter(
+                                item => item.node.id !== orderId
+                              );
+                              draft.allEscrowOrderByAccount.totalCount = draft.allEscrowOrderByAccount.edges.length;
+                              draft.allEscrowOrderByAccount.pageInfo.startCursor =
+                                draft.allEscrowOrderByAccount.edges[0]?.cursor || null;
+                              draft.allEscrowOrderByAccount.pageInfo.endCursor =
+                                draft.allEscrowOrderByAccount.edges[draft.allEscrowOrderByAccount.edges.length - 1]
+                                  ?.cursor || null;
+                            }
+                          }
+                        )
+                      );
+
+                      //add to complete cache because complete/cancel status is the same in this case
+                      dispatch(
+                        api.util.updateQueryData(
+                          'AllEscrowOrderByAccount',
+                          { escrowOrderStatus: EscrowOrderStatus.Complete },
+                          localDraft => {
+                            if (localDraft) {
+                              localDraft.allEscrowOrderByAccount.edges.unshift({
+                                cursor: orderId,
+                                node: {
+                                  ...draft.escrowOrder
+                                }
+                              });
+                              localDraft.allEscrowOrderByAccount.totalCount =
+                                localDraft.allEscrowOrderByAccount.edges.length;
+                              localDraft.allEscrowOrderByAccount.pageInfo.startCursor =
+                                localDraft.allEscrowOrderByAccount.edges[0]?.cursor || null;
+                              localDraft.allEscrowOrderByAccount.pageInfo.endCursor =
+                                localDraft.allEscrowOrderByAccount.edges[
+                                  localDraft.allEscrowOrderByAccount.edges.length - 1
+                                ]?.cursor || null;
+                            }
+                          }
+                        )
+                      );
+
                       break;
                     case EscrowOrderStatus.Escrow:
                       txid &&
@@ -109,6 +206,54 @@ const enhancedApi = api.enhanceEndpoints({
                           value,
                           outIdx: outIdx
                         });
+
+                      //remove from pending cache
+                      dispatch(
+                        api.util.updateQueryData(
+                          'AllEscrowOrderByAccount',
+                          { escrowOrderStatus: EscrowOrderStatus.Pending },
+                          draft => {
+                            if (draft) {
+                              draft.allEscrowOrderByAccount.edges = draft.allEscrowOrderByAccount.edges.filter(
+                                item => item.node.id !== orderId
+                              );
+                              draft.allEscrowOrderByAccount.totalCount = draft.allEscrowOrderByAccount.edges.length;
+                              draft.allEscrowOrderByAccount.pageInfo.startCursor =
+                                draft.allEscrowOrderByAccount.edges[0]?.cursor || null;
+                              draft.allEscrowOrderByAccount.pageInfo.endCursor =
+                                draft.allEscrowOrderByAccount.edges[draft.allEscrowOrderByAccount.edges.length - 1]
+                                  ?.cursor || null;
+                            }
+                          }
+                        )
+                      );
+
+                      //add to escrow cache
+                      dispatch(
+                        api.util.updateQueryData(
+                          'AllEscrowOrderByAccount',
+                          { escrowOrderStatus: EscrowOrderStatus.Escrow },
+                          localDraft => {
+                            if (localDraft) {
+                              localDraft.allEscrowOrderByAccount.edges.unshift({
+                                cursor: orderId,
+                                node: {
+                                  ...draft.escrowOrder
+                                }
+                              });
+                              localDraft.allEscrowOrderByAccount.totalCount =
+                                localDraft.allEscrowOrderByAccount.edges.length;
+                              localDraft.allEscrowOrderByAccount.pageInfo.startCursor =
+                                localDraft.allEscrowOrderByAccount.edges[0]?.cursor || null;
+                              localDraft.allEscrowOrderByAccount.pageInfo.endCursor =
+                                localDraft.allEscrowOrderByAccount.edges[
+                                  localDraft.allEscrowOrderByAccount.edges.length - 1
+                                ]?.cursor || null;
+                            }
+                          }
+                        )
+                      );
+
                       break;
                   }
                 }
