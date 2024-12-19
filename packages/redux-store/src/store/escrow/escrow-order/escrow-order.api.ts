@@ -149,7 +149,28 @@ const enhancedApi = api.enhanceEndpoints({
                         draft.escrowOrder.dispute.status = DisputeStatus.Resolved;
                       }
 
-                      //remove from escorw cache
+                      //remove from pending cache
+                      dispatch(
+                        api.util.updateQueryData(
+                          'AllEscrowOrderByAccount',
+                          { escrowOrderStatus: EscrowOrderStatus.Pending },
+                          draft => {
+                            if (draft) {
+                              draft.allEscrowOrderByAccount.edges = draft.allEscrowOrderByAccount.edges.filter(
+                                item => item.node.id !== orderId
+                              );
+                              draft.allEscrowOrderByAccount.totalCount = draft.allEscrowOrderByAccount.edges.length;
+                              draft.allEscrowOrderByAccount.pageInfo.startCursor =
+                                draft.allEscrowOrderByAccount.edges[0]?.cursor || null;
+                              draft.allEscrowOrderByAccount.pageInfo.endCursor =
+                                draft.allEscrowOrderByAccount.edges[draft.allEscrowOrderByAccount.edges.length - 1]
+                                  ?.cursor || null;
+                            }
+                          }
+                        )
+                      );
+
+                      //remove from escrow cache
                       dispatch(
                         api.util.updateQueryData(
                           'AllEscrowOrderByAccount',
