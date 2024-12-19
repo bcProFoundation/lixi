@@ -24,7 +24,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
 
 Are you ready? Let's get started.
 
-Link to button to [Open App](%s) (Start trading)`,
+[Start trading](%s)`,
       `https://t.me/${process.env.TELEGRAM_LOCAL_ECASH_BOT_NAME}?startapp`
     );
 
