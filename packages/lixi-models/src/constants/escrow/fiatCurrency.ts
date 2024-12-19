@@ -9,7 +9,7 @@ export const LIST_CURRENCIES_USED = [
   { code: 'CHF', name: 'Swiss Franc', fixAmount: 10, country: 'CH' },
   { code: 'EUR', name: 'Euro', fixAmount: 10, country: 'EU' },
   { code: 'GBP', name: 'Great British Pound', fixAmount: 10, country: 'GB' },
-  { code: 'HKD', name: 'Honk Kong Dollar', fixAmount: 100, country: 'HK' },
+  { code: 'HKD', name: 'Hong Kong Dollar', fixAmount: 100, country: 'HK' },
   { code: 'JPY', name: 'Japanese Yen', fixAmount: 1000, country: 'JP' },
   { code: 'KRW', name: 'South Korean Won', fixAmount: 10000, country: 'KR' },
   { code: 'MXN', name: 'Mexican Peso', fixAmount: 100, country: 'MX' },
