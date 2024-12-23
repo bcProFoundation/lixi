@@ -19,8 +19,8 @@ import { WalletModule } from '../wallet/wallet.module';
       throttlers: [
         {
           name: 'default',
-          limit: 30,
-          ttl: 600
+          limit: 5,
+          ttl: 3600000 //an hour (3600000 ms)
         }
       ]
     }),

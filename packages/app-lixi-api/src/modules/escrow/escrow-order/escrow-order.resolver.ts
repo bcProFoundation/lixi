@@ -159,6 +159,7 @@ export class EscrowOrderResolver {
   @Query(() => Boolean)
   @UseGuards(GqlJwtAuthGuard)
   @UseGuards(GqlThrottlerGuard)
+  @SkipThrottle({ default: false })
   async userRequestTelegramChat(@AccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
     try {
       const result = await this.prisma.escrowOrder.findUnique({
@@ -250,6 +251,7 @@ export class EscrowOrderResolver {
   @Query(() => Boolean)
   @UseGuards(GqlJwtAuthGuard)
   @UseGuards(GqlThrottlerGuard)
+  @SkipThrottle({ default: false })
   async arbiRequestTelegramChat(
     @AccountEntity() account: Account,
     @Args('requestChatPublicKey', { type: () => String }) requestChatPublicKey: string,
