@@ -149,208 +149,216 @@ export class OfferResolver {
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Post)
   async createOffer(@AccountEntity() account: Account, @Args('data') data: CreateOfferInput) {
-    const { paymentMethodIds, pageId, createFeeHex, coin, locationId } = data;
+    try {
+      const { paymentMethodIds, pageId, createFeeHex, coin, locationId } = data;
 
-    const moderatorAccount = await this.prisma.account.findUnique({
-      where: {
-        id: account.id
-      }
-    });
-
-    if (moderatorAccount) {
-      this.logger.error('Moderator account is not allowed to create offer');
-    }
-
-    const result = await this.prisma.$transaction(async prisma => {
-      let txid: string | undefined;
-      let broadcastResponse;
-      if (createFeeHex) {
-        switch (coin) {
-          case COIN.XPI:
-            broadcastResponse = await this.chronikXPI.broadcastTx(createFeeHex);
-            break;
-          case COIN.XEC:
-            broadcastResponse = await this.chronikXEC.broadcastTx(createFeeHex);
-            break;
-          default:
-            broadcastResponse = await this.chronikXPI.broadcastTx(createFeeHex);
-            break;
-        }
-        if (!broadcastResponse) {
-          throw new Error('Empty chronik broadcast response');
-        }
-        txid = broadcastResponse.txid;
-      }
-      // Step 1: Create the Offer
-      const createdOffer = await prisma.post.create({
-        data: {
-          content: '',
-          account: { connect: { id: account?.id } }, //add later when have account
-          page: {
-            connect: pageId ? { id: pageId } : undefined
-          },
-          commentable: {
-            create: {
-              type: CommentType.OFFER
-            }
-          },
-          type: PostType.OFFER,
-          txid: txid,
-          createFee: 0,
-          dana: {
-            create: {}
-          },
-          boostScore: {
-            create: {}
-          },
-          taggable: {
-            create: {}
-          },
-          offer: {
-            create: {
-              message: data.message,
-              noteOffer: data.noteOffer,
-              price: data.price,
-              publicKey: account?.publicKey ?? '',
-              marginPercentage: data.marginPercentage,
-              coinPayment: data.coinPayment,
-              localCurrency: data.localCurrency,
-              orderLimitMin: data.orderLimitMin,
-              orderLimitMax: data.orderLimitMax,
-              location: {
-                connect: paymentMethodIds[0] === 1 && locationId ? { id: locationId } : undefined //cash in person
-              },
-              country: {
-                connect: paymentMethodIds[0] === 2 && locationId ? { id: Number(locationId) } : undefined //bank transfer
-              },
-              paymentMethods: {
-                createMany: {
-                  data: paymentMethodIds.map(item => {
-                    return {
-                      paymentMethodId: item
-                    };
-                  })
-                }
-              }
-            }
-          }
-        },
-        include: {
-          offer: {
-            include: {
-              state: {
-                select: {
-                  id: true,
-                  name: true
-                }
-              },
-              country: {
-                select: {
-                  id: true,
-                  name: true,
-                  iso2: true
-                }
-              },
-              paymentMethods: {
-                include: {
-                  paymentMethod: {
-                    select: {
-                      id: true,
-                      name: true
-                    }
-                  }
-                }
-              },
-              location: {
-                select: {
-                  id: true,
-                  country: true,
-                  iso2: true,
-                  adminNameAscii: true,
-                  adminCode: true,
-                  cityAscii: true
-                }
-              }
-            }
-          }
+      const moderatorAccount = await this.prisma.account.findUnique({
+        where: {
+          id: account.id
         }
       });
 
-      return createdOffer;
-    });
+      if (moderatorAccount) {
+        throw new Error('Moderator account is not allowed to create offer');
+      }
 
-    const { offer } = result || {};
-    const locationOfOffer = offer?.location;
-    let strLocation =
-      locationOfOffer &&
-      `${[locationOfOffer?.cityAscii, locationOfOffer?.adminNameAscii, locationOfOffer?.country].filter(Boolean).join(', ')}`;
-    if (offer?.country) {
-      strLocation = `${offer?.country.name}`;
-    }
+      if (account.telegramUsername && !account.telegramUsername.startsWith('@')) {
+        throw new Error('Telegram username is not valid');
+      }
 
-    let formatReplied =
-      strLocation && strLocation !== ''
-        ? format(
-            BOT.MESSAGE.OFFER_CREATED,
-            result.id,
-            offer?.message,
-            offer?.marginPercentage,
-            offer?.orderLimitMin.toLocaleString('en-US'),
-            offer?.orderLimitMax.toLocaleString('en-US'),
-            offer?.paymentMethods[0].paymentMethod.name,
-            strLocation
-          )
-        : format(
-            BOT.MESSAGE.OFFER_CREATED_WITHOUT_LOCATION,
-            result.id,
-            offer?.message,
-            offer?.marginPercentage,
-            offer?.orderLimitMin.toLocaleString('en-US'),
-            offer?.orderLimitMax.toLocaleString('en-US'),
-            offer?.paymentMethods[0].paymentMethod.name
-          );
-
-    //process for goods services
-    if (paymentMethodIds[0] === 5) {
-      formatReplied = format(
-        BOT.MESSAGE.OFFER_CREATED_GOODS_SERVICES,
-        result.id,
-        offer?.message,
-        offer?.orderLimitMin.toLocaleString('en-US'),
-        offer?.orderLimitMax.toLocaleString('en-US'),
-        offer?.paymentMethods[0].paymentMethod.name
-      );
-    }
-
-    account.telegramId &&
-      (await this.bot.telegram
-        .sendMessage(account.telegramId, formatReplied, {
-          parse_mode: 'Markdown'
-        })
-        .then(async res => {
-          try {
-            await this.prisma.offer.update({
-              where: {
-                postId: result.id
-              },
-              data: {
-                telegramMessageId: res.message_id.toString()
-              }
-            });
-          } catch (e) {
-            this.logger.error(e);
+      const result = await this.prisma.$transaction(async prisma => {
+        let txid: string | undefined;
+        let broadcastResponse;
+        if (createFeeHex) {
+          switch (coin) {
+            case COIN.XPI:
+              broadcastResponse = await this.chronikXPI.broadcastTx(createFeeHex);
+              break;
+            case COIN.XEC:
+              broadcastResponse = await this.chronikXEC.broadcastTx(createFeeHex);
+              break;
+            default:
+              broadcastResponse = await this.chronikXPI.broadcastTx(createFeeHex);
+              break;
           }
-        })
-        .catch(e => {
-          this.logger.error(e);
-        }));
+          if (!broadcastResponse) {
+            throw new Error('Empty chronik broadcast response');
+          }
+          txid = broadcastResponse.txid;
+        }
+        // Step 1: Create the Offer
+        const createdOffer = await prisma.post.create({
+          data: {
+            content: '',
+            account: { connect: { id: account?.id } }, //add later when have account
+            page: {
+              connect: pageId ? { id: pageId } : undefined
+            },
+            commentable: {
+              create: {
+                type: CommentType.OFFER
+              }
+            },
+            type: PostType.OFFER,
+            txid: txid,
+            createFee: 0,
+            dana: {
+              create: {}
+            },
+            boostScore: {
+              create: {}
+            },
+            taggable: {
+              create: {}
+            },
+            offer: {
+              create: {
+                message: data.message,
+                noteOffer: data.noteOffer,
+                price: data.price,
+                publicKey: account?.publicKey ?? '',
+                marginPercentage: data.marginPercentage,
+                coinPayment: data.coinPayment,
+                localCurrency: data.localCurrency,
+                orderLimitMin: data.orderLimitMin,
+                orderLimitMax: data.orderLimitMax,
+                location: {
+                  connect: paymentMethodIds[0] === 1 && locationId ? { id: locationId } : undefined //cash in person
+                },
+                country: {
+                  connect: paymentMethodIds[0] === 2 && locationId ? { id: Number(locationId) } : undefined //bank transfer
+                },
+                paymentMethods: {
+                  createMany: {
+                    data: paymentMethodIds.map(item => {
+                      return {
+                        paymentMethodId: item
+                      };
+                    })
+                  }
+                }
+              }
+            }
+          },
+          include: {
+            offer: {
+              include: {
+                state: {
+                  select: {
+                    id: true,
+                    name: true
+                  }
+                },
+                country: {
+                  select: {
+                    id: true,
+                    name: true,
+                    iso2: true
+                  }
+                },
+                paymentMethods: {
+                  include: {
+                    paymentMethod: {
+                      select: {
+                        id: true,
+                        name: true
+                      }
+                    }
+                  }
+                },
+                location: {
+                  select: {
+                    id: true,
+                    country: true,
+                    iso2: true,
+                    adminNameAscii: true,
+                    adminCode: true,
+                    cityAscii: true
+                  }
+                }
+              }
+            }
+          }
+        });
 
-    //add to cache
-    await this.postFanoutQueue.add(CONTENT_FANOUT_QUEUE, { post: result });
+        return createdOffer;
+      });
 
-    //emit new post
-    this.notificationGateway.publishNewPost();
-    return result;
+      const { offer } = result || {};
+      const locationOfOffer = offer?.location;
+      let strLocation =
+        locationOfOffer &&
+        `${[locationOfOffer?.cityAscii, locationOfOffer?.adminNameAscii, locationOfOffer?.country].filter(Boolean).join(', ')}`;
+      if (offer?.country) {
+        strLocation = `${offer?.country.name}`;
+      }
+
+      let formatReplied =
+        strLocation && strLocation !== ''
+          ? format(
+              BOT.MESSAGE.OFFER_CREATED,
+              result.id,
+              offer?.message,
+              offer?.marginPercentage,
+              offer?.orderLimitMin.toLocaleString('en-US'),
+              offer?.orderLimitMax.toLocaleString('en-US'),
+              offer?.paymentMethods[0].paymentMethod.name,
+              strLocation
+            )
+          : format(
+              BOT.MESSAGE.OFFER_CREATED_WITHOUT_LOCATION,
+              result.id,
+              offer?.message,
+              offer?.marginPercentage,
+              offer?.orderLimitMin.toLocaleString('en-US'),
+              offer?.orderLimitMax.toLocaleString('en-US'),
+              offer?.paymentMethods[0].paymentMethod.name
+            );
+
+      //process for goods services
+      if (paymentMethodIds[0] === 5) {
+        formatReplied = format(
+          BOT.MESSAGE.OFFER_CREATED_GOODS_SERVICES,
+          result.id,
+          offer?.message,
+          offer?.orderLimitMin.toLocaleString('en-US'),
+          offer?.orderLimitMax.toLocaleString('en-US'),
+          offer?.paymentMethods[0].paymentMethod.name
+        );
+      }
+
+      account.telegramId &&
+        (await this.bot.telegram
+          .sendMessage(account.telegramId, formatReplied, {
+            parse_mode: 'Markdown'
+          })
+          .then(async res => {
+            try {
+              await this.prisma.offer.update({
+                where: {
+                  postId: result.id
+                },
+                data: {
+                  telegramMessageId: res.message_id.toString()
+                }
+              });
+            } catch (e) {
+              this.logger.error(e);
+            }
+          })
+          .catch(e => {
+            this.logger.error(e);
+          }));
+
+      //add to cache
+      await this.postFanoutQueue.add(CONTENT_FANOUT_QUEUE, { post: result });
+
+      //emit new post
+      this.notificationGateway.publishNewPost();
+      return result;
+    } catch (e) {
+      this.logger.error(e);
+    }
   }
 
   @UseGuards(GqlJwtAuthGuard)
