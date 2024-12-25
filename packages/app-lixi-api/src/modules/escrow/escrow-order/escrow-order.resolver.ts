@@ -768,6 +768,8 @@ export class EscrowOrderResolver {
             await this.bot.telegram
               .pinChatMessage(sellerAccount.telegramId!, res.message_id)
               .catch(e => this.logger.error(e));
+
+            this.notificationGateway.recievedEscrowOrder(sellerAccount.address);
           })
           .catch(e => {
             this.logger.error(e);
