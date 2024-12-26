@@ -765,9 +765,7 @@ export class EscrowOrderResolver {
               }
             });
 
-            await this.bot.telegram
-              .pinChatMessage(sellerAccount.telegramId!, res.message_id)
-              .catch(e => this.logger.error(e));
+            this.notificationGateway.recievedEscrowOrder(sellerAccount.address);
           })
           .catch(e => {
             this.logger.error(e);
@@ -800,10 +798,6 @@ export class EscrowOrderResolver {
                 buyerTelegramMessageId: res.message_id
               }
             });
-
-            await this.bot.telegram
-              .pinChatMessage(buyerAccount.telegramId!, res.message_id)
-              .catch(e => this.logger.error(e));
           });
       }
 
@@ -898,6 +892,27 @@ export class EscrowOrderResolver {
               }
             }));
 
+          this.notificationGateway.publishEscrowOrderStatus(orderId, {
+            escrowOrderId: orderId,
+            escrowOrder: {
+              txid,
+              value,
+              outIdx,
+              updatedAt: dataToUpdate.updatedAt,
+              status: EscrowOrderStatus.ESCROW
+            },
+            socketId: socketId ?? ''
+          });
+
+          await this.escrowOrderCacheService.updateEscrowOrderByOfferIdCache(
+            result.sellerAccount.id, //update cache offer from seller
+            orderId,
+            dataToUpdate.updatedAt,
+            result.offerId,
+            result.status as EscrowOrderStatus,
+            EscrowOrderStatus.ESCROW
+          );
+
           //notify for buyer
           if (result.buyerAccount.telegramId) {
             const formatReplied = format(BOT.MESSAGE.ORDER_ESCROW);
@@ -926,26 +941,12 @@ export class EscrowOrderResolver {
               });
           }
 
-          this.notificationGateway.publishEscrowOrderStatus(orderId, {
-            escrowOrderId: orderId,
-            escrowOrder: {
-              txid,
-              value,
-              outIdx,
-              updatedAt: dataToUpdate.updatedAt,
-              status: EscrowOrderStatus.ESCROW
-            },
-            socketId: socketId ?? ''
-          });
-
-          await this.escrowOrderCacheService.updateEscrowOrderByOfferIdCache(
-            result.sellerAccount.id, //update cache offer from seller
-            orderId,
-            dataToUpdate.updatedAt,
-            result.offerId,
-            result.status as EscrowOrderStatus,
-            EscrowOrderStatus.ESCROW
-          );
+          //pin the message for seller
+          if (result.sellerAccount.telegramId && result.sellerTelegramMessageId) {
+            await this.bot.telegram
+              .pinChatMessage(result.sellerAccount.telegramId!, result.sellerTelegramMessageId)
+              .catch(e => this.logger.error(e));
+          }
 
           break;
         case EscrowOrderStatus.COMPLETE:
@@ -986,13 +987,6 @@ export class EscrowOrderResolver {
                   message_id: result.buyerTelegramMessageId!,
                   allow_sending_without_reply: true
                 }
-              })
-              .then(async res => {
-                await this.bot.telegram
-                  .unpinChatMessage(result.buyerAccount.telegramId!, result.buyerTelegramMessageId!)
-                  .catch(e => {
-                    this.logger.error(e);
-                  });
               })
               .catch(e => {
                 this.logger.error(e);
@@ -1071,13 +1065,6 @@ export class EscrowOrderResolver {
           //unpin for seller
           await this.bot.telegram
             .unpinChatMessage(result.sellerAccount.telegramId!, result.sellerTelegramMessageId!)
-            .catch(e => {
-              this.logger.error(e);
-            });
-
-          //unpin for buyer
-          await this.bot.telegram
-            .unpinChatMessage(result.buyerAccount.telegramId!, result.buyerTelegramMessageId!)
             .catch(e => {
               this.logger.error(e);
             });

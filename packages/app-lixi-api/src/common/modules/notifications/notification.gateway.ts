@@ -10,7 +10,7 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Logger, UseGuards } from '@nestjs/common';
 import Redis from 'ioredis';
 
-import { Account, PageMessageSessionStatus } from '@bcpros/lixi-prisma';
+import { Account, EscrowOrder, PageMessageSessionStatus } from '@bcpros/lixi-prisma';
 import { InjectQueue } from '@nestjs/bullmq';
 import {
   ConnectedSocket,
@@ -320,6 +320,10 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
     }
   ) {
     this.server.to(escrowOrderId).except(data.socketId).emit('publishEscrowOrderStatus', data);
+  }
+
+  recievedEscrowOrder(userAddress: string) {
+    this.server.to(userAddress).emit('recievedEscrowOrder');
   }
 
   /// Analytic events
