@@ -25,7 +25,7 @@ import { I18n, I18nService } from 'nestjs-i18n';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AccountEntity } from 'src/decorators';
-import { CommentType, PostType } from '@bcpros/lixi-prisma';
+import { CommentType, PostType, Role } from '@bcpros/lixi-prisma';
 import { ChronikClient, ChronikClientNode } from 'chronik-client';
 import { InjectChronikClient, InjectChronikClientNode } from 'nestjs-chronik';
 import { GqlJwtAuthGuard } from '../../auth/guards/gql-jwtauth.guard';
@@ -154,7 +154,8 @@ export class OfferResolver {
 
       const moderatorAccount = await this.prisma.account.findUnique({
         where: {
-          id: account.id
+          id: account.id,
+          role: Role.MODERATOR
         }
       });
 
