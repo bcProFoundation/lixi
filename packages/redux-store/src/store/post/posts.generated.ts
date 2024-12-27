@@ -130,6 +130,7 @@ export type PostQuery = {
       noteOffer?: string | null;
       price: string;
       coinPayment?: string | null;
+      coinOthers?: string | null;
       marginPercentage: number;
       localCurrency?: string | null;
       orderLimitMin: number;
@@ -283,6 +284,7 @@ export type PostsByPageIdQuery = {
           noteOffer?: string | null;
           price: string;
           coinPayment?: string | null;
+          coinOthers?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
           orderLimitMin: number;
@@ -444,6 +446,7 @@ export type PostsByUserIdQuery = {
           noteOffer?: string | null;
           price: string;
           coinPayment?: string | null;
+          coinOthers?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
           orderLimitMin: number;
@@ -605,6 +608,7 @@ export type PostsByHashtagIdQuery = {
           noteOffer?: string | null;
           price: string;
           coinPayment?: string | null;
+          coinOthers?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
           orderLimitMin: number;
@@ -766,6 +770,7 @@ export type PostsByTokenIdQuery = {
           noteOffer?: string | null;
           price: string;
           coinPayment?: string | null;
+          coinOthers?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
           orderLimitMin: number;
@@ -917,6 +922,7 @@ export type PostsBySearchQuery = {
           noteOffer?: string | null;
           price: string;
           coinPayment?: string | null;
+          coinOthers?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
           orderLimitMin: number;
@@ -1070,6 +1076,7 @@ export type PostsBySearchWithHashtagQuery = {
           noteOffer?: string | null;
           price: string;
           coinPayment?: string | null;
+          coinOthers?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
           orderLimitMin: number;
@@ -1224,6 +1231,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
           noteOffer?: string | null;
           price: string;
           coinPayment?: string | null;
+          coinOthers?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
           orderLimitMin: number;
@@ -1378,6 +1386,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
           noteOffer?: string | null;
           price: string;
           coinPayment?: string | null;
+          coinOthers?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
           orderLimitMin: number;
@@ -1444,6 +1453,7 @@ export type OfferFieldsFragment = {
   noteOffer?: string | null;
   price: string;
   coinPayment?: string | null;
+  coinOthers?: string | null;
   marginPercentage: number;
   localCurrency?: string | null;
   orderLimitMin: number;
@@ -1575,6 +1585,7 @@ export type PostFieldsFragment = {
     noteOffer?: string | null;
     price: string;
     coinPayment?: string | null;
+    coinOthers?: string | null;
     marginPercentage: number;
     localCurrency?: string | null;
     orderLimitMin: number;
@@ -1700,6 +1711,7 @@ export type PostMeiliFieldsFragment = {
     noteOffer?: string | null;
     price: string;
     coinPayment?: string | null;
+    coinOthers?: string | null;
     marginPercentage: number;
     localCurrency?: string | null;
     orderLimitMin: number;
@@ -1838,6 +1850,7 @@ export type CreatePostMutation = {
       noteOffer?: string | null;
       price: string;
       coinPayment?: string | null;
+      coinOthers?: string | null;
       marginPercentage: number;
       localCurrency?: string | null;
       orderLimitMin: number;
@@ -1977,6 +1990,7 @@ export type UpdatePostMutation = {
       noteOffer?: string | null;
       price: string;
       coinPayment?: string | null;
+      coinOthers?: string | null;
       marginPercentage: number;
       localCurrency?: string | null;
       orderLimitMin: number;
@@ -2122,6 +2136,7 @@ export type RemovePostMutation = {
       noteOffer?: string | null;
       price: string;
       coinPayment?: string | null;
+      coinOthers?: string | null;
       marginPercentage: number;
       localCurrency?: string | null;
       orderLimitMin: number;
@@ -2177,6 +2192,7 @@ export const OfferFieldsFragmentDoc = `
   noteOffer
   price
   coinPayment
+  coinOthers
   marginPercentage
   localCurrency
   orderLimitMin

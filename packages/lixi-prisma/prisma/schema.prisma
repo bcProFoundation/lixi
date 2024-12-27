@@ -1323,6 +1323,7 @@ model Offer {
   noteOffer         String?              @default("") @map("note_offer")
   price             String
   coinPayment       String?              @map("coin_payment")
+  coinOthers        String?              @default("") @map("coin_others")
   marginPercentage  Float                @default(0.0) @map("margin_percentage")
   localCurrency     String?              @map("local_currency")
   coin              Coin                 @default(XEC)

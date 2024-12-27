@@ -127,6 +127,7 @@ export type CreatePollMutation = {
       noteOffer?: string | null;
       price: string;
       coinPayment?: string | null;
+      coinOthers?: string | null;
       marginPercentage: number;
       localCurrency?: string | null;
       orderLimitMin: number;
