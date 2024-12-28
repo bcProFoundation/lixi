@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.43
+
+### Patch Changes
+
+- Update offers
+
 ## 1.2.42
 
 ### Patch Changes
