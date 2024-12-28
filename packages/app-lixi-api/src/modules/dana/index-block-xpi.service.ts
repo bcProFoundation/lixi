@@ -20,31 +20,42 @@ export class DanaIndexXPIService implements OnModuleInit {
     @InjectQueue(INDEX_BLOCK_QUEUE) private indexBlockQueue: Queue
   ) {}
 
+  timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => {
+      reject(new Error('XPI Blockchain info request timed out'));
+    }, 10000); // 10 seconds timeout
+  });
+
   async onModuleInit() {
-    //clear queue before running
-    await this.indexBlockQueue.drain(true);
+    try {
+      //clear queue before running
+      await this.indexBlockQueue.drain(true);
 
-    const { tipHeight: highest } = await this.chronikXPI.blockchainInfo();
-    const currentHeightStr = await this.redis.get(this.keyIndexHighestBlockData);
-    const currentHeightNumber = currentHeightStr ? Number(currentHeightStr) : 1; //xpi start with 1
+      const blockchainInfo = await Promise.race([this.chronikXPI.blockchainInfo(), this.timeoutPromise]);
+      const { tipHeight: highest } = blockchainInfo as any;
+      const currentHeightStr = await this.redis.get(this.keyIndexHighestBlockData);
+      const currentHeightNumber = currentHeightStr ? Number(currentHeightStr) : 1; //xpi start with 1
 
-    //run to highest
-    const stepToFetch = 350;
-    for (let i = currentHeightNumber; i <= highest; i += stepToFetch) {
-      const indexToBlock = i + stepToFetch > highest ? highest : i + stepToFetch;
+      //run to highest
+      const stepToFetch = 350;
+      for (let i = currentHeightNumber; i <= highest; i += stepToFetch) {
+        const indexToBlock = i + stepToFetch > highest ? highest : i + stepToFetch;
+        await this.indexBlockQueue.add(INDEX_BLOCK_QUEUE, {
+          startIndex: i,
+          endIndex: indexToBlock,
+          coin: COIN.XPI,
+          isLastJob: false
+        });
+      }
+
       await this.indexBlockQueue.add(INDEX_BLOCK_QUEUE, {
-        startIndex: i,
-        endIndex: indexToBlock,
+        startIndex: highest,
+        endIndex: 0,
         coin: COIN.XPI,
-        isLastJob: false
+        isLastJob: true
       });
+    } catch (e) {
+      this.logger.error(e);
     }
-
-    await this.indexBlockQueue.add(INDEX_BLOCK_QUEUE, {
-      startIndex: highest,
-      endIndex: 0,
-      coin: COIN.XPI,
-      isLastJob: true
-    });
   }
 }
