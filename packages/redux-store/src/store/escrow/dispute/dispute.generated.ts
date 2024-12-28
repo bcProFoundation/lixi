@@ -156,6 +156,7 @@ export type AllDisputeByAccountQuery = {
                 postId: string;
                 message: string;
                 coinPayment?: string | null;
+                coinOthers?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -281,6 +282,7 @@ export type AllDisputeByAccountQuery = {
                 noteOffer?: string | null;
                 price: string;
                 coinPayment?: string | null;
+                coinOthers?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 orderLimitMin: number;

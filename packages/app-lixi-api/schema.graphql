@@ -420,6 +420,7 @@ input CreateMessageInput {
 
 input CreateOfferInput {
   coin: Coin!
+  coinOthers: String
   coinPayment: String
   createFeeHex: String
   localCurrency: String
@@ -1049,6 +1050,7 @@ type Mutation {
 
 type Offer {
   coin: Coin!
+  coinOthers: String
   coinPayment: String
   country: Country
   countryId: Int

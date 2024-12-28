@@ -41,6 +41,7 @@ fragment EscrowOrderFields on EscrowOrder {
     postId
     message
     coinPayment
+    coinOthers
     localCurrency
   }
   escrowScript

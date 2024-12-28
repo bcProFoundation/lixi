@@ -444,6 +444,7 @@ export type CreateMessageInput = {
 
 export type CreateOfferInput = {
   coin: Coin;
+  coinOthers?: InputMaybe<Scalars['String']['input']>;
   coinPayment?: InputMaybe<Scalars['String']['input']>;
   createFeeHex?: InputMaybe<Scalars['String']['input']>;
   localCurrency?: InputMaybe<Scalars['String']['input']>;
@@ -1238,6 +1239,7 @@ export type MutationUpdatePostArgs = {
 export type Offer = {
   __typename?: 'Offer';
   coin: Coin;
+  coinOthers?: Maybe<Scalars['String']['output']>;
   coinPayment?: Maybe<Scalars['String']['output']>;
   country?: Maybe<Country>;
   countryId?: Maybe<Scalars['Int']['output']>;

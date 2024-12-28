@@ -29,6 +29,7 @@ export type OfferQuery = {
     noteOffer?: string | null;
     price: string;
     coinPayment?: string | null;
+    coinOthers?: string | null;
     marginPercentage: number;
     localCurrency?: string | null;
     orderLimitMin: number;
@@ -155,6 +156,7 @@ export type AllOfferQuery = {
                 postId: string;
                 message: string;
                 coinPayment?: string | null;
+                coinOthers?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -280,6 +282,7 @@ export type AllOfferQuery = {
                 noteOffer?: string | null;
                 price: string;
                 coinPayment?: string | null;
+                coinOthers?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 orderLimitMin: number;
@@ -412,6 +415,7 @@ export type OfferByFilterQuery = {
                 postId: string;
                 message: string;
                 coinPayment?: string | null;
+                coinOthers?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -537,6 +541,7 @@ export type OfferByFilterQuery = {
                 noteOffer?: string | null;
                 price: string;
                 coinPayment?: string | null;
+                coinOthers?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 orderLimitMin: number;
@@ -669,6 +674,7 @@ export type AllOfferByAccountQuery = {
                 postId: string;
                 message: string;
                 coinPayment?: string | null;
+                coinOthers?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -794,6 +800,7 @@ export type AllOfferByAccountQuery = {
                 noteOffer?: string | null;
                 price: string;
                 coinPayment?: string | null;
+                coinOthers?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 orderLimitMin: number;
@@ -937,6 +944,7 @@ export type CreateOfferMutation = {
       noteOffer?: string | null;
       price: string;
       coinPayment?: string | null;
+      coinOthers?: string | null;
       marginPercentage: number;
       localCurrency?: string | null;
       orderLimitMin: number;
@@ -976,6 +984,7 @@ export type UpdateOfferMutation = {
     noteOffer?: string | null;
     price: string;
     coinPayment?: string | null;
+    coinOthers?: string | null;
     marginPercentage: number;
     localCurrency?: string | null;
     orderLimitMin: number;
@@ -1114,6 +1123,7 @@ export type UpdateOfferStatusMutation = {
       noteOffer?: string | null;
       price: string;
       coinPayment?: string | null;
+      coinOthers?: string | null;
       marginPercentage: number;
       localCurrency?: string | null;
       orderLimitMin: number;

@@ -220,6 +220,7 @@ export class OfferResolver {
                 publicKey: account?.publicKey ?? '',
                 marginPercentage: data.marginPercentage,
                 coinPayment: data.coinPayment,
+                coinOthers: data.coinOthers ?? '',
                 localCurrency: data.localCurrency,
                 orderLimitMin: data.orderLimitMin,
                 orderLimitMax: data.orderLimitMax,

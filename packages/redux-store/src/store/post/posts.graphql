@@ -290,6 +290,7 @@ fragment OfferFields on Offer {
   noteOffer
   price
   coinPayment
+  coinOthers
   marginPercentage
   localCurrency
   orderLimitMin
