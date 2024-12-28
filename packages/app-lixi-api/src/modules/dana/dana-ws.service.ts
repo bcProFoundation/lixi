@@ -30,40 +30,40 @@ export class DanaWsService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    try {
-      //ws for xpi
-      const ws = this.chronikXPI.ws({
-        onMessage: async (msg: SubscribeMsg) => {
-          const { type } = msg;
-          if (type === 'BlockConnected') {
-            //add new block
-            const keyHighestBlockCoin = template(this.keyIndexHighestBlockData, { coin: COIN.XPI });
-            const blockHighestInfo = (await this.chronikXPI.block(msg.blockHash)).blockInfo;
-            const currentIndexHighest = Number((await this.redis.get(keyHighestBlockCoin)) ?? '1');
-
-            if (blockHighestInfo.height < currentIndexHighest + 10) {
-              this.handleNewBlock(blockHighestInfo, COIN.XPI);
-              this.redis.set(keyHighestBlockCoin, blockHighestInfo.height);
-            }
-          }
-        },
-        onReconnect: e => {
-          // Fired before a reconnect attempt is made:
-          this.logger.log('Reconnecting websocket, disconnection cause: ');
-        },
-        onConnect: e => {
-          this.logger.log(`XPI ChronikClient websocket connected`);
-        },
-        onError: e => {
-          this.logger.log('error', e);
-        }
-      });
-      await ws.waitForOpen();
-      //we need to subscribe address to listen new block
-      ws.subscribe('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
-    } catch (e) {
-      this.logger.error('dana-ws-service - xpi - websocket - error: ', e);
-    }
+    // try {
+    //   //ws for xpi
+    //   const ws = this.chronikXPI.ws({
+    //     onMessage: async (msg: SubscribeMsg) => {
+    //       const { type } = msg;
+    //       if (type === 'BlockConnected') {
+    //         //add new block
+    //         const keyHighestBlockCoin = template(this.keyIndexHighestBlockData, { coin: COIN.XPI });
+    //         const blockHighestInfo = (await this.chronikXPI.block(msg.blockHash)).blockInfo;
+    //         const currentIndexHighest = Number((await this.redis.get(keyHighestBlockCoin)) ?? '1');
+    //
+    //         if (blockHighestInfo.height < currentIndexHighest + 10) {
+    //           this.handleNewBlock(blockHighestInfo, COIN.XPI);
+    //           this.redis.set(keyHighestBlockCoin, blockHighestInfo.height);
+    //         }
+    //       }
+    //     },
+    //     onReconnect: e => {
+    //       // Fired before a reconnect attempt is made:
+    //       this.logger.log('Reconnecting websocket, disconnection cause: ');
+    //     },
+    //     onConnect: e => {
+    //       this.logger.log(`XPI ChronikClient websocket connected`);
+    //     },
+    //     onError: e => {
+    //       this.logger.log('error', e);
+    //     }
+    //   });
+    //   await ws.waitForOpen();
+    //   //we need to subscribe address to listen new block
+    //   ws.subscribe('p2pkh', 'b8ae1c47effb58f72f7bca819fe7fc252f9e852e');
+    // } catch (e) {
+    //   this.logger.error('dana-ws-service - xpi - websocket - error: ', e);
+    // }
 
     try {
       //ws for xec
