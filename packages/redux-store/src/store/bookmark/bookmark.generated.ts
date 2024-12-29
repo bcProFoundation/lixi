@@ -69,6 +69,7 @@ export type BookmarkTimelineQuery = {
                 __typename?: 'EscrowOrder';
                 amount: number;
                 id: string;
+                status: Types.EscrowOrderStatus;
                 buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 offer: {

@@ -74,6 +74,7 @@ fragment DisputeFields on Dispute {
   escrowOrder {
     amount
     id
+    status
     buyerAccount {
       telegramUsername
     }

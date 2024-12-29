@@ -93,6 +93,7 @@ export type DisputeFieldsFragment = {
     __typename?: 'EscrowOrder';
     amount: number;
     id: string;
+    status: Types.EscrowOrderStatus;
     buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
     sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
     offer: {
@@ -129,6 +130,7 @@ export type TimelineItemFieldsFragment = {
           __typename?: 'EscrowOrder';
           amount: number;
           id: string;
+          status: Types.EscrowOrderStatus;
           buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
           sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
           offer: {
@@ -370,6 +372,7 @@ export type TimelineQuery = {
             __typename?: 'EscrowOrder';
             amount: number;
             id: string;
+            status: Types.EscrowOrderStatus;
             buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
             sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
             offer: {
@@ -620,6 +623,7 @@ export type HomeTimelineQuery = {
                 __typename?: 'EscrowOrder';
                 amount: number;
                 id: string;
+                status: Types.EscrowOrderStatus;
                 buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 offer: {
@@ -879,6 +883,7 @@ export type ProfileTimelineQuery = {
                 __typename?: 'EscrowOrder';
                 amount: number;
                 id: string;
+                status: Types.EscrowOrderStatus;
                 buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 offer: {
@@ -1139,6 +1144,7 @@ export type ProfileTimelineByTimeQuery = {
                 __typename?: 'EscrowOrder';
                 amount: number;
                 id: string;
+                status: Types.EscrowOrderStatus;
                 buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 offer: {
@@ -1398,6 +1404,7 @@ export type PageTimelineQuery = {
                 __typename?: 'EscrowOrder';
                 amount: number;
                 id: string;
+                status: Types.EscrowOrderStatus;
                 buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 offer: {
@@ -1658,6 +1665,7 @@ export type PageTimelineByTimeQuery = {
                 __typename?: 'EscrowOrder';
                 amount: number;
                 id: string;
+                status: Types.EscrowOrderStatus;
                 buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 offer: {
@@ -1917,6 +1925,7 @@ export type TokenTimelineQuery = {
                 __typename?: 'EscrowOrder';
                 amount: number;
                 id: string;
+                status: Types.EscrowOrderStatus;
                 buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 offer: {
@@ -2177,6 +2186,7 @@ export type TokenTimelineByTimeQuery = {
                 __typename?: 'EscrowOrder';
                 amount: number;
                 id: string;
+                status: Types.EscrowOrderStatus;
                 buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 offer: {
@@ -2480,6 +2490,7 @@ export const DisputeFieldsFragmentDoc = `
   escrowOrder {
     amount
     id
+    status
     buyerAccount {
       telegramUsername
     }
