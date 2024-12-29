@@ -83,6 +83,7 @@ export type AllOfferQuery = {
                 __typename?: 'EscrowOrder';
                 amount: number;
                 id: string;
+                status: Types.EscrowOrderStatus;
                 buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 offer: {
@@ -342,6 +343,7 @@ export type OfferByFilterQuery = {
                 __typename?: 'EscrowOrder';
                 amount: number;
                 id: string;
+                status: Types.EscrowOrderStatus;
                 buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 offer: {
@@ -601,6 +603,7 @@ export type AllOfferByAccountQuery = {
                 __typename?: 'EscrowOrder';
                 amount: number;
                 id: string;
+                status: Types.EscrowOrderStatus;
                 buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 offer: {

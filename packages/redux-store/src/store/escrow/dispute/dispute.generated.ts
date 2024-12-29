@@ -32,6 +32,7 @@ export type DisputeQuery = {
       __typename?: 'EscrowOrder';
       amount: number;
       id: string;
+      status: Types.EscrowOrderStatus;
       buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
       sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
       offer: {
@@ -83,6 +84,7 @@ export type AllDisputeByAccountQuery = {
                 __typename?: 'EscrowOrder';
                 amount: number;
                 id: string;
+                status: Types.EscrowOrderStatus;
                 buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
                 offer: {
@@ -330,6 +332,7 @@ export type CreateDisputeMutation = {
       __typename?: 'EscrowOrder';
       amount: number;
       id: string;
+      status: Types.EscrowOrderStatus;
       buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
       sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
       offer: {
@@ -369,6 +372,7 @@ export type UpdateDisputeMutation = {
       __typename?: 'EscrowOrder';
       amount: number;
       id: string;
+      status: Types.EscrowOrderStatus;
       buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
       sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
       offer: {
