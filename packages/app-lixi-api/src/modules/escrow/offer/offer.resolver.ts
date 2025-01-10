@@ -224,6 +224,7 @@ export class OfferResolver {
                 localCurrency: data.localCurrency,
                 orderLimitMin: data.orderLimitMin,
                 orderLimitMax: data.orderLimitMax,
+                hideFromHome: data.hideFromHome,
                 location: {
                   connect: paymentMethodIds[0] === 1 && locationId ? { id: locationId } : undefined //cash in person
                 },

@@ -33,6 +33,7 @@ export class BoostFanoutProcessor extends WorkerHost {
     try {
       const { post, boost } = job.data;
       if (!post) return true;
+      if (post?.offer?.hideFromHome) return true;
       const id = `${post.id}`;
 
       // Invalidate the cache

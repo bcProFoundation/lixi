@@ -329,6 +329,7 @@ export type TimelineItemFieldsFragment = {
           localCurrency?: string | null;
           orderLimitMin: number;
           orderLimitMax: number;
+          hideFromHome?: boolean | null;
           status: Types.OfferStatus;
           locationId?: string | null;
           countryId?: number | null;
@@ -571,6 +572,7 @@ export type TimelineQuery = {
             localCurrency?: string | null;
             orderLimitMin: number;
             orderLimitMax: number;
+            hideFromHome?: boolean | null;
             status: Types.OfferStatus;
             locationId?: string | null;
             countryId?: number | null;
@@ -828,6 +830,7 @@ export type HomeTimelineQuery = {
                 localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
+                hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;
                 countryId?: number | null;
@@ -1088,6 +1091,7 @@ export type ProfileTimelineQuery = {
                 localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
+                hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;
                 countryId?: number | null;
@@ -1349,6 +1353,7 @@ export type ProfileTimelineByTimeQuery = {
                 localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
+                hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;
                 countryId?: number | null;
@@ -1609,6 +1614,7 @@ export type PageTimelineQuery = {
                 localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
+                hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;
                 countryId?: number | null;
@@ -1870,6 +1876,7 @@ export type PageTimelineByTimeQuery = {
                 localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
+                hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;
                 countryId?: number | null;
@@ -2130,6 +2137,7 @@ export type TokenTimelineQuery = {
                 localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
+                hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;
                 countryId?: number | null;
@@ -2391,6 +2399,7 @@ export type TokenTimelineByTimeQuery = {
                 localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
+                hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;
                 countryId?: number | null;

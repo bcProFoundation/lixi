@@ -135,6 +135,7 @@ export type PostQuery = {
       localCurrency?: string | null;
       orderLimitMin: number;
       orderLimitMax: number;
+      hideFromHome?: boolean | null;
       status: Types.OfferStatus;
       locationId?: string | null;
       countryId?: number | null;
@@ -289,6 +290,7 @@ export type PostsByPageIdQuery = {
           localCurrency?: string | null;
           orderLimitMin: number;
           orderLimitMax: number;
+          hideFromHome?: boolean | null;
           status: Types.OfferStatus;
           locationId?: string | null;
           countryId?: number | null;
@@ -451,6 +453,7 @@ export type PostsByUserIdQuery = {
           localCurrency?: string | null;
           orderLimitMin: number;
           orderLimitMax: number;
+          hideFromHome?: boolean | null;
           status: Types.OfferStatus;
           locationId?: string | null;
           countryId?: number | null;
@@ -613,6 +616,7 @@ export type PostsByHashtagIdQuery = {
           localCurrency?: string | null;
           orderLimitMin: number;
           orderLimitMax: number;
+          hideFromHome?: boolean | null;
           status: Types.OfferStatus;
           locationId?: string | null;
           countryId?: number | null;
@@ -775,6 +779,7 @@ export type PostsByTokenIdQuery = {
           localCurrency?: string | null;
           orderLimitMin: number;
           orderLimitMax: number;
+          hideFromHome?: boolean | null;
           status: Types.OfferStatus;
           locationId?: string | null;
           countryId?: number | null;
@@ -927,6 +932,7 @@ export type PostsBySearchQuery = {
           localCurrency?: string | null;
           orderLimitMin: number;
           orderLimitMax: number;
+          hideFromHome?: boolean | null;
           status: Types.OfferStatus;
           locationId?: string | null;
           countryId?: number | null;
@@ -1081,6 +1087,7 @@ export type PostsBySearchWithHashtagQuery = {
           localCurrency?: string | null;
           orderLimitMin: number;
           orderLimitMax: number;
+          hideFromHome?: boolean | null;
           status: Types.OfferStatus;
           locationId?: string | null;
           countryId?: number | null;
@@ -1236,6 +1243,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
           localCurrency?: string | null;
           orderLimitMin: number;
           orderLimitMax: number;
+          hideFromHome?: boolean | null;
           status: Types.OfferStatus;
           locationId?: string | null;
           countryId?: number | null;
@@ -1391,6 +1399,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
           localCurrency?: string | null;
           orderLimitMin: number;
           orderLimitMax: number;
+          hideFromHome?: boolean | null;
           status: Types.OfferStatus;
           locationId?: string | null;
           countryId?: number | null;
@@ -1458,6 +1467,7 @@ export type OfferFieldsFragment = {
   localCurrency?: string | null;
   orderLimitMin: number;
   orderLimitMax: number;
+  hideFromHome?: boolean | null;
   status: Types.OfferStatus;
   locationId?: string | null;
   countryId?: number | null;
@@ -1590,6 +1600,7 @@ export type PostFieldsFragment = {
     localCurrency?: string | null;
     orderLimitMin: number;
     orderLimitMax: number;
+    hideFromHome?: boolean | null;
     status: Types.OfferStatus;
     locationId?: string | null;
     countryId?: number | null;
@@ -1716,6 +1727,7 @@ export type PostMeiliFieldsFragment = {
     localCurrency?: string | null;
     orderLimitMin: number;
     orderLimitMax: number;
+    hideFromHome?: boolean | null;
     status: Types.OfferStatus;
     locationId?: string | null;
     countryId?: number | null;
@@ -1855,6 +1867,7 @@ export type CreatePostMutation = {
       localCurrency?: string | null;
       orderLimitMin: number;
       orderLimitMax: number;
+      hideFromHome?: boolean | null;
       status: Types.OfferStatus;
       locationId?: string | null;
       countryId?: number | null;
@@ -1995,6 +2008,7 @@ export type UpdatePostMutation = {
       localCurrency?: string | null;
       orderLimitMin: number;
       orderLimitMax: number;
+      hideFromHome?: boolean | null;
       status: Types.OfferStatus;
       locationId?: string | null;
       countryId?: number | null;
@@ -2141,6 +2155,7 @@ export type RemovePostMutation = {
       localCurrency?: string | null;
       orderLimitMin: number;
       orderLimitMax: number;
+      hideFromHome?: boolean | null;
       status: Types.OfferStatus;
       locationId?: string | null;
       countryId?: number | null;
@@ -2197,6 +2212,7 @@ export const OfferFieldsFragmentDoc = `
   localCurrency
   orderLimitMin
   orderLimitMax
+  hideFromHome
   paymentMethods {
     paymentMethod {
       id

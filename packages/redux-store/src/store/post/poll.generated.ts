@@ -132,6 +132,7 @@ export type CreatePollMutation = {
       localCurrency?: string | null;
       orderLimitMin: number;
       orderLimitMax: number;
+      hideFromHome?: boolean | null;
       status: Types.OfferStatus;
       locationId?: string | null;
       countryId?: number | null;

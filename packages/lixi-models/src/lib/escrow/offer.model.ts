@@ -49,6 +49,9 @@ export class Offer {
   @Field(() => Number)
   orderLimitMax: number;
 
+  @Field(() => Boolean, { nullable: true })
+  hideFromHome?: Nullable<boolean>;
+
   @Field(() => OfferType)
   type: OfferType;
 
