@@ -42,7 +42,7 @@ async function main() {
   console.log("Finish!!")
 }
 
-async function scanAndCollectKeys(pattern: string): Promise<string[]> {
+export async function scanAndCollectKeys(pattern: string): Promise<string[]> {
   let cursor = '0';
   const keys: string[] = [];
   do {
