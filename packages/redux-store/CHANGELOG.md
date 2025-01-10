@@ -1,5 +1,13 @@
 # @bcpros/redux-store
 
+## 1.2.45
+
+### Patch Changes
+
+- Update for localecash
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.45
+
 ## 1.2.44
 
 ### Patch Changes

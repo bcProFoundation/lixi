@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.45
+
+### Patch Changes
+
+- Update for localecash
+
 ## 1.2.44
 
 ### Patch Changes

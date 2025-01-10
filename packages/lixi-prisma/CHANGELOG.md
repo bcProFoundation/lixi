@@ -1,5 +1,11 @@
 # @bcpros/lixi-prisma
 
+## 1.2.17
+
+### Patch Changes
+
+- Update for localecash
+
 ## 1.2.16
 
 ### Patch Changes
