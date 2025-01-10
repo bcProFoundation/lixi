@@ -22,6 +22,7 @@ import { Context, Telegraf } from 'telegraf';
 import { BOT } from 'src/utils/bot.constants';
 import { format } from 'node:util';
 import { ConfigService } from '@nestjs/config';
+import { COIN_OTHERS } from '../escrow/escrow.contants';
 
 @SkipThrottle()
 @Resolver(() => BoostFee)
@@ -181,12 +182,18 @@ export class BoostFeeResolver {
           strLocation = `${offerBoosted.offer?.country.name}`;
         }
         //message - orderlimit - price - paymentMethod - location - link
+        const offerData = offerBoosted?.offer;
+        const ticket =
+          offerData?.localCurrency ??
+          (offerData?.coinPayment?.includes(COIN_OTHERS) ? 'XEC' : offerData?.coinPayment) ??
+          'XEC';
+
         const formatReplied =
           strLocation && strLocation !== ''
             ? format(
                 BOT.MESSAGE.BOOST_NOTIFY,
                 `${offerBoosted?.offer?.message}`,
-                `${offerBoosted?.offer?.orderLimitMin.toLocaleString('en-US')} XEC - ${offerBoosted?.offer?.orderLimitMax.toLocaleString('en-US')} XEC`,
+                `${offerBoosted?.offer?.orderLimitMin.toLocaleString('en-US')} ${ticket} - ${offerBoosted?.offer?.orderLimitMax.toLocaleString('en-US')} ${ticket}`,
                 paymentMethodString,
                 strLocation,
                 link
@@ -194,7 +201,7 @@ export class BoostFeeResolver {
             : format(
                 BOT.MESSAGE.BOOST_NOTIFY_WITHOUT_LOCATION,
                 `${offerBoosted?.offer?.message}`,
-                `${offerBoosted?.offer?.orderLimitMin.toLocaleString('en-US')} XEC - ${offerBoosted?.offer?.orderLimitMax.toLocaleString('en-US')} XEC`,
+                `${offerBoosted?.offer?.orderLimitMin.toLocaleString('en-US')} ${ticket} - ${offerBoosted?.offer?.orderLimitMax.toLocaleString('en-US')} ${ticket}`,
                 paymentMethodString,
                 link
               );

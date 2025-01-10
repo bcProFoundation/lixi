@@ -41,19 +41,19 @@ export const BOT = {
       `*Payment method:* %s\n` +
       `[View offer](%s)`,
     OFFER_CREATED:
-      `Offer #%s \n` +
+      `Offer [#%s](%s) \n` +
       `*Headline:* %s \n` +
       `*Margin:* %s% \n` +
-      `*Order limit:* %s XEC - %s XEC \n` +
+      `*Order limit:* %s\n` +
       `*Payment method:* %s\n` +
       `*Location:* %s\n`,
     OFFER_CREATED_WITHOUT_LOCATION:
-      `Offer #%s \n` +
+      `Offer [#%s](%s) \n` +
       `*Headline:* %s \n` +
       `*Margin:* %s% \n` +
-      `*Order limit:* %s XEC - %s XEC \n` +
+      `*Order limit:* %s\n` +
       `*Payment method:* %s\n`,
     OFFER_CREATED_GOODS_SERVICES:
-      `Offer #%s \n` + `*Headline:* %s \n` + `*Order limit:* %s XEC - %s XEC \n` + `*Payment method:* %s\n`
+      `Offer [#%s](%s) \n` + `*Headline:* %s \n` + `*Order limit:* %s \n` + `*Payment method:* %s\n`
   }
 };

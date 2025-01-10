@@ -46,6 +46,8 @@ import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from 'src/modules/telegram/telegram-bot
 import { format } from 'node:util';
 import { Context, Telegraf } from 'telegraf';
 import { BOT } from 'src/utils/bot.constants';
+import { COIN_OTHERS } from '../escrow.contants';
+import { ConfigService } from '@nestjs/config';
 
 @SkipThrottle()
 @Resolver(() => Offer)
@@ -54,6 +56,7 @@ export class OfferResolver {
   constructor(
     private logger: Logger,
     private prisma: PrismaService,
+    private readonly configService: ConfigService,
     @I18n() private i18n: I18nService,
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
     @InjectChronikClientNode('xec') private chronikXEC: ChronikClientNode,
@@ -295,25 +298,33 @@ export class OfferResolver {
         strLocation = `${offer?.country.name}`;
       }
 
+      const offerData = offer;
+      const ticket =
+        offerData?.localCurrency ??
+        (offerData?.coinPayment?.includes(COIN_OTHERS) ? 'XEC' : offerData?.coinPayment) ??
+        'XEC';
+
+      //id - link - message - margin - orderLimit - paymentMethod - location
+      const link = `https://t.me/${this.configService.get<string>('TELEGRAM_LOCAL_ECASH_BOT_NAME')}?startapp=offer__detail__${offerData?.postId}`;
       let formatReplied =
         strLocation && strLocation !== ''
           ? format(
               BOT.MESSAGE.OFFER_CREATED,
               result.id,
+              link,
               offer?.message,
               offer?.marginPercentage,
-              offer?.orderLimitMin.toLocaleString('en-US'),
-              offer?.orderLimitMax.toLocaleString('en-US'),
+              `${offer?.orderLimitMin.toLocaleString('en-US')} ${ticket} - ${offer?.orderLimitMax.toLocaleString('en-US')} ${ticket}`,
               offer?.paymentMethods[0].paymentMethod.name,
               strLocation
             )
           : format(
               BOT.MESSAGE.OFFER_CREATED_WITHOUT_LOCATION,
               result.id,
+              link,
               offer?.message,
               offer?.marginPercentage,
-              offer?.orderLimitMin.toLocaleString('en-US'),
-              offer?.orderLimitMax.toLocaleString('en-US'),
+              `${offer?.orderLimitMin.toLocaleString('en-US')} ${ticket} - ${offer?.orderLimitMax.toLocaleString('en-US')} ${ticket}`,
               offer?.paymentMethods[0].paymentMethod.name
             );
 
@@ -322,9 +333,9 @@ export class OfferResolver {
         formatReplied = format(
           BOT.MESSAGE.OFFER_CREATED_GOODS_SERVICES,
           result.id,
+          link,
           offer?.message,
-          offer?.orderLimitMin.toLocaleString('en-US'),
-          offer?.orderLimitMax.toLocaleString('en-US'),
+          `${offer?.orderLimitMin.toLocaleString('en-US')} ${ticket} - ${offer?.orderLimitMax.toLocaleString('en-US')} ${ticket}`,
           offer?.paymentMethods[0].paymentMethod.name
         );
       }
