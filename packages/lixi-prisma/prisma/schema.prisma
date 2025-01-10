@@ -1340,6 +1340,7 @@ model Offer {
   location          Worldcities?         @relation(fields: [locationId], references: [id])
   locationId        String?              @map("location_id")
   telegramMessageId String?              @map("telegram_message_id")
+  hideFromHome      Boolean?             @default(false) @map("hide_from_home")
   createdAt         DateTime             @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime             @default(now()) @map("updated_at") @db.Timestamptz
 

@@ -34,6 +34,7 @@ export type OfferQuery = {
     localCurrency?: string | null;
     orderLimitMin: number;
     orderLimitMax: number;
+    hideFromHome?: boolean | null;
     status: Types.OfferStatus;
     locationId?: string | null;
     countryId?: number | null;
@@ -288,6 +289,7 @@ export type AllOfferQuery = {
                 localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
+                hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;
                 countryId?: number | null;
@@ -548,6 +550,7 @@ export type OfferByFilterQuery = {
                 localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
+                hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;
                 countryId?: number | null;
@@ -808,6 +811,7 @@ export type AllOfferByAccountQuery = {
                 localCurrency?: string | null;
                 orderLimitMin: number;
                 orderLimitMax: number;
+                hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;
                 countryId?: number | null;
@@ -952,6 +956,7 @@ export type CreateOfferMutation = {
       localCurrency?: string | null;
       orderLimitMin: number;
       orderLimitMax: number;
+      hideFromHome?: boolean | null;
       status: Types.OfferStatus;
       locationId?: string | null;
       countryId?: number | null;
@@ -992,6 +997,7 @@ export type UpdateOfferMutation = {
     localCurrency?: string | null;
     orderLimitMin: number;
     orderLimitMax: number;
+    hideFromHome?: boolean | null;
     status: Types.OfferStatus;
     locationId?: string | null;
     countryId?: number | null;
@@ -1131,6 +1137,7 @@ export type UpdateOfferStatusMutation = {
       localCurrency?: string | null;
       orderLimitMin: number;
       orderLimitMax: number;
+      hideFromHome?: boolean | null;
       status: Types.OfferStatus;
       locationId?: string | null;
       countryId?: number | null;

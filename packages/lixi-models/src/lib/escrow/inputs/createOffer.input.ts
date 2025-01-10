@@ -56,4 +56,7 @@ export class CreateOfferInput {
 
   @Field(() => String, { nullable: true })
   locationId?: Nullable<string>;
+
+  @Field(() => Boolean, { nullable: true })
+  hideFromHome?: Nullable<boolean>;
 }

@@ -295,6 +295,7 @@ fragment OfferFields on Offer {
   localCurrency
   orderLimitMin
   orderLimitMax
+  hideFromHome
   paymentMethods {
     paymentMethod {
       id

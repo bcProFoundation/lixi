@@ -447,6 +447,7 @@ export type CreateOfferInput = {
   coinOthers?: InputMaybe<Scalars['String']['input']>;
   coinPayment?: InputMaybe<Scalars['String']['input']>;
   createFeeHex?: InputMaybe<Scalars['String']['input']>;
+  hideFromHome?: InputMaybe<Scalars['Boolean']['input']>;
   localCurrency?: InputMaybe<Scalars['String']['input']>;
   locationId?: InputMaybe<Scalars['String']['input']>;
   marginPercentage: Scalars['Float']['input'];
@@ -1246,6 +1247,7 @@ export type Offer = {
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime']['output'];
   escrowOrders?: Maybe<Array<EscrowOrder>>;
+  hideFromHome?: Maybe<Scalars['Boolean']['output']>;
   localCurrency?: Maybe<Scalars['String']['output']>;
   location?: Maybe<Location>;
   locationId?: Maybe<Scalars['String']['output']>;

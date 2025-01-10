@@ -218,7 +218,8 @@ export class OfferCacheService {
         JOIN
             offer 
             ON offer.post_id = post.id AND
-            offer.status = 'ACTIVE'
+            offer.status = 'ACTIVE' AND
+            offer.hide_from_home = false
       WHERE
         boost.boost_for_type = ${postBoostType} 
         AND boost.boosted_value > 0
@@ -243,7 +244,8 @@ export class OfferCacheService {
         JOIN
             offer 
             ON offer.post_id = post.id AND
-            offer.status = 'ACTIVE'
+            offer.status = 'ACTIVE' AND
+            offer.hide_from_home = false
       WHERE
       boost.boost_for_type = ${postBoostType} 
       AND boost.boosted_value > 0
@@ -292,7 +294,8 @@ export class OfferCacheService {
             where: {
               accountId,
               offer: {
-                status: offerStatus
+                status: offerStatus,
+                hideFromHome: false
               }
             },
             orderBy: {
@@ -311,7 +314,8 @@ export class OfferCacheService {
             where: {
               accountId,
               offer: {
-                status: offerStatus
+                status: offerStatus,
+                hideFromHome: false
               }
             },
             orderBy: {
@@ -473,6 +477,7 @@ export class OfferCacheService {
         boost.boost_for_type = ${postBoostType} 
         AND boost.boosted_value > 0
         AND wc.iso2 = ${countryCode}
+        AND offer.hide_from_home = false
       GROUP BY
         offer.post_id
       ORDER by
@@ -516,6 +521,7 @@ export class OfferCacheService {
         boost.boost_for_type = ${postBoostType} 
         AND boost.boosted_value > 0
         AND wc.admin_code = ${adminCode}
+        AND offer.hide_from_home = false
       GROUP BY
         offer.post_id
       ORDER by
@@ -559,6 +565,7 @@ export class OfferCacheService {
         boost.boost_for_type = ${postBoostType} 
         AND boost.boosted_value > 0
         AND wc.city_ascii = ${city}
+        and offer.hide_from_home = false
       GROUP BY
         offer.post_id
       ORDER by
@@ -599,6 +606,7 @@ export class OfferCacheService {
         boost.boost_for_type = ${postBoostType} 
         AND boost.boosted_value > 0
         AND offer.coin_payment = ${coin}
+        AND offer.hide_from_home = false
       GROUP BY
         offer.post_id
       ORDER by
@@ -639,6 +647,7 @@ export class OfferCacheService {
         boost.boost_for_type = ${postBoostType} 
         AND boost.boosted_value > 0
         AND offer.local_currency = ${currency}
+        AND offer.hide_from_home = false
       GROUP BY
         offer.post_id
       ORDER by
@@ -682,6 +691,7 @@ export class OfferCacheService {
         boost.boost_for_type = ${postBoostType} 
         AND boost.boosted_value > 0
         AND method.payment_method_id = ${methodId}
+        AND offer.hide_from_home = false
       GROUP BY
         offer.post_id
       ORDER by

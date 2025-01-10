@@ -61,6 +61,7 @@ const enhancedApi = api.enhanceEndpoints({
             const { endpointName, originalArgs } = invalidatedBy;
             //dont add to archived
             if (endpointName === 'AllOfferByAccount' && originalArgs?.offerStatus === OfferStatus.Archive) continue;
+            if (endpointName !== 'AllOfferByAccount' && result?.createOffer?.postOffer?.hideFromHome) continue;
             dispatch(
               enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
                 const fields = Object.keys(draft);

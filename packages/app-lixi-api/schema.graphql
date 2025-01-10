@@ -423,6 +423,7 @@ input CreateOfferInput {
   coinOthers: String
   coinPayment: String
   createFeeHex: String
+  hideFromHome: Boolean
   localCurrency: String
   locationId: String
   marginPercentage: Float!
@@ -1058,6 +1059,7 @@ type Offer {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   escrowOrders: [EscrowOrder!]
+  hideFromHome: Boolean
   localCurrency: String
   location: Location
   locationId: String
