@@ -203,7 +203,7 @@ export class OfferCacheService {
   private async cacheOfferTimelineByScore(limit: number = 0, offset: number = 0) {
     const key = OfferCacheService.offerBoostingTimeline;
     const postBoostType = BoostForType.Post;
-    const halfLife = '12 hours';
+    const halfLife = '168 hours';
     const query = limit
       ? Prisma.sql`
       SELECT
@@ -460,7 +460,7 @@ export class OfferCacheService {
   private async cacheOfferCountry(countryCode: string) {
     const key = `offer:country:{${countryCode}}`;
     const postBoostType = BoostForType.Post;
-    const halfLife = '12 hours';
+    const halfLife = '168 hours';
     const query = Prisma.sql`
       SELECT
         offer.post_id,
@@ -504,7 +504,7 @@ export class OfferCacheService {
   private async cacheOfferState(adminCode: string) {
     const key = `offer:state:{${adminCode}}`;
     const postBoostType = BoostForType.Post;
-    const halfLife = '12 hours';
+    const halfLife = '168 hours';
     const query = Prisma.sql`
       SELECT
         offer.post_id,
@@ -548,7 +548,7 @@ export class OfferCacheService {
   private async cacheOfferCity(city: string) {
     const key = `offer:state:{${city}}`;
     const postBoostType = BoostForType.Post;
-    const halfLife = '12 hours';
+    const halfLife = '168 hours';
     const query = Prisma.sql`
       SELECT
         offer.post_id,
@@ -592,7 +592,7 @@ export class OfferCacheService {
   private async cacheOfferCoin(coin: string) {
     const key = `offer:coin:{${coin}}`;
     const postBoostType = BoostForType.Post;
-    const halfLife = '12 hours';
+    const halfLife = '168 hours';
     const query = Prisma.sql`
       SELECT
         offer.post_id,
@@ -633,7 +633,7 @@ export class OfferCacheService {
   private async cacheOfferCurrency(currency: string) {
     const key = `offer:currency:{${currency}}`;
     const postBoostType = BoostForType.Post;
-    const halfLife = '12 hours';
+    const halfLife = '168 hours';
     const query = Prisma.sql`
       SELECT
         offer.post_id,
@@ -674,7 +674,7 @@ export class OfferCacheService {
   private async cacheOfferMethodId(methodId: number) {
     const key = `offer:method:{${methodId}}`;
     const postBoostType = BoostForType.Post;
-    const halfLife = '12 hours';
+    const halfLife = '168 hours';
     const query = Prisma.sql`
       SELECT
         offer.post_id,
