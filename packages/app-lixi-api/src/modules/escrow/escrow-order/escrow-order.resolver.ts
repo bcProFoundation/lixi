@@ -52,6 +52,7 @@ import { encode } from '@msgpack/msgpack';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { DisputeCacheService } from '../dispute/dispute-cache.service';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
+import { ConfigService } from '@nestjs/config';
 
 @SkipThrottle()
 @Resolver(() => EscrowOrder)
@@ -63,6 +64,7 @@ export class EscrowOrderResolver {
     private logger: Logger,
     private prisma: PrismaService,
     @I18n() private i18n: I18nService,
+    private readonly config: ConfigService,
     private readonly escrowOrderLoader: EscrowOrderLoader,
     private readonly escrowOrderCacheService: EscrowOrderCacheService,
     private readonly disputeCacheService: DisputeCacheService,
@@ -211,7 +213,7 @@ export class EscrowOrderResolver {
                   {
                     text: 'Open App',
                     web_app: {
-                      url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`
+                      url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`
                     }
                   }
                 ]
@@ -235,7 +237,7 @@ export class EscrowOrderResolver {
                   {
                     text: 'Open App',
                     web_app: {
-                      url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`
+                      url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`
                     }
                   }
                 ]
@@ -308,7 +310,7 @@ export class EscrowOrderResolver {
                     {
                       text: 'Open App',
                       web_app: {
-                        url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrderId}`
+                        url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrderId}`
                       }
                     }
                   ]
@@ -332,7 +334,7 @@ export class EscrowOrderResolver {
                     {
                       text: 'Open App',
                       web_app: {
-                        url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrderId}`
+                        url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrderId}`
                       }
                     }
                   ]
@@ -358,7 +360,7 @@ export class EscrowOrderResolver {
                     {
                       text: 'Open App',
                       web_app: {
-                        url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrderId}`
+                        url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrderId}`
                       }
                     }
                   ]
@@ -382,7 +384,7 @@ export class EscrowOrderResolver {
                     {
                       text: 'Open App',
                       web_app: {
-                        url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrderId}`
+                        url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrderId}`
                       }
                     }
                   ]
@@ -637,9 +639,9 @@ export class EscrowOrderResolver {
         throw new Error('Moderator not found');
       }
 
-      // if (!moderatorAccount.telegramId) {
-      //   throw new Error(`Moderator doesn't connect to Telegram account`);
-      // }
+      if (!moderatorAccount.telegramId) {
+        throw new Error(`Moderator doesn't connect to Telegram account`);
+      }
 
       if (moderatorAccount.id === account.id) {
         throw new Error(`Moderator can not create an escrow order`);
@@ -655,9 +657,9 @@ export class EscrowOrderResolver {
         throw new Error('Arbitrator not found');
       }
 
-      // if (!arbitratorAccount.telegramId) {
-      //   throw new Error(`Arbitrator doesn't connect to Telegram account`);
-      // }
+      if (!arbitratorAccount.telegramId) {
+        throw new Error(`Arbitrator doesn't connect to Telegram account`);
+      }
 
       if (sellerAccount.id === arbitratorAccount.id || sellerAccount.id === moderatorAccount.id) {
         throw new Error('Seller cannot be the same as arbitrator or moderator');
@@ -767,7 +769,7 @@ export class EscrowOrderResolver {
                   {
                     text: 'Open App',
                     web_app: {
-                      url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`
+                      url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrder.id}`
                     }
                   }
                 ]
@@ -801,7 +803,7 @@ export class EscrowOrderResolver {
                   {
                     text: 'Open App',
                     web_app: {
-                      url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrder.id}`
+                      url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrder.id}`
                     }
                   }
                 ]
@@ -900,7 +902,7 @@ export class EscrowOrderResolver {
                     {
                       text: 'Open App',
                       web_app: {
-                        url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`
+                        url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`
                       }
                     }
                   ]
@@ -959,7 +961,7 @@ export class EscrowOrderResolver {
                     {
                       text: 'Open App',
                       web_app: {
-                        url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`
+                        url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`
                       }
                     }
                   ]
@@ -1106,7 +1108,7 @@ export class EscrowOrderResolver {
                       {
                         text: 'Open App',
                         web_app: {
-                          url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${orderId}`
+                          url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${orderId}`
                         }
                       }
                     ]
@@ -1219,7 +1221,7 @@ export class EscrowOrderResolver {
                       {
                         text: 'Open App',
                         web_app: {
-                          url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`
+                          url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`
                         }
                       }
                     ]
@@ -1292,39 +1294,6 @@ export class EscrowOrderResolver {
         },
         data: dataToUpdate
       });
-
-      // if (result.dispute) {
-      //   await this.prisma.$transaction(async prisma => {
-      //     const dispute = await prisma.dispute.update({
-      //       where: {
-      //         id: result.dispute!.id
-      //       },
-      //       data: {
-      //         status: DisputeStatus.RESOLVED,
-      //         updatedAt: new Date()
-      //       }
-      //     });
-
-      //     //arbi
-      //     await this.disputeCacheService.updateMyDisputeTimelineCache(
-      //       result?.arbitratorAccountId,
-      //       dispute.id,
-      //       dispute.updatedAt,
-      //       DisputeStatus.ACTIVE,
-      //       DisputeStatus.RESOLVED
-      //     );
-
-      //     //mod
-      //     //arbi
-      //     await this.disputeCacheService.updateMyDisputeTimelineCache(
-      //       result?.moderatorAccountId,
-      //       dispute.id,
-      //       dispute.updatedAt,
-      //       DisputeStatus.ACTIVE,
-      //       DisputeStatus.RESOLVED
-      //     );
-      //   });
-      // }
 
       return escrowOrder;
     } catch (e: any) {
