@@ -13,7 +13,7 @@ import ReBloom from '../../common/redis/redis-bloom';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { CONTENT_FANOUT_QUEUE } from './constants';
 import { PostCacheService } from './post-cache.service';
-import { epoch } from 'src/utils/constants';
+import { epoch, offer_half_life } from 'src/utils/constants';
 import ReSearch from 'src/common/redis/redis-search';
 import { IndexNameOffer } from '../escrow/escrow.contants';
 
@@ -155,20 +155,22 @@ export class PostFanoutProcessor extends WorkerHost {
 
       //add default score for offer
       if (post.type === PostType.OFFER) {
+        const offer_score = 1 * Math.pow(2, diffHour / offer_half_life);
+
         const myOfferTimelineKey = template(`${PostFanoutProcessor.myOfferTimeline}`, {
           accountId,
           offerStatus: post?.offer?.status
         });
-        pipeline.zincrby(myOfferTimelineKey, score, timelineId);
+        pipeline.zincrby(myOfferTimelineKey, offer_score, timelineId);
 
         //dont hide from home
         if (!post.offer?.hideFromHome) {
-          pipeline.zincrby(PostFanoutProcessor.offerBoostingTimeline, score, timelineId);
+          pipeline.zincrby(PostFanoutProcessor.offerBoostingTimeline, offer_score, timelineId);
 
           // add cache for payment method (offer:method:{id})
           post.offer?.paymentMethods.map(item => {
             const keyPaymentMethod = `offer:method:{${item.paymentMethod.id}}`;
-            pipeline.zincrby(keyPaymentMethod, score, timelineId);
+            pipeline.zincrby(keyPaymentMethod, offer_score, timelineId);
           });
 
           //add cache for country - state - city (offer:country:{countryName})
@@ -187,29 +189,29 @@ export class PostFanoutProcessor extends WorkerHost {
           //cash in person
           if (post.offer?.location) {
             const keyCountry = `offer:country:{${countryCode}}`;
-            pipeline.zincrby(keyCountry, score, timelineId);
+            pipeline.zincrby(keyCountry, offer_score, timelineId);
 
             const keyState = `offer:state:{${adminCode}}`;
-            pipeline.zincrby(keyState, score, timelineId);
+            pipeline.zincrby(keyState, offer_score, timelineId);
 
             const keyCity = `offer:city:{${cityName}}`;
-            pipeline.zincrby(keyCity, score, timelineId);
+            pipeline.zincrby(keyCity, offer_score, timelineId);
           }
 
           // bank transfer
           if (post.offer?.country) {
             const keyCountry = `offer:country:{${countryCode}}`;
-            pipeline.zincrby(keyCountry, score, timelineId);
+            pipeline.zincrby(keyCountry, offer_score, timelineId);
           }
 
           if (post.offer?.coinPayment) {
             const keyCoin = `offer:coin:{${post.offer.coinPayment}}`;
-            pipeline.zincrby(keyCoin, score, timelineId);
+            pipeline.zincrby(keyCoin, offer_score, timelineId);
           }
 
           if (post.offer?.localCurrency) {
             const keyCurrency = `offer:currency:{${post.offer.localCurrency}}`;
-            pipeline.zincrby(keyCurrency, score, timelineId);
+            pipeline.zincrby(keyCurrency, offer_score, timelineId);
           }
 
           //find item have countryId|stateId|{in payment-method} by search and add offer to it
@@ -259,7 +261,7 @@ export class PostFanoutProcessor extends WorkerHost {
                   continue;
               }
               const keyTimelineFilter = template(`${PostFanoutProcessor.timelineOfferFilter}`, { keyFilter });
-              pipeline.zincrby(keyTimelineFilter, score, timelineId);
+              pipeline.zincrby(keyTimelineFilter, offer_score, timelineId);
             }
           }
         }
