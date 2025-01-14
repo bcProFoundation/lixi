@@ -23,6 +23,11 @@ export type EscrowOrderFieldsFragment = {
   nonce: string;
   releaseTxid?: string | null;
   returnTxid?: string | null;
+  releaseSignatory?: string | null;
+  returnSignatory?: string | null;
+  signatoryOwnerHash160?: string | null;
+  sellerDonateAmount?: number | null;
+  buyerDonateAmount?: number | null;
   buyerDepositTx?: string | null;
   price: string;
   amount: number;
@@ -30,14 +35,7 @@ export type EscrowOrderFieldsFragment = {
   createdAt: any;
   updatedAt: any;
   escrowOrderStatus: Types.EscrowOrderStatus;
-  arbitratorAccount: {
-    __typename?: 'Account';
-    id: number;
-    publicKey?: string | null;
-    hash160?: string | null;
-    telegramId?: string | null;
-    telegramUsername?: string | null;
-  };
+  arbitratorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
   buyerAccount: {
     __typename?: 'Account';
     id: number;
@@ -54,14 +52,7 @@ export type EscrowOrderFieldsFragment = {
     telegramId?: string | null;
     telegramUsername?: string | null;
   };
-  moderatorAccount: {
-    __typename?: 'Account';
-    id: number;
-    publicKey?: string | null;
-    hash160?: string | null;
-    telegramId?: string | null;
-    telegramUsername?: string | null;
-  };
+  moderatorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
   paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
   escrowOffer: {
     __typename?: 'Offer';
@@ -159,6 +150,11 @@ export type TimelineItemFieldsFragment = {
         nonce: string;
         releaseTxid?: string | null;
         returnTxid?: string | null;
+        releaseSignatory?: string | null;
+        returnSignatory?: string | null;
+        signatoryOwnerHash160?: string | null;
+        sellerDonateAmount?: number | null;
+        buyerDonateAmount?: number | null;
         buyerDepositTx?: string | null;
         price: string;
         amount: number;
@@ -166,14 +162,7 @@ export type TimelineItemFieldsFragment = {
         createdAt: any;
         updatedAt: any;
         escrowOrderStatus: Types.EscrowOrderStatus;
-        arbitratorAccount: {
-          __typename?: 'Account';
-          id: number;
-          publicKey?: string | null;
-          hash160?: string | null;
-          telegramId?: string | null;
-          telegramUsername?: string | null;
-        };
+        arbitratorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
         buyerAccount: {
           __typename?: 'Account';
           id: number;
@@ -190,14 +179,7 @@ export type TimelineItemFieldsFragment = {
           telegramId?: string | null;
           telegramUsername?: string | null;
         };
-        moderatorAccount: {
-          __typename?: 'Account';
-          id: number;
-          publicKey?: string | null;
-          hash160?: string | null;
-          telegramId?: string | null;
-          telegramUsername?: string | null;
-        };
+        moderatorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
         escrowOffer: {
           __typename?: 'Offer';
@@ -402,6 +384,11 @@ export type TimelineQuery = {
           nonce: string;
           releaseTxid?: string | null;
           returnTxid?: string | null;
+          releaseSignatory?: string | null;
+          returnSignatory?: string | null;
+          signatoryOwnerHash160?: string | null;
+          sellerDonateAmount?: number | null;
+          buyerDonateAmount?: number | null;
           buyerDepositTx?: string | null;
           price: string;
           amount: number;
@@ -409,14 +396,7 @@ export type TimelineQuery = {
           createdAt: any;
           updatedAt: any;
           escrowOrderStatus: Types.EscrowOrderStatus;
-          arbitratorAccount: {
-            __typename?: 'Account';
-            id: number;
-            publicKey?: string | null;
-            hash160?: string | null;
-            telegramId?: string | null;
-            telegramUsername?: string | null;
-          };
+          arbitratorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
           buyerAccount: {
             __typename?: 'Account';
             id: number;
@@ -433,14 +413,7 @@ export type TimelineQuery = {
             telegramId?: string | null;
             telegramUsername?: string | null;
           };
-          moderatorAccount: {
-            __typename?: 'Account';
-            id: number;
-            publicKey?: string | null;
-            hash160?: string | null;
-            telegramId?: string | null;
-            telegramUsername?: string | null;
-          };
+          moderatorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
           paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
           escrowOffer: {
             __typename?: 'Offer';
@@ -654,6 +627,11 @@ export type HomeTimelineQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              releaseSignatory?: string | null;
+              returnSignatory?: string | null;
+              signatoryOwnerHash160?: string | null;
+              sellerDonateAmount?: number | null;
+              buyerDonateAmount?: number | null;
               buyerDepositTx?: string | null;
               price: string;
               amount: number;
@@ -666,8 +644,6 @@ export type HomeTimelineQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               buyerAccount: {
                 __typename?: 'Account';
@@ -690,8 +666,6 @@ export type HomeTimelineQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: {
@@ -915,6 +889,11 @@ export type ProfileTimelineQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              releaseSignatory?: string | null;
+              returnSignatory?: string | null;
+              signatoryOwnerHash160?: string | null;
+              sellerDonateAmount?: number | null;
+              buyerDonateAmount?: number | null;
               buyerDepositTx?: string | null;
               price: string;
               amount: number;
@@ -927,8 +906,6 @@ export type ProfileTimelineQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               buyerAccount: {
                 __typename?: 'Account';
@@ -951,8 +928,6 @@ export type ProfileTimelineQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: {
@@ -1177,6 +1152,11 @@ export type ProfileTimelineByTimeQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              releaseSignatory?: string | null;
+              returnSignatory?: string | null;
+              signatoryOwnerHash160?: string | null;
+              sellerDonateAmount?: number | null;
+              buyerDonateAmount?: number | null;
               buyerDepositTx?: string | null;
               price: string;
               amount: number;
@@ -1189,8 +1169,6 @@ export type ProfileTimelineByTimeQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               buyerAccount: {
                 __typename?: 'Account';
@@ -1213,8 +1191,6 @@ export type ProfileTimelineByTimeQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: {
@@ -1438,6 +1414,11 @@ export type PageTimelineQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              releaseSignatory?: string | null;
+              returnSignatory?: string | null;
+              signatoryOwnerHash160?: string | null;
+              sellerDonateAmount?: number | null;
+              buyerDonateAmount?: number | null;
               buyerDepositTx?: string | null;
               price: string;
               amount: number;
@@ -1450,8 +1431,6 @@ export type PageTimelineQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               buyerAccount: {
                 __typename?: 'Account';
@@ -1474,8 +1453,6 @@ export type PageTimelineQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: {
@@ -1700,6 +1677,11 @@ export type PageTimelineByTimeQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              releaseSignatory?: string | null;
+              returnSignatory?: string | null;
+              signatoryOwnerHash160?: string | null;
+              sellerDonateAmount?: number | null;
+              buyerDonateAmount?: number | null;
               buyerDepositTx?: string | null;
               price: string;
               amount: number;
@@ -1712,8 +1694,6 @@ export type PageTimelineByTimeQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               buyerAccount: {
                 __typename?: 'Account';
@@ -1736,8 +1716,6 @@ export type PageTimelineByTimeQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: {
@@ -1961,6 +1939,11 @@ export type TokenTimelineQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              releaseSignatory?: string | null;
+              returnSignatory?: string | null;
+              signatoryOwnerHash160?: string | null;
+              sellerDonateAmount?: number | null;
+              buyerDonateAmount?: number | null;
               buyerDepositTx?: string | null;
               price: string;
               amount: number;
@@ -1973,8 +1956,6 @@ export type TokenTimelineQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               buyerAccount: {
                 __typename?: 'Account';
@@ -1997,8 +1978,6 @@ export type TokenTimelineQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: {
@@ -2223,6 +2202,11 @@ export type TokenTimelineByTimeQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              releaseSignatory?: string | null;
+              returnSignatory?: string | null;
+              signatoryOwnerHash160?: string | null;
+              sellerDonateAmount?: number | null;
+              buyerDonateAmount?: number | null;
               buyerDepositTx?: string | null;
               price: string;
               amount: number;
@@ -2235,8 +2219,6 @@ export type TokenTimelineByTimeQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               buyerAccount: {
                 __typename?: 'Account';
@@ -2259,8 +2241,6 @@ export type TokenTimelineByTimeQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: {
@@ -2433,8 +2413,6 @@ export const EscrowOrderFieldsFragmentDoc = `
     id
     publicKey
     hash160
-    telegramId
-    telegramUsername
   }
   buyerAccount {
     id
@@ -2454,8 +2432,6 @@ export const EscrowOrderFieldsFragmentDoc = `
     id
     publicKey
     hash160
-    telegramId
-    telegramUsername
   }
   paymentMethod {
     id
@@ -2484,6 +2460,11 @@ export const EscrowOrderFieldsFragmentDoc = `
   }
   releaseTxid
   returnTxid
+  releaseSignatory
+  returnSignatory
+  signatoryOwnerHash160
+  sellerDonateAmount
+  buyerDonateAmount
   buyerDepositTx
   price
   amount

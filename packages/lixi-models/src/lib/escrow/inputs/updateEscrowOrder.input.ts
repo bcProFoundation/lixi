@@ -1,4 +1,4 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, Float, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
 import { UtxoInNodeInput } from '../../utxo/input/utxo-inNode.input';
@@ -33,4 +33,12 @@ export class UpdateEscrowOrderInput {
   @Field(() => String, { nullable: true })
   @IsOptional()
   socketId?: string;
+
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  sellerDonateAmount?: number;
+
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  buyerDonateAmount?: number;
 }

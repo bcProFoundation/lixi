@@ -643,6 +643,7 @@ export type EscrowOrder = {
   buyerAccount: Account;
   buyerAccountId: Scalars['Int']['output'];
   buyerDepositTx?: Maybe<Scalars['String']['output']>;
+  buyerDonateAmount?: Maybe<Scalars['Float']['output']>;
   /** Identifies the date and time when the object was created. */
   createdAt: Scalars['DateTime']['output'];
   dispute?: Maybe<Dispute>;
@@ -659,14 +660,24 @@ export type EscrowOrder = {
   paymentMethod: PaymentMethod;
   paymentMethodId: Scalars['Int']['output'];
   price: Scalars['String']['output'];
+  releaseSignatory?: Maybe<Scalars['String']['output']>;
   releaseTxid?: Maybe<Scalars['String']['output']>;
+  returnSignatory?: Maybe<Scalars['String']['output']>;
   returnTxid?: Maybe<Scalars['String']['output']>;
   sellerAccount: Account;
   sellerAccountId: Scalars['Int']['output'];
+  sellerDonateAmount?: Maybe<Scalars['Float']['output']>;
+  signatoryOwnerHash160?: Maybe<Scalars['String']['output']>;
   status: EscrowOrderStatus;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime']['output'];
 };
+
+/** The action of escrow order. */
+export enum EscrowOrderAction {
+  Release = 'RELEASE',
+  Return = 'RETURN'
+}
 
 export type EscrowOrderConnection = {
   __typename?: 'EscrowOrderConnection';
@@ -1069,6 +1080,7 @@ export type Mutation = {
   updateAccount: Account;
   updateAccountTelegramUsername: Account;
   updateDispute: Dispute;
+  updateEscrowOrderSignatory: EscrowOrder;
   updateEscrowOrderStatus: EscrowOrder;
   updateOffer: Offer;
   updateOfferStatus: Post;
@@ -1215,6 +1227,10 @@ export type MutationUpdateAccountTelegramUsernameArgs = {
 
 export type MutationUpdateDisputeArgs = {
   data: UpdateDisputeInput;
+};
+
+export type MutationUpdateEscrowOrderSignatoryArgs = {
+  data: UpdateEscrowOrderSignatoryInput;
 };
 
 export type MutationUpdateEscrowOrderStatusArgs = {
@@ -2588,13 +2604,25 @@ export type UpdateDisputeInput = {
 };
 
 export type UpdateEscrowOrderInput = {
+  buyerDonateAmount?: InputMaybe<Scalars['Float']['input']>;
   orderId: Scalars['String']['input'];
   outIdx?: InputMaybe<Scalars['Int']['input']>;
+  sellerDonateAmount?: InputMaybe<Scalars['Float']['input']>;
   socketId?: InputMaybe<Scalars['String']['input']>;
   status: EscrowOrderStatus;
   txid?: InputMaybe<Scalars['String']['input']>;
   utxoInNodeOfBuyer?: InputMaybe<UtxoInNodeInput>;
   value?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type UpdateEscrowOrderSignatoryInput = {
+  action: EscrowOrderAction;
+  buyerDonateAmount?: InputMaybe<Scalars['Float']['input']>;
+  orderId: Scalars['String']['input'];
+  sellerDonateAmount?: InputMaybe<Scalars['Float']['input']>;
+  signatory: Scalars['String']['input'];
+  signatoryOwnerHash160: Scalars['String']['input'];
+  socketId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateOfferInput = {

@@ -275,7 +275,9 @@ export class DisputeResolver {
           id: escrowOrderId
         },
         include: {
-          dispute: true
+          dispute: true,
+          moderatorAccount: true,
+          arbitratorAccount: true
         }
       });
 
@@ -297,13 +299,34 @@ export class DisputeResolver {
         }
       });
 
+      //arbi
       await this.disputeCacheService.updateMyDisputeTimelineCache(
-        account.id,
+        escrowOrder.arbitratorAccountId,
         dispute.id,
         dispute.updatedAt,
         DisputeStatus.ACTIVE,
         DisputeStatus.RESOLVED
       );
+
+      //mod
+      await this.disputeCacheService.updateMyDisputeTimelineCache(
+        escrowOrder?.moderatorAccountId,
+        dispute.id,
+        dispute.updatedAt,
+        DisputeStatus.ACTIVE,
+        DisputeStatus.RESOLVED
+      );
+
+      this.notificationGateway.publishEscrowOrderStatus(escrowOrder.id, {
+        escrowOrderId: escrowOrder.id,
+        dispute: {
+          id: dispute.id,
+          createdBy: dispute.createdBy,
+          reason: dispute.reason,
+          status: dispute.status as DisputeStatus
+        },
+        socketId: ''
+      });
 
       return dispute;
     } catch (e: any) {

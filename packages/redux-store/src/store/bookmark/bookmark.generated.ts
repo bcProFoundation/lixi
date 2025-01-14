@@ -98,6 +98,11 @@ export type BookmarkTimelineQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              releaseSignatory?: string | null;
+              returnSignatory?: string | null;
+              signatoryOwnerHash160?: string | null;
+              sellerDonateAmount?: number | null;
+              buyerDonateAmount?: number | null;
               buyerDepositTx?: string | null;
               price: string;
               amount: number;
@@ -110,8 +115,6 @@ export type BookmarkTimelineQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               buyerAccount: {
                 __typename?: 'Account';
@@ -134,8 +137,6 @@ export type BookmarkTimelineQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: {

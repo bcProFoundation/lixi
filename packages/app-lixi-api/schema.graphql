@@ -623,6 +623,7 @@ type EscrowOrder {
   buyerAccount: Account!
   buyerAccountId: Int!
   buyerDepositTx: String
+  buyerDonateAmount: Float
 
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
@@ -640,14 +641,24 @@ type EscrowOrder {
   paymentMethod: PaymentMethod!
   paymentMethodId: Int!
   price: String!
+  releaseSignatory: String
   releaseTxid: String
+  returnSignatory: String
   returnTxid: String
   sellerAccount: Account!
   sellerAccountId: Int!
+  sellerDonateAmount: Float
+  signatoryOwnerHash160: String
   status: EscrowOrderStatus!
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
+}
+
+"""The action of escrow order."""
+enum EscrowOrderAction {
+  RELEASE
+  RETURN
 }
 
 type EscrowOrderConnection {
@@ -1042,6 +1053,7 @@ type Mutation {
   updateAccount(data: UpdateAccountInput!): Account!
   updateAccountTelegramUsername(telegramId: String!, telegramUsername: String!): Account!
   updateDispute(data: UpdateDisputeInput!): Dispute!
+  updateEscrowOrderSignatory(data: UpdateEscrowOrderSignatoryInput!): EscrowOrder!
   updateEscrowOrderStatus(data: UpdateEscrowOrderInput!): EscrowOrder!
   updateOffer(data: UpdateOfferInput!): Offer!
   updateOfferStatus(data: UpdateOfferStatusInput!): Post!
@@ -1843,13 +1855,25 @@ input UpdateDisputeInput {
 }
 
 input UpdateEscrowOrderInput {
+  buyerDonateAmount: Float
   orderId: String!
   outIdx: Int
+  sellerDonateAmount: Float
   socketId: String
   status: EscrowOrderStatus!
   txid: String
   utxoInNodeOfBuyer: UtxoInNodeInput
   value: Int
+}
+
+input UpdateEscrowOrderSignatoryInput {
+  action: EscrowOrderAction!
+  buyerDonateAmount: Float
+  orderId: String!
+  sellerDonateAmount: Float
+  signatory: String!
+  signatoryOwnerHash160: String!
+  socketId: String
 }
 
 input UpdateOfferInput {
