@@ -1281,11 +1281,16 @@ model EscrowOrder {
   offerId                 String            @map("offer_id")
   status                  EscrowOrderStatus @default(PENDING)
   escrowScript            Bytes             @unique @map("escrow_script")
+  releaseSignatory        Bytes?            @unique @map("release_signatory")
+  returnSignatory         Bytes?            @unique @map("return_signatory")
+  signatoryOwnerHash160   Bytes?            @map("signatory_owner_hash160")
   nonce                   String            @unique @map("nonce")
   buyerDepositTx          String?           @unique @map("buyer_deposit_tx")
   dispute                 Dispute?
   sellerTelegramMessageId Int?              @map("seller_telegram_message_id")
   buyerTelegramMessageId  Int?              @map("buyer_telegram_message_id")
+  sellerDonateAmount      Float?            @map("seller_donate_amount")
+  buyerDonateAmount       Float?            @map("buyer_donate_amount")
   createdAt               DateTime          @default(now()) @map("created_at") @db.Timestamptz
   updatedAt               DateTime          @default(now()) @map("updated_at") @db.Timestamptz
 
@@ -1344,8 +1349,8 @@ model Offer {
   createdAt         DateTime             @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime             @default(now()) @map("updated_at") @db.Timestamptz
 
-  @@map("offer")
   @@index([locationId])
+  @@map("offer")
 }
 
 model OfferPaymentMethod {
@@ -1415,6 +1420,7 @@ model SeedVersion {
   name      String
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
   @@map("seed_version")
 }
 

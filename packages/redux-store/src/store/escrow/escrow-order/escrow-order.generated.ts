@@ -33,6 +33,11 @@ export type EscrowOrderQuery = {
     nonce: string;
     releaseTxid?: string | null;
     returnTxid?: string | null;
+    releaseSignatory?: string | null;
+    returnSignatory?: string | null;
+    signatoryOwnerHash160?: string | null;
+    sellerDonateAmount?: number | null;
+    buyerDonateAmount?: number | null;
     buyerDepositTx?: string | null;
     price: string;
     amount: number;
@@ -40,14 +45,7 @@ export type EscrowOrderQuery = {
     createdAt: any;
     updatedAt: any;
     escrowOrderStatus: Types.EscrowOrderStatus;
-    arbitratorAccount: {
-      __typename?: 'Account';
-      id: number;
-      publicKey?: string | null;
-      hash160?: string | null;
-      telegramId?: string | null;
-      telegramUsername?: string | null;
-    };
+    arbitratorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
     buyerAccount: {
       __typename?: 'Account';
       id: number;
@@ -64,14 +62,7 @@ export type EscrowOrderQuery = {
       telegramId?: string | null;
       telegramUsername?: string | null;
     };
-    moderatorAccount: {
-      __typename?: 'Account';
-      id: number;
-      publicKey?: string | null;
-      hash160?: string | null;
-      telegramId?: string | null;
-      telegramUsername?: string | null;
-    };
+    moderatorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
     paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
     escrowOffer: {
       __typename?: 'Offer';
@@ -131,6 +122,11 @@ export type AllEscrowOrderByAccountQuery = {
         nonce: string;
         releaseTxid?: string | null;
         returnTxid?: string | null;
+        releaseSignatory?: string | null;
+        returnSignatory?: string | null;
+        signatoryOwnerHash160?: string | null;
+        sellerDonateAmount?: number | null;
+        buyerDonateAmount?: number | null;
         buyerDepositTx?: string | null;
         price: string;
         amount: number;
@@ -138,14 +134,7 @@ export type AllEscrowOrderByAccountQuery = {
         createdAt: any;
         updatedAt: any;
         escrowOrderStatus: Types.EscrowOrderStatus;
-        arbitratorAccount: {
-          __typename?: 'Account';
-          id: number;
-          publicKey?: string | null;
-          hash160?: string | null;
-          telegramId?: string | null;
-          telegramUsername?: string | null;
-        };
+        arbitratorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
         buyerAccount: {
           __typename?: 'Account';
           id: number;
@@ -162,14 +151,7 @@ export type AllEscrowOrderByAccountQuery = {
           telegramId?: string | null;
           telegramUsername?: string | null;
         };
-        moderatorAccount: {
-          __typename?: 'Account';
-          id: number;
-          publicKey?: string | null;
-          hash160?: string | null;
-          telegramId?: string | null;
-          telegramUsername?: string | null;
-        };
+        moderatorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
         escrowOffer: {
           __typename?: 'Offer';
@@ -259,6 +241,11 @@ export type AllEscrowOrderByOfferIdQuery = {
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              releaseSignatory?: string | null;
+              returnSignatory?: string | null;
+              signatoryOwnerHash160?: string | null;
+              sellerDonateAmount?: number | null;
+              buyerDonateAmount?: number | null;
               buyerDepositTx?: string | null;
               price: string;
               amount: number;
@@ -271,8 +258,6 @@ export type AllEscrowOrderByOfferIdQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               buyerAccount: {
                 __typename?: 'Account';
@@ -295,8 +280,6 @@ export type AllEscrowOrderByOfferIdQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
-                telegramId?: string | null;
-                telegramUsername?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: {
@@ -501,6 +484,23 @@ export type UpdateEscrowOrderStatusMutation = {
   };
 };
 
+export type UpdateEscrowOrderSignatoryMutationVariables = Types.Exact<{
+  input: Types.UpdateEscrowOrderSignatoryInput;
+}>;
+
+export type UpdateEscrowOrderSignatoryMutation = {
+  __typename?: 'Mutation';
+  updateEscrowOrderSignatory: {
+    __typename?: 'EscrowOrder';
+    id: string;
+    releaseSignatory?: string | null;
+    returnSignatory?: string | null;
+    signatoryOwnerHash160?: string | null;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
+
 export type FilterUtxosMutationVariables = Types.Exact<{
   input: Array<Types.UtxoInNodeInput> | Types.UtxoInNodeInput;
 }>;
@@ -611,6 +611,18 @@ export const UpdateEscrowOrderStatusDocument = `
   }
 }
     `;
+export const UpdateEscrowOrderSignatoryDocument = `
+    mutation UpdateEscrowOrderSignatory($input: UpdateEscrowOrderSignatoryInput!) {
+  updateEscrowOrderSignatory(data: $input) {
+    id
+    releaseSignatory
+    returnSignatory
+    signatoryOwnerHash160
+    createdAt
+    updatedAt
+  }
+}
+    `;
 export const FilterUtxosDocument = `
     mutation FilterUtxos($input: [UtxoInNodeInput!]!) {
   filterUtxos(data: $input) {
@@ -653,6 +665,12 @@ const injectedRtkApi = api.injectEndpoints({
     }),
     UpdateEscrowOrderStatus: build.mutation<UpdateEscrowOrderStatusMutation, UpdateEscrowOrderStatusMutationVariables>({
       query: variables => ({ document: UpdateEscrowOrderStatusDocument, variables })
+    }),
+    UpdateEscrowOrderSignatory: build.mutation<
+      UpdateEscrowOrderSignatoryMutation,
+      UpdateEscrowOrderSignatoryMutationVariables
+    >({
+      query: variables => ({ document: UpdateEscrowOrderSignatoryDocument, variables })
     }),
     FilterUtxos: build.mutation<FilterUtxosMutation, FilterUtxosMutationVariables>({
       query: variables => ({ document: FilterUtxosDocument, variables })

@@ -1,5 +1,5 @@
 import { api } from './escrow-order.generated';
-import { DisputeStatus, EscrowOrderStatus } from '../../../generated/types.generated';
+import { DisputeStatus, EscrowOrderStatus, EscrowOrderAction } from '../../../generated/types.generated';
 import _ from 'lodash';
 
 const enhancedApi = api.enhanceEndpoints({
@@ -75,6 +75,38 @@ const enhancedApi = api.enhanceEndpoints({
     },
     UserRequestTelegramChat: {},
     ArbiRequestTelegramChat: {},
+    UpdateEscrowOrderSignatory: {
+      onQueryStarted: async ({ input }, { dispatch, queryFulfilled }) => {
+        const { orderId, action, signatory, buyerDonateAmount, sellerDonateAmount, signatoryOwnerHash160 } = input;
+        try {
+          const { data } = await queryFulfilled;
+          if (data) {
+            dispatch(
+              api.util.updateQueryData('EscrowOrder', { id: orderId }, draft => {
+                if (draft) {
+                  switch (action) {
+                    case EscrowOrderAction.Release:
+                      draft.escrowOrder.releaseSignatory = signatory;
+                      draft.escrowOrder.sellerDonateAmount = sellerDonateAmount;
+                      break;
+                    case EscrowOrderAction.Return:
+                      draft.escrowOrder.returnSignatory = signatory;
+                      draft.escrowOrder.buyerDonateAmount = buyerDonateAmount;
+                      break;
+                    default:
+                      break;
+                  }
+
+                  draft.escrowOrder.signatoryOwnerHash160 = signatoryOwnerHash160;
+                }
+              })
+            );
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    },
     UpdateEscrowOrderStatus: {
       onQueryStarted: async ({ input }, { dispatch, queryFulfilled }) => {
         const { orderId, status, txid, value, outIdx } = input;
@@ -309,6 +341,7 @@ export const {
   useUserRequestTelegramChatQuery,
   useArbiRequestTelegramChatQuery,
   useLazyArbiRequestTelegramChatQuery,
+  useUpdateEscrowOrderSignatoryMutation,
   useFilterUtxosMutation,
   usePrefetch
 } = enhancedApi;

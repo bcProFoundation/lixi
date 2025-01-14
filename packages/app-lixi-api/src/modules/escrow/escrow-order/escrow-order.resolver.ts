@@ -20,7 +20,9 @@ import {
   COIN,
   EscrowOrderConnection,
   PaginationArgs,
-  EscrowOrderOrder
+  EscrowOrderOrder,
+  UpdateEscrowOrderSignatoryInput,
+  EscrowOrderAction
 } from '@bcpros/lixi-models';
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
@@ -149,6 +151,9 @@ export class EscrowOrderResolver {
       return {
         ...result,
         escrowScript: result.escrowScript.toString('hex'),
+        releaseSignatory: result.releaseSignatory ? result.releaseSignatory.toString('hex') : null,
+        returnSignatory: result.returnSignatory ? result.returnSignatory.toString('hex') : null,
+        signatoryOwnerHash160: result.signatoryOwnerHash160 ? result.signatoryOwnerHash160.toString('hex') : null,
         nonce: result.nonce
       };
     } catch (e: any) {
@@ -448,7 +453,10 @@ export class EscrowOrderResolver {
 
           return result.map(item => ({
             ...item,
-            escrowScript: item.escrowScript.toString('hex')
+            escrowScript: item.escrowScript.toString('hex'),
+            releaseSignatory: item.releaseSignatory ? item.releaseSignatory.toString('hex') : null,
+            returnSignatory: item.returnSignatory ? item.returnSignatory.toString('hex') : null,
+            signatoryOwnerHash160: item.signatoryOwnerHash160 ? item.signatoryOwnerHash160.toString('hex') : null
           }));
         },
         () =>
@@ -501,7 +509,10 @@ export class EscrowOrderResolver {
 
         return result.map(item => ({
           ...item,
-          escrowScript: item.escrowScript.toString('hex')
+          escrowScript: item.escrowScript.toString('hex'),
+          releaseSignatory: item.releaseSignatory ? item.releaseSignatory.toString('hex') : null,
+          returnSignatory: item.returnSignatory ? item.returnSignatory.toString('hex') : null,
+          signatoryOwnerHash160: item.signatoryOwnerHash160 ? item.signatoryOwnerHash160.toString('hex') : null
         }));
       },
       () =>
@@ -626,9 +637,9 @@ export class EscrowOrderResolver {
         throw new Error('Moderator not found');
       }
 
-      if (!moderatorAccount.telegramId) {
-        throw new Error(`Moderator doesn't connect to Telegram account`);
-      }
+      // if (!moderatorAccount.telegramId) {
+      //   throw new Error(`Moderator doesn't connect to Telegram account`);
+      // }
 
       if (moderatorAccount.id === account.id) {
         throw new Error(`Moderator can not create an escrow order`);
@@ -644,8 +655,16 @@ export class EscrowOrderResolver {
         throw new Error('Arbitrator not found');
       }
 
-      if (!arbitratorAccount.telegramId) {
-        throw new Error(`Arbitrator doesn't connect to Telegram account`);
+      // if (!arbitratorAccount.telegramId) {
+      //   throw new Error(`Arbitrator doesn't connect to Telegram account`);
+      // }
+
+      if (sellerAccount.id === arbitratorAccount.id || sellerAccount.id === moderatorAccount.id) {
+        throw new Error('Seller cannot be the same as arbitrator or moderator');
+      }
+
+      if (buyerAccount.id === arbitratorAccount.id || buyerAccount.id === moderatorAccount.id) {
+        throw new Error('Buyer cannot be the same as arbitrator or moderator');
       }
 
       const escrowOrder = await this.prisma.escrowOrder.create({
@@ -809,8 +828,164 @@ export class EscrowOrderResolver {
 
   @Mutation(() => EscrowOrder)
   @UseGuards(GqlJwtAuthGuard)
+  async updateEscrowOrderSignatory(
+    @AccountEntity() account: Account,
+    @Args('data') data: UpdateEscrowOrderSignatoryInput
+  ) {
+    const { orderId, action, signatory, socketId, sellerDonateAmount, buyerDonateAmount, signatoryOwnerHash160 } = data;
+    try {
+      const result = await this.prisma.escrowOrder.findUnique({
+        where: {
+          id: orderId
+        },
+        include: {
+          sellerAccount: true,
+          buyerAccount: true
+        }
+      });
+
+      if (!result) {
+        throw new Error('Escrow order not found');
+      }
+
+      if (account.id !== result.sellerAccountId && account.id !== result.buyerAccountId) {
+        throw new Error('You are not allowed to update order');
+      }
+
+      switch (action) {
+        case EscrowOrderAction.RELEASE:
+          if (result.status !== EscrowOrderStatus.ESCROW) {
+            throw new Error('Escrow order is not in escrow status');
+          }
+
+          if (result.releaseSignatory) {
+            throw new Error('Release signatory already set');
+          }
+
+          await this.prisma.escrowOrder.update({
+            where: {
+              id: orderId
+            },
+            data: {
+              releaseSignatory: Buffer.from(signatory, 'hex'),
+              updatedAt: new Date(),
+              sellerDonateAmount: sellerDonateAmount ?? null,
+              signatoryOwnerHash160: Buffer.from(signatoryOwnerHash160, 'hex')
+            }
+          });
+
+          this.notificationGateway.publishEscrowOrderStatus(orderId, {
+            escrowOrderId: orderId,
+            escrowOrder: {
+              releaseSignatory: signatory,
+              sellerDonateAmount,
+              signatoryOwnerHash160
+            },
+            socketId: socketId ?? '',
+            escrowOrderAction: EscrowOrderAction.RELEASE
+          });
+
+          //send to buyer
+          await this.bot.telegram
+            .sendMessage(result.buyerAccount.telegramId!, format(BOT.MESSAGE.ORDER_RELEASED), {
+              parse_mode: 'Markdown',
+              protect_content: true,
+              reply_parameters: {
+                message_id: result.sellerTelegramMessageId!,
+                allow_sending_without_reply: true
+              },
+              reply_markup: {
+                inline_keyboard: [
+                  [
+                    {
+                      text: 'Open App',
+                      web_app: {
+                        url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`
+                      }
+                    }
+                  ]
+                ]
+              }
+            })
+            .catch(e => {
+              this.logger.error(e);
+            });
+
+          break;
+        case EscrowOrderAction.RETURN:
+          if (result.status !== EscrowOrderStatus.ESCROW) {
+            throw new Error('Escrow order is not in escrow status');
+          }
+
+          if (result.returnSignatory) {
+            throw new Error('Return signatory already set');
+          }
+
+          await this.prisma.escrowOrder.update({
+            where: {
+              id: orderId
+            },
+            data: {
+              returnSignatory: Buffer.from(signatory, 'hex'),
+              updatedAt: new Date(),
+              buyerDonateAmount: buyerDonateAmount ?? null,
+              signatoryOwnerHash160: Buffer.from(signatoryOwnerHash160, 'hex')
+            }
+          });
+
+          this.notificationGateway.publishEscrowOrderStatus(orderId, {
+            escrowOrderId: orderId,
+            escrowOrder: {
+              returnSignatory: signatory,
+              buyerDonateAmount,
+              signatoryOwnerHash160
+            },
+            socketId: socketId ?? '',
+            escrowOrderAction: EscrowOrderAction.RETURN
+          });
+
+          //send to seller
+          await this.bot.telegram
+            .sendMessage(result.sellerAccount.telegramId!, format(BOT.MESSAGE.ORDER_RETURNED), {
+              parse_mode: 'Markdown',
+              protect_content: true,
+              reply_parameters: {
+                message_id: result.sellerTelegramMessageId!,
+                allow_sending_without_reply: true
+              },
+              reply_markup: {
+                inline_keyboard: [
+                  [
+                    {
+                      text: 'Open App',
+                      web_app: {
+                        url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`
+                      }
+                    }
+                  ]
+                ]
+              }
+            })
+            .catch(e => {
+              this.logger.error(e);
+            });
+
+          break;
+        default:
+          throw new Error('Invalid action');
+      }
+
+      return result;
+    } catch (e: any) {
+      throw new Error(e);
+    }
+  }
+
+  @Mutation(() => EscrowOrder)
+  @UseGuards(GqlJwtAuthGuard)
   async updateEscrowOrderStatus(@AccountEntity() account: Account, @Args('data') data: UpdateEscrowOrderInput) {
-    const { orderId, status, txid, value, outIdx, utxoInNodeOfBuyer, socketId } = data;
+    const { orderId, status, txid, value, outIdx, utxoInNodeOfBuyer, socketId, sellerDonateAmount, buyerDonateAmount } =
+      data;
     try {
       const result = await this.prisma.escrowOrder.findUnique({
         where: {
@@ -871,7 +1046,9 @@ export class EscrowOrderResolver {
       const isArbiMod = account.id === result?.arbitratorAccountId || account.id === result?.moderatorAccountId;
       const dataToUpdate = {
         status,
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        sellerDonateAmount: result.sellerDonateAmount ? result.sellerDonateAmount : sellerDonateAmount,
+        buyerDonateAmount: result.buyerDonateAmount ? result.buyerDonateAmount : buyerDonateAmount
       };
 
       switch (status) {
@@ -1035,6 +1212,18 @@ export class EscrowOrderResolver {
                 reply_parameters: {
                   message_id: result.sellerTelegramMessageId!,
                   allow_sending_without_reply: true
+                },
+                reply_markup: {
+                  inline_keyboard: [
+                    [
+                      {
+                        text: 'Open App',
+                        web_app: {
+                          url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${result.id}`
+                        }
+                      }
+                    ]
+                  ]
                 }
               })
               .catch(e => {
@@ -1104,38 +1293,38 @@ export class EscrowOrderResolver {
         data: dataToUpdate
       });
 
-      if (result.dispute) {
-        await this.prisma.$transaction(async prisma => {
-          const dispute = await prisma.dispute.update({
-            where: {
-              id: result.dispute!.id
-            },
-            data: {
-              status: DisputeStatus.RESOLVED,
-              updatedAt: new Date()
-            }
-          });
+      // if (result.dispute) {
+      //   await this.prisma.$transaction(async prisma => {
+      //     const dispute = await prisma.dispute.update({
+      //       where: {
+      //         id: result.dispute!.id
+      //       },
+      //       data: {
+      //         status: DisputeStatus.RESOLVED,
+      //         updatedAt: new Date()
+      //       }
+      //     });
 
-          //arbi
-          await this.disputeCacheService.updateMyDisputeTimelineCache(
-            result?.arbitratorAccountId,
-            dispute.id,
-            dispute.updatedAt,
-            DisputeStatus.ACTIVE,
-            DisputeStatus.RESOLVED
-          );
+      //     //arbi
+      //     await this.disputeCacheService.updateMyDisputeTimelineCache(
+      //       result?.arbitratorAccountId,
+      //       dispute.id,
+      //       dispute.updatedAt,
+      //       DisputeStatus.ACTIVE,
+      //       DisputeStatus.RESOLVED
+      //     );
 
-          //mod
-          //arbi
-          await this.disputeCacheService.updateMyDisputeTimelineCache(
-            result?.moderatorAccountId,
-            dispute.id,
-            dispute.updatedAt,
-            DisputeStatus.ACTIVE,
-            DisputeStatus.RESOLVED
-          );
-        });
-      }
+      //     //mod
+      //     //arbi
+      //     await this.disputeCacheService.updateMyDisputeTimelineCache(
+      //       result?.moderatorAccountId,
+      //       dispute.id,
+      //       dispute.updatedAt,
+      //       DisputeStatus.ACTIVE,
+      //       DisputeStatus.RESOLVED
+      //     );
+      //   });
+      // }
 
       return escrowOrder;
     } catch (e: any) {

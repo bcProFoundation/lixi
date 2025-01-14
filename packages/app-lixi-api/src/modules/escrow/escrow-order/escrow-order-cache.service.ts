@@ -36,7 +36,10 @@ export class EscrowOrderCacheService {
       const escrowOrder: EscrowOrder = new EscrowOrder({
         ...dbValue,
         status: dbValue?.status as EscrowOrderStatus,
-        escrowScript: dbValue.escrowScript.toString('hex')
+        escrowScript: dbValue.escrowScript.toString('hex'),
+        releaseSignatory: dbValue.releaseSignatory?.toString('hex'),
+        returnSignatory: dbValue.returnSignatory?.toString('hex'),
+        signatoryOwnerHash160: dbValue.signatoryOwnerHash160?.toString('hex')
       });
 
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(escrowOrder)));
@@ -79,7 +82,10 @@ export class EscrowOrderCacheService {
         const item = new EscrowOrder({
           ...dbValue,
           status: dbValue?.status as EscrowOrderStatus,
-          escrowScript: dbValue.escrowScript.toString('hex')
+          escrowScript: dbValue.escrowScript.toString('hex'),
+          releaseSignatory: dbValue.releaseSignatory?.toString('hex'),
+          returnSignatory: dbValue.returnSignatory?.toString('hex'),
+          signatoryOwnerHash160: dbValue.signatoryOwnerHash160?.toString('hex')
         });
         itemsMap.set(dbValue.id, item);
         return [dbValue.id, Buffer.from(encode(item))];

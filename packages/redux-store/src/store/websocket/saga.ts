@@ -3,7 +3,12 @@ import { AccountDto } from '@bcpros/lixi-models/lib/account/account.dto';
 import { NotificationDto as Notification } from '@bcpros/lixi-models/lib/common/notification';
 import { SessionAction, SessionActionEnum } from '@bcpros/lixi-models/lib/sessionAction';
 import { callConfig } from '../../context/shareContext';
-import { DisputeStatus, EscrowOrderStatus, PageMessageSession } from '../../generated/types.generated';
+import {
+  DisputeStatus,
+  EscrowOrderStatus,
+  PageMessageSession,
+  EscrowOrderAction
+} from '../../generated/types.generated';
 import { getAccountById, getSelectedAccount } from '@store/account/selectors';
 import { setPageMessageSession } from '@store/page/action';
 import { setNewPostAvailable } from '@store/post/actions';
@@ -295,11 +300,17 @@ function* receiveEscrowOrder(payload: any) {
     escrowOrderId,
     escrowOrder,
     dispute,
-    socketId
+    socketId,
+    escrowOrderAction
   }: {
     escrowOrderId: string;
     escrowOrder?: {
       status: EscrowOrderStatus;
+      releaseSignatory?: string;
+      returnSignatory?: string;
+      signatoryOwnerHash160?: string;
+      sellerDonateAmount?: number;
+      buyerDonateAmount?: number;
       outIdx?: number;
       txid: string;
       value?: number;
@@ -312,6 +323,7 @@ function* receiveEscrowOrder(payload: any) {
       status: DisputeStatus;
     };
     socketId: string;
+    escrowOrderAction?: EscrowOrderAction;
   } = payload;
 
   if (socket && socket.id === socketId) {
@@ -332,6 +344,35 @@ function* receiveEscrowOrder(payload: any) {
     }
 
     if (escrowOrder) {
+      if (escrowOrderAction) {
+        switch (escrowOrderAction) {
+          case EscrowOrderAction.Release:
+            yield putAction(
+              escrowOrderApi.util.updateQueryData('EscrowOrder', { id: escrowOrderId }, draft => {
+                if (draft) {
+                  draft.escrowOrder.releaseSignatory = escrowOrder.releaseSignatory;
+                  draft.escrowOrder.sellerDonateAmount = escrowOrder.sellerDonateAmount;
+                  draft.escrowOrder.signatoryOwnerHash160 = escrowOrder.signatoryOwnerHash160;
+                }
+              })
+            );
+            break;
+          case EscrowOrderAction.Return:
+            yield putAction(
+              escrowOrderApi.util.updateQueryData('EscrowOrder', { id: escrowOrderId }, draft => {
+                if (draft) {
+                  draft.escrowOrder.returnSignatory = escrowOrder.returnSignatory;
+                  draft.escrowOrder.buyerDonateAmount = escrowOrder.buyerDonateAmount;
+                  draft.escrowOrder.signatoryOwnerHash160 = escrowOrder.signatoryOwnerHash160;
+                }
+              })
+            );
+            break;
+        }
+
+        return;
+      }
+
       yield putAction(
         escrowOrderApi.util.updateQueryData('EscrowOrder', { id: escrowOrderId }, draft => {
           if (draft) {

@@ -71,6 +71,7 @@ export * from './lib/escrow/inputs/createDispute.input';
 export * from './lib/escrow/inputs/updateDispute.input';
 export * from './lib/escrow/inputs/createEscrowOrder.input';
 export * from './lib/escrow/inputs/updateEscrowOrder.input';
+export * from './lib/escrow/inputs/updateEscrowOrderSignatory.input';
 export * from './lib/escrow/inputs/acceptEscrowOrder.input';
 export * from './lib/escrow/inputs/cancelEscrowOrder.input';
 export * from './lib/escrow/inputs/createOffer.input';

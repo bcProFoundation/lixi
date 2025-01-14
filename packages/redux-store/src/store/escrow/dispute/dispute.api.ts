@@ -67,7 +67,37 @@ const enhancedApi = api.enhanceEndpoints({
         }
       }
     },
-    UpdateDispute: {},
+    UpdateDispute: {
+      async onQueryStarted({ input }, { dispatch, queryFulfilled }) {
+        const { id, status, escrowOrderId } = input;
+        try {
+          const { data } = await queryFulfilled;
+          if (data) {
+            dispatch(
+              api.util.updateQueryData('Dispute', { id }, draft => {
+                if (draft) {
+                  draft.dispute.disputeStatus = status;
+                  draft.dispute.updatedAt = data.updateDispute.updatedAt;
+                }
+              })
+            );
+
+            dispatch(
+              escrowApi.util.updateQueryData('EscrowOrder', { id: escrowOrderId }, draft => {
+                if (draft) {
+                  draft.escrowOrder.dispute = {
+                    ...data.updateDispute,
+                    status: data.updateDispute.disputeStatus
+                  };
+                }
+              })
+            );
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    },
     Dispute: {}
   }
 });

@@ -72,6 +72,18 @@ export class EscrowOrder {
   @Field(() => String)
   escrowScript: string;
 
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  releaseSignatory?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  returnSignatory?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  signatoryOwnerHash160?: Nullable<string>;
+
   @Field(() => String)
   nonce: string;
 
@@ -93,6 +105,14 @@ export class EscrowOrder {
   @Field(() => Dispute, { nullable: true })
   @IsOptional()
   dispute?: Nullable<Dispute>;
+
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  sellerDonateAmount?: Nullable<number>;
+
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  buyerDonateAmount?: Nullable<number>;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.'

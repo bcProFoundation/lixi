@@ -9,8 +9,6 @@ fragment EscrowOrderFields on EscrowOrder {
     id
     publicKey
     hash160
-    telegramId
-    telegramUsername
   }
   buyerAccount {
     id
@@ -30,8 +28,6 @@ fragment EscrowOrderFields on EscrowOrder {
     id
     publicKey
     hash160
-    telegramId
-    telegramUsername
   }
   paymentMethod {
     id
@@ -60,6 +56,11 @@ fragment EscrowOrderFields on EscrowOrder {
   }
   releaseTxid
   returnTxid
+  releaseSignatory
+  returnSignatory
+  signatoryOwnerHash160
+  sellerDonateAmount
+  buyerDonateAmount
   buyerDepositTx
   price
   amount

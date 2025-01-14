@@ -2,6 +2,7 @@ import {
   AnalyticEvent,
   DisputeStatus,
   EscrowOrderStatus,
+  EscrowOrderAction,
   NotificationDto as Notification,
   SessionAction,
   SocketUser
@@ -304,19 +305,25 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
     data: {
       escrowOrderId: string;
       escrowOrder?: {
-        status: EscrowOrderStatus;
+        status?: EscrowOrderStatus;
         outIdx?: number;
         txid?: string;
         value?: number;
         updatedAt?: Date;
+        releaseSignatory?: string;
+        returnSignatory?: string;
+        signatoryOwnerHash160?: string;
+        sellerDonateAmount?: number;
+        buyerDonateAmount?: number;
       };
       dispute?: {
         id: string;
         createdBy: string;
-        reason: string;
+        reason?: string | null;
         status: DisputeStatus;
       };
       socketId: string;
+      escrowOrderAction?: EscrowOrderAction;
     }
   ) {
     this.server.to(escrowOrderId).except(data.socketId).emit('publishEscrowOrderStatus', data);

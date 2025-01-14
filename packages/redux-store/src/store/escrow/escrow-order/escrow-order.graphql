@@ -91,6 +91,17 @@ mutation UpdateEscrowOrderStatus($input: UpdateEscrowOrderInput!) {
   }
 }
 
+mutation UpdateEscrowOrderSignatory($input: UpdateEscrowOrderSignatoryInput!) {
+  updateEscrowOrderSignatory(data: $input) {
+    id
+    releaseSignatory
+    returnSignatory
+    signatoryOwnerHash160
+    createdAt
+    updatedAt
+  }
+}
+
 mutation FilterUtxos($input: [UtxoInNodeInput!]!) {
   filterUtxos(data: $input) {
     txid

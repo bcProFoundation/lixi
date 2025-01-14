@@ -86,8 +86,8 @@ export const parseCashAddressToPrefix = (coin = COIN.XEC, cashAddress: string) =
   }
 };
 
-export const convertHashToEcashAddress = (hash160: string) => {
-  const cashAddress = cashaddr.encode('ecash', 'P2PKH', Buffer.from(hash160, 'hex'));
+export const convertHashToEcashAddress = (hash160: Uint8Array) => {
+  const cashAddress = cashaddr.encode('ecash', 'P2PKH', hash160);
   return cashAddress;
 };
 
