@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.46
+
+### Patch Changes
+
+- Update escrow contact and half-life value
+
 ## 1.2.45
 
 ### Patch Changes

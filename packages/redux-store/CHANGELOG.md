@@ -1,5 +1,13 @@
 # @bcpros/redux-store
 
+## 1.2.46
+
+### Patch Changes
+
+- Update escrow contact and half-life value
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.46
+
 ## 1.2.45
 
 ### Patch Changes

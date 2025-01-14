@@ -1,5 +1,11 @@
 # @bcpros/lixi-prisma
 
+## 1.2.18
+
+### Patch Changes
+
+- Update escrow contact and half-life value
+
 ## 1.2.17
 
 ### Patch Changes
