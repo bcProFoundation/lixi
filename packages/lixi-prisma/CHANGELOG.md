@@ -1,5 +1,11 @@
 # @bcpros/lixi-prisma
 
+## 1.2.19
+
+### Patch Changes
+
+- Bump version
+
 ## 1.2.18
 
 ### Patch Changes
