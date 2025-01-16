@@ -41,9 +41,8 @@ export const useWallet = () => {
   // and consider to move to redux the neccessary variable
 
   const [chronikWebsocket, setChronikWebsocket] = useState(null);
-
   const [apiError, setApiError] = useState(false);
-  const [chronik, setChronik] = useState<ChronikClient>(new ChronikClient('https://chronik.be.cash/xpi'));
+  const [chronik, setChronik] = useState<ChronikClient>(new ChronikClient(process.env.NEXT_PUBLIC_CHRONIK_XPI_URL.split(',')));
 
   const { getXPI } = useXPI();
   const [XPI, setXPI] = useState<BCHJS>(getXPI());
@@ -61,26 +60,31 @@ export const useWallet = () => {
 
   useEffect(() => {
     if (!selectedAccount) return;
+    updateChronikClient(selectedAccount.coin ?? selectedAccount.rootCoin);
+  }, [selectedAccount]);
 
-    let accountCoin: string;
-
-    switch (selectedAccount.coin ?? selectedAccount.rootCoin) {
+  const updateChronikClient = (coin: COIN, updateChronik: boolean = true) => {
+    let chronikByCoin: ChronikClient;
+    switch (coin) {
       case COIN.XPI:
-        accountCoin = 'xpi';
+        chronikByCoin = new ChronikClient(process.env.NEXT_PUBLIC_CHRONIK_XPI_URL.split(','));
         break;
       case COIN.XEC:
-        accountCoin = 'xec';
+        chronikByCoin = new ChronikClient(process.env.NEXT_PUBLIC_CHRONIK_XEC_URL.split(','));
         break;
       case COIN.XRG:
-        accountCoin = 'xrg';
+        chronikByCoin = new ChronikClient(process.env.NEXT_PUBLIC_CHRONIK_XRG_URL);
         break;
       default:
-        accountCoin = 'xpi';
-        break;
+        chronikByCoin = new ChronikClient(process.env.NEXT_PUBLIC_CHRONIK_XPI_URL.split(','));
     }
 
-    setChronik(new ChronikClient(`https://chronik.be.cash/${accountCoin}`));
-  }, [selectedAccount]);
+    if (updateChronik) {
+      setChronik(chronikByCoin);
+    } else {
+      return chronikByCoin;
+    }
+  };
 
   const getWalletPathDetails = async (mnemonic: string, paths: string[]): Promise<WalletPathAddressInfo[]> => {
     const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
@@ -402,7 +406,7 @@ export const useWallet = () => {
   };
 
   const getUtxosByCoin = async (coin: COIN) => {
-    const chronikByCoin: ChronikClient = new ChronikClient(`https://chronik.be.cash/${coin.toLowerCase()}`);
+    let chronikByCoin: ChronikClient = updateChronikClient(coin, false);
 
     let currentCoinAddress = undefined;
     switch (coin) {
