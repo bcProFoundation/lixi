@@ -103,8 +103,8 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
             nodeUrls: [`${config.get<string>('CHRONIK_XEC_URL')}`, 'https://chronik.pay2stay.com/xec']
           },
           xpi: {
-            clientUrls: [`${config.get<string>('CHRONIK_XPI_URL')}`, 'https://chronik.be.cash/xpi'], // replace with self host chronik when needed
-            nodeUrls: [`${config.get<string>('CHRONIK_XPI_URL')}`, 'https://chronik.be.cash/xpi']
+            clientUrls: `${config.get<string>('CHRONIK_XPI_URL')}`.split(','),
+            nodeUrls: `${config.get<string>('CHRONIK_XPI_URL')}`.split(',')
           },
           xrg: {
             clientUrls: [`${config.get<string>('CHRONIK_XRG_URL')}`, 'https://chronik.be.cash/xrg'],
