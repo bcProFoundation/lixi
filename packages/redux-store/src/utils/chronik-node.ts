@@ -24,7 +24,9 @@ export interface ParsedChronikTx_InNode {
   isEncryptedMessage: boolean;
   decryptionSuccess: boolean;
   replyAddress: string;
+  replyAddressHash: string;
   destinationAddress: string;
+  destinationAddressHash: string;
   // Burn
   isBurn: boolean;
   burnInfo?: ParseBurnResult;
@@ -300,7 +302,9 @@ export const parseChronikTx_InNode = async (
   let isEncryptedMessage = false;
   let decryptionSuccess = false;
   let replyAddress = ''; // or senderAddress
+  let replyAddressHash = ''; // or senderAddressHash
   let destinationAddress = '';
+  let destinationAddressHash = '';
 
   // Iterate over inputs to see if this is an incoming tx (incoming === true)
   for (let i = 0; i < inputs.length; i += 1) {
@@ -310,6 +314,7 @@ export const parseChronikTx_InNode = async (
     try {
       const legacyReplyAddress = XPI.Address.fromOutputScript(Buffer.from(thisInput.outputScript, 'hex'));
       replyAddress = XPI.Address.toXAddress(legacyReplyAddress);
+      replyAddressHash = XPI.Address.toHash160(legacyReplyAddress);
     } catch (err) {
       console.log(`err from ${originatingHash160}`, err);
       // If the transaction is nonstandard, don't worry about a reply address for now
@@ -364,6 +369,7 @@ export const parseChronikTx_InNode = async (
           // Assumpt the destination address is the first output
           const legacyDestinationAddress = XPI.Address.fromOutputScript(Buffer.from(thisOutput.outputScript, 'hex'));
           destinationAddress = XPI.Address.toXAddress(legacyDestinationAddress);
+          destinationAddressHash = XPI.Address.toHash160(legacyDestinationAddress);
         }
       } catch (err) {}
     }
@@ -417,7 +423,9 @@ export const parseChronikTx_InNode = async (
     replyAddress,
     destinationAddress,
     isBurn,
-    xecBurnAmount: xecBurnAmountString
+    xecBurnAmount: xecBurnAmountString,
+    replyAddressHash,
+    destinationAddressHash
   };
   return parsedTx;
 };
