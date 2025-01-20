@@ -43,7 +43,8 @@
     "update:addOfferToCache": "ts-node scripts/offer/index.ts",
     "update:resetEscrow": "ts-node scripts/offer/reset-escrow/index.ts",
     "update:indexLocation": "ts-node scripts/meilisearch/location/index.ts",
-    "update:resetSpecificAccount": "ts-node scripts/account/reset-specific-account/index.ts"
+    "update:resetSpecificAccount": "ts-node scripts/account/reset-specific-account/index.ts",
+    "update:resetEpoch": "ts-node scripts/epoch/index.ts"
   },
   "dependencies": {
     "@abcpros/bitcore-lib-xpi": ">=8.25.37",

@@ -82,5 +82,6 @@ export const TRANSACTION = {
   MIN_OUTPUT_AMOUNT: 1000
 };
 
-export const epoch = '2024-01-01 00:00:00';
+export const oldEpoch = '2024-01-01 00:00:00';
+export const newEpoch = '2025-01-01 00:00:00';
 export const offer_half_life = 24 * 7; // 1 week

@@ -13,7 +13,7 @@ import ReBloom from '../../common/redis/redis-bloom';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { CONTENT_FANOUT_QUEUE } from './constants';
 import { PostCacheService } from './post-cache.service';
-import { epoch, offer_half_life } from 'src/utils/constants';
+import { newEpoch, offer_half_life } from 'src/utils/constants';
 import ReSearch from 'src/common/redis/redis-search';
 import { IndexNameOffer } from '../escrow/escrow.contants';
 
@@ -61,7 +61,7 @@ export class PostFanoutProcessor extends WorkerHost {
       const id = `${post.id}`;
 
       // Invalidate the cache
-      const diffHour = moment.duration(moment(post.createdAt).diff(moment(epoch))).asHours();
+      const diffHour = moment.duration(moment(post.createdAt).diff(moment(newEpoch))).asHours();
       const score = 1 * Math.pow(2, diffHour / 12);
 
       const accountId = post.accountId;

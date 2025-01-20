@@ -11,7 +11,7 @@ import { FollowCacheService } from '../../account/follow-cache.service';
 import { PostCacheService } from '../../page/post-cache.service';
 import { template } from 'src/utils/stringTemplate';
 import { BurnForType, POST_FLAG } from '@bcpros/lixi-models';
-import { epoch } from 'src/utils/constants';
+import { newEpoch } from 'src/utils/constants';
 
 @Injectable()
 @Processor(BURN_FANOUT_QUEUE, { concurrency: 50 })
@@ -72,7 +72,7 @@ export class BurnFanoutProcessor extends WorkerHost {
 
       const pipeline = this.redis.pipeline();
 
-      const diffHour = moment.duration(moment(burn.createdAt).diff(moment(epoch))).asHours();
+      const diffHour = moment.duration(moment(burn.createdAt).diff(moment(newEpoch))).asHours();
       const score = burn.burnType ? amountDana * Math.pow(2, diffHour / 12) : -amountDana * Math.pow(2, diffHour / 12);
 
       switch (burnForType) {

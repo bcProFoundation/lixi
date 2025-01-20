@@ -6,7 +6,7 @@ import { Redis } from 'ioredis';
 import * as _ from 'lodash';
 import moment from 'moment';
 import { I18n, I18nService } from 'nestjs-i18n';
-import { epoch, offer_half_life } from 'src/utils/constants';
+import { newEpoch, offer_half_life } from 'src/utils/constants';
 import { BOOST_FANOUT_QUEUE } from './boost.constants';
 import { BoostFee, Post } from '@bcpros/lixi-models';
 import { template } from 'src/utils/stringTemplate';
@@ -36,7 +36,7 @@ export class BoostFanoutProcessor extends WorkerHost {
       const id = `${post.id}`;
 
       // Invalidate the cache
-      const diffHour = moment.duration(moment(boost.createdAt).diff(moment(epoch))).asHours();
+      const diffHour = moment.duration(moment(boost.createdAt).diff(moment(newEpoch))).asHours();
       const score = boost.boostType
         ? boost.boostedValue * Math.pow(2, diffHour / offer_half_life)
         : -boost.boostedValue * Math.pow(2, diffHour / offer_half_life);
