@@ -59,3 +59,19 @@ export const BOT = {
     ORDER_RETURNED: `❌ Order has been canceled! You can now claim your funds!`
   }
 };
+
+export const PERIOD_TIME = {
+  YEAR: '1 year',
+  MONTH: '1 month',
+  WEEK: '1 week',
+  DAY: '1 day'
+};
+
+export interface InfoStatistics {
+  amount_donated: number;
+  success_ratio: number;
+  avg_settle_time: number;
+  amount_traded: number;
+  total_trades: bigint;
+  unique_trade_count: bigint;
+}
