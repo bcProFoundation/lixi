@@ -233,7 +233,7 @@ export type AllOfferQuery = {
                 danaReceivedScore: number;
                 version: number;
               } | null;
-              boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+              boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
               translations?: Array<{
                 __typename?: 'PostTranslation';
                 id: string;
@@ -495,7 +495,7 @@ export type OfferByFilterQuery = {
                 danaReceivedScore: number;
                 version: number;
               } | null;
-              boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+              boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
               translations?: Array<{
                 __typename?: 'PostTranslation';
                 id: string;
@@ -757,7 +757,7 @@ export type AllOfferByAccountQuery = {
                 danaReceivedScore: number;
                 version: number;
               } | null;
-              boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+              boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
               translations?: Array<{
                 __typename?: 'PostTranslation';
                 id: string;
@@ -902,7 +902,7 @@ export type CreateOfferMutation = {
       danaReceivedScore: number;
       version: number;
     } | null;
-    boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+    boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -1021,6 +1021,46 @@ export type UpdateOfferMutation = {
   };
 };
 
+export type UpdateOfferHideFromHomeMutationVariables = Types.Exact<{
+  input: Types.UpdateOfferHideFromHomeInput;
+}>;
+
+export type UpdateOfferHideFromHomeMutation = {
+  __typename?: 'Mutation';
+  UpdateOfferHideFromHome: {
+    __typename?: 'Offer';
+    postId: string;
+    publicKey: string;
+    message: string;
+    noteOffer?: string | null;
+    price: string;
+    coinPayment?: string | null;
+    coinOthers?: string | null;
+    marginPercentage: number;
+    localCurrency?: string | null;
+    orderLimitMin: number;
+    orderLimitMax: number;
+    hideFromHome?: boolean | null;
+    status: Types.OfferStatus;
+    locationId?: string | null;
+    countryId?: number | null;
+    paymentMethods: Array<{
+      __typename?: 'OfferPaymentMethod';
+      paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
+    }>;
+    location?: {
+      __typename?: 'Location';
+      id: string;
+      iso2?: string | null;
+      country?: string | null;
+      adminNameAscii?: string | null;
+      adminCode?: string | null;
+      cityAscii?: string | null;
+    } | null;
+    country?: { __typename?: 'Country'; name?: string | null } | null;
+  };
+};
+
 export type UpdateOfferStatusMutationVariables = Types.Exact<{
   input: Types.UpdateOfferStatusInput;
 }>;
@@ -1083,7 +1123,7 @@ export type UpdateOfferStatusMutation = {
       danaReceivedScore: number;
       version: number;
     } | null;
-    boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+    boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -1234,6 +1274,13 @@ export const UpdateOfferDocument = `
   }
 }
     ${OfferFieldsFragmentDoc}`;
+export const UpdateOfferHideFromHomeDocument = `
+    mutation UpdateOfferHideFromHome($input: UpdateOfferHideFromHomeInput!) {
+  UpdateOfferHideFromHome(data: $input) {
+    ...OfferFields
+  }
+}
+    ${OfferFieldsFragmentDoc}`;
 export const UpdateOfferStatusDocument = `
     mutation UpdateOfferStatus($input: UpdateOfferStatusInput!) {
   updateOfferStatus(data: $input) {
@@ -1262,6 +1309,9 @@ const injectedRtkApi = api.injectEndpoints({
     }),
     UpdateOffer: build.mutation<UpdateOfferMutation, UpdateOfferMutationVariables>({
       query: variables => ({ document: UpdateOfferDocument, variables })
+    }),
+    UpdateOfferHideFromHome: build.mutation<UpdateOfferHideFromHomeMutation, UpdateOfferHideFromHomeMutationVariables>({
+      query: variables => ({ document: UpdateOfferHideFromHomeDocument, variables })
     }),
     UpdateOfferStatus: build.mutation<UpdateOfferStatusMutation, UpdateOfferStatusMutationVariables>({
       query: variables => ({ document: UpdateOfferStatusDocument, variables })

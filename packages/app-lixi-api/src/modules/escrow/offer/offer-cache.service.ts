@@ -294,8 +294,7 @@ export class OfferCacheService {
             where: {
               accountId,
               offer: {
-                status: offerStatus,
-                hideFromHome: false
+                status: offerStatus
               }
             },
             orderBy: {
@@ -314,8 +313,7 @@ export class OfferCacheService {
             where: {
               accountId,
               offer: {
-                status: offerStatus,
-                hideFromHome: false
+                status: offerStatus
               }
             },
             orderBy: {

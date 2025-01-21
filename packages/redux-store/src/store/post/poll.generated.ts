@@ -75,7 +75,7 @@ export type CreatePollMutation = {
       danaReceivedScore: number;
       version: number;
     } | null;
-    boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+    boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;

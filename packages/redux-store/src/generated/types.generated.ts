@@ -453,8 +453,8 @@ export type CreateOfferInput = {
   marginPercentage: Scalars['Float']['input'];
   message: Scalars['String']['input'];
   noteOffer?: InputMaybe<Scalars['String']['input']>;
-  orderLimitMax: Scalars['Int']['input'];
-  orderLimitMin: Scalars['Int']['input'];
+  orderLimitMax: Scalars['Float']['input'];
+  orderLimitMin: Scalars['Float']['input'];
   pageId?: InputMaybe<Scalars['String']['input']>;
   paymentMethodIds: Array<Scalars['Int']['input']>;
   price: Scalars['String']['input'];
@@ -1045,6 +1045,7 @@ export type MessageSessionEdge = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  UpdateOfferHideFromHome: Offer;
   closePageMessageSession: PageMessageSession;
   create: Event;
   createBookmark: Bookmark;
@@ -1086,6 +1087,10 @@ export type Mutation = {
   updateOfferStatus: Post;
   updatePage: Page;
   updatePost: Post;
+};
+
+export type MutationUpdateOfferHideFromHomeArgs = {
+  data: UpdateOfferHideFromHomeInput;
 };
 
 export type MutationClosePageMessageSessionArgs = {
@@ -1270,8 +1275,8 @@ export type Offer = {
   marginPercentage: Scalars['Float']['output'];
   message: Scalars['String']['output'];
   noteOffer?: Maybe<Scalars['String']['output']>;
-  orderLimitMax: Scalars['Int']['output'];
-  orderLimitMin: Scalars['Int']['output'];
+  orderLimitMax: Scalars['Float']['output'];
+  orderLimitMin: Scalars['Float']['output'];
   paymentMethods: Array<OfferPaymentMethod>;
   postId: Scalars['String']['output'];
   price: Scalars['String']['output'];
@@ -2623,6 +2628,11 @@ export type UpdateEscrowOrderSignatoryInput = {
   signatory: Scalars['String']['input'];
   signatoryOwnerHash160: Scalars['String']['input'];
   socketId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateOfferHideFromHomeInput = {
+  hideFromHome: Scalars['Boolean']['input'];
+  id: Scalars['String']['input'];
 };
 
 export type UpdateOfferInput = {

@@ -42,7 +42,9 @@ export const useWallet = () => {
 
   const [chronikWebsocket, setChronikWebsocket] = useState(null);
   const [apiError, setApiError] = useState(false);
-  const [chronik, setChronik] = useState<ChronikClient>(new ChronikClient(process.env.NEXT_PUBLIC_CHRONIK_XPI_URL.split(',')));
+  const [chronik, setChronik] = useState<ChronikClient>(
+    new ChronikClient(process.env.NEXT_PUBLIC_CHRONIK_XPI_URL.split(','))
+  );
 
   const { getXPI } = useXPI();
   const [XPI, setXPI] = useState<BCHJS>(getXPI());

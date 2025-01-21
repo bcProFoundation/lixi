@@ -15,7 +15,8 @@ import {
   TimelineItemConnection,
   UpdateOfferInput,
   UpdateOfferStatusInput,
-  Location
+  Location,
+  UpdateOfferHideFromHomeInput
 } from '@bcpros/lixi-models';
 import { Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
@@ -393,6 +394,31 @@ export class OfferResolver {
         orderLimitMin: data.orderLimitMin ?? 0,
         orderLimitMax: data.orderLimitMax ?? 0,
         marginPercentage: data.marginPercentage ?? 0
+      }
+    });
+
+    //remove cache and add again
+    await this.offerCacheService.removeByKeys([offerUpdated.postId]);
+
+    await this.offerCacheService.getById(offerUpdated.postId);
+
+    return offerUpdated;
+  }
+
+  @UseGuards(GqlJwtAuthGuard)
+  @Mutation(() => Offer)
+  async UpdateOfferHideFromHome(@AccountEntity() account: Account, @Args('data') data: UpdateOfferHideFromHomeInput) {
+    if (!account) {
+      const couldNotFindAccount = await this.i18n.t('page.messages.couldNotFindAccount');
+      throw new VError.WError(couldNotFindAccount);
+    }
+
+    const offerUpdated = await this.prisma.offer.update({
+      where: {
+        postId: data.id
+      },
+      data: {
+        hideFromHome: data.hideFromHome ?? false
       }
     });
 
