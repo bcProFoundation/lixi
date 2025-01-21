@@ -254,7 +254,7 @@ export type TimelineItemFieldsFragment = {
           danaReceivedScore: number;
           version: number;
         } | null;
-        boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+        boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -488,7 +488,7 @@ export type TimelineQuery = {
             danaReceivedScore: number;
             version: number;
           } | null;
-          boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+          boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
           translations?: Array<{
             __typename?: 'PostTranslation';
             id: string;
@@ -747,7 +747,7 @@ export type HomeTimelineQuery = {
                 danaReceivedScore: number;
                 version: number;
               } | null;
-              boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+              boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
               translations?: Array<{
                 __typename?: 'PostTranslation';
                 id: string;
@@ -1009,7 +1009,7 @@ export type ProfileTimelineQuery = {
                 danaReceivedScore: number;
                 version: number;
               } | null;
-              boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+              boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
               translations?: Array<{
                 __typename?: 'PostTranslation';
                 id: string;
@@ -1272,7 +1272,7 @@ export type ProfileTimelineByTimeQuery = {
                 danaReceivedScore: number;
                 version: number;
               } | null;
-              boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+              boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
               translations?: Array<{
                 __typename?: 'PostTranslation';
                 id: string;
@@ -1534,7 +1534,7 @@ export type PageTimelineQuery = {
                 danaReceivedScore: number;
                 version: number;
               } | null;
-              boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+              boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
               translations?: Array<{
                 __typename?: 'PostTranslation';
                 id: string;
@@ -1797,7 +1797,7 @@ export type PageTimelineByTimeQuery = {
                 danaReceivedScore: number;
                 version: number;
               } | null;
-              boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+              boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
               translations?: Array<{
                 __typename?: 'PostTranslation';
                 id: string;
@@ -2059,7 +2059,7 @@ export type TokenTimelineQuery = {
                 danaReceivedScore: number;
                 version: number;
               } | null;
-              boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+              boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
               translations?: Array<{
                 __typename?: 'PostTranslation';
                 id: string;
@@ -2322,7 +2322,7 @@ export type TokenTimelineByTimeQuery = {
                 danaReceivedScore: number;
                 version: number;
               } | null;
-              boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+              boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
               translations?: Array<{
                 __typename?: 'PostTranslation';
                 id: string;

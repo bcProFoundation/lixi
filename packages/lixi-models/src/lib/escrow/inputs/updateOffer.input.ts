@@ -21,3 +21,12 @@ export class UpdateOfferInput {
   @Field(() => Number, { nullable: true })
   orderLimitMax?: Nullable<number>;
 }
+
+@InputType()
+export class UpdateOfferHideFromHomeInput {
+  @Field(() => String)
+  id: string;
+
+  @Field(() => Boolean)
+  hideFromHome: boolean;
+}

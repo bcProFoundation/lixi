@@ -43,10 +43,10 @@ export class Offer {
   @Field(() => COIN)
   coin: COIN;
 
-  @Field(() => Number)
+  @Field(() => Float)
   orderLimitMin: number;
 
-  @Field(() => Number)
+  @Field(() => Float)
   orderLimitMax: number;
 
   @Field(() => Boolean, { nullable: true })

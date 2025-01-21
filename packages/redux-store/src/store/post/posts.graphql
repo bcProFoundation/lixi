@@ -372,6 +372,8 @@ fragment PostFields on Post {
   }
   boostScore {
     boostScore
+    boostUp
+    boostDown
   }
   totalComments
   commentableId

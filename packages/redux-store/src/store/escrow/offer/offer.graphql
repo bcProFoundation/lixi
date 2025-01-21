@@ -73,6 +73,12 @@ mutation UpdateOffer($input: UpdateOfferInput!) {
   }
 }
 
+mutation UpdateOfferHideFromHome($input: UpdateOfferHideFromHomeInput!) {
+  UpdateOfferHideFromHome(data: $input) {
+    ...OfferFields
+  }
+}
+
 mutation UpdateOfferStatus($input: UpdateOfferStatusInput!) {
   updateOfferStatus(data: $input) {
     ...PostFields

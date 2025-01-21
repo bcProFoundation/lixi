@@ -78,7 +78,7 @@ export type PostQuery = {
       danaReceivedScore: number;
       version: number;
     } | null;
-    boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+    boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -233,7 +233,7 @@ export type PostsByPageIdQuery = {
           danaReceivedScore: number;
           version: number;
         } | null;
-        boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+        boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -396,7 +396,7 @@ export type PostsByUserIdQuery = {
           danaReceivedScore: number;
           version: number;
         } | null;
-        boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+        boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -559,7 +559,7 @@ export type PostsByHashtagIdQuery = {
           danaReceivedScore: number;
           version: number;
         } | null;
-        boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+        boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -722,7 +722,7 @@ export type PostsByTokenIdQuery = {
           danaReceivedScore: number;
           version: number;
         } | null;
-        boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+        boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
         translations?: Array<{
           __typename?: 'PostTranslation';
           id: string;
@@ -1543,7 +1543,7 @@ export type PostFieldsFragment = {
     danaReceivedScore: number;
     version: number;
   } | null;
-  boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+  boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
   translations?: Array<{
     __typename?: 'PostTranslation';
     id: string;
@@ -1810,7 +1810,7 @@ export type CreatePostMutation = {
       danaReceivedScore: number;
       version: number;
     } | null;
-    boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+    boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -1951,7 +1951,7 @@ export type UpdatePostMutation = {
       danaReceivedScore: number;
       version: number;
     } | null;
-    boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+    boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -2098,7 +2098,7 @@ export type RemovePostMutation = {
       danaReceivedScore: number;
       version: number;
     } | null;
-    boostScore?: { __typename?: 'PostBoost'; boostScore: number } | null;
+    boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
     translations?: Array<{
       __typename?: 'PostTranslation';
       id: string;
@@ -2290,6 +2290,8 @@ export const PostFieldsFragmentDoc = `
   }
   boostScore {
     boostScore
+    boostUp
+    boostDown
   }
   totalComments
   commentableId

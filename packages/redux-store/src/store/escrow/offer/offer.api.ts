@@ -115,6 +115,33 @@ const enhancedApi = api.enhanceEndpoints({
         }
       }
     },
+    UpdateOfferHideFromHome: {
+      async onQueryStarted({ input }, { dispatch, getState, queryFulfilled }) {
+        try {
+          const { data: result } = await queryFulfilled;
+
+          const timelineInvalidatedBy = enhancedApi.util.selectInvalidatedBy(getState(), ['OfferTimeline']);
+          for (const invalidatedBy of timelineInvalidatedBy) {
+            const { endpointName, originalArgs } = invalidatedBy;
+            dispatch(
+              enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
+                const fields = Object.keys(draft);
+                for (const field of fields) {
+                  if (!draft[field]) continue;
+
+                  const timelineId = `${POST_TYPE.OFFER}:${result.UpdateOfferHideFromHome.postId}`;
+                  const timelineItemToUpdateIndex = draft[field].edges.findIndex(item => item.node.id === timelineId);
+                  if (timelineItemToUpdateIndex === -1) return;
+                  draft[field].edges[timelineItemToUpdateIndex].node.data.postOffer = result.UpdateOfferHideFromHome;
+                }
+              })
+            );
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    },
     UpdateOfferStatus: {
       async onQueryStarted({ input }, { dispatch, getState, queryFulfilled }) {
         try {
@@ -184,5 +211,6 @@ export const {
   useLazyOfferByFilterQuery,
   useCreateOfferMutation,
   useUpdateOfferMutation,
+  useUpdateOfferHideFromHomeMutation,
   useUpdateOfferStatusMutation
 } = enhancedApi;

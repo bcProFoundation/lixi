@@ -429,8 +429,8 @@ input CreateOfferInput {
   marginPercentage: Float!
   message: String!
   noteOffer: String
-  orderLimitMax: Int!
-  orderLimitMin: Int!
+  orderLimitMax: Float!
+  orderLimitMin: Float!
   pageId: String
   paymentMethodIds: [Int!]!
   price: String!
@@ -1018,6 +1018,7 @@ type MessageSessionEdge {
 }
 
 type Mutation {
+  UpdateOfferHideFromHome(data: UpdateOfferHideFromHomeInput!): Offer!
   closePageMessageSession(data: ClosePageMessageSessionInput!): PageMessageSession!
   create(data: CreateEventInput!): Event!
   createBookmark(data: CreateBookmarkInput!): Bookmark!
@@ -1078,8 +1079,8 @@ type Offer {
   marginPercentage: Float!
   message: String!
   noteOffer: String
-  orderLimitMax: Int!
-  orderLimitMin: Int!
+  orderLimitMax: Float!
+  orderLimitMin: Float!
   paymentMethods: [OfferPaymentMethod!]!
   postId: String!
   price: String!
@@ -1874,6 +1875,11 @@ input UpdateEscrowOrderSignatoryInput {
   signatory: String!
   signatoryOwnerHash160: String!
   socketId: String
+}
+
+input UpdateOfferHideFromHomeInput {
+  hideFromHome: Boolean!
+  id: String!
 }
 
 input UpdateOfferInput {
