@@ -206,13 +206,15 @@ export class BoostFeeResolver {
                 link
               );
 
-        await this.bot.telegram
-          .sendMessage(channelId, formatReplied, {
-            parse_mode: 'Markdown'
-          })
-          .catch(e => {
-            console.log(e);
-          });
+        if (boostType === BoostType.Up) {
+          await this.bot.telegram
+            .sendMessage(channelId, formatReplied, {
+              parse_mode: 'Markdown'
+            })
+            .catch(e => {
+              console.log(e);
+            });
+        }
       }
 
       const result = {
