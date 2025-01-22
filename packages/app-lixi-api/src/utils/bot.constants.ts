@@ -21,8 +21,13 @@ export const BOT = {
     BUYER_RAISED_DISPUTE:
       `⚖️ The buyer has raised a dispute with the arbitrator/moderator regarding your order! \r\n\r\n` +
       `Reason: "%s" \r\n\r\n`,
-    NOTIFY_ARBI_MOD_DISPUTE: `⚖️ A dispute has been raised for an order under your arbitration! \r\n\r\n`,
-    ARB_RECEIVE_DISPUTE: `⚖️ The %s has raised a dispute! \r\n\r\n` + `Reason: "%s" \r\n\r\n`,
+    NOTIFY_ARBI_MOD_DISPUTE:
+      `⚖️ A dispute has been raised for an order under your arbitration! \r\n\r\n` +
+      `Seller: %s \r\n` +
+      `Buyer: %s \r\n\r\n` +
+      `Contract amount: %s XEC \r\n` +
+      `Contract address: [%s](%s) \r\n\r\n` +
+      `Reason: "%s" \r\n\r\n`,
     SELLER_REQUEST_CHAT: `💬 The seller %s has requested to chat with you! \r\n\r\n`,
     BUYER_REQUEST_CHAT: `💬 The buyer %s has requested to chat with you! \r\n\r\n`,
     ARBI_REQUEST_CHAT: `💬 The arbitrator %s has requested to chat with you! \r\n\r\n`,

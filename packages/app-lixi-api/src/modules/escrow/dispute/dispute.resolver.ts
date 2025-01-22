@@ -1,6 +1,8 @@
 import {
   Account,
   BasicPaginationArgs,
+  COIN,
+  coinInfo,
   CreateDisputeInput,
   Dispute,
   DisputeStatus,
@@ -211,11 +213,22 @@ export class DisputeResolver {
       }
 
       if (arbitratorAccount.telegramId) {
-        const formatReplied = format(BOT.MESSAGE.NOTIFY_ARBI_MOD_DISPUTE);
+        const formatReplied = format(
+          BOT.MESSAGE.NOTIFY_ARBI_MOD_DISPUTE,
+          buyerAccount.telegramUsername,
+          sellerAccount.telegramUsername,
+          escrowOrder.amount,
+          escrowOrder.escrowAddress,
+          `${coinInfo[COIN.XEC].blockExplorerUrl}/address/${escrowOrder.escrowAddress}`,
+          dispute.reason
+        );
         await this.bot.telegram
           .sendMessage(arbitratorAccount.telegramId, formatReplied, {
             parse_mode: 'Markdown',
             protect_content: true,
+            link_preview_options: {
+              is_disabled: true
+            },
             reply_markup: {
               inline_keyboard: [
                 [
@@ -235,11 +248,22 @@ export class DisputeResolver {
       }
 
       if (moderatorAccount.telegramId) {
-        const formatReplied = format(BOT.MESSAGE.NOTIFY_ARBI_MOD_DISPUTE);
+        const formatReplied = format(
+          BOT.MESSAGE.NOTIFY_ARBI_MOD_DISPUTE,
+          buyerAccount.telegramUsername,
+          sellerAccount.telegramUsername,
+          escrowOrder.amount,
+          escrowOrder.escrowAddress,
+          `${coinInfo[COIN.XEC].blockExplorerUrl}/address/${escrowOrder.escrowAddress}`,
+          dispute.reason
+        );
         await this.bot.telegram
           .sendMessage(moderatorAccount.telegramId, formatReplied, {
             parse_mode: 'Markdown',
             protect_content: true,
+            link_preview_options: {
+              is_disabled: true
+            },
             reply_markup: {
               inline_keyboard: [
                 [

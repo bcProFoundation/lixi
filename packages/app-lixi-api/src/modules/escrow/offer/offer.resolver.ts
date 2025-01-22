@@ -345,7 +345,19 @@ export class OfferResolver {
       account.telegramId &&
         (await this.bot.telegram
           .sendMessage(account.telegramId, formatReplied, {
-            parse_mode: 'Markdown'
+            parse_mode: 'Markdown',
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  {
+                    text: 'Open App',
+                    web_app: {
+                      url: `${this.configService.get('LOCAL_ECASH_URL')}/offer-detail?id=${result.id}`
+                    }
+                  }
+                ]
+              ]
+            }
           })
           .then(async res => {
             try {
