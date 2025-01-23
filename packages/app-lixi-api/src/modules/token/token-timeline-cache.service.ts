@@ -5,7 +5,7 @@ import { Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { basicSortedSetPagination } from '../../common/custom-graphql-relay/paginate';
 import { PrismaService } from '../prisma/prisma.service';
-import { epoch } from 'src/utils/constants';
+import { newEpoch } from 'src/utils/constants';
 export class TokenTimelineCacheService {
   private logger: Logger = new Logger(this.constructor.name);
   static tokenTimelineKey = 'timeline:tokens';
@@ -25,7 +25,7 @@ export class TokenTimelineCacheService {
         Prisma.sql`
             SELECT
               token.id,
-              total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
+              total_relevance(relevance_score(burn.burn_type, burn.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
             FROM
               token 
               LEFT OUTER JOIN
@@ -49,7 +49,7 @@ export class TokenTimelineCacheService {
         Prisma.sql`
             SELECT
               token.id,
-              total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
+              total_relevance(relevance_score(burn.burn_type, burn.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
             FROM
               post 
               JOIN

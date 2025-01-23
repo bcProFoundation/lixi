@@ -11,7 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import SortedSet from 'redis-sorted-set';
 import { basicInMemorySortedSetPagination, basicSortedSetPagination } from '../../common/custom-graphql-relay/paginate';
 import { template } from '../../utils/stringTemplate';
-import { epoch } from 'src/utils/constants';
+import { newEpoch } from 'src/utils/constants';
 
 @Injectable()
 export class TimelineService {
@@ -75,7 +75,7 @@ export class TimelineService {
       const pipeline = this.redis.pipeline();
       for (const post of posts) {
         const id = `${post.type}:${post.id}`;
-        const diffHour = moment.duration(moment(post.createdAt).diff(moment(epoch))).asHours();
+        const diffHour = moment.duration(moment(post.createdAt).diff(moment(newEpoch))).asHours();
         const score = 1 * Math.pow(2, diffHour / 12);
         pipeline.zincrby(key, score, id);
       }
@@ -113,7 +113,7 @@ export class TimelineService {
             SELECT
               post.id,
               post.type,
-              total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
+              total_relevance(relevance_score(burn.burn_type, burn.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
             FROM
               post 
               JOIN
@@ -171,7 +171,7 @@ export class TimelineService {
             SELECT
               post.id,
               post.type,
-              total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
+              total_relevance(relevance_score(burn.burn_type, burn.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
             FROM
               post 
               JOIN
@@ -807,7 +807,7 @@ export class TimelineService {
       SELECT
         post.id,
         post.type,
-        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
+        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
       FROM
         post 
         JOIN
@@ -829,7 +829,7 @@ export class TimelineService {
       SELECT
         post.id,
         post.type,
-        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
+        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
       FROM
         post 
         JOIN
@@ -874,7 +874,7 @@ export class TimelineService {
       SELECT
         post.id,
         post.type,
-        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
+        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
       FROM
         post 
         JOIN
@@ -896,7 +896,7 @@ export class TimelineService {
       SELECT
         post.id,
         post.type,
-        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
+        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
       FROM
         post 
         JOIN
@@ -941,7 +941,7 @@ export class TimelineService {
       SELECT
         post.id,
         post.type,
-        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
+        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
       FROM
         post 
         JOIN
@@ -963,7 +963,7 @@ export class TimelineService {
       SELECT
         post.id,
         post.type,
-        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${epoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
+        total_relevance(relevance_score(burn.burn_type, burn.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
       FROM
         post 
         JOIN
