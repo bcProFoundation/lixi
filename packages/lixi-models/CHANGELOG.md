@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.51
+
+### Patch Changes
+
+- Fix authorization token
+
 ## 1.2.50
 
 ### Patch Changes

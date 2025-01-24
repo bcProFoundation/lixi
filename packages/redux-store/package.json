@@ -1,6 +1,6 @@
 {
   "name": "@bcpros/redux-store",
-  "version": "1.2.50",
+  "version": "1.2.51",
   "description": "Models library for lixi application",
   "main": "build/main/index.js",
   "types": "build/main/index.d.ts",

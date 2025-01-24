@@ -1,5 +1,13 @@
 # @bcpros/redux-store
 
+## 1.2.51
+
+### Patch Changes
+
+- Fix authorization token
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.51
+
 ## 1.2.50
 
 ### Patch Changes
