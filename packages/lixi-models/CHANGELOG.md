@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.50
+
+### Patch Changes
+
+- update getRandomnarbitratorAccount
+
 ## 1.2.49
 
 ### Patch Changes

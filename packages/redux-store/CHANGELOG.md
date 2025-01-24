@@ -1,5 +1,13 @@
 # @bcpros/redux-store
 
+## 1.2.50
+
+### Patch Changes
+
+- update getRandomnarbitratorAccount
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.50
+
 ## 1.2.49
 
 ### Patch Changes
