@@ -980,7 +980,9 @@ function* silentLoginSaga(action: PayloadAction<SilentLoginType>) {
     const payload = JSON.stringify(dataToSign);
     const token: string = yield call(signToken, payload, privateKey);
 
-    const data = yield call(accountApi.login, { token: token });
+    // We store the token in sessionStorage instead of calling the api and then store
+    sessionStorage.setItem('Authorization', token);
+
     yield put(silentLoginSuccess());
   } catch (err) {
     yield put(silentLoginFailure());
