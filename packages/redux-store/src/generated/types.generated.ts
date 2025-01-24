@@ -2249,6 +2249,10 @@ export type QueryGetBalancesArgs = {
   address: Scalars['String']['input'];
 };
 
+export type QueryGetRandomArbitratorAccountArgs = {
+  offerId: Scalars['String']['input'];
+};
+
 export type QueryHashtagArgs = {
   content: Scalars['String']['input'];
 };

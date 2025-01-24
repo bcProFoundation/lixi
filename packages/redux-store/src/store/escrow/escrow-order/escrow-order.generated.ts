@@ -90,7 +90,9 @@ export type GetModeratorAccountQuery = {
   getModeratorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null };
 };
 
-export type GetRandomArbitratorAccountQueryVariables = Types.Exact<{ [key: string]: never }>;
+export type GetRandomArbitratorAccountQueryVariables = Types.Exact<{
+  offerId: Types.Scalars['String']['input'];
+}>;
 
 export type GetRandomArbitratorAccountQuery = {
   __typename?: 'Query';
@@ -526,8 +528,8 @@ export const GetModeratorAccountDocument = `
 }
     `;
 export const GetRandomArbitratorAccountDocument = `
-    query GetRandomArbitratorAccount {
-  getRandomArbitratorAccount {
+    query GetRandomArbitratorAccount($offerId: String!) {
+  getRandomArbitratorAccount(offerId: $offerId) {
     id
     publicKey
   }
@@ -642,10 +644,7 @@ const injectedRtkApi = api.injectEndpoints({
     GetModeratorAccount: build.query<GetModeratorAccountQuery, GetModeratorAccountQueryVariables | void>({
       query: variables => ({ document: GetModeratorAccountDocument, variables })
     }),
-    GetRandomArbitratorAccount: build.query<
-      GetRandomArbitratorAccountQuery,
-      GetRandomArbitratorAccountQueryVariables | void
-    >({
+    GetRandomArbitratorAccount: build.query<GetRandomArbitratorAccountQuery, GetRandomArbitratorAccountQueryVariables>({
       query: variables => ({ document: GetRandomArbitratorAccountDocument, variables })
     }),
     AllEscrowOrderByAccount: build.query<AllEscrowOrderByAccountQuery, AllEscrowOrderByAccountQueryVariables>({

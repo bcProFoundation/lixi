@@ -1633,7 +1633,7 @@ type Query {
   getBalances(address: String!): Balances!
   getFiatRate: [FiatRates!]!
   getModeratorAccount: Account!
-  getRandomArbitratorAccount: Account!
+  getRandomArbitratorAccount(offerId: String!): Account!
   hashtag(content: String!): Hashtag!
   homeTimeline(after: String, first: Int, level: Int, skip: Int): TimelineItemConnection!
   message(id: String!): Message!
