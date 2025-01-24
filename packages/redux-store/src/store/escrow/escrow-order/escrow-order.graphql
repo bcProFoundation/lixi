@@ -11,8 +11,8 @@ query GetModeratorAccount {
   }
 }
 
-query GetRandomArbitratorAccount {
-  getRandomArbitratorAccount {
+query GetRandomArbitratorAccount($offerId: String!) {
+  getRandomArbitratorAccount(offerId: $offerId) {
     id
     publicKey
   }

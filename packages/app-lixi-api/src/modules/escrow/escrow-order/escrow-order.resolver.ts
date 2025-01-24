@@ -90,13 +90,29 @@ export class EscrowOrderResolver {
 
   @Query(() => Account)
   @UseGuards(GqlJwtAuthGuard)
-  async getRandomArbitratorAccount(@AccountEntity() account: Account) {
+  async getRandomArbitratorAccount(@AccountEntity() account: Account, @Args('offerId') offerId: string) {
     try {
+      const offer = await this.prisma.post.findUnique({
+        where: {
+          id: offerId
+        },
+        include: {
+          account: true
+        }
+      });
+
+      if (!offer) {
+        throw new Error('Offer not found');
+      }
+
       const accounts = await this.prisma.account.findMany({
         where: {
           AND: [
             {
               id: { not: account.id }
+            },
+            {
+              id: { not: offer.account.id }
             },
             {
               role: Role.ARBITRATOR
