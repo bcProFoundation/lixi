@@ -161,7 +161,7 @@ export class PostFanoutProcessor extends WorkerHost {
           accountId,
           offerStatus: post?.offer?.status
         });
-        pipeline.zincrby(myOfferTimelineKey, offer_score, timelineId);
+        pipeline.zincrby(myOfferTimelineKey, postCreatedAt, timelineId);
 
         pipeline.zincrby(PostFanoutProcessor.offerBoostingTimeline, offer_score, timelineId);
 
