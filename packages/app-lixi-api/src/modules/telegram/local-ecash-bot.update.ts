@@ -161,28 +161,20 @@ Are you ready? Let's get started.
 
     -- Calculate unique trade counts
     UniqueTradeCounts AS (
-        SELECT 
-            account_id,
-            COUNT(*) AS trade_count
-        FROM (
-            SELECT buyer_account_id AS account_id
-            FROM escrow_order
-            WHERE created_at BETWEEN ${formattedTimeStart} :: timestamp - ${period} :: interval AND ${formattedTimeStart} :: timestamp
-
-            UNION ALL
-
-            SELECT seller_account_id AS account_id
-            FROM escrow_order
-            WHERE created_at BETWEEN ${formattedTimeStart} :: timestamp - ${period} :: interval AND ${formattedTimeStart} :: timestamp
-        )
-        GROUP BY account_id
+      SELECT 
+        LEAST(seller_account_id, buyer_account_id) AS account_1,
+        GREATEST(seller_account_id, buyer_account_id) AS account_2
+      FROM escrow_order as eo
+      WHERE eo.created_at BETWEEN ${formattedTimeStart} :: timestamp - ${period} :: interval AND ${formattedTimeStart} :: timestamp
+      GROUP BY 
+        LEAST(seller_account_id, buyer_account_id), 
+        GREATEST(seller_account_id, buyer_account_id)
     ),
 
     -- Count unique Trades
     SpecificUniqueTrades AS (
         SELECT COUNT(*) AS unique_trade_count
         FROM UniqueTradeCounts
-        WHERE trade_count = 1
     )
 
     -- Combine the results
