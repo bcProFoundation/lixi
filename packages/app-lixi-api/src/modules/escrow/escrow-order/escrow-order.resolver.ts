@@ -227,10 +227,8 @@ export class EscrowOrderResolver {
               inline_keyboard: [
                 [
                   {
-                    text: 'Open App',
-                    web_app: {
-                      url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`
-                    }
+                    text: 'Open Web App',
+                    url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`
                   }
                 ]
               ]
@@ -251,10 +249,8 @@ export class EscrowOrderResolver {
               inline_keyboard: [
                 [
                   {
-                    text: 'Open App',
-                    web_app: {
-                      url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`
-                    }
+                    text: 'Open Web App',
+                    url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`
                   }
                 ]
               ]
@@ -324,10 +320,8 @@ export class EscrowOrderResolver {
                 inline_keyboard: [
                   [
                     {
-                      text: 'Open App',
-                      web_app: {
-                        url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrderId}`
-                      }
+                      text: 'Open Web App',
+                      url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrderId}`
                     }
                   ]
                 ]
@@ -348,10 +342,8 @@ export class EscrowOrderResolver {
                 inline_keyboard: [
                   [
                     {
-                      text: 'Open App',
-                      web_app: {
-                        url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrderId}`
-                      }
+                      text: 'Open Web App',
+                      url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrderId}`
                     }
                   ]
                 ]
@@ -374,10 +366,8 @@ export class EscrowOrderResolver {
                 inline_keyboard: [
                   [
                     {
-                      text: 'Open App',
-                      web_app: {
-                        url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrderId}`
-                      }
+                      text: 'Open Web App',
+                      url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrderId}`
                     }
                   ]
                 ]
@@ -398,10 +388,8 @@ export class EscrowOrderResolver {
                 inline_keyboard: [
                   [
                     {
-                      text: 'Open App',
-                      web_app: {
-                        url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrderId}`
-                      }
+                      text: 'Open Web App',
+                      url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrderId}`
                     }
                   ]
                 ]
@@ -783,10 +771,8 @@ export class EscrowOrderResolver {
               inline_keyboard: [
                 [
                   {
-                    text: 'Open App',
-                    web_app: {
-                      url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrder.id}`
-                    }
+                    text: 'Open Web App',
+                    url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrder.id}`
                   }
                 ]
               ]
@@ -817,10 +803,8 @@ export class EscrowOrderResolver {
               inline_keyboard: [
                 [
                   {
-                    text: 'Open App',
-                    web_app: {
-                      url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrder.id}`
-                    }
+                    text: 'Open Web App',
+                    url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrder.id}`
                   }
                 ]
               ]
@@ -923,10 +907,8 @@ export class EscrowOrderResolver {
                 inline_keyboard: [
                   [
                     {
-                      text: 'Open App',
-                      web_app: {
-                        url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`
-                      }
+                      text: 'Open Web App',
+                      url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`
                     }
                   ]
                 ]
@@ -982,10 +964,8 @@ export class EscrowOrderResolver {
                 inline_keyboard: [
                   [
                     {
-                      text: 'Open App',
-                      web_app: {
-                        url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`
-                      }
+                      text: 'Open Web App',
+                      url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`
                     }
                   ]
                 ]
@@ -1129,10 +1109,8 @@ export class EscrowOrderResolver {
                   inline_keyboard: [
                     [
                       {
-                        text: 'Open App',
-                        web_app: {
-                          url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${orderId}`
-                        }
+                        text: 'Open Web App',
+                        url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${orderId}`
                       }
                     ]
                   ]
@@ -1242,10 +1220,8 @@ export class EscrowOrderResolver {
                   inline_keyboard: [
                     [
                       {
-                        text: 'Open App',
-                        web_app: {
-                          url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`
-                        }
+                        text: 'Open Web App',
+                        url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`
                       }
                     ]
                   ]

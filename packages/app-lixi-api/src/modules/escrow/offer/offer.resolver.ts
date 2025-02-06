@@ -350,10 +350,8 @@ export class OfferResolver {
               inline_keyboard: [
                 [
                   {
-                    text: 'Open App',
-                    web_app: {
-                      url: `${this.configService.get('LOCAL_ECASH_URL')}/offer-detail?id=${result.id}`
-                    }
+                    text: 'Open Web App',
+                    url: `${this.configService.get('LOCAL_ECASH_URL')}/offer-detail?id=${result.id}`
                   }
                 ]
               ]
