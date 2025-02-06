@@ -110,6 +110,11 @@ enum AccountType {
   NORMAL
 }
 
+type AllFiatRates {
+  currency: String!
+  fiatRates: [CurrencyRate!]!
+}
+
 type Balances {
   totalBalance: String!
   totalBalanceInSatoshis: String!
@@ -539,6 +544,12 @@ input CreateWorshipedPersonInput {
   quote: String
   stateId: String
   wikiDataId: String
+}
+
+type CurrencyRate {
+  coin: String!
+  rate: Float!
+  ts: Float!
 }
 
 type CurrencyRates {
@@ -1630,6 +1641,7 @@ type Query {
   dispute(id: String!): Dispute!
   escrowOrder(id: String!): EscrowOrder!
   getAccountByAddress(address: String!): Account!
+  getAllFiatRate: [AllFiatRates!]!
   getBalances(address: String!): Balances!
   getFiatRate: [FiatRates!]!
   getModeratorAccount: Account!

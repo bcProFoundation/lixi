@@ -10,3 +10,14 @@ query GetFiatRate {
     }
   }
 }
+
+query GetAllFiatRate {
+  getAllFiatRate {
+    currency
+    fiatRates {
+      coin 
+      ts
+      rate
+    }
+  }
+}

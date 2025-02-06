@@ -27,6 +27,17 @@ export type GetFiatRateQuery = {
   }>;
 };
 
+export type GetAllFiatRateQueryVariables = Types.Exact<{ [key: string]: never }>;
+
+export type GetAllFiatRateQuery = {
+  __typename?: 'Query';
+  getAllFiatRate: Array<{
+    __typename?: 'AllFiatRates';
+    currency: string;
+    fiatRates: Array<{ __typename?: 'CurrencyRate'; coin: string; ts: number; rate: number }>;
+  }>;
+};
+
 export const GetFiatRateDocument = `
     query GetFiatRate {
   getFiatRate {
@@ -41,12 +52,27 @@ export const GetFiatRateDocument = `
   }
 }
     `;
+export const GetAllFiatRateDocument = `
+    query GetAllFiatRate {
+  getAllFiatRate {
+    currency
+    fiatRates {
+      coin
+      ts
+      rate
+    }
+  }
+}
+    `;
 
 const injectedRtkApi = api.injectEndpoints({
   overrideExisting: true,
   endpoints: build => ({
     GetFiatRate: build.query<GetFiatRateQuery, GetFiatRateQueryVariables | void>({
       query: variables => ({ document: GetFiatRateDocument, variables })
+    }),
+    GetAllFiatRate: build.query<GetAllFiatRateQuery, GetAllFiatRateQueryVariables | void>({
+      query: variables => ({ document: GetAllFiatRateDocument, variables })
     })
   })
 });

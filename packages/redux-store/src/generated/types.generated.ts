@@ -133,6 +133,12 @@ export enum AccountType {
   Normal = 'NORMAL'
 }
 
+export type AllFiatRates = {
+  __typename?: 'AllFiatRates';
+  currency: Scalars['String']['output'];
+  fiatRates: Array<CurrencyRate>;
+};
+
 export type Balances = {
   __typename?: 'Balances';
   totalBalance: Scalars['String']['output'];
@@ -563,6 +569,13 @@ export type CreateWorshipedPersonInput = {
   quote?: InputMaybe<Scalars['String']['input']>;
   stateId?: InputMaybe<Scalars['String']['input']>;
   wikiDataId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CurrencyRate = {
+  __typename?: 'CurrencyRate';
+  coin: Scalars['String']['output'];
+  rate: Scalars['Float']['output'];
+  ts: Scalars['Float']['output'];
 };
 
 export type CurrencyRates = {
@@ -1747,6 +1760,7 @@ export type Query = {
   dispute: Dispute;
   escrowOrder: EscrowOrder;
   getAccountByAddress: Account;
+  getAllFiatRate: Array<AllFiatRates>;
   getBalances: Balances;
   getFiatRate: Array<FiatRates>;
   getModeratorAccount: Account;
