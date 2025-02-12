@@ -168,24 +168,29 @@ export class TimelineService {
     try {
       const posts = await this.prisma.$queryRaw<{ id: string; score: number; type: string }[]>(
         Prisma.sql`
+          SELECT * FROM (
             SELECT
               post.id,
               post.type,
-              total_relevance(relevance_score(burn.burn_type, burn.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, burn.burned_value)) AS score 
+              total_relevance(relevance_score(
+                COALESCE(burn.burn_type, true),
+                COALESCE(burn.created_at, post.created_at),
+                ${newEpoch}::timestamp,
+                ${halfLife}::interval,
+                COALESCE(burn.burned_value, 1)
+              )) AS score 
             FROM
               post 
-              JOIN
-                  burn 
-                  ON post.id = burn.burned_for_id 
-            WHERE
-              burn.burn_for_type = ${postBurnType} 
-              AND burn.burned_value > 0 
-            GROUP BY
-              post.id 
-            ORDER by
-              score desc
-            LIMIT 1000;
-          `
+            LEFT JOIN
+              burn 
+              ON post.id = burn.burned_for_id 
+                AND burn.burn_for_type = ${postBurnType}
+            GROUP BY post.id
+          ) AS subquery
+          WHERE score IS NOT NULL
+          ORDER BY score DESC
+          LIMIT 1000;
+        `
       );
 
       const pipeline = this.redis.pipeline();
