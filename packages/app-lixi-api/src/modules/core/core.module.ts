@@ -38,6 +38,7 @@ import { UploadFilesController } from './upload/upload.controller';
 import { UploadService } from './upload/upload.serivce';
 import { ChronikModule } from 'nestjs-chronik';
 import { SettingController } from './setting/setting.controller';
+import { VersionController } from './version/version.controller';
 const baseCorsConfig: CorsOptions = {
   origin: process.env.BASE_URL ?? ''
 };
@@ -107,6 +108,7 @@ const baseCorsConfig: CorsOptions = {
     ClaimController,
     EnvelopeController,
     HeathController,
+    VersionController,
     UploadFilesController,
     CountryController,
     SettingController,
