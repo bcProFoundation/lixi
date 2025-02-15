@@ -174,10 +174,8 @@ export class DisputeResolver {
               inline_keyboard: [
                 [
                   {
-                    text: 'Open App',
-                    web_app: {
-                      url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrderId}`
-                    }
+                    text: 'Open Web App',
+                    url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrderId}`
                   }
                 ]
               ]
@@ -198,10 +196,8 @@ export class DisputeResolver {
               inline_keyboard: [
                 [
                   {
-                    text: 'Open App',
-                    web_app: {
-                      url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrderId}`
-                    }
+                    text: 'Open Web App',
+                    url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrderId}`
                   }
                 ]
               ]
@@ -233,10 +229,8 @@ export class DisputeResolver {
               inline_keyboard: [
                 [
                   {
-                    text: 'Open App',
-                    web_app: {
-                      url: `${process.env.LOCAL_ECASH_URL}/dispute-detail?id=${dispute.id}`
-                    }
+                    text: 'Open Web App',
+                    url: `${process.env.LOCAL_ECASH_URL}/dispute-detail?id=${dispute.id}`
                   }
                 ]
               ]
@@ -268,10 +262,8 @@ export class DisputeResolver {
               inline_keyboard: [
                 [
                   {
-                    text: 'Open App',
-                    web_app: {
-                      url: `${process.env.LOCAL_ECASH_URL}/dispute-detail?id=${dispute.id}`
-                    }
+                    text: 'Open Web App',
+                    url: `${process.env.LOCAL_ECASH_URL}/dispute-detail?id=${dispute.id}`
                   }
                 ]
               ]
