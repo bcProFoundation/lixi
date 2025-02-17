@@ -334,6 +334,7 @@ model Account {
   escrowBuyOrders                EscrowOrder[]         @relation("escrow_buy_orders")
   escrowArbiOrders               EscrowOrder[]         @relation("escrow_arbi_orders")
   escrowModOrders                EscrowOrder[]         @relation("escrow_mod_orders")
+  chronikWatchAddresses          ChronikWatchAddress[]
 
   @@index([mnemonicHash], type: Hash)
   @@map("account")
@@ -343,6 +344,16 @@ enum Role {
   MODERATOR
   ARBITRATOR
   USER
+}
+
+model ChronikWatchAddress {
+  id        String   @id @default(uuid())
+  account   Account  @relation(fields: [accountId], references: [id])
+  accountId Int      @map("account_id")
+  address   String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("chronik_watch_address")
 }
 
 model AccountDana {

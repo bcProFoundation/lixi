@@ -61,7 +61,9 @@ export const BOT = {
     OFFER_CREATED_GOODS_SERVICES:
       `Offer [#%s](%s) \n` + `*Headline:* %s \n` + `*Order limit:* %s \n` + `*Payment method:* %s\n`,
     ORDER_RELEASED: `✅ Order has been released! You can now claim your funds!`,
-    ORDER_RETURNED: `❌ Order has been canceled! You can now claim your funds!`
+    ORDER_RETURNED: `❌ Order has been canceled! You can now claim your funds!`,
+    CHRONIK_WATCH_RECIEVED_XEC: `_%s_ has recieved a payment of %s XEC \r\n\r\n` + `[View tx on the Explorer](%s)`,
+    CHRONIK_WATCH_RECIEVED_SLP: `_%s_ has recieved a payment of %s %s \r\n\r\n` + `[View tx on the Explorer](%s)`
   }
 };
 

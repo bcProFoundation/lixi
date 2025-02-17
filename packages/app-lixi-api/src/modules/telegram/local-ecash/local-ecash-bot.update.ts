@@ -1,12 +1,13 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectBot, Start, Update, Command } from 'nestjs-telegraf';
 import { Context, Telegraf } from 'telegraf';
-import { PrismaService } from '../prisma/prisma.service';
-import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from './telegram-bot.constants';
+import { PrismaService } from '../../prisma/prisma.service';
+import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../telegram-bot.constants';
 import { format } from 'node:util';
 import { Prisma, Role } from '@bcpros/lixi-prisma';
 import moment from 'moment';
 import { InfoStatistics, PERIOD_TIME } from 'src/utils/bot.constants';
+import { ConfigService } from '@nestjs/config';
 
 @Update()
 @Injectable()
@@ -15,7 +16,8 @@ export class LocalEcashBotUpdate implements OnModuleInit {
 
   constructor(
     @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService
   ) {}
 
   onModuleInit() {}
@@ -28,7 +30,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
 Are you ready? Let's get started.
 
 [Start trading](%s)`,
-      `https://t.me/${process.env.TELEGRAM_LOCAL_ECASH_BOT_NAME}?startapp`
+      `https://${this.config.get('LOCAL_ECASH_URL')}`
     );
 
     await ctx.reply(formatReplied, {
