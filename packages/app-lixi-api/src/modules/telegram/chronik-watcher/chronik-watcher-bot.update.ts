@@ -215,9 +215,9 @@ export class ChronikWatcherBotUpdate implements OnModuleInit {
     const helpMessage = `
   💡 *Available Commands* 💡
 
-/add - Add watching address i.e. /add ecash:qqth...jfje
-/remove - Remove watched address i.e. /remove ecash:qqth...jfje 
-/list - List all watched addresses
+/watch - Add watching address i.e. /add ecash:qqth...jfje
+/removewatch - Remove watched address i.e. /remove ecash:qqth...jfje 
+/watchlist - List all watched addresses
     `;
 
     await ctx.reply(helpMessage, {
@@ -225,7 +225,7 @@ export class ChronikWatcherBotUpdate implements OnModuleInit {
     });
   }
 
-  @Command('add')
+  @Command('watch')
   async onAdd(ctx: Context) {
     try {
       const args = (ctx?.message as { text: string }).text?.split(' ')[1];
@@ -292,7 +292,7 @@ export class ChronikWatcherBotUpdate implements OnModuleInit {
     }
   }
 
-  @Command('remove')
+  @Command('removewatch')
   async onRemove(ctx: Context) {
     try {
       const args = (ctx?.message as { text: string }).text?.split(' ')[1];
@@ -361,7 +361,7 @@ export class ChronikWatcherBotUpdate implements OnModuleInit {
     }
   }
 
-  @Command('list')
+  @Command('watchlist')
   async onList(ctx: Context) {
     try {
       const account = await this.prisma.account.findFirst({
