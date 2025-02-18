@@ -42,9 +42,10 @@ import { ChronikModule } from 'nestjs-chronik';
 import { DanaModule } from './modules/dana/dana.module';
 import { EscrowModule } from './modules/escrow/escrow.module';
 import { BoostFeeModule } from './modules/boost-fee/boostFee.modules';
-import { TelegramBotModule } from './modules/telegram/telegram-bot.module';
+import { LocalEcashBotModule } from './modules/telegram/local-ecash/local-ecash-bot.module';
 import { TelegramBotModuleOptions } from './modules/telegram/telegram-bot.interface';
 import { REDIS_CLIENTS_KEYSPACE_NOTIFICATION } from './common/redis/redis.constants';
+import { ChronikWatcherBotModule } from './modules/telegram/chronik-watcher/chronik-watcher-bot.module';
 
 //enabled serving multiple static for fastify
 type FastifyServeStaticModuleOptions = ServeStaticModuleOptions & {
@@ -218,15 +219,41 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
     DanaModule,
     EscrowModule,
     BoostFeeModule,
-    TelegramBotModule.forRootAsync({
+    LocalEcashBotModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         const localEcashBotToken = configService.get<string>('TELEGRAM_LOCAL_ECASH_BOT_TOKEN')!;
+        const chronikWatcherBotToken = configService.get<string>('TELEGRAM_CHRONIK_WATCHER_BOT_TOKEN')!;
 
         return {
           local_ecash: localEcashBotToken
             ? {
                 token: localEcashBotToken
+              }
+            : undefined,
+          chronik_watcher: chronikWatcherBotToken
+            ? {
+                token: chronikWatcherBotToken
+              }
+            : undefined
+        } as TelegramBotModuleOptions;
+      }
+    }),
+    ChronikWatcherBotModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const localEcashBotToken = configService.get<string>('TELEGRAM_LOCAL_ECASH_BOT_TOKEN')!;
+        const chronikWatcherBotToken = configService.get<string>('TELEGRAM_CHRONIK_WATCHER_BOT_TOKEN')!;
+
+        return {
+          local_ecash: localEcashBotToken
+            ? {
+                token: localEcashBotToken
+              }
+            : undefined,
+          chronik_watcher: chronikWatcherBotToken
+            ? {
+                token: chronikWatcherBotToken
               }
             : undefined
         } as TelegramBotModuleOptions;

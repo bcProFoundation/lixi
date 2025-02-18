@@ -4,6 +4,9 @@ export interface TelegramBotModuleOptions {
   local_ecash?: {
     token: string;
   };
+  chronik_watcher?: {
+    token: string;
+  };
 }
 
 export interface TelegramBotModuleOptionsFactory {

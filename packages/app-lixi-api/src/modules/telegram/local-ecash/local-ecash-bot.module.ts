@@ -1,14 +1,14 @@
 import { DynamicModule, Global, Logger, Module, Provider } from '@nestjs/common';
-import { createAsyncProviders } from './telegram-bot.providers';
-import { TelegramBotModuleAsyncOptions } from './telegram-bot.interface';
+import { createAsyncProviders } from '../telegram-bot.providers';
+import { TelegramBotModuleAsyncOptions } from '../telegram-bot.interface';
 import { TelegrafModule } from 'nestjs-telegraf';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LocalEcashBotUpdate } from './local-ecash-bot.update';
-import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from './telegram-bot.constants';
-import { TelegramBotController } from './telegram-bot.controller';
+import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../telegram-bot.constants';
+import { TelegramBotController } from './local-ecash-bot.controller';
 
 @Module({})
-export class TelegramBotModule {
+export class LocalEcashBotModule {
   public static forRootAsync(options: TelegramBotModuleAsyncOptions): DynamicModule {
     const asyncProviders = createAsyncProviders(options);
 
@@ -24,14 +24,14 @@ export class TelegramBotModule {
           useFactory: async (configService: ConfigService) => {
             return {
               token: configService.get<string>('TELEGRAM_LOCAL_ECASH_BOT_TOKEN')!,
-              include: [TelegramBotModule]
+              include: [LocalEcashBotModule]
             };
           }
         })
       );
 
     return {
-      module: TelegramBotModule,
+      module: LocalEcashBotModule,
       imports: (options.imports || []).concat(imports),
       controllers: [TelegramBotController],
       providers: [...asyncProviders, ...otherProviders, TelegramBotController],
