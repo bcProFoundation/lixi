@@ -49,6 +49,13 @@ export type CreatePollMutation = {
       avatar?: string | null;
       createCommentFee?: string | null;
       telegramUsername?: string | null;
+      accountStatsOrder: {
+        __typename?: 'AccountStatsOrder';
+        donationAmount: number;
+        totalOrder: number;
+        completedOrder: number;
+        completionRate: number;
+      };
     };
     page?: {
       __typename?: 'Page';

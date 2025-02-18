@@ -61,6 +61,25 @@ query AllOfferByAccount(
   }
 }
 
+query allOfferActiveByAccountId(
+  $first: Int = 20
+  $after: String
+  $accountId: Int!
+) {
+  allOfferActiveByAccountId(first: $first, after: $after, accountId: $accountId) {
+    totalCount
+    edges {
+      cursor
+      node {
+         ...TimelineItemFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
 mutation CreateOffer($input: CreateOfferInput!) {
   createOffer(data: $input) {
     ...PostFields

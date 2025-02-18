@@ -23,6 +23,7 @@ export type Scalars = {
 export type Account = {
   __typename?: 'Account';
   accountDana?: Maybe<AccountDana>;
+  accountStatsOrder: AccountStatsOrder;
   accountType?: Maybe<AccountType>;
   address: Scalars['String']['output'];
   avatar?: Maybe<Scalars['String']['output']>;
@@ -126,6 +127,14 @@ export enum AccountOrderField {
   Name = 'name',
   UpdatedAt = 'updatedAt'
 }
+
+export type AccountStatsOrder = {
+  __typename?: 'AccountStatsOrder';
+  completedOrder: Scalars['Int']['output'];
+  completionRate: Scalars['Float']['output'];
+  donationAmount: Scalars['Float']['output'];
+  totalOrder: Scalars['Int']['output'];
+};
 
 /** The type of account. */
 export enum AccountType {
@@ -1708,6 +1717,7 @@ export type Query = {
   allHashtagByToken: HashtagConnection;
   allMessageByPageMessageSessionId: MessageConnection;
   allOffer: TimelineItemConnection;
+  allOfferActiveByAccountId: TimelineItemConnection;
   allOfferByAccount: TimelineItemConnection;
   allOpenPageMessageSessionByAccountId: PageMessageSessionConnection;
   allOpenPageMessageSessionByPageId: PageMessageSessionConnection;
@@ -1919,6 +1929,13 @@ export type QueryAllMessageByPageMessageSessionIdArgs = {
 };
 
 export type QueryAllOfferArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryAllOfferActiveByAccountIdArgs = {
+  accountId: Scalars['Int']['input'];
   after?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;

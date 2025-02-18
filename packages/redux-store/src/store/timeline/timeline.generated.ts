@@ -228,6 +228,13 @@ export type TimelineItemFieldsFragment = {
           avatar?: string | null;
           createCommentFee?: string | null;
           telegramUsername?: string | null;
+          accountStatsOrder: {
+            __typename?: 'AccountStatsOrder';
+            donationAmount: number;
+            totalOrder: number;
+            completedOrder: number;
+            completionRate: number;
+          };
         };
         page?: {
           __typename?: 'Page';
@@ -462,6 +469,13 @@ export type TimelineQuery = {
             avatar?: string | null;
             createCommentFee?: string | null;
             telegramUsername?: string | null;
+            accountStatsOrder: {
+              __typename?: 'AccountStatsOrder';
+              donationAmount: number;
+              totalOrder: number;
+              completedOrder: number;
+              completionRate: number;
+            };
           };
           page?: {
             __typename?: 'Page';
@@ -715,6 +729,13 @@ export type HomeTimelineQuery = {
                 avatar?: string | null;
                 createCommentFee?: string | null;
                 telegramUsername?: string | null;
+                accountStatsOrder: {
+                  __typename?: 'AccountStatsOrder';
+                  donationAmount: number;
+                  totalOrder: number;
+                  completedOrder: number;
+                  completionRate: number;
+                };
               };
               page?: {
                 __typename?: 'Page';
@@ -977,6 +998,13 @@ export type ProfileTimelineQuery = {
                 avatar?: string | null;
                 createCommentFee?: string | null;
                 telegramUsername?: string | null;
+                accountStatsOrder: {
+                  __typename?: 'AccountStatsOrder';
+                  donationAmount: number;
+                  totalOrder: number;
+                  completedOrder: number;
+                  completionRate: number;
+                };
               };
               page?: {
                 __typename?: 'Page';
@@ -1240,6 +1268,13 @@ export type ProfileTimelineByTimeQuery = {
                 avatar?: string | null;
                 createCommentFee?: string | null;
                 telegramUsername?: string | null;
+                accountStatsOrder: {
+                  __typename?: 'AccountStatsOrder';
+                  donationAmount: number;
+                  totalOrder: number;
+                  completedOrder: number;
+                  completionRate: number;
+                };
               };
               page?: {
                 __typename?: 'Page';
@@ -1502,6 +1537,13 @@ export type PageTimelineQuery = {
                 avatar?: string | null;
                 createCommentFee?: string | null;
                 telegramUsername?: string | null;
+                accountStatsOrder: {
+                  __typename?: 'AccountStatsOrder';
+                  donationAmount: number;
+                  totalOrder: number;
+                  completedOrder: number;
+                  completionRate: number;
+                };
               };
               page?: {
                 __typename?: 'Page';
@@ -1765,6 +1807,13 @@ export type PageTimelineByTimeQuery = {
                 avatar?: string | null;
                 createCommentFee?: string | null;
                 telegramUsername?: string | null;
+                accountStatsOrder: {
+                  __typename?: 'AccountStatsOrder';
+                  donationAmount: number;
+                  totalOrder: number;
+                  completedOrder: number;
+                  completionRate: number;
+                };
               };
               page?: {
                 __typename?: 'Page';
@@ -2027,6 +2076,13 @@ export type TokenTimelineQuery = {
                 avatar?: string | null;
                 createCommentFee?: string | null;
                 telegramUsername?: string | null;
+                accountStatsOrder: {
+                  __typename?: 'AccountStatsOrder';
+                  donationAmount: number;
+                  totalOrder: number;
+                  completedOrder: number;
+                  completionRate: number;
+                };
               };
               page?: {
                 __typename?: 'Page';
@@ -2290,6 +2346,13 @@ export type TokenTimelineByTimeQuery = {
                 avatar?: string | null;
                 createCommentFee?: string | null;
                 telegramUsername?: string | null;
+                accountStatsOrder: {
+                  __typename?: 'AccountStatsOrder';
+                  donationAmount: number;
+                  totalOrder: number;
+                  completedOrder: number;
+                  completionRate: number;
+                };
               };
               page?: {
                 __typename?: 'Page';

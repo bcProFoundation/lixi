@@ -1,9 +1,10 @@
-import { AccountDana } from '@bcpros/lixi-models';
+import { AccountDana, AccountStatsOrder } from '@bcpros/lixi-models';
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import { FollowCacheService } from '../account/follow-cache.service';
 import { AccountDanaCacheService } from './account-dana-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@bcpros/lixi-prisma';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class AccountLoader {
@@ -69,4 +70,105 @@ export default class AccountLoader {
     });
     return Promise.resolve(data);
   });
+
+  public readonly batchAccountStatsOrder = new DataLoader<number, AccountStatsOrder>(
+    async (accountIds: readonly number[]) => {
+      const ids = accountIds as number[];
+
+      // Perform a single raw query to gather stats for all requested IDs
+      // We identify which account an escrow_order row belongs to by checking
+      // whether the seller or buyer is in the requested list, then grouping by that account.
+      const rawQuery = Prisma.sql`
+        WITH 
+        SellerPrecomputed AS (
+          SELECT
+            eo.*,
+            d.status AS dispute_status,
+            eo.seller_account_id AS relevant_account_id
+          FROM escrow_order eo
+          LEFT JOIN dispute d ON eo.id = d.escrow_order_id
+          WHERE eo.seller_account_id = ANY(${ids})
+        ),
+        BuyerPrecomputed AS (
+          SELECT
+            eo.*,
+            d.status AS dispute_status,
+            eo.buyer_account_id AS relevant_account_id
+          FROM escrow_order eo
+          LEFT JOIN dispute d ON eo.id = d.escrow_order_id
+          WHERE eo.buyer_account_id = ANY(${ids})
+        ),
+        -- UNION them so a single escrow_order row is counted once per matching account
+        Precomputed AS (
+          SELECT * FROM SellerPrecomputed
+          UNION ALL
+          SELECT * FROM BuyerPrecomputed
+        ),
+        OverallStats AS (
+            SELECT 
+                relevant_account_id,
+                COALESCE(SUM(eo.seller_donate_amount), 0) + 
+                COALESCE(SUM(eo.buyer_donate_amount), 0) AS donationAmount,
+                COUNT(*) AS totalOrder,
+                SUM(
+                  CASE 
+                    WHEN eo.status = 'COMPLETE' OR eo.dispute_status = 'RESOLVED' THEN 1 
+                    ELSE 0 
+                  END
+                ) AS completedOrder,
+                SUM(
+                  CASE 
+                    WHEN eo.status = 'COMPLETE' THEN 1 
+                    ELSE 0 
+                  END
+                ) AS successful_order
+            FROM Precomputed eo
+            GROUP BY relevant_account_id
+        )
+        SELECT 
+            relevant_account_id,
+            donationAmount,
+            totalOrder,
+            completedOrder,
+            CASE 
+                WHEN completedOrder = 0 THEN 0
+                ELSE (successful_order * 1.0 / completedOrder)
+            END as completionRate
+        FROM OverallStats
+      `;
+
+      const rows = await this.prisma.$queryRaw<
+        {
+          relevant_account_id: number;
+          donationamount: number;
+          totalorder: bigint;
+          completedorder: bigint;
+          completionrate: string;
+        }[]
+      >(rawQuery);
+
+      // Convert each row into a map keyed by relevant_account_id
+      const statsMap = new Map<number, AccountStatsOrder>();
+      rows.forEach(row => {
+        statsMap.set(row.relevant_account_id, {
+          donationAmount: row.donationamount,
+          totalOrder: Number(row.totalorder),
+          completedOrder: Number(row.completedorder),
+          completionRate: parseFloat((Number(row.completionrate) * 100).toFixed(2))
+        });
+      });
+
+      // Return results in the same order as the incoming accountIds
+      return ids.map(accountId => {
+        return (
+          statsMap.get(accountId) ?? {
+            donationAmount: 0,
+            totalOrder: 0,
+            completedOrder: 0,
+            completionRate: 0
+          }
+        );
+      });
+    }
+  );
 }

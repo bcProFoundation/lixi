@@ -1,6 +1,7 @@
 export * as offerApi from './offer/offer.api';
 export * from './offer/useInfiniteOffersByScoreQuery';
 export * from './offer/useInfiniteMyOffersQuery';
+export * from './offer/useInfiniteActiveOfferByAccountIdQuery';
 export * from './offer/useInfiniteOfferFilterQuery';
 
 export * as escrowOrderApi from './escrow-order/escrow-order.api';

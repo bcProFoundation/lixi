@@ -52,6 +52,13 @@ export type PostQuery = {
       avatar?: string | null;
       createCommentFee?: string | null;
       telegramUsername?: string | null;
+      accountStatsOrder: {
+        __typename?: 'AccountStatsOrder';
+        donationAmount: number;
+        totalOrder: number;
+        completedOrder: number;
+        completionRate: number;
+      };
     };
     page?: {
       __typename?: 'Page';
@@ -207,6 +214,13 @@ export type PostsByPageIdQuery = {
           avatar?: string | null;
           createCommentFee?: string | null;
           telegramUsername?: string | null;
+          accountStatsOrder: {
+            __typename?: 'AccountStatsOrder';
+            donationAmount: number;
+            totalOrder: number;
+            completedOrder: number;
+            completionRate: number;
+          };
         };
         page?: {
           __typename?: 'Page';
@@ -370,6 +384,13 @@ export type PostsByUserIdQuery = {
           avatar?: string | null;
           createCommentFee?: string | null;
           telegramUsername?: string | null;
+          accountStatsOrder: {
+            __typename?: 'AccountStatsOrder';
+            donationAmount: number;
+            totalOrder: number;
+            completedOrder: number;
+            completionRate: number;
+          };
         };
         page?: {
           __typename?: 'Page';
@@ -533,6 +554,13 @@ export type PostsByHashtagIdQuery = {
           avatar?: string | null;
           createCommentFee?: string | null;
           telegramUsername?: string | null;
+          accountStatsOrder: {
+            __typename?: 'AccountStatsOrder';
+            donationAmount: number;
+            totalOrder: number;
+            completedOrder: number;
+            completionRate: number;
+          };
         };
         page?: {
           __typename?: 'Page';
@@ -696,6 +724,13 @@ export type PostsByTokenIdQuery = {
           avatar?: string | null;
           createCommentFee?: string | null;
           telegramUsername?: string | null;
+          accountStatsOrder: {
+            __typename?: 'AccountStatsOrder';
+            donationAmount: number;
+            totalOrder: number;
+            completedOrder: number;
+            completionRate: number;
+          };
         };
         page?: {
           __typename?: 'Page';
@@ -1517,6 +1552,13 @@ export type PostFieldsFragment = {
     avatar?: string | null;
     createCommentFee?: string | null;
     telegramUsername?: string | null;
+    accountStatsOrder: {
+      __typename?: 'AccountStatsOrder';
+      donationAmount: number;
+      totalOrder: number;
+      completedOrder: number;
+      completionRate: number;
+    };
   };
   page?: {
     __typename?: 'Page';
@@ -1784,6 +1826,13 @@ export type CreatePostMutation = {
       avatar?: string | null;
       createCommentFee?: string | null;
       telegramUsername?: string | null;
+      accountStatsOrder: {
+        __typename?: 'AccountStatsOrder';
+        donationAmount: number;
+        totalOrder: number;
+        completedOrder: number;
+        completionRate: number;
+      };
     };
     page?: {
       __typename?: 'Page';
@@ -1925,6 +1974,13 @@ export type UpdatePostMutation = {
       avatar?: string | null;
       createCommentFee?: string | null;
       telegramUsername?: string | null;
+      accountStatsOrder: {
+        __typename?: 'AccountStatsOrder';
+        donationAmount: number;
+        totalOrder: number;
+        completedOrder: number;
+        completionRate: number;
+      };
     };
     page?: {
       __typename?: 'Page';
@@ -2072,6 +2128,13 @@ export type RemovePostMutation = {
       avatar?: string | null;
       createCommentFee?: string | null;
       telegramUsername?: string | null;
+      accountStatsOrder: {
+        __typename?: 'AccountStatsOrder';
+        donationAmount: number;
+        totalOrder: number;
+        completedOrder: number;
+        completionRate: number;
+      };
     };
     page?: {
       __typename?: 'Page';
@@ -2248,6 +2311,12 @@ export const PostFieldsFragmentDoc = `
     avatar
     createCommentFee
     telegramUsername
+    accountStatsOrder {
+      donationAmount
+      totalOrder
+      completedOrder
+      completionRate
+    }
   }
   accountId
   page {

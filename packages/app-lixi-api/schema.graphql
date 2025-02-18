@@ -4,6 +4,7 @@
 
 type Account {
   accountDana: AccountDana
+  accountStatsOrder: AccountStatsOrder!
   accountType: AccountType
   address: String!
   avatar: String
@@ -102,6 +103,13 @@ enum AccountOrderField {
   id
   name
   updatedAt
+}
+
+type AccountStatsOrder {
+  completedOrder: Int!
+  completionRate: Float!
+  donationAmount: Float!
+  totalOrder: Int!
 }
 
 """The type of account."""
@@ -1517,6 +1525,7 @@ type Query {
   allHashtagByToken(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: HashtagOrder, skip: Int): HashtagConnection!
   allMessageByPageMessageSessionId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: MessageOrder, skip: Int): MessageConnection!
   allOffer(after: String, first: Int, skip: Int): TimelineItemConnection!
+  allOfferActiveByAccountId(accountId: Int!, after: String, first: Int, skip: Int): TimelineItemConnection!
   allOfferByAccount(after: String, first: Int, offerStatus: OfferStatus!, skip: Int): TimelineItemConnection!
   allOpenPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allOpenPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!

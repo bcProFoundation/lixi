@@ -36,6 +36,21 @@ const enhancedApi = api.enhanceEndpoints({
         currentCacheData.allOfferByAccount.totalCount = responseData.allOfferByAccount.totalCount;
       }
     },
+    allOfferActiveByAccountId: {
+      providesTags: ['OfferTimeline'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { accountId } = queryArgs;
+          return { accountId };
+        }
+        return {};
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.allOfferActiveByAccountId.edges.push(...responseData.allOfferActiveByAccountId.edges);
+        currentCacheData.allOfferActiveByAccountId.pageInfo = responseData.allOfferActiveByAccountId.pageInfo;
+        currentCacheData.allOfferActiveByAccountId.totalCount = responseData.allOfferActiveByAccountId.totalCount;
+      }
+    },
     OfferByFilter: {
       providesTags: ['OfferTimeline'],
       serializeQueryArgs({ queryArgs }) {
@@ -207,6 +222,8 @@ export const {
   useLazyAllOfferQuery,
   useAllOfferByAccountQuery,
   useLazyAllOfferByAccountQuery,
+  useAllOfferActiveByAccountIdQuery,
+  useLazyAllOfferActiveByAccountIdQuery,
   useOfferByFilterQuery,
   useLazyOfferByFilterQuery,
   useCreateOfferMutation,

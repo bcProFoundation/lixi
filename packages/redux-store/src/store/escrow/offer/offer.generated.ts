@@ -201,6 +201,13 @@ export type AllOfferQuery = {
                 avatar?: string | null;
                 createCommentFee?: string | null;
                 telegramUsername?: string | null;
+                accountStatsOrder: {
+                  __typename?: 'AccountStatsOrder';
+                  donationAmount: number;
+                  totalOrder: number;
+                  completedOrder: number;
+                  completionRate: number;
+                };
               };
               page?: {
                 __typename?: 'Page';
@@ -463,6 +470,13 @@ export type OfferByFilterQuery = {
                 avatar?: string | null;
                 createCommentFee?: string | null;
                 telegramUsername?: string | null;
+                accountStatsOrder: {
+                  __typename?: 'AccountStatsOrder';
+                  donationAmount: number;
+                  totalOrder: number;
+                  completedOrder: number;
+                  completionRate: number;
+                };
               };
               page?: {
                 __typename?: 'Page';
@@ -725,6 +739,282 @@ export type AllOfferByAccountQuery = {
                 avatar?: string | null;
                 createCommentFee?: string | null;
                 telegramUsername?: string | null;
+                accountStatsOrder: {
+                  __typename?: 'AccountStatsOrder';
+                  donationAmount: number;
+                  totalOrder: number;
+                  completedOrder: number;
+                  completionRate: number;
+                };
+              };
+              page?: {
+                __typename?: 'Page';
+                avatar?: string | null;
+                name: string;
+                id: string;
+                createPostFee: string;
+                createCommentFee: string;
+                pageAccount: {
+                  __typename?: 'Account';
+                  id: number;
+                  name: string;
+                  address: string;
+                  hash160?: string | null;
+                };
+              } | null;
+              token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
+              reposts?: Array<{
+                __typename?: 'Repost';
+                accountId?: number | null;
+                account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+              }> | null;
+              dana?: {
+                __typename?: 'PostDana';
+                danaBurnUp: number;
+                danaBurnDown: number;
+                danaBurnScore: number;
+                danaReceivedUp: number;
+                danaReceivedDown: number;
+                danaReceivedScore: number;
+                version: number;
+              } | null;
+              boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
+              translations?: Array<{
+                __typename?: 'PostTranslation';
+                id: string;
+                translateContent?: string | null;
+                translateLanguage?: string | null;
+              }> | null;
+              imageUploadable?: {
+                __typename?: 'ImageUploadable';
+                id: string;
+                uploads: Array<{
+                  __typename?: 'Upload';
+                  id: string;
+                  sha: string;
+                  bucket?: string | null;
+                  width?: number | null;
+                  height?: number | null;
+                  cfImageId?: string | null;
+                  cfImageFilename?: string | null;
+                }>;
+              } | null;
+              poll?: {
+                __typename?: 'Poll';
+                postId: string;
+                question: string;
+                startDate: any;
+                endDate: any;
+                canAddOption: boolean;
+                singleSelect: boolean;
+                defaultOptions?: Array<string> | null;
+                totalVote?: number | null;
+                options: Array<{
+                  __typename?: 'PollOption';
+                  id: string;
+                  option: string;
+                  pollId: string;
+                  danaScoreOption?: number | null;
+                  pollAnswerOnAccount?: Array<{
+                    __typename?: 'PollAnswerOnAccount';
+                    pollDanaScore: number;
+                    accountId: number;
+                  }> | null;
+                }>;
+              } | null;
+              postOffer?: {
+                __typename?: 'Offer';
+                postId: string;
+                publicKey: string;
+                message: string;
+                noteOffer?: string | null;
+                price: string;
+                coinPayment?: string | null;
+                coinOthers?: string | null;
+                marginPercentage: number;
+                localCurrency?: string | null;
+                orderLimitMin: number;
+                orderLimitMax: number;
+                hideFromHome?: boolean | null;
+                status: Types.OfferStatus;
+                locationId?: string | null;
+                countryId?: number | null;
+                paymentMethods: Array<{
+                  __typename?: 'OfferPaymentMethod';
+                  paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
+                }>;
+                location?: {
+                  __typename?: 'Location';
+                  id: string;
+                  iso2?: string | null;
+                  country?: string | null;
+                  adminNameAscii?: string | null;
+                  adminCode?: string | null;
+                  cityAscii?: string | null;
+                } | null;
+                country?: { __typename?: 'Country'; name?: string | null } | null;
+              } | null;
+            };
+      };
+    }>;
+    pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
+  };
+};
+
+export type AllOfferActiveByAccountIdQueryVariables = Types.Exact<{
+  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  after?: Types.InputMaybe<Types.Scalars['String']['input']>;
+  accountId: Types.Scalars['Int']['input'];
+}>;
+
+export type AllOfferActiveByAccountIdQuery = {
+  __typename?: 'Query';
+  allOfferActiveByAccountId: {
+    __typename?: 'TimelineItemConnection';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'TimelineItemBasicEdge';
+      cursor: string;
+      node: {
+        __typename?: 'TimelineItem';
+        id: string;
+        data:
+          | {
+              __typename: 'Dispute';
+              id: string;
+              reason?: string | null;
+              createdBy: string;
+              createdAt: any;
+              updatedAt: any;
+              disputeStatus: Types.DisputeStatus;
+              escrowOrder: {
+                __typename?: 'EscrowOrder';
+                amount: number;
+                id: string;
+                status: Types.EscrowOrderStatus;
+                buyerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                sellerAccount: { __typename?: 'Account'; telegramUsername?: string | null };
+                offer: {
+                  __typename?: 'Offer';
+                  message: string;
+                  createdAt: any;
+                  country?: { __typename?: 'Country'; name?: string | null } | null;
+                  state?: { __typename?: 'State'; name?: string | null } | null;
+                  location?: {
+                    __typename?: 'Location';
+                    id: string;
+                    iso2?: string | null;
+                    country?: string | null;
+                    adminNameAscii?: string | null;
+                    cityAscii?: string | null;
+                  } | null;
+                };
+              };
+            }
+          | {
+              __typename: 'EscrowOrder';
+              id: string;
+              message?: string | null;
+              escrowScript: string;
+              escrowAddress: string;
+              nonce: string;
+              releaseTxid?: string | null;
+              returnTxid?: string | null;
+              releaseSignatory?: string | null;
+              returnSignatory?: string | null;
+              signatoryOwnerHash160?: string | null;
+              sellerDonateAmount?: number | null;
+              buyerDonateAmount?: number | null;
+              buyerDepositTx?: string | null;
+              price: string;
+              amount: number;
+              amountCoinOrCurrency: number;
+              createdAt: any;
+              updatedAt: any;
+              escrowOrderStatus: Types.EscrowOrderStatus;
+              arbitratorAccount: {
+                __typename?: 'Account';
+                id: number;
+                publicKey?: string | null;
+                hash160?: string | null;
+              };
+              buyerAccount: {
+                __typename?: 'Account';
+                id: number;
+                publicKey?: string | null;
+                hash160?: string | null;
+                telegramId?: string | null;
+                telegramUsername?: string | null;
+              };
+              sellerAccount: {
+                __typename?: 'Account';
+                id: number;
+                publicKey?: string | null;
+                hash160?: string | null;
+                telegramId?: string | null;
+                telegramUsername?: string | null;
+              };
+              moderatorAccount: {
+                __typename?: 'Account';
+                id: number;
+                publicKey?: string | null;
+                hash160?: string | null;
+              };
+              paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
+              escrowOffer: {
+                __typename?: 'Offer';
+                postId: string;
+                message: string;
+                coinPayment?: string | null;
+                coinOthers?: string | null;
+                localCurrency?: string | null;
+              };
+              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              dispute?: {
+                __typename?: 'Dispute';
+                id: string;
+                createdBy: string;
+                reason?: string | null;
+                status: Types.DisputeStatus;
+              } | null;
+            }
+          | {
+              __typename: 'Post';
+              id: string;
+              content: string;
+              accountId: number;
+              pageId?: string | null;
+              tokenId?: string | null;
+              repostCount: number;
+              totalComments: number;
+              commentableId?: string | null;
+              createdAt: any;
+              updatedAt: any;
+              followPostOwner?: boolean | null;
+              followedPage?: boolean | null;
+              followedToken?: boolean | null;
+              bookmarkableId?: string | null;
+              isBookmarked?: boolean | null;
+              originalLanguage?: string | null;
+              danaViewScore?: number | null;
+              burnedByOthers?: boolean | null;
+              account: {
+                __typename?: 'Account';
+                address: string;
+                hash160?: string | null;
+                publicKey?: string | null;
+                id: number;
+                name: string;
+                avatar?: string | null;
+                createCommentFee?: string | null;
+                telegramUsername?: string | null;
+                accountStatsOrder: {
+                  __typename?: 'AccountStatsOrder';
+                  donationAmount: number;
+                  totalOrder: number;
+                  completedOrder: number;
+                  completionRate: number;
+                };
               };
               page?: {
                 __typename?: 'Page';
@@ -876,6 +1166,13 @@ export type CreateOfferMutation = {
       avatar?: string | null;
       createCommentFee?: string | null;
       telegramUsername?: string | null;
+      accountStatsOrder: {
+        __typename?: 'AccountStatsOrder';
+        donationAmount: number;
+        totalOrder: number;
+        completedOrder: number;
+        completionRate: number;
+      };
     };
     page?: {
       __typename?: 'Page';
@@ -1097,6 +1394,13 @@ export type UpdateOfferStatusMutation = {
       avatar?: string | null;
       createCommentFee?: string | null;
       telegramUsername?: string | null;
+      accountStatsOrder: {
+        __typename?: 'AccountStatsOrder';
+        donationAmount: number;
+        totalOrder: number;
+        completedOrder: number;
+        completionRate: number;
+      };
     };
     page?: {
       __typename?: 'Page';
@@ -1260,6 +1564,23 @@ export const AllOfferByAccountDocument = `
 }
     ${TimelineItemFieldsFragmentDoc}
 ${BasicPageInfoFieldsFragmentDoc}`;
+export const AllOfferActiveByAccountIdDocument = `
+    query allOfferActiveByAccountId($first: Int = 20, $after: String, $accountId: Int!) {
+  allOfferActiveByAccountId(first: $first, after: $after, accountId: $accountId) {
+    totalCount
+    edges {
+      cursor
+      node {
+        ...TimelineItemFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+    ${TimelineItemFieldsFragmentDoc}
+${BasicPageInfoFieldsFragmentDoc}`;
 export const CreateOfferDocument = `
     mutation CreateOffer($input: CreateOfferInput!) {
   createOffer(data: $input) {
@@ -1303,6 +1624,9 @@ const injectedRtkApi = api.injectEndpoints({
     }),
     AllOfferByAccount: build.query<AllOfferByAccountQuery, AllOfferByAccountQueryVariables>({
       query: variables => ({ document: AllOfferByAccountDocument, variables })
+    }),
+    allOfferActiveByAccountId: build.query<AllOfferActiveByAccountIdQuery, AllOfferActiveByAccountIdQueryVariables>({
+      query: variables => ({ document: AllOfferActiveByAccountIdDocument, variables })
     }),
     CreateOffer: build.mutation<CreateOfferMutation, CreateOfferMutationVariables>({
       query: variables => ({ document: CreateOfferDocument, variables })

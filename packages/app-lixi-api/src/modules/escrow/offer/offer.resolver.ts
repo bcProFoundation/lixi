@@ -150,6 +150,26 @@ export class OfferResolver {
     return result;
   }
 
+  @Query(() => TimelineItemConnection)
+  async allOfferActiveByAccountId(
+    @Args() { after, first }: BasicPaginationArgs,
+    @Args('accountId', { type: () => Number }) accountId: number
+  ) {
+    const paginated = await this.offerCacheService.getPaginatedMyOfferTimelineByTime(
+      accountId,
+      OfferStatus.ACTIVE,
+      first,
+      after
+    );
+    const timelineIds = paginated.edges.map(item => item.cursor);
+    const timelines = await this.timelineItemService.getByIds(timelineIds);
+    const result = {
+      ...paginated,
+      edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+    } as IBasicPaginated<TimelineItem>;
+    return result;
+  }
+
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Post)
   async createOffer(@AccountEntity() account: Account, @Args('data') data: CreateOfferInput) {

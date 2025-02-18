@@ -88,6 +88,7 @@ export * from './lib/escrow/pagination/escrow-order-connection.model';
 export * from './lib/escrow/pagination/offer-connection.model';
 export * from './lib/escrow/payment-method.model';
 export * from './lib/escrow/fiat-currency.model';
+export * from './lib/escrow/stats/account-stats-order.model';
 export * from './lib/boost-fee/boost-fee.model';
 export * from './lib/boost-fee/inputs/createBoost.input';
 export * from './lib/event/event-dana.model';
