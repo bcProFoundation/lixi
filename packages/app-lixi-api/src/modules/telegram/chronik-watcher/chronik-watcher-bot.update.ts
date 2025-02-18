@@ -98,31 +98,38 @@ export class ChronikWatcherBotUpdate implements OnModuleInit {
         let startIndex: number = tokenEntries.length > 0 ? 1 : 0;
         const outScripts = outputs.map(output => output.outputScript);
 
+        const addresses: string[] = [];
+
         // process each tx output
         for (let i = startIndex; i < outScripts.length; i++) {
           const scriptHex = outScripts[i];
           const { type, hash } = cashaddr.getTypeAndHashFromOutputScript(scriptHex);
           const ecashAddress = cashaddr.encode('ecash', type, hash);
+          addresses.push(ecashAddress);
+        }
 
-          const chronikWatchAddresses = await this.prisma.chronikWatchAddress.findMany({
-            where: {
-              address: ecashAddress
-            },
-            include: {
-              account: {
-                select: {
-                  telegramId: true
-                }
+        const chronikWatchAddresses = await this.prisma.chronikWatchAddress.findMany({
+          where: {
+            address: {
+              in: addresses
+            }
+          },
+          include: {
+            account: {
+              select: {
+                telegramId: true
               }
             }
-          });
+          }
+        });
 
-          if (chronikWatchAddresses.length > 0) {
+        if (chronikWatchAddresses.length > 0) {
+          for (let i = 0; i < chronikWatchAddresses.length; i++) {
             const parsedUtxo: ParsedUtxoType = {
               txid: txid,
               amount: startIndex === 1 ? outputs[i].token!.amount : outputs[i].value.toString(),
               chronikWatchAddresses,
-              address: ecashAddress,
+              address: chronikWatchAddresses[i].address,
               tokenId: tokenEntries.length > 0 ? tokenEntries[0].tokenId : undefined
             };
             tokenEntries.length > 0
@@ -132,7 +139,7 @@ export class ChronikWatcherBotUpdate implements OnModuleInit {
         }
       } catch (err) {
         // In this case, no notification
-        return console.log(`Error in chronik.tx(${txid} while processing an incoming websocket tx`, err);
+        return this.logger.log(`Error in chronik.tx(${txid} while processing an incoming websocket tx`, err);
       }
 
       // parse tx for notification
@@ -276,7 +283,12 @@ export class ChronikWatcherBotUpdate implements OnModuleInit {
       });
 
       //connect to chronik ws
-      this.chronikWs.subscribeToAddress(targetAddress);
+      const subs = this.chronikWs.subs.scripts;
+      const { hash } = cashaddr.decode(targetAddress, true);
+
+      if (!_.find(subs, item => item.payload === hash)) {
+        this.chronikWs.subscribeToAddress(targetAddress);
+      }
 
       await ctx.sendMessage(`Address successfully registered!`, {
         protect_content: true,
@@ -344,8 +356,16 @@ export class ChronikWatcherBotUpdate implements OnModuleInit {
         }
       });
 
-      //disconnect from chronik ws
-      this.chronikWs.unsubscribeFromAddress(targetAddress);
+      //disconnect from chronik ws if there are no more targetAddress
+      const addresses = await this.prisma.chronikWatchAddress.findMany({
+        where: {
+          address: targetAddress
+        }
+      });
+
+      if (addresses.length === 0) {
+        this.chronikWs.unsubscribeFromAddress(targetAddress);
+      }
 
       await ctx.sendMessage(`Address successfully removed!`, {
         protect_content: true,

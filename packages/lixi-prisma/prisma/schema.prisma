@@ -353,6 +353,7 @@ model ChronikWatchAddress {
   address   String
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 
+  @@unique([accountId, address])
   @@map("chronik_watch_address")
 }
 
