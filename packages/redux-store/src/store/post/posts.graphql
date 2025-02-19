@@ -330,6 +330,12 @@ fragment PostFields on Post {
     avatar
     createCommentFee
     telegramUsername
+    accountStatsOrder {
+    donationAmount
+    totalOrder
+    completedOrder
+    completionRate
+  }
   }
   accountId
   page {

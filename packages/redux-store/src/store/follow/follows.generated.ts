@@ -80,6 +80,13 @@ export type AllFollowersByFollowingQuery = {
           danaReceivedDown: number;
           danaReceivedScore: number;
         } | null;
+        accountStatsOrder: {
+          __typename?: 'AccountStatsOrder';
+          donationAmount: number;
+          totalOrder: number;
+          completedOrder: number;
+          completionRate: number;
+        };
       };
     }> | null;
     pageInfo: {
@@ -149,6 +156,13 @@ export type AllFollowingsByFollowerQuery = {
           danaReceivedDown: number;
           danaReceivedScore: number;
         } | null;
+        accountStatsOrder: {
+          __typename?: 'AccountStatsOrder';
+          donationAmount: number;
+          totalOrder: number;
+          completedOrder: number;
+          completionRate: number;
+        };
       };
     }> | null;
     pageInfo: {

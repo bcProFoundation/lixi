@@ -58,6 +58,13 @@ export type AccountQuery = {
       danaReceivedDown: number;
       danaReceivedScore: number;
     } | null;
+    accountStatsOrder: {
+      __typename?: 'AccountStatsOrder';
+      donationAmount: number;
+      totalOrder: number;
+      completedOrder: number;
+      completionRate: number;
+    };
   };
 };
 
@@ -106,6 +113,13 @@ export type GetAccountByAddressQuery = {
       danaReceivedDown: number;
       danaReceivedScore: number;
     } | null;
+    accountStatsOrder: {
+      __typename?: 'AccountStatsOrder';
+      donationAmount: number;
+      totalOrder: number;
+      completedOrder: number;
+      completionRate: number;
+    };
   };
 };
 
@@ -162,6 +176,13 @@ export type AllFollowersByPageQuery = {
           danaReceivedDown: number;
           danaReceivedScore: number;
         } | null;
+        accountStatsOrder: {
+          __typename?: 'AccountStatsOrder';
+          donationAmount: number;
+          totalOrder: number;
+          completedOrder: number;
+          completionRate: number;
+        };
       };
     }>;
     pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
@@ -221,6 +242,13 @@ export type AllFollowersByTokenQuery = {
           danaReceivedDown: number;
           danaReceivedScore: number;
         } | null;
+        accountStatsOrder: {
+          __typename?: 'AccountStatsOrder';
+          donationAmount: number;
+          totalOrder: number;
+          completedOrder: number;
+          completionRate: number;
+        };
       };
     }>;
     pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
@@ -279,6 +307,13 @@ export type AccountsQuery = {
           danaReceivedDown: number;
           danaReceivedScore: number;
         } | null;
+        accountStatsOrder: {
+          __typename?: 'AccountStatsOrder';
+          donationAmount: number;
+          totalOrder: number;
+          completedOrder: number;
+          completionRate: number;
+        };
       };
     }>;
     pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
@@ -339,6 +374,13 @@ export type TopWeekAccountsQuery = {
           danaReceivedDown: number;
           danaReceivedScore: number;
         } | null;
+        accountStatsOrder: {
+          __typename?: 'AccountStatsOrder';
+          donationAmount: number;
+          totalOrder: number;
+          completedOrder: number;
+          completionRate: number;
+        };
       };
     }>;
     pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
@@ -399,6 +441,13 @@ export type TopMonthAccountsQuery = {
           danaReceivedDown: number;
           danaReceivedScore: number;
         } | null;
+        accountStatsOrder: {
+          __typename?: 'AccountStatsOrder';
+          donationAmount: number;
+          totalOrder: number;
+          completedOrder: number;
+          completionRate: number;
+        };
       };
     }>;
     pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
@@ -444,6 +493,13 @@ export type AccountFieldsFragment = {
     danaReceivedDown: number;
     danaReceivedScore: number;
   } | null;
+  accountStatsOrder: {
+    __typename?: 'AccountStatsOrder';
+    donationAmount: number;
+    totalOrder: number;
+    completedOrder: number;
+    completionRate: number;
+  };
 };
 
 export type UpdateAccountMutationVariables = Types.Exact<{
@@ -491,6 +547,13 @@ export type UpdateAccountMutation = {
       danaReceivedDown: number;
       danaReceivedScore: number;
     } | null;
+    accountStatsOrder: {
+      __typename?: 'AccountStatsOrder';
+      donationAmount: number;
+      totalOrder: number;
+      completedOrder: number;
+      completionRate: number;
+    };
   };
 };
 
@@ -540,6 +603,13 @@ export type UpdateAccountTelegramUsernameMutation = {
       danaReceivedDown: number;
       danaReceivedScore: number;
     } | null;
+    accountStatsOrder: {
+      __typename?: 'AccountStatsOrder';
+      donationAmount: number;
+      totalOrder: number;
+      completedOrder: number;
+      completionRate: number;
+    };
   };
 };
 
@@ -584,6 +654,12 @@ export const AccountFieldsFragmentDoc = `
   telegramId
   telegramUsername
   role
+  accountStatsOrder {
+    donationAmount
+    totalOrder
+    completedOrder
+    completionRate
+  }
 }
     `;
 export const AccountDocument = `

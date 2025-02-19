@@ -125,6 +125,12 @@ fragment AccountFields on Account {
   telegramId
   telegramUsername
   role
+  accountStatsOrder {
+    donationAmount
+    totalOrder
+    completedOrder
+    completionRate
+  }
 }
 
 mutation updateAccount($input: UpdateAccountInput!) {

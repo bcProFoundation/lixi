@@ -2,6 +2,7 @@ import {
   Account,
   AccountBasicConnection,
   AccountDana,
+  AccountStatsOrder,
   BasicPaginationArgs,
   CreateAccountInput,
   FollowOfType,
@@ -458,5 +459,10 @@ export class AccountResolver {
   @ResolveField('hash160', () => String)
   async hash160(@Parent() account: Account) {
     return this.accountLoader.batchAccountHash160s.load(account.id);
+  }
+
+  @ResolveField('accountStatsOrder', () => AccountStatsOrder)
+  async accountStatsOrder(@Parent() account: Account) {
+    return this.accountLoader.batchAccountStatsOrder.load(account.id);
   }
 }
