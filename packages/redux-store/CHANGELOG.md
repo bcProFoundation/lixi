@@ -1,5 +1,13 @@
 # @bcpros/redux-store
 
+## 1.2.52
+
+### Patch Changes
+
+- Statistic for order escrow
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.52
+
 ## 1.2.51
 
 ### Patch Changes

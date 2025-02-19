@@ -1,5 +1,11 @@
 # @bcpros/lixi-prisma
 
+## 1.2.20
+
+### Patch Changes
+
+- Statistic for order escrow
+
 ## 1.2.19
 
 ### Patch Changes

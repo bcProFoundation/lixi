@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.52
+
+### Patch Changes
+
+- Statistic for order escrow
+
 ## 1.2.51
 
 ### Patch Changes
