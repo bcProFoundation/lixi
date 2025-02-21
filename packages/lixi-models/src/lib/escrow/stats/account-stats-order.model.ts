@@ -6,11 +6,8 @@ export class AccountStatsOrder {
   donationAmount: number;
 
   @Field(() => Number)
-  totalOrder: number;
-
-  @Field(() => Number)
   completedOrder: number;
 
-  @Field(() => Float)
-  completionRate: number;
+  @Field(() => Number)
+  uniqueTrades: number;
 }

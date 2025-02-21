@@ -107,9 +107,8 @@ enum AccountOrderField {
 
 type AccountStatsOrder {
   completedOrder: Int!
-  completionRate: Float!
   donationAmount: Float!
-  totalOrder: Int!
+  uniqueTrades: Int!
 }
 
 """The type of account."""

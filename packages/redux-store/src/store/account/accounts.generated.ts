@@ -61,9 +61,8 @@ export type AccountQuery = {
     accountStatsOrder: {
       __typename?: 'AccountStatsOrder';
       donationAmount: number;
-      totalOrder: number;
       completedOrder: number;
-      completionRate: number;
+      uniqueTrades: number;
     };
   };
 };
@@ -116,9 +115,8 @@ export type GetAccountByAddressQuery = {
     accountStatsOrder: {
       __typename?: 'AccountStatsOrder';
       donationAmount: number;
-      totalOrder: number;
       completedOrder: number;
-      completionRate: number;
+      uniqueTrades: number;
     };
   };
 };
@@ -179,9 +177,8 @@ export type AllFollowersByPageQuery = {
         accountStatsOrder: {
           __typename?: 'AccountStatsOrder';
           donationAmount: number;
-          totalOrder: number;
           completedOrder: number;
-          completionRate: number;
+          uniqueTrades: number;
         };
       };
     }>;
@@ -245,9 +242,8 @@ export type AllFollowersByTokenQuery = {
         accountStatsOrder: {
           __typename?: 'AccountStatsOrder';
           donationAmount: number;
-          totalOrder: number;
           completedOrder: number;
-          completionRate: number;
+          uniqueTrades: number;
         };
       };
     }>;
@@ -310,9 +306,8 @@ export type AccountsQuery = {
         accountStatsOrder: {
           __typename?: 'AccountStatsOrder';
           donationAmount: number;
-          totalOrder: number;
           completedOrder: number;
-          completionRate: number;
+          uniqueTrades: number;
         };
       };
     }>;
@@ -377,9 +372,8 @@ export type TopWeekAccountsQuery = {
         accountStatsOrder: {
           __typename?: 'AccountStatsOrder';
           donationAmount: number;
-          totalOrder: number;
           completedOrder: number;
-          completionRate: number;
+          uniqueTrades: number;
         };
       };
     }>;
@@ -444,9 +438,8 @@ export type TopMonthAccountsQuery = {
         accountStatsOrder: {
           __typename?: 'AccountStatsOrder';
           donationAmount: number;
-          totalOrder: number;
           completedOrder: number;
-          completionRate: number;
+          uniqueTrades: number;
         };
       };
     }>;
@@ -496,9 +489,8 @@ export type AccountFieldsFragment = {
   accountStatsOrder: {
     __typename?: 'AccountStatsOrder';
     donationAmount: number;
-    totalOrder: number;
     completedOrder: number;
-    completionRate: number;
+    uniqueTrades: number;
   };
 };
 
@@ -550,9 +542,8 @@ export type UpdateAccountMutation = {
     accountStatsOrder: {
       __typename?: 'AccountStatsOrder';
       donationAmount: number;
-      totalOrder: number;
       completedOrder: number;
-      completionRate: number;
+      uniqueTrades: number;
     };
   };
 };
@@ -606,9 +597,8 @@ export type UpdateAccountTelegramUsernameMutation = {
     accountStatsOrder: {
       __typename?: 'AccountStatsOrder';
       donationAmount: number;
-      totalOrder: number;
       completedOrder: number;
-      completionRate: number;
+      uniqueTrades: number;
     };
   };
 };
@@ -656,9 +646,8 @@ export const AccountFieldsFragmentDoc = `
   role
   accountStatsOrder {
     donationAmount
-    totalOrder
     completedOrder
-    completionRate
+    uniqueTrades
   }
 }
     `;
