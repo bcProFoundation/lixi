@@ -6,21 +6,229 @@ import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../telegram-bot.constants';
 import { format } from 'node:util';
 import { Prisma, Role } from '@bcpros/lixi-prisma';
 import moment from 'moment';
-import { InfoStatistics, PERIOD_TIME } from 'src/utils/bot.constants';
+import { BOT, InfoStatistics, PERIOD_TIME } from 'src/utils/bot.constants';
 import { ConfigService } from '@nestjs/config';
+import { InjectChronikClientNode } from 'nestjs-chronik';
+import { ChronikClientNode, MsgTxClient, TxOutput_InNode, WsEndpoint_InNode, WsMsgClient } from 'chronik-client';
+import { LocalEcashCacheService } from './local-ecash-cache.service';
+import { COIN, coinInfo } from '@bcpros/lixi-models';
+import _ from 'lodash';
+import cashaddr from 'ecashaddrjs';
+
+type ParsedUtxoType = {
+  txid: string;
+  amount: number;
+  chronikWatchAddresses: any;
+  hashAddress: string;
+  tokenId?: string;
+};
 
 @Update()
 @Injectable()
 export class LocalEcashBotUpdate implements OnModuleInit {
   private logger: Logger = new Logger(LocalEcashBotUpdate.name);
+  private chronikWs: WsEndpoint_InNode;
 
   constructor(
+    @InjectChronikClientNode('xec') private chronik: ChronikClientNode,
     @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
     private readonly prisma: PrismaService,
-    private readonly config: ConfigService
-  ) {}
+    private readonly config: ConfigService,
+    private readonly localEcashCacheService: LocalEcashCacheService
+  ) {
+    this.chronikWs = this.chronik.ws({
+      onMessage: this._chronikHandleWsMessage,
+      onReconnect: e => {
+        // Fired before a reconnect attempt is made:
+        this.logger.log('Chronik Watcher reconnecting websocket, disconnection cause: ');
+      },
+      onConnect: e => {
+        this.logger.log(`Chronik Watcher websocket connected`);
+      },
+      onError: e => {
+        this.logger.log('Chronik Watcher error', e);
+      }
+    });
+  }
 
-  onModuleInit() {}
+  async onModuleInit() {
+    try {
+      //ws for xec
+      await this.chronikWs.waitForOpen().catch(e => {
+        this.chronikWs.close();
+        this.logger.log(
+          `Chronik Watcher - websocket - has closed: ${this.chronikWs.manuallyClosed}`,
+          LocalEcashBotUpdate.name
+        );
+        return;
+      });
+
+      //we need to subscribe address to listen new block
+
+      const chronikWatchAddress = await this.prisma.chronikWatchAddress.findMany({});
+
+      const addresses = _.uniq(chronikWatchAddress.map(item => item.hashAddress));
+
+      for (const address of addresses) {
+        this.chronikWs.subscribeToScript('p2pkh', address);
+      }
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
+  _convertOutputScript(output: TxOutput_InNode): { hashAddress: string; amount: number; tokenId?: string } | null {
+    try {
+      let amount = 0;
+
+      const { hash } = cashaddr.getTypeAndHashFromOutputScript(output.outputScript);
+      const hashAddress: string = hash;
+
+      if (output.token) {
+        amount = Number(output.token.amount);
+        return { hashAddress, amount, tokenId: output.token.tokenId };
+      } else {
+        amount = output.value ? Number(output.value.toString()) : 0;
+        return { hashAddress, amount };
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
+  private _chronikHandleWsMessage = async (msg: WsMsgClient) => {
+    try {
+      // get the message type
+      const { type } = msg;
+
+      // For now, only act on "first seen" transactions, as the only logic to happen is first seen notifications
+      // Dev note: Other chronik msg types
+      // "BlockConnected", arrives as new blocks are found
+      // "Confirmed", arrives as subscribed + seen txid is confirmed in a block
+      if (type === 'Error') {
+        return;
+      }
+
+      // get txid info
+      const { txid } = msg as MsgTxClient;
+
+      try {
+        const { outputs, tokenEntries } = await this.chronik.tx(txid);
+
+        let outputsConverted = _.compact(
+          _.uniq(
+            _.map(outputs, output => {
+              return this._convertOutputScript(output);
+            })
+          )
+        );
+
+        const chronikWatchAddresses = await this.prisma.chronikWatchAddress.findMany({
+          where: {
+            hashAddress: {
+              in: _.map(outputsConverted, item => item.hashAddress)
+            }
+          },
+          include: {
+            account: {
+              select: {
+                telegramId: true
+              }
+            }
+          }
+        });
+
+        if (chronikWatchAddresses.length > 0) {
+          for (const chronikWatchAddress of chronikWatchAddresses) {
+            const { amount, hashAddress, tokenId } =
+              outputsConverted.find(item => item.hashAddress === chronikWatchAddress.hashAddress)! || {};
+
+            const parsedUtxo: ParsedUtxoType = {
+              txid: txid,
+              amount: amount,
+              chronikWatchAddresses,
+              hashAddress: hashAddress,
+              tokenId: tokenId ?? undefined
+            };
+
+            tokenEntries.length > 0
+              ? await this.receivedSLPDeposit(parsedUtxo)
+              : await this.receivedXECDeposit(parsedUtxo);
+          }
+        }
+      } catch (err) {
+        // In this case, no notification
+        return this.logger.log(`Error in chronik.tx(${txid} while processing an incoming websocket tx`, err);
+      }
+
+      // parse tx for notification
+      // const parsedChronikTx = await parseChronikTx(XPI, chronik, incomingTxDetails, wallet);
+    } catch (e: any) {
+      throw new Error(`_chronikHandleWsMessage: ${e.message}`);
+    }
+  };
+
+  async receivedSLPDeposit(parsedUtxo: ParsedUtxoType) {
+    const { txid, amount, chronikWatchAddresses, hashAddress, tokenId } = parsedUtxo;
+    const { genesisInfo } = await this.chronik.token(tokenId!);
+
+    const formatReplied = format(
+      BOT.MESSAGE.CHRONIK_WATCH_RECIEVED_SLP,
+      cashaddr.encode('etoken', 'p2pkh', hashAddress),
+      (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString(),
+      genesisInfo.tokenTicker,
+      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
+    );
+
+    for (const chronikWatchAddress of chronikWatchAddresses) {
+      const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
+        chronikWatchAddress.account.telegramId!,
+        txid
+      );
+
+      if (!cached) {
+        await this.bot.telegram
+          .sendMessage(chronikWatchAddress.account.telegramId!, formatReplied, {
+            parse_mode: 'Markdown'
+          })
+          .catch(e => {
+            this.logger.error(e);
+          });
+
+        await this.localEcashCacheService.cacheTelegramNotification(chronikWatchAddress.account.telegramId!, txid);
+      }
+    }
+  }
+
+  async receivedXECDeposit(parsedUtxo: ParsedUtxoType) {
+    const { txid, amount, chronikWatchAddresses, hashAddress } = parsedUtxo;
+
+    const formatReplied = format(
+      BOT.MESSAGE.CHRONIK_WATCH_RECIEVED_XEC,
+      cashaddr.encode('ecash', 'p2pkh', hashAddress),
+      (amount / Math.pow(10, 2)).toLocaleString(),
+      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
+    );
+
+    for (const chronikWatchAddress of chronikWatchAddresses) {
+      const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
+        chronikWatchAddress.account.telegramId!,
+        txid
+      );
+
+      if (!cached) {
+        await this.bot.telegram
+          .sendMessage(chronikWatchAddress.account.telegramId!, formatReplied, {
+            parse_mode: 'Markdown'
+          })
+          .catch(e => {
+            this.logger.error(e);
+          });
+
+        await this.localEcashCacheService.cacheTelegramNotification(chronikWatchAddress.account.telegramId!, txid);
+      }
+    }
+  }
 
   @Start()
   async onStart(ctx: Context) {
@@ -30,7 +238,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
 Are you ready? Let's get started.
 
 [Start trading](%s)`,
-      `https://${this.config.get('LOCAL_ECASH_URL')}`
+      `${this.config.get('LOCAL_ECASH_URL')}`
     );
 
     await ctx.reply(formatReplied, {
@@ -49,6 +257,9 @@ Are you ready? Let's get started.
          + Replace 'YYYYMMDD' with a date in the format *Year-Month-Day* (e.g., '20250101' for January 1, 2025).    
          + If the date is not provided, the current date will be used by default.  
       - 🆘 /help - Display this help message.
+      - 👀 /watch - Add watching address i.e. /watch ecash:qqth...jfje
+      - 🗑️ /removewatch - Remove watched address i.e. /remove ecash:qqth...jfje 
+      - 📋 /listwatch - List all watched addresses
       
       If you need further assistance, feel free to contact our support team or visit our [Telegram Channel](https://t.me/localecash).
       
@@ -195,5 +406,226 @@ Are you ready? Let's get started.
     const statistics = await this.prisma.$queryRaw<InfoStatistics[]>(rawQuery);
 
     return statistics;
+  }
+
+  @Command('watch')
+  async onWatch(ctx: Context) {
+    try {
+      const args = (ctx?.message as { text: string }).text?.split(' ')[1];
+      let targetAddress = args?.trim();
+
+      if (!targetAddress) {
+        await ctx.reply('Please provide a valid address.');
+        return;
+      }
+
+      const { type, hash } = cashaddr.decode(targetAddress);
+      const hashAsString = Buffer.from(hash).toString('hex');
+
+      const account = await this.prisma.account.findFirst({
+        where: {
+          telegramId: ctx.from?.id.toString()
+        },
+        include: {
+          chronikWatchAddresses: true
+        }
+      });
+
+      if (!account) {
+        await ctx.sendMessage('Please create account at @local_ecash_bot', {
+          protect_content: true,
+          parse_mode: 'Markdown',
+          reply_parameters: {
+            message_id: ctx.msgId!
+          }
+        });
+        return;
+      }
+
+      if (account.chronikWatchAddresses.find(item => item.hashAddress === hashAsString)) {
+        await ctx.sendMessage(`Address is already registered!`, {
+          protect_content: true,
+          parse_mode: 'Markdown',
+          reply_parameters: {
+            message_id: ctx.msgId!
+          }
+        });
+        return;
+      }
+
+      //connect to chronik ws
+      const subs = this.chronikWs.subs.scripts;
+
+      if (!_.find(subs, item => item.payload === hashAsString)) {
+        //@ts-ignore
+        this.chronikWs.subscribeToScript(type.toLowerCase(), hashAsString);
+      }
+
+      //add to prisma
+      await this.prisma.chronikWatchAddress.create({
+        data: {
+          accountId: account.id,
+          hashAddress: hashAsString
+        }
+      });
+
+      await ctx.sendMessage(`Address successfully registered!`, {
+        protect_content: true,
+        parse_mode: 'Markdown',
+        reply_parameters: {
+          message_id: ctx.msgId!
+        }
+      });
+    } catch (e) {
+      this.logger.error(e, LocalEcashBotUpdate.name);
+      await ctx.reply('Error adding address.');
+      return;
+    }
+  }
+
+  @Command('removewatch')
+  async onRemove(ctx: Context) {
+    try {
+      const args = (ctx?.message as { text: string }).text?.split(' ')[1];
+      let targetAddress = args?.trim();
+
+      if (!targetAddress) {
+        await ctx.reply('Please provide a valid address.');
+        return;
+      }
+
+      const { hash } = cashaddr.decode(targetAddress);
+      const hashAsString = Buffer.from(hash).toString('hex');
+
+      //remove from prisma
+      const account = await this.prisma.account.findFirst({
+        where: {
+          telegramId: ctx.from?.id.toString()
+        },
+        include: {
+          chronikWatchAddresses: true
+        }
+      });
+
+      if (!account) {
+        await ctx.sendMessage('Please create account at @local_ecash_bot', {
+          protect_content: true,
+          parse_mode: 'Markdown',
+          reply_parameters: {
+            message_id: ctx.msgId!
+          }
+        });
+        return;
+      }
+
+      const chronikWatchAddress = account.chronikWatchAddresses.find(item => item.hashAddress === hashAsString);
+
+      if (!chronikWatchAddress) {
+        await ctx.sendMessage(`Address is not registered!`, {
+          protect_content: true,
+          parse_mode: 'Markdown',
+          reply_parameters: {
+            message_id: ctx.msgId!
+          }
+        });
+        return;
+      }
+
+      //remove from prisma
+      await this.prisma.chronikWatchAddress.delete({
+        where: {
+          id: chronikWatchAddress.id
+        }
+      });
+
+      //disconnect from chronik ws if there are no more targetAddress
+      const addresses = await this.prisma.chronikWatchAddress.findMany({
+        where: {
+          hashAddress: hashAsString
+        }
+      });
+
+      if (addresses.length === 0) {
+        this.chronikWs.unsubscribeFromScript('p2pkh', hashAsString);
+      }
+
+      await ctx.sendMessage(`Address successfully removed!`, {
+        protect_content: true,
+        parse_mode: 'Markdown',
+        reply_parameters: {
+          message_id: ctx.msgId!
+        }
+      });
+    } catch (e) {
+      this.logger.error(e, LocalEcashBotUpdate.name);
+      await ctx.reply('Error removing address.');
+      return;
+    }
+  }
+
+  @Command('listwatch')
+  async onList(ctx: Context) {
+    try {
+      const account = await this.prisma.account.findFirst({
+        where: {
+          telegramId: ctx.from?.id.toString()
+        },
+        include: {
+          chronikWatchAddresses: true
+        }
+      });
+
+      if (!account) {
+        await ctx.sendMessage('Please create account at @local_ecash_bot', {
+          protect_content: true,
+          parse_mode: 'Markdown',
+          reply_parameters: {
+            message_id: ctx.msgId!
+          }
+        });
+        return;
+      }
+
+      const chronikWatchAddress = account.chronikWatchAddresses.map(item => item.hashAddress);
+
+      if (account.chronikWatchAddresses.length === 0) {
+        await ctx.sendMessage(`No addresses registered!`, {
+          protect_content: true,
+          parse_mode: 'Markdown',
+          reply_parameters: {
+            message_id: ctx.msgId!
+          }
+        });
+        return;
+      }
+
+      const addressReplyFormat = chronikWatchAddress.map((item, index) => {
+        const ecash = cashaddr.encode('ecash', 'p2pkh', Buffer.from(item, 'hex'));
+        const etoken = cashaddr.encode('etoken', 'p2pkh', Buffer.from(item, 'hex'));
+
+        return `${index + 1}. [${ecash}](${coinInfo[COIN.XEC].blockExplorerUrl}/address/${ecash})
+        [${etoken}](${coinInfo[COIN.XEC].blockExplorerUrl}/address/${etoken})`;
+      });
+
+      await ctx.sendMessage(
+        `Addresses registered: 
+${addressReplyFormat.join('\n')}
+          `,
+        {
+          protect_content: true,
+          parse_mode: 'Markdown',
+          reply_parameters: {
+            message_id: ctx.msgId!
+          },
+          link_preview_options: {
+            is_disabled: true
+          }
+        }
+      );
+    } catch (e) {
+      this.logger.error(e, LocalEcashBotUpdate.name);
+      await ctx.reply('Error listing addresses.');
+      return;
+    }
   }
 }

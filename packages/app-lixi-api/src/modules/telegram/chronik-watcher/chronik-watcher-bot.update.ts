@@ -26,420 +26,420 @@ type ParsedUtxoType = {
 
 @Update()
 @Injectable()
-export class ChronikWatcherBotUpdate implements OnModuleInit {
+export class ChronikWatcherBotUpdate {
   private logger: Logger = new Logger(ChronikWatcherBotUpdate.name);
-  private chronikWs: WsEndpoint_InNode;
+  // private chronikWs: WsEndpoint_InNode;
 
-  constructor(
-    @InjectChronikClientNode('xec') private chronik: ChronikClientNode,
-    @InjectBot(TELEGRAM_CHRONIK_WATCHER_BOT_NAME) private bot: Telegraf<Context>,
-    private readonly prisma: PrismaService,
-    private readonly config: ConfigService,
-    private readonly chronikWatcherCacheService: ChronikWatcherCacheService
-  ) {
-    this.chronikWs = this.chronik.ws({
-      onMessage: this._chronikHandleWsMessage,
-      onReconnect: e => {
-        // Fired before a reconnect attempt is made:
-        this.logger.log('Chronik Watcher reconnecting websocket, disconnection cause: ');
-      },
-      onConnect: e => {
-        this.logger.log(`Chronik Watcher websocket connected`);
-      },
-      onError: e => {
-        this.logger.log('Chronik Watcher error', e);
-      }
-    });
-  }
+  // constructor(
+  //   @InjectChronikClientNode('xec') private chronik: ChronikClientNode,
+  //   @InjectBot(TELEGRAM_CHRONIK_WATCHER_BOT_NAME) private bot: Telegraf<Context>,
+  //   private readonly prisma: PrismaService,
+  //   private readonly config: ConfigService,
+  //   private readonly chronikWatcherCacheService: ChronikWatcherCacheService
+  // ) {
+  //   this.chronikWs = this.chronik.ws({
+  //     onMessage: this._chronikHandleWsMessage,
+  //     onReconnect: e => {
+  //       // Fired before a reconnect attempt is made:
+  //       this.logger.log('Chronik Watcher reconnecting websocket, disconnection cause: ');
+  //     },
+  //     onConnect: e => {
+  //       this.logger.log(`Chronik Watcher websocket connected`);
+  //     },
+  //     onError: e => {
+  //       this.logger.log('Chronik Watcher error', e);
+  //     }
+  //   });
+  // }
 
-  async onModuleInit() {
-    try {
-      //ws for xec
-      await this.chronikWs.waitForOpen().catch(e => {
-        this.chronikWs.close();
-        this.logger.log(
-          `Chronik Watcher - websocket - has closed: ${this.chronikWs.manuallyClosed}`,
-          ChronikWatcherBotUpdate.name
-        );
-      });
+  //   async onModuleInit() {
+  //     try {
+  //       //ws for xec
+  //       await this.chronikWs.waitForOpen().catch(e => {
+  //         this.chronikWs.close();
+  //         this.logger.log(
+  //           `Chronik Watcher - websocket - has closed: ${this.chronikWs.manuallyClosed}`,
+  //           ChronikWatcherBotUpdate.name
+  //         );
+  //       });
 
-      //we need to subscribe address to listen new block
+  //       //we need to subscribe address to listen new block
 
-      const chronikWatchAddress = await this.prisma.chronikWatchAddress.findMany({});
+  //       const chronikWatchAddress = await this.prisma.chronikWatchAddress.findMany({});
 
-      const addresses = _.uniq(chronikWatchAddress.map(item => item.address));
+  //       const addresses = _.uniq(chronikWatchAddress.map(item => item.address));
 
-      for (const address of addresses) {
-        this.chronikWs.subscribeToAddress(address);
-      }
-    } catch (e) {
-      this.logger.error(e);
-    }
-  }
+  //       for (const address of addresses) {
+  //         this.chronikWs.subscribeToAddress(address);
+  //       }
+  //     } catch (e) {
+  //       this.logger.error(e);
+  //     }
+  //   }
 
-  private _chronikHandleWsMessage = async (msg: WsMsgClient) => {
-    try {
-      // get the message type
-      const { type } = msg;
+  //   private _chronikHandleWsMessage = async (msg: WsMsgClient) => {
+  //     try {
+  //       // get the message type
+  //       const { type } = msg;
 
-      // For now, only act on "first seen" transactions, as the only logic to happen is first seen notifications
-      // Dev note: Other chronik msg types
-      // "BlockConnected", arrives as new blocks are found
-      // "Confirmed", arrives as subscribed + seen txid is confirmed in a block
-      if (type === 'Error') {
-        return;
-      }
+  //       // For now, only act on "first seen" transactions, as the only logic to happen is first seen notifications
+  //       // Dev note: Other chronik msg types
+  //       // "BlockConnected", arrives as new blocks are found
+  //       // "Confirmed", arrives as subscribed + seen txid is confirmed in a block
+  //       if (type === 'Error') {
+  //         return;
+  //       }
 
-      // get txid info
-      const { txid } = msg as MsgTxClient;
+  //       // get txid info
+  //       const { txid } = msg as MsgTxClient;
 
-      try {
-        const { outputs, tokenEntries, inputs } = await this.chronik.tx(txid);
-        let startIndex: number = tokenEntries.length > 0 ? 1 : 0;
-        const outScripts = outputs.map(output => output.outputScript);
+  //       try {
+  //         const { outputs, tokenEntries, inputs } = await this.chronik.tx(txid);
+  //         let startIndex: number = tokenEntries.length > 0 ? 1 : 0;
+  //         const outScripts = outputs.map(output => output.outputScript);
 
-        const addresses: string[] = [];
+  //         const addresses: string[] = [];
 
-        // process each tx output
-        for (let i = startIndex; i < outScripts.length; i++) {
-          const scriptHex = outScripts[i];
-          const { type, hash } = cashaddr.getTypeAndHashFromOutputScript(scriptHex);
-          const ecashAddress = cashaddr.encode('ecash', type, hash);
-          addresses.push(ecashAddress);
-        }
+  //         // process each tx output
+  //         for (let i = startIndex; i < outScripts.length; i++) {
+  //           const scriptHex = outScripts[i];
+  //           const { type, hash } = cashaddr.getTypeAndHashFromOutputScript(scriptHex);
+  //           const ecashAddress = cashaddr.encode('ecash', type, hash);
+  //           addresses.push(ecashAddress);
+  //         }
 
-        const chronikWatchAddresses = await this.prisma.chronikWatchAddress.findMany({
-          where: {
-            address: {
-              in: addresses
-            }
-          },
-          include: {
-            account: {
-              select: {
-                telegramId: true
-              }
-            }
-          }
-        });
+  //         const chronikWatchAddresses = await this.prisma.chronikWatchAddress.findMany({
+  //           where: {
+  //             address: {
+  //               in: addresses
+  //             }
+  //           },
+  //           include: {
+  //             account: {
+  //               select: {
+  //                 telegramId: true
+  //               }
+  //             }
+  //           }
+  //         });
 
-        if (chronikWatchAddresses.length > 0) {
-          for (let i = 0; i < chronikWatchAddresses.length; i++) {
-            const parsedUtxo: ParsedUtxoType = {
-              txid: txid,
-              amount: startIndex === 1 ? outputs[i].token!.amount : outputs[i].value.toString(),
-              chronikWatchAddresses,
-              address: chronikWatchAddresses[i].address,
-              tokenId: tokenEntries.length > 0 ? tokenEntries[0].tokenId : undefined
-            };
-            tokenEntries.length > 0
-              ? await this.receivedSLPDeposit(parsedUtxo)
-              : await this.receivedXECDeposit(parsedUtxo);
-          }
-        }
-      } catch (err) {
-        // In this case, no notification
-        return this.logger.log(`Error in chronik.tx(${txid} while processing an incoming websocket tx`, err);
-      }
+  //         if (chronikWatchAddresses.length > 0) {
+  //           for (let i = 0; i < chronikWatchAddresses.length; i++) {
+  //             const parsedUtxo: ParsedUtxoType = {
+  //               txid: txid,
+  //               amount: startIndex === 1 ? outputs[i].token!.amount : outputs[i].value.toString(),
+  //               chronikWatchAddresses,
+  //               address: chronikWatchAddresses[i].address,
+  //               tokenId: tokenEntries.length > 0 ? tokenEntries[0].tokenId : undefined
+  //             };
+  //             tokenEntries.length > 0
+  //               ? await this.receivedSLPDeposit(parsedUtxo)
+  //               : await this.receivedXECDeposit(parsedUtxo);
+  //           }
+  //         }
+  //       } catch (err) {
+  //         // In this case, no notification
+  //         return this.logger.log(`Error in chronik.tx(${txid} while processing an incoming websocket tx`, err);
+  //       }
 
-      // parse tx for notification
-      // const parsedChronikTx = await parseChronikTx(XPI, chronik, incomingTxDetails, wallet);
-    } catch (e: any) {
-      throw new Error(`_chronikHandleWsMessage: ${e.message}`);
-    }
-  };
+  //       // parse tx for notification
+  //       // const parsedChronikTx = await parseChronikTx(XPI, chronik, incomingTxDetails, wallet);
+  //     } catch (e: any) {
+  //       throw new Error(`_chronikHandleWsMessage: ${e.message}`);
+  //     }
+  //   };
 
-  async receivedSLPDeposit(parsedUtxo: ParsedUtxoType) {
-    const { txid, amount, chronikWatchAddresses, address, tokenId } = parsedUtxo;
-    const { genesisInfo } = await this.chronik.token(tokenId!);
+  //   async receivedSLPDeposit(parsedUtxo: ParsedUtxoType) {
+  //     const { txid, amount, chronikWatchAddresses, address, tokenId } = parsedUtxo;
+  //     const { genesisInfo } = await this.chronik.token(tokenId!);
 
-    const formatReplied = format(
-      BOT.MESSAGE.CHRONIK_WATCH_RECIEVED_SLP,
-      address,
-      parseFloat(amount) / Math.pow(10, genesisInfo.decimals),
-      genesisInfo.tokenTicker,
-      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
-    );
+  //     const formatReplied = format(
+  //       BOT.MESSAGE.CHRONIK_WATCH_RECIEVED_SLP,
+  //       address,
+  //       parseFloat(amount) / Math.pow(10, genesisInfo.decimals),
+  //       genesisInfo.tokenTicker,
+  //       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
+  //     );
 
-    for (const chronikWatchAddress of chronikWatchAddresses) {
-      const cached = await this.chronikWatcherCacheService.getTelegramNotificationCacheItem(
-        chronikWatchAddress.account.telegramId!,
-        txid
-      );
+  //     for (const chronikWatchAddress of chronikWatchAddresses) {
+  //       const cached = await this.chronikWatcherCacheService.getTelegramNotificationCacheItem(
+  //         chronikWatchAddress.account.telegramId!,
+  //         txid
+  //       );
 
-      if (!cached) {
-        await this.bot.telegram
-          .sendMessage(chronikWatchAddress.account.telegramId!, formatReplied, {
-            parse_mode: 'Markdown'
-          })
-          .catch(e => {
-            this.logger.error(e);
-          });
+  //       if (!cached) {
+  //         await this.bot.telegram
+  //           .sendMessage(chronikWatchAddress.account.telegramId!, formatReplied, {
+  //             parse_mode: 'Markdown'
+  //           })
+  //           .catch(e => {
+  //             this.logger.error(e);
+  //           });
 
-        await this.chronikWatcherCacheService.cacheTelegramNotification(chronikWatchAddress.account.telegramId!, txid);
-      }
-    }
-  }
+  //         await this.chronikWatcherCacheService.cacheTelegramNotification(chronikWatchAddress.account.telegramId!, txid);
+  //       }
+  //     }
+  //   }
 
-  async receivedXECDeposit(parsedUtxo: ParsedUtxoType) {
-    const { txid, amount, chronikWatchAddresses, address } = parsedUtxo;
+  //   async receivedXECDeposit(parsedUtxo: ParsedUtxoType) {
+  //     const { txid, amount, chronikWatchAddresses, address } = parsedUtxo;
 
-    const formatReplied = format(
-      BOT.MESSAGE.CHRONIK_WATCH_RECIEVED_XEC,
-      address,
-      parseFloat(amount) / Math.pow(10, 2),
-      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
-    );
+  //     const formatReplied = format(
+  //       BOT.MESSAGE.CHRONIK_WATCH_RECIEVED_XEC,
+  //       address,
+  //       parseFloat(amount) / Math.pow(10, 2),
+  //       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
+  //     );
 
-    for (const chronikWatchAddress of chronikWatchAddresses) {
-      const cached = await this.chronikWatcherCacheService.getTelegramNotificationCacheItem(
-        chronikWatchAddress.account.telegramId!,
-        txid
-      );
+  //     for (const chronikWatchAddress of chronikWatchAddresses) {
+  //       const cached = await this.chronikWatcherCacheService.getTelegramNotificationCacheItem(
+  //         chronikWatchAddress.account.telegramId!,
+  //         txid
+  //       );
 
-      if (!cached) {
-        await this.bot.telegram
-          .sendMessage(chronikWatchAddress.account.telegramId!, formatReplied, {
-            parse_mode: 'Markdown'
-          })
-          .catch(e => {
-            this.logger.error(e);
-          });
+  //       if (!cached) {
+  //         await this.bot.telegram
+  //           .sendMessage(chronikWatchAddress.account.telegramId!, formatReplied, {
+  //             parse_mode: 'Markdown'
+  //           })
+  //           .catch(e => {
+  //             this.logger.error(e);
+  //           });
 
-        await this.chronikWatcherCacheService.cacheTelegramNotification(chronikWatchAddress.account.telegramId!, txid);
-      }
-    }
-  }
+  //         await this.chronikWatcherCacheService.cacheTelegramNotification(chronikWatchAddress.account.telegramId!, txid);
+  //       }
+  //     }
+  //   }
 
-  @Start()
-  async onStart(ctx: Context) {
-    await ctx.reply('Welcome to the Chronik Watcher Bot, please use /help to display all commands.');
-    return;
-  }
+  //   @Start()
+  //   async onStart(ctx: Context) {
+  //     await ctx.reply('Welcome to the Chronik Watcher Bot, please use /help to display all commands.');
+  //     return;
+  //   }
 
-  @Command('help')
-  async listAllCommand(ctx: Context) {
-    const helpMessage = `
-  💡 *Available Commands* 💡
+  //   @Command('help')
+  //   async listAllCommand(ctx: Context) {
+  //     const helpMessage = `
+  //   💡 *Available Commands* 💡
 
-/watch - Add watching address i.e. /add ecash:qqth...jfje
-/removewatch - Remove watched address i.e. /remove ecash:qqth...jfje 
-/watchlist - List all watched addresses
-    `;
+  // /watch - Add watching address i.e. /add ecash:qqth...jfje
+  // /removewatch - Remove watched address i.e. /remove ecash:qqth...jfje
+  // /watchlist - List all watched addresses
+  //     `;
 
-    await ctx.reply(helpMessage, {
-      parse_mode: 'Markdown'
-    });
-  }
+  //     await ctx.reply(helpMessage, {
+  //       parse_mode: 'Markdown'
+  //     });
+  //   }
 
-  @Command('watch')
-  async onAdd(ctx: Context) {
-    try {
-      const args = (ctx?.message as { text: string }).text?.split(' ')[1];
-      let targetAddress = args?.trim();
+  //   @Command('watch')
+  //   async onAdd(ctx: Context) {
+  //     try {
+  //       const args = (ctx?.message as { text: string }).text?.split(' ')[1];
+  //       let targetAddress = args?.trim();
 
-      if (!targetAddress || !isValidXecAddress(targetAddress)) {
-        await ctx.reply('Please provide a valid address.');
-        return;
-      }
+  //       if (!targetAddress || !isValidXecAddress(targetAddress)) {
+  //         await ctx.reply('Please provide a valid address.');
+  //         return;
+  //       }
 
-      const account = await this.prisma.account.findFirst({
-        where: {
-          telegramId: ctx.from?.id.toString()
-        },
-        include: {
-          chronikWatchAddresses: true
-        }
-      });
+  //       const account = await this.prisma.account.findFirst({
+  //         where: {
+  //           telegramId: ctx.from?.id.toString()
+  //         },
+  //         include: {
+  //           chronikWatchAddresses: true
+  //         }
+  //       });
 
-      if (!account) {
-        await ctx.sendMessage('Please create account at @local_ecash_bot', {
-          protect_content: true,
-          parse_mode: 'Markdown',
-          reply_parameters: {
-            message_id: ctx.msgId!
-          }
-        });
-        return;
-      }
+  //       if (!account) {
+  //         await ctx.sendMessage('Please create account at @local_ecash_bot', {
+  //           protect_content: true,
+  //           parse_mode: 'Markdown',
+  //           reply_parameters: {
+  //             message_id: ctx.msgId!
+  //           }
+  //         });
+  //         return;
+  //       }
 
-      if (account.chronikWatchAddresses.find(item => item.address === targetAddress)) {
-        await ctx.sendMessage(`Address is already registered!`, {
-          protect_content: true,
-          parse_mode: 'Markdown',
-          reply_parameters: {
-            message_id: ctx.msgId!
-          }
-        });
-        return;
-      }
+  //       if (account.chronikWatchAddresses.find(item => item.address === targetAddress)) {
+  //         await ctx.sendMessage(`Address is already registered!`, {
+  //           protect_content: true,
+  //           parse_mode: 'Markdown',
+  //           reply_parameters: {
+  //             message_id: ctx.msgId!
+  //           }
+  //         });
+  //         return;
+  //       }
 
-      //add to prisma
-      await this.prisma.chronikWatchAddress.create({
-        data: {
-          accountId: account.id,
-          address: targetAddress
-        }
-      });
+  //       //add to prisma
+  //       await this.prisma.chronikWatchAddress.create({
+  //         data: {
+  //           accountId: account.id,
+  //           address: targetAddress
+  //         }
+  //       });
 
-      //connect to chronik ws
-      const subs = this.chronikWs.subs.scripts;
-      const { hash } = cashaddr.decode(targetAddress, true);
+  //       //connect to chronik ws
+  //       const subs = this.chronikWs.subs.scripts;
+  //       const { hash } = cashaddr.decode(targetAddress, true);
 
-      if (!_.find(subs, item => item.payload === hash)) {
-        this.chronikWs.subscribeToAddress(targetAddress);
-      }
+  //       if (!_.find(subs, item => item.payload === hash)) {
+  //         this.chronikWs.subscribeToAddress(targetAddress);
+  //       }
 
-      await ctx.sendMessage(`Address successfully registered!`, {
-        protect_content: true,
-        parse_mode: 'Markdown',
-        reply_parameters: {
-          message_id: ctx.msgId!
-        }
-      });
-    } catch (e) {
-      this.logger.error(e, ChronikWatcherBotUpdate.name);
-      await ctx.reply('Error adding address.');
-      return;
-    }
-  }
+  //       await ctx.sendMessage(`Address successfully registered!`, {
+  //         protect_content: true,
+  //         parse_mode: 'Markdown',
+  //         reply_parameters: {
+  //           message_id: ctx.msgId!
+  //         }
+  //       });
+  //     } catch (e) {
+  //       this.logger.error(e, ChronikWatcherBotUpdate.name);
+  //       await ctx.reply('Error adding address.');
+  //       return;
+  //     }
+  //   }
 
-  @Command('removewatch')
-  async onRemove(ctx: Context) {
-    try {
-      const args = (ctx?.message as { text: string }).text?.split(' ')[1];
-      let targetAddress = args?.trim();
+  //   @Command('removewatch')
+  //   async onRemove(ctx: Context) {
+  //     try {
+  //       const args = (ctx?.message as { text: string }).text?.split(' ')[1];
+  //       let targetAddress = args?.trim();
 
-      if (!targetAddress || !isValidXecAddress(targetAddress)) {
-        await ctx.reply('Please provide a valid address.');
-        return;
-      }
+  //       if (!targetAddress || !isValidXecAddress(targetAddress)) {
+  //         await ctx.reply('Please provide a valid address.');
+  //         return;
+  //       }
 
-      //remove from prisma
-      const account = await this.prisma.account.findFirst({
-        where: {
-          telegramId: ctx.from?.id.toString()
-        },
-        include: {
-          chronikWatchAddresses: true
-        }
-      });
+  //       //remove from prisma
+  //       const account = await this.prisma.account.findFirst({
+  //         where: {
+  //           telegramId: ctx.from?.id.toString()
+  //         },
+  //         include: {
+  //           chronikWatchAddresses: true
+  //         }
+  //       });
 
-      if (!account) {
-        await ctx.sendMessage('Please create account at @local_ecash_bot', {
-          protect_content: true,
-          parse_mode: 'Markdown',
-          reply_parameters: {
-            message_id: ctx.msgId!
-          }
-        });
-        return;
-      }
+  //       if (!account) {
+  //         await ctx.sendMessage('Please create account at @local_ecash_bot', {
+  //           protect_content: true,
+  //           parse_mode: 'Markdown',
+  //           reply_parameters: {
+  //             message_id: ctx.msgId!
+  //           }
+  //         });
+  //         return;
+  //       }
 
-      const chronikWatchAddress = account.chronikWatchAddresses.find(item => item.address === targetAddress);
+  //       const chronikWatchAddress = account.chronikWatchAddresses.find(item => item.address === targetAddress);
 
-      if (!chronikWatchAddress) {
-        await ctx.sendMessage(`Address is not registered!`, {
-          protect_content: true,
-          parse_mode: 'Markdown',
-          reply_parameters: {
-            message_id: ctx.msgId!
-          }
-        });
-        return;
-      }
+  //       if (!chronikWatchAddress) {
+  //         await ctx.sendMessage(`Address is not registered!`, {
+  //           protect_content: true,
+  //           parse_mode: 'Markdown',
+  //           reply_parameters: {
+  //             message_id: ctx.msgId!
+  //           }
+  //         });
+  //         return;
+  //       }
 
-      //remove from prisma
-      await this.prisma.chronikWatchAddress.delete({
-        where: {
-          id: chronikWatchAddress.id
-        }
-      });
+  //       //remove from prisma
+  //       await this.prisma.chronikWatchAddress.delete({
+  //         where: {
+  //           id: chronikWatchAddress.id
+  //         }
+  //       });
 
-      //disconnect from chronik ws if there are no more targetAddress
-      const addresses = await this.prisma.chronikWatchAddress.findMany({
-        where: {
-          address: targetAddress
-        }
-      });
+  //       //disconnect from chronik ws if there are no more targetAddress
+  //       const addresses = await this.prisma.chronikWatchAddress.findMany({
+  //         where: {
+  //           hashddress: targetAddress
+  //         }
+  //       });
 
-      if (addresses.length === 0) {
-        this.chronikWs.unsubscribeFromAddress(targetAddress);
-      }
+  //       if (addresses.length === 0) {
+  //         this.chronikWs.unsubscribeFromAddress(targetAddress);
+  //       }
 
-      await ctx.sendMessage(`Address successfully removed!`, {
-        protect_content: true,
-        parse_mode: 'Markdown',
-        reply_parameters: {
-          message_id: ctx.msgId!
-        }
-      });
-    } catch (e) {
-      this.logger.error(e, ChronikWatcherBotUpdate.name);
-      await ctx.reply('Error removing address.');
-      return;
-    }
-  }
+  //       await ctx.sendMessage(`Address successfully removed!`, {
+  //         protect_content: true,
+  //         parse_mode: 'Markdown',
+  //         reply_parameters: {
+  //           message_id: ctx.msgId!
+  //         }
+  //       });
+  //     } catch (e) {
+  //       this.logger.error(e, ChronikWatcherBotUpdate.name);
+  //       await ctx.reply('Error removing address.');
+  //       return;
+  //     }
+  //   }
 
-  @Command('watchlist')
-  async onList(ctx: Context) {
-    try {
-      const account = await this.prisma.account.findFirst({
-        where: {
-          telegramId: ctx.from?.id.toString()
-        },
-        include: {
-          chronikWatchAddresses: true
-        }
-      });
+  //   @Command('watchlist')
+  //   async onList(ctx: Context) {
+  //     try {
+  //       const account = await this.prisma.account.findFirst({
+  //         where: {
+  //           telegramId: ctx.from?.id.toString()
+  //         },
+  //         include: {
+  //           chronikWatchAddresses: true
+  //         }
+  //       });
 
-      if (!account) {
-        await ctx.sendMessage('Please create account at @local_ecash_bot', {
-          protect_content: true,
-          parse_mode: 'Markdown',
-          reply_parameters: {
-            message_id: ctx.msgId!
-          }
-        });
-        return;
-      }
+  //       if (!account) {
+  //         await ctx.sendMessage('Please create account at @local_ecash_bot', {
+  //           protect_content: true,
+  //           parse_mode: 'Markdown',
+  //           reply_parameters: {
+  //             message_id: ctx.msgId!
+  //           }
+  //         });
+  //         return;
+  //       }
 
-      const chronikWatchAddress = account.chronikWatchAddresses.map(item => item.address);
+  //       const chronikWatchAddress = account.chronikWatchAddresses.map(item => item.address);
 
-      if (account.chronikWatchAddresses.length === 0) {
-        await ctx.sendMessage(`No addresses registered!`, {
-          protect_content: true,
-          parse_mode: 'Markdown',
-          reply_parameters: {
-            message_id: ctx.msgId!
-          }
-        });
-        return;
-      }
+  //       if (account.chronikWatchAddresses.length === 0) {
+  //         await ctx.sendMessage(`No addresses registered!`, {
+  //           protect_content: true,
+  //           parse_mode: 'Markdown',
+  //           reply_parameters: {
+  //             message_id: ctx.msgId!
+  //           }
+  //         });
+  //         return;
+  //       }
 
-      const addressReplyFormat = chronikWatchAddress.map(
-        item => `- [${item}](${coinInfo[COIN.XEC].blockExplorerUrl}/address/${item})`
-      );
+  //       const addressReplyFormat = chronikWatchAddress.map(
+  //         item => `- [${item}](${coinInfo[COIN.XEC].blockExplorerUrl}/address/${item})`
+  //       );
 
-      await ctx.sendMessage(
-        `Addresses registered: 
-    ${addressReplyFormat.join('\n')}
-        `,
-        {
-          protect_content: true,
-          parse_mode: 'Markdown',
-          reply_parameters: {
-            message_id: ctx.msgId!
-          },
-          link_preview_options: {
-            is_disabled: true
-          }
-        }
-      );
-    } catch (e) {
-      this.logger.error(e, ChronikWatcherBotUpdate.name);
-      await ctx.reply('Error listing addresses.');
-      return;
-    }
-  }
+  //       await ctx.sendMessage(
+  //         `Addresses registered:
+  //     ${addressReplyFormat.join('\n')}
+  //         `,
+  //         {
+  //           protect_content: true,
+  //           parse_mode: 'Markdown',
+  //           reply_parameters: {
+  //             message_id: ctx.msgId!
+  //           },
+  //           link_preview_options: {
+  //             is_disabled: true
+  //           }
+  //         }
+  //       );
+  //     } catch (e) {
+  //       this.logger.error(e, ChronikWatcherBotUpdate.name);
+  //       await ctx.reply('Error listing addresses.');
+  //       return;
+  //     }
+  //   }
 }
