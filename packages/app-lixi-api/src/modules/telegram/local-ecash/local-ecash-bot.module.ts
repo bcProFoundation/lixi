@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LocalEcashBotUpdate } from './local-ecash-bot.update';
 import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../telegram-bot.constants';
 import { TelegramBotController } from './local-ecash-bot.controller';
+import { LocalEcashCacheService } from './local-ecash-cache.service';
 
 @Module({})
 export class LocalEcashBotModule {
@@ -34,7 +35,7 @@ export class LocalEcashBotModule {
       module: LocalEcashBotModule,
       imports: (options.imports || []).concat(imports),
       controllers: [TelegramBotController],
-      providers: [...asyncProviders, ...otherProviders, TelegramBotController],
+      providers: [...asyncProviders, ...otherProviders, TelegramBotController, LocalEcashCacheService],
       exports: [...otherProviders, TelegramBotController]
     } as DynamicModule;
   }

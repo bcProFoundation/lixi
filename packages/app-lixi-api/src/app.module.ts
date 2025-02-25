@@ -238,27 +238,27 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
             : undefined
         } as TelegramBotModuleOptions;
       }
-    }),
-    ChronikWatcherBotModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const localEcashBotToken = configService.get<string>('TELEGRAM_LOCAL_ECASH_BOT_TOKEN')!;
-        const chronikWatcherBotToken = configService.get<string>('TELEGRAM_CHRONIK_WATCHER_BOT_TOKEN')!;
-
-        return {
-          local_ecash: localEcashBotToken
-            ? {
-                token: localEcashBotToken
-              }
-            : undefined,
-          chronik_watcher: chronikWatcherBotToken
-            ? {
-                token: chronikWatcherBotToken
-              }
-            : undefined
-        } as TelegramBotModuleOptions;
-      }
     })
+    // ChronikWatcherBotModule.forRootAsync({
+    //   inject: [ConfigService],
+    //   useFactory: (configService: ConfigService) => {
+    //     const localEcashBotToken = configService.get<string>('TELEGRAM_LOCAL_ECASH_BOT_TOKEN')!;
+    //     const chronikWatcherBotToken = configService.get<string>('TELEGRAM_CHRONIK_WATCHER_BOT_TOKEN')!;
+
+    //     return {
+    //       local_ecash: localEcashBotToken
+    //         ? {
+    //             token: localEcashBotToken
+    //           }
+    //         : undefined,
+    //       chronik_watcher: chronikWatcherBotToken
+    //         ? {
+    //             token: chronikWatcherBotToken
+    //           }
+    //         : undefined
+    //     } as TelegramBotModuleOptions;
+    //   }
+    // })
   ],
   controllers: [],
   providers: [
