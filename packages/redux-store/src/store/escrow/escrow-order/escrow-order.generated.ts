@@ -334,9 +334,8 @@ export type AllEscrowOrderByOfferIdQuery = {
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;
-                  totalOrder: number;
                   completedOrder: number;
-                  completionRate: number;
+                  uniqueTrades: number;
                 };
               };
               page?: {

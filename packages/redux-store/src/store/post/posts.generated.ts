@@ -55,9 +55,8 @@ export type PostQuery = {
       accountStatsOrder: {
         __typename?: 'AccountStatsOrder';
         donationAmount: number;
-        totalOrder: number;
         completedOrder: number;
-        completionRate: number;
+        uniqueTrades: number;
       };
     };
     page?: {
@@ -217,9 +216,8 @@ export type PostsByPageIdQuery = {
           accountStatsOrder: {
             __typename?: 'AccountStatsOrder';
             donationAmount: number;
-            totalOrder: number;
             completedOrder: number;
-            completionRate: number;
+            uniqueTrades: number;
           };
         };
         page?: {
@@ -387,9 +385,8 @@ export type PostsByUserIdQuery = {
           accountStatsOrder: {
             __typename?: 'AccountStatsOrder';
             donationAmount: number;
-            totalOrder: number;
             completedOrder: number;
-            completionRate: number;
+            uniqueTrades: number;
           };
         };
         page?: {
@@ -557,9 +554,8 @@ export type PostsByHashtagIdQuery = {
           accountStatsOrder: {
             __typename?: 'AccountStatsOrder';
             donationAmount: number;
-            totalOrder: number;
             completedOrder: number;
-            completionRate: number;
+            uniqueTrades: number;
           };
         };
         page?: {
@@ -727,9 +723,8 @@ export type PostsByTokenIdQuery = {
           accountStatsOrder: {
             __typename?: 'AccountStatsOrder';
             donationAmount: number;
-            totalOrder: number;
             completedOrder: number;
-            completionRate: number;
+            uniqueTrades: number;
           };
         };
         page?: {
@@ -1555,9 +1550,8 @@ export type PostFieldsFragment = {
     accountStatsOrder: {
       __typename?: 'AccountStatsOrder';
       donationAmount: number;
-      totalOrder: number;
       completedOrder: number;
-      completionRate: number;
+      uniqueTrades: number;
     };
   };
   page?: {
@@ -1829,9 +1823,8 @@ export type CreatePostMutation = {
       accountStatsOrder: {
         __typename?: 'AccountStatsOrder';
         donationAmount: number;
-        totalOrder: number;
         completedOrder: number;
-        completionRate: number;
+        uniqueTrades: number;
       };
     };
     page?: {
@@ -1977,9 +1970,8 @@ export type UpdatePostMutation = {
       accountStatsOrder: {
         __typename?: 'AccountStatsOrder';
         donationAmount: number;
-        totalOrder: number;
         completedOrder: number;
-        completionRate: number;
+        uniqueTrades: number;
       };
     };
     page?: {
@@ -2131,9 +2123,8 @@ export type RemovePostMutation = {
       accountStatsOrder: {
         __typename?: 'AccountStatsOrder';
         donationAmount: number;
-        totalOrder: number;
         completedOrder: number;
-        completionRate: number;
+        uniqueTrades: number;
       };
     };
     page?: {
@@ -2313,9 +2304,8 @@ export const PostFieldsFragmentDoc = `
     telegramUsername
     accountStatsOrder {
       donationAmount
-      totalOrder
       completedOrder
-      completionRate
+      uniqueTrades
     }
   }
   accountId

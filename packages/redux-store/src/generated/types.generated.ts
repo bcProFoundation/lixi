@@ -131,9 +131,8 @@ export enum AccountOrderField {
 export type AccountStatsOrder = {
   __typename?: 'AccountStatsOrder';
   completedOrder: Scalars['Int']['output'];
-  completionRate: Scalars['Float']['output'];
   donationAmount: Scalars['Float']['output'];
-  totalOrder: Scalars['Int']['output'];
+  uniqueTrades: Scalars['Int']['output'];
 };
 
 /** The type of account. */

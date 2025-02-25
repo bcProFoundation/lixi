@@ -231,9 +231,8 @@ export type TimelineItemFieldsFragment = {
           accountStatsOrder: {
             __typename?: 'AccountStatsOrder';
             donationAmount: number;
-            totalOrder: number;
             completedOrder: number;
-            completionRate: number;
+            uniqueTrades: number;
           };
         };
         page?: {
@@ -472,9 +471,8 @@ export type TimelineQuery = {
             accountStatsOrder: {
               __typename?: 'AccountStatsOrder';
               donationAmount: number;
-              totalOrder: number;
               completedOrder: number;
-              completionRate: number;
+              uniqueTrades: number;
             };
           };
           page?: {
@@ -732,9 +730,8 @@ export type HomeTimelineQuery = {
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;
-                  totalOrder: number;
                   completedOrder: number;
-                  completionRate: number;
+                  uniqueTrades: number;
                 };
               };
               page?: {
@@ -1001,9 +998,8 @@ export type ProfileTimelineQuery = {
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;
-                  totalOrder: number;
                   completedOrder: number;
-                  completionRate: number;
+                  uniqueTrades: number;
                 };
               };
               page?: {
@@ -1271,9 +1267,8 @@ export type ProfileTimelineByTimeQuery = {
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;
-                  totalOrder: number;
                   completedOrder: number;
-                  completionRate: number;
+                  uniqueTrades: number;
                 };
               };
               page?: {
@@ -1540,9 +1535,8 @@ export type PageTimelineQuery = {
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;
-                  totalOrder: number;
                   completedOrder: number;
-                  completionRate: number;
+                  uniqueTrades: number;
                 };
               };
               page?: {
@@ -1810,9 +1804,8 @@ export type PageTimelineByTimeQuery = {
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;
-                  totalOrder: number;
                   completedOrder: number;
-                  completionRate: number;
+                  uniqueTrades: number;
                 };
               };
               page?: {
@@ -2079,9 +2072,8 @@ export type TokenTimelineQuery = {
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;
-                  totalOrder: number;
                   completedOrder: number;
-                  completionRate: number;
+                  uniqueTrades: number;
                 };
               };
               page?: {
@@ -2349,9 +2341,8 @@ export type TokenTimelineByTimeQuery = {
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;
-                  totalOrder: number;
                   completedOrder: number;
-                  completionRate: number;
+                  uniqueTrades: number;
                 };
               };
               page?: {

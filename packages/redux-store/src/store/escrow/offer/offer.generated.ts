@@ -204,9 +204,8 @@ export type AllOfferQuery = {
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;
-                  totalOrder: number;
                   completedOrder: number;
-                  completionRate: number;
+                  uniqueTrades: number;
                 };
               };
               page?: {
@@ -473,9 +472,8 @@ export type OfferByFilterQuery = {
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;
-                  totalOrder: number;
                   completedOrder: number;
-                  completionRate: number;
+                  uniqueTrades: number;
                 };
               };
               page?: {
@@ -742,9 +740,8 @@ export type AllOfferByAccountQuery = {
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;
-                  totalOrder: number;
                   completedOrder: number;
-                  completionRate: number;
+                  uniqueTrades: number;
                 };
               };
               page?: {
@@ -1011,9 +1008,8 @@ export type AllOfferActiveByAccountIdQuery = {
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;
-                  totalOrder: number;
                   completedOrder: number;
-                  completionRate: number;
+                  uniqueTrades: number;
                 };
               };
               page?: {
@@ -1169,9 +1165,8 @@ export type CreateOfferMutation = {
       accountStatsOrder: {
         __typename?: 'AccountStatsOrder';
         donationAmount: number;
-        totalOrder: number;
         completedOrder: number;
-        completionRate: number;
+        uniqueTrades: number;
       };
     };
     page?: {
@@ -1397,9 +1392,8 @@ export type UpdateOfferStatusMutation = {
       accountStatsOrder: {
         __typename?: 'AccountStatsOrder';
         donationAmount: number;
-        totalOrder: number;
         completedOrder: number;
-        completionRate: number;
+        uniqueTrades: number;
       };
     };
     page?: {

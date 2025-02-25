@@ -83,9 +83,8 @@ export type AllFollowersByFollowingQuery = {
         accountStatsOrder: {
           __typename?: 'AccountStatsOrder';
           donationAmount: number;
-          totalOrder: number;
           completedOrder: number;
-          completionRate: number;
+          uniqueTrades: number;
         };
       };
     }> | null;
@@ -159,9 +158,8 @@ export type AllFollowingsByFollowerQuery = {
         accountStatsOrder: {
           __typename?: 'AccountStatsOrder';
           donationAmount: number;
-          totalOrder: number;
           completedOrder: number;
-          completionRate: number;
+          uniqueTrades: number;
         };
       };
     }> | null;

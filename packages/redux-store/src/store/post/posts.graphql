@@ -332,9 +332,8 @@ fragment PostFields on Post {
     telegramUsername
     accountStatsOrder {
     donationAmount
-    totalOrder
     completedOrder
-    completionRate
+    uniqueTrades
   }
   }
   accountId

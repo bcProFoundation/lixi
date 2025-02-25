@@ -127,9 +127,8 @@ fragment AccountFields on Account {
   role
   accountStatsOrder {
     donationAmount
-    totalOrder
     completedOrder
-    completionRate
+    uniqueTrades
   }
 }
 

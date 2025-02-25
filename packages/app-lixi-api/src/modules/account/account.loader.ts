@@ -108,42 +108,37 @@ export default class AccountLoader {
             SELECT 
                 relevant_account_id,
                 COALESCE(SUM(eo.seller_donate_amount), 0) + 
-                COALESCE(SUM(eo.buyer_donate_amount), 0) AS donationAmount,
-                COUNT(*) AS totalOrder,
-                SUM(
-                  CASE 
-                    WHEN eo.status = 'COMPLETE' OR eo.dispute_status = 'RESOLVED' THEN 1 
-                    ELSE 0 
-                  END
-                ) AS completedOrder,
+                COALESCE(SUM(eo.buyer_donate_amount), 0) AS donation_amount,
                 SUM(
                   CASE 
                     WHEN eo.status = 'COMPLETE' THEN 1 
                     ELSE 0 
                   END
-                ) AS successful_order
+                ) AS completed_order,
+                COUNT(
+                  DISTINCT
+                    LEAST(seller_account_id, buyer_account_id)::TEXT
+                    || '_' ||
+                    GREATEST(seller_account_id, buyer_account_id)::TEXT
+                ) AS unique_trades
             FROM Precomputed eo
             GROUP BY relevant_account_id
         )
+        
         SELECT 
             relevant_account_id,
-            donationAmount,
-            totalOrder,
-            completedOrder,
-            CASE 
-                WHEN completedOrder = 0 THEN 0
-                ELSE (successful_order * 1.0 / completedOrder)
-            END as completionRate
+            donation_amount,
+            completed_order,
+            unique_trades
         FROM OverallStats
       `;
 
       const rows = await this.prisma.$queryRaw<
         {
           relevant_account_id: number;
-          donationamount: number;
-          totalorder: bigint;
-          completedorder: bigint;
-          completionrate: string;
+          donation_amount: number;
+          completed_order: bigint;
+          unique_trades: bigint;
         }[]
       >(rawQuery);
 
@@ -151,10 +146,9 @@ export default class AccountLoader {
       const statsMap = new Map<number, AccountStatsOrder>();
       rows.forEach(row => {
         statsMap.set(row.relevant_account_id, {
-          donationAmount: row.donationamount,
-          totalOrder: Number(row.totalorder),
-          completedOrder: Number(row.completedorder),
-          completionRate: parseFloat((Number(row.completionrate) * 100).toFixed(2))
+          donationAmount: row.donation_amount,
+          completedOrder: Number(row.completed_order),
+          uniqueTrades: Number(row.unique_trades)
         });
       });
 
@@ -163,9 +157,8 @@ export default class AccountLoader {
         return (
           statsMap.get(accountId) ?? {
             donationAmount: 0,
-            totalOrder: 0,
             completedOrder: 0,
-            completionRate: 0
+            uniqueTrades: 0
           }
         );
       });
