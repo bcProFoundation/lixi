@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.53
+
+### Patch Changes
+
+- Statistic
+
 ## 1.2.52
 
 ### Patch Changes
