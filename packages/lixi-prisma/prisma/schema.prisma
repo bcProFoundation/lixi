@@ -347,14 +347,15 @@ enum Role {
 }
 
 model ChronikWatchAddress {
-  id          String   @id @default(uuid())
-  account     Account  @relation(fields: [accountId], references: [id])
-  accountId   Int      @map("account_id")
-  hashAddress String
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  id        String   @id @default(uuid())
+  account   Account  @relation(fields: [accountId], references: [id])
+  accountId Int      @map("account_id")
+  hash160   String   @map("hash_160")
+  type      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 
-  @@unique([accountId, hashAddress])
-  @@index([hashAddress])
+  @@unique([accountId, hash160])
+  @@index([hash160])
   @@map("chronik_watch_address")
 }
 

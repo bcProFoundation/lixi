@@ -19,7 +19,7 @@ type ParsedUtxoType = {
   txid: string;
   amount: number;
   chronikWatchAddresses: any;
-  hashAddress: string;
+  hash160: string;
   tokenId?: string;
 };
 
@@ -67,7 +67,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
 
       const chronikWatchAddress = await this.prisma.chronikWatchAddress.findMany({});
 
-      const addresses = _.uniq(chronikWatchAddress.map(item => item.hashAddress));
+      const addresses = _.uniq(chronikWatchAddress.map(item => item.hash160));
 
       for (const address of addresses) {
         this.chronikWs.subscribeToScript('p2pkh', address);
@@ -77,19 +77,19 @@ export class LocalEcashBotUpdate implements OnModuleInit {
     }
   }
 
-  _convertOutputScript(output: TxOutput_InNode): { hashAddress: string; amount: number; tokenId?: string } | null {
+  _convertOutputScript(output: TxOutput_InNode): { hash160: string; amount: number; tokenId?: string } | null {
     try {
       let amount = 0;
 
       const { hash } = cashaddr.getTypeAndHashFromOutputScript(output.outputScript);
-      const hashAddress: string = hash;
+      const hash160: string = hash;
 
       if (output.token) {
         amount = Number(output.token.amount);
-        return { hashAddress, amount, tokenId: output.token.tokenId };
+        return { hash160, amount, tokenId: output.token.tokenId };
       } else {
         amount = output.value ? Number(output.value.toString()) : 0;
-        return { hashAddress, amount };
+        return { hash160, amount };
       }
     } catch (e) {
       return null;
@@ -125,8 +125,8 @@ export class LocalEcashBotUpdate implements OnModuleInit {
 
         const chronikWatchAddresses = await this.prisma.chronikWatchAddress.findMany({
           where: {
-            hashAddress: {
-              in: _.map(outputsConverted, item => item.hashAddress)
+            hash160: {
+              in: _.map(outputsConverted, item => item.hash160)
             }
           },
           include: {
@@ -140,14 +140,14 @@ export class LocalEcashBotUpdate implements OnModuleInit {
 
         if (chronikWatchAddresses.length > 0) {
           for (const chronikWatchAddress of chronikWatchAddresses) {
-            const { amount, hashAddress, tokenId } =
-              outputsConverted.find(item => item.hashAddress === chronikWatchAddress.hashAddress)! || {};
+            const { amount, hash160, tokenId } =
+              outputsConverted.find(item => item.hash160 === chronikWatchAddress.hash160)! || {};
 
             const parsedUtxo: ParsedUtxoType = {
               txid: txid,
               amount: amount,
               chronikWatchAddresses,
-              hashAddress: hashAddress,
+              hash160: hash160,
               tokenId: tokenId ?? undefined
             };
 
@@ -169,12 +169,12 @@ export class LocalEcashBotUpdate implements OnModuleInit {
   };
 
   async receivedSLPDeposit(parsedUtxo: ParsedUtxoType) {
-    const { txid, amount, chronikWatchAddresses, hashAddress, tokenId } = parsedUtxo;
+    const { txid, amount, chronikWatchAddresses, hash160, tokenId } = parsedUtxo;
     const { genesisInfo } = await this.chronik.token(tokenId!);
 
     const formatReplied = format(
       BOT.MESSAGE.CHRONIK_WATCH_RECIEVED_SLP,
-      cashaddr.encode('etoken', 'p2pkh', hashAddress),
+      cashaddr.encode('etoken', 'p2pkh', hash160),
       (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString(),
       genesisInfo.tokenTicker,
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
@@ -201,11 +201,11 @@ export class LocalEcashBotUpdate implements OnModuleInit {
   }
 
   async receivedXECDeposit(parsedUtxo: ParsedUtxoType) {
-    const { txid, amount, chronikWatchAddresses, hashAddress } = parsedUtxo;
+    const { txid, amount, chronikWatchAddresses, hash160 } = parsedUtxo;
 
     const formatReplied = format(
       BOT.MESSAGE.CHRONIK_WATCH_RECIEVED_XEC,
-      cashaddr.encode('ecash', 'p2pkh', hashAddress),
+      cashaddr.encode('ecash', 'p2pkh', hash160),
       (amount / Math.pow(10, 2)).toLocaleString(),
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
     );
@@ -420,7 +420,7 @@ Are you ready? Let's get started.
       }
 
       const { type, hash } = cashaddr.decode(targetAddress);
-      const hashAsString = Buffer.from(hash).toString('hex');
+      const hash160AsString = Buffer.from(hash).toString('hex');
 
       const account = await this.prisma.account.findFirst({
         where: {
@@ -442,7 +442,7 @@ Are you ready? Let's get started.
         return;
       }
 
-      if (account.chronikWatchAddresses.find(item => item.hashAddress === hashAsString)) {
+      if (account.chronikWatchAddresses.find(item => item.hash160 === hash160AsString)) {
         await ctx.sendMessage(`Address is already registered!`, {
           protect_content: true,
           parse_mode: 'Markdown',
@@ -456,16 +456,17 @@ Are you ready? Let's get started.
       //connect to chronik ws
       const subs = this.chronikWs.subs.scripts;
 
-      if (!_.find(subs, item => item.payload === hashAsString)) {
+      if (!_.find(subs, item => item.payload === hash160AsString)) {
         //@ts-ignore
-        this.chronikWs.subscribeToScript(type.toLowerCase(), hashAsString);
+        this.chronikWs.subscribeToScript(type.toLowerCase(), hash160AsString);
       }
 
       //add to prisma
       await this.prisma.chronikWatchAddress.create({
         data: {
           accountId: account.id,
-          hashAddress: hashAsString
+          hash160: hash160AsString,
+          type
         }
       });
 
@@ -495,7 +496,7 @@ Are you ready? Let's get started.
       }
 
       const { hash } = cashaddr.decode(targetAddress);
-      const hashAsString = Buffer.from(hash).toString('hex');
+      const hash160AsString = Buffer.from(hash).toString('hex');
 
       //remove from prisma
       const account = await this.prisma.account.findFirst({
@@ -518,7 +519,7 @@ Are you ready? Let's get started.
         return;
       }
 
-      const chronikWatchAddress = account.chronikWatchAddresses.find(item => item.hashAddress === hashAsString);
+      const chronikWatchAddress = account.chronikWatchAddresses.find(item => item.hash160 === hash160AsString);
 
       if (!chronikWatchAddress) {
         await ctx.sendMessage(`Address is not registered!`, {
@@ -541,12 +542,12 @@ Are you ready? Let's get started.
       //disconnect from chronik ws if there are no more targetAddress
       const addresses = await this.prisma.chronikWatchAddress.findMany({
         where: {
-          hashAddress: hashAsString
+          hash160: hash160AsString
         }
       });
 
       if (addresses.length === 0) {
-        this.chronikWs.unsubscribeFromScript('p2pkh', hashAsString);
+        this.chronikWs.unsubscribeFromScript('p2pkh', hash160AsString);
       }
 
       await ctx.sendMessage(`Address successfully removed!`, {
@@ -586,7 +587,7 @@ Are you ready? Let's get started.
         return;
       }
 
-      const chronikWatchAddress = account.chronikWatchAddresses.map(item => item.hashAddress);
+      const chronikWatchAddress = account.chronikWatchAddresses.map(item => item.hash160);
 
       if (account.chronikWatchAddresses.length === 0) {
         await ctx.sendMessage(`No addresses registered!`, {
