@@ -36,7 +36,10 @@ fragment EscrowOrderFields on EscrowOrder {
   escrowOffer: offer {
     postId
     message
+    marginPercentage
     coinPayment
+    paymentApp
+    type
     coinOthers
     localCurrency
   }
@@ -47,6 +50,14 @@ fragment EscrowOrderFields on EscrowOrder {
     txid
     value
     outIdx
+  }
+  bankInfo {
+    bankName
+    accountNameBank
+    accountNumberBank
+    appName
+    accountNameApp
+    accountNumberApp
   }
   dispute {
     id
@@ -68,6 +79,7 @@ fragment EscrowOrderFields on EscrowOrder {
   escrowOrderStatus: status
   createdAt
   updatedAt
+  markAsPaid
 }
 
 fragment DisputeFields on Dispute {

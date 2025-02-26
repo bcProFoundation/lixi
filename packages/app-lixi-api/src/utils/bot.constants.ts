@@ -63,7 +63,8 @@ export const BOT = {
     ORDER_RELEASED: `✅ Order has been released! You can now claim your funds!`,
     ORDER_RETURNED: `❌ Order has been canceled! You can now claim your funds!`,
     CHRONIK_WATCH_RECIEVED_XEC: `_%s_ has recieved a payment of %s XEC \r\n\r\n` + `[View tx on the Explorer](%s)`,
-    CHRONIK_WATCH_RECIEVED_SLP: `_%s_ has recieved a payment of %s %s \r\n\r\n` + `[View tx on the Explorer](%s)`
+    CHRONIK_WATCH_RECIEVED_SLP: `_%s_ has recieved a payment of %s %s \r\n\r\n` + `[View tx on the Explorer](%s)`,
+    ORDER_MARK_AS_PAID_SELLER: `The order has been marked as paid! Please review it and release the funds!`
   }
 };
 

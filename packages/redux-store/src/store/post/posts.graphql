@@ -293,6 +293,8 @@ fragment OfferFields on Offer {
   coinOthers
   marginPercentage
   localCurrency
+  paymentApp
+  type
   orderLimitMin
   orderLimitMax
   hideFromHome
@@ -334,7 +336,15 @@ fragment PostFields on Post {
     donationAmount
     completedOrder
     uniqueTrades
-  }
+    }
+    bankInfo {
+      bankName
+      accountNameBank
+      accountNumberBank
+      appName
+      accountNameApp
+      accountNumberApp
+    }
   }
   accountId
   page {

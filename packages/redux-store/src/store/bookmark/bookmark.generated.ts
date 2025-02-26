@@ -109,6 +109,7 @@ export type BookmarkTimelineQuery = {
               amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
+              markAsPaid?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -143,11 +144,23 @@ export type BookmarkTimelineQuery = {
                 __typename?: 'Offer';
                 postId: string;
                 message: string;
+                marginPercentage: number;
                 coinPayment?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 coinOthers?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              bankInfo?: {
+                __typename?: 'BankInfo';
+                bankName?: string | null;
+                accountNameBank?: string | null;
+                accountNumberBank?: string | null;
+                appName?: string | null;
+                accountNameApp?: string | null;
+                accountNumberApp?: string | null;
+              } | null;
               dispute?: {
                 __typename?: 'Dispute';
                 id: string;
@@ -191,6 +204,15 @@ export type BookmarkTimelineQuery = {
                   donationAmount: number;
                   completedOrder: number;
                   uniqueTrades: number;
+                };
+                bankInfo: {
+                  __typename?: 'BankInfo';
+                  bankName?: string | null;
+                  accountNameBank?: string | null;
+                  accountNumberBank?: string | null;
+                  appName?: string | null;
+                  accountNameApp?: string | null;
+                  accountNumberApp?: string | null;
                 };
               };
               page?: {
@@ -279,6 +301,8 @@ export type BookmarkTimelineQuery = {
                 coinOthers?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 hideFromHome?: boolean | null;

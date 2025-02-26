@@ -34,6 +34,7 @@ export type EscrowOrderFieldsFragment = {
   amountCoinOrCurrency: number;
   createdAt: any;
   updatedAt: any;
+  markAsPaid?: boolean | null;
   escrowOrderStatus: Types.EscrowOrderStatus;
   arbitratorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
   buyerAccount: {
@@ -58,11 +59,23 @@ export type EscrowOrderFieldsFragment = {
     __typename?: 'Offer';
     postId: string;
     message: string;
+    marginPercentage: number;
     coinPayment?: string | null;
+    paymentApp?: string | null;
+    type: Types.OfferType;
     coinOthers?: string | null;
     localCurrency?: string | null;
   };
   escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+  bankInfo?: {
+    __typename?: 'BankInfo';
+    bankName?: string | null;
+    accountNameBank?: string | null;
+    accountNumberBank?: string | null;
+    appName?: string | null;
+    accountNameApp?: string | null;
+    accountNumberApp?: string | null;
+  } | null;
   dispute?: {
     __typename?: 'Dispute';
     id: string;
@@ -161,6 +174,7 @@ export type TimelineItemFieldsFragment = {
         amountCoinOrCurrency: number;
         createdAt: any;
         updatedAt: any;
+        markAsPaid?: boolean | null;
         escrowOrderStatus: Types.EscrowOrderStatus;
         arbitratorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
         buyerAccount: {
@@ -185,11 +199,23 @@ export type TimelineItemFieldsFragment = {
           __typename?: 'Offer';
           postId: string;
           message: string;
+          marginPercentage: number;
           coinPayment?: string | null;
+          paymentApp?: string | null;
+          type: Types.OfferType;
           coinOthers?: string | null;
           localCurrency?: string | null;
         };
         escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+        bankInfo?: {
+          __typename?: 'BankInfo';
+          bankName?: string | null;
+          accountNameBank?: string | null;
+          accountNumberBank?: string | null;
+          appName?: string | null;
+          accountNameApp?: string | null;
+          accountNumberApp?: string | null;
+        } | null;
         dispute?: {
           __typename?: 'Dispute';
           id: string;
@@ -233,6 +259,15 @@ export type TimelineItemFieldsFragment = {
             donationAmount: number;
             completedOrder: number;
             uniqueTrades: number;
+          };
+          bankInfo: {
+            __typename?: 'BankInfo';
+            bankName?: string | null;
+            accountNameBank?: string | null;
+            accountNumberBank?: string | null;
+            appName?: string | null;
+            accountNameApp?: string | null;
+            accountNumberApp?: string | null;
           };
         };
         page?: {
@@ -315,6 +350,8 @@ export type TimelineItemFieldsFragment = {
           coinOthers?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
+          paymentApp?: string | null;
+          type: Types.OfferType;
           orderLimitMin: number;
           orderLimitMax: number;
           hideFromHome?: boolean | null;
@@ -401,6 +438,7 @@ export type TimelineQuery = {
           amountCoinOrCurrency: number;
           createdAt: any;
           updatedAt: any;
+          markAsPaid?: boolean | null;
           escrowOrderStatus: Types.EscrowOrderStatus;
           arbitratorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
           buyerAccount: {
@@ -425,11 +463,23 @@ export type TimelineQuery = {
             __typename?: 'Offer';
             postId: string;
             message: string;
+            marginPercentage: number;
             coinPayment?: string | null;
+            paymentApp?: string | null;
+            type: Types.OfferType;
             coinOthers?: string | null;
             localCurrency?: string | null;
           };
           escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+          bankInfo?: {
+            __typename?: 'BankInfo';
+            bankName?: string | null;
+            accountNameBank?: string | null;
+            accountNumberBank?: string | null;
+            appName?: string | null;
+            accountNameApp?: string | null;
+            accountNumberApp?: string | null;
+          } | null;
           dispute?: {
             __typename?: 'Dispute';
             id: string;
@@ -473,6 +523,15 @@ export type TimelineQuery = {
               donationAmount: number;
               completedOrder: number;
               uniqueTrades: number;
+            };
+            bankInfo: {
+              __typename?: 'BankInfo';
+              bankName?: string | null;
+              accountNameBank?: string | null;
+              accountNumberBank?: string | null;
+              appName?: string | null;
+              accountNameApp?: string | null;
+              accountNumberApp?: string | null;
             };
           };
           page?: {
@@ -555,6 +614,8 @@ export type TimelineQuery = {
             coinOthers?: string | null;
             marginPercentage: number;
             localCurrency?: string | null;
+            paymentApp?: string | null;
+            type: Types.OfferType;
             orderLimitMin: number;
             orderLimitMax: number;
             hideFromHome?: boolean | null;
@@ -650,6 +711,7 @@ export type HomeTimelineQuery = {
               amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
+              markAsPaid?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -684,11 +746,23 @@ export type HomeTimelineQuery = {
                 __typename?: 'Offer';
                 postId: string;
                 message: string;
+                marginPercentage: number;
                 coinPayment?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 coinOthers?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              bankInfo?: {
+                __typename?: 'BankInfo';
+                bankName?: string | null;
+                accountNameBank?: string | null;
+                accountNumberBank?: string | null;
+                appName?: string | null;
+                accountNameApp?: string | null;
+                accountNumberApp?: string | null;
+              } | null;
               dispute?: {
                 __typename?: 'Dispute';
                 id: string;
@@ -732,6 +806,15 @@ export type HomeTimelineQuery = {
                   donationAmount: number;
                   completedOrder: number;
                   uniqueTrades: number;
+                };
+                bankInfo: {
+                  __typename?: 'BankInfo';
+                  bankName?: string | null;
+                  accountNameBank?: string | null;
+                  accountNumberBank?: string | null;
+                  appName?: string | null;
+                  accountNameApp?: string | null;
+                  accountNumberApp?: string | null;
                 };
               };
               page?: {
@@ -820,6 +903,8 @@ export type HomeTimelineQuery = {
                 coinOthers?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 hideFromHome?: boolean | null;
@@ -918,6 +1003,7 @@ export type ProfileTimelineQuery = {
               amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
+              markAsPaid?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -952,11 +1038,23 @@ export type ProfileTimelineQuery = {
                 __typename?: 'Offer';
                 postId: string;
                 message: string;
+                marginPercentage: number;
                 coinPayment?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 coinOthers?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              bankInfo?: {
+                __typename?: 'BankInfo';
+                bankName?: string | null;
+                accountNameBank?: string | null;
+                accountNumberBank?: string | null;
+                appName?: string | null;
+                accountNameApp?: string | null;
+                accountNumberApp?: string | null;
+              } | null;
               dispute?: {
                 __typename?: 'Dispute';
                 id: string;
@@ -1000,6 +1098,15 @@ export type ProfileTimelineQuery = {
                   donationAmount: number;
                   completedOrder: number;
                   uniqueTrades: number;
+                };
+                bankInfo: {
+                  __typename?: 'BankInfo';
+                  bankName?: string | null;
+                  accountNameBank?: string | null;
+                  accountNumberBank?: string | null;
+                  appName?: string | null;
+                  accountNameApp?: string | null;
+                  accountNumberApp?: string | null;
                 };
               };
               page?: {
@@ -1088,6 +1195,8 @@ export type ProfileTimelineQuery = {
                 coinOthers?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 hideFromHome?: boolean | null;
@@ -1187,6 +1296,7 @@ export type ProfileTimelineByTimeQuery = {
               amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
+              markAsPaid?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -1221,11 +1331,23 @@ export type ProfileTimelineByTimeQuery = {
                 __typename?: 'Offer';
                 postId: string;
                 message: string;
+                marginPercentage: number;
                 coinPayment?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 coinOthers?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              bankInfo?: {
+                __typename?: 'BankInfo';
+                bankName?: string | null;
+                accountNameBank?: string | null;
+                accountNumberBank?: string | null;
+                appName?: string | null;
+                accountNameApp?: string | null;
+                accountNumberApp?: string | null;
+              } | null;
               dispute?: {
                 __typename?: 'Dispute';
                 id: string;
@@ -1269,6 +1391,15 @@ export type ProfileTimelineByTimeQuery = {
                   donationAmount: number;
                   completedOrder: number;
                   uniqueTrades: number;
+                };
+                bankInfo: {
+                  __typename?: 'BankInfo';
+                  bankName?: string | null;
+                  accountNameBank?: string | null;
+                  accountNumberBank?: string | null;
+                  appName?: string | null;
+                  accountNameApp?: string | null;
+                  accountNumberApp?: string | null;
                 };
               };
               page?: {
@@ -1357,6 +1488,8 @@ export type ProfileTimelineByTimeQuery = {
                 coinOthers?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 hideFromHome?: boolean | null;
@@ -1455,6 +1588,7 @@ export type PageTimelineQuery = {
               amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
+              markAsPaid?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -1489,11 +1623,23 @@ export type PageTimelineQuery = {
                 __typename?: 'Offer';
                 postId: string;
                 message: string;
+                marginPercentage: number;
                 coinPayment?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 coinOthers?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              bankInfo?: {
+                __typename?: 'BankInfo';
+                bankName?: string | null;
+                accountNameBank?: string | null;
+                accountNumberBank?: string | null;
+                appName?: string | null;
+                accountNameApp?: string | null;
+                accountNumberApp?: string | null;
+              } | null;
               dispute?: {
                 __typename?: 'Dispute';
                 id: string;
@@ -1537,6 +1683,15 @@ export type PageTimelineQuery = {
                   donationAmount: number;
                   completedOrder: number;
                   uniqueTrades: number;
+                };
+                bankInfo: {
+                  __typename?: 'BankInfo';
+                  bankName?: string | null;
+                  accountNameBank?: string | null;
+                  accountNumberBank?: string | null;
+                  appName?: string | null;
+                  accountNameApp?: string | null;
+                  accountNumberApp?: string | null;
                 };
               };
               page?: {
@@ -1625,6 +1780,8 @@ export type PageTimelineQuery = {
                 coinOthers?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 hideFromHome?: boolean | null;
@@ -1724,6 +1881,7 @@ export type PageTimelineByTimeQuery = {
               amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
+              markAsPaid?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -1758,11 +1916,23 @@ export type PageTimelineByTimeQuery = {
                 __typename?: 'Offer';
                 postId: string;
                 message: string;
+                marginPercentage: number;
                 coinPayment?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 coinOthers?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              bankInfo?: {
+                __typename?: 'BankInfo';
+                bankName?: string | null;
+                accountNameBank?: string | null;
+                accountNumberBank?: string | null;
+                appName?: string | null;
+                accountNameApp?: string | null;
+                accountNumberApp?: string | null;
+              } | null;
               dispute?: {
                 __typename?: 'Dispute';
                 id: string;
@@ -1806,6 +1976,15 @@ export type PageTimelineByTimeQuery = {
                   donationAmount: number;
                   completedOrder: number;
                   uniqueTrades: number;
+                };
+                bankInfo: {
+                  __typename?: 'BankInfo';
+                  bankName?: string | null;
+                  accountNameBank?: string | null;
+                  accountNumberBank?: string | null;
+                  appName?: string | null;
+                  accountNameApp?: string | null;
+                  accountNumberApp?: string | null;
                 };
               };
               page?: {
@@ -1894,6 +2073,8 @@ export type PageTimelineByTimeQuery = {
                 coinOthers?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 hideFromHome?: boolean | null;
@@ -1992,6 +2173,7 @@ export type TokenTimelineQuery = {
               amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
+              markAsPaid?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -2026,11 +2208,23 @@ export type TokenTimelineQuery = {
                 __typename?: 'Offer';
                 postId: string;
                 message: string;
+                marginPercentage: number;
                 coinPayment?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 coinOthers?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              bankInfo?: {
+                __typename?: 'BankInfo';
+                bankName?: string | null;
+                accountNameBank?: string | null;
+                accountNumberBank?: string | null;
+                appName?: string | null;
+                accountNameApp?: string | null;
+                accountNumberApp?: string | null;
+              } | null;
               dispute?: {
                 __typename?: 'Dispute';
                 id: string;
@@ -2074,6 +2268,15 @@ export type TokenTimelineQuery = {
                   donationAmount: number;
                   completedOrder: number;
                   uniqueTrades: number;
+                };
+                bankInfo: {
+                  __typename?: 'BankInfo';
+                  bankName?: string | null;
+                  accountNameBank?: string | null;
+                  accountNumberBank?: string | null;
+                  appName?: string | null;
+                  accountNameApp?: string | null;
+                  accountNumberApp?: string | null;
                 };
               };
               page?: {
@@ -2162,6 +2365,8 @@ export type TokenTimelineQuery = {
                 coinOthers?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 hideFromHome?: boolean | null;
@@ -2261,6 +2466,7 @@ export type TokenTimelineByTimeQuery = {
               amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
+              markAsPaid?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -2295,11 +2501,23 @@ export type TokenTimelineByTimeQuery = {
                 __typename?: 'Offer';
                 postId: string;
                 message: string;
+                marginPercentage: number;
                 coinPayment?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 coinOthers?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              bankInfo?: {
+                __typename?: 'BankInfo';
+                bankName?: string | null;
+                accountNameBank?: string | null;
+                accountNumberBank?: string | null;
+                appName?: string | null;
+                accountNameApp?: string | null;
+                accountNumberApp?: string | null;
+              } | null;
               dispute?: {
                 __typename?: 'Dispute';
                 id: string;
@@ -2343,6 +2561,15 @@ export type TokenTimelineByTimeQuery = {
                   donationAmount: number;
                   completedOrder: number;
                   uniqueTrades: number;
+                };
+                bankInfo: {
+                  __typename?: 'BankInfo';
+                  bankName?: string | null;
+                  accountNameBank?: string | null;
+                  accountNumberBank?: string | null;
+                  appName?: string | null;
+                  accountNameApp?: string | null;
+                  accountNumberApp?: string | null;
                 };
               };
               page?: {
@@ -2431,6 +2658,8 @@ export type TokenTimelineByTimeQuery = {
                 coinOthers?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 hideFromHome?: boolean | null;
@@ -2494,7 +2723,10 @@ export const EscrowOrderFieldsFragmentDoc = `
   escrowOffer: offer {
     postId
     message
+    marginPercentage
     coinPayment
+    paymentApp
+    type
     coinOthers
     localCurrency
   }
@@ -2505,6 +2737,14 @@ export const EscrowOrderFieldsFragmentDoc = `
     txid
     value
     outIdx
+  }
+  bankInfo {
+    bankName
+    accountNameBank
+    accountNumberBank
+    appName
+    accountNameApp
+    accountNumberApp
   }
   dispute {
     id
@@ -2526,6 +2766,7 @@ export const EscrowOrderFieldsFragmentDoc = `
   escrowOrderStatus: status
   createdAt
   updatedAt
+  markAsPaid
 }
     `;
 export const DisputeFieldsFragmentDoc = `

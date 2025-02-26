@@ -40,6 +40,9 @@ export class Offer {
   @Field(() => String, { nullable: true })
   localCurrency?: Nullable<string>;
 
+  @Field(() => String, { nullable: true })
+  paymentApp?: Nullable<string>;
+
   @Field(() => COIN)
   coin: COIN;
 

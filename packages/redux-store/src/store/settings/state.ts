@@ -1,4 +1,4 @@
-import { OfferFilterInput } from '@bcpros/lixi-models/lib/escrow/inputs/offer-filter.input';
+import { OfferFilterInput } from '@bcpros/lixi-models/lib/escrow/inputs/offer/offer-filter.input';
 import { WebAuthnConfig, WebPushNotifConfig } from './model';
 
 export interface SettingsState {

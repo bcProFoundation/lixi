@@ -44,6 +44,7 @@ export type EscrowOrderQuery = {
     amountCoinOrCurrency: number;
     createdAt: any;
     updatedAt: any;
+    markAsPaid?: boolean | null;
     escrowOrderStatus: Types.EscrowOrderStatus;
     arbitratorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
     buyerAccount: {
@@ -68,11 +69,23 @@ export type EscrowOrderQuery = {
       __typename?: 'Offer';
       postId: string;
       message: string;
+      marginPercentage: number;
       coinPayment?: string | null;
+      paymentApp?: string | null;
+      type: Types.OfferType;
       coinOthers?: string | null;
       localCurrency?: string | null;
     };
     escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+    bankInfo?: {
+      __typename?: 'BankInfo';
+      bankName?: string | null;
+      accountNameBank?: string | null;
+      accountNumberBank?: string | null;
+      appName?: string | null;
+      accountNameApp?: string | null;
+      accountNumberApp?: string | null;
+    } | null;
     dispute?: {
       __typename?: 'Dispute';
       id: string;
@@ -135,6 +148,7 @@ export type AllEscrowOrderByAccountQuery = {
         amountCoinOrCurrency: number;
         createdAt: any;
         updatedAt: any;
+        markAsPaid?: boolean | null;
         escrowOrderStatus: Types.EscrowOrderStatus;
         arbitratorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
         buyerAccount: {
@@ -159,11 +173,23 @@ export type AllEscrowOrderByAccountQuery = {
           __typename?: 'Offer';
           postId: string;
           message: string;
+          marginPercentage: number;
           coinPayment?: string | null;
+          paymentApp?: string | null;
+          type: Types.OfferType;
           coinOthers?: string | null;
           localCurrency?: string | null;
         };
         escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+        bankInfo?: {
+          __typename?: 'BankInfo';
+          bankName?: string | null;
+          accountNameBank?: string | null;
+          accountNumberBank?: string | null;
+          appName?: string | null;
+          accountNameApp?: string | null;
+          accountNumberApp?: string | null;
+        } | null;
         dispute?: {
           __typename?: 'Dispute';
           id: string;
@@ -254,6 +280,7 @@ export type AllEscrowOrderByOfferIdQuery = {
               amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
+              markAsPaid?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -288,11 +315,23 @@ export type AllEscrowOrderByOfferIdQuery = {
                 __typename?: 'Offer';
                 postId: string;
                 message: string;
+                marginPercentage: number;
                 coinPayment?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 coinOthers?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              bankInfo?: {
+                __typename?: 'BankInfo';
+                bankName?: string | null;
+                accountNameBank?: string | null;
+                accountNumberBank?: string | null;
+                appName?: string | null;
+                accountNameApp?: string | null;
+                accountNumberApp?: string | null;
+              } | null;
               dispute?: {
                 __typename?: 'Dispute';
                 id: string;
@@ -336,6 +375,15 @@ export type AllEscrowOrderByOfferIdQuery = {
                   donationAmount: number;
                   completedOrder: number;
                   uniqueTrades: number;
+                };
+                bankInfo: {
+                  __typename?: 'BankInfo';
+                  bankName?: string | null;
+                  accountNameBank?: string | null;
+                  accountNumberBank?: string | null;
+                  appName?: string | null;
+                  accountNameApp?: string | null;
+                  accountNumberApp?: string | null;
                 };
               };
               page?: {
@@ -424,6 +472,8 @@ export type AllEscrowOrderByOfferIdQuery = {
                 coinOthers?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 hideFromHome?: boolean | null;
@@ -504,6 +554,21 @@ export type UpdateEscrowOrderSignatoryMutation = {
     releaseSignatory?: string | null;
     returnSignatory?: string | null;
     signatoryOwnerHash160?: string | null;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
+
+export type MarkAsPaidOrderMutationVariables = Types.Exact<{
+  input: Types.UpdateEscrowOrderInput;
+}>;
+
+export type MarkAsPaidOrderMutation = {
+  __typename?: 'Mutation';
+  markAsPaidOrder: {
+    __typename?: 'EscrowOrder';
+    id: string;
+    status: Types.EscrowOrderStatus;
     createdAt: any;
     updatedAt: any;
   };
@@ -631,6 +696,16 @@ export const UpdateEscrowOrderSignatoryDocument = `
   }
 }
     `;
+export const MarkAsPaidOrderDocument = `
+    mutation MarkAsPaidOrder($input: UpdateEscrowOrderInput!) {
+  markAsPaidOrder(data: $input) {
+    id
+    status
+    createdAt
+    updatedAt
+  }
+}
+    `;
 export const FilterUtxosDocument = `
     mutation FilterUtxos($input: [UtxoInNodeInput!]!) {
   filterUtxos(data: $input) {
@@ -676,6 +751,9 @@ const injectedRtkApi = api.injectEndpoints({
       UpdateEscrowOrderSignatoryMutationVariables
     >({
       query: variables => ({ document: UpdateEscrowOrderSignatoryDocument, variables })
+    }),
+    MarkAsPaidOrder: build.mutation<MarkAsPaidOrderMutation, MarkAsPaidOrderMutationVariables>({
+      query: variables => ({ document: MarkAsPaidOrderDocument, variables })
     }),
     FilterUtxos: build.mutation<FilterUtxosMutation, FilterUtxosMutationVariables>({
       query: variables => ({ document: FilterUtxosDocument, variables })

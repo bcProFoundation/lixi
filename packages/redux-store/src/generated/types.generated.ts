@@ -28,6 +28,7 @@ export type Account = {
   address: Scalars['String']['output'];
   avatar?: Maybe<Scalars['String']['output']>;
   balance: Scalars['Int']['output'];
+  bankInfo: BankInfo;
   coin?: Maybe<Coin>;
   cover?: Maybe<Scalars['String']['output']>;
   createCommentFee?: Maybe<Scalars['String']['output']>;
@@ -151,6 +152,27 @@ export type Balances = {
   __typename?: 'Balances';
   totalBalance: Scalars['String']['output'];
   totalBalanceInSatoshis: Scalars['String']['output'];
+};
+
+export type BankInfo = {
+  __typename?: 'BankInfo';
+  accountNameApp?: Maybe<Scalars['String']['output']>;
+  accountNameBank?: Maybe<Scalars['String']['output']>;
+  accountNumberApp?: Maybe<Scalars['String']['output']>;
+  accountNumberBank?: Maybe<Scalars['String']['output']>;
+  appName?: Maybe<Scalars['String']['output']>;
+  bankName?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  orderId: Scalars['String']['output'];
+};
+
+export type BankInfoInput = {
+  accountNameApp?: InputMaybe<Scalars['String']['input']>;
+  accountNameBank?: InputMaybe<Scalars['String']['input']>;
+  accountNumberApp?: InputMaybe<Scalars['String']['input']>;
+  accountNumberBank?: InputMaybe<Scalars['String']['input']>;
+  appName?: InputMaybe<Scalars['String']['input']>;
+  bankName?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type BasicPageInfo = {
@@ -404,16 +426,17 @@ export type CreateEscrowOrderInput = {
   amount: Scalars['Float']['input'];
   amountCoinOrCurrency: Scalars['Float']['input'];
   arbitratorId: Scalars['Int']['input'];
+  bankInfoInput?: InputMaybe<BankInfoInput>;
   buyerDepositTx?: InputMaybe<Scalars['String']['input']>;
   escrowAddress: Scalars['String']['input'];
   escrowScript: Scalars['String']['input'];
   message?: InputMaybe<Scalars['String']['input']>;
   moderatorId: Scalars['Int']['input'];
   nonce: Scalars['String']['input'];
+  offerAccountId: Scalars['Int']['input'];
   paymentMethodId: Scalars['Int']['input'];
   postId: Scalars['String']['input'];
   price: Scalars['String']['input'];
-  sellerId: Scalars['Int']['input'];
   utxoInProcess?: InputMaybe<UtxoInNodeInput>;
 };
 
@@ -470,6 +493,7 @@ export type CreateOfferInput = {
   orderLimitMax: Scalars['Float']['input'];
   orderLimitMin: Scalars['Float']['input'];
   pageId?: InputMaybe<Scalars['String']['input']>;
+  paymentApp?: InputMaybe<Scalars['String']['input']>;
   paymentMethodIds: Array<Scalars['Int']['input']>;
   price: Scalars['String']['input'];
   type: OfferType;
@@ -661,6 +685,7 @@ export type EscrowOrder = {
   amountCoinOrCurrency: Scalars['Float']['output'];
   arbitratorAccount: Account;
   arbitratorAccountId: Scalars['Int']['output'];
+  bankInfo?: Maybe<BankInfo>;
   buyerAccount: Account;
   buyerAccountId: Scalars['Int']['output'];
   buyerDepositTx?: Maybe<Scalars['String']['output']>;
@@ -672,6 +697,7 @@ export type EscrowOrder = {
   escrowScript: Scalars['String']['output'];
   escrowTxids?: Maybe<Array<EscrowTxid>>;
   id: Scalars['ID']['output'];
+  markAsPaid?: Maybe<Scalars['Boolean']['output']>;
   message?: Maybe<Scalars['String']['output']>;
   moderatorAccount: Account;
   moderatorAccountId: Scalars['Int']['output'];
@@ -1095,6 +1121,7 @@ export type Mutation = {
   deleteFollowPage: Scalars['Boolean']['output'];
   deleteFollowToken: Scalars['Boolean']['output'];
   filterUtxos: Array<UtxoInNode>;
+  markAsPaidOrder: EscrowOrder;
   openPageMessageSession: PageMessageSession;
   removeBookmark: Bookmark;
   removePost: Post;
@@ -1226,6 +1253,10 @@ export type MutationFilterUtxosArgs = {
   data: Array<UtxoInNodeInput>;
 };
 
+export type MutationMarkAsPaidOrderArgs = {
+  data: UpdateEscrowOrderInput;
+};
+
 export type MutationOpenPageMessageSessionArgs = {
   data: OpenPageMessageSessionInput;
 };
@@ -1298,6 +1329,7 @@ export type Offer = {
   noteOffer?: Maybe<Scalars['String']['output']>;
   orderLimitMax: Scalars['Float']['output'];
   orderLimitMin: Scalars['Float']['output'];
+  paymentApp?: Maybe<Scalars['String']['output']>;
   paymentMethods: Array<OfferPaymentMethod>;
   postId: Scalars['String']['output'];
   price: Scalars['String']['output'];
@@ -1323,6 +1355,7 @@ export type OfferFilterInput = {
   countryCode?: InputMaybe<Scalars['String']['input']>;
   countryName?: InputMaybe<Scalars['String']['input']>;
   fiatCurrency?: InputMaybe<Scalars['String']['input']>;
+  isBuyOffer?: InputMaybe<Scalars['Boolean']['input']>;
   paymentMethodIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   stateName?: InputMaybe<Scalars['String']['input']>;
 };
@@ -2643,12 +2676,15 @@ export type UpdateDisputeInput = {
 };
 
 export type UpdateEscrowOrderInput = {
+  amount?: InputMaybe<Scalars['Float']['input']>;
   buyerDonateAmount?: InputMaybe<Scalars['Float']['input']>;
+  markAsPaid?: InputMaybe<Scalars['Boolean']['input']>;
   orderId: Scalars['String']['input'];
   outIdx?: InputMaybe<Scalars['Int']['input']>;
+  price?: InputMaybe<Scalars['String']['input']>;
   sellerDonateAmount?: InputMaybe<Scalars['Float']['input']>;
   socketId?: InputMaybe<Scalars['String']['input']>;
-  status: EscrowOrderStatus;
+  status?: InputMaybe<EscrowOrderStatus>;
   txid?: InputMaybe<Scalars['String']['input']>;
   utxoInNodeOfBuyer?: InputMaybe<UtxoInNodeInput>;
   value?: InputMaybe<Scalars['Int']['input']>;

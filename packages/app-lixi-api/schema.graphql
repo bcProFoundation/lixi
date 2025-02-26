@@ -9,6 +9,7 @@ type Account {
   address: String!
   avatar: String
   balance: Int!
+  bankInfo: BankInfo!
   coin: Coin
   cover: String
   createCommentFee: String
@@ -125,6 +126,26 @@ type AllFiatRates {
 type Balances {
   totalBalance: String!
   totalBalanceInSatoshis: String!
+}
+
+type BankInfo {
+  accountNameApp: String
+  accountNameBank: String
+  accountNumberApp: String
+  accountNumberBank: String
+  appName: String
+  bankName: String
+  id: ID!
+  orderId: String!
+}
+
+input BankInfoInput {
+  accountNameApp: String
+  accountNameBank: String
+  accountNumberApp: String
+  accountNumberBank: String
+  appName: String
+  bankName: String
 }
 
 type BasicPageInfo {
@@ -378,16 +399,17 @@ input CreateEscrowOrderInput {
   amount: Float!
   amountCoinOrCurrency: Float!
   arbitratorId: Int!
+  bankInfoInput: BankInfoInput
   buyerDepositTx: String
   escrowAddress: String!
   escrowScript: String!
   message: String
   moderatorId: Int!
   nonce: String!
+  offerAccountId: Int!
   paymentMethodId: Int!
   postId: String!
   price: String!
-  sellerId: Int!
   utxoInProcess: UtxoInNodeInput
 }
 
@@ -444,6 +466,7 @@ input CreateOfferInput {
   orderLimitMax: Float!
   orderLimitMin: Float!
   pageId: String
+  paymentApp: String
   paymentMethodIds: [Int!]!
   price: String!
   type: OfferType!
@@ -638,6 +661,7 @@ type EscrowOrder {
   amountCoinOrCurrency: Float!
   arbitratorAccount: Account!
   arbitratorAccountId: Int!
+  bankInfo: BankInfo
   buyerAccount: Account!
   buyerAccountId: Int!
   buyerDepositTx: String
@@ -650,6 +674,7 @@ type EscrowOrder {
   escrowScript: String!
   escrowTxids: [EscrowTxid!]
   id: ID!
+  markAsPaid: Boolean
   message: String
   moderatorAccount: Account!
   moderatorAccountId: Int!
@@ -1065,6 +1090,7 @@ type Mutation {
   deleteFollowPage(data: DeleteFollowPageInput!): Boolean!
   deleteFollowToken(data: DeleteFollowTokenInput!): Boolean!
   filterUtxos(data: [UtxoInNodeInput!]!): [UtxoInNode!]!
+  markAsPaidOrder(data: UpdateEscrowOrderInput!): EscrowOrder!
   openPageMessageSession(data: OpenPageMessageSessionInput!): PageMessageSession!
   removeBookmark(data: RemoveBookmarkInput!): Bookmark!
   removePost(data: RemovePostInput!): Post!
@@ -1099,6 +1125,7 @@ type Offer {
   noteOffer: String
   orderLimitMax: Float!
   orderLimitMin: Float!
+  paymentApp: String
   paymentMethods: [OfferPaymentMethod!]!
   postId: String!
   price: String!
@@ -1124,6 +1151,7 @@ input OfferFilterInput {
   countryCode: String
   countryName: String
   fiatCurrency: String
+  isBuyOffer: Boolean
   paymentMethodIds: [Int!]
   stateName: String
 }
@@ -1876,12 +1904,15 @@ input UpdateDisputeInput {
 }
 
 input UpdateEscrowOrderInput {
+  amount: Float
   buyerDonateAmount: Float
+  markAsPaid: Boolean
   orderId: String!
   outIdx: Int
+  price: String
   sellerDonateAmount: Float
   socketId: String
-  status: EscrowOrderStatus!
+  status: EscrowOrderStatus
   txid: String
   utxoInNodeOfBuyer: UtxoInNodeInput
   value: Int

@@ -64,6 +64,15 @@ export type AccountQuery = {
       completedOrder: number;
       uniqueTrades: number;
     };
+    bankInfo: {
+      __typename?: 'BankInfo';
+      bankName?: string | null;
+      accountNameBank?: string | null;
+      accountNumberBank?: string | null;
+      appName?: string | null;
+      accountNameApp?: string | null;
+      accountNumberApp?: string | null;
+    };
   };
 };
 
@@ -117,6 +126,15 @@ export type GetAccountByAddressQuery = {
       donationAmount: number;
       completedOrder: number;
       uniqueTrades: number;
+    };
+    bankInfo: {
+      __typename?: 'BankInfo';
+      bankName?: string | null;
+      accountNameBank?: string | null;
+      accountNumberBank?: string | null;
+      appName?: string | null;
+      accountNameApp?: string | null;
+      accountNumberApp?: string | null;
     };
   };
 };
@@ -179,6 +197,15 @@ export type AllFollowersByPageQuery = {
           donationAmount: number;
           completedOrder: number;
           uniqueTrades: number;
+        };
+        bankInfo: {
+          __typename?: 'BankInfo';
+          bankName?: string | null;
+          accountNameBank?: string | null;
+          accountNumberBank?: string | null;
+          appName?: string | null;
+          accountNameApp?: string | null;
+          accountNumberApp?: string | null;
         };
       };
     }>;
@@ -245,6 +272,15 @@ export type AllFollowersByTokenQuery = {
           completedOrder: number;
           uniqueTrades: number;
         };
+        bankInfo: {
+          __typename?: 'BankInfo';
+          bankName?: string | null;
+          accountNameBank?: string | null;
+          accountNumberBank?: string | null;
+          appName?: string | null;
+          accountNameApp?: string | null;
+          accountNumberApp?: string | null;
+        };
       };
     }>;
     pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
@@ -308,6 +344,15 @@ export type AccountsQuery = {
           donationAmount: number;
           completedOrder: number;
           uniqueTrades: number;
+        };
+        bankInfo: {
+          __typename?: 'BankInfo';
+          bankName?: string | null;
+          accountNameBank?: string | null;
+          accountNumberBank?: string | null;
+          appName?: string | null;
+          accountNameApp?: string | null;
+          accountNumberApp?: string | null;
         };
       };
     }>;
@@ -375,6 +420,15 @@ export type TopWeekAccountsQuery = {
           completedOrder: number;
           uniqueTrades: number;
         };
+        bankInfo: {
+          __typename?: 'BankInfo';
+          bankName?: string | null;
+          accountNameBank?: string | null;
+          accountNumberBank?: string | null;
+          appName?: string | null;
+          accountNameApp?: string | null;
+          accountNumberApp?: string | null;
+        };
       };
     }>;
     pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
@@ -441,6 +495,15 @@ export type TopMonthAccountsQuery = {
           completedOrder: number;
           uniqueTrades: number;
         };
+        bankInfo: {
+          __typename?: 'BankInfo';
+          bankName?: string | null;
+          accountNameBank?: string | null;
+          accountNumberBank?: string | null;
+          appName?: string | null;
+          accountNameApp?: string | null;
+          accountNumberApp?: string | null;
+        };
       };
     }>;
     pageInfo: { __typename?: 'BasicPageInfo'; endCursor: string; hasNextPage: boolean };
@@ -491,6 +554,15 @@ export type AccountFieldsFragment = {
     donationAmount: number;
     completedOrder: number;
     uniqueTrades: number;
+  };
+  bankInfo: {
+    __typename?: 'BankInfo';
+    bankName?: string | null;
+    accountNameBank?: string | null;
+    accountNumberBank?: string | null;
+    appName?: string | null;
+    accountNameApp?: string | null;
+    accountNumberApp?: string | null;
   };
 };
 
@@ -544,6 +616,15 @@ export type UpdateAccountMutation = {
       donationAmount: number;
       completedOrder: number;
       uniqueTrades: number;
+    };
+    bankInfo: {
+      __typename?: 'BankInfo';
+      bankName?: string | null;
+      accountNameBank?: string | null;
+      accountNumberBank?: string | null;
+      appName?: string | null;
+      accountNameApp?: string | null;
+      accountNumberApp?: string | null;
     };
   };
 };
@@ -600,6 +681,15 @@ export type UpdateAccountTelegramUsernameMutation = {
       completedOrder: number;
       uniqueTrades: number;
     };
+    bankInfo: {
+      __typename?: 'BankInfo';
+      bankName?: string | null;
+      accountNameBank?: string | null;
+      accountNumberBank?: string | null;
+      appName?: string | null;
+      accountNameApp?: string | null;
+      accountNumberApp?: string | null;
+    };
   };
 };
 
@@ -648,6 +738,14 @@ export const AccountFieldsFragmentDoc = `
     donationAmount
     completedOrder
     uniqueTrades
+  }
+  bankInfo {
+    bankName
+    accountNameBank
+    accountNumberBank
+    appName
+    accountNameApp
+    accountNumberApp
   }
 }
     `;

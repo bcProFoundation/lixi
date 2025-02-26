@@ -16,7 +16,8 @@ import {
   UpdateOfferInput,
   UpdateOfferStatusInput,
   Location,
-  UpdateOfferHideFromHomeInput
+  UpdateOfferHideFromHomeInput,
+  PAYMENT_METHOD
 } from '@bcpros/lixi-models';
 import { Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
@@ -105,6 +106,7 @@ export class OfferResolver {
     @Args({ name: 'offerFilterInput', type: () => OfferFilterInput }) offerFilterInput: OfferFilterInput
   ) {
     const replaceDashWithUnderscore = (str: any) => (str ? str.replace(/-/g, '_') : str);
+    const isBuyOffer = offerFilterInput.isBuyOffer ?? true;
 
     offerFilterInput = {
       countryCode: offerFilterInput.countryCode ?? null,
@@ -114,7 +116,12 @@ export class OfferResolver {
       coin: offerFilterInput.coin ?? null,
       fiatCurrency: offerFilterInput.fiatCurrency ?? null
     };
-    const paginated = await this.offerCacheService.getOfferFilterPaginatedTimeline(offerFilterInput, first, after);
+    const paginated = await this.offerCacheService.getOfferFilterPaginatedTimeline(
+      isBuyOffer,
+      offerFilterInput,
+      first,
+      after
+    );
     const timelineIds = paginated.edges.map(item => item.cursor);
     const timelines = await this.timelineItemService.getByIds(timelineIds);
     const result = {
@@ -246,14 +253,20 @@ export class OfferResolver {
                 coinPayment: data.coinPayment,
                 coinOthers: data.coinOthers ?? '',
                 localCurrency: data.localCurrency,
+                paymentApp: data.paymentApp,
                 orderLimitMin: data.orderLimitMin,
                 orderLimitMax: data.orderLimitMax,
                 hideFromHome: data.hideFromHome,
+                type: data.type,
                 location: {
-                  connect: paymentMethodIds[0] === 1 && locationId ? { id: locationId } : undefined //cash in person
+                  connect:
+                    paymentMethodIds[0] === PAYMENT_METHOD.CASH_IN_PERSON && locationId ? { id: locationId } : undefined //cash in person
                 },
                 country: {
-                  connect: paymentMethodIds[0] === 2 && locationId ? { id: Number(locationId) } : undefined //bank transfer
+                  connect:
+                    paymentMethodIds[0] === PAYMENT_METHOD.BANK_TRANSFER && locationId
+                      ? { id: Number(locationId) }
+                      : undefined //bank transfer
                 },
                 paymentMethods: {
                   createMany: {
@@ -351,7 +364,7 @@ export class OfferResolver {
             );
 
       //process for goods services
-      if (paymentMethodIds[0] === 5) {
+      if (paymentMethodIds[0] === PAYMENT_METHOD.GOODS_SERVICES) {
         formatReplied = format(
           BOT.MESSAGE.OFFER_CREATED_GOODS_SERVICES,
           result.id,

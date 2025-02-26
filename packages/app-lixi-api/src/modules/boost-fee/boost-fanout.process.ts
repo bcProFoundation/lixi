@@ -8,10 +8,18 @@ import moment from 'moment';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { newEpoch, offer_half_life } from 'src/utils/constants';
 import { BOOST_FANOUT_QUEUE } from './boost.constants';
-import { BoostFee, Post } from '@bcpros/lixi-models';
+import { BoostFee, OfferType, Post } from '@bcpros/lixi-models';
 import { template } from 'src/utils/stringTemplate';
 import ReSearch from 'src/common/redis/redis-search';
-import { IndexNameOffer } from '../escrow/escrow.contants';
+import {
+  IndexNameBuyOffer,
+  IndexNameOffer,
+  KeyCacheNameBuyOffer,
+  KeyCacheNameOffer,
+  KeyIndexNameBuyOffer,
+  KeyIndexNameOffer
+} from '../escrow/escrow.contants';
+import { createIndexOffer, sanitizeLocation } from 'src/utils/escrow/offer';
 
 @Injectable()
 @Processor(BOOST_FANOUT_QUEUE, { concurrency: 50 })
@@ -21,6 +29,7 @@ export class BoostFanoutProcessor extends WorkerHost {
   //timeline for offer boost
   static offerBoostingTimeline = 'timeline:offer:boosting:showAll';
   static timelineOfferFilter = 'timeline:offer:{{keyFilter}}';
+  static timelineBuyOfferFilter = 'timeline:buyOffer:{{keyFilter}}';
 
   constructor(
     @InjectRedis() private readonly redis: Redis,
@@ -34,6 +43,8 @@ export class BoostFanoutProcessor extends WorkerHost {
       const { post, boost } = job.data;
       if (!post) return true;
       const id = `${post.id}`;
+      const isBuyOffer = post?.offer?.type === OfferType.BUY;
+      const prefixOfferCache = `${isBuyOffer ? KeyCacheNameBuyOffer : KeyCacheNameOffer}:`;
 
       // Invalidate the cache
       const diffHour = moment.duration(moment(boost.createdAt).diff(moment(newEpoch))).asHours();
@@ -49,76 +60,58 @@ export class BoostFanoutProcessor extends WorkerHost {
 
       //update score of post in cache (country-state-method)
       post.offer?.paymentMethods?.map(item => {
-        const keyPaymentMethod = `offer:method:{${item.paymentMethodId}}`;
+        const keyPaymentMethod = `${prefixOfferCache}method:{${item.paymentMethodId}}`;
         pipeline.zincrby(keyPaymentMethod, score, timelineId);
       });
 
       //add cache for country - state - city (offer:country:{countryName})
       const countryCode = post.offer?.location?.iso2 ?? post.offer?.country?.iso2 ?? null;
-      let adminCode = post.offer?.location?.adminCode ?? null;
-      let cityName = post.offer?.location?.cityAscii ?? null;
-
-      //replace - in str to _
-      if (adminCode) {
-        adminCode = adminCode.replace(/-/g, '_');
-      }
-      if (cityName) {
-        cityName = cityName.replace(/-/g, '_');
-      }
+      const adminCode = sanitizeLocation(post.offer?.location?.adminCode ?? undefined);
+      const cityName = sanitizeLocation(post.offer?.location?.cityAscii ?? undefined);
 
       //cash in person
       if (post.offer?.location) {
-        const keyCountry = `offer:country:{${countryCode}}`;
+        const keyCountry = `${prefixOfferCache}country:{${countryCode}}`;
         pipeline.zincrby(keyCountry, score, timelineId);
 
-        const keyState = `offer:state:{${adminCode}}`;
+        const keyState = `${prefixOfferCache}state:{${adminCode}}`;
         pipeline.zincrby(keyState, score, timelineId);
 
-        const keyCity = `offer:city:{${cityName}}`;
+        const keyCity = `${prefixOfferCache}city:{${cityName}}`;
         pipeline.zincrby(keyCity, score, timelineId);
       }
 
       // bank transfer
       if (post.offer?.country) {
-        const keyCountry = `offer:country:{${countryCode}}`;
+        const keyCountry = `${prefixOfferCache}country:{${countryCode}}`;
         pipeline.zincrby(keyCountry, score, timelineId);
       }
 
       if (post.offer?.coinPayment) {
-        const keyCoin = `offer:coin:{${post.offer.coinPayment}}`;
+        const keyCoin = `${prefixOfferCache}coin:{${post.offer.coinPayment}}`;
         pipeline.zincrby(keyCoin, score, timelineId);
       }
 
       if (post.offer?.localCurrency) {
-        const keyCurrency = `offer:currency:{${post.offer.localCurrency}}`;
+        const keyCurrency = `${prefixOfferCache}currency:{${post.offer.localCurrency}}`;
         pipeline.zincrby(keyCurrency, score, timelineId);
       }
 
       const reSearch = new ReSearch(this.redis);
       //create index if not exist
-      const existIndex = await reSearch.exist(IndexNameOffer);
-      if (!existIndex) {
-        await reSearch.create(IndexNameOffer, true, ['1', 'docOffer:'], {
-          countryCode: 'TEXT',
-          adminCode: 'TEXT',
-          city: 'TEXT',
-          methods: 'TAG',
-          coin: 'TEXT',
-          currency: 'TEXT'
-        });
-      }
+      await createIndexOffer(reSearch, post?.offer?.type ?? OfferType.BUY);
 
       //search item
       const methodIds = post?.offer?.paymentMethods?.map(item => item.paymentMethodId).join('|'); // 1|2|3
       const queryItem = `@countryCode:${countryCode}|@adminCode:${adminCode}|@city:${cityName}|@coin:${post?.offer?.coinPayment}|@currency:${post?.offer?.localCurrency}|@methods:{${methodIds}}`;
-      const searchResult = await reSearch.search(IndexNameOffer, queryItem);
+      const searchResult = await reSearch.search(isBuyOffer ? IndexNameBuyOffer : IndexNameOffer, queryItem);
       //add item to search result
       if (searchResult.length > 0) {
         //search return result: [total item, keyItem1, valueItem1, keyItem2, valueItem2,...]
         for (let i = 1; i < searchResult.length; i += 2) {
           const keyDoc = searchResult[i];
           //get keyFilter, key doc: lixilotus:docOffer:keyFilter
-          const arrKeyDoc = keyDoc.split('docOffer:');
+          const arrKeyDoc = keyDoc.split(`${isBuyOffer ? KeyIndexNameBuyOffer : KeyIndexNameOffer}:`);
           const keyFilter = arrKeyDoc[arrKeyDoc.length - 1];
 
           const keyFilterJson = JSON.parse(keyFilter);
@@ -139,7 +132,10 @@ export class BoostFanoutProcessor extends WorkerHost {
             )
               continue;
           }
-          const keyTimelineFilter = template(`${BoostFanoutProcessor.timelineOfferFilter}`, { keyFilter });
+          const keyTimelineFilter = template(
+            `${isBuyOffer ? BoostFanoutProcessor.timelineBuyOfferFilter : BoostFanoutProcessor.timelineOfferFilter}`,
+            { keyFilter }
+          );
           pipeline.zincrby(keyTimelineFilter, score, timelineId);
         }
       }
