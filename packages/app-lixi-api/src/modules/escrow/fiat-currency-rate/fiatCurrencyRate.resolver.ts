@@ -1,4 +1,4 @@
-import { CurrencyRates, FiatRates, LIST_CURRENCIES_USED } from '@bcpros/lixi-models';
+import { AllFiatRates, CurrencyRates, FiatRates, LIST_CURRENCIES_USED } from '@bcpros/lixi-models';
 import { Logger } from '@nestjs/common';
 import { Query, Resolver } from '@nestjs/graphql';
 import * as _ from 'lodash';
@@ -52,6 +52,28 @@ export class FiatCurrencyRateResolver {
       await Promise.all(ratePromises);
 
       return resultData;
+    } catch (error) {
+      this.logger.error(error);
+    }
+  }
+
+  @Query(() => [AllFiatRates])
+  async getAllFiatRate() {
+    try {
+      const response = await this.httpService
+        .get(`${this.configService.get<string>('BITCORE_URL')}/v4/allFiatrates`)
+        // .get(`http://localhost:3232/bws/api/v4/allFiatrates/`)
+        .toPromise();
+
+      if (response?.status !== 200) {
+        throw new Error(`Failed to fetch fiat rates`);
+      }
+
+      const data = response.data;
+      const fiatRates: AllFiatRates[] = Object.keys(data).map(currency => {
+        return { currency, fiatRates: data[currency] };
+      });
+      return fiatRates;
     } catch (error) {
       this.logger.error(error);
     }
