@@ -419,7 +419,7 @@ Are you ready? Let's get started.
         return;
       }
 
-      const { type, hash } = cashaddr.decode(targetAddress);
+      const { type, hash } = cashaddr.decode(targetAddress, true);
       const hash160AsString = Buffer.from(hash).toString('hex');
 
       const account = await this.prisma.account.findFirst({
@@ -495,7 +495,7 @@ Are you ready? Let's get started.
         return;
       }
 
-      const { hash } = cashaddr.decode(targetAddress);
+      const { hash } = cashaddr.decode(targetAddress, true);
       const hash160AsString = Buffer.from(hash).toString('hex');
 
       //remove from prisma
