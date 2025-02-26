@@ -420,7 +420,6 @@ Are you ready? Let's get started.
       }
 
       const { type, hash } = cashaddr.decode(targetAddress, true);
-      const hash160AsString = Buffer.from(hash).toString('hex');
 
       const account = await this.prisma.account.findFirst({
         where: {
@@ -442,7 +441,7 @@ Are you ready? Let's get started.
         return;
       }
 
-      if (account.chronikWatchAddresses.find(item => item.hash160 === hash160AsString)) {
+      if (account.chronikWatchAddresses.find(item => item.hash160 === hash)) {
         await ctx.sendMessage(`Address is already registered!`, {
           protect_content: true,
           parse_mode: 'Markdown',
@@ -456,16 +455,16 @@ Are you ready? Let's get started.
       //connect to chronik ws
       const subs = this.chronikWs.subs.scripts;
 
-      if (!_.find(subs, item => item.payload === hash160AsString)) {
+      if (!_.find(subs, item => item.payload === hash)) {
         //@ts-ignore
-        this.chronikWs.subscribeToScript(type.toLowerCase(), hash160AsString);
+        this.chronikWs.subscribeToScript(type.toLowerCase(), hash);
       }
 
       //add to prisma
       await this.prisma.chronikWatchAddress.create({
         data: {
           accountId: account.id,
-          hash160: hash160AsString,
+          hash160: hash as string,
           type
         }
       });
@@ -496,7 +495,6 @@ Are you ready? Let's get started.
       }
 
       const { hash } = cashaddr.decode(targetAddress, true);
-      const hash160AsString = Buffer.from(hash).toString('hex');
 
       //remove from prisma
       const account = await this.prisma.account.findFirst({
@@ -519,7 +517,7 @@ Are you ready? Let's get started.
         return;
       }
 
-      const chronikWatchAddress = account.chronikWatchAddresses.find(item => item.hash160 === hash160AsString);
+      const chronikWatchAddress = account.chronikWatchAddresses.find(item => item.hash160 === hash);
 
       if (!chronikWatchAddress) {
         await ctx.sendMessage(`Address is not registered!`, {
@@ -542,12 +540,12 @@ Are you ready? Let's get started.
       //disconnect from chronik ws if there are no more targetAddress
       const addresses = await this.prisma.chronikWatchAddress.findMany({
         where: {
-          hash160: hash160AsString
+          hash160: hash as string
         }
       });
 
       if (addresses.length === 0) {
-        this.chronikWs.unsubscribeFromScript('p2pkh', hash160AsString);
+        this.chronikWs.unsubscribeFromScript('p2pkh', hash as string);
       }
 
       await ctx.sendMessage(`Address successfully removed!`, {
@@ -601,8 +599,8 @@ Are you ready? Let's get started.
       }
 
       const addressReplyFormat = chronikWatchAddress.map((item, index) => {
-        const ecash = cashaddr.encode('ecash', 'p2pkh', Buffer.from(item, 'hex'));
-        const etoken = cashaddr.encode('etoken', 'p2pkh', Buffer.from(item, 'hex'));
+        const ecash = cashaddr.encode('ecash', 'p2pkh', item);
+        const etoken = cashaddr.encode('etoken', 'p2pkh', item);
 
         return `${index + 1}. [${ecash}](${coinInfo[COIN.XEC].blockExplorerUrl}/address/${ecash})
         [${etoken}](${coinInfo[COIN.XEC].blockExplorerUrl}/address/${etoken})`;
