@@ -255,7 +255,7 @@ Are you ready? Let's get started.
       - 🎯 /start - Start interacting with the Local eCash Bot.
       - 🆘 /help - Display this help message.
       - 👀 /watch - Add watching address i.e. /watch ecash:qqth...jfje
-      - 🗑️ /removewatch - Remove watched address i.e. /remove ecash:qqth...jfje 
+      - 🗑️ /removewatch - Remove watched address i.e. /removewatch ecash:qqth...jfje 
       - 📋 /listwatch - List all watched addresses
       
       If you need further assistance, feel free to contact our support team or visit our [Telegram Channel](https://t.me/localecash).
