@@ -253,9 +253,6 @@ Are you ready? Let's get started.
   💡 *Available Commands* 💡
 
       - 🎯 /start - Start interacting with the Local eCash Bot.
-      - 📊 /stats YYYYMMDD - View detailed trade statistics for the past 1 year, month, week, and day. (moderators only).
-         + Replace 'YYYYMMDD' with a date in the format *Year-Month-Day* (e.g., '20250101' for January 1, 2025).    
-         + If the date is not provided, the current date will be used by default.  
       - 🆘 /help - Display this help message.
       - 👀 /watch - Add watching address i.e. /watch ecash:qqth...jfje
       - 🗑️ /removewatch - Remove watched address i.e. /remove ecash:qqth...jfje 
