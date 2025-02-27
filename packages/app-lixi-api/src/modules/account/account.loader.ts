@@ -117,10 +117,14 @@ export default class AccountLoader {
                 ) AS completed_order,
                 COUNT(
                   DISTINCT
-                    LEAST(seller_account_id, buyer_account_id)::TEXT
-                    || '_' ||
-                    GREATEST(seller_account_id, buyer_account_id)::TEXT
-                ) AS unique_trades
+                    CASE
+                    WHEN eo.status = 'COMPLETE' THEN
+                      LEAST(seller_account_id, buyer_account_id)::TEXT
+                      || '_' ||
+                      GREATEST(seller_account_id, buyer_account_id)::TEXT
+                      ELSE NULL
+                    END
+                  ) AS unique_trades
             FROM Precomputed eo
             GROUP BY relevant_account_id
         )
