@@ -216,9 +216,11 @@ export class EscrowOrderResolver {
       }
 
       const { sellerAccount, buyerAccount } = result;
+      const sellerTelegramUsername = sellerAccount.telegramUsername!.replace(/_/g, '\\_');
+      const buyerTelegramUsername = buyerAccount.telegramUsername!.replace(/_/g, '\\_');
 
       if (account.id === result.sellerAccountId && buyerAccount.telegramId) {
-        const formatReplied = format(BOT.MESSAGE.SELLER_REQUEST_CHAT, sellerAccount.telegramUsername);
+        const formatReplied = format(BOT.MESSAGE.SELLER_REQUEST_CHAT, sellerTelegramUsername);
         await this.bot.telegram
           .sendMessage(buyerAccount.telegramId, formatReplied, {
             parse_mode: 'Markdown',
@@ -240,7 +242,7 @@ export class EscrowOrderResolver {
       }
 
       if (account.id === result.buyerAccountId && sellerAccount.telegramId) {
-        const formatReplied = format(BOT.MESSAGE.BUYER_REQUEST_CHAT, buyerAccount.telegramUsername);
+        const formatReplied = format(BOT.MESSAGE.BUYER_REQUEST_CHAT, buyerTelegramUsername);
         await this.bot.telegram
           .sendMessage(sellerAccount.telegramId, formatReplied, {
             parse_mode: 'Markdown',
@@ -308,10 +310,12 @@ export class EscrowOrderResolver {
       }
 
       const { moderatorAccount, arbitratorAccount, sellerAccount, buyerAccount } = result;
+      const arbTelegramUsername = arbitratorAccount.telegramUsername!.replace(/_/g, '\\_');
+      const modTelegramUsername = moderatorAccount.telegramUsername!.replace(/_/g, '\\_');
 
       if (account.id === result.arbitratorAccountId) {
         if (requestChatPublicKey === sellerAccount.publicKey && sellerAccount.telegramId) {
-          const formatReplied = format(BOT.MESSAGE.ARBI_REQUEST_CHAT, arbitratorAccount.telegramUsername);
+          const formatReplied = format(BOT.MESSAGE.ARBI_REQUEST_CHAT, arbTelegramUsername);
           await this.bot.telegram
             .sendMessage(sellerAccount.telegramId, formatReplied, {
               parse_mode: 'Markdown',
@@ -333,7 +337,7 @@ export class EscrowOrderResolver {
         }
 
         if (requestChatPublicKey === buyerAccount.publicKey && buyerAccount.telegramId) {
-          const formatReplied = format(BOT.MESSAGE.ARBI_REQUEST_CHAT, arbitratorAccount.telegramUsername);
+          const formatReplied = format(BOT.MESSAGE.ARBI_REQUEST_CHAT, arbTelegramUsername);
           await this.bot.telegram
             .sendMessage(buyerAccount.telegramId, formatReplied, {
               parse_mode: 'Markdown',
@@ -357,7 +361,7 @@ export class EscrowOrderResolver {
 
       if (account.id === result.moderatorAccountId) {
         if (requestChatPublicKey === sellerAccount.publicKey && sellerAccount.telegramId) {
-          const formatReplied = format(BOT.MESSAGE.MOD_REQUEST_CHAT, moderatorAccount.telegramUsername);
+          const formatReplied = format(BOT.MESSAGE.MOD_REQUEST_CHAT, modTelegramUsername);
           await this.bot.telegram
             .sendMessage(sellerAccount.telegramId, formatReplied, {
               parse_mode: 'Markdown',
@@ -379,7 +383,7 @@ export class EscrowOrderResolver {
         }
 
         if (requestChatPublicKey === buyerAccount.publicKey && buyerAccount.telegramId) {
-          const formatReplied = format(BOT.MESSAGE.MOD_REQUEST_CHAT, moderatorAccount.telegramUsername);
+          const formatReplied = format(BOT.MESSAGE.MOD_REQUEST_CHAT, modTelegramUsername);
           await this.bot.telegram
             .sendMessage(buyerAccount.telegramId, formatReplied, {
               parse_mode: 'Markdown',
@@ -743,7 +747,7 @@ export class EscrowOrderResolver {
         const formatReplied = format(
           replied,
           escrowOrder.amount.toLocaleString('en-US'),
-          buyerAccount.telegramUsername,
+          buyerAccount.telegramUsername!.replace(/_/g, '\\_'),
           escrowOrder.offer.message,
           escrowOrder.amountCoinOrCurrency.toLocaleString('en-US'),
           escrowOrder.offer.coinPayment ?? escrowOrder.offer.localCurrency ?? 'XEC',
@@ -819,6 +823,9 @@ export class EscrowOrderResolver {
                 buyerTelegramMessageId: res.message_id
               }
             });
+          })
+          .catch(e => {
+            this.logger.error(e);
           });
       }
 

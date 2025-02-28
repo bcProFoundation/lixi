@@ -128,6 +128,8 @@ export class DisputeResolver {
       }
 
       const { sellerAccount, buyerAccount, arbitratorAccount, moderatorAccount } = escrowOrder;
+      const sellerTelegramUsername = sellerAccount.telegramUsername!.replace(/_/g, '\\_');
+      const buyerTelegramUsername = buyerAccount.telegramUsername!.replace(/_/g, '\\_');
 
       if (escrowOrder.dispute) {
         throw new Error('Escrow order already has a dispute');
@@ -211,8 +213,8 @@ export class DisputeResolver {
       if (arbitratorAccount.telegramId) {
         const formatReplied = format(
           BOT.MESSAGE.NOTIFY_ARBI_MOD_DISPUTE,
-          buyerAccount.telegramUsername,
-          sellerAccount.telegramUsername,
+          buyerTelegramUsername,
+          sellerTelegramUsername,
           escrowOrder.amount,
           escrowOrder.escrowAddress,
           `${coinInfo[COIN.XEC].blockExplorerUrl}/address/${escrowOrder.escrowAddress}`,
@@ -244,8 +246,8 @@ export class DisputeResolver {
       if (moderatorAccount.telegramId) {
         const formatReplied = format(
           BOT.MESSAGE.NOTIFY_ARBI_MOD_DISPUTE,
-          buyerAccount.telegramUsername,
-          sellerAccount.telegramUsername,
+          buyerTelegramUsername,
+          sellerTelegramUsername,
           escrowOrder.amount,
           escrowOrder.escrowAddress,
           `${coinInfo[COIN.XEC].blockExplorerUrl}/address/${escrowOrder.escrowAddress}`,
