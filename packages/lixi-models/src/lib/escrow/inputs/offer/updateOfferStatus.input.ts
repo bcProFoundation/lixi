@@ -1,6 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { Nullable } from '../../nullable';
-import { OfferStatus } from '../offer.model';
+import { Nullable } from '../../../nullable';
+import { OfferStatus } from '../../offer.model';
 
 @InputType()
 export class UpdateOfferStatusInput {

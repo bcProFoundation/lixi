@@ -55,6 +55,15 @@ export type CreatePollMutation = {
         completedOrder: number;
         uniqueTrades: number;
       };
+      bankInfo: {
+        __typename?: 'BankInfo';
+        bankName?: string | null;
+        accountNameBank?: string | null;
+        accountNumberBank?: string | null;
+        appName?: string | null;
+        accountNameApp?: string | null;
+        accountNumberApp?: string | null;
+      };
     };
     page?: {
       __typename?: 'Page';
@@ -136,6 +145,8 @@ export type CreatePollMutation = {
       coinOthers?: string | null;
       marginPercentage: number;
       localCurrency?: string | null;
+      paymentApp?: string | null;
+      type: Types.OfferType;
       orderLimitMin: number;
       orderLimitMax: number;
       hideFromHome?: boolean | null;

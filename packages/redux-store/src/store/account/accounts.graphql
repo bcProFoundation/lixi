@@ -130,6 +130,14 @@ fragment AccountFields on Account {
     completedOrder
     uniqueTrades
   }
+  bankInfo {
+    bankName
+    accountNameBank
+    accountNumberBank
+    appName
+    accountNameApp
+    accountNumberApp
+  }
 }
 
 mutation updateAccount($input: UpdateAccountInput!) {

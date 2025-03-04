@@ -1287,6 +1287,7 @@ model EscrowOrder {
   returnTxid              String?           @unique @map("return_txid")
   paymentMethod           PaymentMethod     @relation(fields: [paymentMethodId], references: [id])
   paymentMethodId         Int               @map("payment_method_id")
+  bankInfo                BankInfo?
   message                 String?
   price                   String            @map("price")
   amount                  Float             @default(0.0) @map("amount")
@@ -1305,6 +1306,7 @@ model EscrowOrder {
   buyerTelegramMessageId  Int?              @map("buyer_telegram_message_id")
   sellerDonateAmount      Float?            @map("seller_donate_amount")
   buyerDonateAmount       Float?            @map("buyer_donate_amount")
+  markAsPaid              Boolean?          @default(false) @map("mark_as_paid")  
   createdAt               DateTime          @default(now()) @map("created_at") @db.Timestamptz
   updatedAt               DateTime          @default(now()) @map("updated_at") @db.Timestamptz
 
@@ -1345,6 +1347,7 @@ model Offer {
   coinOthers        String?              @default("") @map("coin_others")
   marginPercentage  Float                @default(0.0) @map("margin_percentage")
   localCurrency     String?              @map("local_currency")
+  paymentApp        String?              @map("payment_app")
   coin              Coin                 @default(XEC)
   orderLimitMin     Float                @default(0.0) @map("order_limit_min")
   orderLimitMax     Float                @default(0.0) @map("order_limit_max")
@@ -1399,6 +1402,21 @@ model Setting {
   createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt          DateTime  @default(now()) @map("updated_at") @db.Timestamptz
 }
+
+model BankInfo {
+  id                 String        @id @default(cuid())
+  order              EscrowOrder   @relation(fields: [orderId], references: [id])
+  orderId            String        @unique
+  bankName           String?       @map("bank_name")
+  accountNameBank    String?       @map("account_name_bank")
+  accountNumberBank  String?       @map("account_number_bank")
+  appName            String?       @map("app_name")
+  accountNameApp     String?       @map("account_name_app")
+  accountNumberApp   String?       @map("account_number_app")
+
+  @@map("bank_info")
+}
+
 
 model Worldcities {
   city             String? @db.VarChar(120)

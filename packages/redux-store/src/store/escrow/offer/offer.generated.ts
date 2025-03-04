@@ -32,6 +32,8 @@ export type OfferQuery = {
     coinOthers?: string | null;
     marginPercentage: number;
     localCurrency?: string | null;
+    paymentApp?: string | null;
+    type: Types.OfferType;
     orderLimitMin: number;
     orderLimitMax: number;
     hideFromHome?: boolean | null;
@@ -124,6 +126,7 @@ export type AllOfferQuery = {
               amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
+              markAsPaid?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -158,11 +161,23 @@ export type AllOfferQuery = {
                 __typename?: 'Offer';
                 postId: string;
                 message: string;
+                marginPercentage: number;
                 coinPayment?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 coinOthers?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              bankInfo?: {
+                __typename?: 'BankInfo';
+                bankName?: string | null;
+                accountNameBank?: string | null;
+                accountNumberBank?: string | null;
+                appName?: string | null;
+                accountNameApp?: string | null;
+                accountNumberApp?: string | null;
+              } | null;
               dispute?: {
                 __typename?: 'Dispute';
                 id: string;
@@ -206,6 +221,15 @@ export type AllOfferQuery = {
                   donationAmount: number;
                   completedOrder: number;
                   uniqueTrades: number;
+                };
+                bankInfo: {
+                  __typename?: 'BankInfo';
+                  bankName?: string | null;
+                  accountNameBank?: string | null;
+                  accountNumberBank?: string | null;
+                  appName?: string | null;
+                  accountNameApp?: string | null;
+                  accountNumberApp?: string | null;
                 };
               };
               page?: {
@@ -294,6 +318,8 @@ export type AllOfferQuery = {
                 coinOthers?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 hideFromHome?: boolean | null;
@@ -392,6 +418,7 @@ export type OfferByFilterQuery = {
               amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
+              markAsPaid?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -426,11 +453,23 @@ export type OfferByFilterQuery = {
                 __typename?: 'Offer';
                 postId: string;
                 message: string;
+                marginPercentage: number;
                 coinPayment?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 coinOthers?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              bankInfo?: {
+                __typename?: 'BankInfo';
+                bankName?: string | null;
+                accountNameBank?: string | null;
+                accountNumberBank?: string | null;
+                appName?: string | null;
+                accountNameApp?: string | null;
+                accountNumberApp?: string | null;
+              } | null;
               dispute?: {
                 __typename?: 'Dispute';
                 id: string;
@@ -474,6 +513,15 @@ export type OfferByFilterQuery = {
                   donationAmount: number;
                   completedOrder: number;
                   uniqueTrades: number;
+                };
+                bankInfo: {
+                  __typename?: 'BankInfo';
+                  bankName?: string | null;
+                  accountNameBank?: string | null;
+                  accountNumberBank?: string | null;
+                  appName?: string | null;
+                  accountNameApp?: string | null;
+                  accountNumberApp?: string | null;
                 };
               };
               page?: {
@@ -562,6 +610,8 @@ export type OfferByFilterQuery = {
                 coinOthers?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 hideFromHome?: boolean | null;
@@ -660,6 +710,7 @@ export type AllOfferByAccountQuery = {
               amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
+              markAsPaid?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -694,11 +745,23 @@ export type AllOfferByAccountQuery = {
                 __typename?: 'Offer';
                 postId: string;
                 message: string;
+                marginPercentage: number;
                 coinPayment?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 coinOthers?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              bankInfo?: {
+                __typename?: 'BankInfo';
+                bankName?: string | null;
+                accountNameBank?: string | null;
+                accountNumberBank?: string | null;
+                appName?: string | null;
+                accountNameApp?: string | null;
+                accountNumberApp?: string | null;
+              } | null;
               dispute?: {
                 __typename?: 'Dispute';
                 id: string;
@@ -742,6 +805,15 @@ export type AllOfferByAccountQuery = {
                   donationAmount: number;
                   completedOrder: number;
                   uniqueTrades: number;
+                };
+                bankInfo: {
+                  __typename?: 'BankInfo';
+                  bankName?: string | null;
+                  accountNameBank?: string | null;
+                  accountNumberBank?: string | null;
+                  appName?: string | null;
+                  accountNameApp?: string | null;
+                  accountNumberApp?: string | null;
                 };
               };
               page?: {
@@ -830,6 +902,8 @@ export type AllOfferByAccountQuery = {
                 coinOthers?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 hideFromHome?: boolean | null;
@@ -928,6 +1002,7 @@ export type AllOfferActiveByAccountIdQuery = {
               amountCoinOrCurrency: number;
               createdAt: any;
               updatedAt: any;
+              markAsPaid?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -962,11 +1037,23 @@ export type AllOfferActiveByAccountIdQuery = {
                 __typename?: 'Offer';
                 postId: string;
                 message: string;
+                marginPercentage: number;
                 coinPayment?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 coinOthers?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              bankInfo?: {
+                __typename?: 'BankInfo';
+                bankName?: string | null;
+                accountNameBank?: string | null;
+                accountNumberBank?: string | null;
+                appName?: string | null;
+                accountNameApp?: string | null;
+                accountNumberApp?: string | null;
+              } | null;
               dispute?: {
                 __typename?: 'Dispute';
                 id: string;
@@ -1010,6 +1097,15 @@ export type AllOfferActiveByAccountIdQuery = {
                   donationAmount: number;
                   completedOrder: number;
                   uniqueTrades: number;
+                };
+                bankInfo: {
+                  __typename?: 'BankInfo';
+                  bankName?: string | null;
+                  accountNameBank?: string | null;
+                  accountNumberBank?: string | null;
+                  appName?: string | null;
+                  accountNameApp?: string | null;
+                  accountNumberApp?: string | null;
                 };
               };
               page?: {
@@ -1098,6 +1194,8 @@ export type AllOfferActiveByAccountIdQuery = {
                 coinOthers?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
+                paymentApp?: string | null;
+                type: Types.OfferType;
                 orderLimitMin: number;
                 orderLimitMax: number;
                 hideFromHome?: boolean | null;
@@ -1168,232 +1266,14 @@ export type CreateOfferMutation = {
         completedOrder: number;
         uniqueTrades: number;
       };
-    };
-    page?: {
-      __typename?: 'Page';
-      avatar?: string | null;
-      name: string;
-      id: string;
-      createPostFee: string;
-      createCommentFee: string;
-      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
-    } | null;
-    token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
-    reposts?: Array<{
-      __typename?: 'Repost';
-      accountId?: number | null;
-      account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
-    }> | null;
-    dana?: {
-      __typename?: 'PostDana';
-      danaBurnUp: number;
-      danaBurnDown: number;
-      danaBurnScore: number;
-      danaReceivedUp: number;
-      danaReceivedDown: number;
-      danaReceivedScore: number;
-      version: number;
-    } | null;
-    boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
-    translations?: Array<{
-      __typename?: 'PostTranslation';
-      id: string;
-      translateContent?: string | null;
-      translateLanguage?: string | null;
-    }> | null;
-    imageUploadable?: {
-      __typename?: 'ImageUploadable';
-      id: string;
-      uploads: Array<{
-        __typename?: 'Upload';
-        id: string;
-        sha: string;
-        bucket?: string | null;
-        width?: number | null;
-        height?: number | null;
-        cfImageId?: string | null;
-        cfImageFilename?: string | null;
-      }>;
-    } | null;
-    poll?: {
-      __typename?: 'Poll';
-      postId: string;
-      question: string;
-      startDate: any;
-      endDate: any;
-      canAddOption: boolean;
-      singleSelect: boolean;
-      defaultOptions?: Array<string> | null;
-      totalVote?: number | null;
-      options: Array<{
-        __typename?: 'PollOption';
-        id: string;
-        option: string;
-        pollId: string;
-        danaScoreOption?: number | null;
-        pollAnswerOnAccount?: Array<{
-          __typename?: 'PollAnswerOnAccount';
-          pollDanaScore: number;
-          accountId: number;
-        }> | null;
-      }>;
-    } | null;
-    postOffer?: {
-      __typename?: 'Offer';
-      postId: string;
-      publicKey: string;
-      message: string;
-      noteOffer?: string | null;
-      price: string;
-      coinPayment?: string | null;
-      coinOthers?: string | null;
-      marginPercentage: number;
-      localCurrency?: string | null;
-      orderLimitMin: number;
-      orderLimitMax: number;
-      hideFromHome?: boolean | null;
-      status: Types.OfferStatus;
-      locationId?: string | null;
-      countryId?: number | null;
-      paymentMethods: Array<{
-        __typename?: 'OfferPaymentMethod';
-        paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-      }>;
-      location?: {
-        __typename?: 'Location';
-        id: string;
-        iso2?: string | null;
-        country?: string | null;
-        adminNameAscii?: string | null;
-        adminCode?: string | null;
-        cityAscii?: string | null;
-      } | null;
-      country?: { __typename?: 'Country'; name?: string | null } | null;
-    } | null;
-  };
-};
-
-export type UpdateOfferMutationVariables = Types.Exact<{
-  input: Types.UpdateOfferInput;
-}>;
-
-export type UpdateOfferMutation = {
-  __typename?: 'Mutation';
-  updateOffer: {
-    __typename?: 'Offer';
-    postId: string;
-    publicKey: string;
-    message: string;
-    noteOffer?: string | null;
-    price: string;
-    coinPayment?: string | null;
-    coinOthers?: string | null;
-    marginPercentage: number;
-    localCurrency?: string | null;
-    orderLimitMin: number;
-    orderLimitMax: number;
-    hideFromHome?: boolean | null;
-    status: Types.OfferStatus;
-    locationId?: string | null;
-    countryId?: number | null;
-    paymentMethods: Array<{
-      __typename?: 'OfferPaymentMethod';
-      paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-    }>;
-    location?: {
-      __typename?: 'Location';
-      id: string;
-      iso2?: string | null;
-      country?: string | null;
-      adminNameAscii?: string | null;
-      adminCode?: string | null;
-      cityAscii?: string | null;
-    } | null;
-    country?: { __typename?: 'Country'; name?: string | null } | null;
-  };
-};
-
-export type UpdateOfferHideFromHomeMutationVariables = Types.Exact<{
-  input: Types.UpdateOfferHideFromHomeInput;
-}>;
-
-export type UpdateOfferHideFromHomeMutation = {
-  __typename?: 'Mutation';
-  UpdateOfferHideFromHome: {
-    __typename?: 'Offer';
-    postId: string;
-    publicKey: string;
-    message: string;
-    noteOffer?: string | null;
-    price: string;
-    coinPayment?: string | null;
-    coinOthers?: string | null;
-    marginPercentage: number;
-    localCurrency?: string | null;
-    orderLimitMin: number;
-    orderLimitMax: number;
-    hideFromHome?: boolean | null;
-    status: Types.OfferStatus;
-    locationId?: string | null;
-    countryId?: number | null;
-    paymentMethods: Array<{
-      __typename?: 'OfferPaymentMethod';
-      paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
-    }>;
-    location?: {
-      __typename?: 'Location';
-      id: string;
-      iso2?: string | null;
-      country?: string | null;
-      adminNameAscii?: string | null;
-      adminCode?: string | null;
-      cityAscii?: string | null;
-    } | null;
-    country?: { __typename?: 'Country'; name?: string | null } | null;
-  };
-};
-
-export type UpdateOfferStatusMutationVariables = Types.Exact<{
-  input: Types.UpdateOfferStatusInput;
-}>;
-
-export type UpdateOfferStatusMutation = {
-  __typename?: 'Mutation';
-  updateOfferStatus: {
-    __typename?: 'Post';
-    id: string;
-    content: string;
-    accountId: number;
-    pageId?: string | null;
-    tokenId?: string | null;
-    repostCount: number;
-    totalComments: number;
-    commentableId?: string | null;
-    createdAt: any;
-    updatedAt: any;
-    followPostOwner?: boolean | null;
-    followedPage?: boolean | null;
-    followedToken?: boolean | null;
-    bookmarkableId?: string | null;
-    isBookmarked?: boolean | null;
-    originalLanguage?: string | null;
-    danaViewScore?: number | null;
-    burnedByOthers?: boolean | null;
-    account: {
-      __typename?: 'Account';
-      address: string;
-      hash160?: string | null;
-      publicKey?: string | null;
-      id: number;
-      name: string;
-      avatar?: string | null;
-      createCommentFee?: string | null;
-      telegramUsername?: string | null;
-      accountStatsOrder: {
-        __typename?: 'AccountStatsOrder';
-        donationAmount: number;
-        completedOrder: number;
-        uniqueTrades: number;
+      bankInfo: {
+        __typename?: 'BankInfo';
+        bankName?: string | null;
+        accountNameBank?: string | null;
+        accountNumberBank?: string | null;
+        appName?: string | null;
+        accountNameApp?: string | null;
+        accountNumberApp?: string | null;
       };
     };
     page?: {
@@ -1476,6 +1356,250 @@ export type UpdateOfferStatusMutation = {
       coinOthers?: string | null;
       marginPercentage: number;
       localCurrency?: string | null;
+      paymentApp?: string | null;
+      type: Types.OfferType;
+      orderLimitMin: number;
+      orderLimitMax: number;
+      hideFromHome?: boolean | null;
+      status: Types.OfferStatus;
+      locationId?: string | null;
+      countryId?: number | null;
+      paymentMethods: Array<{
+        __typename?: 'OfferPaymentMethod';
+        paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
+      }>;
+      location?: {
+        __typename?: 'Location';
+        id: string;
+        iso2?: string | null;
+        country?: string | null;
+        adminNameAscii?: string | null;
+        adminCode?: string | null;
+        cityAscii?: string | null;
+      } | null;
+      country?: { __typename?: 'Country'; name?: string | null } | null;
+    } | null;
+  };
+};
+
+export type UpdateOfferMutationVariables = Types.Exact<{
+  input: Types.UpdateOfferInput;
+}>;
+
+export type UpdateOfferMutation = {
+  __typename?: 'Mutation';
+  updateOffer: {
+    __typename?: 'Offer';
+    postId: string;
+    publicKey: string;
+    message: string;
+    noteOffer?: string | null;
+    price: string;
+    coinPayment?: string | null;
+    coinOthers?: string | null;
+    marginPercentage: number;
+    localCurrency?: string | null;
+    paymentApp?: string | null;
+    type: Types.OfferType;
+    orderLimitMin: number;
+    orderLimitMax: number;
+    hideFromHome?: boolean | null;
+    status: Types.OfferStatus;
+    locationId?: string | null;
+    countryId?: number | null;
+    paymentMethods: Array<{
+      __typename?: 'OfferPaymentMethod';
+      paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
+    }>;
+    location?: {
+      __typename?: 'Location';
+      id: string;
+      iso2?: string | null;
+      country?: string | null;
+      adminNameAscii?: string | null;
+      adminCode?: string | null;
+      cityAscii?: string | null;
+    } | null;
+    country?: { __typename?: 'Country'; name?: string | null } | null;
+  };
+};
+
+export type UpdateOfferHideFromHomeMutationVariables = Types.Exact<{
+  input: Types.UpdateOfferHideFromHomeInput;
+}>;
+
+export type UpdateOfferHideFromHomeMutation = {
+  __typename?: 'Mutation';
+  UpdateOfferHideFromHome: {
+    __typename?: 'Offer';
+    postId: string;
+    publicKey: string;
+    message: string;
+    noteOffer?: string | null;
+    price: string;
+    coinPayment?: string | null;
+    coinOthers?: string | null;
+    marginPercentage: number;
+    localCurrency?: string | null;
+    paymentApp?: string | null;
+    type: Types.OfferType;
+    orderLimitMin: number;
+    orderLimitMax: number;
+    hideFromHome?: boolean | null;
+    status: Types.OfferStatus;
+    locationId?: string | null;
+    countryId?: number | null;
+    paymentMethods: Array<{
+      __typename?: 'OfferPaymentMethod';
+      paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
+    }>;
+    location?: {
+      __typename?: 'Location';
+      id: string;
+      iso2?: string | null;
+      country?: string | null;
+      adminNameAscii?: string | null;
+      adminCode?: string | null;
+      cityAscii?: string | null;
+    } | null;
+    country?: { __typename?: 'Country'; name?: string | null } | null;
+  };
+};
+
+export type UpdateOfferStatusMutationVariables = Types.Exact<{
+  input: Types.UpdateOfferStatusInput;
+}>;
+
+export type UpdateOfferStatusMutation = {
+  __typename?: 'Mutation';
+  updateOfferStatus: {
+    __typename?: 'Post';
+    id: string;
+    content: string;
+    accountId: number;
+    pageId?: string | null;
+    tokenId?: string | null;
+    repostCount: number;
+    totalComments: number;
+    commentableId?: string | null;
+    createdAt: any;
+    updatedAt: any;
+    followPostOwner?: boolean | null;
+    followedPage?: boolean | null;
+    followedToken?: boolean | null;
+    bookmarkableId?: string | null;
+    isBookmarked?: boolean | null;
+    originalLanguage?: string | null;
+    danaViewScore?: number | null;
+    burnedByOthers?: boolean | null;
+    account: {
+      __typename?: 'Account';
+      address: string;
+      hash160?: string | null;
+      publicKey?: string | null;
+      id: number;
+      name: string;
+      avatar?: string | null;
+      createCommentFee?: string | null;
+      telegramUsername?: string | null;
+      accountStatsOrder: {
+        __typename?: 'AccountStatsOrder';
+        donationAmount: number;
+        completedOrder: number;
+        uniqueTrades: number;
+      };
+      bankInfo: {
+        __typename?: 'BankInfo';
+        bankName?: string | null;
+        accountNameBank?: string | null;
+        accountNumberBank?: string | null;
+        appName?: string | null;
+        accountNameApp?: string | null;
+        accountNumberApp?: string | null;
+      };
+    };
+    page?: {
+      __typename?: 'Page';
+      avatar?: string | null;
+      name: string;
+      id: string;
+      createPostFee: string;
+      createCommentFee: string;
+      pageAccount: { __typename?: 'Account'; id: number; name: string; address: string; hash160?: string | null };
+    } | null;
+    token?: { __typename?: 'Token'; id: string; name: string; tokenId: string } | null;
+    reposts?: Array<{
+      __typename?: 'Repost';
+      accountId?: number | null;
+      account?: { __typename?: 'Account'; id: number; name: string; address: string } | null;
+    }> | null;
+    dana?: {
+      __typename?: 'PostDana';
+      danaBurnUp: number;
+      danaBurnDown: number;
+      danaBurnScore: number;
+      danaReceivedUp: number;
+      danaReceivedDown: number;
+      danaReceivedScore: number;
+      version: number;
+    } | null;
+    boostScore?: { __typename?: 'PostBoost'; boostScore: number; boostUp: number; boostDown: number } | null;
+    translations?: Array<{
+      __typename?: 'PostTranslation';
+      id: string;
+      translateContent?: string | null;
+      translateLanguage?: string | null;
+    }> | null;
+    imageUploadable?: {
+      __typename?: 'ImageUploadable';
+      id: string;
+      uploads: Array<{
+        __typename?: 'Upload';
+        id: string;
+        sha: string;
+        bucket?: string | null;
+        width?: number | null;
+        height?: number | null;
+        cfImageId?: string | null;
+        cfImageFilename?: string | null;
+      }>;
+    } | null;
+    poll?: {
+      __typename?: 'Poll';
+      postId: string;
+      question: string;
+      startDate: any;
+      endDate: any;
+      canAddOption: boolean;
+      singleSelect: boolean;
+      defaultOptions?: Array<string> | null;
+      totalVote?: number | null;
+      options: Array<{
+        __typename?: 'PollOption';
+        id: string;
+        option: string;
+        pollId: string;
+        danaScoreOption?: number | null;
+        pollAnswerOnAccount?: Array<{
+          __typename?: 'PollAnswerOnAccount';
+          pollDanaScore: number;
+          accountId: number;
+        }> | null;
+      }>;
+    } | null;
+    postOffer?: {
+      __typename?: 'Offer';
+      postId: string;
+      publicKey: string;
+      message: string;
+      noteOffer?: string | null;
+      price: string;
+      coinPayment?: string | null;
+      coinOthers?: string | null;
+      marginPercentage: number;
+      localCurrency?: string | null;
+      paymentApp?: string | null;
+      type: Types.OfferType;
       orderLimitMin: number;
       orderLimitMax: number;
       hideFromHome?: boolean | null;

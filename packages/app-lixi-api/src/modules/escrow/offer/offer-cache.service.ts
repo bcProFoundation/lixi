@@ -7,10 +7,17 @@ import _ from 'lodash';
 import { PrismaService } from '../../prisma/prisma.service';
 import { basicSortedSetPagination } from 'src/common/custom-graphql-relay/paginate';
 import { Prisma } from '@bcpros/lixi-prisma';
-import { currency, newEpoch } from 'src/utils/constants';
+import { newEpoch } from 'src/utils/constants';
 import { template } from 'src/utils/stringTemplate';
 import stringify from 'json-stable-stringify';
-import { IndexNameOffer } from '../escrow.contants';
+import {
+  IndexNameBuyOffer,
+  IndexNameOffer,
+  KeyCacheNameBuyOffer,
+  KeyCacheNameOffer,
+  KeyIndexNameBuyOffer,
+  KeyIndexNameOffer
+} from '../escrow.contants';
 import ReSearch from 'src/common/redis/redis-search';
 
 export class OfferCacheService {
@@ -21,6 +28,7 @@ export class OfferCacheService {
   static offerBoostingTimeline = 'timeline:offer:boosting:showAll';
   static myOfferTimeline = 'timeline:offer:{{accountId}}:{{offerStatus}}';
   static timelineOfferFilter = 'timeline:offer:{{keyFilter}}';
+  static timelineBuyOfferFilter = 'timeline:buyOffer:{{keyFilter}}';
 
   constructor(
     private readonly prisma: PrismaService,
@@ -151,7 +159,12 @@ export class OfferCacheService {
     return paginated;
   }
 
-  async getOfferFilterPaginatedTimeline(offerFilterInput: OfferFilterInput, first: number = 20, after?: string) {
+  async getOfferFilterPaginatedTimeline(
+    isBuyOffer: boolean,
+    offerFilterInput: OfferFilterInput,
+    first: number = 20,
+    after?: string
+  ) {
     const { paymentMethodIds } = offerFilterInput;
     //sort array payment
     if (paymentMethodIds && paymentMethodIds.length > 0) {
@@ -159,15 +172,18 @@ export class OfferCacheService {
     }
     const keyFilter = _.isObject(offerFilterInput) ? stringify(offerFilterInput) : offerFilterInput;
 
-    const keyTimeline = template(`${OfferCacheService.timelineOfferFilter}`, { keyFilter });
+    const keyTimeline = template(
+      `${isBuyOffer ? OfferCacheService.timelineBuyOfferFilter : OfferCacheService.timelineOfferFilter}`,
+      { keyFilter }
+    );
     const exist = await this.redis.exists([keyTimeline]);
     if (!exist) {
-      await this.cacheOfferFilterTimeline(offerFilterInput, keyTimeline, keyFilter);
+      await this.cacheOfferFilterTimeline(isBuyOffer, offerFilterInput, keyTimeline, keyFilter);
     }
     const paginated = await basicSortedSetPagination(this.redis, keyTimeline, first, after);
     const hasNextPage = paginated.pageInfo.hasNextPage;
     if (!hasNextPage) {
-      const shouldPaginate = await this.cacheOfferFilterTimeline(offerFilterInput, keyTimeline, keyFilter);
+      const shouldPaginate = await this.cacheOfferFilterTimeline(isBuyOffer, offerFilterInput, keyTimeline, keyFilter);
       if (shouldPaginate) {
         return await basicSortedSetPagination(this.redis, keyTimeline, first, after);
       }
@@ -339,25 +355,29 @@ export class OfferCacheService {
   }
 
   private async cacheOfferFilterTimeline(
+    isBuyOffer: boolean,
     offerFilterInput: OfferFilterInput,
     combinationKey: string,
     keyFilter: string
   ) {
     try {
       const reSearch = new ReSearch(this.redis);
+      const prefixOfferCache = `${isBuyOffer ? KeyCacheNameBuyOffer : KeyCacheNameOffer}:`;
       const { countryCode, adminCode, cityName, paymentMethodIds, coin, fiatCurrency } = offerFilterInput;
+
+      // STEP 1: Handle Payment Methods
       let keyPaymentMethods = '';
       let totalKeyPaymentMethods = 0;
       //get cache payment-methods
       if (paymentMethodIds && paymentMethodIds.length > 1) {
-        keyPaymentMethods = `offer:method:{${paymentMethodIds.join('-')}}`;
+        keyPaymentMethods = `${prefixOfferCache}method:{${paymentMethodIds.join('-')}}`;
         totalKeyPaymentMethods = paymentMethodIds.length;
 
         let multiSetUnion: string[] = [];
         for (let i = 0; i < totalKeyPaymentMethods; i++) {
-          const keyMethod = `offer:method:{${paymentMethodIds[i]}}`;
+          const keyMethod = `${prefixOfferCache}method:{${paymentMethodIds[i]}}`;
           const existKeyMethod = await this.redis.exists([keyMethod]);
-          if (!existKeyMethod) await this.cacheOfferMethodId(paymentMethodIds[i]);
+          if (!existKeyMethod) await this.cacheOfferMethodId(prefixOfferCache, paymentMethodIds[i]);
           multiSetUnion.push(keyMethod);
         }
 
@@ -367,70 +387,76 @@ export class OfferCacheService {
         await this.redis.expire(keyPaymentMethods, 60 * 60 * 24 * 30); //1 month
       }
 
+      // STEP 2: Handle Standard Fields
+      const fieldsToProcess = [
+        {
+          value: countryCode,
+          prefixKey: 'country',
+          isLocation: true,
+          cacheFn: (val: string) => this.cacheOfferCountry(prefixOfferCache, val)
+        },
+        {
+          value: adminCode,
+          prefixKey: 'state',
+          isLocation: true,
+          cacheFn: (val: string) => this.cacheOfferState(prefixOfferCache, val)
+        },
+        {
+          value: cityName,
+          prefixKey: 'city',
+          isLocation: true,
+          cacheFn: (val: string) => this.cacheOfferCity(prefixOfferCache, val)
+        },
+        {
+          value: coin,
+          prefixKey: 'coin',
+          isLocation: false,
+          cacheFn: (val: string) => this.cacheOfferCoin(prefixOfferCache, val)
+        },
+        {
+          value: fiatCurrency,
+          prefixKey: 'currency',
+          isLocation: false,
+          cacheFn: (val: string) => this.cacheOfferCurrency(prefixOfferCache, val)
+        }
+      ];
       //count total key intersect
       let totalKeyInter = 0;
       let multiSetInter: string[] = [];
 
-      if (countryCode) {
-        //check key countryId
-        const keyCountry = `offer:country:{${countryCode}}`;
-        const existKeyCountry = await this.redis.exists([keyCountry]);
-        if (!existKeyCountry) this.cacheOfferCountry(countryCode);
+      // For each field, if there's a value, ensure the key is cached and add it to intersectKeys
+      for (const field of fieldsToProcess) {
+        if (!field.value) continue;
 
-        totalKeyInter += 1;
-        multiSetInter.push(keyCountry);
-      }
-      if (adminCode) {
-        //check key stateId
-        const keyState = `offer:state:{${adminCode}}`;
-        const existKeyState = await this.redis.exists([keyState]);
-        if (!existKeyState) await this.cacheOfferState(adminCode);
+        // if methods > 2 and include 1 (cash), so we dont want to intersect with location
+        if (totalKeyPaymentMethods !== 0 && paymentMethodIds?.includes(1) && field.isLocation) {
+          continue;
+        }
 
+        const fieldKey = `${prefixOfferCache}${field.prefixKey}:{${field.value}}`;
+        const existsFieldKey = await this.redis.exists([fieldKey]);
+        if (!existsFieldKey) {
+          await field.cacheFn(field.value);
+        }
+        multiSetInter.push(fieldKey);
         totalKeyInter += 1;
-        multiSetInter.push(keyState);
-      }
-      if (cityName) {
-        //check key stateId
-        const keyCity = `offer:city:{${cityName}}`;
-        const existKeyCity = await this.redis.exists([keyCity]);
-        if (!existKeyCity) await this.cacheOfferCity(cityName);
-
-        totalKeyInter += 1;
-        multiSetInter.push(keyCity);
       }
 
-      if (coin) {
-        //check key stateId
-        const keyCoin = `offer:coin:{${coin}}`;
-        const existKeyCoin = await this.redis.exists([keyCoin]);
-        if (!existKeyCoin) await this.cacheOfferCoin(coin);
-
-        totalKeyInter += 1;
-        multiSetInter.push(`offer:coin:{${coin}}`);
-      }
-      if (fiatCurrency) {
-        //check key stateId
-        const keyCurrency = `offer:currency:{${currency}}`;
-        const existKeyCurrency = await this.redis.exists([keyCurrency]);
-        if (!existKeyCurrency) await this.cacheOfferCurrency(fiatCurrency);
-
-        totalKeyInter += 1;
-        multiSetInter.push(`offer:currency:{${fiatCurrency}}`);
-      }
+      // Include union key payment-methods in intersect if we have them
       if (totalKeyPaymentMethods !== 0) {
         //means have >2
         totalKeyInter += 1;
         multiSetInter.push(keyPaymentMethods);
       } else if (paymentMethodIds && paymentMethodIds.length === 1) {
-        const keyMethod = `offer:method:{${paymentMethodIds[0]}}`;
+        const keyMethod = `${prefixOfferCache}method:{${paymentMethodIds[0]}}`;
         const existKeyMethod = await this.redis.exists([keyMethod]);
-        if (!existKeyMethod) await this.cacheOfferMethodId(paymentMethodIds[0]);
+        if (!existKeyMethod) await this.cacheOfferMethodId(prefixOfferCache, paymentMethodIds[0]);
 
         totalKeyInter += 1;
-        multiSetInter.push(`offer:method:{${paymentMethodIds[0]}}`);
+        multiSetInter.push(`${prefixOfferCache}method:{${paymentMethodIds[0]}}`);
       }
 
-      //intersect cache
+      // STEP 3: Build Combination Key & Add Doc
       const docAdded = {
         countryCode: offerFilterInput?.countryCode ?? '',
         adminCode: offerFilterInput?.adminCode ?? '',
@@ -442,7 +468,11 @@ export class OfferCacheService {
       //add cache and index
       await Promise.all([
         this.redis.zinterstore(combinationKey, totalKeyInter, ...multiSetInter, 'AGGREGATE', 'MAX'),
-        reSearch.add(IndexNameOffer, `docOffer:${keyFilter}`, docAdded)
+        reSearch.add(
+          isBuyOffer ? IndexNameBuyOffer : IndexNameOffer,
+          `${isBuyOffer ? KeyIndexNameBuyOffer : KeyIndexNameOffer}:${keyFilter}`,
+          docAdded
+        )
       ]);
 
       //expire key
@@ -455,8 +485,8 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheOfferCountry(countryCode: string) {
-    const key = `offer:country:{${countryCode}}`;
+  private async cacheOfferCountry(prefixOfferCache: string, countryCode: string) {
+    const key = `${prefixOfferCache}country:{${countryCode}}`;
     const postBoostType = BoostForType.Post;
     const halfLife = '168 hours';
     const query = Prisma.sql`
@@ -499,8 +529,8 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheOfferState(adminCode: string) {
-    const key = `offer:state:{${adminCode}}`;
+  private async cacheOfferState(prefixOfferCache: string, adminCode: string) {
+    const key = `${prefixOfferCache}state:{${adminCode}}`;
     const postBoostType = BoostForType.Post;
     const halfLife = '168 hours';
     const query = Prisma.sql`
@@ -543,8 +573,8 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheOfferCity(city: string) {
-    const key = `offer:state:{${city}}`;
+  private async cacheOfferCity(prefixOfferCache: string, city: string) {
+    const key = `${prefixOfferCache}state:{${city}}`;
     const postBoostType = BoostForType.Post;
     const halfLife = '168 hours';
     const query = Prisma.sql`
@@ -587,8 +617,8 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheOfferCoin(coin: string) {
-    const key = `offer:coin:{${coin}}`;
+  private async cacheOfferCoin(prefixOfferCache: string, coin: string) {
+    const key = `${prefixOfferCache}coin:{${coin}}`;
     const postBoostType = BoostForType.Post;
     const halfLife = '168 hours';
     const query = Prisma.sql`
@@ -628,8 +658,8 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheOfferCurrency(currency: string) {
-    const key = `offer:currency:{${currency}}`;
+  private async cacheOfferCurrency(prefixOfferCache: string, currency: string) {
+    const key = `${prefixOfferCache}currency:{${currency}}`;
     const postBoostType = BoostForType.Post;
     const halfLife = '168 hours';
     const query = Prisma.sql`
@@ -669,8 +699,8 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheOfferMethodId(methodId: number) {
-    const key = `offer:method:{${methodId}}`;
+  private async cacheOfferMethodId(prefixOfferCache: string, methodId: number) {
+    const key = `${prefixOfferCache}method:{${methodId}}`;
     const postBoostType = BoostForType.Post;
     const halfLife = '168 hours';
     const query = Prisma.sql`

@@ -1,0 +1,7 @@
+export const PAYMENT_METHOD = {
+  CASH_IN_PERSON: 1,
+  BANK_TRANSFER: 2,
+  PAYMENT_APP: 3,
+  CRYPTO: 4,
+  GOODS_SERVICES: 5
+};

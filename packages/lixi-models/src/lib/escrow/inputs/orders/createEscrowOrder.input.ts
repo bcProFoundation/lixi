@@ -1,13 +1,14 @@
 import { Field, Float, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional } from 'class-validator';
-import { Nullable } from '../../nullable';
-import { UtxoInNodeInput } from '../../utxo/input/utxo-inNode.input';
+import { Nullable } from '../../../nullable';
+import { UtxoInNodeInput } from '../../../utxo/input/utxo-inNode.input';
+import { BankInfoInput } from '../../bank-info/bank-info.input';
 
 @InputType()
 export class CreateEscrowOrderInput {
   @Field(() => Number)
   @IsNotEmpty()
-  sellerId: number;
+  offerAccountId: number;
 
   @Field(() => Number)
   @IsNotEmpty()
@@ -56,6 +57,10 @@ export class CreateEscrowOrderInput {
   @Field(() => UtxoInNodeInput, { nullable: true })
   @IsOptional()
   utxoInProcess?: Nullable<UtxoInNodeInput>;
+
+  @Field(() => BankInfoInput, { nullable: true })
+  @IsOptional()
+  bankInfoInput?: Nullable<BankInfoInput>;
 
   @Field(() => String)
   @IsNotEmpty()

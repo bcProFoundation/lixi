@@ -1,9 +1,9 @@
 import { Field, Float, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
-import { COIN } from '../../../constants/coins/coin';
-import { Nullable } from '../../nullable';
-import { OfferType } from '../offer.model';
+import { COIN } from '../../../../constants/coins/coin';
+import { Nullable } from '../../../nullable';
+import { OfferType } from '../../offer.model';
 
 @InputType()
 export class CreateOfferInput {
@@ -29,6 +29,9 @@ export class CreateOfferInput {
 
   @Field(() => String, { nullable: true })
   localCurrency?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  paymentApp?: Nullable<string>;
 
   @Field(() => COIN)
   coin: COIN;

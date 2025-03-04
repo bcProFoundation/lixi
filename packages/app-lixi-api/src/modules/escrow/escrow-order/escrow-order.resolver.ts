@@ -7,7 +7,6 @@ import {
   Dispute,
   EscrowOrderStatus,
   UpdateEscrowOrderInput,
-  DisputeStatus,
   EscrowTxid,
   TimelineItemConnection,
   BasicPaginationArgs,
@@ -20,9 +19,10 @@ import {
   COIN,
   EscrowOrderConnection,
   PaginationArgs,
-  EscrowOrderOrder,
   UpdateEscrowOrderSignatoryInput,
-  EscrowOrderAction
+  EscrowOrderAction,
+  BankInfo,
+  PAYMENT_METHOD
 } from '@bcpros/lixi-models';
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
@@ -31,7 +31,7 @@ import * as _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { PrismaService } from '../../prisma/prisma.service';
-import { OfferStatus, Role } from '@bcpros/lixi-prisma';
+import { OfferStatus, OfferType, Role } from '@bcpros/lixi-prisma';
 import { GqlJwtAuthGuard } from '../../auth/guards/gql-jwtauth.guard';
 import { AccountEntity } from 'src/decorators';
 import EscrowOrderLoader from './escrow-order.loader';
@@ -48,11 +48,12 @@ import { GqlThrottlerGuard } from '../../auth/guards/gql-throttler.guard';
 import { template } from 'src/utils/stringTemplate';
 import { Redis } from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { encode } from '@msgpack/msgpack';
+import { decode, encode } from '@msgpack/msgpack';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { DisputeCacheService } from '../dispute/dispute-cache.service';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { ConfigService } from '@nestjs/config';
+import { KEY_BANK_INFO } from 'src/utils/escrow/cache-key.constants';
 
 @SkipThrottle()
 @Resolver(() => EscrowOrder)
@@ -581,7 +582,7 @@ export class EscrowOrderResolver {
       const {
         postId,
         paymentMethodId,
-        sellerId,
+        offerAccountId,
         moderatorId,
         arbitratorId,
         amount,
@@ -592,7 +593,8 @@ export class EscrowOrderResolver {
         nonce,
         buyerDepositTx,
         utxoInProcess,
-        amountCoinOrCurrency
+        amountCoinOrCurrency,
+        bankInfoInput
       } = data;
 
       const offer = await this.prisma.offer.findUnique({
@@ -605,35 +607,35 @@ export class EscrowOrderResolver {
         throw new Error('Offer is no longer available');
       }
 
-      const sellerAccount = await this.prisma.account.findUnique({
+      const offerAccount = await this.prisma.account.findUnique({
         where: {
-          id: sellerId
+          id: offerAccountId
         }
       });
 
-      if (!sellerAccount) {
-        throw new Error('Seller not found');
+      if (!offerAccount) {
+        throw new Error('Offer-account not found');
       }
 
-      if (!sellerAccount.telegramId) {
-        throw new Error(`Seller doesn't connect to Telegram account`);
+      if (!offerAccount.telegramId) {
+        throw new Error(`Offer-account doesn't connect to Telegram account`);
       }
 
-      const buyerAccount = await this.prisma.account.findUnique({
+      const orderAccount = await this.prisma.account.findUnique({
         where: {
           id: account.id
         }
       });
 
-      if (!buyerAccount) {
-        throw new Error('Buyer not found');
+      if (!orderAccount) {
+        throw new Error('Order-account not found');
       }
 
-      if (!buyerAccount.telegramId) {
-        throw new Error(`Buyer doesn't connect to Telegram account`);
+      if (!orderAccount.telegramId) {
+        throw new Error(`Order-account doesn't connect to Telegram account`);
       }
 
-      if (buyerAccount.id === sellerId) {
+      if (offerAccount.id === orderAccount.id) {
         throw new Error('Seller and buyer cannot be the same');
       }
 
@@ -669,12 +671,12 @@ export class EscrowOrderResolver {
         throw new Error(`Arbitrator doesn't connect to Telegram account`);
       }
 
-      if (sellerAccount.id === arbitratorAccount.id || sellerAccount.id === moderatorAccount.id) {
-        throw new Error('Seller cannot be the same as arbitrator or moderator');
+      if (offerAccount.id === arbitratorAccount.id || offerAccount.id === moderatorAccount.id) {
+        throw new Error('Offer-account cannot be the same as arbitrator or moderator');
       }
 
-      if (buyerAccount.id === arbitratorAccount.id || buyerAccount.id === moderatorAccount.id) {
-        throw new Error('Buyer cannot be the same as arbitrator or moderator');
+      if (orderAccount.id === arbitratorAccount.id || orderAccount.id === moderatorAccount.id) {
+        throw new Error('Order-account cannot be the same as arbitrator or moderator');
       }
 
       const escrowOrder = await this.prisma.escrowOrder.create({
@@ -687,19 +689,39 @@ export class EscrowOrderResolver {
           escrowScript: Buffer.from(escrowScript, 'hex'),
           nonce: nonce,
           buyerDepositTx: buyerDepositTx,
+          bankInfo:
+            paymentMethodId === PAYMENT_METHOD.BANK_TRANSFER || paymentMethodId === PAYMENT_METHOD.PAYMENT_APP
+              ? {
+                  create: {
+                    bankName: bankInfoInput?.bankName ?? null,
+                    accountNameBank: bankInfoInput?.bankName ? bankInfoInput?.accountNameBank : '',
+                    accountNumberBank: bankInfoInput?.bankName ? bankInfoInput?.accountNumberBank : '',
+                    appName: bankInfoInput?.appName ?? null,
+                    accountNameApp: bankInfoInput?.appName ? bankInfoInput?.accountNameApp : '',
+                    accountNumberApp: bankInfoInput?.appName ? bankInfoInput?.accountNumberApp : ''
+                  }
+                }
+              : undefined,
           paymentMethod: {
             connect: {
               id: paymentMethodId
             }
           },
+          //- BuyOffer:
+          //  + offerAccount is buyer
+          //  + orderAccount is seller
+
+          // - SellOffer:
+          //  + offerAccount is seller
+          //  + orderAccount is buyer
           sellerAccount: {
             connect: {
-              id: sellerId
+              id: offer?.type === OfferType.BUY ? orderAccount.id : offerAccount.id
             }
           },
           buyerAccount: {
             connect: {
-              id: buyerAccount.id
+              id: offer?.type === OfferType.BUY ? offerAccount.id : orderAccount.id
             }
           },
           arbitratorAccount: {
@@ -740,14 +762,33 @@ export class EscrowOrderResolver {
         );
       }
 
-      if (sellerAccount.telegramId && buyerAccount.telegramId) {
+      // add bank-info of account to cache
+      if (paymentMethodId === PAYMENT_METHOD.BANK_TRANSFER || paymentMethodId === PAYMENT_METHOD.PAYMENT_APP) {
+        const existData = await this.redis.hgetBuffer(KEY_BANK_INFO, account.id.toString());
+        if (!existData) {
+          await this.redis.hset(KEY_BANK_INFO, account.id, Buffer.from(encode(data.bankInfoInput)));
+        } else {
+          const parsed = decode(existData) as BankInfo;
+          // Filter out any fields that are null or undefined
+          const filteredPatch = Object.fromEntries(
+            Object.entries(data.bankInfoInput ?? {}).filter(([_, val]) => val !== null && val !== undefined)
+          );
+          const newBankInfoData = {
+            ...parsed,
+            ...filteredPatch
+          };
+          await this.redis.hset(KEY_BANK_INFO, account.id, Buffer.from(encode(newBankInfoData)));
+        }
+      }
+
+      if (offerAccount.telegramId && orderAccount.telegramId) {
         const replied = buyerDepositTx
           ? BOT.MESSAGE.ORDER_CREATED + `Buyer Deposit: %s XEC`
           : BOT.MESSAGE.ORDER_CREATED;
         const formatReplied = format(
           replied,
           escrowOrder.amount.toLocaleString('en-US'),
-          buyerAccount.telegramUsername!.replace(/_/g, '\\_'),
+          orderAccount.telegramUsername!.replace(/_/g, '\\_'),
           escrowOrder.offer.message,
           escrowOrder.amountCoinOrCurrency.toLocaleString('en-US'),
           escrowOrder.offer.coinPayment ?? escrowOrder.offer.localCurrency ?? 'XEC',
@@ -762,9 +803,9 @@ export class EscrowOrderResolver {
             : ''
         );
 
-        //send to seller
+        //send to offer-acocunt
         await this.bot.telegram
-          .sendMessage(sellerAccount.telegramId, formatReplied, {
+          .sendMessage(offerAccount.telegramId, formatReplied, {
             parse_mode: 'Markdown',
             protect_content: true,
             reply_parameters: {
@@ -792,15 +833,15 @@ export class EscrowOrderResolver {
               }
             });
 
-            this.notificationGateway.recievedEscrowOrder(sellerAccount.address);
+            this.notificationGateway.recievedEscrowOrder(offerAccount.address);
           })
           .catch(e => {
             this.logger.error(e);
           });
 
-        //Send order to buyer
+        //Send to order-account
         await this.bot.telegram
-          .sendMessage(buyerAccount.telegramId, formatReplied, {
+          .sendMessage(orderAccount.telegramId, formatReplied, {
             parse_mode: 'Markdown',
             protect_content: true,
             reply_markup: {
@@ -996,8 +1037,19 @@ export class EscrowOrderResolver {
   @Mutation(() => EscrowOrder)
   @UseGuards(GqlJwtAuthGuard)
   async updateEscrowOrderStatus(@AccountEntity() account: Account, @Args('data') data: UpdateEscrowOrderInput) {
-    const { orderId, status, txid, value, outIdx, utxoInNodeOfBuyer, socketId, sellerDonateAmount, buyerDonateAmount } =
-      data;
+    const {
+      orderId,
+      status,
+      txid,
+      value,
+      outIdx,
+      utxoInNodeOfBuyer,
+      socketId,
+      sellerDonateAmount,
+      buyerDonateAmount,
+      amount,
+      price
+    } = data;
     try {
       const result = await this.prisma.escrowOrder.findUnique({
         where: {
@@ -1060,7 +1112,9 @@ export class EscrowOrderResolver {
         status,
         updatedAt: new Date(),
         sellerDonateAmount: result.sellerDonateAmount ? result.sellerDonateAmount : sellerDonateAmount,
-        buyerDonateAmount: result.buyerDonateAmount ? result.buyerDonateAmount : buyerDonateAmount
+        buyerDonateAmount: result.buyerDonateAmount ? result.buyerDonateAmount : buyerDonateAmount,
+        amount: amount ? amount : result.amount,
+        price: price ? price : result.price
       };
 
       switch (status) {
@@ -1307,6 +1361,68 @@ export class EscrowOrderResolver {
     }
   }
 
+  @Mutation(() => EscrowOrder)
+  @UseGuards(GqlJwtAuthGuard)
+  async markAsPaidOrder(@AccountEntity() account: Account, @Args('data') data: UpdateEscrowOrderInput) {
+    try {
+      if (!account) {
+        throw new Error('Account not found');
+      }
+      const result = await this.prisma.escrowOrder.findUnique({
+        where: {
+          id: data.orderId
+        },
+        include: {
+          sellerAccount: true,
+          buyerAccount: true,
+          arbitratorAccount: true,
+          moderatorAccount: true
+        }
+      });
+
+      if (!result) {
+        throw new Error('Escrow order not found');
+      }
+
+      //update escrow order
+      await this.prisma.escrowOrder.update({
+        where: {
+          id: data.orderId
+        },
+        data: {
+          markAsPaid: true
+        }
+      });
+
+      // notify for seller (buyOffer)
+      if (result?.sellerAccount?.telegramId) {
+        const formatReplied = format(BOT.MESSAGE.ORDER_MARK_AS_PAID_SELLER);
+        await this.bot.telegram.sendMessage(result.sellerAccount.telegramId, formatReplied, {
+          parse_mode: 'Markdown',
+          protect_content: true,
+          reply_parameters: {
+            message_id: result.sellerTelegramMessageId!,
+            allow_sending_without_reply: true
+          },
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: 'Open Web App',
+                  url: `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`
+                }
+              ]
+            ]
+          }
+        });
+      }
+
+      return result;
+    } catch (e: any) {
+      this.logger.error(e);
+    }
+  }
+
   @Mutation(() => [UtxoInNode])
   @UseGuards(GqlJwtAuthGuard)
   async filterUtxos(
@@ -1381,6 +1497,15 @@ export class EscrowOrderResolver {
     return this.prisma.escrowTxId.findMany({
       where: {
         escrowOrderId: escrowOrder.id
+      }
+    });
+  }
+
+  @ResolveField('bankInfo', () => Dispute)
+  async bankInfo(@Parent() escrowOrder: EscrowOrder) {
+    return this.prisma.bankInfo.findUnique({
+      where: {
+        orderId: escrowOrder.id
       }
     });
   }

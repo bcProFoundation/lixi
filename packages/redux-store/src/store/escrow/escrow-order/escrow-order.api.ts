@@ -318,6 +318,25 @@ const enhancedApi = api.enhanceEndpoints({
         }
       }
     },
+    MarkAsPaidOrder: {
+      onQueryStarted: async ({ input }, { dispatch, queryFulfilled }) => {
+        const { orderId, markAsPaid } = input;
+        try {
+          const { data } = await queryFulfilled;
+          if (data) {
+            dispatch(
+              api.util.updateQueryData('EscrowOrder', { id: orderId }, draft => {
+                if (draft) {
+                  draft.escrowOrder.markAsPaid = markAsPaid;
+                }
+              })
+            );
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    },
     FilterUtxos: {}
   }
 });
@@ -342,6 +361,7 @@ export const {
   useArbiRequestTelegramChatQuery,
   useLazyArbiRequestTelegramChatQuery,
   useUpdateEscrowOrderSignatoryMutation,
+  useMarkAsPaidOrderMutation,
   useFilterUtxosMutation,
   usePrefetch
 } = enhancedApi;

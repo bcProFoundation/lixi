@@ -58,6 +58,15 @@ export type PostQuery = {
         completedOrder: number;
         uniqueTrades: number;
       };
+      bankInfo: {
+        __typename?: 'BankInfo';
+        bankName?: string | null;
+        accountNameBank?: string | null;
+        accountNumberBank?: string | null;
+        appName?: string | null;
+        accountNameApp?: string | null;
+        accountNumberApp?: string | null;
+      };
     };
     page?: {
       __typename?: 'Page';
@@ -139,6 +148,8 @@ export type PostQuery = {
       coinOthers?: string | null;
       marginPercentage: number;
       localCurrency?: string | null;
+      paymentApp?: string | null;
+      type: Types.OfferType;
       orderLimitMin: number;
       orderLimitMax: number;
       hideFromHome?: boolean | null;
@@ -218,6 +229,15 @@ export type PostsByPageIdQuery = {
             donationAmount: number;
             completedOrder: number;
             uniqueTrades: number;
+          };
+          bankInfo: {
+            __typename?: 'BankInfo';
+            bankName?: string | null;
+            accountNameBank?: string | null;
+            accountNumberBank?: string | null;
+            appName?: string | null;
+            accountNameApp?: string | null;
+            accountNumberApp?: string | null;
           };
         };
         page?: {
@@ -300,6 +320,8 @@ export type PostsByPageIdQuery = {
           coinOthers?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
+          paymentApp?: string | null;
+          type: Types.OfferType;
           orderLimitMin: number;
           orderLimitMax: number;
           hideFromHome?: boolean | null;
@@ -388,6 +410,15 @@ export type PostsByUserIdQuery = {
             completedOrder: number;
             uniqueTrades: number;
           };
+          bankInfo: {
+            __typename?: 'BankInfo';
+            bankName?: string | null;
+            accountNameBank?: string | null;
+            accountNumberBank?: string | null;
+            appName?: string | null;
+            accountNameApp?: string | null;
+            accountNumberApp?: string | null;
+          };
         };
         page?: {
           __typename?: 'Page';
@@ -469,6 +500,8 @@ export type PostsByUserIdQuery = {
           coinOthers?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
+          paymentApp?: string | null;
+          type: Types.OfferType;
           orderLimitMin: number;
           orderLimitMax: number;
           hideFromHome?: boolean | null;
@@ -557,6 +590,15 @@ export type PostsByHashtagIdQuery = {
             completedOrder: number;
             uniqueTrades: number;
           };
+          bankInfo: {
+            __typename?: 'BankInfo';
+            bankName?: string | null;
+            accountNameBank?: string | null;
+            accountNumberBank?: string | null;
+            appName?: string | null;
+            accountNameApp?: string | null;
+            accountNumberApp?: string | null;
+          };
         };
         page?: {
           __typename?: 'Page';
@@ -638,6 +680,8 @@ export type PostsByHashtagIdQuery = {
           coinOthers?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
+          paymentApp?: string | null;
+          type: Types.OfferType;
           orderLimitMin: number;
           orderLimitMax: number;
           hideFromHome?: boolean | null;
@@ -726,6 +770,15 @@ export type PostsByTokenIdQuery = {
             completedOrder: number;
             uniqueTrades: number;
           };
+          bankInfo: {
+            __typename?: 'BankInfo';
+            bankName?: string | null;
+            accountNameBank?: string | null;
+            accountNumberBank?: string | null;
+            appName?: string | null;
+            accountNameApp?: string | null;
+            accountNumberApp?: string | null;
+          };
         };
         page?: {
           __typename?: 'Page';
@@ -807,6 +860,8 @@ export type PostsByTokenIdQuery = {
           coinOthers?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
+          paymentApp?: string | null;
+          type: Types.OfferType;
           orderLimitMin: number;
           orderLimitMax: number;
           hideFromHome?: boolean | null;
@@ -960,6 +1015,8 @@ export type PostsBySearchQuery = {
           coinOthers?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
+          paymentApp?: string | null;
+          type: Types.OfferType;
           orderLimitMin: number;
           orderLimitMax: number;
           hideFromHome?: boolean | null;
@@ -1115,6 +1172,8 @@ export type PostsBySearchWithHashtagQuery = {
           coinOthers?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
+          paymentApp?: string | null;
+          type: Types.OfferType;
           orderLimitMin: number;
           orderLimitMax: number;
           hideFromHome?: boolean | null;
@@ -1271,6 +1330,8 @@ export type PostsBySearchWithHashtagAtPageQuery = {
           coinOthers?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
+          paymentApp?: string | null;
+          type: Types.OfferType;
           orderLimitMin: number;
           orderLimitMax: number;
           hideFromHome?: boolean | null;
@@ -1427,6 +1488,8 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
           coinOthers?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
+          paymentApp?: string | null;
+          type: Types.OfferType;
           orderLimitMin: number;
           orderLimitMax: number;
           hideFromHome?: boolean | null;
@@ -1495,6 +1558,8 @@ export type OfferFieldsFragment = {
   coinOthers?: string | null;
   marginPercentage: number;
   localCurrency?: string | null;
+  paymentApp?: string | null;
+  type: Types.OfferType;
   orderLimitMin: number;
   orderLimitMax: number;
   hideFromHome?: boolean | null;
@@ -1552,6 +1617,15 @@ export type PostFieldsFragment = {
       donationAmount: number;
       completedOrder: number;
       uniqueTrades: number;
+    };
+    bankInfo: {
+      __typename?: 'BankInfo';
+      bankName?: string | null;
+      accountNameBank?: string | null;
+      accountNumberBank?: string | null;
+      appName?: string | null;
+      accountNameApp?: string | null;
+      accountNumberApp?: string | null;
     };
   };
   page?: {
@@ -1634,6 +1708,8 @@ export type PostFieldsFragment = {
     coinOthers?: string | null;
     marginPercentage: number;
     localCurrency?: string | null;
+    paymentApp?: string | null;
+    type: Types.OfferType;
     orderLimitMin: number;
     orderLimitMax: number;
     hideFromHome?: boolean | null;
@@ -1761,6 +1837,8 @@ export type PostMeiliFieldsFragment = {
     coinOthers?: string | null;
     marginPercentage: number;
     localCurrency?: string | null;
+    paymentApp?: string | null;
+    type: Types.OfferType;
     orderLimitMin: number;
     orderLimitMax: number;
     hideFromHome?: boolean | null;
@@ -1825,6 +1903,15 @@ export type CreatePostMutation = {
         donationAmount: number;
         completedOrder: number;
         uniqueTrades: number;
+      };
+      bankInfo: {
+        __typename?: 'BankInfo';
+        bankName?: string | null;
+        accountNameBank?: string | null;
+        accountNumberBank?: string | null;
+        appName?: string | null;
+        accountNameApp?: string | null;
+        accountNumberApp?: string | null;
       };
     };
     page?: {
@@ -1907,6 +1994,8 @@ export type CreatePostMutation = {
       coinOthers?: string | null;
       marginPercentage: number;
       localCurrency?: string | null;
+      paymentApp?: string | null;
+      type: Types.OfferType;
       orderLimitMin: number;
       orderLimitMax: number;
       hideFromHome?: boolean | null;
@@ -1973,6 +2062,15 @@ export type UpdatePostMutation = {
         completedOrder: number;
         uniqueTrades: number;
       };
+      bankInfo: {
+        __typename?: 'BankInfo';
+        bankName?: string | null;
+        accountNameBank?: string | null;
+        accountNumberBank?: string | null;
+        appName?: string | null;
+        accountNameApp?: string | null;
+        accountNumberApp?: string | null;
+      };
     };
     page?: {
       __typename?: 'Page';
@@ -2054,6 +2152,8 @@ export type UpdatePostMutation = {
       coinOthers?: string | null;
       marginPercentage: number;
       localCurrency?: string | null;
+      paymentApp?: string | null;
+      type: Types.OfferType;
       orderLimitMin: number;
       orderLimitMax: number;
       hideFromHome?: boolean | null;
@@ -2126,6 +2226,15 @@ export type RemovePostMutation = {
         completedOrder: number;
         uniqueTrades: number;
       };
+      bankInfo: {
+        __typename?: 'BankInfo';
+        bankName?: string | null;
+        accountNameBank?: string | null;
+        accountNumberBank?: string | null;
+        appName?: string | null;
+        accountNameApp?: string | null;
+        accountNumberApp?: string | null;
+      };
     };
     page?: {
       __typename?: 'Page';
@@ -2207,6 +2316,8 @@ export type RemovePostMutation = {
       coinOthers?: string | null;
       marginPercentage: number;
       localCurrency?: string | null;
+      paymentApp?: string | null;
+      type: Types.OfferType;
       orderLimitMin: number;
       orderLimitMax: number;
       hideFromHome?: boolean | null;
@@ -2264,6 +2375,8 @@ export const OfferFieldsFragmentDoc = `
   coinOthers
   marginPercentage
   localCurrency
+  paymentApp
+  type
   orderLimitMin
   orderLimitMax
   hideFromHome
@@ -2306,6 +2419,14 @@ export const PostFieldsFragmentDoc = `
       donationAmount
       completedOrder
       uniqueTrades
+    }
+    bankInfo {
+      bankName
+      accountNameBank
+      accountNumberBank
+      appName
+      accountNameApp
+      accountNumberApp
     }
   }
   accountId

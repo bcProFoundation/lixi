@@ -9,6 +9,7 @@ import { Dispute } from './dispute.model';
 import { EscrowTxid } from './escrow-txid.model';
 import { Offer } from './offer.model';
 import { PaymentMethod } from './payment-method.model';
+import { BankInfo } from './bank-info/bank-info.model';
 
 @ObjectType()
 export class EscrowOrder {
@@ -90,6 +91,9 @@ export class EscrowOrder {
   @Field(() => [EscrowTxid], { nullable: true })
   escrowTxids?: Nullable<EscrowTxid[]>;
 
+  @Field(() => BankInfo, { nullable: true })
+  bankInfo?: Nullable<BankInfo>;
+
   @Field(() => String, { nullable: true })
   @IsOptional()
   releaseTxid?: Nullable<string>;
@@ -113,6 +117,10 @@ export class EscrowOrder {
   @Field(() => Float, { nullable: true })
   @IsOptional()
   buyerDonateAmount?: Nullable<number>;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  markAsPaid?: Nullable<boolean>;
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.'

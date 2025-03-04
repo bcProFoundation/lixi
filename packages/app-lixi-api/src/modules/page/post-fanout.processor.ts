@@ -1,5 +1,5 @@
 import { PostType } from '@bcpros/lixi-prisma';
-import { Post } from '@bcpros/lixi-models';
+import { OfferType, Post } from '@bcpros/lixi-models';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
@@ -15,7 +15,15 @@ import { CONTENT_FANOUT_QUEUE } from './constants';
 import { PostCacheService } from './post-cache.service';
 import { newEpoch, offer_half_life } from 'src/utils/constants';
 import ReSearch from 'src/common/redis/redis-search';
-import { IndexNameOffer } from '../escrow/escrow.contants';
+import {
+  IndexNameBuyOffer,
+  IndexNameOffer,
+  KeyCacheNameBuyOffer,
+  KeyCacheNameOffer,
+  KeyIndexNameBuyOffer,
+  KeyIndexNameOffer
+} from '../escrow/escrow.contants';
+import { createIndexOffer, sanitizeLocation } from 'src/utils/escrow/offer';
 
 @Injectable()
 @Processor(CONTENT_FANOUT_QUEUE, { concurrency: 50 })
@@ -25,25 +33,26 @@ export class PostFanoutProcessor extends WorkerHost {
   static inNetworkSourceKey = 'timeline:innetwork:source';
   static outNetworkSourceKey = 'timeline:outnetwork:source';
 
-  //page key
+  // page key
   static pageTimelineKey = 'timeline:page:{{pageId}}';
   static pageTimelineByTimeWithDanaFilterKey = 'timeline:page:{{pageId}}:{{level}}';
   static pageTimelineByTimeShowAll = 'timeline:page:{{pageId}}:showAll';
 
-  //profile key
+  // profile key
   static profileTimelineKey = 'timeline:profile:{{accountId}}';
   static profileTimelineByTimeWithDanaFilterKey = 'timeline:profile:{{accountId}}:{{level}}';
   static profileTimelineByTimeShowAll = 'timeline:profile:{{accountId}}:showAll';
 
-  //token key
+  // token key
   static tokenTimelineKey = 'timeline:token:{{tokenId}}';
   static tokenTimelineByTimeWithDanaFilterKey = 'timeline:token:{{tokenId}}:{{level}}';
   static tokenTimelineByTimeShowAll = 'timeline:token:{{tokenId}}:showAll';
 
-  //timeline for offer boost
+  // timeline for offer boost
   static offerBoostingTimeline = 'timeline:offer:boosting:showAll';
   static myOfferTimeline = 'timeline:offer:{{accountId}}:{{offerStatus}}';
   static timelineOfferFilter = 'timeline:offer:{{keyFilter}}';
+  static timelineBuyOfferFilter = 'timeline:buyOffer:{{keyFilter}}';
 
   constructor(
     private readonly postCacheService: PostCacheService,
@@ -99,7 +108,7 @@ export class PostFanoutProcessor extends WorkerHost {
         pipeline.zincrby(keyInNetwork, score, timelineId);
       }
 
-      //add default score when create post in page, token, profile
+      // add default score when create post in page, token, profile
       if (post.pageId) {
         const keyPage = template(`${PostFanoutProcessor.pageTimelineKey}`, { pageId: post.pageId });
         const keyPageTimelineByTimeWithDanaFilter = template(
@@ -153,8 +162,11 @@ export class PostFanoutProcessor extends WorkerHost {
       pipeline.zadd(keyProfileTimelineByTimeWithDanaFilter, postCreatedAt, timelineId);
       pipeline.zadd(keyProfileTimelineByTimeShowAll, postCreatedAt, timelineId);
 
-      //add default score for offer
+      // add default score for offer
       if (post.type === PostType.OFFER) {
+        const isBuyOffer = post?.offer?.type === OfferType.BUY;
+
+        const prefixOfferCache = `${isBuyOffer ? KeyCacheNameBuyOffer : KeyCacheNameOffer}:`;
         const offer_score = 1 * Math.pow(2, diffHour / offer_half_life);
 
         const myOfferTimelineKey = template(`${PostFanoutProcessor.myOfferTimeline}`, {
@@ -167,86 +179,69 @@ export class PostFanoutProcessor extends WorkerHost {
 
         // add cache for payment method (offer:method:{id})
         post.offer?.paymentMethods.map(item => {
-          const keyPaymentMethod = `offer:method:{${item.paymentMethod.id}}`;
+          const keyPaymentMethod = `${prefixOfferCache}method:{${item.paymentMethod.id}}`;
           pipeline.zincrby(keyPaymentMethod, offer_score, timelineId);
         });
 
-        //add cache for country - state - city (offer:country:{countryName})
+        // add cache for country - state - city (offer:country:{countryName})
         const countryCode = post.offer?.location?.iso2 ?? post.offer?.country?.iso2 ?? null;
-        let adminCode = post.offer?.location?.adminCode ?? null;
-        let cityName = post.offer?.location?.cityAscii ?? null;
+        const adminCode = sanitizeLocation(post.offer?.location?.adminCode ?? undefined);
+        const cityName = sanitizeLocation(post.offer?.location?.cityAscii ?? undefined);
 
-        //replace - in str to _
-        if (adminCode) {
-          adminCode = adminCode.replace(/-/g, '_');
-        }
-        if (cityName) {
-          cityName = cityName.replace(/-/g, '_');
-        }
-
-        //cash in person
+        // cash in person
         if (post.offer?.location) {
-          const keyCountry = `offer:country:{${countryCode}}`;
+          const keyCountry = `${prefixOfferCache}country:{${countryCode}}`;
           pipeline.zincrby(keyCountry, offer_score, timelineId);
 
-          const keyState = `offer:state:{${adminCode}}`;
+          const keyState = `${prefixOfferCache}state:{${adminCode}}`;
           pipeline.zincrby(keyState, offer_score, timelineId);
 
-          const keyCity = `offer:city:{${cityName}}`;
+          const keyCity = `${prefixOfferCache}city:{${cityName}}`;
           pipeline.zincrby(keyCity, offer_score, timelineId);
         }
 
         // bank transfer
         if (post.offer?.country) {
-          const keyCountry = `offer:country:{${countryCode}}`;
+          const keyCountry = `${prefixOfferCache}country:{${countryCode}}`;
           pipeline.zincrby(keyCountry, offer_score, timelineId);
         }
 
         if (post.offer?.coinPayment) {
-          const keyCoin = `offer:coin:{${post.offer.coinPayment}}`;
+          const keyCoin = `${prefixOfferCache}coin:{${post.offer.coinPayment}}`;
           pipeline.zincrby(keyCoin, offer_score, timelineId);
         }
 
         if (post.offer?.localCurrency) {
-          const keyCurrency = `offer:currency:{${post.offer.localCurrency}}`;
+          const keyCurrency = `${prefixOfferCache}currency:{${post.offer.localCurrency}}`;
           pipeline.zincrby(keyCurrency, offer_score, timelineId);
         }
 
-        //find item have countryId|stateId|{in payment-method} by search and add offer to it
+        // Create and use ReSearch index
         const reSearch = new ReSearch(this.redis);
         //create index if not exist
-        const existIndex = await reSearch.exist(IndexNameOffer);
-        if (!existIndex) {
-          await reSearch.create(IndexNameOffer, true, ['1', 'docOffer:'], {
-            countryCode: 'TEXT',
-            adminCode: 'TEXT',
-            city: 'TEXT',
-            methods: 'TAG',
-            coin: 'TEXT',
-            currency: 'TEXT'
-          });
-        }
+        await createIndexOffer(reSearch, post?.offer?.type ?? OfferType.BUY);
 
-        //search item
+        // Build a query for searching relevant items
         const methodIds = post?.offer?.paymentMethods?.map(item => item.paymentMethodId).join('|'); // 1|2|3
         const queryItem = `@countryCode:${countryCode}|@adminCode:${adminCode}|@city:${cityName}|@coin:${post?.offer?.coinPayment}|@currency:${post?.offer?.localCurrency}|@methods:{${methodIds}}`;
-        const searchResult = await reSearch.search(IndexNameOffer, queryItem);
-        //add item to search result
+        const indexName = isBuyOffer ? IndexNameBuyOffer : IndexNameOffer;
+        const searchResult = await reSearch.search(indexName, queryItem);
+        // add item to search result
         if (searchResult.length > 0) {
-          //search return result: [total item, keyItem1, valueItem1, keyItem2, valueItem2,...]
+          // search return result: [total item, keyItem1, valueItem1, keyItem2, valueItem2,...]
           for (let i = 1; i < searchResult.length; i += 2) {
             const keyDoc = searchResult[i];
-            //get keyFilter, key doc: lixilotus:docOffer:keyFilter
-            const arrKeyDoc = keyDoc.split('docOffer:');
+            // get keyFilter, key doc: lixilotus:docOffer:keyFilter
+            const arrKeyDoc = keyDoc.split(`${isBuyOffer ? KeyIndexNameBuyOffer : KeyIndexNameOffer}:`);
             const keyFilter = arrKeyDoc[arrKeyDoc.length - 1];
 
             const keyFilterJson = JSON.parse(keyFilter);
 
-            //if not have location, drop key have countryCode
+            // if not have location, drop key have countryCode
             if (!countryCode) {
               if (keyFilterJson?.countryCode) continue;
             } else {
-              //fetch all of item added and filter again, just add offer have field === indexField
+              // fetch all of item added and filter again, just add offer have field === indexField
               if (keyFilterJson?.adminCode && keyFilterJson.adminCode !== adminCode) continue;
               if (keyFilterJson?.cityName && keyFilterJson.cityName !== cityName) continue;
               if (keyFilterJson?.coin && keyFilterJson.coin !== post?.offer?.coinPayment) continue;
@@ -258,7 +253,10 @@ export class PostFanoutProcessor extends WorkerHost {
               )
                 continue;
             }
-            const keyTimelineFilter = template(`${PostFanoutProcessor.timelineOfferFilter}`, { keyFilter });
+            const keyTimelineFilter = template(
+              `${isBuyOffer ? PostFanoutProcessor.timelineBuyOfferFilter : PostFanoutProcessor.timelineOfferFilter}`,
+              { keyFilter }
+            );
             pipeline.zincrby(keyTimelineFilter, offer_score, timelineId);
           }
         }

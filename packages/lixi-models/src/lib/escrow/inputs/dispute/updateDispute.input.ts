@@ -1,7 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty } from 'class-validator';
 
-import { DisputeStatus } from '../dispute.model';
+import { DisputeStatus } from '../../dispute.model';
 
 @InputType()
 export class UpdateDisputeInput {

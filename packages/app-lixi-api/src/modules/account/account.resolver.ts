@@ -3,11 +3,10 @@ import {
   AccountBasicConnection,
   AccountDana,
   AccountStatsOrder,
+  BankInfo,
   BasicPaginationArgs,
-  CreateAccountInput,
   FollowOfType,
   IBasicPaginated,
-  ImportAccountInput,
   PaginationArgs,
   UpdateAccountInput
 } from '@bcpros/lixi-models';
@@ -24,7 +23,6 @@ import { I18n, I18nService } from 'nestjs-i18n';
 import { basicPaginate, createEdge } from 'src/common/custom-graphql-relay/paginate';
 import { AccountEntity, PageAccountEntity } from 'src/decorators';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
-import { aesGcmDecrypt, aesGcmEncrypt, generateRandomBase58Str, hashMnemonic } from 'src/utils/encryptionMethods';
 import { template } from 'src/utils/stringTemplate';
 import VError from 'verror';
 import { GqlJwtAuthGuard, GqlJwtAuthGuardByPass } from '../auth/guards/gql-jwtauth.guard';
@@ -464,5 +462,10 @@ export class AccountResolver {
   @ResolveField('accountStatsOrder', () => AccountStatsOrder)
   async accountStatsOrder(@Parent() account: Account) {
     return this.accountLoader.batchAccountStatsOrder.load(account.id);
+  }
+
+  @ResolveField('bankInfo', () => BankInfo)
+  async bankInfo(@Parent() account: Account) {
+    return this.accountLoader.batchBankInfo.load(account.id.toString());
   }
 }

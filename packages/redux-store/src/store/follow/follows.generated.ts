@@ -86,6 +86,15 @@ export type AllFollowersByFollowingQuery = {
           completedOrder: number;
           uniqueTrades: number;
         };
+        bankInfo: {
+          __typename?: 'BankInfo';
+          bankName?: string | null;
+          accountNameBank?: string | null;
+          accountNumberBank?: string | null;
+          appName?: string | null;
+          accountNameApp?: string | null;
+          accountNumberApp?: string | null;
+        };
       };
     }> | null;
     pageInfo: {
@@ -160,6 +169,15 @@ export type AllFollowingsByFollowerQuery = {
           donationAmount: number;
           completedOrder: number;
           uniqueTrades: number;
+        };
+        bankInfo: {
+          __typename?: 'BankInfo';
+          bankName?: string | null;
+          accountNameBank?: string | null;
+          accountNumberBank?: string | null;
+          appName?: string | null;
+          accountNameApp?: string | null;
+          accountNumberApp?: string | null;
         };
       };
     }> | null;
