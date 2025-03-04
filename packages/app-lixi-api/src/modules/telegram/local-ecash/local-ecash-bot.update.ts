@@ -355,17 +355,21 @@ Are you ready? Let's get started.
             EXTRACT(EPOCH FROM (eo.updated_at - eo.created_at)) / 3600 AS settle_time
         FROM escrow_order eo
         LEFT JOIN dispute d ON eo.id = d.escrow_order_id
-        WHERE eo.created_at BETWEEN ${formattedTimeStart} :: timestamp - ${period} :: interval AND ${formattedTimeStart} :: timestamp
+        WHERE eo.created_at BETWEEN ${formattedTimeStart} :: timestamptz - ${period} :: interval AND ${formattedTimeStart} :: timestamptz
     ),
 
     -- Calculate overall statistics
     OverallStats AS (
         SELECT 
             COALESCE(SUM(eo.seller_donate_amount), 0) + COALESCE(SUM(eo.buyer_donate_amount), 0) AS amount_donated,
-            SUM(CASE WHEN eo.status = 'COMPLETE' OR eo.dispute_status = 'RESOLVED' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS success_ratio,
+            -- success orders = orders with status 'COMPLETE' without dispute
+            -- completed orders = orders with status 'COMPLETE'
+            -- success rate = success-order / complete-order
+            SUM(CASE WHEN eo.status = 'COMPLETE' AND eo.dispute_status IS NULL THEN 1 ELSE 0 END) * 1.0 /  
+              SUM(CASE WHEN eo.status = 'COMPLETE' THEN 1 ELSE 0 END) AS success_ratio,
             AVG(eo.settle_time) AS avg_settle_time,
-            SUM(eo.amount) AS amount_traded,
-            COUNT(*) AS total_trades
+            SUM(CASE WHEN eo.status = 'COMPLETE' THEN eo.amount ELSE 0 END) AS amount_traded,
+            COUNT(CASE WHEN eo.status != 'PENDING' THEN 1 ELSE NULL END) AS total_trades
         FROM Precomputed eo
     ),
 
@@ -375,7 +379,9 @@ Are you ready? Let's get started.
         LEAST(seller_account_id, buyer_account_id) AS account_1,
         GREATEST(seller_account_id, buyer_account_id) AS account_2
       FROM escrow_order as eo
-      WHERE eo.created_at BETWEEN ${formattedTimeStart} :: timestamp - ${period} :: interval AND ${formattedTimeStart} :: timestamp
+      WHERE
+        eo.status = 'COMPLETE' AND  
+        eo.created_at BETWEEN ${formattedTimeStart} :: timestamptz - ${period} :: interval AND ${formattedTimeStart} :: timestamptz
       GROUP BY 
         LEAST(seller_account_id, buyer_account_id), 
         GREATEST(seller_account_id, buyer_account_id)
