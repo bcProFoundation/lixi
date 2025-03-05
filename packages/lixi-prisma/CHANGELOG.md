@@ -1,5 +1,11 @@
 # @bcpros/lixi-prisma
 
+## 1.2.21
+
+### Patch Changes
+
+- Update statistic
+
 ## 1.2.20
 
 ### Patch Changes
