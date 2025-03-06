@@ -85,6 +85,10 @@ query topMonthAccounts($after: String, $first: Int = 19, $month: Int!, $year: In
   }
 }
 
+query GetTelegramAvatarPath {
+  getTelegramAvatarPath
+}
+
 fragment AccountFields on Account {
   id
   name
@@ -138,6 +142,7 @@ fragment AccountFields on Account {
     accountNameApp
     accountNumberApp
   }
+  localeCashPathAvatar
 }
 
 mutation updateAccount($input: UpdateAccountInput!) {

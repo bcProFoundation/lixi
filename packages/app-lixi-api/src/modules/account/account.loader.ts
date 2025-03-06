@@ -9,6 +9,7 @@ import { KEY_BANK_INFO } from 'src/utils/escrow/cache-key.constants';
 import Redis from 'ioredis';
 import { decode } from '@msgpack/msgpack';
 import { InjectRedis } from '@songkeys/nestjs-redis';
+import { KEY_AVATAR_PATH } from '../escrow/escrow.contants';
 
 @Injectable({ scope: Scope.REQUEST })
 export default class AccountLoader {
@@ -79,6 +80,14 @@ export default class AccountLoader {
     });
 
     return bankInfos;
+  });
+
+  public readonly batchLocaleCashPathAvatar = new DataLoader<string, string | null>(async (ids: readonly string[]) => {
+    const accountIds = [...ids];
+
+    const results = await this.redis.hmget(KEY_AVATAR_PATH, ...accountIds);
+
+    return results.map(result => result || null);
   });
 
   public readonly batchFollowersCount = new DataLoader<number, number>(async (ids: readonly number[]) => {

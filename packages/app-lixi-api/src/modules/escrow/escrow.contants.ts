@@ -12,6 +12,8 @@ export const KeyIndexNameBuyOffer = 'docBuyOffer';
 export const KeyCacheNameOffer = 'offer';
 export const KeyCacheNameBuyOffer = 'buyOffer';
 
+export const KEY_AVATAR_PATH = 'locale_cash_avatar_path';
+
 export const TIMELINE_ESCROW_ORDER = {
   active: `${EscrowOrderStatus.ACTIVE}-${EscrowOrderStatus.PENDING}-${EscrowOrderStatus.ESCROW}`,
   unactive: `${EscrowOrderStatus.CANCEL}-${EscrowOrderStatus.COMPLETE}`

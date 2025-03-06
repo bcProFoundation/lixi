@@ -9,9 +9,10 @@ import { FollowCacheService } from './follow-cache.service';
 import { FollowResolver } from './follow.resolver';
 import TotalDanaViewScoreLoader from './total-dana-view-score.loader';
 import { DanaViewScoreService } from '../page/dana-view-score.service';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [forwardRef(() => AuthModule), forwardRef(() => NotificationModule)],
+  imports: [forwardRef(() => AuthModule), forwardRef(() => NotificationModule), HttpModule],
   controllers: [],
   providers: [
     AccountResolver,
