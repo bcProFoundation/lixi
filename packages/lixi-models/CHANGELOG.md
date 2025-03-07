@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.55
+
+### Patch Changes
+
+- Update avatar
+
 ## 1.2.54
 
 ### Patch Changes
