@@ -46,6 +46,7 @@ export type AccountQuery = {
     telegramId?: string | null;
     telegramUsername?: string | null;
     role: Types.Role;
+    localeCashPathAvatar?: string | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -109,6 +110,7 @@ export type GetAccountByAddressQuery = {
     telegramId?: string | null;
     telegramUsername?: string | null;
     role: Types.Role;
+    localeCashPathAvatar?: string | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -180,6 +182,7 @@ export type AllFollowersByPageQuery = {
         telegramId?: string | null;
         telegramUsername?: string | null;
         role: Types.Role;
+        localeCashPathAvatar?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -254,6 +257,7 @@ export type AllFollowersByTokenQuery = {
         telegramId?: string | null;
         telegramUsername?: string | null;
         role: Types.Role;
+        localeCashPathAvatar?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -327,6 +331,7 @@ export type AccountsQuery = {
         telegramId?: string | null;
         telegramUsername?: string | null;
         role: Types.Role;
+        localeCashPathAvatar?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -402,6 +407,7 @@ export type TopWeekAccountsQuery = {
         telegramId?: string | null;
         telegramUsername?: string | null;
         role: Types.Role;
+        localeCashPathAvatar?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -477,6 +483,7 @@ export type TopMonthAccountsQuery = {
         telegramId?: string | null;
         telegramUsername?: string | null;
         role: Types.Role;
+        localeCashPathAvatar?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -510,6 +517,10 @@ export type TopMonthAccountsQuery = {
   };
 };
 
+export type GetTelegramAvatarPathQueryVariables = Types.Exact<{ [key: string]: never }>;
+
+export type GetTelegramAvatarPathQuery = { __typename?: 'Query'; getTelegramAvatarPath?: string | null };
+
 export type AccountFieldsFragment = {
   __typename?: 'Account';
   id: number;
@@ -537,6 +548,7 @@ export type AccountFieldsFragment = {
   telegramId?: string | null;
   telegramUsername?: string | null;
   role: Types.Role;
+  localeCashPathAvatar?: string | null;
   pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
   accountDana?: {
     __typename?: 'AccountDana';
@@ -599,6 +611,7 @@ export type UpdateAccountMutation = {
     telegramId?: string | null;
     telegramUsername?: string | null;
     role: Types.Role;
+    localeCashPathAvatar?: string | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -663,6 +676,7 @@ export type UpdateAccountTelegramUsernameMutation = {
     telegramId?: string | null;
     telegramUsername?: string | null;
     role: Types.Role;
+    localeCashPathAvatar?: string | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -747,6 +761,7 @@ export const AccountFieldsFragmentDoc = `
     accountNameApp
     accountNumberApp
   }
+  localeCashPathAvatar
 }
     `;
 export const AccountDocument = `
@@ -853,6 +868,11 @@ export const TopMonthAccountsDocument = `
 }
     ${AccountFieldsFragmentDoc}
 ${BasicPageInfoFieldsFragmentDoc}`;
+export const GetTelegramAvatarPathDocument = `
+    query GetTelegramAvatarPath {
+  getTelegramAvatarPath
+}
+    `;
 export const UpdateAccountDocument = `
     mutation updateAccount($input: UpdateAccountInput!) {
   updateAccount(data: $input) {
@@ -894,6 +914,9 @@ const injectedRtkApi = api.injectEndpoints({
     }),
     topMonthAccounts: build.query<TopMonthAccountsQuery, TopMonthAccountsQueryVariables>({
       query: variables => ({ document: TopMonthAccountsDocument, variables })
+    }),
+    GetTelegramAvatarPath: build.query<GetTelegramAvatarPathQuery, GetTelegramAvatarPathQueryVariables | void>({
+      query: variables => ({ document: GetTelegramAvatarPathDocument, variables })
     }),
     updateAccount: build.mutation<UpdateAccountMutation, UpdateAccountMutationVariables>({
       query: variables => ({ document: UpdateAccountDocument, variables })

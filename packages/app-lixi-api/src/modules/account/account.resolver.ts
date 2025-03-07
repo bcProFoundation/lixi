@@ -12,7 +12,7 @@ import {
 } from '@bcpros/lixi-models';
 import { ImageUploadableType } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
-import { HttpException, HttpStatus, Inject, UseFilters, UseGuards } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, UseFilters, UseGuards, Logger } from '@nestjs/common';
 import { Args, Int, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -33,6 +33,10 @@ import { AccountCacheService } from './account-cache.service';
 import AccountLoader from './account.loader';
 import { FollowCacheService } from './follow-cache.service';
 import TotalDanaViewScoreLoader from './total-dana-view-score.loader';
+import { ConfigService } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
+import { KEY_AVATAR_PATH } from '../escrow/escrow.contants';
 
 const pubSub = new PubSub();
 
@@ -51,6 +55,9 @@ export class AccountResolver {
     private readonly accountLoader: AccountLoader,
     private readonly followCacheService: FollowCacheService,
     private readonly totalDanaViewScoreLoader: TotalDanaViewScoreLoader,
+    private readonly logger: Logger,
+    private readonly configService: ConfigService,
+    private readonly httpService: HttpService,
     @Inject(XPIJS) private XPI: BCHJS,
     @InjectRedis() private readonly redis: Redis
   ) {}
@@ -156,6 +163,48 @@ export class AccountResolver {
         const error = new VError.WError(err as Error, unableGetAccountMessage);
         throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
       }
+    }
+  }
+
+  @Query(() => String, { nullable: true })
+  @UseGuards(GqlJwtAuthGuard)
+  async getTelegramAvatarPath(@AccountEntity() account: Account) {
+    if (!account) {
+      throw new Error('Account not found');
+    }
+    try {
+      const botToken = this.configService.get('TELEGRAM_LOCAL_ECASH_BOT_TOKEN');
+      const telegramId = account.telegramId;
+
+      // Get user profile photos
+      const photoResponse = await firstValueFrom(
+        this.httpService.get(`https://api.telegram.org/bot${botToken}/getUserProfilePhotos`, {
+          params: { user_id: telegramId, limit: 1 }
+        })
+      );
+
+      if (!photoResponse.data.ok || !photoResponse.data.result.photos.length) {
+        return;
+      }
+
+      // Get file path
+      const fileId = photoResponse.data.result.photos[0][0].file_id;
+      const fileResponse = await firstValueFrom(
+        this.httpService.get(`https://api.telegram.org/bot${botToken}/getFile`, { params: { file_id: fileId } })
+      );
+
+      if (!fileResponse.data.ok) {
+        return null;
+      }
+
+      const filePath = fileResponse.data.result.file_path;
+
+      // Store the path
+      await this.redis.hset(KEY_AVATAR_PATH, account.id, filePath);
+
+      return filePath;
+    } catch (err) {
+      this.logger.error(err);
     }
   }
 
@@ -467,5 +516,10 @@ export class AccountResolver {
   @ResolveField('bankInfo', () => BankInfo)
   async bankInfo(@Parent() account: Account) {
     return this.accountLoader.batchBankInfo.load(account.id.toString());
+  }
+
+  @ResolveField('localeCashPathAvatar', () => String)
+  async localeCashPathAvatar(@Parent() account: Account) {
+    return this.accountLoader.batchLocaleCashPathAvatar.load(account.id.toString());
   }
 }

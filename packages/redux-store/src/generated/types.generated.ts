@@ -44,6 +44,7 @@ export type Account = {
   hash160?: Maybe<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
   language: Scalars['String']['output'];
+  localeCashPathAvatar?: Maybe<Scalars['String']['output']>;
   messages?: Maybe<Array<Message>>;
   mnemonic?: Maybe<Scalars['String']['output']>;
   mnemonicHash?: Maybe<Scalars['String']['output']>;
@@ -1807,6 +1808,7 @@ export type Query = {
   getFiatRate: Array<FiatRates>;
   getModeratorAccount: Account;
   getRandomArbitratorAccount: Account;
+  getTelegramAvatarPath?: Maybe<Scalars['String']['output']>;
   hashtag: Hashtag;
   homeTimeline: TimelineItemConnection;
   message: Message;

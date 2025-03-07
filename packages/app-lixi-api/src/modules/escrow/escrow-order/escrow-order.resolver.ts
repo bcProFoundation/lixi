@@ -829,7 +829,7 @@ export class EscrowOrderResolver {
                 id: escrowOrder.id
               },
               data: {
-                sellerTelegramMessageId: res.message_id
+                [offer?.type === OfferType.BUY ? 'buyerTelegramMessageId' : 'sellerTelegramMessageId']: res.message_id
               }
             });
 
@@ -861,7 +861,7 @@ export class EscrowOrderResolver {
                 id: escrowOrder.id
               },
               data: {
-                buyerTelegramMessageId: res.message_id
+                [offer?.type === OfferType.BUY ? 'sellerTelegramMessageId' : 'buyerTelegramMessageId']: res.message_id
               }
             });
           })
