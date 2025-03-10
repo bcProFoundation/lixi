@@ -168,7 +168,8 @@ export class AccountResolver {
 
   @Query(() => String, { nullable: true })
   @UseGuards(GqlJwtAuthGuard)
-  async getTelegramAvatarPath(@AccountEntity() account: Account) {
+  async getLocaleCashAvatar(@Args('accountId', { type: () => Number }) accountId: number) {
+    const account = await this.accountCacheService.getById(accountId);
     if (!account) {
       throw new Error('Account not found');
     }
@@ -176,33 +177,62 @@ export class AccountResolver {
       const botToken = this.configService.get('TELEGRAM_LOCAL_ECASH_BOT_TOKEN');
       const telegramId = account.telegramId;
 
-      // Get user profile photos
-      const photoResponse = await firstValueFrom(
-        this.httpService.get(`https://api.telegram.org/bot${botToken}/getUserProfilePhotos`, {
-          params: { user_id: telegramId, limit: 1 }
-        })
-      );
-
-      if (!photoResponse.data.ok || !photoResponse.data.result.photos.length) {
-        return;
-      }
-
-      // Get file path
-      const fileId = photoResponse.data.result.photos[0][0].file_id;
-      const fileResponse = await firstValueFrom(
-        this.httpService.get(`https://api.telegram.org/bot${botToken}/getFile`, { params: { file_id: fileId } })
-      );
-
-      if (!fileResponse.data.ok) {
+      if (!telegramId) {
+        this.logger.warn(`No Telegram ID found for account ${account.id}`);
         return null;
       }
 
-      const filePath = fileResponse.data.result.file_path;
+      let filePath = await this.redis.hget(KEY_AVATAR_PATH, account.id.toString());
 
-      // Store the path
-      await this.redis.hset(KEY_AVATAR_PATH, account.id, filePath);
+      // If no cached path, fetch from Telegram API
+      if (!filePath) {
+        // Get user profile photos
+        const photoResponse = await firstValueFrom(
+          this.httpService.get(`https://api.telegram.org/bot${botToken}/getUserProfilePhotos`, {
+            params: { user_id: telegramId, limit: 1 }
+          })
+        );
 
-      return filePath;
+        if (!photoResponse.data.ok || !photoResponse.data.result.photos.length) {
+          return null;
+        }
+
+        // Get file path
+        const fileId = photoResponse.data.result.photos[0][0].file_id;
+        const fileResponse = await firstValueFrom(
+          this.httpService.get(`https://api.telegram.org/bot${botToken}/getFile`, {
+            params: { file_id: fileId }
+          })
+        );
+
+        if (!fileResponse.data.ok) {
+          this.logger.warn(`Failed to get file info for Telegram photo ${fileId}`);
+          return null;
+        }
+
+        filePath = fileResponse.data.result.file_path;
+
+        // store in redis
+        await this.redis.hset(KEY_AVATAR_PATH, account.id, filePath as string);
+        await this.redis.expire(KEY_AVATAR_PATH, 60 * 30); // 30 minutes
+      }
+
+      const imageUrl = `https://api.telegram.org/file/bot${botToken}/${filePath}`;
+
+      const imageResponse = await firstValueFrom(
+        this.httpService.get(imageUrl, {
+          responseType: 'arraybuffer'
+        })
+      );
+
+      const contentType = imageResponse.headers['content-type'] || 'image/jpeg';
+
+      // Convert buffer to base64 and create a data URL
+      const imageBuffer = Buffer.from(imageResponse.data);
+      const base64Image = imageBuffer.toString('base64');
+      const dataUrl = `data:${contentType};base64,${base64Image}`;
+
+      return dataUrl;
     } catch (err) {
       this.logger.error(err);
     }
@@ -516,10 +546,5 @@ export class AccountResolver {
   @ResolveField('bankInfo', () => BankInfo)
   async bankInfo(@Parent() account: Account) {
     return this.accountLoader.batchBankInfo.load(account.id.toString());
-  }
-
-  @ResolveField('localeCashPathAvatar', () => String)
-  async localeCashPathAvatar(@Parent() account: Account) {
-    return this.accountLoader.batchLocaleCashPathAvatar.load(account.id.toString());
   }
 }

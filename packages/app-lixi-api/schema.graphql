@@ -26,7 +26,6 @@ type Account {
   hash160: String
   id: Int!
   language: String!
-  localeCashPathAvatar: String
   messages: [Message!]
   mnemonic: String
   mnemonicHash: String
@@ -1681,9 +1680,9 @@ type Query {
   getAllFiatRate: [AllFiatRates!]!
   getBalances(address: String!): Balances!
   getFiatRate: [FiatRates!]!
+  getLocaleCashAvatar(accountId: Int!): String
   getModeratorAccount: Account!
   getRandomArbitratorAccount(offerId: String!): Account!
-  getTelegramAvatarPath: String
   hashtag(content: String!): Hashtag!
   homeTimeline(after: String, first: Int, level: Int, skip: Int): TimelineItemConnection!
   message(id: String!): Message!
