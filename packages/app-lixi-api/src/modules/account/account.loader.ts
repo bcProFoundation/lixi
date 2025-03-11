@@ -82,14 +82,6 @@ export default class AccountLoader {
     return bankInfos;
   });
 
-  public readonly batchLocaleCashPathAvatar = new DataLoader<string, string | null>(async (ids: readonly string[]) => {
-    const accountIds = [...ids];
-
-    const results = await this.redis.hmget(KEY_AVATAR_PATH, ...accountIds);
-
-    return results.map(result => result || null);
-  });
-
   public readonly batchFollowersCount = new DataLoader<number, number>(async (ids: readonly number[]) => {
     const accountIds = ids as unknown as number[];
     const accountFollowersCounts = await this.followCacheService.getAccountFollowersCounts(accountIds);

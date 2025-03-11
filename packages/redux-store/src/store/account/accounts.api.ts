@@ -6,7 +6,7 @@ const enhancedApi = api.enhanceEndpoints({
     getAccountByAddress: {
       providesTags: (result, error, arg) => ['Account']
     },
-    GetTelegramAvatarPath: {},
+    GetLocaleCashAvatar: {},
     updateAccount: {
       invalidatesTags: ['Account']
     },
@@ -38,8 +38,8 @@ export { enhancedApi as api };
 export const {
   useGetAccountByAddressQuery,
   useLazyGetAccountByAddressQuery,
-  useGetTelegramAvatarPathQuery,
-  useLazyGetTelegramAvatarPathQuery,
+  useGetLocaleCashAvatarQuery,
+  useLazyGetLocaleCashAvatarQuery,
   useUpdateAccountMutation,
   useAllFollowersByPageQuery,
   useLazyAllFollowersByPageQuery,
