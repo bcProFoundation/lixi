@@ -166,7 +166,7 @@ export class PostFanoutProcessor extends WorkerHost {
       if (post.type === PostType.OFFER) {
         const isBuyOffer = post?.offer?.type === OfferType.BUY;
 
-        const prefixOfferCache = `${isBuyOffer ? KeyCacheNameBuyOffer : KeyCacheNameOffer}:`;
+        const prefixOfferCache = `${isBuyOffer ? KeyCacheNameBuyOffer : KeyCacheNameOffer}`;
         const offer_score = 1 * Math.pow(2, diffHour / offer_half_life);
 
         const myOfferTimelineKey = template(`${PostFanoutProcessor.myOfferTimeline}`, {
@@ -179,7 +179,7 @@ export class PostFanoutProcessor extends WorkerHost {
 
         // add cache for payment method (offer:method:{id})
         post.offer?.paymentMethods.map(item => {
-          const keyPaymentMethod = `${prefixOfferCache}method:{${item.paymentMethod.id}}`;
+          const keyPaymentMethod = `${prefixOfferCache}:method:{${item.paymentMethod.id}}`;
           pipeline.zincrby(keyPaymentMethod, offer_score, timelineId);
         });
 
@@ -190,29 +190,34 @@ export class PostFanoutProcessor extends WorkerHost {
 
         // cash in person
         if (post.offer?.location) {
-          const keyCountry = `${prefixOfferCache}country:{${countryCode}}`;
+          const keyCountry = `${prefixOfferCache}:country:{${countryCode}}`;
           pipeline.zincrby(keyCountry, offer_score, timelineId);
 
-          const keyState = `${prefixOfferCache}state:{${adminCode}}`;
+          const keyState = `${prefixOfferCache}:state:{${adminCode}}`;
           pipeline.zincrby(keyState, offer_score, timelineId);
 
-          const keyCity = `${prefixOfferCache}city:{${cityName}}`;
+          const keyCity = `${prefixOfferCache}:city:{${cityName}}`;
           pipeline.zincrby(keyCity, offer_score, timelineId);
         }
 
         // bank transfer
         if (post.offer?.country) {
-          const keyCountry = `${prefixOfferCache}country:{${countryCode}}`;
+          const keyCountry = `${prefixOfferCache}:country:{${countryCode}}`;
           pipeline.zincrby(keyCountry, offer_score, timelineId);
         }
 
         if (post.offer?.coinPayment) {
-          const keyCoin = `${prefixOfferCache}coin:{${post.offer.coinPayment}}`;
+          const keyCoin = `${prefixOfferCache}:coin:{${post.offer.coinPayment}}`;
           pipeline.zincrby(keyCoin, offer_score, timelineId);
         }
 
+        if (post.offer?.paymentApp) {
+          const keyPaymentApp = `${prefixOfferCache}:paymentApp:{${post.offer.paymentApp}}`;
+          pipeline.zincrby(keyPaymentApp, offer_score, timelineId);
+        }
+
         if (post.offer?.localCurrency) {
-          const keyCurrency = `${prefixOfferCache}currency:{${post.offer.localCurrency}}`;
+          const keyCurrency = `${prefixOfferCache}:currency:{${post.offer.localCurrency}}`;
           pipeline.zincrby(keyCurrency, offer_score, timelineId);
         }
 
@@ -223,7 +228,7 @@ export class PostFanoutProcessor extends WorkerHost {
 
         // Build a query for searching relevant items
         const methodIds = post?.offer?.paymentMethods?.map(item => item.paymentMethodId).join('|'); // 1|2|3
-        const queryItem = `@countryCode:${countryCode}|@adminCode:${adminCode}|@city:${cityName}|@coin:${post?.offer?.coinPayment}|@currency:${post?.offer?.localCurrency}|@methods:{${methodIds}}`;
+        const queryItem = `@countryCode:${countryCode}|@adminCode:${adminCode}|@city:${cityName}|@coin:${post?.offer?.coinPayment}|@currency:${post?.offer?.localCurrency}|@paymentApp:${post?.offer?.paymentApp}|@methods:{${methodIds}}`;
         const indexName = isBuyOffer ? IndexNameBuyOffer : IndexNameOffer;
         const searchResult = await reSearch.search(indexName, queryItem);
         // add item to search result

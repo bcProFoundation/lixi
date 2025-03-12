@@ -1357,6 +1357,7 @@ export type OfferFilterInput = {
   countryName?: InputMaybe<Scalars['String']['input']>;
   fiatCurrency?: InputMaybe<Scalars['String']['input']>;
   isBuyOffer?: InputMaybe<Scalars['Boolean']['input']>;
+  paymentApp?: InputMaybe<Scalars['String']['input']>;
   paymentMethodIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   stateName?: InputMaybe<Scalars['String']['input']>;
 };

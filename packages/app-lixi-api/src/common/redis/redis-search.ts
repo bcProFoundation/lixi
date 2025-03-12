@@ -4,7 +4,7 @@ import { EventEmitter } from 'stream';
 const keyPrefix = 'lixilotus:';
 
 export default class ReSearch extends EventEmitter {
-  commands = ['FT.CREATE', 'JSON.SET', 'FT.SEARCH', 'FT._LIST', 'FT.INFO', 'FT.DROPINDEX'];
+  commands = ['FT.CREATE', 'JSON.SET', 'FT.SEARCH', 'FT._LIST', 'FT.INFO', 'FT.DROPINDEX', 'FT.ALTER'];
   cmds: any = {};
   client: Redis;
   constructor(redis: Redis) {
@@ -53,6 +53,50 @@ export default class ReSearch extends EventEmitter {
       prefix.unshift('PREFIX');
     }
     return cmd.call(this.client, indexName, 'ON', strType, ...prefix, 'SCHEMA', ...schemaCreated);
+  }
+
+  async ensureFieldExistsInIndex(indexName: string, fieldName: string, fieldType: string): Promise<boolean> {
+    try {
+      // Get index info
+      const indexInfo = await this.info(indexName);
+
+      // Find the attributes section in the response
+      // FT.INFO returns an array where even indices are keys and odd indices are values
+      let attributesArray = null;
+      for (let i = 0; i < indexInfo.length; i += 2) {
+        if (indexInfo[i] === 'attributes') {
+          attributesArray = indexInfo[i + 1];
+          break;
+        }
+      }
+
+      if (!attributesArray || !Array.isArray(attributesArray)) {
+        return false;
+      }
+
+      // Check if our field exists in the attributes array
+      let fieldExists = false;
+
+      for (const attribute of attributesArray) {
+        if (Array.isArray(attribute)) {
+          // check field: example return-currency: ['identifier', '$.currency', 'attribute','currency', 'type', 'TEXT', 'WEIGHT', '1']
+          if (attribute[1] === `$.${fieldName}` || attribute[3] === fieldName) {
+            fieldExists = true;
+            break;
+          }
+        }
+      }
+
+      // Add the field if it doesn't exist
+      if (!fieldExists) {
+        const cmd = this.cmds['FT.ALTER'];
+        await cmd.call(this.client, indexName, 'SCHEMA', 'ADD', `$.${fieldName}`, 'AS', fieldName, fieldType);
+      }
+
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   list(): Promise<string[]> {

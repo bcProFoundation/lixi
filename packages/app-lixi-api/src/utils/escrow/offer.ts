@@ -20,7 +20,8 @@ export async function createIndexOffer(reSearch: ReSearch, offerType: OfferType)
       city: 'TEXT',
       methods: 'TAG',
       coin: 'TEXT',
-      currency: 'TEXT'
+      currency: 'TEXT',
+      paymentApp: 'TEXT'
     });
   }
 }

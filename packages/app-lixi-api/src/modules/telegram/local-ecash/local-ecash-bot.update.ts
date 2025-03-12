@@ -337,8 +337,8 @@ Are you ready? Let's get started.
     return ` - Total Amount Donated: *${info.amount_donated}* XEC
      - Successful Trades: *${(info.success_ratio * 100)?.toFixed(0)}%* 
      - Average Settle Time: *${info.avg_settle_time ? info.avg_settle_time?.toFixed(2) : '0'} hours*
-     - Total Traded: *${info.total_trades}* 
-     - Total Amount Trades: *${info.amount_traded ? info.amount_traded?.toLocaleString('en-US') : '0'}* XEC
+     - Total Trades: *${info.total_trades}* 
+     - Total Amount Traded: *${info.amount_traded ? info.amount_traded?.toLocaleString('en-US') : '0'}* XEC
      - Unique Trades: *${info.unique_trade_count}*
     `;
   }

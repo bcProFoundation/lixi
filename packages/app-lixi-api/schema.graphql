@@ -1153,6 +1153,7 @@ input OfferFilterInput {
   countryName: String
   fiatCurrency: String
   isBuyOffer: Boolean
+  paymentApp: String
   paymentMethodIds: [Int!]
   stateName: String
 }
