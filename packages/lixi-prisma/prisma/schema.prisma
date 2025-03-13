@@ -330,6 +330,7 @@ model Account {
   role                           Role                  @default(USER)
   telegramId                     String?               @unique @map("telegram_id")
   telegramUsername               String?               @map("telegram_username")
+  anonymousUsernameLocalecash    String?               @unique @map("anonymous_username_localecash")
   escrowSellOrders               EscrowOrder[]         @relation("escrow_sell_orders")
   escrowBuyOrders                EscrowOrder[]         @relation("escrow_buy_orders")
   escrowArbiOrders               EscrowOrder[]         @relation("escrow_arbi_orders")

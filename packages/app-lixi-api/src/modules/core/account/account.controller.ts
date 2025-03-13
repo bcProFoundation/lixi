@@ -11,7 +11,7 @@ import {
   fromSmallestDenomination,
   walletPath
 } from '@bcpros/lixi-models';
-import { Account as AccountDb, AccountType, AddressType, Coin } from '@bcpros/lixi-prisma';
+import { Account as AccountDb, AccountType, AddressType, Coin, Role } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import {
   Body,
@@ -258,6 +258,9 @@ export class AccountController {
         const createdAccount: AccountDb = await this.prisma.account.create({
           data: accountToInsert
         });
+        // add anonymous username
+        await this.addFieldAnonymousUsernameLocalecash(createdAccount);
+
         await this.accountCacheService.removeByKey(createdAccount.id.toString());
         const { totalBalanceInSatoshis } = await walletService.getBalances(createdAccount.address);
 
@@ -420,6 +423,9 @@ export class AccountController {
             }
           }
         });
+        // add anonymous username
+        await this.addFieldAnonymousUsernameLocalecash(createdAccount);
+
         await this.accountCacheService.removeByKey(createdAccount.id.toString());
 
         const resultApi: AccountDto = _.omit(
@@ -522,7 +528,8 @@ export class AccountController {
         },
         data: {
           telegramUsername: null,
-          telegramId: null
+          telegramId: null,
+          role: Role.USER
         }
       });
       if (!account) {
@@ -778,5 +785,32 @@ export class AccountController {
         throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
+  }
+
+  private async addFieldAnonymousUsernameLocalecash(data: AccountDb) {
+    const creationYear = new Date().getFullYear();
+    const yearSuffix = creationYear.toString().slice(-2);
+
+    // Keep trying until we get a unique ID
+    let anonymousName;
+    let isUnique = false;
+
+    while (!isUnique) {
+      const randomNum = Math.floor(Math.random() * 9000) + 1000;
+      anonymousName = `LocalUser-${yearSuffix}${randomNum}`;
+
+      const existing = await this.prisma.account.findUnique({
+        where: { anonymousUsernameLocalecash: anonymousName }
+      });
+
+      if (!existing) {
+        isUnique = true;
+      }
+    }
+
+    return this.prisma.account.update({
+      where: { id: data.id },
+      data: { anonymousUsernameLocalecash: anonymousName }
+    });
   }
 }

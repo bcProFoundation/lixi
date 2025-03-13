@@ -26,6 +26,7 @@ export type Account = {
   accountStatsOrder: AccountStatsOrder;
   accountType?: Maybe<AccountType>;
   address: Scalars['String']['output'];
+  anonymousUsernameLocalecash?: Maybe<Scalars['String']['output']>;
   avatar?: Maybe<Scalars['String']['output']>;
   balance: Scalars['Int']['output'];
   bankInfo: BankInfo;

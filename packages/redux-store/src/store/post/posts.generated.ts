@@ -52,6 +52,7 @@ export type PostQuery = {
       avatar?: string | null;
       createCommentFee?: string | null;
       telegramUsername?: string | null;
+      anonymousUsernameLocalecash?: string | null;
       accountStatsOrder: {
         __typename?: 'AccountStatsOrder';
         donationAmount: number;
@@ -224,6 +225,7 @@ export type PostsByPageIdQuery = {
           avatar?: string | null;
           createCommentFee?: string | null;
           telegramUsername?: string | null;
+          anonymousUsernameLocalecash?: string | null;
           accountStatsOrder: {
             __typename?: 'AccountStatsOrder';
             donationAmount: number;
@@ -404,6 +406,7 @@ export type PostsByUserIdQuery = {
           avatar?: string | null;
           createCommentFee?: string | null;
           telegramUsername?: string | null;
+          anonymousUsernameLocalecash?: string | null;
           accountStatsOrder: {
             __typename?: 'AccountStatsOrder';
             donationAmount: number;
@@ -584,6 +587,7 @@ export type PostsByHashtagIdQuery = {
           avatar?: string | null;
           createCommentFee?: string | null;
           telegramUsername?: string | null;
+          anonymousUsernameLocalecash?: string | null;
           accountStatsOrder: {
             __typename?: 'AccountStatsOrder';
             donationAmount: number;
@@ -764,6 +768,7 @@ export type PostsByTokenIdQuery = {
           avatar?: string | null;
           createCommentFee?: string | null;
           telegramUsername?: string | null;
+          anonymousUsernameLocalecash?: string | null;
           accountStatsOrder: {
             __typename?: 'AccountStatsOrder';
             donationAmount: number;
@@ -1612,6 +1617,7 @@ export type PostFieldsFragment = {
     avatar?: string | null;
     createCommentFee?: string | null;
     telegramUsername?: string | null;
+    anonymousUsernameLocalecash?: string | null;
     accountStatsOrder: {
       __typename?: 'AccountStatsOrder';
       donationAmount: number;
@@ -1898,6 +1904,7 @@ export type CreatePostMutation = {
       avatar?: string | null;
       createCommentFee?: string | null;
       telegramUsername?: string | null;
+      anonymousUsernameLocalecash?: string | null;
       accountStatsOrder: {
         __typename?: 'AccountStatsOrder';
         donationAmount: number;
@@ -2056,6 +2063,7 @@ export type UpdatePostMutation = {
       avatar?: string | null;
       createCommentFee?: string | null;
       telegramUsername?: string | null;
+      anonymousUsernameLocalecash?: string | null;
       accountStatsOrder: {
         __typename?: 'AccountStatsOrder';
         donationAmount: number;
@@ -2220,6 +2228,7 @@ export type RemovePostMutation = {
       avatar?: string | null;
       createCommentFee?: string | null;
       telegramUsername?: string | null;
+      anonymousUsernameLocalecash?: string | null;
       accountStatsOrder: {
         __typename?: 'AccountStatsOrder';
         donationAmount: number;
@@ -2415,6 +2424,7 @@ export const PostFieldsFragmentDoc = `
     avatar
     createCommentFee
     telegramUsername
+    anonymousUsernameLocalecash
     accountStatsOrder {
       donationAmount
       completedOrder

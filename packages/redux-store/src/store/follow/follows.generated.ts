@@ -69,6 +69,7 @@ export type AllFollowersByFollowingQuery = {
         telegramUsername?: string | null;
         role: Types.Role;
         localeCashPathAvatar?: string | null;
+        anonymousUsernameLocalecash?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -154,6 +155,7 @@ export type AllFollowingsByFollowerQuery = {
         telegramUsername?: string | null;
         role: Types.Role;
         localeCashPathAvatar?: string | null;
+        anonymousUsernameLocalecash?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';

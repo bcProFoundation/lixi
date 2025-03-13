@@ -47,6 +47,7 @@ export type AccountQuery = {
     telegramUsername?: string | null;
     role: Types.Role;
     localeCashPathAvatar?: string | null;
+    anonymousUsernameLocalecash?: string | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -111,6 +112,7 @@ export type GetAccountByAddressQuery = {
     telegramUsername?: string | null;
     role: Types.Role;
     localeCashPathAvatar?: string | null;
+    anonymousUsernameLocalecash?: string | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -183,6 +185,7 @@ export type AllFollowersByPageQuery = {
         telegramUsername?: string | null;
         role: Types.Role;
         localeCashPathAvatar?: string | null;
+        anonymousUsernameLocalecash?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -258,6 +261,7 @@ export type AllFollowersByTokenQuery = {
         telegramUsername?: string | null;
         role: Types.Role;
         localeCashPathAvatar?: string | null;
+        anonymousUsernameLocalecash?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -332,6 +336,7 @@ export type AccountsQuery = {
         telegramUsername?: string | null;
         role: Types.Role;
         localeCashPathAvatar?: string | null;
+        anonymousUsernameLocalecash?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -408,6 +413,7 @@ export type TopWeekAccountsQuery = {
         telegramUsername?: string | null;
         role: Types.Role;
         localeCashPathAvatar?: string | null;
+        anonymousUsernameLocalecash?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -484,6 +490,7 @@ export type TopMonthAccountsQuery = {
         telegramUsername?: string | null;
         role: Types.Role;
         localeCashPathAvatar?: string | null;
+        anonymousUsernameLocalecash?: string | null;
         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
         accountDana?: {
           __typename?: 'AccountDana';
@@ -549,6 +556,7 @@ export type AccountFieldsFragment = {
   telegramUsername?: string | null;
   role: Types.Role;
   localeCashPathAvatar?: string | null;
+  anonymousUsernameLocalecash?: string | null;
   pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
   accountDana?: {
     __typename?: 'AccountDana';
@@ -612,6 +620,7 @@ export type UpdateAccountMutation = {
     telegramUsername?: string | null;
     role: Types.Role;
     localeCashPathAvatar?: string | null;
+    anonymousUsernameLocalecash?: string | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -677,6 +686,7 @@ export type UpdateAccountTelegramUsernameMutation = {
     telegramUsername?: string | null;
     role: Types.Role;
     localeCashPathAvatar?: string | null;
+    anonymousUsernameLocalecash?: string | null;
     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
     accountDana?: {
       __typename?: 'AccountDana';
@@ -762,6 +772,7 @@ export const AccountFieldsFragmentDoc = `
     accountNumberApp
   }
   localeCashPathAvatar
+  anonymousUsernameLocalecash
 }
     `;
 export const AccountDocument = `

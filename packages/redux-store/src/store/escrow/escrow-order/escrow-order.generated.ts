@@ -46,7 +46,13 @@ export type EscrowOrderQuery = {
     updatedAt: any;
     markAsPaid?: boolean | null;
     escrowOrderStatus: Types.EscrowOrderStatus;
-    arbitratorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
+    arbitratorAccount: {
+      __typename?: 'Account';
+      id: number;
+      publicKey?: string | null;
+      hash160?: string | null;
+      anonymousUsernameLocalecash?: string | null;
+    };
     buyerAccount: {
       __typename?: 'Account';
       id: number;
@@ -54,6 +60,7 @@ export type EscrowOrderQuery = {
       hash160?: string | null;
       telegramId?: string | null;
       telegramUsername?: string | null;
+      anonymousUsernameLocalecash?: string | null;
     };
     sellerAccount: {
       __typename?: 'Account';
@@ -62,8 +69,15 @@ export type EscrowOrderQuery = {
       hash160?: string | null;
       telegramId?: string | null;
       telegramUsername?: string | null;
+      anonymousUsernameLocalecash?: string | null;
     };
-    moderatorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
+    moderatorAccount: {
+      __typename?: 'Account';
+      id: number;
+      publicKey?: string | null;
+      hash160?: string | null;
+      anonymousUsernameLocalecash?: string | null;
+    };
     paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
     escrowOffer: {
       __typename?: 'Offer';
@@ -150,7 +164,13 @@ export type AllEscrowOrderByAccountQuery = {
         updatedAt: any;
         markAsPaid?: boolean | null;
         escrowOrderStatus: Types.EscrowOrderStatus;
-        arbitratorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
+        arbitratorAccount: {
+          __typename?: 'Account';
+          id: number;
+          publicKey?: string | null;
+          hash160?: string | null;
+          anonymousUsernameLocalecash?: string | null;
+        };
         buyerAccount: {
           __typename?: 'Account';
           id: number;
@@ -158,6 +178,7 @@ export type AllEscrowOrderByAccountQuery = {
           hash160?: string | null;
           telegramId?: string | null;
           telegramUsername?: string | null;
+          anonymousUsernameLocalecash?: string | null;
         };
         sellerAccount: {
           __typename?: 'Account';
@@ -166,8 +187,15 @@ export type AllEscrowOrderByAccountQuery = {
           hash160?: string | null;
           telegramId?: string | null;
           telegramUsername?: string | null;
+          anonymousUsernameLocalecash?: string | null;
         };
-        moderatorAccount: { __typename?: 'Account'; id: number; publicKey?: string | null; hash160?: string | null };
+        moderatorAccount: {
+          __typename?: 'Account';
+          id: number;
+          publicKey?: string | null;
+          hash160?: string | null;
+          anonymousUsernameLocalecash?: string | null;
+        };
         paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
         escrowOffer: {
           __typename?: 'Offer';
@@ -287,6 +315,7 @@ export type AllEscrowOrderByOfferIdQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               buyerAccount: {
                 __typename?: 'Account';
@@ -295,6 +324,7 @@ export type AllEscrowOrderByOfferIdQuery = {
                 hash160?: string | null;
                 telegramId?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               sellerAccount: {
                 __typename?: 'Account';
@@ -303,12 +333,14 @@ export type AllEscrowOrderByOfferIdQuery = {
                 hash160?: string | null;
                 telegramId?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               moderatorAccount: {
                 __typename?: 'Account';
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: {
@@ -370,6 +402,7 @@ export type AllEscrowOrderByOfferIdQuery = {
                 avatar?: string | null;
                 createCommentFee?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;

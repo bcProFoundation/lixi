@@ -140,6 +140,10 @@ export class Account {
   @IsOptional()
   localeCashPathAvatar?: Nullable<string>;
 
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  anonymousUsernameLocalecash?: Nullable<string>;
+
   @Field(() => Role)
   role: Role;
 
