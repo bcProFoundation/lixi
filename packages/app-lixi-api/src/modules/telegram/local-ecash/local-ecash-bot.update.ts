@@ -301,7 +301,9 @@ Are you ready? Let's get started.
       }
     });
 
-    if (!mods || mods.length === 0 || mods[0]?.telegramId !== ctx?.message?.from?.id?.toString()) {
+    const findedMod = mods.filter(mod => mod?.telegramId === ctx?.message?.from?.id?.toString());
+
+    if (!findedMod) {
       infoMessage = ` Only moderators can use this command.`;
       await ctx.reply(infoMessage, {
         parse_mode: 'Markdown'

@@ -340,7 +340,7 @@ export class OfferResolver {
         'XEC';
 
       //id - link - message - margin - orderLimit - paymentMethod - location
-      const link = `https://t.me/${this.configService.get<string>('TELEGRAM_LOCAL_ECASH_BOT_NAME')}?startapp=offer__detail__${offerData?.postId}`;
+      const link = `${this.configService.get('LOCAL_ECASH_URL')}/offer-detail?id=${result.id}`;
       let formatReplied =
         strLocation && strLocation !== ''
           ? format(
@@ -384,7 +384,7 @@ export class OfferResolver {
                 [
                   {
                     text: 'Open Web App',
-                    url: `${this.configService.get('LOCAL_ECASH_URL')}/offer-detail?id=${result.id}`
+                    url: link
                   }
                 ]
               ]

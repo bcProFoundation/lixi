@@ -163,7 +163,7 @@ export class BoostFeeResolver {
       //notify to channel
       if (offerBoosted) {
         const channelId = this.configService.get<string>('TELEGRAM_CHANNEL_ID') ?? -1002199386416;
-        const link = `https://t.me/${process.env.TELEGRAM_LOCAL_ECASH_BOT_NAME}?startapp=offer__detail__${boostForId}`;
+        const link = `${this.configService.get('LOCAL_ECASH_URL')}/offer-detail?id=${boostForId}`;
         const paymentMethodIds = offerBoosted.offer?.paymentMethods.map(item => item.paymentMethodId);
         const paymenMethod = await this.prisma.paymentMethod.findMany({
           where: {
