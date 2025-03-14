@@ -1,0 +1,783 @@
+diff --git a/packages/app-lixi-api/package.json b/packages/app-lixi-api/package.json
+index 3100527d..ffeca7c7 100644
+--- a/packages/app-lixi-api/package.json
++++ b/packages/app-lixi-api/package.json
+@@ -40,6 +40,7 @@
+     "update:resetAccountCache": "ts-node scripts/account/reset-account/index.ts",
+     "update:resetBurnAndViewScore": "ts-node scripts/burn/index.ts",
+     "update:resetRedisSearch": "ts-node scripts/RedisSearch/index.ts",
++    "update:addFieldToRedisSearch": "ts-node scripts/RedisSearch/add-field-to-index.ts",
+     "update:resetMyOfferCache": "ts-node scripts/offer/reset-offer/index.ts",
+     "update:addOfferToCache": "ts-node scripts/offer/index.ts",
+     "update:resetEscrow": "ts-node scripts/offer/reset-escrow/index.ts",
+diff --git a/packages/app-lixi-api/schema.graphql b/packages/app-lixi-api/schema.graphql
+index 7b8cd389..ec189771 100644
+--- a/packages/app-lixi-api/schema.graphql
++++ b/packages/app-lixi-api/schema.graphql
+@@ -26,6 +26,7 @@ type Account {
+   hash160: String
+   id: Int!
+   language: String!
++  localeCashPathAvatar: String
+   messages: [Message!]
+   mnemonic: String
+   mnemonicHash: String
+@@ -1152,6 +1153,7 @@ input OfferFilterInput {
+   countryName: String
+   fiatCurrency: String
+   isBuyOffer: Boolean
++  paymentApp: String
+   paymentMethodIds: [Int!]
+   stateName: String
+ }
+@@ -1680,9 +1682,9 @@ type Query {
+   getAllFiatRate: [AllFiatRates!]!
+   getBalances(address: String!): Balances!
+   getFiatRate: [FiatRates!]!
+-  getLocaleCashAvatar(accountId: Int!): String
+   getModeratorAccount: Account!
+   getRandomArbitratorAccount(offerId: String!): Account!
++  getTelegramAvatarPath: String
+   hashtag(content: String!): Hashtag!
+   homeTimeline(after: String, first: Int, level: Int, skip: Int): TimelineItemConnection!
+   message(id: String!): Message!
+diff --git a/packages/app-lixi-api/scripts/RedisSearch/add-field-to-index.ts b/packages/app-lixi-api/scripts/RedisSearch/add-field-to-index.ts
+new file mode 100644
+index 00000000..2261dba2
+--- /dev/null
++++ b/packages/app-lixi-api/scripts/RedisSearch/add-field-to-index.ts
+@@ -0,0 +1,32 @@
++import { PrismaClient } from '@bcpros/lixi-prisma';
++import ReSearch from '../../src/common/redis/redis-search'
++import { Redis } from 'ioredis';
++import * as _ from 'lodash';
++import { IndexNameBuyOffer, IndexNameOffer} from '../../src/modules/escrow/escrow.contants';
++require('dotenv').config();
++
++const prismaClient = new PrismaClient();
++const redis = new Redis({
++  port: Number(process.env.REDIS_PORT) ?? 6379,
++  host: process.env.REDIS_HOST
++});
++
++async function main() {
++  const reSearch = new ReSearch(redis);
++  const newField = {
++    field: 'paymentApp',
++    type: 'TEXT'
++  }
++  await reSearch.ensureFieldExistsInIndex(IndexNameOffer, newField.field, newField.type);
++  await reSearch.ensureFieldExistsInIndex(IndexNameBuyOffer, newField.field, newField.type);
++}
++
++main()
++  .catch(e => {
++    console.error(e);
++    process.exit(1);
++  })
++  .finally(async () => {
++    await prismaClient.$disconnect();
++    console.log("Finish!!")
++  });
+diff --git a/packages/app-lixi-api/src/common/redis/redis-search.ts b/packages/app-lixi-api/src/common/redis/redis-search.ts
+index 11b8fd6c..7923a3f8 100644
+--- a/packages/app-lixi-api/src/common/redis/redis-search.ts
++++ b/packages/app-lixi-api/src/common/redis/redis-search.ts
+@@ -4,7 +4,7 @@ import { EventEmitter } from 'stream';
+ const keyPrefix = 'lixilotus:';
+ 
+ export default class ReSearch extends EventEmitter {
+-  commands = ['FT.CREATE', 'JSON.SET', 'FT.SEARCH', 'FT._LIST', 'FT.INFO', 'FT.DROPINDEX'];
++  commands = ['FT.CREATE', 'JSON.SET', 'FT.SEARCH', 'FT._LIST', 'FT.INFO', 'FT.DROPINDEX', 'FT.ALTER'];
+   cmds: any = {};
+   client: Redis;
+   constructor(redis: Redis) {
+@@ -55,6 +55,50 @@ export default class ReSearch extends EventEmitter {
+     return cmd.call(this.client, indexName, 'ON', strType, ...prefix, 'SCHEMA', ...schemaCreated);
+   }
+ 
++  async ensureFieldExistsInIndex(indexName: string, fieldName: string, fieldType: string): Promise<boolean> {
++    try {
++      // Get index info
++      const indexInfo = await this.info(indexName);
++
++      // Find the attributes section in the response
++      // FT.INFO returns an array where even indices are keys and odd indices are values
++      let attributesArray = null;
++      for (let i = 0; i < indexInfo.length; i += 2) {
++        if (indexInfo[i] === 'attributes') {
++          attributesArray = indexInfo[i + 1];
++          break;
++        }
++      }
++
++      if (!attributesArray || !Array.isArray(attributesArray)) {
++        return false;
++      }
++
++      // Check if our field exists in the attributes array
++      let fieldExists = false;
++
++      for (const attribute of attributesArray) {
++        if (Array.isArray(attribute)) {
++          // check field: example return-currency: ['identifier', '$.currency', 'attribute','currency', 'type', 'TEXT', 'WEIGHT', '1']
++          if (attribute[1] === `$.${fieldName}` || attribute[3] === fieldName) {
++            fieldExists = true;
++            break;
++          }
++        }
++      }
++
++      // Add the field if it doesn't exist
++      if (!fieldExists) {
++        const cmd = this.cmds['FT.ALTER'];
++        await cmd.call(this.client, indexName, 'SCHEMA', 'ADD', `$.${fieldName}`, 'AS', fieldName, fieldType);
++      }
++
++      return true;
++    } catch (error) {
++      return false;
++    }
++  }
++
+   list(): Promise<string[]> {
+     const cmd = this.cmds['FT._LIST'];
+     return cmd.call(this.client);
+diff --git a/packages/app-lixi-api/src/modules/account/account.loader.ts b/packages/app-lixi-api/src/modules/account/account.loader.ts
+index 5a580c27..795d5711 100644
+--- a/packages/app-lixi-api/src/modules/account/account.loader.ts
++++ b/packages/app-lixi-api/src/modules/account/account.loader.ts
+@@ -82,6 +82,14 @@ export default class AccountLoader {
+     return bankInfos;
+   });
+ 
++  public readonly batchLocaleCashPathAvatar = new DataLoader<string, string | null>(async (ids: readonly string[]) => {
++    const accountIds = [...ids];
++
++    const results = await this.redis.hmget(KEY_AVATAR_PATH, ...accountIds);
++
++    return results.map(result => result || null);
++  });
++
+   public readonly batchFollowersCount = new DataLoader<number, number>(async (ids: readonly number[]) => {
+     const accountIds = ids as unknown as number[];
+     const accountFollowersCounts = await this.followCacheService.getAccountFollowersCounts(accountIds);
+diff --git a/packages/app-lixi-api/src/modules/account/account.resolver.ts b/packages/app-lixi-api/src/modules/account/account.resolver.ts
+index 9be52902..9c42a5c0 100644
+--- a/packages/app-lixi-api/src/modules/account/account.resolver.ts
++++ b/packages/app-lixi-api/src/modules/account/account.resolver.ts
+@@ -168,8 +168,7 @@ export class AccountResolver {
+ 
+   @Query(() => String, { nullable: true })
+   @UseGuards(GqlJwtAuthGuard)
+-  async getLocaleCashAvatar(@Args('accountId', { type: () => Number }) accountId: number) {
+-    const account = await this.accountCacheService.getById(accountId);
++  async getTelegramAvatarPath(@AccountEntity() account: Account) {
+     if (!account) {
+       throw new Error('Account not found');
+     }
+@@ -177,62 +176,33 @@ export class AccountResolver {
+       const botToken = this.configService.get('TELEGRAM_LOCAL_ECASH_BOT_TOKEN');
+       const telegramId = account.telegramId;
+ 
+-      if (!telegramId) {
+-        this.logger.warn(`No Telegram ID found for account ${account.id}`);
+-        return null;
+-      }
+-
+-      let filePath = await this.redis.hget(KEY_AVATAR_PATH, account.id.toString());
+-
+-      // If no cached path, fetch from Telegram API
+-      if (!filePath) {
+-        // Get user profile photos
+-        const photoResponse = await firstValueFrom(
+-          this.httpService.get(`https://api.telegram.org/bot${botToken}/getUserProfilePhotos`, {
+-            params: { user_id: telegramId, limit: 1 }
+-          })
+-        );
+-
+-        if (!photoResponse.data.ok || !photoResponse.data.result.photos.length) {
+-          return null;
+-        }
+-
+-        // Get file path
+-        const fileId = photoResponse.data.result.photos[0][0].file_id;
+-        const fileResponse = await firstValueFrom(
+-          this.httpService.get(`https://api.telegram.org/bot${botToken}/getFile`, {
+-            params: { file_id: fileId }
+-          })
+-        );
+-
+-        if (!fileResponse.data.ok) {
+-          this.logger.warn(`Failed to get file info for Telegram photo ${fileId}`);
+-          return null;
+-        }
+-
+-        filePath = fileResponse.data.result.file_path;
++      // Get user profile photos
++      const photoResponse = await firstValueFrom(
++        this.httpService.get(`https://api.telegram.org/bot${botToken}/getUserProfilePhotos`, {
++          params: { user_id: telegramId, limit: 1 }
++        })
++      );
+ 
+-        // store in redis
+-        await this.redis.hset(KEY_AVATAR_PATH, account.id, filePath as string);
+-        await this.redis.expire(KEY_AVATAR_PATH, 60 * 30); // 30 minutes
++      if (!photoResponse.data.ok || !photoResponse.data.result.photos.length) {
++        return;
+       }
+ 
+-      const imageUrl = `https://api.telegram.org/file/bot${botToken}/${filePath}`;
+-
+-      const imageResponse = await firstValueFrom(
+-        this.httpService.get(imageUrl, {
+-          responseType: 'arraybuffer'
+-        })
++      // Get file path
++      const fileId = photoResponse.data.result.photos[0][0].file_id;
++      const fileResponse = await firstValueFrom(
++        this.httpService.get(`https://api.telegram.org/bot${botToken}/getFile`, { params: { file_id: fileId } })
+       );
+ 
+-      const contentType = imageResponse.headers['content-type'] || 'image/jpeg';
++      if (!fileResponse.data.ok) {
++        return null;
++      }
++
++      const filePath = fileResponse.data.result.file_path;
+ 
+-      // Convert buffer to base64 and create a data URL
+-      const imageBuffer = Buffer.from(imageResponse.data);
+-      const base64Image = imageBuffer.toString('base64');
+-      const dataUrl = `data:${contentType};base64,${base64Image}`;
++      // Store the path
++      await this.redis.hset(KEY_AVATAR_PATH, account.id, filePath);
+ 
+-      return dataUrl;
++      return filePath;
+     } catch (err) {
+       this.logger.error(err);
+     }
+@@ -547,4 +517,9 @@ export class AccountResolver {
+   async bankInfo(@Parent() account: Account) {
+     return this.accountLoader.batchBankInfo.load(account.id.toString());
+   }
++
++  @ResolveField('localeCashPathAvatar', () => String)
++  async localeCashPathAvatar(@Parent() account: Account) {
++    return this.accountLoader.batchLocaleCashPathAvatar.load(account.id.toString());
++  }
+ }
+diff --git a/packages/app-lixi-api/src/modules/boost-fee/boost-fanout.process.ts b/packages/app-lixi-api/src/modules/boost-fee/boost-fanout.process.ts
+index a4736607..01e022c7 100644
+--- a/packages/app-lixi-api/src/modules/boost-fee/boost-fanout.process.ts
++++ b/packages/app-lixi-api/src/modules/boost-fee/boost-fanout.process.ts
+@@ -92,6 +92,11 @@ export class BoostFanoutProcessor extends WorkerHost {
+         pipeline.zincrby(keyCoin, score, timelineId);
+       }
+ 
++      if (post.offer?.paymentApp) {
++        const keyPaymentApp = `${prefixOfferCache}paymentApp:{${post.offer.paymentApp}}`;
++        pipeline.zincrby(keyPaymentApp, score, timelineId);
++      }
++
+       if (post.offer?.localCurrency) {
+         const keyCurrency = `${prefixOfferCache}currency:{${post.offer.localCurrency}}`;
+         pipeline.zincrby(keyCurrency, score, timelineId);
+@@ -103,7 +108,7 @@ export class BoostFanoutProcessor extends WorkerHost {
+ 
+       //search item
+       const methodIds = post?.offer?.paymentMethods?.map(item => item.paymentMethodId).join('|'); // 1|2|3
+-      const queryItem = `@countryCode:${countryCode}|@adminCode:${adminCode}|@city:${cityName}|@coin:${post?.offer?.coinPayment}|@currency:${post?.offer?.localCurrency}|@methods:{${methodIds}}`;
++      const queryItem = `@countryCode:${countryCode}|@adminCode:${adminCode}|@city:${cityName}|@coin:${post?.offer?.coinPayment}|@currency:${post?.offer?.localCurrency}|@paymentApp:${post?.offer?.paymentApp}|@methods:{${methodIds}}`;
+       const searchResult = await reSearch.search(isBuyOffer ? IndexNameBuyOffer : IndexNameOffer, queryItem);
+       //add item to search result
+       if (searchResult.length > 0) {
+diff --git a/packages/app-lixi-api/src/modules/boost-fee/boostFee.resolver.ts b/packages/app-lixi-api/src/modules/boost-fee/boostFee.resolver.ts
+index 31f3cf01..1dc2f81c 100644
+--- a/packages/app-lixi-api/src/modules/boost-fee/boostFee.resolver.ts
++++ b/packages/app-lixi-api/src/modules/boost-fee/boostFee.resolver.ts
+@@ -163,7 +163,7 @@ export class BoostFeeResolver {
+       //notify to channel
+       if (offerBoosted) {
+         const channelId = this.configService.get<string>('TELEGRAM_CHANNEL_ID') ?? -1002199386416;
+-        const link = `${this.configService.get('LOCAL_ECASH_URL')}/offer-detail?id=${boostForId}`;
++        const link = `https://t.me/${process.env.TELEGRAM_LOCAL_ECASH_BOT_NAME}?startapp=offer__detail__${boostForId}`;
+         const paymentMethodIds = offerBoosted.offer?.paymentMethods.map(item => item.paymentMethodId);
+         const paymenMethod = await this.prisma.paymentMethod.findMany({
+           where: {
+diff --git a/packages/app-lixi-api/src/modules/escrow/offer/offer-cache.service.ts b/packages/app-lixi-api/src/modules/escrow/offer/offer-cache.service.ts
+index 30f28ff6..9855760c 100644
+--- a/packages/app-lixi-api/src/modules/escrow/offer/offer-cache.service.ts
++++ b/packages/app-lixi-api/src/modules/escrow/offer/offer-cache.service.ts
+@@ -363,7 +363,7 @@ export class OfferCacheService {
+     try {
+       const reSearch = new ReSearch(this.redis);
+       const prefixOfferCache = `${isBuyOffer ? KeyCacheNameBuyOffer : KeyCacheNameOffer}:`;
+-      const { countryCode, adminCode, cityName, paymentMethodIds, coin, fiatCurrency } = offerFilterInput;
++      const { countryCode, adminCode, cityName, paymentMethodIds, coin, fiatCurrency, paymentApp } = offerFilterInput;
+ 
+       // STEP 1: Handle Payment Methods
+       let keyPaymentMethods = '';
+@@ -418,6 +418,12 @@ export class OfferCacheService {
+           prefixKey: 'currency',
+           isLocation: false,
+           cacheFn: (val: string) => this.cacheOfferCurrency(prefixOfferCache, val)
++        },
++        {
++          value: paymentApp,
++          prefixKey: 'paymentApp',
++          isLocation: false,
++          cacheFn: (val: string) => this.cacheOfferPaymentApp(prefixOfferCache, val)
+         }
+       ];
+       //count total key intersect
+@@ -658,6 +664,47 @@ export class OfferCacheService {
+     }
+   }
+ 
++  private async cacheOfferPaymentApp(prefixOfferCache: string, paymentApp: string) {
++    const key = `${prefixOfferCache}paymentApp:{${paymentApp}}`;
++    const postBoostType = BoostForType.Post;
++    const halfLife = '168 hours';
++    const query = Prisma.sql`
++      SELECT
++        offer.post_id,
++        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value)) AS score 
++      FROM
++        offer 
++        JOIN
++            boost_fee as boost 
++            ON offer.post_id = boost.boosted_for_id
++      WHERE
++        boost.boost_for_type = ${postBoostType} 
++        AND boost.boosted_value > 0
++        AND offer.payment_app = ${paymentApp}
++        AND offer.hide_from_home = false
++      GROUP BY
++        offer.post_id
++      ORDER by
++        score desc
++    ;`;
++    try {
++      const posts = await this.prisma.$queryRaw<{ post_id: string; score: number }[]>(query);
++
++      // Check if there are any posts
++      // If not means that we should not need to query anymore
++      if (posts.length == 0) return false;
++      const pipeline = this.redis.pipeline();
++      for (const post of posts) {
++        const id = `${POST_TYPE.OFFER}:${post.post_id}`;
++        pipeline.zincrby(key, post.score ?? 0, id);
++      }
++      await pipeline.exec();
++      return true;
++    } catch (err) {
++      this.logger.error(err);
++    }
++  }
++
+   private async cacheOfferCurrency(prefixOfferCache: string, currency: string) {
+     const key = `${prefixOfferCache}currency:{${currency}}`;
+     const postBoostType = BoostForType.Post;
+diff --git a/packages/app-lixi-api/src/modules/escrow/offer/offer.resolver.ts b/packages/app-lixi-api/src/modules/escrow/offer/offer.resolver.ts
+index 89b10b34..d5f9a874 100644
+--- a/packages/app-lixi-api/src/modules/escrow/offer/offer.resolver.ts
++++ b/packages/app-lixi-api/src/modules/escrow/offer/offer.resolver.ts
+@@ -114,7 +114,8 @@ export class OfferResolver {
+       cityName: offerFilterInput.cityName ? replaceDashWithUnderscore(offerFilterInput.cityName) : null,
+       paymentMethodIds: offerFilterInput.paymentMethodIds,
+       coin: offerFilterInput.coin ?? null,
+-      fiatCurrency: offerFilterInput.fiatCurrency ?? null
++      fiatCurrency: offerFilterInput.fiatCurrency ?? null,
++      paymentApp: offerFilterInput.paymentApp ?? null
+     };
+     const paginated = await this.offerCacheService.getOfferFilterPaginatedTimeline(
+       isBuyOffer,
+@@ -340,7 +341,7 @@ export class OfferResolver {
+         'XEC';
+ 
+       //id - link - message - margin - orderLimit - paymentMethod - location
+-      const link = `${this.configService.get('LOCAL_ECASH_URL')}/offer-detail?id=${result.id}`;
++      const link = `https://t.me/${this.configService.get<string>('TELEGRAM_LOCAL_ECASH_BOT_NAME')}?startapp=offer__detail__${offerData?.postId}`;
+       let formatReplied =
+         strLocation && strLocation !== ''
+           ? format(
+@@ -384,7 +385,7 @@ export class OfferResolver {
+                 [
+                   {
+                     text: 'Open Web App',
+-                    url: link
++                    url: `${this.configService.get('LOCAL_ECASH_URL')}/offer-detail?id=${result.id}`
+                   }
+                 ]
+               ]
+diff --git a/packages/app-lixi-api/src/modules/page/post-fanout.processor.ts b/packages/app-lixi-api/src/modules/page/post-fanout.processor.ts
+index 146058a4..013918a3 100644
+--- a/packages/app-lixi-api/src/modules/page/post-fanout.processor.ts
++++ b/packages/app-lixi-api/src/modules/page/post-fanout.processor.ts
+@@ -211,6 +211,11 @@ export class PostFanoutProcessor extends WorkerHost {
+           pipeline.zincrby(keyCoin, offer_score, timelineId);
+         }
+ 
++        if (post.offer?.paymentApp) {
++          const keyPaymentApp = `${prefixOfferCache}paymentApp:{${post.offer.paymentApp}}`;
++          pipeline.zincrby(keyPaymentApp, offer_score, timelineId);
++        }
++
+         if (post.offer?.localCurrency) {
+           const keyCurrency = `${prefixOfferCache}currency:{${post.offer.localCurrency}}`;
+           pipeline.zincrby(keyCurrency, offer_score, timelineId);
+@@ -223,7 +228,7 @@ export class PostFanoutProcessor extends WorkerHost {
+ 
+         // Build a query for searching relevant items
+         const methodIds = post?.offer?.paymentMethods?.map(item => item.paymentMethodId).join('|'); // 1|2|3
+-        const queryItem = `@countryCode:${countryCode}|@adminCode:${adminCode}|@city:${cityName}|@coin:${post?.offer?.coinPayment}|@currency:${post?.offer?.localCurrency}|@methods:{${methodIds}}`;
++        const queryItem = `@countryCode:${countryCode}|@adminCode:${adminCode}|@city:${cityName}|@coin:${post?.offer?.coinPayment}|@currency:${post?.offer?.localCurrency}|@paymentApp:${post?.offer?.paymentApp}|@methods:{${methodIds}}`;
+         const indexName = isBuyOffer ? IndexNameBuyOffer : IndexNameOffer;
+         const searchResult = await reSearch.search(indexName, queryItem);
+         // add item to search result
+diff --git a/packages/app-lixi-api/src/modules/telegram/local-ecash/local-ecash-bot.update.ts b/packages/app-lixi-api/src/modules/telegram/local-ecash/local-ecash-bot.update.ts
+index 164b33a8..e54c9626 100644
+--- a/packages/app-lixi-api/src/modules/telegram/local-ecash/local-ecash-bot.update.ts
++++ b/packages/app-lixi-api/src/modules/telegram/local-ecash/local-ecash-bot.update.ts
+@@ -301,9 +301,7 @@ Are you ready? Let's get started.
+       }
+     });
+ 
+-    const findedMod = mods.filter(mod => mod?.telegramId === ctx?.message?.from?.id?.toString());
+-
+-    if (!findedMod) {
++    if (!mods || mods.length === 0 || mods[0]?.telegramId !== ctx?.message?.from?.id?.toString()) {
+       infoMessage = ` Only moderators can use this command.`;
+       await ctx.reply(infoMessage, {
+         parse_mode: 'Markdown'
+@@ -339,8 +337,8 @@ Are you ready? Let's get started.
+     return ` - Total Amount Donated: *${info.amount_donated}* XEC
+      - Successful Trades: *${(info.success_ratio * 100)?.toFixed(0)}%* 
+      - Average Settle Time: *${info.avg_settle_time ? info.avg_settle_time?.toFixed(2) : '0'} hours*
+-     - Total Traded: *${info.total_trades}* 
+-     - Total Amount Trades: *${info.amount_traded ? info.amount_traded?.toLocaleString('en-US') : '0'}* XEC
++     - Total Trades: *${info.total_trades}* 
++     - Total Amount Traded: *${info.amount_traded ? info.amount_traded?.toLocaleString('en-US') : '0'}* XEC
+      - Unique Trades: *${info.unique_trade_count}*
+     `;
+   }
+diff --git a/packages/app-lixi-api/src/utils/escrow/offer.ts b/packages/app-lixi-api/src/utils/escrow/offer.ts
+index 9a431857..ead73717 100644
+--- a/packages/app-lixi-api/src/utils/escrow/offer.ts
++++ b/packages/app-lixi-api/src/utils/escrow/offer.ts
+@@ -20,7 +20,8 @@ export async function createIndexOffer(reSearch: ReSearch, offerType: OfferType)
+       city: 'TEXT',
+       methods: 'TAG',
+       coin: 'TEXT',
+-      currency: 'TEXT'
++      currency: 'TEXT',
++      paymentApp: 'TEXT'
+     });
+   }
+ }
+diff --git a/packages/lixi-models/src/constants/escrow/paymentMethod.ts b/packages/lixi-models/src/constants/escrow/paymentMethod.ts
+index 8a17b1d0..606cbd65 100644
+--- a/packages/lixi-models/src/constants/escrow/paymentMethod.ts
++++ b/packages/lixi-models/src/constants/escrow/paymentMethod.ts
+@@ -1,4 +1,5 @@
+ export const PAYMENT_METHOD = {
++  FIAT_CURRENCY: 0,
+   CASH_IN_PERSON: 1,
+   BANK_TRANSFER: 2,
+   PAYMENT_APP: 3,
+diff --git a/packages/lixi-models/src/lib/account/account.model.ts b/packages/lixi-models/src/lib/account/account.model.ts
+index 034d26a2..cff20983 100644
+--- a/packages/lixi-models/src/lib/account/account.model.ts
++++ b/packages/lixi-models/src/lib/account/account.model.ts
+@@ -136,6 +136,10 @@ export class Account {
+   @IsOptional()
+   telegramUsername?: Nullable<string>;
+ 
++  @Field(() => String, { nullable: true })
++  @IsOptional()
++  localeCashPathAvatar?: Nullable<string>;
++
+   @Field(() => Role)
+   role: Role;
+ 
+diff --git a/packages/lixi-models/src/lib/escrow/inputs/offer/offer-filter.input.ts b/packages/lixi-models/src/lib/escrow/inputs/offer/offer-filter.input.ts
+index ce109cc9..1e82def7 100644
+--- a/packages/lixi-models/src/lib/escrow/inputs/offer/offer-filter.input.ts
++++ b/packages/lixi-models/src/lib/escrow/inputs/offer/offer-filter.input.ts
+@@ -27,6 +27,9 @@ export class OfferFilterInput {
+   @Field(() => String, { nullable: true })
+   coin?: Nullable<string>;
+ 
++  @Field(() => String, { nullable: true })
++  paymentApp?: Nullable<string>;
++
+   @Field(() => Boolean, { nullable: true })
+   isBuyOffer?: Nullable<boolean>;
+ }
+diff --git a/packages/redux-store/src/generated/types.generated.ts b/packages/redux-store/src/generated/types.generated.ts
+index c6fc7f9a..838aba7b 100644
+--- a/packages/redux-store/src/generated/types.generated.ts
++++ b/packages/redux-store/src/generated/types.generated.ts
+@@ -44,6 +44,7 @@ export type Account = {
+   hash160?: Maybe<Scalars['String']['output']>;
+   id: Scalars['Int']['output'];
+   language: Scalars['String']['output'];
++  localeCashPathAvatar?: Maybe<Scalars['String']['output']>;
+   messages?: Maybe<Array<Message>>;
+   mnemonic?: Maybe<Scalars['String']['output']>;
+   mnemonicHash?: Maybe<Scalars['String']['output']>;
+@@ -1356,6 +1357,7 @@ export type OfferFilterInput = {
+   countryName?: InputMaybe<Scalars['String']['input']>;
+   fiatCurrency?: InputMaybe<Scalars['String']['input']>;
+   isBuyOffer?: InputMaybe<Scalars['Boolean']['input']>;
++  paymentApp?: InputMaybe<Scalars['String']['input']>;
+   paymentMethodIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+   stateName?: InputMaybe<Scalars['String']['input']>;
+ };
+@@ -1805,9 +1807,9 @@ export type Query = {
+   getAllFiatRate: Array<AllFiatRates>;
+   getBalances: Balances;
+   getFiatRate: Array<FiatRates>;
+-  getLocaleCashAvatar?: Maybe<Scalars['String']['output']>;
+   getModeratorAccount: Account;
+   getRandomArbitratorAccount: Account;
++  getTelegramAvatarPath?: Maybe<Scalars['String']['output']>;
+   hashtag: Hashtag;
+   homeTimeline: TimelineItemConnection;
+   message: Message;
+@@ -2313,10 +2315,6 @@ export type QueryGetBalancesArgs = {
+   address: Scalars['String']['input'];
+ };
+ 
+-export type QueryGetLocaleCashAvatarArgs = {
+-  accountId: Scalars['Int']['input'];
+-};
+-
+ export type QueryGetRandomArbitratorAccountArgs = {
+   offerId: Scalars['String']['input'];
+ };
+diff --git a/packages/redux-store/src/store/account/accounts.api.ts b/packages/redux-store/src/store/account/accounts.api.ts
+index 01b9d8d2..c4b49800 100644
+--- a/packages/redux-store/src/store/account/accounts.api.ts
++++ b/packages/redux-store/src/store/account/accounts.api.ts
+@@ -6,7 +6,7 @@ const enhancedApi = api.enhanceEndpoints({
+     getAccountByAddress: {
+       providesTags: (result, error, arg) => ['Account']
+     },
+-    GetLocaleCashAvatar: {},
++    GetTelegramAvatarPath: {},
+     updateAccount: {
+       invalidatesTags: ['Account']
+     },
+@@ -38,8 +38,8 @@ export { enhancedApi as api };
+ export const {
+   useGetAccountByAddressQuery,
+   useLazyGetAccountByAddressQuery,
+-  useGetLocaleCashAvatarQuery,
+-  useLazyGetLocaleCashAvatarQuery,
++  useGetTelegramAvatarPathQuery,
++  useLazyGetTelegramAvatarPathQuery,
+   useUpdateAccountMutation,
+   useAllFollowersByPageQuery,
+   useLazyAllFollowersByPageQuery,
+diff --git a/packages/redux-store/src/store/account/accounts.generated.ts b/packages/redux-store/src/store/account/accounts.generated.ts
+index e17a73bd..1ef71321 100644
+--- a/packages/redux-store/src/store/account/accounts.generated.ts
++++ b/packages/redux-store/src/store/account/accounts.generated.ts
+@@ -46,6 +46,7 @@ export type AccountQuery = {
+     telegramId?: string | null;
+     telegramUsername?: string | null;
+     role: Types.Role;
++    localeCashPathAvatar?: string | null;
+     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+     accountDana?: {
+       __typename?: 'AccountDana';
+@@ -109,6 +110,7 @@ export type GetAccountByAddressQuery = {
+     telegramId?: string | null;
+     telegramUsername?: string | null;
+     role: Types.Role;
++    localeCashPathAvatar?: string | null;
+     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+     accountDana?: {
+       __typename?: 'AccountDana';
+@@ -180,6 +182,7 @@ export type AllFollowersByPageQuery = {
+         telegramId?: string | null;
+         telegramUsername?: string | null;
+         role: Types.Role;
++        localeCashPathAvatar?: string | null;
+         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+         accountDana?: {
+           __typename?: 'AccountDana';
+@@ -254,6 +257,7 @@ export type AllFollowersByTokenQuery = {
+         telegramId?: string | null;
+         telegramUsername?: string | null;
+         role: Types.Role;
++        localeCashPathAvatar?: string | null;
+         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+         accountDana?: {
+           __typename?: 'AccountDana';
+@@ -327,6 +331,7 @@ export type AccountsQuery = {
+         telegramId?: string | null;
+         telegramUsername?: string | null;
+         role: Types.Role;
++        localeCashPathAvatar?: string | null;
+         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+         accountDana?: {
+           __typename?: 'AccountDana';
+@@ -402,6 +407,7 @@ export type TopWeekAccountsQuery = {
+         telegramId?: string | null;
+         telegramUsername?: string | null;
+         role: Types.Role;
++        localeCashPathAvatar?: string | null;
+         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+         accountDana?: {
+           __typename?: 'AccountDana';
+@@ -477,6 +483,7 @@ export type TopMonthAccountsQuery = {
+         telegramId?: string | null;
+         telegramUsername?: string | null;
+         role: Types.Role;
++        localeCashPathAvatar?: string | null;
+         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+         accountDana?: {
+           __typename?: 'AccountDana';
+@@ -510,11 +517,9 @@ export type TopMonthAccountsQuery = {
+   };
+ };
+ 
+-export type GetLocaleCashAvatarQueryVariables = Types.Exact<{
+-  accountId: Types.Scalars['Int']['input'];
+-}>;
++export type GetTelegramAvatarPathQueryVariables = Types.Exact<{ [key: string]: never }>;
+ 
+-export type GetLocaleCashAvatarQuery = { __typename?: 'Query'; getLocaleCashAvatar?: string | null };
++export type GetTelegramAvatarPathQuery = { __typename?: 'Query'; getTelegramAvatarPath?: string | null };
+ 
+ export type AccountFieldsFragment = {
+   __typename?: 'Account';
+@@ -543,6 +548,7 @@ export type AccountFieldsFragment = {
+   telegramId?: string | null;
+   telegramUsername?: string | null;
+   role: Types.Role;
++  localeCashPathAvatar?: string | null;
+   pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+   accountDana?: {
+     __typename?: 'AccountDana';
+@@ -605,6 +611,7 @@ export type UpdateAccountMutation = {
+     telegramId?: string | null;
+     telegramUsername?: string | null;
+     role: Types.Role;
++    localeCashPathAvatar?: string | null;
+     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+     accountDana?: {
+       __typename?: 'AccountDana';
+@@ -669,6 +676,7 @@ export type UpdateAccountTelegramUsernameMutation = {
+     telegramId?: string | null;
+     telegramUsername?: string | null;
+     role: Types.Role;
++    localeCashPathAvatar?: string | null;
+     pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+     accountDana?: {
+       __typename?: 'AccountDana';
+@@ -753,6 +761,7 @@ export const AccountFieldsFragmentDoc = `
+     accountNameApp
+     accountNumberApp
+   }
++  localeCashPathAvatar
+ }
+     `;
+ export const AccountDocument = `
+@@ -859,9 +868,9 @@ export const TopMonthAccountsDocument = `
+ }
+     ${AccountFieldsFragmentDoc}
+ ${BasicPageInfoFieldsFragmentDoc}`;
+-export const GetLocaleCashAvatarDocument = `
+-    query GetLocaleCashAvatar($accountId: Int!) {
+-  getLocaleCashAvatar(accountId: $accountId)
++export const GetTelegramAvatarPathDocument = `
++    query GetTelegramAvatarPath {
++  getTelegramAvatarPath
+ }
+     `;
+ export const UpdateAccountDocument = `
+@@ -906,8 +915,8 @@ const injectedRtkApi = api.injectEndpoints({
+     topMonthAccounts: build.query<TopMonthAccountsQuery, TopMonthAccountsQueryVariables>({
+       query: variables => ({ document: TopMonthAccountsDocument, variables })
+     }),
+-    GetLocaleCashAvatar: build.query<GetLocaleCashAvatarQuery, GetLocaleCashAvatarQueryVariables>({
+-      query: variables => ({ document: GetLocaleCashAvatarDocument, variables })
++    GetTelegramAvatarPath: build.query<GetTelegramAvatarPathQuery, GetTelegramAvatarPathQueryVariables | void>({
++      query: variables => ({ document: GetTelegramAvatarPathDocument, variables })
+     }),
+     updateAccount: build.mutation<UpdateAccountMutation, UpdateAccountMutationVariables>({
+       query: variables => ({ document: UpdateAccountDocument, variables })
+diff --git a/packages/redux-store/src/store/account/accounts.graphql b/packages/redux-store/src/store/account/accounts.graphql
+index 982e7fdd..7d1bca4f 100644
+--- a/packages/redux-store/src/store/account/accounts.graphql
++++ b/packages/redux-store/src/store/account/accounts.graphql
+@@ -85,8 +85,8 @@ query topMonthAccounts($after: String, $first: Int = 19, $month: Int!, $year: In
+   }
+ }
+ 
+-query GetLocaleCashAvatar($accountId: Int!) {
+-  getLocaleCashAvatar(accountId: $accountId) 
++query GetTelegramAvatarPath {
++  getTelegramAvatarPath
+ }
+ 
+ fragment AccountFields on Account {
+@@ -142,6 +142,7 @@ fragment AccountFields on Account {
+     accountNameApp
+     accountNumberApp
+   }
++  localeCashPathAvatar
+ }
+ 
+ mutation updateAccount($input: UpdateAccountInput!) {
+diff --git a/packages/redux-store/src/store/escrow/offer/useInfiniteOfferFilterQuery.ts b/packages/redux-store/src/store/escrow/offer/useInfiniteOfferFilterQuery.ts
+index f3abe860..8939e204 100644
+--- a/packages/redux-store/src/store/escrow/offer/useInfiniteOfferFilterQuery.ts
++++ b/packages/redux-store/src/store/escrow/offer/useInfiniteOfferFilterQuery.ts
+@@ -20,9 +20,18 @@ export function useInfiniteOfferFilterQuery(
+   params: FilterOfferType,
+   fetchAll = false // if `true`: auto do next fetches to get all notes at once
+ ) {
+-  const { countryCode, adminCode, cityName, paymentMethodIds, coin, fiatCurrency } = params.offerFilterInput;
++  const { countryCode, adminCode, cityName, paymentMethodIds, coin, fiatCurrency, isBuyOffer, paymentApp } =
++    params.offerFilterInput;
+   const baseResult = useOfferByFilterQuery(params, {
+-    skip: !countryCode && !adminCode && !cityName && !coin && !fiatCurrency && (paymentMethodIds?.length ?? 0) === 0
++    skip:
++      !countryCode &&
++      !adminCode &&
++      !cityName &&
++      !coin &&
++      !fiatCurrency &&
++      !isBuyOffer &&
++      !paymentApp &&
++      (paymentMethodIds?.length ?? 0) === 0
+   });
+ 
+   const [trigger, nextResult] = useLazyOfferByFilterQuery();
+diff --git a/packages/redux-store/src/store/follow/follows.generated.ts b/packages/redux-store/src/store/follow/follows.generated.ts
+index eebe243b..5387d11a 100644
+--- a/packages/redux-store/src/store/follow/follows.generated.ts
++++ b/packages/redux-store/src/store/follow/follows.generated.ts
+@@ -68,6 +68,7 @@ export type AllFollowersByFollowingQuery = {
+         telegramId?: string | null;
+         telegramUsername?: string | null;
+         role: Types.Role;
++        localeCashPathAvatar?: string | null;
+         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+         accountDana?: {
+           __typename?: 'AccountDana';
+@@ -152,6 +153,7 @@ export type AllFollowingsByFollowerQuery = {
+         telegramId?: string | null;
+         telegramUsername?: string | null;
+         role: Types.Role;
++        localeCashPathAvatar?: string | null;
+         pages?: Array<{ __typename?: 'Page'; id: string; name: string }> | null;
+         accountDana?: {
+           __typename?: 'AccountDana';

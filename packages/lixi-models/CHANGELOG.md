@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.56
+
+### Patch Changes
+
+- Add payment app filter
+
 ## 1.2.55
 
 ### Patch Changes

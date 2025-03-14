@@ -1,5 +1,13 @@
 # @bcpros/redux-store
 
+## 1.2.56
+
+### Patch Changes
+
+- Add payment app filter
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.56
+
 ## 1.2.55
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @bcpros/lixi-prisma
 
+## 1.2.22
+
+### Patch Changes
+
+- Add payment app filter
+
 ## 1.2.21
 
 ### Patch Changes
