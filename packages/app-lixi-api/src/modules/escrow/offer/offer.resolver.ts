@@ -114,7 +114,8 @@ export class OfferResolver {
       cityName: offerFilterInput.cityName ? replaceDashWithUnderscore(offerFilterInput.cityName) : null,
       paymentMethodIds: offerFilterInput.paymentMethodIds,
       coin: offerFilterInput.coin ?? null,
-      fiatCurrency: offerFilterInput.fiatCurrency ?? null
+      fiatCurrency: offerFilterInput.fiatCurrency ?? null,
+      paymentApp: offerFilterInput.paymentApp ?? null
     };
     const paginated = await this.offerCacheService.getOfferFilterPaginatedTimeline(
       isBuyOffer,

@@ -20,9 +20,18 @@ export function useInfiniteOfferFilterQuery(
   params: FilterOfferType,
   fetchAll = false // if `true`: auto do next fetches to get all notes at once
 ) {
-  const { countryCode, adminCode, cityName, paymentMethodIds, coin, fiatCurrency } = params.offerFilterInput;
+  const { countryCode, adminCode, cityName, paymentMethodIds, coin, fiatCurrency, isBuyOffer, paymentApp } =
+    params.offerFilterInput;
   const baseResult = useOfferByFilterQuery(params, {
-    skip: !countryCode && !adminCode && !cityName && !coin && !fiatCurrency && (paymentMethodIds?.length ?? 0) === 0
+    skip:
+      !countryCode &&
+      !adminCode &&
+      !cityName &&
+      !coin &&
+      !fiatCurrency &&
+      !isBuyOffer &&
+      !paymentApp &&
+      (paymentMethodIds?.length ?? 0) === 0
   });
 
   const [trigger, nextResult] = useLazyOfferByFilterQuery();

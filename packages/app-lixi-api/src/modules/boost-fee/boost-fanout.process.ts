@@ -44,7 +44,7 @@ export class BoostFanoutProcessor extends WorkerHost {
       if (!post) return true;
       const id = `${post.id}`;
       const isBuyOffer = post?.offer?.type === OfferType.BUY;
-      const prefixOfferCache = `${isBuyOffer ? KeyCacheNameBuyOffer : KeyCacheNameOffer}:`;
+      const prefixOfferCache = `${isBuyOffer ? KeyCacheNameBuyOffer : KeyCacheNameOffer}`;
 
       // Invalidate the cache
       const diffHour = moment.duration(moment(boost.createdAt).diff(moment(newEpoch))).asHours();
@@ -60,7 +60,7 @@ export class BoostFanoutProcessor extends WorkerHost {
 
       //update score of post in cache (country-state-method)
       post.offer?.paymentMethods?.map(item => {
-        const keyPaymentMethod = `${prefixOfferCache}method:{${item.paymentMethodId}}`;
+        const keyPaymentMethod = `${prefixOfferCache}:method:{${item.paymentMethodId}}`;
         pipeline.zincrby(keyPaymentMethod, score, timelineId);
       });
 
@@ -71,29 +71,34 @@ export class BoostFanoutProcessor extends WorkerHost {
 
       //cash in person
       if (post.offer?.location) {
-        const keyCountry = `${prefixOfferCache}country:{${countryCode}}`;
+        const keyCountry = `${prefixOfferCache}:country:{${countryCode}}`;
         pipeline.zincrby(keyCountry, score, timelineId);
 
-        const keyState = `${prefixOfferCache}state:{${adminCode}}`;
+        const keyState = `${prefixOfferCache}:state:{${adminCode}}`;
         pipeline.zincrby(keyState, score, timelineId);
 
-        const keyCity = `${prefixOfferCache}city:{${cityName}}`;
+        const keyCity = `${prefixOfferCache}:city:{${cityName}}`;
         pipeline.zincrby(keyCity, score, timelineId);
       }
 
       // bank transfer
       if (post.offer?.country) {
-        const keyCountry = `${prefixOfferCache}country:{${countryCode}}`;
+        const keyCountry = `${prefixOfferCache}:country:{${countryCode}}`;
         pipeline.zincrby(keyCountry, score, timelineId);
       }
 
       if (post.offer?.coinPayment) {
-        const keyCoin = `${prefixOfferCache}coin:{${post.offer.coinPayment}}`;
+        const keyCoin = `${prefixOfferCache}:coin:{${post.offer.coinPayment}}`;
         pipeline.zincrby(keyCoin, score, timelineId);
       }
 
+      if (post.offer?.paymentApp) {
+        const keyPaymentApp = `${prefixOfferCache}:paymentApp:{${post.offer.paymentApp}}`;
+        pipeline.zincrby(keyPaymentApp, score, timelineId);
+      }
+
       if (post.offer?.localCurrency) {
-        const keyCurrency = `${prefixOfferCache}currency:{${post.offer.localCurrency}}`;
+        const keyCurrency = `${prefixOfferCache}:currency:{${post.offer.localCurrency}}`;
         pipeline.zincrby(keyCurrency, score, timelineId);
       }
 
@@ -103,7 +108,7 @@ export class BoostFanoutProcessor extends WorkerHost {
 
       //search item
       const methodIds = post?.offer?.paymentMethods?.map(item => item.paymentMethodId).join('|'); // 1|2|3
-      const queryItem = `@countryCode:${countryCode}|@adminCode:${adminCode}|@city:${cityName}|@coin:${post?.offer?.coinPayment}|@currency:${post?.offer?.localCurrency}|@methods:{${methodIds}}`;
+      const queryItem = `@countryCode:${countryCode}|@adminCode:${adminCode}|@city:${cityName}|@coin:${post?.offer?.coinPayment}|@currency:${post?.offer?.localCurrency}|@paymentApp:${post?.offer?.paymentApp}|@methods:{${methodIds}}`;
       const searchResult = await reSearch.search(isBuyOffer ? IndexNameBuyOffer : IndexNameOffer, queryItem);
       //add item to search result
       if (searchResult.length > 0) {

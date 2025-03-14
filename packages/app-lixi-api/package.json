@@ -40,6 +40,7 @@
     "update:resetAccountCache": "ts-node scripts/account/reset-account/index.ts",
     "update:resetBurnAndViewScore": "ts-node scripts/burn/index.ts",
     "update:resetRedisSearch": "ts-node scripts/RedisSearch/index.ts",
+    "update:addFieldToRedisSearch": "ts-node scripts/RedisSearch/add-field-to-index.ts",
     "update:resetMyOfferCache": "ts-node scripts/offer/reset-offer/index.ts",
     "update:addOfferToCache": "ts-node scripts/offer/index.ts",
     "update:resetEscrow": "ts-node scripts/offer/reset-escrow/index.ts",
