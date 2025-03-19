@@ -497,19 +497,24 @@ export class OfferResolver {
         );
       }
 
+      const isMiniApp = this.configService.get('TELEGRAM_MINI_APP_ENABLE')
+        ? {
+            text: 'Open Mini App',
+            web_app: {
+              url: link
+            }
+          }
+        : {
+            text: 'Open Web App',
+            url: link
+          };
+
       account.telegramId &&
         (await this.bot.telegram
           .sendMessage(account.telegramId, formatReplied, {
             parse_mode: 'Markdown',
             reply_markup: {
-              inline_keyboard: [
-                [
-                  {
-                    text: 'Open Web App',
-                    url: link
-                  }
-                ]
-              ]
+              inline_keyboard: [[isMiniApp]]
             }
           })
           .then(async res => {
