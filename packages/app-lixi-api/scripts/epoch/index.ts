@@ -12,7 +12,7 @@ const redis = new Redis({
 
 //Before run this script, need to change epoch and newEpoch variable in constants.ts (current time just mannualy change)
 async function main() {
-  const allKeyTimelines = await scanAndCollectKeys(redis, '*timeline*');
+  const allKeyTimelines = await scanAndCollectKeys(redis, '*offer*');
 
   const diffHours = differenceInHours(oldEpoch, newEpoch);
   const halfLife = 12;
@@ -21,13 +21,13 @@ async function main() {
 
   for (const key of allKeyTimelines) {
     //process for offer boosting (comment out when run next time)
-    // if (key.includes('offer:boosting')) {
-    //     const halfLifeOffer = 168; //1 week
-    //     const exponentOffer = diffHours / halfLifeOffer;
-    //     const divisorOffer = Math.pow(2, -exponentOffer);
-    //     await updateScore(key, divisorOffer);
-    //   continue;
-    // }
+    if (key.includes('offer:boosting')) {
+        const halfLifeOffer = 168; //1 week
+        const exponentOffer = diffHours / halfLifeOffer;
+        const divisorOffer = Math.pow(2, -exponentOffer);
+        await updateScore(key, divisorOffer);
+      continue;
+    }
     await updateScore(key, divisor);
     }
 }

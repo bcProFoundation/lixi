@@ -7,7 +7,7 @@ import _ from 'lodash';
 import { PrismaService } from '../../prisma/prisma.service';
 import { basicSortedSetPagination } from 'src/common/custom-graphql-relay/paginate';
 import { Prisma } from '@bcpros/lixi-prisma';
-import { newEpoch } from 'src/utils/constants';
+import { BOOST_AMOUNT, newEpoch } from 'src/utils/constants';
 import { template } from 'src/utils/stringTemplate';
 import stringify from 'json-stable-stringify';
 import {
@@ -225,7 +225,7 @@ export class OfferCacheService {
       SELECT
         post.id,
         post.type,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value)) AS score 
+        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
       FROM
         post 
         JOIN
@@ -251,7 +251,7 @@ export class OfferCacheService {
       SELECT
         post.id,
         post.type,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value)) AS score 
+        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
       FROM
         post 
         JOIN
@@ -499,7 +499,7 @@ export class OfferCacheService {
     const query = Prisma.sql`
       SELECT
         offer.post_id,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value)) AS score 
+        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
       FROM
         offer 
         JOIN
@@ -543,7 +543,7 @@ export class OfferCacheService {
     const query = Prisma.sql`
       SELECT
         offer.post_id,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value)) AS score 
+        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
       FROM
         offer 
         JOIN
@@ -587,7 +587,7 @@ export class OfferCacheService {
     const query = Prisma.sql`
       SELECT
         offer.post_id,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value)) AS score 
+        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
       FROM
         offer 
         JOIN
@@ -631,7 +631,7 @@ export class OfferCacheService {
     const query = Prisma.sql`
       SELECT
         offer.post_id,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value)) AS score 
+        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
       FROM
         offer 
         JOIN
@@ -672,7 +672,7 @@ export class OfferCacheService {
     const query = Prisma.sql`
       SELECT
         offer.post_id,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value)) AS score 
+        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
       FROM
         offer 
         JOIN
@@ -713,7 +713,7 @@ export class OfferCacheService {
     const query = Prisma.sql`
       SELECT
         offer.post_id,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value)) AS score 
+        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
       FROM
         offer 
         JOIN
@@ -754,7 +754,7 @@ export class OfferCacheService {
     const query = Prisma.sql`
       SELECT
         offer.post_id,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value)) AS score 
+        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
       FROM
         offer 
         JOIN
