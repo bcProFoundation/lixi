@@ -1,4 +1,4 @@
-import { BoostForType, COIN, Offer, OfferFilterInput, OfferStatus, OfferType, POST_TYPE } from '@bcpros/lixi-models';
+import { BoostForType, COIN, Offer, OfferFilterInput, OfferStatus, POST_TYPE, OfferType } from '@bcpros/lixi-models';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { decode, encode } from '@msgpack/msgpack';
 import { Logger } from '@nestjs/common';
@@ -225,20 +225,24 @@ export class OfferCacheService {
       SELECT
         post.id,
         post.type,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
+        total_relevance(relevance_score(
+          COALESCE(boost.boost_type, 'True'), 
+          COALESCE(boost.created_at, offer.created_at), 
+          ${newEpoch} :: timestamp, 
+          ${halfLife} :: interval, 
+          COALESCE(boost.boosted_value / ${BOOST_AMOUNT}, 1)
+          )) AS score 
       FROM
         post 
-        JOIN
+        LEFT JOIN
             boost_fee as boost 
             ON post.id = boost.boosted_for_id
+            AND boost.boost_for_type = ${postBoostType} 
         JOIN
             offer 
             ON offer.post_id = post.id AND
             offer.status = 'ACTIVE' AND
             offer.hide_from_home = false
-      WHERE
-        boost.boost_for_type = ${postBoostType} 
-        AND boost.boosted_value > 0
       GROUP BY
         post.id 
       ORDER by
@@ -251,20 +255,24 @@ export class OfferCacheService {
       SELECT
         post.id,
         post.type,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
+        total_relevance(relevance_score(
+          COALESCE(boost.boost_type, 'True'), 
+          COALESCE(boost.created_at, offer.created_at), 
+          ${newEpoch} :: timestamp, 
+          ${halfLife} :: interval, 
+          COALESCE(boost.boosted_value / ${BOOST_AMOUNT}, 1)
+          )) AS score 
       FROM
         post 
-        JOIN
+        LEFT JOIN
             boost_fee as boost 
             ON post.id = boost.boosted_for_id
+            AND boost.boost_for_type = ${postBoostType} 
         JOIN
             offer 
             ON offer.post_id = post.id AND
             offer.status = 'ACTIVE' AND
             offer.hide_from_home = false
-      WHERE
-      boost.boost_for_type = ${postBoostType} 
-      AND boost.boosted_value > 0
       GROUP BY
         post.id 
       ORDER by
@@ -363,6 +371,7 @@ export class OfferCacheService {
     try {
       const reSearch = new ReSearch(this.redis);
       const prefixOfferCache = `${isBuyOffer ? KeyCacheNameBuyOffer : KeyCacheNameOffer}`;
+      const offerType = isBuyOffer ? OfferType.BUY : OfferType.SELL;
       const { countryCode, adminCode, cityName, paymentMethodIds, coin, fiatCurrency, paymentApp } = offerFilterInput;
 
       // STEP 1: Handle Payment Methods
@@ -377,7 +386,7 @@ export class OfferCacheService {
         for (let i = 0; i < totalKeyPaymentMethods; i++) {
           const keyMethod = `${prefixOfferCache}:method:{${paymentMethodIds[i]}}`;
           const existKeyMethod = await this.redis.exists([keyMethod]);
-          if (!existKeyMethod) await this.cacheOfferMethodId(prefixOfferCache, paymentMethodIds[i]);
+          if (!existKeyMethod) await this.cacheOfferMethodId(prefixOfferCache, paymentMethodIds[i], offerType);
           multiSetUnion.push(keyMethod);
         }
 
@@ -393,37 +402,37 @@ export class OfferCacheService {
           value: countryCode,
           prefixKey: 'country',
           isLocation: true,
-          cacheFn: (val: string) => this.cacheOfferCountry(prefixOfferCache, val)
+          cacheFn: (val: string) => this.cacheOfferCountry(prefixOfferCache, val, offerType)
         },
         {
           value: adminCode,
           prefixKey: 'state',
           isLocation: true,
-          cacheFn: (val: string) => this.cacheOfferState(prefixOfferCache, val)
+          cacheFn: (val: string) => this.cacheOfferState(prefixOfferCache, val, offerType)
         },
         {
           value: cityName,
           prefixKey: 'city',
           isLocation: true,
-          cacheFn: (val: string) => this.cacheOfferCity(prefixOfferCache, val)
+          cacheFn: (val: string) => this.cacheOfferCity(prefixOfferCache, val, offerType)
         },
         {
           value: coin,
           prefixKey: 'coin',
           isLocation: false,
-          cacheFn: (val: string) => this.cacheOfferCoin(prefixOfferCache, val)
+          cacheFn: (val: string) => this.cacheOfferCoin(prefixOfferCache, val, offerType)
         },
         {
           value: fiatCurrency,
           prefixKey: 'currency',
           isLocation: false,
-          cacheFn: (val: string) => this.cacheOfferCurrency(prefixOfferCache, val)
+          cacheFn: (val: string) => this.cacheOfferCurrency(prefixOfferCache, val, offerType)
         },
         {
           value: paymentApp,
           prefixKey: 'paymentApp',
           isLocation: false,
-          cacheFn: (val: string) => this.cacheOfferPaymentApp(prefixOfferCache, val)
+          cacheFn: (val: string) => this.cacheOfferPaymentApp(prefixOfferCache, val, offerType)
         }
       ];
       //count total key intersect
@@ -456,7 +465,7 @@ export class OfferCacheService {
       } else if (paymentMethodIds && paymentMethodIds.length === 1) {
         const keyMethod = `${prefixOfferCache}:method:{${paymentMethodIds[0]}}`;
         const existKeyMethod = await this.redis.exists([keyMethod]);
-        if (!existKeyMethod) await this.cacheOfferMethodId(prefixOfferCache, paymentMethodIds[0]);
+        if (!existKeyMethod) await this.cacheOfferMethodId(prefixOfferCache, paymentMethodIds[0], offerType);
 
         totalKeyInter += 1;
         multiSetInter.push(`${prefixOfferCache}:method:{${paymentMethodIds[0]}}`);
@@ -492,27 +501,33 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheOfferCountry(prefixOfferCache: string, countryCode: string) {
+  private async cacheOfferCountry(prefixOfferCache: string, countryCode: string, offerType: OfferType) {
     const key = `${prefixOfferCache}:country:{${countryCode}}`;
     const postBoostType = BoostForType.Post;
     const halfLife = '168 hours';
     const query = Prisma.sql`
       SELECT
         offer.post_id,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
+        total_relevance(relevance_score(
+          COALESCE(boost.boost_type, 'True'), 
+          COALESCE(boost.created_at, offer.created_at), 
+          ${newEpoch} :: timestamp, 
+          ${halfLife} :: interval, 
+          COALESCE(boost.boosted_value / ${BOOST_AMOUNT}, 1)
+          )) AS score   
       FROM
         offer 
-        JOIN
+        LEFT JOIN
             boost_fee as boost 
             ON offer.post_id = boost.boosted_for_id
+            AND boost.boost_for_type = ${postBoostType} 
         JOIN 
             world_cities as wc
             ON offer.location_id = wc.id
       WHERE
-        boost.boost_for_type = ${postBoostType} 
-        AND boost.boosted_value > 0
-        AND wc.iso2 = ${countryCode}
+        wc.iso2 = ${countryCode}
         AND offer.hide_from_home = false
+        AND offer.type::text = ${offerType}
       GROUP BY
         offer.post_id
       ORDER by
@@ -536,27 +551,33 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheOfferState(prefixOfferCache: string, adminCode: string) {
+  private async cacheOfferState(prefixOfferCache: string, adminCode: string, offerType: OfferType) {
     const key = `${prefixOfferCache}:state:{${adminCode}}`;
     const postBoostType = BoostForType.Post;
     const halfLife = '168 hours';
     const query = Prisma.sql`
       SELECT
         offer.post_id,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
+        total_relevance(relevance_score(
+          COALESCE(boost.boost_type, 'True'), 
+          COALESCE(boost.created_at, offer.created_at), 
+          ${newEpoch} :: timestamp, 
+          ${halfLife} :: interval, 
+          COALESCE(boost.boosted_value / ${BOOST_AMOUNT}, 1)
+          )) AS score   
       FROM
         offer 
-        JOIN
+        LEFT JOIN
             boost_fee as boost 
             ON offer.post_id = boost.boosted_for_id
+            AND boost.boost_for_type = ${postBoostType} 
         JOIN 
             world_cities as wc
             ON offer.location_id = wc.id
       WHERE
-        boost.boost_for_type = ${postBoostType} 
-        AND boost.boosted_value > 0
-        AND wc.admin_code = ${adminCode}
+        wc.admin_code = ${adminCode}
         AND offer.hide_from_home = false
+        AND offer.type::text = ${offerType}
       GROUP BY
         offer.post_id
       ORDER by
@@ -580,27 +601,33 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheOfferCity(prefixOfferCache: string, city: string) {
+  private async cacheOfferCity(prefixOfferCache: string, city: string, offerType: OfferType) {
     const key = `${prefixOfferCache}:city:{${city}}`;
     const postBoostType = BoostForType.Post;
     const halfLife = '168 hours';
     const query = Prisma.sql`
       SELECT
         offer.post_id,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
+        total_relevance(relevance_score(
+          COALESCE(boost.boost_type, 'True'), 
+          COALESCE(boost.created_at, offer.created_at), 
+          ${newEpoch} :: timestamp, 
+          ${halfLife} :: interval, 
+          COALESCE(boost.boosted_value / ${BOOST_AMOUNT}, 1)
+          )) AS score      
       FROM
         offer 
-        JOIN
+        LEFT JOIN
             boost_fee as boost 
             ON offer.post_id = boost.boosted_for_id
+            AND boost.boost_for_type = ${postBoostType} 
         JOIN 
             world_cities as wc
             ON offer.location_id = wc.id
       WHERE
-        boost.boost_for_type = ${postBoostType} 
-        AND boost.boosted_value > 0
-        AND wc.city_ascii = ${city}
+        wc.city_ascii = ${city}
         and offer.hide_from_home = false
+        AND offer.type::text = ${offerType}
       GROUP BY
         offer.post_id
       ORDER by
@@ -624,24 +651,30 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheOfferCoin(prefixOfferCache: string, coin: string) {
+  private async cacheOfferCoin(prefixOfferCache: string, coin: string, offerType: OfferType) {
     const key = `${prefixOfferCache}:coin:{${coin}}`;
     const postBoostType = BoostForType.Post;
     const halfLife = '168 hours';
     const query = Prisma.sql`
       SELECT
         offer.post_id,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
+        total_relevance(relevance_score(
+          COALESCE(boost.boost_type, 'True'), 
+          COALESCE(boost.created_at, offer.created_at), 
+          ${newEpoch} :: timestamp, 
+          ${halfLife} :: interval, 
+          COALESCE(boost.boosted_value / ${BOOST_AMOUNT}, 1) 
+          )) AS score      
       FROM
         offer 
-        JOIN
+        LEFT JOIN
             boost_fee as boost 
             ON offer.post_id = boost.boosted_for_id
+            AND boost.boost_for_type = ${postBoostType} 
       WHERE
-        boost.boost_for_type = ${postBoostType} 
-        AND boost.boosted_value > 0
-        AND offer.coin_payment = ${coin}
+        offer.coin_payment = ${coin}
         AND offer.hide_from_home = false
+        AND offer.type::text = ${offerType}
       GROUP BY
         offer.post_id
       ORDER by
@@ -665,24 +698,30 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheOfferPaymentApp(prefixOfferCache: string, paymentApp: string) {
+  private async cacheOfferPaymentApp(prefixOfferCache: string, paymentApp: string, offerType: OfferType) {
     const key = `${prefixOfferCache}:paymentApp:{${paymentApp}}`;
     const postBoostType = BoostForType.Post;
     const halfLife = '168 hours';
     const query = Prisma.sql`
       SELECT
         offer.post_id,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
+        total_relevance(relevance_score(
+          COALESCE(boost.boost_type, 'True'), 
+          COALESCE(boost.created_at, offer.created_at), 
+          ${newEpoch} :: timestamp, 
+          ${halfLife} :: interval, 
+          COALESCE(boost.boosted_value / ${BOOST_AMOUNT}, 1)
+          )) AS score 
       FROM
         offer 
-        JOIN
+        LEFT JOIN
             boost_fee as boost 
             ON offer.post_id = boost.boosted_for_id
+            AND boost.boost_for_type = ${postBoostType} 
       WHERE
-        boost.boost_for_type = ${postBoostType} 
-        AND boost.boosted_value > 0
-        AND offer.payment_app = ${paymentApp}
+        offer.payment_app = ${paymentApp}
         AND offer.hide_from_home = false
+        AND offer.type::text = ${offerType}
       GROUP BY
         offer.post_id
       ORDER by
@@ -706,24 +745,30 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheOfferCurrency(prefixOfferCache: string, currency: string) {
+  private async cacheOfferCurrency(prefixOfferCache: string, currency: string, offerType: OfferType) {
     const key = `${prefixOfferCache}:currency:{${currency}}`;
     const postBoostType = BoostForType.Post;
     const halfLife = '168 hours';
     const query = Prisma.sql`
       SELECT
         offer.post_id,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
+        total_relevance(relevance_score(
+          COALESCE(boost.boost_type, 'True'), 
+          COALESCE(boost.created_at, offer.created_at), 
+          ${newEpoch} :: timestamp, 
+          ${halfLife} :: interval, 
+          COALESCE(boost.boosted_value / ${BOOST_AMOUNT}, 1)
+          )) AS score 
       FROM
         offer 
-        JOIN
+        LEFT JOIN
             boost_fee as boost 
             ON offer.post_id = boost.boosted_for_id
+            AND boost.boost_for_type = ${postBoostType} 
       WHERE
-        boost.boost_for_type = ${postBoostType} 
-        AND boost.boosted_value > 0
-        AND offer.local_currency = ${currency}
+        offer.local_currency = ${currency}
         AND offer.hide_from_home = false
+        AND offer.type::text = ${offerType}
       GROUP BY
         offer.post_id
       ORDER by
@@ -747,27 +792,33 @@ export class OfferCacheService {
     }
   }
 
-  private async cacheOfferMethodId(prefixOfferCache: string, methodId: number) {
+  private async cacheOfferMethodId(prefixOfferCache: string, methodId: number, offerType: OfferType) {
     const key = `${prefixOfferCache}:method:{${methodId}}`;
     const postBoostType = BoostForType.Post;
     const halfLife = '168 hours';
     const query = Prisma.sql`
       SELECT
         offer.post_id,
-        total_relevance(relevance_score(boost.boost_type, boost.created_at, ${newEpoch} :: timestamp, ${halfLife} :: interval, boost.boosted_value / ${BOOST_AMOUNT})) AS score 
+        total_relevance(relevance_score(
+          COALESCE(boost.boost_type, 'True'), 
+          COALESCE(boost.created_at, offer.created_at), 
+          ${newEpoch} :: timestamp, 
+          ${halfLife} :: interval, 
+          COALESCE(boost.boosted_value / ${BOOST_AMOUNT}, 1)
+          )) AS score 
       FROM
         offer 
-        JOIN
+        LEFT JOIN
             boost_fee as boost 
             ON offer.post_id = boost.boosted_for_id
+            AND boost.boost_for_type = ${postBoostType} 
         JOIN 
             offer_payment_method as method
             ON offer.post_id = method.offer_id
       WHERE
-        boost.boost_for_type = ${postBoostType} 
-        AND boost.boosted_value > 0
-        AND method.payment_method_id = ${methodId}
+        method.payment_method_id = ${methodId}
         AND offer.hide_from_home = false
+        AND offer.type::text = ${offerType}
       GROUP BY
         offer.post_id
       ORDER by
