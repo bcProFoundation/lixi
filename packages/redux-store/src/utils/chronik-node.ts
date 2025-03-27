@@ -18,6 +18,7 @@ import { TX_HISTORY_COUNT, COIN } from '@bcpros/lixi-models/constants/coins/coin
 export interface ParsedChronikTx_InNode {
   incoming: boolean;
   xecAmount: string;
+  xecAmountIncludeFee: string;
   originatingHash160: string;
   opReturnMessage: string;
   isLotusMessage: boolean;
@@ -288,6 +289,7 @@ export const parseChronikTx_InNode = async (
   // Assign defaults
   let incoming = true;
   let xecAmount = new BigNumber(0);
+  let xecAmountIncludeFee = new BigNumber(0);
   let originatingHash160 = '';
 
   // Burn
@@ -325,6 +327,10 @@ export const parseChronikTx_InNode = async (
     if (thisInputSendingHash160.includes(selectedWallet.hash160)) {
       // Then this is an outgoing tx
       incoming = false;
+
+      // calculate total amount sent to
+      const thisInputAmount = new BigNumber(thisInput.value);
+      xecAmountIncludeFee = xecAmountIncludeFee.plus(thisInputAmount);
     }
   }
 
@@ -359,6 +365,9 @@ export const parseChronikTx_InNode = async (
       // if outgoing tx (incoming === false), then this is a change amount
       const thisOutputAmount = new BigNumber(thisOutput.value);
       xecAmount = incoming ? xecAmount.plus(thisOutputAmount) : xecAmount.minus(thisOutputAmount);
+      xecAmountIncludeFee = incoming
+        ? xecAmountIncludeFee.plus(thisOutputAmount)
+        : xecAmountIncludeFee.minus(thisOutputAmount);
     }
     // Output amounts not at your wallet are sent amounts if !incoming
     if (!incoming) {
@@ -378,11 +387,13 @@ export const parseChronikTx_InNode = async (
   // Convert from sats to coin
   const cashDecimals = coinInfo[COIN.XEC].cashDecimals;
   xecAmount = xecAmount.shiftedBy(-1 * cashDecimals);
+  xecAmountIncludeFee = xecAmountIncludeFee.shiftedBy(-1 * cashDecimals);
   if (isBurn) {
     xecBurnAmount = xecBurnAmount.shiftedBy(-1 * cashDecimals);
   }
   // Convert from BigNumber to string
   const xecAmountString = xecAmount.toString();
+  const xecAmountIncludeFeeString = xecAmountIncludeFee.toString();
   const xecBurnAmountString = xecBurnAmount.toString();
 
   // Convert messageHex to string
@@ -415,6 +426,7 @@ export const parseChronikTx_InNode = async (
   const parsedTx: ParsedChronikTx_InNode = {
     incoming,
     xecAmount: xecAmountString,
+    xecAmountIncludeFee: xecAmountIncludeFeeString,
     originatingHash160,
     opReturnMessage,
     isLotusMessage,

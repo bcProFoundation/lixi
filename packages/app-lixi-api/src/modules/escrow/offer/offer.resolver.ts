@@ -27,7 +27,7 @@ import { I18n, I18nService } from 'nestjs-i18n';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AccountEntity } from 'src/decorators';
-import { CommentType, PostType, Role } from '@bcpros/lixi-prisma';
+import { CommentType, OfferType, PostType, Role } from '@bcpros/lixi-prisma';
 import { ChronikClient, ChronikClientNode } from 'chronik-client';
 import { InjectChronikClient, InjectChronikClientNode } from 'nestjs-chronik';
 import { GqlJwtAuthGuard } from '../../auth/guards/gql-jwtauth.guard';
@@ -342,10 +342,13 @@ export class OfferResolver {
 
       //id - link - message - margin - orderLimit - paymentMethod - location
       const link = `${this.configService.get('LOCAL_ECASH_URL')}/offer-detail?id=${result.id}`;
+      let strTypeListOffer = data?.hideFromHome ? 'Unlisted' : 'Listed';
+      offerData?.type === OfferType.BUY ? (strTypeListOffer += ' Buy') : (strTypeListOffer += ' Sell');
       let formatReplied =
         strLocation && strLocation !== ''
           ? format(
               BOT.MESSAGE.OFFER_CREATED,
+              strTypeListOffer,
               result.id,
               link,
               offer?.message,
@@ -356,6 +359,7 @@ export class OfferResolver {
             )
           : format(
               BOT.MESSAGE.OFFER_CREATED_WITHOUT_LOCATION,
+              strTypeListOffer,
               result.id,
               link,
               offer?.message,
@@ -368,6 +372,7 @@ export class OfferResolver {
       if (paymentMethodIds[0] === PAYMENT_METHOD.GOODS_SERVICES) {
         formatReplied = format(
           BOT.MESSAGE.OFFER_CREATED_GOODS_SERVICES,
+          strTypeListOffer,
           result.id,
           link,
           offer?.message,
@@ -482,7 +487,6 @@ export class OfferResolver {
       throw new VError.WError(couldNotFindAccount);
     }
 
-    //change from active to archive
     const offerUpdated = await this.prisma.offer.update({
       where: {
         postId: data.id
@@ -493,7 +497,12 @@ export class OfferResolver {
     });
 
     //remove cache in mutiple keys and add to Archive key
-    await this.offerCacheService.changeStatusOffer(account.id, offerUpdated.postId, offerUpdated.createdAt);
+    await this.offerCacheService.changeStatusOffer(
+      account.id,
+      offerUpdated.postId,
+      offerUpdated.createdAt,
+      offerUpdated.type
+    );
 
     //remove cache and add again
     await this.offerCacheService.removeByKeys([offerUpdated.postId]);

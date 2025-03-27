@@ -1306,7 +1306,7 @@ model EscrowOrder {
   buyerTelegramMessageId  Int?              @map("buyer_telegram_message_id")
   sellerDonateAmount      Float?            @map("seller_donate_amount")
   buyerDonateAmount       Float?            @map("buyer_donate_amount")
-  markAsPaid              Boolean?          @default(false) @map("mark_as_paid")  
+  markAsPaid              Boolean?          @default(false) @map("mark_as_paid")
   createdAt               DateTime          @default(now()) @map("created_at") @db.Timestamptz
   updatedAt               DateTime          @default(now()) @map("updated_at") @db.Timestamptz
 
@@ -1404,19 +1404,18 @@ model Setting {
 }
 
 model BankInfo {
-  id                 String        @id @default(cuid())
-  order              EscrowOrder   @relation(fields: [orderId], references: [id])
-  orderId            String        @unique
-  bankName           String?       @map("bank_name")
-  accountNameBank    String?       @map("account_name_bank")
-  accountNumberBank  String?       @map("account_number_bank")
-  appName            String?       @map("app_name")
-  accountNameApp     String?       @map("account_name_app")
-  accountNumberApp   String?       @map("account_number_app")
+  id                String      @id @default(cuid())
+  order             EscrowOrder @relation(fields: [orderId], references: [id])
+  orderId           String      @unique
+  bankName          String?     @map("bank_name")
+  accountNameBank   String?     @map("account_name_bank")
+  accountNumberBank String?     @map("account_number_bank")
+  appName           String?     @map("app_name")
+  accountNameApp    String?     @map("account_name_app")
+  accountNumberApp  String?     @map("account_number_app")
 
   @@map("bank_info")
 }
-
 
 model Worldcities {
   city             String? @db.VarChar(120)
@@ -1454,6 +1453,16 @@ model SeedVersion {
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz
 
   @@map("seed_version")
+}
+
+model OfferKeyActiveMapping {
+  id          String   @id @default(uuid())
+  offerId     String   @unique @map("offer_id")
+  keyMappings Json     @map("key_mappings")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("offer_key_active_mapping")
 }
 
 enum OfferType {

@@ -2,11 +2,11 @@ import { BoostForType, COIN, Offer, OfferFilterInput, OfferStatus, POST_TYPE, Of
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { decode, encode } from '@msgpack/msgpack';
 import { Logger } from '@nestjs/common';
-import { Redis } from 'ioredis';
+import { ChainableCommander, Redis } from 'ioredis';
 import _ from 'lodash';
 import { PrismaService } from '../../prisma/prisma.service';
 import { basicSortedSetPagination } from 'src/common/custom-graphql-relay/paginate';
-import { Prisma } from '@bcpros/lixi-prisma';
+import { Prisma, OfferType as OfferTypePrisma } from '@bcpros/lixi-prisma';
 import { BOOST_AMOUNT, newEpoch } from 'src/utils/constants';
 import { template } from 'src/utils/stringTemplate';
 import stringify from 'json-stable-stringify';
@@ -16,9 +16,12 @@ import {
   KeyCacheNameBuyOffer,
   KeyCacheNameOffer,
   KeyIndexNameBuyOffer,
-  KeyIndexNameOffer
+  KeyIndexNameOffer,
+  PREFIX_KEY,
+  TIME_MONTH_EXPIRE
 } from '../escrow.contants';
 import ReSearch from 'src/common/redis/redis-search';
+import { scanAndCollectKeys } from 'src/utils/scanKey';
 
 export class OfferCacheService {
   private logger: Logger = new Logger(this.constructor.name);
@@ -116,27 +119,165 @@ export class OfferCacheService {
     await this.redis.hdel(this.keyPrefix, ...keys);
   }
 
-  async changeStatusOffer(accountId: number, offerId: string, createdAt: Date) {
-    // find all sorted set have "offer" and remove key in it
-    const allOfferKeys = await this.redis.keys('*offer*');
+  async changeStatusOffer(accountId: number, offerId: string, createdAt: Date, offerType: OfferTypePrisma) {
     const timelineId = `${POST_TYPE.OFFER}:${offerId}`;
     const pipeline = this.redis.pipeline();
 
+    // Storage key for remembering which active keys the offer was in and their scores
+    const keysMemoryId = `keyOfferActiveToArchive:${offerId}`;
+
+    // Archive key
+    const archiveKey = template(`${OfferCacheService.myOfferTimeline}`, {
+      accountId,
+      offerStatus: OfferStatus.ARCHIVE
+    });
+
+    const activeKey = template(`${OfferCacheService.myOfferTimeline}`, {
+      accountId,
+      offerStatus: OfferStatus.ACTIVE
+    });
+
+    // Check if the offer exists in the archive
+    const scoreInArchive = await this.redis.zscore(archiveKey, timelineId);
+    const isCurrentlyArchived = scoreInArchive !== null;
+
+    if (isCurrentlyArchived) {
+      // CASE: Archive → Active transition: remove in archived, and add to previous active keys
+      await this._restoreFromArchive(pipeline, keysMemoryId, archiveKey, activeKey, timelineId, createdAt, offerId);
+    } else {
+      // CASE: Active → Archive transition: remove from all offer, add to archive
+      await this._moveToArchive(
+        pipeline,
+        keysMemoryId,
+        archiveKey,
+        activeKey,
+        timelineId,
+        createdAt,
+        offerId,
+        offerType
+      );
+    }
+
+    await pipeline.exec();
+  }
+
+  private async _restoreFromArchive(
+    pipeline: ChainableCommander,
+    keysMemoryId: string,
+    archiveKey: string,
+    activeKey: string,
+    timelineId: string,
+    createdAt: Date,
+    offerId: string
+  ) {
+    // Remove from archive
+    pipeline.zrem(archiveKey, timelineId);
+
+    // Try to get mappings from Redis first
+    let keyScorePairs = await this.redis.hgetall(keysMemoryId);
+
+    // If not in Redis, try to get from database
+    if (Object.keys(keyScorePairs).length === 0) {
+      const mapping = await this.prisma.offerKeyActiveMapping.findUnique({
+        where: { offerId },
+        select: { keyMappings: true }
+      });
+
+      if (mapping?.keyMappings) {
+        keyScorePairs = mapping.keyMappings as Record<string, string>;
+      }
+    }
+
+    // Add to active key and all previous keys
+    pipeline.zadd(activeKey, createdAt.getTime(), timelineId);
+    pipeline.expire(activeKey, TIME_MONTH_EXPIRE);
+
+    // Restore to all previous keys except the active key (which we already added)
+    Object.entries(keyScorePairs).forEach(([key, score]) => {
+      if (key !== activeKey) {
+        pipeline.zadd(key, parseFloat(score), timelineId);
+        pipeline.expire(key, TIME_MONTH_EXPIRE);
+      }
+    });
+
+    // Clean up the Redis memory key and database
+    pipeline.del(keysMemoryId);
+    await this.prisma.offerKeyActiveMapping.delete({
+      where: { offerId }
+    });
+  }
+
+  private async _moveToArchive(
+    pipeline: ChainableCommander,
+    keysMemoryId: string,
+    archiveKey: string,
+    activeKey: string,
+    timelineId: string,
+    createdAt: Date,
+    offerId: string,
+    offerType: OfferTypePrisma
+  ) {
+    // remove active key
+    pipeline.zrem(activeKey, timelineId);
+
+    // Get keys to scan more efficiently
+    const keyPrefixOffer = offerType === OfferTypePrisma.BUY ? KeyCacheNameBuyOffer : KeyCacheNameOffer;
+
+    // Using Promise.all to run these scans in parallel
+    const [offerKeys, timelineKeys] = await Promise.all([
+      scanAndCollectKeys(this.redis, `${PREFIX_KEY}:${keyPrefixOffer}:*`),
+      scanAndCollectKeys(this.redis, `${PREFIX_KEY}:timeline:${keyPrefixOffer}:*`)
+    ]);
+
+    const allOfferKeys = Array.from(new Set([...offerKeys, ...timelineKeys]));
+    const keyScorePairs: Record<string, string> = {};
+    const typeCheckPipeline = this.redis.pipeline();
+
+    // First batch: check types and scores
     for (const offerKey of allOfferKeys) {
-      // Check if the key is a sorted set
-      const keyRemovePrefix = offerKey.replace(/^lixilotus:/, '');
-      const type = await this.redis.type(keyRemovePrefix);
-      if (type === 'zset') {
-        // Add the ZREM command to the pipeline for each sorted set
+      const keyRemovePrefix = offerKey.replace(new RegExp(`^${PREFIX_KEY}:`), '');
+      typeCheckPipeline.type(keyRemovePrefix);
+      typeCheckPipeline.zscore(keyRemovePrefix, timelineId);
+    }
+
+    // Execute all type and score checks at once
+    const typeScoreResults = await typeCheckPipeline.exec();
+
+    // Process results and build removal commands
+    for (let i = 0; i < allOfferKeys.length; i++) {
+      const keyRemovePrefix = allOfferKeys[i].replace(new RegExp(`^${PREFIX_KEY}:`), '');
+      const typeIndex = i * 2; // Each key has two commands (type and zscore)
+      const scoreIndex = typeIndex + 1;
+
+      const type = typeScoreResults?.[typeIndex]?.[1];
+      const score = typeScoreResults?.[scoreIndex]?.[1];
+
+      if (type === 'zset' && score !== null && keyRemovePrefix !== archiveKey) {
+        keyScorePairs[keyRemovePrefix] = score as string;
         pipeline.zrem(keyRemovePrefix, timelineId);
       }
     }
 
-    //add that key to archive cache
-    const keyAdded = template(`${OfferCacheService.myOfferTimeline}`, { accountId, offerStatus: OfferStatus.ARCHIVE });
-    pipeline.zincrby(keyAdded, createdAt.getTime(), timelineId);
+    // Store mappings in Redis and database if we have any
+    if (Object.keys(keyScorePairs).length > 0) {
+      pipeline.del(keysMemoryId);
+      pipeline.hmset(keysMemoryId, keyScorePairs);
+      pipeline.expire(keysMemoryId, TIME_MONTH_EXPIRE);
 
-    await pipeline.exec();
+      // Database operation - can run in parallel with Redis
+      await this.prisma.offerKeyActiveMapping.upsert({
+        where: { offerId },
+        update: { keyMappings: keyScorePairs },
+        create: {
+          offerId,
+          keyMappings: keyScorePairs
+        }
+      });
+    }
+
+    // Add to archive
+    pipeline.zadd(archiveKey, createdAt.getTime(), timelineId);
+    pipeline.expire(archiveKey, TIME_MONTH_EXPIRE);
   }
 
   async getOfferPaginatedTimeline(first: number = 20, after?: string) {

@@ -14,6 +14,10 @@ export const KeyCacheNameBuyOffer = 'buyOffer';
 
 export const KEY_AVATAR_PATH = 'locale_cash_avatar_path';
 
+export const PREFIX_KEY = 'lixilotus';
+
+export const TIME_MONTH_EXPIRE = 30 * 24 * 60 * 60;
+
 export const TIMELINE_ESCROW_ORDER = {
   active: `${EscrowOrderStatus.ACTIVE}-${EscrowOrderStatus.PENDING}-${EscrowOrderStatus.ESCROW}`,
   unactive: `${EscrowOrderStatus.CANCEL}-${EscrowOrderStatus.COMPLETE}`

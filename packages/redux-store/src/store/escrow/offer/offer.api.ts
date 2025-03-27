@@ -162,12 +162,14 @@ const enhancedApi = api.enhanceEndpoints({
         try {
           const { data: result } = await queryFulfilled;
           const timelineId = `${POST_TYPE.OFFER}:${result.updateOfferStatus.id}`;
+          const newStatus = input.status;
+          const oldStatus = newStatus === OfferStatus.Archive ? OfferStatus.Active : OfferStatus.Archive;
 
           const timelineInvalidatedBy = enhancedApi.util.selectInvalidatedBy(getState(), ['OfferTimeline']);
           for (const invalidatedBy of timelineInvalidatedBy) {
             const { endpointName, originalArgs } = invalidatedBy;
-            //remove offer in ACTIVE
-            if (endpointName === 'AllOfferByAccount' && originalArgs?.offerStatus === OfferStatus.Active) {
+            // remove offer
+            if (endpointName === 'AllOfferByAccount' && originalArgs?.offerStatus === oldStatus) {
               dispatch(
                 enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
                   const fields = Object.keys(draft);
@@ -183,8 +185,8 @@ const enhancedApi = api.enhanceEndpoints({
               );
             }
 
-            //add offer to ARCHIVED
-            if (endpointName === 'AllOfferByAccount' && originalArgs?.offerStatus === OfferStatus.Archive) {
+            // add offer
+            if (endpointName === 'AllOfferByAccount' && originalArgs?.offerStatus === newStatus) {
               dispatch(
                 enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
                   const fields = Object.keys(draft);
