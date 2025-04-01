@@ -330,6 +330,7 @@ model Account {
   role                           Role                  @default(USER)
   telegramId                     String?               @unique @map("telegram_id")
   telegramUsername               String?               @map("telegram_username")
+  anonymousUsernameLocalecash    String?               @unique @map("anonymous_username_localecash")
   escrowSellOrders               EscrowOrder[]         @relation("escrow_sell_orders")
   escrowBuyOrders                EscrowOrder[]         @relation("escrow_buy_orders")
   escrowArbiOrders               EscrowOrder[]         @relation("escrow_arbi_orders")
@@ -1307,7 +1308,7 @@ model EscrowOrder {
   buyerTelegramMessageId  Int?              @map("buyer_telegram_message_id")
   sellerDonateAmount      Float?            @map("seller_donate_amount")
   buyerDonateAmount       Float?            @map("buyer_donate_amount")
-  markAsPaid              Boolean?          @default(false) @map("mark_as_paid")  
+  markAsPaid              Boolean?          @default(false) @map("mark_as_paid")
   createdAt               DateTime          @default(now()) @map("created_at") @db.Timestamptz
   updatedAt               DateTime          @default(now()) @map("updated_at") @db.Timestamptz
 
@@ -1396,28 +1397,28 @@ model PaymentMethod {
 }
 
 model Setting {
-  id                 String    @id @default(cuid())
-  account            Account   @relation(fields: [accountId], references: [id])
-  accountId          Int       @unique
-  lastSeedBackupTime DateTime?
-  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt          DateTime  @default(now()) @map("updated_at") @db.Timestamptz
+  id                     String    @id @default(cuid())
+  account                Account   @relation(fields: [accountId], references: [id])
+  accountId              Int       @unique
+  lastSeedBackupTime     DateTime?
+  usePublicLocalUserName Boolean   @default(false) @map("use_public_local_user_name")
+  createdAt              DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt              DateTime  @default(now()) @map("updated_at") @db.Timestamptz
 }
 
 model BankInfo {
-  id                 String        @id @default(cuid())
-  order              EscrowOrder   @relation(fields: [orderId], references: [id])
-  orderId            String        @unique
-  bankName           String?       @map("bank_name")
-  accountNameBank    String?       @map("account_name_bank")
-  accountNumberBank  String?       @map("account_number_bank")
-  appName            String?       @map("app_name")
-  accountNameApp     String?       @map("account_name_app")
-  accountNumberApp   String?       @map("account_number_app")
+  id                String      @id @default(cuid())
+  order             EscrowOrder @relation(fields: [orderId], references: [id])
+  orderId           String      @unique
+  bankName          String?     @map("bank_name")
+  accountNameBank   String?     @map("account_name_bank")
+  accountNumberBank String?     @map("account_number_bank")
+  appName           String?     @map("app_name")
+  accountNameApp    String?     @map("account_name_app")
+  accountNumberApp  String?     @map("account_number_app")
 
   @@map("bank_info")
 }
-
 
 model Worldcities {
   city             String? @db.VarChar(120)

@@ -116,6 +116,7 @@ export type BookmarkTimelineQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               buyerAccount: {
                 __typename?: 'Account';
@@ -124,6 +125,7 @@ export type BookmarkTimelineQuery = {
                 hash160?: string | null;
                 telegramId?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               sellerAccount: {
                 __typename?: 'Account';
@@ -132,12 +134,14 @@ export type BookmarkTimelineQuery = {
                 hash160?: string | null;
                 telegramId?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               moderatorAccount: {
                 __typename?: 'Account';
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: {
@@ -199,6 +203,7 @@ export type BookmarkTimelineQuery = {
                 avatar?: string | null;
                 createCommentFee?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;

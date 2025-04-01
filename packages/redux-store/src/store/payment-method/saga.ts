@@ -4,23 +4,23 @@ import { showToast } from '@store/toast/actions';
 import intl from 'react-intl-universal';
 import * as Effects from 'redux-saga/effects';
 
-import { getPaymenMethods, getPaymenMethodsFailure, getPaymenMethodsSuccess } from './action';
+import { getPaymentMethods, getPaymentMethodsFailure, getPaymentMethodsSuccess } from './action';
 import { paymentMethodApi } from '.';
 
 const call: any = Effects.call;
 
-function* getPaymenMethodsSaga(action: PayloadAction) {
+function* getPaymentMethodsSaga(action: PayloadAction) {
   try {
     const promise = yield put(paymentMethodApi.api.endpoints.AllPaymenMethod.initiate());
     const data = yield promise;
-    yield put(getPaymenMethodsSuccess(data?.data?.allPaymenMethod));
+    yield put(getPaymentMethodsSuccess(data?.data?.allPaymenMethod));
   } catch (err) {
     const message = (err as Error).message ?? intl.get('country.unablegetPaymentMethod');
-    yield put(getPaymenMethodsFailure(message));
+    yield put(getPaymentMethodsFailure(message));
   }
 }
 
-function* getPaymenMethodsFailureSaga(action: PayloadAction<string>) {
+function* getPaymentMethodsFailureSaga(action: PayloadAction<string>) {
   const message = action.payload ?? intl.get('country.unablegetPaymentMethod');
   yield put(
     showToast('error', {
@@ -32,11 +32,11 @@ function* getPaymenMethodsFailureSaga(action: PayloadAction<string>) {
 }
 
 function* watchgetPaymentMethods() {
-  yield takeLatest(getPaymenMethods.type, getPaymenMethodsSaga);
+  yield takeLatest(getPaymentMethods.type, getPaymentMethodsSaga);
 }
 
 function* watchgetPaymentMethodsFailure() {
-  yield takeLatest(getPaymenMethodsFailure.type, getPaymenMethodsFailureSaga);
+  yield takeLatest(getPaymentMethodsFailure.type, getPaymentMethodsFailureSaga);
 }
 
 export function* paymentMethodsSaga() {

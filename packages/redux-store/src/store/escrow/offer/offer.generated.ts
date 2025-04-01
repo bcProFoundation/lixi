@@ -133,6 +133,7 @@ export type AllOfferQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               buyerAccount: {
                 __typename?: 'Account';
@@ -141,6 +142,7 @@ export type AllOfferQuery = {
                 hash160?: string | null;
                 telegramId?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               sellerAccount: {
                 __typename?: 'Account';
@@ -149,12 +151,14 @@ export type AllOfferQuery = {
                 hash160?: string | null;
                 telegramId?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               moderatorAccount: {
                 __typename?: 'Account';
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: {
@@ -216,6 +220,7 @@ export type AllOfferQuery = {
                 avatar?: string | null;
                 createCommentFee?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;
@@ -425,6 +430,7 @@ export type OfferByFilterQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               buyerAccount: {
                 __typename?: 'Account';
@@ -433,6 +439,7 @@ export type OfferByFilterQuery = {
                 hash160?: string | null;
                 telegramId?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               sellerAccount: {
                 __typename?: 'Account';
@@ -441,12 +448,14 @@ export type OfferByFilterQuery = {
                 hash160?: string | null;
                 telegramId?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               moderatorAccount: {
                 __typename?: 'Account';
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: {
@@ -508,6 +517,7 @@ export type OfferByFilterQuery = {
                 avatar?: string | null;
                 createCommentFee?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;
@@ -1009,6 +1019,7 @@ export type AllOfferByAccountQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               buyerAccount: {
                 __typename?: 'Account';
@@ -1017,6 +1028,7 @@ export type AllOfferByAccountQuery = {
                 hash160?: string | null;
                 telegramId?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               sellerAccount: {
                 __typename?: 'Account';
@@ -1025,12 +1037,14 @@ export type AllOfferByAccountQuery = {
                 hash160?: string | null;
                 telegramId?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               moderatorAccount: {
                 __typename?: 'Account';
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: {
@@ -1092,6 +1106,7 @@ export type AllOfferByAccountQuery = {
                 avatar?: string | null;
                 createCommentFee?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;
@@ -1301,6 +1316,7 @@ export type AllOfferActiveByAccountIdQuery = {
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               buyerAccount: {
                 __typename?: 'Account';
@@ -1309,6 +1325,7 @@ export type AllOfferActiveByAccountIdQuery = {
                 hash160?: string | null;
                 telegramId?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               sellerAccount: {
                 __typename?: 'Account';
@@ -1317,12 +1334,14 @@ export type AllOfferActiveByAccountIdQuery = {
                 hash160?: string | null;
                 telegramId?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               moderatorAccount: {
                 __typename?: 'Account';
                 id: number;
                 publicKey?: string | null;
                 hash160?: string | null;
+                anonymousUsernameLocalecash?: string | null;
               };
               paymentMethod: { __typename?: 'PaymentMethod'; id: number; name: string };
               escrowOffer: {
@@ -1384,6 +1403,7 @@ export type AllOfferActiveByAccountIdQuery = {
                 avatar?: string | null;
                 createCommentFee?: string | null;
                 telegramUsername?: string | null;
+                anonymousUsernameLocalecash?: string | null;
                 accountStatsOrder: {
                   __typename?: 'AccountStatsOrder';
                   donationAmount: number;
@@ -1552,6 +1572,7 @@ export type CreateOfferMutation = {
       avatar?: string | null;
       createCommentFee?: string | null;
       telegramUsername?: string | null;
+      anonymousUsernameLocalecash?: string | null;
       accountStatsOrder: {
         __typename?: 'AccountStatsOrder';
         donationAmount: number;
@@ -1794,6 +1815,7 @@ export type UpdateOfferStatusMutation = {
       avatar?: string | null;
       createCommentFee?: string | null;
       telegramUsername?: string | null;
+      anonymousUsernameLocalecash?: string | null;
       accountStatsOrder: {
         __typename?: 'AccountStatsOrder';
         donationAmount: number;

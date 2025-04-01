@@ -16,6 +16,19 @@ export const settingApi = {
       });
   },
 
+  getAllSetting(): Promise<{ id: Setting }> {
+    const url = `/api/v1/settings`;
+    return axiosClient
+      .get(url)
+      .then(response => {
+        return response.data;
+      })
+      .catch(err => {
+        const { response } = err;
+        throw response?.data ?? err ?? 'Network Error';
+      });
+  },
+
   updateSetting(updateSettingCommand: UpdateSettingCommand): Promise<Setting> {
     const url = `/api/v1/settings/${updateSettingCommand.accountId}/update`;
     return axiosClient
