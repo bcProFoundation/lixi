@@ -1814,6 +1814,7 @@ export type Query = {
   message: Message;
   offer: Offer;
   offerByFilter: TimelineItemConnection;
+  offerByFilterDatabase: TimelineItemConnection;
   page: Page;
   pageMessageSession: PageMessageSession;
   pageTimeline: TimelineItemConnection;
@@ -2342,6 +2343,13 @@ export type QueryOfferArgs = {
 };
 
 export type QueryOfferByFilterArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  offerFilterInput: OfferFilterInput;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryOfferByFilterDatabaseArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   offerFilterInput: OfferFilterInput;

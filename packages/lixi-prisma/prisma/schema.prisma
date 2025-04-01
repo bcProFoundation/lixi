@@ -828,6 +828,7 @@ model BoostFee {
   createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime? @default(now()) @map("updated_at") @db.Timestamptz(6)
 
+  @@index([boostForId])
   @@map("boost_fee")
 }
 

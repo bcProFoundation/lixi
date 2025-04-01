@@ -66,6 +66,21 @@ const enhancedApi = api.enhanceEndpoints({
         currentCacheData.offerByFilter.totalCount = responseData.offerByFilter.totalCount;
       }
     },
+    OfferByFilterDatabase: {
+      providesTags: ['OfferTimeline'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { offerFilterInput } = queryArgs;
+          return { offerFilterInput };
+        }
+        return {};
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.offerByFilterDatabase.edges.push(...responseData.offerByFilterDatabase.edges);
+        currentCacheData.offerByFilterDatabase.pageInfo = responseData.offerByFilterDatabase.pageInfo;
+        currentCacheData.offerByFilterDatabase.totalCount = responseData.offerByFilterDatabase.totalCount;
+      }
+    },
     CreateOffer: {
       async onQueryStarted({ input }, { dispatch, getState, queryFulfilled }) {
         try {
@@ -226,6 +241,8 @@ export const {
   useLazyAllOfferActiveByAccountIdQuery,
   useOfferByFilterQuery,
   useLazyOfferByFilterQuery,
+  useOfferByFilterDatabaseQuery,
+  useLazyOfferByFilterDatabaseQuery,
   useCreateOfferMutation,
   useUpdateOfferMutation,
   useUpdateOfferHideFromHomeMutation,

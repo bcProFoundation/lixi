@@ -3,6 +3,7 @@ export * from './offer/useInfiniteOffersByScoreQuery';
 export * from './offer/useInfiniteMyOffersQuery';
 export * from './offer/useInfiniteActiveOfferByAccountIdQuery';
 export * from './offer/useInfiniteOfferFilterQuery';
+export * from './offer/useInfiniteOfferFilterDatabaseQuery';
 
 export * as escrowOrderApi from './escrow-order/escrow-order.api';
 export * from './escrow-order/useInfiniteMyEscrowOrderQuery';
