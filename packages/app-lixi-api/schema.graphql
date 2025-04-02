@@ -1689,6 +1689,7 @@ type Query {
   message(id: String!): Message!
   offer(id: String!): Offer!
   offerByFilter(after: String, first: Int, offerFilterInput: OfferFilterInput!, skip: Int): TimelineItemConnection!
+  offerByFilterDatabase(after: String, first: Int, offerFilterInput: OfferFilterInput!, skip: Int): TimelineItemConnection!
   page(id: String!): Page!
   pageMessageSession(id: String!): PageMessageSession!
   pageTimeline(after: String, first: Int, id: String!, skip: Int): TimelineItemConnection!

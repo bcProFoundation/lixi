@@ -17,7 +17,8 @@ import {
   UpdateOfferStatusInput,
   Location,
   UpdateOfferHideFromHomeInput,
-  PAYMENT_METHOD
+  PAYMENT_METHOD,
+  POST_TYPE
 } from '@bcpros/lixi-models';
 import { Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
@@ -27,7 +28,7 @@ import { I18n, I18nService } from 'nestjs-i18n';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AccountEntity } from 'src/decorators';
-import { CommentType, PostType, Role } from '@bcpros/lixi-prisma';
+import { CommentType, OfferType, PostType, Prisma, Role } from '@bcpros/lixi-prisma';
 import { ChronikClient, ChronikClientNode } from 'chronik-client';
 import { InjectChronikClient, InjectChronikClientNode } from 'nestjs-chronik';
 import { GqlJwtAuthGuard } from '../../auth/guards/gql-jwtauth.guard';
@@ -50,6 +51,8 @@ import { Context, Telegraf } from 'telegraf';
 import { BOT } from 'src/utils/bot.constants';
 import { COIN_OTHERS } from '../escrow.contants';
 import { ConfigService } from '@nestjs/config';
+import { BOOST_AMOUNT, newEpoch, offer_half_life } from 'src/utils/constants';
+import { paginateRawQuery } from 'src/utils/escrow/paginated-raw';
 
 @SkipThrottle()
 @Resolver(() => Offer)
@@ -130,6 +133,124 @@ export class OfferResolver {
       edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
     } as IBasicPaginated<TimelineItem>;
     return result;
+  }
+
+  @Query(() => TimelineItemConnection)
+  async offerByFilterDatabase(
+    @Args() { after, first }: BasicPaginationArgs,
+    @Args({ name: 'offerFilterInput', type: () => OfferFilterInput }) offerFilterInput: OfferFilterInput
+  ) {
+    // join if needed
+    const needsPaymentMethodJoin = offerFilterInput?.paymentMethodIds?.length ?? 0 > 0;
+    const needsLocationJoin = offerFilterInput.countryCode || offerFilterInput.adminCode || offerFilterInput.cityName;
+
+    const whereClause = this.buildWhereConditions(offerFilterInput);
+
+    // Build cursor condition
+    let cursorCondition = Prisma.empty;
+    if (after) {
+      cursorCondition = Prisma.sql`AND o.post_id > ${after}`;
+    }
+
+    // Main query
+    const halfLifeInterval = `${offer_half_life} hours`;
+    const mainQuery = Prisma.sql`
+    SELECT
+      o.post_id as id,
+      total_relevance(relevance_score(
+        COALESCE(boost.boost_type, 'True'), 
+        COALESCE(boost.created_at, o.created_at), 
+        ${newEpoch} :: timestamp, 
+        ${halfLifeInterval} :: interval, 
+        COALESCE(boost.boosted_value / ${BOOST_AMOUNT}, 1)
+        )) AS score 
+    FROM
+      offer as o
+      LEFT JOIN
+        boost_fee as boost 
+        ON o.post_id = boost.boosted_for_id
+    ${needsPaymentMethodJoin ? Prisma.sql`JOIN offer_payment_method opm ON o.post_id = opm.offer_id` : Prisma.empty}
+    ${needsLocationJoin ? Prisma.sql`JOIN world_cities wc ON o.location_id = wc.id` : Prisma.empty}
+    ${whereClause}
+    ${cursorCondition}
+    GROUP BY
+      o.post_id
+    ORDER by
+      score desc
+    LIMIT ${(first ?? 20) + 1} -- plus 1 to check next page
+  `;
+
+    // Count query
+    const countQuery = Prisma.sql`
+    SELECT COUNT(*) as total
+    FROM offer o
+    ${needsPaymentMethodJoin ? Prisma.sql`JOIN offer_payment_method opm ON o.post_id = opm.offer_id` : Prisma.empty}
+    ${needsLocationJoin ? Prisma.sql`JOIN world_cities wc ON o.location_id = wc.id` : Prisma.empty}
+    ${whereClause}
+  `;
+
+    const paginated = await paginateRawQuery({
+      mainQuery,
+      countQuery,
+      prisma: this.prisma,
+      first,
+      after,
+      cursorField: 'id',
+      cursorPrefix: POST_TYPE.OFFER
+    });
+
+    const timelineIds = paginated.edges.map(item => item.cursor);
+    const timelines = await this.timelineItemService.getByIds(timelineIds);
+    const result = {
+      ...paginated,
+      edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+    } as IBasicPaginated<TimelineItem>;
+    return result;
+  }
+
+  private buildWhereConditions(offerFilterInput: OfferFilterInput) {
+    const conditions: Prisma.Sql[] = [
+      Prisma.sql`o.hide_from_home = false`,
+      Prisma.sql`o.status::text = ${OfferStatus.ACTIVE}`
+    ];
+
+    if (offerFilterInput?.paymentMethodIds?.length) {
+      const idList = offerFilterInput.paymentMethodIds.map(id => Prisma.sql`${id}`);
+      conditions.push(Prisma.sql`opm.payment_method_id IN (${Prisma.join(idList)})`);
+    }
+
+    if (offerFilterInput?.countryCode) {
+      conditions.push(Prisma.sql`wc.iso2 = ${offerFilterInput.countryCode}`);
+    }
+
+    if (offerFilterInput?.adminCode) {
+      conditions.push(Prisma.sql`wc.admin_code = ${offerFilterInput.adminCode}`);
+    }
+
+    if (offerFilterInput?.cityName) {
+      conditions.push(Prisma.sql`wc.city_ascii = ${offerFilterInput.cityName}`);
+    }
+
+    if (offerFilterInput?.fiatCurrency) {
+      conditions.push(Prisma.sql`o.local_currency = ${offerFilterInput.fiatCurrency}`);
+    }
+
+    if (offerFilterInput?.coin) {
+      conditions.push(Prisma.sql`o.coin_payment = ${offerFilterInput.coin}`);
+    }
+
+    if (offerFilterInput?.paymentApp) {
+      conditions.push(Prisma.sql`o.payment_app = ${offerFilterInput.paymentApp}`);
+    }
+
+    if (offerFilterInput?.isBuyOffer !== null && offerFilterInput?.isBuyOffer !== undefined) {
+      conditions.push(Prisma.sql`o.type::text = ${offerFilterInput.isBuyOffer ? OfferType.BUY : OfferType.SELL}`);
+    }
+
+    // Join all conditions if we have any
+    const whereClause = conditions.length > 0 ? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}` : Prisma.empty;
+
+    return whereClause;
   }
 
   @Query(() => TimelineItemConnection)
