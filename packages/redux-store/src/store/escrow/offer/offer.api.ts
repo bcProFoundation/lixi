@@ -36,6 +36,21 @@ const enhancedApi = api.enhanceEndpoints({
         currentCacheData.allOfferByAccount.totalCount = responseData.allOfferByAccount.totalCount;
       }
     },
+    AllOfferByAccountDatabase: {
+      providesTags: ['OfferTimeline'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { offerStatus } = queryArgs;
+          return { offerStatus };
+        }
+        return {};
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.allOfferByAccountDatabase.edges.push(...responseData.allOfferByAccountDatabase.edges);
+        currentCacheData.allOfferByAccountDatabase.pageInfo = responseData.allOfferByAccountDatabase.pageInfo;
+        currentCacheData.allOfferByAccountDatabase.totalCount = responseData.allOfferByAccountDatabase.totalCount;
+      }
+    },
     allOfferActiveByAccountId: {
       providesTags: ['OfferTimeline'],
       serializeQueryArgs({ queryArgs }) {
@@ -49,6 +64,25 @@ const enhancedApi = api.enhanceEndpoints({
         currentCacheData.allOfferActiveByAccountId.edges.push(...responseData.allOfferActiveByAccountId.edges);
         currentCacheData.allOfferActiveByAccountId.pageInfo = responseData.allOfferActiveByAccountId.pageInfo;
         currentCacheData.allOfferActiveByAccountId.totalCount = responseData.allOfferActiveByAccountId.totalCount;
+      }
+    },
+    AllOfferActiveByAccountIdDatabase: {
+      providesTags: ['OfferTimeline'],
+      serializeQueryArgs({ queryArgs }) {
+        if (queryArgs) {
+          const { accountId } = queryArgs;
+          return { accountId };
+        }
+        return {};
+      },
+      merge(currentCacheData, responseData) {
+        currentCacheData.allOfferActiveByAccountIdDatabase.edges.push(
+          ...responseData.allOfferActiveByAccountIdDatabase.edges
+        );
+        currentCacheData.allOfferActiveByAccountIdDatabase.pageInfo =
+          responseData.allOfferActiveByAccountIdDatabase.pageInfo;
+        currentCacheData.allOfferActiveByAccountIdDatabase.totalCount =
+          responseData.allOfferActiveByAccountIdDatabase.totalCount;
       }
     },
     OfferByFilter: {
@@ -237,8 +271,12 @@ export const {
   useLazyAllOfferQuery,
   useAllOfferByAccountQuery,
   useLazyAllOfferByAccountQuery,
+  useAllOfferByAccountDatabaseQuery,
+  useLazyAllOfferByAccountDatabaseQuery,
   useAllOfferActiveByAccountIdQuery,
   useLazyAllOfferActiveByAccountIdQuery,
+  useAllOfferActiveByAccountIdDatabaseQuery,
+  useLazyAllOfferActiveByAccountIdDatabaseQuery,
   useOfferByFilterQuery,
   useLazyOfferByFilterQuery,
   useOfferByFilterDatabaseQuery,

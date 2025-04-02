@@ -1764,7 +1764,9 @@ export type Query = {
   allMessageByPageMessageSessionId: MessageConnection;
   allOffer: TimelineItemConnection;
   allOfferActiveByAccountId: TimelineItemConnection;
+  allOfferActiveByAccountIdDatabase: TimelineItemConnection;
   allOfferByAccount: TimelineItemConnection;
+  allOfferByAccountDatabase: TimelineItemConnection;
   allOpenPageMessageSessionByAccountId: PageMessageSessionConnection;
   allOpenPageMessageSessionByPageId: PageMessageSessionConnection;
   allPageMessageSessionByAccountId: PageMessageSessionConnection;
@@ -1990,7 +1992,21 @@ export type QueryAllOfferActiveByAccountIdArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type QueryAllOfferActiveByAccountIdDatabaseArgs = {
+  accountId: Scalars['Int']['input'];
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type QueryAllOfferByAccountArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  offerStatus: OfferStatus;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryAllOfferByAccountDatabaseArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   offerStatus: OfferStatus;

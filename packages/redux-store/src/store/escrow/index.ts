@@ -1,7 +1,9 @@
 export * as offerApi from './offer/offer.api';
 export * from './offer/useInfiniteOffersByScoreQuery';
 export * from './offer/useInfiniteMyOffersQuery';
+export * from './offer/useInfiniteMyOffersDatabaseQuery';
 export * from './offer/useInfiniteActiveOfferByAccountIdQuery';
+export * from './offer/useInfiniteActiveOfferByAccountIdDatabaseQuery';
 export * from './offer/useInfiniteOfferFilterQuery';
 export * from './offer/useInfiniteOfferFilterDatabaseQuery';
 
