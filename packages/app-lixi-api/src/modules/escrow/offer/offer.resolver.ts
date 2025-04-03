@@ -243,6 +243,10 @@ export class OfferResolver {
       conditions.push(Prisma.sql`o.payment_app = ${offerFilterInput.paymentApp}`);
     }
 
+    if (offerFilterInput?.amount) {
+      conditions.push(Prisma.sql`${offerFilterInput.amount} BETWEEN o.order_limit_min AND o.order_limit_max`);
+    }
+
     if (offerFilterInput?.isBuyOffer !== null && offerFilterInput?.isBuyOffer !== undefined) {
       conditions.push(Prisma.sql`o.type::text = ${offerFilterInput.isBuyOffer ? OfferType.BUY : OfferType.SELL}`);
     }
