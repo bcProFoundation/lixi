@@ -1350,6 +1350,7 @@ export type OfferBasicEdge = {
 
 export type OfferFilterInput = {
   adminCode?: InputMaybe<Scalars['String']['input']>;
+  amount?: InputMaybe<Scalars['Int']['input']>;
   cityName?: InputMaybe<Scalars['String']['input']>;
   coin?: InputMaybe<Scalars['String']['input']>;
   countryCode?: InputMaybe<Scalars['String']['input']>;
