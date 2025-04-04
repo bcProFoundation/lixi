@@ -1368,6 +1368,8 @@ model Offer {
   updatedAt         DateTime             @default(now()) @map("updated_at") @db.Timestamptz
 
   @@index([locationId])
+  @@index([orderLimitMin])
+  @@index([orderLimitMax])
   @@map("offer")
 }
 
