@@ -1565,7 +1565,9 @@ type Query {
   allMessageByPageMessageSessionId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: MessageOrder, skip: Int): MessageConnection!
   allOffer(after: String, first: Int, skip: Int): TimelineItemConnection!
   allOfferActiveByAccountId(accountId: Int!, after: String, first: Int, skip: Int): TimelineItemConnection!
+  allOfferActiveByAccountIdDatabase(accountId: Int!, after: String, first: Int, skip: Int): TimelineItemConnection!
   allOfferByAccount(after: String, first: Int, offerStatus: OfferStatus!, skip: Int): TimelineItemConnection!
+  allOfferByAccountDatabase(after: String, first: Int, offerStatus: OfferStatus!, skip: Int): TimelineItemConnection!
   allOpenPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allOpenPageMessageSessionByPageId(after: String, before: String, first: Int, id: String, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!
   allPageMessageSessionByAccountId(after: String, before: String, first: Int, id: Int, last: Int, minBurnFilter: Int, orderBy: PageMessageSessionOrder, skip: Int): PageMessageSessionConnection!

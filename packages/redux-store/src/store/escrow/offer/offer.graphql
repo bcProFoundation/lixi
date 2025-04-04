@@ -84,12 +84,50 @@ query AllOfferByAccount(
   }
 }
 
+query AllOfferByAccountDatabase(
+  $first: Int = 20
+  $after: String
+  $offerStatus: OfferStatus!
+) {
+  allOfferByAccountDatabase(first: $first, after: $after, offerStatus: $offerStatus) {
+    totalCount
+    edges {
+      cursor
+      node {
+         ...TimelineItemFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
 query allOfferActiveByAccountId(
   $first: Int = 20
   $after: String
   $accountId: Int!
 ) {
   allOfferActiveByAccountId(first: $first, after: $after, accountId: $accountId) {
+    totalCount
+    edges {
+      cursor
+      node {
+         ...TimelineItemFields
+      }
+    }
+    pageInfo {
+      ...BasicPageInfoFields
+    }
+  }
+}
+
+query AllOfferActiveByAccountIdDatabase(
+  $first: Int = 20
+  $after: String
+  $accountId: Int!
+) {
+  allOfferActiveByAccountIdDatabase(first: $first, after: $after, accountId: $accountId) {
     totalCount
     edges {
       cursor

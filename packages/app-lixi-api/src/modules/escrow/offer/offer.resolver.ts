@@ -28,7 +28,7 @@ import { I18n, I18nService } from 'nestjs-i18n';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AccountEntity } from 'src/decorators';
-import { CommentType, OfferType, PostType, Prisma, Role } from '@bcpros/lixi-prisma';
+import { CommentType, OfferType, PostType, Prisma, Role, Post as PostPrisma } from '@bcpros/lixi-prisma';
 import { ChronikClient, ChronikClientNode } from 'chronik-client';
 import { InjectChronikClient, InjectChronikClientNode } from 'nestjs-chronik';
 import { GqlJwtAuthGuard } from '../../auth/guards/gql-jwtauth.guard';
@@ -52,7 +52,7 @@ import { BOT } from 'src/utils/bot.constants';
 import { COIN_OTHERS } from '../escrow.contants';
 import { ConfigService } from '@nestjs/config';
 import { BOOST_AMOUNT, newEpoch, offer_half_life } from 'src/utils/constants';
-import { paginateRawQuery } from 'src/utils/escrow/paginated-raw';
+import { calculatePagination, paginateRawQuery } from 'src/utils/escrow/paginated';
 
 @SkipThrottle()
 @Resolver(() => Offer)
@@ -280,6 +280,56 @@ export class OfferResolver {
   }
 
   @Query(() => TimelineItemConnection)
+  @UseGuards(GqlJwtAuthGuard)
+  async allOfferByAccountDatabase(
+    @AccountEntity() account: Account,
+    @Args() { after, first }: BasicPaginationArgs,
+    @Args({ name: 'offerStatus', type: () => OfferStatus }) offerStatus: OfferStatus
+  ) {
+    if (!account) {
+      const accountNotExistMessage = await this.i18n.t('account.messages.accountNotExist');
+      throw new VError(accountNotExistMessage);
+    }
+
+    const whereClause = {
+      accountId: account?.id,
+      offer: {
+        status: offerStatus
+      }
+    };
+
+    const [items, totalCount] = await Promise.all([
+      this.prisma.post.findMany({
+        where: whereClause,
+        orderBy: {
+          createdAt: 'desc'
+        },
+        take: (first ?? 20) + 1, // plus 1 to check next page
+        ...(after && { cursor: { id: after }, skip: 1 })
+      }),
+      this.prisma.post.count({
+        where: whereClause
+      })
+    ]);
+
+    const paginated = calculatePagination<PostPrisma>({
+      items,
+      totalCount,
+      first,
+      cursorField: 'id',
+      cursorPrefix: PostType.OFFER
+    });
+
+    const timelineIds = paginated.edges.map(item => item.cursor);
+    const timelines = await this.timelineItemService.getByIds(timelineIds);
+    const result = {
+      ...paginated,
+      edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+    } as IBasicPaginated<TimelineItem>;
+    return result;
+  }
+
+  @Query(() => TimelineItemConnection)
   async allOfferActiveByAccountId(
     @Args() { after, first }: BasicPaginationArgs,
     @Args('accountId', { type: () => Number }) accountId: number
@@ -290,6 +340,49 @@ export class OfferResolver {
       first,
       after
     );
+    const timelineIds = paginated.edges.map(item => item.cursor);
+    const timelines = await this.timelineItemService.getByIds(timelineIds);
+    const result = {
+      ...paginated,
+      edges: timelines.map(timeline => (timeline ? createEdge<TimelineItem>(timeline, 'id') : null))
+    } as IBasicPaginated<TimelineItem>;
+    return result;
+  }
+
+  @Query(() => TimelineItemConnection)
+  async allOfferActiveByAccountIdDatabase(
+    @Args() { after, first }: BasicPaginationArgs,
+    @Args('accountId', { type: () => Number }) accountId: number
+  ) {
+    const whereClause = {
+      accountId: accountId,
+      offer: {
+        status: OfferStatus.ACTIVE
+      }
+    };
+
+    const [items, totalCount] = await Promise.all([
+      this.prisma.post.findMany({
+        where: whereClause,
+        orderBy: {
+          createdAt: 'desc'
+        },
+        take: (first ?? 20) + 1, // plus 1 to check next page
+        ...(after && { cursor: { id: after }, skip: 1 })
+      }),
+      this.prisma.post.count({
+        where: whereClause
+      })
+    ]);
+
+    const paginated = calculatePagination<PostPrisma>({
+      items,
+      totalCount,
+      first,
+      cursorField: 'id',
+      cursorPrefix: PostType.OFFER
+    });
+
     const timelineIds = paginated.edges.map(item => item.cursor);
     const timelines = await this.timelineItemService.getByIds(timelineIds);
     const result = {
