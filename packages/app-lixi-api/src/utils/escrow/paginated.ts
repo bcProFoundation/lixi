@@ -1,22 +1,23 @@
-import { IBasicPageInfo, IBasicPaginated, POST_TYPE } from '@bcpros/lixi-models';
-import { Prisma } from '@bcpros/lixi-prisma';
-import { PrismaService } from 'src/modules/prisma/prisma.service';
+import { IBasicPageInfo, IBasicPaginated } from '@bcpros/lixi-models';
+import { Database } from '@bcpros/lixi-prisma';
+import { SelectQueryBuilder } from 'kysely';
+import { KyselyExecutorService } from 'src/modules/prisma/kysely-executor.service';
 
 export async function paginateRawQuery<T>(options: {
-  mainQuery: Prisma.Sql;
-  countQuery: Prisma.Sql;
-  prisma: PrismaService;
+  mainQuery: SelectQueryBuilder<Database, any, any>;
+  countQuery: SelectQueryBuilder<Database, any, any>;
+  kyselyPrisma: KyselyExecutorService;
   first?: number;
   after?: string;
   cursorField?: string;
   cursorPrefix?: string;
 }): Promise<IBasicPaginated<T>> {
-  const { first = 20, after, prisma, mainQuery, countQuery, cursorField = 'id', cursorPrefix } = options;
+  const { first = 20, after, kyselyPrisma, mainQuery, countQuery, cursorField = 'id', cursorPrefix } = options;
 
   // Execute both queries in parallel
   const [items, countResult] = await Promise.all([
-    prisma.$queryRaw<T[]>(mainQuery),
-    prisma.$queryRaw<[{ total: bigint }]>(countQuery)
+    kyselyPrisma.executeQuery(mainQuery.compile()),
+    kyselyPrisma.executeQuery(countQuery.compile())
   ]);
 
   const totalCount = Number(countResult[0].total);

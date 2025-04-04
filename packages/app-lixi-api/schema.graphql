@@ -1154,9 +1154,23 @@ input OfferFilterInput {
   countryName: String
   fiatCurrency: String
   isBuyOffer: Boolean
+  offerOrder: OfferOrder
   paymentApp: String
   paymentMethodIds: [Int!]
   stateName: String
+}
+
+input OfferOrder {
+  direction: OrderDirection!
+  field: OfferOrderField!
+}
+
+"""Properties by which offer connections can be ordered."""
+enum OfferOrderField {
+  donationAmount
+  price
+  relevance
+  trades
 }
 
 type OfferPaymentMethod {

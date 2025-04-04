@@ -18,7 +18,9 @@ import {
   Location,
   UpdateOfferHideFromHomeInput,
   PAYMENT_METHOD,
-  POST_TYPE
+  POST_TYPE,
+  OfferOrderField,
+  OrderDirection
 } from '@bcpros/lixi-models';
 import { Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
@@ -28,7 +30,7 @@ import { I18n, I18nService } from 'nestjs-i18n';
 import { GqlHttpExceptionFilter } from 'src/middlewares/gql.exception.filter';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AccountEntity } from 'src/decorators';
-import { CommentType, OfferType, PostType, Prisma, Role, Post as PostPrisma } from '@bcpros/lixi-prisma';
+import { CommentType, OfferType, PostType, Role, Post as PostPrisma, db } from '@bcpros/lixi-prisma';
 import { ChronikClient, ChronikClientNode } from 'chronik-client';
 import { InjectChronikClient, InjectChronikClientNode } from 'nestjs-chronik';
 import { GqlJwtAuthGuard } from '../../auth/guards/gql-jwtauth.guard';
@@ -51,8 +53,11 @@ import { Context, Telegraf } from 'telegraf';
 import { BOT } from 'src/utils/bot.constants';
 import { COIN_OTHERS } from '../escrow.contants';
 import { ConfigService } from '@nestjs/config';
-import { BOOST_AMOUNT, newEpoch, offer_half_life } from 'src/utils/constants';
 import { calculatePagination, paginateRawQuery } from 'src/utils/escrow/paginated';
+import { BOOST_AMOUNT, newEpoch, offer_half_life, PAGE_SIZE } from 'src/utils/constants';
+import { KyselyExecutorService } from 'src/modules/prisma/kysely-executor.service';
+import { SelectQueryBuilder, sql } from 'kysely';
+import { Database } from '@bcpros/lixi-prisma';
 
 @SkipThrottle()
 @Resolver(() => Offer)
@@ -61,6 +66,7 @@ export class OfferResolver {
   constructor(
     private logger: Logger,
     private prisma: PrismaService,
+    private prismaExecutor: KyselyExecutorService,
     private readonly configService: ConfigService,
     @I18n() private i18n: I18nService,
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
@@ -140,59 +146,36 @@ export class OfferResolver {
     @Args() { after, first }: BasicPaginationArgs,
     @Args({ name: 'offerFilterInput', type: () => OfferFilterInput }) offerFilterInput: OfferFilterInput
   ) {
+    // Default sorting if not provided
+    const sortField = offerFilterInput?.offerOrder?.field || OfferOrderField.relevance;
+    const sortDirection = offerFilterInput?.offerOrder?.direction || OrderDirection.desc;
+
     // join if needed
-    const needsPaymentMethodJoin = offerFilterInput?.paymentMethodIds?.length ?? 0 > 0;
-    const needsLocationJoin = offerFilterInput.countryCode || offerFilterInput.adminCode || offerFilterInput.cityName;
-
-    const whereClause = this.buildWhereConditions(offerFilterInput);
-
-    // Build cursor condition
-    let cursorCondition = Prisma.empty;
-    if (after) {
-      cursorCondition = Prisma.sql`AND o.post_id > ${after}`;
-    }
+    const needsPaymentMethodJoin = (offerFilterInput?.paymentMethodIds?.length ?? 0) > 0;
+    const needsLocationJoin = !!(
+      offerFilterInput.countryCode ||
+      offerFilterInput.adminCode ||
+      offerFilterInput.cityName
+    );
 
     // Main query
-    const halfLifeInterval = `${offer_half_life} hours`;
-    const mainQuery = Prisma.sql`
-    SELECT
-      o.post_id as id,
-      total_relevance(relevance_score(
-        COALESCE(boost.boost_type, 'True'), 
-        COALESCE(boost.created_at, o.created_at), 
-        ${newEpoch} :: timestamp, 
-        ${halfLifeInterval} :: interval, 
-        COALESCE(boost.boosted_value / ${BOOST_AMOUNT}, 1)
-        )) AS score 
-    FROM
-      offer as o
-      LEFT JOIN
-        boost_fee as boost 
-        ON o.post_id = boost.boosted_for_id
-    ${needsPaymentMethodJoin ? Prisma.sql`JOIN offer_payment_method opm ON o.post_id = opm.offer_id` : Prisma.empty}
-    ${needsLocationJoin ? Prisma.sql`JOIN world_cities wc ON o.location_id = wc.id` : Prisma.empty}
-    ${whereClause}
-    ${cursorCondition}
-    GROUP BY
-      o.post_id
-    ORDER by
-      score desc
-    LIMIT ${(first ?? 20) + 1} -- plus 1 to check next page
-  `;
+    const mainQuery = this.buildOfferSortQuery(
+      sortField,
+      sortDirection,
+      offerFilterInput,
+      after,
+      (first ?? PAGE_SIZE) + 1,
+      needsPaymentMethodJoin,
+      needsLocationJoin
+    );
 
-    // Count query
-    const countQuery = Prisma.sql`
-    SELECT COUNT(*) as total
-    FROM offer o
-    ${needsPaymentMethodJoin ? Prisma.sql`JOIN offer_payment_method opm ON o.post_id = opm.offer_id` : Prisma.empty}
-    ${needsLocationJoin ? Prisma.sql`JOIN world_cities wc ON o.location_id = wc.id` : Prisma.empty}
-    ${whereClause}
-  `;
+    //Count query
+    const countQuery = this.buildCountQuery(offerFilterInput, needsPaymentMethodJoin, needsLocationJoin);
 
     const paginated = await paginateRawQuery({
       mainQuery,
       countQuery,
-      prisma: this.prisma,
+      kyselyPrisma: this.prismaExecutor,
       first,
       after,
       cursorField: 'id',
@@ -208,53 +191,182 @@ export class OfferResolver {
     return result;
   }
 
-  private buildWhereConditions(offerFilterInput: OfferFilterInput) {
-    const conditions: Prisma.Sql[] = [
-      Prisma.sql`o.hide_from_home = false`,
-      Prisma.sql`o.status::text = ${OfferStatus.ACTIVE}`
-    ];
+  private buildOfferSortQuery(
+    sortField: OfferOrderField,
+    sortDirection: OrderDirection,
+    offerFilterInput: OfferFilterInput,
+    after: string | undefined,
+    first: number,
+    needsPaymentMethodJoin: boolean,
+    needsLocationJoin: boolean
+  ) {
+    // process for SQL injection
+    const sortDir = sortDirection === OrderDirection.asc ? OrderDirection.asc : OrderDirection.desc;
+    const halfLifeInterval = `${offer_half_life} hours`;
 
-    if (offerFilterInput?.paymentMethodIds?.length) {
-      const idList = offerFilterInput.paymentMethodIds.map(id => Prisma.sql`${id}`);
-      conditions.push(Prisma.sql`opm.payment_method_id IN (${Prisma.join(idList)})`);
+    // Custom relevance calculation using SQL tag
+    const relevanceScoreCalc = sql<number>`
+      total_relevance(relevance_score(
+        COALESCE(boost_fee.boost_type, 'True'), 
+        COALESCE(boost_fee.created_at, offer.created_at), 
+        ${newEpoch} :: timestamp, 
+        ${halfLifeInterval} :: interval, 
+        COALESCE(boost_fee.boosted_value / ${BOOST_AMOUNT}, 1)
+      ))
+    `;
+
+    if (sortField === OfferOrderField.price) {
+      // Use margin_percentage because  in 1 currency, price is always the same
+      let query = db
+        .selectFrom('offer')
+        .select('offer.post_id as id')
+        .select('offer.margin_percentage as sort_value')
+        .$if(needsPaymentMethodJoin, qb =>
+          qb.leftJoin('offer_payment_method', 'offer.post_id', 'offer_payment_method.offer_id')
+        )
+        .$if(needsLocationJoin, qb => qb.leftJoin('world_cities', 'offer.location_id', 'world_cities.id'))
+        .$call(qb => this.applyWhereConditions(qb, offerFilterInput))
+        .$if(!!after, qb => qb.where('offer.post_id', '>', after ?? ''))
+        .orderBy('offer.margin_percentage', sortDir)
+        .orderBy('offer.post_id', 'asc')
+        .limit(first);
+
+      return query;
+    } else if (sortField === OfferOrderField.trades || sortField === OfferOrderField.donationAmount) {
+      // Complex query with CTEs using Kysely's CTE support
+      return db
+        .with('SellerPrecomputed', qb => {
+          return qb
+            .selectFrom('escrow_order as eo')
+            .leftJoin('dispute as d', 'eo.id', 'd.escrow_order_id')
+            .select(['d.status as dispute_status' as any, 'eo.seller_account_id as relevant_account_id'])
+            .selectAll('eo');
+        })
+        .with('BuyerPrecomputed', qb => {
+          return qb
+            .selectFrom('escrow_order as eo')
+            .leftJoin('dispute as d', 'eo.id', 'd.escrow_order_id')
+            .select(['d.status as dispute_status' as any, 'eo.buyer_account_id as relevant_account_id'])
+            .selectAll('eo');
+        })
+        .with('Precomputed', qb => {
+          return qb.selectFrom('SellerPrecomputed').selectAll().unionAll(qb.selectFrom('BuyerPrecomputed').selectAll());
+        })
+        .with('OverallStats', qb => {
+          return qb
+            .selectFrom('Precomputed as eo')
+            .select('relevant_account_id')
+            .select(
+              sql<number>`
+              COALESCE(SUM(eo.seller_donate_amount), 0) + 
+              COALESCE(SUM(eo.buyer_donate_amount), 0)
+            `.as(OfferOrderField.donationAmount)
+            )
+            .select(
+              sql<number>`
+              SUM(CASE WHEN eo.status = 'COMPLETE' THEN 1 ELSE 0 END)
+            `.as(OfferOrderField.trades)
+            )
+            .groupBy('relevant_account_id');
+        })
+        .selectFrom('offer')
+        .innerJoin('post', 'offer.post_id', 'post.id')
+        .leftJoin('boost_fee', 'offer.post_id', 'boost_fee.boosted_for_id')
+        .leftJoin('OverallStats as stats', 'post.account_id', 'stats.relevant_account_id')
+        .$if(needsPaymentMethodJoin, qb =>
+          qb.leftJoin('offer_payment_method', 'offer.post_id', 'offer_payment_method.offer_id')
+        )
+        .$if(needsLocationJoin, qb => qb.leftJoin('world_cities', ' offer.location_id', 'world_cities.id'))
+        .select('offer.post_id as id')
+        .select(sql<number>`COALESCE(stats.${sql.raw(sortField)}, 0)`.as('sort_value'))
+        .select(relevanceScoreCalc.as('relevance_score'))
+        .$call(qb => this.applyWhereConditions(qb, offerFilterInput))
+        .$if(!!after, qb => qb.where('offer.post_id', '>', after ?? ''))
+        .groupBy(['offer.post_id', sql.raw(`stats.${sortField}`)])
+        .orderBy('sort_value', sortDir)
+        .orderBy('relevance_score', 'desc')
+        .limit(first);
+    } else {
+      // Default: Sort by relevance
+      let query = db
+        .selectFrom('offer')
+        .leftJoin('boost_fee', 'offer.post_id', 'boost_fee.boosted_for_id')
+        .$if(needsPaymentMethodJoin, qb =>
+          qb.leftJoin('offer_payment_method', 'offer.post_id', 'offer_payment_method.offer_id')
+        )
+        .$if(needsLocationJoin, qb => qb.leftJoin('world_cities', 'offer.location_id', 'world_cities.id'))
+        .select('offer.post_id as id')
+        .select(relevanceScoreCalc.as('score'))
+        .$call(qb => this.applyWhereConditions(qb, offerFilterInput))
+        .$if(!!after, qb => qb.where('offer.post_id', '>', after ?? ''))
+        .groupBy('offer.post_id')
+        .orderBy('score', sortDir)
+        .orderBy('offer.post_id', 'asc')
+        .limit(first);
+
+      return query;
     }
+  }
 
-    if (offerFilterInput?.countryCode) {
-      conditions.push(Prisma.sql`wc.iso2 = ${offerFilterInput.countryCode}`);
-    }
+  private buildCountQuery(
+    offerFilterInput: OfferFilterInput,
+    needsPaymentMethodJoin: boolean,
+    needsLocationJoin: boolean
+  ) {
+    let query = db
+      .selectFrom('offer')
+      .select(eb => eb.fn.countAll().as('total'))
+      .$if(needsPaymentMethodJoin, qb =>
+        qb.leftJoin('offer_payment_method', 'offer.post_id', 'offer_payment_method.offer_id')
+      )
+      .$if(needsLocationJoin, qb => qb.leftJoin('world_cities', 'offer.location_id', 'world_cities.id'))
+      .$call(qb => this.applyWhereConditions(qb, offerFilterInput));
 
-    if (offerFilterInput?.adminCode) {
-      conditions.push(Prisma.sql`wc.admin_code = ${offerFilterInput.adminCode}`);
-    }
+    return query;
+  }
 
-    if (offerFilterInput?.cityName) {
-      conditions.push(Prisma.sql`wc.city_ascii = ${offerFilterInput.cityName}`);
-    }
-
-    if (offerFilterInput?.fiatCurrency) {
-      conditions.push(Prisma.sql`o.local_currency = ${offerFilterInput.fiatCurrency}`);
-    }
-
-    if (offerFilterInput?.coin) {
-      conditions.push(Prisma.sql`o.coin_payment = ${offerFilterInput.coin}`);
-    }
-
-    if (offerFilterInput?.paymentApp) {
-      conditions.push(Prisma.sql`o.payment_app = ${offerFilterInput.paymentApp}`);
-    }
-
-    if (offerFilterInput?.amount) {
-      conditions.push(Prisma.sql`${offerFilterInput.amount} BETWEEN o.order_limit_min AND o.order_limit_max`);
-    }
-
-    if (offerFilterInput?.isBuyOffer !== null && offerFilterInput?.isBuyOffer !== undefined) {
-      conditions.push(Prisma.sql`o.type::text = ${offerFilterInput.isBuyOffer ? OfferType.BUY : OfferType.SELL}`);
-    }
-
-    // Join all conditions if we have any
-    const whereClause = conditions.length > 0 ? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}` : Prisma.empty;
-
-    return whereClause;
+  private applyWhereConditions(query: SelectQueryBuilder<Database, any, any>, offerFilterInput: OfferFilterInput) {
+    return query
+      .where('offer.hide_from_home', '=', false)
+      .where(sql`offer.status::text`, '=', OfferStatus.ACTIVE)
+      
+      // Sử dụng phương thức $if thay vì các câu lệnh if-then thông thường
+      .$if((offerFilterInput?.paymentMethodIds?.length ?? 0) > 0, qb =>  
+        qb.where('offer_payment_method.payment_method_id', 'in', offerFilterInput.paymentMethodIds!)
+      )
+      
+      .$if(!!offerFilterInput?.countryCode, qb => 
+        qb.where('world_cities.iso2', '=', offerFilterInput.countryCode!)
+      )
+      
+      .$if(!!offerFilterInput?.adminCode, qb => 
+        qb.where('world_cities.admin_code', '=', offerFilterInput.adminCode!)
+      )
+      
+      .$if(!!offerFilterInput?.cityName, qb => 
+        qb.where('world_cities.city_ascii', '=', offerFilterInput.cityName!)
+      )
+      
+      .$if(!!offerFilterInput?.fiatCurrency, qb => 
+        qb.where('offer.local_currency', '=', offerFilterInput.fiatCurrency!)
+      )
+      
+      .$if(!!offerFilterInput?.coin, qb => 
+        qb.where('offer.coin_payment', '=', offerFilterInput.coin!)
+      )
+      
+      .$if(!!offerFilterInput?.paymentApp, qb => 
+        qb.where('offer.payment_app', '=', offerFilterInput.paymentApp!)
+      )
+      
+      .$if(!!offerFilterInput?.amount, qb => 
+        qb.where('offer.order_limit_min', '<=', offerFilterInput.amount!)
+          .where('offer.order_limit_max', '>=', offerFilterInput.amount!)
+      )
+      
+      .$if(offerFilterInput?.isBuyOffer !== null && offerFilterInput?.isBuyOffer !== undefined, qb => 
+        qb.where(sql`offer.type::text`, '=', offerFilterInput.isBuyOffer ? OfferType.BUY : OfferType.SELL)
+      );
   }
 
   @Query(() => TimelineItemConnection)
@@ -308,7 +420,7 @@ export class OfferResolver {
         orderBy: {
           createdAt: 'desc'
         },
-        take: (first ?? 20) + 1, // plus 1 to check next page
+        take: (first ?? PAGE_SIZE) + 1, // plus 1 to check next page
         ...(after && { cursor: { id: after }, skip: 1 })
       }),
       this.prisma.post.count({
@@ -371,7 +483,7 @@ export class OfferResolver {
         orderBy: {
           createdAt: 'desc'
         },
-        take: (first ?? 20) + 1, // plus 1 to check next page
+        take: (first ?? PAGE_SIZE) + 1, // plus 1 to check next page
         ...(after && { cursor: { id: after }, skip: 1 })
       }),
       this.prisma.post.count({

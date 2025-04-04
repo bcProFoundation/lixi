@@ -62,8 +62,10 @@
   },
   "dependencies": {
     "@prisma/client": "5.12.1",
+    "kysely": "^0.27.6",
     "pg": "^8.13.1",
     "pg-copy-streams": "^6.0.6",
+    "prisma-kysely": "^1.8.0",
     "querystring": "^0.2.1",
     "url": "^0.11.4"
   },
