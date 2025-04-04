@@ -128,8 +128,8 @@ export class DisputeResolver {
       }
 
       const { sellerAccount, buyerAccount, arbitratorAccount, moderatorAccount } = escrowOrder;
-      const sellerTelegramUsername = sellerAccount.telegramUsername!.replace(/_/g, '\\_');
-      const buyerTelegramUsername = buyerAccount.telegramUsername!.replace(/_/g, '\\_');
+      const sellerTelegramUsername = sellerAccount.telegramUsername!.replace(/([|{}\[\]*_~#+>!=\-.])/g, '\\$1');
+      const buyerTelegramUsername = buyerAccount.telegramUsername!.replace(/([|{}\[\]*_~#+>!=\-.])/g, '\\$1');
 
       if (escrowOrder.dispute) {
         throw new Error('Escrow order already has a dispute');

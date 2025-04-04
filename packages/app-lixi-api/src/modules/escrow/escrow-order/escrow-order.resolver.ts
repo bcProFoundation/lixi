@@ -217,8 +217,8 @@ export class EscrowOrderResolver {
       }
 
       const { sellerAccount, buyerAccount } = result;
-      const sellerTelegramUsername = sellerAccount.telegramUsername!.replace(/_/g, '\\_');
-      const buyerTelegramUsername = buyerAccount.telegramUsername!.replace(/_/g, '\\_');
+      const sellerTelegramUsername = sellerAccount.telegramUsername!.replace(/([|{}\[\]*_~#+>!=\-.])/g, '\\$1');
+      const buyerTelegramUsername = buyerAccount.telegramUsername!.replace(/([|{}\[\]*_~#+>!=\-.])/g, '\\$1');
 
       if (account.id === result.sellerAccountId && buyerAccount.telegramId) {
         const formatReplied = format(BOT.MESSAGE.SELLER_REQUEST_CHAT, sellerTelegramUsername);
@@ -311,8 +311,8 @@ export class EscrowOrderResolver {
       }
 
       const { moderatorAccount, arbitratorAccount, sellerAccount, buyerAccount } = result;
-      const arbTelegramUsername = arbitratorAccount.telegramUsername!.replace(/_/g, '\\_');
-      const modTelegramUsername = moderatorAccount.telegramUsername!.replace(/_/g, '\\_');
+      const arbTelegramUsername = arbitratorAccount.telegramUsername!.replace(/([|{}\[\]*_~#+>!=\-.])/g, '\\$1');
+      const modTelegramUsername = moderatorAccount.telegramUsername!.replace(/([|{}\[\]*_~#+>!=\-.])/g, '\\$1');
 
       if (account.id === result.arbitratorAccountId) {
         if (requestChatPublicKey === sellerAccount.publicKey && sellerAccount.telegramId) {
@@ -788,7 +788,7 @@ export class EscrowOrderResolver {
         const formatReplied = format(
           replied,
           escrowOrder.amount.toLocaleString('en-US'),
-          orderAccount.telegramUsername!.replace(/_/g, '\\_'),
+          orderAccount.telegramUsername!.replace(/([|{}\[\]*_~#+>!=\-.])/g, '\\$1'),
           escrowOrder.offer.message,
           escrowOrder.amountCoinOrCurrency.toLocaleString('en-US'),
           escrowOrder.offer.coinPayment ?? escrowOrder.offer.localCurrency ?? 'XEC',
