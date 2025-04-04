@@ -10,4 +10,7 @@ export class Setting {
 
   @Field(() => GraphQLDateTime, { nullable: true })
   lastSeedBackupTime?: Nullable<Date>;
+
+  @Field(() => Boolean, { nullable: true })
+  usePublicLocalUserName?: Nullable<boolean>;
 }

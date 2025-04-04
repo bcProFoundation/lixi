@@ -11,7 +11,7 @@ import {
   fromSmallestDenomination,
   walletPath
 } from '@bcpros/lixi-models';
-import { Account as AccountDb, AccountType, AddressType, Coin } from '@bcpros/lixi-prisma';
+import { Account as AccountDb, AccountType, AddressType, Coin, Role } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import {
   Body,
@@ -22,6 +22,7 @@ import {
   HttpException,
   HttpStatus,
   Inject,
+  Logger,
   Param,
   Patch,
   Post,
@@ -55,7 +56,8 @@ export class AccountController {
     @Inject(WALLET_SERVICES) private walletServices: { [currency: string]: WalletService },
     @Inject(XPIJS) private XPI: BCHJS,
     private readonly accountCacheService: AccountCacheService,
-    private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService,
+    private readonly logger: Logger
   ) {}
 
   @Get(':id')
@@ -231,6 +233,8 @@ export class AccountController {
         const addressType = _.toUpper(type) === 'P2PKH' ? AddressType.P2PKH : AddressType.P2SH;
         let addressCoin = coin === COIN.XPI ? address : cashAddress;
 
+        const anonymousName = await this.createAnonymousUsernameLocalecash();
+
         const accountToInsert = {
           name: name,
           accountType: AccountType.NORMAL,
@@ -241,6 +245,7 @@ export class AccountController {
           address: address,
           hash160: Buffer.from(this.XPI.Address.toHash160(address), 'hex'),
           publicKey: publicKey,
+          anonymousUsernameLocalecash: anonymousName,
           accountDana: {
             create: {}
           },
@@ -258,6 +263,7 @@ export class AccountController {
         const createdAccount: AccountDb = await this.prisma.account.create({
           data: accountToInsert
         });
+
         await this.accountCacheService.removeByKey(createdAccount.id.toString());
         const { totalBalanceInSatoshis } = await walletService.getBalances(createdAccount.address);
 
@@ -387,6 +393,7 @@ export class AccountController {
           encryptedSecret = await aesGcmEncrypt(accountSecret, command.mnemonic);
         }
 
+        const anonymousName = await this.createAnonymousUsernameLocalecash();
         const accountToInsert = {
           name: name,
           accountType: (command.accountType as AccountType) || undefined,
@@ -396,7 +403,8 @@ export class AccountController {
           address: address,
           hash160: Buffer.from(this.XPI.Address.toHash160(address), 'hex'),
           publicKey: publicKey,
-          telegramId: command.telegramId || undefined
+          telegramId: command.telegramId || undefined,
+          anonymousUsernameLocalecash: anonymousName
         };
 
         const addressType = _.toUpper(type) == 'P2PKH' ? 'P2PKH' : 'P2SH';
@@ -420,6 +428,7 @@ export class AccountController {
             }
           }
         });
+
         await this.accountCacheService.removeByKey(createdAccount.id.toString());
 
         const resultApi: AccountDto = _.omit(
@@ -522,7 +531,8 @@ export class AccountController {
         },
         data: {
           telegramUsername: null,
-          telegramId: null
+          telegramId: null,
+          role: Role.USER
         }
       });
       if (!account) {
@@ -777,6 +787,34 @@ export class AccountController {
         const error = new VError.WError(err as Error, unableGetNotification);
         throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
       }
+    }
+  }
+
+  private async createAnonymousUsernameLocalecash() {
+    try {
+      const creationYear = new Date().getFullYear();
+      const yearSuffix = creationYear.toString().slice(-2);
+
+      // Keep trying until we get a unique ID
+      let anonymousName;
+      let isUnique = false;
+
+      while (!isUnique) {
+        const randomNum = Math.floor(Math.random() * 9000) + 1000;
+        anonymousName = `LocalUser-${yearSuffix}${randomNum}`;
+
+        const existing = await this.prisma.account.findUnique({
+          where: { anonymousUsernameLocalecash: anonymousName }
+        });
+
+        if (!existing) {
+          isUnique = true;
+        }
+      }
+
+      return anonymousName;
+    } catch (err) {
+      this.logger.error(err);
     }
   }
 }

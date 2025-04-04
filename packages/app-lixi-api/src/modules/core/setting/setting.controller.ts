@@ -7,6 +7,7 @@ import { Account, UpdateSettingCommand } from '@bcpros/lixi-models';
 import { VError } from 'verror';
 import { AccountEntity } from 'src/decorators';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwtauth.guard';
+import { CacheTTL } from '@nestjs/cache-manager';
 
 @SkipThrottle()
 @Controller()
@@ -52,15 +53,40 @@ export class SettingController {
     }
   }
 
+  @Get('v1/settings')
+  @CacheTTL(300)
+  async getAllSettings(): Promise<Record<string, any>> {
+    try {
+      // Get all settings
+      const settings = await this.prisma.setting.findMany({
+        select: {
+          accountId: true,
+          usePublicLocalUserName: true
+        }
+      });
+
+      // Transform into {accountId: value} format
+      const result: Record<string, any> = {};
+      for (const setting of settings) {
+        result[setting.accountId.toString()] = setting;
+      }
+
+      return result;
+    } catch (err: unknown) {
+      this.logger.error(err);
+      return {};
+    }
+  }
+
   @Post('v1/settings/:accountId/update')
   @UseGuards(JwtAuthGuard)
-  async import(
+  async update(
     @AccountEntity() account: Account,
     @Body() updateSettingCommand: UpdateSettingCommand,
     @I18n() i18n: I18nContext
   ): Promise<any> {
     try {
-      const { accountId, lastSeedBackupTime } = updateSettingCommand;
+      const { accountId, lastSeedBackupTime, usePublicLocalUserName } = updateSettingCommand;
 
       if (!account) {
         const accountNotExistMessage = await i18n.t('account.messages.accountNotExist');
@@ -73,7 +99,10 @@ export class SettingController {
           accountId: Number(accountId)
         },
         update: {
-          lastSeedBackupTime: lastSeedBackupTime
+          ...(lastSeedBackupTime !== undefined && { lastSeedBackupTime }),
+          ...(usePublicLocalUserName !== undefined && {
+            usePublicLocalUserName: usePublicLocalUserName ?? false
+          })
         },
         create: {
           account: {
@@ -81,7 +110,8 @@ export class SettingController {
               id: Number(accountId)
             }
           },
-          lastSeedBackupTime: lastSeedBackupTime
+          lastSeedBackupTime: lastSeedBackupTime,
+          usePublicLocalUserName: false
         }
       });
 

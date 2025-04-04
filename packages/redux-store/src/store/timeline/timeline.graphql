@@ -9,6 +9,7 @@ fragment EscrowOrderFields on EscrowOrder {
     id
     publicKey
     hash160
+    anonymousUsernameLocalecash
   }
   buyerAccount {
     id
@@ -16,6 +17,7 @@ fragment EscrowOrderFields on EscrowOrder {
     hash160
     telegramId
     telegramUsername
+    anonymousUsernameLocalecash
   }
   sellerAccount {
     id
@@ -23,11 +25,13 @@ fragment EscrowOrderFields on EscrowOrder {
     hash160
     telegramId
     telegramUsername
+    anonymousUsernameLocalecash
   }
   moderatorAccount {
     id
     publicKey
     hash160
+    anonymousUsernameLocalecash
   }
   paymentMethod {
     id

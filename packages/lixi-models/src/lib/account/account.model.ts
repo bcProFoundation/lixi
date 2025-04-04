@@ -136,6 +136,10 @@ export class Account {
   @IsOptional()
   telegramUsername?: Nullable<string>;
 
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  anonymousUsernameLocalecash?: Nullable<string>;
+
   @Field(() => Role)
   role: Role;
 
