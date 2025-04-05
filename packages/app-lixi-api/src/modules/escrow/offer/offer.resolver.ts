@@ -75,6 +75,11 @@ export class OfferResolver {
     private notificationGateway: NotificationGateway
   ) {}
 
+  generateInlineKeyboard(url: string) {
+    const isMiniAppEnabled = this.configService.get('TELEGRAM_MINI_APP_ENABLE') || false;
+    return [[isMiniAppEnabled ? { text: 'Open Mini App', web_app: { url } } : { text: 'Open Web App', url }]];
+  }
+
   @Query(() => Offer)
   @UseGuards(GqlJwtAuthGuard)
   async offer(@AccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
@@ -514,7 +519,7 @@ export class OfferResolver {
           .sendMessage(account.telegramId, formatReplied, {
             parse_mode: 'Markdown',
             reply_markup: {
-              inline_keyboard: [[isMiniApp]]
+              inline_keyboard: this.generateInlineKeyboard(link)
             }
           })
           .then(async res => {

@@ -75,6 +75,11 @@ export class EscrowOrderResolver {
     @InjectRedis() private readonly redis: Redis
   ) {}
 
+  generateInlineKeyboard(url: string) {
+    const isMiniAppEnabled = this.config.get('TELEGRAM_MINI_APP_ENABLE') || false;
+    return [[isMiniAppEnabled ? { text: 'Open Mini App', web_app: { url } } : { text: 'Open Web App', url }]];
+  }
+
   @Query(() => Account)
   @UseGuards(GqlJwtAuthGuard)
   async getModeratorAccount() {
@@ -221,17 +226,6 @@ export class EscrowOrderResolver {
       const buyerTelegramUsername = buyerAccount.telegramUsername!.replace(/_/g, '\\_');
 
       const link = `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`;
-      const isMiniApp = this.config.get('TELEGRAM_MINI_APP_ENABLE')
-        ? {
-            text: 'Open Mini App',
-            web_app: {
-              url: link
-            }
-          }
-        : {
-            text: 'Open Web App',
-            url: link
-          };
 
       if (account.id === result.sellerAccountId && buyerAccount.telegramId) {
         const formatReplied = format(BOT.MESSAGE.SELLER_REQUEST_CHAT, sellerTelegramUsername);
@@ -240,7 +234,7 @@ export class EscrowOrderResolver {
             parse_mode: 'Markdown',
             protect_content: true,
             reply_markup: {
-              inline_keyboard: [[isMiniApp]]
+              inline_keyboard: this.generateInlineKeyboard(link)
             }
           })
           .catch(e => {
@@ -255,7 +249,7 @@ export class EscrowOrderResolver {
             parse_mode: 'Markdown',
             protect_content: true,
             reply_markup: {
-              inline_keyboard: [[isMiniApp]]
+              inline_keyboard: this.generateInlineKeyboard(link)
             }
           })
           .catch(e => {
@@ -314,17 +308,6 @@ export class EscrowOrderResolver {
       const modTelegramUsername = moderatorAccount.telegramUsername!.replace(/_/g, '\\_');
 
       const link = `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrderId}`;
-      const isMiniApp = this.config.get('TELEGRAM_MINI_APP_ENABLE')
-        ? {
-            text: 'Open Mini App',
-            web_app: {
-              url: link
-            }
-          }
-        : {
-            text: 'Open Web App',
-            url: link
-          };
 
       if (account.id === result.arbitratorAccountId) {
         if (requestChatPublicKey === sellerAccount.publicKey && sellerAccount.telegramId) {
@@ -334,7 +317,7 @@ export class EscrowOrderResolver {
               parse_mode: 'Markdown',
               protect_content: true,
               reply_markup: {
-                inline_keyboard: [[isMiniApp]]
+                inline_keyboard: this.generateInlineKeyboard(link)
               }
             })
             .catch(e => {
@@ -349,7 +332,7 @@ export class EscrowOrderResolver {
               parse_mode: 'Markdown',
               protect_content: true,
               reply_markup: {
-                inline_keyboard: [[isMiniApp]]
+                inline_keyboard: this.generateInlineKeyboard(link)
               }
             })
             .catch(e => {
@@ -366,7 +349,7 @@ export class EscrowOrderResolver {
               parse_mode: 'Markdown',
               protect_content: true,
               reply_markup: {
-                inline_keyboard: [[isMiniApp]]
+                inline_keyboard: this.generateInlineKeyboard(link)
               }
             })
             .catch(e => {
@@ -381,7 +364,7 @@ export class EscrowOrderResolver {
               parse_mode: 'Markdown',
               protect_content: true,
               reply_markup: {
-                inline_keyboard: [[isMiniApp]]
+                inline_keyboard: this.generateInlineKeyboard(link)
               }
             })
             .catch(e => {
@@ -788,17 +771,6 @@ export class EscrowOrderResolver {
         );
 
         const link = `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrder.id}`;
-        const isMiniApp = this.config.get('TELEGRAM_MINI_APP_ENABLE')
-          ? {
-              text: 'Open Mini App',
-              web_app: {
-                url: link
-              }
-            }
-          : {
-              text: 'Open Web App',
-              url: link
-            };
 
         //send to offer-acocunt
         await this.bot.telegram
@@ -810,7 +782,7 @@ export class EscrowOrderResolver {
               allow_sending_without_reply: true
             },
             reply_markup: {
-              inline_keyboard: [[isMiniApp]]
+              inline_keyboard: this.generateInlineKeyboard(link)
             }
           })
           .then(async res => {
@@ -835,7 +807,7 @@ export class EscrowOrderResolver {
             parse_mode: 'Markdown',
             protect_content: true,
             reply_markup: {
-              inline_keyboard: [[isMiniApp]]
+              inline_keyboard: this.generateInlineKeyboard(link)
             }
           })
           .then(async res => {
@@ -948,7 +920,7 @@ export class EscrowOrderResolver {
                 allow_sending_without_reply: true
               },
               reply_markup: {
-                inline_keyboard: [[isMiniApp]]
+                inline_keyboard: this.generateInlineKeyboard(link)
               }
             })
             .catch(e => {
@@ -998,7 +970,7 @@ export class EscrowOrderResolver {
                 allow_sending_without_reply: true
               },
               reply_markup: {
-                inline_keyboard: [[isMiniApp]]
+                inline_keyboard: this.generateInlineKeyboard(link)
               }
             })
             .catch(e => {
@@ -1141,17 +1113,6 @@ export class EscrowOrderResolver {
           //notify for buyer
           if (result.buyerAccount.telegramId) {
             const link = `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${orderId}`;
-            const isMiniApp = this.config.get('TELEGRAM_MINI_APP_ENABLE')
-              ? {
-                  text: 'Open Mini App',
-                  web_app: {
-                    url: link
-                  }
-                }
-              : {
-                  text: 'Open Web App',
-                  url: link
-                };
 
             const formatReplied = format(BOT.MESSAGE.ORDER_ESCROW);
             await this.bot.telegram
@@ -1162,7 +1123,7 @@ export class EscrowOrderResolver {
                   message_id: result.buyerTelegramMessageId!
                 },
                 reply_markup: {
-                  inline_keyboard: [[isMiniApp]]
+                  inline_keyboard: this.generateInlineKeyboard(link)
                 }
               })
               .catch(e => {
@@ -1254,17 +1215,6 @@ export class EscrowOrderResolver {
           //buyer cancel => notif for seller (always notif if arb cancel)
           if (result.sellerAccount.telegramId && (!isSeller || isArbiMod)) {
             const link = `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`;
-            const isMiniApp = this.config.get('TELEGRAM_MINI_APP_ENABLE')
-              ? {
-                  text: 'Open Mini App',
-                  web_app: {
-                    url: link
-                  }
-                }
-              : {
-                  text: 'Open Web App',
-                  url: link
-                };
 
             const formatReplied = isArbiMod
               ? format(BOT.MESSAGE.ORDER_RETURN_BY_ARBMOD_SELLER)
@@ -1279,7 +1229,7 @@ export class EscrowOrderResolver {
                   allow_sending_without_reply: true
                 },
                 reply_markup: {
-                  inline_keyboard: [[isMiniApp]]
+                  inline_keyboard: this.generateInlineKeyboard(link)
                 }
               })
               .catch(e => {
@@ -1389,17 +1339,6 @@ export class EscrowOrderResolver {
       });
 
       const link = `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`;
-      const isMiniApp = this.config.get('TELEGRAM_MINI_APP_ENABLE')
-        ? {
-            text: 'Open Mini App',
-            web_app: {
-              url: link
-            }
-          }
-        : {
-            text: 'Open Web App',
-            url: link
-          };
 
       // notify for seller (buyOffer)
       if (result?.sellerAccount?.telegramId) {
@@ -1412,7 +1351,7 @@ export class EscrowOrderResolver {
             allow_sending_without_reply: true
           },
           reply_markup: {
-            inline_keyboard: [[isMiniApp]]
+            inline_keyboard: this.generateInlineKeyboard(link)
           }
         });
       }

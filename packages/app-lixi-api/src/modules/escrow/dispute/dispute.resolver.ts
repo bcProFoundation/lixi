@@ -51,6 +51,11 @@ export class DisputeResolver {
     @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>
   ) {}
 
+  generateInlineKeyboard(url: string) {
+    const isMiniAppEnabled = this.configService.get('TELEGRAM_MINI_APP_ENABLE') || false;
+    return [[isMiniAppEnabled ? { text: 'Open Mini App', web_app: { url } } : { text: 'Open Web App', url }]];
+  }
+
   @Query(() => Dispute)
   @UseGuards(GqlJwtAuthGuard)
   async dispute(@AccountEntity() account: Account, @Args('id', { type: () => String }) id: string) {
@@ -169,17 +174,6 @@ export class DisputeResolver {
       });
 
       const orderDetailLink = `${this.configService.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrderId}`;
-      const isMiniAppOrder = this.configService.get('TELEGRAM_MINI_APP_ENABLE')
-        ? {
-            text: 'Open Mini App',
-            web_app: {
-              url: orderDetailLink
-            }
-          }
-        : {
-            text: 'Open Web App',
-            url: orderDetailLink
-          };
 
       if (createdBy === buyerAccount.publicKey && sellerAccount.telegramId) {
         const formatReplied = format(BOT.MESSAGE.BUYER_RAISED_DISPUTE, reason);
@@ -188,7 +182,7 @@ export class DisputeResolver {
             parse_mode: 'Markdown',
             protect_content: true,
             reply_markup: {
-              inline_keyboard: [[isMiniAppOrder]]
+              inline_keyboard: this.generateInlineKeyboard(orderDetailLink)
             }
           })
           .catch(e => {
@@ -203,7 +197,7 @@ export class DisputeResolver {
             parse_mode: 'Markdown',
             protect_content: true,
             reply_markup: {
-              inline_keyboard: [[isMiniAppOrder]]
+              inline_keyboard: this.generateInlineKeyboard(orderDetailLink)
             }
           })
           .catch(e => {
@@ -212,17 +206,6 @@ export class DisputeResolver {
       }
 
       const disputeDetailLink = `${this.configService.get('LOCAL_ECASH_URL')}/dispute-detail?id=${dispute.id}`;
-      const isMiniAppDispute = this.configService.get('TELEGRAM_MINI_APP_ENABLE')
-        ? {
-            text: 'Open Mini App',
-            web_app: {
-              url: disputeDetailLink
-            }
-          }
-        : {
-            text: 'Open Web App',
-            url: disputeDetailLink
-          };
 
       if (arbitratorAccount.telegramId) {
         const formatReplied = format(
@@ -242,7 +225,7 @@ export class DisputeResolver {
               is_disabled: true
             },
             reply_markup: {
-              inline_keyboard: [[isMiniAppDispute]]
+              inline_keyboard: this.generateInlineKeyboard(disputeDetailLink)
             }
           })
           .catch(e => {
@@ -268,7 +251,7 @@ export class DisputeResolver {
               is_disabled: true
             },
             reply_markup: {
-              inline_keyboard: [[isMiniAppDispute]]
+              inline_keyboard: this.generateInlineKeyboard(disputeDetailLink)
             }
           })
           .catch(e => {
