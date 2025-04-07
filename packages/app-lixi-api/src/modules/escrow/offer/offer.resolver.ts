@@ -331,47 +331,40 @@ export class OfferResolver {
   }
 
   private applyWhereConditions(query: SelectQueryBuilder<Database, any, any>, offerFilterInput: OfferFilterInput) {
-    return query
-      .where('offer.hide_from_home', '=', false)
-      .where(sql`offer.status::text`, '=', OfferStatus.ACTIVE)
-      
-      // Sử dụng phương thức $if thay vì các câu lệnh if-then thông thường
-      .$if((offerFilterInput?.paymentMethodIds?.length ?? 0) > 0, qb =>  
-        qb.where('offer_payment_method.payment_method_id', 'in', offerFilterInput.paymentMethodIds!)
-      )
-      
-      .$if(!!offerFilterInput?.countryCode, qb => 
-        qb.where('world_cities.iso2', '=', offerFilterInput.countryCode!)
-      )
-      
-      .$if(!!offerFilterInput?.adminCode, qb => 
-        qb.where('world_cities.admin_code', '=', offerFilterInput.adminCode!)
-      )
-      
-      .$if(!!offerFilterInput?.cityName, qb => 
-        qb.where('world_cities.city_ascii', '=', offerFilterInput.cityName!)
-      )
-      
-      .$if(!!offerFilterInput?.fiatCurrency, qb => 
-        qb.where('offer.local_currency', '=', offerFilterInput.fiatCurrency!)
-      )
-      
-      .$if(!!offerFilterInput?.coin, qb => 
-        qb.where('offer.coin_payment', '=', offerFilterInput.coin!)
-      )
-      
-      .$if(!!offerFilterInput?.paymentApp, qb => 
-        qb.where('offer.payment_app', '=', offerFilterInput.paymentApp!)
-      )
-      
-      .$if(!!offerFilterInput?.amount, qb => 
-        qb.where('offer.order_limit_min', '<=', offerFilterInput.amount!)
-          .where('offer.order_limit_max', '>=', offerFilterInput.amount!)
-      )
-      
-      .$if(offerFilterInput?.isBuyOffer !== null && offerFilterInput?.isBuyOffer !== undefined, qb => 
-        qb.where(sql`offer.type::text`, '=', offerFilterInput.isBuyOffer ? OfferType.BUY : OfferType.SELL)
-      );
+    return (
+      query
+        .where('offer.hide_from_home', '=', false)
+        .where(sql`offer.status::text`, '=', OfferStatus.ACTIVE)
+
+        // Sử dụng phương thức $if thay vì các câu lệnh if-then thông thường
+        .$if((offerFilterInput?.paymentMethodIds?.length ?? 0) > 0, qb =>
+          qb.where('offer_payment_method.payment_method_id', 'in', offerFilterInput.paymentMethodIds!)
+        )
+
+        .$if(!!offerFilterInput?.countryCode, qb => qb.where('world_cities.iso2', '=', offerFilterInput.countryCode!))
+
+        .$if(!!offerFilterInput?.adminCode, qb => qb.where('world_cities.admin_code', '=', offerFilterInput.adminCode!))
+
+        .$if(!!offerFilterInput?.cityName, qb => qb.where('world_cities.city_ascii', '=', offerFilterInput.cityName!))
+
+        .$if(!!offerFilterInput?.fiatCurrency, qb =>
+          qb.where('offer.local_currency', '=', offerFilterInput.fiatCurrency!)
+        )
+
+        .$if(!!offerFilterInput?.coin, qb => qb.where('offer.coin_payment', '=', offerFilterInput.coin!))
+
+        .$if(!!offerFilterInput?.paymentApp, qb => qb.where('offer.payment_app', '=', offerFilterInput.paymentApp!))
+
+        .$if(!!offerFilterInput?.amount, qb =>
+          qb
+            .where('offer.order_limit_min', '<=', offerFilterInput.amount!)
+            .where('offer.order_limit_max', '>=', offerFilterInput.amount!)
+        )
+
+        .$if(offerFilterInput?.isBuyOffer !== null && offerFilterInput?.isBuyOffer !== undefined, qb =>
+          qb.where(sql`offer.type::text`, '=', offerFilterInput.isBuyOffer ? OfferType.BUY : OfferType.SELL)
+        )
+    );
   }
 
   @Query(() => TimelineItemConnection)

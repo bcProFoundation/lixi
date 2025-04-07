@@ -1,4 +1,4 @@
-import { OfferFilterInput } from '../../generated/types.generated'; 
+import { OfferFilterInput } from '../../generated/types.generated';
 import { WebAuthnConfig, WebPushNotifConfig } from './model';
 
 export interface SettingsState {
