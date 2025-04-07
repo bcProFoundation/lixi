@@ -1,5 +1,11 @@
 # @bcpros/lixi-prisma
 
+## 1.2.23
+
+### Patch Changes
+
+- Add kysely
+
 ## 1.2.22
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.57
+
+### Patch Changes
+
+- Add kysely
+
 ## 1.2.56
 
 ### Patch Changes
