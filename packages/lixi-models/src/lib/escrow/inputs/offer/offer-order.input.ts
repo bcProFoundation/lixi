@@ -3,13 +3,10 @@ import { Field, InputType, registerEnumType } from '@nestjs/graphql';
 import { Order } from '../../../../core/order/order';
 
 export enum OfferOrderField {
-  id = 'id',
+  relevance = 'relevance', // Default
   price = 'price',
-  amount = 'amount',
-  orderLimitMin = 'orderLimitMin',
-  orderLimitMax = 'orderLimitMax',
-  createdAt = 'createdAt',
-  updatedAt = 'updatedAt'
+  trades = 'completed_order',
+  donationAmount = 'donation_amount'
 }
 
 registerEnumType(OfferOrderField, {

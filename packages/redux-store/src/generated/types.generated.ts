@@ -1358,10 +1358,24 @@ export type OfferFilterInput = {
   countryName?: InputMaybe<Scalars['String']['input']>;
   fiatCurrency?: InputMaybe<Scalars['String']['input']>;
   isBuyOffer?: InputMaybe<Scalars['Boolean']['input']>;
+  offerOrder?: InputMaybe<OfferOrder>;
   paymentApp?: InputMaybe<Scalars['String']['input']>;
   paymentMethodIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   stateName?: InputMaybe<Scalars['String']['input']>;
 };
+
+export type OfferOrder = {
+  direction: OrderDirection;
+  field: OfferOrderField;
+};
+
+/** Properties by which offer connections can be ordered. */
+export enum OfferOrderField {
+  DonationAmount = 'donationAmount',
+  Price = 'price',
+  Relevance = 'relevance',
+  Trades = 'trades'
+}
 
 export type OfferPaymentMethod = {
   __typename?: 'OfferPaymentMethod';

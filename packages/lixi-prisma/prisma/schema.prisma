@@ -7,6 +7,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator kysely {
+  provider = "prisma-kysely"
+  output = "../src/kysely"
+  fileName = "types.ts"
+  enumFileName = "enums.ts"
+}
+
 model Handle {
   id          String @id @default(cuid())
   network     Coin   @default(XPI)
