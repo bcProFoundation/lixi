@@ -33,6 +33,7 @@ import { Context, Telegraf } from 'telegraf';
 import { format } from 'node:util';
 import { BOT } from 'src/utils/bot.constants';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
+import { ConfigService } from '@nestjs/config';
 
 @SkipThrottle()
 @Resolver(() => Dispute)
@@ -41,6 +42,7 @@ export class DisputeResolver {
   constructor(
     private logger: Logger,
     private prisma: PrismaService,
+    private readonly configService: ConfigService,
     @I18n() private i18n: I18nService,
     private readonly disputeLoader: DisputeLoader,
     private readonly disputeCacheService: DisputeCacheService,
@@ -48,6 +50,11 @@ export class DisputeResolver {
     private notificationGateway: NotificationGateway,
     @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>
   ) {}
+
+  generateInlineKeyboard(url: string) {
+    const isMiniAppEnabled = this.configService.get('TELEGRAM_MINI_APP_ENABLE') || false;
+    return [[isMiniAppEnabled ? { text: 'Open Mini App', web_app: { url } } : { text: 'Open Web App', url }]];
+  }
 
   @Query(() => Dispute)
   @UseGuards(GqlJwtAuthGuard)
@@ -166,6 +173,8 @@ export class DisputeResolver {
         socketId: socketId ?? ''
       });
 
+      const orderDetailLink = `${this.configService.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrderId}`;
+
       if (createdBy === buyerAccount.publicKey && sellerAccount.telegramId) {
         const formatReplied = format(BOT.MESSAGE.BUYER_RAISED_DISPUTE, reason);
         await this.bot.telegram
@@ -173,14 +182,7 @@ export class DisputeResolver {
             parse_mode: 'Markdown',
             protect_content: true,
             reply_markup: {
-              inline_keyboard: [
-                [
-                  {
-                    text: 'Open Web App',
-                    url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrderId}`
-                  }
-                ]
-              ]
+              inline_keyboard: this.generateInlineKeyboard(orderDetailLink)
             }
           })
           .catch(e => {
@@ -195,20 +197,15 @@ export class DisputeResolver {
             parse_mode: 'Markdown',
             protect_content: true,
             reply_markup: {
-              inline_keyboard: [
-                [
-                  {
-                    text: 'Open Web App',
-                    url: `${process.env.LOCAL_ECASH_URL}/order-detail?id=${escrowOrderId}`
-                  }
-                ]
-              ]
+              inline_keyboard: this.generateInlineKeyboard(orderDetailLink)
             }
           })
           .catch(e => {
             this.logger.error(e);
           });
       }
+
+      const disputeDetailLink = `${this.configService.get('LOCAL_ECASH_URL')}/dispute-detail?id=${dispute.id}`;
 
       if (arbitratorAccount.telegramId) {
         const formatReplied = format(
@@ -228,14 +225,7 @@ export class DisputeResolver {
               is_disabled: true
             },
             reply_markup: {
-              inline_keyboard: [
-                [
-                  {
-                    text: 'Open Web App',
-                    url: `${process.env.LOCAL_ECASH_URL}/dispute-detail?id=${dispute.id}`
-                  }
-                ]
-              ]
+              inline_keyboard: this.generateInlineKeyboard(disputeDetailLink)
             }
           })
           .catch(e => {
@@ -261,14 +251,7 @@ export class DisputeResolver {
               is_disabled: true
             },
             reply_markup: {
-              inline_keyboard: [
-                [
-                  {
-                    text: 'Open Web App',
-                    url: `${process.env.LOCAL_ECASH_URL}/dispute-detail?id=${dispute.id}`
-                  }
-                ]
-              ]
+              inline_keyboard: this.generateInlineKeyboard(disputeDetailLink)
             }
           })
           .catch(e => {
