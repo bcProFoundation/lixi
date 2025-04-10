@@ -2,6 +2,8 @@ import { POST_TYPE } from '@bcpros/lixi-models/constants/post';
 import { api } from './offer.generated';
 import { OfferStatus } from '../../../generated/types.generated';
 
+const endpointNameOfferDatabase = "AllOfferByAccountDatabase";
+
 const enhancedApi = api.enhanceEndpoints({
   addTagTypes: ['Offer', 'OfferTimeline'],
   endpoints: {
@@ -124,8 +126,8 @@ const enhancedApi = api.enhanceEndpoints({
           for (const invalidatedBy of timelineInvalidatedBy) {
             const { endpointName, originalArgs } = invalidatedBy;
             //dont add to archived
-            if (endpointName === 'AllOfferByAccount' && originalArgs?.offerStatus === OfferStatus.Archive) continue;
-            if (endpointName !== 'AllOfferByAccount' && result?.createOffer?.postOffer?.hideFromHome) continue;
+            if (endpointName === endpointNameOfferDatabase && originalArgs?.offerStatus === OfferStatus.Archive) continue;
+            if (endpointName !== endpointNameOfferDatabase && result?.createOffer?.postOffer?.hideFromHome) continue;
             dispatch(
               enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
                 const fields = Object.keys(draft);
@@ -211,12 +213,14 @@ const enhancedApi = api.enhanceEndpoints({
         try {
           const { data: result } = await queryFulfilled;
           const timelineId = `${POST_TYPE.OFFER}:${result.updateOfferStatus.id}`;
+          const newStatus = input.status;
+          const oldStatus = newStatus === OfferStatus.Archive ? OfferStatus.Active : OfferStatus.Archive;
 
           const timelineInvalidatedBy = enhancedApi.util.selectInvalidatedBy(getState(), ['OfferTimeline']);
           for (const invalidatedBy of timelineInvalidatedBy) {
             const { endpointName, originalArgs } = invalidatedBy;
-            //remove offer in ACTIVE
-            if (endpointName === 'AllOfferByAccount' && originalArgs?.offerStatus === OfferStatus.Active) {
+            //remove offer 
+            if (endpointName === endpointNameOfferDatabase && originalArgs?.offerStatus === oldStatus) {
               dispatch(
                 enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
                   const fields = Object.keys(draft);
@@ -232,8 +236,8 @@ const enhancedApi = api.enhanceEndpoints({
               );
             }
 
-            //add offer to ARCHIVED
-            if (endpointName === 'AllOfferByAccount' && originalArgs?.offerStatus === OfferStatus.Archive) {
+            //add offer 
+            if (endpointName === endpointNameOfferDatabase && originalArgs?.offerStatus === newStatus) {
               dispatch(
                 enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
                   const fields = Object.keys(draft);
