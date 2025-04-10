@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.58
+
+### Patch Changes
+
+- Change endpoints
+
 ## 1.2.57
 
 ### Patch Changes

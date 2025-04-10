@@ -2,7 +2,7 @@ import { POST_TYPE } from '@bcpros/lixi-models/constants/post';
 import { api } from './offer.generated';
 import { OfferStatus } from '../../../generated/types.generated';
 
-const endpointNameOfferDatabase = "AllOfferByAccountDatabase";
+const endpointNameOfferDatabase = 'AllOfferByAccountDatabase';
 
 const enhancedApi = api.enhanceEndpoints({
   addTagTypes: ['Offer', 'OfferTimeline'],
@@ -126,7 +126,8 @@ const enhancedApi = api.enhanceEndpoints({
           for (const invalidatedBy of timelineInvalidatedBy) {
             const { endpointName, originalArgs } = invalidatedBy;
             //dont add to archived
-            if (endpointName === endpointNameOfferDatabase && originalArgs?.offerStatus === OfferStatus.Archive) continue;
+            if (endpointName === endpointNameOfferDatabase && originalArgs?.offerStatus === OfferStatus.Archive)
+              continue;
             if (endpointName !== endpointNameOfferDatabase && result?.createOffer?.postOffer?.hideFromHome) continue;
             dispatch(
               enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
@@ -219,7 +220,7 @@ const enhancedApi = api.enhanceEndpoints({
           const timelineInvalidatedBy = enhancedApi.util.selectInvalidatedBy(getState(), ['OfferTimeline']);
           for (const invalidatedBy of timelineInvalidatedBy) {
             const { endpointName, originalArgs } = invalidatedBy;
-            //remove offer 
+            //remove offer
             if (endpointName === endpointNameOfferDatabase && originalArgs?.offerStatus === oldStatus) {
               dispatch(
                 enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
@@ -236,7 +237,7 @@ const enhancedApi = api.enhanceEndpoints({
               );
             }
 
-            //add offer 
+            //add offer
             if (endpointName === endpointNameOfferDatabase && originalArgs?.offerStatus === newStatus) {
               dispatch(
                 enhancedApi.util.updateQueryData(endpointName as any, originalArgs, draft => {
