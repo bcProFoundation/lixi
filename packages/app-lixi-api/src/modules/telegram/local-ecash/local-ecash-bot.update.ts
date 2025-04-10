@@ -303,7 +303,7 @@ Are you ready? Let's get started.
 
     const findedMod = mods.filter(mod => mod?.telegramId === ctx?.message?.from?.id?.toString());
 
-    if (!findedMod) {
+    if (findedMod.length === 0) {
       infoMessage = ` Only moderators can use this command.`;
       await ctx.reply(infoMessage, {
         parse_mode: 'Markdown'
@@ -336,7 +336,7 @@ Are you ready? Let's get started.
   }
 
   private infoStatistics(info: InfoStatistics) {
-    return ` - Total Amount Donated: *${info.amount_donated}* XEC
+    return ` - Total Amount Donated: *${info.amount_donated?.toLocaleString('en-US')}* XEC
      - Successful Trades: *${(info.success_ratio * 100)?.toFixed(0)}%* 
      - Average Settle Time: *${info.avg_settle_time ? info.avg_settle_time?.toFixed(2) : '0'} hours*
      - Total Trades: *${info.total_trades}* 
