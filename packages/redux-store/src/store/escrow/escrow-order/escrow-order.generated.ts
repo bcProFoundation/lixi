@@ -507,8 +507,8 @@ export type AllEscrowOrderByOfferIdQuery = {
                 localCurrency?: string | null;
                 paymentApp?: string | null;
                 type: Types.OfferType;
-                orderLimitMin: number;
-                orderLimitMax: number;
+                orderLimitMin?: number | null;
+                orderLimitMax?: number | null;
                 hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;

@@ -20,3 +20,4 @@ export const TIMELINE_ESCROW_ORDER = {
 };
 
 export const COIN_OTHERS = 'Others';
+export const NO_LIMIT = 'No limit';

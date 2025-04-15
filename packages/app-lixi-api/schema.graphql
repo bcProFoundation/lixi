@@ -464,8 +464,8 @@ input CreateOfferInput {
   marginPercentage: Float!
   message: String!
   noteOffer: String
-  orderLimitMax: Float!
-  orderLimitMin: Float!
+  orderLimitMax: Float
+  orderLimitMin: Float
   pageId: String
   paymentApp: String
   paymentMethodIds: [Int!]!
@@ -1124,8 +1124,8 @@ type Offer {
   marginPercentage: Float!
   message: String!
   noteOffer: String
-  orderLimitMax: Float!
-  orderLimitMin: Float!
+  orderLimitMax: Float
+  orderLimitMin: Float
   paymentApp: String
   paymentMethods: [OfferPaymentMethod!]!
   postId: String!
@@ -1150,6 +1150,7 @@ input OfferFilterInput {
   amount: Int
   cityName: String
   coin: String
+  coinOthers: String
   countryCode: String
   countryName: String
   fiatCurrency: String

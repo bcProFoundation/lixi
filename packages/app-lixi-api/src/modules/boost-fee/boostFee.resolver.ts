@@ -23,6 +23,7 @@ import { BOT } from 'src/utils/bot.constants';
 import { format } from 'node:util';
 import { ConfigService } from '@nestjs/config';
 import { COIN_OTHERS } from '../escrow/escrow.contants';
+import { processTextOrderLimit } from 'src/utils/escrow/offer';
 
 @SkipThrottle()
 @Resolver(() => BoostFee)
@@ -188,12 +189,17 @@ export class BoostFeeResolver {
           (offerData?.coinPayment?.includes(COIN_OTHERS) ? 'XEC' : offerData?.coinPayment) ??
           'XEC';
 
+        const orderLimitText = processTextOrderLimit(
+          offerBoosted?.offer?.orderLimitMin,
+          offerBoosted?.offer?.orderLimitMax,
+          ticket
+        );
         const formatReplied =
           strLocation && strLocation !== ''
             ? format(
                 BOT.MESSAGE.BOOST_NOTIFY,
                 `${offerBoosted?.offer?.message}`,
-                `${offerBoosted?.offer?.orderLimitMin.toLocaleString('en-US')} ${ticket} - ${offerBoosted?.offer?.orderLimitMax.toLocaleString('en-US')} ${ticket}`,
+                orderLimitText,
                 paymentMethodString,
                 strLocation,
                 link
@@ -201,7 +207,7 @@ export class BoostFeeResolver {
             : format(
                 BOT.MESSAGE.BOOST_NOTIFY_WITHOUT_LOCATION,
                 `${offerBoosted?.offer?.message}`,
-                `${offerBoosted?.offer?.orderLimitMin.toLocaleString('en-US')} ${ticket} - ${offerBoosted?.offer?.orderLimitMax.toLocaleString('en-US')} ${ticket}`,
+                orderLimitText,
                 paymentMethodString,
                 link
               );

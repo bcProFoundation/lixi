@@ -491,8 +491,8 @@ export type CreateOfferInput = {
   marginPercentage: Scalars['Float']['input'];
   message: Scalars['String']['input'];
   noteOffer?: InputMaybe<Scalars['String']['input']>;
-  orderLimitMax: Scalars['Float']['input'];
-  orderLimitMin: Scalars['Float']['input'];
+  orderLimitMax?: InputMaybe<Scalars['Float']['input']>;
+  orderLimitMin?: InputMaybe<Scalars['Float']['input']>;
   pageId?: InputMaybe<Scalars['String']['input']>;
   paymentApp?: InputMaybe<Scalars['String']['input']>;
   paymentMethodIds: Array<Scalars['Int']['input']>;
@@ -1328,8 +1328,8 @@ export type Offer = {
   marginPercentage: Scalars['Float']['output'];
   message: Scalars['String']['output'];
   noteOffer?: Maybe<Scalars['String']['output']>;
-  orderLimitMax: Scalars['Float']['output'];
-  orderLimitMin: Scalars['Float']['output'];
+  orderLimitMax?: Maybe<Scalars['Float']['output']>;
+  orderLimitMin?: Maybe<Scalars['Float']['output']>;
   paymentApp?: Maybe<Scalars['String']['output']>;
   paymentMethods: Array<OfferPaymentMethod>;
   postId: Scalars['String']['output'];
@@ -1354,6 +1354,7 @@ export type OfferFilterInput = {
   amount?: InputMaybe<Scalars['Int']['input']>;
   cityName?: InputMaybe<Scalars['String']['input']>;
   coin?: InputMaybe<Scalars['String']['input']>;
+  coinOthers?: InputMaybe<Scalars['String']['input']>;
   countryCode?: InputMaybe<Scalars['String']['input']>;
   countryName?: InputMaybe<Scalars['String']['input']>;
   fiatCurrency?: InputMaybe<Scalars['String']['input']>;

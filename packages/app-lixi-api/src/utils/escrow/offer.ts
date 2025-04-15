@@ -4,8 +4,10 @@ import {
   IndexNameBuyOffer,
   IndexNameOffer,
   KeyIndexNameBuyOffer,
-  KeyIndexNameOffer
+  KeyIndexNameOffer,
+  NO_LIMIT
 } from 'src/modules/escrow/escrow.contants';
+import * as _ from 'lodash';
 
 export async function createIndexOffer(reSearch: ReSearch, offerType: OfferType) {
   const isBuyOffer = offerType === OfferType.BUY;
@@ -28,4 +30,15 @@ export async function createIndexOffer(reSearch: ReSearch, offerType: OfferType)
 
 export function sanitizeLocation(str?: string): string | null {
   return str ? str.replace(/-/g, '_') : null;
+}
+
+export function processTextOrderLimit(
+  min: null | undefined | number,
+  max: null | undefined | number,
+  ticket: string
+): string {
+  if (!_.isNil(min) || !_.isNil(max)) {
+    return `${min?.toLocaleString('en-US')} ${ticket} - ${max?.toLocaleString('en-US')} ${ticket}`;
+  }
+  return NO_LIMIT;
 }
