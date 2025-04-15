@@ -26,6 +26,7 @@ import {
   ImageUploadable,
   ImageUploadableType,
   NotificationLevel,
+  OfferStatus,
   Post as PostPrisma
 } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
@@ -99,7 +100,21 @@ export class PostResolver {
   @Query(() => Post)
   @UseGuards(GqlJwtAuthGuardByPass)
   async post(@Args('id', { type: () => String }) id: string) {
-    return await this.postCacheService.getById(id);
+    const post = await this.prisma.post.findUnique({
+      where: {
+        id: id
+      },
+      include: {
+        account: true,
+        offer: true,
+      }
+    });
+
+    if(post?.offer && post?.offer.status === OfferStatus.ARCHIVE) {
+      return null;
+    }
+
+    return post
   }
 
   @SkipThrottle()
