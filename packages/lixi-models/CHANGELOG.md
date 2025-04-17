@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.59
+
+### Patch Changes
+
+- Update minor bugs
+
 ## 1.2.58
 
 ### Patch Changes
