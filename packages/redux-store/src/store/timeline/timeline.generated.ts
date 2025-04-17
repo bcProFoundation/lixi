@@ -381,8 +381,8 @@ export type TimelineItemFieldsFragment = {
           localCurrency?: string | null;
           paymentApp?: string | null;
           type: Types.OfferType;
-          orderLimitMin: number;
-          orderLimitMax: number;
+          orderLimitMin?: number | null;
+          orderLimitMax?: number | null;
           hideFromHome?: boolean | null;
           status: Types.OfferStatus;
           locationId?: string | null;
@@ -660,8 +660,8 @@ export type TimelineQuery = {
             localCurrency?: string | null;
             paymentApp?: string | null;
             type: Types.OfferType;
-            orderLimitMin: number;
-            orderLimitMax: number;
+            orderLimitMin?: number | null;
+            orderLimitMax?: number | null;
             hideFromHome?: boolean | null;
             status: Types.OfferStatus;
             locationId?: string | null;
@@ -954,8 +954,8 @@ export type HomeTimelineQuery = {
                 localCurrency?: string | null;
                 paymentApp?: string | null;
                 type: Types.OfferType;
-                orderLimitMin: number;
-                orderLimitMax: number;
+                orderLimitMin?: number | null;
+                orderLimitMax?: number | null;
                 hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;
@@ -1251,8 +1251,8 @@ export type ProfileTimelineQuery = {
                 localCurrency?: string | null;
                 paymentApp?: string | null;
                 type: Types.OfferType;
-                orderLimitMin: number;
-                orderLimitMax: number;
+                orderLimitMin?: number | null;
+                orderLimitMax?: number | null;
                 hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;
@@ -1549,8 +1549,8 @@ export type ProfileTimelineByTimeQuery = {
                 localCurrency?: string | null;
                 paymentApp?: string | null;
                 type: Types.OfferType;
-                orderLimitMin: number;
-                orderLimitMax: number;
+                orderLimitMin?: number | null;
+                orderLimitMax?: number | null;
                 hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;
@@ -1846,8 +1846,8 @@ export type PageTimelineQuery = {
                 localCurrency?: string | null;
                 paymentApp?: string | null;
                 type: Types.OfferType;
-                orderLimitMin: number;
-                orderLimitMax: number;
+                orderLimitMin?: number | null;
+                orderLimitMax?: number | null;
                 hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;
@@ -2144,8 +2144,8 @@ export type PageTimelineByTimeQuery = {
                 localCurrency?: string | null;
                 paymentApp?: string | null;
                 type: Types.OfferType;
-                orderLimitMin: number;
-                orderLimitMax: number;
+                orderLimitMin?: number | null;
+                orderLimitMax?: number | null;
                 hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;
@@ -2441,8 +2441,8 @@ export type TokenTimelineQuery = {
                 localCurrency?: string | null;
                 paymentApp?: string | null;
                 type: Types.OfferType;
-                orderLimitMin: number;
-                orderLimitMax: number;
+                orderLimitMin?: number | null;
+                orderLimitMax?: number | null;
                 hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;
@@ -2739,8 +2739,8 @@ export type TokenTimelineByTimeQuery = {
                 localCurrency?: string | null;
                 paymentApp?: string | null;
                 type: Types.OfferType;
-                orderLimitMin: number;
-                orderLimitMax: number;
+                orderLimitMin?: number | null;
+                orderLimitMax?: number | null;
                 hideFromHome?: boolean | null;
                 status: Types.OfferStatus;
                 locationId?: string | null;

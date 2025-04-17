@@ -36,11 +36,11 @@ export class CreateOfferInput {
   @Field(() => COIN)
   coin: COIN;
 
-  @Field(() => Float)
-  orderLimitMin: number;
+  @Field(() => Float, { nullable: true })
+  orderLimitMin: Nullable<number>;
 
-  @Field(() => Float)
-  orderLimitMax: number;
+  @Field(() => Float, { nullable: true })
+  orderLimitMax: Nullable<number>;
 
   @Field(() => OfferType)
   type: OfferType;

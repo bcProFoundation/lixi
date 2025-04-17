@@ -8,9 +8,9 @@ generator client {
 }
 
 generator kysely {
-  provider = "prisma-kysely"
-  output = "../src/kysely"
-  fileName = "types.ts"
+  provider     = "prisma-kysely"
+  output       = "../src/kysely"
+  fileName     = "types.ts"
   enumFileName = "enums.ts"
 }
 
@@ -1358,8 +1358,8 @@ model Offer {
   localCurrency     String?              @map("local_currency")
   paymentApp        String?              @map("payment_app")
   coin              Coin                 @default(XEC)
-  orderLimitMin     Float                @default(0.0) @map("order_limit_min")
-  orderLimitMax     Float                @default(0.0) @map("order_limit_max")
+  orderLimitMin     Float?               @default(0.0) @map("order_limit_min")
+  orderLimitMax     Float?               @default(0.0) @map("order_limit_max")
   type              OfferType            @default(SELL)
   paymentMethods    OfferPaymentMethod[]
   status            OfferStatus          @default(ACTIVE)

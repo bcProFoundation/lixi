@@ -58,6 +58,7 @@ import { BOOST_AMOUNT, newEpoch, offer_half_life, PAGE_SIZE } from 'src/utils/co
 import { KyselyExecutorService } from 'src/modules/prisma/kysely-executor.service';
 import { SelectQueryBuilder, sql } from 'kysely';
 import { Database } from '@bcpros/lixi-prisma';
+import { processTextOrderLimit } from 'src/utils/escrow/offer';
 
 @SkipThrottle()
 @Resolver(() => Offer)
@@ -355,10 +356,26 @@ export class OfferResolver {
 
         .$if(!!offerFilterInput?.paymentApp, qb => qb.where('offer.payment_app', '=', offerFilterInput.paymentApp!))
 
+        .$if(!!offerFilterInput?.coinOthers, qb => qb.where('offer.coin_others', '=', offerFilterInput.coinOthers!))
+
+        // if order-limit is null, we will drop this condition
         .$if(!!offerFilterInput?.amount, qb =>
-          qb
-            .where('offer.order_limit_min', '<=', offerFilterInput.amount!)
-            .where('offer.order_limit_max', '>=', offerFilterInput.amount!)
+          qb.where(eb => {
+            // First check if both limits are null
+            const hasNullLimits = eb.and([
+              eb('offer.order_limit_min', 'is', null),
+              eb('offer.order_limit_max', 'is', null)
+            ]);
+
+            // Then check if amount is within limits
+            const amountWithinLimits = eb.and([
+              eb('offer.order_limit_min', '<=', offerFilterInput.amount!),
+              eb('offer.order_limit_max', '>=', offerFilterInput.amount!)
+            ]);
+
+            // Return offers where either limits are null OR amount is within limits
+            return eb.or([hasNullLimits, amountWithinLimits]);
+          })
         )
 
         .$if(offerFilterInput?.isBuyOffer !== null && offerFilterInput?.isBuyOffer !== undefined, qb =>
@@ -672,6 +689,8 @@ export class OfferResolver {
       const link = `${this.configService.get('LOCAL_ECASH_URL')}/offer-detail?id=${result.id}`;
       let strTypeListOffer = data?.hideFromHome ? 'Unlisted' : 'Listed';
       offerData?.type === OfferType.BUY ? (strTypeListOffer += ' Buy') : (strTypeListOffer += ' Sell');
+      const orderLimitText = processTextOrderLimit(offer?.orderLimitMin, offer?.orderLimitMax, ticket);
+
       let formatReplied =
         strLocation && strLocation !== ''
           ? format(
@@ -681,7 +700,7 @@ export class OfferResolver {
               link,
               offer?.message,
               offer?.marginPercentage,
-              `${offer?.orderLimitMin.toLocaleString('en-US')} ${ticket} - ${offer?.orderLimitMax.toLocaleString('en-US')} ${ticket}`,
+              orderLimitText,
               offer?.paymentMethods[0].paymentMethod.name,
               strLocation
             )
@@ -692,7 +711,7 @@ export class OfferResolver {
               link,
               offer?.message,
               offer?.marginPercentage,
-              `${offer?.orderLimitMin.toLocaleString('en-US')} ${ticket} - ${offer?.orderLimitMax.toLocaleString('en-US')} ${ticket}`,
+              orderLimitText,
               offer?.paymentMethods[0].paymentMethod.name
             );
 
@@ -704,7 +723,7 @@ export class OfferResolver {
           result.id,
           link,
           offer?.message,
-          `${offer?.orderLimitMin.toLocaleString('en-US')} ${ticket} - ${offer?.orderLimitMax.toLocaleString('en-US')} ${ticket}`,
+          orderLimitText,
           offer?.paymentMethods[0].paymentMethod.name
         );
       }

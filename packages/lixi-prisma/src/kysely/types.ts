@@ -485,8 +485,8 @@ export type Offer = {
   local_currency: string | null;
   payment_app: string | null;
   coin: Generated<Coin>;
-  order_limit_min: Generated<number>;
-  order_limit_max: Generated<number>;
+  order_limit_min: Generated<number | null>;
+  order_limit_max: Generated<number | null>;
   type: Generated<OfferType>;
   status: Generated<OfferStatus>;
   country_id: number | null;

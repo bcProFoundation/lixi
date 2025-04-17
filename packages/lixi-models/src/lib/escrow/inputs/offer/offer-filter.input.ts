@@ -31,6 +31,9 @@ export class OfferFilterInput {
   @Field(() => String, { nullable: true })
   paymentApp?: Nullable<string>;
 
+  @Field(() => String, { nullable: true })
+  coinOthers?: Nullable<string>;
+
   @Field(() => Number, { nullable: true })
   amount?: Nullable<number>;
 
