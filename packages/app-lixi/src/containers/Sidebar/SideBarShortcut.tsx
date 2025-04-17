@@ -886,10 +886,16 @@ const SidebarShortcut = () => {
   };
 
   const timelineItems = useMemo(() => {
-    return _.uniqBy(timelineData, item => {
-      const post: Post = item.data as Post;
-      return post?.page?.id || post?.token?.tokenId || post?.account?.address;
-    });
+    return _.uniqBy(
+      timelineData.filter(item => {
+        const post: Post = item.data as Post;
+        return post?.dana?.danaBurnScore > 0;
+      }),
+      item => {
+        const post: Post = item.data as Post;
+        return post?.page?.id || post?.token?.tokenId || post?.account?.address;
+      }
+    );
   }, [timelineData]);
 
   const triggerSrollbar = e => {

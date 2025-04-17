@@ -72,64 +72,74 @@ const PageDetailPage = props => {
 };
 
 export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) => async context => {
-  const { req } = context;
-  const userAgent = req ? req.headers['user-agent'] : navigator.userAgent;
-  const { isMobile } = getSelectorsByUserAgent(userAgent);
-  const prisma = new PrismaClient();
+  try {
+    const { req } = context;
+    const userAgent = req ? req.headers['user-agent'] : navigator.userAgent;
+    const { isMobile } = getSelectorsByUserAgent(userAgent);
+    const prisma = new PrismaClient();
 
-  store.dispatch(END);
-  await (store as SagaStore).__sagaTask.toPromise();
+    store.dispatch(END);
+    await (store as SagaStore).__sagaTask.toPromise();
 
-  const slug: string = _.isArray(context.params.slug) ? context.params.slug[0] : context.params.slug;
-  const pageId: string = slug;
+    const slug: string = _.isArray(context.params.slug) ? context.params.slug[0] : context.params.slug;
+    const pageId: string = slug;
 
-  const deliveryUrl = process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL;
-  const cfAccountHash = process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH;
+    const deliveryUrl = process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL;
+    const cfAccountHash = process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH;
 
-  const dbValue = await prisma.page.findUnique({
-    where: {
-      id: pageId
-    },
-    include: {
-      pageAccount: true,
-      category: true,
-      country: true,
-      state: true,
-      pageAvatarImageUploadable: {
-        select: {
-          uploads: true
-        }
+    const dbValue = await prisma.page.findUnique({
+      where: {
+        id: pageId
       },
-      pageCoverImageUploadable: {
-        select: {
-          uploads: true
+      include: {
+        pageAccount: true,
+        category: true,
+        country: true,
+        state: true,
+        pageAvatarImageUploadable: {
+          select: {
+            uploads: true
+          }
+        },
+        pageCoverImageUploadable: {
+          select: {
+            uploads: true
+          }
         }
       }
-    }
-  });
+    });
 
-  if (!dbValue) {
+    if (!dbValue) {
+      return {
+        props: {
+          notFound: true
+        }
+      };
+    }
+
+    const page = {
+      ..._.omit(dbValue, 'country', 'state'),
+      avatar: toImageUrl(deliveryUrl, cfAccountHash, dbValue.pageAvatarImageUploadable?.uploads[0]),
+      cover: toImageUrl(deliveryUrl, cfAccountHash, dbValue.pageCoverImageUploadable?.uploads[0]),
+      stateName: dbValue.state?.name || '',
+      countryName: dbValue.country?.name || ''
+    };
+
+    const pageAsString = JSON.stringify(page);
+
     return {
-      notFound: true
+      props: {
+        pageAsString,
+        isMobile
+      }
+    };
+  } catch (err) {
+    return {
+      props: {
+        error: err
+      }
     };
   }
-
-  const page = {
-    ..._.omit(dbValue, 'country', 'state'),
-    avatar: toImageUrl(deliveryUrl, cfAccountHash, dbValue.pageAvatarImageUploadable?.uploads[0]),
-    cover: toImageUrl(deliveryUrl, cfAccountHash, dbValue.pageCoverImageUploadable?.uploads[0]),
-    stateName: dbValue.state?.name || '',
-    countryName: dbValue.country?.name || ''
-  };
-
-  const pageAsString = JSON.stringify(page);
-
-  return {
-    props: {
-      pageAsString,
-      isMobile
-    }
-  };
 });
 
 PageDetailPage.getLayout = function getLayout(page: ReactElement) {
