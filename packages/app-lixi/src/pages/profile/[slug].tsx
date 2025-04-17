@@ -75,83 +75,93 @@ const ProfileDetailPage = props => {
 };
 
 export const getServerSideProps = wrapper.getServerSideProps((store: SagaStore) => async context => {
-  const { req } = context;
-  const userAgent = req ? req.headers['user-agent'] : navigator.userAgent;
-  const { isMobile } = getSelectorsByUserAgent(userAgent);
-  const prisma = new PrismaClient();
+  try {
+    const { req } = context;
+    const userAgent = req ? req.headers['user-agent'] : navigator.userAgent;
+    const { isMobile } = getSelectorsByUserAgent(userAgent);
+    const prisma = new PrismaClient();
 
-  store.dispatch(END);
-  await (store as SagaStore).__sagaTask.toPromise();
+    store.dispatch(END);
+    await (store as SagaStore).__sagaTask.toPromise();
 
-  const slug: string = _.isArray(context.params.slug) ? context.params.slug[0] : context.params.slug;
-  const userAddress: string = slug;
+    const slug: string = _.isArray(context.params.slug) ? context.params.slug[0] : context.params.slug;
+    const userAddress: string = slug;
 
-  const account = await prisma.account.findFirst({
-    where: {
-      address: userAddress
-    },
-    orderBy: {
-      updatedAt: 'desc'
-    },
-    include: {
-      accountAvatarImageUploadable: {
-        select: {
-          uploads: true
-        }
+    const account = await prisma.account.findFirst({
+      where: {
+        address: userAddress
       },
-      accountCoverImageUploadable: {
-        select: {
-          uploads: true
+      orderBy: {
+        updatedAt: 'desc'
+      },
+      include: {
+        accountAvatarImageUploadable: {
+          select: {
+            uploads: true
+          }
+        },
+        accountCoverImageUploadable: {
+          select: {
+            uploads: true
+          }
         }
       }
-    }
-  });
+    });
 
-  if (!account) {
+    if (!account) {
+      return {
+        props: {
+          notFound: true
+        }
+      };
+    }
+
+    let followersCount = 0;
+    let followingsCount = 0;
+    let followingPagesCount = 0;
+    const deliveryUrl = process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL;
+    const cfAccountHash = process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH;
+
+    const followingsCountPromise = prisma.followAccount.count({
+      where: { followerAccountId: account.id }
+    });
+    const followersCountPromise = prisma.followAccount.count({
+      where: { followingAccountId: account.id }
+    });
+    const followingPagesCountPromise = prisma.followPage.count({
+      where: { accountId: account.id }
+    });
+
+    [followersCount, followingsCount, followingPagesCount] = await Promise.all([
+      followersCountPromise,
+      followingsCountPromise,
+      followingPagesCountPromise
+    ]);
+
+    const result = {
+      ..._.omit(account, 'accountAvatarImageUploadable', 'accountCoverImageUploadable'),
+      avatar: toImageUrl(deliveryUrl, cfAccountHash, account.accountAvatarImageUploadable?.uploads[0]),
+      cover: toImageUrl(deliveryUrl, cfAccountHash, account.accountCoverImageUploadable?.uploads[0]),
+      followersCount: followersCount,
+      followingsCount: followingsCount,
+      followingPagesCount: followingPagesCount
+    };
+    const accountAsString = JSON.stringify(result);
+
     return {
-      notFound: true
+      props: {
+        accountAsString,
+        userAddress,
+        isMobile
+      }
+    };
+  } catch (err) {
+    return {
+      props: {
+        error: err
+      }
     };
   }
-
-  let followersCount = 0;
-  let followingsCount = 0;
-  let followingPagesCount = 0;
-  const deliveryUrl = process.env.NEXT_PUBLIC_CF_IMAGES_DELIVERY_URL;
-  const cfAccountHash = process.env.NEXT_PUBLIC_CF_ACCOUNT_HASH;
-
-  const followingsCountPromise = prisma.followAccount.count({
-    where: { followerAccountId: account.id }
-  });
-  const followersCountPromise = prisma.followAccount.count({
-    where: { followingAccountId: account.id }
-  });
-  const followingPagesCountPromise = prisma.followPage.count({
-    where: { accountId: account.id }
-  });
-
-  [followersCount, followingsCount, followingPagesCount] = await Promise.all([
-    followersCountPromise,
-    followingsCountPromise,
-    followingPagesCountPromise
-  ]);
-
-  const result = {
-    ..._.omit(account, 'accountAvatarImageUploadable', 'accountCoverImageUploadable'),
-    avatar: toImageUrl(deliveryUrl, cfAccountHash, account.accountAvatarImageUploadable?.uploads[0]),
-    cover: toImageUrl(deliveryUrl, cfAccountHash, account.accountCoverImageUploadable?.uploads[0]),
-    followersCount: followersCount,
-    followingsCount: followingsCount,
-    followingPagesCount: followingPagesCount
-  };
-  const accountAsString = JSON.stringify(result);
-
-  return {
-    props: {
-      accountAsString,
-      userAddress,
-      isMobile
-    }
-  };
 });
 
 ProfileDetailPage.getLayout = children => <MainLayout>{children}</MainLayout>;

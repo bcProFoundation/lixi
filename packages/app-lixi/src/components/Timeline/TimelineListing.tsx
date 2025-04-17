@@ -172,7 +172,7 @@ const TimelineListing: React.FC<TimelineListingProps> = ({ className }: Timeline
         }
       });
       headerNode ? (headerNode.style.display = 'none') : null;
-      refs.current[postIdSelected].firstChild.classList.add('active-post');
+      refs.current[postIdSelected].firstChild?.classList.add('active-post');
       refs.current[postIdSelected].scrollIntoView({ behaviour: 'smooth' });
       headerNode ? (headerNode.style.display = 'grid') : null;
       dispatch(setSelectedPost(''));
