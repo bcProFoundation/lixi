@@ -100,15 +100,7 @@ export class PostResolver {
   @Query(() => Post)
   @UseGuards(GqlJwtAuthGuardByPass)
   async post(@Args('id', { type: () => String }) id: string) {
-    const post = await this.prisma.post.findUnique({
-      where: {
-        id: id
-      },
-      include: {
-        account: true,
-        offer: true,
-      }
-    });
+    const post = await this.postCacheService.getById(id);
 
     if(post?.offer && post?.offer.status === OfferStatus.ARCHIVE) {
       return null;
