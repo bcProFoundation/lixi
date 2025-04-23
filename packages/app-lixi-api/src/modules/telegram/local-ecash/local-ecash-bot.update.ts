@@ -232,13 +232,16 @@ export class LocalEcashBotUpdate implements OnModuleInit {
 
   @Start()
   async onStart(ctx: Context) {
+    const isMiniAppEnabled: boolean = this.config.get('TELEGRAM_MINI_APP_ENABLED') === 'true';
     const formatReplied = format(
       `Welcome to the Local eCash Bot, your gateway to securely trading $XEC on Telegram! This mini-app features an innovative on-chain escrow system for buying and selling, alongside a non-custodial wallet where your keys stay safe on your device, keeping your funds out of third-party hands. Don't miss out on updates and special offers by following our channel @localecash.
 
 Are you ready? Let's get started.
 
 [Start trading](%s)`,
-      `${this.config.get('LOCAL_ECASH_URL')}`
+      isMiniAppEnabled
+        ? `https://t.me/${this.config.get('TELEGRAM_LOCAL_ECASH_BOT_NAME')}?startapp`
+        : this.config.get('LOCAL_ECASH_URL')
     );
 
     await ctx.reply(formatReplied, {

@@ -83,7 +83,7 @@ export class OfferResolver {
   ) {}
 
   generateInlineKeyboard(url: string) {
-    const isMiniAppEnabled = this.configService.get('TELEGRAM_MINI_APP_ENABLE') || false;
+    const isMiniAppEnabled: boolean = this.configService.get('TELEGRAM_MINI_APP_ENABLED') === 'true';
     return [[isMiniAppEnabled ? { text: 'Open Mini App', web_app: { url } } : { text: 'Open Web App', url }]];
   }
 
@@ -727,18 +727,6 @@ export class OfferResolver {
           offer?.paymentMethods[0].paymentMethod.name
         );
       }
-
-      const isMiniApp = this.configService.get('TELEGRAM_MINI_APP_ENABLE')
-        ? {
-            text: 'Open Mini App',
-            web_app: {
-              url: link
-            }
-          }
-        : {
-            text: 'Open Web App',
-            url: link
-          };
 
       account.telegramId &&
         (await this.bot.telegram
