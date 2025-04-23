@@ -52,7 +52,7 @@ export class DisputeResolver {
   ) {}
 
   generateInlineKeyboard(url: string) {
-    const isMiniAppEnabled = this.configService.get('TELEGRAM_MINI_APP_ENABLE') || false;
+    const isMiniAppEnabled: boolean = this.configService.get('TELEGRAM_MINI_APP_ENABLED') === 'true';
     return [[isMiniAppEnabled ? { text: 'Open Mini App', web_app: { url } } : { text: 'Open Web App', url }]];
   }
 

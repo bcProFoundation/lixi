@@ -76,7 +76,7 @@ export class EscrowOrderResolver {
   ) {}
 
   generateInlineKeyboard(url: string) {
-    const isMiniAppEnabled = this.config.get('TELEGRAM_MINI_APP_ENABLE') || false;
+    const isMiniAppEnabled: boolean = this.config.get('TELEGRAM_MINI_APP_ENABLED') === 'true';
     return [[isMiniAppEnabled ? { text: 'Open Mini App', web_app: { url } } : { text: 'Open Web App', url }]];
   }
 
@@ -865,17 +865,6 @@ export class EscrowOrderResolver {
       }
 
       const link = `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`;
-      const isMiniApp = this.config.get('TELEGRAM_MINI_APP_ENABLE')
-        ? {
-            text: 'Open Mini App',
-            web_app: {
-              url: link
-            }
-          }
-        : {
-            text: 'Open Web App',
-            url: link
-          };
 
       switch (action) {
         case EscrowOrderAction.RELEASE:
