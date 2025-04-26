@@ -842,6 +842,7 @@ export class OfferResolver {
 
     //remove cache and add again
     await this.offerCacheService.removeByKeys([offerUpdated.postId]);
+    await this.postCacheService.removeByKeys([offerUpdated.postId]);
     await this.offerCacheService.getById(offerUpdated.postId);
 
     const post = await this.postCacheService.getById(offerUpdated.postId);

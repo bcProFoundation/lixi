@@ -1,10 +1,11 @@
-import { AccountType, Post, Role } from '@bcpros/lixi-models';
+import { AccountType, COIN, OfferStatus, OfferType, Post, Role } from '@bcpros/lixi-models';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { decode, encode } from '@msgpack/msgpack';
 import { Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import _ from 'lodash';
 import { PrismaService } from '../prisma/prisma.service';
+import { OfferPaymentMethod } from '@bcpros/lixi-prisma';
 
 export class PostCacheService {
   private logger: Logger = new Logger(this.constructor.name);
@@ -25,7 +26,16 @@ export class PostCacheService {
         },
         include: {
           account: true,
-          translations: true
+          translations: true,
+          offer: {
+            include: {
+              paymentMethods: true,
+              escrowOrders: true,
+              country: true,
+              location: true,
+              state: true
+            }
+          }
         }
       });
       if (!dbValue) return null;
@@ -37,6 +47,20 @@ export class PostCacheService {
           role: dbValue?.account.role as Role,
           hash160: dbValue?.account.hash160.toString('hex'),
           accountType: dbValue?.account.accountType as AccountType
+        },
+        offer: {
+          ...dbValue.offer,
+          coin: dbValue?.offer?.coin as COIN,
+          postId: dbValue?.id,
+          publicKey: dbValue?.offer?.publicKey as string,
+          message: dbValue?.offer?.message as string,
+          price: dbValue?.offer?.price as string,
+          marginPercentage: dbValue?.offer?.marginPercentage as number,
+          orderLimitMin: dbValue?.offer?.orderLimitMin as number,
+          orderLimitMax: dbValue?.offer?.orderLimitMax as number,
+          type: dbValue?.offer?.type as OfferType,
+          //@ts-ignore
+          paymentMethods: [...dbValue?.offer?.paymentMethods!]
         }
       });
 

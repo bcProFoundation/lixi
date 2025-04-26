@@ -3,13 +3,13 @@ import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { COIN } from '../../constants/coins/coin';
+import { Country } from '../geo-location/country.model';
+import { Location } from '../geo-location/location.model';
+import { State } from '../geo-location/state.model';
 import { Nullable } from '../nullable';
 
 import { EscrowOrder } from './escrow-order.model';
 import { OfferPaymentMethod } from './offer-payment-method.model';
-import { Country } from '../geo-location/country.model';
-import { State } from '../geo-location/state.model';
-import { Location } from '../geo-location/location.model';
 
 @ObjectType()
 export class Offer {
@@ -59,7 +59,7 @@ export class Offer {
   type: OfferType;
 
   @Field(() => [OfferPaymentMethod])
-  paymentMethods: [OfferPaymentMethod];
+  paymentMethods: OfferPaymentMethod[];
 
   @Field(() => OfferStatus)
   status: OfferStatus;
@@ -84,7 +84,7 @@ export class Offer {
 
   @Field(() => [EscrowOrder], { nullable: true })
   @IsOptional()
-  escrowOrders?: [EscrowOrder];
+  escrowOrders?: EscrowOrder[];
 
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.'
