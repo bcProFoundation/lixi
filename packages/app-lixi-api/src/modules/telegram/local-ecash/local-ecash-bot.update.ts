@@ -273,53 +273,54 @@ Are you ready? Let's get started.
 
   @Command('stats')
   async onInfo(ctx: Context) {
-    //process for args
-    //Context dont have type message.text
-    const args = (ctx?.message as { text: string }).text?.split(' ')[1];
-    let targetDate = args?.trim();
+    try {
+      //process for args
+      //Context dont have type message.text
+      const args = (ctx?.message as { text: string }).text?.split(' ')[1];
+      let targetDate = args?.trim();
 
-    // Default to current time if no valid date is provided
-    let date = new Date();
-    let infoMessage = '';
+      // Default to current time if no valid date is provided
+      let date = new Date();
+      let infoMessage = '';
 
-    // Check if the date is in the format 'YYYYMMDD'
-    if (targetDate) {
-      if (moment(targetDate, 'YYYYMMDD', true).isValid()) {
-        const year = targetDate.substring(0, 4);
-        const month = targetDate.substring(4, 6);
-        const day = targetDate.substring(6, 8);
+      // Check if the date is in the format 'YYYYMMDD'
+      if (targetDate) {
+        if (moment(targetDate, 'YYYYMMDD', true).isValid()) {
+          const year = targetDate.substring(0, 4);
+          const month = targetDate.substring(4, 6);
+          const day = targetDate.substring(6, 8);
 
-        // Create a UTC Date object with the provided date at 00:00
-        date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day), 0, 0, 0));
-      } else {
-        infoMessage = '🚨 Wrong date format! Please use YYYYMMDD (e.g., 20240101 for January 1, 2024).';
-        await ctx.reply(infoMessage);
+          // Create a UTC Date object with the provided date at 00:00
+          date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day), 0, 0, 0));
+        } else {
+          infoMessage = '🚨 Wrong date format! Please use YYYYMMDD (e.g., 20240101 for January 1, 2024).';
+          await ctx.reply(infoMessage);
+          return;
+        }
+      }
+
+      const mods = await this.prisma.account.findMany({
+        where: {
+          OR: [{ role: Role.MODERATOR }, { role: Role.ARBITRATOR }]
+        }
+      });
+
+      const findedMod = mods.filter(mod => mod?.telegramId === ctx?.message?.from?.id?.toString());
+
+      if (findedMod.length === 0) {
+        infoMessage = ` Only moderators can use this command.`;
+        await ctx.reply(infoMessage, {
+          parse_mode: 'Markdown'
+        });
         return;
       }
-    }
 
-    const mods = await this.prisma.account.findMany({
-      where: {
-        role: Role.MODERATOR
-      }
-    });
+      const infoOneYearOrders = await this.getStats(date, PERIOD_TIME.YEAR);
+      const infoOneMonthOrders = await this.getStats(date, PERIOD_TIME.MONTH);
+      const infoOneWeekOrders = await this.getStats(date, PERIOD_TIME.WEEK);
+      const infoOneDayOrders = await this.getStats(date, PERIOD_TIME.DAY);
 
-    const findedMod = mods.filter(mod => mod?.telegramId === ctx?.message?.from?.id?.toString());
-
-    if (findedMod.length === 0) {
-      infoMessage = ` Only moderators can use this command.`;
-      await ctx.reply(infoMessage, {
-        parse_mode: 'Markdown'
-      });
-      return;
-    }
-
-    const infoOneYearOrders = await this.getStats(date, PERIOD_TIME.YEAR);
-    const infoOneMonthOrders = await this.getStats(date, PERIOD_TIME.MONTH);
-    const infoOneWeekOrders = await this.getStats(date, PERIOD_TIME.WEEK);
-    const infoOneDayOrders = await this.getStats(date, PERIOD_TIME.DAY);
-
-    infoMessage = `
+      infoMessage = `
    📊 *Stats Overview* 📊
 
    - 📅 *1 Year Stats*: 
@@ -333,9 +334,14 @@ Are you ready? Let's get started.
    For additional help, type /help.
    `;
 
-    await ctx.reply(infoMessage, {
-      parse_mode: 'Markdown'
-    });
+      await ctx.reply(infoMessage, {
+        parse_mode: 'Markdown'
+      });
+    } catch (e) {
+      this.logger.error(e, LocalEcashBotUpdate.name);
+      await ctx.reply('Error getting stats.');
+      return;
+    }
   }
 
   private infoStatistics(info: InfoStatistics) {
