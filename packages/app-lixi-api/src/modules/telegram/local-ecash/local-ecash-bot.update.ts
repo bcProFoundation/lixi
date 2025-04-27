@@ -67,10 +67,19 @@ export class LocalEcashBotUpdate implements OnModuleInit {
 
       const chronikWatchAddress = await this.prisma.chronikWatchAddress.findMany({});
 
-      const addresses = _.uniq(chronikWatchAddress.map(item => item.hash160));
+      const addresses = _.uniq(
+        chronikWatchAddress.map(item => ({
+          type: item.type,
+          hash: item.hash160
+        }))
+      );
 
       for (const address of addresses) {
-        this.chronikWs.subscribeToScript('p2pkh', address);
+        if (address.type === 'p2pkh') {
+          this.chronikWs.subscribeToScript('p2pkh', address.hash);
+        } else if (address.type === 'p2sh') {
+          this.chronikWs.subscribeToScript('p2sh', address.hash);
+        }
       }
     } catch (e) {
       this.logger.error(e);
@@ -599,7 +608,10 @@ Are you ready? Let's get started.
         return;
       }
 
-      const chronikWatchAddress = account.chronikWatchAddresses.map(item => item.hash160);
+      const chronikWatchAddress = account.chronikWatchAddresses.map(item => ({
+        type: item.type,
+        hash: item.hash160
+      }));
 
       if (account.chronikWatchAddresses.length === 0) {
         await ctx.sendMessage(`No addresses registered!`, {
@@ -613,11 +625,21 @@ Are you ready? Let's get started.
       }
 
       const addressReplyFormat = chronikWatchAddress.map((item, index) => {
-        const ecash = cashaddr.encode('ecash', 'p2pkh', item);
-        const etoken = cashaddr.encode('etoken', 'p2pkh', item);
+        if (item.type === 'p2pkh') {
+          const ecash = cashaddr.encode('ecash', 'p2pkh', item.hash);
+          const etoken = cashaddr.encode('etoken', 'p2pkh', item.hash);
 
-        return `${index + 1}. [${ecash}](${coinInfo[COIN.XEC].blockExplorerUrl}/address/${ecash})
-        [${etoken}](${coinInfo[COIN.XEC].blockExplorerUrl}/address/${etoken})`;
+          return `${index + 1}. [${ecash}](${coinInfo[COIN.XEC].blockExplorerUrl}/address/${ecash})
+          [${etoken}](${coinInfo[COIN.XEC].blockExplorerUrl}/address/${etoken})`;
+        }
+
+        if (item.type === 'p2sh') {
+          const ecash = cashaddr.encode('ecash', 'p2sh', item.hash);
+          const etoken = cashaddr.encode('etoken', 'p2sh', item.hash);
+
+          return `${index + 1}. [${ecash}](${coinInfo[COIN.XEC].blockExplorerUrl}/address/${ecash})
+          [${etoken}](${coinInfo[COIN.XEC].blockExplorerUrl}/address/${etoken})`;
+        }
       });
 
       await ctx.sendMessage(
