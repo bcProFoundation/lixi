@@ -20,6 +20,7 @@ type ParsedUtxoType = {
   amount: number;
   chronikWatchAddresses: any;
   hash160: string;
+  type: string;
   tokenId?: string;
 };
 
@@ -86,19 +87,21 @@ export class LocalEcashBotUpdate implements OnModuleInit {
     }
   }
 
-  _convertOutputScript(output: TxOutput_InNode): { hash160: string; amount: number; tokenId?: string } | null {
+  _convertOutputScript(
+    output: TxOutput_InNode
+  ): { hash160: string; amount: number; tokenId?: string; type: string } | null {
     try {
       let amount = 0;
 
-      const { hash } = cashaddr.getTypeAndHashFromOutputScript(output.outputScript);
+      const { hash, type } = cashaddr.getTypeAndHashFromOutputScript(output.outputScript);
       const hash160: string = hash;
 
       if (output.token) {
         amount = Number(output.token.amount);
-        return { hash160, amount, tokenId: output.token.tokenId };
+        return { hash160, amount, tokenId: output.token.tokenId, type };
       } else {
         amount = output.value ? Number(output.value.toString()) : 0;
-        return { hash160, amount };
+        return { hash160, amount, type };
       }
     } catch (e) {
       return null;
@@ -149,7 +152,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
 
         if (chronikWatchAddresses.length > 0) {
           for (const chronikWatchAddress of chronikWatchAddresses) {
-            const { amount, hash160, tokenId } =
+            const { amount, hash160, tokenId, type } =
               outputsConverted.find(item => item.hash160 === chronikWatchAddress.hash160)! || {};
 
             const parsedUtxo: ParsedUtxoType = {
@@ -157,6 +160,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
               amount: amount,
               chronikWatchAddresses,
               hash160: hash160,
+              type: type,
               tokenId: tokenId ?? undefined
             };
 
@@ -178,12 +182,15 @@ export class LocalEcashBotUpdate implements OnModuleInit {
   };
 
   async receivedSLPDeposit(parsedUtxo: ParsedUtxoType) {
-    const { txid, amount, chronikWatchAddresses, hash160, tokenId } = parsedUtxo;
+    const { txid, amount, chronikWatchAddresses, hash160, tokenId, type } = parsedUtxo;
     const { genesisInfo } = await this.chronik.token(tokenId!);
+
+    const address =
+      type === 'p2pkh' ? cashaddr.encode('etoken', 'p2pkh', hash160) : cashaddr.encode('etoken', 'p2sh', hash160);
 
     const formatReplied = format(
       BOT.MESSAGE.CHRONIK_WATCH_RECIEVED_SLP,
-      cashaddr.encode('etoken', 'p2pkh', hash160),
+      address,
       (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString(),
       genesisInfo.tokenTicker,
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
@@ -210,11 +217,14 @@ export class LocalEcashBotUpdate implements OnModuleInit {
   }
 
   async receivedXECDeposit(parsedUtxo: ParsedUtxoType) {
-    const { txid, amount, chronikWatchAddresses, hash160 } = parsedUtxo;
+    const { txid, amount, chronikWatchAddresses, hash160, type } = parsedUtxo;
+
+    const address =
+      type === 'p2pkh' ? cashaddr.encode('ecash', 'p2pkh', hash160) : cashaddr.encode('ecash', 'p2sh', hash160);
 
     const formatReplied = format(
       BOT.MESSAGE.CHRONIK_WATCH_RECIEVED_XEC,
-      cashaddr.encode('ecash', 'p2pkh', hash160),
+      address,
       (amount / Math.pow(10, 2)).toLocaleString(),
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
     );
