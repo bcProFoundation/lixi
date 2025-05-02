@@ -121,7 +121,10 @@ export class AccountCacheService {
       );
 
       if (dbValuesMap.size > 0) {
-        this.redis.hmset(this.keyPrefix, dbValuesMap);
+        Promise.all([
+          this.redis.hmset(this.keyPrefix, dbValuesMap),
+          this.redis.expire(this.keyPrefix, 60 * 5) // 5 minutes
+        ]);
       }
     } catch (err) {
       this.logger.error(err);

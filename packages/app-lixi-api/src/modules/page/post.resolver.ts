@@ -102,11 +102,11 @@ export class PostResolver {
   async post(@Args('id', { type: () => String }) id: string) {
     const post = await this.postCacheService.getById(id);
 
-    if(post?.offer && post?.offer.status === OfferStatus.ARCHIVE) {
+    if (post?.offer && post?.offer.status === OfferStatus.ARCHIVE) {
       return null;
     }
 
-    return post
+    return post;
   }
 
   @SkipThrottle()
