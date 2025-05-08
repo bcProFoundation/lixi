@@ -15,11 +15,14 @@ export class UpdateOfferInput {
   @Field(() => Float, { nullable: true })
   marginPercentage?: Nullable<number>;
 
-  @Field(() => Number, { nullable: true })
+  @Field(() => Float, { nullable: true })
   orderLimitMin?: Nullable<number>;
 
-  @Field(() => Number, { nullable: true })
+  @Field(() => Float, { nullable: true })
   orderLimitMax?: Nullable<number>;
+
+  @Field(() => Float, { nullable: true })
+  priceCoinOthers?: Nullable<number>;
 }
 
 @InputType()

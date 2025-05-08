@@ -1354,6 +1354,7 @@ model Offer {
   price             String
   coinPayment       String?              @map("coin_payment")
   coinOthers        String?              @default("") @map("coin_others")
+  priceCoinOthers   Float?               @default(0.0) @map("price_coin_others")
   marginPercentage  Float                @default(0.0) @map("margin_percentage")
   localCurrency     String?              @map("local_currency")
   paymentApp        String?              @map("payment_app")
