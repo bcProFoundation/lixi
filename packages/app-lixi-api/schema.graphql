@@ -470,6 +470,7 @@ input CreateOfferInput {
   paymentApp: String
   paymentMethodIds: [Int!]!
   price: String!
+  priceCoinOthers: Float
   type: OfferType!
 }
 
@@ -1130,6 +1131,7 @@ type Offer {
   paymentMethods: [OfferPaymentMethod!]!
   postId: String!
   price: String!
+  priceCoinOthers: Float
   publicKey: String!
   state: State
   stateId: Int
@@ -1960,8 +1962,9 @@ input UpdateOfferInput {
   marginPercentage: Float
   message: String
   noteOffer: String
-  orderLimitMax: Int
-  orderLimitMin: Int
+  orderLimitMax: Float
+  orderLimitMin: Float
+  priceCoinOthers: Float
 }
 
 input UpdateOfferStatusInput {

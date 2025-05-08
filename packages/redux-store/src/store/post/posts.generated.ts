@@ -147,6 +147,7 @@ export type PostQuery = {
       price: string;
       coinPayment?: string | null;
       coinOthers?: string | null;
+      priceCoinOthers?: number | null;
       marginPercentage: number;
       localCurrency?: string | null;
       paymentApp?: string | null;
@@ -320,6 +321,7 @@ export type PostsByPageIdQuery = {
           price: string;
           coinPayment?: string | null;
           coinOthers?: string | null;
+          priceCoinOthers?: number | null;
           marginPercentage: number;
           localCurrency?: string | null;
           paymentApp?: string | null;
@@ -501,6 +503,7 @@ export type PostsByUserIdQuery = {
           price: string;
           coinPayment?: string | null;
           coinOthers?: string | null;
+          priceCoinOthers?: number | null;
           marginPercentage: number;
           localCurrency?: string | null;
           paymentApp?: string | null;
@@ -682,6 +685,7 @@ export type PostsByHashtagIdQuery = {
           price: string;
           coinPayment?: string | null;
           coinOthers?: string | null;
+          priceCoinOthers?: number | null;
           marginPercentage: number;
           localCurrency?: string | null;
           paymentApp?: string | null;
@@ -863,6 +867,7 @@ export type PostsByTokenIdQuery = {
           price: string;
           coinPayment?: string | null;
           coinOthers?: string | null;
+          priceCoinOthers?: number | null;
           marginPercentage: number;
           localCurrency?: string | null;
           paymentApp?: string | null;
@@ -1018,6 +1023,7 @@ export type PostsBySearchQuery = {
           price: string;
           coinPayment?: string | null;
           coinOthers?: string | null;
+          priceCoinOthers?: number | null;
           marginPercentage: number;
           localCurrency?: string | null;
           paymentApp?: string | null;
@@ -1175,6 +1181,7 @@ export type PostsBySearchWithHashtagQuery = {
           price: string;
           coinPayment?: string | null;
           coinOthers?: string | null;
+          priceCoinOthers?: number | null;
           marginPercentage: number;
           localCurrency?: string | null;
           paymentApp?: string | null;
@@ -1333,6 +1340,7 @@ export type PostsBySearchWithHashtagAtPageQuery = {
           price: string;
           coinPayment?: string | null;
           coinOthers?: string | null;
+          priceCoinOthers?: number | null;
           marginPercentage: number;
           localCurrency?: string | null;
           paymentApp?: string | null;
@@ -1491,6 +1499,7 @@ export type PostsBySearchWithHashtagAtTokenQuery = {
           price: string;
           coinPayment?: string | null;
           coinOthers?: string | null;
+          priceCoinOthers?: number | null;
           marginPercentage: number;
           localCurrency?: string | null;
           paymentApp?: string | null;
@@ -1561,6 +1570,7 @@ export type OfferFieldsFragment = {
   price: string;
   coinPayment?: string | null;
   coinOthers?: string | null;
+  priceCoinOthers?: number | null;
   marginPercentage: number;
   localCurrency?: string | null;
   paymentApp?: string | null;
@@ -1712,6 +1722,7 @@ export type PostFieldsFragment = {
     price: string;
     coinPayment?: string | null;
     coinOthers?: string | null;
+    priceCoinOthers?: number | null;
     marginPercentage: number;
     localCurrency?: string | null;
     paymentApp?: string | null;
@@ -1841,6 +1852,7 @@ export type PostMeiliFieldsFragment = {
     price: string;
     coinPayment?: string | null;
     coinOthers?: string | null;
+    priceCoinOthers?: number | null;
     marginPercentage: number;
     localCurrency?: string | null;
     paymentApp?: string | null;
@@ -1999,6 +2011,7 @@ export type CreatePostMutation = {
       price: string;
       coinPayment?: string | null;
       coinOthers?: string | null;
+      priceCoinOthers?: number | null;
       marginPercentage: number;
       localCurrency?: string | null;
       paymentApp?: string | null;
@@ -2158,6 +2171,7 @@ export type UpdatePostMutation = {
       price: string;
       coinPayment?: string | null;
       coinOthers?: string | null;
+      priceCoinOthers?: number | null;
       marginPercentage: number;
       localCurrency?: string | null;
       paymentApp?: string | null;
@@ -2323,6 +2337,7 @@ export type RemovePostMutation = {
       price: string;
       coinPayment?: string | null;
       coinOthers?: string | null;
+      priceCoinOthers?: number | null;
       marginPercentage: number;
       localCurrency?: string | null;
       paymentApp?: string | null;
@@ -2382,6 +2397,7 @@ export const OfferFieldsFragmentDoc = `
   price
   coinPayment
   coinOthers
+  priceCoinOthers
   marginPercentage
   localCurrency
   paymentApp

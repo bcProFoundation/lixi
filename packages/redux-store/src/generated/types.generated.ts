@@ -497,6 +497,7 @@ export type CreateOfferInput = {
   paymentApp?: InputMaybe<Scalars['String']['input']>;
   paymentMethodIds: Array<Scalars['Int']['input']>;
   price: Scalars['String']['input'];
+  priceCoinOthers?: InputMaybe<Scalars['Float']['input']>;
   type: OfferType;
 };
 
@@ -1334,6 +1335,7 @@ export type Offer = {
   paymentMethods: Array<OfferPaymentMethod>;
   postId: Scalars['String']['output'];
   price: Scalars['String']['output'];
+  priceCoinOthers?: Maybe<Scalars['Float']['output']>;
   publicKey: Scalars['String']['output'];
   state?: Maybe<State>;
   stateId?: Maybe<Scalars['Int']['output']>;
@@ -2757,8 +2759,9 @@ export type UpdateOfferInput = {
   marginPercentage?: InputMaybe<Scalars['Float']['input']>;
   message?: InputMaybe<Scalars['String']['input']>;
   noteOffer?: InputMaybe<Scalars['String']['input']>;
-  orderLimitMax?: InputMaybe<Scalars['Int']['input']>;
-  orderLimitMin?: InputMaybe<Scalars['Int']['input']>;
+  orderLimitMax?: InputMaybe<Scalars['Float']['input']>;
+  orderLimitMin?: InputMaybe<Scalars['Float']['input']>;
+  priceCoinOthers?: InputMaybe<Scalars['Float']['input']>;
 };
 
 export type UpdateOfferStatusInput = {

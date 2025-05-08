@@ -78,6 +78,7 @@ export type EscrowOrderFieldsFragment = {
     paymentApp?: string | null;
     type: Types.OfferType;
     coinOthers?: string | null;
+    priceCoinOthers?: number | null;
     localCurrency?: string | null;
   };
   escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -232,6 +233,7 @@ export type TimelineItemFieldsFragment = {
           paymentApp?: string | null;
           type: Types.OfferType;
           coinOthers?: string | null;
+          priceCoinOthers?: number | null;
           localCurrency?: string | null;
         };
         escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -377,6 +379,7 @@ export type TimelineItemFieldsFragment = {
           price: string;
           coinPayment?: string | null;
           coinOthers?: string | null;
+          priceCoinOthers?: number | null;
           marginPercentage: number;
           localCurrency?: string | null;
           paymentApp?: string | null;
@@ -511,6 +514,7 @@ export type TimelineQuery = {
             paymentApp?: string | null;
             type: Types.OfferType;
             coinOthers?: string | null;
+            priceCoinOthers?: number | null;
             localCurrency?: string | null;
           };
           escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -656,6 +660,7 @@ export type TimelineQuery = {
             price: string;
             coinPayment?: string | null;
             coinOthers?: string | null;
+            priceCoinOthers?: number | null;
             marginPercentage: number;
             localCurrency?: string | null;
             paymentApp?: string | null;
@@ -799,6 +804,7 @@ export type HomeTimelineQuery = {
                 paymentApp?: string | null;
                 type: Types.OfferType;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -950,6 +956,7 @@ export type HomeTimelineQuery = {
                 price: string;
                 coinPayment?: string | null;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -1096,6 +1103,7 @@ export type ProfileTimelineQuery = {
                 paymentApp?: string | null;
                 type: Types.OfferType;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -1247,6 +1255,7 @@ export type ProfileTimelineQuery = {
                 price: string;
                 coinPayment?: string | null;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -1394,6 +1403,7 @@ export type ProfileTimelineByTimeQuery = {
                 paymentApp?: string | null;
                 type: Types.OfferType;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -1545,6 +1555,7 @@ export type ProfileTimelineByTimeQuery = {
                 price: string;
                 coinPayment?: string | null;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -1691,6 +1702,7 @@ export type PageTimelineQuery = {
                 paymentApp?: string | null;
                 type: Types.OfferType;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -1842,6 +1854,7 @@ export type PageTimelineQuery = {
                 price: string;
                 coinPayment?: string | null;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -1989,6 +2002,7 @@ export type PageTimelineByTimeQuery = {
                 paymentApp?: string | null;
                 type: Types.OfferType;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -2140,6 +2154,7 @@ export type PageTimelineByTimeQuery = {
                 price: string;
                 coinPayment?: string | null;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -2286,6 +2301,7 @@ export type TokenTimelineQuery = {
                 paymentApp?: string | null;
                 type: Types.OfferType;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -2437,6 +2453,7 @@ export type TokenTimelineQuery = {
                 price: string;
                 coinPayment?: string | null;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -2584,6 +2601,7 @@ export type TokenTimelineByTimeQuery = {
                 paymentApp?: string | null;
                 type: Types.OfferType;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -2735,6 +2753,7 @@ export type TokenTimelineByTimeQuery = {
                 price: string;
                 coinPayment?: string | null;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -2811,6 +2830,7 @@ export const EscrowOrderFieldsFragmentDoc = `
     paymentApp
     type
     coinOthers
+    priceCoinOthers
     localCurrency
   }
   escrowScript

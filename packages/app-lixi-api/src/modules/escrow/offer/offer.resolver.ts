@@ -20,7 +20,8 @@ import {
   PAYMENT_METHOD,
   POST_TYPE,
   OfferOrderField,
-  OrderDirection
+  OrderDirection,
+  getTickerText
 } from '@bcpros/lixi-models';
 import { Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
@@ -598,6 +599,7 @@ export class OfferResolver {
                 marginPercentage: data.marginPercentage,
                 coinPayment: data.coinPayment,
                 coinOthers: data.coinOthers ?? '',
+                priceCoinOthers: data?.priceCoinOthers ?? 0,
                 localCurrency: data.localCurrency,
                 paymentApp: data.paymentApp,
                 orderLimitMin: data.orderLimitMin,
@@ -680,16 +682,18 @@ export class OfferResolver {
       }
 
       const offerData = offer;
-      const ticket =
-        offerData?.localCurrency ??
-        (offerData?.coinPayment?.includes(COIN_OTHERS) ? 'XEC' : offerData?.coinPayment) ??
-        'XEC';
+      const ticker = getTickerText(
+        offerData?.localCurrency,
+        offerData?.coinPayment,
+        offerData?.coinOthers,
+        offerData?.priceCoinOthers
+      );
 
       //id - link - message - margin - orderLimit - paymentMethod - location
       const link = `${this.configService.get('LOCAL_ECASH_URL')}/offer-detail?id=${result.id}`;
       let strTypeListOffer = data?.hideFromHome ? 'Unlisted' : 'Listed';
       offerData?.type === OfferType.BUY ? (strTypeListOffer += ' Buy') : (strTypeListOffer += ' Sell');
-      const orderLimitText = processTextOrderLimit(offer?.orderLimitMin, offer?.orderLimitMax, ticket);
+      const orderLimitText = processTextOrderLimit(offer?.orderLimitMin, offer?.orderLimitMax, ticker);
 
       let formatReplied =
         strLocation && strLocation !== ''
@@ -782,7 +786,8 @@ export class OfferResolver {
         noteOffer: data.noteOffer ?? '',
         orderLimitMin: data.orderLimitMin ?? 0,
         orderLimitMax: data.orderLimitMax ?? 0,
-        marginPercentage: data.marginPercentage ?? 0
+        marginPercentage: data.marginPercentage ?? 0,
+        priceCoinOthers: data.priceCoinOthers ?? 0
       }
     });
 

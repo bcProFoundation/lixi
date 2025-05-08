@@ -24,6 +24,9 @@ export class CreateOfferInput {
   @Field(() => String, { nullable: true })
   coinOthers?: Nullable<string>;
 
+  @Field(() => Float, { nullable: true })
+  priceCoinOthers?: Nullable<number>;
+
   @Field(() => Float)
   marginPercentage: number;
 

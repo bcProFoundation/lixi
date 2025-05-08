@@ -22,7 +22,8 @@ import {
   UpdateEscrowOrderSignatoryInput,
   EscrowOrderAction,
   BankInfo,
-  PAYMENT_METHOD
+  PAYMENT_METHOD,
+  getTickerText
 } from '@bcpros/lixi-models';
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
@@ -54,6 +55,7 @@ import { DisputeCacheService } from '../dispute/dispute-cache.service';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { ConfigService } from '@nestjs/config';
 import { KEY_BANK_INFO } from 'src/utils/escrow/cache-key.constants';
+import { COIN_OTHERS } from '../escrow.contants';
 
 @SkipThrottle()
 @Resolver(() => EscrowOrder)
@@ -713,7 +715,9 @@ export class EscrowOrderResolver {
               telegramMessageId: true,
               localCurrency: true,
               coinPayment: true,
-              message: true
+              message: true,
+              priceCoinOthers: true,
+              coinOthers: true
             }
           }
         }
@@ -758,7 +762,12 @@ export class EscrowOrderResolver {
           orderAccount.telegramUsername!.replace(/([|{}\[\]*_~#+>!=\-.])/g, '\\$1'),
           escrowOrder.offer.message,
           escrowOrder.amountCoinOrCurrency.toLocaleString('en-US'),
-          escrowOrder.offer.coinPayment ?? escrowOrder.offer.localCurrency ?? 'XEC',
+          getTickerText(
+            escrowOrder?.offer?.localCurrency,
+            escrowOrder?.offer?.coinPayment,
+            escrowOrder?.offer?.coinOthers,
+            escrowOrder?.offer?.priceCoinOthers
+          ),
           escrowOrder.message,
           buyerDepositTx
             ? (() => {

@@ -45,6 +45,7 @@ fragment EscrowOrderFields on EscrowOrder {
     paymentApp
     type
     coinOthers
+    priceCoinOthers
     localCurrency
   }
   escrowScript

@@ -30,6 +30,7 @@ export type OfferQuery = {
     price: string;
     coinPayment?: string | null;
     coinOthers?: string | null;
+    priceCoinOthers?: number | null;
     marginPercentage: number;
     localCurrency?: string | null;
     paymentApp?: string | null;
@@ -170,6 +171,7 @@ export type AllOfferQuery = {
                 paymentApp?: string | null;
                 type: Types.OfferType;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -321,6 +323,7 @@ export type AllOfferQuery = {
                 price: string;
                 coinPayment?: string | null;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -467,6 +470,7 @@ export type OfferByFilterQuery = {
                 paymentApp?: string | null;
                 type: Types.OfferType;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -618,6 +622,7 @@ export type OfferByFilterQuery = {
                 price: string;
                 coinPayment?: string | null;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -764,6 +769,7 @@ export type OfferByFilterDatabaseQuery = {
                 paymentApp?: string | null;
                 type: Types.OfferType;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -915,6 +921,7 @@ export type OfferByFilterDatabaseQuery = {
                 price: string;
                 coinPayment?: string | null;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -1061,6 +1068,7 @@ export type AllOfferByAccountQuery = {
                 paymentApp?: string | null;
                 type: Types.OfferType;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -1212,6 +1220,7 @@ export type AllOfferByAccountQuery = {
                 price: string;
                 coinPayment?: string | null;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -1358,6 +1367,7 @@ export type AllOfferByAccountDatabaseQuery = {
                 paymentApp?: string | null;
                 type: Types.OfferType;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -1509,6 +1519,7 @@ export type AllOfferByAccountDatabaseQuery = {
                 price: string;
                 coinPayment?: string | null;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -1655,6 +1666,7 @@ export type AllOfferActiveByAccountIdQuery = {
                 paymentApp?: string | null;
                 type: Types.OfferType;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -1806,6 +1818,7 @@ export type AllOfferActiveByAccountIdQuery = {
                 price: string;
                 coinPayment?: string | null;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -1952,6 +1965,7 @@ export type AllOfferActiveByAccountIdDatabaseQuery = {
                 paymentApp?: string | null;
                 type: Types.OfferType;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -2103,6 +2117,7 @@ export type AllOfferActiveByAccountIdDatabaseQuery = {
                 price: string;
                 coinPayment?: string | null;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -2266,6 +2281,7 @@ export type CreateOfferMutation = {
       price: string;
       coinPayment?: string | null;
       coinOthers?: string | null;
+      priceCoinOthers?: number | null;
       marginPercentage: number;
       localCurrency?: string | null;
       paymentApp?: string | null;
@@ -2309,6 +2325,7 @@ export type UpdateOfferMutation = {
     price: string;
     coinPayment?: string | null;
     coinOthers?: string | null;
+    priceCoinOthers?: number | null;
     marginPercentage: number;
     localCurrency?: string | null;
     paymentApp?: string | null;
@@ -2351,6 +2368,7 @@ export type UpdateOfferHideFromHomeMutation = {
     price: string;
     coinPayment?: string | null;
     coinOthers?: string | null;
+    priceCoinOthers?: number | null;
     marginPercentage: number;
     localCurrency?: string | null;
     paymentApp?: string | null;
@@ -2509,6 +2527,7 @@ export type UpdateOfferStatusMutation = {
       price: string;
       coinPayment?: string | null;
       coinOthers?: string | null;
+      priceCoinOthers?: number | null;
       marginPercentage: number;
       localCurrency?: string | null;
       paymentApp?: string | null;

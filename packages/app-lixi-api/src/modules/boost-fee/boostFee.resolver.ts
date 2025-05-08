@@ -1,4 +1,13 @@
-import { Account, BoostFee, BoostType, COIN, CreateBoostInput, PostBoost, coinInfo } from '@bcpros/lixi-models';
+import {
+  Account,
+  BoostFee,
+  BoostType,
+  COIN,
+  CreateBoostInput,
+  PostBoost,
+  coinInfo,
+  getTickerText
+} from '@bcpros/lixi-models';
 import { Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { SkipThrottle } from '@nestjs/throttler';
@@ -184,15 +193,17 @@ export class BoostFeeResolver {
         }
         //message - orderlimit - price - paymentMethod - location - link
         const offerData = offerBoosted?.offer;
-        const ticket =
-          offerData?.localCurrency ??
-          (offerData?.coinPayment?.includes(COIN_OTHERS) ? 'XEC' : offerData?.coinPayment) ??
-          'XEC';
+        const ticker = getTickerText(
+          offerData?.localCurrency,
+          offerData?.coinPayment,
+          offerData?.coinOthers,
+          offerData?.priceCoinOthers
+        );
 
         const orderLimitText = processTextOrderLimit(
           offerBoosted?.offer?.orderLimitMin,
           offerBoosted?.offer?.orderLimitMax,
-          ticket
+          ticker
         );
         const formatReplied =
           strLocation && strLocation !== ''

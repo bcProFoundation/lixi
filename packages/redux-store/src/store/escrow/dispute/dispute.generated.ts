@@ -168,6 +168,7 @@ export type AllDisputeByAccountQuery = {
                 paymentApp?: string | null;
                 type: Types.OfferType;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
@@ -319,6 +320,7 @@ export type AllDisputeByAccountQuery = {
                 price: string;
                 coinPayment?: string | null;
                 coinOthers?: string | null;
+                priceCoinOthers?: number | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
