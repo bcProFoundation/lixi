@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.60
+
+### Patch Changes
+
+- Update coin prices
+
 ## 1.2.59
 
 ### Patch Changes

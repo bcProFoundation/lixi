@@ -1,5 +1,13 @@
 # @bcpros/redux-store
 
+## 1.2.60
+
+### Patch Changes
+
+- Update coin prices
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.60
+
 ## 1.2.59
 
 ### Patch Changes
