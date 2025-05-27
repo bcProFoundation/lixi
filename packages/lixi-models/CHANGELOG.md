@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.61
+
+### Patch Changes
+
+- enable taker and offer chat
+
 ## 1.2.60
 
 ### Patch Changes

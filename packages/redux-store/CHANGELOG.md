@@ -1,5 +1,13 @@
 # @bcpros/redux-store
 
+## 1.2.61
+
+### Patch Changes
+
+- enable taker and offer chat
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.61
+
 ## 1.2.60
 
 ### Patch Changes
