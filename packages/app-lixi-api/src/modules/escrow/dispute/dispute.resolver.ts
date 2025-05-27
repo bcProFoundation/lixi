@@ -178,7 +178,10 @@ export class DisputeResolver {
             parse_mode: 'Markdown',
             protect_content: true,
             reply_markup: {
-              inline_keyboard: generateInlineKeyboard(orderDetailLink, this.configService.get('TELEGRAM_MINI_APP_ENABLED'))
+              inline_keyboard: generateInlineKeyboard(
+                orderDetailLink,
+                this.configService.get('TELEGRAM_MINI_APP_ENABLED')
+              )
             }
           })
           .catch(e => {
@@ -193,7 +196,10 @@ export class DisputeResolver {
             parse_mode: 'Markdown',
             protect_content: true,
             reply_markup: {
-              inline_keyboard: generateInlineKeyboard(orderDetailLink, this.configService.get('TELEGRAM_MINI_APP_ENABLED'))
+              inline_keyboard: generateInlineKeyboard(
+                orderDetailLink,
+                this.configService.get('TELEGRAM_MINI_APP_ENABLED')
+              )
             }
           })
           .catch(e => {
@@ -221,7 +227,10 @@ export class DisputeResolver {
               is_disabled: true
             },
             reply_markup: {
-              inline_keyboard: generateInlineKeyboard(disputeDetailLink, this.configService.get('TELEGRAM_MINI_APP_ENABLED'))
+              inline_keyboard: generateInlineKeyboard(
+                disputeDetailLink,
+                this.configService.get('TELEGRAM_MINI_APP_ENABLED')
+              )
             }
           })
           .catch(e => {
@@ -247,7 +256,10 @@ export class DisputeResolver {
               is_disabled: true
             },
             reply_markup: {
-              inline_keyboard: generateInlineKeyboard(disputeDetailLink, this.configService.get('TELEGRAM_MINI_APP_ENABLED'))
+              inline_keyboard: generateInlineKeyboard(
+                disputeDetailLink,
+                this.configService.get('TELEGRAM_MINI_APP_ENABLED')
+              )
             }
           })
           .catch(e => {
