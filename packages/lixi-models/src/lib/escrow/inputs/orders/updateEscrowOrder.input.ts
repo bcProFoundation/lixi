@@ -53,4 +53,8 @@ export class UpdateEscrowOrderInput {
   @Field(() => Boolean, { nullable: true })
   @IsOptional()
   markAsPaid?: boolean;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  allowOfferTakerChat?: boolean;
 }

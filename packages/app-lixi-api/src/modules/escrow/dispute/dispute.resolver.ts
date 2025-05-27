@@ -34,6 +34,7 @@ import { format } from 'node:util';
 import { BOT } from 'src/utils/bot.constants';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { ConfigService } from '@nestjs/config';
+import { generateInlineKeyboard } from 'src/utils/escrow/escrow-order';
 
 @SkipThrottle()
 @Resolver(() => Dispute)
@@ -50,11 +51,6 @@ export class DisputeResolver {
     private notificationGateway: NotificationGateway,
     @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>
   ) {}
-
-  generateInlineKeyboard(url: string) {
-    const isMiniAppEnabled: boolean = this.configService.get('TELEGRAM_MINI_APP_ENABLED') === 'true';
-    return [[isMiniAppEnabled ? { text: 'Open Mini App', web_app: { url } } : { text: 'Open Web App', url }]];
-  }
 
   @Query(() => Dispute)
   @UseGuards(GqlJwtAuthGuard)
@@ -182,7 +178,7 @@ export class DisputeResolver {
             parse_mode: 'Markdown',
             protect_content: true,
             reply_markup: {
-              inline_keyboard: this.generateInlineKeyboard(orderDetailLink)
+              inline_keyboard: generateInlineKeyboard(orderDetailLink, this.configService.get('TELEGRAM_MINI_APP_ENABLED'))
             }
           })
           .catch(e => {
@@ -197,7 +193,7 @@ export class DisputeResolver {
             parse_mode: 'Markdown',
             protect_content: true,
             reply_markup: {
-              inline_keyboard: this.generateInlineKeyboard(orderDetailLink)
+              inline_keyboard: generateInlineKeyboard(orderDetailLink, this.configService.get('TELEGRAM_MINI_APP_ENABLED'))
             }
           })
           .catch(e => {
@@ -225,7 +221,7 @@ export class DisputeResolver {
               is_disabled: true
             },
             reply_markup: {
-              inline_keyboard: this.generateInlineKeyboard(disputeDetailLink)
+              inline_keyboard: generateInlineKeyboard(disputeDetailLink, this.configService.get('TELEGRAM_MINI_APP_ENABLED'))
             }
           })
           .catch(e => {
@@ -251,7 +247,7 @@ export class DisputeResolver {
               is_disabled: true
             },
             reply_markup: {
-              inline_keyboard: this.generateInlineKeyboard(disputeDetailLink)
+              inline_keyboard: generateInlineKeyboard(disputeDetailLink, this.configService.get('TELEGRAM_MINI_APP_ENABLED'))
             }
           })
           .catch(e => {

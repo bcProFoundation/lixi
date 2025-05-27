@@ -111,6 +111,15 @@ mutation MarkAsPaidOrder($input: UpdateEscrowOrderInput!) {
   }
 }
 
+mutation AllowOfferTakerChat($input: UpdateEscrowOrderInput!) {
+  allowOfferTakerChat(data: $input) {
+    id
+    status
+    createdAt
+    updatedAt
+  }
+}
+
 mutation FilterUtxos($input: [UtxoInNodeInput!]!) {
   filterUtxos(data: $input) {
     txid

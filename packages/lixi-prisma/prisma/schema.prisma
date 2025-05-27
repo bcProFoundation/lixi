@@ -1316,6 +1316,7 @@ model EscrowOrder {
   sellerDonateAmount      Float?            @map("seller_donate_amount")
   buyerDonateAmount       Float?            @map("buyer_donate_amount")
   markAsPaid              Boolean?          @default(false) @map("mark_as_paid")
+  allowOfferTakerChat     Boolean?          @default(false) @map("allow_offer_taker_chat")
   createdAt               DateTime          @default(now()) @map("created_at") @db.Timestamptz
   updatedAt               DateTime          @default(now()) @map("updated_at") @db.Timestamptz
 

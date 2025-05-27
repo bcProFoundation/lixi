@@ -110,6 +110,7 @@ export type BookmarkTimelineQuery = {
               createdAt: any;
               updatedAt: any;
               markAsPaid?: boolean | null;
+              allowOfferTakerChat?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';

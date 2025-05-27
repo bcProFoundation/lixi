@@ -128,6 +128,7 @@ export type AllOfferQuery = {
               createdAt: any;
               updatedAt: any;
               markAsPaid?: boolean | null;
+              allowOfferTakerChat?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -427,6 +428,7 @@ export type OfferByFilterQuery = {
               createdAt: any;
               updatedAt: any;
               markAsPaid?: boolean | null;
+              allowOfferTakerChat?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -726,6 +728,7 @@ export type OfferByFilterDatabaseQuery = {
               createdAt: any;
               updatedAt: any;
               markAsPaid?: boolean | null;
+              allowOfferTakerChat?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -1025,6 +1028,7 @@ export type AllOfferByAccountQuery = {
               createdAt: any;
               updatedAt: any;
               markAsPaid?: boolean | null;
+              allowOfferTakerChat?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -1324,6 +1328,7 @@ export type AllOfferByAccountDatabaseQuery = {
               createdAt: any;
               updatedAt: any;
               markAsPaid?: boolean | null;
+              allowOfferTakerChat?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -1623,6 +1628,7 @@ export type AllOfferActiveByAccountIdQuery = {
               createdAt: any;
               updatedAt: any;
               markAsPaid?: boolean | null;
+              allowOfferTakerChat?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -1922,6 +1928,7 @@ export type AllOfferActiveByAccountIdDatabaseQuery = {
               createdAt: any;
               updatedAt: any;
               markAsPaid?: boolean | null;
+              allowOfferTakerChat?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
