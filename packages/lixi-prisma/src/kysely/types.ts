@@ -284,6 +284,7 @@ export type EscrowOrder = {
   seller_donate_amount: number | null;
   buyer_donate_amount: number | null;
   mark_as_paid: Generated<boolean | null>;
+  allow_offer_taker_chat: Generated<boolean | null>;
   created_at: Generated<Timestamp>;
   updated_at: Generated<Timestamp>;
 };

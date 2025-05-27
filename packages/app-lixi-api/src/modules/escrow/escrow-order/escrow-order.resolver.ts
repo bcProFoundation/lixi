@@ -56,6 +56,7 @@ import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection
 import { ConfigService } from '@nestjs/config';
 import { KEY_BANK_INFO } from 'src/utils/escrow/cache-key.constants';
 import { COIN_OTHERS } from '../escrow.contants';
+import { generateInlineKeyboard } from 'src/utils/escrow/escrow-order';
 
 @SkipThrottle()
 @Resolver(() => EscrowOrder)
@@ -76,11 +77,6 @@ export class EscrowOrderResolver {
     @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
     @InjectRedis() private readonly redis: Redis
   ) {}
-
-  generateInlineKeyboard(url: string) {
-    const isMiniAppEnabled: boolean = this.config.get('TELEGRAM_MINI_APP_ENABLED') === 'true';
-    return [[isMiniAppEnabled ? { text: 'Open Mini App', web_app: { url } } : { text: 'Open Web App', url }]];
-  }
 
   @Query(() => Account)
   @UseGuards(GqlJwtAuthGuard)
@@ -236,7 +232,7 @@ export class EscrowOrderResolver {
             parse_mode: 'Markdown',
             protect_content: true,
             reply_markup: {
-              inline_keyboard: this.generateInlineKeyboard(link)
+              inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
             }
           })
           .catch(e => {
@@ -251,7 +247,7 @@ export class EscrowOrderResolver {
             parse_mode: 'Markdown',
             protect_content: true,
             reply_markup: {
-              inline_keyboard: this.generateInlineKeyboard(link)
+              inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
             }
           })
           .catch(e => {
@@ -319,7 +315,7 @@ export class EscrowOrderResolver {
               parse_mode: 'Markdown',
               protect_content: true,
               reply_markup: {
-                inline_keyboard: this.generateInlineKeyboard(link)
+                inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
               }
             })
             .catch(e => {
@@ -334,7 +330,7 @@ export class EscrowOrderResolver {
               parse_mode: 'Markdown',
               protect_content: true,
               reply_markup: {
-                inline_keyboard: this.generateInlineKeyboard(link)
+                inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
               }
             })
             .catch(e => {
@@ -351,7 +347,7 @@ export class EscrowOrderResolver {
               parse_mode: 'Markdown',
               protect_content: true,
               reply_markup: {
-                inline_keyboard: this.generateInlineKeyboard(link)
+                inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
               }
             })
             .catch(e => {
@@ -366,7 +362,7 @@ export class EscrowOrderResolver {
               parse_mode: 'Markdown',
               protect_content: true,
               reply_markup: {
-                inline_keyboard: this.generateInlineKeyboard(link)
+                inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
               }
             })
             .catch(e => {
@@ -791,7 +787,7 @@ export class EscrowOrderResolver {
               allow_sending_without_reply: true
             },
             reply_markup: {
-              inline_keyboard: this.generateInlineKeyboard(link)
+              inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
             }
           })
           .then(async res => {
@@ -816,7 +812,7 @@ export class EscrowOrderResolver {
             parse_mode: 'Markdown',
             protect_content: true,
             reply_markup: {
-              inline_keyboard: this.generateInlineKeyboard(link)
+              inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
             }
           })
           .then(async res => {
@@ -918,7 +914,7 @@ export class EscrowOrderResolver {
                 allow_sending_without_reply: true
               },
               reply_markup: {
-                inline_keyboard: this.generateInlineKeyboard(link)
+                inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
               }
             })
             .catch(e => {
@@ -968,7 +964,7 @@ export class EscrowOrderResolver {
                 allow_sending_without_reply: true
               },
               reply_markup: {
-                inline_keyboard: this.generateInlineKeyboard(link)
+                inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
               }
             })
             .catch(e => {
@@ -1121,7 +1117,7 @@ export class EscrowOrderResolver {
                   message_id: result.buyerTelegramMessageId!
                 },
                 reply_markup: {
-                  inline_keyboard: this.generateInlineKeyboard(link)
+                  inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
                 }
               })
               .catch(e => {
@@ -1227,7 +1223,7 @@ export class EscrowOrderResolver {
                   allow_sending_without_reply: true
                 },
                 reply_markup: {
-                  inline_keyboard: this.generateInlineKeyboard(link)
+                  inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
                 }
               })
               .catch(e => {
@@ -1349,7 +1345,61 @@ export class EscrowOrderResolver {
             allow_sending_without_reply: true
           },
           reply_markup: {
-            inline_keyboard: this.generateInlineKeyboard(link)
+            inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
+          }
+        });
+      }
+
+      return result;
+    } catch (e: any) {
+      this.logger.error(e);
+    }
+  }
+
+  @Mutation(() => EscrowOrder)
+  @UseGuards(GqlJwtAuthGuard)
+  async allowOfferTakerChat(@AccountEntity() account: Account, @Args('data') data: UpdateEscrowOrderInput) {
+    try {
+      if (!account) {
+        throw new Error('Account not found');
+      }
+      const result = await this.prisma.escrowOrder.findUnique({
+        where: {
+          id: data.orderId
+        },
+        include: {
+          sellerAccount: true
+        }
+      });
+
+      if (!result) {
+        throw new Error('Escrow order not found');
+      }
+
+      //update escrow order
+      await this.prisma.escrowOrder.update({
+        where: {
+          id: data.orderId
+        },
+        data: {
+          allowOfferTakerChat: true
+        }
+      });
+
+      const link = `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`;
+
+      // notify for buyer (buyOffer)
+      if (result?.sellerAccount?.telegramId) {
+        const formatReplied = format(BOT.MESSAGE.OFFER_MAKER_ALLOW_CHAT);
+        await this.bot.telegram.sendMessage(result.sellerAccount.telegramId, formatReplied, {
+          parse_mode: 'Markdown',
+          protect_content: true,
+          reply_parameters: {
+            message_id: result.sellerTelegramMessageId!,
+            allow_sending_without_reply: true
+          },
+          reply_markup: {
+            inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
           }
         });
       }

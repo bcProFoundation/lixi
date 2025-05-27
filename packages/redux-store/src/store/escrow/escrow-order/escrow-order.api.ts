@@ -337,6 +337,25 @@ const enhancedApi = api.enhanceEndpoints({
         }
       }
     },
+    AllowOfferTakerChat: {
+      onQueryStarted: async ({ input }, { dispatch, queryFulfilled }) => {
+        const { orderId, allowOfferTakerChat } = input;
+        try {
+          const { data } = await queryFulfilled;
+          if (data) {
+            dispatch(
+              api.util.updateQueryData('EscrowOrder', { id: orderId }, draft => {
+                if (draft) {
+                  draft.escrowOrder.allowOfferTakerChat = allowOfferTakerChat;
+                }
+              })
+            );
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    },
     FilterUtxos: {}
   }
 });
@@ -362,6 +381,7 @@ export const {
   useLazyArbiRequestTelegramChatQuery,
   useUpdateEscrowOrderSignatoryMutation,
   useMarkAsPaidOrderMutation,
+  useAllowOfferTakerChatMutation,
   useFilterUtxosMutation,
   usePrefetch
 } = enhancedApi;

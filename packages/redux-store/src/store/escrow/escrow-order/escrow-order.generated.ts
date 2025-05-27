@@ -45,6 +45,7 @@ export type EscrowOrderQuery = {
     createdAt: any;
     updatedAt: any;
     markAsPaid?: boolean | null;
+    allowOfferTakerChat?: boolean | null;
     escrowOrderStatus: Types.EscrowOrderStatus;
     arbitratorAccount: {
       __typename?: 'Account';
@@ -164,6 +165,7 @@ export type AllEscrowOrderByAccountQuery = {
         createdAt: any;
         updatedAt: any;
         markAsPaid?: boolean | null;
+        allowOfferTakerChat?: boolean | null;
         escrowOrderStatus: Types.EscrowOrderStatus;
         arbitratorAccount: {
           __typename?: 'Account';
@@ -311,6 +313,7 @@ export type AllEscrowOrderByOfferIdQuery = {
               createdAt: any;
               updatedAt: any;
               markAsPaid?: boolean | null;
+              allowOfferTakerChat?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -611,6 +614,21 @@ export type MarkAsPaidOrderMutation = {
   };
 };
 
+export type AllowOfferTakerChatMutationVariables = Types.Exact<{
+  input: Types.UpdateEscrowOrderInput;
+}>;
+
+export type AllowOfferTakerChatMutation = {
+  __typename?: 'Mutation';
+  allowOfferTakerChat: {
+    __typename?: 'EscrowOrder';
+    id: string;
+    status: Types.EscrowOrderStatus;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
+
 export type FilterUtxosMutationVariables = Types.Exact<{
   input: Array<Types.UtxoInNodeInput> | Types.UtxoInNodeInput;
 }>;
@@ -743,6 +761,16 @@ export const MarkAsPaidOrderDocument = `
   }
 }
     `;
+export const AllowOfferTakerChatDocument = `
+    mutation AllowOfferTakerChat($input: UpdateEscrowOrderInput!) {
+  allowOfferTakerChat(data: $input) {
+    id
+    status
+    createdAt
+    updatedAt
+  }
+}
+    `;
 export const FilterUtxosDocument = `
     mutation FilterUtxos($input: [UtxoInNodeInput!]!) {
   filterUtxos(data: $input) {
@@ -791,6 +819,9 @@ const injectedRtkApi = api.injectEndpoints({
     }),
     MarkAsPaidOrder: build.mutation<MarkAsPaidOrderMutation, MarkAsPaidOrderMutationVariables>({
       query: variables => ({ document: MarkAsPaidOrderDocument, variables })
+    }),
+    AllowOfferTakerChat: build.mutation<AllowOfferTakerChatMutation, AllowOfferTakerChatMutationVariables>({
+      query: variables => ({ document: AllowOfferTakerChatDocument, variables })
     }),
     FilterUtxos: build.mutation<FilterUtxosMutation, FilterUtxosMutationVariables>({
       query: variables => ({ document: FilterUtxosDocument, variables })

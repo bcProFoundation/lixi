@@ -85,6 +85,7 @@ fragment EscrowOrderFields on EscrowOrder {
   createdAt
   updatedAt
   markAsPaid
+  allowOfferTakerChat
 }
 
 fragment DisputeFields on Dispute {

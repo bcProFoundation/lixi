@@ -122,6 +122,10 @@ export class EscrowOrder {
   @IsOptional()
   markAsPaid?: Nullable<boolean>;
 
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  allowOfferTakerChat?: Nullable<boolean>;
+
   @Field(() => GraphQLDateTime, {
     description: 'Identifies the date and time when the object was created.'
   })

@@ -52,7 +52,6 @@ import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from 'src/modules/telegram/telegram-bot
 import { format } from 'node:util';
 import { Context, Telegraf } from 'telegraf';
 import { BOT } from 'src/utils/bot.constants';
-import { COIN_OTHERS } from '../escrow.contants';
 import { ConfigService } from '@nestjs/config';
 import { calculatePagination, paginateRawQuery } from 'src/utils/escrow/paginated';
 import { BOOST_AMOUNT, newEpoch, offer_half_life, PAGE_SIZE } from 'src/utils/constants';
@@ -60,6 +59,7 @@ import { KyselyExecutorService } from 'src/modules/prisma/kysely-executor.servic
 import { SelectQueryBuilder, sql } from 'kysely';
 import { Database } from '@bcpros/lixi-prisma';
 import { processTextOrderLimit } from 'src/utils/escrow/offer';
+import { generateInlineKeyboard } from 'src/utils/escrow/escrow-order';
 
 @SkipThrottle()
 @Resolver(() => Offer)
@@ -82,11 +82,6 @@ export class OfferResolver {
     private readonly offerLoader: OfferLoader,
     private notificationGateway: NotificationGateway
   ) {}
-
-  generateInlineKeyboard(url: string) {
-    const isMiniAppEnabled: boolean = this.configService.get('TELEGRAM_MINI_APP_ENABLED') === 'true';
-    return [[isMiniAppEnabled ? { text: 'Open Mini App', web_app: { url } } : { text: 'Open Web App', url }]];
-  }
 
   @Query(() => Offer)
   @UseGuards(GqlJwtAuthGuard)
@@ -737,7 +732,7 @@ export class OfferResolver {
           .sendMessage(account.telegramId, formatReplied, {
             parse_mode: 'Markdown',
             reply_markup: {
-              inline_keyboard: this.generateInlineKeyboard(link)
+              inline_keyboard: generateInlineKeyboard(link, this.configService.get('TELEGRAM_MINI_APP_ENABLED'))
             }
           })
           .then(async res => {

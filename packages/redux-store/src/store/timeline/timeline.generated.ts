@@ -35,6 +35,7 @@ export type EscrowOrderFieldsFragment = {
   createdAt: any;
   updatedAt: any;
   markAsPaid?: boolean | null;
+  allowOfferTakerChat?: boolean | null;
   escrowOrderStatus: Types.EscrowOrderStatus;
   arbitratorAccount: {
     __typename?: 'Account';
@@ -190,6 +191,7 @@ export type TimelineItemFieldsFragment = {
         createdAt: any;
         updatedAt: any;
         markAsPaid?: boolean | null;
+        allowOfferTakerChat?: boolean | null;
         escrowOrderStatus: Types.EscrowOrderStatus;
         arbitratorAccount: {
           __typename?: 'Account';
@@ -471,6 +473,7 @@ export type TimelineQuery = {
           createdAt: any;
           updatedAt: any;
           markAsPaid?: boolean | null;
+          allowOfferTakerChat?: boolean | null;
           escrowOrderStatus: Types.EscrowOrderStatus;
           arbitratorAccount: {
             __typename?: 'Account';
@@ -761,6 +764,7 @@ export type HomeTimelineQuery = {
               createdAt: any;
               updatedAt: any;
               markAsPaid?: boolean | null;
+              allowOfferTakerChat?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -1060,6 +1064,7 @@ export type ProfileTimelineQuery = {
               createdAt: any;
               updatedAt: any;
               markAsPaid?: boolean | null;
+              allowOfferTakerChat?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -1360,6 +1365,7 @@ export type ProfileTimelineByTimeQuery = {
               createdAt: any;
               updatedAt: any;
               markAsPaid?: boolean | null;
+              allowOfferTakerChat?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -1659,6 +1665,7 @@ export type PageTimelineQuery = {
               createdAt: any;
               updatedAt: any;
               markAsPaid?: boolean | null;
+              allowOfferTakerChat?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -1959,6 +1966,7 @@ export type PageTimelineByTimeQuery = {
               createdAt: any;
               updatedAt: any;
               markAsPaid?: boolean | null;
+              allowOfferTakerChat?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -2258,6 +2266,7 @@ export type TokenTimelineQuery = {
               createdAt: any;
               updatedAt: any;
               markAsPaid?: boolean | null;
+              allowOfferTakerChat?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -2558,6 +2567,7 @@ export type TokenTimelineByTimeQuery = {
               createdAt: any;
               updatedAt: any;
               markAsPaid?: boolean | null;
+              allowOfferTakerChat?: boolean | null;
               escrowOrderStatus: Types.EscrowOrderStatus;
               arbitratorAccount: {
                 __typename?: 'Account';
@@ -2870,6 +2880,7 @@ export const EscrowOrderFieldsFragmentDoc = `
   createdAt
   updatedAt
   markAsPaid
+  allowOfferTakerChat
 }
     `;
 export const DisputeFieldsFragmentDoc = `

@@ -683,6 +683,7 @@ export type EnvelopeModel = {
 
 export type EscrowOrder = {
   __typename?: 'EscrowOrder';
+  allowOfferTakerChat?: Maybe<Scalars['Boolean']['output']>;
   amount: Scalars['Float']['output'];
   amountCoinOrCurrency: Scalars['Float']['output'];
   arbitratorAccount: Account;
@@ -1095,6 +1096,7 @@ export type MessageSessionEdge = {
 export type Mutation = {
   __typename?: 'Mutation';
   UpdateOfferHideFromHome: Offer;
+  allowOfferTakerChat: EscrowOrder;
   closePageMessageSession: PageMessageSession;
   create: Event;
   createBookmark: Bookmark;
@@ -1141,6 +1143,10 @@ export type Mutation = {
 
 export type MutationUpdateOfferHideFromHomeArgs = {
   data: UpdateOfferHideFromHomeInput;
+};
+
+export type MutationAllowOfferTakerChatArgs = {
+  data: UpdateEscrowOrderInput;
 };
 
 export type MutationClosePageMessageSessionArgs = {
@@ -2725,6 +2731,7 @@ export type UpdateDisputeInput = {
 };
 
 export type UpdateEscrowOrderInput = {
+  allowOfferTakerChat?: InputMaybe<Scalars['Boolean']['input']>;
   amount?: InputMaybe<Scalars['Float']['input']>;
   buyerDonateAmount?: InputMaybe<Scalars['Float']['input']>;
   markAsPaid?: InputMaybe<Scalars['Boolean']['input']>;

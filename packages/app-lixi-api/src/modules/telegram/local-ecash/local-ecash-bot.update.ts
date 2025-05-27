@@ -396,7 +396,7 @@ Are you ready? Let's get started.
             -- completed orders = orders with status 'COMPLETE'
             -- success rate = success-order / complete-order
             SUM(CASE WHEN eo.status = 'COMPLETE' AND eo.dispute_status IS NULL THEN 1 ELSE 0 END) * 1.0 /  
-              SUM(CASE WHEN eo.status = 'COMPLETE' THEN 1 ELSE 0 END) AS success_ratio,
+              NULLIF(SUM(CASE WHEN eo.status = 'COMPLETE' THEN 1 ELSE 0 END), 0) AS success_ratio,
             AVG(eo.settle_time) AS avg_settle_time,
             SUM(CASE WHEN eo.status = 'COMPLETE' THEN eo.amount ELSE 0 END) AS amount_traded,
             COUNT(CASE WHEN eo.status != 'PENDING' THEN 1 ELSE NULL END) AS total_trades
