@@ -2,6 +2,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { GraphQLBigInt, GraphQLDateTime } from 'graphql-scalars';
 
 import { EscrowOrder } from './escrow-order.model';
+import { Nullable } from '../nullable';
 
 @ObjectType()
 export class EscrowTxid {
@@ -11,8 +12,20 @@ export class EscrowTxid {
   @Field(() => GraphQLBigInt)
   value: number;
 
+  @Field(() => GraphQLBigInt)
+  feeValue: number;
+
+  @Field(() => GraphQLBigInt, { nullable: true })
+  buyerDepositFeeValue?: Nullable<number>;
+
   @Field(() => Number)
   outIdx: number;
+
+  @Field(() => Number)
+  feeOutIdx: number;
+
+  @Field(() => Number, { nullable: true })
+  buyerDepositFeeOutIdx?: Nullable<number>;
 
   @Field(() => EscrowOrder)
   escrowOrder: EscrowOrder;

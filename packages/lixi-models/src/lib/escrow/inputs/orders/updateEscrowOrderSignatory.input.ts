@@ -15,9 +15,17 @@ export class UpdateEscrowOrderSignatoryInput {
   @IsNotEmpty()
   signatory: string;
 
-  @Field(() => String)
-  @IsNotEmpty()
-  signatoryOwnerHash160: string;
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  signatoryOwnerHash160?: string;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  signatoryOwnerFeeHash160?: string;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  signatoryOwnerBuyerDepositFeeHash160?: string;
 
   @Field(() => Float, { nullable: true })
   @IsOptional()
@@ -34,7 +42,9 @@ export class UpdateEscrowOrderSignatoryInput {
 
 export enum EscrowOrderAction {
   RELEASE = 'RELEASE',
-  RETURN = 'RETURN'
+  RETURN = 'RETURN',
+  RETURN_FEE = 'RETURN_FEE',
+  RETURN_BUYER_FEE = 'RETURN_BUYER_FEE'
 }
 
 registerEnumType(EscrowOrderAction, {

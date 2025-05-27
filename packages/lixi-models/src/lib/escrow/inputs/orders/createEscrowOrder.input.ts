@@ -28,6 +28,22 @@ export class CreateEscrowOrderInput {
 
   @Field(() => String)
   @IsNotEmpty()
+  escrowFeeScript: string;
+
+  @Field(() => String)
+  @IsNotEmpty()
+  escrowFeeAddress: string;
+
+  @Field(() => String, { nullable: true })
+  @IsNotEmpty()
+  escrowBuyerDepositFeeScript?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  @IsNotEmpty()
+  escrowBuyerDepositFeeAddress?: Nullable<string>;
+
+  @Field(() => String)
+  @IsNotEmpty()
   nonce: string;
 
   @Field(() => Number)

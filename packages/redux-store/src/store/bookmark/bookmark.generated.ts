@@ -94,13 +94,23 @@ export type BookmarkTimelineQuery = {
               id: string;
               message?: string | null;
               escrowScript: string;
+              escrowFeeScript?: string | null;
+              escrowBuyerDepositFeeScript?: string | null;
               escrowAddress: string;
+              escrowFeeAddress?: string | null;
+              escrowBuyerDepositFeeAddress?: string | null;
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              returnFeeTxid?: string | null;
+              returnBuyerDepositFeeTxid?: string | null;
               releaseSignatory?: string | null;
               returnSignatory?: string | null;
+              returnFeeSignatory?: string | null;
+              returnBuyerDepositFeeSignatory?: string | null;
               signatoryOwnerHash160?: string | null;
+              signatoryOwnerFeeHash160?: string | null;
+              signatoryOwnerBuyerDepositFeeHash160?: string | null;
               sellerDonateAmount?: number | null;
               buyerDonateAmount?: number | null;
               buyerDepositTx?: string | null;
@@ -157,7 +167,16 @@ export type BookmarkTimelineQuery = {
                 priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              escrowTxids?: Array<{
+                __typename?: 'EscrowTxid';
+                txid: string;
+                value: any;
+                outIdx: number;
+                feeValue: any;
+                feeOutIdx: number;
+                buyerDepositFeeValue?: any | null;
+                buyerDepositFeeOutIdx?: number | null;
+              }> | null;
               bankInfo?: {
                 __typename?: 'BankInfo';
                 bankName?: string | null;

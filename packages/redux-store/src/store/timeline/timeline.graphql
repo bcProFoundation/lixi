@@ -49,12 +49,20 @@ fragment EscrowOrderFields on EscrowOrder {
     localCurrency
   }
   escrowScript
+  escrowFeeScript
+  escrowBuyerDepositFeeScript
   escrowAddress
+  escrowFeeAddress
+  escrowBuyerDepositFeeAddress
   nonce
   escrowTxids {
     txid
     value
     outIdx
+    feeValue
+    feeOutIdx
+    buyerDepositFeeValue
+    buyerDepositFeeOutIdx
   }
   bankInfo {
     bankName
@@ -72,9 +80,15 @@ fragment EscrowOrderFields on EscrowOrder {
   }
   releaseTxid
   returnTxid
+  returnFeeTxid
+  returnBuyerDepositFeeTxid
   releaseSignatory
   returnSignatory
+  returnFeeSignatory
+  returnBuyerDepositFeeSignatory
   signatoryOwnerHash160
+  signatoryOwnerFeeHash160
+  signatoryOwnerBuyerDepositFeeHash160
   sellerDonateAmount
   buyerDonateAmount
   buyerDepositTx

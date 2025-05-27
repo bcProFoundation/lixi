@@ -5,11 +5,11 @@ import { GraphQLDateTime } from 'graphql-scalars';
 import { Account } from '../account/account.model';
 import { Nullable } from '../nullable';
 
+import { BankInfo } from './bank-info/bank-info.model';
 import { Dispute } from './dispute.model';
 import { EscrowTxid } from './escrow-txid.model';
 import { Offer } from './offer.model';
 import { PaymentMethod } from './payment-method.model';
-import { BankInfo } from './bank-info/bank-info.model';
 
 @ObjectType()
 export class EscrowOrder {
@@ -43,6 +43,14 @@ export class EscrowOrder {
   @Field(() => String)
   escrowAddress: string;
 
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  escrowFeeAddress?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  escrowBuyerDepositFeeAddress?: Nullable<string>;
+
   @Field(() => PaymentMethod)
   paymentMethod: PaymentMethod;
 
@@ -75,6 +83,14 @@ export class EscrowOrder {
 
   @Field(() => String, { nullable: true })
   @IsOptional()
+  escrowFeeScript?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  escrowBuyerDepositFeeScript?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
   releaseSignatory?: Nullable<string>;
 
   @Field(() => String, { nullable: true })
@@ -83,7 +99,23 @@ export class EscrowOrder {
 
   @Field(() => String, { nullable: true })
   @IsOptional()
+  returnFeeSignatory?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  returnBuyerDepositFeeSignatory?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
   signatoryOwnerHash160?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  signatoryOwnerFeeHash160?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  signatoryOwnerBuyerDepositFeeHash160?: Nullable<string>;
 
   @Field(() => String)
   nonce: string;
@@ -101,6 +133,14 @@ export class EscrowOrder {
   @Field(() => String, { nullable: true })
   @IsOptional()
   returnTxid?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  returnFeeTxid?: Nullable<string>;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  returnBuyerDepositFeeTxid?: Nullable<string>;
 
   @Field(() => String, { nullable: true })
   @IsOptional()

@@ -37,9 +37,15 @@ export class EscrowOrderCacheService {
         ...dbValue,
         status: dbValue?.status as EscrowOrderStatus,
         escrowScript: dbValue.escrowScript.toString('hex'),
+        escrowFeeScript: dbValue.escrowFeeScript?.toString('hex'),
+        escrowBuyerDepositFeeScript: dbValue.escrowBuyerDepositFeeScript?.toString('hex'),
         releaseSignatory: dbValue.releaseSignatory?.toString('hex'),
         returnSignatory: dbValue.returnSignatory?.toString('hex'),
-        signatoryOwnerHash160: dbValue.signatoryOwnerHash160?.toString('hex')
+        returnFeeSignatory: dbValue.returnFeeSignatory?.toString('hex'),
+        returnBuyerDepositFeeSignatory: dbValue.returnBuyerDepositFeeSignatory?.toString('hex'),
+        signatoryOwnerHash160: dbValue.signatoryOwnerHash160?.toString('hex'),
+        signatoryOwnerFeeHash160: dbValue.signatoryOwnerFeeHash160?.toString('hex'),
+        signatoryOwnerBuyerDepositFeeHash160: dbValue.signatoryOwnerBuyerDepositFeeHash160?.toString('hex')
       });
 
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(escrowOrder)));
@@ -83,9 +89,15 @@ export class EscrowOrderCacheService {
           ...dbValue,
           status: dbValue?.status as EscrowOrderStatus,
           escrowScript: dbValue.escrowScript.toString('hex'),
+          escrowFeeScript: dbValue.escrowFeeScript?.toString('hex'),
+          escrowBuyerDepositFeeScript: dbValue.escrowBuyerDepositFeeScript?.toString('hex'),
           releaseSignatory: dbValue.releaseSignatory?.toString('hex'),
           returnSignatory: dbValue.returnSignatory?.toString('hex'),
-          signatoryOwnerHash160: dbValue.signatoryOwnerHash160?.toString('hex')
+          returnFeeSignatory: dbValue.returnFeeSignatory?.toString('hex'),
+          returnBuyerDepositFeeSignatory: dbValue.returnBuyerDepositFeeSignatory?.toString('hex'),
+          signatoryOwnerHash160: dbValue.signatoryOwnerHash160?.toString('hex'),
+          signatoryOwnerFeeHash160: dbValue.signatoryOwnerFeeHash160?.toString('hex'),
+          signatoryOwnerBuyerDepositFeeHash160: dbValue.signatoryOwnerBuyerDepositFeeHash160?.toString('hex')
         });
         itemsMap.set(dbValue.id, item);
         return [dbValue.id, Buffer.from(encode(item))];

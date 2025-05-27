@@ -403,6 +403,10 @@ input CreateEscrowOrderInput {
   bankInfoInput: BankInfoInput
   buyerDepositTx: String
   escrowAddress: String!
+  escrowBuyerDepositFeeAddress: String
+  escrowBuyerDepositFeeScript: String
+  escrowFeeAddress: String!
+  escrowFeeScript: String!
   escrowScript: String!
   message: String
   moderatorId: Int!
@@ -674,6 +678,10 @@ type EscrowOrder {
   createdAt: DateTime!
   dispute: Dispute
   escrowAddress: String!
+  escrowBuyerDepositFeeAddress: String
+  escrowBuyerDepositFeeScript: String
+  escrowFeeAddress: String
+  escrowFeeScript: String
   escrowScript: String!
   escrowTxids: [EscrowTxid!]
   id: ID!
@@ -689,11 +697,17 @@ type EscrowOrder {
   price: String!
   releaseSignatory: String
   releaseTxid: String
+  returnBuyerDepositFeeSignatory: String
+  returnBuyerDepositFeeTxid: String
+  returnFeeSignatory: String
+  returnFeeTxid: String
   returnSignatory: String
   returnTxid: String
   sellerAccount: Account!
   sellerAccountId: Int!
   sellerDonateAmount: Float
+  signatoryOwnerBuyerDepositFeeHash160: String
+  signatoryOwnerFeeHash160: String
   signatoryOwnerHash160: String
   status: EscrowOrderStatus!
 
@@ -705,6 +719,8 @@ type EscrowOrder {
 enum EscrowOrderAction {
   RELEASE
   RETURN
+  RETURN_BUYER_FEE
+  RETURN_FEE
 }
 
 type EscrowOrderConnection {
@@ -728,10 +744,15 @@ enum EscrowOrderStatus {
 }
 
 type EscrowTxid {
+  buyerDepositFeeOutIdx: Int
+  buyerDepositFeeValue: BigInt
+
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   escrowOrder: EscrowOrder!
   escrowOrderId: String!
+  feeOutIdx: Int!
+  feeValue: BigInt!
   outIdx: Int!
   txid: String!
 
@@ -1932,11 +1953,18 @@ input UpdateDisputeInput {
 input UpdateEscrowOrderInput {
   allowOfferTakerChat: Boolean
   amount: Float
+  buyerDepositFeeOutIdx: Int
+  buyerDepositFeeValue: Int
   buyerDonateAmount: Float
+  feeOutIdx: Int
+  feeTxid: String
+  feeValue: Int
   markAsPaid: Boolean
   orderId: String!
   outIdx: Int
   price: String
+  returnBuyerDepositFeeTxid: String
+  returnFeeTxid: String
   sellerDonateAmount: Float
   socketId: String
   status: EscrowOrderStatus
@@ -1951,7 +1979,9 @@ input UpdateEscrowOrderSignatoryInput {
   orderId: String!
   sellerDonateAmount: Float
   signatory: String!
-  signatoryOwnerHash160: String!
+  signatoryOwnerBuyerDepositFeeHash160: String
+  signatoryOwnerFeeHash160: String
+  signatoryOwnerHash160: String
   socketId: String
 }
 
