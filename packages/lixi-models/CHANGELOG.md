@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.62
+
+### Patch Changes
+
+- Update for escrow fee
+
 ## 1.2.61
 
 ### Patch Changes

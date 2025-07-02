@@ -1,5 +1,11 @@
 # @bcpros/lixi-prisma
 
+## 1.2.26
+
+### Patch Changes
+
+- Update for escrow fee
+
 ## 1.2.25
 
 ### Patch Changes
