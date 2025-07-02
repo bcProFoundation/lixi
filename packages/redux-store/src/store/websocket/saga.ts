@@ -104,16 +104,16 @@ function* connectToChannelsSaga() {
   const sessionActionSocketChannel = yield call(createSessionActionSocketChannel, socket);
   const notificationSocketChannel = yield call(createNotificationSocketChannel, socket);
   const newPostHometimelineSocketChannel = yield call(createNewPostNotificationHomeTimelineSocketChannel, socket);
-  const escrowOrderSocketChannel = yield call(createEscrowOrderSocketChannel, socket);
+  const escrowOrderStatusSocketChannel = yield call(createEscrowOrderSocketChannel, socket);
 
   while (true) {
-    const { message, payload, sessionAction, notification, newPost, escrowOrder } = yield race({
+    const { message, payload, sessionAction, notification, newPost, escrowOrderStatus } = yield race({
       message: take(socketMessageChannel),
       payload: take(socketAddressChannel),
       sessionAction: take(sessionActionSocketChannel),
       notification: take(notificationSocketChannel),
       newPost: take(newPostHometimelineSocketChannel),
-      escrowOrder: take(escrowOrderSocketChannel)
+      escrowOrderStatus: take(escrowOrderStatusSocketChannel)
     });
 
     if (message) {
@@ -136,8 +136,8 @@ function* connectToChannelsSaga() {
       yield put(setNewPostAvailable(true));
     }
 
-    if (escrowOrder) {
-      yield receiveEscrowOrder(escrowOrder);
+    if (escrowOrderStatus) {
+      yield receiveEscrowOrderStatus(escrowOrderStatus);
     }
   }
 }
@@ -294,7 +294,7 @@ function* receiveNewNotification(payload: Notification) {
   }
 }
 
-function* receiveEscrowOrder(payload: any) {
+function* receiveEscrowOrderStatus(payload: any) {
   const { socket } = callConfig.call.socketContext;
   const {
     escrowOrderId,
@@ -308,12 +308,20 @@ function* receiveEscrowOrder(payload: any) {
       status: EscrowOrderStatus;
       releaseSignatory?: string;
       returnSignatory?: string;
+      returnFeeSignatory?: string;
+      returnBuyerDepositFeeSignatory?: string;
       signatoryOwnerHash160?: string;
+      signatoryOwnerFeeHash160?: string;
+      signatoryOwnerBuyerDepositFeeHash160?: string;
       sellerDonateAmount?: number;
       buyerDonateAmount?: number;
       outIdx?: number;
       txid: string;
       value?: number;
+      feeValue?: number;
+      feeOutIdx?: number;
+      buyerDepositFeeValue?: number;
+      buyerDepositFeeOutIdx?: number;
       updatedAt?: Date;
     };
     dispute?: {
@@ -351,7 +359,6 @@ function* receiveEscrowOrder(payload: any) {
               escrowOrderApi.util.updateQueryData('EscrowOrder', { id: escrowOrderId }, draft => {
                 if (draft) {
                   draft.escrowOrder.releaseSignatory = escrowOrder.releaseSignatory;
-                  draft.escrowOrder.sellerDonateAmount = escrowOrder.sellerDonateAmount;
                   draft.escrowOrder.signatoryOwnerHash160 = escrowOrder.signatoryOwnerHash160;
                 }
               })
@@ -362,8 +369,31 @@ function* receiveEscrowOrder(payload: any) {
               escrowOrderApi.util.updateQueryData('EscrowOrder', { id: escrowOrderId }, draft => {
                 if (draft) {
                   draft.escrowOrder.returnSignatory = escrowOrder.returnSignatory;
+                  draft.escrowOrder.returnFeeSignatory = escrowOrder?.returnFeeSignatory;
                   draft.escrowOrder.buyerDonateAmount = escrowOrder.buyerDonateAmount;
                   draft.escrowOrder.signatoryOwnerHash160 = escrowOrder.signatoryOwnerHash160;
+                  draft.escrowOrder.signatoryOwnerFeeHash160 = escrowOrder?.signatoryOwnerFeeHash160;
+                }
+              })
+            );
+            break;
+          case EscrowOrderAction.ReturnFee:
+            yield putAction(
+              escrowOrderApi.util.updateQueryData('EscrowOrder', { id: escrowOrderId }, draft => {
+                if (draft) {
+                  draft.escrowOrder.returnFeeSignatory = escrowOrder.returnFeeSignatory;
+                  draft.escrowOrder.signatoryOwnerFeeHash160 = escrowOrder.signatoryOwnerFeeHash160;
+                }
+              })
+            );
+            break;
+          case EscrowOrderAction.ReturnBuyerFee:
+            yield putAction(
+              escrowOrderApi.util.updateQueryData('EscrowOrder', { id: escrowOrderId }, draft => {
+                if (draft) {
+                  draft.escrowOrder.returnBuyerDepositFeeSignatory = escrowOrder.returnBuyerDepositFeeSignatory;
+                  draft.escrowOrder.signatoryOwnerBuyerDepositFeeHash160 =
+                    escrowOrder.signatoryOwnerBuyerDepositFeeHash160;
                 }
               })
             );
@@ -378,6 +408,7 @@ function* receiveEscrowOrder(payload: any) {
           if (draft) {
             draft.escrowOrder.escrowOrderStatus = escrowOrder.status;
             draft.escrowOrder.updatedAt = escrowOrder.updatedAt;
+            draft.escrowOrder.returnFeeSignatory = escrowOrder.returnFeeSignatory;
 
             switch (escrowOrder.status) {
               case EscrowOrderStatus.Complete:
@@ -393,14 +424,23 @@ function* receiveEscrowOrder(payload: any) {
                 }
                 break;
               case EscrowOrderStatus.Escrow:
-                escrowOrder.txid &&
+                if (
+                  escrowOrder.txid &&
                   escrowOrder.value &&
                   !_.isNil(escrowOrder.outIdx) &&
+                  escrowOrder.feeValue &&
+                  !_.isNil(escrowOrder.feeOutIdx)
+                ) {
                   draft.escrowOrder.escrowTxids.push({
                     txid: escrowOrder.txid,
                     value: escrowOrder.value,
-                    outIdx: escrowOrder.outIdx
+                    outIdx: escrowOrder.outIdx,
+                    feeValue: escrowOrder.feeValue,
+                    feeOutIdx: escrowOrder.feeOutIdx,
+                    buyerDepositFeeValue: escrowOrder?.buyerDepositFeeValue,
+                    buyerDepositFeeOutIdx: escrowOrder?.buyerDepositFeeOutIdx
                   });
+                }
                 break;
             }
           }

@@ -18,6 +18,14 @@ export class UpdateEscrowOrderInput {
   @IsOptional()
   txid?: string;
 
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  returnFeeTxid?: string;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  returnBuyerDepositFeeTxid?: string;
+
   @Field(() => Number, { nullable: true })
   @IsOptional()
   outIdx?: number;
@@ -57,4 +65,24 @@ export class UpdateEscrowOrderInput {
   @Field(() => Boolean, { nullable: true })
   @IsOptional()
   allowOfferTakerChat?: boolean;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  feeTxid?: string;
+
+  @Field(() => Number, { nullable: true })
+  @IsOptional()
+  feeOutIdx?: number;
+
+  @Field(() => Number, { nullable: true })
+  @IsOptional()
+  feeValue?: number;
+
+  @Field(() => Number, { nullable: true })
+  @IsOptional()
+  buyerDepositFeeOutIdx?: number;
+
+  @Field(() => Number, { nullable: true })
+  @IsOptional()
+  buyerDepositFeeValue?: number;
 }

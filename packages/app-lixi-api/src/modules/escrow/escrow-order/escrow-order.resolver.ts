@@ -55,8 +55,7 @@ import { DisputeCacheService } from '../dispute/dispute-cache.service';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { ConfigService } from '@nestjs/config';
 import { KEY_BANK_INFO } from 'src/utils/escrow/cache-key.constants';
-import { COIN_OTHERS } from '../escrow.contants';
-import { generateInlineKeyboard } from 'src/utils/escrow/escrow-order';
+import { generateInlineKeyboard, toHexOrNull } from 'src/utils/escrow/escrow-order';
 
 @SkipThrottle()
 @Resolver(() => EscrowOrder)
@@ -172,10 +171,16 @@ export class EscrowOrderResolver {
 
       return {
         ...result,
-        escrowScript: result.escrowScript.toString('hex'),
-        releaseSignatory: result.releaseSignatory ? result.releaseSignatory.toString('hex') : null,
-        returnSignatory: result.returnSignatory ? result.returnSignatory.toString('hex') : null,
-        signatoryOwnerHash160: result.signatoryOwnerHash160 ? result.signatoryOwnerHash160.toString('hex') : null,
+        escrowScript: toHexOrNull(result.escrowScript),
+        releaseSignatory: toHexOrNull(result.releaseSignatory),
+        returnSignatory: toHexOrNull(result.returnSignatory),
+        signatoryOwnerHash160: toHexOrNull(result.signatoryOwnerHash160),
+        escrowFeeScript: toHexOrNull(result.escrowFeeScript),
+        escrowBuyerDepositFeeScript: toHexOrNull(result.escrowBuyerDepositFeeScript),
+        returnFeeSignatory: toHexOrNull(result.returnFeeSignatory),
+        returnBuyerDepositFeeSignatory: toHexOrNull(result.returnBuyerDepositFeeSignatory),
+        signatoryOwnerFeeHash160: toHexOrNull(result.signatoryOwnerFeeHash160),
+        signatoryOwnerBuyerDepositFeeHash160: toHexOrNull(result.signatoryOwnerBuyerDepositFeeHash160),
         nonce: result.nonce
       };
     } catch (e: any) {
@@ -389,71 +394,28 @@ export class EscrowOrderResolver {
       throw new VError(accountNotExistMessage);
     }
 
-    //if escrow order status is complete or cancel, return all escrow orders with status complete or cancel
-    if (escrowOrderStatus === EscrowOrderStatus.COMPLETE || escrowOrderStatus === EscrowOrderStatus.CANCEL) {
-      const escrowOrders = await findManyCursorConnection(
-        async args => {
-          const result = await this.prisma.escrowOrder.findMany({
-            include: {
-              offer: true,
-              paymentMethod: true,
-              moderatorAccount: true,
-              arbitratorAccount: true,
-              sellerAccount: true,
-              buyerAccount: true
-            },
-            where: {
-              AND: [
-                {
-                  OR: [
-                    {
-                      buyerAccountId: account.id
-                    },
-                    {
-                      sellerAccountId: account.id
-                    }
-                  ]
-                },
-                {
-                  status: {
-                    in: [EscrowOrderStatus.COMPLETE, EscrowOrderStatus.CANCEL]
-                  }
-                }
-              ]
-            },
-            orderBy: {
-              updatedAt: 'desc'
-            },
-            ...args
-          });
+    const transformEscrowOrder = (item: any) => ({
+      ...item,
+      escrowScript: toHexOrNull(item.escrowScript),
+      escrowFeeScript: toHexOrNull(item.escrowFeeScript),
+      escrowBuyerDepositFeeScript: toHexOrNull(item.escrowBuyerDepositFeeScript),
+      releaseSignatory: toHexOrNull(item.releaseSignatory),
+      returnSignatory: toHexOrNull(item.returnSignatory),
+      returnFeeSignatory: toHexOrNull(item.returnFeeSignatory),
+      returnBuyerDepositFeeSignatory: toHexOrNull(item.returnBuyerDepositFeeSignatory),
+      signatoryOwnerHash160: toHexOrNull(item.signatoryOwnerHash160),
+      signatoryOwnerFeeHash160: toHexOrNull(item.signatoryOwnerFeeHash160),
+      signatoryOwnerBuyerDepositFeeHash160: toHexOrNull(item.signatoryOwnerBuyerDepositFeeHash160)
+    });
 
-          return result.map(item => ({
-            ...item,
-            escrowScript: item.escrowScript.toString('hex'),
-            releaseSignatory: item.releaseSignatory ? item.releaseSignatory.toString('hex') : null,
-            returnSignatory: item.returnSignatory ? item.returnSignatory.toString('hex') : null,
-            signatoryOwnerHash160: item.signatoryOwnerHash160 ? item.signatoryOwnerHash160.toString('hex') : null
-          }));
-        },
-        () =>
-          this.prisma.escrowOrder.count({
-            where: {
-              status: escrowOrderStatus,
-              OR: [
-                {
-                  buyerAccountId: account.id
-                },
-                {
-                  sellerAccountId: account.id
-                }
-              ]
-            }
-          }),
-        { first, last, before, after }
-      );
+    // if status in complete or cancel, we take all of them, because it belong to ARCHIVED status
+    const statusCondition = [EscrowOrderStatus.COMPLETE, EscrowOrderStatus.CANCEL].includes(escrowOrderStatus)
+      ? { in: [EscrowOrderStatus.COMPLETE, EscrowOrderStatus.CANCEL] }
+      : escrowOrderStatus;
 
-      return escrowOrders;
-    }
+    const baseWhere = {
+      OR: [{ buyerAccountId: account.id }, { sellerAccountId: account.id }]
+    };
 
     const escrowOrders = await findManyCursorConnection(
       async args => {
@@ -467,42 +429,20 @@ export class EscrowOrderResolver {
             buyerAccount: true
           },
           where: {
-            status: escrowOrderStatus,
-            OR: [
-              {
-                buyerAccountId: account.id
-              },
-              {
-                sellerAccountId: account.id
-              }
-            ]
+            status: statusCondition,
+            ...baseWhere
           },
-          orderBy: {
-            updatedAt: 'desc'
-          },
+          orderBy: { updatedAt: 'desc' },
           ...args
         });
 
-        return result.map(item => ({
-          ...item,
-          escrowScript: item.escrowScript.toString('hex'),
-          releaseSignatory: item.releaseSignatory ? item.releaseSignatory.toString('hex') : null,
-          returnSignatory: item.returnSignatory ? item.returnSignatory.toString('hex') : null,
-          signatoryOwnerHash160: item.signatoryOwnerHash160 ? item.signatoryOwnerHash160.toString('hex') : null
-        }));
+        return result.map(transformEscrowOrder);
       },
       () =>
         this.prisma.escrowOrder.count({
           where: {
-            status: escrowOrderStatus,
-            OR: [
-              {
-                buyerAccountId: account.id
-              },
-              {
-                sellerAccountId: account.id
-              }
-            ]
+            status: statusCondition,
+            ...baseWhere
           }
         }),
       { first, last, before, after }
@@ -555,6 +495,10 @@ export class EscrowOrderResolver {
         message,
         escrowScript,
         escrowAddress,
+        escrowFeeAddress,
+        escrowFeeScript,
+        escrowBuyerDepositFeeAddress,
+        escrowBuyerDepositFeeScript,
         nonce,
         buyerDepositTx,
         utxoInProcess,
@@ -652,6 +596,12 @@ export class EscrowOrderResolver {
           message,
           escrowAddress,
           escrowScript: Buffer.from(escrowScript, 'hex'),
+          escrowFeeAddress,
+          escrowFeeScript: Buffer.from(escrowFeeScript, 'hex'),
+          escrowBuyerDepositFeeAddress: escrowBuyerDepositFeeAddress || null,
+          escrowBuyerDepositFeeScript: escrowBuyerDepositFeeScript
+            ? Buffer.from(escrowBuyerDepositFeeScript, 'hex')
+            : null,
           nonce: nonce,
           buyerDepositTx: buyerDepositTx,
           bankInfo:
@@ -842,7 +792,17 @@ export class EscrowOrderResolver {
     @AccountEntity() account: Account,
     @Args('data') data: UpdateEscrowOrderSignatoryInput
   ) {
-    const { orderId, action, signatory, socketId, sellerDonateAmount, buyerDonateAmount, signatoryOwnerHash160 } = data;
+    const {
+      orderId,
+      action,
+      signatory,
+      socketId,
+      sellerDonateAmount,
+      buyerDonateAmount,
+      signatoryOwnerHash160,
+      signatoryOwnerFeeHash160,
+      signatoryOwnerBuyerDepositFeeHash160
+    } = data;
     try {
       const result = await this.prisma.escrowOrder.findUnique({
         where: {
@@ -888,8 +848,7 @@ export class EscrowOrderResolver {
             data: {
               releaseSignatory: Buffer.from(signatory, 'hex'),
               updatedAt: new Date(),
-              sellerDonateAmount: sellerDonateAmount ?? null,
-              signatoryOwnerHash160: Buffer.from(signatoryOwnerHash160, 'hex')
+              signatoryOwnerHash160: signatoryOwnerHash160 ? Buffer.from(signatoryOwnerHash160, 'hex') : null
             }
           });
 
@@ -931,15 +890,21 @@ export class EscrowOrderResolver {
             throw new Error('Return signatory already set');
           }
 
+          if (result.returnFeeSignatory) {
+            throw new Error('Return fee signatory already set');
+          }
+
           await this.prisma.escrowOrder.update({
             where: {
               id: orderId
             },
             data: {
               returnSignatory: Buffer.from(signatory, 'hex'),
+              returnFeeSignatory: Buffer.from(signatory, 'hex'),
               updatedAt: new Date(),
               buyerDonateAmount: buyerDonateAmount ?? null,
-              signatoryOwnerHash160: Buffer.from(signatoryOwnerHash160, 'hex')
+              signatoryOwnerHash160: signatoryOwnerHash160 ? Buffer.from(signatoryOwnerHash160, 'hex') : null,
+              signatoryOwnerFeeHash160: signatoryOwnerFeeHash160 ? Buffer.from(signatoryOwnerFeeHash160, 'hex') : null
             }
           });
 
@@ -947,8 +912,10 @@ export class EscrowOrderResolver {
             escrowOrderId: orderId,
             escrowOrder: {
               returnSignatory: signatory,
+              returnFeeSignatory: signatory,
               buyerDonateAmount,
-              signatoryOwnerHash160
+              signatoryOwnerHash160,
+              signatoryOwnerFeeHash160
             },
             socketId: socketId ?? '',
             escrowOrderAction: EscrowOrderAction.RETURN
@@ -972,11 +939,78 @@ export class EscrowOrderResolver {
             });
 
           break;
+        case EscrowOrderAction.RETURN_FEE:
+          if (result.status !== EscrowOrderStatus.COMPLETE && result.status !== EscrowOrderStatus.CANCEL) {
+            throw new Error('Escrow order is not in complete or cancel status');
+          }
+
+          if (result.returnFeeSignatory) {
+            throw new Error('Return fee signatory already set');
+          }
+
+          await this.prisma.escrowOrder.update({
+            where: {
+              id: orderId
+            },
+            data: {
+              returnFeeSignatory: Buffer.from(signatory, 'hex'),
+              updatedAt: new Date(),
+              signatoryOwnerFeeHash160: signatoryOwnerFeeHash160 ? Buffer.from(signatoryOwnerFeeHash160, 'hex') : null
+            }
+          });
+
+          this.notificationGateway.publishEscrowOrderStatus(orderId, {
+            escrowOrderId: orderId,
+            escrowOrder: {
+              returnFeeSignatory: signatory,
+              signatoryOwnerFeeHash160
+            },
+            socketId: socketId ?? '',
+            escrowOrderAction: EscrowOrderAction.RETURN_FEE
+          });
+          break;
+        case EscrowOrderAction.RETURN_BUYER_FEE:
+          if (result.status !== EscrowOrderStatus.COMPLETE && result.status !== EscrowOrderStatus.CANCEL) {
+            throw new Error('Escrow order is not in complete or cancel status');
+          }
+
+          if (result.returnBuyerDepositFeeSignatory) {
+            throw new Error('Return buyer deposit fee signatory already set');
+          }
+
+          await this.prisma.escrowOrder.update({
+            where: {
+              id: orderId
+            },
+            data: {
+              returnBuyerDepositFeeSignatory: Buffer.from(signatory, 'hex'),
+              updatedAt: new Date(),
+              signatoryOwnerBuyerDepositFeeHash160: signatoryOwnerBuyerDepositFeeHash160
+                ? Buffer.from(signatoryOwnerBuyerDepositFeeHash160, 'hex')
+                : null
+            }
+          });
+
+          this.notificationGateway.publishEscrowOrderStatus(orderId, {
+            escrowOrderId: orderId,
+            escrowOrder: {
+              returnBuyerDepositFeeSignatory: signatory,
+              signatoryOwnerBuyerDepositFeeHash160
+            },
+            socketId: socketId ?? '',
+            escrowOrderAction: EscrowOrderAction.RETURN_BUYER_FEE
+          });
+          break;
         default:
           throw new Error('Invalid action');
       }
 
-      return result;
+      return {
+        ...result,
+        releaseSignatory: toHexOrNull(result.releaseSignatory),
+        returnSignatory: toHexOrNull(result.returnSignatory),
+        signatoryOwnerHash160: toHexOrNull(result.signatoryOwnerHash160)
+      };
     } catch (e: any) {
       throw new Error(e);
     }
@@ -996,7 +1030,13 @@ export class EscrowOrderResolver {
       sellerDonateAmount,
       buyerDonateAmount,
       amount,
-      price
+      price,
+      returnFeeTxid,
+      returnBuyerDepositFeeTxid,
+      feeOutIdx,
+      feeValue,
+      buyerDepositFeeOutIdx,
+      buyerDepositFeeValue
     } = data;
     try {
       const result = await this.prisma.escrowOrder.findUnique({
@@ -1040,11 +1080,11 @@ export class EscrowOrderResolver {
         throw new Error('Txid is required for complete status');
       }
 
-      if (result.status === EscrowOrderStatus.COMPLETE) {
+      if (result.status === EscrowOrderStatus.COMPLETE && result.returnFeeTxid) {
         throw new Error('The order has completed');
       }
 
-      if (result.status === EscrowOrderStatus.CANCEL) {
+      if (result.status === EscrowOrderStatus.CANCEL && result.returnFeeTxid && result.returnBuyerDepositFeeTxid) {
         throw new Error('The order has cancelled');
       }
 
@@ -1062,26 +1102,31 @@ export class EscrowOrderResolver {
         sellerDonateAmount: result.sellerDonateAmount ? result.sellerDonateAmount : sellerDonateAmount,
         buyerDonateAmount: result.buyerDonateAmount ? result.buyerDonateAmount : buyerDonateAmount,
         amount: amount ? amount : result.amount,
-        price: price ? price : result.price
+        price: price ? price : result.price,
+        returnFeeTxid: returnFeeTxid ?? null,
+        returnBuyerDepositFeeTxid: returnBuyerDepositFeeTxid ?? null
       };
 
       switch (status) {
         case EscrowOrderStatus.ESCROW:
-          txid &&
-            value &&
-            !_.isNil(outIdx) &&
-            (await this.prisma.escrowTxId.create({
+          if (txid && value && !_.isNil(outIdx) && feeValue && !_.isNil(feeOutIdx)) {
+            await this.prisma.escrowTxId.create({
               data: {
                 txid: txid,
                 value: BigInt(value),
                 outIdx: outIdx,
+                feeValue: BigInt(feeValue),
+                feeOutIdx: feeOutIdx,
+                buyerDepositFeeValue: BigInt(buyerDepositFeeValue ?? 0),
+                buyerDepositFeeOutIdx: buyerDepositFeeOutIdx ?? null,
                 escrowOrder: {
                   connect: {
                     id: orderId
                   }
                 }
               }
-            }));
+            });
+          }
 
           this.notificationGateway.publishEscrowOrderStatus(orderId, {
             escrowOrderId: orderId,
@@ -1089,20 +1134,15 @@ export class EscrowOrderResolver {
               txid,
               value,
               outIdx,
+              feeValue,
+              feeOutIdx,
+              buyerDepositFeeValue,
+              buyerDepositFeeOutIdx,
               updatedAt: dataToUpdate.updatedAt,
               status: EscrowOrderStatus.ESCROW
             },
             socketId: socketId ?? ''
           });
-
-          await this.escrowOrderCacheService.updateEscrowOrderByOfferIdCache(
-            result.sellerAccount.id, //update cache offer from seller
-            orderId,
-            dataToUpdate.updatedAt,
-            result.offerId,
-            result.status as EscrowOrderStatus,
-            EscrowOrderStatus.ESCROW
-          );
 
           //notify for buyer
           if (result.buyerAccount.telegramId) {
@@ -1187,21 +1227,6 @@ export class EscrowOrderResolver {
             socketId: socketId ?? ''
           });
 
-          await this.escrowOrderCacheService.updateMyEscrowOrderTimelineCache(
-            orderId,
-            dataToUpdate.updatedAt,
-            result.buyerAccount.id
-          );
-
-          await this.escrowOrderCacheService.updateEscrowOrderByOfferIdCache(
-            result.sellerAccount.id,
-            orderId,
-            dataToUpdate.updatedAt,
-            result.offerId,
-            result.status as EscrowOrderStatus,
-            EscrowOrderStatus.COMPLETE
-          );
-
           break;
         case EscrowOrderStatus.CANCEL:
           _.set(dataToUpdate, 'returnTxid', txid ?? null);
@@ -1267,21 +1292,6 @@ export class EscrowOrderResolver {
             },
             socketId: socketId ?? ''
           });
-
-          await this.escrowOrderCacheService.updateMyEscrowOrderTimelineCache(
-            orderId,
-            dataToUpdate.updatedAt,
-            result.buyerAccount.id
-          );
-
-          await this.escrowOrderCacheService.updateEscrowOrderByOfferIdCache(
-            result.sellerAccount.id,
-            orderId,
-            dataToUpdate.updatedAt,
-            result.offerId,
-            result.status as EscrowOrderStatus,
-            EscrowOrderStatus.CANCEL
-          );
 
           break;
       }

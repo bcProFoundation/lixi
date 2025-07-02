@@ -19,13 +19,23 @@ export type EscrowOrderFieldsFragment = {
   id: string;
   message?: string | null;
   escrowScript: string;
+  escrowFeeScript?: string | null;
+  escrowBuyerDepositFeeScript?: string | null;
   escrowAddress: string;
+  escrowFeeAddress?: string | null;
+  escrowBuyerDepositFeeAddress?: string | null;
   nonce: string;
   releaseTxid?: string | null;
   returnTxid?: string | null;
+  returnFeeTxid?: string | null;
+  returnBuyerDepositFeeTxid?: string | null;
   releaseSignatory?: string | null;
   returnSignatory?: string | null;
+  returnFeeSignatory?: string | null;
+  returnBuyerDepositFeeSignatory?: string | null;
   signatoryOwnerHash160?: string | null;
+  signatoryOwnerFeeHash160?: string | null;
+  signatoryOwnerBuyerDepositFeeHash160?: string | null;
   sellerDonateAmount?: number | null;
   buyerDonateAmount?: number | null;
   buyerDepositTx?: string | null;
@@ -82,7 +92,16 @@ export type EscrowOrderFieldsFragment = {
     priceCoinOthers?: number | null;
     localCurrency?: string | null;
   };
-  escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+  escrowTxids?: Array<{
+    __typename?: 'EscrowTxid';
+    txid: string;
+    value: any;
+    outIdx: number;
+    feeValue: any;
+    feeOutIdx: number;
+    buyerDepositFeeValue?: any | null;
+    buyerDepositFeeOutIdx?: number | null;
+  }> | null;
   bankInfo?: {
     __typename?: 'BankInfo';
     bankName?: string | null;
@@ -175,13 +194,23 @@ export type TimelineItemFieldsFragment = {
         id: string;
         message?: string | null;
         escrowScript: string;
+        escrowFeeScript?: string | null;
+        escrowBuyerDepositFeeScript?: string | null;
         escrowAddress: string;
+        escrowFeeAddress?: string | null;
+        escrowBuyerDepositFeeAddress?: string | null;
         nonce: string;
         releaseTxid?: string | null;
         returnTxid?: string | null;
+        returnFeeTxid?: string | null;
+        returnBuyerDepositFeeTxid?: string | null;
         releaseSignatory?: string | null;
         returnSignatory?: string | null;
+        returnFeeSignatory?: string | null;
+        returnBuyerDepositFeeSignatory?: string | null;
         signatoryOwnerHash160?: string | null;
+        signatoryOwnerFeeHash160?: string | null;
+        signatoryOwnerBuyerDepositFeeHash160?: string | null;
         sellerDonateAmount?: number | null;
         buyerDonateAmount?: number | null;
         buyerDepositTx?: string | null;
@@ -238,7 +267,16 @@ export type TimelineItemFieldsFragment = {
           priceCoinOthers?: number | null;
           localCurrency?: string | null;
         };
-        escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+        escrowTxids?: Array<{
+          __typename?: 'EscrowTxid';
+          txid: string;
+          value: any;
+          outIdx: number;
+          feeValue: any;
+          feeOutIdx: number;
+          buyerDepositFeeValue?: any | null;
+          buyerDepositFeeOutIdx?: number | null;
+        }> | null;
         bankInfo?: {
           __typename?: 'BankInfo';
           bankName?: string | null;
@@ -457,13 +495,23 @@ export type TimelineQuery = {
           id: string;
           message?: string | null;
           escrowScript: string;
+          escrowFeeScript?: string | null;
+          escrowBuyerDepositFeeScript?: string | null;
           escrowAddress: string;
+          escrowFeeAddress?: string | null;
+          escrowBuyerDepositFeeAddress?: string | null;
           nonce: string;
           releaseTxid?: string | null;
           returnTxid?: string | null;
+          returnFeeTxid?: string | null;
+          returnBuyerDepositFeeTxid?: string | null;
           releaseSignatory?: string | null;
           returnSignatory?: string | null;
+          returnFeeSignatory?: string | null;
+          returnBuyerDepositFeeSignatory?: string | null;
           signatoryOwnerHash160?: string | null;
+          signatoryOwnerFeeHash160?: string | null;
+          signatoryOwnerBuyerDepositFeeHash160?: string | null;
           sellerDonateAmount?: number | null;
           buyerDonateAmount?: number | null;
           buyerDepositTx?: string | null;
@@ -520,7 +568,16 @@ export type TimelineQuery = {
             priceCoinOthers?: number | null;
             localCurrency?: string | null;
           };
-          escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+          escrowTxids?: Array<{
+            __typename?: 'EscrowTxid';
+            txid: string;
+            value: any;
+            outIdx: number;
+            feeValue: any;
+            feeOutIdx: number;
+            buyerDepositFeeValue?: any | null;
+            buyerDepositFeeOutIdx?: number | null;
+          }> | null;
           bankInfo?: {
             __typename?: 'BankInfo';
             bankName?: string | null;
@@ -748,13 +805,23 @@ export type HomeTimelineQuery = {
               id: string;
               message?: string | null;
               escrowScript: string;
+              escrowFeeScript?: string | null;
+              escrowBuyerDepositFeeScript?: string | null;
               escrowAddress: string;
+              escrowFeeAddress?: string | null;
+              escrowBuyerDepositFeeAddress?: string | null;
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              returnFeeTxid?: string | null;
+              returnBuyerDepositFeeTxid?: string | null;
               releaseSignatory?: string | null;
               returnSignatory?: string | null;
+              returnFeeSignatory?: string | null;
+              returnBuyerDepositFeeSignatory?: string | null;
               signatoryOwnerHash160?: string | null;
+              signatoryOwnerFeeHash160?: string | null;
+              signatoryOwnerBuyerDepositFeeHash160?: string | null;
               sellerDonateAmount?: number | null;
               buyerDonateAmount?: number | null;
               buyerDepositTx?: string | null;
@@ -811,7 +878,16 @@ export type HomeTimelineQuery = {
                 priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              escrowTxids?: Array<{
+                __typename?: 'EscrowTxid';
+                txid: string;
+                value: any;
+                outIdx: number;
+                feeValue: any;
+                feeOutIdx: number;
+                buyerDepositFeeValue?: any | null;
+                buyerDepositFeeOutIdx?: number | null;
+              }> | null;
               bankInfo?: {
                 __typename?: 'BankInfo';
                 bankName?: string | null;
@@ -1048,13 +1124,23 @@ export type ProfileTimelineQuery = {
               id: string;
               message?: string | null;
               escrowScript: string;
+              escrowFeeScript?: string | null;
+              escrowBuyerDepositFeeScript?: string | null;
               escrowAddress: string;
+              escrowFeeAddress?: string | null;
+              escrowBuyerDepositFeeAddress?: string | null;
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              returnFeeTxid?: string | null;
+              returnBuyerDepositFeeTxid?: string | null;
               releaseSignatory?: string | null;
               returnSignatory?: string | null;
+              returnFeeSignatory?: string | null;
+              returnBuyerDepositFeeSignatory?: string | null;
               signatoryOwnerHash160?: string | null;
+              signatoryOwnerFeeHash160?: string | null;
+              signatoryOwnerBuyerDepositFeeHash160?: string | null;
               sellerDonateAmount?: number | null;
               buyerDonateAmount?: number | null;
               buyerDepositTx?: string | null;
@@ -1111,7 +1197,16 @@ export type ProfileTimelineQuery = {
                 priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              escrowTxids?: Array<{
+                __typename?: 'EscrowTxid';
+                txid: string;
+                value: any;
+                outIdx: number;
+                feeValue: any;
+                feeOutIdx: number;
+                buyerDepositFeeValue?: any | null;
+                buyerDepositFeeOutIdx?: number | null;
+              }> | null;
               bankInfo?: {
                 __typename?: 'BankInfo';
                 bankName?: string | null;
@@ -1349,13 +1444,23 @@ export type ProfileTimelineByTimeQuery = {
               id: string;
               message?: string | null;
               escrowScript: string;
+              escrowFeeScript?: string | null;
+              escrowBuyerDepositFeeScript?: string | null;
               escrowAddress: string;
+              escrowFeeAddress?: string | null;
+              escrowBuyerDepositFeeAddress?: string | null;
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              returnFeeTxid?: string | null;
+              returnBuyerDepositFeeTxid?: string | null;
               releaseSignatory?: string | null;
               returnSignatory?: string | null;
+              returnFeeSignatory?: string | null;
+              returnBuyerDepositFeeSignatory?: string | null;
               signatoryOwnerHash160?: string | null;
+              signatoryOwnerFeeHash160?: string | null;
+              signatoryOwnerBuyerDepositFeeHash160?: string | null;
               sellerDonateAmount?: number | null;
               buyerDonateAmount?: number | null;
               buyerDepositTx?: string | null;
@@ -1412,7 +1517,16 @@ export type ProfileTimelineByTimeQuery = {
                 priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              escrowTxids?: Array<{
+                __typename?: 'EscrowTxid';
+                txid: string;
+                value: any;
+                outIdx: number;
+                feeValue: any;
+                feeOutIdx: number;
+                buyerDepositFeeValue?: any | null;
+                buyerDepositFeeOutIdx?: number | null;
+              }> | null;
               bankInfo?: {
                 __typename?: 'BankInfo';
                 bankName?: string | null;
@@ -1649,13 +1763,23 @@ export type PageTimelineQuery = {
               id: string;
               message?: string | null;
               escrowScript: string;
+              escrowFeeScript?: string | null;
+              escrowBuyerDepositFeeScript?: string | null;
               escrowAddress: string;
+              escrowFeeAddress?: string | null;
+              escrowBuyerDepositFeeAddress?: string | null;
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              returnFeeTxid?: string | null;
+              returnBuyerDepositFeeTxid?: string | null;
               releaseSignatory?: string | null;
               returnSignatory?: string | null;
+              returnFeeSignatory?: string | null;
+              returnBuyerDepositFeeSignatory?: string | null;
               signatoryOwnerHash160?: string | null;
+              signatoryOwnerFeeHash160?: string | null;
+              signatoryOwnerBuyerDepositFeeHash160?: string | null;
               sellerDonateAmount?: number | null;
               buyerDonateAmount?: number | null;
               buyerDepositTx?: string | null;
@@ -1712,7 +1836,16 @@ export type PageTimelineQuery = {
                 priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              escrowTxids?: Array<{
+                __typename?: 'EscrowTxid';
+                txid: string;
+                value: any;
+                outIdx: number;
+                feeValue: any;
+                feeOutIdx: number;
+                buyerDepositFeeValue?: any | null;
+                buyerDepositFeeOutIdx?: number | null;
+              }> | null;
               bankInfo?: {
                 __typename?: 'BankInfo';
                 bankName?: string | null;
@@ -1950,13 +2083,23 @@ export type PageTimelineByTimeQuery = {
               id: string;
               message?: string | null;
               escrowScript: string;
+              escrowFeeScript?: string | null;
+              escrowBuyerDepositFeeScript?: string | null;
               escrowAddress: string;
+              escrowFeeAddress?: string | null;
+              escrowBuyerDepositFeeAddress?: string | null;
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              returnFeeTxid?: string | null;
+              returnBuyerDepositFeeTxid?: string | null;
               releaseSignatory?: string | null;
               returnSignatory?: string | null;
+              returnFeeSignatory?: string | null;
+              returnBuyerDepositFeeSignatory?: string | null;
               signatoryOwnerHash160?: string | null;
+              signatoryOwnerFeeHash160?: string | null;
+              signatoryOwnerBuyerDepositFeeHash160?: string | null;
               sellerDonateAmount?: number | null;
               buyerDonateAmount?: number | null;
               buyerDepositTx?: string | null;
@@ -2013,7 +2156,16 @@ export type PageTimelineByTimeQuery = {
                 priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              escrowTxids?: Array<{
+                __typename?: 'EscrowTxid';
+                txid: string;
+                value: any;
+                outIdx: number;
+                feeValue: any;
+                feeOutIdx: number;
+                buyerDepositFeeValue?: any | null;
+                buyerDepositFeeOutIdx?: number | null;
+              }> | null;
               bankInfo?: {
                 __typename?: 'BankInfo';
                 bankName?: string | null;
@@ -2250,13 +2402,23 @@ export type TokenTimelineQuery = {
               id: string;
               message?: string | null;
               escrowScript: string;
+              escrowFeeScript?: string | null;
+              escrowBuyerDepositFeeScript?: string | null;
               escrowAddress: string;
+              escrowFeeAddress?: string | null;
+              escrowBuyerDepositFeeAddress?: string | null;
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              returnFeeTxid?: string | null;
+              returnBuyerDepositFeeTxid?: string | null;
               releaseSignatory?: string | null;
               returnSignatory?: string | null;
+              returnFeeSignatory?: string | null;
+              returnBuyerDepositFeeSignatory?: string | null;
               signatoryOwnerHash160?: string | null;
+              signatoryOwnerFeeHash160?: string | null;
+              signatoryOwnerBuyerDepositFeeHash160?: string | null;
               sellerDonateAmount?: number | null;
               buyerDonateAmount?: number | null;
               buyerDepositTx?: string | null;
@@ -2313,7 +2475,16 @@ export type TokenTimelineQuery = {
                 priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              escrowTxids?: Array<{
+                __typename?: 'EscrowTxid';
+                txid: string;
+                value: any;
+                outIdx: number;
+                feeValue: any;
+                feeOutIdx: number;
+                buyerDepositFeeValue?: any | null;
+                buyerDepositFeeOutIdx?: number | null;
+              }> | null;
               bankInfo?: {
                 __typename?: 'BankInfo';
                 bankName?: string | null;
@@ -2551,13 +2722,23 @@ export type TokenTimelineByTimeQuery = {
               id: string;
               message?: string | null;
               escrowScript: string;
+              escrowFeeScript?: string | null;
+              escrowBuyerDepositFeeScript?: string | null;
               escrowAddress: string;
+              escrowFeeAddress?: string | null;
+              escrowBuyerDepositFeeAddress?: string | null;
               nonce: string;
               releaseTxid?: string | null;
               returnTxid?: string | null;
+              returnFeeTxid?: string | null;
+              returnBuyerDepositFeeTxid?: string | null;
               releaseSignatory?: string | null;
               returnSignatory?: string | null;
+              returnFeeSignatory?: string | null;
+              returnBuyerDepositFeeSignatory?: string | null;
               signatoryOwnerHash160?: string | null;
+              signatoryOwnerFeeHash160?: string | null;
+              signatoryOwnerBuyerDepositFeeHash160?: string | null;
               sellerDonateAmount?: number | null;
               buyerDonateAmount?: number | null;
               buyerDepositTx?: string | null;
@@ -2614,7 +2795,16 @@ export type TokenTimelineByTimeQuery = {
                 priceCoinOthers?: number | null;
                 localCurrency?: string | null;
               };
-              escrowTxids?: Array<{ __typename?: 'EscrowTxid'; txid: string; value: any; outIdx: number }> | null;
+              escrowTxids?: Array<{
+                __typename?: 'EscrowTxid';
+                txid: string;
+                value: any;
+                outIdx: number;
+                feeValue: any;
+                feeOutIdx: number;
+                buyerDepositFeeValue?: any | null;
+                buyerDepositFeeOutIdx?: number | null;
+              }> | null;
               bankInfo?: {
                 __typename?: 'BankInfo';
                 bankName?: string | null;
@@ -2844,12 +3034,20 @@ export const EscrowOrderFieldsFragmentDoc = `
     localCurrency
   }
   escrowScript
+  escrowFeeScript
+  escrowBuyerDepositFeeScript
   escrowAddress
+  escrowFeeAddress
+  escrowBuyerDepositFeeAddress
   nonce
   escrowTxids {
     txid
     value
     outIdx
+    feeValue
+    feeOutIdx
+    buyerDepositFeeValue
+    buyerDepositFeeOutIdx
   }
   bankInfo {
     bankName
@@ -2867,9 +3065,15 @@ export const EscrowOrderFieldsFragmentDoc = `
   }
   releaseTxid
   returnTxid
+  returnFeeTxid
+  returnBuyerDepositFeeTxid
   releaseSignatory
   returnSignatory
+  returnFeeSignatory
+  returnBuyerDepositFeeSignatory
   signatoryOwnerHash160
+  signatoryOwnerFeeHash160
+  signatoryOwnerBuyerDepositFeeHash160
   sellerDonateAmount
   buyerDonateAmount
   buyerDepositTx

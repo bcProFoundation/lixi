@@ -264,8 +264,12 @@ export type EscrowOrder = {
   arbitrator_account_id: number;
   moderator_account_id: number;
   escrow_address: string;
+  escrow_fee_address: string | null;
+  escrow_buyer_deposit_fee_address: string | null;
   release_txid: string | null;
   return_txid: string | null;
+  return_fee_txid: string | null;
+  return_buyer_deposit_fee_txid: string | null;
   payment_method_id: number;
   message: string | null;
   price: string;
@@ -274,9 +278,15 @@ export type EscrowOrder = {
   offer_id: string;
   status: Generated<EscrowOrderStatus>;
   escrow_script: Buffer;
+  escrow_fee_script: Buffer | null;
+  escrow_buyer_deposit_fee_script: Buffer | null;
   release_signatory: Buffer | null;
   return_signatory: Buffer | null;
   signatory_owner_hash160: Buffer | null;
+  return_fee_signatory: Buffer | null;
+  signatory_owner_fee_hash160: Buffer | null;
+  return_buyer_deposit_fee_signatory: Buffer | null;
+  signatory_owner_buyer_deposit_fee_hash160: Buffer | null;
   nonce: string;
   buyer_deposit_tx: string | null;
   seller_telegram_message_id: number | null;
@@ -291,7 +301,11 @@ export type EscrowOrder = {
 export type EscrowTxId = {
   txid: string;
   outIdx: number;
+  feeOutIdx: number | null;
+  buyer_deposit_fee_out_idx: number | null;
   value: string;
+  feeValue: string | null;
+  buyer_deposit_fee_value: string | null;
   escrowOrderId: string;
   created_at: Generated<Timestamp>;
   updated_at: Generated<Timestamp>;

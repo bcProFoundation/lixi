@@ -1281,56 +1281,70 @@ model WalletPath {
 }
 
 model EscrowOrder {
-  id                      String            @id @default(cuid())
-  sellerAccount           Account           @relation("escrow_sell_orders", fields: [sellerAccountId], references: [id])
-  sellerAccountId         Int               @map("seller_account_id")
-  buyerAccount            Account           @relation("escrow_buy_orders", fields: [buyerAccountId], references: [id])
-  buyerAccountId          Int               @map("buyer_account_id")
-  arbitratorAccount       Account           @relation("escrow_arbi_orders", fields: [arbitratorAccountId], references: [id])
-  arbitratorAccountId     Int               @map("arbitrator_account_id")
-  moderatorAccount        Account           @relation("escrow_mod_orders", fields: [moderatorAccountId], references: [id])
-  moderatorAccountId      Int               @map("moderator_account_id")
-  escrowAddress           String            @unique @map("escrow_address")
-  escrowTxids             EscrowTxId[]
-  releaseTxid             String?           @unique @map("release_txid")
-  returnTxid              String?           @unique @map("return_txid")
-  paymentMethod           PaymentMethod     @relation(fields: [paymentMethodId], references: [id])
-  paymentMethodId         Int               @map("payment_method_id")
-  bankInfo                BankInfo?
-  message                 String?
-  price                   String            @map("price")
-  amount                  Float             @default(0.0) @map("amount")
-  amountCoinOrCurrency    Float             @default(0.0) @map("amount_coin_or_currency")
-  offer                   Offer             @relation(fields: [offerId], references: [postId])
-  offerId                 String            @map("offer_id")
-  status                  EscrowOrderStatus @default(PENDING)
-  escrowScript            Bytes             @unique @map("escrow_script")
-  releaseSignatory        Bytes?            @unique @map("release_signatory")
-  returnSignatory         Bytes?            @unique @map("return_signatory")
-  signatoryOwnerHash160   Bytes?            @map("signatory_owner_hash160")
-  nonce                   String            @unique @map("nonce")
-  buyerDepositTx          String?           @unique @map("buyer_deposit_tx")
-  dispute                 Dispute?
-  sellerTelegramMessageId Int?              @map("seller_telegram_message_id")
-  buyerTelegramMessageId  Int?              @map("buyer_telegram_message_id")
-  sellerDonateAmount      Float?            @map("seller_donate_amount")
-  buyerDonateAmount       Float?            @map("buyer_donate_amount")
-  markAsPaid              Boolean?          @default(false) @map("mark_as_paid")
-  allowOfferTakerChat     Boolean?          @default(false) @map("allow_offer_taker_chat")
-  createdAt               DateTime          @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt               DateTime          @default(now()) @map("updated_at") @db.Timestamptz
+  id                                   String            @id @default(cuid())
+  sellerAccount                        Account           @relation("escrow_sell_orders", fields: [sellerAccountId], references: [id])
+  sellerAccountId                      Int               @map("seller_account_id")
+  buyerAccount                         Account           @relation("escrow_buy_orders", fields: [buyerAccountId], references: [id])
+  buyerAccountId                       Int               @map("buyer_account_id")
+  arbitratorAccount                    Account           @relation("escrow_arbi_orders", fields: [arbitratorAccountId], references: [id])
+  arbitratorAccountId                  Int               @map("arbitrator_account_id")
+  moderatorAccount                     Account           @relation("escrow_mod_orders", fields: [moderatorAccountId], references: [id])
+  moderatorAccountId                   Int               @map("moderator_account_id")
+  escrowAddress                        String            @unique @map("escrow_address")
+  escrowFeeAddress                     String?           @unique @map("escrow_fee_address")
+  escrowBuyerDepositFeeAddress         String?           @unique @map("escrow_buyer_deposit_fee_address")
+  escrowTxids                          EscrowTxId[]
+  releaseTxid                          String?           @unique @map("release_txid")
+  returnTxid                           String?           @unique @map("return_txid")
+  returnFeeTxid                        String?           @unique @map("return_fee_txid")
+  returnBuyerDepositFeeTxid            String?           @unique @map("return_buyer_deposit_fee_txid")
+  paymentMethod                        PaymentMethod     @relation(fields: [paymentMethodId], references: [id])
+  paymentMethodId                      Int               @map("payment_method_id")
+  bankInfo                             BankInfo?
+  message                              String?
+  price                                String            @map("price")
+  amount                               Float             @default(0.0) @map("amount")
+  amountCoinOrCurrency                 Float             @default(0.0) @map("amount_coin_or_currency")
+  offer                                Offer             @relation(fields: [offerId], references: [postId])
+  offerId                              String            @map("offer_id")
+  status                               EscrowOrderStatus @default(PENDING)
+  escrowScript                         Bytes             @unique @map("escrow_script")
+  escrowFeeScript                      Bytes?            @unique @map("escrow_fee_script")
+  escrowBuyerDepositFeeScript          Bytes?            @unique @map("escrow_buyer_deposit_fee_script")
+  releaseSignatory                     Bytes?            @unique @map("release_signatory")
+  returnSignatory                      Bytes?            @unique @map("return_signatory")
+  signatoryOwnerHash160                Bytes?            @map("signatory_owner_hash160")
+  returnFeeSignatory                   Bytes?            @unique @map("return_fee_signatory")
+  signatoryOwnerFeeHash160             Bytes?            @map("signatory_owner_fee_hash160")
+  returnBuyerDepositFeeSignatory       Bytes?            @map("return_buyer_deposit_fee_signatory")
+  signatoryOwnerBuyerDepositFeeHash160 Bytes?            @map("signatory_owner_buyer_deposit_fee_hash160")
+  nonce                                String            @unique @map("nonce")
+  buyerDepositTx                       String?           @unique @map("buyer_deposit_tx")
+  dispute                              Dispute?
+  sellerTelegramMessageId              Int?              @map("seller_telegram_message_id")
+  buyerTelegramMessageId               Int?              @map("buyer_telegram_message_id")
+  sellerDonateAmount                   Float?            @map("seller_donate_amount")
+  buyerDonateAmount                    Float?            @map("buyer_donate_amount")
+  markAsPaid                           Boolean?          @default(false) @map("mark_as_paid")
+  allowOfferTakerChat                  Boolean?          @default(false) @map("allow_offer_taker_chat")
+  createdAt                            DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt                            DateTime          @default(now()) @map("updated_at") @db.Timestamptz
 
   @@map("escrow_order")
 }
 
 model EscrowTxId {
-  txid          String      @unique
-  outIdx        Int
-  value         BigInt
-  escrowOrder   EscrowOrder @relation(fields: [escrowOrderId], references: [id])
-  escrowOrderId String
-  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt     DateTime    @default(now()) @map("updated_at") @db.Timestamptz
+  txid                  String      @unique
+  outIdx                Int
+  feeOutIdx             Int?
+  buyerDepositFeeOutIdx Int?        @map("buyer_deposit_fee_out_idx")
+  value                 BigInt
+  feeValue              BigInt?
+  buyerDepositFeeValue  BigInt?     @map("buyer_deposit_fee_value")
+  escrowOrder           EscrowOrder @relation(fields: [escrowOrderId], references: [id])
+  escrowOrderId         String
+  createdAt             DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime    @default(now()) @map("updated_at") @db.Timestamptz
 }
 
 model Dispute {

@@ -309,10 +309,18 @@ export class NotificationGateway implements OnGatewayInit, OnGatewayConnection, 
         outIdx?: number;
         txid?: string;
         value?: number;
+        feeValue?: number;
+        buyerDepositFeeValue?: number;
+        feeOutIdx?: number;
+        buyerDepositFeeOutIdx?: number;
         updatedAt?: Date;
         releaseSignatory?: string;
         returnSignatory?: string;
+        returnFeeSignatory?: string;
+        returnBuyerDepositFeeSignatory?: string;
         signatoryOwnerHash160?: string;
+        signatoryOwnerFeeHash160?: string;
+        signatoryOwnerBuyerDepositFeeHash160?: string;
         sellerDonateAmount?: number;
         buyerDonateAmount?: number;
       };

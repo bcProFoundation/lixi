@@ -39,8 +39,8 @@ import { DanaIndexXRGService } from './index-block-xrg.service';
     ConvertDanaResolver,
     IndexBlockProcessor,
     DanaIndexXECService,
-    DanaIndexXRGService,
-    DanaIndexXPIService
+    DanaIndexXRGService
+    // DanaIndexXPIService
   ],
   exports: [Logger]
 })

@@ -86,10 +86,12 @@ const enhancedApi = api.enhanceEndpoints({
                 if (draft) {
                   switch (action) {
                     case EscrowOrderAction.Release:
+                      draft.escrowOrder.escrowOrderStatus = EscrowOrderStatus.Complete;
                       draft.escrowOrder.releaseSignatory = signatory;
                       draft.escrowOrder.sellerDonateAmount = sellerDonateAmount;
                       break;
                     case EscrowOrderAction.Return:
+                      draft.escrowOrder.escrowOrderStatus = EscrowOrderStatus.Cancel;
                       draft.escrowOrder.returnSignatory = signatory;
                       draft.escrowOrder.buyerDonateAmount = buyerDonateAmount;
                       break;
@@ -109,14 +111,30 @@ const enhancedApi = api.enhanceEndpoints({
     },
     UpdateEscrowOrderStatus: {
       onQueryStarted: async ({ input }, { dispatch, queryFulfilled }) => {
-        const { orderId, status, txid, value, outIdx } = input;
+        const {
+          orderId,
+          status,
+          txid,
+          value,
+          outIdx,
+          feeValue,
+          feeOutIdx,
+          returnFeeTxid,
+          buyerDepositFeeValue,
+          buyerDepositFeeOutIdx,
+          returnBuyerDepositFeeTxid
+        } = input;
         try {
           const { data } = await queryFulfilled;
           if (data) {
             dispatch(
               api.util.updateQueryData('EscrowOrder', { id: orderId }, draft => {
                 if (draft) {
-                  draft.escrowOrder.escrowOrderStatus = status;
+                  if (status && status !== draft.escrowOrder.escrowOrderStatus) {
+                    draft.escrowOrder.escrowOrderStatus = status;
+                  }
+                  draft.escrowOrder.returnFeeTxid = returnFeeTxid ?? null;
+                  draft.escrowOrder.returnBuyerDepositFeeTxid = returnBuyerDepositFeeTxid ?? null;
                   draft.escrowOrder.updatedAt = data.updateEscrowOrderStatus.updatedAt;
 
                   switch (status) {
@@ -174,7 +192,6 @@ const enhancedApi = api.enhanceEndpoints({
                       );
 
                       break;
-
                     case EscrowOrderStatus.Cancel:
                       draft.escrowOrder.returnTxid = txid;
                       if (draft.escrowOrder.dispute) {
@@ -251,14 +268,17 @@ const enhancedApi = api.enhanceEndpoints({
 
                       break;
                     case EscrowOrderStatus.Escrow:
-                      txid &&
-                        value &&
-                        !_.isNil(outIdx) &&
+                      if (txid && value && outIdx != null && feeValue && feeOutIdx != null) {
                         draft.escrowOrder.escrowTxids.push({
                           txid,
                           value,
-                          outIdx: outIdx
+                          outIdx,
+                          feeValue,
+                          feeOutIdx,
+                          buyerDepositFeeValue,
+                          buyerDepositFeeOutIdx
                         });
+                      }
 
                       //remove from pending cache
                       dispatch(
