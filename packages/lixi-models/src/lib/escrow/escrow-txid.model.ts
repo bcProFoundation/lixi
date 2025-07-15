@@ -12,8 +12,8 @@ export class EscrowTxid {
   @Field(() => GraphQLBigInt)
   value: number;
 
-  @Field(() => GraphQLBigInt)
-  feeValue: number;
+  @Field(() => GraphQLBigInt, { nullable: true })
+  feeValue?: Nullable<number>;
 
   @Field(() => GraphQLBigInt, { nullable: true })
   buyerDepositFeeValue?: Nullable<number>;
@@ -21,8 +21,8 @@ export class EscrowTxid {
   @Field(() => Number)
   outIdx: number;
 
-  @Field(() => Number)
-  feeOutIdx: number;
+  @Field(() => Number, { nullable: true })
+  feeOutIdx?: Nullable<number>;
 
   @Field(() => Number, { nullable: true })
   buyerDepositFeeOutIdx?: Nullable<number>;
