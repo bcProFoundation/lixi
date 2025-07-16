@@ -1,5 +1,12 @@
 # @bcpros/app-lotus-temple
 
+## 1.1.63
+
+### Patch Changes
+
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.63
+
 ## 1.1.62
 
 ### Patch Changes

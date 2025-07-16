@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.63
+
+### Patch Changes
+
+- Update escrow txid model
+
 ## 1.2.62
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @bcpros/redux-store
 
+## 1.2.63
+
+### Patch Changes
+
+- Update escrow txid model
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.63
+
 ## 1.2.62
 
 ### Patch Changes
