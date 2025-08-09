@@ -189,10 +189,10 @@ export class LocalEcashBotUpdate implements OnModuleInit {
       type === 'p2pkh' ? cashaddr.encode('etoken', 'p2pkh', hash160) : cashaddr.encode('etoken', 'p2sh', hash160);
 
     const formatReplied = format(
-      BOT.MESSAGE.CHRONIK_WATCH_RECIEVED_SLP,
-      address,
+      BOT.MESSAGE.CHRONIK_WATCH_RECEIVED_SLP,
       (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString(),
       genesisInfo.tokenTicker,
+      address,
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
     );
 
@@ -223,9 +223,9 @@ export class LocalEcashBotUpdate implements OnModuleInit {
       type === 'p2pkh' ? cashaddr.encode('ecash', 'p2pkh', hash160) : cashaddr.encode('ecash', 'p2sh', hash160);
 
     const formatReplied = format(
-      BOT.MESSAGE.CHRONIK_WATCH_RECIEVED_XEC,
-      address,
+      BOT.MESSAGE.CHRONIK_WATCH_RECEIVED_XEC,
       (amount / Math.pow(10, 2)).toLocaleString(),
+      address,
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
     );
 
