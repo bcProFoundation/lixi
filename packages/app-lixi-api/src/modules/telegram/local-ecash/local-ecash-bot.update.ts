@@ -22,6 +22,7 @@ type ParsedUtxoType = {
   hash160: string;
   type: string;
   tokenId?: string;
+  isSending?: boolean;
 };
 
 @Update()
@@ -109,6 +110,20 @@ export class LocalEcashBotUpdate implements OnModuleInit {
   }
 
   private _chronikHandleWsMessage = async (msg: WsMsgClient) => {
+    // Function Requirements:
+    // This function handles incoming websocket messages from Chronik.
+    // It processes the message to check for transactions related to watched addresses as follows
+    // 1. Find the inputs of the transaction returned from the incoming message
+    // 2. Compare the inputs with the watch addresses, note that there are many multiple input address.
+    // 3. If the input address matches any of the watch addresses, it indicates that the watched address has send funds
+    // 3.1 In the case of sending funds, the code will calculate the amount of funds sent as follows:
+    //    - Sending amount = total output amount - amount sending back to the change address, which is the same address the sending address
+    // 3.2. If the input addresses does not match with any watch address, the code should check if the output addresses match any watch address
+    //    - If there is a match in the watch addresses with output addresses, this indicates a receiving fund transaction
+    //    - In the case of receiving funds, the amount will be the exact amount of that the out address received.
+    // 3.3. If no match is found, the code will not do anything.
+    // Notes: this does not work in case of change address is different from the sending address, as the code will not be able to calculate the amount sent correctly, so it will notify the full amount.
+
     try {
       // get the message type
       const { type } = msg;
@@ -125,8 +140,10 @@ export class LocalEcashBotUpdate implements OnModuleInit {
       const { txid } = msg as MsgTxClient;
 
       try {
-        const { outputs, tokenEntries } = await this.chronik.tx(txid);
+        const tx = await this.chronik.tx(txid);
+        const { inputs, outputs, tokenEntries } = tx;
 
+        // Convert all outputs for easier processing
         let outputsConverted = _.compact(
           _.uniq(
             _.map(outputs, output => {
@@ -135,11 +152,22 @@ export class LocalEcashBotUpdate implements OnModuleInit {
           )
         );
 
-        const chronikWatchAddresses = await this.prisma.chronikWatchAddress.findMany({
+        // Get all watched addresses that match either inputs or outputs
+        const watchedAddresses = await this.prisma.chronikWatchAddress.findMany({
           where: {
-            hash160: {
-              in: _.map(outputsConverted, item => item.hash160)
-            }
+            OR: [
+              {
+                hash160: {
+                  in: _.map(inputs, input => input.outputScript ?
+                    cashaddr.getTypeAndHashFromOutputScript(input.outputScript).hash : null)
+                }
+              },
+              {
+                hash160: {
+                  in: _.map(outputsConverted, item => item.hash160)
+                }
+              }
+            ]
           },
           include: {
             account: {
@@ -150,32 +178,74 @@ export class LocalEcashBotUpdate implements OnModuleInit {
           }
         });
 
-        if (chronikWatchAddresses.length > 0) {
-          for (const chronikWatchAddress of chronikWatchAddresses) {
-            const { amount, hash160, tokenId, type } =
-              outputsConverted.find(item => item.hash160 === chronikWatchAddress.hash160)! || {};
+        if (watchedAddresses.length > 0) {
+          // Process each watched address
+          for (const watchedAddress of watchedAddresses) {
+            // Check if this address is in inputs (sending)
+            const isInputAddress = inputs.some(input => {
+              if (!input.outputScript) return false;
+              const { hash } = cashaddr.getTypeAndHashFromOutputScript(input.outputScript);
+              return hash === watchedAddress.hash160;
+            });
 
-            const parsedUtxo: ParsedUtxoType = {
-              txid: txid,
-              amount: amount,
-              chronikWatchAddresses,
-              hash160: hash160,
-              type: type,
-              tokenId: tokenId ?? undefined
-            };
+            if (isInputAddress) {
+              // This is a sending transaction
+              // Calculate total output amount
+              let totalOutput = 0;
+              let changeAmount = 0;
 
-            tokenEntries.length > 0
-              ? await this.receivedSLPDeposit(parsedUtxo)
-              : await this.receivedXECDeposit(parsedUtxo);
+              for (const output of outputsConverted) {
+                totalOutput += output.amount;
+                // If output goes back to the same address, it's change
+                if (output.hash160 === watchedAddress.hash160) {
+                  changeAmount = output.amount;
+                }
+              }
+
+              const sendingAmount = totalOutput - changeAmount;
+
+              // Create notification for sending
+              const parsedUtxo: ParsedUtxoType = {
+                txid,
+                amount: sendingAmount,
+                chronikWatchAddresses: [watchedAddress],
+                hash160: watchedAddress.hash160,
+                type: watchedAddress.type,
+                tokenId: tokenEntries.length > 0 ? tokenEntries[0].tokenId : undefined,
+                isSending: true
+              };
+
+              tokenEntries.length > 0
+                ? await this.sentSLPTransaction(parsedUtxo)
+                : await this.sentXECTransaction(parsedUtxo);
+
+            } else {
+              // This is a receiving transaction
+              const receivedOutput = outputsConverted.find(
+                output => output.hash160 === watchedAddress.hash160
+              );
+
+              if (receivedOutput) {
+                const parsedUtxo: ParsedUtxoType = {
+                  txid,
+                  amount: receivedOutput.amount,
+                  chronikWatchAddresses: [watchedAddress],
+                  hash160: watchedAddress.hash160,
+                  type: watchedAddress.type,
+                  tokenId: receivedOutput.tokenId,
+                  isSending: false
+                };
+
+                tokenEntries.length > 0
+                  ? await this.receivedSLPDeposit(parsedUtxo)
+                  : await this.receivedXECDeposit(parsedUtxo);
+              }
+            }
           }
         }
       } catch (err) {
-        // In this case, no notification
         return this.logger.log(`Error in chronik.tx(${txid} while processing an incoming websocket tx`, err);
       }
-
-      // parse tx for notification
-      // const parsedChronikTx = await parseChronikTx(XPI, chronik, incomingTxDetails, wallet);
     } catch (e: any) {
       throw new Error(`_chronikHandleWsMessage: ${e.message}`);
     }
@@ -190,6 +260,74 @@ export class LocalEcashBotUpdate implements OnModuleInit {
 
     const formatReplied = format(
       BOT.MESSAGE.CHRONIK_WATCH_RECEIVED_SLP,
+      (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString(),
+      genesisInfo.tokenTicker,
+      address,
+      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
+    );
+
+    for (const chronikWatchAddress of chronikWatchAddresses) {
+      const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
+        chronikWatchAddress.account.telegramId!,
+        txid
+      );
+
+      if (!cached) {
+        await this.bot.telegram
+          .sendMessage(chronikWatchAddress.account.telegramId!, formatReplied, {
+            parse_mode: 'Markdown'
+          })
+          .catch(e => {
+            this.logger.error(e);
+          });
+
+        await this.localEcashCacheService.cacheTelegramNotification(chronikWatchAddress.account.telegramId!, txid);
+      }
+    }
+  }
+
+  async sentXECTransaction(parsedUtxo: ParsedUtxoType) {
+    const { txid, amount, chronikWatchAddresses, hash160, type } = parsedUtxo;
+
+    const address =
+      type === 'p2pkh' ? cashaddr.encode('ecash', 'p2pkh', hash160) : cashaddr.encode('ecash', 'p2sh', hash160);
+
+    const formatReplied = format(
+      BOT.MESSAGE.CHRONIK_WATCH_SENT_XEC,
+      (amount / Math.pow(10, 2)).toLocaleString(),
+      address,
+      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
+    );
+
+    for (const chronikWatchAddress of chronikWatchAddresses) {
+      const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
+        chronikWatchAddress.account.telegramId!,
+        txid
+      );
+
+      if (!cached) {
+        await this.bot.telegram
+          .sendMessage(chronikWatchAddress.account.telegramId!, formatReplied, {
+            parse_mode: 'Markdown'
+          })
+          .catch(e => {
+            this.logger.error(e);
+          });
+
+        await this.localEcashCacheService.cacheTelegramNotification(chronikWatchAddress.account.telegramId!, txid);
+      }
+    }
+  }
+
+  async sentSLPTransaction(parsedUtxo: ParsedUtxoType) {
+    const { txid, amount, chronikWatchAddresses, hash160, tokenId, type } = parsedUtxo;
+    const { genesisInfo } = await this.chronik.token(tokenId!);
+
+    const address =
+      type === 'p2pkh' ? cashaddr.encode('etoken', 'p2pkh', hash160) : cashaddr.encode('etoken', 'p2sh', hash160);
+
+    const formatReplied = format(
+      BOT.MESSAGE.CHRONIK_WATCH_SENT_SLP,
       (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString(),
       genesisInfo.tokenTicker,
       address,
