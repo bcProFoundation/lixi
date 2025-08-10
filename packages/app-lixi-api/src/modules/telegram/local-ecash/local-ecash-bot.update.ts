@@ -198,7 +198,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
                 totalOutput += output.amount;
                 // If output goes back to the same address, it's change
                 if (output.hash160 === watchedAddress.hash160) {
-                  changeAmount = output.amount;
+                  changeAmount += output.amount;
                 }
               }
 
