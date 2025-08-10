@@ -277,7 +277,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
           .sendMessage(chronikWatchAddress.account.telegramId!, formatReplied, {
             parse_mode: 'Markdown'
           })
-          .catch(e => {
+          .catch((e: Error) => {
             this.logger.error(e);
           });
 
