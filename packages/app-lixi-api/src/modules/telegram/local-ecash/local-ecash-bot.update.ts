@@ -22,7 +22,6 @@ type ParsedUtxoType = {
   hash160: string;
   type: string;
   tokenId?: string;
-  isSending?: boolean;
 };
 
 @Update()
@@ -117,7 +116,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
     // 2. Compare the inputs with the watch addresses, note that there are many multiple input address.
     // 3. If the input address matches any of the watch addresses, it indicates that the watched address has send funds
     // 3.1 In the case of sending funds, the code will calculate the amount of funds sent as follows:
-    //    - Sending amount = total output amount - amount sending back to the change address, which is the same address the sending address
+    //    - Sending amount = total output amount - amount sending back to the change address, which is the same address the sending address. This amnount excludes fees, which is the difference between the total output amount and the total input amount
     // 3.2. If the input addresses does not match with any watch address, the code should check if the output addresses match any watch address
     //    - If there is a match in the watch addresses with output addresses, this indicates a receiving fund transaction
     //    - In the case of receiving funds, the amount will be the exact amount of that the out address received.
@@ -158,10 +157,12 @@ export class LocalEcashBotUpdate implements OnModuleInit {
             OR: [
               {
                 hash160: {
-                  in: _.map(inputs, input => input.outputScript ?
-                    cashaddr.getTypeAndHashFromOutputScript(input.outputScript).hash : null)
-                }
-              },
+                  hash160: {
+                    in: _.map(
+                      _.filter(inputs, input => !!input.outputScript),
+                      input => cashaddr.getTypeAndHashFromOutputScript(input.outputScript).hash
+                    )
+                  }
               {
                 hash160: {
                   in: _.map(outputsConverted, item => item.hash160)
@@ -211,8 +212,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
                 chronikWatchAddresses: [watchedAddress],
                 hash160: watchedAddress.hash160,
                 type: watchedAddress.type,
-                tokenId: tokenEntries.length > 0 ? tokenEntries[0].tokenId : undefined,
-                isSending: true
+                tokenId: tokenEntries.length > 0 ? tokenEntries[0].tokenId : undefined
               };
 
               tokenEntries.length > 0
@@ -232,8 +232,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
                   chronikWatchAddresses: [watchedAddress],
                   hash160: watchedAddress.hash160,
                   type: watchedAddress.type,
-                  tokenId: receivedOutput.tokenId,
-                  isSending: false
+                  tokenId: receivedOutput.tokenId
                 };
 
                 tokenEntries.length > 0
