@@ -152,20 +152,25 @@ export class LocalEcashBotUpdate implements OnModuleInit {
         );
 
         // Get all watched addresses that match either inputs or outputs
+        const inputHashes = inputs
+          .map(input =>
+            input.outputScript ? cashaddr.getTypeAndHashFromOutputScript(input.outputScript).hash : undefined
+          )
+          .filter(hash => hash !== undefined) as string[];
+        const outputConvertedHashes = _.compact(_.map(outputsConverted, item => item.hash160));
+
         const watchedAddresses = await this.prisma.chronikWatchAddress.findMany({
           where: {
             OR: [
               {
-                hash160: {  // Remove the extra hash160 nesting
-                  in: _.map(
-                    _.filter(inputs, input => !!input.outputScript),
-                    input => cashaddr.getTypeAndHashFromOutputScript(input.outputScript).hash
-                  )
+                hash160: {
+                  // Remove the extra hash160 nesting
+                  in: inputHashes
                 }
               },
               {
                 hash160: {
-                  in: _.map(outputsConverted, item => item.hash160)
+                  in: outputConvertedHashes
                 }
               }
             ]
@@ -210,12 +215,9 @@ export class LocalEcashBotUpdate implements OnModuleInit {
             tokenEntries.length > 0
               ? await this.sentSLPTransaction(parsedUtxo)
               : await this.sentXECTransaction(parsedUtxo);
-
           } else {
             // This is a receiving transaction
-            const receivedOutput = outputsConverted.find(
-              output => output.hash160 === watchedAddress.hash160
-            );
+            const receivedOutput = outputsConverted.find(output => output.hash160 === watchedAddress.hash160);
 
             if (receivedOutput) {
               const parsedUtxo: ParsedUtxoType = {
