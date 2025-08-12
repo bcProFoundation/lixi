@@ -64,6 +64,8 @@ export const BOT = {
     ORDER_RETURNED: `❌ Order has been canceled! You can now claim your funds!`,
     CHRONIK_WATCH_RECEIVED_XEC: `Received %s XEC to _%s_ \r\n\r\n` + `[View tx on the Explorer](%s)`,
     CHRONIK_WATCH_RECEIVED_SLP: `Received %s %s to _%s_ \r\n\r\n` + `[View tx on the Explorer](%s)`,
+    CHRONIK_WATCH_SENT_XEC: `Sent %s XEC from _%s_ \r\n\r\n` + `[View tx on the Explorer](%s)`,
+    CHRONIK_WATCH_SENT_SLP: `Sent %s %s from _%s_ \r\n\r\n` + `[View tx on the Explorer](%s)`,
     ORDER_MARK_AS_PAID_SELLER: `The order has been marked as paid! Please review it and release the funds!`,
     OFFER_MAKER_ALLOW_CHAT: `The offer-maker has accepted your order, so you can chat with the buyer right now!`
   }
