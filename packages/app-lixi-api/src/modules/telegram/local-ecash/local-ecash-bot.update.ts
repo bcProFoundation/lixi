@@ -156,13 +156,13 @@ export class LocalEcashBotUpdate implements OnModuleInit {
           where: {
             OR: [
               {
-                hash160: {
-                  hash160: {
-                    in: _.map(
-                      _.filter(inputs, input => !!input.outputScript),
-                      input => cashaddr.getTypeAndHashFromOutputScript(input.outputScript).hash
-                    )
-                  }
+                hash160: {  // Remove the extra hash160 nesting
+                  in: _.map(
+                    _.filter(inputs, input => !!input.outputScript),
+                    input => cashaddr.getTypeAndHashFromOutputScript(input.outputScript).hash
+                  )
+                }
+              },
               {
                 hash160: {
                   in: _.map(outputsConverted, item => item.hash160)
@@ -170,75 +170,66 @@ export class LocalEcashBotUpdate implements OnModuleInit {
               }
             ]
           },
-          include: {
-            account: {
-              select: {
-                telegramId: true
-              }
-            }
-          }
+          include: { account: { select: { telegramId: true } } }
         });
 
-        if (watchedAddresses.length > 0) {
-          // Process each watched address
-          for (const watchedAddress of watchedAddresses) {
-            // Check if this address is in inputs (sending)
-            const isInputAddress = inputs.some(input => {
-              if (!input.outputScript) return false;
-              const { hash } = cashaddr.getTypeAndHashFromOutputScript(input.outputScript);
-              return hash === watchedAddress.hash160;
-            });
+        for (const watchedAddress of watchedAddresses) {
+          // First check if this is a sending transaction
+          const isSender = inputs.some(input => {
+            if (!input.outputScript) return false;
+            const { hash } = cashaddr.getTypeAndHashFromOutputScript(input.outputScript);
+            return hash === watchedAddress.hash160;
+          });
 
-            if (isInputAddress) {
-              // This is a sending transaction
-              // Calculate total output amount
-              let totalOutput = 0;
-              let changeAmount = 0;
+          if (isSender) {
+            // This is a sending transaction
+            // Calculate total output amount
+            let totalOutput = 0;
+            let changeAmount = 0;
 
-              for (const output of outputsConverted) {
-                totalOutput += output.amount;
-                // If output goes back to the same address, it's change
-                if (output.hash160 === watchedAddress.hash160) {
-                  changeAmount += output.amount;
-                }
+            for (const output of outputsConverted) {
+              totalOutput += output.amount;
+              // If output goes back to the same address, it's change
+              if (output.hash160 === watchedAddress.hash160) {
+                changeAmount += output.amount;
               }
+            }
 
-              const sendingAmount = totalOutput - changeAmount;
+            const sendingAmount = totalOutput - changeAmount;
 
-              // Create notification for sending
+            // Create notification for sending
+            const parsedUtxo: ParsedUtxoType = {
+              txid,
+              amount: sendingAmount,
+              chronikWatchAddresses: [watchedAddress],
+              hash160: watchedAddress.hash160,
+              type: watchedAddress.type,
+              tokenId: tokenEntries.length > 0 ? tokenEntries[0].tokenId : undefined
+            };
+
+            tokenEntries.length > 0
+              ? await this.sentSLPTransaction(parsedUtxo)
+              : await this.sentXECTransaction(parsedUtxo);
+
+          } else {
+            // This is a receiving transaction
+            const receivedOutput = outputsConverted.find(
+              output => output.hash160 === watchedAddress.hash160
+            );
+
+            if (receivedOutput) {
               const parsedUtxo: ParsedUtxoType = {
                 txid,
-                amount: sendingAmount,
+                amount: receivedOutput.amount,
                 chronikWatchAddresses: [watchedAddress],
                 hash160: watchedAddress.hash160,
                 type: watchedAddress.type,
-                tokenId: tokenEntries.length > 0 ? tokenEntries[0].tokenId : undefined
+                tokenId: receivedOutput.tokenId
               };
 
               tokenEntries.length > 0
-                ? await this.sentSLPTransaction(parsedUtxo)
-                : await this.sentXECTransaction(parsedUtxo);
-
-            } else {
-              // This is a receiving transaction
-              const receivedOutput = outputsConverted.find(
-                output => output.hash160 === watchedAddress.hash160
-              );
-
-              if (receivedOutput) {
-                const parsedUtxo: ParsedUtxoType = {
-                  txid,
-                  amount: receivedOutput.amount,
-                  chronikWatchAddresses: [watchedAddress],
-                  hash160: watchedAddress.hash160,
-                  type: watchedAddress.type,
-                  tokenId: receivedOutput.tokenId
-                };
-
-                tokenEntries.length > 0
-                  ? await this.receivedSLPDeposit(parsedUtxo)
-                  : await this.receivedXECDeposit(parsedUtxo);
-              }
+                ? await this.receivedSLPDeposit(parsedUtxo)
+                : await this.receivedXECDeposit(parsedUtxo);
             }
           }
         }
