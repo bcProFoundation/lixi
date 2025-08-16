@@ -117,11 +117,16 @@ export class LocalEcashBotUpdate implements OnModuleInit {
     // 1. Find the inputs of the transaction returned from the incoming message
     // 2. Compare the inputs with the watch addresses, note that there are many multiple input address.
     // 3. If the input address matches any of the watch addresses, it indicates that the watched address has send funds
-    // 3.1 In the case of sending funds, the code will calculate the amount of funds sent as follows:
-    //    - Sending amount = total output amount - amount sending back to the change address, which is the same address the sending address. This amnount excludes fees, which is the difference between the total output amount and the total input amount
+    // 3.1 In the case of sending funds, the code will:
+    //    - Calculate the amount of funds sent (total output amount - amount sending back to the change address)
+    //    - Compute fromAddress from the watched address
+    //    - Exclude change output and collect toAddresses for actual recipients
+    //    - Format notification as "Sent from <fromAddress> to <address or 'various addresses'>: <amount> XEC"
     // 3.2. If the input addresses does not match with any watch address, the code should check if the output addresses match any watch address
     //    - If there is a match in the watch addresses with output addresses, this indicates a receiving fund transaction
-    //    - In the case of receiving funds, the amount will be the exact amount of that the out address received.
+    //    - In the case of receiving funds, the amount will be the exact amount that the output address received
+    //    - Determine fromAddress using the first input's address
+    //    - Format notification as "Received to <watchedAddress> from <fromAddress>: <amount> XEC"
     // 3.3. If no match is found, the code will not do anything.
     // Notes: this does not work in case of change address is different from the sending address, as the code will not be able to calculate the amount sent correctly, so it will notify the full amount.
 
@@ -189,11 +194,10 @@ export class LocalEcashBotUpdate implements OnModuleInit {
             const fromAddress = cashaddr.encode(
               'ecash', watchedAddress.type, watchedAddress.hash160
             );
-            const toHashes = outputsConverted
-              .filter(o => o.hash160 !== watchedAddress.hash160)
-              .map(o => o.hash160);
-            const toAddresses = toHashes.map(h =>
-              cashaddr.encode('ecash', watchedAddress.type, h)
+            const toOutputs = outputsConverted
+              .filter(o => o.hash160 !== watchedAddress.hash160);
+            const toAddresses = toOutputs.map(o =>
+              cashaddr.encode('ecash', o.type, o.hash160)
             );
 
             // Calculate total output amount
@@ -230,12 +234,11 @@ export class LocalEcashBotUpdate implements OnModuleInit {
             // This is a receiving transaction
             // Compute the sender from first input
             const firstInput = inputs.find(i => i.outputScript);
-            const fromHash = firstInput
-              ? cashaddr.getTypeAndHashFromOutputScript(firstInput.outputScript).hash
-              : '';
-            const fromAddress = firstInput
-              ? cashaddr.encode('ecash', watchedAddress.type, fromHash)
-              : '';
+            let fromAddress = '';
+            if (firstInput) {
+              const { hash, type } = cashaddr.getTypeAndHashFromOutputScript(firstInput.outputScript);
+              fromAddress = cashaddr.encode('ecash', type, hash);
+            }
 
             const receivedOutput = outputsConverted.find(
               output => output.hash160 === watchedAddress.hash160
@@ -267,19 +270,16 @@ export class LocalEcashBotUpdate implements OnModuleInit {
   };
 
   async receivedSLPDeposit(parsedUtxo: ParsedUtxoType) {
-    const { txid, amount, chronikWatchAddresses, hash160, tokenId, type } = parsedUtxo;
+    const { txid, amount, chronikWatchAddresses, hash160, tokenId, type, fromAddress } = parsedUtxo;
     const { genesisInfo } = await this.chronik.token(tokenId!);
 
-    const address =
+    const watchedAddress =
       type === 'p2pkh' ? cashaddr.encode('etoken', 'p2pkh', hash160) : cashaddr.encode('etoken', 'p2sh', hash160);
 
-    const formatReplied = format(
-      BOT.MESSAGE.CHRONIK_WATCH_RECEIVED_SLP,
-      (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString(),
-      genesisInfo.tokenTicker,
-      address,
-      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
-    );
+    // Format message: Received to <watchedAddress> from <fromAddress>: <amount> <token>
+    const amountFormatted = (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString();
+    const formatReplied = `Received to ${watchedAddress} from ${fromAddress || 'unknown'}: ${amountFormatted} ${genesisInfo.tokenTicker}\n` +
+      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`;
 
     for (const chronikWatchAddress of chronikWatchAddresses) {
       const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
@@ -335,19 +335,19 @@ export class LocalEcashBotUpdate implements OnModuleInit {
   }
 
   async sentSLPTransaction(parsedUtxo: ParsedUtxoType) {
-    const { txid, amount, chronikWatchAddresses, hash160, tokenId, type } = parsedUtxo;
+    const { txid, amount, chronikWatchAddresses, tokenId, fromAddress, toAddresses } = parsedUtxo;
     const { genesisInfo } = await this.chronik.token(tokenId!);
 
-    const address =
-      type === 'p2pkh' ? cashaddr.encode('etoken', 'p2pkh', hash160) : cashaddr.encode('etoken', 'p2sh', hash160);
-
-    const formatReplied = format(
-      BOT.MESSAGE.CHRONIK_WATCH_SENT_SLP,
-      (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString(),
-      genesisInfo.tokenTicker,
-      address,
-      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
-    );
+    // Determine to text
+    let toText = 'various addresses';
+    if (toAddresses && toAddresses.length === 1) {
+      toText = toAddresses[0];
+    }
+    
+    // Format message: Sent from X to Y: amount TOKEN
+    const amountFormatted = (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString();
+    const formatReplied = `Sent from ${fromAddress} to ${toText}: ${amountFormatted} ${genesisInfo.tokenTicker}\n` +
+      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`;
 
     for (const chronikWatchAddress of chronikWatchAddresses) {
       const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
@@ -370,17 +370,15 @@ export class LocalEcashBotUpdate implements OnModuleInit {
   }
 
   async receivedXECDeposit(parsedUtxo: ParsedUtxoType) {
-    const { txid, amount, chronikWatchAddresses, hash160, type } = parsedUtxo;
+    const { txid, amount, chronikWatchAddresses, hash160, type, fromAddress } = parsedUtxo;
 
-    const address =
+    const watchedAddress =
       type === 'p2pkh' ? cashaddr.encode('ecash', 'p2pkh', hash160) : cashaddr.encode('ecash', 'p2sh', hash160);
 
-    const formatReplied = format(
-      BOT.MESSAGE.CHRONIK_WATCH_RECEIVED_XEC,
-      (amount / Math.pow(10, 2)).toLocaleString(),
-      address,
-      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
-    );
+    // Format message: Received to <watchedAddress> from <fromAddress>: <amount> XEC
+    const amountFormatted = (amount / Math.pow(10, 2)).toLocaleString();
+    const formatReplied = `Received to ${watchedAddress} from ${fromAddress || 'unknown'}: ${amountFormatted} XEC\n` +
+      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`;
 
     for (const chronikWatchAddress of chronikWatchAddresses) {
       const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
