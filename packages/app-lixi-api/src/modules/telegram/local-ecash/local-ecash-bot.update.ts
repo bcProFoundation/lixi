@@ -189,12 +189,18 @@ export class LocalEcashBotUpdate implements OnModuleInit {
             const fromAddress = cashaddr.encode(
               'ecash', watchedAddress.type, watchedAddress.hash160
             );
-            const toHashes = outputsConverted
-              .filter(o => o.hash160 !== watchedAddress.hash160)
-              .map(o => o.hash160);
-            const toAddresses = toHashes.map(h =>
-              cashaddr.encode('ecash', watchedAddress.type, h)
-            );
+            
+            // Get all non-change outputs and their addresses
+            const toOutputs = outputsConverted.filter(o => o.hash160 !== watchedAddress.hash160);
+            const toAddresses = toOutputs.map(o => {
+              // Try to determine the correct type for each output
+              try {
+                return cashaddr.encode('ecash', o.type, o.hash160);
+              } catch (e) {
+                // Fallback to p2pkh if type detection fails
+                return cashaddr.encode('ecash', 'p2pkh', o.hash160);
+              }
+            });
 
             // Calculate total output amount
             let totalOutput = 0;
@@ -230,12 +236,17 @@ export class LocalEcashBotUpdate implements OnModuleInit {
             // This is a receiving transaction
             // Compute the sender from first input
             const firstInput = inputs.find(i => i.outputScript);
-            const fromHash = firstInput
-              ? cashaddr.getTypeAndHashFromOutputScript(firstInput.outputScript).hash
-              : '';
-            const fromAddress = firstInput
-              ? cashaddr.encode('ecash', watchedAddress.type, fromHash)
-              : '';
+            let fromAddress = '';
+            
+            if (firstInput) {
+              try {
+                const { hash, type } = cashaddr.getTypeAndHashFromOutputScript(firstInput.outputScript);
+                fromAddress = cashaddr.encode('ecash', type, hash);
+              } catch (e) {
+                // If we can't decode the output script, use unknown
+                fromAddress = 'unknown address';
+              }
+            }
 
             const receivedOutput = outputsConverted.find(
               output => output.hash160 === watchedAddress.hash160
@@ -267,19 +278,17 @@ export class LocalEcashBotUpdate implements OnModuleInit {
   };
 
   async receivedSLPDeposit(parsedUtxo: ParsedUtxoType) {
-    const { txid, amount, chronikWatchAddresses, hash160, tokenId, type } = parsedUtxo;
+    const { txid, amount, chronikWatchAddresses, hash160, tokenId, type, fromAddress } = parsedUtxo;
     const { genesisInfo } = await this.chronik.token(tokenId!);
 
     const address =
       type === 'p2pkh' ? cashaddr.encode('etoken', 'p2pkh', hash160) : cashaddr.encode('etoken', 'p2sh', hash160);
 
-    const formatReplied = format(
-      BOT.MESSAGE.CHRONIK_WATCH_RECEIVED_SLP,
-      (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString(),
-      genesisInfo.tokenTicker,
-      address,
-      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
-    );
+    // Format message: Received to <watched address> from <sender>: <amount> TOKEN
+    const amountFormatted = (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString();
+    const fromText = fromAddress || 'unknown address';
+    const formatReplied = `Received to ${address} from ${fromText}: ${amountFormatted} ${genesisInfo.tokenTicker}\n` +
+      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`;
 
     for (const chronikWatchAddress of chronikWatchAddresses) {
       const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
@@ -335,19 +344,18 @@ export class LocalEcashBotUpdate implements OnModuleInit {
   }
 
   async sentSLPTransaction(parsedUtxo: ParsedUtxoType) {
-    const { txid, amount, chronikWatchAddresses, hash160, tokenId, type } = parsedUtxo;
+    const { txid, amount, chronikWatchAddresses, fromAddress, toAddresses, tokenId } = parsedUtxo;
     const { genesisInfo } = await this.chronik.token(tokenId!);
 
-    const address =
-      type === 'p2pkh' ? cashaddr.encode('etoken', 'p2pkh', hash160) : cashaddr.encode('etoken', 'p2sh', hash160);
-
-    const formatReplied = format(
-      BOT.MESSAGE.CHRONIK_WATCH_SENT_SLP,
-      (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString(),
-      genesisInfo.tokenTicker,
-      address,
-      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
-    );
+    // Determine to text
+    let toText = 'various addresses';
+    if (toAddresses && toAddresses.length === 1) {
+      toText = toAddresses[0];
+    }
+    // Format message: Sent from X to Y: amount TOKEN
+    const amountFormatted = (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString();
+    const formatReplied = `Sent from ${fromAddress} to ${toText}: ${amountFormatted} ${genesisInfo.tokenTicker}\n` +
+      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`;
 
     for (const chronikWatchAddress of chronikWatchAddresses) {
       const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
@@ -370,17 +378,16 @@ export class LocalEcashBotUpdate implements OnModuleInit {
   }
 
   async receivedXECDeposit(parsedUtxo: ParsedUtxoType) {
-    const { txid, amount, chronikWatchAddresses, hash160, type } = parsedUtxo;
+    const { txid, amount, chronikWatchAddresses, hash160, type, fromAddress } = parsedUtxo;
 
     const address =
       type === 'p2pkh' ? cashaddr.encode('ecash', 'p2pkh', hash160) : cashaddr.encode('ecash', 'p2sh', hash160);
 
-    const formatReplied = format(
-      BOT.MESSAGE.CHRONIK_WATCH_RECEIVED_XEC,
-      (amount / Math.pow(10, 2)).toLocaleString(),
-      address,
-      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
-    );
+    // Format message: Received to <watched address> from <sender>: <amount> XEC
+    const amountFormatted = (amount / Math.pow(10, 2)).toLocaleString();
+    const fromText = fromAddress || 'unknown address';
+    const formatReplied = `Received to ${address} from ${fromText}: ${amountFormatted} XEC\n` +
+      `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`;
 
     for (const chronikWatchAddress of chronikWatchAddresses) {
       const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
