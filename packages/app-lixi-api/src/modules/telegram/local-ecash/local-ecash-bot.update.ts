@@ -270,15 +270,15 @@ export class LocalEcashBotUpdate implements OnModuleInit {
   };
 
   async receivedSLPDeposit(parsedUtxo: ParsedUtxoType) {
+    // Include fromAddress in parsedUtxo
     const { txid, amount, chronikWatchAddresses, hash160, tokenId, type, fromAddress } = parsedUtxo;
     const { genesisInfo } = await this.chronik.token(tokenId!);
 
-    const watchedAddress =
+    const receivedAddress =
       type === 'p2pkh' ? cashaddr.encode('etoken', 'p2pkh', hash160) : cashaddr.encode('etoken', 'p2sh', hash160);
-
-    // Format message: Received to <watchedAddress> from <fromAddress>: <amount> <token>
     const amountFormatted = (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString();
-    const formatReplied = `Received to ${watchedAddress} from ${fromAddress || 'unknown'}: ${amountFormatted} ${genesisInfo.tokenTicker}\n` +
+    const formatReplied =
+      `Received to ${receivedAddress} from ${fromAddress || 'unknown'}: ${amountFormatted} ${genesisInfo.tokenTicker}\n` +
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`;
 
     for (const chronikWatchAddress of chronikWatchAddresses) {
@@ -343,7 +343,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
     if (toAddresses && toAddresses.length === 1) {
       toText = toAddresses[0];
     }
-    
+
     // Format message: Sent from X to Y: amount TOKEN
     const amountFormatted = (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString();
     const formatReplied = `Sent from ${fromAddress} to ${toText}: ${amountFormatted} ${genesisInfo.tokenTicker}\n` +
