@@ -820,7 +820,7 @@ Are you ready? Let's get started.
         return;
       }
 
-  const chronikWatchAddress = account.chronikWatchAddresses.map(({ type, hash160 }: { type: string; hash160: string }) => ({
+      const chronikWatchAddress = account.chronikWatchAddresses.map(({ type, hash160 }: { type: string; hash160: string }) => ({
         type,
         hash: hash160
       }));
@@ -836,7 +836,7 @@ Are you ready? Let's get started.
         return;
       }
 
-  const addressReplyFormat = chronikWatchAddress.map((item: { type: string; hash: string }, index: number) => {
+      const addressReplyFormat = chronikWatchAddress.map((item: { type: string; hash: string }, index: number) => {
         if (item.type === 'p2pkh') {
           const ecash = cashaddr.encode('ecash', 'p2pkh', item.hash);
           const etoken = cashaddr.encode('etoken', 'p2pkh', item.hash);
