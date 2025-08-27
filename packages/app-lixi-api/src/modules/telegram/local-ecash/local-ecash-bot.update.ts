@@ -15,16 +15,27 @@ import { COIN, coinInfo } from '@bcpros/lixi-models';
 import _ from 'lodash';
 import cashaddr from 'ecashaddrjs';
 
+type ChronikWatchAddressWithAccount = {
+  hash160: string;
+  type: string;
+  account: { telegramId: string | null };
+};
+
+type ConvertedOutput = { hash160: string; amount: number; tokenId?: string; type: string; };
+type TxInputLike = { outputScript?: string };
+type ChronikWatchAddressModel = { id: number; hash160: string; type: string };
+
 type ParsedUtxoType = {
   txid: string;
   amount: number;
-  chronikWatchAddresses: any;
+  chronikWatchAddresses: ChronikWatchAddressWithAccount[];
   hash160: string;
   type: string;
   tokenId?: string;
   fromAddress?: string; // cashaddr string with ecash prefix
   toAddresses?: string[]; // cashaddr strings with ecash prefix
 };
+
 
 @Update()
 @Injectable()
@@ -41,14 +52,14 @@ export class LocalEcashBotUpdate implements OnModuleInit {
   ) {
     this.chronikWs = this.chronik.ws({
       onMessage: this._chronikHandleWsMessage,
-      onReconnect: e => {
+      onReconnect: (_e: unknown) => {
         // Fired before a reconnect attempt is made:
         this.logger.log('Chronik Watcher reconnecting websocket, disconnection cause: ');
       },
       onConnect: e => {
         this.logger.log(`Chronik Watcher websocket connected`);
       },
-      onError: e => {
+      onError: (e: unknown) => {
         this.logger.log('Chronik Watcher error', e);
       }
     });
@@ -57,7 +68,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
   async onModuleInit() {
     try {
       //ws for xec
-      await this.chronikWs.waitForOpen().catch(e => {
+      await this.chronikWs.waitForOpen().catch((e: unknown) => {
         this.chronikWs.close();
         this.logger.log(
           `Chronik Watcher - websocket - has closed: ${this.chronikWs.manuallyClosed}`,
@@ -68,7 +79,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
 
       //we need to subscribe address to listen new block
 
-      const chronikWatchAddress = await this.prisma.chronikWatchAddress.findMany({});
+      const chronikWatchAddress: ChronikWatchAddressModel[] = await this.prisma.chronikWatchAddress.findMany({});
 
       const addresses = _.uniq(
         chronikWatchAddress.map(item => ({
@@ -146,17 +157,19 @@ export class LocalEcashBotUpdate implements OnModuleInit {
         const { inputs, outputs, tokenEntries } = tx;
 
         // Convert all outputs for easier processing (no need to uniq objects by reference)
-        const outputsConverted = _.compact(outputs.map(output => this._convertOutputScript(output)));
+        const outputsConverted: ConvertedOutput[] = _.compact(
+          outputs.map(output => this._convertOutputScript(output))
+        );
 
         // Get all watched addresses that match either inputs or outputs
-        const inputHashes = inputs
-          .map((input: any) =>
+        const inputHashes = (inputs as TxInputLike[])
+          .map((input: TxInputLike) =>
             input.outputScript ? cashaddr.getTypeAndHashFromOutputScript(input.outputScript).hash : undefined
           )
-          .filter(hash => hash !== undefined) as string[];
+          .filter((hash: string | undefined): hash is string => hash !== undefined);
         const outputConvertedHashes = _.compact(_.map(outputsConverted, item => item.hash160));
 
-        const watchedAddresses = await this.prisma.chronikWatchAddress.findMany({
+        const watchedAddresses: ChronikWatchAddressWithAccount[] = await this.prisma.chronikWatchAddress.findMany({
           where: {
             OR: [
               {
@@ -181,7 +194,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
 
         for (const watchedAddress of watchedAddresses) {
           // First check if this is a sending transaction
-          const isSender = inputs.some(input => {
+          const isSender = (inputs as TxInputLike[]).some((input: TxInputLike) => {
             if (!input.outputScript) return false;
             const { hash } = cashaddr.getTypeAndHashFromOutputScript(input.outputScript);
             return hash === watchedAddress.hash160;
@@ -198,14 +211,9 @@ export class LocalEcashBotUpdate implements OnModuleInit {
             const recipientsList: Array<{ hash: string; type: string }> = [];
             const seenRecipientHashes = new Set<string>();
             // Optimization: more than 3 spendable outputs usually implies multiple recipients; treat as various
-            const manyOutputs = (outputsConverted as Array<any>).length > 3;
+            const manyOutputs = outputsConverted.length > 3;
 
-            for (const output of outputsConverted as Array<{
-              hash160: string;
-              amount: number;
-              tokenId?: string;
-              type: string;
-            }>) {
+            for (const output of outputsConverted as Array<{ hash160: string; amount: number; tokenId?: string; type: string; }>) {
               const isRelevant = isToken ? !!output.tokenId && output.tokenId === tokenEntries[0].tokenId : !output.tokenId;
               if (!isRelevant) continue;
 
@@ -249,9 +257,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
             }
           } else {
             // This is a receiving transaction
-            const receivedOutput = (outputsConverted as Array<{ hash160: string; amount: number; tokenId?: string; type: string }>).find(
-              output => output.hash160 === watchedAddress.hash160
-            );
+            const receivedOutput = outputsConverted.find(output => output.hash160 === watchedAddress.hash160);
 
             if (receivedOutput) {
               // Determine sender as first input address
@@ -291,6 +297,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
       } catch (err) {
         return this.logger.log(`Error in chronik.tx(${txid} while processing an incoming websocket tx`, err);
       }
+    } catch (e) {
     } catch (e: any) {
       throw new Error(`_chronikHandleWsMessage: ${e.message}`);
     }
@@ -813,9 +820,9 @@ Are you ready? Let's get started.
         return;
       }
 
-      const chronikWatchAddress = account.chronikWatchAddresses.map((item: any) => ({
-        type: item.type,
-        hash: item.hash160
+  const chronikWatchAddress = account.chronikWatchAddresses.map(({ type, hash160 }: { type: string; hash160: string }) => ({
+        type,
+        hash: hash160
       }));
 
       if (account.chronikWatchAddresses.length === 0) {
@@ -829,7 +836,7 @@ Are you ready? Let's get started.
         return;
       }
 
-      const addressReplyFormat = chronikWatchAddress.map((item: { type: string; hash: string }, index: number) => {
+  const addressReplyFormat = chronikWatchAddress.map((item: { type: string; hash: string }, index: number) => {
         if (item.type === 'p2pkh') {
           const ecash = cashaddr.encode('ecash', 'p2pkh', item.hash);
           const etoken = cashaddr.encode('etoken', 'p2pkh', item.hash);
