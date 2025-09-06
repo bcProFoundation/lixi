@@ -90,6 +90,8 @@ export type EscrowOrderFieldsFragment = {
     type: Types.OfferType;
     coinOthers?: string | null;
     priceCoinOthers?: number | null;
+    priceGoodsServices?: number | null;
+    tickerPriceGoodsServices?: string | null;
     localCurrency?: string | null;
   };
   escrowTxids?: Array<{
@@ -97,8 +99,8 @@ export type EscrowOrderFieldsFragment = {
     txid: string;
     value: any;
     outIdx: number;
-    feeValue: any;
-    feeOutIdx: number;
+    feeValue?: any | null;
+    feeOutIdx?: number | null;
     buyerDepositFeeValue?: any | null;
     buyerDepositFeeOutIdx?: number | null;
   }> | null;
@@ -265,6 +267,8 @@ export type TimelineItemFieldsFragment = {
           type: Types.OfferType;
           coinOthers?: string | null;
           priceCoinOthers?: number | null;
+          priceGoodsServices?: number | null;
+          tickerPriceGoodsServices?: string | null;
           localCurrency?: string | null;
         };
         escrowTxids?: Array<{
@@ -272,8 +276,8 @@ export type TimelineItemFieldsFragment = {
           txid: string;
           value: any;
           outIdx: number;
-          feeValue: any;
-          feeOutIdx: number;
+          feeValue?: any | null;
+          feeOutIdx?: number | null;
           buyerDepositFeeValue?: any | null;
           buyerDepositFeeOutIdx?: number | null;
         }> | null;
@@ -420,6 +424,8 @@ export type TimelineItemFieldsFragment = {
           coinPayment?: string | null;
           coinOthers?: string | null;
           priceCoinOthers?: number | null;
+          priceGoodsServices?: number | null;
+          tickerPriceGoodsServices?: string | null;
           marginPercentage: number;
           localCurrency?: string | null;
           paymentApp?: string | null;
@@ -566,6 +572,8 @@ export type TimelineQuery = {
             type: Types.OfferType;
             coinOthers?: string | null;
             priceCoinOthers?: number | null;
+            priceGoodsServices?: number | null;
+            tickerPriceGoodsServices?: string | null;
             localCurrency?: string | null;
           };
           escrowTxids?: Array<{
@@ -573,8 +581,8 @@ export type TimelineQuery = {
             txid: string;
             value: any;
             outIdx: number;
-            feeValue: any;
-            feeOutIdx: number;
+            feeValue?: any | null;
+            feeOutIdx?: number | null;
             buyerDepositFeeValue?: any | null;
             buyerDepositFeeOutIdx?: number | null;
           }> | null;
@@ -721,6 +729,8 @@ export type TimelineQuery = {
             coinPayment?: string | null;
             coinOthers?: string | null;
             priceCoinOthers?: number | null;
+            priceGoodsServices?: number | null;
+            tickerPriceGoodsServices?: string | null;
             marginPercentage: number;
             localCurrency?: string | null;
             paymentApp?: string | null;
@@ -876,6 +886,8 @@ export type HomeTimelineQuery = {
                 type: Types.OfferType;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{
@@ -883,8 +895,8 @@ export type HomeTimelineQuery = {
                 txid: string;
                 value: any;
                 outIdx: number;
-                feeValue: any;
-                feeOutIdx: number;
+                feeValue?: any | null;
+                feeOutIdx?: number | null;
                 buyerDepositFeeValue?: any | null;
                 buyerDepositFeeOutIdx?: number | null;
               }> | null;
@@ -1037,6 +1049,8 @@ export type HomeTimelineQuery = {
                 coinPayment?: string | null;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -1195,6 +1209,8 @@ export type ProfileTimelineQuery = {
                 type: Types.OfferType;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{
@@ -1202,8 +1218,8 @@ export type ProfileTimelineQuery = {
                 txid: string;
                 value: any;
                 outIdx: number;
-                feeValue: any;
-                feeOutIdx: number;
+                feeValue?: any | null;
+                feeOutIdx?: number | null;
                 buyerDepositFeeValue?: any | null;
                 buyerDepositFeeOutIdx?: number | null;
               }> | null;
@@ -1356,6 +1372,8 @@ export type ProfileTimelineQuery = {
                 coinPayment?: string | null;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -1515,6 +1533,8 @@ export type ProfileTimelineByTimeQuery = {
                 type: Types.OfferType;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{
@@ -1522,8 +1542,8 @@ export type ProfileTimelineByTimeQuery = {
                 txid: string;
                 value: any;
                 outIdx: number;
-                feeValue: any;
-                feeOutIdx: number;
+                feeValue?: any | null;
+                feeOutIdx?: number | null;
                 buyerDepositFeeValue?: any | null;
                 buyerDepositFeeOutIdx?: number | null;
               }> | null;
@@ -1676,6 +1696,8 @@ export type ProfileTimelineByTimeQuery = {
                 coinPayment?: string | null;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -1834,6 +1856,8 @@ export type PageTimelineQuery = {
                 type: Types.OfferType;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{
@@ -1841,8 +1865,8 @@ export type PageTimelineQuery = {
                 txid: string;
                 value: any;
                 outIdx: number;
-                feeValue: any;
-                feeOutIdx: number;
+                feeValue?: any | null;
+                feeOutIdx?: number | null;
                 buyerDepositFeeValue?: any | null;
                 buyerDepositFeeOutIdx?: number | null;
               }> | null;
@@ -1995,6 +2019,8 @@ export type PageTimelineQuery = {
                 coinPayment?: string | null;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -2154,6 +2180,8 @@ export type PageTimelineByTimeQuery = {
                 type: Types.OfferType;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{
@@ -2161,8 +2189,8 @@ export type PageTimelineByTimeQuery = {
                 txid: string;
                 value: any;
                 outIdx: number;
-                feeValue: any;
-                feeOutIdx: number;
+                feeValue?: any | null;
+                feeOutIdx?: number | null;
                 buyerDepositFeeValue?: any | null;
                 buyerDepositFeeOutIdx?: number | null;
               }> | null;
@@ -2315,6 +2343,8 @@ export type PageTimelineByTimeQuery = {
                 coinPayment?: string | null;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -2473,6 +2503,8 @@ export type TokenTimelineQuery = {
                 type: Types.OfferType;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{
@@ -2480,8 +2512,8 @@ export type TokenTimelineQuery = {
                 txid: string;
                 value: any;
                 outIdx: number;
-                feeValue: any;
-                feeOutIdx: number;
+                feeValue?: any | null;
+                feeOutIdx?: number | null;
                 buyerDepositFeeValue?: any | null;
                 buyerDepositFeeOutIdx?: number | null;
               }> | null;
@@ -2634,6 +2666,8 @@ export type TokenTimelineQuery = {
                 coinPayment?: string | null;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -2793,6 +2827,8 @@ export type TokenTimelineByTimeQuery = {
                 type: Types.OfferType;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{
@@ -2800,8 +2836,8 @@ export type TokenTimelineByTimeQuery = {
                 txid: string;
                 value: any;
                 outIdx: number;
-                feeValue: any;
-                feeOutIdx: number;
+                feeValue?: any | null;
+                feeOutIdx?: number | null;
                 buyerDepositFeeValue?: any | null;
                 buyerDepositFeeOutIdx?: number | null;
               }> | null;
@@ -2954,6 +2990,8 @@ export type TokenTimelineByTimeQuery = {
                 coinPayment?: string | null;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -3031,6 +3069,8 @@ export const EscrowOrderFieldsFragmentDoc = `
     type
     coinOthers
     priceCoinOthers
+    priceGoodsServices
+    tickerPriceGoodsServices
     localCurrency
   }
   escrowScript

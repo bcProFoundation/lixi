@@ -595,6 +595,8 @@ export class OfferResolver {
                 coinPayment: data.coinPayment,
                 coinOthers: data.coinOthers ?? '',
                 priceCoinOthers: data?.priceCoinOthers ?? 0,
+                priceGoodsServices: data?.priceGoodsServices ?? 0,
+                tickerPriceGoodsServices: data?.tickerPriceGoodsServices ?? null,
                 localCurrency: data.localCurrency,
                 paymentApp: data.paymentApp,
                 orderLimitMin: data.orderLimitMin,
@@ -779,10 +781,11 @@ export class OfferResolver {
       data: {
         message: data.message ?? '',
         noteOffer: data.noteOffer ?? '',
-        orderLimitMin: data.orderLimitMin ?? 0,
-        orderLimitMax: data.orderLimitMax ?? 0,
+        orderLimitMin: data.orderLimitMin ?? null,
+        orderLimitMax: data.orderLimitMax ?? null,
         marginPercentage: data.marginPercentage ?? 0,
-        priceCoinOthers: data.priceCoinOthers ?? 0
+        priceCoinOthers: data.priceCoinOthers ?? 0,
+        priceGoodsServices: data.priceGoodsServices ?? 0
       }
     });
 

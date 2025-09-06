@@ -31,6 +31,8 @@ export type OfferQuery = {
     coinPayment?: string | null;
     coinOthers?: string | null;
     priceCoinOthers?: number | null;
+    priceGoodsServices?: number | null;
+    tickerPriceGoodsServices?: string | null;
     marginPercentage: number;
     localCurrency?: string | null;
     paymentApp?: string | null;
@@ -183,6 +185,8 @@ export type AllOfferQuery = {
                 type: Types.OfferType;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{
@@ -190,8 +194,8 @@ export type AllOfferQuery = {
                 txid: string;
                 value: any;
                 outIdx: number;
-                feeValue: any;
-                feeOutIdx: number;
+                feeValue?: any | null;
+                feeOutIdx?: number | null;
                 buyerDepositFeeValue?: any | null;
                 buyerDepositFeeOutIdx?: number | null;
               }> | null;
@@ -344,6 +348,8 @@ export type AllOfferQuery = {
                 coinPayment?: string | null;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -502,6 +508,8 @@ export type OfferByFilterQuery = {
                 type: Types.OfferType;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{
@@ -509,8 +517,8 @@ export type OfferByFilterQuery = {
                 txid: string;
                 value: any;
                 outIdx: number;
-                feeValue: any;
-                feeOutIdx: number;
+                feeValue?: any | null;
+                feeOutIdx?: number | null;
                 buyerDepositFeeValue?: any | null;
                 buyerDepositFeeOutIdx?: number | null;
               }> | null;
@@ -663,6 +671,8 @@ export type OfferByFilterQuery = {
                 coinPayment?: string | null;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -821,6 +831,8 @@ export type OfferByFilterDatabaseQuery = {
                 type: Types.OfferType;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{
@@ -828,8 +840,8 @@ export type OfferByFilterDatabaseQuery = {
                 txid: string;
                 value: any;
                 outIdx: number;
-                feeValue: any;
-                feeOutIdx: number;
+                feeValue?: any | null;
+                feeOutIdx?: number | null;
                 buyerDepositFeeValue?: any | null;
                 buyerDepositFeeOutIdx?: number | null;
               }> | null;
@@ -982,6 +994,8 @@ export type OfferByFilterDatabaseQuery = {
                 coinPayment?: string | null;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -1140,6 +1154,8 @@ export type AllOfferByAccountQuery = {
                 type: Types.OfferType;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{
@@ -1147,8 +1163,8 @@ export type AllOfferByAccountQuery = {
                 txid: string;
                 value: any;
                 outIdx: number;
-                feeValue: any;
-                feeOutIdx: number;
+                feeValue?: any | null;
+                feeOutIdx?: number | null;
                 buyerDepositFeeValue?: any | null;
                 buyerDepositFeeOutIdx?: number | null;
               }> | null;
@@ -1301,6 +1317,8 @@ export type AllOfferByAccountQuery = {
                 coinPayment?: string | null;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -1459,6 +1477,8 @@ export type AllOfferByAccountDatabaseQuery = {
                 type: Types.OfferType;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{
@@ -1466,8 +1486,8 @@ export type AllOfferByAccountDatabaseQuery = {
                 txid: string;
                 value: any;
                 outIdx: number;
-                feeValue: any;
-                feeOutIdx: number;
+                feeValue?: any | null;
+                feeOutIdx?: number | null;
                 buyerDepositFeeValue?: any | null;
                 buyerDepositFeeOutIdx?: number | null;
               }> | null;
@@ -1620,6 +1640,8 @@ export type AllOfferByAccountDatabaseQuery = {
                 coinPayment?: string | null;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -1778,6 +1800,8 @@ export type AllOfferActiveByAccountIdQuery = {
                 type: Types.OfferType;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{
@@ -1785,8 +1809,8 @@ export type AllOfferActiveByAccountIdQuery = {
                 txid: string;
                 value: any;
                 outIdx: number;
-                feeValue: any;
-                feeOutIdx: number;
+                feeValue?: any | null;
+                feeOutIdx?: number | null;
                 buyerDepositFeeValue?: any | null;
                 buyerDepositFeeOutIdx?: number | null;
               }> | null;
@@ -1939,6 +1963,8 @@ export type AllOfferActiveByAccountIdQuery = {
                 coinPayment?: string | null;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -2097,6 +2123,8 @@ export type AllOfferActiveByAccountIdDatabaseQuery = {
                 type: Types.OfferType;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{
@@ -2104,8 +2132,8 @@ export type AllOfferActiveByAccountIdDatabaseQuery = {
                 txid: string;
                 value: any;
                 outIdx: number;
-                feeValue: any;
-                feeOutIdx: number;
+                feeValue?: any | null;
+                feeOutIdx?: number | null;
                 buyerDepositFeeValue?: any | null;
                 buyerDepositFeeOutIdx?: number | null;
               }> | null;
@@ -2258,6 +2286,8 @@ export type AllOfferActiveByAccountIdDatabaseQuery = {
                 coinPayment?: string | null;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
@@ -2422,6 +2452,8 @@ export type CreateOfferMutation = {
       coinPayment?: string | null;
       coinOthers?: string | null;
       priceCoinOthers?: number | null;
+      priceGoodsServices?: number | null;
+      tickerPriceGoodsServices?: string | null;
       marginPercentage: number;
       localCurrency?: string | null;
       paymentApp?: string | null;
@@ -2466,6 +2498,8 @@ export type UpdateOfferMutation = {
     coinPayment?: string | null;
     coinOthers?: string | null;
     priceCoinOthers?: number | null;
+    priceGoodsServices?: number | null;
+    tickerPriceGoodsServices?: string | null;
     marginPercentage: number;
     localCurrency?: string | null;
     paymentApp?: string | null;
@@ -2509,6 +2543,8 @@ export type UpdateOfferHideFromHomeMutation = {
     coinPayment?: string | null;
     coinOthers?: string | null;
     priceCoinOthers?: number | null;
+    priceGoodsServices?: number | null;
+    tickerPriceGoodsServices?: string | null;
     marginPercentage: number;
     localCurrency?: string | null;
     paymentApp?: string | null;
@@ -2668,6 +2704,8 @@ export type UpdateOfferStatusMutation = {
       coinPayment?: string | null;
       coinOthers?: string | null;
       priceCoinOthers?: number | null;
+      priceGoodsServices?: number | null;
+      tickerPriceGoodsServices?: string | null;
       marginPercentage: number;
       localCurrency?: string | null;
       paymentApp?: string | null;
