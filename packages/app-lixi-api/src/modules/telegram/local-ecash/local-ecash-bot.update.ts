@@ -311,8 +311,8 @@ export class LocalEcashBotUpdate implements OnModuleInit {
       BOT.MESSAGE.CHRONIK_WATCH_RECEIVED_SLP,
       (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString(),
       genesisInfo.tokenTicker,
-      address,
-      fromAddress ?? 'unknown',
+      fromAddress ?? 'unknown', // Swapped: fromAddress comes first
+      address, // Swapped: address (to) comes second
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
     );
 
@@ -346,8 +346,8 @@ export class LocalEcashBotUpdate implements OnModuleInit {
     const formatReplied = format(
       BOT.MESSAGE.CHRONIK_WATCH_SENT_XEC,
       (amount / Math.pow(10, 2)).toLocaleString(),
-      from,
-      toField,
+      toField, // Swapped: toField comes first
+      from, // Swapped: from comes second
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
     );
 
@@ -383,8 +383,8 @@ export class LocalEcashBotUpdate implements OnModuleInit {
       BOT.MESSAGE.CHRONIK_WATCH_SENT_SLP,
       (amount / Math.pow(10, genesisInfo.decimals)).toLocaleString(),
       genesisInfo.tokenTicker,
-      from,
-      toField,
+      toField, // Swapped: toField comes first
+      from, // Swapped: from comes second
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
     );
 
@@ -420,8 +420,8 @@ export class LocalEcashBotUpdate implements OnModuleInit {
     const formatReplied = format(
       BOT.MESSAGE.CHRONIK_WATCH_RECEIVED_XEC,
       (amount / Math.pow(10, 2)).toLocaleString(),
-      address,
-      fromAddress ?? 'unknown',
+      fromAddress ?? 'unknown', // Swapped: fromAddress comes first
+      address, // Swapped: address (to) comes second
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
     );
 
