@@ -502,6 +502,8 @@ export type CreateOfferInput = {
   paymentMethodIds: Array<Scalars['Int']['input']>;
   price: Scalars['String']['input'];
   priceCoinOthers?: InputMaybe<Scalars['Float']['input']>;
+  priceGoodsServices?: InputMaybe<Scalars['Float']['input']>;
+  tickerPriceGoodsServices?: InputMaybe<Scalars['String']['input']>;
   type: OfferType;
 };
 
@@ -775,8 +777,8 @@ export type EscrowTxid = {
   createdAt: Scalars['DateTime']['output'];
   escrowOrder: EscrowOrder;
   escrowOrderId: Scalars['String']['output'];
-  feeOutIdx: Scalars['Int']['output'];
-  feeValue: Scalars['BigInt']['output'];
+  feeOutIdx?: Maybe<Scalars['Int']['output']>;
+  feeValue?: Maybe<Scalars['BigInt']['output']>;
   outIdx: Scalars['Int']['output'];
   txid: Scalars['String']['output'];
   /** Identifies the date and time when the object was last updated. */
@@ -1362,10 +1364,12 @@ export type Offer = {
   postId: Scalars['String']['output'];
   price: Scalars['String']['output'];
   priceCoinOthers?: Maybe<Scalars['Float']['output']>;
+  priceGoodsServices?: Maybe<Scalars['Float']['output']>;
   publicKey: Scalars['String']['output'];
   state?: Maybe<State>;
   stateId?: Maybe<Scalars['Int']['output']>;
   status: OfferStatus;
+  tickerPriceGoodsServices?: Maybe<Scalars['String']['output']>;
   type: OfferType;
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime']['output'];
@@ -2798,6 +2802,7 @@ export type UpdateOfferInput = {
   orderLimitMax?: InputMaybe<Scalars['Float']['input']>;
   orderLimitMin?: InputMaybe<Scalars['Float']['input']>;
   priceCoinOthers?: InputMaybe<Scalars['Float']['input']>;
+  priceGoodsServices?: InputMaybe<Scalars['Float']['input']>;
 };
 
 export type UpdateOfferStatusInput = {

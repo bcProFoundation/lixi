@@ -1,5 +1,5 @@
 import { COIN } from '../constants/coins/coin';
-import { COIN_OTHERS } from '../constants/escrow/escrow';
+import { COIN_OTHERS, GOODS_SERVICES_UNIT } from '../constants/escrow/escrow';
 
 export function getTickerText(
   localCurrency: string | null | undefined,
@@ -19,5 +19,9 @@ export function getTickerText(
     return coinOthers;
   }
 
-  return COIN.XEC;
+  return GOODS_SERVICES_UNIT;
+}
+export function getRealTickerTextOfGoodsServices(currentTicker: string) {
+  // Convert goods/services unit to XEC for display, otherwise return as-is
+  return currentTicker === GOODS_SERVICES_UNIT ? COIN.XEC : currentTicker;
 }

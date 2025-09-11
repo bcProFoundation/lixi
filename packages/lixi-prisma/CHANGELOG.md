@@ -1,5 +1,11 @@
 # @bcpros/lixi-prisma
 
+## 1.2.27
+
+### Patch Changes
+
+- Good and services
+
 ## 1.2.26
 
 ### Patch Changes

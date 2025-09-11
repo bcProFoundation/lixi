@@ -292,6 +292,8 @@ fragment OfferFields on Offer {
   coinPayment
   coinOthers
   priceCoinOthers
+  priceGoodsServices
+  tickerPriceGoodsServices
   marginPercentage
   localCurrency
   paymentApp

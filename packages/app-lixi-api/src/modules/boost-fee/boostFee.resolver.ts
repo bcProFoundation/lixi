@@ -175,7 +175,7 @@ export class BoostFeeResolver {
         const channelId = this.configService.get<string>('TELEGRAM_CHANNEL_ID') ?? -1002199386416;
         const link =
           this.configService.get('TELEGRAM_MINI_APP_ENABLED') === 'true'
-            ? `https://t.me/${this.configService.get('TELEGRAM_LOCAL_ECASH_BOT_NAME')}?startapp=offer__detail__${boostForId}`
+            ? `https://t.me/${this.configService.get('TELEGRAM_LOCAL_ECASH_BOT_NAME')}?startapp=offer_detail_${boostForId}`
             : `${this.configService.get('LOCAL_ECASH_URL')}/offer-detail?id=${boostForId}`;
 
         const paymentMethodIds = offerBoosted.offer?.paymentMethods.map(item => item.paymentMethodId);

@@ -145,6 +145,8 @@ export type CreatePollMutation = {
       coinPayment?: string | null;
       coinOthers?: string | null;
       priceCoinOthers?: number | null;
+      priceGoodsServices?: number | null;
+      tickerPriceGoodsServices?: string | null;
       marginPercentage: number;
       localCurrency?: string | null;
       paymentApp?: string | null;

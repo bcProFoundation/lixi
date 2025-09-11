@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.64
+
+### Patch Changes
+
+- Good and services
+
 ## 1.2.63
 
 ### Patch Changes
