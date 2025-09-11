@@ -475,6 +475,8 @@ input CreateOfferInput {
   paymentMethodIds: [Int!]!
   price: String!
   priceCoinOthers: Float
+  priceGoodsServices: Float
+  tickerPriceGoodsServices: String
   type: OfferType!
 }
 
@@ -751,8 +753,8 @@ type EscrowTxid {
   createdAt: DateTime!
   escrowOrder: EscrowOrder!
   escrowOrderId: String!
-  feeOutIdx: Int!
-  feeValue: BigInt!
+  feeOutIdx: Int
+  feeValue: BigInt
   outIdx: Int!
   txid: String!
 
@@ -1155,10 +1157,12 @@ type Offer {
   postId: String!
   price: String!
   priceCoinOthers: Float
+  priceGoodsServices: Float
   publicKey: String!
   state: State
   stateId: Int
   status: OfferStatus!
+  tickerPriceGoodsServices: String
   type: OfferType!
 
   """Identifies the date and time when the object was last updated."""
@@ -1998,6 +2002,7 @@ input UpdateOfferInput {
   orderLimitMax: Float
   orderLimitMin: Float
   priceCoinOthers: Float
+  priceGoodsServices: Float
 }
 
 input UpdateOfferStatusInput {

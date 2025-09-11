@@ -23,6 +23,9 @@ export class UpdateOfferInput {
 
   @Field(() => Float, { nullable: true })
   priceCoinOthers?: Nullable<number>;
+
+  @Field(() => Float, { nullable: true })
+  priceGoodsServices?: Nullable<number>;
 }
 
 @InputType()

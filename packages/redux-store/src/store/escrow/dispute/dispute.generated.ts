@@ -180,6 +180,8 @@ export type AllDisputeByAccountQuery = {
                 type: Types.OfferType;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 localCurrency?: string | null;
               };
               escrowTxids?: Array<{
@@ -187,8 +189,8 @@ export type AllDisputeByAccountQuery = {
                 txid: string;
                 value: any;
                 outIdx: number;
-                feeValue: any;
-                feeOutIdx: number;
+                feeValue?: any | null;
+                feeOutIdx?: number | null;
                 buyerDepositFeeValue?: any | null;
                 buyerDepositFeeOutIdx?: number | null;
               }> | null;
@@ -341,6 +343,8 @@ export type AllDisputeByAccountQuery = {
                 coinPayment?: string | null;
                 coinOthers?: string | null;
                 priceCoinOthers?: number | null;
+                priceGoodsServices?: number | null;
+                tickerPriceGoodsServices?: string | null;
                 marginPercentage: number;
                 localCurrency?: string | null;
                 paymentApp?: string | null;
