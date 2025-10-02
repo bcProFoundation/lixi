@@ -10,6 +10,6 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_PASSWORD=yourpassword
+      - POSTGRES_PASSWORD=lixipass
     volumes:
       - /data/docker/timescaledb-lixi-current:/var/lib/postgresql/data
