@@ -117,7 +117,10 @@ export class FiatCurrencyRateResolver {
 
     // Add fallback URLs if configured (can be comma-separated)
     if (fallbackUrlsStr) {
-      const fallbackUrls = fallbackUrlsStr.split(',').map(url => url.trim()).filter(Boolean);
+      const fallbackUrls = fallbackUrlsStr
+        .split(',')
+        .map(url => url.trim())
+        .filter(Boolean);
       urls.push(...fallbackUrls);
     }
 
@@ -133,10 +136,7 @@ export class FiatCurrencyRateResolver {
   /**
    * Fetch data with fallback strategy
    */
-  private async fetchWithFallback<T>(
-    endpoint: string,
-    timeout: number = 10000
-  ): Promise<T> {
+  private async fetchWithFallback<T>(endpoint: string, timeout: number = 10000): Promise<T> {
     const fallbackUrls = this.getFallbackUrls();
     let lastError: any = null;
 
@@ -144,9 +144,7 @@ export class FiatCurrencyRateResolver {
       try {
         this.logger.log(`[Fiat Rate] Attempting to fetch from: ${baseUrl}${endpoint}`);
 
-        const response = await this.httpService
-          .get(`${baseUrl}${endpoint}`, { timeout })
-          .toPromise();
+        const response = await this.httpService.get(`${baseUrl}${endpoint}`, { timeout }).toPromise();
 
         if (response?.status === 200) {
           const data = response.data;
@@ -163,9 +161,7 @@ export class FiatCurrencyRateResolver {
         throw new Error(`HTTP ${response?.status}: ${response?.statusText}`);
       } catch (error: any) {
         lastError = error;
-        this.logger.warn(
-          `[Fiat Rate] Failed to fetch from ${baseUrl}${endpoint}: ${error?.message || error}`
-        );
+        this.logger.warn(`[Fiat Rate] Failed to fetch from ${baseUrl}${endpoint}: ${error?.message || error}`);
         // Continue to next fallback URL
       }
     }
@@ -237,7 +233,8 @@ export class FiatCurrencyRateResolver {
 
     // Default: assume valid if we have any data
     return true;
-  } @Query(() => [FiatRates])
+  }
+  @Query(() => [FiatRates])
   async getFiatRate() {
     try {
       const resultData: FiatRates[] = [];
@@ -247,9 +244,7 @@ export class FiatCurrencyRateResolver {
         const currency = currencyInfo.code;
 
         try {
-          const data = await this.fetchWithFallback<any>(
-            `/v2/fiatrates/${currency ?? 'USD'}`
-          );
+          const data = await this.fetchWithFallback<any>(`/v2/fiatrates/${currency ?? 'USD'}`);
 
           // Add the response data to the resultData object with the currency as the key
           const fiatRates: CurrencyRates[] = Object.keys(data).map(coin => {
@@ -360,7 +355,6 @@ export class FiatCurrencyRateResolver {
           }
 
           return fiatRates;
-
         } catch (error: any) {
           this.logger.error(`[Fiat Rate] Failed to fetch from ${baseUrl}: ${error?.message || error}`);
           lastError = error;
@@ -384,7 +378,6 @@ export class FiatCurrencyRateResolver {
 
       // Throw error to be caught by GraphQL and returned to frontend
       throw new Error(errorMessage);
-
     } catch (error: any) {
       this.logger.error(`[Fiat Rate] getAllFiatRate error: ${error?.message || error}`);
       throw error; // Propagate error to frontend

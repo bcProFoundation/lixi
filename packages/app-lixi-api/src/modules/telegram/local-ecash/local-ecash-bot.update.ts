@@ -26,7 +26,6 @@ type ParsedUtxoType = {
   toAddresses?: string[]; // cashaddr strings with ecash prefix
 };
 
-
 @Update()
 @Injectable()
 export class LocalEcashBotUpdate implements OnModuleInit {
@@ -207,7 +206,9 @@ export class LocalEcashBotUpdate implements OnModuleInit {
               tokenId?: string;
               type: string;
             }>) {
-              const isRelevant = isToken ? !!output.tokenId && output.tokenId === tokenEntries[0].tokenId : !output.tokenId;
+              const isRelevant = isToken
+                ? !!output.tokenId && output.tokenId === tokenEntries[0].tokenId
+                : !output.tokenId;
               if (!isRelevant) continue;
 
               totalOutput += output.amount;
@@ -227,9 +228,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
 
             const sendingAmount = totalOutput - changeAmount;
 
-            const toAddresses = manyOutputs
-              ? []
-              : recipientsList.map(r => toFullAddress(r.type, r.hash));
+            const toAddresses = manyOutputs ? [] : recipientsList.map(r => toFullAddress(r.type, r.hash));
 
             // Create notification for sending
             const parsedUtxo: ParsedUtxoType = {
@@ -301,11 +300,12 @@ export class LocalEcashBotUpdate implements OnModuleInit {
     const { txid, amount, chronikWatchAddresses, hash160, tokenId, type, fromAddress, toAddresses } = parsedUtxo;
     const { genesisInfo } = await this.chronik.token(tokenId!);
 
-    const address = toAddresses && toAddresses.length > 0
-      ? toAddresses[0]
-      : type === 'p2pkh'
-        ? cashaddr.encode('ecash', 'p2pkh', hash160)
-        : cashaddr.encode('ecash', 'p2sh', hash160);
+    const address =
+      toAddresses && toAddresses.length > 0
+        ? toAddresses[0]
+        : type === 'p2pkh'
+          ? cashaddr.encode('ecash', 'p2pkh', hash160)
+          : cashaddr.encode('ecash', 'p2sh', hash160);
 
     const formatReplied = format(
       BOT.MESSAGE.CHRONIK_WATCH_RECEIVED_SLP,
@@ -340,7 +340,8 @@ export class LocalEcashBotUpdate implements OnModuleInit {
     const { txid, amount, chronikWatchAddresses, hash160, type, fromAddress, toAddresses } = parsedUtxo;
 
     const from =
-      fromAddress ?? (type === 'p2pkh' ? cashaddr.encode('ecash', 'p2pkh', hash160) : cashaddr.encode('ecash', 'p2sh', hash160));
+      fromAddress ??
+      (type === 'p2pkh' ? cashaddr.encode('ecash', 'p2pkh', hash160) : cashaddr.encode('ecash', 'p2sh', hash160));
     const toField = toAddresses && toAddresses.length === 1 ? toAddresses[0] : 'various addresses';
 
     const formatReplied = format(
@@ -376,7 +377,8 @@ export class LocalEcashBotUpdate implements OnModuleInit {
     const { genesisInfo } = await this.chronik.token(tokenId!);
 
     const from =
-      fromAddress ?? (type === 'p2pkh' ? cashaddr.encode('ecash', 'p2pkh', hash160) : cashaddr.encode('ecash', 'p2sh', hash160));
+      fromAddress ??
+      (type === 'p2pkh' ? cashaddr.encode('ecash', 'p2pkh', hash160) : cashaddr.encode('ecash', 'p2sh', hash160));
     const toField = toAddresses && toAddresses.length === 1 ? toAddresses[0] : 'various addresses';
 
     const formatReplied = format(
@@ -411,11 +413,12 @@ export class LocalEcashBotUpdate implements OnModuleInit {
   async receivedXECDeposit(parsedUtxo: ParsedUtxoType) {
     const { txid, amount, chronikWatchAddresses, hash160, type, fromAddress, toAddresses } = parsedUtxo;
 
-    const address = toAddresses && toAddresses.length > 0
-      ? toAddresses[0]
-      : type === 'p2pkh'
-        ? cashaddr.encode('ecash', 'p2pkh', hash160)
-        : cashaddr.encode('ecash', 'p2sh', hash160);
+    const address =
+      toAddresses && toAddresses.length > 0
+        ? toAddresses[0]
+        : type === 'p2pkh'
+          ? cashaddr.encode('ecash', 'p2pkh', hash160)
+          : cashaddr.encode('ecash', 'p2sh', hash160);
 
     const formatReplied = format(
       BOT.MESSAGE.CHRONIK_WATCH_RECEIVED_XEC,
@@ -814,10 +817,12 @@ Are you ready? Let's get started.
         return;
       }
 
-      const chronikWatchAddress = account.chronikWatchAddresses.map(({ type, hash160 }: { type: string; hash160: string }) => ({
-        type,
-        hash: hash160
-      }));
+      const chronikWatchAddress = account.chronikWatchAddresses.map(
+        ({ type, hash160 }: { type: string; hash160: string }) => ({
+          type,
+          hash: hash160
+        })
+      );
 
       if (account.chronikWatchAddresses.length === 0) {
         await ctx.sendMessage(`No addresses registered!`, {
