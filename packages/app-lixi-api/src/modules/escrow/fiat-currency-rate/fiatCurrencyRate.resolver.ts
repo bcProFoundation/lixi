@@ -49,6 +49,10 @@ interface FiatRateV3Response {
 export class FiatCurrencyRateResolver {
   private notificationBot: Telegraf | null = null;
 
+  // Major fiat currencies that should have non-zero rates for valid responses
+  // These are the most commonly used currencies globally
+  private readonly MAJOR_CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY'];
+
   constructor(
     private logger: Logger,
     private prisma: PrismaService,
@@ -82,7 +86,7 @@ export class FiatCurrencyRateResolver {
     errorType: 'FALLBACK_USED' | 'ALL_ENDPOINTS_FAILED',
     details: {
       primaryUrl?: string;
-      failedUrls?: string[];
+      failedUrls?: Array<{ url: string; reason: string }>;
       successUrl?: string;
       errorMessage?: string;
       timestamp?: string;
@@ -112,17 +116,28 @@ export class FiatCurrencyRateResolver {
         message += `*Environment*: ${environment}\n`;
         message += `*Time*: ${timestamp}\n\n`;
         message += `*Primary URL Failed*:\n\`${details.primaryUrl}\`\n\n`;
-        message += `*Fallback URL Used*:\n\`${details.successUrl}\`\n\n`;
-        message += `*Reason*: ${details.errorMessage || 'Zero rates or connection error'}\n\n`;
+
+        // Show details of all failed URLs
+        if (details.failedUrls && details.failedUrls.length > 0) {
+          message += `*Failed Attempts*:\n`;
+          details.failedUrls.forEach((failed, index) => {
+            message += `${index + 1}. \`${failed.url}\`\n   _Reason: ${failed.reason}_\n`;
+          });
+          message += `\n`;
+        }
+
+        message += `*Fallback URL Used Successfully*:\n\`${details.successUrl}\`\n\n`;
         message += `⚠️ Primary endpoint is experiencing issues. Please investigate.`;
       } else if (errorType === 'ALL_ENDPOINTS_FAILED') {
         message = `🔴 *CRITICAL: All Fiat Rate APIs Failed*\n\n`;
         message += `*Environment*: ${environment}\n`;
         message += `*Time*: ${timestamp}\n\n`;
-        message += `*All URLs Attempted*:\n`;
-        details.failedUrls?.forEach((url, index) => {
-          message += `${index + 1}. \`${url}\`\n`;
+        message += `*All URLs Failed*:\n`;
+
+        details.failedUrls?.forEach((failed, index) => {
+          message += `${index + 1}. \`${failed.url}\`\n   _Reason: ${failed.reason}_\n`;
         });
+
         message += `\n*Last Error*: ${details.errorMessage || 'Unknown error'}\n\n`;
         message += `🚨 *ACTION REQUIRED*: Users cannot place Goods & Services orders!`;
       }
@@ -215,6 +230,7 @@ export class FiatCurrencyRateResolver {
 
   /**
    * Validate fiat rate data to ensure it's not empty or contains only zero rates
+   * For v3 API, we check that major currencies have non-zero rates
    */
   private validateFiatRateData(data: FiatRateV2Response | FiatRateV3Response, endpoint: string): boolean {
     if (!data || typeof data !== 'object') {
@@ -238,6 +254,51 @@ export class FiatCurrencyRateResolver {
 
       if (!hasValidData) {
         this.logger.warn('[Fiat Rate] v3 response has no valid currency data');
+        return false;
+      }
+
+      // Count how many major currencies have at least one non-zero rate
+      let majorCurrenciesWithRates = 0;
+      let totalRatesChecked = 0;
+      let nonZeroRatesCount = 0;
+
+      for (const currency of currencies) {
+        const rates = data[currency];
+        if (Array.isArray(rates) && rates.length > 0) {
+          // Check if this currency has any non-zero rates
+          // v3 API returns array of objects with {ts, code, name, rate}
+          const hasNonZeroRate = rates.some((item: any) => item.rate && item.rate > 0);
+
+          totalRatesChecked++;
+          if (hasNonZeroRate) {
+            nonZeroRatesCount++;
+
+            // If this is a major currency, count it
+            const currencyCode = currency.toUpperCase();
+            if (this.MAJOR_CURRENCIES.includes(currencyCode)) {
+              majorCurrenciesWithRates++;
+            }
+          }
+        }
+      }
+
+      // Log diagnostic information
+      this.logger.debug(
+        `[Fiat Rate] v3 validation: ${nonZeroRatesCount}/${totalRatesChecked} currencies have non-zero rates, ` +
+        `${majorCurrenciesWithRates} major currencies with rates`
+      );
+
+      // Validation logic:
+      // 1. If we have at least 3 major currencies with non-zero rates, consider it valid
+      // 2. OR if at least 50% of all currencies have non-zero rates (and we have some data)
+      const hasSufficientMajorCurrencies = majorCurrenciesWithRates >= 3;
+      const hasSufficientOverallCoverage = totalRatesChecked > 0 && (nonZeroRatesCount / totalRatesChecked) >= 0.5;
+
+      if (!hasSufficientMajorCurrencies && !hasSufficientOverallCoverage) {
+        this.logger.warn(
+          `[Fiat Rate] v3 response has insufficient non-zero rates: ` +
+          `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
+        );
         return false;
       }
 
@@ -320,7 +381,7 @@ export class FiatCurrencyRateResolver {
       const urls = this.getFallbackUrls();
       let lastError: any = null;
       let primaryUrlFailed = false;
-      const failedUrls: string[] = [];
+      const failedUrls: Array<{ url: string; reason: string }> = [];
 
       // Try each URL until we get valid non-zero rates
       for (let i = 0; i < urls.length; i++) {
@@ -364,16 +425,22 @@ export class FiatCurrencyRateResolver {
           }
 
           if (!response) {
-            throw lastFetchError || new Error('Failed to fetch fiat rates after retries');
+            const errorReason = `Connection error: ${lastFetchError?.message || 'Unknown error'}`;
+            this.logger.warn(`[Fiat Rate] ${errorReason}`);
+            lastError = lastFetchError || new Error('Failed to fetch fiat rates after retries');
+            failedUrls.push({ url, reason: errorReason });
+            if (isPrimaryUrl) primaryUrlFailed = true;
+            continue;
           }
 
           const data = response.data;
 
           // Validate v3 response structure
           if (!this.validateFiatRateData(data, endpoint)) {
-            this.logger.warn(`[Fiat Rate] v3 response validation failed for ${url}`);
-            lastError = new Error('Invalid v3 response structure');
-            failedUrls.push(url);
+            const errorReason = 'Invalid v3 response structure';
+            this.logger.warn(`[Fiat Rate] ${errorReason} for ${url}`);
+            lastError = new Error(errorReason);
+            failedUrls.push({ url, reason: errorReason });
             if (isPrimaryUrl) primaryUrlFailed = true;
             continue;
           }
@@ -392,15 +459,40 @@ export class FiatCurrencyRateResolver {
             };
           });
 
-          // Check if we have any non-zero rates
-          const hasNonZeroRates = fiatRates.some(currencyData =>
-            currencyData.fiatRates.some((rate: GraphQLFiatRateEntry) => rate.rate > 0)
+          // Check if we have sufficient non-zero rates
+          let majorCurrenciesWithRates = 0;
+          let totalCurrenciesChecked = 0;
+          let currenciesWithRates = 0;
+
+          fiatRates.forEach(currencyData => {
+            const hasNonZeroRate = currencyData.fiatRates.some((rate: GraphQLFiatRateEntry) => rate.rate > 0);
+            totalCurrenciesChecked++;
+
+            if (hasNonZeroRate) {
+              currenciesWithRates++;
+
+              // Check if this is a major currency
+              if (this.MAJOR_CURRENCIES.includes(currencyData.currency)) {
+                majorCurrenciesWithRates++;
+              }
+            }
+          });
+
+          // Log diagnostic information
+          this.logger.log(
+            `[Fiat Rate] Rate validation: ${currenciesWithRates}/${totalCurrenciesChecked} currencies have non-zero rates, ` +
+            `${majorCurrenciesWithRates} major currencies with rates`
           );
 
-          if (!hasNonZeroRates) {
-            this.logger.warn(`[Fiat Rate] All rates are zero from ${url}, trying next fallback`);
-            lastError = new Error('All rates are zero');
-            failedUrls.push(url);
+          // Validation: Need at least 3 major currencies OR 50% overall coverage
+          const hasSufficientMajorCurrencies = majorCurrenciesWithRates >= 3;
+          const hasSufficientOverallCoverage = totalCurrenciesChecked > 0 && (currenciesWithRates / totalCurrenciesChecked) >= 0.5;
+
+          if (!hasSufficientMajorCurrencies && !hasSufficientOverallCoverage) {
+            const errorReason = `Insufficient non-zero rates: ${majorCurrenciesWithRates} major currencies, ${currenciesWithRates}/${totalCurrenciesChecked} total (${((currenciesWithRates / totalCurrenciesChecked) * 100).toFixed(1)}%)`;
+            this.logger.warn(`[Fiat Rate] ${errorReason} from ${url}, trying next fallback`);
+            lastError = new Error(errorReason);
+            failedUrls.push({ url, reason: errorReason });
             if (isPrimaryUrl) primaryUrlFailed = true;
             continue;
           }
@@ -421,9 +513,10 @@ export class FiatCurrencyRateResolver {
 
           return fiatRates;
         } catch (error: any) {
-          this.logger.error(`[Fiat Rate] Failed to fetch from ${baseUrl}: ${error?.message || error}`);
+          const errorReason = `Exception: ${error?.message || error}`;
+          this.logger.error(`[Fiat Rate] Failed to fetch from ${baseUrl}: ${errorReason}`);
           lastError = error;
-          failedUrls.push(`${baseUrl}/v3/fiatrates/`);
+          failedUrls.push({ url: `${baseUrl}${'/v3/fiatrates/'}`, reason: errorReason });
           if (isPrimaryUrl) primaryUrlFailed = true;
           continue;
         }
@@ -436,7 +529,7 @@ export class FiatCurrencyRateResolver {
 
       // Send critical notification
       await this.sendTelegramErrorNotification('ALL_ENDPOINTS_FAILED', {
-        failedUrls: urls.map(url => `${url}/v3/fiatrates/`),
+        failedUrls: failedUrls,
         errorMessage: lastError?.message || 'Unknown error',
         timestamp: new Date().toISOString()
       });
