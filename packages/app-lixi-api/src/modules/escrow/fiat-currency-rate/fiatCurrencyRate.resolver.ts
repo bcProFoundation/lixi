@@ -29,7 +29,9 @@ export class FiatCurrencyRateResolver {
         this.notificationBot = new Telegraf(botToken);
         this.logger.log('[Fiat Rate] Telegram notification bot initialized');
       } catch (error: any) {
-        this.logger.error(`[Fiat Rate] Failed to initialize Telegram notification bot: ${error?.message}`);
+        // Sanitize error message to avoid leaking bot token
+        const sanitizedMessage = error?.message?.replace(botToken, '[REDACTED]') || error?.message;
+        this.logger.error(`[Fiat Rate] Failed to initialize Telegram notification bot: ${sanitizedMessage}`);
       }
     } else {
       this.logger.debug('[Fiat Rate] TELEGRAM_ERROR_NOTIFICATION_BOT_TOKEN not configured');
@@ -154,7 +156,9 @@ export class FiatCurrencyRateResolver {
             this.logger.log(`[Fiat Rate] Successfully fetched valid data from: ${baseUrl}${endpoint}`);
             return data as T;
           } else {
-            throw new Error('Invalid data: empty or all rates are zero');
+            throw new Error(
+              `Invalid data for endpoint ${baseUrl}${endpoint}: empty response or all rates are zero (validation failed)`
+            );
           }
         }
 
@@ -293,14 +297,37 @@ export class FiatCurrencyRateResolver {
 
           this.logger.log(`[Fiat Rate] Attempting getAllFiatRate from: ${url}`);
 
-          const response = await firstValueFrom(
-            this.httpService.get(url, { timeout: 10000 }).pipe(
-              catchError((error: AxiosError) => {
-                this.logger.error(`[Fiat Rate] Request failed for ${url}: ${error.message}`);
-                throw error;
-              })
-            )
-          );
+          // Exponential backoff retry strategy
+          const maxRetries = 3;
+          let attempt = 0;
+          let response;
+          let lastFetchError: any = null;
+
+          while (attempt < maxRetries) {
+            try {
+              response = await firstValueFrom(
+                this.httpService.get(url, { timeout: 3000 + attempt * 2000 }).pipe(
+                  catchError((error: AxiosError) => {
+                    this.logger.error(`[Fiat Rate] Request failed for ${url} (attempt ${attempt + 1}): ${error.message}`);
+                    throw error;
+                  })
+                )
+              );
+              break; // Success, exit loop
+            } catch (fetchError: any) {
+              lastFetchError = fetchError;
+              attempt++;
+              if (attempt < maxRetries) {
+                const backoff = Math.pow(2, attempt) * 500;
+                this.logger.warn(`[Fiat Rate] Retrying ${url} in ${backoff}ms (attempt ${attempt + 1})`);
+                await new Promise(res => setTimeout(res, backoff));
+              }
+            }
+          }
+
+          if (!response) {
+            throw lastFetchError || new Error('Failed to fetch fiat rates after retries');
+          }
 
           const data = response.data;
 
