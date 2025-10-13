@@ -308,7 +308,9 @@ export class FiatCurrencyRateResolver {
               response = await firstValueFrom(
                 this.httpService.get(url, { timeout: 3000 + attempt * 2000 }).pipe(
                   catchError((error: AxiosError) => {
-                    this.logger.error(`[Fiat Rate] Request failed for ${url} (attempt ${attempt + 1}): ${error.message}`);
+                    this.logger.error(
+                      `[Fiat Rate] Request failed for ${url} (attempt ${attempt + 1}): ${error.message}`
+                    );
                     throw error;
                   })
                 )
