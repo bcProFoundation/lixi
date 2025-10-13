@@ -11,6 +11,40 @@ import { catchError } from 'rxjs/operators';
 import { AxiosError } from 'axios';
 import { Telegraf } from 'telegraf';
 
+// Type definitions for better type safety
+interface CurrencyInfo {
+  code: string;
+  name: string;
+  fixAmount: number;
+  country: string;
+}
+
+interface FiatRateEntry {
+  ts: number;
+  rate: number;
+}
+
+interface FiatRateV2Response {
+  [coin: string]: FiatRateEntry[];
+}
+
+interface FiatRateV3Item {
+  ts: number;
+  code: string;
+  name: string;
+  rate: number;
+}
+
+interface GraphQLFiatRateEntry {
+  coin: string;
+  ts: number;
+  rate: number;
+}
+
+interface FiatRateV3Response {
+  [currency: string]: FiatRateV3Item[];
+}
+
 @Resolver(() => FiatRates)
 export class FiatCurrencyRateResolver {
   private notificationBot: Telegraf | null = null;
@@ -29,8 +63,10 @@ export class FiatCurrencyRateResolver {
         this.notificationBot = new Telegraf(botToken);
         this.logger.log('[Fiat Rate] Telegram notification bot initialized');
       } catch (error: any) {
-        // Sanitize error message to avoid leaking bot token
-        const sanitizedMessage = error?.message?.replace(botToken, '[REDACTED]') || error?.message;
+        // SECURITY FIX: Sanitize token from error messages
+        const sanitizedMessage = error?.message
+          ? error.message.replace(new RegExp(botToken.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'gi'), '[REDACTED]')
+          : error?.message;
         this.logger.error(`[Fiat Rate] Failed to initialize Telegram notification bot: ${sanitizedMessage}`);
       }
     } else {
@@ -146,7 +182,7 @@ export class FiatCurrencyRateResolver {
       try {
         this.logger.log(`[Fiat Rate] Attempting to fetch from: ${baseUrl}${endpoint}`);
 
-        const response = await this.httpService.get(`${baseUrl}${endpoint}`, { timeout }).toPromise();
+        const response = await firstValueFrom(this.httpService.get(`${baseUrl}${endpoint}`, { timeout }));
 
         if (response?.status === 200) {
           const data = response.data;
@@ -180,7 +216,7 @@ export class FiatCurrencyRateResolver {
   /**
    * Validate fiat rate data to ensure it's not empty or contains only zero rates
    */
-  private validateFiatRateData(data: any, endpoint: string): boolean {
+  private validateFiatRateData(data: FiatRateV2Response | FiatRateV3Response, endpoint: string): boolean {
     if (!data || typeof data !== 'object') {
       this.logger.warn('[Fiat Rate] Data is null or not an object');
       return false;
@@ -222,7 +258,7 @@ export class FiatCurrencyRateResolver {
         const rates = data[coin];
         if (Array.isArray(rates) && rates.length > 0) {
           // Check if any rate is non-zero
-          hasNonZeroRate = rates.some((entry: any) => entry.rate && entry.rate > 0);
+          hasNonZeroRate = rates.some((entry: FiatRateEntry) => entry.rate && entry.rate > 0);
           if (hasNonZeroRate) break;
         }
       }
@@ -244,16 +280,16 @@ export class FiatCurrencyRateResolver {
       const resultData: FiatRates[] = [];
 
       // Use Promise.all to fetch all rates concurrently
-      const ratePromises = LIST_CURRENCIES_USED.map(async (currencyInfo: any) => {
+      const ratePromises = LIST_CURRENCIES_USED.map(async (currencyInfo: CurrencyInfo) => {
         const currency = currencyInfo.code;
 
         try {
-          const data = await this.fetchWithFallback<any>(`/v2/fiatrates/${currency ?? 'USD'}`);
+          const data = await this.fetchWithFallback<FiatRateV2Response>(`/v2/fiatrates/${currency ?? 'USD'}`);
 
           // Add the response data to the resultData object with the currency as the key
           const fiatRates: CurrencyRates[] = Object.keys(data).map(coin => {
             const rates =
-              data[coin]?.map((entry: any) => ({
+              data[coin]?.map((entry: FiatRateEntry) => ({
                 ts: Math.floor(entry.ts / 1000), //convert to second
                 rate: entry.rate
               })) || [];
@@ -348,7 +384,7 @@ export class FiatCurrencyRateResolver {
           const fiatRates: AllFiatRates[] = Object.keys(data).map(currency => {
             return {
               currency: currency.toUpperCase(),
-              fiatRates: data[currency].map((item: any) => ({
+              fiatRates: data[currency].map((item: FiatRateV3Item) => ({
                 coin: item.code,
                 ts: item.ts,
                 rate: item.rate || 0 // Use rate from API, fallback to 0
@@ -358,7 +394,7 @@ export class FiatCurrencyRateResolver {
 
           // Check if we have any non-zero rates
           const hasNonZeroRates = fiatRates.some(currencyData =>
-            currencyData.fiatRates.some((rate: any) => rate.rate > 0)
+            currencyData.fiatRates.some((rate: GraphQLFiatRateEntry) => rate.rate > 0)
           );
 
           if (!hasNonZeroRates) {
