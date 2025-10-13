@@ -285,19 +285,19 @@ export class FiatCurrencyRateResolver {
       // Log diagnostic information
       this.logger.debug(
         `[Fiat Rate] v3 validation: ${nonZeroRatesCount}/${totalRatesChecked} currencies have non-zero rates, ` +
-        `${majorCurrenciesWithRates} major currencies with rates`
+          `${majorCurrenciesWithRates} major currencies with rates`
       );
 
       // Validation logic:
       // 1. If we have at least 3 major currencies with non-zero rates, consider it valid
       // 2. OR if at least 50% of all currencies have non-zero rates (and we have some data)
       const hasSufficientMajorCurrencies = majorCurrenciesWithRates >= 3;
-      const hasSufficientOverallCoverage = totalRatesChecked > 0 && (nonZeroRatesCount / totalRatesChecked) >= 0.5;
+      const hasSufficientOverallCoverage = totalRatesChecked > 0 && nonZeroRatesCount / totalRatesChecked >= 0.5;
 
       if (!hasSufficientMajorCurrencies && !hasSufficientOverallCoverage) {
         this.logger.warn(
           `[Fiat Rate] v3 response has insufficient non-zero rates: ` +
-          `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
+            `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
         );
         return false;
       }
@@ -481,12 +481,13 @@ export class FiatCurrencyRateResolver {
           // Log diagnostic information
           this.logger.log(
             `[Fiat Rate] Rate validation: ${currenciesWithRates}/${totalCurrenciesChecked} currencies have non-zero rates, ` +
-            `${majorCurrenciesWithRates} major currencies with rates`
+              `${majorCurrenciesWithRates} major currencies with rates`
           );
 
           // Validation: Need at least 3 major currencies OR 50% overall coverage
           const hasSufficientMajorCurrencies = majorCurrenciesWithRates >= 3;
-          const hasSufficientOverallCoverage = totalCurrenciesChecked > 0 && (currenciesWithRates / totalCurrenciesChecked) >= 0.5;
+          const hasSufficientOverallCoverage =
+            totalCurrenciesChecked > 0 && currenciesWithRates / totalCurrenciesChecked >= 0.5;
 
           if (!hasSufficientMajorCurrencies && !hasSufficientOverallCoverage) {
             const errorReason = `Insufficient non-zero rates: ${majorCurrenciesWithRates} major currencies, ${currenciesWithRates}/${totalCurrenciesChecked} total (${((currenciesWithRates / totalCurrenciesChecked) * 100).toFixed(1)}%)`;
