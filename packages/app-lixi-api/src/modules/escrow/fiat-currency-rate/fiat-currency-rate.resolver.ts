@@ -1,5 +1,5 @@
 import { AllFiatRates, CurrencyRates, FiatRates, LIST_CURRENCIES_USED } from '@bcpros/lixi-models';
-import { Logger } from '@nestjs/common';
+import { Logger, Optional } from '@nestjs/common';
 import { Query, Resolver } from '@nestjs/graphql';
 import * as _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
@@ -10,6 +10,8 @@ import { firstValueFrom } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AxiosError } from 'axios';
 import { Telegraf } from 'telegraf';
+import { InjectBot } from 'nestjs-telegraf';
+import { TELEGRAM_ERROR_NOTIFICATION_BOT_NAME } from '../../telegram/telegram-bot.constants';
 
 // Type definitions for better type safety
 interface CurrencyInfo {
@@ -35,6 +37,12 @@ interface FiatRateV3Item {
   rate: number;
 }
 
+interface FiatRateV4Item {
+  coin: string;
+  ts: number;
+  rate: number;
+}
+
 interface GraphQLFiatRateEntry {
   coin: string;
   ts: number;
@@ -45,10 +53,12 @@ interface FiatRateV3Response {
   [currency: string]: FiatRateV3Item[];
 }
 
+interface FiatRateV4Response {
+  [currency: string]: FiatRateV4Item[];
+}
+
 @Resolver(() => FiatRates)
 export class FiatCurrencyRateResolver {
-  private notificationBot: Telegraf | null = null;
-
   // Major fiat currencies that should have non-zero rates for valid responses
   // These are the most commonly used currencies globally
   private readonly MAJOR_CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY'];
@@ -58,23 +68,15 @@ export class FiatCurrencyRateResolver {
     private prisma: PrismaService,
     @I18n() private i18n: I18nService,
     private readonly httpService: HttpService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    @Optional()
+    @InjectBot(TELEGRAM_ERROR_NOTIFICATION_BOT_NAME)
+    private readonly notificationBot: Telegraf
   ) {
-    // Initialize notification bot if token is configured
-    const botToken = this.configService.get<string>('TELEGRAM_ERROR_NOTIFICATION_BOT_TOKEN');
-    if (botToken) {
-      try {
-        this.notificationBot = new Telegraf(botToken);
-        this.logger.log('[Fiat Rate] Telegram notification bot initialized');
-      } catch (error: any) {
-        // SECURITY FIX: Sanitize token from error messages
-        const sanitizedMessage = error?.message
-          ? error.message.replace(new RegExp(botToken.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'gi'), '[REDACTED]')
-          : error?.message;
-        this.logger.error(`[Fiat Rate] Failed to initialize Telegram notification bot: ${sanitizedMessage}`);
-      }
+    if (!this.notificationBot) {
+      this.logger.debug('[Fiat Rate] Telegram notification bot not configured (token missing)');
     } else {
-      this.logger.debug('[Fiat Rate] TELEGRAM_ERROR_NOTIFICATION_BOT_TOKEN not configured');
+      this.logger.log('[Fiat Rate] Telegram notification bot initialized');
     }
   }
 
@@ -232,17 +234,17 @@ export class FiatCurrencyRateResolver {
    * Validate fiat rate data to ensure it's not empty or contains only zero rates
    * For v3 API, we check that major currencies have non-zero rates
    */
-  private validateFiatRateData(data: FiatRateV2Response | FiatRateV3Response, endpoint: string): boolean {
+  private validateFiatRateData(data: FiatRateV2Response | FiatRateV3Response | FiatRateV4Response, endpoint: string): boolean {
     if (!data || typeof data !== 'object') {
       this.logger.warn('[Fiat Rate] Data is null or not an object');
       return false;
     }
 
-    // For v3 API (/v3/fiatrates/)
-    if (endpoint.includes('/v3/fiatrates')) {
+    // For v3 API (/v3/fiatrates/) or v4 API (/v4/allfiatrates/)
+    if (endpoint.includes('/v3/fiatrates') || endpoint.includes('/v4/allfiatrates')) {
       const currencies = Object.keys(data);
       if (currencies.length === 0) {
-        this.logger.warn('[Fiat Rate] No currencies in v3 response');
+        this.logger.warn(`[Fiat Rate] No currencies in ${endpoint} response`);
         return false;
       }
 
@@ -253,7 +255,7 @@ export class FiatCurrencyRateResolver {
       });
 
       if (!hasValidData) {
-        this.logger.warn('[Fiat Rate] v3 response has no valid currency data');
+        this.logger.warn(`[Fiat Rate] ${endpoint} response has no valid currency data`);
         return false;
       }
 
@@ -266,7 +268,7 @@ export class FiatCurrencyRateResolver {
         const rates = data[currency];
         if (Array.isArray(rates) && rates.length > 0) {
           // Check if this currency has any non-zero rates
-          // v3 API returns array of objects with {ts, code, name, rate}
+          // v3/v4 API returns array of objects with rate property
           const hasNonZeroRate = rates.some((item: any) => item.rate && item.rate > 0);
 
           totalRatesChecked++;
@@ -284,8 +286,8 @@ export class FiatCurrencyRateResolver {
 
       // Log diagnostic information
       this.logger.debug(
-        `[Fiat Rate] v3 validation: ${nonZeroRatesCount}/${totalRatesChecked} currencies have non-zero rates, ` +
-          `${majorCurrenciesWithRates} major currencies with rates`
+        `[Fiat Rate] ${endpoint} validation: ${nonZeroRatesCount}/${totalRatesChecked} currencies have non-zero rates, ` +
+        `${majorCurrenciesWithRates} major currencies with rates`
       );
 
       // Validation logic:
@@ -296,8 +298,8 @@ export class FiatCurrencyRateResolver {
 
       if (!hasSufficientMajorCurrencies && !hasSufficientOverallCoverage) {
         this.logger.warn(
-          `[Fiat Rate] v3 response has insufficient non-zero rates: ` +
-            `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
+          `[Fiat Rate] ${endpoint} response has insufficient non-zero rates: ` +
+          `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
         );
         return false;
       }
@@ -389,7 +391,7 @@ export class FiatCurrencyRateResolver {
         const isPrimaryUrl = i === 0;
 
         try {
-          const endpoint = '/v3/fiatrates/';
+          const endpoint = '/v4/allfiatrates/';
           const url = `${baseUrl}${endpoint}`;
 
           this.logger.log(`[Fiat Rate] Attempting getAllFiatRate from: ${url}`);
@@ -433,11 +435,11 @@ export class FiatCurrencyRateResolver {
             continue;
           }
 
-          const data = response.data;
+          const data = response?.data;
 
-          // Validate v3 response structure
+          // Validate v4 response structure
           if (!this.validateFiatRateData(data, endpoint)) {
-            const errorReason = 'Invalid v3 response structure';
+            const errorReason = 'Invalid v4 response structure';
             this.logger.warn(`[Fiat Rate] ${errorReason} for ${url}`);
             lastError = new Error(errorReason);
             failedUrls.push({ url, reason: errorReason });
@@ -445,14 +447,14 @@ export class FiatCurrencyRateResolver {
             continue;
           }
 
-          // Transform v3 format to AllFiatRates format
-          // v3 returns: { btc: [{ts, code, name, rate}, ...], xec: [...], etc }
+          // Transform v4 format to AllFiatRates format
+          // v4 returns: { AED: [{coin, ts, rate}, ...], ... }
           // GraphQL expects: { currency, fiatRates: [{coin, ts, rate}, ...] }
           const fiatRates: AllFiatRates[] = Object.keys(data).map(currency => {
             return {
               currency: currency.toUpperCase(),
-              fiatRates: data[currency].map((item: FiatRateV3Item) => ({
-                coin: item.code,
+              fiatRates: data[currency].map((item: FiatRateV4Item) => ({
+                coin: item.coin,
                 ts: item.ts,
                 rate: item.rate || 0 // Use rate from API, fallback to 0
               }))
@@ -481,7 +483,7 @@ export class FiatCurrencyRateResolver {
           // Log diagnostic information
           this.logger.log(
             `[Fiat Rate] Rate validation: ${currenciesWithRates}/${totalCurrenciesChecked} currencies have non-zero rates, ` +
-              `${majorCurrenciesWithRates} major currencies with rates`
+            `${majorCurrenciesWithRates} major currencies with rates`
           );
 
           // Validation: Need at least 3 major currencies OR 50% overall coverage
@@ -517,7 +519,7 @@ export class FiatCurrencyRateResolver {
           const errorReason = `Exception: ${error?.message || error}`;
           this.logger.error(`[Fiat Rate] Failed to fetch from ${baseUrl}: ${errorReason}`);
           lastError = error;
-          failedUrls.push({ url: `${baseUrl}${'/v3/fiatrates/'}`, reason: errorReason });
+          failedUrls.push({ url: `${baseUrl}${'/v4/allfiatrates/'}`, reason: errorReason });
           if (isPrimaryUrl) primaryUrlFailed = true;
           continue;
         }
