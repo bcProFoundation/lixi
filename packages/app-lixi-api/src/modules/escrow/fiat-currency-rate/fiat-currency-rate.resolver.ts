@@ -234,7 +234,10 @@ export class FiatCurrencyRateResolver {
    * Validate fiat rate data to ensure it's not empty or contains only zero rates
    * For v3 API, we check that major currencies have non-zero rates
    */
-  private validateFiatRateData(data: FiatRateV2Response | FiatRateV3Response | FiatRateV4Response, endpoint: string): boolean {
+  private validateFiatRateData(
+    data: FiatRateV2Response | FiatRateV3Response | FiatRateV4Response,
+    endpoint: string
+  ): boolean {
     if (!data || typeof data !== 'object') {
       this.logger.warn('[Fiat Rate] Data is null or not an object');
       return false;
@@ -287,7 +290,7 @@ export class FiatCurrencyRateResolver {
       // Log diagnostic information
       this.logger.debug(
         `[Fiat Rate] ${endpoint} validation: ${nonZeroRatesCount}/${totalRatesChecked} currencies have non-zero rates, ` +
-        `${majorCurrenciesWithRates} major currencies with rates`
+          `${majorCurrenciesWithRates} major currencies with rates`
       );
 
       // Validation logic:
@@ -299,7 +302,7 @@ export class FiatCurrencyRateResolver {
       if (!hasSufficientMajorCurrencies && !hasSufficientOverallCoverage) {
         this.logger.warn(
           `[Fiat Rate] ${endpoint} response has insufficient non-zero rates: ` +
-          `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
+            `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
         );
         return false;
       }
@@ -483,7 +486,7 @@ export class FiatCurrencyRateResolver {
           // Log diagnostic information
           this.logger.log(
             `[Fiat Rate] Rate validation: ${currenciesWithRates}/${totalCurrenciesChecked} currencies have non-zero rates, ` +
-            `${majorCurrenciesWithRates} major currencies with rates`
+              `${majorCurrenciesWithRates} major currencies with rates`
           );
 
           // Validation: Need at least 3 major currencies OR 50% overall coverage

@@ -69,4 +69,4 @@ import { ErrorNotificationBotModule } from '../telegram/error-notification/error
   ],
   exports: [Logger]
 })
-export class EscrowModule { }
+export class EscrowModule {}
