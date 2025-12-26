@@ -354,6 +354,10 @@ export class OfferResolver {
 
         .$if(!!offerFilterInput?.coinOthers, qb => qb.where('offer.coin_others', '=', offerFilterInput.coinOthers!))
 
+        .$if(!!offerFilterInput?.tickerPriceGoodsServices, qb =>
+          qb.where('offer.ticker_price_goods_services', '=', offerFilterInput.tickerPriceGoodsServices!)
+        )
+
         // if order-limit is null, we will drop this condition
         .$if(!!offerFilterInput?.amount, qb =>
           qb.where(eb => {

@@ -1395,6 +1395,7 @@ export type OfferFilterInput = {
   paymentApp?: InputMaybe<Scalars['String']['input']>;
   paymentMethodIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   stateName?: InputMaybe<Scalars['String']['input']>;
+  tickerPriceGoodsServices?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type OfferOrder = {

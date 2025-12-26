@@ -40,6 +40,9 @@ export class OfferFilterInput {
   @Field(() => Boolean, { nullable: true })
   isBuyOffer?: Nullable<boolean>;
 
+  @Field(() => String, { nullable: true })
+  tickerPriceGoodsServices?: Nullable<string>;
+
   @Field(() => OfferOrder, { nullable: true })
   offerOrder?: Nullable<OfferOrder>;
 }

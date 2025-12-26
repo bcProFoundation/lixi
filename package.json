@@ -24,5 +24,6 @@
     "hooks": {
       "pre-commit": "pnpm precommit"
     }
-  }
+  },
+  "packageManager": "pnpm@8.15.4"
 }
