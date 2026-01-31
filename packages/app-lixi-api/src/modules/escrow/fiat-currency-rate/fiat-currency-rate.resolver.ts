@@ -11,7 +11,7 @@ import { catchError } from 'rxjs/operators';
 import { AxiosError } from 'axios';
 import { Telegraf } from 'telegraf';
 import { InjectBot } from 'nestjs-telegraf';
-import { TELEGRAM_ERROR_NOTIFICATION_BOT_NAME } from '../../telegram/telegram-bot.constants';
+import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../../telegram/telegram-bot.constants';
 
 // Type definitions for better type safety
 interface CurrencyInfo {
@@ -63,6 +63,10 @@ export class FiatCurrencyRateResolver {
   // These are the most commonly used currencies globally
   private readonly MAJOR_CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY'];
 
+  // Minimum number of major currencies required for valid response
+  // Configurable via FIAT_RATE_MIN_MAJOR_CURRENCIES environment variable (default: 3)
+  private readonly minMajorCurrenciesRequired: number;
+
   constructor(
     private logger: Logger,
     private prisma: PrismaService,
@@ -70,9 +74,13 @@ export class FiatCurrencyRateResolver {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     @Optional()
-    @InjectBot(TELEGRAM_ERROR_NOTIFICATION_BOT_NAME)
+    @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME)
     private readonly notificationBot: Telegraf
   ) {
+    // Initialize configurable validation threshold
+    const minMajorEnv = this.configService.get<string>('FIAT_RATE_MIN_MAJOR_CURRENCIES');
+    this.minMajorCurrenciesRequired =
+      minMajorEnv && !isNaN(parseInt(minMajorEnv, 10)) && parseInt(minMajorEnv, 10) > 0 ? parseInt(minMajorEnv, 10) : 3;
     if (!this.notificationBot) {
       this.logger.debug('[Fiat Rate] Telegram notification bot not configured (token missing)');
     } else {
@@ -243,6 +251,12 @@ export class FiatCurrencyRateResolver {
       return false;
     }
 
+    // Validate endpoint parameter
+    if (!endpoint || typeof endpoint !== 'string') {
+      this.logger.warn('[Fiat Rate] Endpoint is null or not a string');
+      return false;
+    }
+
     // For v3 API (/v3/fiatrates/) or v4 API (/v4/allfiatrates/)
     if (endpoint.includes('/v3/fiatrates') || endpoint.includes('/v4/allfiatrates')) {
       const currencies = Object.keys(data);
@@ -280,7 +294,7 @@ export class FiatCurrencyRateResolver {
 
             // If this is a major currency, count it
             const currencyCode = currency.toUpperCase();
-            if (this.MAJOR_CURRENCIES.includes(currencyCode)) {
+            if (this.MAJOR_CURRENCIES && this.MAJOR_CURRENCIES.includes(currencyCode)) {
               majorCurrenciesWithRates++;
             }
           }
@@ -290,13 +304,14 @@ export class FiatCurrencyRateResolver {
       // Log diagnostic information
       this.logger.debug(
         `[Fiat Rate] ${endpoint} validation: ${nonZeroRatesCount}/${totalRatesChecked} currencies have non-zero rates, ` +
-          `${majorCurrenciesWithRates} major currencies with rates`
+          `${majorCurrenciesWithRates} major currencies with rates (required: ${this.minMajorCurrenciesRequired})`
       );
 
       // Validation logic:
-      // 1. If we have at least 3 major currencies with non-zero rates, consider it valid
+      // 1. If we have at least N major currencies with non-zero rates, consider it valid
+      //    (N is configurable via FIAT_RATE_MIN_MAJOR_CURRENCIES, defaulting to 3)
       // 2. OR if at least 50% of all currencies have non-zero rates (and we have some data)
-      const hasSufficientMajorCurrencies = majorCurrenciesWithRates >= 3;
+      const hasSufficientMajorCurrencies = majorCurrenciesWithRates >= this.minMajorCurrenciesRequired;
       const hasSufficientOverallCoverage = totalRatesChecked > 0 && nonZeroRatesCount / totalRatesChecked >= 0.5;
 
       if (!hasSufficientMajorCurrencies && !hasSufficientOverallCoverage) {
@@ -440,6 +455,16 @@ export class FiatCurrencyRateResolver {
 
           const data = response?.data;
 
+          // Validate that data exists and is an object
+          if (!data || typeof data !== 'object') {
+            const errorReason = 'Response data is null or not an object';
+            this.logger.warn(`[Fiat Rate] ${errorReason} for ${url}`);
+            lastError = new Error(errorReason);
+            failedUrls.push({ url, reason: errorReason });
+            if (isPrimaryUrl) primaryUrlFailed = true;
+            continue;
+          }
+
           // Validate v4 response structure
           if (!this.validateFiatRateData(data, endpoint)) {
             const errorReason = 'Invalid v4 response structure';
@@ -453,16 +478,21 @@ export class FiatCurrencyRateResolver {
           // Transform v4 format to AllFiatRates format
           // v4 returns: { AED: [{coin, ts, rate}, ...], ... }
           // GraphQL expects: { currency, fiatRates: [{coin, ts, rate}, ...] }
-          const fiatRates: AllFiatRates[] = Object.keys(data).map(currency => {
-            return {
-              currency: currency.toUpperCase(),
-              fiatRates: data[currency].map((item: FiatRateV4Item) => ({
-                coin: item.coin,
-                ts: item.ts,
-                rate: item.rate || 0 // Use rate from API, fallback to 0
-              }))
-            };
-          });
+          const fiatRates: AllFiatRates[] = Object.keys(data)
+            .filter(currency => {
+              // Only process currencies where data exists and is an array
+              return Array.isArray(data[currency]) && data[currency].length > 0;
+            })
+            .map(currency => {
+              return {
+                currency: currency.toUpperCase(),
+                fiatRates: data[currency].map((item: FiatRateV4Item) => ({
+                  coin: item.coin,
+                  ts: item.ts,
+                  rate: item.rate || 0 // Use rate from API, fallback to 0
+                }))
+              };
+            });
 
           // Check if we have sufficient non-zero rates
           let majorCurrenciesWithRates = 0;
@@ -477,7 +507,7 @@ export class FiatCurrencyRateResolver {
               currenciesWithRates++;
 
               // Check if this is a major currency
-              if (this.MAJOR_CURRENCIES.includes(currencyData.currency)) {
+              if (this.MAJOR_CURRENCIES && this.MAJOR_CURRENCIES.includes(currencyData.currency)) {
                 majorCurrenciesWithRates++;
               }
             }
@@ -486,11 +516,11 @@ export class FiatCurrencyRateResolver {
           // Log diagnostic information
           this.logger.log(
             `[Fiat Rate] Rate validation: ${currenciesWithRates}/${totalCurrenciesChecked} currencies have non-zero rates, ` +
-              `${majorCurrenciesWithRates} major currencies with rates`
+              `${majorCurrenciesWithRates} major currencies with rates (required: ${this.minMajorCurrenciesRequired})`
           );
 
-          // Validation: Need at least 3 major currencies OR 50% overall coverage
-          const hasSufficientMajorCurrencies = majorCurrenciesWithRates >= 3;
+          // Validation: Need at least N major currencies (configurable) OR 50% overall coverage
+          const hasSufficientMajorCurrencies = majorCurrenciesWithRates >= this.minMajorCurrenciesRequired;
           const hasSufficientOverallCoverage =
             totalCurrenciesChecked > 0 && currenciesWithRates / totalCurrenciesChecked >= 0.5;
 

@@ -15,10 +15,27 @@ import { COIN, coinInfo } from '@bcpros/lixi-models';
 import _ from 'lodash';
 import cashaddr from 'ecashaddrjs';
 
+/**
+ * Interface for ChronikWatchAddress with its related Account data
+ * Used for type safety in notification deduplication
+ */
+interface ChronikWatchAddressWithAccount {
+  id: string;
+  accountId: number;
+  hash160: string;
+  type: string;
+  createdAt: Date;
+  account: {
+    id?: number;
+    telegramId: string | null;
+    // Other account fields can be added as needed
+  };
+}
+
 type ParsedUtxoType = {
   txid: string;
   amount: number;
-  chronikWatchAddresses: any;
+  chronikWatchAddresses: ChronikWatchAddressWithAccount[];
   hash160: string;
   type: string;
   tokenId?: string;
@@ -316,7 +333,8 @@ export class LocalEcashBotUpdate implements OnModuleInit {
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
     );
 
-    for (const chronikWatchAddress of chronikWatchAddresses) {
+    const deduplicatedAddresses = this.deduplicateByTelegramId(chronikWatchAddresses);
+    for (const chronikWatchAddress of deduplicatedAddresses) {
       const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
         chronikWatchAddress.account.telegramId!,
         txid
@@ -352,7 +370,8 @@ export class LocalEcashBotUpdate implements OnModuleInit {
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
     );
 
-    for (const chronikWatchAddress of chronikWatchAddresses) {
+    const deduplicatedAddresses = this.deduplicateByTelegramId(chronikWatchAddresses);
+    for (const chronikWatchAddress of deduplicatedAddresses) {
       const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
         chronikWatchAddress.account.telegramId!,
         txid
@@ -390,7 +409,8 @@ export class LocalEcashBotUpdate implements OnModuleInit {
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
     );
 
-    for (const chronikWatchAddress of chronikWatchAddresses) {
+    const deduplicatedAddresses = this.deduplicateByTelegramId(chronikWatchAddresses);
+    for (const chronikWatchAddress of deduplicatedAddresses) {
       const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
         chronikWatchAddress.account.telegramId!,
         txid
@@ -428,7 +448,8 @@ export class LocalEcashBotUpdate implements OnModuleInit {
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
     );
 
-    for (const chronikWatchAddress of chronikWatchAddresses) {
+    const deduplicatedAddresses = this.deduplicateByTelegramId(chronikWatchAddresses);
+    for (const chronikWatchAddress of deduplicatedAddresses) {
       const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
         chronikWatchAddress.account.telegramId!,
         txid
@@ -560,6 +581,26 @@ Are you ready? Let's get started.
       await ctx.reply('Error getting stats.');
       return;
     }
+  }
+
+  /**
+   * Deduplicates ChronikWatchAddresses by Telegram ID to prevent duplicate notifications
+   * when a user registers the same address multiple times.
+   * @param chronikWatchAddresses - Array of watch addresses with account data
+   * @returns Filtered array with unique Telegram IDs
+   */
+  private deduplicateByTelegramId(
+    chronikWatchAddresses: ChronikWatchAddressWithAccount[]
+  ): ChronikWatchAddressWithAccount[] {
+    const seen = new Set<string>();
+    return chronikWatchAddresses.filter(item => {
+      const telegramId = item.account.telegramId;
+      if (!telegramId || seen.has(telegramId)) {
+        return false;
+      }
+      seen.add(telegramId);
+      return true;
+    });
   }
 
   private infoStatistics(info: InfoStatistics) {
