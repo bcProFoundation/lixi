@@ -368,7 +368,7 @@ export class FiatCurrencyRateResolver {
       // Log diagnostic information
       this.logger.debug(
         `[Fiat Rate] ${endpoint} validation: ${nonZeroRatesCount}/${totalRatesChecked} currencies have non-zero rates, ` +
-        `${majorCurrenciesWithRates} major currencies with rates`
+          `${majorCurrenciesWithRates} major currencies with rates`
       );
 
       // Validation logic:
@@ -380,7 +380,7 @@ export class FiatCurrencyRateResolver {
       if (!hasSufficientMajorCurrencies && !hasSufficientOverallCoverage) {
         this.logger.warn(
           `[Fiat Rate] ${endpoint} response has insufficient non-zero rates: ` +
-          `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
+            `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
         );
         return false;
       }
@@ -564,7 +564,7 @@ export class FiatCurrencyRateResolver {
           // Log diagnostic information
           this.logger.log(
             `[Fiat Rate] Validation: ${majorCoinsWithRates} major coins with USD rates (need 3+), ` +
-            `${totalCoinsInUSD} total coins in USD, USD available: ${hasUSDRates}`
+              `${totalCoinsInUSD} total coins in USD, USD available: ${hasUSDRates}`
           );
 
           // Validation: Need at least 3 major coins AND USD rates for conversion
