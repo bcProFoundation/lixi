@@ -316,7 +316,8 @@ export class LocalEcashBotUpdate implements OnModuleInit {
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
     );
 
-    for (const chronikWatchAddress of chronikWatchAddresses) {
+    const deduplicatedAddresses = this.deduplicateByTelegramId(chronikWatchAddresses);
+    for (const chronikWatchAddress of deduplicatedAddresses) {
       const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
         chronikWatchAddress.account.telegramId!,
         txid
@@ -352,7 +353,8 @@ export class LocalEcashBotUpdate implements OnModuleInit {
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
     );
 
-    for (const chronikWatchAddress of chronikWatchAddresses) {
+    const deduplicatedAddresses = this.deduplicateByTelegramId(chronikWatchAddresses);
+    for (const chronikWatchAddress of deduplicatedAddresses) {
       const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
         chronikWatchAddress.account.telegramId!,
         txid
@@ -390,7 +392,8 @@ export class LocalEcashBotUpdate implements OnModuleInit {
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
     );
 
-    for (const chronikWatchAddress of chronikWatchAddresses) {
+    const deduplicatedAddresses = this.deduplicateByTelegramId(chronikWatchAddresses);
+    for (const chronikWatchAddress of deduplicatedAddresses) {
       const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
         chronikWatchAddress.account.telegramId!,
         txid
@@ -428,7 +431,8 @@ export class LocalEcashBotUpdate implements OnModuleInit {
       `${coinInfo[COIN.XEC].blockExplorerUrl}/tx/${txid}`
     );
 
-    for (const chronikWatchAddress of chronikWatchAddresses) {
+    const deduplicatedAddresses = this.deduplicateByTelegramId(chronikWatchAddresses);
+    for (const chronikWatchAddress of deduplicatedAddresses) {
       const cached = await this.localEcashCacheService.getTelegramNotificationCacheItem(
         chronikWatchAddress.account.telegramId!,
         txid
@@ -560,6 +564,18 @@ Are you ready? Let's get started.
       await ctx.reply('Error getting stats.');
       return;
     }
+  }
+
+  private deduplicateByTelegramId(chronikWatchAddresses: any[]): any[] {
+    const seen = new Set<string>();
+    return chronikWatchAddresses.filter(item => {
+      const telegramId = item.account.telegramId;
+      if (seen.has(telegramId)) {
+        return false;
+      }
+      seen.add(telegramId);
+      return true;
+    });
   }
 
   private infoStatistics(info: InfoStatistics) {
