@@ -11,7 +11,7 @@ import { catchError } from 'rxjs/operators';
 import { AxiosError } from 'axios';
 import { Telegraf } from 'telegraf';
 import { InjectBot } from 'nestjs-telegraf';
-import { TELEGRAM_ERROR_NOTIFICATION_BOT_NAME } from '../../telegram/telegram-bot.constants';
+import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../../telegram/telegram-bot.constants';
 
 // Type definitions for better type safety
 interface CurrencyInfo {
@@ -63,6 +63,10 @@ export class FiatCurrencyRateResolver {
   // These are the most commonly used currencies globally
   private readonly MAJOR_CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY'];
 
+  // Minimum number of major currencies required for valid response
+  // Configurable via FIAT_RATE_MIN_MAJOR_CURRENCIES environment variable (default: 3)
+  private readonly minMajorCurrenciesRequired: number;
+
   constructor(
     private logger: Logger,
     private prisma: PrismaService,
@@ -70,9 +74,15 @@ export class FiatCurrencyRateResolver {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     @Optional()
-    @InjectBot(TELEGRAM_ERROR_NOTIFICATION_BOT_NAME)
+    @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME)
     private readonly notificationBot: Telegraf
   ) {
+    // Initialize configurable validation threshold
+    const minMajorEnv = this.configService.get<string>('FIAT_RATE_MIN_MAJOR_CURRENCIES');
+    this.minMajorCurrenciesRequired =
+      minMajorEnv && !isNaN(parseInt(minMajorEnv, 10)) && parseInt(minMajorEnv, 10) > 0
+        ? parseInt(minMajorEnv, 10)
+        : 3;
     if (!this.notificationBot) {
       this.logger.debug('[Fiat Rate] Telegram notification bot not configured (token missing)');
     } else {
@@ -290,13 +300,14 @@ export class FiatCurrencyRateResolver {
       // Log diagnostic information
       this.logger.debug(
         `[Fiat Rate] ${endpoint} validation: ${nonZeroRatesCount}/${totalRatesChecked} currencies have non-zero rates, ` +
-          `${majorCurrenciesWithRates} major currencies with rates`
+          `${majorCurrenciesWithRates} major currencies with rates (required: ${this.minMajorCurrenciesRequired})`
       );
 
       // Validation logic:
-      // 1. If we have at least 3 major currencies with non-zero rates, consider it valid
+      // 1. If we have at least N major currencies with non-zero rates, consider it valid
+      //    (N is configurable via FIAT_RATE_MIN_MAJOR_CURRENCIES, defaulting to 3)
       // 2. OR if at least 50% of all currencies have non-zero rates (and we have some data)
-      const hasSufficientMajorCurrencies = majorCurrenciesWithRates >= 3;
+      const hasSufficientMajorCurrencies = majorCurrenciesWithRates >= this.minMajorCurrenciesRequired;
       const hasSufficientOverallCoverage = totalRatesChecked > 0 && nonZeroRatesCount / totalRatesChecked >= 0.5;
 
       if (!hasSufficientMajorCurrencies && !hasSufficientOverallCoverage) {
@@ -486,11 +497,11 @@ export class FiatCurrencyRateResolver {
           // Log diagnostic information
           this.logger.log(
             `[Fiat Rate] Rate validation: ${currenciesWithRates}/${totalCurrenciesChecked} currencies have non-zero rates, ` +
-              `${majorCurrenciesWithRates} major currencies with rates`
+              `${majorCurrenciesWithRates} major currencies with rates (required: ${this.minMajorCurrenciesRequired})`
           );
 
-          // Validation: Need at least 3 major currencies OR 50% overall coverage
-          const hasSufficientMajorCurrencies = majorCurrenciesWithRates >= 3;
+          // Validation: Need at least N major currencies (configurable) OR 50% overall coverage
+          const hasSufficientMajorCurrencies = majorCurrenciesWithRates >= this.minMajorCurrenciesRequired;
           const hasSufficientOverallCoverage =
             totalCurrenciesChecked > 0 && currenciesWithRates / totalCurrenciesChecked >= 0.5;
 

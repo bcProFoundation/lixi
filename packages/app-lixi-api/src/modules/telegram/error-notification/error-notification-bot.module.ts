@@ -1,23 +1,30 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { TelegrafModule } from 'nestjs-telegraf';
 import { ConfigService } from '@nestjs/config';
-import { TELEGRAM_ERROR_NOTIFICATION_BOT_NAME } from '../telegram-bot.constants';
+import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../telegram-bot.constants';
 
+/**
+ * ErrorNotificationBotModule - Uses the shared local-ecash bot for error notifications.
+ * The error notification bot is now deprecated and shares the same bot instance
+ * as the main local-ecash bot (TELEGRAM_LOCAL_ECASH_BOT_TOKEN).
+ */
 @Module({})
 export class ErrorNotificationBotModule {
   public static forRootAsync(): DynamicModule {
     const imports = [];
 
-    process.env.TELEGRAM_ERROR_NOTIFICATION_BOT_TOKEN &&
+    // Use the shared local-ecash bot token for error notifications
+    // The dedicated error notification bot is deprecated
+    process.env.TELEGRAM_LOCAL_ECASH_BOT_TOKEN &&
       imports.push(
         TelegrafModule.forRootAsync({
           inject: [ConfigService],
-          botName: TELEGRAM_ERROR_NOTIFICATION_BOT_NAME,
+          botName: TELEGRAM_LOCAL_ECASH_BOT_NAME,
           useFactory: async (configService: ConfigService) => {
             return {
-              token: configService.get<string>('TELEGRAM_ERROR_NOTIFICATION_BOT_TOKEN')!,
+              token: configService.get<string>('TELEGRAM_LOCAL_ECASH_BOT_TOKEN')!,
               include: [],
-              botName: TELEGRAM_ERROR_NOTIFICATION_BOT_NAME
+              botName: TELEGRAM_LOCAL_ECASH_BOT_NAME
             };
           }
         })
