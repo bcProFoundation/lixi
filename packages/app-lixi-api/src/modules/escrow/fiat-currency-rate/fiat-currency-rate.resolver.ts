@@ -251,6 +251,12 @@ export class FiatCurrencyRateResolver {
       return false;
     }
 
+    // Validate endpoint parameter
+    if (!endpoint || typeof endpoint !== 'string') {
+      this.logger.warn('[Fiat Rate] Endpoint is null or not a string');
+      return false;
+    }
+
     // For v3 API (/v3/fiatrates/) or v4 API (/v4/allfiatrates/)
     if (endpoint.includes('/v3/fiatrates') || endpoint.includes('/v4/allfiatrates')) {
       const currencies = Object.keys(data);
@@ -298,7 +304,7 @@ export class FiatCurrencyRateResolver {
       // Log diagnostic information
       this.logger.debug(
         `[Fiat Rate] ${endpoint} validation: ${nonZeroRatesCount}/${totalRatesChecked} currencies have non-zero rates, ` +
-          `${majorCurrenciesWithRates} major currencies with rates (required: ${this.minMajorCurrenciesRequired})`
+        `${majorCurrenciesWithRates} major currencies with rates (required: ${this.minMajorCurrenciesRequired})`
       );
 
       // Validation logic:
@@ -311,7 +317,7 @@ export class FiatCurrencyRateResolver {
       if (!hasSufficientMajorCurrencies && !hasSufficientOverallCoverage) {
         this.logger.warn(
           `[Fiat Rate] ${endpoint} response has insufficient non-zero rates: ` +
-            `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
+          `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
         );
         return false;
       }
@@ -449,6 +455,16 @@ export class FiatCurrencyRateResolver {
 
           const data = response?.data;
 
+          // Validate that data exists and is an object
+          if (!data || typeof data !== 'object') {
+            const errorReason = 'Response data is null or not an object';
+            this.logger.warn(`[Fiat Rate] ${errorReason} for ${url}`);
+            lastError = new Error(errorReason);
+            failedUrls.push({ url, reason: errorReason });
+            if (isPrimaryUrl) primaryUrlFailed = true;
+            continue;
+          }
+
           // Validate v4 response structure
           if (!this.validateFiatRateData(data, endpoint)) {
             const errorReason = 'Invalid v4 response structure';
@@ -495,7 +511,7 @@ export class FiatCurrencyRateResolver {
           // Log diagnostic information
           this.logger.log(
             `[Fiat Rate] Rate validation: ${currenciesWithRates}/${totalCurrenciesChecked} currencies have non-zero rates, ` +
-              `${majorCurrenciesWithRates} major currencies with rates (required: ${this.minMajorCurrenciesRequired})`
+            `${majorCurrenciesWithRates} major currencies with rates (required: ${this.minMajorCurrenciesRequired})`
           );
 
           // Validation: Need at least N major currencies (configurable) OR 50% overall coverage
