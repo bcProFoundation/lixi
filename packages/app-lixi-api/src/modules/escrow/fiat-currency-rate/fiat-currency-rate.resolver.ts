@@ -294,7 +294,7 @@ export class FiatCurrencyRateResolver {
 
             // If this is a major currency, count it
             const currencyCode = currency.toUpperCase();
-            if (this.MAJOR_CURRENCIES.includes(currencyCode)) {
+            if (this.MAJOR_CURRENCIES && this.MAJOR_CURRENCIES.includes(currencyCode)) {
               majorCurrenciesWithRates++;
             }
           }
@@ -478,16 +478,21 @@ export class FiatCurrencyRateResolver {
           // Transform v4 format to AllFiatRates format
           // v4 returns: { AED: [{coin, ts, rate}, ...], ... }
           // GraphQL expects: { currency, fiatRates: [{coin, ts, rate}, ...] }
-          const fiatRates: AllFiatRates[] = Object.keys(data).map(currency => {
-            return {
-              currency: currency.toUpperCase(),
-              fiatRates: data[currency].map((item: FiatRateV4Item) => ({
-                coin: item.coin,
-                ts: item.ts,
-                rate: item.rate || 0 // Use rate from API, fallback to 0
-              }))
-            };
-          });
+          const fiatRates: AllFiatRates[] = Object.keys(data)
+            .filter(currency => {
+              // Only process currencies where data exists and is an array
+              return Array.isArray(data[currency]) && data[currency].length > 0;
+            })
+            .map(currency => {
+              return {
+                currency: currency.toUpperCase(),
+                fiatRates: data[currency].map((item: FiatRateV4Item) => ({
+                  coin: item.coin,
+                  ts: item.ts,
+                  rate: item.rate || 0 // Use rate from API, fallback to 0
+                }))
+              };
+            });
 
           // Check if we have sufficient non-zero rates
           let majorCurrenciesWithRates = 0;
@@ -502,7 +507,7 @@ export class FiatCurrencyRateResolver {
               currenciesWithRates++;
 
               // Check if this is a major currency
-              if (this.MAJOR_CURRENCIES.includes(currencyData.currency)) {
+              if (this.MAJOR_CURRENCIES && this.MAJOR_CURRENCIES.includes(currencyData.currency)) {
                 majorCurrenciesWithRates++;
               }
             }
