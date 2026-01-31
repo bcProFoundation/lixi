@@ -80,9 +80,7 @@ export class FiatCurrencyRateResolver {
     // Initialize configurable validation threshold
     const minMajorEnv = this.configService.get<string>('FIAT_RATE_MIN_MAJOR_CURRENCIES');
     this.minMajorCurrenciesRequired =
-      minMajorEnv && !isNaN(parseInt(minMajorEnv, 10)) && parseInt(minMajorEnv, 10) > 0
-        ? parseInt(minMajorEnv, 10)
-        : 3;
+      minMajorEnv && !isNaN(parseInt(minMajorEnv, 10)) && parseInt(minMajorEnv, 10) > 0 ? parseInt(minMajorEnv, 10) : 3;
     if (!this.notificationBot) {
       this.logger.debug('[Fiat Rate] Telegram notification bot not configured (token missing)');
     } else {
@@ -300,7 +298,7 @@ export class FiatCurrencyRateResolver {
       // Log diagnostic information
       this.logger.debug(
         `[Fiat Rate] ${endpoint} validation: ${nonZeroRatesCount}/${totalRatesChecked} currencies have non-zero rates, ` +
-          `${majorCurrenciesWithRates} major currencies with rates (required: ${this.minMajorCurrenciesRequired})`
+        `${majorCurrenciesWithRates} major currencies with rates (required: ${this.minMajorCurrenciesRequired})`
       );
 
       // Validation logic:
@@ -313,7 +311,7 @@ export class FiatCurrencyRateResolver {
       if (!hasSufficientMajorCurrencies && !hasSufficientOverallCoverage) {
         this.logger.warn(
           `[Fiat Rate] ${endpoint} response has insufficient non-zero rates: ` +
-            `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
+          `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
         );
         return false;
       }
@@ -497,7 +495,7 @@ export class FiatCurrencyRateResolver {
           // Log diagnostic information
           this.logger.log(
             `[Fiat Rate] Rate validation: ${currenciesWithRates}/${totalCurrenciesChecked} currencies have non-zero rates, ` +
-              `${majorCurrenciesWithRates} major currencies with rates (required: ${this.minMajorCurrenciesRequired})`
+            `${majorCurrenciesWithRates} major currencies with rates (required: ${this.minMajorCurrenciesRequired})`
           );
 
           // Validation: Need at least N major currencies (configurable) OR 50% overall coverage
