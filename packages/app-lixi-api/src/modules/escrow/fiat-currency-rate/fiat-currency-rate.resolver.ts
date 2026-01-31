@@ -290,7 +290,7 @@ export class FiatCurrencyRateResolver {
       // Log diagnostic information
       this.logger.debug(
         `[Fiat Rate] ${endpoint} validation: ${nonZeroRatesCount}/${totalRatesChecked} currencies have non-zero rates, ` +
-        `${majorCurrenciesWithRates} major currencies with rates`
+          `${majorCurrenciesWithRates} major currencies with rates`
       );
 
       // Validation logic:
@@ -302,7 +302,7 @@ export class FiatCurrencyRateResolver {
       if (!hasSufficientMajorCurrencies && !hasSufficientOverallCoverage) {
         this.logger.warn(
           `[Fiat Rate] ${endpoint} response has insufficient non-zero rates: ` +
-          `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
+            `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
         );
         return false;
       }
