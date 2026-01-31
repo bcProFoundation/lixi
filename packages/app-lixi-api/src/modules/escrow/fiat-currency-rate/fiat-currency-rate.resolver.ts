@@ -1,4 +1,4 @@
-import { AllFiatRates, CurrencyRates, FiatRates, LIST_CURRENCIES_USED } from '@bcpros/lixi-models';
+import { AllFiatRates, CurrencyRates, FiatRates } from '@bcpros/lixi-models';
 import { Logger, Optional } from '@nestjs/common';
 import { Query, Resolver } from '@nestjs/graphql';
 import * as _ from 'lodash';
@@ -56,6 +56,30 @@ interface FiatRateV3Response {
 interface FiatRateV4Response {
   [currency: string]: FiatRateV4Item[];
 }
+
+// List of currencies used for fetching rates
+const LIST_CURRENCIES_USED: CurrencyInfo[] = [
+  { code: 'USD', name: 'US Dollar', fixAmount: 100, country: 'US' },
+  { code: 'EUR', name: 'Euro', fixAmount: 1000, country: 'EU' },
+  { code: 'GBP', name: 'British Pound Sterling', fixAmount: 1000, country: 'GB' },
+  { code: 'JPY', name: 'Japanese Yen', fixAmount: 1, country: 'JP' },
+  { code: 'AUD', name: 'Australian Dollar', fixAmount: 10000, country: 'AU' },
+  { code: 'CAD', name: 'Canadian Dollar', fixAmount: 100, country: 'CA' },
+  { code: 'CHF', name: 'Swiss Franc', fixAmount: 100, country: 'CH' },
+  { code: 'CNY', name: 'Chinese Yuan', fixAmount: 1000, country: 'CN' },
+  { code: 'SEK', name: 'Swedish Krona', fixAmount: 100, country: 'SE' },
+  { code: 'NZD', name: 'New Zealand Dollar', fixAmount: 10000, country: 'NZ' },
+  { code: 'MXN', name: 'Mexican Peso', fixAmount: 1000, country: 'MX' },
+  { code: 'SGD', name: 'Singapore Dollar', fixAmount: 1000, country: 'SG' },
+  { code: 'HKD', name: 'Hong Kong Dollar', fixAmount: 10000, country: 'HK' },
+  { code: 'NOK', name: 'Norwegian Krone', fixAmount: 100, country: 'NO' },
+  { code: 'KRW', name: 'South Korean Won', fixAmount: 10, country: 'KR' },
+  { code: 'TRY', name: 'Turkish Lira', fixAmount: 1000000, country: 'TR' },
+  { code: 'RUB', name: 'Russian Ruble', fixAmount: 100000, country: 'RU' },
+  { code: 'INR', name: 'Indian Rupee', fixAmount: 100000, country: 'IN' },
+  { code: 'BRL', name: 'Brazilian Real', fixAmount: 1000000, country: 'BR' },
+  { code: 'ZAR', name: 'South African Rand', fixAmount: 1000000, country: 'ZA' },
+];
 
 @Resolver(() => FiatRates)
 export class FiatCurrencyRateResolver {
@@ -305,7 +329,7 @@ export class FiatCurrencyRateResolver {
       // Log diagnostic information
       this.logger.debug(
         `[Fiat Rate] ${endpoint} validation: ${nonZeroRatesCount}/${totalRatesChecked} currencies have non-zero rates, ` +
-          `${majorCurrenciesWithRates} major currencies with rates`
+        `${majorCurrenciesWithRates} major currencies with rates`
       );
 
       // Validation logic:
@@ -317,7 +341,7 @@ export class FiatCurrencyRateResolver {
       if (!hasSufficientMajorCurrencies && !hasSufficientOverallCoverage) {
         this.logger.warn(
           `[Fiat Rate] ${endpoint} response has insufficient non-zero rates: ` +
-            `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
+          `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
         );
         return false;
       }
@@ -501,7 +525,7 @@ export class FiatCurrencyRateResolver {
           // Log diagnostic information
           this.logger.log(
             `[Fiat Rate] Validation: ${majorCoinsWithRates} major coins with USD rates (need 3+), ` +
-              `${totalCoinsInUSD} total coins in USD, USD available: ${hasUSDRates}`
+            `${totalCoinsInUSD} total coins in USD, USD available: ${hasUSDRates}`
           );
 
           // Validation: Need at least 3 major coins AND USD rates for conversion
