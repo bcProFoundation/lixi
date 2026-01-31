@@ -1,6 +1,5 @@
-import { AllFiatRates, CurrencyRates, FiatRates } from '@bcpros/lixi-models';
 import { Logger, Optional } from '@nestjs/common';
-import { Query, Resolver } from '@nestjs/graphql';
+import { Query, Resolver, ObjectType, Field } from '@nestjs/graphql';
 import * as _ from 'lodash';
 import { I18n, I18nService } from 'nestjs-i18n';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -12,6 +11,46 @@ import { AxiosError } from 'axios';
 import { Telegraf } from 'telegraf';
 import { InjectBot } from 'nestjs-telegraf';
 import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../../telegram/telegram-bot.constants';
+
+// GraphQL Object Types
+@ObjectType()
+export class CurrencyRate {
+  @Field()
+  coin: string = '';
+
+  @Field()
+  ts: number = 0;
+
+  @Field()
+  rate: number = 0;
+}
+
+@ObjectType()
+export class CurrencyRates {
+  @Field()
+  coin: string = '';
+
+  @Field(() => [CurrencyRate])
+  rates: { ts: number; rate: number }[] = [];
+}
+
+@ObjectType()
+export class FiatRates {
+  @Field()
+  currency: string = '';
+
+  @Field(() => [CurrencyRates])
+  fiatRates: { coin: string; rates: { ts: number; rate: number }[] }[] = [];
+}
+
+@ObjectType()
+export class AllFiatRates {
+  @Field()
+  currency: string = '';
+
+  @Field(() => [CurrencyRate])
+  fiatRates: CurrencyRate[] = [];
+}
 
 // Type definitions for better type safety
 interface CurrencyInfo {
@@ -78,7 +117,7 @@ const LIST_CURRENCIES_USED: CurrencyInfo[] = [
   { code: 'RUB', name: 'Russian Ruble', fixAmount: 100000, country: 'RU' },
   { code: 'INR', name: 'Indian Rupee', fixAmount: 100000, country: 'IN' },
   { code: 'BRL', name: 'Brazilian Real', fixAmount: 1000000, country: 'BR' },
-  { code: 'ZAR', name: 'South African Rand', fixAmount: 1000000, country: 'ZA' },
+  { code: 'ZAR', name: 'South African Rand', fixAmount: 1000000, country: 'ZA' }
 ];
 
 @Resolver(() => FiatRates)
