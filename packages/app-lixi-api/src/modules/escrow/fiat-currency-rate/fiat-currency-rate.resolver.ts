@@ -11,7 +11,7 @@ import { catchError } from 'rxjs/operators';
 import { AxiosError } from 'axios';
 import { Telegraf } from 'telegraf';
 import { InjectBot } from 'nestjs-telegraf';
-import { TELEGRAM_ERROR_NOTIFICATION_BOT_NAME } from '../../telegram/telegram-bot.constants';
+import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../../telegram/telegram-bot.constants';
 
 // Type definitions for better type safety
 interface CurrencyInfo {
@@ -59,9 +59,13 @@ interface FiatRateV4Response {
 
 @Resolver(() => FiatRates)
 export class FiatCurrencyRateResolver {
-  // Major fiat currencies that should have non-zero rates for valid responses
-  // These are the most commonly used currencies globally
-  private readonly MAJOR_CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY'];
+  // Major supported cryptocurrencies that must have rates
+  // These are the coins that users can trade on the platform
+  private readonly MAJOR_COINS = ['XEC', 'BCH', 'XRP', 'ETH', 'BTC', 'DOGE', 'LTC'];
+
+  // Major fiat currencies for base conversion (USD is critical for converting to all other currencies)
+  // At minimum, we need USD for currency conversion chains: VND->USD->XEC
+  private readonly MAJOR_FIAT_CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY'];
 
   constructor(
     private logger: Logger,
@@ -70,7 +74,7 @@ export class FiatCurrencyRateResolver {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     @Optional()
-    @InjectBot(TELEGRAM_ERROR_NOTIFICATION_BOT_NAME)
+    @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME)
     private readonly notificationBot: Telegraf
   ) {
     if (!this.notificationBot) {
@@ -85,13 +89,15 @@ export class FiatCurrencyRateResolver {
    * Notifies a configured group/channel when fallback is used or all endpoints fail
    */
   private async sendTelegramErrorNotification(
-    errorType: 'FALLBACK_USED' | 'ALL_ENDPOINTS_FAILED',
+    errorType: 'FALLBACK_USED' | 'ALL_ENDPOINTS_FAILED' | 'DEGRADED_DATA',
     details: {
       primaryUrl?: string;
       failedUrls?: Array<{ url: string; reason: string }>;
       successUrl?: string;
       errorMessage?: string;
       timestamp?: string;
+      majorCurrenciesAvailable?: number;
+      totalCurrenciesAvailable?: number;
     }
   ): Promise<void> {
     try {
@@ -128,8 +134,17 @@ export class FiatCurrencyRateResolver {
           message += `\n`;
         }
 
-        message += `*Fallback URL Used Successfully*:\n\`${details.successUrl}\`\n\n`;
+        message += `*Fallback URL Used Successfully*:\n\`${details.successUrl}\`\n`;
+        message += `*Data Quality*: ${details.majorCurrenciesAvailable || 0} major currencies, ${details.totalCurrenciesAvailable || 0} total currencies\n\n`;
         message += `⚠️ Primary endpoint is experiencing issues. Please investigate.`;
+      } else if (errorType === 'DEGRADED_DATA') {
+        message = `🟠 *Fiat Rate API Returning Degraded Data*\n\n`;
+        message += `*Environment*: ${environment}\n`;
+        message += `*Time*: ${timestamp}\n\n`;
+        message += `*Issue*: Fallback service returning incomplete currency data\n`;
+        message += `*Data Quality*: Only ${details.majorCurrenciesAvailable || 0} major currencies available (need at least 3)\n`;
+        message += `*URL*: \`${details.successUrl}\`\n\n`;
+        message += `⚠️ Fallback endpoint is returning insufficient data. Users may see incomplete price information.`;
       } else if (errorType === 'ALL_ENDPOINTS_FAILED') {
         message = `🔴 *CRITICAL: All Fiat Rate APIs Failed*\n\n`;
         message += `*Environment*: ${environment}\n`;
@@ -278,9 +293,9 @@ export class FiatCurrencyRateResolver {
           if (hasNonZeroRate) {
             nonZeroRatesCount++;
 
-            // If this is a major currency, count it
+            // If this is a major fiat currency, count it
             const currencyCode = currency.toUpperCase();
-            if (this.MAJOR_CURRENCIES.includes(currencyCode)) {
+            if (this.MAJOR_FIAT_CURRENCIES.includes(currencyCode)) {
               majorCurrenciesWithRates++;
             }
           }
@@ -290,7 +305,7 @@ export class FiatCurrencyRateResolver {
       // Log diagnostic information
       this.logger.debug(
         `[Fiat Rate] ${endpoint} validation: ${nonZeroRatesCount}/${totalRatesChecked} currencies have non-zero rates, ` +
-          `${majorCurrenciesWithRates} major currencies with rates`
+        `${majorCurrenciesWithRates} major currencies with rates`
       );
 
       // Validation logic:
@@ -302,7 +317,7 @@ export class FiatCurrencyRateResolver {
       if (!hasSufficientMajorCurrencies && !hasSufficientOverallCoverage) {
         this.logger.warn(
           `[Fiat Rate] ${endpoint} response has insufficient non-zero rates: ` +
-            `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
+          `${majorCurrenciesWithRates} major currencies, ${nonZeroRatesCount}/${totalRatesChecked} total (${((nonZeroRatesCount / totalRatesChecked) * 100).toFixed(1)}%)`
         );
         return false;
       }
@@ -464,38 +479,39 @@ export class FiatCurrencyRateResolver {
             };
           });
 
-          // Check if we have sufficient non-zero rates
-          let majorCurrenciesWithRates = 0;
-          let totalCurrenciesChecked = 0;
-          let currenciesWithRates = 0;
+          // Check if we have sufficient coin and currency coverage
+          // We need: 1) At least 3 major coins with rates, 2) USD rates for fiat conversion
+          let majorCoinsWithRates = 0;
+          let hasUSDRates = false;
+          let totalCoinsInUSD = 0;
 
-          fiatRates.forEach(currencyData => {
-            const hasNonZeroRate = currencyData.fiatRates.some((rate: GraphQLFiatRateEntry) => rate.rate > 0);
-            totalCurrenciesChecked++;
+          // First, check USD rates - this is critical for converting any fiat to any other fiat
+          const usdData = fiatRates.find(f => f.currency === 'USD');
+          if (usdData) {
+            const usdCoinsWithRates = usdData.fiatRates.filter((rate: GraphQLFiatRateEntry) => rate.rate > 0);
+            totalCoinsInUSD = usdCoinsWithRates.length;
+            hasUSDRates = usdCoinsWithRates.length > 0;
 
-            if (hasNonZeroRate) {
-              currenciesWithRates++;
-
-              // Check if this is a major currency
-              if (this.MAJOR_CURRENCIES.includes(currencyData.currency)) {
-                majorCurrenciesWithRates++;
-              }
-            }
-          });
+            // Count how many major coins have USD rates
+            majorCoinsWithRates = usdCoinsWithRates.filter(
+              (rate: GraphQLFiatRateEntry) => this.MAJOR_COINS.includes(rate.coin?.toUpperCase())
+            ).length;
+          }
 
           // Log diagnostic information
           this.logger.log(
-            `[Fiat Rate] Rate validation: ${currenciesWithRates}/${totalCurrenciesChecked} currencies have non-zero rates, ` +
-              `${majorCurrenciesWithRates} major currencies with rates`
+            `[Fiat Rate] Validation: ${majorCoinsWithRates} major coins with USD rates (need 3+), ` +
+            `${totalCoinsInUSD} total coins in USD, USD available: ${hasUSDRates}`
           );
 
-          // Validation: Need at least 3 major currencies OR 50% overall coverage
-          const hasSufficientMajorCurrencies = majorCurrenciesWithRates >= 3;
-          const hasSufficientOverallCoverage =
-            totalCurrenciesChecked > 0 && currenciesWithRates / totalCurrenciesChecked >= 0.5;
+          // Validation: Need at least 3 major coins AND USD rates for conversion
+          // USD is essential because it's the bridge currency for all fiat conversions
+          const hasSufficientMajorCoins = majorCoinsWithRates >= 3;
+          const hasCriticalCurrencyForConversion = hasUSDRates;
 
-          if (!hasSufficientMajorCurrencies && !hasSufficientOverallCoverage) {
-            const errorReason = `Insufficient non-zero rates: ${majorCurrenciesWithRates} major currencies, ${currenciesWithRates}/${totalCurrenciesChecked} total (${((currenciesWithRates / totalCurrenciesChecked) * 100).toFixed(1)}%)`;
+          if (!hasSufficientMajorCoins || !hasCriticalCurrencyForConversion) {
+            const errorReason = `Insufficient coin coverage: ${majorCoinsWithRates}/3 major coins with USD rates, ` +
+              `USD rates available: ${hasUSDRates}. Major coins needed: ${this.MAJOR_COINS.join(', ')}`;
             this.logger.warn(`[Fiat Rate] ${errorReason} from ${url}, trying next fallback`);
             lastError = new Error(errorReason);
             failedUrls.push({ url, reason: errorReason });
@@ -508,13 +524,27 @@ export class FiatCurrencyRateResolver {
 
           // Send notification if we used a fallback (primary URL failed but fallback succeeded)
           if (primaryUrlFailed && !isPrimaryUrl) {
-            await this.sendTelegramErrorNotification('FALLBACK_USED', {
-              primaryUrl: urls[0],
-              successUrl: url,
-              failedUrls: failedUrls,
-              errorMessage: lastError?.message || 'Unknown error',
-              timestamp: new Date().toISOString()
-            });
+            // Check if the fallback is returning degraded data (insufficient major coins)
+            if (!hasSufficientMajorCoins) {
+              // Fallback is working but returning incomplete data
+              await this.sendTelegramErrorNotification('DEGRADED_DATA', {
+                successUrl: url,
+                majorCurrenciesAvailable: majorCoinsWithRates,
+                totalCurrenciesAvailable: totalCoinsInUSD,
+                timestamp: new Date().toISOString()
+              });
+            } else {
+              // Fallback is working with sufficient data
+              await this.sendTelegramErrorNotification('FALLBACK_USED', {
+                primaryUrl: urls[0],
+                successUrl: url,
+                failedUrls: failedUrls,
+                errorMessage: lastError?.message || 'Unknown error',
+                majorCurrenciesAvailable: majorCoinsWithRates,
+                totalCurrenciesAvailable: totalCoinsInUSD,
+                timestamp: new Date().toISOString()
+              });
+            }
           }
 
           return fiatRates;
