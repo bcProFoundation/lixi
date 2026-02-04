@@ -3,6 +3,7 @@ import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { COIN } from '../../constants/coins/coin';
+import { GoodsServicesPaymentType } from '../../constants/escrow/escrow';
 import { Country } from '../geo-location/country.model';
 import { Location } from '../geo-location/location.model';
 import { State } from '../geo-location/state.model';
@@ -10,6 +11,12 @@ import { Nullable } from '../nullable';
 
 import { EscrowOrder } from './escrow-order.model';
 import { OfferPaymentMethod } from './offer-payment-method.model';
+
+// Register the GoodsServicesPaymentType enum for GraphQL
+registerEnumType(GoodsServicesPaymentType, {
+  name: 'GoodsServicesPaymentType',
+  description: 'Payment type for Goods & Services offers.'
+});
 
 @ObjectType()
 export class Offer {
@@ -42,6 +49,10 @@ export class Offer {
 
   @Field(() => String, { nullable: true })
   tickerPriceGoodsServices?: Nullable<string>;
+
+  @Field(() => GoodsServicesPaymentType, { nullable: true })
+  @IsOptional()
+  paymentTypeGoodsServices?: Nullable<GoodsServicesPaymentType>;
 
   @Field(() => Float)
   marginPercentage: number;

@@ -499,6 +499,7 @@ export type Offer = {
   price_coin_others: Generated<number | null>;
   price_goods_services: Generated<number | null>;
   ticker_price_goods_services: string | null;
+  payment_type_goods_services: string | null;
   margin_percentage: Generated<number>;
   local_currency: string | null;
   payment_app: string | null;

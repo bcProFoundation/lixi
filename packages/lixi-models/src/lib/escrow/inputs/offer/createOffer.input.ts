@@ -2,6 +2,7 @@ import { Field, Float, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
 import { COIN } from '../../../../constants/coins/coin';
+import { GoodsServicesPaymentType } from '../../../../constants/escrow/escrow';
 import { Nullable } from '../../../nullable';
 import { OfferType } from '../../offer.model';
 
@@ -32,6 +33,10 @@ export class CreateOfferInput {
 
   @Field(() => String, { nullable: true })
   tickerPriceGoodsServices?: Nullable<string>;
+
+  @Field(() => GoodsServicesPaymentType, { nullable: true })
+  @IsOptional()
+  paymentTypeGoodsServices?: Nullable<GoodsServicesPaymentType>;
 
   @Field(() => Float)
   marginPercentage: number;

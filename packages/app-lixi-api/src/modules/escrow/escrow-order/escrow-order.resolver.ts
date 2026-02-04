@@ -75,7 +75,7 @@ export class EscrowOrderResolver {
     private notificationGateway: NotificationGateway,
     @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
     @InjectRedis() private readonly redis: Redis
-  ) {}
+  ) { }
 
   @Query(() => Account)
   @UseGuards(GqlJwtAuthGuard)
@@ -607,15 +607,15 @@ export class EscrowOrderResolver {
           bankInfo:
             paymentMethodId === PAYMENT_METHOD.BANK_TRANSFER || paymentMethodId === PAYMENT_METHOD.PAYMENT_APP
               ? {
-                  create: {
-                    bankName: bankInfoInput?.bankName ?? null,
-                    accountNameBank: bankInfoInput?.bankName ? bankInfoInput?.accountNameBank : '',
-                    accountNumberBank: bankInfoInput?.bankName ? bankInfoInput?.accountNumberBank : '',
-                    appName: bankInfoInput?.appName ?? null,
-                    accountNameApp: bankInfoInput?.appName ? bankInfoInput?.accountNameApp : '',
-                    accountNumberApp: bankInfoInput?.appName ? bankInfoInput?.accountNumberApp : ''
-                  }
+                create: {
+                  bankName: bankInfoInput?.bankName ?? null,
+                  accountNameBank: bankInfoInput?.bankName ? bankInfoInput?.accountNameBank : '',
+                  accountNumberBank: bankInfoInput?.bankName ? bankInfoInput?.accountNumberBank : '',
+                  appName: bankInfoInput?.appName ?? null,
+                  accountNameApp: bankInfoInput?.appName ? bankInfoInput?.accountNameApp : '',
+                  accountNumberApp: bankInfoInput?.appName ? bankInfoInput?.accountNumberApp : ''
                 }
+              }
               : undefined,
           paymentMethod: {
             connect: {
@@ -717,11 +717,11 @@ export class EscrowOrderResolver {
           escrowOrder.message,
           buyerDepositTx
             ? (() => {
-                const fee1Percent = parseFloat((escrowOrder.amount / 100).toFixed(2));
-                const dustXEC = coinInfo[COIN.XEC].dustSats / Math.pow(10, coinInfo[COIN.XEC].cashDecimals);
+              const fee1Percent = parseFloat((escrowOrder.amount / 100).toFixed(2));
+              const dustXEC = coinInfo[COIN.XEC].dustSats / Math.pow(10, coinInfo[COIN.XEC].cashDecimals);
 
-                return Math.max(fee1Percent, dustXEC);
-              })()
+              return Math.max(fee1Percent, dustXEC);
+            })()
             : ''
         );
 
@@ -1001,6 +1001,75 @@ export class EscrowOrderResolver {
             escrowOrderAction: EscrowOrderAction.RETURN_BUYER_FEE
           });
           break;
+
+        case EscrowOrderAction.BUYER_CONFIRM_RECEIPT:
+          // For external payment: buyer confirms receipt, releases seller's collateral back to seller
+          if (result.status !== EscrowOrderStatus.ESCROW) {
+            throw new Error('Escrow order is not in escrow status');
+          }
+
+          // Check if this is an external payment order
+          const offer = await this.prisma.offer.findUnique({
+            where: { postId: result.offerId }
+          });
+
+          if (offer?.paymentTypeGoodsServices !== 'EXTERNAL') {
+            throw new Error('This action is only valid for external payment orders');
+          }
+
+          if (result.returnSignatory) {
+            throw new Error('Return signatory already set');
+          }
+
+          await this.prisma.escrowOrder.update({
+            where: {
+              id: orderId
+            },
+            data: {
+              // Use return signatory to return XEC to seller (same as cancel but for completion)
+              returnSignatory: Buffer.from(signatory, 'hex'),
+              returnFeeSignatory: Buffer.from(signatory, 'hex'),
+              updatedAt: new Date(),
+              signatoryOwnerHash160: signatoryOwnerHash160 ? Buffer.from(signatoryOwnerHash160, 'hex') : null,
+              signatoryOwnerFeeHash160: signatoryOwnerFeeHash160 ? Buffer.from(signatoryOwnerFeeHash160, 'hex') : null
+            }
+          });
+
+          this.notificationGateway.publishEscrowOrderStatus(orderId, {
+            escrowOrderId: orderId,
+            escrowOrder: {
+              returnSignatory: signatory,
+              returnFeeSignatory: signatory,
+              signatoryOwnerHash160,
+              signatoryOwnerFeeHash160
+            },
+            socketId: socketId ?? '',
+            escrowOrderAction: EscrowOrderAction.BUYER_CONFIRM_RECEIPT
+          });
+
+          // Send notification to seller that buyer confirmed receipt
+          await this.bot.telegram
+            .sendMessage(
+              result.sellerAccount.telegramId!,
+              '✅ *Order Completed!*\n\nThe buyer has confirmed receipt of your goods/services. Your collateral is now ready to be claimed.',
+              {
+                parse_mode: 'Markdown',
+                protect_content: true,
+                reply_parameters: {
+                  message_id: result.sellerTelegramMessageId!,
+                  allow_sending_without_reply: true
+                },
+                reply_markup: {
+                  inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
+                }
+              }
+            )
+            .catch(e => {
+              this.logger.error(e);
+            });
+
+          break;
+
         default:
           throw new Error('Invalid action');
       }

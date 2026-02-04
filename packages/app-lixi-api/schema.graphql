@@ -473,6 +473,7 @@ input CreateOfferInput {
   pageId: String
   paymentApp: String
   paymentMethodIds: [Int!]!
+  paymentTypeGoodsServices: GoodsServicesPaymentType
   price: String!
   priceCoinOthers: Float
   priceGoodsServices: Float
@@ -719,6 +720,7 @@ type EscrowOrder {
 
 """The action of escrow order."""
 enum EscrowOrderAction {
+  BUYER_CONFIRM_RECEIPT
   RELEASE
   RETURN
   RETURN_BUYER_FEE
@@ -862,6 +864,12 @@ type FollowPage {
 type FollowPageEdge {
   cursor: String!
   node: FollowPage!
+}
+
+"""Payment type for Goods & Services offers."""
+enum GoodsServicesPaymentType {
+  EXTERNAL
+  IN_APP
 }
 
 type Hashtag {
@@ -1154,6 +1162,7 @@ type Offer {
   orderLimitMin: Float
   paymentApp: String
   paymentMethods: [OfferPaymentMethod!]!
+  paymentTypeGoodsServices: GoodsServicesPaymentType
   postId: String!
   price: String!
   priceCoinOthers: Float

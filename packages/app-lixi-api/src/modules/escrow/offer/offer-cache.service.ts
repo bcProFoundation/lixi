@@ -50,7 +50,8 @@ export class OfferCacheService {
         ...dbValue,
         coin: dbValue?.coin as COIN,
         type: dbValue?.type as OfferType,
-        status: dbValue?.status as OfferStatus
+        status: dbValue?.status as OfferStatus,
+        paymentTypeGoodsServices: dbValue?.paymentTypeGoodsServices as any
       });
 
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(offer)));
@@ -94,7 +95,8 @@ export class OfferCacheService {
           ...dbValue,
           coin: dbValue?.coin as COIN,
           type: dbValue?.type as OfferType,
-          status: dbValue?.status as OfferStatus
+          status: dbValue?.status as OfferStatus,
+          paymentTypeGoodsServices: dbValue?.paymentTypeGoodsServices as any
         });
         itemsMap.set(dbValue.postId, item);
         return [dbValue.postId, Buffer.from(encode(item))];
