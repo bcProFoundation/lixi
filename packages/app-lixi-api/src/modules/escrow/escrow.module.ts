@@ -23,11 +23,9 @@ import { DisputeCacheService } from './dispute/dispute-cache.service';
 import DisputeLoader from './dispute/dispute.loader';
 import { HttpModule } from '@nestjs/axios';
 import { FiatCurrencyRateResolver } from './fiat-currency-rate/fiat-currency-rate.resolver';
-import { ErrorNotificationBotModule } from '../telegram/error-notification/error-notification-bot.module';
 
 @Module({
   imports: [
-    ErrorNotificationBotModule.forRootAsync(),
     AuthModule,
     BullModule.registerQueueAsync({
       name: CONTENT_FANOUT_QUEUE,
