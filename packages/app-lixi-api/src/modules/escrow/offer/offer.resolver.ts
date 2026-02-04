@@ -81,7 +81,7 @@ export class OfferResolver {
     private readonly timelineItemService: TimelineItemService,
     private readonly offerLoader: OfferLoader,
     private notificationGateway: NotificationGateway
-  ) { }
+  ) {}
 
   @Query(() => Offer)
   @UseGuards(GqlJwtAuthGuard)
@@ -700,26 +700,26 @@ export class OfferResolver {
       let formatReplied =
         strLocation && strLocation !== ''
           ? format(
-            BOT.MESSAGE.OFFER_CREATED,
-            strTypeListOffer,
-            result.id,
-            link,
-            offer?.message,
-            offer?.marginPercentage,
-            orderLimitText,
-            offer?.paymentMethods[0].paymentMethod.name,
-            strLocation
-          )
+              BOT.MESSAGE.OFFER_CREATED,
+              strTypeListOffer,
+              result.id,
+              link,
+              offer?.message,
+              offer?.marginPercentage,
+              orderLimitText,
+              offer?.paymentMethods[0].paymentMethod.name,
+              strLocation
+            )
           : format(
-            BOT.MESSAGE.OFFER_CREATED_WITHOUT_LOCATION,
-            strTypeListOffer,
-            result.id,
-            link,
-            offer?.message,
-            offer?.marginPercentage,
-            orderLimitText,
-            offer?.paymentMethods[0].paymentMethod.name
-          );
+              BOT.MESSAGE.OFFER_CREATED_WITHOUT_LOCATION,
+              strTypeListOffer,
+              result.id,
+              link,
+              offer?.message,
+              offer?.marginPercentage,
+              orderLimitText,
+              offer?.paymentMethods[0].paymentMethod.name
+            );
 
       //process for goods services
       if (paymentMethodIds[0] === PAYMENT_METHOD.GOODS_SERVICES) {

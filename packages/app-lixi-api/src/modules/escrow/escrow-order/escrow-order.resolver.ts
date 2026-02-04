@@ -75,7 +75,7 @@ export class EscrowOrderResolver {
     private notificationGateway: NotificationGateway,
     @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
     @InjectRedis() private readonly redis: Redis
-  ) { }
+  ) {}
 
   @Query(() => Account)
   @UseGuards(GqlJwtAuthGuard)
@@ -607,15 +607,15 @@ export class EscrowOrderResolver {
           bankInfo:
             paymentMethodId === PAYMENT_METHOD.BANK_TRANSFER || paymentMethodId === PAYMENT_METHOD.PAYMENT_APP
               ? {
-                create: {
-                  bankName: bankInfoInput?.bankName ?? null,
-                  accountNameBank: bankInfoInput?.bankName ? bankInfoInput?.accountNameBank : '',
-                  accountNumberBank: bankInfoInput?.bankName ? bankInfoInput?.accountNumberBank : '',
-                  appName: bankInfoInput?.appName ?? null,
-                  accountNameApp: bankInfoInput?.appName ? bankInfoInput?.accountNameApp : '',
-                  accountNumberApp: bankInfoInput?.appName ? bankInfoInput?.accountNumberApp : ''
+                  create: {
+                    bankName: bankInfoInput?.bankName ?? null,
+                    accountNameBank: bankInfoInput?.bankName ? bankInfoInput?.accountNameBank : '',
+                    accountNumberBank: bankInfoInput?.bankName ? bankInfoInput?.accountNumberBank : '',
+                    appName: bankInfoInput?.appName ?? null,
+                    accountNameApp: bankInfoInput?.appName ? bankInfoInput?.accountNameApp : '',
+                    accountNumberApp: bankInfoInput?.appName ? bankInfoInput?.accountNumberApp : ''
+                  }
                 }
-              }
               : undefined,
           paymentMethod: {
             connect: {
@@ -717,11 +717,11 @@ export class EscrowOrderResolver {
           escrowOrder.message,
           buyerDepositTx
             ? (() => {
-              const fee1Percent = parseFloat((escrowOrder.amount / 100).toFixed(2));
-              const dustXEC = coinInfo[COIN.XEC].dustSats / Math.pow(10, coinInfo[COIN.XEC].cashDecimals);
+                const fee1Percent = parseFloat((escrowOrder.amount / 100).toFixed(2));
+                const dustXEC = coinInfo[COIN.XEC].dustSats / Math.pow(10, coinInfo[COIN.XEC].cashDecimals);
 
-              return Math.max(fee1Percent, dustXEC);
-            })()
+                return Math.max(fee1Percent, dustXEC);
+              })()
             : ''
         );
 
