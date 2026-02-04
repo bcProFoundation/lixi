@@ -2,11 +2,11 @@ export const COIN_OTHERS = 'Others';
 export const GOODS_SERVICES_UNIT = 'unit';
 
 /**
- * Payment type for Goods & Services offers
- * - IN_APP: Buyer pays XEC through the escrow system (traditional flow)
- * - EXTERNAL: Payment arranged outside the system (seller provides collateral)
+ * Offer category to distinguish XEC trading vs Goods & Services marketplace
+ * - XEC_TRADING: Traditional P2P exchange (buying/selling XEC for fiat/crypto)
+ * - GOODS_SERVICES: Marketplace for goods and services (paid in XEC)
  */
-export enum GoodsServicesPaymentType {
-  IN_APP = 'IN_APP', // Buyer pays XEC in-app (default)
-  EXTERNAL = 'EXTERNAL' // Payment outside system, seller escrows as collateral
+export enum OfferCategory {
+  XEC_TRADING = 'XEC_TRADING', // P2P XEC trading (default when null)
+  GOODS_SERVICES = 'GOODS_SERVICES' // Goods & Services marketplace
 }

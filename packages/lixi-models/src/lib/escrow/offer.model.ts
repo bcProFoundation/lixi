@@ -3,7 +3,7 @@ import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { COIN } from '../../constants/coins/coin';
-import { GoodsServicesPaymentType } from '../../constants/escrow/escrow';
+import { OfferCategory } from '../../constants/escrow/escrow';
 import { Country } from '../geo-location/country.model';
 import { Location } from '../geo-location/location.model';
 import { State } from '../geo-location/state.model';
@@ -12,10 +12,10 @@ import { Nullable } from '../nullable';
 import { EscrowOrder } from './escrow-order.model';
 import { OfferPaymentMethod } from './offer-payment-method.model';
 
-// Register the GoodsServicesPaymentType enum for GraphQL
-registerEnumType(GoodsServicesPaymentType, {
-  name: 'GoodsServicesPaymentType',
-  description: 'Payment type for Goods & Services offers.'
+// Register the OfferCategory enum for GraphQL
+registerEnumType(OfferCategory, {
+  name: 'OfferCategory',
+  description: 'Offer category: XEC trading or Goods & Services marketplace.'
 });
 
 @ObjectType()
@@ -50,9 +50,9 @@ export class Offer {
   @Field(() => String, { nullable: true })
   tickerPriceGoodsServices?: Nullable<string>;
 
-  @Field(() => GoodsServicesPaymentType, { nullable: true })
+  @Field(() => OfferCategory, { nullable: true })
   @IsOptional()
-  paymentTypeGoodsServices?: Nullable<GoodsServicesPaymentType>;
+  offerCategory?: Nullable<OfferCategory>;
 
   @Field(() => Float)
   marginPercentage: number;

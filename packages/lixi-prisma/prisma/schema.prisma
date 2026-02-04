@@ -1372,7 +1372,7 @@ model Offer {
   priceCoinOthers          Float?               @default(0.0) @map("price_coin_others")
   priceGoodsServices         Float?               @default(0.0) @map("price_goods_services")
   tickerPriceGoodsServices   String?              @map("ticker_price_goods_services")
-  paymentTypeGoodsServices   String?              @map("payment_type_goods_services")
+  offerCategory              String?              @map("offer_category")
   marginPercentage           Float                @default(0.0) @map("margin_percentage")
   localCurrency            String?              @map("local_currency")
   paymentApp               String?              @map("payment_app")
