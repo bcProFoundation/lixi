@@ -75,7 +75,7 @@ export class EscrowOrderResolver {
     private notificationGateway: NotificationGateway,
     @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
     @InjectRedis() private readonly redis: Redis
-  ) {}
+  ) { }
 
   @Query(() => Account)
   @UseGuards(GqlJwtAuthGuard)
@@ -607,15 +607,15 @@ export class EscrowOrderResolver {
           bankInfo:
             paymentMethodId === PAYMENT_METHOD.BANK_TRANSFER || paymentMethodId === PAYMENT_METHOD.PAYMENT_APP
               ? {
-                  create: {
-                    bankName: bankInfoInput?.bankName ?? null,
-                    accountNameBank: bankInfoInput?.bankName ? bankInfoInput?.accountNameBank : '',
-                    accountNumberBank: bankInfoInput?.bankName ? bankInfoInput?.accountNumberBank : '',
-                    appName: bankInfoInput?.appName ?? null,
-                    accountNameApp: bankInfoInput?.appName ? bankInfoInput?.accountNameApp : '',
-                    accountNumberApp: bankInfoInput?.appName ? bankInfoInput?.accountNumberApp : ''
-                  }
+                create: {
+                  bankName: bankInfoInput?.bankName ?? null,
+                  accountNameBank: bankInfoInput?.bankName ? bankInfoInput?.accountNameBank : '',
+                  accountNumberBank: bankInfoInput?.bankName ? bankInfoInput?.accountNumberBank : '',
+                  appName: bankInfoInput?.appName ?? null,
+                  accountNameApp: bankInfoInput?.appName ? bankInfoInput?.accountNameApp : '',
+                  accountNumberApp: bankInfoInput?.appName ? bankInfoInput?.accountNumberApp : ''
                 }
+              }
               : undefined,
           paymentMethod: {
             connect: {
@@ -717,11 +717,11 @@ export class EscrowOrderResolver {
           escrowOrder.message,
           buyerDepositTx
             ? (() => {
-                const fee1Percent = parseFloat((escrowOrder.amount / 100).toFixed(2));
-                const dustXEC = coinInfo[COIN.XEC].dustSats / Math.pow(10, coinInfo[COIN.XEC].cashDecimals);
+              const fee1Percent = parseFloat((escrowOrder.amount / 100).toFixed(2));
+              const dustXEC = coinInfo[COIN.XEC].dustSats / Math.pow(10, coinInfo[COIN.XEC].cashDecimals);
 
-                return Math.max(fee1Percent, dustXEC);
-              })()
+              return Math.max(fee1Percent, dustXEC);
+            })()
             : ''
         );
 
@@ -1013,13 +1013,33 @@ export class EscrowOrderResolver {
             throw new Error('Only the buyer can confirm receipt of goods/services');
           }
 
-          // Check if this is an external payment order
+          // Check if this is an external payment order (not direct XEC payment)
+          // External payment = G&S category with non-XEC payment method OR legacy G&S offers (paymentMethodId=5)
+          // Direct XEC payment in G&S (paymentMethodId = CRYPTO with coinPayment = 'XEC') should NOT use BUYER_CONFIRM_RECEIPT
           const offer = await this.prisma.offer.findUnique({
             where: { postId: result.offerId }
           });
 
-          if (offer?.offerCategory !== 'GOODS_SERVICES') {
+          // Legacy G&S offers (paymentMethodId = 5) can use BUYER_CONFIRM_RECEIPT
+          const isLegacyGoodsServices = result.paymentMethodId === PAYMENT_METHOD.GOODS_SERVICES;
+
+          // Check if this is a G&S category offer
+          const hasGoodsServicesCategory = offer?.offerCategory === 'GOODS_SERVICES';
+
+          if (!isLegacyGoodsServices && !hasGoodsServicesCategory) {
             throw new Error('BUYER_CONFIRM_RECEIPT can only be used for Goods & Services marketplace orders');
+          }
+
+          // G&S category with Crypto (XEC) payment method = direct XEC payment, cannot use BUYER_CONFIRM_RECEIPT
+          const coinPayment = (offer?.coinPayment || '').toUpperCase();
+          if (
+            hasGoodsServicesCategory &&
+            result.paymentMethodId === PAYMENT_METHOD.CRYPTO &&
+            coinPayment === 'XEC'
+          ) {
+            throw new Error(
+              'BUYER_CONFIRM_RECEIPT cannot be used for direct XEC payment orders. Use standard release flow instead.'
+            );
           }
 
           if (result.returnSignatory) {
@@ -1067,9 +1087,9 @@ export class EscrowOrderResolver {
                   protect_content: true,
                   reply_parameters: result.sellerTelegramMessageId
                     ? {
-                        message_id: result.sellerTelegramMessageId,
-                        allow_sending_without_reply: true
-                      }
+                      message_id: result.sellerTelegramMessageId,
+                      allow_sending_without_reply: true
+                    }
                     : undefined,
                   reply_markup: {
                     inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
