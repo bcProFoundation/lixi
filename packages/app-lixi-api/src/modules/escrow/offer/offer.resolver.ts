@@ -48,7 +48,6 @@ import OfferLoader from './offer.loader';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { PostCacheService } from 'src/modules/page/post-cache.service';
 import { InjectBot } from 'nestjs-telegraf';
-import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from 'src/modules/telegram/telegram-bot.constants';
 import { format } from 'node:util';
 import { Context, Telegraf } from 'telegraf';
 import { BOT } from 'src/utils/bot.constants';
@@ -75,7 +74,7 @@ export class OfferResolver {
     @InjectChronikClientNode('xec') private chronikXEC: ChronikClientNode,
     @InjectQueue(CONTENT_FANOUT_QUEUE) private postFanoutQueue: Queue,
     @InjectRedis() private readonly redis: Redis,
-    @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
+    @InjectBot(process.env.TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
     private readonly offerCacheService: OfferCacheService,
     private readonly postCacheService: PostCacheService,
     private readonly timelineItemService: TimelineItemService,

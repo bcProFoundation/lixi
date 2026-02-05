@@ -44,7 +44,6 @@ import { format } from 'node:util';
 import { BOT } from 'src/utils/bot.constants';
 import { InjectBot } from 'nestjs-telegraf';
 import { Context, Telegraf } from 'telegraf';
-import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../../telegram/telegram-bot.constants';
 import { GqlThrottlerGuard } from '../../auth/guards/gql-throttler.guard';
 import { template } from 'src/utils/stringTemplate';
 import { Redis } from 'ioredis';
@@ -73,7 +72,7 @@ export class EscrowOrderResolver {
     private readonly disputeCacheService: DisputeCacheService,
     private readonly timelineItemService: TimelineItemService,
     private notificationGateway: NotificationGateway,
-    @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
+    @InjectBot(process.env.TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
     @InjectRedis() private readonly redis: Redis
   ) {}
 

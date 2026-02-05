@@ -18,12 +18,12 @@ export class ErrorNotificationBotModule {
       imports.push(
         TelegrafModule.forRootAsync({
           inject: [ConfigService],
-          botName: process.env.TELEGRAM_LOCAL_ECASH_BOT_NAME,
+          botName: process.env.TELEGRAM_ERROR_NOTIFICATION_BOT_NAME,
           useFactory: async (configService: ConfigService) => {
             return {
               token: configService.get<string>('TELEGRAM_ERROR_NOTIFICATION_BOT_TOKEN')!,
               include: [],
-              botName: process.env.TELEGRAM_LOCAL_ECASH_BOT_NAME
+              botName: process.env.TELEGRAM_ERROR_NOTIFICATION_BOT_NAME
             };
           }
         })
