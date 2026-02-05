@@ -468,12 +468,12 @@ input CreateOfferInput {
   marginPercentage: Float!
   message: String!
   noteOffer: String
+  offerCategory: OfferCategory
   orderLimitMax: Float
   orderLimitMin: Float
   pageId: String
   paymentApp: String
   paymentMethodIds: [Int!]!
-  paymentTypeGoodsServices: GoodsServicesPaymentType
   price: String!
   priceCoinOthers: Float
   priceGoodsServices: Float
@@ -866,12 +866,6 @@ type FollowPageEdge {
   node: FollowPage!
 }
 
-"""Payment type for Goods & Services offers."""
-enum GoodsServicesPaymentType {
-  EXTERNAL
-  IN_APP
-}
-
 type Hashtag {
   content: String!
 
@@ -1158,11 +1152,11 @@ type Offer {
   marginPercentage: Float!
   message: String!
   noteOffer: String
+  offerCategory: OfferCategory
   orderLimitMax: Float
   orderLimitMin: Float
   paymentApp: String
   paymentMethods: [OfferPaymentMethod!]!
-  paymentTypeGoodsServices: GoodsServicesPaymentType
   postId: String!
   price: String!
   priceCoinOthers: Float
@@ -1181,6 +1175,12 @@ type Offer {
 type OfferBasicEdge {
   cursor: String!
   node: Offer!
+}
+
+"""Offer category: XEC trading or Goods & Services marketplace."""
+enum OfferCategory {
+  GOODS_SERVICES
+  XEC_TRADING
 }
 
 input OfferFilterInput {
