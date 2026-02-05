@@ -75,7 +75,7 @@ export class EscrowOrderResolver {
     private notificationGateway: NotificationGateway,
     @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
     @InjectRedis() private readonly redis: Redis
-  ) {}
+  ) { }
 
   @Query(() => Account)
   @UseGuards(GqlJwtAuthGuard)
@@ -607,15 +607,15 @@ export class EscrowOrderResolver {
           bankInfo:
             paymentMethodId === PAYMENT_METHOD.BANK_TRANSFER || paymentMethodId === PAYMENT_METHOD.PAYMENT_APP
               ? {
-                  create: {
-                    bankName: bankInfoInput?.bankName ?? null,
-                    accountNameBank: bankInfoInput?.bankName ? bankInfoInput?.accountNameBank : '',
-                    accountNumberBank: bankInfoInput?.bankName ? bankInfoInput?.accountNumberBank : '',
-                    appName: bankInfoInput?.appName ?? null,
-                    accountNameApp: bankInfoInput?.appName ? bankInfoInput?.accountNameApp : '',
-                    accountNumberApp: bankInfoInput?.appName ? bankInfoInput?.accountNumberApp : ''
-                  }
+                create: {
+                  bankName: bankInfoInput?.bankName ?? null,
+                  accountNameBank: bankInfoInput?.bankName ? bankInfoInput?.accountNameBank : '',
+                  accountNumberBank: bankInfoInput?.bankName ? bankInfoInput?.accountNumberBank : '',
+                  appName: bankInfoInput?.appName ?? null,
+                  accountNameApp: bankInfoInput?.appName ? bankInfoInput?.accountNameApp : '',
+                  accountNumberApp: bankInfoInput?.appName ? bankInfoInput?.accountNumberApp : ''
                 }
+              }
               : undefined,
           paymentMethod: {
             connect: {
@@ -717,11 +717,11 @@ export class EscrowOrderResolver {
           escrowOrder.message,
           buyerDepositTx
             ? (() => {
-                const fee1Percent = parseFloat((escrowOrder.amount / 100).toFixed(2));
-                const dustXEC = coinInfo[COIN.XEC].dustSats / Math.pow(10, coinInfo[COIN.XEC].cashDecimals);
+              const fee1Percent = parseFloat((escrowOrder.amount / 100).toFixed(2));
+              const dustXEC = coinInfo[COIN.XEC].dustSats / Math.pow(10, coinInfo[COIN.XEC].cashDecimals);
 
-                return Math.max(fee1Percent, dustXEC);
-              })()
+              return Math.max(fee1Percent, dustXEC);
+            })()
             : ''
         );
 
@@ -1008,13 +1008,18 @@ export class EscrowOrderResolver {
             throw new Error('Escrow order is not in escrow status');
           }
 
+          // Only the buyer can confirm receipt
+          if (account.id !== result.buyerAccountId) {
+            throw new Error('Only the buyer can confirm receipt of goods/services');
+          }
+
           // Check if this is an external payment order
           const offer = await this.prisma.offer.findUnique({
             where: { postId: result.offerId }
           });
 
           if (offer?.offerCategory !== 'GOODS_SERVICES') {
-            throw new Error('This action is only valid for external payment orders');
+            throw new Error('BUYER_CONFIRM_RECEIPT can only be used for Goods & Services marketplace orders');
           }
 
           if (result.returnSignatory) {
@@ -1026,7 +1031,11 @@ export class EscrowOrderResolver {
               id: orderId
             },
             data: {
-              // Use return signatory to return XEC to seller (same as cancel but for completion)
+              // For external payment orders, the seller escrows XEC as collateral.
+              // When the buyer confirms receipt (BUYER_CONFIRM_RECEIPT), this collateral is
+              // released back to the seller using the \"return\" spend path, so we store
+              // the seller's return signatory here (similar mechanism as cancel/RETURN,
+              // but used for successful completion instead of refunding the buyer).
               returnSignatory: Buffer.from(signatory, 'hex'),
               returnFeeSignatory: Buffer.from(signatory, 'hex'),
               updatedAt: new Date(),
@@ -1048,25 +1057,33 @@ export class EscrowOrderResolver {
           });
 
           // Send notification to seller that buyer confirmed receipt
-          await this.bot.telegram
-            .sendMessage(
-              result.sellerAccount.telegramId!,
-              '✅ *Order Completed!*\n\nThe buyer has confirmed receipt of your goods/services. Your collateral is now ready to be claimed.',
-              {
-                parse_mode: 'Markdown',
-                protect_content: true,
-                reply_parameters: {
-                  message_id: result.sellerTelegramMessageId!,
-                  allow_sending_without_reply: true
-                },
-                reply_markup: {
-                  inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
+          if (result.sellerAccount && result.sellerAccount.telegramId) {
+            await this.bot.telegram
+              .sendMessage(
+                result.sellerAccount.telegramId,
+                '✅ *Order Completed!*\\n\\nThe buyer has confirmed receipt of your goods/services. Your collateral is now ready to be claimed.',
+                {
+                  parse_mode: 'Markdown',
+                  protect_content: true,
+                  reply_parameters: result.sellerTelegramMessageId
+                    ? {
+                      message_id: result.sellerTelegramMessageId,
+                      allow_sending_without_reply: true
+                    }
+                    : undefined,
+                  reply_markup: {
+                    inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
+                  }
                 }
-              }
-            )
-            .catch(e => {
-              this.logger.error(e);
-            });
+              )
+              .catch(e => {
+                this.logger.error(e);
+              });
+          } else {
+            this.logger.warn(
+              `Cannot send Telegram notification for buyer confirmation: missing seller telegramId (orderId=${orderId}).`
+            );
+          }
 
           break;
 

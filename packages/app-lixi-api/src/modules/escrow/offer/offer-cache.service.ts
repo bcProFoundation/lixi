@@ -1,4 +1,4 @@
-import { BoostForType, COIN, Offer, OfferFilterInput, OfferStatus, POST_TYPE, OfferType } from '@bcpros/lixi-models';
+import { BoostForType, COIN, Offer, OfferCategory, OfferFilterInput, OfferStatus, POST_TYPE, OfferType } from '@bcpros/lixi-models';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { decode, encode } from '@msgpack/msgpack';
 import { Logger } from '@nestjs/common';
@@ -33,7 +33,7 @@ export class OfferCacheService {
   constructor(
     private readonly prisma: PrismaService,
     @InjectRedis() private readonly redis: Redis
-  ) {}
+  ) { }
 
   async getById(id: string): Promise<Nullable<Offer>> {
     const buffer = await this.redis.hgetBuffer(this.keyPrefix, id);
@@ -51,7 +51,7 @@ export class OfferCacheService {
         coin: dbValue?.coin as COIN,
         type: dbValue?.type as OfferType,
         status: dbValue?.status as OfferStatus,
-        offerCategory: dbValue?.offerCategory as any
+        offerCategory: dbValue?.offerCategory as OfferCategory | null
       });
 
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(offer)));
@@ -83,10 +83,10 @@ export class OfferCacheService {
     const dbValues =
       uncachedIds.length > 0
         ? await this.prisma.offer.findMany({
-            where: {
-              postId: { in: uncachedIds }
-            }
-          })
+          where: {
+            postId: { in: uncachedIds }
+          }
+        })
         : [];
 
     const dbValuesMap = new Map(
@@ -96,7 +96,7 @@ export class OfferCacheService {
           coin: dbValue?.coin as COIN,
           type: dbValue?.type as OfferType,
           status: dbValue?.status as OfferStatus,
-          offerCategory: dbValue?.offerCategory as any
+          offerCategory: dbValue?.offerCategory as OfferCategory | null
         });
         itemsMap.set(dbValue.postId, item);
         return [dbValue.postId, Buffer.from(encode(item))];
@@ -312,41 +312,41 @@ export class OfferCacheService {
       //query all post with of account
       const posts = cursor
         ? await this.prisma.post.findMany({
-            select: {
-              id: true,
-              type: true,
-              createdAt: true
-            },
-            where: {
-              accountId,
-              offer: {
-                status: offerStatus
-              }
-            },
-            orderBy: {
-              createdAt: 'desc'
-            },
-            cursor: { id: cursor ? cursor : undefined },
-            take: limit,
-            skip: 1 // skip cursor item
-          })
+          select: {
+            id: true,
+            type: true,
+            createdAt: true
+          },
+          where: {
+            accountId,
+            offer: {
+              status: offerStatus
+            }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          },
+          cursor: { id: cursor ? cursor : undefined },
+          take: limit,
+          skip: 1 // skip cursor item
+        })
         : await this.prisma.post.findMany({
-            select: {
-              id: true,
-              type: true,
-              createdAt: true
-            },
-            where: {
-              accountId,
-              offer: {
-                status: offerStatus
-              }
-            },
-            orderBy: {
-              createdAt: 'desc'
-            },
-            take: limit
-          });
+          select: {
+            id: true,
+            type: true,
+            createdAt: true
+          },
+          where: {
+            accountId,
+            offer: {
+              status: offerStatus
+            }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          },
+          take: limit
+        });
 
       // Check if there are any posts
       // If not means that we should not need to query anymore
