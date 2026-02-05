@@ -468,6 +468,7 @@ input CreateOfferInput {
   marginPercentage: Float!
   message: String!
   noteOffer: String
+  offerCategory: OfferCategory
   orderLimitMax: Float
   orderLimitMin: Float
   pageId: String
@@ -719,6 +720,7 @@ type EscrowOrder {
 
 """The action of escrow order."""
 enum EscrowOrderAction {
+  BUYER_CONFIRM_RECEIPT
   RELEASE
   RETURN
   RETURN_BUYER_FEE
@@ -1150,6 +1152,7 @@ type Offer {
   marginPercentage: Float!
   message: String!
   noteOffer: String
+  offerCategory: OfferCategory
   orderLimitMax: Float
   orderLimitMin: Float
   paymentApp: String
@@ -1172,6 +1175,12 @@ type Offer {
 type OfferBasicEdge {
   cursor: String!
   node: Offer!
+}
+
+"""Offer category: XEC trading or Goods & Services marketplace."""
+enum OfferCategory {
+  GOODS_SERVICES
+  XEC_TRADING
 }
 
 input OfferFilterInput {

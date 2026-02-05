@@ -600,6 +600,7 @@ export class OfferResolver {
                 priceCoinOthers: data?.priceCoinOthers ?? 0,
                 priceGoodsServices: data?.priceGoodsServices ?? 0,
                 tickerPriceGoodsServices: data?.tickerPriceGoodsServices ?? null,
+                offerCategory: data?.offerCategory ?? null,
                 localCurrency: data.localCurrency,
                 paymentApp: data.paymentApp,
                 orderLimitMin: data.orderLimitMin,

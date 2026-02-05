@@ -3,6 +3,7 @@ import { IsOptional } from 'class-validator';
 import { GraphQLDateTime } from 'graphql-scalars';
 
 import { COIN } from '../../constants/coins/coin';
+import { OfferCategory } from '../../constants/escrow/escrow';
 import { Country } from '../geo-location/country.model';
 import { Location } from '../geo-location/location.model';
 import { State } from '../geo-location/state.model';
@@ -10,6 +11,12 @@ import { Nullable } from '../nullable';
 
 import { EscrowOrder } from './escrow-order.model';
 import { OfferPaymentMethod } from './offer-payment-method.model';
+
+// Register the OfferCategory enum for GraphQL
+registerEnumType(OfferCategory, {
+  name: 'OfferCategory',
+  description: 'Offer category: XEC trading or Goods & Services marketplace.'
+});
 
 @ObjectType()
 export class Offer {
@@ -42,6 +49,10 @@ export class Offer {
 
   @Field(() => String, { nullable: true })
   tickerPriceGoodsServices?: Nullable<string>;
+
+  @Field(() => OfferCategory, { nullable: true })
+  @IsOptional()
+  offerCategory?: Nullable<OfferCategory>;
 
   @Field(() => Float)
   marginPercentage: number;

@@ -1000,6 +1000,127 @@ export class EscrowOrderResolver {
             escrowOrderAction: EscrowOrderAction.RETURN_BUYER_FEE
           });
           break;
+
+        case EscrowOrderAction.BUYER_CONFIRM_RECEIPT:
+          /**
+           * BUYER_CONFIRM_RECEIPT Action
+           *
+           * Purpose: For external payment orders where seller escrows collateral,
+           * buyer confirms receipt of goods/services, releasing seller's collateral back.
+           *
+           * Valid for:
+           *  1. Legacy G&S (paymentMethodId = 5): Old format before offerCategory field
+           *  2. G&S + Bank Transfer (paymentMethodId = 2): External bank payment
+           *  3. G&S + Payment App (paymentMethodId = 3): External payment app
+           *  4. G&S + Crypto non-XEC (paymentMethodId = 4, coinPayment != 'XEC'): Other cryptocurrencies
+           *
+           * NOT valid for:
+           *  - G&S + Crypto XEC (paymentMethodId = 4, coinPayment = 'XEC'): Uses direct payment
+           *    This is direct XEC deposit by buyer, uses standard release flow
+           *  - Standard XEC trading (not G&S category): Uses standard release flow
+           *
+           * Mechanism:
+           *  - Seller initially deposits XEC as collateral
+           *  - Buyer confirms receipt (this action)
+           *  - Seller's collateral is released back using "return" spend path
+           */
+          if (result.status !== EscrowOrderStatus.ESCROW) {
+            throw new Error('Escrow order is not in escrow status');
+          }
+
+          // Only the buyer can confirm receipt
+          if (account.id !== result.buyerAccountId) {
+            throw new Error('Only the buyer can confirm receipt of goods/services');
+          }
+
+          const offer = await this.prisma.offer.findUnique({
+            where: { postId: result.offerId }
+          });
+
+          // Legacy G&S offers (paymentMethodId = 5) can use BUYER_CONFIRM_RECEIPT
+          const isLegacyGoodsServices = result.paymentMethodId === PAYMENT_METHOD.GOODS_SERVICES;
+
+          // Check if this is a G&S category offer
+          const hasGoodsServicesCategory = offer?.offerCategory === 'GOODS_SERVICES';
+
+          if (!isLegacyGoodsServices && !hasGoodsServicesCategory) {
+            throw new Error('BUYER_CONFIRM_RECEIPT can only be used for Goods & Services marketplace orders');
+          }
+
+          // G&S category with Crypto (XEC) = direct payment, NOT external payment
+          // Direct XEC payment should use standard release flow, not BUYER_CONFIRM_RECEIPT
+          const coinPayment = (offer?.coinPayment || '').toUpperCase();
+          if (hasGoodsServicesCategory && result.paymentMethodId === PAYMENT_METHOD.CRYPTO && coinPayment === 'XEC') {
+            throw new Error(
+              'BUYER_CONFIRM_RECEIPT cannot be used for direct XEC payment orders. Use standard release flow instead.'
+            );
+          }
+
+          if (result.returnSignatory) {
+            throw new Error('Return signatory already set');
+          }
+
+          await this.prisma.escrowOrder.update({
+            where: {
+              id: orderId
+            },
+            data: {
+              // For external payment orders, the seller escrows XEC as collateral.
+              // When the buyer confirms receipt (BUYER_CONFIRM_RECEIPT), this collateral is
+              // released back to the seller using the \"return\" spend path, so we store
+              // the seller's return signatory here (similar mechanism as cancel/RETURN,
+              // but used for successful completion instead of refunding the buyer).
+              returnSignatory: Buffer.from(signatory, 'hex'),
+              returnFeeSignatory: Buffer.from(signatory, 'hex'),
+              updatedAt: new Date(),
+              signatoryOwnerHash160: signatoryOwnerHash160 ? Buffer.from(signatoryOwnerHash160, 'hex') : null,
+              signatoryOwnerFeeHash160: signatoryOwnerFeeHash160 ? Buffer.from(signatoryOwnerFeeHash160, 'hex') : null
+            }
+          });
+
+          this.notificationGateway.publishEscrowOrderStatus(orderId, {
+            escrowOrderId: orderId,
+            escrowOrder: {
+              returnSignatory: signatory,
+              returnFeeSignatory: signatory,
+              signatoryOwnerHash160,
+              signatoryOwnerFeeHash160
+            },
+            socketId: socketId ?? '',
+            escrowOrderAction: EscrowOrderAction.BUYER_CONFIRM_RECEIPT
+          });
+
+          // Send notification to seller that buyer confirmed receipt
+          if (result.sellerAccount && result.sellerAccount.telegramId) {
+            await this.bot.telegram
+              .sendMessage(
+                result.sellerAccount.telegramId,
+                '✅ *Order Completed!*\\n\\nThe buyer has confirmed receipt of your goods/services. Your collateral is now ready to be claimed.',
+                {
+                  parse_mode: 'Markdown',
+                  protect_content: true,
+                  reply_parameters: result.sellerTelegramMessageId
+                    ? {
+                        message_id: result.sellerTelegramMessageId,
+                        allow_sending_without_reply: true
+                      }
+                    : undefined,
+                  reply_markup: {
+                    inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
+                  }
+                }
+              )
+              .catch(e => {
+                this.logger.error(e);
+              });
+          } else {
+            this.logger.warn(
+              `Cannot send Telegram notification for buyer confirmation: missing seller telegramId (orderId=${orderId}).`
+            );
+          }
+
+          break;
+
         default:
           throw new Error('Invalid action');
       }

@@ -500,6 +500,7 @@ export type CreateOfferInput = {
   pageId?: InputMaybe<Scalars['String']['input']>;
   paymentApp?: InputMaybe<Scalars['String']['input']>;
   paymentMethodIds: Array<Scalars['Int']['input']>;
+  paymentTypeGoodsServices?: InputMaybe<GoodsServicesPaymentType>;
   price: Scalars['String']['input'];
   priceCoinOthers?: InputMaybe<Scalars['Float']['input']>;
   priceGoodsServices?: InputMaybe<Scalars['Float']['input']>;
@@ -741,6 +742,7 @@ export type EscrowOrder = {
 
 /** The action of escrow order. */
 export enum EscrowOrderAction {
+  BuyerConfirmReceipt = 'BUYER_CONFIRM_RECEIPT',
   Release = 'RELEASE',
   Return = 'RETURN',
   ReturnBuyerFee = 'RETURN_BUYER_FEE',
@@ -887,6 +889,12 @@ export type FollowPageEdge = {
   cursor: Scalars['String']['output'];
   node: FollowPage;
 };
+
+/** Payment type for Goods & Services offers. */
+export enum GoodsServicesPaymentType {
+  External = 'EXTERNAL',
+  InApp = 'IN_APP'
+}
 
 export type Hashtag = {
   __typename?: 'Hashtag';
@@ -1361,6 +1369,7 @@ export type Offer = {
   orderLimitMin?: Maybe<Scalars['Float']['output']>;
   paymentApp?: Maybe<Scalars['String']['output']>;
   paymentMethods: Array<OfferPaymentMethod>;
+  paymentTypeGoodsServices?: Maybe<GoodsServicesPaymentType>;
   postId: Scalars['String']['output'];
   price: Scalars['String']['output'];
   priceCoinOthers?: Maybe<Scalars['Float']['output']>;
