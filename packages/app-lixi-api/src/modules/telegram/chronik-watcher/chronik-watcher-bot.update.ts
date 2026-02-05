@@ -1,20 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectBot, Start, Update, Command } from 'nestjs-telegraf';
-import { Context, Telegraf } from 'telegraf';
-import { PrismaService } from '../../prisma/prisma.service';
-import { TELEGRAM_CHRONIK_WATCHER_BOT_NAME } from '../telegram-bot.constants';
-import { format } from 'node:util';
-import { ChronikWatchAddress, Prisma, Role } from '@bcpros/lixi-prisma';
-import moment from 'moment';
-import { BOT, InfoStatistics, PERIOD_TIME } from 'src/utils/bot.constants';
-import { ConfigService } from '@nestjs/config';
-import { ChronikClientNode, MsgTxClient, WsEndpoint_InNode, WsMsgClient } from 'chronik-client';
-import { InjectChronikClientNode } from 'nestjs-chronik';
-import { isValidXecAddress } from 'src/utils/cashMethodsNode';
 import _ from 'lodash';
-import { COIN, coinInfo } from '@bcpros/lixi-models';
-import * as cashaddr from 'ecashaddrjs';
-import { ChronikWatcherCacheService } from './chronik-watcher-cache.service';
 
 type ParsedUtxoType = {
   txid: string;

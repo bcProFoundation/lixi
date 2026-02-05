@@ -28,7 +28,6 @@ import { DisputeCacheService } from './dispute-cache.service';
 import { TimelineItemService } from 'src/modules/timeline/timeline-item.service';
 import { createEdge } from 'src/common/custom-graphql-relay/paginate';
 import { InjectBot } from 'nestjs-telegraf';
-import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../../telegram/telegram-bot.constants';
 import { Context, Telegraf } from 'telegraf';
 import { format } from 'node:util';
 import { BOT } from 'src/utils/bot.constants';
@@ -49,7 +48,7 @@ export class DisputeResolver {
     private readonly disputeCacheService: DisputeCacheService,
     private readonly timelineItemService: TimelineItemService,
     private notificationGateway: NotificationGateway,
-    @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>
+    @InjectBot(process.env.TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>
   ) {}
 
   @Query(() => Dispute)

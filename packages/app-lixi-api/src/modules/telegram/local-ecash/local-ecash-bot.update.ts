@@ -2,7 +2,6 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectBot, Start, Update, Command } from 'nestjs-telegraf';
 import { Context, Telegraf } from 'telegraf';
 import { PrismaService } from '../../prisma/prisma.service';
-import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../telegram-bot.constants';
 import { format } from 'node:util';
 import { Prisma, Role } from '@bcpros/lixi-prisma';
 import moment from 'moment';
@@ -51,7 +50,7 @@ export class LocalEcashBotUpdate implements OnModuleInit {
 
   constructor(
     @InjectChronikClientNode('xec') private chronik: ChronikClientNode,
-    @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
+    @InjectBot(process.env.TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>,
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly localEcashCacheService: LocalEcashCacheService

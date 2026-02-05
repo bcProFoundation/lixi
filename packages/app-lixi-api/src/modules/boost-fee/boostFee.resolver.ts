@@ -26,7 +26,6 @@ import { BOOST_FANOUT_QUEUE } from './boost.constants';
 import { fromCoinToSatoshis } from 'src/utils/cashMethods';
 import BigNumber from 'bignumber.js';
 import { InjectBot } from 'nestjs-telegraf';
-import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../telegram/telegram-bot.constants';
 import { Context, Telegraf } from 'telegraf';
 import { BOT } from 'src/utils/bot.constants';
 import { format } from 'node:util';
@@ -47,7 +46,7 @@ export class BoostFeeResolver {
     @InjectChronikClient('xpi') private chronikXPI: ChronikClient,
     @InjectChronikClientNode('xec') private chronikXEC: ChronikClientNode,
     private readonly postBoostCacheService: PostBoostCacheService,
-    @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>
+    @InjectBot(process.env.TELEGRAM_LOCAL_ECASH_BOT_NAME) private bot: Telegraf<Context>
   ) {}
 
   @UseGuards(GqlJwtAuthGuard)

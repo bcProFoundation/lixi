@@ -2,9 +2,8 @@ import { DynamicModule, Global, Logger, Module, Provider } from '@nestjs/common'
 import { createAsyncProviders } from '../telegram-bot.providers';
 import { TelegramBotModuleAsyncOptions } from '../telegram-bot.interface';
 import { TelegrafModule } from 'nestjs-telegraf';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { LocalEcashBotUpdate } from './local-ecash-bot.update';
-import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../telegram-bot.constants';
 import { TelegramBotController } from './local-ecash-bot.controller';
 import { LocalEcashCacheService } from './local-ecash-cache.service';
 
@@ -21,7 +20,7 @@ export class LocalEcashBotModule {
       imports.push(
         TelegrafModule.forRootAsync({
           inject: [ConfigService],
-          botName: TELEGRAM_LOCAL_ECASH_BOT_NAME,
+          botName: process.env.TELEGRAM_LOCAL_ECASH_BOT_NAME,
           useFactory: async (configService: ConfigService) => {
             return {
               token: configService.get<string>('TELEGRAM_LOCAL_ECASH_BOT_TOKEN')!,
