@@ -25,7 +25,6 @@ if [ -s "$NVM_DIR/nvm.sh" ]; then
 fi
 
 corepack enable
-corepack prepare pnpm@8.15.4 --activate
 
 # System services for lixi backend
 if command -v pg_ctlcluster >/dev/null 2>&1; then
@@ -41,7 +40,7 @@ fi
 cd "$LIXI_DIR"
 git lfs pull || true
 corepack prepare pnpm@8.15.4 --activate
-pnpm install --frozen-lockfile
+pnpm install
 
 # Configure lixi env files if missing
 if [ ! -f packages/lixi-prisma/.env ]; then
@@ -81,7 +80,7 @@ npx tsc -p tsconfig.module.json --skipLibCheck
 if [ -n "${LOCAL_ECASH_DIR:-}" ]; then
   cd "$LOCAL_ECASH_DIR"
   corepack prepare pnpm@10.17.0 --activate
-  pnpm install --frozen-lockfile
+  pnpm install
 
   if [ ! -f apps/telegram-ecash-escrow/.env ]; then
     cp apps/telegram-ecash-escrow/.env.example apps/telegram-ecash-escrow/.env
