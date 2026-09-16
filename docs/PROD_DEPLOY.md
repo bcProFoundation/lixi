@@ -27,6 +27,13 @@ export CMC_API_KEY=<key> OER_APP_ID=<id>
 Knobs: `LIXI_REF` / `ECASH_REF` (default `master`), `LIXI_DIR` / `ECASH_DIR`
 (default: sibling checkouts), `--dry-run` to print the plan only.
 
+Prereqs on the machine running the script: `git`, `git-lfs`, `ssh`/`scp`
+(`sshpass` if using password auth). The script packages sources via a
+detached worktree so git-lfs files ship as real content (not pointers);
+it fails loudly if a blob is missing — run `git lfs pull` in your checkout
+first if that happens. `worldcities.tar.gz` (57MB, LFS) must be present in
+the image because `db:seeds` extracts it at container start.
+
 ## GitHub Actions (future prod builds)
 
 The same script runs in CI via `.github/workflows/deploy-prod.yml`

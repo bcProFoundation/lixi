@@ -46,6 +46,8 @@ jobs:
           ref: ${{ inputs.lixi_ref }}
           path: lixi
           fetch-depth: 0
+          # worldcities.tar.gz (57MB, needed by db:seeds) is git-lfs tracked
+          lfs: true
 
       - name: Check out local-ecash
         if: inputs.services == 'all' || inputs.services == 'web'
