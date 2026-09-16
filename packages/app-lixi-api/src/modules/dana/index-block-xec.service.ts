@@ -21,30 +21,34 @@ export class DanaIndexXECService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    //clear queue before run
-    await this.indexBlockQueue.drain();
+    try {
+      //clear queue before run
+      await this.indexBlockQueue.drain();
 
-    const { tipHeight: highest } = await this.chronikXEC.blockchainInfo();
-    const currentHeightStr = await this.redis.get(this.keyIndexHighestBlockData);
-    const currentHeightNumber = currentHeightStr ? Number(currentHeightStr) : 0; //xec start with 0
+      const { tipHeight: highest } = await this.chronikXEC.blockchainInfo();
+      const currentHeightStr = await this.redis.get(this.keyIndexHighestBlockData);
+      const currentHeightNumber = currentHeightStr ? Number(currentHeightStr) : 0; //xec start with 0
 
-    //run to highest
-    const stepToFetch = 350;
-    for (let i = currentHeightNumber; i <= highest; i += stepToFetch) {
-      const indexToBlock = i + stepToFetch > highest ? highest : i + stepToFetch;
+      //run to highest
+      const stepToFetch = 350;
+      for (let i = currentHeightNumber; i <= highest; i += stepToFetch) {
+        const indexToBlock = i + stepToFetch > highest ? highest : i + stepToFetch;
+        await this.indexBlockQueue.add(INDEX_BLOCK_QUEUE, {
+          startIndex: i,
+          endIndex: indexToBlock,
+          coin: COIN.XEC,
+          isLastJob: false
+        });
+      }
+      //add to last job
       await this.indexBlockQueue.add(INDEX_BLOCK_QUEUE, {
-        startIndex: i,
-        endIndex: indexToBlock,
+        startIndex: highest,
+        endIndex: 0,
         coin: COIN.XEC,
-        isLastJob: false
+        isLastJob: true
       });
+    } catch (e) {
+      this.logger.error(e);
     }
-    //add to last job
-    await this.indexBlockQueue.add(INDEX_BLOCK_QUEUE, {
-      startIndex: highest,
-      endIndex: 0,
-      coin: COIN.XEC,
-      isLastJob: true
-    });
   }
 }
