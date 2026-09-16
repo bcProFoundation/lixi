@@ -150,12 +150,44 @@ $SSH "$SSH_TARGET" 'docker --version && df -h / | tail -1 && docker ps --format 
 WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "$WORK_DIR" "$API_EXTRAS_FILE"' EXIT
 REMOTE_BASE="/root/deploy/${TAG_SUFFIX}"
+
+# NOTE: we deliberately do NOT use `git archive` here: it ships git-lfs
+# pointer files instead of real content, which would break the image build
+# (e.g. packages/lixi-prisma/prisma/data/worldcities.tar.gz is 57MB via LFS
+# and is needed by db:seeds at container start). A detached worktree shares
+# the source clone's object store, so LFS blobs need no re-download when the
+# operator has fetched before (CI checks out with lfs:true).
+make_tarball() { # <repo-dir> <sha> <out.tgz>
+  local dir="$1" sha="$2" out="$3" tmp
+  tmp="$(mktemp -d)"
+  git -C "$dir" worktree add --detach -f "${tmp}/repo" "$sha" >/dev/null
+  if git -C "${tmp}/repo" lfs ls-files -n 2>/dev/null | grep -q .; then
+    need git-lfs
+    echo "fetching git-lfs blobs for $(basename "$dir")..."
+    git -C "$dir" lfs fetch --all 2>&1 | tail -1
+    git -C "${tmp}/repo" lfs pull 2>&1 | tail -1
+    local f
+    while IFS= read -r f; do
+      if head -c 100 "${tmp}/repo/${f}" 2>/dev/null | grep -q "version https://git-lfs"; then
+        echo "ERROR: LFS file not materialized: $f (run 'git lfs pull' in $dir)" >&2
+        git -C "$dir" worktree remove --force "${tmp}/repo" >/dev/null
+        rm -rf "$tmp"
+        exit 1
+      fi
+    done < <(git -C "${tmp}/repo" lfs ls-files -n)
+  fi
+  tar -czf "$out" --exclude=.git -C "${tmp}/repo" .
+  git -C "$dir" worktree remove --force "${tmp}/repo" >/dev/null
+  rm -rf "$tmp"
+  echo "packed $out ($(du -h "$out" | cut -f1))"
+}
+
 echo "--- Preparing archives ---"
 if [ "$want_api" = "true" ]; then
-  git -C "$LIXI_DIR" archive --format=tar.gz -o "${WORK_DIR}/lixi.tgz" "$LIXI_SHA"
+  make_tarball "$LIXI_DIR" "$LIXI_SHA" "${WORK_DIR}/lixi.tgz"
 fi
 if [ "$want_web" = "true" ]; then
-  git -C "$ECASH_DIR" archive --format=tar.gz -o "${WORK_DIR}/ecash.tgz" "$ECASH_SHA"
+  make_tarball "$ECASH_DIR" "$ECASH_SHA" "${WORK_DIR}/ecash.tgz"
 fi
 
 echo "--- Shipping to prod ($REMOTE_BASE) ---"
