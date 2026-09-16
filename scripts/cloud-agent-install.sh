@@ -64,6 +64,21 @@ if [ ! -f packages/app-lixi-api/.env ]; then
   echo "LOCAL_ECASH_URL=http://localhost:3000" >> packages/app-lixi-api/.env
 fi
 
+# Wire fiat-rate API keys from environment secrets (Cloud Agent Secrets inject
+# CMC_API_KEY / OER_APP_ID as env vars). Upserts into existing .env as well so
+# keys added later still take effect on the next install run.
+upsert_env() {
+  local file="$1" key="$2" value="$3"
+  grep -v "^${key}=" "$file" > "${file}.tmp" && mv "${file}.tmp" "$file"
+  echo "${key}=${value}" >> "$file"
+}
+if [ -n "${CMC_API_KEY:-}" ]; then
+  upsert_env packages/app-lixi-api/.env CMC_API_KEY "${CMC_API_KEY}"
+fi
+if [ -n "${OER_APP_ID:-}" ]; then
+  upsert_env packages/app-lixi-api/.env OER_APP_ID "${OER_APP_ID}"
+fi
+
 cd packages/lixi-prisma
 pnpm exec prisma generate
 pnpm exec prisma migrate deploy
