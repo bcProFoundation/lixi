@@ -31,6 +31,13 @@ if command -v redis-server >/dev/null 2>&1; then
   pgrep -x redis-server >/dev/null || redis-server --daemonize yes 2>/dev/null || true
 fi
 
+# Start MeiliSearch for lixi API search indexing
+if command -v meilisearch >/dev/null 2>&1; then
+  pgrep -f "meilisearch.*7700" >/dev/null || \
+    MEILI_MASTER_KEY=dev-master-key nohup meilisearch --http-addr 127.0.0.1:7700 --env development \
+      > /tmp/meilisearch.log 2>&1 &
+fi
+
 # Start lixi API in background
 if ! curl -sf http://localhost:4800/graphql >/dev/null 2>&1; then
   cd "$LIXI_DIR/packages/app-lixi-api"

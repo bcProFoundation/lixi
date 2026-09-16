@@ -60,8 +60,34 @@ if [ ! -f packages/app-lixi-api/.env ]; then
   cp packages/app-lixi-api/.env.example packages/app-lixi-api/.env
   sed -i 's|DATABASE_URL=.*|DATABASE_URL=postgresql://postgres:atishadbpass@localhost:5432/lixi?schema=public|' packages/app-lixi-api/.env
   sed -i 's|DEPLOY_ENVIRONMENT=.*|DEPLOY_ENVIRONMENT=development|' packages/app-lixi-api/.env
-  echo "PORT=4800" >> packages/app-lixi-api/.env
-  echo "LOCAL_ECASH_URL=http://localhost:3000" >> packages/app-lixi-api/.env
+  cat >> packages/app-lixi-api/.env <<'EOF'
+PORT=4800
+LOCAL_ECASH_URL=http://localhost:3000
+MEILISEARCH_HOST=http://127.0.0.1:7700
+MEILISEARCH_MASTER_KEY=dev-master-key
+MEILISEARCH_BUCKET=Default
+CHRONIK_XEC_URL=https://chronik.pay2stay.com/xec
+CHRONIK_XPI_URL=https://chronik.be.cash/xpi
+CHRONIK_XRG_URL=https://chronik.be.cash/xrg
+CF_ACCOUNT_ID=dev-placeholder
+CF_ACCOUNT_HASH=dev-placeholder
+CF_IMAGES_TOKEN=LbfegEIqN2O-4IEOsRtiPmpiWrnx-7MiOEsv_EI3
+CF_IMAGES_DELIVERY_URL=https://imagedelivery.net
+EOF
+  if ! grep -q '^PUBLIC_VAPID_KEY=' packages/app-lixi-api/.env; then
+    VAPID_KEYS="$(cd packages/app-lixi-api && node -e "const wp=require('web-push'); const k=wp.generateVAPIDKeys(); console.log(k.publicKey+' '+k.privateKey)")"
+    echo "PUBLIC_VAPID_KEY=${VAPID_KEYS%% *}" >> packages/app-lixi-api/.env
+    echo "PRIVATE_VAPID_KEY=${VAPID_KEYS#* }" >> packages/app-lixi-api/.env
+  fi
+fi
+
+# MeiliSearch for local search indexing
+if [ ! -x /usr/local/bin/meilisearch ] && [ ! -x "$HOME/.local/bin/meilisearch" ]; then
+  MEILI_VERSION="v1.12.8"
+  curl -fsSL "https://github.com/meilisearch/meilisearch/releases/download/${MEILI_VERSION}/meilisearch-linux-amd64" \
+    -o /tmp/meilisearch
+  chmod +x /tmp/meilisearch
+  sudo mv /tmp/meilisearch /usr/local/bin/meilisearch
 fi
 
 cd packages/lixi-prisma
@@ -76,6 +102,19 @@ npx tsc -p tsconfig.module.json --skipLibCheck
 cd "$LIXI_DIR/packages/lixi-prisma"
 npx tsc -p tsconfig.build.json --skipLibCheck
 npx tsc -p tsconfig.module.json --skipLibCheck
+
+# Skip multi-minute Dana block-index queue seeding on first API boot
+if command -v redis-cli >/dev/null 2>&1; then
+  XEC_TIP="$(cd "$LIXI_DIR/packages/app-lixi-api" && node -e "
+    const { ChronikClient } = require('chronik-client');
+    new ChronikClient(['https://chronik.pay2stay.com/xec']).blockchainInfo()
+      .then(i => console.log(i.tipHeight))
+      .catch(() => console.log(0));
+  " 2>/dev/null || echo 0)"
+  redis-cli SET "lixilotus:items:index-block-highest:XEC" "${XEC_TIP:-0}" >/dev/null 2>&1 || true
+  redis-cli SET "lixilotus:items:index-block-highest:XPI" "1" >/dev/null 2>&1 || true
+  redis-cli SET "lixilotus:items:index-block-highest:XRG" "1" >/dev/null 2>&1 || true
+fi
 
 if [ -n "${LOCAL_ECASH_DIR:-}" ]; then
   cd "$LOCAL_ECASH_DIR"
