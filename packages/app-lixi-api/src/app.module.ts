@@ -21,6 +21,7 @@ import { CloudflareModule } from './common/modules/cloudflare/cloudflare.module'
 import { NotificationModule } from './common/modules/notifications/notification.module';
 import { GraphqlConfig } from './config/config.interface';
 import configuration from './config/configuration';
+import { buildXecChronikUrls } from './config/chronik';
 import { HttpExceptionFilter } from './middlewares/exception.filter';
 import { AccountModule } from './modules/account/account.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -100,8 +101,8 @@ export const serveStaticModule_images: FastifyServeStaticModuleOptions = {
       useFactory: (config: ConfigService) => ({
         networks: {
           xec: {
-            clientUrls: [`${config.get<string>('CHRONIK_XEC_URL')}`, 'https://chronik.pay2stay.com/xec'],
-            nodeUrls: [`${config.get<string>('CHRONIK_XEC_URL')}`, 'https://chronik.pay2stay.com/xec']
+            clientUrls: buildXecChronikUrls(config.get<string>('CHRONIK_XEC_URL')),
+            nodeUrls: buildXecChronikUrls(config.get<string>('CHRONIK_XEC_URL'))
           },
           xpi: {
             clientUrls: `${config.get<string>('CHRONIK_XPI_URL')}`.split(','),
