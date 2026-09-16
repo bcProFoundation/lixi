@@ -23,6 +23,9 @@ import { DisputeCacheService } from './dispute/dispute-cache.service';
 import DisputeLoader from './dispute/dispute.loader';
 import { HttpModule } from '@nestjs/axios';
 import { FiatCurrencyRateResolver } from './fiat-currency-rate/fiat-currency-rate.resolver';
+import { CoinMarketCapProvider } from './fiat-currency-rate/coinmarketcap.provider';
+import { OpenExchangeRatesProvider } from './fiat-currency-rate/open-exchange-rates.provider';
+import { FiatRateService } from './fiat-currency-rate/fiat-rate.service';
 import { ErrorNotificationBotModule } from '../telegram/error-notification/error-notification-bot.module';
 
 @Module({
@@ -65,6 +68,9 @@ import { ErrorNotificationBotModule } from '../telegram/error-notification/error
     PostCacheService,
     RedisKeySpaceNotification,
     AccountCacheService,
+    CoinMarketCapProvider,
+    OpenExchangeRatesProvider,
+    FiatRateService,
     FiatCurrencyRateResolver
   ],
   exports: [Logger]
