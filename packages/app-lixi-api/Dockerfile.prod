@@ -1,0 +1,45 @@
+# Production image for the lixi API (lixi.social backend).
+#
+# Rebuildable on any Docker host WITHOUT vault/secret access: the image
+# contains no secrets. All runtime config (DB, Redis, Telegram, Chronik,
+# CMC/OER keys, ...) is injected via `docker run --env-file` at deploy
+# time by scripts/deploy-prod.sh, which reuses the live container's env.
+#
+# Build from the repo root:
+#   docker build -f packages/app-lixi-api/Dockerfile.prod \
+#     --build-arg APP_VERSION=1.1.64 --build-arg GIT_COMMIT=<sha> \
+#     -t lixiapi:prod-<tag> .
+ARG NODE_VERSION=20
+ARG APP_VERSION=unspecified
+ARG GIT_COMMIT=unspecified
+
+FROM node:${NODE_VERSION}-alpine AS base
+RUN apk update && apk add --no-cache libc6-compat openssl \
+  && npm install -g turbo@2.0.6 \
+  && npm install pnpm@9 --global \
+  && pnpm config set store-dir ~/.pnpm-store
+ENV HUSKY=0
+
+FROM base AS pruner
+WORKDIR /app
+COPY . ./
+RUN turbo prune @bcpros/app-lixi-api --docker
+
+FROM base AS builder
+WORKDIR /app
+COPY --from=pruner /app/out/json/ ./
+RUN echo "store-dir=~/.pnpm-store" > .npmrc \
+  && pnpm install --frozen-lockfile
+COPY --from=pruner /app/out/full/ ./
+COPY turbo.json turbo.json
+ARG APP_VERSION
+ARG GIT_COMMIT
+ENV APP_VERSION=${APP_VERSION} \
+  COMMIT_HASH=${GIT_COMMIT}
+RUN pnpm build:api
+# NOTE: intentionally no `pnpm prune --prod` here. startservice.sh needs
+# dev-time bins at container start (prisma migrate deploy, ts-node seeds),
+# and the previous production image also shipped them (~1.4GB).
+COPY packages/app-lixi-api/startservice.sh ./startservice.sh
+RUN chmod +x ./startservice.sh
+CMD ["./startservice.sh"]
