@@ -27,6 +27,22 @@ export CMC_API_KEY=<key> OER_APP_ID=<id>
 Knobs: `LIXI_REF` / `ECASH_REF` (default `master`), `LIXI_DIR` / `ECASH_DIR`
 (default: sibling checkouts), `--dry-run` to print the plan only.
 
+## GitHub Actions (future prod builds)
+
+The same script runs in CI via `.github/workflows/deploy-prod.yml`
+("Deploy to production", manual dispatch with `services` / `lixi_ref` /
+`ecash_ref` / `dry_run` inputs). One-time setup:
+
+1. Create a `production` environment (repo Settings -> Environments).
+   Optionally add yourself as a required reviewer for one-click approvals.
+2. Add secrets to it: `PROD_SSH_HOST`, `PROD_SSH_USER`, `PROD_SSH_PASS`
+   (or `PROD_SSH_KEY`), plus `CMC_API_KEY` / `OER_APP_ID` for the first
+   fiat-rate deploy.
+3. Run the workflow from the Actions tab (try `dry_run: true` first).
+
+No image registry or vault is involved: the runner ships source archives to
+prod and the VM builds the images, exactly like a local run.
+
 ## What happens per service
 
 1. Preflight: SSH + Docker reachable, target containers running.
