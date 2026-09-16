@@ -1,5 +1,11 @@
 # @bcpros/lixi-models
 
+## 1.2.65
+
+### Patch Changes
+
+- Add XEC Chronik multi-endpoint URL parsing (`chronikEndpoints.ts`) and wire it into `useWalletNode` for PayButton-style failover.
+
 ## 1.2.64
 
 ### Patch Changes
