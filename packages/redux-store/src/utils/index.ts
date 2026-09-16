@@ -3,6 +3,7 @@ export * from './axiosClient';
 export * from './cashMethods';
 export * as cashMethodsNode from './cashMethodsNode';
 export * from './chronik';
+export * from './chronikEndpoints';
 export * as chronikNode from './chronik-node';
 export * from './comparision';
 export * from './convertArrBuffBase64';
