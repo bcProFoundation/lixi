@@ -39,7 +39,7 @@ import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { getAllAccounts, getSelectedAccount } from '@store/account';
 import useInterval from './useInterval';
 import { useXPI } from './useXPI';
-import { parseXecChronikUrls } from '../utils/chronik';
+import { parseXecChronikUrls } from '../utils/chronikEndpoints';
 import * as wif from 'wif';
 
 const xecChronikUrls = () => parseXecChronikUrls(process.env.NEXT_PUBLIC_CHRONIK_URL);
