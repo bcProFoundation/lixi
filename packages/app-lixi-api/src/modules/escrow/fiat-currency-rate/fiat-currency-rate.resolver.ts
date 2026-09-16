@@ -11,6 +11,7 @@ import { catchError } from 'rxjs/operators';
 import { AxiosError } from 'axios';
 import { Telegraf } from 'telegraf';
 import { InjectBot } from 'nestjs-telegraf';
+import { FiatRateService } from './fiat-rate.service';
 
 // Type definitions for better type safety
 interface CurrencyInfo {
@@ -72,6 +73,7 @@ export class FiatCurrencyRateResolver {
     @I18n() private i18n: I18nService,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly fiatRateService: FiatRateService,
     @Optional()
     @InjectBot(process.env.TELEGRAM_LOCAL_ECASH_BOT_NAME)
     private readonly notificationBot: Telegraf
@@ -84,6 +86,22 @@ export class FiatCurrencyRateResolver {
       this.logger.debug('[Fiat Rate] Telegram notification bot not configured (token missing)');
     } else {
       this.logger.log('[Fiat Rate] Telegram notification bot initialized');
+    }
+  }
+
+  private isLegacyFallbackEnabled(): boolean {
+    const provider = (this.configService.get<string>('FIAT_RATE_PROVIDER') || 'cmc-oer').toLowerCase();
+    if (provider === 'legacy') return true;
+    const flag = this.configService.get<string>('FIAT_RATE_LEGACY_FALLBACK_ENABLED');
+    return (flag || 'true').toLowerCase() !== 'false';
+  }
+
+  private shouldUseNewProvider(): boolean {
+    try {
+      return this.fiatRateService.isNewProviderEnabled() && this.fiatRateService.isConfigured();
+    } catch (error: any) {
+      this.logger.debug(`[Fiat Rate] New provider check failed: ${error?.message || error}`);
+      return false;
     }
   }
 
@@ -354,226 +372,284 @@ export class FiatCurrencyRateResolver {
     // Default: assume valid if we have any data
     return true;
   }
+
   @Query(() => [FiatRates])
   async getFiatRate() {
-    try {
-      const resultData: FiatRates[] = [];
-
-      // Use Promise.all to fetch all rates concurrently
-      const ratePromises = LIST_CURRENCIES_USED.map(async (currencyInfo: CurrencyInfo) => {
-        const currency = currencyInfo.code;
-
-        try {
-          const data = await this.fetchWithFallback<FiatRateV2Response>(`/v2/fiatrates/${currency ?? 'USD'}`);
-
-          // Add the response data to the resultData object with the currency as the key
-          const fiatRates: CurrencyRates[] = Object.keys(data).map(coin => {
-            const rates =
-              data[coin]?.map((entry: FiatRateEntry) => ({
-                ts: Math.floor(entry.ts / 1000), //convert to second
-                rate: entry.rate
-              })) || [];
-
-            return { coin, rates };
-          });
-          resultData.push({ currency, fiatRates });
-        } catch (error: any) {
-          this.logger.error(`[Fiat Rate] Failed to fetch rates for ${currency}: ${error?.message}`);
-          // Continue with other currencies even if one fails
+    if (this.shouldUseNewProvider()) {
+      try {
+        const rates = await this.fiatRateService.getFiatRates();
+        this.logger.log(`[Fiat Rate] getFiatRate served from CMC/OER providers (${rates.length} currencies)`);
+        return rates;
+      } catch (error: any) {
+        this.logger.warn(`[Fiat Rate] CMC/OER getFiatRate failed, trying legacy: ${error?.message || error}`);
+        if (!this.isLegacyFallbackEnabled()) {
+          this.logger.error(`[Fiat Rate] getFiatRate error: ${error?.message}`);
+          return [];
         }
-      });
+      }
+    }
 
-      // Wait for all the promises to complete
-      await Promise.all(ratePromises);
-
-      return resultData;
+    try {
+      return await this.legacyGetFiatRates();
     } catch (error: any) {
       this.logger.error(`[Fiat Rate] getFiatRate error: ${error?.message}`);
       return []; // Return empty array instead of undefined
     }
   }
 
+  private async legacyGetFiatRates(): Promise<FiatRates[]> {
+    const resultData: FiatRates[] = [];
+
+    // Use Promise.all to fetch all rates concurrently
+    const ratePromises = LIST_CURRENCIES_USED.map(async (currencyInfo: CurrencyInfo) => {
+      const currency = currencyInfo.code;
+
+      try {
+        const data = await this.fetchWithFallback<FiatRateV2Response>(`/v2/fiatrates/${currency ?? 'USD'}`);
+
+        // Add the response data to the resultData object with the currency as the key
+        const fiatRates: CurrencyRates[] = Object.keys(data).map(coin => {
+          const rates =
+            data[coin]?.map((entry: FiatRateEntry) => ({
+              ts: Math.floor(entry.ts / 1000), //convert to second
+              rate: entry.rate
+            })) || [];
+
+          return { coin, rates };
+        });
+        resultData.push({ currency, fiatRates });
+      } catch (error: any) {
+        this.logger.error(`[Fiat Rate] Failed to fetch rates for ${currency}: ${error?.message}`);
+        // Continue with other currencies even if one fails
+      }
+    });
+
+    // Wait for all the promises to complete
+    await Promise.all(ratePromises);
+
+    return resultData;
+  }
+
   @Query(() => [AllFiatRates])
   async getAllFiatRate() {
-    try {
-      // Get fallback URLs
-      const urls = this.getFallbackUrls();
-      let lastError: any = null;
-      let primaryUrlFailed = false;
-      const failedUrls: Array<{ url: string; reason: string }> = [];
+    const failedProviders: Array<{ url: string; reason: string }> = [];
 
-      // Try each URL until we get valid non-zero rates
-      for (let i = 0; i < urls.length; i++) {
-        const baseUrl = urls[i];
-        const isPrimaryUrl = i === 0;
-
-        try {
-          const endpoint = '/v4/allfiatrates/';
-          const url = `${baseUrl}${endpoint}`;
-
-          this.logger.log(`[Fiat Rate] Attempting getAllFiatRate from: ${url}`);
-
-          // Exponential backoff retry strategy
-          const maxRetries = 3;
-          let attempt = 0;
-          let response;
-          let lastFetchError: any = null;
-
-          while (attempt < maxRetries) {
-            try {
-              response = await firstValueFrom(
-                this.httpService.get(url, { timeout: 3000 + attempt * 2000 }).pipe(
-                  catchError((error: AxiosError) => {
-                    this.logger.error(
-                      `[Fiat Rate] Request failed for ${url} (attempt ${attempt + 1}): ${error.message}`
-                    );
-                    throw error;
-                  })
-                )
-              );
-              break; // Success, exit loop
-            } catch (fetchError: any) {
-              lastFetchError = fetchError;
-              attempt++;
-              if (attempt < maxRetries) {
-                const backoff = Math.pow(2, attempt) * 500;
-                this.logger.warn(`[Fiat Rate] Retrying ${url} in ${backoff}ms (attempt ${attempt + 1})`);
-                await new Promise(res => setTimeout(res, backoff));
-              }
-            }
-          }
-
-          if (!response) {
-            const errorReason = `Connection error: ${lastFetchError?.message || 'Unknown error'}`;
-            this.logger.warn(`[Fiat Rate] ${errorReason}`);
-            lastError = lastFetchError || new Error('Failed to fetch fiat rates after retries');
-            failedUrls.push({ url, reason: errorReason });
-            if (isPrimaryUrl) primaryUrlFailed = true;
-            continue;
-          }
-
-          const data = response?.data;
-
-          // Validate that data exists and is an object
-          if (!data || typeof data !== 'object') {
-            const errorReason = 'Response data is null or not an object';
-            this.logger.warn(`[Fiat Rate] ${errorReason} for ${url}`);
-            lastError = new Error(errorReason);
-            failedUrls.push({ url, reason: errorReason });
-            if (isPrimaryUrl) primaryUrlFailed = true;
-            continue;
-          }
-
-          // Validate v4 response structure
-          if (!this.validateFiatRateData(data, endpoint)) {
-            const errorReason = 'Invalid v4 response structure';
-            this.logger.warn(`[Fiat Rate] ${errorReason} for ${url}`);
-            lastError = new Error(errorReason);
-            failedUrls.push({ url, reason: errorReason });
-            if (isPrimaryUrl) primaryUrlFailed = true;
-            continue;
-          }
-
-          // Transform v4 format to AllFiatRates format
-          // v4 returns: { AED: [{coin, ts, rate}, ...], ... }
-          // GraphQL expects: { currency, fiatRates: [{coin, ts, rate}, ...] }
-          const fiatRates: AllFiatRates[] = Object.keys(data)
-            .filter(currency => {
-              // Only process currencies where data exists and is an array
-              return Array.isArray(data[currency]) && data[currency].length > 0;
-            })
-            .map(currency => {
-              return {
-                currency: currency.toUpperCase(),
-                fiatRates: data[currency].map((item: FiatRateV4Item) => ({
-                  coin: item.coin,
-                  ts: item.ts,
-                  rate: item.rate || 0 // Use rate from API, fallback to 0
-                }))
-              };
-            });
-
-          // Check if we have sufficient non-zero rates
-          let majorCurrenciesWithRates = 0;
-          let totalCurrenciesChecked = 0;
-          let currenciesWithRates = 0;
-
-          fiatRates.forEach(currencyData => {
-            const hasNonZeroRate = currencyData.fiatRates.some((rate: GraphQLFiatRateEntry) => rate.rate > 0);
-            totalCurrenciesChecked++;
-
-            if (hasNonZeroRate) {
-              currenciesWithRates++;
-
-              // Check if this is a major currency
-              if (this.MAJOR_CURRENCIES && this.MAJOR_CURRENCIES.includes(currencyData.currency)) {
-                majorCurrenciesWithRates++;
-              }
-            }
+    if (this.shouldUseNewProvider()) {
+      try {
+        const { rates, sources } = await this.fiatRateService.getAllFiatRates();
+        this.logger.log(
+          `[Fiat Rate] getAllFiatRate served from CMC/OER providers (${rates.length} entries, ` +
+            `${sources.directPairs} direct, ${sources.derivedPairs} derived)`
+        );
+        return rates;
+      } catch (error: any) {
+        const reason = error?.message || 'Unknown error';
+        this.logger.warn(`[Fiat Rate] CMC/OER getAllFiatRate failed: ${reason}`);
+        failedProviders.push({ url: 'cmc-oer', reason });
+        if (!this.isLegacyFallbackEnabled()) {
+          this.logger.error(`[Fiat Rate] getAllFiatRate error: ${reason}`);
+          await this.sendTelegramErrorNotification('ALL_ENDPOINTS_FAILED', {
+            failedUrls: failedProviders,
+            errorMessage: reason,
+            timestamp: new Date().toISOString()
           });
+          throw error;
+        }
+      }
+    }
 
-          // Log diagnostic information
-          this.logger.log(
-            `[Fiat Rate] Rate validation: ${currenciesWithRates}/${totalCurrenciesChecked} currencies have non-zero rates, ` +
-              `${majorCurrenciesWithRates} major currencies with rates (required: ${this.minMajorCurrenciesRequired})`
-          );
+    try {
+      const legacyRates = await this.legacyGetAllFiatRates();
+      if (failedProviders.length > 0) {
+        await this.sendTelegramErrorNotification('FALLBACK_USED', {
+          primaryUrl: 'cmc-oer',
+          successUrl: 'legacy-bitcore',
+          failedUrls: failedProviders,
+          errorMessage: failedProviders[0]?.reason || 'Unknown error',
+          timestamp: new Date().toISOString()
+        });
+      }
+      return legacyRates;
+    } catch (error: any) {
+      const reason = error?.message || 'Unknown error';
+      this.logger.error(`[Fiat Rate] getAllFiatRate error: ${reason}`);
+      throw error;
+    }
+  }
 
-          // Validation: Need at least N major currencies (configurable) OR 50% overall coverage
-          const hasSufficientMajorCurrencies = majorCurrenciesWithRates >= this.minMajorCurrenciesRequired;
-          const hasSufficientOverallCoverage =
-            totalCurrenciesChecked > 0 && currenciesWithRates / totalCurrenciesChecked >= 0.5;
+  private async legacyGetAllFiatRates(): Promise<AllFiatRates[]> {
+    // Get fallback URLs
+    const urls = this.getFallbackUrls();
+    let lastError: any = null;
+    let primaryUrlFailed = false;
+    const failedUrls: Array<{ url: string; reason: string }> = [];
 
-          if (!hasSufficientMajorCurrencies && !hasSufficientOverallCoverage) {
-            const errorReason = `Insufficient non-zero rates: ${majorCurrenciesWithRates} major currencies, ${currenciesWithRates}/${totalCurrenciesChecked} total (${((currenciesWithRates / totalCurrenciesChecked) * 100).toFixed(1)}%)`;
-            this.logger.warn(`[Fiat Rate] ${errorReason} from ${url}, trying next fallback`);
-            lastError = new Error(errorReason);
-            failedUrls.push({ url, reason: errorReason });
-            if (isPrimaryUrl) primaryUrlFailed = true;
-            continue;
+    // Try each URL until we get valid non-zero rates
+    for (let i = 0; i < urls.length; i++) {
+      const baseUrl = urls[i];
+      const isPrimaryUrl = i === 0;
+
+      try {
+        const endpoint = '/v4/allfiatrates/';
+        const url = `${baseUrl}${endpoint}`;
+
+        this.logger.log(`[Fiat Rate] Attempting getAllFiatRate from: ${url}`);
+
+        // Exponential backoff retry strategy
+        const maxRetries = 3;
+        let attempt = 0;
+        let response;
+        let lastFetchError: any = null;
+
+        while (attempt < maxRetries) {
+          try {
+            response = await firstValueFrom(
+              this.httpService.get(url, { timeout: 3000 + attempt * 2000 }).pipe(
+                catchError((error: AxiosError) => {
+                  this.logger.error(`[Fiat Rate] Request failed for ${url} (attempt ${attempt + 1}): ${error.message}`);
+                  throw error;
+                })
+              )
+            );
+            break; // Success, exit loop
+          } catch (fetchError: any) {
+            lastFetchError = fetchError;
+            attempt++;
+            if (attempt < maxRetries) {
+              const backoff = Math.pow(2, attempt) * 500;
+              this.logger.warn(`[Fiat Rate] Retrying ${url} in ${backoff}ms (attempt ${attempt + 1})`);
+              await new Promise(res => setTimeout(res, backoff));
+            }
           }
+        }
 
-          // Success - we have valid non-zero rates
-          this.logger.log(`[Fiat Rate] Successfully fetched rates for ${fiatRates.length} currencies from ${url}`);
-
-          // Send notification if we used a fallback (primary URL failed but fallback succeeded)
-          if (primaryUrlFailed && !isPrimaryUrl) {
-            await this.sendTelegramErrorNotification('FALLBACK_USED', {
-              primaryUrl: urls[0],
-              successUrl: url,
-              failedUrls: failedUrls,
-              errorMessage: lastError?.message || 'Unknown error',
-              timestamp: new Date().toISOString()
-            });
-          }
-
-          return fiatRates;
-        } catch (error: any) {
-          const errorReason = `Exception: ${error?.message || error}`;
-          this.logger.error(`[Fiat Rate] Failed to fetch from ${baseUrl}: ${errorReason}`);
-          lastError = error;
-          failedUrls.push({ url: `${baseUrl}${'/v4/allfiatrates/'}`, reason: errorReason });
+        if (!response) {
+          const errorReason = `Connection error: ${lastFetchError?.message || 'Unknown error'}`;
+          this.logger.warn(`[Fiat Rate] ${errorReason}`);
+          lastError = lastFetchError || new Error('Failed to fetch fiat rates after retries');
+          failedUrls.push({ url, reason: errorReason });
           if (isPrimaryUrl) primaryUrlFailed = true;
           continue;
         }
+
+        const data = response?.data;
+
+        // Validate that data exists and is an object
+        if (!data || typeof data !== 'object') {
+          const errorReason = 'Response data is null or not an object';
+          this.logger.warn(`[Fiat Rate] ${errorReason} for ${url}`);
+          lastError = new Error(errorReason);
+          failedUrls.push({ url, reason: errorReason });
+          if (isPrimaryUrl) primaryUrlFailed = true;
+          continue;
+        }
+
+        // Validate v4 response structure
+        if (!this.validateFiatRateData(data, endpoint)) {
+          const errorReason = 'Invalid v4 response structure';
+          this.logger.warn(`[Fiat Rate] ${errorReason} for ${url}`);
+          lastError = new Error(errorReason);
+          failedUrls.push({ url, reason: errorReason });
+          if (isPrimaryUrl) primaryUrlFailed = true;
+          continue;
+        }
+
+        // Transform v4 format to AllFiatRates format
+        // v4 returns: { AED: [{coin, ts, rate}, ...], ... }
+        // GraphQL expects: { currency, fiatRates: [{coin, ts, rate}, ...] }
+        const fiatRates: AllFiatRates[] = Object.keys(data)
+          .filter(currency => {
+            // Only process currencies where data exists and is an array
+            return Array.isArray(data[currency]) && data[currency].length > 0;
+          })
+          .map(currency => {
+            return {
+              currency: currency.toUpperCase(),
+              fiatRates: data[currency].map((item: FiatRateV4Item) => ({
+                coin: item.coin,
+                ts: item.ts,
+                rate: item.rate || 0 // Use rate from API, fallback to 0
+              }))
+            };
+          });
+
+        // Check if we have sufficient non-zero rates
+        let majorCurrenciesWithRates = 0;
+        let totalCurrenciesChecked = 0;
+        let currenciesWithRates = 0;
+
+        fiatRates.forEach(currencyData => {
+          const hasNonZeroRate = currencyData.fiatRates.some((rate: GraphQLFiatRateEntry) => rate.rate > 0);
+          totalCurrenciesChecked++;
+
+          if (hasNonZeroRate) {
+            currenciesWithRates++;
+
+            // Check if this is a major currency
+            if (this.MAJOR_CURRENCIES && this.MAJOR_CURRENCIES.includes(currencyData.currency)) {
+              majorCurrenciesWithRates++;
+            }
+          }
+        });
+
+        // Log diagnostic information
+        this.logger.log(
+          `[Fiat Rate] Rate validation: ${currenciesWithRates}/${totalCurrenciesChecked} currencies have non-zero rates, ` +
+            `${majorCurrenciesWithRates} major currencies with rates (required: ${this.minMajorCurrenciesRequired})`
+        );
+
+        // Validation: Need at least N major currencies (configurable) OR 50% overall coverage
+        const hasSufficientMajorCurrencies = majorCurrenciesWithRates >= this.minMajorCurrenciesRequired;
+        const hasSufficientOverallCoverage =
+          totalCurrenciesChecked > 0 && currenciesWithRates / totalCurrenciesChecked >= 0.5;
+
+        if (!hasSufficientMajorCurrencies && !hasSufficientOverallCoverage) {
+          const errorReason = `Insufficient non-zero rates: ${majorCurrenciesWithRates} major currencies, ${currenciesWithRates}/${totalCurrenciesChecked} total (${((currenciesWithRates / totalCurrenciesChecked) * 100).toFixed(1)}%)`;
+          this.logger.warn(`[Fiat Rate] ${errorReason} from ${url}, trying next fallback`);
+          lastError = new Error(errorReason);
+          failedUrls.push({ url, reason: errorReason });
+          if (isPrimaryUrl) primaryUrlFailed = true;
+          continue;
+        }
+
+        // Success - we have valid non-zero rates
+        this.logger.log(`[Fiat Rate] Successfully fetched rates for ${fiatRates.length} currencies from ${url}`);
+
+        // Send notification if we used a fallback (primary URL failed but fallback succeeded)
+        if (primaryUrlFailed && !isPrimaryUrl) {
+          await this.sendTelegramErrorNotification('FALLBACK_USED', {
+            primaryUrl: urls[0],
+            successUrl: url,
+            failedUrls: failedUrls,
+            errorMessage: lastError?.message || 'Unknown error',
+            timestamp: new Date().toISOString()
+          });
+        }
+
+        return fiatRates;
+      } catch (error: any) {
+        const errorReason = `Exception: ${error?.message || error}`;
+        this.logger.error(`[Fiat Rate] Failed to fetch from ${baseUrl}: ${errorReason}`);
+        lastError = error;
+        failedUrls.push({ url: `${baseUrl}${'/v4/allfiatrates/'}`, reason: errorReason });
+        if (isPrimaryUrl) primaryUrlFailed = true;
+        continue;
       }
-
-      // All URLs failed - send critical notification
-      const errorMessage = 'All fiat rate APIs returned zero rates or failed';
-
-      this.logger.error(`[Fiat Rate] ${errorMessage}. Last error: ${lastError?.message || 'Unknown error'}`);
-
-      // Send critical notification
-      await this.sendTelegramErrorNotification('ALL_ENDPOINTS_FAILED', {
-        failedUrls: failedUrls,
-        errorMessage: lastError?.message || 'Unknown error',
-        timestamp: new Date().toISOString()
-      });
-
-      // Throw error to be caught by GraphQL and returned to frontend
-      throw new Error(errorMessage);
-    } catch (error: any) {
-      this.logger.error(`[Fiat Rate] getAllFiatRate error: ${error?.message || error}`);
-      throw error; // Propagate error to frontend
     }
+
+    // All URLs failed - send critical notification
+    const errorMessage = 'All fiat rate APIs returned zero rates or failed';
+
+    this.logger.error(`[Fiat Rate] ${errorMessage}. Last error: ${lastError?.message || 'Unknown error'}`);
+
+    // Send critical notification
+    await this.sendTelegramErrorNotification('ALL_ENDPOINTS_FAILED', {
+      failedUrls: failedUrls,
+      errorMessage: lastError?.message || 'Unknown error',
+      timestamp: new Date().toISOString()
+    });
+
+    // Throw error to be caught by GraphQL and returned to frontend
+    throw new Error(errorMessage);
   }
 }
