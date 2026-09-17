@@ -11,7 +11,7 @@ import {
   fromSmallestDenomination,
   walletPath
 } from '@bcpros/lixi-models';
-import { Account as AccountDb, AccountType, AddressType, Coin, Role } from '@bcpros/lixi-prisma';
+import { Account as AccountDb, AccountType, AddressType, Coin, EscrowOrderStatus, Role } from '@bcpros/lixi-prisma';
 import BCHJS from '@bcpros/xpi-js';
 import {
   Body,
@@ -525,20 +525,50 @@ export class AccountController {
   @Get('telegram/unlink/:id')
   async unlinkTelegramAccount(@Param('id') id: string, @I18n() i18n: I18nContext) {
     try {
+      const linkedAccount = await this.prisma.account.findUnique({
+        where: { telegramId: id }
+      });
+
+      if (!linkedAccount) {
+        const accountNotExistMessage = await i18n.t('account.messages.accountNotExist');
+        throw new VError(accountNotExistMessage);
+      }
+
+      if (linkedAccount.role === Role.MODERATOR || linkedAccount.role === Role.ARBITRATOR) {
+        throw new HttpException(
+          'Cannot replace wallet for a moderator or arbitrator account. Import your existing recovery phrase instead.',
+          HttpStatus.CONFLICT
+        );
+      }
+
+      const openEscrowCount = await this.prisma.escrowOrder.count({
+        where: {
+          status: { notIn: [EscrowOrderStatus.COMPLETE, EscrowOrderStatus.CANCEL] },
+          OR: [
+            { buyerAccountId: linkedAccount.id },
+            { sellerAccountId: linkedAccount.id },
+            { arbitratorAccountId: linkedAccount.id },
+            { moderatorAccountId: linkedAccount.id }
+          ]
+        }
+      });
+
+      if (openEscrowCount > 0) {
+        throw new HttpException(
+          `Cannot replace wallet while ${openEscrowCount} escrow order(s) are still open. Import your existing recovery phrase to recover access. A new wallet cannot unlock funds locked in active escrow contracts.`,
+          HttpStatus.CONFLICT
+        );
+      }
+
       const account = await this.prisma.account.update({
         where: {
           telegramId: id
         },
         data: {
           telegramUsername: null,
-          telegramId: null,
-          role: Role.USER
+          telegramId: null
         }
       });
-      if (!account) {
-        const accountNotExistMessage = await i18n.t('account.messages.accountNotExist');
-        throw new VError(accountNotExistMessage);
-      }
 
       return true;
     } catch (err: unknown) {
