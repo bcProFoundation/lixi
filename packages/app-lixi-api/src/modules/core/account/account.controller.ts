@@ -456,6 +456,45 @@ export class AccountController {
     return null as any;
   }
 
+  private async countOpenEscrowOrdersForAccount(accountId: number) {
+    return this.prisma.escrowOrder.count({
+      where: {
+        status: { notIn: [EscrowOrderStatus.COMPLETE, EscrowOrderStatus.CANCEL] },
+        OR: [
+          { buyerAccountId: accountId },
+          { sellerAccountId: accountId },
+          { arbitratorAccountId: accountId },
+          { moderatorAccountId: accountId }
+        ]
+      }
+    });
+  }
+
+  @Get('telegram/replace-wallet-info/:id')
+  async getReplaceWalletInfo(@Param('id') id: string) {
+    const linkedAccount = await this.prisma.account.findUnique({
+      where: { telegramId: id },
+      select: { id: true, role: true }
+    });
+
+    if (!linkedAccount) {
+      throw new HttpException('Linked account not found', HttpStatus.NOT_FOUND);
+    }
+
+    const openEscrowCount = await this.countOpenEscrowOrdersForAccount(linkedAccount.id);
+    const roleRequiresAdminRotation =
+      linkedAccount.role === Role.MODERATOR || linkedAccount.role === Role.ARBITRATOR;
+
+    return {
+      telegramId: id,
+      accountId: linkedAccount.id,
+      role: linkedAccount.role,
+      openEscrowCount,
+      canSelfServiceReplace: !roleRequiresAdminRotation,
+      roleRequiresAdminRotation
+    };
+  }
+
   @Get('telegram/:id')
   async checkAccountExistByTelegramId(@Param('id') id: string, @I18n() i18n: I18nContext) {
     try {
@@ -523,8 +562,19 @@ export class AccountController {
   }
 
   @Get('telegram/unlink/:id')
-  async unlinkTelegramAccount(@Param('id') id: string, @I18n() i18n: I18nContext) {
+  async unlinkTelegramAccount(
+    @Param('id') id: string,
+    @Query('confirmTelegramId') confirmTelegramId: string,
+    @I18n() i18n: I18nContext
+  ) {
     try {
+      if (!confirmTelegramId || confirmTelegramId !== id) {
+        throw new HttpException(
+          'Telegram ID confirmation is required and must match your account.',
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
       const linkedAccount = await this.prisma.account.findUnique({
         where: { telegramId: id }
       });
@@ -536,27 +586,16 @@ export class AccountController {
 
       if (linkedAccount.role === Role.MODERATOR || linkedAccount.role === Role.ARBITRATOR) {
         throw new HttpException(
-          'Cannot replace wallet for a moderator or arbitrator account. Import your existing recovery phrase instead.',
-          HttpStatus.CONFLICT
+          'Moderator and arbitrator wallets cannot be replaced in-app. If your key is lost or compromised, contact an administrator for a guided recovery or role rotation. Existing escrow contracts remain bound to the original key.',
+          HttpStatus.FORBIDDEN
         );
       }
 
-      const openEscrowCount = await this.prisma.escrowOrder.count({
-        where: {
-          status: { notIn: [EscrowOrderStatus.COMPLETE, EscrowOrderStatus.CANCEL] },
-          OR: [
-            { buyerAccountId: linkedAccount.id },
-            { sellerAccountId: linkedAccount.id },
-            { arbitratorAccountId: linkedAccount.id },
-            { moderatorAccountId: linkedAccount.id }
-          ]
-        }
-      });
+      const openEscrowCount = await this.countOpenEscrowOrdersForAccount(linkedAccount.id);
 
       if (openEscrowCount > 0) {
-        throw new HttpException(
-          `Cannot replace wallet while ${openEscrowCount} escrow order(s) are still open. Import your existing recovery phrase to recover access. A new wallet cannot unlock funds locked in active escrow contracts.`,
-          HttpStatus.CONFLICT
+        this.logger.warn(
+          `Self-service wallet replace for account ${linkedAccount.id} (telegram ${id}) with ${openEscrowCount} open escrow order(s)`
         );
       }
 
