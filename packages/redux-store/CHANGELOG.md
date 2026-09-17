@@ -1,5 +1,13 @@
 # @bcpros/redux-store
 
+## 1.2.65
+
+### Patch Changes
+
+- Add XEC Chronik multi-endpoint URL parsing (`chronikEndpoints.ts`) and wire it into `useWalletNode` for PayButton-style failover.
+- Updated dependencies
+  - @bcpros/lixi-models@1.2.65
+
 ## 1.2.64
 
 ### Patch Changes
