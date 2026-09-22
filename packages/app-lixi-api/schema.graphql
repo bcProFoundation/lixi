@@ -719,6 +719,7 @@ type EscrowOrder {
 
 """The action of escrow order."""
 enum EscrowOrderAction {
+  BUYER_CONFIRM_RECEIPT
   RELEASE
   RETURN
   RETURN_BUYER_FEE

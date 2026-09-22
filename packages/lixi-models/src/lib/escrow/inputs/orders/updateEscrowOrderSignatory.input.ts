@@ -41,6 +41,7 @@ export class UpdateEscrowOrderSignatoryInput {
 }
 
 export enum EscrowOrderAction {
+  BUYER_CONFIRM_RECEIPT = 'BUYER_CONFIRM_RECEIPT',
   RELEASE = 'RELEASE',
   RETURN = 'RETURN',
   RETURN_FEE = 'RETURN_FEE',

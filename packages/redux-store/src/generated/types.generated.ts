@@ -741,6 +741,7 @@ export type EscrowOrder = {
 
 /** The action of escrow order. */
 export enum EscrowOrderAction {
+  BuyerConfirmReceipt = 'BUYER_CONFIRM_RECEIPT',
   Release = 'RELEASE',
   Return = 'RETURN',
   ReturnBuyerFee = 'RETURN_BUYER_FEE',
