@@ -38,13 +38,21 @@ if command -v meilisearch >/dev/null 2>&1; then
       > /tmp/meilisearch.log 2>&1 &
 fi
 
-# Start lixi API in background
-if ! curl -sf http://localhost:4800/graphql >/dev/null 2>&1; then
+# Start lixi API in background (prefer prebuilt dist; watch mode may fail on TS errors)
+if ! curl -sf -X POST http://localhost:4800/graphql \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"{ __typename }"}' >/dev/null 2>&1; then
   cd "$LIXI_DIR/packages/app-lixi-api"
   corepack prepare pnpm@7.0.0 --activate
-  NODE_ENV=development nohup pnpm start:dev > /tmp/lixi-api.log 2>&1 &
+  if [ -f dist/main.js ]; then
+    NODE_ENV=development nohup pnpm start:prod > /tmp/lixi-api.log 2>&1 &
+  else
+    NODE_ENV=development nohup pnpm start:dev > /tmp/lixi-api.log 2>&1 &
+  fi
   for _ in $(seq 1 60); do
-    if curl -sf http://localhost:4800/graphql >/dev/null 2>&1; then
+    if curl -sf -X POST http://localhost:4800/graphql \
+      -H 'Content-Type: application/json' \
+      -d '{"query":"{ __typename }"}' >/dev/null 2>&1; then
       break
     fi
     sleep 2

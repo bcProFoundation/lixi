@@ -104,6 +104,18 @@ fi
 if [ -n "${OER_APP_ID:-}" ]; then
   upsert_env packages/app-lixi-api/.env OER_APP_ID "${OER_APP_ID}"
 fi
+if [ -n "${TELEGRAM_LOCAL_ECASH_BOT_TOKEN:-}" ]; then
+  upsert_env packages/app-lixi-api/.env TELEGRAM_LOCAL_ECASH_BOT_TOKEN "${TELEGRAM_LOCAL_ECASH_BOT_TOKEN}"
+fi
+if [ -n "${TELEGRAM_LOCAL_ECASH_BOT_NAME:-}" ]; then
+  upsert_env packages/app-lixi-api/.env TELEGRAM_LOCAL_ECASH_BOT_NAME "${TELEGRAM_LOCAL_ECASH_BOT_NAME}"
+fi
+if [ -n "${LOCAL_ECASH_DIR:-}" ] && [ -n "${BOT_TOKEN:-}" ]; then
+  upsert_env "$LOCAL_ECASH_DIR/apps/telegram-ecash-escrow/.env" BOT_TOKEN "${BOT_TOKEN}"
+fi
+if [ -n "${LOCAL_ECASH_DIR:-}" ] && [ -n "${NEXT_PUBLIC_BOT_USERNAME:-}" ]; then
+  upsert_env "$LOCAL_ECASH_DIR/apps/telegram-ecash-escrow/.env" NEXT_PUBLIC_BOT_USERNAME "${NEXT_PUBLIC_BOT_USERNAME}"
+fi
 
 cd packages/lixi-prisma
 pnpm exec prisma generate
