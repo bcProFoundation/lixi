@@ -3,7 +3,7 @@ import { IsNotEmpty, IsOptional } from 'class-validator';
 
 import { COIN } from '../../../../constants/coins/coin';
 import { Nullable } from '../../../nullable';
-import { OfferType } from '../../offer.model';
+import { OfferCategory, OfferType } from '../../offer.model';
 
 @InputType()
 export class CreateOfferInput {
@@ -32,6 +32,9 @@ export class CreateOfferInput {
 
   @Field(() => String, { nullable: true })
   tickerPriceGoodsServices?: Nullable<string>;
+
+  @Field(() => OfferCategory, { nullable: true })
+  offerCategory?: Nullable<OfferCategory>;
 
   @Field(() => Float)
   marginPercentage: number;

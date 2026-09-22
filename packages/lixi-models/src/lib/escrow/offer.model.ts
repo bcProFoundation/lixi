@@ -43,6 +43,9 @@ export class Offer {
   @Field(() => String, { nullable: true })
   tickerPriceGoodsServices?: Nullable<string>;
 
+  @Field(() => OfferCategory, { nullable: true })
+  offerCategory?: Nullable<OfferCategory>;
+
   @Field(() => Float)
   marginPercentage: number;
 
@@ -109,6 +112,16 @@ export class Offer {
     Object.assign(this, partial);
   }
 }
+
+export enum OfferCategory {
+  XEC_TRADING = 'XEC_TRADING',
+  GOODS_SERVICES = 'GOODS_SERVICES'
+}
+
+registerEnumType(OfferCategory, {
+  name: 'OfferCategory',
+  description: 'Whether the offer trades XEC or sells goods and services. XEC in a goods offer is collateral.'
+});
 
 export enum OfferType {
   BUY = 'BUY',

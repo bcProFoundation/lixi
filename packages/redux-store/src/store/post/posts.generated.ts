@@ -2430,6 +2430,7 @@ export const OfferFieldsFragmentDoc = `
   priceCoinOthers
   priceGoodsServices
   tickerPriceGoodsServices
+  offerCategory
   marginPercentage
   localCurrency
   paymentApp

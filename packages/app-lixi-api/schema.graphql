@@ -468,6 +468,7 @@ input CreateOfferInput {
   marginPercentage: Float!
   message: String!
   noteOffer: String
+  offerCategory: OfferCategory
   orderLimitMax: Float
   orderLimitMin: Float
   pageId: String
@@ -1151,6 +1152,7 @@ type Offer {
   marginPercentage: Float!
   message: String!
   noteOffer: String
+  offerCategory: OfferCategory
   orderLimitMax: Float
   orderLimitMin: Float
   paymentApp: String
@@ -1185,6 +1187,7 @@ input OfferFilterInput {
   countryName: String
   fiatCurrency: String
   isBuyOffer: Boolean
+  offerCategory: OfferCategory
   offerOrder: OfferOrder
   paymentApp: String
   paymentMethodIds: [Int!]
@@ -1216,6 +1219,12 @@ type OfferPaymentMethod {
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
+}
+
+"""Whether an offer trades XEC or is a goods and services listing. XEC on a goods offer is collateral."""
+enum OfferCategory {
+  GOODS_SERVICES
+  XEC_TRADING
 }
 
 """The status of offer."""

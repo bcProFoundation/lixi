@@ -23,6 +23,7 @@ import {
   EscrowOrderAction,
   BankInfo,
   PAYMENT_METHOD,
+  OfferCategory,
   getTickerText
 } from '@bcpros/lixi-models';
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
@@ -1012,7 +1013,14 @@ export class EscrowOrderResolver {
             throw new Error('Only the buyer can confirm receipt of goods/services');
           }
 
-          if (result.paymentMethodId !== PAYMENT_METHOD.GOODS_SERVICES) {
+          const goodsOffer = await this.prisma.offer.findUnique({
+            where: { postId: result.offerId },
+            select: { offerCategory: true }
+          });
+          const isGoodsServicesOrder =
+            goodsOffer?.offerCategory === OfferCategory.GOODS_SERVICES ||
+            result.paymentMethodId === PAYMENT_METHOD.GOODS_SERVICES;
+          if (!isGoodsServicesOrder) {
             throw new Error('BUYER_CONFIRM_RECEIPT can only be used for Goods & Services orders');
           }
 
