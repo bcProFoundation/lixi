@@ -90,20 +90,48 @@ if [ ! -x /usr/local/bin/meilisearch ] && [ ! -x "$HOME/.local/bin/meilisearch" 
   sudo mv /tmp/meilisearch /usr/local/bin/meilisearch
 fi
 
-# Wire fiat-rate API keys from environment secrets (Cloud Agent Secrets inject
-# CMC_API_KEY / OER_APP_ID as env vars). Upserts into existing .env as well so
-# keys added later still take effect on the next install run.
+# Wire fiat-rate API keys. CMC comes from Cloud Agent secrets; OER is synced from
+# production so the Open Exchange Rates key is not split across environments.
 upsert_env() {
   local file="$1" key="$2" value="$3"
   grep -v "^${key}=" "$file" > "${file}.tmp" && mv "${file}.tmp" "$file"
   echo "${key}=${value}" >> "$file"
 }
+
+prod_ssh() {
+  local ssh_opts="-o StrictHostKeyChecking=no -o ConnectTimeout=15"
+  if [ -z "${PROD_SSH_USER:-}" ] || [ -z "${PROD_SSH_HOST:-}" ]; then
+    return 1
+  fi
+  if [ -n "${PROD_SSH_KEY:-}" ]; then
+    ssh $ssh_opts -i "$PROD_SSH_KEY" "${PROD_SSH_USER}@${PROD_SSH_HOST}" "$@"
+  elif [ -n "${PROD_SSH_PASS:-}" ]; then
+    SSHPASS="$PROD_SSH_PASS" sshpass -e ssh $ssh_opts "${PROD_SSH_USER}@${PROD_SSH_HOST}" "$@"
+  else
+    return 1
+  fi
+}
+
+sync_oer_from_prod() {
+  local env_file="$1"
+  local lines
+  if ! lines="$(prod_ssh 'docker exec lixiapi grep -E "^OER_(APP_ID|API_URL|TTL)=" /app/packages/app-lixi-api/.env 2>/dev/null | head -3' 2>/dev/null)" || [ -z "$lines" ]; then
+    echo "Cloud Agent install: could not sync OER settings from production (PROD_SSH_* or lixiapi container unavailable)" >&2
+    return 1
+  fi
+  while IFS= read -r line; do
+    [ -n "$line" ] || continue
+    local key="${line%%=*}"
+    local value="${line#*=}"
+    upsert_env "$env_file" "$key" "$value"
+  done <<< "$lines"
+  echo "Cloud Agent install: synced OER settings from production lixiapi"
+}
+
 if [ -n "${CMC_API_KEY:-}" ]; then
   upsert_env packages/app-lixi-api/.env CMC_API_KEY "${CMC_API_KEY}"
 fi
-if [ -n "${OER_APP_ID:-}" ]; then
-  upsert_env packages/app-lixi-api/.env OER_APP_ID "${OER_APP_ID}"
-fi
+sync_oer_from_prod packages/app-lixi-api/.env || true
 if [ -n "${TELEGRAM_LOCAL_ECASH_BOT_TOKEN:-}" ]; then
   upsert_env packages/app-lixi-api/.env TELEGRAM_LOCAL_ECASH_BOT_TOKEN "${TELEGRAM_LOCAL_ECASH_BOT_TOKEN}"
 fi
