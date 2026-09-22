@@ -121,6 +121,28 @@ for key in CMC_API_KEY FIAT_RATE_PROVIDER FIAT_RATE_LEGACY_FALLBACK_ENABLED \
     printf '%s=%s\n' "$key" "${!key}" >> "$API_EXTRAS_FILE"
   fi
 done
+
+# Shared OER key from production (same rate-limit pool; not a separate dev key).
+prod_ssh_oer() {
+  local opts="-o StrictHostKeyChecking=no -o ConnectTimeout=15"
+  if [ -z "${PROD_SSH_USER:-}" ] || [ -z "${PROD_SSH_HOST:-}" ]; then
+    return 1
+  fi
+  if [ -n "${PROD_SSH_KEY:-}" ]; then
+    ssh $opts -i "$PROD_SSH_KEY" "${PROD_SSH_USER}@${PROD_SSH_HOST}" "$@"
+  elif [ -n "${PROD_SSH_PASS:-}" ]; then
+    SSHPASS="$PROD_SSH_PASS" sshpass -e ssh $opts "${PROD_SSH_USER}@${PROD_SSH_HOST}" "$@"
+  else
+    return 1
+  fi
+}
+if prod_ssh_oer 'docker exec lixiapi printenv OER_APP_ID' >/dev/null 2>&1 || \
+   prod_ssh_oer 'docker inspect lixiapi --format "{{range .Config.Env}}{{println .}}{{end}}"' 2>/dev/null | grep -q '^OER_APP_ID='; then
+  prod_ssh_oer 'docker inspect lixiapi --format "{{range .Config.Env}}{{println .}}{{end}}"' \
+    | grep -E '^OER_(APP_ID|API_URL|TTL)=' >> "$API_EXTRAS_FILE" || true
+  echo "Synced OER settings from production into API extras"
+fi
+
 if [ ! -s "$API_EXTRAS_FILE" ]; then
   echo "# no extras" > "$API_EXTRAS_FILE"
 fi
@@ -359,6 +381,16 @@ if [ "$WANT_API" = "true" ]; then
   swap_container lixiapi "$API_IMAGE" "${REMOTE_BASE}/env/lixiapi.env"
   if health_api; then
     echo "API healthy"
+    docker exec redis-lixi redis-cli DEL fiat:merged:v1 fiat:oer:latest >/dev/null 2>&1 || true
+    FIAT_COUNT="$(curl -sf -X POST http://localhost:4800/graphql -H 'Content-Type: application/json' \
+      -d '{"query":"{ getAllFiatRate { currency } }"}' \
+      | python3 -c "import sys,json; print(len(json.load(sys.stdin)['data']['getAllFiatRate']))" 2>/dev/null || echo 0)"
+    echo "getAllFiatRate entries: ${FIAT_COUNT}"
+    if [ "${FIAT_COUNT:-0}" -lt 50 ]; then
+      echo "WARN: fiat rate coverage low (expected 100+ with OER); restarting lixiapi once"
+      docker restart lixiapi >/dev/null
+      sleep 20
+    fi
     curl -sf -o /dev/null "https://dev.lixi.social/socket.io/?EIO=4&transport=polling" \
       && echo "external dev socket.io OK" || echo "WARN: external dev socket.io check failed"
   else
