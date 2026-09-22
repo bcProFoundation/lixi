@@ -305,6 +305,8 @@ fi
 if [ "$WANT_WEB" = "true" ]; then
   echo "=== Web: capture live env ==="
   capture_env localecash "${REMOTE_BASE}/env/localecash.env"
+  # lixiapi env supplies dev.lixi.social / dev.localecash.com URLs for the Next.js build.
+  capture_env lixiapi "${REMOTE_BASE}/env/lixiapi.env"
 fi
 
 if [ "$WANT_API" = "true" ]; then
@@ -324,19 +326,29 @@ if [ "$WANT_WEB" = "true" ]; then
   if [ -z "$VAPID" ]; then
     VAPID="$(docker inspect lixiapi --format '{{range .Config.Env}}{{println .}}{{end}}' | grep -E '^PUBLIC_VAPID_KEY=' | cut -d= -f2- || true)"
   fi
-  # Build-time .env: PUBLIC values only (baked into the JS bundle). Secrets are
-  # runtime-only and stay in the container env captured above.
-  # Reuse live dev public URLs so the bundle matches dev.localecash.com routing.
-  grep -E '^NEXT_PUBLIC_' "${REMOTE_BASE}/env/localecash.env" \
-    | grep -v '^NEXT_PUBLIC_PUBLIC_VAPID_KEY=' \
-    > "${REMOTE_BASE}/ecash/apps/telegram-ecash-escrow/.env" || true
-  if ! grep -q '^EXTEND_ESLINT=' "${REMOTE_BASE}/ecash/apps/telegram-ecash-escrow/.env" 2>/dev/null; then
-    echo 'EXTEND_ESLINT=true' >> "${REMOTE_BASE}/ecash/apps/telegram-ecash-escrow/.env"
-  fi
-  if ! grep -q '^NEXT_PUBLIC_NETWORK=' "${REMOTE_BASE}/ecash/apps/telegram-ecash-escrow/.env" 2>/dev/null; then
-    echo 'NEXT_PUBLIC_NETWORK=mainnet' >> "${REMOTE_BASE}/ecash/apps/telegram-ecash-escrow/.env"
-  fi
-  echo "NEXT_PUBLIC_PUBLIC_VAPID_KEY=${VAPID}" >> "${REMOTE_BASE}/ecash/apps/telegram-ecash-escrow/.env"
+  # Build-time .env: PUBLIC values baked into the JS bundle. Runtime secrets stay
+  # in localecash.env. Derive API/site URLs from lixiapi (localecash runtime env
+  # often omits NEXT_PUBLIC_* so grep alone yields NEXT_PUBLIC_LIXI_API="/").
+  LIXI_API_URL="$(grep '^LIXI_SOCIAL_URL=' "${REMOTE_BASE}/env/lixiapi.env" | cut -d= -f2- | sed 's|/*$|/|')"
+  LOCAL_ECASH_URL="$(grep '^LOCAL_ECASH_URL=' "${REMOTE_BASE}/env/lixiapi.env" | cut -d= -f2- | sed 's|/*$||')"
+  BOT_USERNAME="$(grep '^TELEGRAM_LOCAL_ECASH_BOT_NAME=' "${REMOTE_BASE}/env/lixiapi.env" | cut -d= -f2-)"
+  LIXI_API_URL="${LIXI_API_URL:-https://dev.lixi.social/}"
+  LOCAL_ECASH_URL="${LOCAL_ECASH_URL:-https://dev.localecash.com}"
+  cat > "${REMOTE_BASE}/ecash/apps/telegram-ecash-escrow/.env" <<EOF
+EXTEND_ESLINT=true
+NEXT_PUBLIC_NETWORK=mainnet
+NEXT_PUBLIC_XPI_APIS=https://api.sendlotus.com/v4/
+NEXT_PUBLIC_XPI_APIS_TEST=https://api.sendlotus.com/v4/
+NEXT_PUBLIC_LIXI_API=${LIXI_API_URL}
+NEXT_PUBLIC_LIXI_URL=${LIXI_API_URL}
+NEXT_PUBLIC_CHRONIK_URL=https://xec.paybutton.io,https://chronik.pay2stay.com/xec,https://chronik.danaverse.org/xec,https://chronik.e.cash,https://chronik.lixi.app/xec
+NEXT_PUBLIC_LIXI_CHRONIK_URL=https://chronik.lixi.app/xec
+NEXT_PUBLIC_APPLICATION_URL=${LOCAL_ECASH_URL}
+NEXT_PUBLIC_BOT_USERNAME=${BOT_USERNAME}
+NEXT_PUBLIC_ADDRESS_GNC=ecash:pzcpcz67va9ujyk0pt9e5kj975mmdmd25s3gl5avcx
+NEXT_PUBLIC_WEB_LINK=${LOCAL_ECASH_URL}
+NEXT_PUBLIC_PUBLIC_VAPID_KEY=${VAPID}
+EOF
   docker build \
     --build-arg "APP_VERSION=${ECASH_VER}" --build-arg "GIT_COMMIT=${ECASH_SHA}" \
     -t "$WEB_IMAGE" "${REMOTE_BASE}/ecash"
