@@ -1015,13 +1015,22 @@ export class EscrowOrderResolver {
 
           const goodsOffer = await this.prisma.offer.findUnique({
             where: { postId: result.offerId },
-            select: { offerCategory: true }
+            select: { offerCategory: true, coinPayment: true }
           });
           const isGoodsServicesOrder =
             goodsOffer?.offerCategory === OfferCategory.GOODS_SERVICES ||
             result.paymentMethodId === PAYMENT_METHOD.GOODS_SERVICES;
           if (!isGoodsServicesOrder) {
             throw new Error('BUYER_CONFIRM_RECEIPT can only be used for Goods & Services orders');
+          }
+
+          const paysInXec =
+            result.paymentMethodId === PAYMENT_METHOD.CRYPTO &&
+            (goodsOffer?.coinPayment ?? '').trim().toUpperCase() === COIN.XEC;
+          if (paysInXec) {
+            throw new Error(
+              'BUYER_CONFIRM_RECEIPT cannot be used when the buyer pays in XEC. Use the standard release flow instead.'
+            );
           }
 
           if (result.buyerDepositTx) {

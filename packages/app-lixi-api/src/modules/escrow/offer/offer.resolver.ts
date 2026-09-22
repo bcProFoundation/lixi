@@ -553,7 +553,8 @@ export class OfferResolver {
   }
 
   /**
-   * XEC is collateral on a goods offer, not the means of payment.
+   * Goods offers use a real payment method. XEC is allowed as one of those methods,
+   * and is also the collateral when the buyer pays some other way.
    * Payment method 5 remains valid for listings created before the category existed.
    */
   private resolveOfferCategory(data: CreateOfferInput): OfferCategory {
@@ -570,14 +571,11 @@ export class OfferResolver {
       ];
       if (!allowed.includes(methodId)) {
         throw new Error(
-          'A goods and services offer needs cash, bank transfer, a payment app, or a non-XEC crypto payment.'
+          'A goods and services offer needs cash, bank transfer, a payment app, or a crypto payment (including XEC).'
         );
       }
-      if (methodId === PAYMENT_METHOD.CRYPTO) {
-        const coin = (data.coinPayment ?? '').trim().toUpperCase();
-        if (!coin || coin === COIN.XEC) {
-          throw new Error('XEC is collateral for goods and services, not the payment. Choose another coin.');
-        }
+      if (methodId === PAYMENT_METHOD.CRYPTO && !(data.coinPayment ?? '').trim()) {
+        throw new Error('Choose the coin the buyer will pay with.');
       }
       return OfferCategory.GOODS_SERVICES;
     }

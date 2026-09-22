@@ -120,7 +120,8 @@ export enum OfferCategory {
 
 registerEnumType(OfferCategory, {
   name: 'OfferCategory',
-  description: 'Whether the offer trades XEC or sells goods and services. XEC in a goods offer is collateral.'
+  description:
+    'Whether the offer trades XEC or sells goods and services. A goods offer can be paid in XEC or another method; XEC is also collateral when the buyer pays another way.'
 });
 
 export enum OfferType {

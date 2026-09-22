@@ -1428,7 +1428,7 @@ export type OfferPaymentMethod = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-/** Whether an offer trades XEC or is a goods and services listing. XEC on a goods offer is collateral. */
+/** Whether an offer trades XEC or is a goods and services listing. A goods offer can be paid in XEC or another method. */
 export enum OfferCategory {
   GoodsServices = 'GOODS_SERVICES',
   XecTrading = 'XEC_TRADING'
