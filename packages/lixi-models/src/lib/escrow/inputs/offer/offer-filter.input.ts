@@ -1,5 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { Nullable } from '../../../nullable';
+import { OfferCategory } from '../../offer.model';
 import { OfferOrder } from './offer-order.input';
 
 @InputType()
@@ -42,6 +43,9 @@ export class OfferFilterInput {
 
   @Field(() => String, { nullable: true })
   tickerPriceGoodsServices?: Nullable<string>;
+
+  @Field(() => OfferCategory, { nullable: true })
+  offerCategory?: Nullable<OfferCategory>;
 
   @Field(() => OfferOrder, { nullable: true })
   offerOrder?: Nullable<OfferOrder>;

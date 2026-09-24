@@ -95,6 +95,10 @@ const enhancedApi = api.enhanceEndpoints({
                       draft.escrowOrder.returnSignatory = signatory;
                       draft.escrowOrder.buyerDonateAmount = buyerDonateAmount;
                       break;
+                    case EscrowOrderAction.BuyerConfirmReceipt:
+                      draft.escrowOrder.returnSignatory = signatory;
+                      draft.escrowOrder.returnFeeSignatory = signatory;
+                      break;
                     default:
                       break;
                   }

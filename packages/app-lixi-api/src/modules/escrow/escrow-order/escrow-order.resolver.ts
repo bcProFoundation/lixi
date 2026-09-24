@@ -23,6 +23,7 @@ import {
   EscrowOrderAction,
   BankInfo,
   PAYMENT_METHOD,
+  OfferCategory,
   getTickerText
 } from '@bcpros/lixi-models';
 import { HttpException, HttpStatus, Logger, UseFilters, UseGuards } from '@nestjs/common';
@@ -1032,6 +1033,98 @@ export class EscrowOrderResolver {
             socketId: socketId ?? '',
             escrowOrderAction: EscrowOrderAction.RETURN_BUYER_FEE
           });
+          break;
+        case EscrowOrderAction.BUYER_CONFIRM_RECEIPT:
+          // External goods & services: the seller locked XEC as collateral.
+          // The buyer confirms receipt and that collateral is returned to the seller.
+          // Orders that already have a buyer deposit keep the normal release/return flow.
+          if (result.status !== EscrowOrderStatus.ESCROW) {
+            throw new Error('Escrow order is not in escrow status');
+          }
+
+          if (account.id !== result.buyerAccountId) {
+            throw new Error('Only the buyer can confirm receipt of goods/services');
+          }
+
+          const goodsOffer = await this.prisma.offer.findUnique({
+            where: { postId: result.offerId },
+            select: { offerCategory: true, coinPayment: true }
+          });
+          const isGoodsServicesOrder =
+            goodsOffer?.offerCategory === OfferCategory.GOODS_SERVICES ||
+            result.paymentMethodId === PAYMENT_METHOD.GOODS_SERVICES;
+          if (!isGoodsServicesOrder) {
+            throw new Error('BUYER_CONFIRM_RECEIPT can only be used for Goods & Services orders');
+          }
+
+          const paysInXec =
+            result.paymentMethodId === PAYMENT_METHOD.CRYPTO &&
+            (goodsOffer?.coinPayment ?? '').trim().toUpperCase() === COIN.XEC;
+          if (paysInXec) {
+            throw new Error(
+              'BUYER_CONFIRM_RECEIPT cannot be used when the buyer pays in XEC. Use the standard release flow instead.'
+            );
+          }
+
+          if (result.buyerDepositTx) {
+            throw new Error(
+              'BUYER_CONFIRM_RECEIPT cannot be used for orders the buyer already funded. Use the standard release flow instead.'
+            );
+          }
+
+          if (result.returnSignatory || result.returnFeeSignatory) {
+            throw new Error('Return signatory already set');
+          }
+
+          await this.prisma.escrowOrder.update({
+            where: {
+              id: orderId
+            },
+            data: {
+              returnSignatory: Buffer.from(signatory, 'hex'),
+              returnFeeSignatory: Buffer.from(signatory, 'hex'),
+              updatedAt: new Date(),
+              signatoryOwnerHash160: signatoryOwnerHash160 ? Buffer.from(signatoryOwnerHash160, 'hex') : null,
+              signatoryOwnerFeeHash160: signatoryOwnerFeeHash160 ? Buffer.from(signatoryOwnerFeeHash160, 'hex') : null
+            }
+          });
+
+          this.notificationGateway.publishEscrowOrderStatus(orderId, {
+            escrowOrderId: orderId,
+            escrowOrder: {
+              returnSignatory: signatory,
+              returnFeeSignatory: signatory,
+              signatoryOwnerHash160,
+              signatoryOwnerFeeHash160
+            },
+            socketId: socketId ?? '',
+            escrowOrderAction: EscrowOrderAction.BUYER_CONFIRM_RECEIPT
+          });
+
+          if (result.sellerAccount?.telegramId) {
+            await this.bot.telegram
+              .sendMessage(
+                result.sellerAccount.telegramId,
+                '✅ *Order completed*\n\nThe buyer confirmed receipt of the goods or services. Your collateral can now be claimed.',
+                {
+                  parse_mode: 'Markdown',
+                  protect_content: true,
+                  reply_parameters: result.sellerTelegramMessageId
+                    ? {
+                        message_id: result.sellerTelegramMessageId,
+                        allow_sending_without_reply: true
+                      }
+                    : undefined,
+                  reply_markup: {
+                    inline_keyboard: generateInlineKeyboard(link, this.config.get('TELEGRAM_MINI_APP_ENABLED'))
+                  }
+                }
+              )
+              .catch(e => {
+                this.logger.error(e);
+              });
+          }
+
           break;
         default:
           throw new Error('Invalid action');

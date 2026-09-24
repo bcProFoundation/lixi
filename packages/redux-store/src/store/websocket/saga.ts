@@ -365,6 +365,7 @@ function* receiveEscrowOrderStatus(payload: any) {
             );
             break;
           case EscrowOrderAction.Return:
+          case EscrowOrderAction.BuyerConfirmReceipt:
             yield putAction(
               escrowOrderApi.util.updateQueryData('EscrowOrder', { id: escrowOrderId }, draft => {
                 if (draft) {

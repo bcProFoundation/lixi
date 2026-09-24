@@ -6,6 +6,7 @@ import {
   CreateOfferInput,
   IBasicPaginated,
   Offer,
+  OfferCategory,
   OfferStatus,
   Post,
   OfferFilterInput,
@@ -152,7 +153,8 @@ export class OfferResolver {
     const sortDirection = offerFilterInput?.offerOrder?.direction || OrderDirection.desc;
 
     // join if needed
-    const needsPaymentMethodJoin = (offerFilterInput?.paymentMethodIds?.length ?? 0) > 0;
+    const needsPaymentMethodJoin =
+      (offerFilterInput?.paymentMethodIds?.length ?? 0) > 0 || this.isGoodsServicesFilter(offerFilterInput);
     const needsLocationJoin = !!(
       offerFilterInput.countryCode ||
       offerFilterInput.adminCode ||
@@ -332,9 +334,27 @@ export class OfferResolver {
         .where('offer.hide_from_home', '=', false)
         .where(sql`offer.status::text`, '=', OfferStatus.ACTIVE)
 
-        // Sử dụng phương thức $if thay vì các câu lệnh if-then thông thường
-        .$if((offerFilterInput?.paymentMethodIds?.length ?? 0) > 0, qb =>
-          qb.where('offer_payment_method.payment_method_id', 'in', offerFilterInput.paymentMethodIds!)
+        // Goods listings are a category. Legacy rows still use payment method 5.
+        // XEC trading lists exclude that category so a bank-paid goods offer does not appear as an XEC trade.
+        .$if(this.isGoodsServicesFilter(offerFilterInput), qb =>
+          qb.where(eb =>
+            eb.or([
+              eb('offer.offer_category', '=', OfferCategory.GOODS_SERVICES),
+              eb('offer_payment_method.payment_method_id', '=', PAYMENT_METHOD.GOODS_SERVICES)
+            ])
+          )
+        )
+        .$if(!this.isGoodsServicesFilter(offerFilterInput), qb =>
+          qb.where(eb =>
+            eb.or([
+              eb('offer.offer_category', 'is', null),
+              eb('offer.offer_category', '<>', OfferCategory.GOODS_SERVICES)
+            ])
+          )
+        )
+        .$if(
+          !this.isGoodsServicesFilter(offerFilterInput) && (offerFilterInput?.paymentMethodIds?.length ?? 0) > 0,
+          qb => qb.where('offer_payment_method.payment_method_id', 'in', offerFilterInput.paymentMethodIds!)
         )
 
         .$if(!!offerFilterInput?.countryCode, qb => qb.where('world_cities.iso2', '=', offerFilterInput.countryCode!))
@@ -522,9 +542,50 @@ export class OfferResolver {
     return result;
   }
 
+  /**
+   * Goods filter: explicit category, or the legacy shopping query that asks only for payment method 5.
+   * A method-5-only filter must not also require payment_method_id = 5, or bank/cash/app goods offers disappear.
+   */
+  private isGoodsServicesFilter(offerFilterInput: OfferFilterInput): boolean {
+    if (offerFilterInput?.offerCategory === OfferCategory.GOODS_SERVICES) return true;
+    const ids = offerFilterInput?.paymentMethodIds ?? [];
+    return ids.length === 1 && ids[0] === PAYMENT_METHOD.GOODS_SERVICES;
+  }
+
+  /**
+   * Goods offers use a real payment method. XEC is allowed as one of those methods,
+   * and is also the collateral when the buyer pays some other way.
+   * Payment method 5 remains valid for listings created before the category existed.
+   */
+  private resolveOfferCategory(data: CreateOfferInput): OfferCategory {
+    const methodId = data.paymentMethodIds?.[0];
+    if (methodId === PAYMENT_METHOD.GOODS_SERVICES) {
+      return OfferCategory.GOODS_SERVICES;
+    }
+    if (data.offerCategory === OfferCategory.GOODS_SERVICES) {
+      const allowed = [
+        PAYMENT_METHOD.CASH_IN_PERSON,
+        PAYMENT_METHOD.BANK_TRANSFER,
+        PAYMENT_METHOD.PAYMENT_APP,
+        PAYMENT_METHOD.CRYPTO
+      ];
+      if (!allowed.includes(methodId)) {
+        throw new Error(
+          'A goods and services offer needs cash, bank transfer, a payment app, or a crypto payment (including XEC).'
+        );
+      }
+      if (methodId === PAYMENT_METHOD.CRYPTO && !(data.coinPayment ?? '').trim()) {
+        throw new Error('Choose the coin the buyer will pay with.');
+      }
+      return OfferCategory.GOODS_SERVICES;
+    }
+    return OfferCategory.XEC_TRADING;
+  }
+
   @UseGuards(GqlJwtAuthGuard)
   @Mutation(() => Post)
   async createOffer(@AccountEntity() account: Account, @Args('data') data: CreateOfferInput) {
+    const offerCategory = this.resolveOfferCategory(data);
     try {
       const { paymentMethodIds, pageId, createFeeHex, coin, locationId } = data;
 
@@ -600,6 +661,7 @@ export class OfferResolver {
                 priceCoinOthers: data?.priceCoinOthers ?? 0,
                 priceGoodsServices: data?.priceGoodsServices ?? 0,
                 tickerPriceGoodsServices: data?.tickerPriceGoodsServices ?? null,
+                offerCategory,
                 localCurrency: data.localCurrency,
                 paymentApp: data.paymentApp,
                 orderLimitMin: data.orderLimitMin,
@@ -720,7 +782,7 @@ export class OfferResolver {
             );
 
       //process for goods services
-      if (paymentMethodIds[0] === PAYMENT_METHOD.GOODS_SERVICES) {
+      if (offerCategory === OfferCategory.GOODS_SERVICES) {
         formatReplied = format(
           BOT.MESSAGE.OFFER_CREATED_GOODS_SERVICES,
           strTypeListOffer,

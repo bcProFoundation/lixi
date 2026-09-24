@@ -495,6 +495,7 @@ export type CreateOfferInput = {
   marginPercentage: Scalars['Float']['input'];
   message: Scalars['String']['input'];
   noteOffer?: InputMaybe<Scalars['String']['input']>;
+  offerCategory?: InputMaybe<OfferCategory>;
   orderLimitMax?: InputMaybe<Scalars['Float']['input']>;
   orderLimitMin?: InputMaybe<Scalars['Float']['input']>;
   pageId?: InputMaybe<Scalars['String']['input']>;
@@ -741,6 +742,7 @@ export type EscrowOrder = {
 
 /** The action of escrow order. */
 export enum EscrowOrderAction {
+  BuyerConfirmReceipt = 'BUYER_CONFIRM_RECEIPT',
   Release = 'RELEASE',
   Return = 'RETURN',
   ReturnBuyerFee = 'RETURN_BUYER_FEE',
@@ -1357,6 +1359,7 @@ export type Offer = {
   marginPercentage: Scalars['Float']['output'];
   message: Scalars['String']['output'];
   noteOffer?: Maybe<Scalars['String']['output']>;
+  offerCategory?: Maybe<OfferCategory>;
   orderLimitMax?: Maybe<Scalars['Float']['output']>;
   orderLimitMin?: Maybe<Scalars['Float']['output']>;
   paymentApp?: Maybe<Scalars['String']['output']>;
@@ -1391,6 +1394,7 @@ export type OfferFilterInput = {
   countryName?: InputMaybe<Scalars['String']['input']>;
   fiatCurrency?: InputMaybe<Scalars['String']['input']>;
   isBuyOffer?: InputMaybe<Scalars['Boolean']['input']>;
+  offerCategory?: InputMaybe<OfferCategory>;
   offerOrder?: InputMaybe<OfferOrder>;
   paymentApp?: InputMaybe<Scalars['String']['input']>;
   paymentMethodIds?: InputMaybe<Array<Scalars['Int']['input']>>;
@@ -1423,6 +1427,12 @@ export type OfferPaymentMethod = {
   /** Identifies the date and time when the object was last updated. */
   updatedAt: Scalars['DateTime']['output'];
 };
+
+/** Whether an offer trades XEC or is a goods and services listing. A goods offer can be paid in XEC or another method. */
+export enum OfferCategory {
+  GoodsServices = 'GOODS_SERVICES',
+  XecTrading = 'XEC_TRADING'
+}
 
 /** The status of offer. */
 export enum OfferStatus {

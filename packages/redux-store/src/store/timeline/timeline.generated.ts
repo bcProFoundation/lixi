@@ -3071,6 +3071,7 @@ export const EscrowOrderFieldsFragmentDoc = `
     priceCoinOthers
     priceGoodsServices
     tickerPriceGoodsServices
+    offerCategory
     localCurrency
   }
   escrowScript
