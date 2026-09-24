@@ -85,13 +85,20 @@ export class EscrowOrderResolver {
   @UseGuards(GqlJwtAuthGuard)
   async getModeratorAccount() {
     try {
-      return this.prisma.account.findFirst({
+      const moderator = await this.prisma.account.findFirst({
         where: {
           role: Role.MODERATOR
         }
       });
+
+      if (!moderator) {
+        throw new Error('Moderator not found');
+      }
+
+      return moderator;
     } catch (e) {
       this.logger.error(e);
+      throw e;
     }
   }
 
@@ -129,13 +136,14 @@ export class EscrowOrderResolver {
       });
 
       if (accounts.length === 0) {
-        throw new Error('No arbitrator found');
+        throw new Error('No arbitrator found for this offer');
       }
 
       const randomIndex = Math.floor(Math.random() * accounts.length);
       return accounts[randomIndex];
     } catch (e: any) {
-      throw new Error(e);
+      this.logger.error(e);
+      throw new Error(e?.message ?? 'Failed to get arbitrator account');
     }
   }
 
