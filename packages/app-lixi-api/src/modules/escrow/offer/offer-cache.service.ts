@@ -1,4 +1,13 @@
-import { BoostForType, COIN, Offer, OfferFilterInput, OfferStatus, POST_TYPE, OfferType } from '@bcpros/lixi-models';
+import {
+  BoostForType,
+  COIN,
+  Offer,
+  OfferCategory,
+  OfferFilterInput,
+  OfferStatus,
+  POST_TYPE,
+  OfferType
+} from '@bcpros/lixi-models';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { decode, encode } from '@msgpack/msgpack';
 import { Logger } from '@nestjs/common';
@@ -50,7 +59,8 @@ export class OfferCacheService {
         ...dbValue,
         coin: dbValue?.coin as COIN,
         type: dbValue?.type as OfferType,
-        status: dbValue?.status as OfferStatus
+        status: dbValue?.status as OfferStatus,
+        offerCategory: dbValue?.offerCategory as OfferCategory | null
       });
 
       await this.redis.hset(this.keyPrefix, id, Buffer.from(encode(offer)));
@@ -94,7 +104,8 @@ export class OfferCacheService {
           ...dbValue,
           coin: dbValue?.coin as COIN,
           type: dbValue?.type as OfferType,
-          status: dbValue?.status as OfferStatus
+          status: dbValue?.status as OfferStatus,
+          offerCategory: dbValue?.offerCategory as OfferCategory | null
         });
         itemsMap.set(dbValue.postId, item);
         return [dbValue.postId, Buffer.from(encode(item))];

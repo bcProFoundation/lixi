@@ -33,7 +33,7 @@ export default class TimelineableLoader {
     const pages = await this.pageCacheService.getByIds(pageIds);
     const pagesMap = new Map(_.compact(pages).map(page => [page.id, page]));
     const data = keys.map((key, index) => {
-      return key ? (pagesMap.get(key) ?? null) : null;
+      return key ? pagesMap.get(key) ?? null : null;
     });
     return Promise.resolve(data);
   });

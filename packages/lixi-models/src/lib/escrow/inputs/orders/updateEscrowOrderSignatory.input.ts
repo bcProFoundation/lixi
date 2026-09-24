@@ -44,7 +44,9 @@ export enum EscrowOrderAction {
   RELEASE = 'RELEASE',
   RETURN = 'RETURN',
   RETURN_FEE = 'RETURN_FEE',
-  RETURN_BUYER_FEE = 'RETURN_BUYER_FEE'
+  RETURN_BUYER_FEE = 'RETURN_BUYER_FEE',
+  /** Buyer confirms receipt for external payment - releases collateral back to seller */
+  BUYER_CONFIRM_RECEIPT = 'BUYER_CONFIRM_RECEIPT'
 }
 
 registerEnumType(EscrowOrderAction, {

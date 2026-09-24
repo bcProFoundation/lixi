@@ -1,0 +1,403 @@
+<mxfile host="app.diagrams.net" modified="2026-02-05T00:00:00.000Z" agent="5.0" etag="abc123" version="21.0.0" type="device">
+  <diagram id="payment-flows" name="G&S Payment Flows">
+    <mxGraphModel dx="2000" dy="1600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="Goods &amp; Services Payment Flows" style="text;html=1;fontSize=24;fontStyle=1;verticalAlign=top;horizontalAlign=center;" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="600" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Decision Tree Section -->
+        <mxCell id="tree-title" value="DECISION TREE" style="text;html=1;fontSize=16;fontStyle=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="20" y="80" width="200" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Start node -->
+        <mxCell id="start" value="Create/View Offer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="130" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Is G&S? -->
+        <mxCell id="is-gs" value="Is G&amp;S Category?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="220" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-start-gs" edge="1" parent="1" source="start" target="is-gs">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- NO - Standard XEC Trading -->
+        <mxCell id="standard-xec" value="Standard XEC Trading&#10;Buyer: Direct Deposit&#10;Action: RELEASE/RETURN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="20" y="340" width="140" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-no-gs" edge="1" parent="1" source="is-gs" target="standard-xec">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="80" y="300" as="sourcePoint" />
+            <mxPoint x="80" y="340" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="40" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="label-no" value="NO" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=10;fontStyle=1;resizable=0;" connectable="0" vertex="1" parent="edge-no-gs">
+          <mxGeometry x="-40" y="0" as="geometry" />
+        </mxCell>
+
+        <!-- YES - Check payment method -->
+        <mxCell id="check-payment" value="Check Payment Method" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="340" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-yes-gs" edge="1" parent="1" source="is-gs" target="check-payment">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="220" y="260" as="sourcePoint" />
+            <mxPoint x="310" y="340" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="label-yes" value="YES" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=10;fontStyle=1;resizable=0;" connectable="0" vertex="1" parent="edge-yes-gs">
+          <mxGeometry x="40" y="-10" as="geometry" />
+        </mxCell>
+
+        <!-- Payment method branches -->
+        <!-- Legacy G&S (5) -->
+        <mxCell id="legacy-gs" value="paymentMethodId = 5&#10;(Legacy G&amp;S)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="20" y="440" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Bank Transfer (2) -->
+        <mxCell id="bank" value="paymentMethodId = 2&#10;(Bank Transfer)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="160" y="440" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Payment App (3) -->
+        <mxCell id="app" value="paymentMethodId = 3&#10;(Payment App)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="300" y="440" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Crypto - Decision -->
+        <mxCell id="crypto-check" value="paymentMethodId = 4&#10;Check coinPayment?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="440" y="425" width="140" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- XEC - Direct Payment -->
+        <mxCell id="xec-direct" value="coinPayment = XEC&#10;→ DIRECT PAYMENT&#10;Action: RELEASE/RETURN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="420" y="560" width="130" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Other Crypto - External Payment -->
+        <mxCell id="other-crypto" value="coinPayment ≠ XEC&#10;→ EXTERNAL PAYMENT&#10;Action: BUYER_CONFIRM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcccc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="600" y="560" width="130" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-crypto-xec" edge="1" parent="1" source="crypto-check" target="xec-direct">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="460" y="530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="label-xec" value="XEC" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=9;resizable=0;" connectable="0" vertex="1" parent="edge-crypto-xec">
+          <mxGeometry x="-15" y="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-crypto-other" edge="1" parent="1" source="crypto-check" target="other-crypto">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="label-other" value="BTC/ETH..." style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=9;resizable=0;" connectable="0" vertex="1" parent="edge-crypto-other">
+          <mxGeometry x="15" y="20" as="geometry" />
+        </mxCell>
+
+        <!-- External payment results -->
+        <mxCell id="external-result" value="→ EXTERNAL PAYMENT&#10;Action: BUYER_CONFIRM_RECEIPT&#10;• Seller: Escrow Collateral&#10;• Buyer: Pays Externally&#10;• Release: On Receipt Confirm" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcccc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="20" y="560" width="150" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Connections from payment methods to results -->
+        <mxCell id="edge-legacy" edge="1" parent="1" source="legacy-gs" target="external-result">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="80" y="530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="edge-bank" edge="1" parent="1" source="bank" target="external-result">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="95" y="530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="edge-app" edge="1" parent="1" source="app" target="external-result">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="110" y="530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Connection from check-payment -->
+        <mxCell id="edge-check-methods" edge="1" parent="1" source="check-payment" target="legacy-gs">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="400" />
+              <mxPoint x="80" y="440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- === FLOW DETAILS SECTION === -->
+        <mxCell id="flows-title" value="DETAILED FLOW MECHANICS" style="text;html=1;fontSize=16;fontStyle=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="800" y="80" width="300" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- External Payment Flow -->
+        <mxCell id="ext-flow-title" value="EXTERNAL PAYMENT FLOW" style="text;html=1;fontSize=12;fontStyle=1;verticalAlign=top;backgroundColor=#ffcccc;" vertex="1" parent="1">
+          <mxGeometry x="780" y="130" width="200" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ext-step1" value="1. Seller Deposits XEC&#10;   as Collateral" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffebee;strokeColor=#d79b00;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="780" y="170" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ext-arrow1" edge="1" parent="1" source="ext-step1" target="ext-step2">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="860" y="220" as="sourcePoint" />
+            <mxPoint x="860" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ext-step2" value="2. Buyer Pays Externally&#10;   (Bank/App/Crypto)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffebee;strokeColor=#d79b00;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="780" y="240" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ext-arrow2" edge="1" parent="1" source="ext-step2" target="ext-step3">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="860" y="290" as="sourcePoint" />
+            <mxPoint x="860" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ext-step3" value="3. Buyer Confirms Receipt&#10;   BUYER_CONFIRM_RECEIPT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffebee;strokeColor=#d79b00;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="780" y="310" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ext-arrow3" edge="1" parent="1" source="ext-step3" target="ext-step4">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="860" y="360" as="sourcePoint" />
+            <mxPoint x="860" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ext-step4" value="4. Collateral Released&#10;   to Seller (Success)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="780" y="380" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Direct Payment Flow -->
+        <mxCell id="dir-flow-title" value="DIRECT XEC PAYMENT FLOW" style="text;html=1;fontSize=12;fontStyle=1;verticalAlign=top;backgroundColor=#d5e8d4;" vertex="1" parent="1">
+          <mxGeometry x="780" y="460" width="200" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dir-step1" value="1. Buyer Deposits XEC&#10;   in Escrow" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#82b366;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="780" y="500" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dir-arrow1" edge="1" parent="1" source="dir-step1" target="dir-step2">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="860" y="550" as="sourcePoint" />
+            <mxPoint x="860" y="570" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="dir-step2" value="2. Seller Delivers&#10;   Goods/Services" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#82b366;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="780" y="570" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dir-arrow2" edge="1" parent="1" source="dir-step2" target="dir-step3">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="860" y="620" as="sourcePoint" />
+            <mxPoint x="860" y="640" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="dir-step3" value="3. Seller Releases XEC&#10;   Standard Release Flow" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#82b366;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="780" y="640" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dir-arrow3" edge="1" parent="1" source="dir-step3" target="dir-step4">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="860" y="690" as="sourcePoint" />
+            <mxPoint x="860" y="710" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="dir-step4" value="4. XEC Sent to Buyer&#10;   (Success)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="780" y="710" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- === COMPARISON TABLE === -->
+        <mxCell id="comparison-title" value="QUICK COMPARISON" style="text;html=1;fontSize=12;fontStyle=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="20" y="850" width="1360" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Table headers -->
+        <mxCell id="th-type" value="Payment Type" style="text;html=1;align=center;verticalAlign=middle;fontSize=10;fontStyle=1;fillColor=#e1d5e7;" vertex="1" parent="1">
+          <mxGeometry x="20" y="890" width="180" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="th-method" value="Payment Method" style="text;html=1;align=center;verticalAlign=middle;fontSize=10;fontStyle=1;fillColor=#e1d5e7;" vertex="1" parent="1">
+          <mxGeometry x="200" y="890" width="180" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="th-flow" value="Flow Type" style="text;html=1;align=center;verticalAlign=middle;fontSize=10;fontStyle=1;fillColor=#e1d5e7;" vertex="1" parent="1">
+          <mxGeometry x="380" y="890" width="140" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="th-action" value="Buyer Action" style="text;html=1;align=center;verticalAlign=middle;fontSize=10;fontStyle=1;fillColor=#e1d5e7;" vertex="1" parent="1">
+          <mxGeometry x="520" y="890" width="160" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="th-seller" value="Seller Role" style="text;html=1;align=center;verticalAlign=middle;fontSize=10;fontStyle=1;fillColor=#e1d5e7;" vertex="1" parent="1">
+          <mxGeometry x="680" y="890" width="160" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="th-ui" value="UI Indicator" style="text;html=1;align=center;verticalAlign=middle;fontSize=10;fontStyle=1;fillColor=#e1d5e7;" vertex="1" parent="1">
+          <mxGeometry x="840" y="890" width="200" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="th-note" value="Notes" style="text;html=1;align=center;verticalAlign=middle;fontSize=10;fontStyle=1;fillColor=#e1d5e7;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="890" width="320" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Row 1: Legacy G&S -->
+        <mxCell id="r1-type" value="Legacy G&amp;S" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor=#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="20" y="920" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r1-method" value="paymentMethodId=5" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor=#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="200" y="920" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r1-flow" value="EXTERNAL" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fontStyle=1;fillColor=#ffcccc;" vertex="1" parent="1">
+          <mxGeometry x="380" y="920" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r1-action" value="BUYER_CONFIRM_RECEIPT" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor=#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="520" y="920" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r1-seller" value="Escrow Collateral" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="680" y="920" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r1-ui" value="Collateral Escrowed" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="840" y="920" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r1-note" value="Deprecated, backward compatible" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="920" width="320" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Row 2: Bank Transfer -->
+        <mxCell id="r2-type" value="G&amp;S + Bank" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="20" y="950" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r2-method" value="paymentMethodId=2" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="200" y="950" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r2-flow" value="EXTERNAL" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fontStyle=1;fillColor:#ffcccc;" vertex="1" parent="1">
+          <mxGeometry x="380" y="950" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r2-action" value="BUYER_CONFIRM_RECEIPT" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="520" y="950" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r2-seller" value="Escrow Collateral" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="680" y="950" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r2-ui" value="Collateral Escrowed" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="840" y="950" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r2-note" value="Modern approach" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="950" width="320" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Row 3: Payment App -->
+        <mxCell id="r3-type" value="G&amp;S + App" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="20" y="980" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r3-method" value="paymentMethodId=3" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="200" y="980" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r3-flow" value="EXTERNAL" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fontStyle=1;fillColor:#ffcccc;" vertex="1" parent="1">
+          <mxGeometry x="380" y="980" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r3-action" value="BUYER_CONFIRM_RECEIPT" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="520" y="980" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r3-seller" value="Escrow Collateral" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="680" y="980" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r3-ui" value="Collateral Escrowed" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="840" y="980" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r3-note" value="PayPal, Venmo, etc." style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="980" width="320" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Row 4: Non-XEC Crypto -->
+        <mxCell id="r4-type" value="G&amp;S + Crypto" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="20" y="1010" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r4-method" value="paymentMethodId=4, non-XEC" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="200" y="1010" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r4-flow" value="EXTERNAL" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fontStyle=1;fillColor:#ffcccc;" vertex="1" parent="1">
+          <mxGeometry x="380" y="1010" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r4-action" value="BUYER_CONFIRM_RECEIPT" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="520" y="1010" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r4-seller" value="Escrow Collateral" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="680" y="1010" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r4-ui" value="Collateral Escrowed" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="840" y="1010" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r4-note" value="BTC, ETH, etc." style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fillColor:#ffebee;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="1010" width="320" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Row 5: XEC Direct -->
+        <mxCell id="r5-type" value="G&amp;S + XEC" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fontStyle=1;fillColor:#e8f5e9;" vertex="1" parent="1">
+          <mxGeometry x="20" y="1040" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r5-method" value="paymentMethodId=4, XEC" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fontStyle=1;fillColor=#e8f5e9;" vertex="1" parent="1">
+          <mxGeometry x="200" y="1040" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r5-flow" value="DIRECT" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fontStyle=1;fillColor=#d5e8d4;" vertex="1" parent="1">
+          <mxGeometry x="380" y="1040" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r5-action" value="RELEASE/RETURN" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fontStyle=1;fillColor=#e8f5e9;" vertex="1" parent="1">
+          <mxGeometry x="520" y="1040" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r5-seller" value="Standard Escrow" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fontStyle=1;fillColor:#e8f5e9;" vertex="1" parent="1">
+          <mxGeometry x="680" y="1040" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r5-ui" value="No collateral message" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fontStyle=1;fillColor:#e8f5e9;" vertex="1" parent="1">
+          <mxGeometry x="840" y="1040" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r5-note" value="Key: NOT external payment" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fontStyle=1;fillColor:#e8f5e9;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="1040" width="320" height="30" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

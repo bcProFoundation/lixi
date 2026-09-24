@@ -11,6 +11,7 @@ import { catchError } from 'rxjs/operators';
 import { AxiosError } from 'axios';
 import { Telegraf } from 'telegraf';
 import { InjectBot } from 'nestjs-telegraf';
+import { TELEGRAM_LOCAL_ECASH_BOT_NAME } from '../../telegram/telegram-bot.constants';
 import { FiatRateService } from './fiat-rate.service';
 
 // Type definitions for better type safety
@@ -75,7 +76,7 @@ export class FiatCurrencyRateResolver {
     private readonly configService: ConfigService,
     private readonly fiatRateService: FiatRateService,
     @Optional()
-    @InjectBot(process.env.TELEGRAM_LOCAL_ECASH_BOT_NAME)
+    @InjectBot(TELEGRAM_LOCAL_ECASH_BOT_NAME)
     private readonly notificationBot: Telegraf
   ) {
     // Initialize configurable validation threshold
