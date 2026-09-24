@@ -1,0 +1,83 @@
+# Production deploy (works without the vault-connected build machine).
+#
+# Manual dispatch that runs scripts/deploy-prod.sh from CI. Secrets come from
+# the `production` GitHub Environment (Settings -> Environments):
+#   PROD_SSH_HOST, PROD_SSH_USER, PROD_SSH_PASS (or PROD_SSH_KEY),
+#   CMC_API_KEY, OER_APP_ID (only needed on the first fiat-rate deploy).
+# Tip: enable "Required reviewers" on the environment for one-click approvals.
+name: Deploy to production
+
+on:
+  workflow_dispatch:
+    inputs:
+      services:
+        description: 'What to deploy'
+        required: true
+        default: all
+        type: choice
+        options: [all, api, web]
+      lixi_ref:
+        description: 'lixi ref (branch/tag/sha)'
+        required: true
+        default: master
+      ecash_ref:
+        description: 'local-ecash ref (branch/tag/sha)'
+        required: true
+        default: master
+      dry_run:
+        description: 'Print plan only, change nothing'
+        required: false
+        default: false
+        type: boolean
+
+run-name: >-
+  prod deploy ${{ inputs.services }} (lixi@${{ inputs.lixi_ref }},
+  ecash@${{ inputs.ecash_ref }}${{ inputs.dry_run && ', dry-run' || '' }})
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Check out lixi
+        uses: actions/checkout@v4
+        with:
+          repository: bcProFoundation/lixi
+          ref: ${{ inputs.lixi_ref }}
+          path: lixi
+          fetch-depth: 0
+          # worldcities.tar.gz (57MB, needed by db:seeds) is git-lfs tracked
+          lfs: true
+
+      - name: Check out local-ecash
+        if: inputs.services == 'all' || inputs.services == 'web'
+        uses: actions/checkout@v4
+        with:
+          # Same-org public repo: default token is enough. If the repo ever
+          # goes private, switch `token` to a PAT with repo scope.
+          repository: bcProFoundation/local-ecash
+          ref: ${{ inputs.ecash_ref }}
+          path: local-ecash
+          fetch-depth: 0
+
+      - name: Install sshpass
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq sshpass
+
+      - name: Deploy
+        working-directory: lixi
+        env:
+          PROD_SSH_USER: ${{ secrets.PROD_SSH_USER }}
+          PROD_SSH_HOST: ${{ secrets.PROD_SSH_HOST }}
+          PROD_SSH_PASS: ${{ secrets.PROD_SSH_PASS }}
+          PROD_SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
+          CMC_API_KEY: ${{ secrets.CMC_API_KEY }}
+          OER_APP_ID: ${{ secrets.OER_APP_ID }}
+          LIXI_REF: ${{ inputs.lixi_ref }}
+          ECASH_REF: ${{ inputs.ecash_ref }}
+          LIXI_DIR: ${{ github.workspace }}/lixi
+          ECASH_DIR: ${{ github.workspace }}/local-ecash
+        run: |
+          ARGS="${{ inputs.services }} --yes"
+          [ "${{ inputs.dry_run }}" = "true" ] && ARGS="$ARGS --dry-run"
+          # shellcheck disable=SC2086
+          ./scripts/deploy-prod.sh $ARGS

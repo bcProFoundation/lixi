@@ -39,7 +39,10 @@ import { COIN } from '@bcpros/lixi-models/constants/coins/coin';
 import { getAllAccounts, getSelectedAccount } from '@store/account';
 import useInterval from './useInterval';
 import { useXPI } from './useXPI';
+import { parseXecChronikUrls } from '../utils/chronikEndpoints';
 import * as wif from 'wif';
+
+const xecChronikUrls = () => parseXecChronikUrls(process.env.NEXT_PUBLIC_CHRONIK_URL);
 
 // const chronik = new ChronikClient('https://chronik.be.cash/xec');
 const websocketConnectedRefreshInterval = 10000;
@@ -50,9 +53,7 @@ export const useWalletNode = () => {
 
   const [chronikWebsocket, setChronikWebsocket] = useState<WsEndpoint_InNode>(null);
   const [apiError, setApiError] = useState(false);
-  const [chronik, setChronik] = useState<ChronikClientNode>(
-    new ChronikClientNode(process.env.NEXT_PUBLIC_CHRONIK_URL.split(','))
-  );
+  const [chronik, setChronik] = useState<ChronikClientNode>(new ChronikClientNode(xecChronikUrls()));
   const { getXPI } = useXPI();
   const XPI = getXPI();
   const accounts = useSliceSelector(getAllAccounts);
@@ -80,7 +81,7 @@ export const useWalletNode = () => {
         break;
     }
 
-    setChronik(new ChronikClientNode(process.env.NEXT_PUBLIC_CHRONIK_URL.split(',')));
+    setChronik(new ChronikClientNode(xecChronikUrls()));
   }, [selectedAccount]);
 
   const getWalletPathDetails = async (mnemonic: string, paths: string[]): Promise<WalletPathAddressInfo[]> => {
@@ -417,7 +418,7 @@ export const useWalletNode = () => {
   };
 
   const getUtxosByCoin = async (coin: COIN) => {
-    const chronikByCoin: ChronikClientNode = new ChronikClientNode(process.env.NEXT_PUBLIC_CHRONIK_URL.split(','));
+    const chronikByCoin: ChronikClientNode = new ChronikClientNode(xecChronikUrls());
 
     let currentCoinAddress = undefined;
     switch (coin) {

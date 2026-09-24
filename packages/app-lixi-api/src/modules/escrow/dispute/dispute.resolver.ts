@@ -33,7 +33,7 @@ import { format } from 'node:util';
 import { BOT } from 'src/utils/bot.constants';
 import { NotificationGateway } from 'src/common/modules/notifications/notification.gateway';
 import { ConfigService } from '@nestjs/config';
-import { generateInlineKeyboard } from 'src/utils/escrow/escrow-order';
+import { escapeTelegramMarkdown, generateInlineKeyboard } from 'src/utils/escrow/escrow-order';
 
 @SkipThrottle()
 @Resolver(() => Dispute)
@@ -130,8 +130,8 @@ export class DisputeResolver {
       }
 
       const { sellerAccount, buyerAccount, arbitratorAccount, moderatorAccount } = escrowOrder;
-      const sellerTelegramUsername = sellerAccount.telegramUsername!.replace(/([|{}\[\]*_~#+>!=\-.])/g, '\\$1');
-      const buyerTelegramUsername = buyerAccount.telegramUsername!.replace(/([|{}\[\]*_~#+>!=\-.])/g, '\\$1');
+      const sellerTelegramUsername = escapeTelegramMarkdown(sellerAccount.telegramUsername);
+      const buyerTelegramUsername = escapeTelegramMarkdown(buyerAccount.telegramUsername);
 
       if (escrowOrder.dispute) {
         throw new Error('Escrow order already has a dispute');
@@ -268,7 +268,7 @@ export class DisputeResolver {
 
       return dispute;
     } catch (e: any) {
-      throw new Error(e);
+      throw new Error(e?.message ?? e);
     }
   }
 
