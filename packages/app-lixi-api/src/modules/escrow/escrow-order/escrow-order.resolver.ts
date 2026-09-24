@@ -54,7 +54,12 @@ import { DisputeCacheService } from '../dispute/dispute-cache.service';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { ConfigService } from '@nestjs/config';
 import { KEY_BANK_INFO } from 'src/utils/escrow/cache-key.constants';
-import { generateInlineKeyboard, toHexOrNull } from 'src/utils/escrow/escrow-order';
+import {
+  escapeTelegramMarkdown,
+  generateInlineKeyboard,
+  missingTelegramChatMessage,
+  toHexOrNull
+} from 'src/utils/escrow/escrow-order';
 
 @SkipThrottle()
 @Resolver(() => EscrowOrder)
@@ -232,12 +237,15 @@ export class EscrowOrderResolver {
       }
 
       const { sellerAccount, buyerAccount } = result;
-      const sellerTelegramUsername = sellerAccount.telegramUsername!.replace(/([|{}\[\]*_~#+>!=\-.])/g, '\\$1');
-      const buyerTelegramUsername = buyerAccount.telegramUsername!.replace(/([|{}\[\]*_~#+>!=\-.])/g, '\\$1');
+      const sellerTelegramUsername = escapeTelegramMarkdown(sellerAccount.telegramUsername);
+      const buyerTelegramUsername = escapeTelegramMarkdown(buyerAccount.telegramUsername);
 
       const link = `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${result.id}`;
 
-      if (account.id === result.sellerAccountId && buyerAccount.telegramId) {
+      if (account.id === result.sellerAccountId) {
+        if (!buyerAccount.telegramId) {
+          throw new Error(missingTelegramChatMessage('buyer'));
+        }
         const formatReplied = format(BOT.MESSAGE.SELLER_REQUEST_CHAT, sellerTelegramUsername);
         await this.bot.telegram
           .sendMessage(buyerAccount.telegramId, formatReplied, {
@@ -252,7 +260,10 @@ export class EscrowOrderResolver {
           });
       }
 
-      if (account.id === result.buyerAccountId && sellerAccount.telegramId) {
+      if (account.id === result.buyerAccountId) {
+        if (!sellerAccount.telegramId) {
+          throw new Error(missingTelegramChatMessage('seller'));
+        }
         const formatReplied = format(BOT.MESSAGE.BUYER_REQUEST_CHAT, buyerTelegramUsername);
         await this.bot.telegram
           .sendMessage(sellerAccount.telegramId, formatReplied, {
@@ -269,7 +280,7 @@ export class EscrowOrderResolver {
 
       return true;
     } catch (e: any) {
-      throw new Error(e);
+      throw new Error(e?.message ?? e);
     }
   }
 
@@ -314,8 +325,22 @@ export class EscrowOrderResolver {
       }
 
       const { moderatorAccount, arbitratorAccount, sellerAccount, buyerAccount } = result;
-      const arbTelegramUsername = arbitratorAccount.telegramUsername!.replace(/([|{}\[\]*_~#+>!=\-.])/g, '\\$1');
-      const modTelegramUsername = moderatorAccount.telegramUsername!.replace(/([|{}\[\]*_~#+>!=\-.])/g, '\\$1');
+      const arbTelegramUsername = escapeTelegramMarkdown(arbitratorAccount.telegramUsername);
+      const modTelegramUsername = escapeTelegramMarkdown(moderatorAccount.telegramUsername);
+
+      const chatTarget =
+        requestChatPublicKey === sellerAccount.publicKey
+          ? sellerAccount
+          : requestChatPublicKey === buyerAccount.publicKey
+            ? buyerAccount
+            : null;
+      if (
+        (account.id === result.arbitratorAccountId || account.id === result.moderatorAccountId) &&
+        chatTarget &&
+        !chatTarget.telegramId
+      ) {
+        throw new Error(missingTelegramChatMessage('person'));
+      }
 
       const link = `${this.config.get('LOCAL_ECASH_URL')}/order-detail?id=${escrowOrderId}`;
 
@@ -385,7 +410,7 @@ export class EscrowOrderResolver {
 
       return true;
     } catch (e: any) {
-      throw new Error(e);
+      throw new Error(e?.message ?? e);
     }
   }
 
@@ -712,7 +737,7 @@ export class EscrowOrderResolver {
         const formatReplied = format(
           replied,
           escrowOrder.amount.toLocaleString('en-US'),
-          orderAccount.telegramUsername!.replace(/([|{}\[\]*_~#+>!=\-.])/g, '\\$1'),
+          escapeTelegramMarkdown(orderAccount.telegramUsername),
           escrowOrder.offer.message,
           escrowOrder.amountCoinOrCurrency.toLocaleString('en-US'),
           getTickerText(
