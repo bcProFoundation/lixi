@@ -166,7 +166,11 @@ const WalletHistoryModal = ({ coin = COIN.XPI, classStyle }: WalletHistoryProps)
 
   const fetchNextDataWalletHistory = async (pageNumber = 0) => {
     const { chronikTxHistory } = await getTxHistoryChronik(
-      coin === selectedCoin ? chronik : new ChronikClient(`https://chronik.be.cash/${coin.toLowerCase()}`),
+      coin === selectedCoin
+        ? chronik
+        : coin === COIN.XPI
+        ? new ChronikClient(process.env.NEXT_PUBLIC_CHRONIK_XPI_URL.split(','))
+        : new ChronikClient(`https://chronik.be.cash/${coin.toLowerCase()}`),
       XPI,
       walletState,
       pageNumber,
